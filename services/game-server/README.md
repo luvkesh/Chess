@@ -8,6 +8,7 @@ Accounts, ratings, matchmaking, live games, leaderboards, reports and the staff 
 | `src/lobby.js` | Guests and sessions, seek queue with a widening rating window, friend codes, server-side move validation with the shared engine, clocks with increment, first-move abort, 60 s reconnect grace, results and rating updates. |
 | `src/glicko.js` | Glicko-2, separate bullet, blitz and rapid pools. |
 | `src/admin.js` | Staff login and role-based permissions (support, moderator, admin). |
+| `src/fairplay.js`, `src/fairplay-analyse.js`, `src/fairplay-worker.js` | Fair play signals: each finished rated game is analysed in a worker thread (engine agreement and average centipawn loss per side, skipping book, forced and decided moves). Players whose recent games look engine-like are put in the report queue for a moderator. Thresholds are starting points to tune on real games. |
 | `src/push.js` | Web Push with no dependencies: VAPID signing and RFC 8291 payload encryption, plus the daily reminder (at the player's chosen local hour, only if they have not played that day). |
 | `src/commerce.js` | Store products, orders and entitlements (Premium with stacking renewals, lifetime, season passes), refunds and the payment provider webhook. |
 | `src/audit.js` | Append-only audit log; each row hashes the previous one so edits are detectable. |
@@ -38,4 +39,4 @@ HTTP: `POST /api/register` (upgrades the current guest, keeping ratings), `POST 
 
 ## Not production-ready yet
 
-This is a single process with in-memory live games. Before launch it needs: TLS termination and a real domain, horizontal scaling (live games in Redis or sticky sessions), Postgres instead of SQLite, email verification and password reset, anti-cheat signals, backups, monitoring, and a privacy review. See `docs/planning`.
+This is a single process with in-memory live games. Before launch it needs: TLS termination and a real domain, horizontal scaling (live games in Redis or sticky sessions), Postgres instead of SQLite, email verification and password reset, anti-cheat calibration on real games, backups, monitoring, and a privacy review. See `docs/planning`.

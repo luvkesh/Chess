@@ -84,6 +84,18 @@ CREATE TABLE IF NOT EXISTS entitlements (
   note TEXT
 );
 CREATE INDEX IF NOT EXISTS entitlements_user ON entitlements(user_id);
+CREATE TABLE IF NOT EXISTS fairplay (
+  game_id TEXT NOT NULL,
+  user_id INTEGER NOT NULL,
+  color TEXT NOT NULL,
+  moves INTEGER NOT NULL,            -- analysed moves (book, forced and decided positions skipped)
+  match REAL NOT NULL,               -- share of moves equal to the engine's first choice
+  acpl REAL NOT NULL,                -- average centipawn loss
+  flagged INTEGER NOT NULL,
+  created INTEGER NOT NULL,
+  PRIMARY KEY (game_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS fairplay_user ON fairplay(user_id, created);
 CREATE TABLE IF NOT EXISTS push_subs (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id),

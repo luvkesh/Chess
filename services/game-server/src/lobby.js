@@ -15,7 +15,7 @@ function poolFor(tc) {
 }
 
 class Lobby {
-  // opts: { db, E (engine instance), now?, firstMoveMs?, reconnectMs?, minGamesForBoard?, log?, entitlements? }
+  // opts: { db, E (engine instance), now?, firstMoveMs?, reconnectMs?, minGamesForBoard?, log?, entitlements?, onGameEnd? }
   constructor(opts) {
     this.db = opts.db;
     this.E = opts.E;
@@ -25,6 +25,7 @@ class Lobby {
     this.minGames = opts.minGamesForBoard == null ? 5 : opts.minGamesForBoard;
     this.log = opts.log || (() => {});
     this.entitlements = opts.entitlements || (() => null);
+    this.onGameEnd = opts.onGameEnd || (() => {});
     this.players = new Map();   // userId -> { user, sockets: Set, gameId, seek }
     this.games = new Map();     // gameId -> room
     this.seeks = [];            // { userId, tc, since }
@@ -340,6 +341,7 @@ class Lobby {
       const p = this.players.get(uid);
       if (p && p.gameId === room.id) { p.gameId = null; if (!p.sockets.size) this.players.delete(uid); }
     }
+    this.onGameEnd({ id: room.id, rated, white: room.white, black: room.black, moves: room.g.uciMoves() });
   }
 
   clearTimers(room) {

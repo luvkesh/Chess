@@ -10,6 +10,7 @@ const ws = require('./ws');
 const admin = require('./admin');
 const commerce = require('./commerce');
 const push = require('./push');
+const fairplay = require('./fairplay');
 const { Lobby } = require('./lobby');
 
 const ROOT = path.resolve(__dirname, '../../..');
@@ -41,8 +42,9 @@ function createServer(opts) {
   const notify = push.create(db, Object.assign({ log: opts.log }, opts.push));
   const pushTimer = setInterval(() => notify.tick(), 60000);
   pushTimer.unref();
-  const lobby = new Lobby(Object.assign({ db, E, entitlements: (id) => shop.entitlements(id) }, opts.lobby || {}));
-  const adminApi = admin.routes(db, lobby, shop);
+  const fair = fairplay.create(db, Object.assign({ log: opts.log }, opts.fairplay));
+  const lobby = new Lobby(Object.assign({ db, E, entitlements: (id) => shop.entitlements(id), onGameEnd: (g) => fair.enqueue(g) }, opts.lobby || {}));
+  const adminApi = admin.routes(db, lobby, shop, fair);
   const accountLimit = auth.limiter(20, 60000);
 
   if (opts.adminEmail && opts.adminPassword && !db.get('SELECT id FROM staff LIMIT 1')) {
@@ -155,9 +157,9 @@ function createServer(opts) {
 
   const sockets = ws.attach(server, '/ws', (s) => lobby.connect(s));
   return {
-    server, db, lobby, push: notify,
+    server, db, lobby, push: notify, fairplay: fair,
     listen(port, host) { return new Promise((r) => server.listen(port, host, () => r(server.address().port))); },
-    close() { clearInterval(pushTimer); lobby.stop(); sockets.stop(); return new Promise((r) => server.close(() => { db.close(); r(); })); },
+    close() { clearInterval(pushTimer); fair.stop(); lobby.stop(); sockets.stop(); return new Promise((r) => server.close(() => { db.close(); r(); })); },
   };
 }
 
