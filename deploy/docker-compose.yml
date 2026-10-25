@@ -1,0 +1,44 @@
+# Production-shaped single host: Caddy terminates TLS (certificates are automatic) and proxies
+# HTTP and WebSockets to the game server; a sidecar takes a daily database backup.
+#   cp .env.example .env   # fill it in
+#   docker compose up -d --build
+services:
+  app:
+    build: { context: .., args: { VERSION: "${CHACKLATE_VERSION:-dev}" } }
+    image: chacklate:${CHACKLATE_VERSION:-dev}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      CHACKLATE_TRUST_PROXY: "1"
+    volumes:
+      - data:/data
+    expose: ["8080"]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      CHACKLATE_DOMAIN: ${CHACKLATE_DOMAIN:?set CHACKLATE_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  backup:
+    image: chacklate:${CHACKLATE_VERSION:-dev}
+    restart: unless-stopped
+    user: root          # the bind-mounted ./backups folder belongs to the host's user
+    depends_on: [app]
+    env_file: .env
+    volumes:
+      - data:/data
+      - ./backups:/backups
+    # Once a day; keeps the newest 14. Copy ./backups off the machine too (object storage, another host).
+    entrypoint: ["sh", "-c", "while true; do node src/cli.js backup /backups 14; sleep 86400; done"]
+
+volumes:
+  data:
+  caddy_data:
+  caddy_config:

@@ -14,6 +14,7 @@ packages/
   content/           Lessons, puzzles and the cosmetics catalogue (JSON)
 services/
   game-server/       Accounts, Glicko-2 ratings, matchmaking, live games, leaderboards, admin API
+deploy/              Docker Compose with HTTPS (Caddy), daily backups, configuration
 docs/
   planning/          Product and technical plan
 .github/workflows/   CI
@@ -33,6 +34,8 @@ cd services/game-server
 CHACKLATE_ADMIN_EMAIL=you@example.com CHACKLATE_ADMIN_PASSWORD='a long password' node src/server.js
 # http://localhost:8080 site, /play game with online play, /admin console
 ```
+
+Deploy with Docker: see `deploy/README.md` (`docker compose up -d --build` with a domain pointed at the host).
 
 Tests: `node packages/chess-core/test/engine.test.js`, `node packages/chess-core/test/coach.test.js`, `node packages/content/test/content.test.js`, `node apps/web-prototype/test/progress.test.js`, `cd services/game-server && npm test`.
 
