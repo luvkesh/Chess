@@ -11,6 +11,8 @@ const admin = require('./admin');
 const commerce = require('./commerce');
 const push = require('./push');
 const fairplay = require('./fairplay');
+const account = require('./account');
+const mailer = require('./mailer');
 const { Lobby } = require('./lobby');
 
 const ROOT = path.resolve(__dirname, '../../..');
@@ -45,6 +47,8 @@ function createServer(opts) {
   const fair = fairplay.create(db, Object.assign({ log: opts.log }, opts.fairplay));
   const lobby = new Lobby(Object.assign({ db, E, entitlements: (id) => shop.entitlements(id), onGameEnd: (g) => fair.enqueue(g) }, opts.lobby || {}));
   const adminApi = admin.routes(db, lobby, shop, fair);
+  const mail = opts.mailer || mailer.create(Object.assign({ log: opts.log }, opts.mail));
+  const accountApi = account.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
   const accountLimit = auth.limiter(20, 60000);
 
   if (opts.adminEmail && opts.adminPassword && !db.get('SELECT id FROM staff LIMIT 1')) {
@@ -52,7 +56,7 @@ function createServer(opts) {
   }
 
   const bearer = (req) => { const h = req.headers.authorization || ''; return h.startsWith('Bearer ') ? h.slice(7) : ''; };
-  const profile = (u, token) => ({ token, user: lobby.publicUser(u), ratings: lobby.ratings(u.id), entitlements: shop.entitlements(u.id) });
+  const profile = (u, token) => ({ token, user: lobby.publicUser(u), ratings: lobby.ratings(u.id), entitlements: shop.entitlements(u.id), account: { email: u.email || null, emailVerified: !!u.email_verified } });
 
   async function api(req, url, body, ip) {
     const p = url.pathname;
@@ -90,6 +94,10 @@ function createServer(opts) {
     if (p === '/api/me') {
       const u = lobby.userForToken(bearer(req));
       return u ? [200, profile(u)] : [401, { error: 'Not signed in.' }];
+    }
+    if (p.startsWith('/api/account/')) {
+      const out = await accountApi(req, p, body, ip, lobby.userForToken(bearer(req)));
+      if (out) return out;
     }
     if (p === '/api/push/key') return [200, { publicKey: notify.publicKey }];
     if ((p === '/api/push/subscribe' || p === '/api/push/unsubscribe') && req.method === 'POST') {
@@ -145,6 +153,10 @@ function createServer(opts) {
       }
       return;
     }
+    if (url.pathname === '/account/verify') {
+      res.writeHead(302, Object.assign({ Location: account.verifyPage(db, url.searchParams.get('token')), 'Cache-Control': 'no-store' }, SECURITY_HEADERS));
+      return res.end();
+    }
     const file = STATIC[url.pathname.replace(/\/+$/, '') || '/'];
     if (file && fs.existsSync(file)) {
       const ext = path.extname(file);
@@ -157,7 +169,7 @@ function createServer(opts) {
 
   const sockets = ws.attach(server, '/ws', (s) => lobby.connect(s));
   return {
-    server, db, lobby, push: notify, fairplay: fair,
+    server, db, lobby, push: notify, fairplay: fair, mail,
     listen(port, host) { return new Promise((r) => server.listen(port, host, () => r(server.address().port))); },
     close() { clearInterval(pushTimer); fair.stop(); lobby.stop(); sockets.stop(); return new Promise((r) => server.close(() => { db.close(); r(); })); },
   };
@@ -170,6 +182,8 @@ if (require.main === module) {
     dbFile: process.env.CHACKLATE_DB || path.join(__dirname, '..', 'chacklate.db'),
     adminEmail: process.env.CHACKLATE_ADMIN_EMAIL,
     adminPassword: process.env.CHACKLATE_ADMIN_PASSWORD,
+    publicUrl: process.env.CHACKLATE_PUBLIC_URL,
+    mail: { mode: process.env.CHACKLATE_MAIL || 'log', url: process.env.CHACKLATE_MAIL_URL || 'https://api.resend.com/emails', key: process.env.CHACKLATE_MAIL_KEY, from: process.env.CHACKLATE_MAIL_FROM },
     push: { subject: process.env.CHACKLATE_PUSH_SUBJECT, vapid: { publicKey: process.env.CHACKLATE_VAPID_PUBLIC, privateKey: process.env.CHACKLATE_VAPID_PRIVATE } },
     payments: { mode: process.env.CHACKLATE_PAYMENTS || 'off', secret: process.env.CHACKLATE_PAYMENT_SECRET, checkoutUrl: process.env.CHACKLATE_CHECKOUT_URL },
     log: console.log,

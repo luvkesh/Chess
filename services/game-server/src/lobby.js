@@ -99,7 +99,7 @@ class Lobby {
     if (!p) { p = { user, sockets: new Set(), gameId: null }; this.players.set(user.id, p); }
     p.user = user;
     p.sockets.add(socket);
-    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), timeControls: TIME_CONTROLS });
+    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), account: { email: user.email || null, emailVerified: !!user.email_verified }, timeControls: TIME_CONTROLS });
     // Back into a live game after a reconnect.
     const room = p.gameId && this.games.get(p.gameId);
     if (room) {
@@ -365,12 +365,12 @@ class Lobby {
   }
 
   // Ends live games and closes sockets for a banned user.
-  kick(userId, reason) {
+  kick(userId, reason, type) {
     const p = this.players.get(userId);
     if (!p) return;
     const room = p.gameId && this.games.get(p.gameId);
     if (room) this.finish(room, room.white === userId ? '0-1' : '1-0', room.g.moves.length < 2 ? 'aborted' : 'abandoned');
-    for (const s of p.sockets) { s.send({ type: 'banned', reason }); s.close(4003); }
+    for (const s of p.sockets) { s.send({ type: type || 'banned', reason }); s.close(4003); }
     this.players.delete(userId);
   }
 }
