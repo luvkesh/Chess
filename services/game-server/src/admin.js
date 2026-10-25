@@ -81,7 +81,7 @@ function routes(db, lobby, shop, fair) {
       }
       if ((m = path.match(/^\/api\/admin\/users\/(\d+)$/))) {
         need('users.read');
-        const u = db.get('SELECT id, name, guest, created, seen, banned, muted FROM users WHERE id = ?', Number(m[1]));
+        const u = db.get('SELECT id, name, guest, created, seen, banned, muted, email, email_verified, deleted FROM users WHERE id = ?', Number(m[1]));
         if (!u) return [404, { error: 'No such user.' }];
         u.ratings = lobby.ratings(u.id);
         u.games = db.all('SELECT * FROM games WHERE white = ? OR black = ? ORDER BY started DESC LIMIT 30', u.id, u.id);

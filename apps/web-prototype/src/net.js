@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const A = () => window.ChacklateApp;
-  let sock = null, ready = false, retry = 0, retryTimer = null, me = null, ratings = null, seekingModal = null, friendModal = null, progressTimer = null;
+  let sock = null, ready = false, retry = 0, retryTimer = null, me = null, acct = null, ratings = null, seekingModal = null, friendModal = null, progressTimer = null;
 
   function base() {
     const s = A() && A().state.settings.server;
@@ -40,7 +40,7 @@
     if (!app) return;
     switch (m.type) {
       case 'welcome': {
-        ready = true; me = m.user; ratings = m.ratings;
+        ready = true; me = m.user; ratings = m.ratings; acct = m.account || null;
         setAccount({ token: m.token, name: me.name, guest: me.guest, id: me.id });
         // Adopt the server copy of progress when it is further along (a second device, a cleared browser).
         if (m.progress && m.progress.xp > app.state.progress.xp) { app.state.progress = app.PG.migrate(m.progress); app.save(); if (app.state.screen !== 'game') app.go(app.state.screen); }
@@ -72,6 +72,10 @@
       case 'banned':
         setAccount({ token: '' });
         app.toast('This account is suspended: ' + m.reason, 'bad');
+        return;
+      case 'deleted':
+        setAccount({ token: '', guest: true, ent: null }); app.setEntitlements(null); app.save();
+        app.toast('Your account was deleted.');
         return;
       case 'error': return app.toast(m.message, 'bad');
     }
@@ -134,7 +138,8 @@
         '<form id="ac-form" class="acct-form"><p style="color:var(--muted);margin:0 0 8px">Pick a name to keep your rating, appear on leaderboards and play on any device.</p>' +
         '<div class="field"><label for="ac-name">Name</label><input class="text-in" id="ac-name" autocomplete="username" maxlength="20" required></div>' +
         '<div class="field"><label for="ac-pw">Password</label><input class="text-in" id="ac-pw" type="password" autocomplete="new-password" minlength="8" required></div>' +
-        '<p class="err" id="ac-err"></p><div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button></div></form>' : '') +
+        '<p class="err" id="ac-err"></p><div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button><button class="btn ghost small" id="ac-forgot" type="button">Forgot password?</button></div></form>'
+        : accountTools()) +
       '<h3 class="section-title">Leaderboard</h3><div class="seg" id="lb-pool">' + ['bullet', 'blitz', 'rapid'].map((p) => '<label><input type="radio" name="lbp" value="' + p + '"' + (p === board ? ' checked' : '') + '><span>' + p + '</span></label>').join('') + '</div>' +
       '<ol class="leaderboard" id="lb"><li style="color:var(--muted)">Loading…</li></ol>';
     const out = el.querySelector('#ac-out');
@@ -155,8 +160,89 @@
       form.onsubmit = (e) => { e.preventDefault(); submit('/api/register'); };
       el.querySelector('#ac-login').onclick = () => submit('/api/login');
     }
+    wireAccountTools(el);
     el.querySelector('#lb-pool').onchange = (e) => { board = e.target.value; loadBoard(el); };
     loadBoard(el);
+  }
+
+  // ---------------------------------------------------------------- account self-service
+  function accountTools() {
+    const esc = A().esc, a = acct || {};
+    return '<div class="acct-tools">' +
+      '<div class="field"><label for="ac-email">Email ' + (a.email ? (a.emailVerified ? '<span class="pill gold">confirmed</span>' : '<span class="pill">check your inbox</span>') : '<span class="pill">lets you reset your password</span>') + '</label>' +
+      '<div style="display:flex;gap:8px"><input class="text-in" id="ac-email" type="email" autocomplete="email" value="' + esc(a.email || '') + '" placeholder="you@example.com"><button class="btn" id="ac-email-go" type="button">' + (a.email && !a.emailVerified ? 'Resend' : 'Save') + '</button></div></div>' +
+      '<div class="row" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn small" id="ac-pw" type="button">Change password</button><button class="btn small" id="ac-export" type="button">Download my data</button><button class="btn small warn" id="ac-del" type="button">Delete account</button></div></div>';
+  }
+  function wireAccountTools(el) {
+    const app = A(), q = (s) => el.querySelector(s);
+    const forgot = q('#ac-forgot');
+    if (forgot) forgot.onclick = () => forgotModal(q('#ac-name') ? q('#ac-name').value.trim() : '');
+    if (!q('#ac-email-go')) return;
+    q('#ac-email-go').onclick = async () => {
+      try { const r = await api('/api/account/email', { email: q('#ac-email').value.trim() }); acct = { email: r.email, emailVerified: false }; app.toast('We sent a confirmation link to ' + app.esc(r.email) + '.'); renderAccount(el); }
+      catch (e) { app.toast(app.esc(e.message), 'bad'); }
+    };
+    q('#ac-pw').onclick = () => {
+      const m = app.modal('<h2>Change password</h2><form id="cp"><div class="field"><label for="cp-old">Current password</label><input class="text-in" id="cp-old" type="password" autocomplete="current-password" required></div>' +
+        '<div class="field"><label for="cp-new">New password</label><input class="text-in" id="cp-new" type="password" autocomplete="new-password" minlength="8" required></div><p class="err" id="cp-err"></p>' +
+        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Change</button></div></form><p class="sub">Other devices are signed out.</p>');
+      m.querySelector('#cp').onsubmit = async (e) => {
+        e.preventDefault();
+        try { await api('/api/account/password', { current: m.querySelector('#cp-old').value, password: m.querySelector('#cp-new').value }); m.close(); app.toast('Password changed.'); }
+        catch (err) { m.querySelector('#cp-err').textContent = err.message; }
+      };
+    };
+    q('#ac-export').onclick = async () => {
+      try {
+        const data = await api('/api/account/export');
+        const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+        const a = document.createElement('a'); a.href = url; a.download = 'chacklate-' + (me ? me.name : 'account') + '.json'; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      } catch (e) { app.toast(app.esc(e.message), 'bad'); }
+    };
+    q('#ac-del').onclick = () => {
+      const m = app.modal('<h2>Delete your account?</h2><p class="sub">Your name, email, password, progress, ratings and devices are removed. Games stay in your opponents\' histories as "Deleted player". Purchases end and cannot be restored. This cannot be undone.</p>' +
+        '<form id="da"><div class="field"><label for="da-pw">Password</label><input class="text-in" id="da-pw" type="password" autocomplete="current-password" required></div><p class="err" id="da-err"></p>' +
+        '<div class="row"><button class="btn" type="button" data-close>Keep my account</button><button class="btn warn">Delete forever</button></div></form>');
+      m.querySelector('#da').onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+          await api('/api/account/delete', { password: m.querySelector('#da-pw').value });
+          m.close();
+          app.state.progress = app.PG.fresh(); app.PG.setSeason(app.state.progress);
+          setAccount({ token: '', guest: true, ent: null }); app.setEntitlements(null); app.save();
+          app.toast('Your account was deleted.'); connect(); app.go('home');
+        } catch (err) { m.querySelector('#da-err').textContent = err.message; }
+      };
+    };
+  }
+  function forgotModal(prefill) {
+    const app = A();
+    const m = app.modal('<h2>Reset your password</h2><p class="sub">Enter your name or email. If the account has a confirmed email, we send a link that works for an hour.</p>' +
+      '<form id="fp"><div class="field"><label for="fp-who">Name or email</label><input class="text-in" id="fp-who" value="' + app.esc(prefill || '') + '" required></div>' +
+      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Send link</button></div></form>');
+    m.querySelector('#fp').onsubmit = async (e) => {
+      e.preventDefault();
+      try { const r = await api('/api/account/forgot', { who: m.querySelector('#fp-who').value.trim() }); m.close(); app.toast(app.esc(r.message)); }
+      catch (err) { app.toast(app.esc(err.message), 'bad'); }
+    };
+  }
+  // The emailed reset link opens /play#reset=<token>.
+  function resetModal(token) {
+    const app = A();
+    const m = app.modal('<h2>Choose a new password</h2><form id="rp"><div class="field"><label for="rp-new">New password</label><input class="text-in" id="rp-new" type="password" autocomplete="new-password" minlength="8" required></div><p class="err" id="rp-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Save and sign in</button></div></form>');
+    m.querySelector('#rp').onsubmit = async (e) => {
+      e.preventDefault();
+      const pw = m.querySelector('#rp-new').value;
+      try {
+        const r = await api('/api/account/reset', { token, password: pw });
+        const res = await api('/api/login', { name: r.name, password: pw });
+        setAccount({ token: res.token, name: res.user.name, guest: false });
+        app.state.settings.name = res.user.name; app.save();
+        m.close(); app.toast('Password changed. Welcome back, ' + app.esc(res.user.name) + '.'); connect();
+      } catch (err) { m.querySelector('#rp-err').textContent = err.message; }
+    };
   }
 
   async function loadBoard(el) {
@@ -178,6 +264,7 @@
   window.ChacklateNet = {
     available: () => ready,
     api,
+    resetModal,
     connect,
     send,
     syncProgress,

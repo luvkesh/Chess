@@ -96,6 +96,12 @@ CREATE TABLE IF NOT EXISTS fairplay (
   PRIMARY KEY (game_id, user_id)
 );
 CREATE INDEX IF NOT EXISTS fairplay_user ON fairplay(user_id, created);
+CREATE TABLE IF NOT EXISTS account_tokens (
+  hash TEXT PRIMARY KEY,             -- sha256 of the emailed token
+  user_id INTEGER NOT NULL,
+  kind TEXT NOT NULL,                -- verify | reset
+  expires INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS push_subs (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id),
@@ -126,6 +132,12 @@ function open(file) {
   const db = new DatabaseSync(file || ':memory:');
   db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 3000;');
   db.exec(SCHEMA);
+  // Columns added after the first release; ALTER keeps existing databases working.
+  const have = new Set(db.prepare('PRAGMA table_info(users)').all().map((c) => c.name));
+  for (const [col, def] of [['email', 'TEXT'], ['email_key', 'TEXT'], ['email_verified', 'INTEGER NOT NULL DEFAULT 0'], ['deleted', 'INTEGER']]) {
+    if (!have.has(col)) db.exec('ALTER TABLE users ADD COLUMN ' + col + ' ' + def);
+  }
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_email ON users(email_key)');
   const cache = new Map();
   // Prepared statements are cached by SQL text.
   const q = (sql) => { let s = cache.get(sql); if (!s) { s = db.prepare(sql); cache.set(sql, s); } return s; };

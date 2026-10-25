@@ -481,3 +481,68 @@ test('fair play: engine agreement is measured per side and repeated engine-like 
     assert.strictEqual(detail.body.fairplay.games.length, 3);
   } finally { await app.close(); }
 });
+
+test('accounts: email verification, password reset and change, export and deletion', async () => {
+  const sent = [];
+  const app = createServer({ log: () => {}, publicUrl: 'https://chess.example.com', mailer: { send: async (m) => { sent.push(m); return true; } } });
+  const port = await app.listen(0, '127.0.0.1');
+  const link = (re) => { const m = sent[sent.length - 1].text.match(re); assert.ok(m, sent[sent.length - 1].text); return m[1]; };
+  try {
+    const reg = await call(port, 'POST', '/api/register', { name: 'mailer1', password: 'first password' });
+    const T = reg.body.token;
+    assert.deepStrictEqual(reg.body.account, { email: null, emailVerified: false });
+    // Guests cannot use account routes.
+    const guest = await client(port); const gw = await guest.next('welcome'); guest.close();
+    assert.strictEqual((await call(port, 'POST', '/api/account/email', { email: 'g@example.com' }, gw.token)).status, 403);
+    assert.strictEqual((await call(port, 'POST', '/api/account/email', { email: 'nope' }, T)).status, 400);
+    assert.strictEqual((await call(port, 'POST', '/api/account/email', { email: 'Player@Example.com' }, T)).status, 200);
+    const vt = link(/https:\/\/chess\.example\.com\/account\/verify\?token=(\S+)/);
+    // An unverified email cannot be used for a reset.
+    await call(port, 'POST', '/api/account/forgot', { who: 'player@example.com' });
+    assert.strictEqual(sent.length, 1);
+    const v = await fetch('http://127.0.0.1:' + port + '/account/verify?token=' + vt, { redirect: 'manual' });
+    assert.strictEqual(v.headers.get('location'), '/play#email-verified');
+    const v2 = await fetch('http://127.0.0.1:' + port + '/account/verify?token=' + vt, { redirect: 'manual' });
+    assert.strictEqual(v2.headers.get('location'), '/play#email-invalid', 'links work once');
+    assert.strictEqual((await call(port, 'GET', '/api/me', null, T)).body.account.emailVerified, true);
+    // Another account cannot take the same address.
+    const other = await call(port, 'POST', '/api/register', { name: 'mailer2', password: 'other password' });
+    assert.strictEqual((await call(port, 'POST', '/api/account/email', { email: 'player@example.com' }, other.body.token)).status, 409);
+
+    // Forgot password: same answer for unknown accounts, a one-hour link for real ones.
+    const unknown = await call(port, 'POST', '/api/account/forgot', { who: 'nobody' });
+    assert.strictEqual(unknown.status, 200);
+    assert.strictEqual(sent.length, 1);
+    await call(port, 'POST', '/api/account/forgot', { who: 'MAILER1' });
+    const rt = link(/https:\/\/chess\.example\.com\/play#reset=(\S+)/);
+    assert.strictEqual((await call(port, 'POST', '/api/account/reset', { token: rt, password: 'short' })).status, 400);
+    const reset = await call(port, 'POST', '/api/account/reset', { token: rt, password: 'second password' });
+    assert.strictEqual(reset.status, 200);
+    assert.strictEqual((await call(port, 'POST', '/api/account/reset', { token: rt, password: 'third password' })).status, 400, 'used tokens fail');
+    assert.strictEqual((await call(port, 'GET', '/api/me', null, T)).status, 401, 'reset signs out everywhere');
+    const login = await call(port, 'POST', '/api/login', { name: 'mailer1', password: 'second password' });
+    assert.strictEqual(login.status, 200);
+    const T2 = login.body.token;
+
+    // Change password: needs the current one; other sessions end, this one stays.
+    const elsewhere = (await call(port, 'POST', '/api/login', { name: 'mailer1', password: 'second password' })).body.token;
+    assert.strictEqual((await call(port, 'POST', '/api/account/password', { current: 'wrong', password: 'third password' }, T2)).status, 401);
+    assert.strictEqual((await call(port, 'POST', '/api/account/password', { current: 'second password', password: 'third password' }, T2)).status, 200);
+    assert.strictEqual((await call(port, 'GET', '/api/me', null, T2)).status, 200);
+    assert.strictEqual((await call(port, 'GET', '/api/me', null, elsewhere)).status, 401);
+
+    // Export has what we hold; deletion removes what identifies the person.
+    const ex = await call(port, 'GET', '/api/account/export', null, T2);
+    assert.strictEqual(ex.body.account.email, 'Player@Example.com');
+    for (const k of ['ratings', 'games', 'orders', 'entitlements', 'notifications', 'reportsFiled']) assert.ok(k in ex.body, k);
+    assert.strictEqual((await call(port, 'POST', '/api/account/delete', { password: 'wrong' }, T2)).status, 401);
+    assert.strictEqual((await call(port, 'POST', '/api/account/delete', { password: 'third password' }, T2)).status, 200);
+    const row = app.db.get('SELECT * FROM users WHERE id = ?', reg.body.user.id);
+    assert.strictEqual(row.name, 'Deleted player ' + row.id);
+    assert.strictEqual(row.email, null); assert.strictEqual(row.pass, null); assert.strictEqual(row.name_key, null);
+    assert.strictEqual((await call(port, 'POST', '/api/login', { name: 'mailer1', password: 'third password' })).status, 401);
+    assert.strictEqual((await call(port, 'GET', '/api/me', null, T2)).status, 401);
+    // The name is free again.
+    assert.strictEqual((await call(port, 'POST', '/api/register', { name: 'mailer1', password: 'new owner pw' })).status, 200);
+  } finally { await app.close(); }
+});

@@ -2048,6 +2048,9 @@
   go('home');
   // App shortcuts from the installed icon's menu.
   if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
+  else if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
+  else if (location.hash === '#email-verified') toast('Email confirmed. Thank you.');
+  else if (location.hash === '#email-invalid') toast('That confirmation link has expired or was already used.', 'bad');
   else if (location.hash === '#daily' && dailyPuzzle()) go('puzzle', { list: [dailyPuzzle()], daily: true, title: 'Daily puzzle' });
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   setTimeout(() => $('splash').classList.add('gone'), window.__SHOT ? 0 : 900);
