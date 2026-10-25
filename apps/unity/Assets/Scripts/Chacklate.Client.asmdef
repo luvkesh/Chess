@@ -1,0 +1,8 @@
+{
+  "name": "Chacklate.Client",
+  "rootNamespace": "Chacklate.Client",
+  "references": ["Chacklate.Core"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "autoReferenced": true
+}

@@ -78,3 +78,29 @@ jobs:
       - name: Server log
         if: always()
         run: docker logs app || true
+
+  unity-core:
+    name: Unity core (C# rules port + online client)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Reference games from the JS rules
+        run: node apps/unity/Tests/fixtures.js > apps/unity/Tests/Chacklate.Core.Tests/fixtures.json
+      - name: Start the game server
+        run: |
+          (cd services/game-server && CHACKLATE_DB=/tmp/ci.db node src/server.js > /tmp/server.log 2>&1 &)
+          for i in $(seq 1 30); do curl -sf localhost:8080/api/health && break; sleep 1; done
+      - name: C# tests, including a live game against the server
+        working-directory: apps/unity/Tests/Chacklate.Core.Tests
+        env:
+          CHACKLATE_SERVER: ws://127.0.0.1:8080/ws
+        run: dotnet run -c Release
+      - name: Server log
+        if: always()
+        run: cat /tmp/server.log || true
