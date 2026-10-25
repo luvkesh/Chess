@@ -280,3 +280,99 @@ test('players can report an opponent from a finished game', async () => {
     g.a.close(); g.b.close(); outsider.close();
   } finally { await app.close(); }
 });
+
+async function shop(payments) {
+  const app = createServer({ adminEmail: 'owner@example.com', adminPassword: 'correct horse battery', log: () => {}, payments });
+  const port = await app.listen(0, '127.0.0.1');
+  const reg = await call(port, 'POST', '/api/register', { name: 'buyer', password: 'a long password' });
+  const admin = (await call(port, 'POST', '/api/admin/login', { email: 'owner@example.com', password: 'correct horse battery' })).body.token;
+  return { app, port, token: reg.body.token, uid: reg.body.user.id, admin };
+}
+
+test('store: closed by default, guests cannot buy, dev purchases grant and stack', async () => {
+  let s = await shop();
+  try {
+    const list = await call(s.port, 'GET', '/api/store');
+    assert.strictEqual(list.body.mode, 'off');
+    assert.ok(list.body.products.every((p) => !p.onSale));
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.monthly' }, s.token)).status, 503);
+  } finally { await s.app.close(); }
+
+  s = await shop({ mode: 'dev' });
+  try {
+    const guest = await client(s.port);
+    const gw = await guest.next('welcome');
+    assert.strictEqual(gw.entitlements.premium, false);
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.monthly' }, gw.token)).status, 403);
+    guest.close();
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/checkout', { product: 'nope' }, s.token)).status, 404);
+
+    const buy = async (product) => {
+      const o = await call(s.port, 'POST', '/api/store/checkout', { product }, s.token);
+      assert.strictEqual(o.status, 200, JSON.stringify(o.body));
+      assert.strictEqual(o.body.action.type, 'dev-confirm');
+      return call(s.port, 'POST', '/api/store/dev/complete', { order: o.body.order }, s.token);
+    };
+    const pass = await buy('pass.s1');
+    assert.deepStrictEqual(pass.body.entitlements, { premium: false, premiumUntil: null, passes: ['s1'] });
+    const m1 = await buy('premium.monthly');
+    const until1 = m1.body.entitlements.premiumUntil;
+    assert.ok(until1 > Date.now() + 30 * 86400e3);
+    const m2 = await buy('premium.monthly');
+    assert.ok(m2.body.entitlements.premiumUntil - until1 > 30 * 86400e3, 'a renewal stacks after the current period');
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/checkout', { product: 'pass.s1' }, s.token)).status, 409, 'premium includes the pass');
+    const me = await call(s.port, 'GET', '/api/me', null, s.token);
+    assert.strictEqual(me.body.entitlements.premium, true);
+
+    // Someone else's order cannot be completed with your token.
+    const other = await call(s.port, 'POST', '/api/register', { name: 'other', password: 'a long password' });
+    const o = await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.lifetime' }, s.token);
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/dev/complete', { order: o.body.order }, other.body.token)).status, 404);
+    // Completing twice grants once.
+    await call(s.port, 'POST', '/api/store/dev/complete', { order: o.body.order }, s.token);
+    await call(s.port, 'POST', '/api/store/dev/complete', { order: o.body.order }, s.token);
+    assert.strictEqual(s.app.db.get('SELECT COUNT(*) n FROM entitlements WHERE order_id = ?', o.body.order).n, 1);
+    assert.strictEqual((await call(s.port, 'GET', '/api/me', null, s.token)).body.entitlements.premiumUntil, 'lifetime');
+
+    // Admin: orders, refund revokes, staff grants need a note and are audited.
+    const orders = await call(s.port, 'GET', '/api/admin/orders', null, s.admin);
+    assert.strictEqual(orders.body.filter((x) => x.status === 'paid').length, 4);
+    assert.strictEqual((await call(s.port, 'POST', '/api/admin/orders/' + o.body.order + '/refund', {}, s.admin)).status, 400);
+    assert.strictEqual((await call(s.port, 'POST', '/api/admin/orders/' + o.body.order + '/refund', { note: 'asked within 7 days' }, s.admin)).status, 200);
+    assert.notStrictEqual((await call(s.port, 'GET', '/api/me', null, s.token)).body.entitlements.premiumUntil, 'lifetime');
+    const oid = other.body.user.id;
+    assert.strictEqual((await call(s.port, 'POST', '/api/admin/users/' + oid + '/entitlements', { key: 'premium', days: 30 }, s.admin)).status, 400);
+    const g = await call(s.port, 'POST', '/api/admin/users/' + oid + '/entitlements', { key: 'premium', days: 30, note: 'streamer partnership' }, s.admin);
+    assert.strictEqual(g.status, 200);
+    assert.strictEqual((await call(s.port, 'GET', '/api/me', null, other.body.token)).body.entitlements.premium, true);
+    const detail = await call(s.port, 'GET', '/api/admin/users/' + oid, null, s.admin);
+    assert.strictEqual(detail.body.owns.premium, true);
+    await call(s.port, 'POST', '/api/admin/entitlements/' + g.body.id + '/revoke', { note: 'partnership ended' }, s.admin);
+    assert.strictEqual((await call(s.port, 'GET', '/api/me', null, other.body.token)).body.entitlements.premium, false);
+    const log = await call(s.port, 'GET', '/api/admin/audit', null, s.admin);
+    assert.strictEqual(log.body.verify.ok, true);
+    for (const a of ['order.paid', 'order.refunded', 'entitlement.grant', 'entitlement.revoke']) assert.ok(log.body.rows.some((r) => r.action === a), a);
+  } finally { await s.app.close(); }
+});
+
+test('store: external provider webhooks must be signed', async () => {
+  const crypto = require('node:crypto');
+  const s = await shop({ mode: 'external', secret: 'whsec_test', checkoutUrl: 'https://pay.example.com/c?o={order}' });
+  try {
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.monthly' }, s.token)).status, 409, 'no price yet');
+    const o = await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.lifetime' }, s.token);
+    assert.strictEqual(o.body.action.url, 'https://pay.example.com/c?o=' + o.body.order);
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/dev/complete', { order: o.body.order }, s.token)).status, 404);
+    const send = (body, secret) => {
+      const raw = JSON.stringify(body);
+      return fetch('http://127.0.0.1:' + s.port + '/api/store/webhook', { method: 'POST', body: raw,
+        headers: { 'Content-Type': 'application/json', 'X-Chacklate-Signature': crypto.createHmac('sha256', secret).update(raw).digest('hex') } });
+    };
+    assert.strictEqual((await send({ order: o.body.order, event: 'paid' }, 'wrong')).status, 401);
+    assert.strictEqual((await call(s.port, 'GET', '/api/me', null, s.token)).body.entitlements.premium, false);
+    assert.strictEqual((await send({ order: o.body.order, event: 'paid', ref: 'pay_123' }, 'whsec_test')).status, 200);
+    assert.strictEqual((await call(s.port, 'GET', '/api/me', null, s.token)).body.entitlements.premiumUntil, 'lifetime');
+    assert.strictEqual((await send({ order: o.body.order, event: 'refunded' }, 'whsec_test')).status, 200);
+    assert.strictEqual((await call(s.port, 'GET', '/api/me', null, s.token)).body.entitlements.premium, false);
+  } finally { await s.app.close(); }
+});

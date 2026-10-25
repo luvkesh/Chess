@@ -15,7 +15,7 @@ function poolFor(tc) {
 }
 
 class Lobby {
-  // opts: { db, E (engine instance), now?, firstMoveMs?, reconnectMs?, minGamesForBoard?, log? }
+  // opts: { db, E (engine instance), now?, firstMoveMs?, reconnectMs?, minGamesForBoard?, log?, entitlements? }
   constructor(opts) {
     this.db = opts.db;
     this.E = opts.E;
@@ -24,6 +24,7 @@ class Lobby {
     this.reconnectMs = opts.reconnectMs || 60000;
     this.minGames = opts.minGamesForBoard == null ? 5 : opts.minGamesForBoard;
     this.log = opts.log || (() => {});
+    this.entitlements = opts.entitlements || (() => null);
     this.players = new Map();   // userId -> { user, sockets: Set, gameId, seek }
     this.games = new Map();     // gameId -> room
     this.seeks = [];            // { userId, tc, since }
@@ -97,7 +98,7 @@ class Lobby {
     if (!p) { p = { user, sockets: new Set(), gameId: null }; this.players.set(user.id, p); }
     p.user = user;
     p.sockets.add(socket);
-    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, timeControls: TIME_CONTROLS });
+    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), timeControls: TIME_CONTROLS });
     // Back into a live game after a reconnect.
     const room = p.gameId && this.games.get(p.gameId);
     if (room) {

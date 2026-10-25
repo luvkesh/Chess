@@ -45,7 +45,9 @@
         // Adopt the server copy of progress when it is further along (a second device, a cleared browser).
         if (m.progress && m.progress.xp > app.state.progress.xp) { app.state.progress = app.PG.migrate(m.progress); app.save(); if (app.state.screen !== 'game') app.go(app.state.screen); }
         else syncProgress();
+        if (m.entitlements) app.setEntitlements(m.entitlements);
         refreshPanel();
+        if (['home', 'store', 'season'].includes(app.state.screen)) app.go(app.state.screen);
         if (app.state.game && app.state.game.kind === 'online') send({ type: 'sync' });
         return;
       }
@@ -136,7 +138,7 @@
       '<h3 class="section-title">Leaderboard</h3><div class="seg" id="lb-pool">' + ['bullet', 'blitz', 'rapid'].map((p) => '<label><input type="radio" name="lbp" value="' + p + '"' + (p === board ? ' checked' : '') + '><span>' + p + '</span></label>').join('') + '</div>' +
       '<ol class="leaderboard" id="lb"><li style="color:var(--muted)">Loading…</li></ol>';
     const out = el.querySelector('#ac-out');
-    if (out) out.onclick = async () => { try { await api('/api/logout', {}); } catch (e) { /* signed out locally either way */ } setAccount({ token: '', guest: true }); connect(); };
+    if (out) out.onclick = async () => { try { await api('/api/logout', {}); } catch (e) { /* signed out locally either way */ } setAccount({ token: '', guest: true }); app.setEntitlements(null); app.save(); connect(); };
     const form = el.querySelector('#ac-form');
     if (form) {
       const submit = async (path) => {
@@ -175,6 +177,7 @@
 
   window.ChacklateNet = {
     available: () => ready,
+    api,
     connect,
     send,
     syncProgress,

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "currency": "INR",
+  "perks": [
+    "All eight computer personalities, including Grandmaster mode",
+    "The full 10-chapter campaign: 74 lessons",
+    "Every opening in the Opening lab and every dojo endgame",
+    "Deep game reviews and the full hint ladder",
+    "Every season pass included while you are subscribed",
+    "Premium boards, pieces, rooms and effects"
+  ],
+  "products": [
+    { "id": "premium.monthly", "name": "Premium", "period": "month", "kind": "subscription", "grants": [{ "key": "premium", "days": 31 }], "price": null, "skus": { "apple": "", "google": "" } },
+    { "id": "premium.yearly", "name": "Premium", "period": "year", "kind": "subscription", "badge": "Best value", "grants": [{ "key": "premium", "days": 366 }], "price": null, "skus": { "apple": "", "google": "" } },
+    { "id": "premium.lifetime", "name": "Premium Lifetime", "kind": "one-time", "badge": "Founders", "grants": [{ "key": "premium" }], "price": { "amount": 599900, "currency": "INR" }, "skus": { "apple": "", "google": "" } },
+    { "id": "pass.s1", "name": "Season Pass: Cocoa Harvest", "kind": "one-time", "grants": [{ "key": "pass:s1" }], "price": null, "skus": { "apple": "", "google": "" } }
+  ],
+  "note": "A null price means the price is set at launch. Store SKUs are filled in when the App Store and Play listings exist."
+}

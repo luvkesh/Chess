@@ -121,3 +121,37 @@ for (const d of endgames) {
   assert.ok(p.legalMoves().length > 0 && d.par > 0, d.id);
 }
 console.log('endgames ok:', endgames.length);
+
+// Catalog, seasons, missions and store refer to each other consistently.
+const catalog = require('../catalog.json');
+const seasons = require('../seasons.json');
+const missions = require('../missions.json');
+const store = require('../store.json');
+const itemIds = new Set();
+const cats = new Set(catalog.categories.map((c) => c.id));
+for (const it of catalog.items) {
+  assert.ok(!itemIds.has(it.id), 'duplicate item ' + it.id); itemIds.add(it.id);
+  assert.ok(cats.has(it.category), it.id + ' category');
+  assert.ok(['free', 'level', 'achievement', 'premium', 'season'].includes(it.unlock.type), it.id + ' unlock');
+  if (it.unlock.type === 'season') {
+    const s = seasons.seasons.find((x) => x.id === it.unlock.season);
+    assert.ok(s, it.id + ' season');
+    assert.ok(it.unlock.tier >= 1 && it.unlock.tier <= s.tiers, it.id + ' tier');
+    assert.ok(['free', 'pass'].includes(it.unlock.track), it.id + ' track');
+  }
+}
+for (const c of cats) assert.ok(itemIds.has(catalog.defaults[c]), 'default for ' + c);
+for (const s of seasons.seasons) {
+  assert.ok(s.starts < s.ends, s.id + ' dates');
+  const slots = catalog.items.filter((i) => i.unlock.season === s.id).map((i) => i.unlock.track + i.unlock.tier);
+  assert.strictEqual(new Set(slots).size, slots.length, s.id + ' one reward per tier and track');
+}
+const EVENTS = ['game', 'win', 'online', 'puzzle', 'daily', 'lesson', 'drill', 'dojo', 'review'];
+for (const m of missions.missions) assert.ok(EVENTS.includes(m.event) && m.goal > 0 && m.xp > 0 && m.text, m.id);
+assert.ok(new Set(missions.missions.map((m) => m.event)).size >= missions.perDay);
+for (const p of store.products) {
+  assert.ok(p.grants.length, p.id);
+  for (const g of p.grants) assert.ok(g.key === 'premium' || seasons.seasons.some((s) => g.key === 'pass:' + s.id), p.id + ' grant ' + g.key);
+  if (p.price) assert.ok(Number.isInteger(p.price.amount) && p.price.amount > 0 && /^[A-Z]{3}$/.test(p.price.currency), p.id + ' price');
+}
+console.log('catalog, seasons, missions and store ok:', catalog.items.length, 'items');

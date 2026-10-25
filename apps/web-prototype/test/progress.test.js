@@ -75,6 +75,74 @@ assert.strictEqual(PG.dojoFinished(s, eg, true, 25, day(1)).stars, 1);
 assert.deepStrictEqual(s.dojo['endgame.x'], { stars: 3, best: 9, tries: 4 });
 assert.strictEqual(PG.dojoFinished(s, { id: 'endgame.d', goal: 'draw', par: 20 }, true, 20, day(1)).stars, 3);
 
+// Seasons: XP earned while a season runs fills its track; pass items need the pass (or Premium).
+const seasons = require('../../../packages/content/seasons.json');
+const missions = require('../../../packages/content/missions.json');
+const PS = ChacklateProgress(catalog, { seasons, missions });
+const S1 = seasons.seasons[0];
+const inSeason = Date.parse(S1.starts + 'T12:00:00') + 86400000;
+s = PS.fresh();
+assert.strictEqual(PS.setSeason(s, Date.parse('2000-01-01')), null);
+assert.strictEqual(s.season, '');
+PS.gameFinished(s, Object.assign({}, win, { plies: 60 }), day(1));
+assert.deepStrictEqual(s.seasons, {}, 'no season XP between seasons');
+assert.strictEqual(PS.setSeason(s, inSeason).id, S1.id);
+const freeItem = catalog.items.find((i) => i.unlock.type === 'season' && i.unlock.track === 'free');
+const passItem = catalog.items.find((i) => i.unlock.type === 'season' && i.unlock.track === 'pass' && i.unlock.tier >= freeItem.unlock.tier);
+assert(freeItem && passItem);
+const top = Math.max(freeItem.unlock.tier, passItem.unlock.tier);
+let sawTier = 0, sawFree = false, sawPass = false;
+while (PS.tierOf(s, S1.id) < top) {
+  const out = PS.puzzleFinished(s, { id: 'px', rating: 2000 }, true, null, inSeason);
+  if (out.seasonTier) sawTier = out.seasonTier;
+  if (out.unlocked.some((u) => u.id === freeItem.id)) sawFree = true;
+  if (out.unlocked.some((u) => u.id === passItem.id)) sawPass = true;
+}
+assert(sawTier >= top && sawFree && !sawPass);
+assert(PS.isUnlocked(s, freeItem) && !PS.isUnlocked(s, passItem));
+s.passes.push(S1.id);
+assert(PS.isUnlocked(s, passItem), 'buying the pass later unlocks earned pass tiers');
+s.passes = []; s.premium = true;
+assert(PS.isUnlocked(s, passItem), 'Premium includes the pass');
+const info = PS.seasonInfo(s, S1.id);
+assert(info.tier >= top && info.into >= 0 && info.into <= info.need && info.items.length >= 10);
+assert(/tier \d+ · Season Pass/.test(PS.unlockText(passItem)));
+s.seasons[S1.id] = 1e9;
+assert.strictEqual(PS.tierOf(s, S1.id), S1.tiers, 'tier caps at the last one');
+
+// Daily missions: the same three for a date, different events, online only when available.
+s = PS.fresh();
+const ml = PS.missionList(s, day(3));
+assert.strictEqual(ml.length, missions.perDay);
+assert.strictEqual(new Set(ml.map((x) => x.event)).size, ml.length);
+assert(ml.every((x) => x.event !== 'online'));
+assert.deepStrictEqual(PS.missionList(PS.fresh(), day(3)).map((x) => x.id), ml.map((x) => x.id));
+let anyOnline = false;
+for (let d = 1; d <= 28; d++) if (PS.missionList(PS.fresh(), day(d), { online: true }).some((x) => x.event === 'online')) anyOnline = true;
+assert(anyOnline);
+// Complete whatever today's missions are and collect the all-done bonus once.
+s = PS.fresh();
+const todays = PS.missionList(s, day(4));
+const doEvent = (ev) => {
+  if (ev === 'game' || ev === 'win') return PS.gameFinished(s, Object.assign({}, win, { plies: 60 }), day(4));
+  if (ev === 'puzzle') return PS.puzzleFinished(s, { id: 'q', rating: 900 }, true, null, day(4));
+  if (ev === 'daily') return PS.puzzleFinished(s, { id: 'q', rating: 900 }, true, { daily: true }, day(4));
+  if (ev === 'lesson') return PS.lessonFinished(s, lessons[0], 3, 3, lessons, day(4));
+  if (ev === 'drill') return PS.openingFinished(s, 'opening.a', true, day(4));
+  if (ev === 'dojo') return PS.dojoFinished(s, eg, true, 5, day(4));
+  if (ev === 'review') return PS.reviewFinished(s, { summary: { accuracy: { 0: 80 } }, plies: [] }, 0, 30, day(4));
+};
+let bonus = 0, done = [];
+for (let k = 0; k < 10 && !s.missions.list.every((x) => x.done); k++) for (const t of todays) { const o = doEvent(t.event); if (o) { done.push(...o.missions.map((x) => x.id)); if (o.missionsAll) bonus++; } }
+assert(s.missions.list.every((x) => x.done));
+assert.strictEqual(bonus, 1);
+assert.deepStrictEqual([...new Set(done)].sort(), todays.map((x) => x.id).sort());
+// Short games do not count.
+s = PS.fresh();
+const shortDay = PS.missionList(s, day(5));
+PS.gameFinished(s, Object.assign({}, win, { plies: 2 }), day(5));
+assert(s.missions.list.every((x) => x.n === 0 || !['game', 'win'].includes(shortDay.find((d) => d.id === x.id).event)));
+
 // Migration keeps known fields and fills new ones.
 const m = PG.migrate({ v: 1, xp: 123, stats: { games: 4 } });
 assert.strictEqual(m.xp, 123);

@@ -7,7 +7,8 @@
   const C = ChacklateCoach(E);
   const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES;
   const OPENINGS = CHACKLATE_OPENINGS.openings, ENDGAMES = CHACKLATE_ENDGAMES.endgames;
-  const PG = ChacklateProgress(CATALOG);
+  const STORE = CHACKLATE_STORE;
+  const PG = ChacklateProgress(CATALOG, { seasons: CHACKLATE_SEASONS, missions: CHACKLATE_MISSIONS });
   const AU = ChacklateAudio();
   const { WHITE, BLACK, LEVELS } = E;
   const $ = (id) => document.getElementById(id);
@@ -41,7 +42,7 @@
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
     star: '<path d="M12 2l3 7h7l-5.5 4.5 2 7.5L12 17l-6.5 4 2-7.5L2 9h7z"/>', trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H3a4 4 0 0 0 4 4M17 6h4a4 4 0 0 1-4 4"/>',
-    x: '<path d="M18 6L6 18M6 6l12 12"/>', copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>', check: '<path d="M20 6L9 17l-5-5"/>', refresh: '<path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/>',
+    x: '<path d="M18 6L6 18M6 6l12 12"/>', crown: '<path d="M3 18h18M4 18L3 7l5 4 4-7 4 7 5-4-1 11"/>', target: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', season: '<path d="M12 2c3 4 6 6 6 11a6 6 0 0 1-12 0c0-5 3-7 6-11z"/><path d="M12 22v-6"/>', copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>', check: '<path d="M20 6L9 17l-5-5"/>', refresh: '<path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/>',
   };
   const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I[k] + '</svg>';
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -57,6 +58,17 @@
     game: null,
     account: saved.account || null,
   };
+  // Premium comes from the account's entitlements on the server. The device-only preview switch
+  // (for testing without a server) sits on top of that.
+  if (state.settings.previewPremium === undefined) state.settings.previewPremium = !!state.progress.premium;
+  function setEntitlements(ent) {
+    if (state.account || ent) state.account = Object.assign({}, state.account || {}, { ent: ent || null });
+    const e = ent || {};
+    state.progress.premium = !!(state.settings.previewPremium || e.premium);
+    state.progress.passes = e.passes || [];
+  }
+  setEntitlements(state.account && state.account.ent);
+  PG.setSeason(state.progress);
   function save() {
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
@@ -184,7 +196,14 @@
       AU.play('achievement');
       toast('<i>★</i><div><small>Achievement</small><b>' + esc(a.name) + '</b> · +' + a.xp + ' XP</div>', 'ach');
     }, 600 + i * 900));
-    if (res.levelUp) setTimeout(() => levelUpModal(res.levelUp, res.unlocked), 600 + res.achievements.length * 900);
+    const lag = 600 + res.achievements.length * 900;
+    (res.missions || []).forEach((m, i) => setTimeout(() => {
+      AU.play('achievement');
+      toast('<i>✓</i><div><small>Mission complete</small><b>' + esc(m.text) + '</b> · +' + m.xp + ' XP</div>', 'ach');
+    }, lag + i * 900));
+    if (res.missionsAll) setTimeout(() => toast('All of today\'s missions done. +' + CHACKLATE_MISSIONS.allDoneXp + ' XP bonus.'), lag + (res.missions || []).length * 900);
+    if (res.seasonTier && !res.levelUp) setTimeout(() => toast('Season tier ' + res.seasonTier + ' reached.'), lag + 300);
+    if (res.levelUp) setTimeout(() => levelUpModal(res.levelUp, res.unlocked), lag + (res.missions || []).length * 900);
     else if (res.unlocked.length && !quiet) toast('Unlocked: ' + res.unlocked.map((u) => esc(u.name)).join(', '));
     save();
     renderMePill();
@@ -260,6 +279,7 @@
       (opts && opts.back ? '<button class="btn glass small" id="tb-back">' + icon('back') + '<span>' + esc(opts.back) + '</span></button>' : '') +
       (opts && opts.title ? '<div class="pill gold">' + esc(opts.title) + '</div>' : '') +
       '<div class="spacer"></div>' +
+      (state.progress.premium ? '' : '<button class="btn gold small tb-prem" id="tb-store">' + icon('crown') + '<span>Premium</span></button>') +
       '<button class="me-pill glass" id="tb-me" title="Profile">' + avatarHtml('sm') + '<div><div style="font-weight:650;font-size:14px;text-align:left">' + esc(state.settings.name) + '</div>' +
       '<div class="lvl">Level <b>' + lv.level + '</b> · ' + esc(lv.title) + (state.progress.streak.count > 1 ? ' · <span class="streak">' + state.progress.streak.count + '-day streak</span>' : '') + '</div>' +
       '<div class="bar"><i style="width:' + Math.round((lv.into / lv.need) * 100) + '%"></i></div></div></button>' +
@@ -269,6 +289,7 @@
     const b = $('tb-back'); if (b) b.onclick = () => { AU.play('tap'); onBack(); };
     $('tb-me').onclick = () => { AU.play('tap'); go('profile'); };
     $('tb-settings').onclick = () => { AU.play('tap'); settingsModal(); };
+    const st = $('tb-store'); if (st) st.onclick = () => { AU.play('tap'); go('store'); };
   }
   function renderMePill() {
     const old = $('tb-me'); if (!old) return;
@@ -326,6 +347,7 @@
       '<button class="action" id="a-friend"><div class="glyph">' + icon('users') + '</div><div><b>Play a Friend</b><span>' + (online ? 'Share a 6-letter code, or pass and play on this device.' : 'Pass and play on this device. Online codes need the game server.') + '</span></div><div class="go">›</div></button>' +
       '<button class="action" id="a-improve"><div class="glyph">' + icon('improve') + '</div><div><b>Improve My Chess</b><span>' + (daily && !dailyDone ? 'Today\'s puzzle is waiting.' : 'Puzzles, game reviews and training.') + '</span></div><div class="go">›</div></button>' +
       '</div>' +
+      missionsCard() + seasonStrip() +
       '<div class="today">' +
       '<div class="mini glass"><div class="eyebrow">Games</div><b>' + st.games + '</b><small style="color:var(--muted)">' + st.wins + ' won · ' + st.draws + ' drawn</small></div>' +
       '<div class="mini glass"><div class="eyebrow">Puzzle rating</div><b>' + st.puzzles.rating + '</b><small style="color:var(--muted)">' + st.puzzles.solved + ' solved</small></div>' +
@@ -340,6 +362,137 @@
     $('a-improve').onclick = () => { AU.unlock(); AU.play('tap'); go('improve'); };
     $('a-custom').onclick = () => { AU.unlock(); AU.play('tap'); newGameModal(); };
     if (resume) $('a-resume').onclick = () => { AU.unlock(); AU.play('tap'); resumeSaved(); };
+    const ss = $('a-season'); if (ss) ss.onclick = () => { AU.play('tap'); go('season'); };
+    return { leave() { view.setAttract(false); } };
+  };
+
+  // ---------------------------------------------------------------- missions and season
+  function missionsCard() {
+    const list = PG.missionList(state.progress, undefined, { online: !!(window.ChacklateNet && ChacklateNet.available()) });
+    if (!list.length) return '';
+    const done = list.filter((m) => m.done).length;
+    return '<div class="missions glass"><div class="mh"><div class="eyebrow">Today\'s missions</div><span class="pill' + (done === list.length ? ' gold' : '') + '">' + done + ' / ' + list.length + '</span></div>' +
+      list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? '✓' : icon('target')) + '</i><div><b>' + esc(m.text) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? 'Done' : m.n + '/' + m.goal) + '<br><span>+' + m.xp + ' XP</span></small></div>').join('') + '</div>';
+  }
+  function seasonStrip() {
+    const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
+    if (!s) return '';
+    return '<button class="season-strip glass" id="a-season"><div class="sg">' + icon('season') + '</div><div style="flex:1"><div class="eyebrow">Season ' + s.season.number + ' · ' + s.daysLeft + ' days left</div><b>' + esc(s.season.name) + ' · Tier ' + s.tier + '</b>' +
+      '<div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div><div class="go">›</div></button>';
+  }
+
+  // Swatches for cosmetics, shared by the collection and the season track.
+  function swatch(it) {
+    const d = it.data || {};
+    if (it.category === 'board') return 'background:conic-gradient(' + d.light + ' 0 25%,' + d.dark + ' 0 50%,' + d.light + ' 0 75%,' + d.dark + ' 0) 0 0/50% 50%;box-shadow:inset 0 0 0 4px ' + d.frame;
+    if (it.category === 'pieces') return 'background:linear-gradient(135deg,' + d.white.color + ' 50%,' + d.black.color + ' 50%)';
+    if (it.category === 'room') return 'background:radial-gradient(circle at 50% 70%,' + d.table + ',' + d.top + ' 60%,' + d.fog + ')';
+    if (it.category === 'clock') return 'background:' + d.face + ';color:' + d.glow + ';font:700 22px/1 var(--mono)';
+    if (it.category === 'avatar') return 'background:linear-gradient(145deg,' + d.from + ',' + d.to + ');color:#fff';
+    if (it.category === 'frame') return 'background:' + (d.ring === 'transparent' ? 'rgba(255,235,215,.05)' : d.ring);
+    const cols = (d && d.colors) || ['#555', '#333'];
+    return 'background:radial-gradient(circle at 30% 40%,' + (cols[0] || '#444') + ' 0 10%,transparent 11%),radial-gradient(circle at 65% 30%,' + (cols[1] || cols[0] || '#444') + ' 0 8%,transparent 9%),radial-gradient(circle at 55% 70%,' + (cols[2] || cols[0] || '#444') + ' 0 12%,transparent 13%),#1a1210';
+  }
+  const swatchGlyph = (it) => it.category === 'clock' ? '5:00' : it.category === 'avatar' ? esc(it.data.glyph) : it.category === 'sound' ? '♪' : it.category === 'pieces' ? '<span style="color:' + it.data.black.color + ';text-shadow:0 0 6px rgba(255,255,255,.4)">♞</span>' : it.category === 'victory' ? '★' : '';
+
+  SCREENS.season = function () {
+    idleBoard();
+    const P = state.progress;
+    const id = P.season || (PG.SEASONS.seasons[PG.SEASONS.seasons.length - 1] || {}).id;
+    const s = id && PG.seasonInfo(P, id);
+    if (!s) { mount(topbar({ back: 'Home' }) + '<section class="sheet glass"><header><h2>Seasons</h2><p>The next season starts soon.</p></header></section>'); wireTopbar(() => go('home')); return {}; }
+    const at = (tier, track) => s.items.find((i) => i.unlock.tier === tier && i.unlock.track === track);
+    const cell = (it, track, reached) => {
+      if (!it) return '<div class="tcell empty"></div>';
+      const un = PG.isUnlocked(P, it);
+      return '<button class="tcell' + (un ? ' got' : '') + (track === 'pass' ? ' pass' : '') + '" data-item="' + it.id + '"><div class="sw" style="' + swatch(it) + '">' + swatchGlyph(it) + '</div><div><b>' + esc(it.name) + '</b><small>' +
+        esc(CATALOG.categories.find((c) => c.id === it.category).name.replace(/s$/, '')) + ' · ' + (un ? 'Unlocked' : reached && track === 'pass' ? 'Needs the pass' : 'Tier ' + it.unlock.tier) + '</small></div></button>';
+    };
+    const rows = [];
+    for (let t = 1; t <= s.season.tiers; t++) {
+      const f = at(t, 'free'), p = at(t, 'pass');
+      if (!f && !p) continue;
+      const reached = s.tier >= t;
+      rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === t ? ' next' : '') + '"><div class="tn">' + t + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
+    }
+    mount(topbar({ back: 'Home' }) + '<section class="sheet glass"><header><div class="eyebrow">Season ' + s.season.number + ' · ' + s.daysLeft + ' days left</div><h2>' + esc(s.season.name) + '</h2><p>' + esc(s.season.blurb) + '</p></header><div class="body">' +
+      '<div class="hero-card"><div class="sg big">' + icon('season') + '</div><div style="flex:1"><div style="font:400 24px/1.1 var(--display)">Tier ' + s.tier + ' of ' + s.season.tiers + '</div>' +
+      '<div style="color:var(--muted);font-size:13px;margin:4px 0 8px">' + (s.tier >= s.season.tiers ? 'Track complete.' : s.into + ' / ' + s.need + ' season XP to tier ' + (s.tier + 1)) + '</div><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div></div>' +
+      (s.pass ? '<p class="pill gold" style="margin:4px 0 14px">' + icon('crown') + (P.premium ? ' Season Pass included with Premium' : ' Season Pass owned') + '</p>'
+        : '<div class="pass-cta"><div><b>Season Pass</b><small>Unlock the gold track: ' + s.items.filter((i) => i.unlock.track === 'pass').length + ' extra rewards, including tiers you have already reached.</small></div><button class="btn gold" id="se-buy">Get the pass</button></div>') +
+      '<div class="tier head"><div class="tn"></div><div class="eyebrow">Free track</div><div class="eyebrow" style="color:var(--gold-2)">Season Pass</div></div>' +
+      rows.join('') +
+      '<p style="color:var(--faint);font-size:12.5px;margin-top:16px">Every XP you earn while the season runs counts: games, puzzles, lessons, drills, the dojo and daily missions. Items you unlock stay yours after the season ends.</p></div></section>' + navbar('home'));
+    wireTopbar(() => go('home')); wireNav();
+    const b = $('se-buy'); if (b) b.onclick = () => go('store', 'pass.' + id);
+    document.querySelectorAll('[data-item]').forEach((el) => { el.onclick = () => { const it = PG.item(el.dataset.item); preview = it; applyLook(); if (it.category === 'capture' || it.category === 'victory') view.celebrate('win', -1, null, sqIndex('e1')); toast((PG.isUnlocked(P, it) ? 'Previewing ' : 'Preview: ') + esc(it.name)); }; });
+    return { leave() { preview = null; applyLook(); view.setAttract(false); } };
+  };
+
+  // ---------------------------------------------------------------- store
+  const money = (p) => !p ? 'Price at launch' : new Intl.NumberFormat('en-IN', { style: 'currency', currency: p.currency, maximumFractionDigits: 0 }).format(p.amount / 100);
+  SCREENS.store = function (focus) {
+    idleBoard();
+    const P = state.progress;
+    let remote = null;
+    function render() {
+      const ent = (state.account && state.account.ent) || {};
+      const online = window.ChacklateNet && ChacklateNet.available();
+      const products = STORE.products.map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
+      const owned = (p) => p.id.startsWith('pass.') ? PG.hasPass(P, p.id.slice(5)) : p.id === 'premium.lifetime' ? ent.premiumUntil === 'lifetime' : false;
+      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(ent.premiumUntil).toLocaleDateString()) : state.settings.previewPremium ? 'Premium preview on this device' : 'Free';
+      $('st-body').innerHTML =
+        '<div class="hero-card"><div class="sg big gold">' + icon('crown') + '</div><div style="flex:1"><div class="eyebrow">Your plan</div><div style="font:400 24px/1.1 var(--display)">' + esc(status) + '</div></div></div>' +
+        '<ul class="perks">' + STORE.perks.map((t) => '<li>' + icon('check') + esc(t) + '</li>').join('') + '</ul>' +
+        '<div class="products">' + products.map((p) => '<div class="product' + (p.id === focus ? ' focus' : '') + '">' + (p.badge ? '<span class="pbadge">' + esc(p.badge) + '</span>' : '') +
+          '<div class="eyebrow">' + esc(p.kind === 'subscription' ? 'Every ' + p.period : 'One payment') + '</div><b>' + esc(p.name) + '</b><div class="price">' + money(p.price) + '</div>' +
+          (owned(p) ? '<span class="pill gold">Owned</span>' : '<button class="btn ' + (p.id === 'premium.yearly' || p.id === focus ? 'gold' : '') + '" data-buy="' + p.id + '"' + (p.onSale ? '' : ' disabled') + '>' + (p.onSale ? 'Buy' : 'Opens at launch') + '</button>') + '</div>').join('') + '</div>' +
+        '<p class="fine">' + (!online ? 'Purchases go through your Chacklate account on the game server, which is not connected.' : remote && remote.mode === 'dev' ? 'Test store: purchases complete without payment. Nothing is charged.' : remote && remote.mode === 'off' ? 'The store opens at launch.' : 'Payments are handled by our payment provider. Subscriptions renew until cancelled.') +
+        ' Purchases are tied to your account and restore on any device.</p>' +
+        '<div class="row" style="justify-content:flex-start"><button class="btn small" id="st-restore">' + icon('refresh') + ' Restore purchases</button></div>';
+      document.querySelectorAll('[data-buy]').forEach((b) => { b.onclick = () => buy(b.dataset.buy); });
+      $('st-restore').onclick = restore;
+    }
+    async function restore() {
+      if (!(window.ChacklateNet && ChacklateNet.available())) return toast('Connect to the game server first.', 'bad');
+      try { const me = await ChacklateNet.api('/api/me'); setEntitlements(me.entitlements); save(); toast(me.entitlements.premium || me.entitlements.passes.length ? 'Purchases restored.' : 'No purchases on this account yet.'); go('store', focus); }
+      catch (e) { toast(esc(e.message), 'bad'); }
+    }
+    async function buy(id) {
+      const acct = state.account || {};
+      if (!acct.token || acct.guest) {
+        const m = modal('<h2>Create an account first</h2><p class="sub">Purchases belong to your account, so they are safe if you change phones or clear this browser.</p><div class="row"><button class="btn" data-close>Not now</button><button class="btn primary" id="ca-go">Create account</button></div>');
+        m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
+        return;
+      }
+      try {
+        const o = await ChacklateNet.api('/api/store/checkout', { product: id });
+        const p = STORE.products.find((x) => x.id === id);
+        if (o.action.type === 'dev-confirm') {
+          const m = modal('<h2>Test purchase</h2><p class="sub">' + esc(p.name) + (p.period ? ' (' + p.period + ')' : '') + '. This server runs the test store, so no money moves.</p><div class="row"><button class="btn" data-close>Cancel</button><button class="btn gold" id="tp-ok">Confirm</button></div>');
+          m.querySelector('#tp-ok').onclick = async () => {
+            m.close();
+            try { const r = await ChacklateNet.api('/api/store/dev/complete', { order: o.order }); thanks(p, r.entitlements); } catch (e) { toast(esc(e.message), 'bad'); }
+          };
+        } else if (o.action.type === 'redirect' && o.action.url) {
+          window.open(o.action.url, '_blank', 'noopener');
+          const m = modal('<h2>Finish paying in the new tab</h2><p class="sub">Come back here when you are done. Your purchase appears as soon as the payment provider confirms it.</p><div class="row"><button class="btn" data-close>Close</button><button class="btn primary" id="pp-check">I have paid</button></div>');
+          m.querySelector('#pp-check').onclick = async () => { const me = await ChacklateNet.api('/api/me'); if (me.entitlements.premium || me.entitlements.passes.length) { m.close(); thanks(p, me.entitlements); } else toast('Not confirmed yet. Give it a moment.'); };
+        }
+      } catch (e) { toast(esc(e.message), 'bad'); }
+    }
+    function thanks(p, ent) {
+      setEntitlements(ent); save();
+      AU.play('levelUp'); view.celebrate('win', -1, null, -1);
+      const pass = p.id.startsWith('pass.');
+      modal('<div style="text-align:center"><span class="result-badge win">Thank you</span><h2 class="result-title" style="margin-top:12px">' + (pass ? 'Season Pass unlocked' : 'Welcome to Premium') + '</h2>' +
+        '<p class="sub">' + (pass ? 'Every gold-track reward you have reached is now yours.' : 'Every personality, chapter, opening and endgame is open, and the season pass is included.') + '</p>' +
+        '<div class="row" style="justify-content:center"><button class="btn primary" data-close>Let\'s play</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
+    }
+    mount(topbar({ back: 'Home' }) + '<section class="sheet glass"><header><div class="eyebrow">Store</div><h2>Chacklate Premium</h2><p>The whole game, every season pass, and the finest boards in the house.</p></header><div class="body" id="st-body"></div></section>' + navbar(''));
+    wireTopbar(() => go('home')); wireNav();
+    render();
+    if (window.ChacklateNet && ChacklateNet.available()) ChacklateNet.api('/api/store').then((r) => { remote = r; if (state.screen === 'store') render(); }).catch(() => {});
     return { leave() { view.setAttract(false); } };
   };
 
@@ -1084,7 +1237,7 @@
         if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">The review could not run on this device.</div>'; return; }
         R.data = r.review;
         if (state.game && state.game.g.startFen === start && state.game.g.moves.length === ucis.length) state.game.review = r.review;
-        const res = PG.reviewFinished(state.progress, r.review, R.side, ucis.length);
+        const res = PG.reviewFinished(state.progress, r.review, R.side, ucis.length, Date.now());
         celebrate(res);
         if (r.review.summary.key.length) R.ply = r.review.summary.key[0];
         AU.play('correct');
@@ -1685,26 +1838,14 @@
     let active = cat || 'board';
     mount(topbar() + '<section class="sheet glass"><header><div class="eyebrow">' + CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length + ' of ' + CATALOG.items.length + ' unlocked</div><h2>Collection</h2><p>Tap an item to try it on the board behind. Unlocked items equip instantly.</p></header>' +
       '<div class="tabs" role="tablist">' + CATALOG.categories.map((c) => '<button role="tab" data-cat="' + c.id + '" aria-selected="' + (c.id === active) + '">' + esc(c.name) + '</button>').join('') + '</div>' +
-      '<div class="body"><div class="items" id="items"></div><p style="color:var(--faint);font-size:12.5px;margin-top:16px">Premium items preview here. Purchases are not enabled in this prototype; use Profile → Preview Premium to try them in play.</p></div></section>' + navbar('collection'));
+      '<div class="body"><div class="items" id="items"></div><p style="color:var(--faint);font-size:12.5px;margin-top:16px">Tap a locked item to preview it. Season items unlock on the season track; Premium items come with Premium in the Store.</p></div></section>' + navbar('collection'));
     wireTopbar(); wireNav();
-    const swatch = (it) => {
-      const d = it.data || {};
-      if (it.category === 'board') return 'background:conic-gradient(' + d.light + ' 0 25%,' + d.dark + ' 0 50%,' + d.light + ' 0 75%,' + d.dark + ' 0) 0 0/50% 50%;box-shadow:inset 0 0 0 4px ' + d.frame;
-      if (it.category === 'pieces') return 'background:linear-gradient(135deg,' + d.white.color + ' 50%,' + d.black.color + ' 50%)';
-      if (it.category === 'room') return 'background:radial-gradient(circle at 50% 70%,' + d.table + ',' + d.top + ' 60%,' + d.fog + ')';
-      if (it.category === 'clock') return 'background:' + d.face + ';color:' + d.glow + ';font:700 22px/1 var(--mono)';
-      if (it.category === 'avatar') return 'background:linear-gradient(145deg,' + d.from + ',' + d.to + ');color:#fff';
-      if (it.category === 'frame') return 'background:' + (d.ring === 'transparent' ? 'rgba(255,235,215,.05)' : d.ring);
-      const cols = (d && d.colors) || ['#555', '#333'];
-      return 'background:radial-gradient(circle at 30% 40%,' + (cols[0] || '#444') + ' 0 10%,transparent 11%),radial-gradient(circle at 65% 30%,' + (cols[1] || cols[0] || '#444') + ' 0 8%,transparent 9%),radial-gradient(circle at 55% 70%,' + (cols[2] || cols[0] || '#444') + ' 0 12%,transparent 13%),#1a1210';
-    };
-    const glyph = (it) => it.category === 'clock' ? '5:00' : it.category === 'avatar' ? esc(it.data.glyph) : it.category === 'sound' ? '♪' : it.category === 'pieces' ? '<span style="color:' + it.data.black.color + ';text-shadow:0 0 6px rgba(255,255,255,.4)">♞</span>' : it.category === 'victory' ? '★' : '';
     function render() {
       document.querySelectorAll('[data-cat]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.cat === active)));
       const items = CATALOG.items.filter((i) => i.category === active);
       $('items').innerHTML = items.map((it) => {
         const un = PG.isUnlocked(P, it), on = P.equipped[active] === it.id;
-        return '<button class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><div class="sw" style="' + swatch(it) + '">' + glyph(it) + '</div>' +
+        return '<button class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><div class="sw" style="' + swatch(it) + '">' + swatchGlyph(it) + '</div>' +
           '<div class="rar ' + it.rarity + '">' + it.rarity + '</div><b>' + esc(it.name) + '</b>' + (un ? (on ? '<span class="pill gold">Equipped</span>' : '') : '<span class="lockline">🔒 ' + esc(PG.unlockText(it)) + '</span>') + '</button>';
       }).join('');
       document.querySelectorAll('[data-item]').forEach((b) => {
@@ -1743,16 +1884,25 @@
       '<h3 class="section-title" id="games">Recent games</h3><div class="list">' + (P.history.length ? P.history.map((h, i) => '<button class="row-item" data-game="' + i + '"><span class="res ' + h.result + '">' + h.result.toUpperCase() + '</span><div><b>' + (h.mode === 'ai' ? 'vs ' + esc(LEVELS[h.level] ? LEVELS[h.level].name : 'Computer') : h.mode === 'online' ? 'Online game' : 'Pass and play') + '</b><br><small style="color:var(--muted)">' + esc(REASON_TEXT[h.reason] || h.reason || '') + ' · ' + Math.ceil(h.plies / 2) + ' moves · ' + esc(new Date(h.date).toLocaleDateString()) + '</small></div><span class="pill">Review</span></button>').join('') : '<p style="color:var(--muted)">No games yet.</p>') + '</div>' +
       '<h3 class="section-title">Achievements · ' + Object.keys(P.achievements).length + ' of ' + PG.ACHIEVEMENTS.length + '</h3><div class="ach">' +
       PG.ACHIEVEMENTS.map((a) => '<div class="badge' + (P.achievements[a.id] ? ' got' : '') + '"><i>' + (P.achievements[a.id] ? '★' : '☆') + '</i><div><b>' + esc(a.name) + '</b><small>' + esc(a.desc) + '</small></div></div>').join('') + '</div>' +
-      '<h3 class="section-title">Premium</h3><div class="toggle"><span>Preview Premium features (all personalities, chapter 4, deep review, Premium cosmetics). No purchase in this prototype.</span><input type="checkbox" id="pf-prem"' + (P.premium ? ' checked' : '') + '></div>' +
+      '<h3 class="section-title">Premium</h3>' + premiumLine() +
+      '<div class="toggle"><span>Preview Premium on this device, for testing without a server. Does not change your account.</span><input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></div>' +
       '</div></section>' + navbar('profile'));
     wireTopbar(); wireNav();
     $('pf-save').onclick = () => { const v = $('pf-name').value.trim().slice(0, 20); if (v) { state.settings.name = v; save(); toast('Name saved.'); go('profile'); } };
-    $('pf-prem').onchange = (e) => { P.premium = e.target.checked; save(); toast(P.premium ? 'Premium preview on.' : 'Premium preview off.'); };
+    $('pf-prem').onchange = (e) => { state.settings.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); save(); toast(e.target.checked ? 'Premium preview on.' : 'Premium preview off.'); };
+    $('pf-store').onclick = () => go('store');
     document.querySelectorAll('[data-game]').forEach((b) => { b.onclick = () => { const h = P.history[+b.dataset.game]; if (h.ucis && h.ucis.length) go('review', { start: h.start || E.START_FEN, ucis: h.ucis, side: h.color || WHITE, title: h.mode === 'ai' ? 'vs ' + (LEVELS[h.level] || {}).name : h.mode }); }; });
     if (window.ChacklateNet) ChacklateNet.renderAccount($('pf-account')); else $('pf-account').innerHTML = '<p style="color:var(--muted)">Online play is not available in this build.</p>';
     if (section === 'games') setTimeout(() => $('games').scrollIntoView({ behavior: 'smooth' }), 100);
+    if (section === 'account') setTimeout(() => $('pf-account').scrollIntoView({ behavior: 'smooth' }), 100);
     return { leave() { view.setAttract(false); } };
   };
+
+  function premiumLine() {
+    const e = (state.account && state.account.ent) || {};
+    const what = e.premium ? (e.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(e.premiumUntil).toLocaleDateString()) : (e.passes || []).length ? 'Free plan with a Season Pass' : 'Free plan';
+    return '<div class="acct-row"><div class="sg gold">' + icon('crown') + '</div><div style="flex:1"><b>' + esc(what) + '</b><div style="color:var(--muted);font-size:13px">Purchases are tied to your online account.</div></div><button class="btn small gold" id="pf-store">Store</button></div>';
+  }
 
   // ---------------------------------------------------------------- settings
   function settingsModal() {
@@ -1797,7 +1947,7 @@
 
   // ---------------------------------------------------------------- shared API for the online client
   window.ChacklateApp = {
-    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline,
+    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements,
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {

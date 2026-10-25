@@ -78,6 +78,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
     if (!res.ok) throw new Error(out.error || 'Request failed');
     return out;
   }
+  const money = (amount, currency) => { try { return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount / 100); } catch (e) { return (amount / 100) + ' ' + currency; } };
   function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); }
   const can = (p) => me && me.permissions.includes(p);
 
@@ -98,7 +99,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
   async function boot() {
     if (!token) return login();
     try { me = await api('/me'); } catch (e) { return; }
-    const tabs = [['overview', 'Overview', 'stats.read'], ['reports', 'Reports', 'reports.read'], ['users', 'Players', 'users.read'], ['games', 'Games', 'games.read'], ['audit', 'Audit log', 'audit.read'], ['staff', 'Staff', 'staff.manage']].filter((t) => can(t[2]));
+    const tabs = [['overview', 'Overview', 'stats.read'], ['reports', 'Reports', 'reports.read'], ['users', 'Players', 'users.read'], ['games', 'Games', 'games.read'], ['orders', 'Orders', 'orders.read'], ['audit', 'Audit log', 'audit.read'], ['staff', 'Staff', 'staff.manage']].filter((t) => can(t[2]));
     $('#app').innerHTML = '<div class="shell"><nav><div class="brand">Chacklate<small>Admin</small></div>' +
       tabs.map((t) => '<button data-tab="' + t[0] + '">' + t[1] + (t[0] === 'reports' ? '<span class="count" id="rc" hidden></span>' : '') + '</button>').join('') +
       '<div class="who">' + esc(me.email) + '<br>' + esc(me.role) + ' · <a href="#" id="out">Sign out</a></div></nav><main id="main"></main></div>';
@@ -121,7 +122,8 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
       const rc = $('#rc'); if (rc) { rc.hidden = !s.openReports; rc.textContent = s.openReports; }
       const card = (k, v) => '<div class="card"><div class="k">' + k + '</div><div class="v">' + esc(v) + '</div></div>';
       main.innerHTML = '<h2>Overview</h2><div class="cards">' + card('Online now', s.online) + card('Live games', s.games) + card('Seeking', s.seeking) +
-        card('Accounts', s.users) + card('Guests', s.guests) + card('Active 24 h', s.active24h) + card('Games 24 h', s.games24h) + card('Open reports', s.openReports) + card('Suspended', s.banned) + '</div>' +
+        card('Accounts', s.users) + card('Guests', s.guests) + card('Active 24 h', s.active24h) + card('Games 24 h', s.games24h) + card('Open reports', s.openReports) + card('Suspended', s.banned) +
+        card('Premium players', s.premium) + card('Paid orders 24 h', s.orders24h) + card('Revenue 30 d', s.revenue30d.length ? s.revenue30d.map((x) => money(x.amount, x.currency)).join(' + ') : '–') + card('Store', s.storeMode) + '</div>' +
         '<p class="muted">Figures refresh when you open this tab.</p>';
     },
     async reports(main) {
@@ -151,6 +153,20 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
       main.innerHTML = '<h2>Games</h2><table><tr><th>Started</th><th>White</th><th>Black</th><th>Time</th><th>Result</th><th>Moves</th></tr>' + rows.map((g) =>
         '<tr><td>' + when(g.started) + '</td><td>' + esc(g.white_name) + '</td><td>' + esc(g.black_name) + '</td><td>' + esc(g.tc) + (g.rated ? '' : ' <span class="tag">casual</span>') + '</td><td>' + esc(g.result || 'live') + ' <span class="muted">' + esc(g.reason || '') + '</span></td><td class="mono">' + (g.moves ? g.moves.split(' ').length : 0) + '</td></tr>').join('') + '</table>';
     },
+    async orders(main) {
+      const rows = await api('/orders');
+      main.innerHTML = '<h2>Orders</h2><p class="muted">Refunding here marks the order refunded and removes what it bought. Return the money in the payment provider\'s dashboard.</p>' +
+        (rows.length ? '<table><tr><th>When</th><th>Order</th><th>Player</th><th>Product</th><th>Amount</th><th>Provider</th><th>Status</th><th></th></tr>' + rows.map((o) =>
+          '<tr><td>' + when(o.created) + '</td><td class="mono">' + esc(o.id) + '</td><td><a href="#" data-user="' + o.user_id + '">' + esc(o.user_name) + '</a></td><td>' + esc(o.product) + '</td><td>' + money(o.amount, o.currency) + '</td><td>' + esc(o.provider) + (o.provider_ref ? ' <span class="muted mono">' + esc(o.provider_ref) + '</span>' : '') + '</td>' +
+          '<td><span class="tag ' + (o.status === 'paid' ? 'ok' : o.status === 'refunded' || o.status === 'failed' ? 'bad' : '') + '">' + esc(o.status) + '</span></td><td>' +
+          (o.status === 'paid' && can('entitlements.manage') ? '<button class="btn" data-refund="' + esc(o.id) + '">Refund…</button>' : '') + '</td></tr>').join('') + '</table>'
+          : '<p class="muted">No orders yet.</p>');
+      main.querySelectorAll('[data-user]').forEach((a) => { a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); }; });
+      main.querySelectorAll('[data-refund]').forEach((b) => { b.onclick = async () => {
+        const note = prompt('Why is this order refunded? (stored in the audit log)') || ''; if (!note.trim()) return;
+        try { await api('/orders/' + b.dataset.refund + '/refund', { note }); toast('Refunded.'); show('orders'); } catch (e) { toast(e.message); }
+      }; });
+    },
     async audit(main) {
       const r = await api('/audit');
       main.innerHTML = '<h2>Audit log</h2><p>' + (r.verify.ok ? '<span class="tag ok">Chain intact</span> ' + r.verify.checked + ' entries verified.' : '<span class="tag bad">Chain broken at entry ' + r.verify.brokenAt + '</span> Someone edited or removed audit rows. Escalate.') + '</p>' +
@@ -160,7 +176,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
     async staff(main) {
       const rows = await api('/staff');
       main.innerHTML = '<h2>Staff</h2><form class="toolbar" id="sf"><input id="se" type="email" placeholder="Email" required aria-label="Email"><select id="sr" aria-label="Role" style="max-width:160px"><option>support</option><option>moderator</option><option>admin</option></select><button class="btn primary">Add</button></form>' +
-        '<p class="muted">Support: read and mute. Moderator: plus bans and reports. Admin: plus rating resets and staff.</p>' +
+        '<p class="muted">Support: read and mute. Moderator: plus bans and reports. Admin: plus rating resets, refunds, Premium grants and staff.</p>' +
         '<table><tr><th>Email</th><th>Role</th><th>Added</th><th>Status</th><th></th></tr>' + rows.map((s) =>
           '<tr><td>' + esc(s.email) + '</td><td>' + esc(s.role) + '</td><td>' + when(s.created) + '</td><td>' + (s.disabled ? '<span class="tag bad">disabled</span>' : '<span class="tag ok">active</span>') + '</td><td>' +
           (s.email === me.email ? '' : '<button class="btn" data-sid="' + s.id + '" data-act="' + (s.disabled ? 'enable' : 'disable') + '">' + (s.disabled ? 'Enable' : 'Disable') + '</button>') + '</td></tr>').join('') + '</table>';
@@ -187,10 +203,23 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
       (can('users.mute') ? '<button class="btn" data-a="' + (u.muted ? 'unmute' : 'mute') + '">' + (u.muted ? 'Unmute' : 'Mute') + '</button>' : '') +
       (can('users.ban') ? (u.banned ? '<button class="btn" data-a="unban">Lift suspension</button>' : '<button class="btn danger" data-a="ban" data-reason="1">Suspend…</button>') : '') +
       (can('ratings.reset') ? '<button class="btn danger" data-a="reset-ratings" data-reason="1">Reset ratings…</button>' : '') + '</div>' +
+      (u.owns ? '<h3>Purchases</h3><p>' + (u.owns.premium ? '<span class="tag ok">Premium ' + (u.owns.premiumUntil === 'lifetime' ? 'lifetime' : 'until ' + when(u.owns.premiumUntil)) + '</span> ' : '<span class="tag">Free plan</span> ') +
+        u.owns.passes.map((x) => '<span class="tag ok">Pass ' + esc(x) + '</span>').join(' ') + '</p>' +
+        (u.entitlements.length ? '<table><tr><th>Granted</th><th>What</th><th>Source</th><th>Expires</th><th></th></tr>' + u.entitlements.map((x) => '<tr><td>' + when(x.granted) + '</td><td>' + esc(x.key) + '</td><td>' + esc(x.source) + (x.note ? ' <span class="muted">' + esc(x.note) + '</span>' : '') + '</td><td>' + (x.expires ? when(x.expires) : 'never') + '</td><td>' +
+          (x.revoked ? '<span class="tag bad">revoked</span>' : can('entitlements.manage') ? '<button class="btn" data-revoke="' + x.id + '">Revoke…</button>' : '') + '</td></tr>').join('') + '</table>' : '') +
+        (can('entitlements.manage') && !u.guest ? '<div class="actions"><button class="btn" data-grant="premium" data-days="30">Grant 30 days Premium…</button><button class="btn" data-grant="premium" data-days="0">Grant lifetime…</button></div>' : '') : '') +
       '<h3>Reports against this player</h3>' + (u.reports.length ? '<table><tr><th>When</th><th>Reason</th><th>Status</th></tr>' + u.reports.map((x) => '<tr><td>' + when(x.created) + '</td><td>' + esc(x.reason) + '</td><td>' + x.status + '</td></tr>').join('') + '</table>' : '<p class="muted">None.</p>') +
       '<h3>Recent games</h3>' + (u.games.length ? '<table><tr><th>When</th><th>Colour</th><th>Time</th><th>Result</th></tr>' + u.games.map((g) => '<tr><td>' + when(g.started) + '</td><td>' + (g.white === u.id ? 'White' : 'Black') + '</td><td>' + esc(g.tc) + '</td><td>' + esc(g.result || 'live') + ' <span class="muted">' + esc(g.reason || '') + '</span></td></tr>').join('') + '</table>' : '<p class="muted">None.</p>');
     document.body.appendChild(d);
     $('#dx', d).onclick = () => d.remove();
+    d.querySelectorAll('[data-grant]').forEach((b) => { b.onclick = async () => {
+      const note = prompt('Why? (stored in the audit log)') || ''; if (!note.trim()) return;
+      try { await api('/users/' + u.id + '/entitlements', { key: b.dataset.grant, days: Number(b.dataset.days), note }); toast('Granted.'); openUser(u.id); } catch (e) { toast(e.message); }
+    }; });
+    d.querySelectorAll('[data-revoke]').forEach((b) => { b.onclick = async () => {
+      const note = prompt('Why? (stored in the audit log)') || ''; if (!note.trim()) return;
+      try { await api('/entitlements/' + b.dataset.revoke + '/revoke', { note }); toast('Revoked.'); openUser(u.id); } catch (e) { toast(e.message); }
+    }; });
     d.querySelectorAll('[data-a]').forEach((b) => {
       b.onclick = async () => {
         let reason = '';

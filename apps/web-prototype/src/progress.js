@@ -1,8 +1,11 @@
 // Chacklate progression: XP, levels, achievements, streaks, stats and
-// cosmetic unlocks. Pure functions over a plain state object, so the page can
-// save it locally and the platform API can store the same shape per account.
-function ChacklateProgress(catalog) {
+// cosmetic unlocks, daily missions and the season track. Pure functions over a
+// plain state object, so the page can save it locally and the platform API can
+// store the same shape per account.
+function ChacklateProgress(catalog, extras) {
   'use strict';
+  const SEASONS = (extras && extras.seasons) || { tierXp: 300, seasons: [] };
+  const MISSIONS = (extras && extras.missions) || { perDay: 3, allDoneXp: 0, missions: [] };
   const TITLES = [[1, 'Cocoa Bean'], [5, 'Apprentice'], [10, 'Chocolatier'], [15, 'Maître'], [20, 'Grand Maître']];
   const ACHIEVEMENTS = [
     { id: 'first-game', name: 'First move', desc: 'Finish your first game.', xp: 20 },
@@ -50,7 +53,7 @@ function ChacklateProgress(catalog) {
 
   function fresh() {
     return {
-      v: 1, xp: 0, premium: false,
+      v: 1, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {},
@@ -63,6 +66,7 @@ function ChacklateProgress(catalog) {
     out.stats = Object.assign(f.stats, s.stats || {});
     out.stats.puzzles = Object.assign(fresh().stats.puzzles, (s.stats || {}).puzzles || {});
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
+    out.missions = Object.assign(f.missions, s.missions || {});
     return out;
   }
 
@@ -70,12 +74,84 @@ function ChacklateProgress(catalog) {
   const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 
   // Everything that grants XP goes through here; returns what changed for the UI.
+  // XP earned while a season runs also moves the player up that season's track.
   function grant(state, xp, out) {
     const before = levelFor(state.xp).level;
     state.xp += xp;
     out.xp += xp;
     const after = levelFor(state.xp).level;
     if (after > before) { out.levelUp = after; out.unlocked.push(...unlocksBetween(state, before, after)); }
+    const sid = state.season;
+    if (sid && seasonById(sid)) {
+      const t0 = tierOf(state, sid);
+      state.seasons[sid] = (state.seasons[sid] || 0) + xp;
+      const t1 = tierOf(state, sid);
+      if (t1 > t0) {
+        out.seasonTier = t1;
+        out.unlocked.push(...seasonItems(sid).filter((i) => i.unlock.tier > t0 && i.unlock.tier <= t1 && (i.unlock.track === 'free' || hasPass(state, sid))));
+      }
+    }
+  }
+
+  // ------------------------------------------------------------ seasons
+  const seasonById = (id) => SEASONS.seasons.find((x) => x.id === id) || null;
+  const seasonItems = (id) => catalog.items.filter((i) => i.unlock.type === 'season' && i.unlock.season === id).sort((a, b) => a.unlock.tier - b.unlock.tier);
+  function tierOf(state, id) {
+    const s = seasonById(id); if (!s) return 0;
+    return Math.min(s.tiers, Math.floor((state.seasons[id] || 0) / SEASONS.tierXp));
+  }
+  // Premium includes every season pass; a pass can also be bought on its own.
+  const hasPass = (state, id) => !!state.premium || (state.passes || []).includes(id);
+  function activeSeason(now) {
+    const d = today(now ? new Date(now) : undefined);
+    return SEASONS.seasons.find((x) => x.starts <= d && d < x.ends) || null;
+  }
+  // Called on start-up: points XP at the running season (or none between seasons).
+  function setSeason(state, now) {
+    const s = activeSeason(now);
+    state.season = s ? s.id : '';
+    return s;
+  }
+  function seasonInfo(state, id) {
+    const s = seasonById(id); if (!s) return null;
+    const xp = state.seasons[id] || 0, tier = tierOf(state, id);
+    const daysLeft = Math.max(0, dayDiff(today(), s.ends));
+    return { season: s, xp, tier, into: tier >= s.tiers ? SEASONS.tierXp : xp - tier * SEASONS.tierXp, need: SEASONS.tierXp, pass: hasPass(state, id), items: seasonItems(id), daysLeft };
+  }
+
+  // ------------------------------------------------------------ daily missions
+  // Three missions a day, the same for everyone on that date. Online missions only when online play exists.
+  function ensureMissions(state, now, opts) {
+    const d = today(now ? new Date(now) : undefined);
+    if (state.missions.date === d && state.missions.list.length) return state.missions;
+    let h = 7; for (const ch of d) h = (h * 131 + ch.charCodeAt(0)) >>> 0;
+    const pool = MISSIONS.missions.filter((m) => m.needs !== 'online' || (opts && opts.online));
+    const list = [];
+    const events = new Set();
+    for (let k = 0; list.length < Math.min(MISSIONS.perDay, pool.length) && k < pool.length * 4; k++) {
+      h = (h * 1103515245 + 12345) >>> 0;
+      const m = pool[(h >>> 16) % pool.length];
+      if (events.has(m.event)) continue;
+      events.add(m.event);
+      list.push({ id: m.id, n: 0, done: false });
+    }
+    state.missions = { date: d, list, bonus: false };
+    return state.missions;
+  }
+  const missionDef = (id) => MISSIONS.missions.find((m) => m.id === id);
+  function track(state, event, n, now, out) {
+    if (!MISSIONS.missions.length) return;
+    const ms = ensureMissions(state, now);
+    for (const rec of ms.list) {
+      const def = missionDef(rec.id);
+      if (!def || rec.done || def.event !== event) continue;
+      rec.n = Math.min(def.goal, rec.n + n);
+      if (rec.n >= def.goal) { rec.done = true; out.missions.push(def); grant(state, def.xp, out); }
+    }
+    if (!ms.bonus && ms.list.length && ms.list.every((r) => r.done)) { ms.bonus = true; out.missionsAll = true; grant(state, MISSIONS.allDoneXp, out); }
+  }
+  function missionList(state, now, opts) {
+    return ensureMissions(state, now, opts).list.map((r) => Object.assign({}, missionDef(r.id), r));
   }
   function achieve(state, id, out) {
     if (state.achievements[id] || !BY_ID[id]) return;
@@ -96,7 +172,7 @@ function ChacklateProgress(catalog) {
   function unlocksBetween(state, from, to) {
     return catalog.items.filter((i) => i.unlock.type === 'level' && i.unlock.level > from && i.unlock.level <= to);
   }
-  const result = () => ({ xp: 0, levelUp: 0, achievements: [], unlocked: [] });
+  const result = () => ({ xp: 0, levelUp: 0, achievements: [], unlocked: [], missions: [], seasonTier: 0 });
 
   // A finished game. g = { mode, level, won, drawn, lost, reason, moves (plies), sans, startFen, accuracy, online }
   function gameFinished(state, g, now) {
@@ -114,6 +190,11 @@ function ChacklateProgress(catalog) {
     achieve(state, 'first-game', out);
     if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); achieve(state, LEVEL_ACH[lv], out); }
     if (g.online) achieve(state, 'online-first', out);
+    if (g.plies >= 6) {
+      track(state, 'game', 1, now, out);
+      if (g.won) track(state, 'win', 1, now, out);
+      if (g.online) track(state, 'online', 1, now, out);
+    }
     const mine = (g.sans || []).filter((_, i) => (i % 2 === 0) === g.firstIsMine);
     if (mine.includes('O-O-O') || mine.some((s) => s.startsWith('O-O-O'))) achieve(state, 'long-castle', out);
     if (mine.some((s) => s.includes('='))) achieve(state, 'promote', out);
@@ -143,7 +224,8 @@ function ChacklateProgress(catalog) {
     if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
-    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); achieve(state, 'daily-puzzle', out); }
+    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
+    if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
   }
@@ -168,6 +250,7 @@ function ChacklateProgress(catalog) {
       if (ids.length && ids.every((id) => state.lessons[id])) achieve(state, 'chapter-' + ch, out);
     }
     if (allLessons.every((l) => state.lessons[l.id])) achieve(state, 'graduate', out);
+    track(state, 'lesson', 1, t, out);
     touchStreak(state, new Date(t), out);
     return out;
   }
@@ -181,6 +264,7 @@ function ChacklateProgress(catalog) {
     grant(state, clean ? 12 : 4, out);
     if (!rec.mastered && rec.clean >= 3) { rec.mastered = true; grant(state, 40, out); out.mastered = true; }
     if (Object.values(state.openings).filter((r) => r.mastered).length >= 3) achieve(state, 'repertoire', out);
+    track(state, 'drill', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
   }
@@ -195,16 +279,18 @@ function ChacklateProgress(catalog) {
     if (stars > prev.stars) grant(state, 15 * (stars - prev.stars), out);
     if (Object.values(state.dojo).filter((r) => r.stars === 3).length >= 3) achieve(state, 'dojo-3', out);
     out.stars = stars;
+    if (stars > 0) track(state, 'dojo', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
   }
 
-  function reviewFinished(state, review, side, plies) {
+  function reviewFinished(state, review, side, plies, now) {
     const out = result();
     const acc = review.summary.accuracy[side];
     if (acc !== null && acc !== undefined) { state.stats.accuracy.unshift(acc); state.stats.accuracy = state.stats.accuracy.slice(0, 20); }
     if (acc >= 90 && plies >= 40) achieve(state, 'accuracy-90', out);
     if (review.plies.some((p) => p.side === side && p.cls === 'brilliant')) achieve(state, 'brilliant', out);
+    if (plies >= 10) track(state, 'review', 1, now, out);
     return out;
   }
 
@@ -214,6 +300,7 @@ function ChacklateProgress(catalog) {
     if (u.type === 'level') return levelFor(state.xp).level >= u.level;
     if (u.type === 'achievement') return !!state.achievements[u.achievement];
     if (u.type === 'premium') return !!state.premium;
+    if (u.type === 'season') return tierOf(state, u.season) >= u.tier && (u.track === 'free' || hasPass(state, u.season));
     return false;
   }
   function unlockText(item) {
@@ -221,6 +308,7 @@ function ChacklateProgress(catalog) {
     if (u.type === 'level') return 'Reach level ' + u.level;
     if (u.type === 'achievement') return 'Achievement: ' + (BY_ID[u.achievement] ? BY_ID[u.achievement].name : u.achievement);
     if (u.type === 'premium') return 'Premium';
+    if (u.type === 'season') { const s = seasonById(u.season); return (s ? s.name : 'Season') + ' tier ' + u.tier + (u.track === 'pass' ? ' · Season Pass' : ''); }
     return 'Free';
   }
   function equip(state, item) {
@@ -255,7 +343,8 @@ function ChacklateProgress(catalog) {
     return Math.min(best, maxLevel);
   }
 
-  return { ACHIEVEMENTS, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today };
+  return { ACHIEVEMENTS, SEASONS, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
+    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateProgress;
