@@ -376,3 +376,59 @@ test('store: external provider webhooks must be signed', async () => {
     assert.strictEqual((await call(s.port, 'GET', '/api/me', null, s.token)).body.entitlements.premium, false);
   } finally { await s.app.close(); }
 });
+
+test('web push: RFC 8291 test vector, VAPID signature, daily reminders once per local day', async () => {
+  const push = require('../src/push');
+  const crypto = require('node:crypto');
+  const u = (s) => Buffer.from(s, 'base64url');
+  // RFC 8291 appendix A.
+  const out = push.encrypt('When I grow up, I want to be a watermelon', u('BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4'), u('BTBZMqHH6r4Tts7J_aSIgg'),
+    { asPrivate: u('yfWPiYE-n46HLnH0KqZOF1fJJU3MYrct3AELtAQ-oRw'), salt: u('DGv6ra1nlYgDCS1FRnbzlw') });
+  assert.strictEqual(out.toString('base64url'), 'DGv6ra1nlYgDCS1FRnbzlwAAEABBBP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A_yl95bQpu6cVPTpK4Mqgkf1CXztLVBSt2Ks3oZwbuwXPXLWyouBWLVWGNWQexSgSxsj_Qulcy4a-fN');
+  // The VAPID JWT verifies with the public key.
+  const v = push.generateVapid();
+  const hdr = push.vapidAuth('https://push.example.com/abc', v, 'mailto:a@b.c');
+  const [, jwt, k] = hdr.match(/^vapid t=([^,]+), k=(.+)$/);
+  assert.strictEqual(k, v.publicKey);
+  const [h, c, sig] = jwt.split('.');
+  assert.strictEqual(JSON.parse(u(c)).aud, 'https://push.example.com');
+  const pub = u(v.publicKey);
+  const key = crypto.createPublicKey({ format: 'jwk', key: { kty: 'EC', crv: 'P-256', x: pub.subarray(1, 33).toString('base64url'), y: pub.subarray(33).toString('base64url') } });
+  assert.ok(crypto.verify('sha256', Buffer.from(h + '.' + c), { key, dsaEncoding: 'ieee-p1363' }, u(sig)));
+
+  // Scheduling: a fake clock and a fake push service.
+  let clock = Date.parse('2026-11-02T13:00:00Z');  // 18:30 in India (+330)
+  const sent = [];
+  const app = createServer({ log: () => {}, push: { now: () => clock, send: async (s, msg) => { sent.push({ endpoint: s.endpoint, msg }); return s.endpoint.endsWith('gone') ? 410 : 201; } } });
+  const port = await app.listen(0, '127.0.0.1');
+  try {
+    const keyRes = await call(port, 'GET', '/api/push/key');
+    assert.strictEqual(u(keyRes.body.publicKey).length, 65);
+    const reg = await call(port, 'POST', '/api/register', { name: 'pusher', password: 'a long password' });
+    const ua = crypto.createECDH('prime256v1'); ua.generateKeys();
+    const sub = (endpoint) => ({ endpoint, keys: { p256dh: ua.getPublicKey().toString('base64url'), auth: crypto.randomBytes(16).toString('base64url') } });
+    assert.strictEqual((await call(port, 'POST', '/api/push/subscribe', { subscription: sub('http://insecure.example.com/x'), hour: 19, tz: 330 }, reg.body.token)).status, 400);
+    assert.strictEqual((await call(port, 'POST', '/api/push/subscribe', { subscription: sub('https://push.example.com/a'), hour: 19, tz: 330 }, reg.body.token)).status, 200);
+    assert.strictEqual((await call(port, 'POST', '/api/push/subscribe', { subscription: sub('https://push.example.com/gone'), hour: 19, tz: 330 }, reg.body.token)).status, 200);
+    assert.strictEqual(await app.push.tick(), 0, 'not 19:00 yet');
+    clock += 45 * 60000;  // 19:15 local
+    assert.strictEqual(await app.push.tick(), 1);
+    assert.strictEqual(sent.length, 2);
+    assert.match(sent[0].msg.title, /puzzle/);
+    assert.strictEqual(app.db.get('SELECT COUNT(*) n FROM push_subs').n, 1, 'a 410 removes the subscription');
+    assert.strictEqual(await app.push.tick(), 0, 'once per day');
+    // Next day, with a streak running and no play yet: the streak message.
+    clock += 86400e3;
+    app.db.run('UPDATE users SET progress = ? WHERE id = ?', JSON.stringify({ streak: { count: 4, last: '2026-11-02' } }), reg.body.user.id);
+    await app.push.tick();
+    assert.match(sent[sent.length - 1].msg.title, /4-day streak/);
+    // Already played today: no reminder.
+    clock += 86400e3;
+    app.db.run('UPDATE users SET progress = ? WHERE id = ?', JSON.stringify({ streak: { count: 5, last: '2026-11-04' } }), reg.body.user.id);
+    const before = sent.length;
+    await app.push.tick();
+    assert.strictEqual(sent.length, before);
+    await call(port, 'POST', '/api/push/unsubscribe', { endpoint: 'https://push.example.com/a' }, reg.body.token);
+    assert.strictEqual(app.db.get('SELECT COUNT(*) n FROM push_subs').n, 0);
+  } finally { await app.close(); }
+});

@@ -8,6 +8,7 @@ Accounts, ratings, matchmaking, live games, leaderboards, reports and the staff 
 | `src/lobby.js` | Guests and sessions, seek queue with a widening rating window, friend codes, server-side move validation with the shared engine, clocks with increment, first-move abort, 60 s reconnect grace, results and rating updates. |
 | `src/glicko.js` | Glicko-2, separate bullet, blitz and rapid pools. |
 | `src/admin.js` | Staff login and role-based permissions (support, moderator, admin). |
+| `src/push.js` | Web Push with no dependencies: VAPID signing and RFC 8291 payload encryption, plus the daily reminder (at the player's chosen local hour, only if they have not played that day). |
 | `src/commerce.js` | Store products, orders and entitlements (Premium with stacking renewals, lifetime, season passes), refunds and the payment provider webhook. |
 | `src/audit.js` | Append-only audit log; each row hashes the previous one so edits are detectable. |
 | `src/ws.js` | Minimal RFC 6455 WebSocket server. |
@@ -25,13 +26,15 @@ node --test test/*.test.js     # or: npm test
 
 Payments: `CHACKLATE_PAYMENTS` is `off` (default: the store lists products, checkout is closed), `dev` (purchases complete on a confirm tap and no money moves, for testing) or `external`. In `external` mode checkout redirects to `CHACKLATE_CHECKOUT_URL` (with `{order}` replaced by the order id) and the provider calls `POST /api/store/webhook` with `{"order","event":"paid"|"refunded"|"failed","ref"}`, signed as hex HMAC-SHA256 of the raw body with `CHACKLATE_PAYMENT_SECRET` in the `X-Chacklate-Signature` header. A thin adapter turns Razorpay, Stripe or App Store / Play server notifications into that call.
 
+Reminders: VAPID keys come from `CHACKLATE_VAPID_PUBLIC` / `CHACKLATE_VAPID_PRIVATE`, or are generated once and kept in the database. Set `CHACKLATE_PUSH_SUBJECT` to a real `mailto:` or `https:` contact before launch; push services use it to reach you.
+
 The first admin is created from the two environment variables when the staff table is empty; add more staff from the console or with `node src/cli.js create-staff`. `CHACKLATE_DB` sets the database file and `PORT` the port.
 
 ## Protocol
 
 Clients send JSON over `/ws`, starting with `{"type":"hello","token":...}`. A missing or unknown token creates a guest. Then: `seek {tc}`, `cancel`, `friend-create {tc}`, `friend-join {code}`, `move {uci, ply}`, `resign`, `draw-offer`, `draw-accept`, `draw-decline`, `claim`, `sync`, `progress {data}`, `report {reason, game}`. The server answers with `welcome`, `seeking`, `start`, `move`, `ack`, `sync`, `status`, `draw-offer`, `end`, `friend-code`, `error` and `banned`. The server is the referee: it checks every move with `packages/chess-core`, runs the clocks and decides results.
 
-HTTP: `POST /api/register` (upgrades the current guest, keeping ratings), `POST /api/login`, `POST /api/logout`, `GET /api/me`, `GET /api/leaderboard?pool=blitz`, `GET /api/players/:name`, `GET /api/games/:id`, `GET /api/store`, `POST /api/store/checkout {product}`, `POST /api/store/dev/complete {order}` (dev mode), `POST /api/store/webhook`, and `/api/admin/*` for staff. `/api/me` and the `welcome` message carry the player's entitlements; clients never send them.
+HTTP: `POST /api/register` (upgrades the current guest, keeping ratings), `POST /api/login`, `POST /api/logout`, `GET /api/me`, `GET /api/leaderboard?pool=blitz`, `GET /api/players/:name`, `GET /api/games/:id`, `GET /api/push/key`, `POST /api/push/subscribe {subscription, hour, tz}`, `POST /api/push/unsubscribe {endpoint}`, `GET /api/store`, `POST /api/store/checkout {product}`, `POST /api/store/dev/complete {order}` (dev mode), `POST /api/store/webhook`, and `/api/admin/*` for staff. `/api/me` and the `welcome` message carry the player's entitlements; clients never send them.
 
 ## Not production-ready yet
 
