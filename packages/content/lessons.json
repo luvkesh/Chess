@@ -1,338 +1,3573 @@
 {
-  "version": 1,
-  "chapters": [
-    { "n": 1, "title": "Board, setup and how the pieces move", "access": "free" },
-    { "n": 2, "title": "Check, checkmate, stalemate and draws", "access": "free" },
-    { "n": 3, "title": "Opening principles", "access": "free" },
-    { "n": 4, "title": "Tactical vision", "access": "premium" }
-  ],
-  "lessons": [
+ "version": 1,
+ "chapters": [
+  {
+   "n": 1,
+   "title": "Board, setup and how the pieces move",
+   "access": "free"
+  },
+  {
+   "n": 2,
+   "title": "Check, checkmate, stalemate and draws",
+   "access": "free"
+  },
+  {
+   "n": 3,
+   "title": "Opening principles",
+   "access": "free"
+  },
+  {
+   "n": 4,
+   "title": "Tactical vision",
+   "access": "premium"
+  },
+  {
+   "n": 5,
+   "title": "Defence, king safety and escaping threats",
+   "access": "premium"
+  },
+  {
+   "n": 6,
+   "title": "Positional play, pawn structure and strong squares",
+   "access": "premium"
+  },
+  {
+   "n": 7,
+   "title": "Planning, exchanges, initiative and strategy",
+   "access": "premium"
+  },
+  {
+   "n": 8,
+   "title": "Endgames, king activity, promotion and opposition",
+   "access": "premium"
+  },
+  {
+   "n": 9,
+   "title": "Calculation, candidate moves and combinations",
+   "access": "premium"
+  },
+  {
+   "n": 10,
+   "title": "Competitive play, time and review",
+   "access": "premium"
+  }
+ ],
+ "lessons": [
+  {
+   "id": "lesson.c01.l01.board",
+   "chapter": 1,
+   "title": "The board and its squares",
+   "minutes": 3,
+   "objectives": [
+    "Name any square, like e4",
+    "Find files, ranks and diagonals"
+   ],
+   "steps": [
     {
-      "id": "lesson.c01.l01.board", "chapter": 1, "title": "The board and its squares", "minutes": 3,
-      "objectives": ["Name any square, like e4", "Find files, ranks and diagonals"],
-      "steps": [
-        { "say": "Welcome to Chacklate Chess. The board has 64 squares in 8 columns and 8 rows. The light square is always in the bottom-right corner.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "marks": ["h1"] },
-        { "say": "Columns are called files and are lettered a to h. Rows are called ranks and are numbered 1 to 8. White starts on ranks 1 and 2.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "marks": ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"] },
-        { "say": "Every square has a name: its file, then its rank. This glowing square is e4, one of the four centre squares.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "marks": ["e4"] },
-        { "say": "Squares of the same colour that touch at the corners form a diagonal, like this one from a1 to h8.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "arrows": [["a1", "h8"]] }
-      ],
-      "exercises": [
-        { "type": "square", "prompt": "Click the e4 square.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "answers": ["e4"], "hints": ["Files are letters, ranks are numbers.", "Find the e-file, then count up 4."] },
-        { "type": "square", "prompt": "Click d5.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "answers": ["d5"], "hints": ["d is the fourth file from the left.", "Count up five rows."] },
-        { "type": "square", "prompt": "Click any one of the four centre squares.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "answers": ["d4", "e4", "d5", "e5"], "hints": ["They are in the very middle of the board."] },
-        { "type": "square", "prompt": "Click h8, the top-right corner from White's side.", "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1", "answers": ["h8"], "hints": ["The h-file is on the right, rank 8 is at the far end."] }
-      ]
+     "say": "Welcome to Chacklate Chess. The board has 64 squares in 8 columns and 8 rows. The light square is always in the bottom-right corner.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "marks": [
+      "h1"
+     ]
     },
     {
-      "id": "lesson.c01.l02.setup", "chapter": 1, "title": "Setting up the pieces", "minutes": 3,
-      "objectives": ["Set up the starting position", "Remember: queen on her own colour"],
-      "steps": [
-        { "say": "This is the starting position. Pawns fill the second rank. Rooks go in the corners, then knights, then bishops.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "marks": ["a1", "h1", "b1", "g1", "c1", "f1"] },
-        { "say": "The queen goes on her own colour: the white queen on the light square d1, the black queen on the dark square d8. The kings stand next to them.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "marks": ["d1", "d8", "e1", "e8"] },
-        { "say": "White always moves first. After that, the players take turns, one move each.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" }
-      ],
-      "exercises": [
-        { "type": "square", "prompt": "Where does the white queen start? Click her square.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "answers": ["d1"], "hints": ["The queen goes on her own colour.", "The white queen is on a light square on rank 1."] },
-        { "type": "square", "prompt": "Click the black king.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "answers": ["e8"], "hints": ["The king stands next to the queen.", "Look on rank 8, the e-file."] },
-        { "type": "square", "prompt": "Click one of White's knights.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "answers": ["b1", "g1"], "hints": ["Knights stand next to the rooks."] }
-      ]
+     "say": "Columns are called files and are lettered a to h. Rows are called ranks and are numbered 1 to 8. White starts on ranks 1 and 2.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "marks": [
+      "a1",
+      "a2",
+      "a3",
+      "a4",
+      "a5",
+      "a6",
+      "a7",
+      "a8"
+     ]
     },
     {
-      "id": "lesson.c01.l03.rook-bishop", "chapter": 1, "title": "The rook and the bishop", "minutes": 4,
-      "objectives": ["Move a rook along files and ranks", "Move a bishop along diagonals"],
-      "steps": [
-        { "say": "The rook moves in straight lines, up, down and sideways, as far as it likes until something is in the way.", "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1", "arrows": [["d4", "d8"], ["d4", "d1"], ["d4", "a4"], ["d4", "h4"]] },
-        { "say": "The bishop moves diagonally, any distance. A bishop that starts on a light square stays on light squares all game.", "fen": "1k6/8/8/8/3B4/8/7K/8 w - - 0 1", "arrows": [["d4", "a7"], ["d4", "h8"], ["d4", "a1"], ["d4", "g1"]] },
-        { "say": "Pieces cannot jump over others. They can capture an enemy piece by landing on its square.", "fen": "1k6/8/3p4/8/3R4/8/7K/8 w - - 0 1", "arrows": [["d4", "d6"]], "marks": ["d6"] }
-      ],
-      "exercises": [
-        { "type": "targets", "prompt": "Click every square the rook on d4 can move to.", "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1", "from": "d4", "hints": ["Straight lines only.", "Four directions: up, down, left and right."] },
-        { "type": "targets", "prompt": "Now every square the bishop on d4 can reach.", "fen": "1k6/8/8/8/3B4/8/7K/8 w - - 0 1", "from": "d4", "hints": ["Diagonals only.", "There are four diagonal directions."] },
-        { "type": "move", "prompt": "Capture the black pawn with your rook.", "fen": "1k6/8/3p4/8/3R4/8/7K/8 w - - 0 1", "answers": ["d4d6"], "hints": ["The pawn is on the same file as your rook."] }
-      ]
+     "say": "Every square has a name: its file, then its rank. This glowing square is e4, one of the four centre squares.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "marks": [
+      "e4"
+     ]
     },
     {
-      "id": "lesson.c01.l04.queen-king", "chapter": 1, "title": "The queen and the king", "minutes": 4,
-      "objectives": ["Combine rook and bishop moves in the queen", "Move the king one square at a time"],
-      "steps": [
-        { "say": "The queen is the strongest piece. She moves like a rook and a bishop combined.", "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1", "arrows": [["d4", "d8"], ["d4", "h4"], ["d4", "h8"], ["d4", "a7"], ["d4", "a1"], ["d4", "g1"], ["d4", "d1"], ["d4", "a4"]] },
-        { "say": "The king is the most important piece but moves only one square in any direction. Lose the king and you lose the game.", "fen": "1k6/8/8/8/3K4/8/8/8 w - - 0 1", "marks": ["c3", "d3", "e3", "c4", "e4", "c5", "d5", "e5"] }
-      ],
-      "exercises": [
-        { "type": "targets", "prompt": "Click every square the queen on d4 can reach.", "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1", "from": "d4", "hints": ["Rook lines plus bishop lines.", "Eight directions in total."] },
-        { "type": "targets", "prompt": "Click every square the king on d4 can step to.", "fen": "1k6/8/8/8/3K4/8/8/8 w - - 0 1", "from": "d4", "hints": ["One square in any direction."] }
+     "say": "Squares of the same colour that touch at the corners form a diagonal, like this one from a1 to h8.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "arrows": [
+      [
+       "a1",
+       "h8"
       ]
-    },
-    {
-      "id": "lesson.c01.l05.knight", "chapter": 1, "title": "The knight's jump", "minutes": 4,
-      "objectives": ["Move the knight in an L shape", "Use the knight's ability to jump"],
-      "steps": [
-        { "say": "The knight moves in an L: two squares one way, then one square to the side. It always lands on a square of the other colour.", "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1", "arrows": [["d4", "e6"], ["d4", "c6"], ["d4", "f5"], ["d4", "b5"], ["d4", "f3"], ["d4", "b3"], ["d4", "e2"], ["d4", "c2"]] },
-        { "say": "The knight is the only piece that can jump over others. That is why it can leave the back rank at the very start of the game.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "arrows": [["g1", "f3"], ["b1", "c3"]] }
-      ],
-      "exercises": [
-        { "type": "targets", "prompt": "Click every square the knight on d4 can jump to.", "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1", "from": "d4", "hints": ["Two squares, then one to the side.", "There are eight of them from the centre."] },
-        { "type": "targets", "prompt": "A knight in the corner is much weaker. Click its squares.", "fen": "1k6/8/8/8/8/8/7K/N7 w - - 0 1", "from": "a1", "hints": ["Only two squares are possible from a corner."] },
-        { "type": "move", "prompt": "Jump over the pawns and develop the g1 knight towards the centre.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "answers": ["g1f3"], "hints": ["The centre is d4, e4, d5 and e5.", "Nf3 points the knight at e5 and d4."], "wrong": { "g1h3": "That works, but a knight on the edge controls fewer squares. Aim for the centre." } }
-      ]
-    },
-    {
-      "id": "lesson.c01.l06.pawns", "chapter": 1, "title": "Pawns and promotion", "minutes": 5,
-      "objectives": ["Move pawns forward and capture diagonally", "Promote a pawn on the last rank"],
-      "steps": [
-        { "say": "Pawns move straight forward one square. From their starting square they may move two.", "fen": "1k6/8/8/8/8/8/4P3/7K w - - 0 1", "arrows": [["e2", "e4"]] },
-        { "say": "Pawns capture differently: one square diagonally forward. They never move backwards.", "fen": "1k6/8/8/3n4/4P3/8/8/7K w - - 0 1", "arrows": [["e4", "d5"]] },
-        { "say": "When a pawn reaches the far end it promotes. You choose a queen, rook, bishop or knight. Almost always, choose a queen.", "fen": "1k6/4P3/8/8/8/8/8/7K w - - 0 1", "arrows": [["e7", "e8"]] }
-      ],
-      "exercises": [
-        { "type": "targets", "prompt": "Click every square this pawn can move to.", "fen": "1k6/8/8/8/8/8/4P3/7K w - - 0 1", "from": "e2", "hints": ["From its first square a pawn can move one or two."] },
-        { "type": "move", "prompt": "Capture the knight with your pawn.", "fen": "1k6/8/8/3n4/4P3/8/8/7K w - - 0 1", "answers": ["e4d5"], "hints": ["Pawns capture diagonally forward."] },
-        { "type": "move", "prompt": "Promote your pawn to a queen.", "fen": "1k6/4P3/8/8/8/8/8/7K w - - 0 1", "answers": ["e7e8q"], "hints": ["Push the pawn to the last rank and choose the queen."] }
-      ]
-    },
-    {
-      "id": "lesson.c01.l07.values", "chapter": 1, "title": "Capturing and piece values", "minutes": 4,
-      "objectives": ["Use piece values to compare trades", "Pick the most valuable safe capture"],
-      "steps": [
-        { "say": "A rough guide to value: pawn 1, knight 3, bishop 3, rook 5, queen 9. The king is priceless.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" },
-        { "say": "When you have a choice of captures, take the most valuable piece you can win safely.", "fen": "1k6/8/2r5/8/3N4/5p2/8/7K w - - 0 1", "arrows": [["d4", "c6"], ["d4", "f3"]] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Which capture wins the most? Play it.", "fen": "1k6/8/2r5/8/3N4/5p2/8/7K w - - 0 1", "answers": ["d4c6"], "hints": ["A rook is worth 5, a pawn 1."], "wrong": { "d4f3": "The pawn is only worth 1. The rook on c6 is worth 5." } },
-        { "type": "choice", "prompt": "You can trade your bishop for a rook. Is that good for you?", "options": ["Yes: a rook (5) is worth more than a bishop (3)", "No: bishops are always better", "It makes no difference"], "answer": 0 }
-      ]
-    },
-    {
-      "id": "lesson.c02.l01.check", "chapter": 2, "title": "Check and its three escapes", "minutes": 5,
-      "objectives": ["Recognise check", "Escape by moving, blocking or capturing"],
-      "steps": [
-        { "say": "When a king is attacked, it is in check. You must get out of check immediately.", "fen": "k3r3/8/8/8/8/8/8/4K3 w - - 0 1", "arrows": [["e8", "e1"]], "marks": ["e1"] },
-        { "say": "There are three ways out: move the king, block the attack, or capture the attacker. Remember them as run, block, take.", "fen": "4k3/8/8/8/8/8/3B4/r3K3 w - - 0 1", "arrows": [["a1", "e1"], ["d2", "c1"]] }
-      ],
-      "exercises": [
-        { "type": "anyLegal", "prompt": "Your king is in check. Move it to safety.", "fen": "k3r3/8/8/8/8/8/8/4K3 w - - 0 1", "hints": ["The rook controls the whole e-file.", "Step sideways off the file."] },
-        { "type": "move", "prompt": "Block the check with your bishop.", "fen": "4k3/8/8/8/8/8/3B4/r3K3 w - - 0 1", "answers": ["d2c1"], "hints": ["Put a piece between the rook and your king.", "The bishop can reach c1."] },
-        { "type": "move", "prompt": "Capture the piece giving check.", "fen": "4k3/8/8/8/8/8/4r3/4K3 w - - 0 1", "answers": ["e1e2"], "hints": ["The rook is right next to your king and nothing defends it."] }
-      ]
-    },
-    {
-      "id": "lesson.c02.l02.checkmate", "chapter": 2, "title": "Checkmate", "minutes": 5,
-      "objectives": ["Recognise checkmate", "Deliver simple mates in one"],
-      "steps": [
-        { "say": "Checkmate is check with no escape. The king cannot run, the check cannot be blocked and the attacker cannot be captured. Checkmate wins the game.", "fen": "R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1", "arrows": [["a8", "g8"]], "marks": ["g8"] },
-        { "say": "This pattern is called the back-rank mate: the king's own pawns trap it.", "fen": "R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1", "marks": ["f7", "g7", "h7"] }
-      ],
-      "exercises": [
-        { "type": "mate", "prompt": "Checkmate in one move.", "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1", "hints": ["Black's king is stuck behind its pawns.", "Use the rook on the back rank."] },
-        { "type": "mate", "prompt": "Checkmate with the queen.", "fen": "7k/8/6K1/8/8/8/8/1Q6 w - - 0 1", "hints": ["Your king already covers g7 and h7.", "Attack along the eighth rank."], "wrong": { "b1h1": "Black escapes to g8. Check along the eighth rank instead." } },
-        { "type": "mate", "prompt": "Black left f7 weak. Checkmate!", "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4", "hints": ["f7 is only defended by the king.", "Your bishop supports the queen."] }
-      ]
-    },
-    {
-      "id": "lesson.c02.l03.castling", "chapter": 2, "title": "Castling rules", "minutes": 5,
-      "objectives": ["Castle on either side", "Know when castling is not allowed"],
-      "steps": [
-        { "say": "Castling is a special move of the king and a rook. The king moves two squares towards the rook, and the rook jumps over to the other side of the king.", "fen": "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1", "arrows": [["e1", "g1"], ["h1", "f1"]] },
-        { "say": "You may not castle if the king or that rook has moved, if you are in check, or if the king would pass through or land on an attacked square.", "fen": "r3k2r/8/8/8/8/8/5r2/R3K2R w KQkq - 0 1", "marks": ["f1"], "arrows": [["f2", "f1"]] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Castle on the kingside.", "fen": "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1", "answers": ["e1g1"], "hints": ["Move your king two squares towards the h1 rook."] },
-        { "type": "move", "prompt": "Castle on the queenside.", "fen": "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1", "answers": ["e1c1"], "hints": ["Move your king two squares towards the a1 rook."] },
-        { "type": "move", "prompt": "The black rook attacks f1, so you cannot castle kingside. Castle the other way.", "fen": "r3k2r/8/8/8/8/8/5r2/R3K2R w KQkq - 0 1", "answers": ["e1c1"], "hints": ["The queenside path, d1 and c1, is safe."] }
-      ]
-    },
-    {
-      "id": "lesson.c02.l04.en-passant", "chapter": 2, "title": "En passant", "minutes": 4,
-      "objectives": ["Capture en passant", "Know it is only possible immediately"],
-      "steps": [
-        { "say": "If a pawn moves two squares and lands right beside your pawn, you may capture it as if it had moved only one. This is en passant, French for 'in passing'.", "fen": "4k3/3p4/8/4P3/8/8/8/4K3 b - - 0 1", "play": ["d7d5"], "arrows": [["e5", "d6"]] },
-        { "say": "You can only do it on the very next move. Wait one turn and the chance is gone.", "fen": "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 2", "marks": ["d6"] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Black just played d7–d5. Capture en passant.", "fen": "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 2", "answers": ["e5d6"], "hints": ["Your pawn moves diagonally to d6.", "The black pawn on d5 is removed."] }
-      ]
-    },
-    {
-      "id": "lesson.c02.l05.stalemate", "chapter": 2, "title": "Stalemate is not a win", "minutes": 4,
-      "objectives": ["Recognise stalemate", "Avoid stalemating when winning"],
-      "steps": [
-        { "say": "If the side to move has no legal moves but is not in check, it is stalemate, and the game is a draw. Even a queen up!", "fen": "7k/8/6QK/8/8/8/8/8 b - - 0 1", "marks": ["h8"] },
-        { "say": "When you are winning, always check that your opponent still has a move, unless you are delivering checkmate.", "fen": "7k/8/5K2/8/8/8/8/6Q1 w - - 0 1" }
-      ],
-      "exercises": [
-        { "type": "mate", "prompt": "Win with checkmate. Careful not to stalemate.", "fen": "7k/8/5K2/8/8/8/8/6Q1 w - - 0 1", "hints": ["Your king protects g7.", "Put the queen next to the black king."], "wrong": { "g1g6": "Stalemate! Black has no moves but is not in check. That is only a draw." } },
-        { "type": "choice", "prompt": "Black to move has no legal moves and is not in check. What is the result?", "options": ["White wins", "Draw by stalemate", "Black loses a turn"], "answer": 1 }
-      ]
-    },
-    {
-      "id": "lesson.c02.l06.draws", "chapter": 2, "title": "Draws: repetition, fifty moves and material", "minutes": 4,
-      "objectives": ["Know the ways a game can be drawn"],
-      "steps": [
-        { "say": "A game is drawn by stalemate, by agreement, when neither side has enough pieces to checkmate, or when the same position appears three times.", "fen": "8/8/4k3/8/8/3K4/8/8 w - - 0 1" },
-        { "say": "There is also the fifty-move rule: fifty moves each with no capture and no pawn move, and a player may claim a draw.", "fen": "8/8/4k3/8/8/2BK4/8/8 w - - 0 1" }
-      ],
-      "exercises": [
-        { "type": "choice", "prompt": "King and bishop against a lone king. Can the bishop side win?", "options": ["Yes, with care", "No, it is a draw: not enough material", "Only on light squares"], "answer": 1 },
-        { "type": "choice", "prompt": "The same position has appeared three times. What can a player do?", "options": ["Claim a draw", "Take back a move", "Nothing"], "answer": 0 }
-      ]
-    },
-    {
-      "id": "lesson.c02.l07.basic-mates", "chapter": 2, "title": "Basic mates: the rook ladder", "minutes": 5,
-      "objectives": ["Mate with two rooks", "Use one rook to cut off the king"],
-      "steps": [
-        { "say": "Two rooks checkmate by taking turns: one guards a rank, the other gives check on the next rank. The king is pushed to the edge like climbing a ladder.", "fen": "4k3/R7/8/8/8/8/8/1R4K1 w - - 0 1", "arrows": [["a7", "h7"], ["b1", "b8"]] }
-      ],
-      "exercises": [
-        { "type": "mate", "prompt": "Finish the ladder: checkmate in one.", "fen": "4k3/R7/8/8/8/8/8/1R4K1 w - - 0 1", "hints": ["The a7 rook already guards the seventh rank.", "Give check on the eighth."], "wrong": { "a7a8": "The king escapes to the seventh rank. Keep the a7 rook where it is." } },
-        { "type": "mate", "prompt": "Rook and king: checkmate in one.", "fen": "3k4/8/3K4/8/8/8/8/7R w - - 0 1", "hints": ["Your king takes away c7, d7 and e7.", "Check along the back rank."] }
-      ]
-    },
-    {
-      "id": "lesson.c03.l01.centre", "chapter": 3, "title": "Fight for the centre", "minutes": 4,
-      "objectives": ["Occupy or control the centre early"],
-      "steps": [
-        { "say": "Pieces in the centre control more squares and can switch quickly to either side. Start by placing a pawn in the centre.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "marks": ["d4", "e4", "d5", "e5"] },
-        { "say": "1. e4 opens lines for the queen and bishop and grabs central space.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "play": ["e2e4"] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Make a first move that puts a pawn in the centre.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "answers": ["e2e4", "d2d4"], "hints": ["The centre squares are d4, e4, d5 and e5."], "wrong": { "a2a4": "Edge pawns do little at the start. Aim for the centre." } },
-        { "type": "move", "prompt": "White took the centre. Answer by challenging it with a pawn.", "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1", "answers": ["e7e5", "d7d5", "c7c5"], "hints": ["A pawn on e5 or d5 contests the centre directly."] }
-      ]
-    },
-    {
-      "id": "lesson.c03.l02.develop", "chapter": 3, "title": "Develop before you attack", "minutes": 4,
-      "objectives": ["Bring knights and bishops out early"],
-      "steps": [
-        { "say": "Developing means bringing pieces off the back rank. Knights first, usually towards the centre, then bishops.", "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2", "arrows": [["g1", "f3"], ["b1", "c3"], ["f1", "c4"]] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Develop a knight towards the centre.", "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2", "answers": ["g1f3", "b1c3"], "hints": ["Knights belong on f3 and c3."] },
-        { "type": "move", "prompt": "Now develop your light-squared bishop to an active square.", "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3", "answers": ["f1c4", "f1b5"], "hints": ["c4 aims at f7, b5 pressures the knight on c6."] }
-      ]
-    },
-    {
-      "id": "lesson.c03.l03.king-safety", "chapter": 3, "title": "King safety and castling timing", "minutes": 4,
-      "objectives": ["Castle early to protect the king"],
-      "steps": [
-        { "say": "A king in the centre is exposed once lines open. Castling tucks it away and brings a rook towards the middle.", "fen": "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4", "arrows": [["e1", "g1"]] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Your pieces are out. Make your king safe.", "fen": "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4", "answers": ["e1g1"], "hints": ["The squares between your king and the h1 rook are empty."] }
-      ]
-    },
-    {
-      "id": "lesson.c03.l04.tempo", "chapter": 3, "title": "Don't move the same piece twice", "minutes": 3,
-      "objectives": ["Value tempo in the opening"],
-      "steps": [
-        { "say": "Every move in the opening is precious. Moving one piece again and again leaves the others asleep at home.", "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2" }
-      ],
-      "exercises": [
-        { "type": "choice", "prompt": "Your knight is already on f3. What usually helps more on the next move?", "options": ["Moving the f3 knight again", "Developing another piece", "Pushing an edge pawn"], "answer": 1 },
-        { "type": "move", "prompt": "Develop a new piece rather than moving the f3 knight again.", "fen": "rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3", "answers": ["b1c3", "f1c4", "f1b5", "f1e2", "d2d3", "d2d4"], "hints": ["Your b1 knight and f1 bishop have not moved yet."] }
-      ]
-    },
-    {
-      "id": "lesson.c03.l05.queen-early", "chapter": 3, "title": "Don't bring the queen out too early", "minutes": 4,
-      "objectives": ["Defend against early queen attacks"],
-      "steps": [
-        { "say": "An early queen can be chased by developing moves, gaining you time. But first, deal with any threat!", "fen": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3", "arrows": [["h5", "f7"], ["c4", "f7"]] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "White threatens Qxf7 checkmate. Stop it.", "fen": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3", "answers": ["g7g6", "d8e7", "d8f6", "g8h6"], "safe": true, "hints": ["You can block the queen's diagonal or defend f7.", "g6 blocks and attacks the queen."], "wrong": { "g8f6": "Natural, but now Qxf7 is checkmate. Defend f7 or block the queen." } }
-      ]
-    },
-    {
-      "id": "lesson.c03.l06.rooks", "chapter": 3, "title": "Connect your rooks", "minutes": 3,
-      "objectives": ["Finish development by connecting rooks"],
-      "steps": [
-        { "say": "Development is complete when the rooks see each other along the back rank. Then they can move to the open files.", "fen": "r2q1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P1b1/2NP1N2/PPP2PPP/R2Q1RK1 w - - 0 8", "arrows": [["a1", "f1"]] }
-      ],
-      "exercises": [
-        { "type": "choice", "prompt": "What connects your rooks?", "options": ["Moving all pieces off the back rank between them", "Pushing the rook pawns", "Moving the king forward"], "answer": 0 }
-      ]
-    },
-    {
-      "id": "lesson.c03.l07.traps", "chapter": 3, "title": "Watch out for early traps", "minutes": 4,
-      "objectives": ["Spot the fastest mates", "Avoid weakening the king early"],
-      "steps": [
-        { "say": "Moving the f and g pawns early opens a diagonal to the white king. This is the fastest checkmate in chess, the Fool's Mate.", "fen": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2", "arrows": [["d8", "h4"]] }
-      ],
-      "exercises": [
-        { "type": "mate", "prompt": "Punish White's weak pawn moves: checkmate in one.", "fen": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2", "hints": ["The e1–h4 diagonal is open.", "Your queen can reach h4."] }
-      ]
-    },
-    {
-      "id": "lesson.c03.l08.model", "chapter": 3, "title": "Putting it together: a model opening", "minutes": 5,
-      "objectives": ["Play a sound opening from start to castling"],
-      "steps": [
-        { "say": "Watch a model opening: centre pawn, knights out, bishop active, castle.", "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "play": ["e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "f8c5", "e1g1"] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Black to move. Develop and prepare to castle.", "fen": "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4", "answers": ["g8f6", "d7d6", "g8e7"], "hints": ["Your g8 knight is the last minor piece at home."] }
-      ]
-    },
-    {
-      "id": "lesson.c04.l01.forks", "chapter": 4, "title": "Forks", "minutes": 6,
-      "objectives": ["Attack two pieces with one move"],
-      "steps": [
-        { "say": "A fork is one piece attacking two or more targets at once. Knights are famous forkers.", "fen": "r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1", "arrows": [["b5", "c7"]] },
-        { "say": "After Nc7 check, the king must move, and the rook on a8 falls.", "fen": "r3k3/2N5/8/8/8/8/8/4K3 b - - 1 1", "arrows": [["c7", "e8"], ["c7", "a8"]] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Fork the king and rook.", "fen": "r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1", "answers": ["b5c7"], "hints": ["Find a knight check that also attacks the rook."] },
-        { "type": "puzzles", "prompt": "Find the fork.", "theme": "fork", "count": 3 }
-      ]
-    },
-    {
-      "id": "lesson.c04.l02.pins", "chapter": 4, "title": "Pins", "minutes": 6,
-      "objectives": ["Pin a piece to something more valuable"],
-      "steps": [
-        { "say": "A pin attacks a piece that cannot move without exposing something more valuable behind it. Pinned to the king, it cannot move at all.", "fen": "4k3/3n4/8/1B6/8/8/8/4K3 b - - 1 1", "arrows": [["b5", "e8"]] }
-      ],
-      "exercises": [
-        { "type": "move", "prompt": "Pin the knight to the king.", "fen": "4k3/3n4/8/8/8/8/8/4KB2 w - - 0 1", "answers": ["f1b5"], "hints": ["Line up your bishop with the knight and the king."] },
-        { "type": "puzzles", "prompt": "Use the pin.", "theme": "pin", "count": 2 }
-      ]
-    },
-    {
-      "id": "lesson.c04.l03.skewers", "chapter": 4, "title": "Skewers", "minutes": 5,
-      "objectives": ["Win the piece behind a more valuable one"],
-      "steps": [
-        { "say": "A skewer is a pin in reverse: the valuable piece is in front. It must move, and the piece behind it is lost.", "fen": "8/8/8/k7/8/8/8/1K5r w - - 0 1" }
-      ],
-      "exercises": [
-        { "type": "puzzles", "prompt": "Find the skewer or the winning line.", "theme": "skewer", "count": 2 }
-      ]
-    },
-    {
-      "id": "lesson.c04.l04.discovered", "chapter": 4, "title": "Discovered attacks", "minutes": 6,
-      "objectives": ["Move one piece to unleash another"],
-      "steps": [
-        { "say": "When a piece moves out of the way of a rook, bishop or queen, it can uncover an attack. If the moving piece also attacks something, the opponent faces two threats.", "fen": "4k3/8/8/8/8/8/4N3/4RK2 w - - 0 1", "arrows": [["e2", "c3"], ["e1", "e8"]] }
-      ],
-      "exercises": [
-        { "type": "puzzles", "prompt": "Uncover the attack.", "theme": "discoveredAttack", "count": 2 }
-      ]
-    },
-    {
-      "id": "lesson.c04.l05.hanging", "chapter": 4, "title": "Removing the defender and loose pieces", "minutes": 6,
-      "objectives": ["Spot undefended pieces", "Win material safely"],
-      "steps": [
-        { "say": "Loose pieces drop off. Before every move, ask: what is undefended, mine and theirs?", "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3" }
-      ],
-      "exercises": [
-        { "type": "puzzles", "prompt": "Win material.", "theme": "hangingPiece", "count": 3 }
-      ]
-    },
-    {
-      "id": "lesson.c04.l06.mates", "chapter": 4, "title": "Mating patterns", "minutes": 6,
-      "objectives": ["Recognise common mates"],
-      "steps": [
-        { "say": "Back-rank mates, smothered mates and queen-and-bishop batteries appear again and again. Recognising them saves calculation.", "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1" }
-      ],
-      "exercises": [
-        { "type": "puzzles", "prompt": "Checkmate!", "theme": "mate", "count": 3 }
-      ]
+     ]
     }
-  ]
+   ],
+   "exercises": [
+    {
+     "type": "square",
+     "prompt": "Click the e4 square.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "answers": [
+      "e4"
+     ],
+     "hints": [
+      "Files are letters, ranks are numbers.",
+      "Find the e-file, then count up 4."
+     ]
+    },
+    {
+     "type": "square",
+     "prompt": "Click d5.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "answers": [
+      "d5"
+     ],
+     "hints": [
+      "d is the fourth file from the left.",
+      "Count up five rows."
+     ]
+    },
+    {
+     "type": "square",
+     "prompt": "Click any one of the four centre squares.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "answers": [
+      "d4",
+      "e4",
+      "d5",
+      "e5"
+     ],
+     "hints": [
+      "They are in the very middle of the board."
+     ]
+    },
+    {
+     "type": "square",
+     "prompt": "Click h8, the top-right corner from White's side.",
+     "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
+     "answers": [
+      "h8"
+     ],
+     "hints": [
+      "The h-file is on the right, rank 8 is at the far end."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c01.l02.setup",
+   "chapter": 1,
+   "title": "Setting up the pieces",
+   "minutes": 3,
+   "objectives": [
+    "Set up the starting position",
+    "Remember: queen on her own colour"
+   ],
+   "steps": [
+    {
+     "say": "This is the starting position. Pawns fill the second rank. Rooks go in the corners, then knights, then bishops.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "marks": [
+      "a1",
+      "h1",
+      "b1",
+      "g1",
+      "c1",
+      "f1"
+     ]
+    },
+    {
+     "say": "The queen goes on her own colour: the white queen on the light square d1, the black queen on the dark square d8. The kings stand next to them.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "marks": [
+      "d1",
+      "d8",
+      "e1",
+      "e8"
+     ]
+    },
+    {
+     "say": "White always moves first. After that, the players take turns, one move each.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "square",
+     "prompt": "Where does the white queen start? Click her square.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "answers": [
+      "d1"
+     ],
+     "hints": [
+      "The queen goes on her own colour.",
+      "The white queen is on a light square on rank 1."
+     ]
+    },
+    {
+     "type": "square",
+     "prompt": "Click the black king.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "answers": [
+      "e8"
+     ],
+     "hints": [
+      "The king stands next to the queen.",
+      "Look on rank 8, the e-file."
+     ]
+    },
+    {
+     "type": "square",
+     "prompt": "Click one of White's knights.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "answers": [
+      "b1",
+      "g1"
+     ],
+     "hints": [
+      "Knights stand next to the rooks."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c01.l03.rook-bishop",
+   "chapter": 1,
+   "title": "The rook and the bishop",
+   "minutes": 4,
+   "objectives": [
+    "Move a rook along files and ranks",
+    "Move a bishop along diagonals"
+   ],
+   "steps": [
+    {
+     "say": "The rook moves in straight lines, up, down and sideways, as far as it likes until something is in the way.",
+     "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
+     "arrows": [
+      [
+       "d4",
+       "d8"
+      ],
+      [
+       "d4",
+       "d1"
+      ],
+      [
+       "d4",
+       "a4"
+      ],
+      [
+       "d4",
+       "h4"
+      ]
+     ]
+    },
+    {
+     "say": "The bishop moves diagonally, any distance. A bishop that starts on a light square stays on light squares all game.",
+     "fen": "1k6/8/8/8/3B4/8/7K/8 w - - 0 1",
+     "arrows": [
+      [
+       "d4",
+       "a7"
+      ],
+      [
+       "d4",
+       "h8"
+      ],
+      [
+       "d4",
+       "a1"
+      ],
+      [
+       "d4",
+       "g1"
+      ]
+     ]
+    },
+    {
+     "say": "Pieces cannot jump over others. They can capture an enemy piece by landing on its square.",
+     "fen": "1k6/8/3p4/8/3R4/8/7K/8 w - - 0 1",
+     "arrows": [
+      [
+       "d4",
+       "d6"
+      ]
+     ],
+     "marks": [
+      "d6"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "targets",
+     "prompt": "Click every square the rook on d4 can move to.",
+     "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
+     "from": "d4",
+     "hints": [
+      "Straight lines only.",
+      "Four directions: up, down, left and right."
+     ]
+    },
+    {
+     "type": "targets",
+     "prompt": "Now every square the bishop on d4 can reach.",
+     "fen": "1k6/8/8/8/3B4/8/7K/8 w - - 0 1",
+     "from": "d4",
+     "hints": [
+      "Diagonals only.",
+      "There are four diagonal directions."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Capture the black pawn with your rook.",
+     "fen": "1k6/8/3p4/8/3R4/8/7K/8 w - - 0 1",
+     "answers": [
+      "d4d6"
+     ],
+     "hints": [
+      "The pawn is on the same file as your rook."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c01.l04.queen-king",
+   "chapter": 1,
+   "title": "The queen and the king",
+   "minutes": 4,
+   "objectives": [
+    "Combine rook and bishop moves in the queen",
+    "Move the king one square at a time"
+   ],
+   "steps": [
+    {
+     "say": "The queen is the strongest piece. She moves like a rook and a bishop combined.",
+     "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
+     "arrows": [
+      [
+       "d4",
+       "d8"
+      ],
+      [
+       "d4",
+       "h4"
+      ],
+      [
+       "d4",
+       "h8"
+      ],
+      [
+       "d4",
+       "a7"
+      ],
+      [
+       "d4",
+       "a1"
+      ],
+      [
+       "d4",
+       "g1"
+      ],
+      [
+       "d4",
+       "d1"
+      ],
+      [
+       "d4",
+       "a4"
+      ]
+     ]
+    },
+    {
+     "say": "The king is the most important piece but moves only one square in any direction. Lose the king and you lose the game.",
+     "fen": "1k6/8/8/8/3K4/8/8/8 w - - 0 1",
+     "marks": [
+      "c3",
+      "d3",
+      "e3",
+      "c4",
+      "e4",
+      "c5",
+      "d5",
+      "e5"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "targets",
+     "prompt": "Click every square the queen on d4 can reach.",
+     "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
+     "from": "d4",
+     "hints": [
+      "Rook lines plus bishop lines.",
+      "Eight directions in total."
+     ]
+    },
+    {
+     "type": "targets",
+     "prompt": "Click every square the king on d4 can step to.",
+     "fen": "1k6/8/8/8/3K4/8/8/8 w - - 0 1",
+     "from": "d4",
+     "hints": [
+      "One square in any direction."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c01.l05.knight",
+   "chapter": 1,
+   "title": "The knight's jump",
+   "minutes": 4,
+   "objectives": [
+    "Move the knight in an L shape",
+    "Use the knight's ability to jump"
+   ],
+   "steps": [
+    {
+     "say": "The knight moves in an L: two squares one way, then one square to the side. It always lands on a square of the other colour.",
+     "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
+     "arrows": [
+      [
+       "d4",
+       "e6"
+      ],
+      [
+       "d4",
+       "c6"
+      ],
+      [
+       "d4",
+       "f5"
+      ],
+      [
+       "d4",
+       "b5"
+      ],
+      [
+       "d4",
+       "f3"
+      ],
+      [
+       "d4",
+       "b3"
+      ],
+      [
+       "d4",
+       "e2"
+      ],
+      [
+       "d4",
+       "c2"
+      ]
+     ]
+    },
+    {
+     "say": "The knight is the only piece that can jump over others. That is why it can leave the back rank at the very start of the game.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "arrows": [
+      [
+       "g1",
+       "f3"
+      ],
+      [
+       "b1",
+       "c3"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "targets",
+     "prompt": "Click every square the knight on d4 can jump to.",
+     "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
+     "from": "d4",
+     "hints": [
+      "Two squares, then one to the side.",
+      "There are eight of them from the centre."
+     ]
+    },
+    {
+     "type": "targets",
+     "prompt": "A knight in the corner is much weaker. Click its squares.",
+     "fen": "1k6/8/8/8/8/8/7K/N7 w - - 0 1",
+     "from": "a1",
+     "hints": [
+      "Only two squares are possible from a corner."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Jump over the pawns and develop the g1 knight towards the centre.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "answers": [
+      "g1f3"
+     ],
+     "hints": [
+      "The centre is d4, e4, d5 and e5.",
+      "Nf3 points the knight at e5 and d4."
+     ],
+     "wrong": {
+      "g1h3": "That works, but a knight on the edge controls fewer squares. Aim for the centre."
+     }
+    }
+   ]
+  },
+  {
+   "id": "lesson.c01.l06.pawns",
+   "chapter": 1,
+   "title": "Pawns and promotion",
+   "minutes": 5,
+   "objectives": [
+    "Move pawns forward and capture diagonally",
+    "Promote a pawn on the last rank"
+   ],
+   "steps": [
+    {
+     "say": "Pawns move straight forward one square. From their starting square they may move two.",
+     "fen": "1k6/8/8/8/8/8/4P3/7K w - - 0 1",
+     "arrows": [
+      [
+       "e2",
+       "e4"
+      ]
+     ]
+    },
+    {
+     "say": "Pawns capture differently: one square diagonally forward. They never move backwards.",
+     "fen": "1k6/8/8/3n4/4P3/8/8/7K w - - 0 1",
+     "arrows": [
+      [
+       "e4",
+       "d5"
+      ]
+     ]
+    },
+    {
+     "say": "When a pawn reaches the far end it promotes. You choose a queen, rook, bishop or knight. Almost always, choose a queen.",
+     "fen": "1k6/4P3/8/8/8/8/8/7K w - - 0 1",
+     "arrows": [
+      [
+       "e7",
+       "e8"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "targets",
+     "prompt": "Click every square this pawn can move to.",
+     "fen": "1k6/8/8/8/8/8/4P3/7K w - - 0 1",
+     "from": "e2",
+     "hints": [
+      "From its first square a pawn can move one or two."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Capture the knight with your pawn.",
+     "fen": "1k6/8/8/3n4/4P3/8/8/7K w - - 0 1",
+     "answers": [
+      "e4d5"
+     ],
+     "hints": [
+      "Pawns capture diagonally forward."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Promote your pawn to a queen.",
+     "fen": "1k6/4P3/8/8/8/8/8/7K w - - 0 1",
+     "answers": [
+      "e7e8q"
+     ],
+     "hints": [
+      "Push the pawn to the last rank and choose the queen."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c01.l07.values",
+   "chapter": 1,
+   "title": "Capturing and piece values",
+   "minutes": 4,
+   "objectives": [
+    "Use piece values to compare trades",
+    "Pick the most valuable safe capture"
+   ],
+   "steps": [
+    {
+     "say": "A rough guide to value: pawn 1, knight 3, bishop 3, rook 5, queen 9. The king is priceless.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "When you have a choice of captures, take the most valuable piece you can win safely.",
+     "fen": "1k6/8/2r5/8/3N4/5p2/8/7K w - - 0 1",
+     "arrows": [
+      [
+       "d4",
+       "c6"
+      ],
+      [
+       "d4",
+       "f3"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Which capture wins the most? Play it.",
+     "fen": "1k6/8/2r5/8/3N4/5p2/8/7K w - - 0 1",
+     "answers": [
+      "d4c6"
+     ],
+     "hints": [
+      "A rook is worth 5, a pawn 1."
+     ],
+     "wrong": {
+      "d4f3": "The pawn is only worth 1. The rook on c6 is worth 5."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": "You can trade your bishop for a rook. Is that good for you?",
+     "options": [
+      "Yes: a rook (5) is worth more than a bishop (3)",
+      "No: bishops are always better",
+      "It makes no difference"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c02.l01.check",
+   "chapter": 2,
+   "title": "Check and its three escapes",
+   "minutes": 5,
+   "objectives": [
+    "Recognise check",
+    "Escape by moving, blocking or capturing"
+   ],
+   "steps": [
+    {
+     "say": "When a king is attacked, it is in check. You must get out of check immediately.",
+     "fen": "k3r3/8/8/8/8/8/8/4K3 w - - 0 1",
+     "arrows": [
+      [
+       "e8",
+       "e1"
+      ]
+     ],
+     "marks": [
+      "e1"
+     ]
+    },
+    {
+     "say": "There are three ways out: move the king, block the attack, or capture the attacker. Remember them as run, block, take.",
+     "fen": "4k3/8/8/8/8/8/3B4/r3K3 w - - 0 1",
+     "arrows": [
+      [
+       "a1",
+       "e1"
+      ],
+      [
+       "d2",
+       "c1"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "anyLegal",
+     "prompt": "Your king is in check. Move it to safety.",
+     "fen": "k3r3/8/8/8/8/8/8/4K3 w - - 0 1",
+     "hints": [
+      "The rook controls the whole e-file.",
+      "Step sideways off the file."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Block the check with your bishop.",
+     "fen": "4k3/8/8/8/8/8/3BN3/r3K3 w - - 0 1",
+     "answers": [
+      "d2c1"
+     ],
+     "hints": [
+      "Put a piece between the rook and your king. Your knight on e2 will defend it.",
+      "The bishop can reach c1."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Capture the piece giving check.",
+     "fen": "4k3/8/8/8/8/8/4r3/4K3 w - - 0 1",
+     "answers": [
+      "e1e2"
+     ],
+     "hints": [
+      "The rook is right next to your king and nothing defends it."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c02.l02.checkmate",
+   "chapter": 2,
+   "title": "Checkmate",
+   "minutes": 5,
+   "objectives": [
+    "Recognise checkmate",
+    "Deliver simple mates in one"
+   ],
+   "steps": [
+    {
+     "say": "Checkmate is check with no escape. The king cannot run, the check cannot be blocked and the attacker cannot be captured. Checkmate wins the game.",
+     "fen": "R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1",
+     "arrows": [
+      [
+       "a8",
+       "g8"
+      ]
+     ],
+     "marks": [
+      "g8"
+     ]
+    },
+    {
+     "say": "This pattern is called the back-rank mate: the king's own pawns trap it.",
+     "fen": "R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1",
+     "marks": [
+      "f7",
+      "g7",
+      "h7"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "mate",
+     "prompt": "Checkmate in one move.",
+     "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1",
+     "hints": [
+      "Black's king is stuck behind its pawns.",
+      "Use the rook on the back rank."
+     ]
+    },
+    {
+     "type": "mate",
+     "prompt": "Checkmate with the queen.",
+     "fen": "7k/8/6K1/8/8/8/8/1Q6 w - - 0 1",
+     "hints": [
+      "Your king already covers g7 and h7.",
+      "Attack along the eighth rank."
+     ],
+     "wrong": {
+      "b1h1": "Black escapes to g8. Check along the eighth rank instead."
+     }
+    },
+    {
+     "type": "mate",
+     "prompt": "Black left f7 weak. Checkmate!",
+     "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+     "hints": [
+      "f7 is only defended by the king.",
+      "Your bishop supports the queen."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c02.l03.castling",
+   "chapter": 2,
+   "title": "Castling rules",
+   "minutes": 5,
+   "objectives": [
+    "Castle on either side",
+    "Know when castling is not allowed"
+   ],
+   "steps": [
+    {
+     "say": "Castling is a special move of the king and a rook. The king moves two squares towards the rook, and the rook jumps over to the other side of the king.",
+     "fen": "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+     "arrows": [
+      [
+       "e1",
+       "g1"
+      ],
+      [
+       "h1",
+       "f1"
+      ]
+     ]
+    },
+    {
+     "say": "You may not castle if the king or that rook has moved, if you are in check, or if the king would pass through or land on an attacked square.",
+     "fen": "r3k2r/8/8/8/8/8/5r2/R3K2R w KQkq - 0 1",
+     "marks": [
+      "f1"
+     ],
+     "arrows": [
+      [
+       "f2",
+       "f1"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Castle on the kingside.",
+     "fen": "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+     "answers": [
+      "e1g1"
+     ],
+     "hints": [
+      "Move your king two squares towards the h1 rook."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Castle on the queenside.",
+     "fen": "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+     "answers": [
+      "e1c1"
+     ],
+     "hints": [
+      "Move your king two squares towards the a1 rook."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "The black rook attacks f1, so you cannot castle kingside. Castle the other way.",
+     "fen": "4k3/8/8/8/8/5r2/8/R3K2R w KQ - 0 1",
+     "answers": [
+      "e1c1"
+     ],
+     "hints": [
+      "The queenside path, d1 and c1, is safe."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c02.l04.en-passant",
+   "chapter": 2,
+   "title": "En passant",
+   "minutes": 4,
+   "objectives": [
+    "Capture en passant",
+    "Know it is only possible immediately"
+   ],
+   "steps": [
+    {
+     "say": "If a pawn moves two squares and lands right beside your pawn, you may capture it as if it had moved only one. This is en passant, French for 'in passing'.",
+     "fen": "4k3/3p4/8/4P3/8/8/8/4K3 b - - 0 1",
+     "play": [
+      "d7d5"
+     ],
+     "arrows": [
+      [
+       "e5",
+       "d6"
+      ]
+     ]
+    },
+    {
+     "say": "You can only do it on the very next move. Wait one turn and the chance is gone.",
+     "fen": "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 2",
+     "marks": [
+      "d6"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Black just played d7–d5. Capture en passant.",
+     "fen": "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 2",
+     "answers": [
+      "e5d6"
+     ],
+     "hints": [
+      "Your pawn moves diagonally to d6.",
+      "The black pawn on d5 is removed."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c02.l05.stalemate",
+   "chapter": 2,
+   "title": "Stalemate is not a win",
+   "minutes": 4,
+   "objectives": [
+    "Recognise stalemate",
+    "Avoid stalemating when winning"
+   ],
+   "steps": [
+    {
+     "say": "If the side to move has no legal moves but is not in check, it is stalemate, and the game is a draw. Even a queen up!",
+     "fen": "7k/8/6QK/8/8/8/8/8 b - - 0 1",
+     "marks": [
+      "h8"
+     ]
+    },
+    {
+     "say": "When you are winning, always check that your opponent still has a move, unless you are delivering checkmate.",
+     "fen": "7k/8/5K2/8/8/8/8/6Q1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "mate",
+     "prompt": "Win with checkmate. Careful not to stalemate.",
+     "fen": "7k/8/5K2/8/8/8/8/6Q1 w - - 0 1",
+     "hints": [
+      "Your king protects g7.",
+      "Put the queen next to the black king."
+     ],
+     "wrong": {
+      "g1g6": "Stalemate! Black has no moves but is not in check. That is only a draw."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": "Black to move has no legal moves and is not in check. What is the result?",
+     "options": [
+      "White wins",
+      "Draw by stalemate",
+      "Black loses a turn"
+     ],
+     "answer": 1
+    }
+   ]
+  },
+  {
+   "id": "lesson.c02.l06.draws",
+   "chapter": 2,
+   "title": "Draws: repetition, fifty moves and material",
+   "minutes": 4,
+   "objectives": [
+    "Know the ways a game can be drawn"
+   ],
+   "steps": [
+    {
+     "say": "A game is drawn by stalemate, by agreement, when neither side has enough pieces to checkmate, or when the same position appears three times.",
+     "fen": "8/8/4k3/8/8/3K4/8/8 w - - 0 1"
+    },
+    {
+     "say": "There is also the fifty-move rule: fifty moves each with no capture and no pawn move, and a player may claim a draw.",
+     "fen": "8/8/4k3/8/8/2BK4/8/8 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "King and bishop against a lone king. Can the bishop side win?",
+     "options": [
+      "Yes, with care",
+      "No, it is a draw: not enough material",
+      "Only on light squares"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "choice",
+     "prompt": "The same position has appeared three times. What can a player do?",
+     "options": [
+      "Claim a draw",
+      "Take back a move",
+      "Nothing"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c02.l07.basic-mates",
+   "chapter": 2,
+   "title": "Basic mates: the rook ladder",
+   "minutes": 5,
+   "objectives": [
+    "Mate with two rooks",
+    "Use one rook to cut off the king"
+   ],
+   "steps": [
+    {
+     "say": "Two rooks checkmate by taking turns: one guards a rank, the other gives check on the next rank. The king is pushed to the edge like climbing a ladder.",
+     "fen": "4k3/R7/8/8/8/8/8/1R4K1 w - - 0 1",
+     "arrows": [
+      [
+       "a7",
+       "h7"
+      ],
+      [
+       "b1",
+       "b8"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "mate",
+     "prompt": "Finish the ladder: checkmate in one.",
+     "fen": "4k3/R7/8/8/8/8/8/1R4K1 w - - 0 1",
+     "hints": [
+      "The a7 rook already guards the seventh rank.",
+      "Give check on the eighth."
+     ],
+     "wrong": {
+      "a7a8": "The king escapes to the seventh rank. Keep the a7 rook where it is."
+     }
+    },
+    {
+     "type": "mate",
+     "prompt": "Rook and king: checkmate in one.",
+     "fen": "3k4/8/3K4/8/8/8/8/7R w - - 0 1",
+     "hints": [
+      "Your king takes away c7, d7 and e7.",
+      "Check along the back rank."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l01.centre",
+   "chapter": 3,
+   "title": "Fight for the centre",
+   "minutes": 4,
+   "objectives": [
+    "Occupy or control the centre early"
+   ],
+   "steps": [
+    {
+     "say": "Pieces in the centre control more squares and can switch quickly to either side. Start by placing a pawn in the centre.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "marks": [
+      "d4",
+      "e4",
+      "d5",
+      "e5"
+     ]
+    },
+    {
+     "say": "1. e4 opens lines for the queen and bishop and grabs central space.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "play": [
+      "e2e4"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Make a first move that puts a pawn in the centre.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "answers": [
+      "e2e4",
+      "d2d4"
+     ],
+     "hints": [
+      "The centre squares are d4, e4, d5 and e5."
+     ],
+     "wrong": {
+      "a2a4": "Edge pawns do little at the start. Aim for the centre."
+     }
+    },
+    {
+     "type": "move",
+     "prompt": "White took the centre. Answer by challenging it with a pawn.",
+     "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+     "answers": [
+      "e7e5",
+      "d7d5",
+      "c7c5"
+     ],
+     "hints": [
+      "A pawn on e5 or d5 contests the centre directly."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l02.develop",
+   "chapter": 3,
+   "title": "Develop before you attack",
+   "minutes": 4,
+   "objectives": [
+    "Bring knights and bishops out early"
+   ],
+   "steps": [
+    {
+     "say": "Developing means bringing pieces off the back rank. Knights first, usually towards the centre, then bishops.",
+     "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+     "arrows": [
+      [
+       "g1",
+       "f3"
+      ],
+      [
+       "b1",
+       "c3"
+      ],
+      [
+       "f1",
+       "c4"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Develop a knight towards the centre.",
+     "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+     "answers": [
+      "g1f3",
+      "b1c3"
+     ],
+     "hints": [
+      "Knights belong on f3 and c3."
+     ]
+    },
+    {
+     "type": "move",
+     "prompt": "Now develop your light-squared bishop to an active square.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+     "answers": [
+      "f1c4",
+      "f1b5"
+     ],
+     "hints": [
+      "c4 aims at f7, b5 pressures the knight on c6."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l03.king-safety",
+   "chapter": 3,
+   "title": "King safety and castling timing",
+   "minutes": 4,
+   "objectives": [
+    "Castle early to protect the king"
+   ],
+   "steps": [
+    {
+     "say": "A king in the centre is exposed once lines open. Castling tucks it away and brings a rook towards the middle.",
+     "fen": "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+     "arrows": [
+      [
+       "e1",
+       "g1"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Your pieces are out. Make your king safe.",
+     "fen": "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+     "answers": [
+      "e1g1"
+     ],
+     "hints": [
+      "The squares between your king and the h1 rook are empty."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l04.tempo",
+   "chapter": 3,
+   "title": "Don't move the same piece twice",
+   "minutes": 3,
+   "objectives": [
+    "Value tempo in the opening"
+   ],
+   "steps": [
+    {
+     "say": "Every move in the opening is precious. Moving one piece again and again leaves the others asleep at home.",
+     "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Your knight is already on f3. What usually helps more on the next move?",
+     "options": [
+      "Moving the f3 knight again",
+      "Developing another piece",
+      "Pushing an edge pawn"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "move",
+     "prompt": "Develop a new piece rather than moving the f3 knight again.",
+     "fen": "rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+     "answers": [
+      "b1c3",
+      "f1c4",
+      "f1b5",
+      "f1e2",
+      "d2d3",
+      "d2d4"
+     ],
+     "hints": [
+      "Your b1 knight and f1 bishop have not moved yet."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l05.queen-early",
+   "chapter": 3,
+   "title": "Don't bring the queen out too early",
+   "minutes": 4,
+   "objectives": [
+    "Defend against early queen attacks"
+   ],
+   "steps": [
+    {
+     "say": "An early queen can be chased by developing moves, gaining you time. But first, deal with any threat!",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3",
+     "arrows": [
+      [
+       "h5",
+       "f7"
+      ],
+      [
+       "c4",
+       "f7"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "White threatens Qxf7 checkmate. Stop it.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3",
+     "answers": [
+      "g7g6",
+      "d8e7",
+      "d8f6",
+      "g8h6"
+     ],
+     "safe": true,
+     "hints": [
+      "You can block the queen's diagonal or defend f7.",
+      "g6 blocks and attacks the queen."
+     ],
+     "wrong": {
+      "g8f6": "Natural, but now Qxf7 is checkmate. Defend f7 or block the queen."
+     }
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l06.rooks",
+   "chapter": 3,
+   "title": "Connect your rooks",
+   "minutes": 3,
+   "objectives": [
+    "Finish development by connecting rooks"
+   ],
+   "steps": [
+    {
+     "say": "Development is complete when the rooks see each other along the back rank. Then they can move to the open files.",
+     "fen": "r2q1rk1/ppp2ppp/2np1n2/2b1p1B1/2B1P1b1/2NP1N2/PPP2PPP/R2Q1RK1 w - - 0 8",
+     "arrows": [
+      [
+       "a1",
+       "f1"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "What connects your rooks?",
+     "options": [
+      "Moving all pieces off the back rank between them",
+      "Pushing the rook pawns",
+      "Moving the king forward"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l07.traps",
+   "chapter": 3,
+   "title": "Watch out for early traps",
+   "minutes": 4,
+   "objectives": [
+    "Spot the fastest mates",
+    "Avoid weakening the king early"
+   ],
+   "steps": [
+    {
+     "say": "Moving the f and g pawns early opens a diagonal to the white king. This is the fastest checkmate in chess, the Fool's Mate.",
+     "fen": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+     "arrows": [
+      [
+       "d8",
+       "h4"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "mate",
+     "prompt": "Punish White's weak pawn moves: checkmate in one.",
+     "fen": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+     "hints": [
+      "The e1–h4 diagonal is open.",
+      "Your queen can reach h4."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c03.l08.model",
+   "chapter": 3,
+   "title": "Putting it together: a model opening",
+   "minutes": 5,
+   "objectives": [
+    "Play a sound opening from start to castling"
+   ],
+   "steps": [
+    {
+     "say": "Watch a model opening: centre pawn, knights out, bishop active, castle.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "play": [
+      "e2e4",
+      "e7e5",
+      "g1f3",
+      "b8c6",
+      "f1c4",
+      "f8c5",
+      "e1g1"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Black to move. Develop and prepare to castle.",
+     "fen": "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4",
+     "answers": [
+      "g8f6",
+      "d7d6",
+      "g8e7"
+     ],
+     "hints": [
+      "Your g8 knight is the last minor piece at home."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l01.forks",
+   "chapter": 4,
+   "title": "Forks",
+   "minutes": 6,
+   "objectives": [
+    "Attack two pieces with one move"
+   ],
+   "steps": [
+    {
+     "say": "A fork is one piece attacking two or more targets at once. Knights are famous forkers.",
+     "fen": "r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1",
+     "arrows": [
+      [
+       "b5",
+       "c7"
+      ]
+     ]
+    },
+    {
+     "say": "After Nc7 check, the king must move, and the rook on a8 falls.",
+     "fen": "r3k3/2N5/8/8/8/8/8/4K3 b - - 1 1",
+     "arrows": [
+      [
+       "c7",
+       "e8"
+      ],
+      [
+       "c7",
+       "a8"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Fork the king and rook.",
+     "fen": "r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1",
+     "answers": [
+      "b5c7"
+     ],
+     "hints": [
+      "Find a knight check that also attacks the rook."
+     ]
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Find the fork.",
+     "theme": "fork",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l02.pins",
+   "chapter": 4,
+   "title": "Pins",
+   "minutes": 6,
+   "objectives": [
+    "Pin a piece to something more valuable"
+   ],
+   "steps": [
+    {
+     "say": "A pin attacks a piece that cannot move without exposing something more valuable behind it. Pinned to the king, it cannot move at all.",
+     "fen": "4k3/3n4/8/1B6/8/8/8/4K3 b - - 1 1",
+     "arrows": [
+      [
+       "b5",
+       "e8"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Pin the knight to the king.",
+     "fen": "4k3/3n4/8/8/8/8/8/4KB2 w - - 0 1",
+     "answers": [
+      "f1b5"
+     ],
+     "hints": [
+      "Line up your bishop with the knight and the king."
+     ]
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Use the pin.",
+     "theme": "pin",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l03.skewers",
+   "chapter": 4,
+   "title": "Skewers",
+   "minutes": 5,
+   "objectives": [
+    "Win the piece behind a more valuable one"
+   ],
+   "steps": [
+    {
+     "say": "A skewer is a pin in reverse: the valuable piece is in front. It must move, and the piece behind it is lost.",
+     "fen": "8/8/8/k7/8/8/8/1K5r w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "puzzles",
+     "prompt": "Find the skewer or the winning line.",
+     "theme": "skewer",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l04.discovered",
+   "chapter": 4,
+   "title": "Discovered attacks",
+   "minutes": 6,
+   "objectives": [
+    "Move one piece to unleash another"
+   ],
+   "steps": [
+    {
+     "say": "When a piece moves out of the way of a rook, bishop or queen, it can uncover an attack. If the moving piece also attacks something, the opponent faces two threats.",
+     "fen": "4k3/8/8/8/8/8/4N3/4RK2 w - - 0 1",
+     "arrows": [
+      [
+       "e2",
+       "c3"
+      ],
+      [
+       "e1",
+       "e8"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "puzzles",
+     "prompt": "Uncover the attack.",
+     "theme": "discoveredAttack",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l05.hanging",
+   "chapter": 4,
+   "title": "Removing the defender and loose pieces",
+   "minutes": 6,
+   "objectives": [
+    "Spot undefended pieces",
+    "Win material safely"
+   ],
+   "steps": [
+    {
+     "say": "Loose pieces drop off. Before every move, ask: what is undefended, mine and theirs?",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "puzzles",
+     "prompt": "Win material.",
+     "theme": "hangingPiece",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l06.mates",
+   "chapter": 4,
+   "title": "Mating patterns",
+   "minutes": 6,
+   "objectives": [
+    "Recognise common mates"
+   ],
+   "steps": [
+    {
+     "say": "Back-rank mates, smothered mates and queen-and-bishop batteries appear again and again. Recognising them saves calculation.",
+     "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "puzzles",
+     "prompt": "Checkmate!",
+     "theme": "mate",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l07.queen-double-attack",
+   "chapter": 4,
+   "title": "Double attacks with the queen",
+   "minutes": 5,
+   "objectives": [
+    "Use checks that hit a second target"
+   ],
+   "steps": [
+    {
+     "say": "The queen moves in eight directions, so a single queen move can attack two things at once. A check plus an attack is the strongest kind: the opponent must deal with the check first.",
+     "fen": "4k3/8/8/8/7n/8/8/3QK3 w - - 0 1"
+    },
+    {
+     "say": "Queen to a4 is check along the diagonal and attacks the knight on h4 along the rank. Black answers the check and the knight falls. Note the target: a rook on h4 could simply capture the queen back along the rank.",
+     "fen": "4k3/8/8/8/Q6n/8/8/4K3 b - - 1 1",
+     "arrows": [
+      [
+       "a4",
+       "e8"
+      ],
+      [
+       "a4",
+       "h4"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Win the knight with a double attack.",
+     "fen": "4k3/8/8/8/7n/8/8/3QK3 w - - 0 1",
+     "answers": [
+      "d1a4"
+     ],
+     "hints": [
+      "Look for a queen check.",
+      "The check should also line up with the knight."
+     ],
+     "check": "engine"
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Find the double attack.",
+     "theme": "fork",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l08.overload",
+   "chapter": 4,
+   "title": "Overloaded defenders and deflection",
+   "minutes": 6,
+   "objectives": [
+    "Spot a piece with two jobs",
+    "Lure a defender away"
+   ],
+   "steps": [
+    {
+     "say": "A defender that guards two things is overloaded. Here the rook on e8 is Black's only guard of the back rank. It must stay on the e-file: if it is ever lured away, White's rook lands on e8 with mate.",
+     "fen": "4r1k1/5ppp/8/8/8/8/5PPP/4R1K1 b - - 0 1",
+     "arrows": [
+      [
+       "e1",
+       "e8"
+      ]
+     ]
+    },
+    {
+     "say": "Deflection is the same idea from the other side: you force a defender to leave its post, often with a capture or a check it must answer, then strike at what it was guarding.",
+     "fen": "4r1k1/5ppp/8/8/8/8/5PPP/4R1K1 b - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "A black knight defends both a rook and a bishop. What is the most direct way to exploit it?",
+     "options": [
+      "Attack the knight or one of the pieces it defends",
+      "Ignore it and push a pawn",
+      "Trade queens immediately"
+     ],
+     "answer": 0,
+     "explain": "An overloaded piece cannot answer two threats. Capture one of the things it guards, and when it recaptures, the other is undefended."
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Win material by exploiting a defender.",
+     "theme": "advantage",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c04.l09.checklist",
+   "chapter": 4,
+   "title": "The tactics checklist",
+   "minutes": 5,
+   "objectives": [
+    "Check every forcing move before you decide"
+   ],
+   "steps": [
+    {
+     "say": "Most tactics are found by one habit: before every move, look at all checks, then all captures, then all threats. For both sides.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "Forcing moves limit your opponent's answers, which makes them easy to calculate. That is why strong players look at them first.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "In what order should you scan for forcing moves?",
+     "options": [
+      "Checks, captures, threats",
+      "Threats, quiet moves, checks",
+      "Pawn moves first, then pieces"
+     ],
+     "answer": 0,
+     "explain": "Checks leave the fewest replies, captures change material, threats force a response. Scan them in that order."
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Use the checklist to solve these.",
+     "theme": "advantage",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c05.l01.scan",
+   "chapter": 5,
+   "title": "Scan for checks, captures and threats",
+   "minutes": 5,
+   "objectives": [
+    "Ask what your opponent wants after every move"
+   ],
+   "steps": [
+    {
+     "say": "Defence starts with one question after every opponent move: what does that move threaten? Look at their checks, captures and threats just as you look at your own.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/8/3QP3/8/PPP2PPP/RNB1KBNR w KQkq - 1 4",
+     "arrows": [
+      [
+       "c6",
+       "d4"
+      ]
+     ]
+    },
+    {
+     "say": "Here Black has just played knight to c6, attacking your queen. If you miss it, you lose the queen for a knight.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/8/3QP3/8/PPP2PPP/RNB1KBNR w KQkq - 1 4",
+     "marks": [
+      "d4"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Your queen is attacked. Move it to a safe square.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/8/3QP3/8/PPP2PPP/RNB1KBNR w KQkq - 1 4",
+     "answers": [
+      "d4e3",
+      "d4a4",
+      "d4d1",
+      "d4d3",
+      "d4c4"
+     ],
+     "hints": [
+      "The knight on c6 attacks d4.",
+      "Pick a square no black piece attacks."
+     ],
+     "check": "engine"
+    },
+    {
+     "type": "choice",
+     "prompt": "Your opponent moves a bishop next to your king. What do you check first?",
+     "options": [
+      "Whether it gives check or threatens a capture",
+      "Whether it looks nice",
+      "Nothing, keep your plan"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c05.l02.escape",
+   "chapter": 5,
+   "title": "Escaping an attack",
+   "minutes": 5,
+   "objectives": [
+    "Move, defend, block or counter-attack"
+   ],
+   "steps": [
+    {
+     "say": "When a piece is attacked you have four choices: move it, defend it, block the attack, or create a bigger threat of your own.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/8/3QP3/8/PPP2PPP/RNB1KBNR w KQkq - 1 4"
+    },
+    {
+     "say": "Moving is usually simplest for valuable pieces. Defending works when the attacker is worth more than what it attacks.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/8/3QP3/8/PPP2PPP/RNB1KBNR w KQkq - 1 4"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Your knight is attacked by a pawn. Save it.",
+     "fen": "rnbqkb1r/pppp1ppp/5n2/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
+     "answers": [
+      "f6d5",
+      "f6e4",
+      "f6g8"
+     ],
+     "hints": [
+      "The pawn on e5 attacks f6.",
+      "Move the knight to a square no pawn attacks."
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": "A pawn attacks your rook. Which defence is usually worst?",
+     "options": [
+      "Defending the rook with another piece",
+      "Moving the rook away",
+      "Moving the rook to an open file"
+     ],
+     "answer": 0,
+     "explain": "A pawn is worth less than a rook, so defending the rook does not help: the pawn still wins the exchange. Move the rook instead."
+    }
+   ]
+  },
+  {
+   "id": "lesson.c05.l03.blocking",
+   "chapter": 5,
+   "title": "Blocking checks",
+   "minutes": 5,
+   "objectives": [
+    "Interpose a piece to stop a check"
+   ],
+   "steps": [
+    {
+     "say": "A check along a line can be blocked by putting a piece in between. Here Black's rook checks along the first rank.",
+     "fen": "6k1/5ppp/8/8/8/8/3RQPPP/r5K1 w - - 0 1",
+     "arrows": [
+      [
+       "a1",
+       "g1"
+      ]
+     ]
+    },
+    {
+     "say": "Your king has no squares: its own pawns hem it in. Blocking with a defended piece is the only way out.",
+     "fen": "6k1/5ppp/8/8/8/8/3RQPPP/r5K1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Block the check.",
+     "fen": "6k1/5ppp/8/8/8/8/3RQPPP/r5K1 w - - 0 1",
+     "answers": [
+      "d2d1",
+      "e2f1",
+      "e2d1"
+     ],
+     "hints": [
+      "Put a piece on the first rank between the rook and your king.",
+      "Make sure the blocking piece is defended: on e1 the queen would be lost with mate."
+     ],
+     "wrong": {
+      "e2e1": "The rook takes on e1 with checkmate: nothing defends that square."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": "Why could your king not just step away?",
+     "options": [
+      "Its own pawns block every escape square",
+      "Kings cannot move when in check",
+      "Because it is White's turn"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c05.l04.counter",
+   "chapter": 5,
+   "title": "Counter-attack",
+   "minutes": 5,
+   "objectives": [
+    "Answer a threat with a bigger threat"
+   ],
+   "steps": [
+    {
+     "say": "Sometimes the best defence is a stronger threat. If your opponent must answer your check or save their queen, they never get to carry out their own threat.",
+     "fen": "4k3/8/8/8/8/8/3q4/R3K3 w - - 0 1"
+    },
+    {
+     "say": "Be careful: a counter-attack only works if it is really bigger. A threat against a pawn does not answer a threat against your queen.",
+     "fen": "4k3/8/8/8/8/8/3q4/R3K3 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Your knight is attacked. You can give a check that also attacks the opponent's queen. What should you do?",
+     "options": [
+      "Give the check: it wins the queen",
+      "Save the knight",
+      "Offer a draw"
+     ],
+     "answer": 0,
+     "explain": "The check must be answered, then you take the queen. Winning a queen is worth far more than saving a knight."
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Find the strongest reply.",
+     "theme": "advantage",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c05.l05.back-rank",
+   "chapter": 5,
+   "title": "Back-rank safety",
+   "minutes": 5,
+   "objectives": [
+    "Give your king an escape square in time"
+   ],
+   "steps": [
+    {
+     "say": "A castled king behind three unmoved pawns has no escape square. A single rook or queen check on the back rank can be mate.",
+     "fen": "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"
+    },
+    {
+     "say": "A quiet pawn move such as h3 or g3, called making luft, gives the king a square and removes the danger.",
+     "fen": "6k1/5ppp/8/8/8/7P/5PP1/R5K1 w - - 0 1",
+     "marks": [
+      "h2"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "mate",
+     "prompt": "Show the danger: checkmate on the back rank.",
+     "fen": "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1",
+     "hints": [
+      "Black's king cannot move up.",
+      "A rook check on the eighth rank is mate."
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": "Which move gives your castled king on g1 an escape square?",
+     "options": [
+      "h2 to h3",
+      "a2 to a3",
+      "Moving the rook to a1"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c05.l06.forks-defence",
+   "chapter": 5,
+   "title": "Seeing forks coming",
+   "minutes": 5,
+   "objectives": [
+    "Keep pieces off forkable squares"
+   ],
+   "steps": [
+    {
+     "say": "Knight forks are easiest to prevent before they happen. Look for squares where an enemy knight would attack two of your pieces or your king and a piece.",
+     "fen": "r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1",
+     "marks": [
+      "c7"
+     ]
+    },
+    {
+     "say": "If your king and rook sit a knight's fork apart, move one of them or cover the forking square.",
+     "fen": "r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Your king is on e8 and your rook on a8. An enemy knight sits on b5. Which square is the danger?",
+     "options": [
+      "c7",
+      "d6",
+      "a3"
+     ],
+     "answer": 0,
+     "explain": "From c7 the knight checks e8 and attacks a8 at the same time."
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Spot the fork before your opponent does: solve these as the attacker.",
+     "theme": "fork",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c05.l07.simplify",
+   "chapter": 5,
+   "title": "Defending by trading",
+   "minutes": 5,
+   "objectives": [
+    "Trade the attacker's best pieces"
+   ],
+   "steps": [
+    {
+     "say": "When you are under attack, exchanges reduce the number of attackers. Trading queens often ends an attack on your king at once.",
+     "fen": "r4rk1/ppp2ppp/8/3q4/3Q4/8/PPP2PPP/R4RK1 w - - 0 1"
+    },
+    {
+     "say": "When you are ahead in material, trades are also good: a small advantage becomes decisive with fewer pieces on the board.",
+     "fen": "r4rk1/ppp2ppp/8/3q4/3Q4/8/PPP2PPP/R4RK1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Your opponent has a strong attack against your king. You can trade queens. Should you?",
+     "options": [
+      "Usually yes: the queen is the main attacker",
+      "Never trade queens",
+      "Only if you are losing material"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "You are a rook ahead. Should you trade pieces?",
+     "options": [
+      "Yes: trades make your extra rook count for more",
+      "No: keep all pieces",
+      "It does not matter"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l01.pawn-islands",
+   "chapter": 6,
+   "title": "Pawn islands and isolated pawns",
+   "minutes": 6,
+   "objectives": [
+    "Count pawn islands",
+    "Know the strengths and weaknesses of an isolated pawn"
+   ],
+   "steps": [
+    {
+     "say": "A group of pawns with no friendly pawns on the files beside it is a pawn island. Fewer islands are usually easier to defend.",
+     "fen": "4k3/pp3ppp/8/8/8/8/PP1P1PPP/4K3 w - - 0 1"
+    },
+    {
+     "say": "An isolated pawn has no friendly pawn on either neighbouring file, so no pawn can defend it. Here White's d-pawn is isolated. It controls central squares but needs pieces to protect it.",
+     "fen": "4k3/pp3ppp/8/8/3P4/8/PP3PPP/4K3 w - - 0 1",
+     "marks": [
+      "d4",
+      "d5"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "How many pawn islands does White have here?",
+     "options": [
+      "Three",
+      "Two",
+      "Four"
+     ],
+     "answer": 0,
+     "explain": "a-b, d, and f-g-h are three separate groups.",
+     "fen": "4k3/pp3ppp/8/8/8/8/PP1P1PPP/4K3 w - - 0 1"
+    },
+    {
+     "type": "choice",
+     "prompt": "What is the square in front of an isolated pawn good for?",
+     "options": [
+      "An outpost for the opponent's pieces",
+      "Nothing",
+      "Castling"
+     ],
+     "answer": 0,
+     "explain": "No pawn can ever chase a piece away from the square in front of an isolated pawn, so it makes a perfect blockade square."
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l02.doubled",
+   "chapter": 6,
+   "title": "Doubled and backward pawns",
+   "minutes": 5,
+   "objectives": [
+    "Recognise weak pawn shapes"
+   ],
+   "steps": [
+    {
+     "say": "Two pawns of the same colour on one file are doubled. They cannot defend each other and the front one blocks the back one.",
+     "fen": "4k3/ppp2ppp/8/8/8/2P5/P1P2PPP/4K3 w - - 0 1",
+     "marks": [
+      "c2",
+      "c3"
+     ]
+    },
+    {
+     "say": "A backward pawn has fallen behind its neighbours and cannot advance safely. The square in front of it is a hole the opponent can use.",
+     "fen": "4k3/pp3ppp/3p4/2p5/2P1P3/8/PP3PPP/4K3 w - - 0 1",
+     "marks": [
+      "d6",
+      "d5"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Which file has doubled pawns?",
+     "options": [
+      "c-file",
+      "a-file",
+      "h-file"
+     ],
+     "answer": 0,
+     "fen": "4k3/ppp2ppp/8/8/8/2P5/P1P2PPP/4K3 w - - 0 1"
+    },
+    {
+     "type": "choice",
+     "prompt": "Are doubled pawns always bad?",
+     "options": [
+      "No: they can open files and control squares",
+      "Yes, always",
+      "Only in the endgame they are good"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l03.passed",
+   "chapter": 6,
+   "title": "Passed pawns",
+   "minutes": 6,
+   "objectives": [
+    "Create, push and stop passed pawns"
+   ],
+   "steps": [
+    {
+     "say": "A passed pawn has no enemy pawns in front of it or on the neighbouring files. Nothing but pieces can stop it, so it grows stronger as pieces come off.",
+     "fen": "4k3/8/8/3P4/8/8/8/4K3 w - - 0 1",
+     "marks": [
+      "d5"
+     ]
+    },
+    {
+     "say": "Passed pawns must be pushed. The best way to stop one is to blockade it with a piece directly in front.",
+     "fen": "4k3/8/3n4/3P4/8/8/8/4K3 w - - 0 1",
+     "marks": [
+      "d6"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Which white pawn is passed?",
+     "options": [
+      "The d-pawn",
+      "The g-pawn",
+      "Neither"
+     ],
+     "answer": 0,
+     "fen": "4k3/6p1/8/3P4/8/8/6P1/4K3 w - - 0 1"
+    },
+    {
+     "type": "choice",
+     "prompt": "Which piece makes the best blockader of a passed pawn?",
+     "options": [
+      "A knight",
+      "A queen",
+      "A rook"
+     ],
+     "answer": 0,
+     "explain": "A knight is not bothered by standing in front of a pawn and keeps working from there. A queen is too valuable for that job."
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l04.outposts",
+   "chapter": 6,
+   "title": "Outposts",
+   "minutes": 5,
+   "objectives": [
+    "Plant a piece where pawns cannot chase it"
+   ],
+   "steps": [
+    {
+     "say": "An outpost is a square in your opponent's half that their pawns can no longer attack. A knight on an outpost, defended by a pawn, can dominate the game.",
+     "fen": "r4rk1/pp3ppp/3p4/2pN4/2P1P3/8/PP3PPP/R4RK1 w - - 0 1",
+     "marks": [
+      "d5"
+     ]
+    },
+    {
+     "say": "Here the knight on d5 cannot be driven away by any black pawn. Black must trade a piece for it, often a bishop, to get rid of it.",
+     "fen": "r4rk1/pp3ppp/3p4/2pN4/2P1P3/8/PP3PPP/R4RK1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Why is d5 a good outpost for the white knight?",
+     "options": [
+      "No black pawn can ever attack it",
+      "It is in the centre of the board",
+      "It is next to the black king"
+     ],
+     "answer": 0,
+     "fen": "r4rk1/pp3ppp/3p4/2pN4/2P1P3/8/PP3PPP/R4RK1 w - - 0 1"
+    },
+    {
+     "type": "choice",
+     "prompt": "What is the best piece for an outpost?",
+     "options": [
+      "Usually a knight",
+      "Usually the king",
+      "Usually a rook"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l05.open-files",
+   "chapter": 6,
+   "title": "Open files and rooks",
+   "minutes": 6,
+   "objectives": [
+    "Put rooks on open files",
+    "Double rooks"
+   ],
+   "steps": [
+    {
+     "say": "A file with no pawns is open. Rooks belong on open files, where they can reach the seventh rank and attack.",
+     "fen": "r4rk1/pp3ppp/2p5/8/8/2P5/PP3PPP/R4RK1 w - - 0 1",
+     "marks": [
+      "d1",
+      "e1"
+     ]
+    },
+    {
+     "say": "Two rooks on the same open file, doubled, are stronger than one. A rook on the seventh rank attacks pawns and traps the king.",
+     "fen": "6k1/pp1R1ppp/2p5/8/8/2P5/PP3PPP/3R2K1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "move",
+     "prompt": "Put a rook on the open d-file.",
+     "fen": "r4rk1/pp3ppp/2p5/8/8/2P5/PP3PPP/R4RK1 w - - 0 1",
+     "answers": [
+      "a1d1",
+      "f1d1",
+      "a1e1",
+      "f1e1"
+     ],
+     "hints": [
+      "The d- and e-files have no pawns.",
+      "Move one of your rooks there."
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": "What is a rook on the seventh rank good for?",
+     "options": [
+      "Attacking pawns and trapping the king",
+      "Defending your own king",
+      "Nothing special"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l06.bishops",
+   "chapter": 6,
+   "title": "Good and bad bishops",
+   "minutes": 5,
+   "objectives": [
+    "Judge a bishop by its pawns"
+   ],
+   "steps": [
+    {
+     "say": "A bishop is bad when its own pawns sit on its colour and block it. Here White's light-squared bishop bites on its own pawns on d5 and e4.",
+     "fen": "4k3/8/8/3P4/2B1P3/8/8/4K3 w - - 0 1"
+    },
+    {
+     "say": "The cure: put your pawns on the opposite colour to your bishop, or trade the bad bishop away.",
+     "fen": "4k3/8/8/3P4/2B1P3/8/8/4K3 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Your pawns are on dark squares. Which bishop is likely better?",
+     "options": [
+      "The light-squared bishop",
+      "The dark-squared bishop",
+      "They are always equal"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "What are the bishop pair's strengths?",
+     "options": [
+      "They cover both colours and shine in open positions",
+      "They are best in closed positions",
+      "They can checkmate alone without a king"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l07.holes",
+   "chapter": 6,
+   "title": "Weak squares and holes",
+   "minutes": 5,
+   "objectives": [
+    "Find squares your opponent can no longer defend with pawns"
+   ],
+   "steps": [
+    {
+     "say": "Pawns cannot move backwards, so every pawn move leaves squares behind that it no longer guards. A hole is a square that no pawn can ever defend.",
+     "fen": "rnbqkb1r/ppp2ppp/3p1n2/4p3/4P3/2NP4/PPP2PPP/R1BQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "Holes next to a king are especially dangerous. After g6, the squares f6 and h6 become targets for queens and bishops.",
+     "fen": "rnbqk2r/pppppp1p/5npb/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+     "marks": [
+      "f6",
+      "h6"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Why should you think twice before pushing pawns near your king?",
+     "options": [
+      "Each push leaves squares that pawns can never defend again",
+      "Pawns cannot move twice",
+      "It is against the rules"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Which piece usually benefits most from a hole in the enemy camp?",
+     "options": [
+      "A knight",
+      "A pawn",
+      "The king"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c06.l08.space",
+   "chapter": 6,
+   "title": "Space and centre",
+   "minutes": 5,
+   "objectives": [
+    "Gain space with central pawns",
+    "Restrict your opponent"
+   ],
+   "steps": [
+    {
+     "say": "Pawns that have crossed into the middle claim space: room behind them for your pieces and less room for your opponent's.",
+     "fen": "rnbqkbnr/ppp2ppp/3p4/3Pp3/4P3/8/PPP2PPP/RNBQKBNR w KQkq e6 0 1"
+    },
+    {
+     "say": "A space advantage means your pieces move freely while your opponent's get in each other's way. Avoid trades when you have more space.",
+     "fen": "rnbqkbnr/ppp2ppp/3p4/3Pp3/4P3/8/PPP2PPP/RNBQKBNR w KQkq e6 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "You have more space. Should you trade pieces?",
+     "options": [
+      "Usually not: the cramped side wants trades",
+      "Always trade",
+      "Trade only queens"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Which pawns usually give the most space?",
+     "options": [
+      "Centre pawns on the fourth and fifth ranks",
+      "Rook pawns on the third rank",
+      "Pawns that have not moved"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l01.when-to-trade",
+   "chapter": 7,
+   "title": "When to trade",
+   "minutes": 6,
+   "objectives": [
+    "Trade when it helps your plan"
+   ],
+   "steps": [
+    {
+     "say": "Every exchange changes the position. Ask: which pieces are good for me, which are good for my opponent? Trade your worst piece for their best.",
+     "fen": "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/2N1PN2/PP3PPP/R2QKB1R w KQ - 0 1"
+    },
+    {
+     "say": "Trade when you are ahead in material, when you are defending, or when it removes a key defender. Avoid trades when you have more space or the attack.",
+     "fen": "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/2N1PN2/PP3PPP/R2QKB1R w KQ - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Which trade is usually good for you?",
+     "options": [
+      "Your bad bishop for their strong knight",
+      "Your strong knight for their bad bishop",
+      "Your attacking queen when you are attacking"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "You are attacking the enemy king. Your opponent offers a queen trade. Accept?",
+     "options": [
+      "Usually no: the queen is your best attacker",
+      "Always yes",
+      "Only if it is a draw"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l02.three-questions",
+   "chapter": 7,
+   "title": "Making a plan in three questions",
+   "minutes": 6,
+   "objectives": [
+    "Find a plan with a simple routine"
+   ],
+   "steps": [
+    {
+     "say": "When there are no tactics, ask three questions. What is my worst piece? What is my opponent threatening? Where is their weakness?",
+     "fen": "r2q1rk1/pp1bbppp/2n1pn2/3p4/3P4/2NBPN2/PP3PPP/R1BQ1RK1 w - - 0 1"
+    },
+    {
+     "say": "Improve the worst piece, stop the threat, then aim at the weakness. Simple plans played well beat clever plans played badly.",
+     "fen": "r2q1rk1/pp1bbppp/2n1pn2/3p4/3P4/2NBPN2/PP3PPP/R1BQ1RK1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "No tactics are on the board. What do you look at first?",
+     "options": [
+      "Your worst-placed piece",
+      "A random pawn push",
+      "Moving your king"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Your plan should usually aim at...",
+     "options": [
+      "A weakness in the opponent's position",
+      "The strongest enemy piece",
+      "The corner of the board"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l03.initiative",
+   "chapter": 7,
+   "title": "The initiative",
+   "minutes": 5,
+   "objectives": [
+    "Keep making threats",
+    "Value time"
+   ],
+   "steps": [
+    {
+     "say": "The side with the initiative makes threats; the other side reacts. Each forcing move keeps the opponent busy and stops their plans.",
+     "fen": "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 1"
+    },
+    {
+     "say": "A pawn or even a piece can be worth giving up if it keeps a strong initiative. But only if the threats keep coming.",
+     "fen": "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "What does it mean to have the initiative?",
+     "options": [
+      "You make threats and your opponent must respond",
+      "You have more pawns",
+      "You moved first"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Keep the initiative: find the forcing move.",
+     "theme": "advantage",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l04.king-attack",
+   "chapter": 7,
+   "title": "Attacking the king",
+   "minutes": 7,
+   "objectives": [
+    "Bring more attackers than defenders",
+    "Open lines toward the king"
+   ],
+   "steps": [
+    {
+     "say": "An attack succeeds when you have more pieces near the king than your opponent has defending. Count them before you commit.",
+     "fen": "r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w - - 0 1"
+    },
+    {
+     "say": "Opposite-side castling invites pawn storms: push the pawns in front of the enemy king to open files for your rooks.",
+     "fen": "2kr3r/ppp2ppp/2n5/8/8/5N2/PPP2PPP/R4RK1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Before launching an attack on the king, you should...",
+     "options": [
+      "Count attackers against defenders",
+      "Trade queens",
+      "Move your own king forward"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Finish the attack.",
+     "theme": "mate",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l05.activity",
+   "chapter": 7,
+   "title": "Piece activity",
+   "minutes": 5,
+   "objectives": [
+    "Put every piece on its best square"
+   ],
+   "steps": [
+    {
+     "say": "Active pieces control many squares and work together. A knight on the rim controls half as many squares as one in the centre.",
+     "fen": "4k3/8/8/8/3N4/8/8/N3K3 w - - 0 1",
+     "marks": [
+      "a1",
+      "d4"
+     ]
+    },
+    {
+     "say": "In quiet positions, the player who improves pieces fastest usually gets the upper hand.",
+     "fen": "4k3/8/8/8/3N4/8/8/N3K3 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "How many squares does a knight in the centre attack, compared with one in the corner?",
+     "options": [
+      "Eight versus two",
+      "Four versus four",
+      "Two versus eight"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Which saying is about piece activity?",
+     "options": [
+      "A knight on the rim is dim",
+      "Pawns cannot move backwards",
+      "Castle early"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l06.converting",
+   "chapter": 7,
+   "title": "Converting an advantage",
+   "minutes": 6,
+   "objectives": [
+    "Win a won position without risk"
+   ],
+   "steps": [
+    {
+     "say": "Once you are ahead, simplify. Trade pieces, not pawns, take away counterplay, and avoid unnecessary risk.",
+     "fen": "4k3/pp3ppp/8/8/8/8/PP3PPP/3RK3 w - - 0 1"
+    },
+    {
+     "say": "In the endgame, an extra rook mates easily. Push passed pawns, activate your king, and remember to check for stalemate.",
+     "fen": "4k3/pp3ppp/8/8/8/8/PP3PPP/3RK3 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "You are a piece up. What should you trade?",
+     "options": [
+      "Pieces, keeping pawns",
+      "Pawns, keeping pieces",
+      "Nothing"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "What is the last thing to check before each move in a winning endgame?",
+     "options": [
+      "That it does not stalemate your opponent",
+      "That your king is on the back rank",
+      "That you have used your time"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l07.prophylaxis",
+   "chapter": 7,
+   "title": "Prophylaxis",
+   "minutes": 5,
+   "objectives": [
+    "Stop your opponent's plan before it starts"
+   ],
+   "steps": [
+    {
+     "say": "Prophylaxis means asking what your opponent wants and preventing it. A quiet move that stops a strong plan is often better than an aggressive one.",
+     "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQ1RK1 w - - 0 1"
+    },
+    {
+     "say": "A classic example is a pawn move like h3, which stops a bishop or knight from landing on g4.",
+     "fen": "r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQ1RK1 w - - 0 1",
+     "marks": [
+      "g4"
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "What question leads to prophylactic moves?",
+     "options": [
+      "What does my opponent want to do?",
+      "Which piece have I not moved?",
+      "How do I win a pawn?"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Which move stops a black bishop from pinning your knight on f3 from g4?",
+     "options": [
+      "h3",
+      "a3",
+      "Kh1"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c07.l08.model-game",
+   "chapter": 7,
+   "title": "A complete plan: from opening to endgame",
+   "minutes": 7,
+   "objectives": [
+    "Connect ideas into one game plan"
+   ],
+   "steps": [
+    {
+     "say": "A good game has a thread: develop and castle, find a weakness, bring pieces to it, trade into a winning endgame.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "When you review your games, look for where your plan changed. Many losses come from drifting without a plan, not from tactics alone.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Which order is a sound game plan?",
+     "options": [
+      "Develop, castle, find a target, attack it, convert",
+      "Attack at once with the queen",
+      "Push all pawns first"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "You have no plan. What helps most?",
+     "options": [
+      "Improving your worst piece",
+      "Repeating moves",
+      "Resigning"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c08.l01.king-activity",
+   "chapter": 8,
+   "title": "The active king",
+   "minutes": 5,
+   "objectives": [
+    "Bring the king to the centre in the endgame"
+   ],
+   "steps": [
+    {
+     "say": "In the middlegame the king hides. In the endgame, with queens gone, it becomes a strong fighting piece. March it to the centre.",
+     "fen": "8/pp3kpp/8/8/8/8/PP3PPP/6K1 w - - 0 1"
+    },
+    {
+     "say": "The side whose king reaches the centre and the pawns first usually wins the pawn endgame.",
+     "fen": "8/pp4pp/8/4k3/8/4K3/PP4PP/8 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Queens have been traded. Where should your king go?",
+     "options": [
+      "Toward the centre",
+      "Into the corner",
+      "Stay on the back rank"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "move",
+     "prompt": "Start centralising your king.",
+     "fen": "8/pp3kpp/8/8/8/8/PP4PP/6K1 w - - 0 1",
+     "answers": [
+      "g1f1",
+      "g1f2"
+     ],
+     "hints": [
+      "Move the king toward the middle of the board."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c08.l02.square",
+   "chapter": 8,
+   "title": "The rule of the square",
+   "minutes": 5,
+   "objectives": [
+    "Tell at a glance if a king can catch a pawn"
+   ],
+   "steps": [
+    {
+     "say": "Draw a square from the pawn to its promotion rank. If the defending king can step into that square, it catches the pawn.",
+     "fen": "7k/8/8/8/p7/8/8/4K3 w - - 0 1",
+     "marks": [
+      "a4",
+      "d4",
+      "a1",
+      "d1"
+     ]
+    },
+    {
+     "say": "Here the white king on e1 is one file outside the square a4 to d1, but it is White's move, so it steps into d2 and catches the pawn.",
+     "fen": "7k/8/8/8/p7/8/8/4K3 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "White to move. Can the king on e1 catch the pawn on a4?",
+     "options": [
+      "Yes: one step puts it inside the square",
+      "No: it is too far away",
+      "Only if the pawn is on a3"
+     ],
+     "answer": 0,
+     "fen": "7k/8/8/8/p7/8/8/4K3 w - - 0 1"
+    },
+    {
+     "type": "move",
+     "prompt": "Catch the pawn: step into the square.",
+     "fen": "7k/8/8/8/p7/8/8/4K3 w - - 0 1",
+     "answers": [
+      "e1d2",
+      "e1d1"
+     ],
+     "hints": [
+      "The square goes from a4 to d4 to d1 to a1.",
+      "Move toward the a-file."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesson.c08.l03.opposition",
+   "chapter": 8,
+   "title": "The opposition",
+   "minutes": 6,
+   "objectives": [
+    "Take the opposition to win king and pawn endings"
+   ],
+   "steps": [
+    {
+     "say": "Two kings face each other with one square between them. The side that does not have to move holds the opposition, and the other king must give way.",
+     "fen": "8/8/4k3/8/4K3/4P3/8/8 w - - 0 1",
+     "arrows": [
+      [
+       "e4",
+       "e6"
+      ]
+     ]
+    },
+    {
+     "say": "With the opposition, the attacking king walks around the defender and escorts the pawn home. Without it, the defender holds the draw.",
+     "fen": "8/8/4k3/8/4K3/4P3/8/8 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Kings on e4 and e6, White to move. Who has the opposition?",
+     "options": [
+      "Black: White must move and give way",
+      "White",
+      "Nobody"
+     ],
+     "answer": 0,
+     "fen": "8/8/4k3/8/4K3/4P3/8/8 w - - 0 1"
+    },
+    {
+     "type": "choice",
+     "prompt": "In king and pawn against king, which squares should the attacking king aim for?",
+     "options": [
+      "The key squares two ranks in front of the pawn",
+      "The squares behind the pawn",
+      "The corners"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c08.l04.kp-vs-k",
+   "chapter": 8,
+   "title": "King and pawn against king",
+   "minutes": 6,
+   "objectives": [
+    "Know which positions win"
+   ],
+   "steps": [
+    {
+     "say": "With the king in front of its pawn and the opposition, the pawn usually promotes. With the defending king in front of the pawn, it is usually a draw.",
+     "fen": "4k3/8/4K3/4P3/8/8/8/8 b - - 0 1"
+    },
+    {
+     "say": "Rook pawns are special: if the defending king reaches the corner, it is always a draw.",
+     "fen": "7k/8/6K1/7P/8/8/8/8 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "King and h-pawn against a king in the h8 corner is...",
+     "options": [
+      "A draw",
+      "Always a win",
+      "A loss for the pawn side"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Where should the attacking king stand?",
+     "options": [
+      "In front of its pawn",
+      "Behind its pawn",
+      "Far away on the other wing"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c08.l05.rook-behind",
+   "chapter": 8,
+   "title": "Rooks behind passed pawns",
+   "minutes": 5,
+   "objectives": [
+    "Place rooks behind passed pawns, yours or theirs"
+   ],
+   "steps": [
+    {
+     "say": "A rook behind a passed pawn gains scope as the pawn advances. In front of it, the rook gets boxed in.",
+     "fen": "6k1/8/8/P7/8/8/8/R5K1 w - - 0 1",
+     "arrows": [
+      [
+       "a1",
+       "a5"
+      ]
+     ]
+    },
+    {
+     "say": "The rule works for defence too: put your rook behind the enemy passed pawn.",
+     "fen": "6k1/8/8/P7/8/8/8/R5K1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Where does a rook belong with a passed pawn?",
+     "options": [
+      "Behind it",
+      "In front of it",
+      "Beside it"
+     ],
+     "answer": 0,
+     "explain": "Tarrasch's rule: rooks belong behind passed pawns, both yours and your opponent's."
+    },
+    {
+     "type": "choice",
+     "prompt": "Why is a rook in front of its own passed pawn passive?",
+     "options": [
+      "Its scope shrinks as the pawn advances",
+      "Rooks cannot move forward",
+      "It blocks the king"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c08.l06.lucena",
+   "chapter": 8,
+   "title": "The Lucena position: building a bridge",
+   "minutes": 7,
+   "objectives": [
+    "Win the most important rook endgame"
+   ],
+   "steps": [
+    {
+     "say": "Lucena: your pawn is on the seventh, your king in front of it, the enemy king cut off. The winning method is to build a bridge with your rook.",
+     "fen": "1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1"
+    },
+    {
+     "say": "Check to push the enemy king away, bring your rook to the fourth rank, then walk your king out. When the checks come, the rook blocks them.",
+     "fen": "1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "What is the first step in the Lucena position here?",
+     "options": [
+      "Check the black king away from the pawn",
+      "Move the king out at once",
+      "Push the pawn"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Which rank does the white rook usually go to for the bridge?",
+     "options": [
+      "The fourth rank",
+      "The eighth rank",
+      "The first rank"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c08.l07.philidor",
+   "chapter": 8,
+   "title": "The Philidor position: holding the draw",
+   "minutes": 6,
+   "objectives": [
+    "Defend rook endings a pawn down"
+   ],
+   "steps": [
+    {
+     "say": "Philidor: with your king in front of the pawn, keep your rook on the third rank from you to stop the enemy king approaching.",
+     "fen": "4k3/8/r7/4PK2/8/8/8/7R b - - 0 1"
+    },
+    {
+     "say": "When the pawn advances to the sixth rank, swing your rook behind and check from far away. The king has no shelter.",
+     "fen": "4k3/8/r7/4PK2/8/8/8/7R b - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "In the Philidor position, where does the defending rook wait at first?",
+     "options": [
+      "On the third rank from its own side",
+      "Behind the attacking king",
+      "On the back rank"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "When the pawn reaches the sixth rank, the defender should...",
+     "options": [
+      "Check from behind, far away",
+      "Keep the rook on the third rank",
+      "Trade rooks"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c09.l01.candidates",
+   "chapter": 9,
+   "title": "Choosing candidate moves",
+   "minutes": 5,
+   "objectives": [
+    "List options before you calculate"
+   ],
+   "steps": [
+    {
+     "say": "Before you calculate, list two to four candidate moves. Then calculate each in turn. This stops you falling in love with the first idea.",
+     "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4"
+    },
+    {
+     "say": "Here, with your queen and bishop aiming at f7, candidates include Qxf7 mate. Always include checks and captures in your list.",
+     "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+     "arrows": [
+      [
+       "h5",
+       "f7"
+      ],
+      [
+       "c4",
+       "f7"
+      ]
+     ]
+    }
+   ],
+   "exercises": [
+    {
+     "type": "mate",
+     "prompt": "Find the best candidate: it is mate.",
+     "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+     "hints": [
+      "Two white pieces aim at the same square.",
+      "Capture on f7."
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": "How many candidate moves should you usually list?",
+     "options": [
+      "Two to four",
+      "Only one",
+      "Every legal move"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c09.l02.forcing-first",
+   "chapter": 9,
+   "title": "Forcing moves first",
+   "minutes": 5,
+   "objectives": [
+    "Calculate checks and captures first"
+   ],
+   "steps": [
+    {
+     "say": "Forcing moves leave your opponent few replies, so you can see further. Calculate them first; quiet moves later.",
+     "fen": "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"
+    },
+    {
+     "say": "Even if a check does not mate, it might win time, drive a piece away, or set up a fork.",
+     "fen": "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "mate",
+     "prompt": "Look at your checks first.",
+     "fen": "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1",
+     "hints": [
+      "There is only one rook check."
+     ]
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Calculate the forcing line.",
+     "theme": "mate",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c09.l03.visualise",
+   "chapter": 9,
+   "title": "Visualising two moves deep",
+   "minutes": 6,
+   "objectives": [
+    "Hold a position in your head"
+   ],
+   "steps": [
+    {
+     "say": "Calculation means moving the pieces in your head. Start with short lines: your move, their reply, your move. See the final position clearly.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    },
+    {
+     "say": "Ask what changed: which squares are attacked now, which pieces are loose? Mistakes in calculation usually come from a piece you forgot had moved.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "puzzles",
+     "prompt": "Solve these two-move combinations without moving pieces until you are sure.",
+     "theme": "mate",
+     "count": 3
+    },
+    {
+     "type": "choice",
+     "prompt": "Most calculation errors come from...",
+     "options": [
+      "Forgetting that a piece has moved",
+      "Moving too slowly",
+      "Looking at checks"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c09.l04.counting",
+   "chapter": 9,
+   "title": "Counting exchanges",
+   "minutes": 5,
+   "objectives": [
+    "Decide whether a capture wins material"
+   ],
+   "steps": [
+    {
+     "say": "When several pieces attack one square, count attackers and defenders and their values. Capture with the cheapest piece first.",
+     "fen": "r2qkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 1",
+     "marks": [
+      "d5",
+      "e5"
+     ]
+    },
+    {
+     "say": "If you have more attackers than they have defenders, and the trade order does not lose value, the capture wins material.",
+     "fen": "r2qkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "A pawn is attacked twice and defended once. Your attackers are a knight and a rook, the defender a bishop. Do you win the pawn?",
+     "options": [
+      "Yes, capturing with the knight first",
+      "No",
+      "Only if you capture with the rook first"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "With several captures on one square, start with...",
+     "options": [
+      "Your cheapest piece",
+      "Your queen",
+      "Your king"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c09.l05.blunder-check",
+   "chapter": 9,
+   "title": "The blunder check",
+   "minutes": 4,
+   "objectives": [
+    "Check your move before you play it"
+   ],
+   "steps": [
+    {
+     "say": "Before you touch a piece, look at the board as your opponent: after my move, what are all their checks, captures and threats?",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "This takes a few seconds and prevents most lost games at every level.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "What is the last thing to do before playing your move?",
+     "options": [
+      "Check every reply your opponent has: checks, captures, threats",
+      "Look at the clock",
+      "Nothing"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Spot what your opponent missed.",
+     "theme": "hangingPiece",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "lesson.c09.l06.zwischenzug",
+   "chapter": 9,
+   "title": "In-between moves",
+   "minutes": 5,
+   "objectives": [
+    "Look for a stronger move before recapturing"
+   ],
+   "steps": [
+    {
+     "say": "An in-between move, or zwischenzug, is a forcing move played before the expected reply, often a check before recapturing.",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4"
+    },
+    {
+     "say": "Before automatically recapturing, ask: is there a check or a bigger threat first?",
+     "fen": "r1bqkbnr/pppp1ppp/2n5/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Your piece was captured. Before recapturing, you should...",
+     "options": [
+      "Look for a check or bigger threat first",
+      "Recapture immediately",
+      "Offer a draw"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Find the strongest move, not the obvious one.",
+     "theme": "advantage",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c09.l07.combinations",
+   "chapter": 9,
+   "title": "Combinations",
+   "minutes": 7,
+   "objectives": [
+    "Combine motifs into a forcing sequence"
+   ],
+   "steps": [
+    {
+     "say": "A combination is a forcing sequence, often with a sacrifice, that ends in a gain. It usually joins two motifs: a deflection and a fork, a check and a pin.",
+     "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4"
+    },
+    {
+     "say": "Look for combinations when the opponent's king is exposed, pieces are loose, or pieces are overloaded.",
+     "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "puzzles",
+     "prompt": "Solve the combinations.",
+     "theme": "mate",
+     "count": 3
+    },
+    {
+     "type": "puzzles",
+     "prompt": "Win material with a combination.",
+     "theme": "skewer",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "lesson.c10.l01.clock",
+   "chapter": 10,
+   "title": "Using your clock",
+   "minutes": 5,
+   "objectives": [
+    "Spend time where it matters"
+   ],
+   "steps": [
+    {
+     "say": "Your clock is a resource. Play the opening quickly with known moves; spend time at critical moments: when the position changes, after a capture, or when you sense a tactic.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "A useful rule: never let your clock fall far behind your opponent's in a long game. In blitz, keep a few seconds per move in reserve.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "When should you think longest?",
+     "options": [
+      "At critical moments: captures, tactics, changes of plan",
+      "On move one",
+      "On obvious recaptures"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "In a game with increment, what does the increment do?",
+     "options": [
+      "Adds time after each move you make",
+      "Ends the game early",
+      "Pauses the clock"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c10.l02.time-trouble",
+   "chapter": 10,
+   "title": "Time trouble",
+   "minutes": 5,
+   "objectives": [
+    "Play safely when the clock is low"
+   ],
+   "steps": [
+    {
+     "say": "In time trouble, simple and safe beats clever. Keep pieces defended, avoid complications, and use checks to gain time.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "If your opponent is short of time, keep the position complicated and make them solve problems.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "You have 20 seconds left in a level position. What kind of moves should you play?",
+     "options": [
+      "Safe, simple moves that keep pieces defended",
+      "Wild sacrifices",
+      "Long thinks on every move"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Your opponent is in time trouble. You should...",
+     "options": [
+      "Keep the position complicated but safe for you",
+      "Offer a draw immediately",
+      "Play as fast as possible no matter what"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c10.l03.repertoire",
+   "chapter": 10,
+   "title": "Building an opening repertoire",
+   "minutes": 6,
+   "objectives": [
+    "Choose openings you understand"
+   ],
+   "steps": [
+    {
+     "say": "A repertoire is the set of openings you play. Pick a few lines and learn their ideas, not just the moves. The Opening lab helps you drill them.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "Start with one answer to 1.e4 and one to 1.d4 as Black, and one first move as White. Expand only when you keep reaching positions you do not understand.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "What matters most when learning an opening?",
+     "options": [
+      "Understanding the plans and ideas",
+      "Memorising 20 moves deep",
+      "Choosing the rarest opening"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "How many openings should a beginner learn first?",
+     "options": [
+      "A small set: one as White and one or two as Black",
+      "As many as possible",
+      "None"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c10.l04.review",
+   "chapter": 10,
+   "title": "Reviewing your own games",
+   "minutes": 6,
+   "objectives": [
+    "Learn from every game"
+   ],
+   "steps": [
+    {
+     "say": "After a game, first look at it on your own and note where you felt unsure. Then use the coach review to check those moments.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "Look for patterns across games: the same kind of mistake again and again is your best training target. Your training plan in Improve does this for you.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "What should you do first after a loss?",
+     "options": [
+      "Review it yourself, then with the coach",
+      "Play again immediately",
+      "Delete it"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "Which mistakes deserve the most training?",
+     "options": [
+      "The ones you repeat across many games",
+      "One-off blunders in time trouble",
+      "Opening moves you have never seen"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c10.l05.etiquette",
+   "chapter": 10,
+   "title": "Rules and etiquette",
+   "minutes": 5,
+   "objectives": [
+    "Play fairly and know tournament rules"
+   ],
+   "steps": [
+    {
+     "say": "Over the board, touch-move applies: if you deliberately touch a piece, you must move it. Say \"adjust\" first if you only want to straighten it.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "Offer draws only on your own move, shake hands before and after, and never use outside help. Online, the same fair-play rules apply.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "Under touch-move, if you touch your knight on purpose you must...",
+     "options": [
+      "Move it if it has a legal move",
+      "Move any piece",
+      "Nothing"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "When should you offer a draw over the board?",
+     "options": [
+      "After making your move, before pressing the clock",
+      "While your opponent is thinking",
+      "Any time"
+     ],
+     "answer": 0
+    }
+   ]
+  },
+  {
+   "id": "lesson.c10.l06.mindset",
+   "chapter": 10,
+   "title": "Mindset and tilt",
+   "minutes": 5,
+   "objectives": [
+    "Stay calm after mistakes"
+   ],
+   "steps": [
+    {
+     "say": "Everyone blunders. What separates strong players is how they react: reset, look at the new position fresh, and keep fighting.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+     "say": "If you lose several games in a row, take a break. Playing on tilt costs rating and fun. Come back with a puzzle or a lesson instead.",
+     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    }
+   ],
+   "exercises": [
+    {
+     "type": "choice",
+     "prompt": "You just blundered a piece. What now?",
+     "options": [
+      "Reset and look for the best move in the new position",
+      "Resign at once",
+      "Play fast to get it over with"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "choice",
+     "prompt": "You have lost four games in a row. A good next step is...",
+     "options": [
+      "Take a break, then do some puzzles",
+      "Play ten more quick games",
+      "Raise the time control and keep going angry"
+     ],
+     "answer": 0
+    }
+   ]
+  }
+ ]
 }

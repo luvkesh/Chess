@@ -1,0 +1,389 @@
+{
+ "version": 1,
+ "openings": [
+  {
+   "id": "opening.italian",
+   "name": "Italian Game",
+   "side": "white",
+   "access": "free",
+   "eco": "C50",
+   "summary": "Quick development, bishop aimed at f7, then a slow build-up with c3 and d3.",
+   "moves": [
+    "e2e4",
+    "e7e5",
+    "g1f3",
+    "b8c6",
+    "f1c4",
+    "f8c5",
+    "c2c3",
+    "g8f6",
+    "d2d3",
+    "d7d6",
+    "e1g1",
+    "e8g8"
+   ],
+   "ideas": [
+    "Develop knights and bishops before moving the queen.",
+    "The bishop on c4 eyes the weak f7 square.",
+    "c3 prepares a later d4 to take the centre."
+   ],
+   "notes": {
+    "0": "Take the centre and open lines for the queen and bishop.",
+    "2": "Develop with a threat: the e5 pawn is attacked.",
+    "4": "The Italian bishop aims at f7, the weakest square near the black king.",
+    "6": "Prepares d4 and gives the bishop a retreat on c2.",
+    "8": "A solid, slow approach: keep the centre and finish development.",
+    "10": "Castle early to bring the king to safety and the rook toward the centre."
+   }
+  },
+  {
+   "id": "opening.qgd",
+   "name": "Queen's Gambit Declined",
+   "side": "white",
+   "access": "free",
+   "eco": "D53",
+   "summary": "Offer the c-pawn to deflect Black from the centre; develop naturally and pressure d5.",
+   "moves": [
+    "d2d4",
+    "d7d5",
+    "c2c4",
+    "e7e6",
+    "b1c3",
+    "g8f6",
+    "c1g5",
+    "f8e7",
+    "e2e3",
+    "e8g8",
+    "g1f3"
+   ],
+   "ideas": [
+    "c4 challenges the d5 pawn from the side.",
+    "Bg5 pins the knight that defends d5.",
+    "Simple development: e3, Nf3, Bd3, castle."
+   ],
+   "notes": {
+    "0": "Take the centre with the queen's pawn.",
+    "2": "The gambit: if Black takes on c4 you win the centre with e4.",
+    "4": "More pressure on d5.",
+    "6": "Pin the knight that defends d5.",
+    "8": "Open the way for the light-squared bishop.",
+    "10": "Develop the last minor piece toward the centre."
+   }
+  },
+  {
+   "id": "opening.scandinavian",
+   "name": "Scandinavian Defence",
+   "side": "black",
+   "access": "free",
+   "eco": "B01",
+   "summary": "Challenge e4 at once; the queen recaptures and retreats to a5 with quick development.",
+   "moves": [
+    "e2e4",
+    "d7d5",
+    "e4d5",
+    "d8d5",
+    "b1c3",
+    "d5a5",
+    "d2d4",
+    "g8f6",
+    "g1f3",
+    "c8f5"
+   ],
+   "ideas": [
+    "One clear plan from move one.",
+    "The queen on a5 pins the c3 knight against nothing but stays active.",
+    "Develop the light bishop outside the pawn chain before e6."
+   ],
+   "notes": {
+    "1": "Strike at e4 immediately.",
+    "3": "Recapture with the queen; it is exposed but safe for now.",
+    "5": "The queen steps aside to a5, out of the way of White's pieces.",
+    "7": "Develop and control e4.",
+    "9": "Bring the bishop out before playing e6."
+   }
+  },
+  {
+   "id": "opening.french",
+   "name": "French Defence",
+   "side": "black",
+   "access": "free",
+   "eco": "C13",
+   "summary": "A solid pawn chain with e6 and d5; Black counter-attacks the centre with c5 and f6 later.",
+   "moves": [
+    "e2e4",
+    "e7e6",
+    "d2d4",
+    "d7d5",
+    "b1c3",
+    "g8f6",
+    "c1g5",
+    "f8e7",
+    "e4e5",
+    "f6d7",
+    "g5e7",
+    "d8e7"
+   ],
+   "ideas": [
+    "e6 and d5 form a solid chain.",
+    "Attack White's pawn chain at its base with c5.",
+    "The light-squared bishop is Black's problem piece."
+   ],
+   "notes": {
+    "1": "Prepare d5 with solid support.",
+    "3": "Challenge the centre.",
+    "5": "Develop and pressure e4.",
+    "7": "Break the pin by developing the bishop.",
+    "9": "The knight retreats; Black will hit the e5 pawn with c5 and f6.",
+    "11": "Recapture with the queen and prepare to castle."
+   }
+  },
+  {
+   "id": "opening.ruy-lopez",
+   "name": "Ruy Lopez",
+   "side": "white",
+   "access": "premium",
+   "eco": "C84",
+   "summary": "Pressure on the knight that defends e5; a rich, strategic game with long-term pressure.",
+   "moves": [
+    "e2e4",
+    "e7e5",
+    "g1f3",
+    "b8c6",
+    "f1b5",
+    "a7a6",
+    "b5a4",
+    "g8f6",
+    "e1g1",
+    "f8e7",
+    "f1e1",
+    "b7b5",
+    "a4b3",
+    "d7d6",
+    "c2c3",
+    "e8g8"
+   ],
+   "ideas": [
+    "Bb5 attacks the defender of e5.",
+    "Keep the bishop on the a2-g8 diagonal.",
+    "c3 and d4 build a big centre."
+   ],
+   "notes": {
+    "4": "Pressure the knight that defends e5.",
+    "6": "Keep the bishop; the a4-e8 diagonal stays useful.",
+    "8": "Castle first, then deal with the centre.",
+    "10": "Protect e4 so the e5 pawn is really under threat.",
+    "12": "The bishop settles on b3, aiming at f7.",
+    "14": "Prepare d4 with a strong centre."
+   }
+  },
+  {
+   "id": "opening.london",
+   "name": "London System",
+   "side": "white",
+   "access": "premium",
+   "eco": "D02",
+   "summary": "A reliable set-up: d4, Bf4, e3, Nf3, c3, Nd2, Bd3. Plans matter more than move orders.",
+   "moves": [
+    "d2d4",
+    "d7d5",
+    "c1f4",
+    "g8f6",
+    "e2e3",
+    "e7e6",
+    "g1f3",
+    "c7c5",
+    "c2c3",
+    "b8c6",
+    "b1d2",
+    "f8d6",
+    "f4g3",
+    "e8g8",
+    "f1d3"
+   ],
+   "ideas": [
+    "Develop the dark bishop before e3 locks it in.",
+    "A solid triangle of pawns on c3, d4, e3.",
+    "Later Ne5 and a kingside attack."
+   ],
+   "notes": {
+    "2": "Develop the bishop outside the pawn chain first.",
+    "4": "Now e3 does not shut the bishop in.",
+    "8": "Support d4 against the c5 attack.",
+    "10": "The knight supports e4 and keeps c3 solid.",
+    "12": "Keep the bishop rather than allow a trade on f4.",
+    "14": "Aim the bishop at the black king."
+   }
+  },
+  {
+   "id": "opening.english",
+   "name": "English Opening",
+   "side": "white",
+   "access": "premium",
+   "eco": "A29",
+   "summary": "A reversed Sicilian: control d5 from the side and fianchetto the king's bishop.",
+   "moves": [
+    "c2c4",
+    "e7e5",
+    "b1c3",
+    "g8f6",
+    "g2g3",
+    "d7d5",
+    "c4d5",
+    "f6d5",
+    "f1g2",
+    "d5b6",
+    "g1f3",
+    "b8c6",
+    "e1g1"
+   ],
+   "ideas": [
+    "Control d5 from the flank.",
+    "The g2 bishop pressures the long diagonal.",
+    "Flexible: transposes to many structures."
+   ],
+   "notes": {
+    "0": "Grab space on the queenside and watch d5.",
+    "2": "More control of d5.",
+    "4": "Prepare the fianchetto.",
+    "8": "The bishop on g2 rakes the long diagonal toward b7.",
+    "12": "Castle and keep everything flexible."
+   }
+  },
+  {
+   "id": "opening.najdorf",
+   "name": "Sicilian Najdorf",
+   "side": "black",
+   "access": "premium",
+   "eco": "B90",
+   "summary": "The sharpest answer to e4: imbalance the centre and counter-attack on the queenside.",
+   "moves": [
+    "e2e4",
+    "c7c5",
+    "g1f3",
+    "d7d6",
+    "d2d4",
+    "c5d4",
+    "f3d4",
+    "g8f6",
+    "b1c3",
+    "a7a6"
+   ],
+   "ideas": [
+    "c5 fights for d4 from the side.",
+    "Black gets the half-open c-file.",
+    "a6 controls b5 and prepares b5 expansion."
+   ],
+   "notes": {
+    "1": "Fight for d4 without mirroring White.",
+    "3": "Support e5 later and free the c8 bishop.",
+    "5": "Trade a wing pawn for a centre pawn.",
+    "7": "Develop with pressure on e4.",
+    "9": "The Najdorf move: control b5 and prepare queenside play."
+   }
+  },
+  {
+   "id": "opening.caro-kann",
+   "name": "Caro-Kann Defence",
+   "side": "black",
+   "access": "premium",
+   "eco": "B19",
+   "summary": "Solid like the French, but the light bishop gets out before e6.",
+   "moves": [
+    "e2e4",
+    "c7c6",
+    "d2d4",
+    "d7d5",
+    "b1c3",
+    "d5e4",
+    "c3e4",
+    "c8f5",
+    "e4g3",
+    "f5g6",
+    "h2h4",
+    "h7h6",
+    "g1f3",
+    "b8d7"
+   ],
+   "ideas": [
+    "c6 prepares d5 without blocking the bishop.",
+    "Develop the bishop to f5 before e6.",
+    "A very solid pawn structure for the endgame."
+   ],
+   "notes": {
+    "1": "Prepare d5.",
+    "3": "Challenge the centre.",
+    "5": "Trade the d-pawn for White's e-pawn.",
+    "7": "The point of the Caro-Kann: the bishop develops outside the pawn chain.",
+    "9": "Keep the bishop on the diagonal.",
+    "11": "Give the bishop a retreat on h7.",
+    "13": "Prepare Ngf6 without allowing doubled pawns."
+   }
+  },
+  {
+   "id": "opening.kings-indian",
+   "name": "King's Indian Defence",
+   "side": "black",
+   "access": "premium",
+   "eco": "E92",
+   "summary": "Let White build a centre, then attack it with e5 and a kingside pawn storm.",
+   "moves": [
+    "d2d4",
+    "g8f6",
+    "c2c4",
+    "g7g6",
+    "b1c3",
+    "f8g7",
+    "e2e4",
+    "d7d6",
+    "g1f3",
+    "e8g8",
+    "f1e2",
+    "e7e5"
+   ],
+   "ideas": [
+    "Fianchetto and castle quickly.",
+    "Strike back with e5 or c5.",
+    "Typical plan: Ne8, f5 and a kingside attack."
+   ],
+   "notes": {
+    "1": "Control e4 and develop.",
+    "3": "Prepare the fianchetto.",
+    "5": "The bishop on g7 is the soul of the King's Indian.",
+    "7": "Prepare e5.",
+    "9": "Castle before opening the centre.",
+    "11": "The thematic strike at White's centre."
+   }
+  },
+  {
+   "id": "opening.slav",
+   "name": "Slav Defence",
+   "side": "black",
+   "access": "premium",
+   "eco": "D17",
+   "summary": "Defend d5 with c6, keeping the light bishop free; a rock-solid answer to the Queen's Gambit.",
+   "moves": [
+    "d2d4",
+    "d7d5",
+    "c2c4",
+    "c7c6",
+    "g1f3",
+    "g8f6",
+    "b1c3",
+    "d5c4",
+    "a2a4",
+    "c8f5"
+   ],
+   "ideas": [
+    "c6 supports d5 without blocking the bishop.",
+    "Take on c4 only when White cannot easily regain it with e4.",
+    "Develop the bishop to f5 or g4."
+   ],
+   "notes": {
+    "3": "Support d5 with a pawn.",
+    "5": "Develop and control e4.",
+    "7": "Take the pawn while it is safe.",
+    "9": "Develop the bishop before e6."
+   }
+  }
+ ]
+}

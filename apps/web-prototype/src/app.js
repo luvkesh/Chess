@@ -6,6 +6,7 @@
   const E = ChacklateEngine();
   const C = ChacklateCoach(E);
   const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES;
+  const OPENINGS = CHACKLATE_OPENINGS.openings, ENDGAMES = CHACKLATE_ENDGAMES.endgames;
   const PG = ChacklateProgress(CATALOG);
   const AU = ChacklateAudio();
   const { WHITE, BLACK, LEVELS } = E;
@@ -18,7 +19,7 @@
   const REASON_TEXT = {
     checkmate: 'Checkmate', resignation: 'Resignation', timeout: 'Time ran out', 'timeout-insufficient': 'Time ran out, but no mate was possible',
     stalemate: 'Stalemate', insufficient: 'Not enough material', threefold: 'Threefold repetition', fivefold: 'Fivefold repetition',
-    fifty: 'Fifty-move rule', seventyfive: 'Seventy-five-move rule', agreement: 'Draw agreed', abandoned: 'Opponent left', aborted: 'Game aborted',
+    fifty: 'Fifty-move rule', seventyfive: 'Seventy-five-move rule', agreement: 'Draw agreed', abandoned: 'Opponent left', aborted: 'Game aborted', dojo: 'Endgame dojo',
   };
   const I = {
     home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
@@ -547,6 +548,7 @@
       refreshHighlights();
       renderHud();
       save();
+      if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
       else maybeComputer();
     }, { quick });
@@ -776,6 +778,7 @@
       G.online.endWait = setTimeout(() => { G.online.ended = true; endGame(); }, 2500);
       return;
     }
+    if (G.setup.dojo) { if (!G.dojoDone) dojoCheck(G, null); return; }
     if (G.resultShown) return;
     G.resultShown = true;
     const o = g.outcome;
@@ -879,7 +882,7 @@
     // buttons
     const done = !!g.outcome;
     const set = (id, dis) => { const b = $(id); if (b) b.disabled = dis; };
-    set('g-undo', !g.moves.length || done || G.busy || G.kind === 'online');
+    set('g-undo', !g.moves.length || done || G.busy || G.kind === 'online' || !!G.setup.dojo);
     set('g-hint', !humanTurn());
     set('g-threat', !humanTurn());
     set('g-draw', done);
@@ -1187,8 +1190,12 @@
       view.setArrows([]); view.setHighlights({});
       if (x.type === 'choice') {
         $('ls-content').innerHTML = '<p class="prompt">' + esc(x.prompt) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
-        document.querySelectorAll('[data-opt]').forEach((b) => { b.onclick = () => { if (S.answered) return; const ok = +b.dataset.opt === x.answer; answer(ok, ok ? 'Correct.' : 'Not quite. The answer is: ' + x.options[x.answer]); b.classList.add(ok ? 'primary' : 'warn'); }; });
+        document.querySelectorAll('[data-opt]').forEach((b) => { b.onclick = () => { if (S.answered) return; const ok = +b.dataset.opt === x.answer; const why = x.explain ? ' ' + x.explain : '';
+          if (ok) answer(true, 'Correct.' + why);
+          else { S.answered = true; if (S.results[S.i] === undefined) S.results[S.i] = false; AU.play('wrong'); fb('bad', 'Not quite. The answer is: ' + x.options[x.answer] + '.' + why); $('ls-next').textContent = S.i === ex.length - 1 ? 'Finish' : 'Next'; dots(); }
+          b.classList.add(ok ? 'primary' : 'warn'); }; });
         setHooks({});
+        if (x.fen) setPos(x.fen);
         dots(); speak();
         return;
       }
@@ -1346,7 +1353,8 @@
       (daily ? '<button class="card-btn feature" id="i-daily"><div class="big">☀</div><div><b>Daily puzzle' + (dailyDone ? ' · solved' : '') + '</b><br><small>' + (dailyDone ? 'Come back tomorrow for a new one.' : 'Rated ' + daily.rating + '. Keep your streak going.') + '</small></div></button>' : '') +
       '<button class="card-btn" id="i-rated"><div class="big">♞</div><b>Puzzle trainer</b><small>Rating ' + P.stats.puzzles.rating + ' · ' + PUZZLES.length + ' puzzles</small></button>' +
       '<button class="card-btn" id="i-plan"><div class="big">✎</div><b>Your training plan</b><small>' + esc(plan.summary) + '</small></button>' +
-      '<button class="card-btn" id="i-dojo"><div class="big">♚</div><b>Endgame dojo</b><small>Convert winning endgames against the engine.</small></button>' +
+      '<button class="card-btn" id="i-lab"><div class="big">♗</div><b>Opening lab</b><small>' + OPENINGS.length + ' openings · ' + Object.values(P.openings).filter((r) => r.mastered).length + ' mastered</small></button>' +
+      '<button class="card-btn" id="i-dojo"><div class="big">♚</div><b>Endgame dojo</b><small>' + ENDGAMES.length + ' endgames · ' + Object.values(P.dojo).reduce((a, r) => a + r.stars, 0) + ' of ' + ENDGAMES.length * 3 + ' stars</small></button>' +
       '<button class="card-btn" id="i-games"><div class="big">↺</div><b>Review your games</b><small>' + P.history.length + ' recent games</small></button>' +
       '</div><h3 class="section-title">Puzzle themes</h3><div class="cards">' +
       themes.map(([t, n, g]) => { const c = PUZZLES.filter((p) => t === 'mate' ? p.themes.some((x) => x.startsWith('mateIn')) : p.themes.includes(t)).length; return '<button class="card-btn" data-theme="' + t + '"' + (c ? '' : ' disabled') + '><div class="big">' + g + '</div><b>' + n + '</b><small>' + c + ' puzzles</small></button>'; }).join('') +
@@ -1355,7 +1363,8 @@
     if (daily) $('i-daily').onclick = () => { AU.unlock(); go('puzzle', { list: [daily], daily: true, title: 'Daily puzzle' }); };
     $('i-rated').onclick = () => { AU.unlock(); go('puzzle', { rated: true, title: 'Puzzle trainer' }); };
     $('i-plan').onclick = () => { AU.unlock(); go('puzzle', { theme: plan.theme, rated: true, title: 'Training plan: ' + plan.name }); };
-    $('i-dojo').onclick = () => dojoModal();
+    $('i-dojo').onclick = () => { AU.unlock(); go('dojo'); };
+    $('i-lab').onclick = () => { AU.unlock(); go('openings'); };
     $('i-games').onclick = () => go('profile', 'games');
     document.querySelectorAll('[data-theme]').forEach((b) => { b.onclick = () => { AU.unlock(); go('puzzle', { theme: b.dataset.theme, rated: true, title: b.querySelector('b').textContent }); }; });
     return { leave() { view.setAttract(false); } };
@@ -1370,18 +1379,187 @@
     return { theme: t, name: names[t] || t, summary: 'Focus: ' + (names[t] || t) + ', your most frequent missed pattern.' };
   }
   function noteMotif(theme) { const m = state.progress.seen.motifs || (state.progress.seen.motifs = {}); m[theme] = (m[theme] || 0) + 1; }
-  const DOJO = [
-    { name: 'Queen and king vs king', fen: '8/8/8/4k3/8/8/8/3QK3 w - - 0 1' },
-    { name: 'Rook and king vs king', fen: '8/8/8/4k3/8/8/8/R3K3 w - - 0 1' },
-    { name: 'King and pawn: opposition', fen: '8/8/8/4k3/8/4K3/4P3/8 w - - 0 1' },
-    { name: 'Two bishops mate', fen: '8/8/8/4k3/8/8/8/2B1KB2 w - - 0 1' },
-    { name: 'Lucena position', fen: '1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1' },
-  ];
-  function dojoModal() {
-    const m = modal('<h2>Endgame dojo</h2><p class="sub">Win these against the strongest defence. Every one is a forced win for you.</p><div class="list">' +
-      DOJO.map((d, i) => '<button class="row-item" data-dojo="' + i + '"><span style="font-size:22px">♔</span><b>' + esc(d.name) + '</b><span class="pill">Play</span></button>').join('') + '</div><div class="row"><button class="btn" data-close>Close</button></div>');
-    m.querySelectorAll('[data-dojo]').forEach((b) => { b.onclick = () => { m.close(); startGame({ mode: 'ai', color: 'white', level: 7, tc: 'none', fen: DOJO[+b.dataset.dojo].fen }); }; });
+  const stars = (n) => '<span class="stars">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
+  const locked = (item) => item.access === 'premium' && !state.progress.premium;
+
+  // Endgame dojo: play known endgames against full-strength defence, scored against a par.
+  SCREENS.dojo = function () {
+    idleBoard();
+    const P = state.progress;
+    const goalText = { mate: 'Checkmate', promote: 'Promote safely', draw: 'Hold the draw' };
+    mount(topbar({ back: 'Improve' }) + '<section class="sheet glass"><header><div class="eyebrow">Train</div><h2>Endgame dojo</h2><p>Known endgames against the strongest defence. Reach the goal within par for three stars.</p></header><div class="body"><div class="list">' +
+      ENDGAMES.map((d) => {
+        const r = P.dojo[d.id];
+        return '<button class="row-item" data-eg="' + d.id + '"' + (locked(d) ? ' disabled' : '') + '><span style="font-size:24px">' + (d.goal === 'draw' ? '♚' : '♔') + '</span><div><b>' + esc(d.name) + '</b><br><small style="color:var(--muted)">' + esc(d.level) + ' · ' + goalText[d.goal] + (d.goal === 'draw' ? ' for ' + d.par + ' moves' : ' · par ' + d.par) + (r && r.best ? ' · best ' + r.best : '') + '</small></div>' +
+          (locked(d) ? '<span class="pill lock">Premium</span>' : stars(r ? r.stars : 0)) + '</button>';
+      }).join('') + '</div></div></section>' + navbar('improve'));
+    wireTopbar(() => go('improve')); wireNav();
+    document.querySelectorAll('[data-eg]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); startDojo(b.dataset.eg); }; });
+    return { leave() { view.setAttract(false); } };
+  };
+  function startDojo(id) {
+    const d = ENDGAMES.find((x) => x.id === id);
+    const side = E.positionFrom(d.fen, []).side;
+    startGame({ mode: 'ai', color: side === WHITE ? 'white' : 'black', level: 7, tc: 'none', fen: d.fen, dojo: id });
+    coachSay(d.tip, [['Got it', 'dismiss']]);
   }
+  // Called after every move of a dojo game. Returns true once the attempt is decided.
+  function dojoCheck(G, info) {
+    const d = ENDGAMES.find((x) => x.id === G.setup.dojo);
+    if (!d || G.dojoDone) return false;
+    const g = G.g, me = G.human, o = g.outcome;
+    const firstMine = E.positionFrom(g.startFen, []).side === me;
+    const mine = g.moves.filter((_, i) => (i % 2 === 0) === firstMine).length;
+    let ok = null, why = '';
+    if (o) {
+      const w = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
+      ok = w === me || (!w && d.goal === 'draw');
+      why = ok ? (w ? 'Checkmate.' : 'The game is drawn.') : w ? 'You were checkmated.' : (REASON_TEXT[o.reason] || 'Draw') + ': that lets the win slip.';
+    } else if (info && info.captured && Math.sign(info.captured) === me && Math.abs(info.captured) === E.P && d.goal === 'promote') { ok = false; why = 'Your pawn was captured.'; }
+    else if (info && info.promo && Math.sign(info.mover) === me && d.goal === 'promote') {
+      ok = !C.isHanging(g.pos, E.to88(info.to));
+      why = ok ? 'Promoted, and the new queen is safe.' : 'The new queen can be captured.';
+    } else if (info && info.promo && Math.sign(info.mover) === -me) { ok = false; why = 'Your opponent promoted.'; }
+    else if (d.goal === 'draw' && mine >= d.par && g.pos.side === me) { ok = true; why = 'You held for ' + d.par + ' moves.'; }
+    if (ok === null) return false;
+    G.dojoDone = true;
+    if (!o) g.finish(ok === (me === WHITE) ? '1-0' : '0-1', 'dojo');
+    const res = PG.dojoFinished(state.progress, d, ok, mine);
+    save(); renderHud();
+    AU.play(ok ? 'win' : 'loss');
+    if (ok) view.celebrate('win', -1, null, -1);
+    const next = ENDGAMES[ENDGAMES.indexOf(d) + 1];
+    const m = modal('<span class="result-badge' + (ok ? ' win' : ' loss') + '">Endgame dojo</span><h2 class="result-title">' + (ok ? 'Goal reached' : 'Not this time') + '</h2>' +
+      '<p class="sub">' + esc(why) + ' ' + (ok && d.goal !== 'draw' ? mine + ' moves, par ' + d.par + '.' : '') + '</p>' + (ok ? '<p style="font-size:28px;margin:4px 0 10px">' + stars(res.stars) + '</p>' : '<p class="sub">' + esc(d.tip) + '</p>') +
+      '<div class="row"><button class="btn" id="dj-list">All endgames</button><button class="btn' + (ok ? '' : ' primary') + '" id="dj-again">Try again</button>' +
+      (ok && next && !locked(next) ? '<button class="btn primary" id="dj-next">Next: ' + esc(next.name) + '</button>' : '') + '</div>');
+    m.querySelector('#dj-list').onclick = () => { m.close(); go('dojo'); };
+    m.querySelector('#dj-again').onclick = () => { m.close(); startDojo(d.id); };
+    const n = m.querySelector('#dj-next'); if (n) n.onclick = () => { m.close(); startDojo(next.id); };
+    celebrate(res);
+    return true;
+  }
+
+  // Opening lab: pick a line and drill it until it is automatic.
+  SCREENS.openings = function (tab) {
+    idleBoard();
+    const P = state.progress;
+    let side = tab || 'white';
+    mount(topbar({ back: 'Improve' }) + '<section class="sheet glass"><header><div class="eyebrow">Train</div><h2>Opening lab</h2><p>Play through each line with the coach. Three clean runs master it; then try it against the computer.</p></header>' +
+      '<div class="tabs" role="tablist"><button role="tab" data-side="white">As White</button><button role="tab" data-side="black">As Black</button></div><div class="body"><div class="list" id="ol"></div></div></section>' + navbar('improve'));
+    wireTopbar(() => go('improve')); wireNav();
+    const draw = () => {
+      document.querySelectorAll('[data-side]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.side === side)));
+      $('ol').innerHTML = OPENINGS.filter((o) => o.side === side).map((o) => {
+        const r = P.openings[o.id];
+        return '<button class="row-item" data-op="' + o.id + '"' + (locked(o) ? ' disabled' : '') + '><span class="pill">' + esc(o.eco) + '</span><div><b>' + esc(o.name) + '</b><br><small style="color:var(--muted)">' + esc(o.summary) + '</small></div>' +
+          (locked(o) ? '<span class="pill lock">Premium</span>' : r && r.mastered ? '<span class="pill gold">Mastered</span>' : '<small style="color:var(--muted)">' + (r ? r.clean + '/3 clean' : (o.moves.length / 2 | 0) + ' moves') + '</small>') + '</button>';
+      }).join('');
+      document.querySelectorAll('[data-op]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('drill', b.dataset.op); }; });
+    };
+    document.querySelectorAll('[data-side]').forEach((b) => { b.onclick = () => { side = b.dataset.side; AU.play('tap'); draw(); }; });
+    draw();
+    return { leave() { view.setAttract(false); } };
+  };
+
+  SCREENS.drill = function (id) {
+    const o = OPENINGS.find((x) => x.id === id);
+    const me = o.side === 'white' ? WHITE : BLACK;
+    const S = { g: new E.Game(), i: 0, misses: 0, selected: -1, done: false, busy: false };
+    view.setAttract(false);
+    mount('<div class="topbar"><button class="btn glass small" id="dr-back">' + icon('back') + '<span>Opening lab</span></button><div class="pill gold">' + esc(o.eco) + ' · ' + esc(o.name) + '</div><div class="spacer"></div>' +
+      '<button class="btn glass icon" id="dr-set" aria-label="Settings">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass"><header><div class="eyebrow">Playing ' + o.side + '</div><h3>' + esc(o.name) + '</h3></header><div class="content">' +
+      '<p class="say">' + esc(o.summary) + '</p><ul class="ideas">' + o.ideas.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul><div class="drill-moves" id="dr-moves"></div><div id="dr-fb"></div></div>' +
+      '<footer><button class="btn" id="dr-hint">' + icon('hint') + ' Hint</button><button class="btn" id="dr-reset">' + icon('refresh') + ' Restart</button><div class="grow"></div><button class="btn primary" id="dr-play" hidden>Play from here</button></footer></aside>');
+    $('dr-back').onclick = () => go('openings', o.side);
+    $('dr-set').onclick = () => settingsModal();
+    const fb = (kind, t) => { $('dr-fb').innerHTML = t ? '<div class="feedback ' + kind + '">' + esc(t) + '</div>' : ''; };
+    const san = (k) => { const g = new E.Game(); for (let j = 0; j < k; j++) g.playText(o.moves[j]); return g.sans[k - 1]; };
+    function moveList() {
+      let h = '';
+      S.g.sans.forEach((x, k) => { if (k % 2 === 0) h += '<span class="n">' + (k / 2 + 1) + '.</span>'; h += '<span class="m' + (k === S.g.sans.length - 1 ? ' last' : '') + '">' + esc(x) + '</span>'; });
+      $('dr-moves').innerHTML = h || '<span class="n">Your move.</span>';
+    }
+    function show(info) {
+      view.setBoard(piecesOf(S.g.pos), null);
+      view.setHighlights(info ? { lastFrom: info.from, lastTo: info.to } : {});
+      moveList();
+    }
+    function advance() {
+      if (S.i >= o.moves.length) return finish();
+      if (S.g.pos.side === me) return;
+      S.busy = true;
+      setTimeout(() => {
+        const info = S.g.playText(o.moves[S.i]);
+        const note = o.notes[S.i];
+        S.i++;
+        view.animateMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', 'They play ' + info.san + ': ' + note); advance(); });
+      }, 450);
+    }
+    function finish() {
+      if (S.done) return;
+      S.done = true;
+      const res = PG.openingFinished(state.progress, o.id, S.misses === 0);
+      save();
+      const rec = state.progress.openings[o.id];
+      fb('ok', (S.misses ? 'Line complete with ' + S.misses + ' slip' + (S.misses > 1 ? 's' : '') + '. Run it again cleanly.' : 'Clean run! ') + (rec.mastered ? (res.mastered ? ' Opening mastered.' : '') : ' ' + rec.clean + ' of 3 clean runs.'));
+      AU.play('correct');
+      if (res.mastered) view.celebrate('win', -1, null, -1);
+      $('dr-play').hidden = false;
+      celebrate(res);
+    }
+    function tryMove(from, to, promo) {
+      if (S.done || S.busy) return false;
+      const m = S.g.find(from, to, promo || 0);
+      if (m === null) return false;
+      const want = o.moves[S.i];
+      if (E.uci(m) !== want) {
+        S.misses++;
+        AU.play('wrong');
+        fb('bad', 'In this line we play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
+        view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#3fe0c8' }]);
+        show(null);
+        return true;
+      }
+      view.setArrows([]);
+      const info = S.g.play(m);
+      S.i++;
+      AU.play(info.captured ? 'capture' : info.rook ? 'castle' : 'move');
+      if (o.notes[S.i - 1]) fb('ok', info.san + ': ' + o.notes[S.i - 1]); else fb('ok', info.san + '. Good.');
+      view.animateMove(info, () => { show(info); advance(); });
+      return true;
+    }
+    setHooks({
+      onSquare(sq) {
+        if (S.done || S.busy || S.g.pos.side !== me) return;
+        const g = S.g;
+        if (S.selected >= 0 && g.targets(S.selected).includes(sq)) { const f = S.selected; S.selected = -1; tryMove(f, sq); return; }
+        const p = E.pieceAt(g.pos, sq);
+        if (p && Math.sign(p) === me) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights({ selected: sq, targets: t.filter((x) => !E.pieceAt(g.pos, x)), captures: t.filter((x) => E.pieceAt(g.pos, x)) }); }
+      },
+      canDrag: (sq) => !S.done && !S.busy && S.g.pos.side === me && E.pieceAt(S.g.pos, sq) && Math.sign(E.pieceAt(S.g.pos, sq)) === me,
+      onDrop(from, to) { return S.g.targets(from).includes(to) ? tryMove(from, to) : false; },
+    });
+    $('dr-hint').onclick = () => {
+      if (S.done || S.g.pos.side !== me) return;
+      S.misses++;
+      const want = o.moves[S.i];
+      view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#3fe0c8' }]);
+      fb('hint', 'Play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
+      AU.play('coach');
+    };
+    $('dr-reset').onclick = () => { AU.play('tap'); go('drill', id); };
+    $('dr-play').onclick = () => {
+      const lv = PG.personalLevel(state.progress, state.progress.premium ? 7 : 3);
+      startGame({ mode: 'ai', color: o.side, level: lv, tc: 'none', fen: S.g.pos.fen() });
+    };
+    view.setView(o.side, 'player');
+    show(null);
+    fb('', '');
+    advance();
+    return { leave() { view.setArrows([]); } };
+  };
 
   // Puzzle player.
   SCREENS.puzzle = function (arg) {
@@ -1620,6 +1798,8 @@
   // ---------------------------------------------------------------- shared API for the online client
   window.ChacklateApp = {
     E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline,
+    // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
+    tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
       // info: { id, color: 'white'|'black', tc, opponent, moves, clock, rating }
       startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
