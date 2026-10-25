@@ -9,14 +9,24 @@ const auth = require('./auth');
 const ws = require('./ws');
 const admin = require('./admin');
 const commerce = require('./commerce');
+const push = require('./push');
 const { Lobby } = require('./lobby');
 
 const ROOT = path.resolve(__dirname, '../../..');
+const PUBLIC = path.join(ROOT, 'apps/web-prototype/public');
 const STATIC = {
   '/': path.join(ROOT, 'apps/website/index.html'),
   '/play': path.join(ROOT, 'apps/web-prototype/dist/chacklate-chess.html'),
   '/admin': path.join(ROOT, 'apps/admin/index.html'),
+  // Installable app: manifest, service worker (served from the root so it can control /play) and icons.
+  '/manifest.webmanifest': path.join(PUBLIC, 'manifest.webmanifest'),
+  '/sw.js': path.join(PUBLIC, 'sw.js'),
+  '/apple-touch-icon.png': path.join(PUBLIC, 'apple-touch-icon.png'),
+  '/icons/icon-192.png': path.join(PUBLIC, 'icon-192.png'),
+  '/icons/icon-512.png': path.join(PUBLIC, 'icon-512.png'),
+  '/icons/icon-maskable-512.png': path.join(PUBLIC, 'icon-maskable-512.png'),
 };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -28,6 +38,9 @@ function createServer(opts) {
   const db = store.open(opts.dbFile);
   const E = ChacklateEngine();
   const shop = commerce.create(db, opts.payments);
+  const notify = push.create(db, Object.assign({ log: opts.log }, opts.push));
+  const pushTimer = setInterval(() => notify.tick(), 60000);
+  pushTimer.unref();
   const lobby = new Lobby(Object.assign({ db, E, entitlements: (id) => shop.entitlements(id) }, opts.lobby || {}));
   const adminApi = admin.routes(db, lobby, shop);
   const accountLimit = auth.limiter(20, 60000);
@@ -75,6 +88,12 @@ function createServer(opts) {
     if (p === '/api/me') {
       const u = lobby.userForToken(bearer(req));
       return u ? [200, profile(u)] : [401, { error: 'Not signed in.' }];
+    }
+    if (p === '/api/push/key') return [200, { publicKey: notify.publicKey }];
+    if ((p === '/api/push/subscribe' || p === '/api/push/unsubscribe') && req.method === 'POST') {
+      const u = lobby.userForToken(bearer(req));
+      if (!u) return [401, { error: 'Not signed in.' }];
+      return p === '/api/push/subscribe' ? notify.subscribe(u.id, body.subscription, body.hour, body.tz) : notify.unsubscribe(u.id, body.endpoint);
     }
     if (p === '/api/store') return [200, { mode: shop.mode, perks: shop.perks, products: shop.publicProducts() }];
     if (p === '/api/store/webhook' && req.method === 'POST') return shop.webhook(req.rawBody || '', req.headers['x-chacklate-signature']);
@@ -126,7 +145,8 @@ function createServer(opts) {
     }
     const file = STATIC[url.pathname.replace(/\/+$/, '') || '/'];
     if (file && fs.existsSync(file)) {
-      res.writeHead(200, Object.assign({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
+      const ext = path.extname(file);
+      res.writeHead(200, Object.assign({ 'Content-Type': TYPES[ext] || 'application/octet-stream', 'Cache-Control': ext === '.png' ? 'public, max-age=604800' : 'no-cache' }, SECURITY_HEADERS));
       return fs.createReadStream(file).pipe(res);
     }
     res.writeHead(404, Object.assign({ 'Content-Type': 'text/plain' }, SECURITY_HEADERS));
@@ -135,9 +155,9 @@ function createServer(opts) {
 
   const sockets = ws.attach(server, '/ws', (s) => lobby.connect(s));
   return {
-    server, db, lobby,
+    server, db, lobby, push: notify,
     listen(port, host) { return new Promise((r) => server.listen(port, host, () => r(server.address().port))); },
-    close() { lobby.stop(); sockets.stop(); return new Promise((r) => server.close(() => { db.close(); r(); })); },
+    close() { clearInterval(pushTimer); lobby.stop(); sockets.stop(); return new Promise((r) => server.close(() => { db.close(); r(); })); },
   };
 }
 
@@ -148,6 +168,7 @@ if (require.main === module) {
     dbFile: process.env.CHACKLATE_DB || path.join(__dirname, '..', 'chacklate.db'),
     adminEmail: process.env.CHACKLATE_ADMIN_EMAIL,
     adminPassword: process.env.CHACKLATE_ADMIN_PASSWORD,
+    push: { subject: process.env.CHACKLATE_PUSH_SUBJECT, vapid: { publicKey: process.env.CHACKLATE_VAPID_PUBLIC, privateKey: process.env.CHACKLATE_VAPID_PRIVATE } },
     payments: { mode: process.env.CHACKLATE_PAYMENTS || 'off', secret: process.env.CHACKLATE_PAYMENT_SECRET, checkoutUrl: process.env.CHACKLATE_CHECKOUT_URL },
     log: console.log,
     lobby: { log: (...a) => console.log(new Date().toISOString(), ...a) },

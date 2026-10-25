@@ -10,6 +10,7 @@ The playable Chacklate Chess client: a dependency-free 3D chess game that runs f
 | `src/audio.js` | Synthesised sound effects and music (Web Audio) plus spoken narration (speech synthesis). |
 | `src/net.js` | Online client: matchmaking, friend codes, account, leaderboards. Talks to `services/game-server`. |
 | `src/shell.html` | Page template and styles. |
+| `public/` | Installable-app files the server hosts: `manifest.webmanifest`, the service worker `sw.js` (offline shell, push notifications) and icons drawn by `tools/make-icons.py`. |
 | `build.py` | Inlines `packages/chess-core` (engine, coach), the files above and `packages/content` JSON into `dist/chacklate-chess.html`. |
 | `test/progress.test.js` | Progression rules. |
 | `dist/chacklate-chess.html` | The built game, committed so it can be opened directly. |
@@ -23,6 +24,6 @@ node test/progress.test.js   # or: npm test
 python3 build.py             # or: npm run build
 ```
 
-Open `dist/chacklate-chess.html` to play offline. Premium comes from the account's entitlements on the server; Profile has a device-only Premium preview switch for testing without one. To try purchases, run the server with `CHACKLATE_PAYMENTS=dev`. For online play, start the server (`services/game-server`) and open `http://localhost:8080/play`, or set the server address under Settings. After changing anything in `src/` or `packages/`, rebuild and commit `dist/`; CI fails if it is stale.
+Open `dist/chacklate-chess.html` to play offline. Served from the game server, the game is also an installable app (Settings → App) that opens without a connection and can send a daily reminder. Premium comes from the account's entitlements on the server; Profile has a device-only Premium preview switch for testing without one. To try purchases, run the server with `CHACKLATE_PAYMENTS=dev`. For online play, start the server (`services/game-server`) and open `http://localhost:8080/play`, or set the server address under Settings. After changing anything in `src/` or `packages/`, rebuild and commit `dist/`; CI fails if it is stale.
 
 This is the reference client. The production iOS, Android, Mac and Windows clients are planned in Unity and will share the same engine rules, content files and server protocol.

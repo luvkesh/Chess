@@ -1917,6 +1917,7 @@
       '<label class="toggle">Evaluation bar vs the computer <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
       '<label class="toggle">Show legal moves <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
       '<label class="toggle">Turn the board each move (pass and play) <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
+      appSection() +
       '<div class="field" style="margin-top:14px"><label for="s-server">Game server (for online play)</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
       '<div class="row"><button class="btn warn" id="s-reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>');
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
@@ -1932,7 +1933,53 @@
     on('#s-legal', 'change', (e) => { s.legal = e.target.checked; save(); refreshHighlights(); });
     on('#s-turn', 'change', (e) => { s.turnBoard = e.target.checked; save(); });
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
+    wireAppSection(m);
     on('#s-reset', 'click', () => { if (confirm('Reset all progress, unlocks and history on this device?')) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+  }
+
+  // ---------------------------------------------------------------- installable app and reminders
+  let installPrompt = null, swReg = null;
+  const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; });
+  window.addEventListener('appinstalled', () => { installPrompt = null; toast('Chacklate Chess is installed.'); });
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register('/sw.js').then((r) => { swReg = r; }).catch(() => { /* not served by the game server: no offline shell */ });
+  }
+  const pushReady = () => !!(swReg && 'PushManager' in window && window.Notification && window.ChacklateNet && ChacklateNet.available());
+  function appSection() {
+    const s = state.settings, r = s.reminder || { on: false, hour: 19 };
+    const hours = Array.from({ length: 24 }, (_, h) => '<option value="' + h + '"' + (r.hour === h ? ' selected' : '') + '>' + String(h).padStart(2, '0') + ':00</option>').join('');
+    return '<div class="field" style="margin-top:14px"><div class="label">App</div>' +
+      (standalone() ? '<p class="sub" style="margin:0 0 8px">Running as an installed app.</p>'
+        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chacklate Chess</button>'
+        : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
+        : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') + '</div>' +
+      '<label class="toggle">Daily reminder' + (pushReady() ? '' : ' <small style="color:var(--faint)">(needs the game server and notification support)</small>') +
+      ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>';
+  }
+  function wireAppSection(m) {
+    const ib = m.querySelector('#s-install');
+    if (ib) ib.onclick = async () => { const p = installPrompt; installPrompt = null; p.prompt(); try { await p.userChoice; } catch (e) { /* dismissed */ } m.close(); };
+    const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
+    const apply = async () => {
+      const want = { on: box.checked, hour: +hr.value };
+      try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? 'Reminder set for ' + String(want.hour).padStart(2, '0') + ':00 on days you have not played.' : 'Reminder off.'); }
+      catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
+    };
+    if (box) { box.onchange = apply; hr.onchange = () => { if (box.checked) apply(); }; }
+  }
+  async function setReminder(r) {
+    const sub = await swReg.pushManager.getSubscription();
+    if (!r.on) {
+      if (sub) { try { await ChacklateNet.api('/api/push/unsubscribe', { endpoint: sub.endpoint }); } catch (e) { /* removed locally anyway */ } await sub.unsubscribe(); }
+      return;
+    }
+    if (await Notification.requestPermission() !== 'granted') throw new Error('Notifications are blocked for this site. Allow them in your browser settings.');
+    const { publicKey } = await ChacklateNet.api('/api/push/key');
+    const key = Uint8Array.from(atob(publicKey.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+    const s = sub || await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+    await ChacklateNet.api('/api/push/subscribe', { subscription: s.toJSON(), hour: r.hour, tz: -new Date().getTimezoneOffset() });
   }
 
   function levelUpModal(level, unlocked) {
@@ -1999,6 +2046,10 @@
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
   go('home');
+  // App shortcuts from the installed icon's menu.
+  if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
+  else if (location.hash === '#daily' && dailyPuzzle()) go('puzzle', { list: [dailyPuzzle()], daily: true, title: 'Daily puzzle' });
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   setTimeout(() => $('splash').classList.add('gone'), window.__SHOT ? 0 : 900);
   if (window.ChacklateNet) ChacklateNet.connect();
 })();

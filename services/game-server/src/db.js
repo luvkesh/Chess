@@ -84,6 +84,20 @@ CREATE TABLE IF NOT EXISTS entitlements (
   note TEXT
 );
 CREATE INDEX IF NOT EXISTS entitlements_user ON entitlements(user_id);
+CREATE TABLE IF NOT EXISTS push_subs (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  endpoint TEXT UNIQUE NOT NULL,
+  p256dh TEXT NOT NULL, auth TEXT NOT NULL,
+  hour INTEGER NOT NULL,             -- local hour for the daily reminder
+  tz INTEGER NOT NULL,               -- minutes east of UTC
+  last_day TEXT,                     -- local date of the last reminder
+  created INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS config (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS audit (
   id INTEGER PRIMARY KEY,
   at INTEGER NOT NULL,
