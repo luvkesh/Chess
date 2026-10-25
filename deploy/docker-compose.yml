@@ -13,6 +13,8 @@ services:
     volumes:
       - data:/data
     expose: ["8080"]
+    # Technical logs roll over at 3 x 10 MB, so they are kept only briefly (privacy policy, "How long").
+    logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }
 
   caddy:
     image: caddy:2

@@ -27,81 +27,158 @@ h3 { font-size: 17px; margin: 20px 0 4px; }
 table { width: 100%; border-collapse: collapse; font-size: 15px; } th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--gold); font-weight: 650; }
 .scroll { overflow-x: auto; }
+.kids { border-color: rgba(227, 178, 90, .45); }
+.kids p { font-size: 18px; }
+nav.toc { columns: 2; column-gap: 24px; font-size: 15px; } nav.toc a { display: block; padding: 2px 0; }
+@media (max-width: 560px) { nav.toc { columns: 1; } }
 </style>
 <body>
 <main>
   <a class="logo" href="/">Chacklate Chess</a>
   <h1>Privacy for families</h1>
-  <p class="muted">Last updated 25 October 2026. Beta version: the operator details marked below are filled in before public launch.</p>
+  <p class="muted">Last updated 25 October 2026 · Beta. Details shown in [brackets] are filled in before public launch.</p>
 
-  <div class="card">
-    <b>The short version.</b> Chacklate Chess is made for children. It works fully offline with nothing collected at all. To play online, a parent says yes first. We keep only what the game needs, we never show ads, we use no third-party analytics or tracking, there is no chat, and a parent can see, download or delete everything at any time from the <a href="/parent">parent page</a>.
+  <div class="card kids" id="kids">
+    <h2 style="margin-top:0">For kids</h2>
+    <p>Chacklate Chess is a game for learning and playing chess. Here is how we look after you:</p>
+    <ul>
+      <li>You can play the computer, do lessons and solve puzzles without telling us anything about you.</li>
+      <li>Before you can have your own account with a saved name, ratings and progress, a grown-up who looks after you has to say yes.</li>
+      <li>We give you a made-up player name, like <i>BraveOtter42</i>, so nobody knows who you are.</li>
+      <li>There is no chat, so nobody can send you messages.</li>
+      <li>We never show you ads, and we never sell anything about you.</li>
+      <li>If you have a question, or something feels wrong, tell your grown-up. They can see your account, change it or delete it at any time.</li>
+    </ul>
   </div>
 
-  <h2>Who we are</h2>
-  <p>Chacklate Chess is operated by <b>[company name, registered address]</b> ("we"). Questions, requests and complaints go to <b>[privacy email]</b>. Our grievance officer under India's Digital Personal Data Protection Act, 2023 is <b>[name, email]</b>; we reply within 7 days and resolve within 30.</p>
+  <div class="card">
+    <b>For parents, in short.</b> The game works fully offline and collects nothing in that mode. Children can try online games as anonymous guests; a child's own account needs a parent's yes first. We keep only what the game needs: a made-up player name, a password hash, birth month and year, games and progress. No ads, no third-party analytics or tracking, no chat, no selling or sharing for anyone's marketing. From the <a href="/parent">parent page</a> you can see, change, download or delete everything, at any time.
+  </div>
 
-  <h2>Playing without an account</h2>
-  <p>Games against the computer, lessons, puzzles and the endgame dojo all run on the device. Progress is saved in the device's own storage and never leaves it. Nothing is sent to us, and no account, name or email is asked for.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#who">1. Who we are</a><a href="#covers">2. What this policy covers</a><a href="#offline">3. Playing without an account</a>
+    <a href="#consent">4. Ages and a parent's permission</a><a href="#collect">5. What we keep and why</a><a href="#never">6. What we never do</a>
+    <a href="#device">7. What stays on the device</a><a href="#notify">8. Notifications</a><a href="#share">9. Who we share data with</a>
+    <a href="#where">10. Where data is kept</a><a href="#howlong">11. How long we keep it</a><a href="#rights">12. Your rights and how to use them</a>
+    <a href="#safety">13. Safety, reports and moderation</a><a href="#buy">14. Purchases</a><a href="#security">15. Security and breaches</a>
+    <a href="#region">16. Extra notes by country</a><a href="#changes">17. Changes to this policy</a><a href="#contact">18. Contact and complaints</a>
+  </nav>
 
-  <h2>Accounts, ages and a parent's permission</h2>
-  <p>When someone makes an account, we ask for their birth month and year (never the day), in a neutral way that does not hint at a "right" answer. That decides which rules apply:</p>
+  <h2 id="who">1. Who we are</h2>
+  <p>Chacklate Chess is run by <b>[company legal name]</b>, <b>[registered address]</b> ("we", "us"). We decide how personal data in the game is used, so we are responsible for it (the "data fiduciary" under India's DPDP Act and the "controller" under the GDPR).</p>
+  <p>Privacy questions and requests: <b>[privacy email]</b>. Grievance officer (India): <b>[name]</b>, <b>[grievance email]</b>.</p>
+
+  <h2 id="covers">2. What this policy covers</h2>
+  <p>This policy covers the Chacklate Chess game on the web and in our apps, this website, and the parent page. It covers players of every age, and parents and guardians. It does not cover app stores or payment pages run by others, which have their own policies. The game itself contains no links to other websites; any way out of the game sits behind a check for grown-ups.</p>
+
+  <h2 id="offline">3. Playing without an account</h2>
+  <p>Games against the computer, lessons, puzzles and the endgame dojo run on the device. Progress is saved in the device's own storage. Nothing about the player is sent to us.</p>
+  <p>Anyone can also try online games as a guest. A guest gets a random name such as <i>Guest4821</i> and a random code saved on the device, so a dropped game can reconnect. We do not ask a guest for any personal information. Guests are matched only with other young players and guests.</p>
+
+  <h2 id="consent">4. Ages and a parent's permission</h2>
+  <p>When someone makes an account, we ask for their birth month and year (never the day), without hinting at a "right" answer. That decides which rules apply:</p>
   <ul>
-    <li><b>Under 18</b> (under 13 counts as a child under the US COPPA rule; under 18 counts as a child under India's DPDP Act): the player picks a name we generate, such as <i>BraveOtter42</i>, and gives a parent's email. The account stays offline-only until the parent opens the link we send and gives verifiable permission by creating a parent account. If no parent responds within 7 days, the request expires and the parent's email is not used again.</li>
-    <li><b>18 and over</b>: a normal account. Names are checked for rude words and contact details.</li>
+    <li><b>Under 18</b>: we treat the player as a child, as India's DPDP Act does (the US COPPA rule covers under 13, and EU and UK rules cover under 13 to 16 depending on the country; we apply the strictest rules to everyone under 18). The player picks a name we make up and gives a parent's email address.</li>
+    <li><b>18 and over</b>: a normal account. The player chooses a name, which is checked for rude words and contact details.</li>
   </ul>
-  <p>We do not ask a child for their own email address, phone number, photo, school or location.</p>
+  <p><b>How a parent gives permission.</b> We send one email to the address the child gives, with a link that works for 7 days. The parent reads what we keep, chooses what the child may do, confirms they are the parent or legal guardian, and creates a parent account with their own email, password and a purchase PIN. Until then the child's account stays offline-only: no online play, no progress saved to our server, no reminders and no purchases. We do not store the parent's email unless they say yes; if nobody answers, the request expires and the address is not used again.</p>
+  <p>Parents can withdraw permission at any time from the parent page. We then delete the child's account (see section 11).</p>
 
-  <h2>What we keep, and why</h2>
+  <h2 id="collect">5. What we keep and why</h2>
   <div class="scroll"><table>
-    <tr><th>Data</th><th>Why</th><th>How long</th></tr>
-    <tr><td>Player name (generated for under-18s)</td><td>Shown to opponents in online games</td><td>Until the account is deleted</td></tr>
-    <tr><td>Password (salted hash only)</td><td>Signing in</td><td>Until the account is deleted</td></tr>
-    <tr><td>Birth month and year</td><td>Applying the right rules for the player's age</td><td>Until the account is deleted</td></tr>
-    <tr><td>Parent's email and password hash, purchase PIN hash</td><td>Permission, the parent page, approving purchases</td><td>Until the parent closes their account</td></tr>
-    <tr><td>Online games, ratings, lesson and puzzle progress</td><td>Playing, matchmaking and syncing progress between devices</td><td>Until the account is deleted</td></tr>
-    <tr><td>Purchases (product, amount, date)</td><td>Giving what was bought, and tax law</td><td>As long as tax law requires, then deleted</td></tr>
-    <tr><td>Reminder time and a push address, only if a parent allows reminders</td><td>Sending one calm daily puzzle reminder</td><td>Until reminders are turned off</td></tr>
-    <tr><td>IP address</td><td>Security and rate limits</td><td>Not stored with the account; kept in short-lived memory only</td></tr>
+    <tr><th>Data</th><th>Why we need it</th><th>Legal basis (GDPR)</th></tr>
+    <tr><td>Player name (made up for under-18s)</td><td>Shown to opponents in online games</td><td>Contract; parent's consent for children</td></tr>
+    <tr><td>Password, stored only as a salted hash</td><td>Signing in</td><td>Contract</td></tr>
+    <tr><td>Birth month and year</td><td>Applying the right rules for the player's age</td><td>Legal obligation</td></tr>
+    <tr><td>Online games, ratings, lesson and puzzle progress, achievements</td><td>Playing, fair matchmaking, keeping progress across devices</td><td>Contract; parent's consent for children</td></tr>
+    <tr><td>Fair-play checks on online games</td><td>Finding engine help in rated games so ratings stay fair</td><td>Legitimate interest in fair play</td></tr>
+    <tr><td>Reports a player makes, and moderator decisions</td><td>Keeping players safe</td><td>Legitimate interest; legal obligation</td></tr>
+    <tr><td>Parent's email, password hash, PIN hash, chosen controls</td><td>Permission, the parent page, approving purchases</td><td>Consent; contract</td></tr>
+    <tr><td>Adult players' email, if they add one</td><td>Password resets and account notices only</td><td>Contract</td></tr>
+    <tr><td>Purchases (product, amount, date, order number)</td><td>Giving what was bought; tax and accounting law</td><td>Contract; legal obligation</td></tr>
+    <tr><td>Reminder time and a push address, only if allowed</td><td>One daily puzzle reminder</td><td>Consent</td></tr>
+    <tr><td>IP address, briefly</td><td>Stopping abuse, for example too many sign-in attempts</td><td>Legitimate interest in security</td></tr>
+  </table></div>
+  <p>We do not ask for, and the game does not collect, a child's email, phone number, photo, voice, school, contacts or location. The game never uses the camera or microphone. Coach voices are recordings made in advance.</p>
+
+  <h2 id="never">6. What we never do</h2>
+  <ul>
+    <li>Show ads of any kind, or use data for advertising or profiling.</li>
+    <li>Use third-party analytics, advertising tools, social logins or tracking pixels.</li>
+    <li>Sell, rent or share personal data for anyone's marketing.</li>
+    <li>Offer chat. Players cannot send each other messages.</li>
+    <li>Show public profiles of under-18s or list them on public leaderboards.</li>
+    <li>Sell random rewards (loot boxes), use countdown pressure, or send messages meant to make a child feel guilty for not playing.</li>
+    <li>Make decisions about a child by automated means that have legal or similarly important effects. Fair-play flags are always reviewed by a person before any action.</li>
+  </ul>
+
+  <h2 id="device">7. What stays on the device</h2>
+  <p>The game saves settings, offline progress and a sign-in code in the browser's or app's own storage, and keeps game files (including voice recordings) so it works offline. These are needed for the game to work; none are used to track anyone. We do not use advertising cookies. Clearing the browser's site data, or deleting the app, removes them.</p>
+
+  <h2 id="notify">8. Notifications</h2>
+  <p>Notifications are off unless turned on. For under-18s, a parent must allow them on the parent page first. There is one kind: a calm daily puzzle reminder at a time the player picks, never with deadlines or streak warnings. Turning it off deletes the push address.</p>
+
+  <h2 id="share">9. Who we share data with</h2>
+  <p>Only with service providers who help us run the game, under contracts that let them use the data only for that work and require them to protect it:</p>
+  <ul>
+    <li>Hosting for the game server and backups: <b>[hosting provider]</b>.</li>
+    <li>Sending the parent permission email and account emails: <b>[email provider]</b>.</li>
+    <li>Taking payments: <b>[payment provider]</b>, or Apple and Google for purchases made in their stores. We never see full card details.</li>
+  </ul>
+  <p>Other players see a player's name, rating and the moves of games played with them. We may share data if the law requires it, or to protect a child from harm. If the company is ever sold or merged, this policy's promises go with the data, and we tell parents first.</p>
+
+  <h2 id="where">10. Where data is kept</h2>
+  <p>Our servers are in <b>[country or region of hosting]</b>. If data is handled in another country, we use the safeguards the law requires there (for example, the European Commission's standard contractual clauses) and keep the same protections.</p>
+
+  <h2 id="howlong">11. How long we keep it</h2>
+  <div class="scroll"><table>
+    <tr><th>Data</th><th>How long</th></tr>
+    <tr><td>Account, progress, ratings</td><td>While the account is used. Accounts unused for 2 years are deleted automatically, unless they hold a purchase that is still running</td></tr>
+    <tr><td>After a deletion request or withdrawn permission</td><td>Deleted straight away from the live game. Gone from backups within 14 days</td></tr>
+    <tr><td>Games already played against others</td><td>Kept so opponents' histories stay correct, but the deleted player becomes "Deleted player" with nothing that identifies them</td></tr>
+    <tr><td>A permission request nobody answered</td><td>The link expires after 7 days. The parent's email is never stored</td></tr>
+    <tr><td>Parent account</td><td>Until the parent closes it, or 2 years after the last sign-in once no child is linked</td></tr>
+    <tr><td>Purchase records</td><td>As long as Indian tax and accounting law requires, then deleted</td></tr>
+    <tr><td>Technical logs (no names or messages)</td><td>Rolled over automatically, usually within days</td></tr>
   </table></div>
 
-  <h2>What we never do</h2>
+  <h2 id="rights">12. Your rights and how to use them</h2>
+  <p><b>Parents</b> can, at any time and for free:</p>
   <ul>
-    <li>No advertising of any kind, and no behavioural or targeted ads.</li>
-    <li>No third-party analytics, ad SDKs, social logins or tracking pixels.</li>
-    <li>No selling, renting or sharing of personal data.</li>
-    <li>No chat of any kind. Players cannot send each other messages.</li>
-    <li>No public profiles for under-18s, and they are not listed on public leaderboards.</li>
-    <li>No location, contacts, camera or microphone access.</li>
-    <li>No loot boxes, no paid random rewards, no countdown pressure and no messages that guilt a child into playing.</li>
+    <li>see what the child does and change what they may do, on the <a href="/parent">parent page</a>;</li>
+    <li>download all the data we hold about the child, from the parent page;</li>
+    <li>correct details, or ask us to stop collecting anything more;</li>
+    <li>delete the child's account, or withdraw permission and delete everything, from the parent page;</li>
+    <li>name someone to act for the child if the parent cannot (India's DPDP Act).</li>
   </ul>
+  <p><b>Adult players</b> can download or delete their data in Settings, and correct their details.</p>
+  <p>You can also write to <b>[privacy email]</b>. To protect children, we check that a request comes from the account's parent (usually by asking you to sign in to the parent page or reply from the parent email). We answer within 30 days, and usually much sooner.</p>
+  <p><b>Kids</b>: you can ask your grown-up to look at your account with you, fix anything wrong, or delete it.</p>
 
-  <h2>Playing with others</h2>
-  <p>Players under 18 are matched only with other young players. A parent of a teenager can allow games with adults. Friends play together by sharing a short code, which only works between players in the same group. Anyone can report a game, and a person reviews reports.</p>
+  <h2 id="safety">13. Safety, reports and moderation</h2>
+  <p>Players under 18 are matched only with other young players and guests. A parent of a teenager can allow games with adults. Friends play together by sharing a short code that works only between players in the same group. Anyone can report a game; a person reviews every report. Where the law requires, we report child-safety concerns to the authorities.</p>
 
-  <h2>Purchases</h2>
-  <p>The store sits behind a grown-up check. On an under-18 account, every purchase needs the parent's PIN, and a parent can turn purchases off entirely. Everything a player earns by playing stays theirs, even after a season ends.</p>
+  <h2 id="buy">14. Purchases</h2>
+  <p>The store sits behind a check for grown-ups. On an under-18 account every purchase needs the parent's PIN, which locks after repeated wrong guesses, and a parent can turn purchases off. Everything for sale is described exactly; nothing is random.</p>
 
-  <h2>Who processes data for us</h2>
-  <p>We use a small number of service providers only to run the game: hosting for the game server, an email service to send the parent permission email, and a payment provider for purchases. They may use the data only to provide that service to us. The providers are named here before launch: <b>[hosting provider]</b>, <b>[email provider]</b>, <b>[payment provider]</b>. Voices in the game were recorded in advance and play from files; nothing a child says or types is sent anywhere.</p>
+  <h2 id="security">15. Security and breaches</h2>
+  <p>Passwords and PINs are stored only as salted hashes. Connections are encrypted. Staff tools are limited to named people with the least access they need, and every staff action is written to a log that cannot be quietly changed. No system is perfectly secure: if a breach affects personal data, we tell affected parents and players without delay, and we inform the Data Protection Board of India within 72 hours and other authorities as their laws require.</p>
 
-  <h2>A parent's rights</h2>
-  <p>From the <a href="/parent">parent page</a>, a parent can at any time:</p>
-  <ul>
-    <li>see their child's activity and change what the child can do;</li>
-    <li>download all the data we hold about their child;</li>
-    <li>delete the child's account, which removes their games, progress and ratings;</li>
-    <li>withdraw permission, which deletes every linked child account and the parent account.</li>
-  </ul>
-  <p>You can also write to <b>[privacy email]</b> to ask for any of these, to correct something, or to complain. In India you may also complain to the Data Protection Board of India.</p>
+  <h2 id="region">16. Extra notes by country</h2>
+  <h3>India</h3>
+  <p>We follow the Digital Personal Data Protection Act, 2023 and its Rules: verifiable parental consent for everyone under 18, no tracking, behavioural monitoring or targeted ads aimed at children, and a grievance officer (section 1). If you are not satisfied with our answer, you can complain to the Data Protection Board of India.</p>
+  <h3>United States</h3>
+  <p>We follow the Children's Online Privacy Protection Act (COPPA). We do not sell or share personal data, as those words are used in California law, and we do not use it for targeted advertising.</p>
+  <h3>European Union and United Kingdom</h3>
+  <p>We follow the GDPR and the UK Age Appropriate Design Code: high privacy by default, the legal bases in section 5, and parental consent for children under the age set by each country. You can also complain to your local data protection authority.</p>
 
-  <h2>Security</h2>
-  <p>Passwords and PINs are stored only as salted hashes. Connections are encrypted. Purchase PINs lock after repeated wrong guesses. Access to the moderation tools is limited to named staff, and every staff action is logged.</p>
+  <h2 id="changes">17. Changes to this policy</h2>
+  <p>We show the date of the latest version at the top. If we ever want to collect or use children's data in a new way, we ask parents for permission again before it applies; until they agree, nothing changes for their child. For smaller changes, we tell parents and players in the game or by email.</p>
 
-  <h2>Changes</h2>
-  <p>If we change how we handle children's data in a way that matters, we ask parents again before it applies.</p>
+  <h2 id="contact">18. Contact and complaints</h2>
+  <p><b>[company legal name]</b>, <b>[registered address]</b> · <b>[privacy email]</b> · Grievance officer: <b>[name]</b>, <b>[grievance email]</b>.</p>
 
-  <p class="muted" style="margin-top:40px"><a href="/">Home</a> · <a href="/parent">Parent page</a></p>
+  <p class="muted" style="margin-top:40px"><a href="/">Home</a> · <a href="/terms">Terms of use</a> · <a href="/parent">Parent page</a></p>
 </main>
 </body>
 </html>

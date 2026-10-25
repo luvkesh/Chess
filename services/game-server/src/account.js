@@ -57,7 +57,7 @@ function create(db, lobby, opts) {
   function deleteAccount(u) {
     const label = 'Deleted player ' + u.id;
     db.tx(() => {
-      db.run('UPDATE users SET name = ?, name_key = NULL, pass = NULL, email = NULL, email_key = NULL, email_verified = 0, progress = NULL, guest = 1, deleted = ? WHERE id = ?', label, now(), u.id);
+      db.run('UPDATE users SET name = ?, name_key = NULL, pass = NULL, email = NULL, email_key = NULL, email_verified = 0, progress = NULL, guest = 1, deleted = ?, parent_id = NULL, birth_ym = NULL, controls = NULL, consent = NULL WHERE id = ?', label, now(), u.id);
       for (const t of ['sessions', 'push_subs', 'account_tokens', 'fairplay']) db.run('DELETE FROM ' + t + ' WHERE user_id = ?', u.id);
       db.run('DELETE FROM ratings WHERE user_id = ?', u.id);
     });

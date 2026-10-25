@@ -184,6 +184,19 @@ function create(db, lobby, opts) {
     audit.append(db, actor, 'account.deleted', u.id, null);
   }
 
+  // Accounts nobody has used for two years are deleted, as the privacy policy promises, unless
+  // they hold a purchase that is still running. Parent accounts go once no child is linked and
+  // the parent has not signed in for two years. Runs once a day from the server.
+  const INACTIVE = 730 * 24 * HOUR;
+  function purgeInactive() {
+    const cut = now() - INACTIVE;
+    const idle = db.all('SELECT * FROM users WHERE deleted IS NULL AND seen < ? AND NOT EXISTS (SELECT 1 FROM entitlements e WHERE e.user_id = users.id AND e.revoked IS NULL AND (e.expires IS NULL OR e.expires > ?))', cut, now());
+    for (const u of idle) deleteChild(u, 'system:inactive');
+    const parents = db.all('SELECT p.id FROM parents p WHERE p.created < ? AND NOT EXISTS (SELECT 1 FROM users u WHERE u.parent_id = p.id AND u.deleted IS NULL) AND NOT EXISTS (SELECT 1 FROM parent_sessions s WHERE s.parent_id = p.id AND s.seen >= ?)', cut, cut);
+    for (const p of parents) { db.run('DELETE FROM parent_sessions WHERE parent_id = ?', p.id); db.run('DELETE FROM parents WHERE id = ?', p.id); }
+    return { players: idle.length, parents: parents.length };
+  }
+
   // Returns [status, body] or null when the path is not a family route.
   async function handle(req, p, body, ip, user) {
     if (p === '/api/names') return [200, { names: suggestNames(6, (n) => !!db.get('SELECT id FROM users WHERE name_key = ?', n.toLowerCase())) }];
@@ -330,7 +343,7 @@ function create(db, lobby, opts) {
     return null;
   }
 
-  return { handle, purchaseCheck, requestConsent };
+  return { handle, purchaseCheck, requestConsent, purgeInactive };
 }
 
 module.exports = { create, policy, kindOf, controlsOf, bandFor, validBirth, suggestNames, isGeneratedName, typedNameProblem, rude, DEFAULT_CONTROLS };

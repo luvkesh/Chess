@@ -775,7 +775,7 @@ gantt
     <li><strong>Stack:</strong> Astro static site with a headless CMS (Sanity or Payload) so marketing edits content without deploys; localisation-ready; images and video through a CDN.</li>
     <li><strong>Performance:</strong> LCP ≤ 2.5 s on mid-tier mobile, CLS ≤ 0.1, WCAG 2.2 AA.</li>
     <li><strong>Analytics:</strong> consent-aware, privacy-friendly analytics; conversion events: store badge click, pricing view, plan selected, web checkout start/complete, newsletter signup. UTM attribution to store installs via store campaign links.</li>
-    <li><strong>Claims policy:</strong> every claim about AI, ratings, offline capability, security or performance needs a linked evidence note in the CMS and legal review before publishing. No "AI grandmaster", no rating-gain promises.</li>
+    <li><strong>Claims policy:</strong> every claim about AI, ratings, offline capability, security or performance needs a linked evidence note in the CMS and the owner's review before publishing. No "AI grandmaster", no rating-gain promises.</li>
   </ul>
   <h3>C. Admin and operations console</h3>
   <div class="tbl"><table>
@@ -814,7 +814,7 @@ gantt
   </ul>
   <h3>Privacy and child safety</h3>
   <ul>
-    <li>India's DPDP Act defines children as under 18 and requires verifiable parental consent and no behavioural tracking or targeted ads for them. Default plan: age gate at sign-up; under-18 accounts get contextual ads only, restricted social features (no free text, friends-only invites), and parental consent flow where required. COPPA (US, under 13) and GDPR rules for EU minors handled the same way. Legal review required before launch.</li>
+    <li>India's DPDP Act defines children as under 18 and requires verifiable parental consent and no behavioural tracking or targeted ads for them. Built (October 2026, game directed to children): neutral age gate, parental consent by email for every under-18 account, no ads of any kind, no chat, kids-only matchmaking, parent controls and PIN-approved purchases. COPPA (US, under 13) and GDPR rules for EU minors handled the same way. The owner reviews the policy and terms with a mapped self-review checklist (no outside lawyer); see docs/planning/children.md.</li>
     <li>Consent management where required (EU/UK), App Tracking Transparency on iOS, Google Play Data Safety and Apple privacy labels kept accurate.</li>
     <li>Coach questions, screenshots and documents stay on the device. Analytics never includes chess conversation text or imported files.</li>
   </ul>
@@ -899,7 +899,7 @@ gantt
       <tr><td>R3</td><td>Premium 3D underperforms on web and low-end Android</td><td>Likely</td><td>High</td><td>Graphics tiers, top-down view, budgets enforced in pipeline, bake-off</td><td>PoC 2 thresholds on device matrix</td></tr>
       <tr><td>R4</td><td>On-device language models vary widely by device, giving uneven coaching</td><td>Likely</td><td>High</td><td>Engine-first templated coach everywhere; LLM is optional enhancement; capability matrix in product copy</td><td>PoC 3 validator and quality tests</td></tr>
       <tr><td>R5</td><td>Unit economics: India-heavy ARPU below live-ops cost</td><td>Likely</td><td>High</td><td>International pricing, annual/lifetime mix, cosmetics, lean live-ops, soft-launch data</td><td>Soft-launch conversion and retention vs model</td></tr>
-      <tr><td>R6</td><td>Children's privacy compliance (DPDP under-18, COPPA) and ad rules</td><td>Possible</td><td>Critical</td><td>Age gate, contextual ads for minors, restricted social, legal review</td><td>Pre-launch legal and store review</td></tr>
+      <tr><td>R6</td><td>Children's privacy compliance (DPDP under-18, COPPA) and ad rules</td><td>Possible</td><td>Critical</td><td>Age gate, parental consent, no ads, no chat, kids-only pool (built)</td><td>Owner self-review against the checklist, then store review</td></tr>
       <tr><td>R7</td><td>Low matchmaking liquidity at launch makes online play feel empty</td><td>Likely</td><td>Medium</td><td>Fewer pools at launch, wider rating windows, labelled AI fallback, friend invites</td><td>Soft-launch matchmaking times</td></tr>
       <tr><td>R8</td><td>Cheating with external engines</td><td>Likely</td><td>Medium</td><td>Statistical detection, human review, appeals, rating restoration</td><td>Seeded cheat tests in beta</td></tr>
       <tr><td>R9</td><td>Content production volume (74 lessons, narration, catalogue)</td><td>Possible</td><td>High</td><td>Data-driven lesson tooling, vendor art, early educator hire</td><td>Lesson throughput per week in Phase 3</td></tr>
