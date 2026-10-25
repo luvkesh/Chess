@@ -1,26 +1,28 @@
-# Web prototype
+# Web game
 
-A playable, dependency-free 3D chess game that runs from a single HTML file. No libraries, CDNs or web fonts.
+The playable Chacklate Chess client: a dependency-free 3D chess game that runs from one HTML file. No libraries, CDNs or web fonts. It works fully offline; online play turns on when it can reach the game server.
 
 | File | What it is |
 | --- | --- |
-| `src/engine.js` | Rules (0x88 board, SAN/FEN/PGN, draw rules) and an alpha-beta AI with six levels. Runs in a Web Worker in the browser. |
-| `src/render.js` | Raw WebGL1 renderer: lathe/extruded pieces, shadow map, board and piece themes, animations. |
-| `src/app.js` | Game UI, controls and wiring between engine and renderer. |
-| `src/shell.html` | Page template. The build inlines the three scripts into it. |
-| `build.py` | Inlines `src/*` into `dist/chacklate-chess.html`. |
-| `test/engine.test.js` | Perft on six standard positions, rules edge cases, 400 random games and search checks. |
+| `src/render.js` | Raw WebGL1 renderer: lathe and extruded pieces, stencil reflections, PCF shadow map, studio lighting, procedural marble and wood, captures, particles, camera moves. |
+| `src/app.js` | The app: home, game, lessons, puzzles, review, collection and profile screens; AI and coach run in Web Workers. |
+| `src/progress.js` | XP, levels, streaks, achievements, puzzle rating and cosmetic unlocks. Pure functions, tested in Node. |
+| `src/audio.js` | Synthesised sound effects and music (Web Audio) plus spoken narration (speech synthesis). |
+| `src/net.js` | Online client: matchmaking, friend codes, account, leaderboards. Talks to `services/game-server`. |
+| `src/shell.html` | Page template and styles. |
+| `build.py` | Inlines `packages/chess-core` (engine, coach), the files above and `packages/content` JSON into `dist/chacklate-chess.html`. |
+| `test/progress.test.js` | Progression rules. |
 | `dist/chacklate-chess.html` | The built game, committed so it can be opened directly. |
 
 ## Commands
 
-Needs Node 18+ and Python 3.
+Needs Node 22 and Python 3.
 
 ```sh
-node test/engine.test.js   # or: npm test
-python3 build.py           # or: npm run build
+node test/progress.test.js   # or: npm test
+python3 build.py             # or: npm run build
 ```
 
-Open `dist/chacklate-chess.html` in a browser to play. After changing anything in `src/`, rebuild and commit the updated `dist/` file; CI fails if it is stale.
+Open `dist/chacklate-chess.html` to play offline. For online play, start the server (`services/game-server`) and open `http://localhost:8080/play`, or set the server address under Settings. After changing anything in `src/` or `packages/`, rebuild and commit `dist/`; CI fails if it is stale.
 
-This prototype is a playable reference. The production clients are planned in Unity with an in-house engine (see `docs/`).
+This is the reference client. The production iOS, Android, Mac and Windows clients are planned in Unity and will share the same engine rules, content files and server protocol.

@@ -599,12 +599,14 @@ function ChacklateEngine() {
 
   // Strength levels. Labels are descriptive only; strength is not rating-calibrated.
   const LEVELS = [
-    { name: 'Truffle', blurb: 'Brand-new learner. Leaves pieces hanging.', depth: 1, noise: 260, quiesce: false, timeMs: 200 },
-    { name: 'Builder', blurb: 'Develops calmly and avoids tricks.', depth: 2, noise: 110, quiesce: true, timeMs: 300 },
-    { name: 'Rusher', blurb: 'Attacks early and overreaches.', depth: 3, noise: 45, quiesce: true, timeMs: 500, style: { aggression: 1.2 } },
-    { name: 'Wall', blurb: 'Solid defender who grinds endgames.', depth: 5, noise: 12, quiesce: true, timeMs: 600, style: { caution: 1.5 } },
-    { name: 'Strategist', blurb: 'Patient positional player.', depth: 64, noise: 0, quiesce: true, timeMs: 1300 },
-    { name: 'Grandmaster mode', blurb: 'Full strength, thinks longest.', depth: 64, noise: 0, quiesce: true, timeMs: 3000 },
+    { name: 'Truffle', blurb: 'Brand-new learner. Leaves pieces hanging.', band: '250–500', depth: 1, noise: 260, quiesce: false, timeMs: 200 },
+    { name: 'Builder', blurb: 'Develops calmly and avoids tricks.', band: '500–800', depth: 2, noise: 110, quiesce: true, timeMs: 300 },
+    { name: 'Rusher', blurb: 'Attacks early and overreaches.', band: '800–1100', depth: 3, noise: 45, quiesce: true, timeMs: 500, style: { aggression: 1.2 } },
+    { name: 'Wall', blurb: 'Solid defender who grinds endgames.', band: '1100–1400', depth: 5, noise: 12, quiesce: true, timeMs: 600, style: { caution: 1.5 } },
+    { name: 'Trickster', blurb: 'Sets traps and plays for swindles.', band: '1400–1700', depth: 6, noise: 6, quiesce: true, timeMs: 800, style: { aggression: 1.5 }, premium: true },
+    { name: 'Strategist', blurb: 'Patient positional player.', band: '1700–2000', depth: 64, noise: 0, quiesce: true, timeMs: 1300, style: { caution: 1.2 }, premium: true },
+    { name: 'Tactician', blurb: 'Sharp and sacrificial. Calculates deeply.', band: '2000–2300', depth: 64, noise: 0, quiesce: true, timeMs: 2000, style: { aggression: 1.3 }, premium: true },
+    { name: 'Grandmaster mode', blurb: 'Full strength, thinks longest.', band: 'Strongest', depth: 64, noise: 0, quiesce: true, timeMs: 3000, premium: true },
   ];
 
   function search(pos, opts) {
@@ -684,6 +686,7 @@ function ChacklateEngine() {
     }
 
     let rootBest = 0;
+    let excluded = null;
     function negamax(depth, alpha, beta, ply, allowNull) {
       if (ply > 0) {
         if (pos.half >= 100 || isRepetition() || pos.insufficient()) return 0;
@@ -719,6 +722,7 @@ function ChacklateEngine() {
       let best = -INF, bestMove = 0, legal = 0;
       for (let i = 0; i < list.length; i++) {
         const m = pick(list, scores, i);
+        if (ply === 0 && excluded && excluded.has(m)) continue;
         if (!pos.make(m)) continue;
         legal++;
         const quiet = !(mFlags(m) & (F_CAP | F_PROMO));
@@ -749,8 +753,10 @@ function ChacklateEngine() {
       return best;
     }
 
-    const rootMoves = pos.legalMoves();
+    // `exclude` (UCI strings) lets callers find the second-best move, e.g. to check a puzzle has one answer.
+    const rootMoves = opts.exclude && opts.exclude.length ? pos.legalMoves().filter((m) => !opts.exclude.includes(uci(m))) : pos.legalMoves();
     if (!rootMoves.length) return { move: 0, score: 0, depth: 0, nodes: 0 };
+    if (opts.exclude && opts.exclude.length) excluded = new Set(pos.legalMoves().filter((m) => opts.exclude.includes(uci(m))));
 
     // Lower levels: score every root move at a fixed depth, then add noise.
     // The level is chosen before the game and never changes during it.
@@ -952,7 +958,9 @@ function ChacklateEngine() {
   }
 
   return {
-    START_FEN, WHITE, BLACK, P, N, B, R, Q, K, LEVELS,
+    START_FEN, WHITE, BLACK, P, N, B, R, Q, K, LEVELS, MATE, VALUE,
+    F_CAP, F_DBL, F_EP, F_CASTLE, F_PROMO, mFlags, parseSq,
+    KNIGHT_DIRS, KING_DIRS, BISHOP_DIRS, ROOK_DIRS,
     Pos, Game, search, evaluate, perft, positionFrom, uci,
     to64, to88, sqName, mFrom: (m) => to64(mFrom(m)), mTo: (m) => to64(mTo(m)), mPromo,
     pieceAt(pos, sq64) { return pos.b[to88(sq64)]; },

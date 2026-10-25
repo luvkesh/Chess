@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Chacklate Admin</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #120c0a; --panel: #1b1310; --panel-2: #241915; --line: rgba(255, 235, 215, 0.09); --ink: #f6ece2; --muted: #b5a497;
+  --gold: #e3b25a; --ruby: #d2466f; --ok: #7fd6a4; --danger: #ff7a6e; --warn: #f0c060;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--sans); }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.btn { border: 1px solid var(--line); background: var(--panel-2); border-radius: 10px; padding: 7px 12px; cursor: pointer; }
+.btn:hover { border-color: rgba(227, 178, 90, 0.4); }
+.btn.primary { background: linear-gradient(180deg, #e2577f, #b93660); border-color: transparent; font-weight: 600; }
+.btn.danger { color: var(--danger); }
+.btn:disabled { opacity: .45; cursor: default; }
+input, select { background: #0e0907; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; width: 100%; }
+.login { max-width: 360px; margin: 14vh auto; padding: 28px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; }
+.login h1 { font: 400 30px/1.1 Georgia, "Times New Roman", serif; margin: 0 0 4px; }
+.login p { color: var(--muted); margin: 0 0 18px; }
+.login label { display: block; margin: 10px 0 4px; color: var(--muted); font-size: 13px; }
+.err { color: var(--danger); min-height: 1.4em; margin: 8px 0; }
+.shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+nav { border-right: 1px solid var(--line); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; background: var(--panel); }
+nav .brand { font: 400 22px/1 Georgia, serif; padding: 0 10px 18px; }
+nav .brand small { display: block; font: 600 10px/1 var(--sans); letter-spacing: .3em; color: var(--gold); margin-top: 6px; text-transform: uppercase; }
+nav button { text-align: left; background: none; border: 0; padding: 9px 10px; border-radius: 10px; cursor: pointer; color: var(--muted); display: flex; justify-content: space-between; }
+nav button.on { background: var(--panel-2); color: var(--ink); }
+nav .count { background: var(--ruby); color: #fff; border-radius: 999px; font-size: 11px; padding: 1px 7px; }
+nav .who { margin-top: auto; padding: 10px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
+main { padding: 26px 30px; min-width: 0; }
+h2 { font: 400 26px/1.2 Georgia, serif; margin: 0 0 18px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.card .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.card .v { font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; }
+table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; background: var(--panel-2); }
+tr:last-child td { border-bottom: 0; }
+tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.025); }
+.mono { font-family: var(--mono); font-size: 12px; }
+.muted { color: var(--muted); }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--line); }
+.tag.bad { color: var(--danger); border-color: rgba(255,122,110,.4); }
+.tag.ok { color: var(--ok); border-color: rgba(127,214,164,.4); }
+.tag.warn { color: var(--warn); border-color: rgba(240,192,96,.4); }
+.toolbar { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; }
+.toolbar input { max-width: 320px; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100%); background: var(--panel); border-left: 1px solid var(--line); padding: 24px; overflow: auto; box-shadow: -20px 0 60px rgba(0,0,0,.5); }
+.drawer .actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 20px; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line); padding: 10px 16px; border-radius: 12px; }
+@media (max-width: 760px) { .shell { grid-template-columns: 1fr; } nav { flex-direction: row; overflow-x: auto; padding: 10px; } nav .brand, nav .who { display: none; } main { padding: 18px 14px; } }
+</style>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+  'use strict';
+  const $ = (s, el) => (el || document).querySelector(s);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const when = (t) => t ? new Date(t).toLocaleString() : '';
+  const KEY = 'chacklate.admin';
+  let token = sessionStorage.getItem(KEY) || '', me = null, tab = 'overview';
+
+  async function api(path, body) {
+    const res = await fetch('/api/admin' + path, { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: body ? JSON.stringify(body) : undefined });
+    const out = await res.json().catch(() => ({}));
+    if (res.status === 401 && path !== '/login') { token = ''; sessionStorage.removeItem(KEY); login(); throw new Error('Signed out'); }
+    if (!res.ok) throw new Error(out.error || 'Request failed');
+    return out;
+  }
+  function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); }
+  const can = (p) => me && me.permissions.includes(p);
+
+  function login() {
+    $('#app').innerHTML = '<form class="login" id="lf"><h1>Chacklate</h1><p>Staff console. Every action is recorded.</p>' +
+      '<label for="em">Email</label><input id="em" type="email" autocomplete="username" required>' +
+      '<label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>' +
+      '<p class="err" id="le"></p><button class="btn primary" style="width:100%">Sign in</button></form>';
+    $('#lf').onsubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const r = await api('/login', { email: $('#em').value, password: $('#pw').value });
+        token = r.token; sessionStorage.setItem(KEY, token); boot();
+      } catch (err) { $('#le').textContent = err.message; }
+    };
+  }
+
+  async function boot() {
+    if (!token) return login();
+    try { me = await api('/me'); } catch (e) { return; }
+    const tabs = [['overview', 'Overview', 'stats.read'], ['reports', 'Reports', 'reports.read'], ['users', 'Players', 'users.read'], ['games', 'Games', 'games.read'], ['audit', 'Audit log', 'audit.read'], ['staff', 'Staff', 'staff.manage']].filter((t) => can(t[2]));
+    $('#app').innerHTML = '<div class="shell"><nav><div class="brand">Chacklate<small>Admin</small></div>' +
+      tabs.map((t) => '<button data-tab="' + t[0] + '">' + t[1] + (t[0] === 'reports' ? '<span class="count" id="rc" hidden></span>' : '') + '</button>').join('') +
+      '<div class="who">' + esc(me.email) + '<br>' + esc(me.role) + ' · <a href="#" id="out">Sign out</a></div></nav><main id="main"></main></div>';
+    document.querySelectorAll('[data-tab]').forEach((b) => { b.onclick = () => show(b.dataset.tab); });
+    $('#out').onclick = async (e) => { e.preventDefault(); try { await api('/logout', {}); } catch (err) { /* already out */ } token = ''; sessionStorage.removeItem(KEY); login(); };
+    show(tab);
+  }
+
+  async function show(name) {
+    tab = name;
+    document.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
+    const main = $('#main');
+    main.innerHTML = '<p class="muted">Loading…</p>';
+    try { await VIEWS[name](main); } catch (e) { if (e.message !== 'Signed out') main.innerHTML = '<p class="err">' + esc(e.message) + '</p>'; }
+  }
+
+  const VIEWS = {
+    async overview(main) {
+      const s = await api('/stats');
+      const rc = $('#rc'); if (rc) { rc.hidden = !s.openReports; rc.textContent = s.openReports; }
+      const card = (k, v) => '<div class="card"><div class="k">' + k + '</div><div class="v">' + esc(v) + '</div></div>';
+      main.innerHTML = '<h2>Overview</h2><div class="cards">' + card('Online now', s.online) + card('Live games', s.games) + card('Seeking', s.seeking) +
+        card('Accounts', s.users) + card('Guests', s.guests) + card('Active 24 h', s.active24h) + card('Games 24 h', s.games24h) + card('Open reports', s.openReports) + card('Suspended', s.banned) + '</div>' +
+        '<p class="muted">Figures refresh when you open this tab.</p>';
+    },
+    async reports(main) {
+      const rows = await api('/reports');
+      main.innerHTML = '<h2>Reports</h2>' + (rows.length ? '<table><tr><th>When</th><th>Reported</th><th>By</th><th>Reason</th><th>Game</th><th>Status</th><th></th></tr>' +
+        rows.map((r) => '<tr><td>' + when(r.created) + '</td><td><a href="#" data-user="' + r.target + '">' + esc(r.target_name) + '</a></td><td>' + esc(r.reporter_name) + '</td><td>' + esc(r.reason) + '</td><td class="mono">' + esc(r.game_id || '') + '</td>' +
+          '<td><span class="tag ' + (r.status === 'open' ? 'warn' : 'ok') + '">' + r.status + '</span></td><td>' +
+          (r.status === 'open' && can('reports.resolve') ? '<button class="btn" data-rep="' + r.id + '" data-st="actioned">Actioned</button> <button class="btn" data-rep="' + r.id + '" data-st="dismissed">Dismiss</button>' : '') + '</td></tr>').join('') + '</table>'
+        : '<p class="muted">No reports. Players can report an opponent from the result screen after an online game.</p>');
+      main.querySelectorAll('[data-rep]').forEach((b) => { b.onclick = async () => { await api('/reports/' + b.dataset.rep, { status: b.dataset.st }); show('reports'); }; });
+      main.querySelectorAll('[data-user]').forEach((a) => { a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); }; });
+    },
+    async users(main) {
+      main.innerHTML = '<h2>Players</h2><div class="toolbar"><input id="q" placeholder="Search by name or id" aria-label="Search players"><button class="btn" id="go">Search</button></div><div id="ul"></div>';
+      const load = async () => {
+        const rows = await api('/users?q=' + encodeURIComponent($('#q').value));
+        $('#ul').innerHTML = '<table><tr><th>Id</th><th>Name</th><th>Blitz</th><th>Last seen</th><th>Status</th></tr>' + rows.map((u) =>
+          '<tr class="click" data-id="' + u.id + '"><td class="mono">' + u.id + '</td><td>' + esc(u.name) + (u.guest ? ' <span class="tag">guest</span>' : '') + '</td><td>' + u.ratings.blitz.rating + ' <span class="muted">(' + u.ratings.blitz.games + ')</span></td><td>' + when(u.seen) + '</td><td>' +
+          (u.banned ? '<span class="tag bad">suspended</span>' : u.muted ? '<span class="tag warn">muted</span>' : '<span class="tag ok">ok</span>') + '</td></tr>').join('') + '</table>';
+        $('#ul').querySelectorAll('[data-id]').forEach((tr) => { tr.onclick = () => openUser(tr.dataset.id); });
+      };
+      $('#go').onclick = load; $('#q').onkeydown = (e) => { if (e.key === 'Enter') load(); };
+      await load();
+    },
+    async games(main) {
+      const rows = await api('/games');
+      main.innerHTML = '<h2>Games</h2><table><tr><th>Started</th><th>White</th><th>Black</th><th>Time</th><th>Result</th><th>Moves</th></tr>' + rows.map((g) =>
+        '<tr><td>' + when(g.started) + '</td><td>' + esc(g.white_name) + '</td><td>' + esc(g.black_name) + '</td><td>' + esc(g.tc) + (g.rated ? '' : ' <span class="tag">casual</span>') + '</td><td>' + esc(g.result || 'live') + ' <span class="muted">' + esc(g.reason || '') + '</span></td><td class="mono">' + (g.moves ? g.moves.split(' ').length : 0) + '</td></tr>').join('') + '</table>';
+    },
+    async audit(main) {
+      const r = await api('/audit');
+      main.innerHTML = '<h2>Audit log</h2><p>' + (r.verify.ok ? '<span class="tag ok">Chain intact</span> ' + r.verify.checked + ' entries verified.' : '<span class="tag bad">Chain broken at entry ' + r.verify.brokenAt + '</span> Someone edited or removed audit rows. Escalate.') + '</p>' +
+        '<table><tr><th>#</th><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Detail</th><th>Hash</th></tr>' + r.rows.map((a) =>
+          '<tr><td class="mono">' + a.id + '</td><td>' + when(a.at) + '</td><td>' + esc(a.actor) + '</td><td>' + esc(a.action) + '</td><td class="mono">' + esc(a.target || '') + '</td><td>' + esc(a.detail || '') + '</td><td class="mono muted">' + esc(a.hash.slice(0, 10)) + '…</td></tr>').join('') + '</table>';
+    },
+    async staff(main) {
+      const rows = await api('/staff');
+      main.innerHTML = '<h2>Staff</h2><form class="toolbar" id="sf"><input id="se" type="email" placeholder="Email" required aria-label="Email"><select id="sr" aria-label="Role" style="max-width:160px"><option>support</option><option>moderator</option><option>admin</option></select><button class="btn primary">Add</button></form>' +
+        '<p class="muted">Support: read and mute. Moderator: plus bans and reports. Admin: plus rating resets and staff.</p>' +
+        '<table><tr><th>Email</th><th>Role</th><th>Added</th><th>Status</th><th></th></tr>' + rows.map((s) =>
+          '<tr><td>' + esc(s.email) + '</td><td>' + esc(s.role) + '</td><td>' + when(s.created) + '</td><td>' + (s.disabled ? '<span class="tag bad">disabled</span>' : '<span class="tag ok">active</span>') + '</td><td>' +
+          (s.email === me.email ? '' : '<button class="btn" data-sid="' + s.id + '" data-act="' + (s.disabled ? 'enable' : 'disable') + '">' + (s.disabled ? 'Enable' : 'Disable') + '</button>') + '</td></tr>').join('') + '</table>';
+      $('#sf').onsubmit = async (e) => {
+        e.preventDefault();
+        try { const r = await api('/staff', { email: $('#se').value, role: $('#sr').value }); alert('Created. Send this one-time password over a secure channel:\n\n' + r.password); show('staff'); } catch (err) { toast(err.message); }
+      };
+      main.querySelectorAll('[data-sid]').forEach((b) => { b.onclick = async () => { await api('/staff/' + b.dataset.sid + '/' + b.dataset.act, {}); show('staff'); }; });
+    },
+  };
+
+  async function openUser(id) {
+    const old = $('.drawer'); if (old) old.remove();
+    const u = await api('/users/' + id);
+    const d = document.createElement('aside');
+    d.className = 'drawer';
+    d.setAttribute('aria-label', 'Player ' + u.name);
+    const r = u.ratings;
+    d.innerHTML = '<button class="btn" style="float:right" id="dx">Close</button><h2>' + esc(u.name) + '</h2>' +
+      '<p class="muted">Id ' + u.id + ' · joined ' + when(u.created) + ' · last seen ' + when(u.seen) + (u.guest ? ' · guest' : '') + '</p>' +
+      (u.banned ? '<p><span class="tag bad">Suspended</span> ' + esc(u.banned) + '</p>' : '') +
+      '<div class="cards">' + ['bullet', 'blitz', 'rapid'].map((p) => '<div class="card"><div class="k">' + p + '</div><div class="v">' + r[p].rating + '</div><div class="muted">±' + r[p].rd + ' · ' + r[p].games + ' games</div></div>').join('') + '</div>' +
+      '<div class="actions">' +
+      (can('users.mute') ? '<button class="btn" data-a="' + (u.muted ? 'unmute' : 'mute') + '">' + (u.muted ? 'Unmute' : 'Mute') + '</button>' : '') +
+      (can('users.ban') ? (u.banned ? '<button class="btn" data-a="unban">Lift suspension</button>' : '<button class="btn danger" data-a="ban" data-reason="1">Suspend…</button>') : '') +
+      (can('ratings.reset') ? '<button class="btn danger" data-a="reset-ratings" data-reason="1">Reset ratings…</button>' : '') + '</div>' +
+      '<h3>Reports against this player</h3>' + (u.reports.length ? '<table><tr><th>When</th><th>Reason</th><th>Status</th></tr>' + u.reports.map((x) => '<tr><td>' + when(x.created) + '</td><td>' + esc(x.reason) + '</td><td>' + x.status + '</td></tr>').join('') + '</table>' : '<p class="muted">None.</p>') +
+      '<h3>Recent games</h3>' + (u.games.length ? '<table><tr><th>When</th><th>Colour</th><th>Time</th><th>Result</th></tr>' + u.games.map((g) => '<tr><td>' + when(g.started) + '</td><td>' + (g.white === u.id ? 'White' : 'Black') + '</td><td>' + esc(g.tc) + '</td><td>' + esc(g.result || 'live') + ' <span class="muted">' + esc(g.reason || '') + '</span></td></tr>').join('') + '</table>' : '<p class="muted">None.</p>');
+    document.body.appendChild(d);
+    $('#dx', d).onclick = () => d.remove();
+    d.querySelectorAll('[data-a]').forEach((b) => {
+      b.onclick = async () => {
+        let reason = '';
+        if (b.dataset.reason) { reason = prompt('Reason (stored in the audit log and shown to the player for suspensions):') || ''; if (!reason.trim()) return; }
+        try { await api('/users/' + u.id + '/' + b.dataset.a, { reason }); toast('Done.'); openUser(u.id); } catch (e) { toast(e.message); }
+      };
+    });
+  }
+
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { const d = $('.drawer'); if (d) d.remove(); } });
+  boot();
+})();
+</script>
+</body>
+</html>
