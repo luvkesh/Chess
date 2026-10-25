@@ -29,6 +29,9 @@ function ChacklateProgress(catalog) {
     { id: 'chapter-1', name: 'Knows the pieces', desc: 'Complete chapter 1.', xp: 60 },
     { id: 'chapter-2', name: 'Knows the rules', desc: 'Complete chapter 2.', xp: 60 },
     { id: 'chapter-3', name: 'Opening apprentice', desc: 'Complete chapter 3.', xp: 60 },
+    { id: 'graduate', name: 'Graduate', desc: 'Complete every lesson in the campaign.', xp: 300 },
+    { id: 'repertoire', name: 'Repertoire', desc: 'Master three openings in the Opening lab.', xp: 80 },
+    { id: 'dojo-3', name: 'Technique', desc: 'Earn three stars on three dojo endgames.', xp: 80 },
     { id: 'accuracy-90', name: 'Precision', desc: 'Score 90% accuracy in a reviewed game of 20+ moves.', xp: 60 },
     { id: 'brilliant', name: 'Brilliant!', desc: 'Play a move the coach rates brilliant.', xp: 60 },
     { id: 'online-first', name: 'Out into the world', desc: 'Finish an online game.', xp: 30 },
@@ -49,7 +52,7 @@ function ChacklateProgress(catalog) {
     return {
       v: 1, xp: 0, premium: false,
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
-      lessons: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
+      lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {},
     };
   }
@@ -164,7 +167,35 @@ function ChacklateProgress(catalog) {
       const ids = allLessons.filter((l) => l.chapter === ch).map((l) => l.id);
       if (ids.length && ids.every((id) => state.lessons[id])) achieve(state, 'chapter-' + ch, out);
     }
+    if (allLessons.every((l) => state.lessons[l.id])) achieve(state, 'graduate', out);
     touchStreak(state, new Date(t), out);
+    return out;
+  }
+
+  // Opening drill: a clean run has no wrong moves; three clean runs master the line.
+  function openingFinished(state, id, clean, now) {
+    const out = result();
+    const rec = state.openings[id] || (state.openings[id] = { runs: 0, clean: 0, mastered: false });
+    rec.runs++;
+    if (clean) rec.clean++;
+    grant(state, clean ? 12 : 4, out);
+    if (!rec.mastered && rec.clean >= 3) { rec.mastered = true; grant(state, 40, out); out.mastered = true; }
+    if (Object.values(state.openings).filter((r) => r.mastered).length >= 3) achieve(state, 'repertoire', out);
+    touchStreak(state, now ? new Date(now) : undefined, out);
+    return out;
+  }
+
+  // Endgame dojo: stars by moves used against the par.
+  function dojoFinished(state, endgame, success, moves, now) {
+    const out = result();
+    const stars = !success ? 0 : endgame.goal === 'draw' || moves <= endgame.par ? 3 : moves <= Math.ceil(endgame.par * 1.5) ? 2 : 1;
+    const prev = state.dojo[endgame.id] || { stars: 0, best: 0, tries: 0 };
+    const rec = { stars: Math.max(prev.stars, stars), best: success ? (prev.best ? Math.min(prev.best, moves) : moves) : prev.best, tries: prev.tries + 1 };
+    state.dojo[endgame.id] = rec;
+    if (stars > prev.stars) grant(state, 15 * (stars - prev.stars), out);
+    if (Object.values(state.dojo).filter((r) => r.stars === 3).length >= 3) achieve(state, 'dojo-3', out);
+    out.stars = stars;
+    touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
   }
 
@@ -224,7 +255,7 @@ function ChacklateProgress(catalog) {
     return Math.min(best, maxLevel);
   }
 
-  return { ACHIEVEMENTS, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today };
+  return { ACHIEVEMENTS, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateProgress;

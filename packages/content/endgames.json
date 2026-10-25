@@ -1,0 +1,85 @@
+{
+ "version": 1,
+ "endgames": [
+  {
+   "id": "endgame.kq-k",
+   "name": "Queen and king against king",
+   "access": "free",
+   "goal": "mate",
+   "par": 10,
+   "level": "Basic",
+   "fen": "8/8/8/4k3/8/8/8/3QK3 w - - 0 1",
+   "tip": "Use the queen to box the king in, a knight's move away, then bring your king. Watch out for stalemate."
+  },
+  {
+   "id": "endgame.kr-k",
+   "name": "Rook and king against king",
+   "access": "free",
+   "goal": "mate",
+   "par": 16,
+   "level": "Basic",
+   "fen": "8/8/8/4k3/8/8/8/R3K3 w - - 0 1",
+   "tip": "Cut the king off with the rook, bring your king up to take the opposition, then check."
+  },
+  {
+   "id": "endgame.kp-k",
+   "name": "King and pawn: king in front",
+   "access": "free",
+   "goal": "promote",
+   "par": 8,
+   "level": "Basic",
+   "fen": "3k4/8/4K3/4P3/8/8/8/8 w - - 0 1",
+   "tip": "Your king on the sixth rank in front of the pawn always wins. Control the promotion square."
+  },
+  {
+   "id": "endgame.kp-k-draw",
+   "name": "Holding king against king and pawn",
+   "access": "free",
+   "goal": "draw",
+   "par": 20,
+   "level": "Basic",
+   "fen": "4k3/8/8/4P3/4K3/8/8/8 b - - 0 1",
+   "tip": "Stay in front of the pawn and take the opposition whenever the white king steps forward."
+  },
+  {
+   "id": "endgame.two-bishops",
+   "name": "Two bishops mate",
+   "access": "premium",
+   "goal": "mate",
+   "par": 30,
+   "level": "Advanced",
+   "fen": "8/8/8/4k3/8/8/8/2B1KB2 w - - 0 1",
+   "tip": "The bishops work side by side as a wall. Drive the king to a corner with help from your king."
+  },
+  {
+   "id": "endgame.lucena",
+   "name": "Lucena: building a bridge",
+   "access": "premium",
+   "goal": "promote",
+   "par": 12,
+   "level": "Advanced",
+   "fen": "1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1",
+   "tip": "Check the king further away, put your rook on the fourth rank, then walk your king out and block the checks."
+  },
+  {
+   "id": "endgame.philidor",
+   "name": "Philidor: holding the draw",
+   "access": "premium",
+   "goal": "draw",
+   "par": 20,
+   "level": "Advanced",
+   "fen": "4k3/8/r7/4PK2/8/8/8/7R b - - 0 1",
+   "tip": "Keep your rook on the third rank. When the pawn reaches the sixth, check from behind."
+  },
+  {
+   "id": "endgame.bn-mate",
+   "name": "Bishop and knight mate",
+   "access": "premium",
+   "goal": "mate",
+   "par": 40,
+   "level": "Master",
+   "fen": "8/8/8/4k3/8/8/8/2B1KN2 w - - 0 1",
+   "tip": "Mate only happens in a corner of your bishop's colour. Drive the king there with the W manoeuvre of the knight."
+  }
+ ]
+}

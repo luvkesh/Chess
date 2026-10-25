@@ -56,6 +56,25 @@ for (const it of gated) assert(!PG.isUnlocked(s, it) || it.unlock.level <= 1, it
 s.xp = 1e6;
 for (const it of gated) assert(PG.isUnlocked(s, it), it.id);
 
+// Opening lab: three clean runs master a line; three mastered lines earn Repertoire.
+s = PG.fresh();
+PG.openingFinished(s, 'opening.a', false, day(1));
+for (let i = 0; i < 3; i++) PG.openingFinished(s, 'opening.a', true, day(1));
+assert(s.openings['opening.a'].mastered && s.openings['opening.a'].runs === 4);
+for (const id of ['opening.b', 'opening.c']) for (let i = 0; i < 3; i++) PG.openingFinished(s, id, true, day(1));
+assert(s.achievements.repertoire);
+
+// Endgame dojo: stars against par, best kept, failures recorded without XP.
+s = PG.fresh();
+const eg = { id: 'endgame.x', goal: 'mate', par: 10 };
+assert.strictEqual(PG.dojoFinished(s, eg, false, 30, day(1)).stars, 0);
+assert.strictEqual(s.xp, 0);
+assert.strictEqual(PG.dojoFinished(s, eg, true, 14, day(1)).stars, 2);
+assert.strictEqual(PG.dojoFinished(s, eg, true, 9, day(1)).stars, 3);
+assert.strictEqual(PG.dojoFinished(s, eg, true, 25, day(1)).stars, 1);
+assert.deepStrictEqual(s.dojo['endgame.x'], { stars: 3, best: 9, tries: 4 });
+assert.strictEqual(PG.dojoFinished(s, { id: 'endgame.d', goal: 'draw', par: 20 }, true, 20, day(1)).stars, 3);
+
 // Migration keeps known fields and fills new ones.
 const m = PG.migrate({ v: 1, xp: 123, stats: { games: 4 } });
 assert.strictEqual(m.xp, 123);
