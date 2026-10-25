@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const A = () => window.ChacklateApp;
-  let sock = null, ready = false, retry = 0, retryTimer = null, me = null, acct = null, ratings = null, seekingModal = null, friendModal = null, progressTimer = null;
+  let sock = null, ready = false, retry = 0, retryTimer = null, me = null, acct = null, safety = null, ratings = null, seekingModal = null, friendModal = null, progressTimer = null;
 
   function base() {
     const s = A() && A().state.settings.server;
@@ -40,7 +40,8 @@
     if (!app) return;
     switch (m.type) {
       case 'welcome': {
-        ready = true; me = m.user; ratings = m.ratings; acct = m.account || null;
+        ready = true; me = m.user; ratings = m.ratings; acct = m.account || null; safety = m.safety || null;
+        app.setSafety(safety);
         setAccount({ token: m.token, name: me.name, guest: me.guest, id: me.id });
         // Adopt the server copy of progress when it is further along (a second device, a cleared browser).
         if (m.progress && m.progress.xp > app.state.progress.xp) { app.state.progress = app.PG.migrate(m.progress); app.save(); if (app.state.screen !== 'game') app.go(app.state.screen); }
@@ -51,6 +52,7 @@
         if (app.state.game && app.state.game.kind === 'online') send({ type: 'sync' });
         return;
       }
+      case 'safety': safety = m.safety; app.setSafety(safety); refreshPanel(); return;
       case 'seeking': return showSeeking(m.tc);
       case 'idle': closeSeeking(); return;
       case 'friend-code': return showCode(m.code, m.tc);
@@ -135,39 +137,37 @@
       (me.guest ? '' : '<button class="btn small" id="ac-out">Sign out</button>') + '</div>' +
       '<div class="today" style="margin:12px 0">' + rating('bullet') + rating('blitz') + rating('rapid') + '</div>' +
       (me.guest ?
-        '<form id="ac-form" class="acct-form"><p style="color:var(--muted);margin:0 0 8px">Pick a name to keep your rating, appear on leaderboards and play on any device.</p>' +
-        '<div class="field"><label for="ac-name">Name</label><input class="text-in" id="ac-name" autocomplete="username" maxlength="20" required></div>' +
-        '<div class="field"><label for="ac-pw">Password</label><input class="text-in" id="ac-pw" type="password" autocomplete="new-password" minlength="8" required></div>' +
-        '<p class="err" id="ac-err"></p><div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button><button class="btn ghost small" id="ac-forgot" type="button">Forgot password?</button></div></form>'
-        : accountTools()) +
+        '<div class="acct-form"><p style="color:var(--muted);margin:0 0 8px">Make an account to keep your rating and play on any device. Players under 18 need a parent to say yes before playing online.</p>' +
+        '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg" type="button">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button><button class="btn ghost small" id="ac-forgot" type="button">Forgot password?</button></div></div>'
+        : safetyPanel() + accountTools()) +
       '<h3 class="section-title">Leaderboard</h3><div class="seg" id="lb-pool">' + ['bullet', 'blitz', 'rapid'].map((p) => '<label><input type="radio" name="lbp" value="' + p + '"' + (p === board ? ' checked' : '') + '><span>' + p + '</span></label>').join('') + '</div>' +
       '<ol class="leaderboard" id="lb"><li style="color:var(--muted)">Loading…</li></ol>';
     const out = el.querySelector('#ac-out');
     if (out) out.onclick = async () => { try { await api('/api/logout', {}); } catch (e) { /* signed out locally either way */ } setAccount({ token: '', guest: true }); app.setEntitlements(null); app.save(); connect(); };
-    const form = el.querySelector('#ac-form');
-    if (form) {
-      const submit = async (path) => {
-        const err = el.querySelector('#ac-err');
-        err.textContent = '';
-        try {
-          const res = await api(path, { name: el.querySelector('#ac-name').value.trim(), password: el.querySelector('#ac-pw').value });
-          setAccount({ token: res.token, name: res.user.name, guest: false });
-          app.state.settings.name = res.user.name; app.save();
-          app.toast('Welcome, ' + res.user.name + '.');
-          connect();
-        } catch (e) { err.textContent = e.message; }
-      };
-      form.onsubmit = (e) => { e.preventDefault(); submit('/api/register'); };
-      el.querySelector('#ac-login').onclick = () => submit('/api/login');
-    }
+    const reg = el.querySelector('#ac-reg');
+    if (reg) { reg.onclick = () => signUpModal(); el.querySelector('#ac-login').onclick = () => signInModal(); }
+    const age = el.querySelector('#ac-age');
+    if (age) age.onclick = () => signUpModal({ ageOnly: true });
+    const resend = el.querySelector('#ac-resend');
+    if (resend) resend.onclick = () => parentEmailModal();
     wireAccountTools(el);
     el.querySelector('#lb-pool').onchange = (e) => { board = e.target.value; loadBoard(el); };
     loadBoard(el);
   }
 
   // ---------------------------------------------------------------- account self-service
+  function minor() { return safety && safety.kind === 'minor'; }
+  // Under-18 accounts show their parent status instead of an email field.
+  function safetyPanel() {
+    if (!safety || safety.kind !== 'minor') return '';
+    const esc = A().esc;
+    if (!safety.band) return '<div class="callout">Tell us your age to keep playing online. <button class="btn small" id="ac-age" type="button">Add my age</button></div>';
+    if (!safety.consent) return '<div class="callout">Waiting for a parent to say yes. We emailed them a link. Until then you can play the computer, lessons and puzzles. <button class="btn small" id="ac-resend" type="button">Send it again</button></div>';
+    return '<div class="callout">A parent manages this account. ' + (safety.online ? esc(safety.online) : 'Online play is on.') + '</div>';
+  }
   function accountTools() {
     const esc = A().esc, a = acct || {};
+    if (minor()) return '<div class="acct-tools"><div class="row" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn small" id="ac-pw" type="button">Change password</button><button class="btn small" id="ac-export" type="button">Download my data</button><button class="btn small warn" id="ac-del" type="button">Delete account</button></div></div>';
     return '<div class="acct-tools">' +
       '<div class="field"><label for="ac-email">Email ' + (a.email ? (a.emailVerified ? '<span class="pill gold">confirmed</span>' : '<span class="pill">check your inbox</span>') : '<span class="pill">lets you reset your password</span>') + '</label>' +
       '<div style="display:flex;gap:8px"><input class="text-in" id="ac-email" type="email" autocomplete="email" value="' + esc(a.email || '') + '" placeholder="you@example.com"><button class="btn" id="ac-email-go" type="button">' + (a.email && !a.emailVerified ? 'Resend' : 'Save') + '</button></div></div>' +
@@ -176,9 +176,9 @@
   function wireAccountTools(el) {
     const app = A(), q = (s) => el.querySelector(s);
     const forgot = q('#ac-forgot');
-    if (forgot) forgot.onclick = () => forgotModal(q('#ac-name') ? q('#ac-name').value.trim() : '');
-    if (!q('#ac-email-go')) return;
-    q('#ac-email-go').onclick = async () => {
+    if (forgot) forgot.onclick = () => forgotModal('');
+    if (!q('#ac-pw') || q('#ac-pw').tagName !== 'BUTTON') return;
+    if (q('#ac-email-go')) q('#ac-email-go').onclick = async () => {
       try { const r = await api('/api/account/email', { email: q('#ac-email').value.trim() }); acct = { email: r.email, emailVerified: false }; app.toast('We sent a confirmation link to ' + app.esc(r.email) + '.'); renderAccount(el); }
       catch (e) { app.toast(app.esc(e.message), 'bad'); }
     };
@@ -216,6 +216,86 @@
       };
     };
   }
+  // ---------------------------------------------------------------- sign up and sign in
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function ageOf(y, mo) { const d = new Date(); let a = d.getFullYear() - y; if (d.getMonth() + 1 < mo) a--; return a; }
+  // A neutral age question first (no default, no hint about a "right" answer), then the right form for that age.
+  function signUpModal(opts) {
+    opts = opts || {};
+    const app = A(), esc = app.esc, year = new Date().getFullYear();
+    const years = []; for (let y = year - 4; y >= year - 100; y--) years.push(y);
+    const m = app.modal('<h2>' + (opts.ageOnly ? 'How old are you?' : 'Create your account') + '</h2><p class="sub">When were you born?</p>' +
+      '<div class="row" style="justify-content:flex-start"><select class="text-in" id="su-m" aria-label="Birth month"><option value="">Month</option>' + MONTHS.map((n, i) => '<option value="' + (i + 1) + '">' + n + '</option>').join('') + '</select>' +
+      '<select class="text-in" id="su-y" aria-label="Birth year"><option value="">Year</option>' + years.map((y) => '<option>' + y + '</option>').join('') + '</select></div>' +
+      '<div id="su-rest"></div><p class="err" id="su-err"></p>');
+    const q = (s) => m.querySelector(s);
+    let picked = null;
+    const step2 = async () => {
+      const mo = +q('#su-m').value, y = +q('#su-y').value;
+      if (!mo || !y) return;
+      const kid = ageOf(y, mo) < 18;
+      const needName = !opts.ageOnly || kid;
+      let names = [];
+      if (kid) { try { names = (await api('/api/names')).names; } catch (e) { names = []; } }
+      const nameField = !needName ? '' : kid
+        ? '<div class="field"><div class="label">Pick your player name</div><div class="chips" id="su-names">' + names.map((n) => '<button type="button" class="chip" data-n="' + esc(n) + '">' + esc(n) + '</button>').join('') + '</div><button type="button" class="btn ghost small" id="su-more">More names</button>' +
+          '<p class="fine">Names are made up for you, so nobody can tell who you are from your name.</p></div>'
+        : '<div class="field"><label for="su-name">Name</label><input class="text-in" id="su-name" autocomplete="username" maxlength="20" required></div>';
+      q('#su-rest').innerHTML = nameField +
+        (opts.ageOnly ? '' : '<div class="field"><label for="su-pw">Password</label><input class="text-in" id="su-pw" type="password" autocomplete="new-password" minlength="8" required></div>') +
+        (kid ? '<div class="field"><label for="su-pe">A parent or guardian\'s email</label><input class="text-in" id="su-pe" type="email" autocomplete="off" required>' +
+          '<p class="fine">We email them once to ask permission. Until they say yes you can play the computer, lessons and puzzles, but not online.</p></div>' : '') +
+        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" id="su-go" type="button">' + (opts.ageOnly ? 'Save' : 'Create account') + '</button></div>';
+      const wire = () => m.querySelectorAll('[data-n]').forEach((b) => { b.onclick = () => { picked = b.dataset.n; m.querySelectorAll('[data-n]').forEach((x) => x.classList.toggle('on', x === b)); }; });
+      wire();
+      const more = q('#su-more');
+      if (more) more.onclick = async () => { try { const r = await api('/api/names'); q('#su-names').innerHTML = r.names.map((n) => '<button type="button" class="chip" data-n="' + esc(n) + '">' + esc(n) + '</button>').join(''); picked = null; wire(); } catch (e) { /* keep the current names */ } };
+      q('#su-go').onclick = async () => {
+        const err = q('#su-err'); err.textContent = '';
+        const name = kid ? picked : q('#su-name') ? q('#su-name').value.trim() : '';
+        if (needName && !name) { err.textContent = kid ? 'Pick a name first.' : 'Choose a name.'; return; }
+        const body = { birthYear: y, birthMonth: mo, parentEmail: kid ? q('#su-pe').value.trim() : undefined };
+        try {
+          if (opts.ageOnly) {
+            await api('/api/account/age', Object.assign(body, { name })); m.close(); app.toast(kid ? 'Thanks. We emailed your parent.' : 'Thanks.'); connect(); return;
+          }
+          const res = await api('/api/register', Object.assign(body, { name, password: q('#su-pw').value }));
+          setAccount({ token: res.token, name: res.user.name, guest: false });
+          app.state.settings.name = res.user.name; app.save();
+          m.close();
+          app.toast(kid ? 'Welcome, ' + esc(res.user.name) + '. We emailed your parent.' : 'Welcome, ' + esc(res.user.name) + '.');
+          connect();
+        } catch (e) { err.textContent = e.message; }
+      };
+    };
+    q('#su-m').onchange = step2; q('#su-y').onchange = step2;
+  }
+  function signInModal() {
+    const app = A();
+    const m = app.modal('<h2>Sign in</h2><form id="si"><div class="field"><label for="si-name">Name</label><input class="text-in" id="si-name" autocomplete="username" maxlength="20" required></div>' +
+      '<div class="field"><label for="si-pw">Password</label><input class="text-in" id="si-pw" type="password" autocomplete="current-password" required></div><p class="err" id="si-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Sign in</button></div></form>');
+    m.querySelector('#si').onsubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const res = await api('/api/login', { name: m.querySelector('#si-name').value.trim(), password: m.querySelector('#si-pw').value });
+        setAccount({ token: res.token, name: res.user.name, guest: false });
+        app.state.settings.name = res.user.name; app.save();
+        m.close(); app.toast('Welcome back, ' + app.esc(res.user.name) + '.'); connect();
+      } catch (err) { m.querySelector('#si-err').textContent = err.message; }
+    };
+  }
+  function parentEmailModal() {
+    const app = A();
+    const m = app.modal('<h2>Ask a parent again</h2><form id="pe"><div class="field"><label for="pe-e">A parent or guardian\'s email</label><input class="text-in" id="pe-e" type="email" autocomplete="off" required></div><p class="err" id="pe-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Send</button></div></form>');
+    m.querySelector('#pe').onsubmit = async (e) => {
+      e.preventDefault();
+      try { await api('/api/account/consent/resend', { parentEmail: m.querySelector('#pe-e').value.trim() }); m.close(); app.toast('Sent. Ask them to check their inbox.'); }
+      catch (err) { m.querySelector('#pe-err').textContent = err.message; }
+    };
+  }
+
   function forgotModal(prefill) {
     const app = A();
     const m = app.modal('<h2>Reset your password</h2><p class="sub">Enter your name or email. If the account has a confirmed email, we send a link that works for an hour.</p>' +
@@ -263,6 +343,7 @@
 
   window.ChacklateNet = {
     available: () => ready,
+    safety: () => safety,
     api,
     resetModal,
     connect,

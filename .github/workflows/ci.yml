@@ -25,7 +25,7 @@ jobs:
         run: node packages/content/test/content.test.js
 
   web:
-    name: Web game (progress tests + build)
+    name: Web game (progress, voice, build)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +37,8 @@ jobs:
           python-version: '3.12'
       - name: Progress tests
         run: node apps/web-prototype/test/progress.test.js
+      - name: Voice script and clips
+        run: node apps/web-prototype/test/voice.test.js
       - name: Build single-file game
         run: python3 apps/web-prototype/build.py
       - name: Check committed build is up to date
@@ -72,7 +74,7 @@ jobs:
           docker run -d --name app -p 8080:8080 chacklate:ci
           for i in $(seq 1 30); do curl -sf localhost:8080/api/health && break; sleep 1; done
           curl -sf localhost:8080/api/health | grep '"ok":true'
-          for p in / /play /admin /sw.js /manifest.webmanifest /icons/icon-512.png; do curl -sf -o /dev/null "localhost:8080$p" || { echo "missing $p"; exit 1; }; done
+          for p in / /play /admin /parent /privacy /voice/index.json /sw.js /manifest.webmanifest /icons/icon-512.png; do curl -sf -o /dev/null "localhost:8080$p" || { echo "missing $p"; exit 1; }; done
           docker exec app node src/cli.js backup /data/backups
           docker exec app sh -c 'ls /data/backups/chacklate-*.db'
       - name: Server log

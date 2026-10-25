@@ -96,6 +96,8 @@ function create(db, lobby, opts) {
     if (user.guest) return [403, { error: 'Create an account first.' }];
 
     if (p === '/api/account/email' && req.method === 'POST') {
+      // Under-18 accounts use their parent's email, set through the parent page.
+      if (user.age_band !== 'adult') return [403, { error: 'A parent manages the email for this account.' }];
       if (!limit('email:' + user.id)) return [429, { error: 'Too many attempts. Try again in 15 minutes.' }];
       const email = String(body.email || '').trim();
       if (!validEmail(email)) return [400, { error: 'That does not look like an email address.' }];

@@ -12,6 +12,7 @@ const commerce = require('./commerce');
 const push = require('./push');
 const fairplay = require('./fairplay');
 const account = require('./account');
+const family = require('./family');
 const mailer = require('./mailer');
 const { Lobby } = require('./lobby');
 
@@ -21,6 +22,8 @@ const STATIC = {
   '/': path.join(ROOT, 'apps/website/index.html'),
   '/play': path.join(ROOT, 'apps/web-prototype/dist/chacklate-chess.html'),
   '/admin': path.join(ROOT, 'apps/admin/index.html'),
+  '/parent': path.join(ROOT, 'apps/parent/index.html'),
+  '/privacy': path.join(ROOT, 'apps/website/privacy.html'),
   // Installable app: manifest, service worker (served from the root so it can control /play) and icons.
   '/manifest.webmanifest': path.join(PUBLIC, 'manifest.webmanifest'),
   '/sw.js': path.join(PUBLIC, 'sw.js'),
@@ -41,7 +44,7 @@ function createServer(opts) {
   const db = store.open(opts.dbFile);
   const E = ChacklateEngine();
   const shop = commerce.create(db, opts.payments);
-  const notify = push.create(db, Object.assign({ log: opts.log }, opts.push));
+  const notify = push.create(db, Object.assign({ log: opts.log, allowed: (id) => family.policy.reminders(db.get('SELECT * FROM users WHERE id = ?', id) || {}) }, opts.push));
   const pushTimer = setInterval(() => notify.tick(), 60000);
   pushTimer.unref();
   const fair = fairplay.create(db, Object.assign({ log: opts.log }, opts.fairplay));
@@ -50,10 +53,11 @@ function createServer(opts) {
     if (opts.trustProxy) { const f = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim(); if (f) return f; }
     return req.socket.remoteAddress;
   };
-  const lobby = new Lobby(Object.assign({ db, E, clientIp, entitlements: (id) => shop.entitlements(id), onGameEnd: (g) => fair.enqueue(g) }, opts.lobby || {}));
+  const lobby = new Lobby(Object.assign({ db, E, clientIp, policy: family.policy, entitlements: (id) => shop.entitlements(id), onGameEnd: (g) => fair.enqueue(g) }, opts.lobby || {}));
   const adminApi = admin.routes(db, lobby, shop, fair);
   const mail = opts.mailer || mailer.create(Object.assign({ log: opts.log }, opts.mail));
   const accountApi = account.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
+  const familyApi = family.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
   const accountLimit = auth.limiter(20, 60000);
 
   if (opts.adminEmail && opts.adminPassword && !db.get('SELECT id FROM staff LIMIT 1')) {
@@ -61,7 +65,7 @@ function createServer(opts) {
   }
 
   const bearer = (req) => { const h = req.headers.authorization || ''; return h.startsWith('Bearer ') ? h.slice(7) : ''; };
-  const profile = (u, token) => ({ token, user: lobby.publicUser(u), ratings: lobby.ratings(u.id), entitlements: shop.entitlements(u.id), account: { email: u.email || null, emailVerified: !!u.email_verified } });
+  const profile = (u, token) => ({ token, user: lobby.publicUser(u), ratings: lobby.ratings(u.id), entitlements: shop.entitlements(u.id), account: { email: u.email || null, emailVerified: !!u.email_verified }, safety: family.policy.info(u) });
 
   async function api(req, url, body, ip) {
     const p = url.pathname;
@@ -76,17 +80,27 @@ function createServer(opts) {
     }
     if (p === '/api/register' && req.method === 'POST') {
       if (!accountLimit(ip)) return [429, { error: 'Too many attempts. Wait a minute.' }];
-      const bad = auth.validName(body.name) || auth.validPassword(body.password);
+      // Neutral age question first: under-18s pick a generated name and need a parent's consent.
+      const birth = family.validBirth(body.birthYear, body.birthMonth, Date.now());
+      if (!birth) return [400, { error: 'Choose your birth month and year.' }];
+      const band = family.bandFor(birth.year, birth.month, Date.now());
+      const parentEmail = String(body.parentEmail || '').trim();
+      if (band !== 'adult' && !family.isGeneratedName(body.name)) return [400, { error: 'Pick one of the suggested player names.', needName: true }];
+      if (band !== 'adult' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(parentEmail)) return [400, { error: 'Ask a parent for their email address.' }];
+      const bad = (band === 'adult' ? family.typedNameProblem(body.name) : null) || auth.validPassword(body.password);
       if (bad) return [400, { error: bad }];
       if (db.get('SELECT id FROM users WHERE name_key = ?', body.name.toLowerCase())) return [409, { error: 'That name is taken.' }];
       // A guest who registers keeps their ratings and game history.
       let u = lobby.userForToken(bearer(req));
       if (u && !u.guest) return [400, { error: 'You are already signed in.' }];
       if (!u) u = lobby.createGuest();
-      db.run('UPDATE users SET name = ?, name_key = ?, pass = ?, guest = 0 WHERE id = ?', body.name, body.name.toLowerCase(), auth.hashPassword(body.password), u.id);
+      db.run('UPDATE users SET name = ?, name_key = ?, pass = ?, guest = 0, birth_ym = ?, age_band = ? WHERE id = ?', body.name, body.name.toLowerCase(), auth.hashPassword(body.password),
+        birth.year + '-' + String(birth.month).padStart(2, '0'), band, u.id);
       db.run('DELETE FROM sessions WHERE user_id = ?', u.id);
       const token = lobby.newSession(u.id);
-      return [200, profile(db.get('SELECT * FROM users WHERE id = ?', u.id), token)];
+      const nu = db.get('SELECT * FROM users WHERE id = ?', u.id);
+      if (band !== 'adult') await familyApi.requestConsent(nu, parentEmail);
+      return [200, profile(nu, token)];
     }
     if (p === '/api/login' && req.method === 'POST') {
       if (!accountLimit(ip)) return [429, { error: 'Too many attempts. Wait a minute.' }];
@@ -103,6 +117,10 @@ function createServer(opts) {
       const u = lobby.userForToken(bearer(req));
       return u ? [200, profile(u)] : [401, { error: 'Not signed in.' }];
     }
+    if (p === '/api/names' || p.startsWith('/api/parent/') || p === '/api/account/age' || p === '/api/account/consent/resend') {
+      const out = await familyApi.handle(req, p, body, ip, lobby.userForToken(bearer(req)));
+      if (out) return out;
+    }
     if (p.startsWith('/api/account/')) {
       const out = await accountApi(req, p, body, ip, lobby.userForToken(bearer(req)));
       if (out) return out;
@@ -111,6 +129,7 @@ function createServer(opts) {
     if ((p === '/api/push/subscribe' || p === '/api/push/unsubscribe') && req.method === 'POST') {
       const u = lobby.userForToken(bearer(req));
       if (!u) return [401, { error: 'Not signed in.' }];
+      if (p === '/api/push/subscribe' && !family.policy.reminders(u)) return [403, { error: 'A parent needs to turn reminders on first.' }];
       return p === '/api/push/subscribe' ? notify.subscribe(u.id, body.subscription, body.hour, body.tz) : notify.unsubscribe(u.id, body.endpoint);
     }
     if (p === '/api/store') return [200, { mode: shop.mode, perks: shop.perks, products: shop.publicProducts() }];
@@ -118,13 +137,18 @@ function createServer(opts) {
     if (p.startsWith('/api/store/') && req.method === 'POST') {
       const u = lobby.userForToken(bearer(req));
       if (!u) return [401, { error: 'Not signed in.' }];
-      if (p === '/api/store/checkout') return shop.checkout(u, String(body.product || ''));
+      if (p === '/api/store/checkout') {
+        const no = familyApi.purchaseCheck(u, body.pin);
+        if (no) return [403, { error: no, parent: true }];
+        return shop.checkout(u, String(body.product || ''));
+      }
       if (p === '/api/store/dev/complete') return shop.devComplete(u, body.order);
     }
     let m;
     if ((m = p.match(/^\/api\/players\/([A-Za-z0-9_-]{3,20})$/))) {
       const u = db.get('SELECT * FROM users WHERE name_key = ? AND banned IS NULL', m[1].toLowerCase());
-      if (!u) return [404, { error: 'No such player.' }];
+      // Children have no public profile.
+      if (!u || !family.policy.publicProfile(u)) return [404, { error: 'No such player.' }];
       const games = db.all('SELECT g.id, g.tc, g.result, g.reason, g.started, w.name white, b.name black FROM games g JOIN users w ON w.id = g.white JOIN users b ON b.id = g.black WHERE (g.white = ? OR g.black = ?) AND g.result IS NOT NULL ORDER BY g.started DESC LIMIT 20', u.id, u.id);
       return [200, { name: u.name, since: u.created, ratings: lobby.ratings(u.id), games }];
     }
@@ -164,6 +188,15 @@ function createServer(opts) {
     if (url.pathname === '/account/verify') {
       res.writeHead(302, Object.assign({ Location: account.verifyPage(db, url.searchParams.get('token')), 'Cache-Control': 'no-store' }, SECURITY_HEADERS));
       return res.end();
+    }
+    // Recorded voices. Clip names are hashes of their text, so a clip never changes and can be cached for good.
+    const vm = url.pathname.match(/^\/voice\/(?:index\.json|([a-z]+)\/([0-9a-f]{8})\.mp3)$/);
+    if (vm && req.method === 'GET') {
+      const vf = vm[1] ? path.join(PUBLIC, 'voice', vm[1], vm[2] + '.mp3') : path.join(PUBLIC, 'voice', 'index.json');
+      if (fs.existsSync(vf)) {
+        res.writeHead(200, Object.assign({ 'Content-Type': vm[1] ? 'audio/mpeg' : 'application/json', 'Cache-Control': vm[1] ? 'public, max-age=31536000, immutable' : 'no-cache' }, SECURITY_HEADERS));
+        return fs.createReadStream(vf).pipe(res);
+      }
     }
     const file = STATIC[url.pathname.replace(/\/+$/, '') || '/'];
     if (file && fs.existsSync(file)) {

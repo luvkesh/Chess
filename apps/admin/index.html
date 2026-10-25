@@ -68,6 +68,8 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
   const $ = (s, el) => (el || document).querySelector(s);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const when = (t) => t ? new Date(t).toLocaleString() : '';
+  // Age band and parental consent, so moderators know when they are looking at a child's account.
+  const ageTag = (u) => u.guest ? '' : !u.age_band ? ' <span class="tag">age unknown</span>' : u.age_band === 'adult' ? '' : ' <span class="tag">' + u.age_band + '</span>' + (u.consented ? ' <span class="tag ok">parent ok</span>' : ' <span class="tag bad">no consent</span>');
   const KEY = 'chacklate.admin';
   let token = sessionStorage.getItem(KEY) || '', me = null, tab = 'overview';
 
@@ -141,7 +143,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
       const load = async () => {
         const rows = await api('/users?q=' + encodeURIComponent($('#q').value));
         $('#ul').innerHTML = '<table><tr><th>Id</th><th>Name</th><th>Blitz</th><th>Last seen</th><th>Status</th></tr>' + rows.map((u) =>
-          '<tr class="click" data-id="' + u.id + '"><td class="mono">' + u.id + '</td><td>' + esc(u.name) + (u.guest ? ' <span class="tag">guest</span>' : '') + '</td><td>' + u.ratings.blitz.rating + ' <span class="muted">(' + u.ratings.blitz.games + ')</span></td><td>' + when(u.seen) + '</td><td>' +
+          '<tr class="click" data-id="' + u.id + '"><td class="mono">' + u.id + '</td><td>' + esc(u.name) + (u.guest ? ' <span class="tag">guest</span>' : '') + ageTag(u) + '</td><td>' + u.ratings.blitz.rating + ' <span class="muted">(' + u.ratings.blitz.games + ')</span></td><td>' + when(u.seen) + '</td><td>' +
           (u.banned ? '<span class="tag bad">suspended</span>' : u.muted ? '<span class="tag warn">muted</span>' : '<span class="tag ok">ok</span>') + '</td></tr>').join('') + '</table>';
         $('#ul').querySelectorAll('[data-id]').forEach((tr) => { tr.onclick = () => openUser(tr.dataset.id); });
       };
@@ -205,7 +207,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
     d.setAttribute('aria-label', 'Player ' + u.name);
     const r = u.ratings;
     d.innerHTML = '<button class="btn" style="float:right" id="dx">Close</button><h2>' + esc(u.name) + '</h2>' +
-      '<p class="muted">Id ' + u.id + ' · joined ' + when(u.created) + ' · last seen ' + when(u.seen) + (u.guest ? ' · guest' : '') + (u.email ? ' · ' + esc(u.email) + (u.email_verified ? ' <span class="tag ok">confirmed</span>' : ' <span class="tag">unconfirmed</span>') : '') + (u.deleted ? ' · <span class="tag bad">deleted ' + when(u.deleted) + '</span>' : '') + '</p>' +
+      '<p class="muted">Id ' + u.id + ' · joined ' + when(u.created) + ' · last seen ' + when(u.seen) + (u.guest ? ' · guest' : '') + ageTag(u) + (u.email ? ' · ' + esc(u.email) + (u.email_verified ? ' <span class="tag ok">confirmed</span>' : ' <span class="tag">unconfirmed</span>') : '') + (u.deleted ? ' · <span class="tag bad">deleted ' + when(u.deleted) + '</span>' : '') + '</p>' +
       (u.banned ? '<p><span class="tag bad">Suspended</span> ' + esc(u.banned) + '</p>' : '') +
       '<div class="cards">' + ['bullet', 'blitz', 'rapid'].map((p) => '<div class="card"><div class="k">' + p + '</div><div class="v">' + r[p].rating + '</div><div class="muted">±' + r[p].rd + ' · ' + r[p].games + ' games</div></div>').join('') + '</div>' +
       '<div class="actions">' +

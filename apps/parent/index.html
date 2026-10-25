@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Chacklate Chess for parents</title>
+<meta name="theme-color" content="#120c0a">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #120c0a; --panel: rgba(255, 240, 225, 0.05); --line: rgba(255, 235, 215, 0.12);
+  --ink: #f6ece2; --muted: #c0ad9f; --gold: #e3b25a; --ruby: #d2466f; --ruby-2: #e8678e; --ok: #7fd6a4; --bad: #ff8a80;
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: radial-gradient(1000px 600px at 70% -10%, #3a1d14 0%, transparent 60%), var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); }
+a { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+main { max-width: 720px; margin: 0 auto; padding: 32px 16px 80px; }
+.logo { font: 400 24px/1 var(--display); display: flex; align-items: baseline; gap: 8px; margin-bottom: 28px; }
+.logo small { font: 700 10px/1 var(--sans); letter-spacing: .32em; color: var(--gold); text-transform: uppercase; }
+h1 { font: 400 clamp(30px, 6vw, 44px)/1.1 var(--display); margin: 0 0 12px; }
+h2 { font: 400 24px/1.2 var(--display); margin: 0 0 10px; }
+.eyebrow { font: 700 12px/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px; margin: 16px 0; }
+.muted { color: var(--muted); }
+label { display: block; font-weight: 600; margin: 14px 0 6px; }
+input[type=email], input[type=password], input[type=text], select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--ink); font: inherit; }
+.check { display: flex; gap: 12px; align-items: flex-start; font-weight: 500; margin: 12px 0; }
+.check input { margin-top: 4px; width: 20px; height: 20px; accent-color: var(--gold); flex: none; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; font: 650 15px/1 var(--sans); border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.btn.primary { background: linear-gradient(180deg, var(--ruby-2), var(--ruby)); border-color: transparent; }
+.btn.danger { border-color: rgba(255, 138, 128, .5); color: var(--bad); }
+.btn:disabled { opacity: .5; cursor: default; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+ul.keep { padding-left: 20px; } ul.keep li { margin: 4px 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 12px 0; }
+.stat { background: rgba(0,0,0,.2); border-radius: 12px; padding: 10px 12px; } .stat b { display: block; font-size: 22px; } .stat small { color: var(--muted); }
+.msg { padding: 12px 14px; border-radius: 12px; margin: 12px 0; } .msg.bad { background: rgba(255, 138, 128, .12); color: var(--bad); } .msg.ok { background: rgba(127, 214, 164, .12); color: var(--ok); }
+.hidden { display: none; }
+footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
+</style>
+<body>
+<main>
+  <div class="logo">Chacklate Chess <small>Parents</small></div>
+  <div id="msg" role="status" aria-live="polite"></div>
+
+  <!-- Consent: opened from the email link -->
+  <section id="consent" class="hidden">
+    <div class="eyebrow">Permission request</div>
+    <h1 id="c-title">Your child would like to play online</h1>
+    <p class="muted">Chacklate Chess works offline without any of this. Online play, saving progress to an account, reminders and purchases need your permission first.</p>
+    <div class="card">
+      <h2>What we keep</h2>
+      <ul class="keep">
+        <li>A player name we generate (like <i>BraveOtter42</i>). Children cannot type their own, so it never holds a real name.</li>
+        <li>A password, stored as a salted hash.</li>
+        <li>Birth month and year, to know which rules apply. Never the day.</li>
+        <li>Games, ratings and lesson progress.</li>
+        <li>Your email address, so you can sign in here. We do not ask for your child's email.</li>
+      </ul>
+      <h2 style="margin-top:16px">What we never do</h2>
+      <ul class="keep">
+        <li>No advertising, no ad tracking, no third-party analytics.</li>
+        <li>No chat of any kind. Players cannot message each other.</li>
+        <li>No selling or sharing of data. No location, contacts, camera or microphone.</li>
+        <li>Children only meet other young players online. Friends join by a short code you can see.</li>
+      </ul>
+      <p class="muted">Full details are in the <a href="/privacy" target="_blank" rel="noopener">privacy policy</a>.</p>
+    </div>
+    <form id="c-form" class="card">
+      <h2>Choose what they can do</h2>
+      <label class="check"><input type="checkbox" id="c-online" checked> Play online against other young players</label>
+      <label class="check"><input type="checkbox" id="c-rated" checked> Rated games (a rating that goes up and down)</label>
+      <label class="check" id="c-open-row"><input type="checkbox" id="c-open"> Also play adults (teenagers only)</label>
+      <label class="check"><input type="checkbox" id="c-rem"> A daily puzzle reminder on this device</label>
+      <label for="c-min">Daily time limit</label>
+      <select id="c-min"><option value="0">No limit</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1 hour 30</option><option value="120">2 hours</option></select>
+      <label for="c-buy">Purchases</label>
+      <select id="c-buy"><option value="pin">Only with my PIN</option><option value="off">Off</option></select>
+
+      <h2 style="margin-top:22px">Your parent account</h2>
+      <p class="muted">You can change these choices, download your child's data or delete the account at any time from this page.</p>
+      <label for="c-email">Your email</label><input id="c-email" type="email" autocomplete="email" required>
+      <label for="c-pass">Password (at least 8 characters)</label><input id="c-pass" type="password" autocomplete="new-password" required>
+      <div id="c-pin-row"><label for="c-pin">Purchase PIN (4 to 6 digits, keep it from your child)</label><input id="c-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6"></div>
+      <label class="check"><input type="checkbox" id="c-agree"> I am this child's parent or legal guardian, and I give permission for the choices above.</label>
+      <div class="row"><button class="btn primary" type="submit">Give permission</button></div>
+      <p class="muted" style="font-size:14px">Already have a parent account for another child? Use the same email and password; the PIN stays as it is.</p>
+    </form>
+  </section>
+
+  <!-- Sign in -->
+  <section id="login" class="hidden">
+    <h1>Parent sign in</h1>
+    <p class="muted">See your children's activity and change what they can do.</p>
+    <form id="l-form" class="card">
+      <label for="l-email">Email</label><input id="l-email" type="email" autocomplete="email" required>
+      <label for="l-pass">Password</label><input id="l-pass" type="password" autocomplete="current-password" required>
+      <div class="row"><button class="btn primary" type="submit">Sign in</button></div>
+    </form>
+    <p class="muted">No parent account yet? It is made when you follow the permission link your child sends from the game.</p>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="dash" class="hidden">
+    <h1>Your family</h1>
+    <p class="muted" id="d-email"></p>
+    <div id="d-kids"></div>
+    <div class="card">
+      <h2>Your account</h2>
+      <form id="p-form">
+        <label for="p-pin">New purchase PIN</label><input id="p-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
+        <label for="p-pass">Your password</label><input id="p-pass" type="password" autocomplete="current-password">
+        <div class="row"><button class="btn" type="submit">Change PIN</button></div>
+      </form>
+      <div class="row"><button class="btn" id="d-out">Sign out</button><button class="btn danger" id="d-close">Withdraw permission and close everything</button></div>
+    </div>
+  </section>
+
+  <footer>Chacklate Chess · <a href="/privacy">Privacy for families</a> · <a href="/">Home</a></footer>
+</main>
+<script>
+'use strict';
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const KEY = 'chacklate-parent';
+  let token = ''; try { token = sessionStorage.getItem(KEY) || ''; } catch (e) { token = ''; }
+  const setToken = (t) => { token = t || ''; try { if (t) sessionStorage.setItem(KEY, t); else sessionStorage.removeItem(KEY); } catch (e) { /* this tab only */ } };
+
+  async function api(path, body) {
+    const r = await fetch(path, { method: 'POST', headers: Object.assign({ 'content-type': 'application/json' }, token ? { authorization: 'Parent ' + token } : {}), body: JSON.stringify(body || {}) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(j.error || 'Something went wrong.'); e.status = r.status; throw e; }
+    return j;
+  }
+  function say(text, kind) { $('msg').innerHTML = text ? '<div class="msg ' + (kind || 'ok') + '">' + esc(text) + '</div>' : ''; if (text) window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  function show(id) { for (const s of ['consent', 'login', 'dash']) $(s).classList.toggle('hidden', s !== id); }
+
+  // ---------------------------------------------------------------- consent
+  const hash = new URLSearchParams(location.hash.slice(1));
+  const consentToken = hash.get('consent');
+  async function openConsent() {
+    show('consent');
+    try {
+      const info = await api('/api/parent/consent-info', { token: consentToken });
+      $('c-title').textContent = info.name + ' would like to play online';
+      $('c-open-row').classList.toggle('hidden', info.band !== 'teen');
+      $('c-min').value = String(info.defaults.dailyMinutes || 0);
+    } catch (e) { $('c-form').classList.add('hidden'); say(e.message, 'bad'); }
+  }
+  $('c-form').onsubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const r = await api('/api/parent/consent', {
+        token: consentToken, agree: $('c-agree').checked, email: $('c-email').value.trim(), password: $('c-pass').value, pin: $('c-pin').value,
+        controls: { online: $('c-online').checked, rated: $('c-rated').checked, openPool: $('c-open').checked, reminders: $('c-rem').checked, dailyMinutes: +$('c-min').value, purchases: $('c-buy').value },
+      });
+      setToken(r.token);
+      history.replaceState(null, '', '/parent');
+      say('Thank you. ' + r.child.name + ' can now play with the choices you made.');
+      dashboard();
+    } catch (err) { say(err.message, 'bad'); }
+  };
+
+  // ---------------------------------------------------------------- sign in
+  $('l-form').onsubmit = async (e) => {
+    e.preventDefault();
+    try { const r = await api('/api/parent/login', { email: $('l-email').value.trim(), password: $('l-pass').value }); setToken(r.token); say(''); dashboard(); }
+    catch (err) { say(err.message, 'bad'); }
+  };
+
+  // ---------------------------------------------------------------- dashboard
+  const ago = (t) => { if (!t) return 'never'; const d = Math.floor((Date.now() - t) / 86400e3); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago'; };
+  const tick = (id, on, text) => '<label class="check"><input type="checkbox" data-c="' + id + '"' + (on ? ' checked' : '') + '> ' + text + '</label>';
+  function kidCard(k) {
+    const c = k.controls, a = k.activity;
+    const mins = [0, 20, 30, 45, 60, 90, 120];
+    return '<div class="card" data-kid="' + k.id + '"><div class="eyebrow">' + (k.band === 'teen' ? 'Teen' : 'Child') + ' account</div><h2>' + esc(k.name) + '</h2>' +
+      '<div class="stats"><div class="stat"><b>' + a.onlineGamesThisWeek + '</b><small>Online games this week</small></div><div class="stat"><b>' + a.onlineGames + '</b><small>Online games in all</small></div>' +
+      '<div class="stat"><b>' + a.lessonsDone + '</b><small>Lessons done</small></div><div class="stat"><b>' + esc(ago(a.lastOnline)) + '</b><small>Last online game</small></div></div>' +
+      tick('online', c.online, 'Play online against other young players') + tick('rated', c.rated, 'Rated games') +
+      (k.band === 'teen' ? tick('openPool', c.openPool, 'Also play adults') : '') + tick('reminders', c.reminders, 'Daily puzzle reminder') +
+      '<label>Daily time limit</label><select data-c="dailyMinutes">' + mins.map((m) => '<option value="' + m + '"' + (c.dailyMinutes === m ? ' selected' : '') + '>' + (m ? m + ' minutes' : 'No limit') + '</option>').join('') + '</select>' +
+      '<label>Purchases</label><select data-c="purchases"><option value="pin"' + (c.purchases === 'pin' ? ' selected' : '') + '>Only with my PIN</option><option value="off"' + (c.purchases === 'off' ? ' selected' : '') + '>Off</option></select>' +
+      '<div class="row"><button class="btn" data-act="export">Download their data</button><button class="btn danger" data-act="delete">Delete this account</button></div></div>';
+  }
+  async function dashboard() {
+    if (!token) { show('login'); return; }
+    let me;
+    try { me = await api('/api/parent/me'); }
+    catch (e) { if (e.status === 401) { setToken(''); show('login'); } else say(e.message, 'bad'); return; }
+    show('dash');
+    $('d-email').textContent = 'Signed in as ' + me.email;
+    $('d-kids').innerHTML = me.children.length ? me.children.map(kidCard).join('') : '<div class="card muted">No children linked yet.</div>';
+    document.querySelectorAll('[data-kid]').forEach((card) => {
+      const id = +card.dataset.kid;
+      card.querySelectorAll('[data-c]').forEach((el) => {
+        el.onchange = async () => {
+          const v = el.type === 'checkbox' ? el.checked : el.dataset.c === 'dailyMinutes' ? +el.value : el.value;
+          try { await api('/api/parent/controls', { child: id, controls: { [el.dataset.c]: v } }); say('Saved. It applies on their device straight away.'); }
+          catch (e) { say(e.message, 'bad'); }
+        };
+      });
+      card.querySelector('[data-act=export]').onclick = async () => {
+        try {
+          const data = await api('/api/parent/export', { child: id });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+          a.download = 'chacklate-' + data.name + '.json'; a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        } catch (e) { say(e.message, 'bad'); }
+      };
+      card.querySelector('[data-act=delete]').onclick = async () => {
+        const pw = prompt('This deletes the account, its games and progress for good. Enter your password to confirm.');
+        if (!pw) return;
+        try { await api('/api/parent/delete', { child: id, password: pw }); say('The account was deleted.'); dashboard(); }
+        catch (e) { say(e.message, 'bad'); }
+      };
+    });
+  }
+  $('p-form').onsubmit = async (e) => {
+    e.preventDefault();
+    try { await api('/api/parent/pin', { pin: $('p-pin').value, password: $('p-pass').value }); $('p-pin').value = $('p-pass').value = ''; say('PIN changed.'); }
+    catch (err) { say(err.message, 'bad'); }
+  };
+  $('d-out').onclick = async () => { try { await api('/api/parent/logout'); } catch (e) { /* signed out here anyway */ } setToken(''); say(''); show('login'); };
+  $('d-close').onclick = async () => {
+    const pw = prompt('This withdraws your permission, deletes every linked child account and closes your parent account. Enter your password to confirm.');
+    if (!pw) return;
+    try { await api('/api/parent/close', { password: pw }); setToken(''); say('Everything was deleted. Thank you for trying Chacklate Chess.'); show('login'); }
+    catch (e) { say(e.message, 'bad'); }
+  };
+
+  if (consentToken) openConsent(); else dashboard();
+})();
+</script>
+</body>
+</html>

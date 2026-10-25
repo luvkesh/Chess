@@ -35,6 +35,19 @@ dotnet run -c Release
 CHACKLATE_SERVER=ws://127.0.0.1:8080/ws dotnet run -c Release
 ```
 
+## Unity Cloud project
+
+The project is linked to the Unity Cloud project **Chess** (project ID `b6fd69f8-9193-4b5b-9026-204352ecf4d4`) through `ProjectSettings/ProjectSettings.asset`. Unity fills in the rest of that file the first time the editor opens it; commit the result. If the editor asks you to link the project, pick the same project and organisation.
+
+The project is marked as **directed to children** (COPPA). That means:
+
+- no personalised ads and no ad identifiers;
+- Unity Analytics must stay in its child-directed mode, without collecting device identifiers;
+- no open text chat between players (the game only has preset reactions);
+- any sign-up that collects an email needs parental consent for players under 13.
+
+Firebase is not linked, and none of this needs it.
+
 ## Open in Unity
 
 1. Open `apps/unity` with Unity Hub.

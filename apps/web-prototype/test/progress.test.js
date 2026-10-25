@@ -31,6 +31,12 @@ assert.strictEqual(s.streak.count, 3);
 assert(s.achievements['streak-3']);
 PG.gameFinished(s, Object.assign({}, win, { plies: 60 }), day(6));
 assert.strictEqual(s.streak.count, 1);
+// One missed day a week is forgiven; a second one inside the same week is not.
+s = PG.fresh();
+for (const d of [1, 2, 4]) PG.gameFinished(s, Object.assign({}, win, { plies: 60 }), day(d));
+assert.strictEqual(s.streak.count, 3, 'shield covers one missed day');
+PG.gameFinished(s, Object.assign({}, win, { plies: 60 }), day(6));
+assert.strictEqual(s.streak.count, 1, 'only one shield a week');
 
 // Puzzle rating moves toward the result and never below 100.
 s = PG.fresh();

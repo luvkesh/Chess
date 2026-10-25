@@ -1,7 +1,8 @@
 'use strict';
 // Web Push without dependencies: VAPID (RFC 8292) and aes128gcm payload encryption (RFC 8291).
 // The only reminder today is the daily one: at the hour a player picks, if they have not played
-// yet that day, nudge them about their streak or the daily puzzle.
+// yet that day, mention the daily puzzle. The copy stays calm on purpose: no deadlines, no
+// "you'll lose your streak" guilt, because most players are children.
 const crypto = require('node:crypto');
 
 const b64u = (buf) => Buffer.from(buf).toString('base64url');
@@ -95,7 +96,7 @@ function create(db, opts) {
     const streak = p && p.streak ? p.streak : { count: 0, last: '' };
     if (streak.last === day) return null;
     const yesterday = new Date(Date.parse(day) - 86400e3).toISOString().slice(0, 10);
-    if (streak.count >= 2 && streak.last === yesterday) return { title: 'Keep your ' + streak.count + '-day streak', body: 'It ends at midnight. One puzzle keeps it alive.', tag: 'daily', url: '/play' };
+    if (streak.count >= 2 && streak.last === yesterday) return { title: 'Today\'s puzzle is ready', body: 'You have played ' + streak.count + ' days in a row. A new puzzle is here whenever you like.', tag: 'daily', url: '/play' };
     return { title: 'Today\'s puzzle is ready', body: 'Three daily missions and a fresh puzzle are waiting.', tag: 'daily', url: '/play' };
   }
 
@@ -110,6 +111,7 @@ function create(db, opts) {
       for (const s of db.all('SELECT p.*, u.progress, u.banned FROM push_subs p JOIN users u ON u.id = p.user_id')) {
         const day = localDay(t, s.tz);
         if (s.banned || s.last_day === day || localHour(t, s.tz) !== s.hour) continue;
+        if (opts.allowed && !opts.allowed(s.user_id)) continue;
         db.run('UPDATE push_subs SET last_day = ? WHERE id = ?', day, s.id);
         const msg = reminderFor(s, day);
         if (!msg) continue;

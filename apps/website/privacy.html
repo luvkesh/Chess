@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy for families · Chacklate Chess</title>
+<meta name="description" content="How Chacklate Chess protects children's privacy: what we keep, what we never do, and how parents stay in control.">
+<meta name="theme-color" content="#120c0a">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #120c0a; --panel: rgba(255, 240, 225, 0.05); --line: rgba(255, 235, 215, 0.12);
+  --ink: #f6ece2; --muted: #c0ad9f; --gold: #e3b25a;
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: radial-gradient(1000px 600px at 70% -10%, #3a1d14 0%, transparent 60%), var(--bg); color: var(--ink); font: 17px/1.65 var(--sans); }
+a { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+main { max-width: 760px; margin: 0 auto; padding: 32px 16px 80px; }
+.logo { font: 400 24px/1 var(--display); text-decoration: none; color: var(--ink); }
+h1 { font: 400 clamp(32px, 6vw, 48px)/1.1 var(--display); margin: 28px 0 8px; }
+h2 { font: 400 26px/1.2 var(--display); margin: 36px 0 8px; }
+h3 { font-size: 17px; margin: 20px 0 4px; }
+.muted { color: var(--muted); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; } th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--gold); font-weight: 650; }
+.scroll { overflow-x: auto; }
+</style>
+<body>
+<main>
+  <a class="logo" href="/">Chacklate Chess</a>
+  <h1>Privacy for families</h1>
+  <p class="muted">Last updated 25 October 2026. Beta version: the operator details marked below are filled in before public launch.</p>
+
+  <div class="card">
+    <b>The short version.</b> Chacklate Chess is made for children. It works fully offline with nothing collected at all. To play online, a parent says yes first. We keep only what the game needs, we never show ads, we use no third-party analytics or tracking, there is no chat, and a parent can see, download or delete everything at any time from the <a href="/parent">parent page</a>.
+  </div>
+
+  <h2>Who we are</h2>
+  <p>Chacklate Chess is operated by <b>[company name, registered address]</b> ("we"). Questions, requests and complaints go to <b>[privacy email]</b>. Our grievance officer under India's Digital Personal Data Protection Act, 2023 is <b>[name, email]</b>; we reply within 7 days and resolve within 30.</p>
+
+  <h2>Playing without an account</h2>
+  <p>Games against the computer, lessons, puzzles and the endgame dojo all run on the device. Progress is saved in the device's own storage and never leaves it. Nothing is sent to us, and no account, name or email is asked for.</p>
+
+  <h2>Accounts, ages and a parent's permission</h2>
+  <p>When someone makes an account, we ask for their birth month and year (never the day), in a neutral way that does not hint at a "right" answer. That decides which rules apply:</p>
+  <ul>
+    <li><b>Under 18</b> (under 13 counts as a child under the US COPPA rule; under 18 counts as a child under India's DPDP Act): the player picks a name we generate, such as <i>BraveOtter42</i>, and gives a parent's email. The account stays offline-only until the parent opens the link we send and gives verifiable permission by creating a parent account. If no parent responds within 7 days, the request expires and the parent's email is not used again.</li>
+    <li><b>18 and over</b>: a normal account. Names are checked for rude words and contact details.</li>
+  </ul>
+  <p>We do not ask a child for their own email address, phone number, photo, school or location.</p>
+
+  <h2>What we keep, and why</h2>
+  <div class="scroll"><table>
+    <tr><th>Data</th><th>Why</th><th>How long</th></tr>
+    <tr><td>Player name (generated for under-18s)</td><td>Shown to opponents in online games</td><td>Until the account is deleted</td></tr>
+    <tr><td>Password (salted hash only)</td><td>Signing in</td><td>Until the account is deleted</td></tr>
+    <tr><td>Birth month and year</td><td>Applying the right rules for the player's age</td><td>Until the account is deleted</td></tr>
+    <tr><td>Parent's email and password hash, purchase PIN hash</td><td>Permission, the parent page, approving purchases</td><td>Until the parent closes their account</td></tr>
+    <tr><td>Online games, ratings, lesson and puzzle progress</td><td>Playing, matchmaking and syncing progress between devices</td><td>Until the account is deleted</td></tr>
+    <tr><td>Purchases (product, amount, date)</td><td>Giving what was bought, and tax law</td><td>As long as tax law requires, then deleted</td></tr>
+    <tr><td>Reminder time and a push address, only if a parent allows reminders</td><td>Sending one calm daily puzzle reminder</td><td>Until reminders are turned off</td></tr>
+    <tr><td>IP address</td><td>Security and rate limits</td><td>Not stored with the account; kept in short-lived memory only</td></tr>
+  </table></div>
+
+  <h2>What we never do</h2>
+  <ul>
+    <li>No advertising of any kind, and no behavioural or targeted ads.</li>
+    <li>No third-party analytics, ad SDKs, social logins or tracking pixels.</li>
+    <li>No selling, renting or sharing of personal data.</li>
+    <li>No chat of any kind. Players cannot send each other messages.</li>
+    <li>No public profiles for under-18s, and they are not listed on public leaderboards.</li>
+    <li>No location, contacts, camera or microphone access.</li>
+    <li>No loot boxes, no paid random rewards, no countdown pressure and no messages that guilt a child into playing.</li>
+  </ul>
+
+  <h2>Playing with others</h2>
+  <p>Players under 18 are matched only with other young players. A parent of a teenager can allow games with adults. Friends play together by sharing a short code, which only works between players in the same group. Anyone can report a game, and a person reviews reports.</p>
+
+  <h2>Purchases</h2>
+  <p>The store sits behind a grown-up check. On an under-18 account, every purchase needs the parent's PIN, and a parent can turn purchases off entirely. Everything a player earns by playing stays theirs, even after a season ends.</p>
+
+  <h2>Who processes data for us</h2>
+  <p>We use a small number of service providers only to run the game: hosting for the game server, an email service to send the parent permission email, and a payment provider for purchases. They may use the data only to provide that service to us. The providers are named here before launch: <b>[hosting provider]</b>, <b>[email provider]</b>, <b>[payment provider]</b>. Voices in the game were recorded in advance and play from files; nothing a child says or types is sent anywhere.</p>
+
+  <h2>A parent's rights</h2>
+  <p>From the <a href="/parent">parent page</a>, a parent can at any time:</p>
+  <ul>
+    <li>see their child's activity and change what the child can do;</li>
+    <li>download all the data we hold about their child;</li>
+    <li>delete the child's account, which removes their games, progress and ratings;</li>
+    <li>withdraw permission, which deletes every linked child account and the parent account.</li>
+  </ul>
+  <p>You can also write to <b>[privacy email]</b> to ask for any of these, to correct something, or to complain. In India you may also complain to the Data Protection Board of India.</p>
+
+  <h2>Security</h2>
+  <p>Passwords and PINs are stored only as salted hashes. Connections are encrypted. Purchase PINs lock after repeated wrong guesses. Access to the moderation tools is limited to named staff, and every staff action is logged.</p>
+
+  <h2>Changes</h2>
+  <p>If we change how we handle children's data in a way that matters, we ask parents again before it applies.</p>
+
+  <p class="muted" style="margin-top:40px"><a href="/">Home</a> · <a href="/parent">Parent page</a></p>
+</main>
+</body>
+</html>

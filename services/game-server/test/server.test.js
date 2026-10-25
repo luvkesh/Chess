@@ -130,16 +130,16 @@ test('accounts: register keeps guest history, login, leaderboard, profile', asyn
     await g.white.next('end');
     const whiteWelcome = g.white === g.a ? g.wa : g.wb;
 
-    const bad = await call(port, 'POST', '/api/register', { name: 'x', password: 'short' }, whiteWelcome.token);
+    const bad = await call(port, 'POST', '/api/register', { name: 'x', password: 'short', birthYear: 1990, birthMonth: 6 }, whiteWelcome.token);
     assert.strictEqual(bad.status, 400);
-    const reserved = await call(port, 'POST', '/api/register', { name: 'ChacklateAdmin', password: 'long enough pw' }, whiteWelcome.token);
+    const reserved = await call(port, 'POST', '/api/register', { name: 'ChacklateAdmin', password: 'long enough pw', birthYear: 1990, birthMonth: 6 }, whiteWelcome.token);
     assert.strictEqual(reserved.status, 400);
-    const reg = await call(port, 'POST', '/api/register', { name: 'Truffle', password: 'long enough pw' }, whiteWelcome.token);
+    const reg = await call(port, 'POST', '/api/register', { name: 'Truffle', password: 'long enough pw', birthYear: 1990, birthMonth: 6 }, whiteWelcome.token);
     assert.strictEqual(reg.status, 200);
     assert.strictEqual(reg.body.user.guest, false);
     assert.strictEqual(reg.body.ratings.blitz.games, 1);
     assert.ok(reg.body.ratings.blitz.rating > 1500);
-    const dup = await call(port, 'POST', '/api/register', { name: 'truffle', password: 'long enough pw' });
+    const dup = await call(port, 'POST', '/api/register', { name: 'truffle', password: 'long enough pw', birthYear: 1990, birthMonth: 6 });
     assert.strictEqual(dup.status, 409);
 
     assert.strictEqual((await call(port, 'POST', '/api/login', { name: 'TRUFFLE', password: 'wrong password' })).status, 401);
@@ -284,7 +284,7 @@ test('players can report an opponent from a finished game', async () => {
 async function shop(payments) {
   const app = createServer({ adminEmail: 'owner@example.com', adminPassword: 'correct horse battery', log: () => {}, payments });
   const port = await app.listen(0, '127.0.0.1');
-  const reg = await call(port, 'POST', '/api/register', { name: 'buyer', password: 'a long password' });
+  const reg = await call(port, 'POST', '/api/register', { name: 'buyer', password: 'a long password', birthYear: 1990, birthMonth: 6 });
   const admin = (await call(port, 'POST', '/api/admin/login', { email: 'owner@example.com', password: 'correct horse battery' })).body.token;
   return { app, port, token: reg.body.token, uid: reg.body.user.id, admin };
 }
@@ -325,7 +325,7 @@ test('store: closed by default, guests cannot buy, dev purchases grant and stack
     assert.strictEqual(me.body.entitlements.premium, true);
 
     // Someone else's order cannot be completed with your token.
-    const other = await call(s.port, 'POST', '/api/register', { name: 'other', password: 'a long password' });
+    const other = await call(s.port, 'POST', '/api/register', { name: 'other', password: 'a long password', birthYear: 1990, birthMonth: 6 });
     const o = await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.lifetime' }, s.token);
     assert.strictEqual((await call(s.port, 'POST', '/api/store/dev/complete', { order: o.body.order }, other.body.token)).status, 404);
     // Completing twice grants once.
@@ -359,7 +359,7 @@ test('store: external provider webhooks must be signed', async () => {
   const crypto = require('node:crypto');
   const s = await shop({ mode: 'external', secret: 'whsec_test', checkoutUrl: 'https://pay.example.com/c?o={order}' });
   try {
-    assert.strictEqual((await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.monthly' }, s.token)).status, 409, 'no price yet');
+    assert.strictEqual((await call(s.port, 'POST', '/api/store/checkout', { product: 'no.such.thing' }, s.token)).status, 404, 'unknown product');
     const o = await call(s.port, 'POST', '/api/store/checkout', { product: 'premium.lifetime' }, s.token);
     assert.strictEqual(o.body.action.url, 'https://pay.example.com/c?o=' + o.body.order);
     assert.strictEqual((await call(s.port, 'POST', '/api/store/dev/complete', { order: o.body.order }, s.token)).status, 404);
@@ -404,7 +404,7 @@ test('web push: RFC 8291 test vector, VAPID signature, daily reminders once per 
   try {
     const keyRes = await call(port, 'GET', '/api/push/key');
     assert.strictEqual(u(keyRes.body.publicKey).length, 65);
-    const reg = await call(port, 'POST', '/api/register', { name: 'pusher', password: 'a long password' });
+    const reg = await call(port, 'POST', '/api/register', { name: 'pusher', password: 'a long password', birthYear: 1990, birthMonth: 6 });
     const ua = crypto.createECDH('prime256v1'); ua.generateKeys();
     const sub = (endpoint) => ({ endpoint, keys: { p256dh: ua.getPublicKey().toString('base64url'), auth: crypto.randomBytes(16).toString('base64url') } });
     assert.strictEqual((await call(port, 'POST', '/api/push/subscribe', { subscription: sub('http://insecure.example.com/x'), hour: 19, tz: 330 }, reg.body.token)).status, 400);
@@ -417,11 +417,12 @@ test('web push: RFC 8291 test vector, VAPID signature, daily reminders once per 
     assert.match(sent[0].msg.title, /puzzle/);
     assert.strictEqual(app.db.get('SELECT COUNT(*) n FROM push_subs').n, 1, 'a 410 removes the subscription');
     assert.strictEqual(await app.push.tick(), 0, 'once per day');
-    // Next day, with a streak running and no play yet: the streak message.
+    // Next day, with a streak running and no play yet: a calm mention of it, no deadline.
     clock += 86400e3;
     app.db.run('UPDATE users SET progress = ? WHERE id = ?', JSON.stringify({ streak: { count: 4, last: '2026-11-02' } }), reg.body.user.id);
     await app.push.tick();
-    assert.match(sent[sent.length - 1].msg.title, /4-day streak/);
+    assert.match(sent[sent.length - 1].msg.body, /4 days in a row/);
+    assert.doesNotMatch(sent[sent.length - 1].msg.body, /midnight|lose|ends/i);
     // Already played today: no reminder.
     clock += 86400e3;
     app.db.run('UPDATE users SET progress = ? WHERE id = ?', JSON.stringify({ streak: { count: 5, last: '2026-11-04' } }), reg.body.user.id);
@@ -488,7 +489,7 @@ test('accounts: email verification, password reset and change, export and deleti
   const port = await app.listen(0, '127.0.0.1');
   const link = (re) => { const m = sent[sent.length - 1].text.match(re); assert.ok(m, sent[sent.length - 1].text); return m[1]; };
   try {
-    const reg = await call(port, 'POST', '/api/register', { name: 'mailer1', password: 'first password' });
+    const reg = await call(port, 'POST', '/api/register', { name: 'mailer1', password: 'first password', birthYear: 1990, birthMonth: 6 });
     const T = reg.body.token;
     assert.deepStrictEqual(reg.body.account, { email: null, emailVerified: false });
     // Guests cannot use account routes.
@@ -506,7 +507,7 @@ test('accounts: email verification, password reset and change, export and deleti
     assert.strictEqual(v2.headers.get('location'), '/play#email-invalid', 'links work once');
     assert.strictEqual((await call(port, 'GET', '/api/me', null, T)).body.account.emailVerified, true);
     // Another account cannot take the same address.
-    const other = await call(port, 'POST', '/api/register', { name: 'mailer2', password: 'other password' });
+    const other = await call(port, 'POST', '/api/register', { name: 'mailer2', password: 'other password', birthYear: 1990, birthMonth: 6 });
     assert.strictEqual((await call(port, 'POST', '/api/account/email', { email: 'player@example.com' }, other.body.token)).status, 409);
 
     // Forgot password: same answer for unknown accounts, a one-hour link for real ones.
@@ -543,6 +544,103 @@ test('accounts: email verification, password reset and change, export and deleti
     assert.strictEqual((await call(port, 'POST', '/api/login', { name: 'mailer1', password: 'third password' })).status, 401);
     assert.strictEqual((await call(port, 'GET', '/api/me', null, T2)).status, 401);
     // The name is free again.
-    assert.strictEqual((await call(port, 'POST', '/api/register', { name: 'mailer1', password: 'new owner pw' })).status, 200);
+    assert.strictEqual((await call(port, 'POST', '/api/register', { name: 'mailer1', password: 'new owner pw', birthYear: 1990, birthMonth: 6 })).status, 200);
+  } finally { await app.close(); }
+});
+
+test('children: age gate, safe names, parental consent, kids-only matchmaking, parent controls and PIN', async () => {
+  const sent = [];
+  const app = createServer({ log: () => {}, publicUrl: 'https://chess.example.com', payments: { mode: 'dev' }, mailer: { send: async (m) => { sent.push(m); return true; } } });
+  const port = await app.listen(0, '127.0.0.1');
+  const year = new Date().getUTCFullYear();
+  const P = async (path, body, token) => {
+    const res = await fetch('http://127.0.0.1:' + port + path, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { Authorization: 'Parent ' + token } : {}), body: JSON.stringify(body || {}) });
+    return { status: res.status, body: await res.json() };
+  };
+  try {
+    // An age is required, and a child cannot type a name or skip the parent email.
+    assert.strictEqual((await call(port, 'POST', '/api/register', { name: 'Kiddo', password: 'a long password' })).status, 400);
+    const typed = await call(port, 'POST', '/api/register', { name: 'RealName', password: 'a long password', birthYear: year - 9, birthMonth: 1, parentEmail: 'mum@example.com' });
+    assert.strictEqual(typed.status, 400); assert.ok(typed.body.needName);
+    const names = (await call(port, 'GET', '/api/names')).body.names;
+    assert.strictEqual(names.length, 6);
+    for (const n of names) assert.match(n, /^[A-Z][a-z]+[A-Z][a-z]+[1-9][0-9]$/);
+    assert.strictEqual((await call(port, 'POST', '/api/register', { name: names[0], password: 'a long password', birthYear: year - 9, birthMonth: 1 })).status, 400, 'parent email needed');
+    // Adults type names, and rude or contact-like ones are refused.
+    for (const bad of ['sh1thead', 'call9876543210', 'insta_me']) assert.strictEqual((await call(port, 'POST', '/api/register', { name: bad, password: 'a long password', birthYear: 1985, birthMonth: 3 })).status, 400, bad);
+    const adult = await call(port, 'POST', '/api/register', { name: 'GrownUp', password: 'a long password', birthYear: 1985, birthMonth: 3 });
+    assert.strictEqual(adult.body.safety.kind, 'adult');
+    assert.strictEqual(adult.body.safety.pool, 'open');
+
+    const kid = await call(port, 'POST', '/api/register', { name: names[0], password: 'a long password', birthYear: year - 9, birthMonth: 1, parentEmail: 'Mum@Example.com' });
+    assert.strictEqual(kid.status, 200);
+    assert.deepStrictEqual([kid.body.safety.kind, kid.body.safety.band, kid.body.safety.consent], ['minor', 'child', false]);
+    const mail = sent.pop();
+    assert.strictEqual(mail.to, 'Mum@Example.com');
+    const ct = mail.text.match(/https:\/\/chess\.example\.com\/parent#consent=(\S+)/)[1];
+
+    // Before consent: no online play, no reminders, no purchases, no public profile, no account email.
+    const k = await client(port, kid.body.token); await k.next('welcome');
+    k.send({ type: 'seek', tc: '5+3' });
+    assert.match((await k.next('error')).message, /parent needs to say yes/);
+    assert.strictEqual((await call(port, 'POST', '/api/push/subscribe', { subscription: {}, hour: 17, tz: 330 }, kid.body.token)).status, 403);
+    assert.strictEqual((await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly' }, kid.body.token)).status, 403);
+    assert.strictEqual((await call(port, 'GET', '/api/players/' + names[0])).status, 404);
+    assert.strictEqual((await call(port, 'POST', '/api/account/email', { email: 'kid@example.com' }, kid.body.token)).status, 403);
+
+    // The parent reads what is asked, then says yes and sets up their account and PIN.
+    const info = await P('/api/parent/consent-info', { token: ct });
+    assert.deepStrictEqual([info.body.name, info.body.band], [names[0], 'child']);
+    assert.strictEqual((await P('/api/parent/consent', { token: ct, email: 'mum@example.com', password: 'parent password', pin: '2468' })).status, 400, 'must tick the box');
+    const yes = await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468', controls: { reminders: false, dailyMinutes: 45 } });
+    assert.strictEqual(yes.status, 200);
+    const PT = yes.body.token;
+    assert.strictEqual((await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468' })).status, 400, 'link is single use');
+    const safety = await k.next('safety');
+    assert.deepStrictEqual([safety.safety.consent, safety.safety.online, safety.safety.pool, safety.safety.dailyMinutes], [true, null, 'kids', 45]);
+
+    // Kids are matched with kids and guests, never with adults, not even by friend code.
+    const g = await client(port); await g.next('welcome');
+    const a = await client(port, adult.body.token); await a.next('welcome');
+    a.send({ type: 'seek', tc: '3+2' }); k.send({ type: 'seek', tc: '3+2' });
+    await new Promise((r) => setTimeout(r, 1300));
+    g.send({ type: 'seek', tc: '3+2' });
+    const ks = await k.next('start');
+    assert.strictEqual(ks.opponent.guest, true, 'the child met the guest, not the adult');
+    k.send({ type: 'resign' }); await k.next('end');
+    a.send({ type: 'cancel' });
+    a.send({ type: 'friend-create', tc: '10+0' });
+    const code = (await a.next('friend-code')).code;
+    k.send({ type: 'friend-join', code });
+    assert.match((await k.next('error')).message, /different group/);
+
+    // Purchases need the parent's PIN; the parent can turn online play off.
+    assert.strictEqual((await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '1111' }, kid.body.token)).status, 403);
+    assert.strictEqual((await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '2468' }, kid.body.token)).status, 200);
+    // Five wrong PINs lock purchases, even for the right PIN, so it cannot be guessed.
+    for (let i = 0; i < 5; i++) await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '000' + i }, kid.body.token);
+    const locked = await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '2468' }, kid.body.token);
+    assert.strictEqual(locked.status, 403);
+    assert.match(locked.body.error, /Too many/);
+    // The parent page and the privacy policy are served.
+    for (const page of ['/parent', '/privacy']) assert.strictEqual((await fetch('http://127.0.0.1:' + port + page)).status, 200, page);
+    const me = await P('/api/parent/me', {}, PT);
+    assert.strictEqual(me.body.children.length, 1);
+    assert.strictEqual(me.body.children[0].activity.onlineGames, 1);
+    assert.strictEqual((await P('/api/parent/controls', { child: me.body.children[0].id, controls: { online: false } }, PT)).status, 200);
+    assert.match((await k.next('safety')).safety.online, /turned online play off/);
+    k.send({ type: 'seek', tc: '5+3' });
+    assert.match((await k.next('error')).message, /turned online play off/);
+    // The parent can export and delete the child's data.
+    const exp = await P('/api/parent/export', { child: me.body.children[0].id }, PT);
+    assert.strictEqual(exp.body.name, names[0]);
+    assert.strictEqual(exp.body.games.length, 1);
+    assert.strictEqual((await P('/api/parent/delete', { child: me.body.children[0].id, password: 'wrong' }, PT)).status, 401);
+    assert.strictEqual((await P('/api/parent/delete', { child: me.body.children[0].id, password: 'parent password' }, PT)).status, 200);
+    assert.strictEqual((await P('/api/parent/me', {}, PT)).body.children.length, 0);
+    assert.strictEqual((await call(port, 'POST', '/api/login', { name: names[0], password: 'a long password' })).status, 401);
+    // Player tokens do not work on parent routes.
+    assert.strictEqual((await call(port, 'POST', '/api/parent/me', {}, adult.body.token)).status, 401);
+    for (const c of [g, a]) c.close();
   } finally { await app.close(); }
 });

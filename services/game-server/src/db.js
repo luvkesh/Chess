@@ -99,7 +99,7 @@ CREATE INDEX IF NOT EXISTS fairplay_user ON fairplay(user_id, created);
 CREATE TABLE IF NOT EXISTS account_tokens (
   hash TEXT PRIMARY KEY,             -- sha256 of the emailed token
   user_id INTEGER NOT NULL,
-  kind TEXT NOT NULL,                -- verify | reset
+  kind TEXT NOT NULL,                -- verify | reset | consent
   expires INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS push_subs (
@@ -111,6 +111,20 @@ CREATE TABLE IF NOT EXISTS push_subs (
   tz INTEGER NOT NULL,               -- minutes east of UTC
   last_day TEXT,                     -- local date of the last reminder
   created INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS parents (
+  id INTEGER PRIMARY KEY,
+  email TEXT NOT NULL,
+  email_key TEXT UNIQUE NOT NULL,
+  pass TEXT NOT NULL,                -- scrypt, like player passwords
+  pin TEXT,                          -- scrypt of the purchase PIN
+  created INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS parent_sessions (
+  token TEXT PRIMARY KEY,
+  parent_id INTEGER NOT NULL REFERENCES parents(id),
+  created INTEGER NOT NULL,
+  seen INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS config (
   key TEXT PRIMARY KEY,
@@ -134,7 +148,9 @@ function open(file) {
   db.exec(SCHEMA);
   // Columns added after the first release; ALTER keeps existing databases working.
   const have = new Set(db.prepare('PRAGMA table_info(users)').all().map((c) => c.name));
-  for (const [col, def] of [['email', 'TEXT'], ['email_key', 'TEXT'], ['email_verified', 'INTEGER NOT NULL DEFAULT 0'], ['deleted', 'INTEGER']]) {
+  for (const [col, def] of [['email', 'TEXT'], ['email_key', 'TEXT'], ['email_verified', 'INTEGER NOT NULL DEFAULT 0'], ['deleted', 'INTEGER'],
+    // Children's safety (src/family.js): birth month 'YYYY-MM', band child|teen|adult, consent time, parent controls.
+    ['birth_ym', 'TEXT'], ['age_band', 'TEXT'], ['parent_id', 'INTEGER'], ['consent', 'INTEGER'], ['controls', 'TEXT']]) {
     if (!have.has(col)) db.exec('ALTER TABLE users ADD COLUMN ' + col + ' ' + def);
   }
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_email ON users(email_key)');
