@@ -622,8 +622,8 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     const locked = await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '2468' }, kid.body.token);
     assert.strictEqual(locked.status, 403);
     assert.match(locked.body.error, /Too many/);
-    // The parent page and the privacy policy are served.
-    for (const page of ['/parent', '/privacy']) assert.strictEqual((await fetch('http://127.0.0.1:' + port + page)).status, 200, page);
+    // The parent page, the privacy policy and the terms are served.
+    for (const page of ['/parent', '/privacy', '/terms']) assert.strictEqual((await fetch('http://127.0.0.1:' + port + page)).status, 200, page);
     const me = await P('/api/parent/me', {}, PT);
     assert.strictEqual(me.body.children.length, 1);
     assert.strictEqual(me.body.children[0].activity.onlineGames, 1);
@@ -642,5 +642,25 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     // Player tokens do not work on parent routes.
     assert.strictEqual((await call(port, 'POST', '/api/parent/me', {}, adult.body.token)).status, 401);
     for (const c of [g, a]) c.close();
+  } finally { await app.close(); }
+});
+
+test('retention: accounts unused for two years are deleted, unless a purchase is still running', async () => {
+  const app = createServer({ log: () => {}, payments: { mode: 'dev' } });
+  const port = await app.listen(0, '127.0.0.1');
+  try {
+    const old = await call(port, 'POST', '/api/register', { name: 'sleepy', password: 'a long password', birthYear: 1990, birthMonth: 6 });
+    const paid = await call(port, 'POST', '/api/register', { name: 'payer', password: 'a long password', birthYear: 1990, birthMonth: 6 });
+    const fresh = await call(port, 'POST', '/api/register', { name: 'active', password: 'a long password', birthYear: 1990, birthMonth: 6 });
+    const longAgo = Date.now() - 800 * 86400e3;
+    app.db.run('UPDATE users SET seen = ? WHERE id IN (?, ?)', longAgo, old.body.user.id, paid.body.user.id);
+    app.db.run('INSERT INTO entitlements (user_id, key, source, granted, expires) VALUES (?, ?, ?, ?, NULL)', paid.body.user.id, 'premium', 'purchase', longAgo);
+    const r = app.family.purgeInactive();
+    assert.ok(r.players >= 1);
+    const row = (id) => app.db.get('SELECT name, deleted, birth_ym FROM users WHERE id = ?', id);
+    assert.ok(row(old.body.user.id).deleted, 'idle account deleted');
+    assert.strictEqual(row(old.body.user.id).birth_ym, null);
+    assert.ok(!row(paid.body.user.id).deleted, 'lifetime purchase kept');
+    assert.ok(!row(fresh.body.user.id).deleted, 'recent account kept');
   } finally { await app.close(); }
 });

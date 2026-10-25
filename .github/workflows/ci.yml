@@ -74,7 +74,7 @@ jobs:
           docker run -d --name app -p 8080:8080 chacklate:ci
           for i in $(seq 1 30); do curl -sf localhost:8080/api/health && break; sleep 1; done
           curl -sf localhost:8080/api/health | grep '"ok":true'
-          for p in / /play /admin /parent /privacy /voice/index.json /sw.js /manifest.webmanifest /icons/icon-512.png; do curl -sf -o /dev/null "localhost:8080$p" || { echo "missing $p"; exit 1; }; done
+          for p in / /play /admin /parent /privacy /terms /voice/index.json /sw.js /manifest.webmanifest /icons/icon-512.png; do curl -sf -o /dev/null "localhost:8080$p" || { echo "missing $p"; exit 1; }; done
           docker exec app node src/cli.js backup /data/backups
           docker exec app sh -c 'ls /data/backups/chacklate-*.db'
       - name: Server log

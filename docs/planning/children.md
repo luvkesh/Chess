@@ -2,8 +2,8 @@
 
 Chacklate Chess is directed to children as its main audience (Unity Cloud project "Chess" is set to
 "directed to children" for COPPA). This page records what that means for the product, what is built,
-and what is left before launch. It is an engineering summary, not legal advice: a lawyer familiar
-with COPPA and India's DPDP Act should review it before public launch.
+and what is left before launch. There is no outside lawyer: the owner reviews the privacy policy and terms using the
+self-review checklist (linked below), which maps every line to the rule behind it.
 
 ## Rules we design to
 
@@ -48,6 +48,10 @@ kind. Under-18s have no public profile and are not on leaderboards.
 purchase and turning on reminders, for every player, as Apple requires. Under-18 purchases also
 need the parent's PIN on the server; five wrong PINs lock purchases for 15 minutes.
 
+**Retention.** Accounts unused for two years are deleted automatically unless a purchase is still
+running (`purgeInactive` in `family.js`, daily). Backups keep 14 days; server logs roll over at 30 MB.
+The privacy policy (`/privacy`) and terms (`/terms`) state these numbers.
+
 **No manipulative design.**
 - No loot boxes or paid random rewards; everything for sale is shown exactly.
 - No countdowns: seasons show an end date, not "3 days left".
@@ -81,9 +85,9 @@ types goes anywhere; the app never uses the microphone.
 
 ## Left before launch
 
-- Operator details in the privacy policy: company name and address, privacy email, grievance
-  officer, and the names of the hosting, email and payment providers.
-- A lawyer's review of the consent flow and the policy text.
-- Decide on a higher-assurance consent method for under-13s in the US (card check).
-- Retention: automatic deletion of accounts unused for 24 months (not built yet).
-- Admin console: show age band and consent status to moderators.
+- Operator details in the privacy policy and terms: company name and address, privacy and support
+  emails, grievance officer, refund window, the court city, and the names of the hosting, email
+  and payment providers.
+- The owner's self-review of `/privacy` and `/terms` against the checklist: [privacy and terms self-review](https://claude.ai/artifact/9KivLe9rw2K9jigVv6a817).
+- Decide on a higher-assurance consent method for under-13s in the US (card check), and whether to
+  join a COPPA safe harbour (kidSAFE or PRIVO).

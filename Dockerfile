@@ -11,7 +11,7 @@ WORKDIR /app
 # Only what the server reads at runtime. No npm install: there are no dependencies.
 COPY packages/chess-core/src packages/chess-core/src
 COPY packages/content/*.json packages/content/
-COPY apps/website/index.html apps/website/privacy.html apps/website/
+COPY apps/website/index.html apps/website/privacy.html apps/website/terms.html apps/website/
 COPY apps/parent/index.html apps/parent/
 COPY apps/admin/index.html apps/admin/
 COPY apps/web-prototype/dist apps/web-prototype/dist

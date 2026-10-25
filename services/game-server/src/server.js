@@ -24,6 +24,7 @@ const STATIC = {
   '/admin': path.join(ROOT, 'apps/admin/index.html'),
   '/parent': path.join(ROOT, 'apps/parent/index.html'),
   '/privacy': path.join(ROOT, 'apps/website/privacy.html'),
+  '/terms': path.join(ROOT, 'apps/website/terms.html'),
   // Installable app: manifest, service worker (served from the root so it can control /play) and icons.
   '/manifest.webmanifest': path.join(PUBLIC, 'manifest.webmanifest'),
   '/sw.js': path.join(PUBLIC, 'sw.js'),
@@ -58,6 +59,8 @@ function createServer(opts) {
   const mail = opts.mailer || mailer.create(Object.assign({ log: opts.log }, opts.mail));
   const accountApi = account.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
   const familyApi = family.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
+  const purgeTimer = setInterval(() => { try { familyApi.purgeInactive(); } catch (e) { (opts.log || console.log)('purge failed', e.message); } }, 24 * 3600e3);
+  purgeTimer.unref();
   const accountLimit = auth.limiter(20, 60000);
 
   if (opts.adminEmail && opts.adminPassword && !db.get('SELECT id FROM staff LIMIT 1')) {
@@ -210,9 +213,9 @@ function createServer(opts) {
 
   const sockets = ws.attach(server, '/ws', (s) => lobby.connect(s));
   return {
-    server, db, lobby, push: notify, fairplay: fair, mail,
+    server, db, lobby, push: notify, fairplay: fair, mail, family: familyApi,
     listen(port, host) { return new Promise((r) => server.listen(port, host, () => r(server.address().port))); },
-    close() { clearInterval(pushTimer); fair.stop(); lobby.stop(); sockets.stop(); return new Promise((r) => server.close(() => { db.close(); r(); })); },
+    close() { clearInterval(pushTimer); clearInterval(purgeTimer); fair.stop(); lobby.stop(); sockets.stop(); return new Promise((r) => server.close(() => { db.close(); r(); })); },
   };
 }
 
