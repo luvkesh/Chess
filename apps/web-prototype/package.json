@@ -1,9 +1,9 @@
 {
   "name": "@chacklate/web-prototype",
   "private": true,
-  "description": "Dependency-free browser prototype of Chacklate Chess (WebGL board, JS engine and AI)",
+  "description": "Dependency-free browser game: WebGL board, shared engine and coach, lessons, puzzles, progression and online client",
   "scripts": {
-    "test": "node test/engine.test.js",
+    "test": "node test/progress.test.js",
     "build": "python3 build.py"
   }
 }

@@ -1,0 +1,10 @@
+{
+  "name": "@chacklate/game-server",
+  "private": true,
+  "description": "Accounts, ratings, matchmaking, live games, leaderboards and the admin API. No dependencies; needs Node 22.5+.",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js"
+  }
+}

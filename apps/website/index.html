@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chacklate Chess</title>
+<meta name="description" content="Premium 3D chess with a coach that explains every move. Eight AI personalities, voice-guided lessons, puzzles and rated online play.">
+<meta name="theme-color" content="#120c0a">
+<meta property="og:title" content="Chacklate Chess">
+<meta property="og:description" content="Premium 3D chess with a coach that explains every move.">
+<meta property="og:type" content="website">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #120c0a; --bg-2: #1a110e; --panel: rgba(255, 240, 225, 0.045); --line: rgba(255, 235, 215, 0.1);
+  --ink: #f6ece2; --muted: #c0ad9f; --gold: #e3b25a; --gold-2: #f3d08a; --ruby: #d2466f; --ruby-2: #e8678e;
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: radial-gradient(1200px 700px at 70% -10%, #3a1d14 0%, transparent 60%), radial-gradient(900px 600px at -10% 30%, #2a130f 0%, transparent 60%), var(--bg); color: var(--ink); font: 17px/1.6 var(--sans); overflow-x: hidden; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+header.top { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(18, 12, 10, 0.7); border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.logo { font: 400 24px/1 var(--display); text-decoration: none; display: flex; align-items: baseline; gap: 8px; }
+.logo small { font: 700 10px/1 var(--sans); letter-spacing: .32em; color: var(--gold); text-transform: uppercase; }
+header nav { display: flex; gap: 22px; margin-left: auto; font-size: 15px; color: var(--muted); }
+header nav a { text-decoration: none; } header nav a:hover { color: var(--ink); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; font-weight: 650; text-decoration: none; border: 1px solid var(--line); background: var(--panel); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.btn:hover { transform: translateY(-1px); border-color: rgba(227, 178, 90, .45); }
+.btn.primary { background: linear-gradient(180deg, var(--ruby-2), var(--ruby)); border-color: transparent; box-shadow: 0 10px 30px rgba(210, 70, 111, .35); }
+.btn.small { padding: 8px 16px; font-size: 14px; }
+
+.hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding: 72px 0 40px; }
+.eyebrow { font: 700 12px/1 var(--sans); letter-spacing: .28em; text-transform: uppercase; color: var(--gold); }
+h1 { font: 400 clamp(46px, 6.4vw, 84px)/1.02 var(--display); margin: 16px 0 20px; letter-spacing: -0.01em; }
+h1 em { font-style: italic; color: var(--gold-2); }
+.lede { font-size: 20px; color: var(--muted); max-width: 34em; margin: 0 0 30px; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.note { color: var(--muted); font-size: 14px; margin-top: 14px; }
+
+/* The hero board: an isometric CSS board with a few pieces, lit like the game. */
+.stage { position: relative; aspect-ratio: 1 / 0.86; perspective: 1400px; }
+.board { position: absolute; inset: 8% 6% 12%; transform: rotateX(54deg) rotateZ(-38deg); transform-style: preserve-3d; border-radius: 10px;
+  background: #3b1f15; box-shadow: 0 60px 90px rgba(0,0,0,.6), 0 0 0 14px #4a281b, 0 0 0 15px rgba(227,178,90,.5), 0 0 0 22px #3a1f15; }
+.board .sq { position: absolute; width: 12.5%; height: 12.5%; }
+.board .l { background: linear-gradient(135deg, #f2dcb6, #e2c597); }
+.board .d { background: linear-gradient(135deg, #b0603a, #92492a); }
+.board .hl { box-shadow: inset 0 0 0 999px rgba(227,178,90,.45); }
+.glow { position: absolute; left: 50%; top: 46%; width: 70%; height: 50%; transform: translate(-50%, -50%); background: radial-gradient(closest-side, rgba(243,208,138,.22), transparent); filter: blur(10px); pointer-events: none; }
+.piece { position: absolute; font-size: clamp(34px, 5vw, 62px); line-height: 1; transform: translate(-50%, -88%); text-shadow: 0 18px 22px rgba(0,0,0,.55); transition: left .9s cubic-bezier(.5,0,.2,1), top .9s cubic-bezier(.5,0,.2,1); }
+.piece.w { color: #f4ead9; } .piece.b { color: #3a1c12; -webkit-text-stroke: 1px rgba(255,220,190,.18); }
+.bubble { position: absolute; right: 0; bottom: 4%; max-width: 300px; padding: 14px 16px; border-radius: 16px; background: rgba(30, 20, 16, .82); border: 1px solid var(--line); backdrop-filter: blur(10px); font-size: 15px; box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+.bubble b { color: var(--gold-2); display: block; font: 600 12px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 6px; }
+
+section { padding: 80px 0; }
+h2 { font: 400 clamp(34px, 4vw, 52px)/1.1 var(--display); margin: 12px 0 16px; }
+.sub { color: var(--muted); max-width: 40em; font-size: 18px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 26px; position: relative; overflow: hidden; }
+.card h3 { font: 400 25px/1.2 var(--display); margin: 14px 0 8px; }
+.card p { color: var(--muted); margin: 0; font-size: 16px; }
+.card .ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(145deg, rgba(227,178,90,.25), rgba(210,70,111,.18)); color: var(--gold-2); font-size: 22px; }
+
+.coach { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.transcript { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 10px; }
+.line { display: grid; grid-template-columns: 54px 1fr; gap: 12px; padding: 14px; border-radius: 14px; }
+.line + .line { border-top: 1px solid var(--line); }
+.line .mv { font: 600 15px/1.4 ui-monospace, Menlo, monospace; color: var(--gold-2); }
+.line .tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-bottom: 4px; }
+.tag.best { background: rgba(127,214,164,.15); color: #9fe6bd; } .tag.mistake { background: rgba(240,192,96,.16); color: #f3cf7c; } .tag.blunder { background: rgba(255,122,110,.16); color: #ff9a90; }
+.line p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+.opponents { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 36px; }
+.opp { padding: 18px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); }
+.opp b { font: 400 22px/1.2 var(--display); display: block; }
+.opp span { color: var(--muted); font-size: 14px; }
+.opp .lock { color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+.pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; }
+.plan { padding: 30px; border-radius: 24px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; }
+.plan.featured { border-color: rgba(227,178,90,.5); background: linear-gradient(180deg, rgba(227,178,90,.1), rgba(255,240,225,.03)); }
+.plan h3 { font: 400 28px/1 var(--display); margin: 0 0 6px; }
+.plan .price { font: 400 40px/1.1 var(--display); margin: 14px 0 4px; }
+.plan .price small { font: 400 15px/1 var(--sans); color: var(--muted); }
+.plan ul { list-style: none; padding: 0; margin: 18px 0 26px; display: grid; gap: 10px; color: var(--muted); font-size: 16px; }
+.plan li::before { content: "✓"; color: var(--gold); margin-right: 10px; }
+.plan .btn { margin-top: auto; justify-content: center; }
+
+details { border-bottom: 1px solid var(--line); padding: 18px 0; }
+summary { cursor: pointer; font: 400 22px/1.3 var(--display); list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+summary::after { content: "+"; color: var(--gold); } details[open] summary::after { content: "–"; }
+details p { color: var(--muted); margin: 12px 0 0; max-width: 46em; }
+footer { border-top: 1px solid var(--line); padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+footer .wrap > :last-child { margin-left: auto; }
+
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (max-width: 920px) {
+  .hero, .coach { grid-template-columns: 1fr; }
+  .hero { padding-top: 40px; }
+  .grid, .pricing { grid-template-columns: 1fr; }
+  .opponents { grid-template-columns: 1fr 1fr; }
+  header nav { display: none; }
+  .bubble { position: relative; right: auto; bottom: auto; margin: -30px auto 0; }
+}
+@media (max-width: 520px) { .wrap { padding: 0 16px; } .opponents { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } .piece { transition: none; } html { scroll-behavior: auto; } }
+</style>
+<body>
+<header class="top"><div class="wrap">
+  <a class="logo" href="#">Chacklate <small>Chess</small></a>
+  <nav aria-label="Sections"><a href="#coach">Coach</a><a href="#opponents">Opponents</a><a href="#learn">Learn</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+  <a class="btn primary small" href="/play">Play now</a>
+</div></header>
+
+<main>
+<div class="wrap hero">
+  <div>
+    <div class="eyebrow">Chess, beautifully made</div>
+    <h1>Every move, <em>explained.</em></h1>
+    <p class="lede">A hand-crafted 3D board, eight AI opponents with real personalities, and a coach that tells you why a move works in plain words. Learn from your first game to your first tournament.</p>
+    <div class="cta"><a class="btn primary" href="/play">Play free in your browser</a><a class="btn" href="#coach">See the coach</a></div>
+    <p class="note">No download, no sign-up. iPhone, iPad, Android, Mac and Windows apps are in development.</p>
+  </div>
+  <div class="stage" aria-hidden="true">
+    <div class="glow"></div>
+    <div class="board" id="board"></div>
+    <div class="bubble"><b>Coach</b><span id="say">Knight to f3 develops a piece and eyes the centre. A calm, strong start.</span></div>
+  </div>
+</div>
+
+<section id="coach" class="reveal"><div class="wrap coach">
+  <div>
+    <div class="eyebrow">The coach</div>
+    <h2>Feedback that sounds like a teacher, not a number.</h2>
+    <p class="sub">The coach runs our own chess engine on your device, so it works offline and never needs credits. It spots forks, pins, hanging pieces and missed mates, and turns them into one clear sentence. After the game, an honest review shows the three moments that mattered.</p>
+  </div>
+  <div class="transcript">
+    <div class="line"><div class="mv">12. Nd5</div><div><span class="tag best">Best move</span><p>Your knight forks the queen and the rook on c7. Black can only save one.</p></div></div>
+    <div class="line"><div class="mv">18. Bxh7+?</div><div><span class="tag mistake">Mistake</span><p>The bishop sacrifice does not work here: after Kxh7 you have no follow-up check. Rook to e1 kept the pressure.</p></div></div>
+    <div class="line"><div class="mv">24. Qd2??</div><div><span class="tag blunder">Blunder</span><p>This leaves mate in one: Rook to e1. Look for checks against your king before every move.</p></div></div>
+  </div>
+</div></section>
+
+<section class="reveal"><div class="wrap">
+  <div class="eyebrow">Made with care</div>
+  <h2>A board you want to sit down at.</h2>
+  <p class="sub">Real-time lighting, reflections and soft shadows; pieces that glide and capture with weight; a clean top-down view for fast games. Collect boards, piece sets, rooms, clocks and effects as you play.</p>
+  <div class="grid">
+    <div class="card"><div class="ico">♞</div><h3>Premium 3D</h3><p>Walnut, marble and lacquer finishes, lit like a studio. Smooth on phones, with a low-graphics mode for older devices.</p></div>
+    <div class="card"><div class="ico">♪</div><h3>Sound and voice</h3><p>Felt-soft move sounds, a quiet score, and spoken lessons. Every sound has its own volume.</p></div>
+    <div class="card"><div class="ico">✦</div><h3>Earn as you learn</h3><p>Levels, streaks, achievements and cosmetics you unlock by playing, not by paying for power.</p></div>
+  </div>
+</div></section>
+
+<section id="opponents" class="reveal"><div class="wrap">
+  <div class="eyebrow">Eight opponents</div>
+  <h2>From first game to grandmaster.</h2>
+  <p class="sub">Each opponent plays like a person at that level: the beginner leaves pieces hanging, the trickster sets traps, the strategist squeezes. Quick Play picks the one that fits your recent results.</p>
+  <div class="opponents">
+    <div class="opp"><b>Truffle</b><span>250–500 · Leaves pieces hanging</span></div>
+    <div class="opp"><b>Builder</b><span>500–800 · Develops calmly</span></div>
+    <div class="opp"><b>Rusher</b><span>800–1100 · Attacks early, overreaches</span></div>
+    <div class="opp"><b>Wall</b><span>1100–1400 · Grinds endgames</span></div>
+    <div class="opp"><span class="lock">Premium</span><b>Trickster</b><span>1400–1700 · Sets traps</span></div>
+    <div class="opp"><span class="lock">Premium</span><b>Strategist</b><span>1700–2000 · Positional pressure</span></div>
+    <div class="opp"><span class="lock">Premium</span><b>Tactician</b><span>2000–2300 · Sharp and deep</span></div>
+    <div class="opp"><span class="lock">Premium</span><b>Grandmaster mode</b><span>Full strength · Thinks longest</span></div>
+  </div>
+</div></section>
+
+<section id="learn" class="reveal"><div class="wrap">
+  <div class="eyebrow">Learn and train</div>
+  <h2>Lessons, puzzles and real opponents.</h2>
+  <div class="grid">
+    <div class="card"><div class="ico">❶</div><h3>Voice-guided lessons</h3><p>Ten chapters from how the pieces move to calculation and tournament play. Each lesson ends with a mastery check on the board.</p></div>
+    <div class="card"><div class="ico">◎</div><h3>Puzzles that fit you</h3><p>Positions checked by the engine, with a puzzle rating that rises as you improve and a daily puzzle to keep the streak alive.</p></div>
+    <div class="card"><div class="ico">⚑</div><h3>Rated online play</h3><p>Fair matchmaking with Glicko-2 ratings, friend codes, reconnects that keep your game, and leaderboards for bullet, blitz and rapid.</p></div>
+  </div>
+</div></section>
+
+<section id="pricing" class="reveal"><div class="wrap">
+  <div class="eyebrow">Pricing</div>
+  <h2>Free to play. Premium to master.</h2>
+  <p class="sub">Premium unlocks training depth and the top opponents. It never makes you stronger in a rated game.</p>
+  <div class="pricing">
+    <div class="plan"><h3>Free</h3><div class="price">₹0</div><ul><li>Four AI opponents up to 1400</li><li>Chapters 1–3 of the lessons</li><li>Daily puzzle and puzzle rating</li><li>Rated online play and friend games</li><li>Coach hints during games</li></ul><a class="btn" href="/play">Play free</a></div>
+    <div class="plan featured"><h3>Premium</h3><div class="price">Monthly or yearly <small><br>Prices announced at launch</small></div><ul><li>All eight opponents</li><li>All ten lesson chapters</li><li>Full game reviews and a training plan</li><li>Opening lab and endgame dojo</li><li>Premium boards, pieces and rooms</li><li>No ads</li></ul><a class="btn primary" href="/play">Play the preview</a></div>
+    <div class="plan"><h3>Lifetime</h3><div class="price">₹5,999 <small>once</small></div><ul><li>Everything in Premium, forever</li><li>Every seasonal track</li><li>Separately sold cosmetics not included</li></ul><a class="btn" href="/play">Coming at launch</a></div>
+  </div>
+</div></section>
+
+<section id="faq" class="reveal"><div class="wrap">
+  <div class="eyebrow">Questions</div>
+  <h2>Good to know</h2>
+  <details><summary>Does the coach need an internet connection?</summary><p>No. The engine and coach run on your device, so lessons, puzzles and games against the computer work offline. Online play and leaderboards need a connection.</p></details>
+  <details><summary>Which devices are supported?</summary><p>The browser version runs today on any modern browser. Native apps for iPhone, iPad, Android, Mac and Windows are being built and will share your progress through your account.</p></details>
+  <details><summary>How are online ratings calculated?</summary><p>With Glicko-2, separately for bullet, blitz and rapid. Your rating shows a question mark until you have played five rated games in that pool.</p></details>
+  <details><summary>What happens if I disconnect during an online game?</summary><p>Your game waits for you for 60 seconds while your clock keeps running. Reopen the game and you are put straight back in.</p></details>
+  <details><summary>How do you handle cheating and abuse?</summary><p>Report an opponent from the result screen. Our moderators review reports, and every moderation action is written to a tamper-evident audit log.</p></details>
+</div></section>
+</main>
+
+<footer><div class="wrap"><span>© Chacklate Chess</span><a href="/play">Play</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a><span>Made in India</span></div></footer>
+
+<script>
+(function () {
+  'use strict';
+  // Board squares and a short looping opening on the hero board.
+  const board = document.getElementById('board');
+  for (let r = 0; r < 8; r++) for (let f = 0; f < 8; f++) {
+    const d = document.createElement('div');
+    d.className = 'sq ' + ((r + f) % 2 ? 'd' : 'l');
+    d.style.left = f * 12.5 + '%'; d.style.top = r * 12.5 + '%';
+    d.dataset.sq = 'abcdefgh'[f] + (8 - r);
+    board.appendChild(d);
+  }
+  const stage = board.parentElement;
+  const start = { e1: 'w♔', d1: 'w♕', f1: 'w♗', g1: 'w♘', e2: 'w♙', d2: 'w♙', f2: 'w♙', e8: 'b♚', d8: 'b♛', g8: 'b♞', e7: 'b♟', d7: 'b♟', c8: 'b♝' };
+  const script = [
+    ['g1', 'f3', 'Knight to f3 develops a piece and eyes the centre. A calm, strong start.'],
+    ['e7', 'e5', 'Black claims the centre. The pawn on e5 is now attacked by your knight.'],
+    ['f3', 'e5', 'Knight takes e5 wins a pawn, because nothing defends it. Always count attackers and defenders.'],
+    ['d8', 'g5', 'The queen attacks your knight and the pawn on g2 at once. Look for double attacks like this.'],
+  ];
+  const pieces = {};
+  const pos = (sq) => {
+    const el = board.querySelector('[data-sq="' + sq + '"]').getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return [el.left + el.width / 2 - s.left, el.top + el.height / 2 - s.top];
+  };
+  function place() {
+    for (const sq in pieces) { const [x, y] = pos(pieces[sq].dataset.at); pieces[sq].style.left = x + 'px'; pieces[sq].style.top = y + 'px'; }
+  }
+  function reset() {
+    for (const k in pieces) { pieces[k].remove(); delete pieces[k]; }
+    for (const sq in start) {
+      const p = document.createElement('span');
+      p.className = 'piece ' + start[sq][0]; p.textContent = start[sq].slice(1); p.dataset.at = sq;
+      stage.appendChild(p); pieces[sq] = p;
+    }
+    place();
+  }
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i = 0;
+  function step() {
+    if (i === script.length) { i = 0; reset(); board.querySelectorAll('.hl').forEach((h) => h.classList.remove('hl')); setTimeout(step, 1200); return; }
+    const [from, to, say] = script[i++];
+    if (pieces[to]) { pieces[to].remove(); delete pieces[to]; }
+    const p = pieces[from]; delete pieces[from]; pieces[to] = p; p.dataset.at = to;
+    board.querySelectorAll('.hl').forEach((h) => h.classList.remove('hl'));
+    board.querySelector('[data-sq="' + from + '"]').classList.add('hl'); board.querySelector('[data-sq="' + to + '"]').classList.add('hl');
+    place();
+    document.getElementById('say').textContent = say;
+    setTimeout(step, 3400);
+  }
+  reset();
+  addEventListener('resize', place);
+  if (!still) setTimeout(step, 1600);
+
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 }) : null;
+  document.querySelectorAll('.reveal').forEach((el) => io ? io.observe(el) : el.classList.add('in'));
+})();
+</script>
+</body>
+</html>
