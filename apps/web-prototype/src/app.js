@@ -13,6 +13,8 @@
   const { WHITE, BLACK, LEVELS } = E;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // A plain end date rather than a countdown: no ticking clocks aimed at children.
+  const seasonEnd = (s) => new Date(s.ends + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   const STORE_KEY = 'chacklate-chess:v2';
   const GLYPH = { 1: '♟', 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' };
   const WGLYPH = { 1: '♙', 2: '♘', 3: '♗', 4: '♖', 5: '♕', 6: '♔' };
@@ -50,7 +52,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, coach: 'normal',
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal',
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -77,6 +79,83 @@
     } catch (e) { /* storage unavailable: everything still works for this visit */ }
     if (window.ChacklateNet) ChacklateNet.syncProgress();
   }
+
+  // ------------------------------------------------------------ children's safety
+  // The server says what this account may do (see services/game-server/src/family.js); null
+  // means no server, which is offline play with nothing to buy or share.
+  let safety = null;
+  function setSafety(s) {
+    safety = s || null;
+    if (safety && !safety.reminders && state.settings.reminder && state.settings.reminder.on) { state.settings.reminder = Object.assign({}, state.settings.reminder, { on: false }); save(); }
+    checkPlayTime();
+    if (['store', 'home'].includes(state.screen) && !document.querySelector('.modal')) go(state.screen);
+  }
+  const isMinor = () => !!(safety && safety.kind === 'minor');
+
+  // Parent gate: a sum written in words, which a young child cannot read and an adult answers in
+  // a second. It sits in front of the store, purchases and turning reminders on, as Apple's Kids
+  // category and Google's Families policy ask. A pass lasts ten minutes.
+  const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  let gatePassed = 0;
+  function parentGate(why) {
+    if (Date.now() - gatePassed < 10 * 60e3) return Promise.resolve(true);
+    return new Promise((resolve) => {
+      const a = 3 + Math.floor(Math.random() * 7), b = 3 + Math.floor(Math.random() * 7);
+      let done = false;
+      const m = modal('<div class="eyebrow">For grown-ups</div><h2>Ask a parent</h2><p class="sub">' + esc(why) + '</p>' +
+        '<form id="pg"><div class="field"><label for="pg-a">What is ' + WORDS[a] + ' times ' + WORDS[b] + '?</label><input class="text-in" id="pg-a" inputmode="numeric" autocomplete="off" maxlength="3" required></div>' +
+        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Continue</button></div></form>',
+      { onClose() { if (!done) resolve(false); } });
+      m.querySelector('#pg').onsubmit = (e) => {
+        e.preventDefault();
+        done = true; m.close();
+        if (+m.querySelector('#pg-a').value === a * b) { gatePassed = Date.now(); resolve(true); }
+        else { toast('That answer is not right.', 'bad'); resolve(false); }
+      };
+    });
+  }
+  function askPin() {
+    return new Promise((resolve) => {
+      let done = false;
+      const m = modal('<div class="eyebrow">Parent PIN</div><h2>A parent needs to approve this</h2><p class="sub">Enter the PIN you chose on the parent page.</p>' +
+        '<form id="pp"><div class="field"><label for="pp-pin">PIN</label><input class="text-in" id="pp-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div>' +
+        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn gold" type="submit">Approve</button></div></form>',
+      { onClose() { if (!done) resolve(null); } });
+      m.querySelector('#pp').onsubmit = (e) => { e.preventDefault(); done = true; const v = m.querySelector('#pp-pin').value; m.close(); resolve(v); };
+    });
+  }
+
+  // Daily time limit a parent can set. Counts minutes with the page visible, per local day.
+  const PLAY_KEY = 'chacklate-chess:playtime';
+  const localDay = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  function playTime() {
+    let t = null; try { t = JSON.parse(localStorage.getItem(PLAY_KEY) || 'null'); } catch (e) { t = null; }
+    return t && t.day === localDay() ? t : { day: localDay(), ms: 0, extra: 0 };
+  }
+  let breakModal = null;
+  function checkPlayTime() {
+    const lim = safety && safety.dailyMinutes;
+    if (!lim) { if (breakModal) { breakModal.close(); breakModal = null; } return; }
+    const t = playTime();
+    if (t.ms < (lim + t.extra) * 60e3 || breakModal) return;
+    if (state.game && state.game.kind === 'online' && !state.game.g.outcome) return; // let the game finish
+    breakModal = modal('<div style="text-align:center"><div class="eyebrow">Time for a break</div><h2 class="result-title" style="margin-top:8px">That\'s today\'s chess</h2>' +
+      '<p class="sub">Your parent set ' + lim + ' minutes a day. Your progress is saved. See you tomorrow!</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">Grown-up: 15 more minutes</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
+    breakModal.querySelector('#br-more').onclick = async () => {
+      const m = breakModal; m.style.visibility = 'hidden';
+      if (await parentGate('A parent can allow 15 more minutes today.')) {
+        const t2 = playTime(); t2.extra += 15; try { localStorage.setItem(PLAY_KEY, JSON.stringify(t2)); } catch (e) { /* not stored */ }
+        breakModal = null; m.close();
+      } else m.style.visibility = '';
+    };
+  }
+  setInterval(() => {
+    if (document.hidden || !(safety && safety.dailyMinutes)) return;
+    const t = playTime(); t.ms += 30e3;
+    try { localStorage.setItem(PLAY_KEY, JSON.stringify(t)); } catch (e) { /* not stored */ }
+    checkPlayTime();
+  }, 30e3);
 
   // ------------------------------------------------------------ engine workers
   // Two workers: one plays and hints, one analyses (reviews, coach) so a long
@@ -178,6 +257,7 @@
     view.setAnimations(s.animations && !window.__SHOT);
     AU.setSfx(s.sfx, s.sfxVol);
     AU.setMusic(s.music, s.musicVol);
+    AU.setVoices({ coach: s.voiceCoach, calls: s.voiceCalls, announce: s.announce });
     applyLook();
   }
 
@@ -377,7 +457,7 @@
   function seasonStrip() {
     const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
     if (!s) return '';
-    return '<button class="season-strip glass" id="a-season"><div class="sg">' + icon('season') + '</div><div style="flex:1"><div class="eyebrow">Season ' + s.season.number + ' · ' + s.daysLeft + ' days left</div><b>' + esc(s.season.name) + ' · Tier ' + s.tier + '</b>' +
+    return '<button class="season-strip glass" id="a-season"><div class="sg">' + icon('season') + '</div><div style="flex:1"><div class="eyebrow">Season ' + s.season.number + ' · runs to ' + seasonEnd(s.season) + '</div><b>' + esc(s.season.name) + ' · Tier ' + s.tier + '</b>' +
       '<div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div><div class="go">›</div></button>';
   }
 
@@ -415,7 +495,7 @@
       const reached = s.tier >= t;
       rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === t ? ' next' : '') + '"><div class="tn">' + t + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
     }
-    mount(topbar({ back: 'Home' }) + '<section class="sheet glass"><header><div class="eyebrow">Season ' + s.season.number + ' · ' + s.daysLeft + ' days left</div><h2>' + esc(s.season.name) + '</h2><p>' + esc(s.season.blurb) + '</p></header><div class="body">' +
+    mount(topbar({ back: 'Home' }) + '<section class="sheet glass"><header><div class="eyebrow">Season ' + s.season.number + ' · runs to ' + seasonEnd(s.season) + '</div><h2>' + esc(s.season.name) + '</h2><p>' + esc(s.season.blurb) + '</p></header><div class="body">' +
       '<div class="hero-card"><div class="sg big">' + icon('season') + '</div><div style="flex:1"><div style="font:400 24px/1.1 var(--display)">Tier ' + s.tier + ' of ' + s.season.tiers + '</div>' +
       '<div style="color:var(--muted);font-size:13px;margin:4px 0 8px">' + (s.tier >= s.season.tiers ? 'Track complete.' : s.into + ' / ' + s.need + ' season XP to tier ' + (s.tier + 1)) + '</div><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div></div>' +
       (s.pass ? '<p class="pill gold" style="margin:4px 0 14px">' + icon('crown') + (P.premium ? ' Season Pass included with Premium' : ' Season Pass owned') + '</p>'
@@ -436,6 +516,15 @@
     const P = state.progress;
     let remote = null;
     function render() {
+      if (Date.now() - gatePassed >= 10 * 60e3) {
+        $('st-body').innerHTML = '<p class="sub">The store is for grown-ups. A parent can open it.</p><div class="row" style="justify-content:flex-start"><button class="btn primary" id="st-gate">' + icon('crown') + ' Parent: open the store</button></div>';
+        $('st-gate').onclick = async () => { if (await parentGate('Answer to open the store.')) render(); };
+        return;
+      }
+      if (safety && safety.kind === 'minor' && safety.purchases === 'off') {
+        $('st-body').innerHTML = '<p class="sub">A parent has turned purchases off for this account. Everything you have earned stays yours.</p>';
+        return;
+      }
       const ent = (state.account && state.account.ent) || {};
       const online = window.ChacklateNet && ChacklateNet.available();
       const products = STORE.products.map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
@@ -465,8 +554,11 @@
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
+      if (!await parentGate('A parent needs to approve purchases.')) return;
+      let pin;
+      if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
-        const o = await ChacklateNet.api('/api/store/checkout', { product: id });
+        const o = await ChacklateNet.api('/api/store/checkout', { product: id, pin });
         const p = STORE.products.find((x) => x.id === id);
         if (o.action.type === 'dev-confirm') {
           const m = modal('<h2>Test purchase</h2><p class="sub">' + esc(p.name) + (p.period ? ' (' + p.period + ')' : '') + '. This server runs the test store, so no money moves.</p><div class="row"><button class="btn" data-close>Cancel</button><button class="btn gold" id="tp-ok">Confirm</button></div>');
@@ -513,6 +605,15 @@
     const [m, s] = tc.split('+').map(Number);
     return { w: m * 60000, b: m * 60000, inc: s * 1000, since: 0 };
   }
+  // The spoken call for a finished game, a key into voice.json events.
+  function resultCall(reason, winner, youWon, youLost) {
+    if (!winner) return { stalemate: 'stalemate', threefold: 'draw.repetition', fivefold: 'draw.repetition', fifty: 'draw.fifty', seventyfive: 'draw.fifty',
+      insufficient: 'draw.material', 'timeout-insufficient': 'draw.material', agreement: 'draw.agreed' }[reason] || 'draw.agreed';
+    if (reason === 'resignation') return youLost ? 'resign.loss' : 'resign.win';
+    if (reason === 'timeout') return youLost ? 'time.loss' : 'time.win';
+    return youLost ? 'mate.loss' : youWon ? 'mate.win' : 'mate.loss';
+  }
+
   function startGame(setup, restore) {
     state.setup = Object.assign({}, setup);
     const kind = setup.mode;
@@ -522,6 +623,7 @@
     const game = { kind, setup: state.setup, g, human, clock: parseTc(setup.tc), selected: -1, hint: null, hintStep: 0, busy: false, thinking: false, request: 0,
       viewSide: kind === 'local' ? 'white' : human === WHITE ? 'white' : 'black', coachMsg: null, evals: {}, threat: null, resultShown: false, review: null,
       online: setup.online || null, takebacks: 0, drawOffered: false };
+    if (setup.online && !restore) setTimeout(() => AU.event('online.found'), 400);
     if (restore) {
       for (const u of restore.moves || []) if (!g.playText(u)) break;
       if (restore.clock && game.clock) Object.assign(game.clock, restore.clock, { since: 0 });
@@ -690,6 +792,7 @@
     const quick = G.clock && G.clock[moverKey] < 10000;   // effects off under 10 s, per the art bible
     const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
     setTimeout(() => AU.play(sound), dropped ? 0 : 140);
+    if (!g.outcome) setTimeout(() => AU.announce(info.san).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
     view.animateMove(info, () => {
       G.busy = false;
@@ -730,7 +833,7 @@
       if (G.clock.since) G.clock[k] = Math.max(0, G.clock[k] - (now - G.clock.since));
       G.clock.since = now;
       if (G.clock[k] <= 0) { G.request++; G.thinking = false; G.g.timeout(G.g.pos.side); endGame(); }
-      else if (G.clock[k] < 10000 && (G.kind === 'local' || G.g.pos.side === G.human) && Date.now() - lowTick > 1000) { lowTick = Date.now(); AU.play('low'); }
+      else if (G.clock[k] < 10000 && (G.kind === 'local' || G.g.pos.side === G.human) && Date.now() - lowTick > 1000) { lowTick = Date.now(); AU.play('low'); if (!G.lowCalled && G.kind !== 'local') { G.lowCalled = true; AU.event('time.low'); } }
     }
     renderClocks();
   }, 100);
@@ -942,6 +1045,7 @@
     const vsSomeone = G.kind !== 'local';
     const youWon = vsSomeone && winner === G.human, youLost = vsSomeone && winner === -G.human;
     AU.play(winner ? (youLost ? 'loss' : 'win') : 'draw');
+    setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
     // Progress
     let res = null;
     if (G.kind !== 'local' || g.moves.length >= 10) {
@@ -1485,6 +1589,7 @@
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
       if (nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').innerHTML = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
       AU.play('win');
+      AU.event('lesson.passed');
       view.celebrate('win', -1, null, -1);
       dots();
       celebrate(res);
@@ -1503,7 +1608,7 @@
     const plan = trainingPlan();
     mount(topbar() + '<section class="sheet glass"><header><div class="eyebrow">Train</div><h2>Improve my chess</h2><p>Puzzles from engine-verified positions, honest game reviews and a plan built from your own mistakes.</p></header><div class="body">' +
       '<div class="cards">' +
-      (daily ? '<button class="card-btn feature" id="i-daily"><div class="big">☀</div><div><b>Daily puzzle' + (dailyDone ? ' · solved' : '') + '</b><br><small>' + (dailyDone ? 'Come back tomorrow for a new one.' : 'Rated ' + daily.rating + '. Keep your streak going.') + '</small></div></button>' : '') +
+      (daily ? '<button class="card-btn feature" id="i-daily"><div class="big">☀</div><div><b>Daily puzzle' + (dailyDone ? ' · solved' : '') + '</b><br><small>' + (dailyDone ? 'Come back tomorrow for a new one.' : 'Rated ' + daily.rating + '. A fresh puzzle for today.') + '</small></div></button>' : '') +
       '<button class="card-btn" id="i-rated"><div class="big">♞</div><b>Puzzle trainer</b><small>Rating ' + P.stats.puzzles.rating + ' · ' + PUZZLES.length + ' puzzles</small></button>' +
       '<button class="card-btn" id="i-plan"><div class="big">✎</div><b>Your training plan</b><small>' + esc(plan.summary) + '</small></button>' +
       '<button class="card-btn" id="i-lab"><div class="big">♗</div><b>Opening lab</b><small>' + OPENINGS.length + ' openings · ' + Object.values(P.openings).filter((r) => r.mastered).length + ' mastered</small></button>' +
@@ -1580,7 +1685,7 @@
     const res = PG.dojoFinished(state.progress, d, ok, mine);
     save(); renderHud();
     AU.play(ok ? 'win' : 'loss');
-    if (ok) view.celebrate('win', -1, null, -1);
+    if (ok) { view.celebrate('win', -1, null, -1); AU.event('dojo.won'); }
     const next = ENDGAMES[ENDGAMES.indexOf(d) + 1];
     const m = modal('<span class="result-badge' + (ok ? ' win' : ' loss') + '">Endgame dojo</span><h2 class="result-title">' + (ok ? 'Goal reached' : 'Not this time') + '</h2>' +
       '<p class="sub">' + esc(why) + ' ' + (ok && d.goal !== 'draw' ? mine + ' moves, par ' + d.par + '.' : '') + '</p>' + (ok ? '<p style="font-size:28px;margin:4px 0 10px">' + stars(res.stars) + '</p>' : '<p class="sub">' + esc(d.tip) + '</p>') +
@@ -1778,7 +1883,7 @@
       const t = new E.Game(S.pos.fen()); t.play(m);
       const ok = E.uci(m) === want || (t.outcome && t.outcome.reason === 'checkmate');
       if (!ok) {
-        S.failed = true; AU.play('wrong'); fb('bad', 'Not quite. That is not the strongest move. Try again.');
+        S.failed = true; AU.play('wrong'); AU.event('puzzle.wrong'); fb('bad', 'Not quite. That is not the strongest move. Try again.');
         view.setBoard(piecesOf(S.pos), null);
         return true;
       }
@@ -1786,7 +1891,7 @@
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
       view.animateMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
-        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', S.failed ? 'Solved, after a miss.' : 'Excellent! Puzzle solved.'); finish(true); return; }
+        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', S.failed ? 'Solved, after a miss.' : 'Excellent! Puzzle solved.'); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.cur.moves[S.step * 2 + 2]);
         S.step++;
         fb('ok', 'Good move. Keep going!');
@@ -1905,6 +2010,16 @@
   }
 
   // ---------------------------------------------------------------- settings
+  function voiceSection(s) {
+    const vs = AU.voices();
+    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
+    return '<div class="field"><div class="label">Voices</div>' +
+      '<label class="toggle">Lesson narration <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
+      '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
+      '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label></div>';
+  }
+
   function settingsModal() {
     const s = state.settings;
     const m = modal('<h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
@@ -1912,7 +2027,7 @@
       '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
       '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + '></label>' +
       '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Lesson narration (device voice) <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      voiceSection(s) +
       '<label class="toggle">Coach comments vs the computer <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Blunders only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
       '<label class="toggle">Evaluation bar vs the computer <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
       '<label class="toggle">Show legal moves <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
@@ -1928,6 +2043,9 @@
     on('#s-mus', 'change', (e) => { s.music = e.target.checked; AU.unlock(); applySettings(); save(); });
     on('#s-musv', 'input', (e) => { s.musicVol = +e.target.value; applySettings(); save(); });
     on('#s-narr', 'change', (e) => { s.narration = e.target.checked; if (!s.narration) AU.hush(); save(); });
+    on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
+    on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
+    on('#s-announce', 'change', (e) => { s.announce = e.target.checked; applySettings(); save(); if (s.announce) { AU.unlock(); AU.announce('Nf3'); } });
     on('#s-coach', 'change', (e) => { s.coach = e.target.value; save(); });
     on('#s-eval', 'change', (e) => { s.evalBar = e.target.checked; save(); renderEval(); });
     on('#s-legal', 'change', (e) => { s.legal = e.target.checked; save(); refreshHighlights(); });
@@ -1955,8 +2073,9 @@
         : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chacklate Chess</button>'
         : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
         : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') + '</div>' +
+      (safety && !safety.reminders ? '<label class="toggle">Daily reminder <small style="color:var(--faint)">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
       '<label class="toggle">Daily reminder' + (pushReady() ? '' : ' <small style="color:var(--faint)">(needs the game server and notification support)</small>') +
-      ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>';
+      ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>');
   }
   function wireAppSection(m) {
     const ib = m.querySelector('#s-install');
@@ -1964,6 +2083,7 @@
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
+      if (want.on && !await parentGate('A parent can turn on reminders.')) { box.checked = false; return; }
       try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? 'Reminder set for ' + String(want.hour).padStart(2, '0') + ':00 on days you have not played.' : 'Reminder off.'); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
@@ -1994,7 +2114,7 @@
 
   // ---------------------------------------------------------------- shared API for the online client
   window.ChacklateApp = {
-    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements,
+    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate,
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
@@ -2029,7 +2149,7 @@
       endGame();
     },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
-    drawOffered() { const G = state.game; if (!G) return; coachSay('Your opponent offers a draw.', [['Accept', 'accept-draw'], ['Decline', 'dismiss']]); const b = document.querySelector('[data-coach="accept-draw"]'); if (b) b.onclick = () => { ChacklateNet.send({ type: 'draw-accept' }); G.coachMsg = null; renderCoach(); }; },
+    drawOffered() { const G = state.game; if (!G) return; AU.event('draw.offer'); coachSay('Your opponent offers a draw.', [['Accept', 'accept-draw'], ['Decline', 'dismiss']]); const b = document.querySelector('[data-coach="accept-draw"]'); if (b) b.onclick = () => { ChacklateNet.send({ type: 'draw-accept' }); G.coachMsg = null; renderCoach(); }; },
   };
 
   // ---------------------------------------------------------------- boot

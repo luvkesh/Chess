@@ -164,7 +164,11 @@ function ChacklateProgress(catalog, extras) {
     const d = today(now);
     if (state.streak.last === d) return;
     const gap = state.streak.last ? dayDiff(state.streak.last, d) : 99;
-    state.streak.count = gap === 1 ? state.streak.count + 1 : 1;
+    // One missed day a week is forgiven, so a busy day (or a parent's screen-free day) never
+    // wipes out a run.
+    const shieldFree = !state.streak.shield || dayDiff(state.streak.shield, d) >= 7;
+    if (gap === 2 && shieldFree && state.streak.count > 0) { state.streak.shield = d; out.shieldUsed = true; }
+    state.streak.count = gap === 1 || out.shieldUsed ? state.streak.count + 1 : 1;
     state.streak.last = d;
     if (state.streak.count >= 3) achieve(state, 'streak-3', out);
     if (state.streak.count >= 7) achieve(state, 'streak-7', out);

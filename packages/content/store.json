@@ -10,10 +10,84 @@
     "Premium boards, pieces, rooms and effects"
   ],
   "products": [
-    { "id": "premium.monthly", "name": "Premium", "period": "month", "kind": "subscription", "grants": [{ "key": "premium", "days": 31 }], "price": null, "skus": { "apple": "", "google": "" } },
-    { "id": "premium.yearly", "name": "Premium", "period": "year", "kind": "subscription", "badge": "Best value", "grants": [{ "key": "premium", "days": 366 }], "price": null, "skus": { "apple": "", "google": "" } },
-    { "id": "premium.lifetime", "name": "Premium Lifetime", "kind": "one-time", "badge": "Founders", "grants": [{ "key": "premium" }], "price": { "amount": 599900, "currency": "INR" }, "skus": { "apple": "", "google": "" } },
-    { "id": "pass.s1", "name": "Season Pass: Cocoa Harvest", "kind": "one-time", "grants": [{ "key": "pass:s1" }], "price": null, "skus": { "apple": "", "google": "" } }
+    {
+      "id": "premium.monthly",
+      "name": "Premium",
+      "period": "month",
+      "kind": "subscription",
+      "grants": [
+        {
+          "key": "premium",
+          "days": 31
+        }
+      ],
+      "price": {
+        "amount": 24900,
+        "currency": "INR"
+      },
+      "skus": {
+        "apple": "",
+        "google": ""
+      }
+    },
+    {
+      "id": "premium.yearly",
+      "name": "Premium",
+      "period": "year",
+      "kind": "subscription",
+      "badge": "Best value",
+      "grants": [
+        {
+          "key": "premium",
+          "days": 366
+        }
+      ],
+      "price": {
+        "amount": 199900,
+        "currency": "INR"
+      },
+      "skus": {
+        "apple": "",
+        "google": ""
+      }
+    },
+    {
+      "id": "premium.lifetime",
+      "name": "Premium Lifetime",
+      "kind": "one-time",
+      "badge": "Founders",
+      "grants": [
+        {
+          "key": "premium"
+        }
+      ],
+      "price": {
+        "amount": 599900,
+        "currency": "INR"
+      },
+      "skus": {
+        "apple": "",
+        "google": ""
+      }
+    },
+    {
+      "id": "pass.s1",
+      "name": "Season Pass: Cocoa Harvest",
+      "kind": "one-time",
+      "grants": [
+        {
+          "key": "pass:s1"
+        }
+      ],
+      "price": {
+        "amount": 29900,
+        "currency": "INR"
+      },
+      "skus": {
+        "apple": "",
+        "google": ""
+      }
+    }
   ],
-  "note": "A null price means the price is set at launch. Store SKUs are filled in when the App Store and Play listings exist."
+  "note": "Beta prices, benchmarked in docs/planning/pricing.md; change them after beta testing. Store SKUs are filled in when the App Store and Play listings exist."
 }

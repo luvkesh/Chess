@@ -75,13 +75,13 @@ function routes(db, lobby, shop, fair) {
         need('users.read');
         const q = String(body.q || '').trim();
         const rows = q
-          ? db.all('SELECT id, name, guest, created, seen, banned, muted FROM users WHERE name LIKE ? OR id = ? ORDER BY seen DESC LIMIT 50', '%' + q.replace(/[%_]/g, '') + '%', Number(q) || -1)
-          : db.all('SELECT id, name, guest, created, seen, banned, muted FROM users ORDER BY seen DESC LIMIT 50');
+          ? db.all('SELECT id, name, guest, created, seen, banned, muted, age_band, consent IS NOT NULL consented FROM users WHERE name LIKE ? OR id = ? ORDER BY seen DESC LIMIT 50', '%' + q.replace(/[%_]/g, '') + '%', Number(q) || -1)
+          : db.all('SELECT id, name, guest, created, seen, banned, muted, age_band, consent IS NOT NULL consented FROM users ORDER BY seen DESC LIMIT 50');
         return [200, rows.map((r) => Object.assign(r, { ratings: lobby.ratings(r.id) }))];
       }
       if ((m = path.match(/^\/api\/admin\/users\/(\d+)$/))) {
         need('users.read');
-        const u = db.get('SELECT id, name, guest, created, seen, banned, muted, email, email_verified, deleted FROM users WHERE id = ?', Number(m[1]));
+        const u = db.get('SELECT id, name, guest, created, seen, banned, muted, email, email_verified, deleted, age_band, consent IS NOT NULL consented FROM users WHERE id = ?', Number(m[1]));
         if (!u) return [404, { error: 'No such user.' }];
         u.ratings = lobby.ratings(u.id);
         u.games = db.all('SELECT * FROM games WHERE white = ? OR black = ? ORDER BY started DESC LIMIT 30', u.id, u.id);

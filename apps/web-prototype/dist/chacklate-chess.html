@@ -62,6 +62,9 @@ button { cursor: pointer; }
 .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 12px; background: rgba(255, 235, 215, 0.07); border: 1px solid var(--line); color: var(--muted); }
 .pill.gold { color: var(--gold-2); border-color: rgba(227, 178, 90, 0.35); background: rgba(227, 178, 90, 0.1); }
 .pill.ruby { color: var(--ruby-ink); border-color: rgba(210, 70, 111, 0.45); background: rgba(210, 70, 111, 0.14); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; }
+.chip { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 235, 215, 0.06); color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+.chip.on { border-color: var(--gold); background: rgba(227, 178, 90, 0.16); color: var(--gold-2); }
 .pill.lock { color: var(--faint); }
 .bar { height: 6px; border-radius: 999px; background: rgba(255, 235, 215, 0.09); overflow: hidden; }
 .bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--gold), var(--gold-2)); transition: width .8s var(--ease); }
@@ -443,7 +446,8 @@ const CHACKLATE_OPENINGS = {"version":1,"openings":[{"id":"opening.italian","nam
 const CHACKLATE_ENDGAMES = {"version":1,"endgames":[{"id":"endgame.kq-k","name":"Queen and king against king","access":"free","goal":"mate","par":10,"level":"Basic","fen":"8/8/8/4k3/8/8/8/3QK3 w - - 0 1","tip":"Use the queen to box the king in, a knight's move away, then bring your king. Watch out for stalemate."},{"id":"endgame.kr-k","name":"Rook and king against king","access":"free","goal":"mate","par":16,"level":"Basic","fen":"8/8/8/4k3/8/8/8/R3K3 w - - 0 1","tip":"Cut the king off with the rook, bring your king up to take the opposition, then check."},{"id":"endgame.kp-k","name":"King and pawn: king in front","access":"free","goal":"promote","par":8,"level":"Basic","fen":"3k4/8/4K3/4P3/8/8/8/8 w - - 0 1","tip":"Your king on the sixth rank in front of the pawn always wins. Control the promotion square."},{"id":"endgame.kp-k-draw","name":"Holding king against king and pawn","access":"free","goal":"draw","par":20,"level":"Basic","fen":"4k3/8/8/4P3/4K3/8/8/8 b - - 0 1","tip":"Stay in front of the pawn and take the opposition whenever the white king steps forward."},{"id":"endgame.two-bishops","name":"Two bishops mate","access":"premium","goal":"mate","par":30,"level":"Advanced","fen":"8/8/8/4k3/8/8/8/2B1KB2 w - - 0 1","tip":"The bishops work side by side as a wall. Drive the king to a corner with help from your king."},{"id":"endgame.lucena","name":"Lucena: building a bridge","access":"premium","goal":"promote","par":12,"level":"Advanced","fen":"1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1","tip":"Check the king further away, put your rook on the fourth rank, then walk your king out and block the checks."},{"id":"endgame.philidor","name":"Philidor: holding the draw","access":"premium","goal":"draw","par":20,"level":"Advanced","fen":"4k3/8/r7/4PK2/8/8/8/7R b - - 0 1","tip":"Keep your rook on the third rank. When the pawn reaches the sixth, check from behind."},{"id":"endgame.bn-mate","name":"Bishop and knight mate","access":"premium","goal":"mate","par":40,"level":"Master","fen":"8/8/8/4k3/8/8/8/2B1KN2 w - - 0 1","tip":"Mate only happens in a corner of your bishop's colour. Drive the king there with the W manoeuvre of the knight."}]};
 const CHACKLATE_SEASONS = {"version":1,"tierXp":300,"seasons":[{"id":"s1","number":1,"name":"Cocoa Harvest","starts":"2026-10-15","ends":"2027-01-15","tiers":30,"blurb":"Thirty tiers of harvest-gold boards, pieces, rooms and effects. Every XP you earn while the season runs moves you up the track."}]};
 const CHACKLATE_MISSIONS = {"version":1,"perDay":3,"allDoneXp":50,"missions":[{"id":"play-2","event":"game","goal":2,"xp":40,"text":"Finish 2 games"},{"id":"play-4","event":"game","goal":4,"xp":70,"text":"Finish 4 games"},{"id":"win-1","event":"win","goal":1,"xp":50,"text":"Win a game"},{"id":"win-3","event":"win","goal":3,"xp":90,"text":"Win 3 games"},{"id":"puzzle-3","event":"puzzle","goal":3,"xp":40,"text":"Solve 3 puzzles"},{"id":"puzzle-8","event":"puzzle","goal":8,"xp":80,"text":"Solve 8 puzzles"},{"id":"daily","event":"daily","goal":1,"xp":30,"text":"Solve the daily puzzle"},{"id":"lesson-1","event":"lesson","goal":1,"xp":50,"text":"Complete a lesson"},{"id":"drill-2","event":"drill","goal":2,"xp":40,"text":"Run 2 opening drills"},{"id":"dojo-1","event":"dojo","goal":1,"xp":50,"text":"Earn a star in the Endgame dojo"},{"id":"review-1","event":"review","goal":1,"xp":40,"text":"Review a game with the coach"},{"id":"online-1","event":"online","goal":1,"xp":60,"text":"Finish an online game","needs":"online"}]};
-const CHACKLATE_STORE = {"version":1,"currency":"INR","perks":["All eight computer personalities, including Grandmaster mode","The full 10-chapter campaign: 74 lessons","Every opening in the Opening lab and every dojo endgame","Deep game reviews and the full hint ladder","Every season pass included while you are subscribed","Premium boards, pieces, rooms and effects"],"products":[{"id":"premium.monthly","name":"Premium","period":"month","kind":"subscription","grants":[{"key":"premium","days":31}],"price":null,"skus":{"apple":"","google":""}},{"id":"premium.yearly","name":"Premium","period":"year","kind":"subscription","badge":"Best value","grants":[{"key":"premium","days":366}],"price":null,"skus":{"apple":"","google":""}},{"id":"premium.lifetime","name":"Premium Lifetime","kind":"one-time","badge":"Founders","grants":[{"key":"premium"}],"price":{"amount":599900,"currency":"INR"},"skus":{"apple":"","google":""}},{"id":"pass.s1","name":"Season Pass: Cocoa Harvest","kind":"one-time","grants":[{"key":"pass:s1"}],"price":null,"skus":{"apple":"","google":""}}],"note":"A null price means the price is set at launch. Store SKUs are filled in when the App Store and Play listings exist."};
+const CHACKLATE_STORE = {"version":1,"currency":"INR","perks":["All eight computer personalities, including Grandmaster mode","The full 10-chapter campaign: 74 lessons","Every opening in the Opening lab and every dojo endgame","Deep game reviews and the full hint ladder","Every season pass included while you are subscribed","Premium boards, pieces, rooms and effects"],"products":[{"id":"premium.monthly","name":"Premium","period":"month","kind":"subscription","grants":[{"key":"premium","days":31}],"price":{"amount":24900,"currency":"INR"},"skus":{"apple":"","google":""}},{"id":"premium.yearly","name":"Premium","period":"year","kind":"subscription","badge":"Best value","grants":[{"key":"premium","days":366}],"price":{"amount":199900,"currency":"INR"},"skus":{"apple":"","google":""}},{"id":"premium.lifetime","name":"Premium Lifetime","kind":"one-time","badge":"Founders","grants":[{"key":"premium"}],"price":{"amount":599900,"currency":"INR"},"skus":{"apple":"","google":""}},{"id":"pass.s1","name":"Season Pass: Cocoa Harvest","kind":"one-time","grants":[{"key":"pass:s1"}],"price":{"amount":29900,"currency":"INR"},"skus":{"apple":"","google":""}}],"note":"Beta prices, benchmarked in docs/planning/pricing.md; change them after beta testing. Store SKUs are filled in when the App Store and Play listings exist."};
+const CHACKLATE_VOICE = {"version":1,"note":"Recorded with Kokoro-82M (Apache-2.0) by tools/voice/record.py. 'lessons' voices also read every lesson, opening and endgame line; the others read game calls and moves.","voices":[{"id":"mira","name":"Mira","lang":"en","engine":"af_heart","speed":1.0,"blurb":"Warm and encouraging. American English.","lessons":true},{"id":"arthur","name":"Arthur","lang":"en","engine":"bm_george","speed":0.95,"blurb":"Calm club captain. British English.","lessons":true},{"id":"priya","name":"Priya","lang":"hi","engine":"hf_alpha","speed":1.0,"blurb":"Game calls and moves in Hindi.","lessons":false},{"id":"dev","name":"Dev","lang":"hi","engine":"hm_omega","speed":1.0,"blurb":"Game calls and moves in Hindi.","lessons":false}],"events":{"en":{"start.white":"Good luck. You have the white pieces.","start.black":"Good luck. You have the black pieces.","online.found":"Opponent found. Let's play.","check":"Check.","mate.win":"Checkmate! You win.","mate.loss":"Checkmate. Good game.","stalemate":"Stalemate. It's a draw.","draw.repetition":"Draw by threefold repetition.","draw.fifty":"Draw by the fifty-move rule.","draw.material":"Draw. Neither side can checkmate.","draw.agreed":"Draw agreed.","draw.offer":"Your opponent offers a draw.","resign.win":"Your opponent resigned. You win.","resign.loss":"You resigned. On to the next one.","time.low":"Ten seconds left.","time.win":"Your opponent ran out of time. You win.","time.loss":"You ran out of time.","puzzle.correct":"Correct!","puzzle.great":"Great find!","puzzle.wrong":"Not quite. Try again.","puzzle.solved":"Puzzle solved. Well done.","hint":"Here's a hint.","blunder":"Careful. That move loses material.","lesson.passed":"Lesson complete. Well done.","streak.kept":"Daily streak kept. See you tomorrow.","mission.done":"Mission complete.","tier.up":"Season tier up!","level.up":"Level up!","dojo.won":"Endgame won. Nicely converted.","tournament.start":"The tournament has started. Good luck.","tournament.end":"The tournament is over. Let's see the standings.","welcome":"Welcome back to Chacklate Chess."},"hi":{"start.white":"शुभकामनाएँ। आप सफ़ेद मोहरों से खेल रहे हैं।","start.black":"शुभकामनाएँ। आप काले मोहरों से खेल रहे हैं।","online.found":"प्रतिद्वंद्वी मिल गया। चलिए खेलते हैं।","check":"शह।","mate.win":"शह और मात! आप जीत गए।","mate.loss":"शह और मात। अच्छा खेल।","stalemate":"स्टेलमेट। खेल बराबरी पर।","draw.repetition":"तीन बार दोहराव से बराबरी।","draw.fifty":"पचास चालों के नियम से बराबरी।","draw.material":"बराबरी। कोई भी पक्ष मात नहीं दे सकता।","draw.agreed":"दोनों की सहमति से बराबरी।","draw.offer":"आपके प्रतिद्वंद्वी बराबरी का प्रस्ताव दे रहे हैं।","resign.win":"प्रतिद्वंद्वी ने हार मान ली। आप जीत गए।","resign.loss":"आपने हार मान ली। अगली बार सही।","time.low":"दस सेकंड बाकी।","time.win":"प्रतिद्वंद्वी का समय खत्म। आप जीत गए।","time.loss":"आपका समय खत्म हो गया।","puzzle.correct":"सही!","puzzle.great":"शानदार चाल!","puzzle.wrong":"ठीक नहीं। फिर कोशिश कीजिए।","puzzle.solved":"पहेली हल हो गई। बहुत बढ़िया।","hint":"यह रहा एक संकेत।","blunder":"सावधान। इस चाल से मोहरा जाता है।","lesson.passed":"पाठ पूरा हुआ। बहुत बढ़िया।","streak.kept":"रोज़ की लय बनी रही। कल मिलते हैं।","mission.done":"मिशन पूरा हुआ।","tier.up":"सीज़न का अगला स्तर!","level.up":"लेवल अप!","dojo.won":"एंडगेम जीत लिया। बढ़िया।","tournament.start":"टूर्नामेंट शुरू हो गया है। शुभकामनाएँ।","tournament.end":"टूर्नामेंट खत्म। अब तालिका देखते हैं।","welcome":"चॉकलेट चेस में फिर से स्वागत है।"}},"moves":{"en":{"piece":{"K":"King","Q":"Queen","R":"Rook","B":"Bishop","N":"Knight","P":"Pawn"},"takes":"takes","to":"","file":{"a":"ay","b":"bee","c":"see","d":"dee","e":"ee","f":"eff","g":"jee","h":"aitch"},"rank":{"1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight"},"castleK":"Castles kingside","castleQ":"Castles queenside","promote":{"Q":"promotes to a queen","R":"promotes to a rook","B":"promotes to a bishop","N":"promotes to a knight"},"check":"check","mate":"checkmate"},"hi":{"piece":{"K":"राजा","Q":"वज़ीर","R":"हाथी","B":"ऊँट","N":"घोड़ा","P":"प्यादा"},"takes":"मारकर","to":"","file":{"a":"ए","b":"बी","c":"सी","d":"डी","e":"ई","f":"एफ़","g":"जी","h":"एच"},"rank":{"1":"एक","2":"दो","3":"तीन","4":"चार","5":"पाँच","6":"छह","7":"सात","8":"आठ"},"castleK":"छोटी कैसलिंग","castleQ":"बड़ी कैसलिंग","promote":{"Q":"वज़ीर बना","R":"हाथी बना","B":"ऊँट बना","N":"घोड़ा बना"},"check":"शह","mate":"शह और मात"}}};
 // ---- engine.js ----
 // Chacklate Chess engine: rules, notation and the computer opponent.
 // Self-contained so the same source runs on the page and inside a Web Worker
@@ -3278,7 +3282,11 @@ function ChacklateProgress(catalog, extras) {
     const d = today(now);
     if (state.streak.last === d) return;
     const gap = state.streak.last ? dayDiff(state.streak.last, d) : 99;
-    state.streak.count = gap === 1 ? state.streak.count + 1 : 1;
+    // One missed day a week is forgiven, so a busy day (or a parent's screen-free day) never
+    // wipes out a run.
+    const shieldFree = !state.streak.shield || dayDiff(state.streak.shield, d) >= 7;
+    if (gap === 2 && shieldFree && state.streak.count > 0) { state.streak.shield = d; out.shieldUsed = true; }
+    state.streak.count = gap === 1 || out.shieldUsed ? state.streak.count + 1 : 1;
     state.streak.last = d;
     if (state.streak.count >= 3) achieve(state, 'streak-3', out);
     if (state.streak.count >= 7) achieve(state, 'streak-7', out);
@@ -3464,8 +3472,8 @@ function ChacklateProgress(catalog, extras) {
 
 // ---- audio.js ----
 // Chacklate sound: every effect and the ambient score are synthesised with the
-// Web Audio API, so there are no audio files to download. Four sound packs
-// change the material (wood, marble, glass, soft) of the piece sounds.
+// Web Audio API. Four sound packs change the material (wood, marble, glass, soft)
+// of the piece sounds. The only audio files are the recorded voices.
 function ChacklateAudio() {
   'use strict';
   let ctx = null, master = null, sfxBus = null, musicBus = null, verb = null, verbSend = null;
@@ -3643,25 +3651,137 @@ function ChacklateAudio() {
     }
   }
 
-  // Narration through the device's speech engine (no network, no downloads).
-  let voice = null;
-  function pickVoice() {
+  // Recorded voices (voice/<id>/<key>.mp3, made by tools/voice). When the game runs from the
+  // single offline file there are no recordings, and lessons fall back to the device's speech engine.
+  const V = (typeof CHACKLATE_VOICE !== 'undefined') ? CHACKLATE_VOICE : { voices: [], events: {}, moves: {} };
+  let coachVoice = 'mira', callVoice = 'mira', announceOn = false, deviceFallback = true;
+  let index = null, indexLoad = null, current = null, queueId = 0;
+  const clips = new Map();
+  function voiceKey(text) {
+    let h = 0x811c9dc5;
+    for (const ch of String(text).normalize('NFC')) {
+      const c = ch.codePointAt(0);
+      h ^= c & 0xff; h = Math.imul(h, 0x01000193);
+      if (c > 0xff) { h ^= (c >>> 8) & 0xff; h = Math.imul(h, 0x01000193); }
+      if (c > 0xffff) { h ^= (c >>> 16) & 0xff; h = Math.imul(h, 0x01000193); }
+    }
+    return (h >>> 0).toString(16).padStart(8, '0');
+  }
+  function loadIndex() {
+    if (indexLoad) return indexLoad;
+    if (typeof fetch === 'undefined' || location.protocol === 'file:') { index = {}; return (indexLoad = Promise.resolve(index)); }
+    indexLoad = fetch('voice/index.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => {
+      index = {};
+      for (const id of Object.keys(j.voices || {})) index[id] = new Set(j.voices[id]);
+      return index;
+    });
+    return indexLoad;
+  }
+  function has(id, key) { return !!(index && index[id] && index[id].has(key)); }
+  function clip(id, key) {
+    const k = id + '/' + key;
+    if (!clips.has(k)) {
+      clips.set(k, fetch('voice/' + k + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { clips.delete(k); throw e; }));
+    }
+    return clips.get(k);
+  }
+  function duck(on) {
+    if (music && ctx) musicBus.gain.setTargetAtTime(musicVol * (on ? 0.2 : 0.5), ctx.currentTime, on ? 0.3 : 0.8);
+  }
+  function stopSpeech() {
+    queueId++;
+    if (current) { try { current.stop(); } catch (e) { /* already ended */ } current = null; }
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+  }
+  // Plays recordings back to back with a short breath between them. Resolves false if any is missing.
+  async function playKeys(id, keys, gap) {
+    if (!ready()) return false;
+    await loadIndex();
+    if (!keys.every((k) => has(id, k))) return false;
+    const my = ++queueId;
+    let bufs;
+    try { bufs = await Promise.all(keys.map((k) => clip(id, k))); } catch (e) { return false; }
+    if (my !== queueId) return true;
+    if (current) { try { current.stop(); } catch (e) { /* already ended */ } }
+    const voiceBus = ctx.createGain(); voiceBus.gain.value = 1; voiceBus.connect(master);
+    let t = ctx.currentTime + 0.03, last = null;
+    for (const b of bufs) {
+      const s = ctx.createBufferSource(); s.buffer = b; s.connect(voiceBus); s.start(t);
+      t += b.duration + (gap || 0.06); last = s;
+    }
+    current = last;
+    duck(true);
+    last.onended = () => { if (current === last) { current = null; duck(false); } };
+    return true;
+  }
+
+  // Device speech engine, used only when there is no recording.
+  let deviceVoice = null;
+  function pickVoice(lang) {
     if (!('speechSynthesis' in window)) return null;
     const vs = speechSynthesis.getVoices();
+    if (lang === 'hi') return vs.find((v) => /^hi/i.test(v.lang)) || null;
     return vs.find((v) => /en-(IN|GB)/i.test(v.lang) && /female|natural|neural|samantha|serena|veena/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
   }
-  function say(text, rate) {
+  function device(text, rate, lang) {
     if (!('speechSynthesis' in window)) return false;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    voice = voice || pickVoice();
-    if (voice) u.voice = voice;
+    const v = lang === 'hi' ? pickVoice('hi') : (deviceVoice = deviceVoice || pickVoice('en'));
+    if (v) u.voice = v;
+    if (lang === 'hi') u.lang = 'hi-IN';
     u.rate = rate || 1; u.pitch = 1;
-    if (music) { musicBus.gain.setTargetAtTime(musicVol * 0.2, ctx.currentTime, 0.3); u.onend = () => { if (music) musicBus.gain.setTargetAtTime(musicVol * 0.5, ctx.currentTime, 0.8); }; }
+    if (music) { duck(true); u.onend = () => duck(false); }
     speechSynthesis.speak(u);
     return true;
   }
-  function hush() { if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+  const voiceInfo = (id) => V.voices.find((v) => v.id === id) || null;
+  // Lesson and coach lines (English text from the content files).
+  async function say(text, rate) {
+    stopSpeech();
+    const id = coachVoice;
+    if (id !== 'device' && await playKeys(id, [voiceKey(text)])) return true;
+    return deviceFallback ? device(text, rate, 'en') : false;
+  }
+  // A game call such as "check" or "mate.win", in the language of the chosen call voice.
+  async function event(key) {
+    if (callVoice === 'off') return false;
+    const v = voiceInfo(callVoice);
+    const lang = v ? v.lang : 'en';
+    const text = (V.events[lang] || {})[key] || (V.events.en || {})[key];
+    if (!text) return false;
+    stopSpeech();
+    if (v && await playKeys(v.id, [voiceKey(text)])) return true;
+    return deviceFallback ? device(text, 1, lang) : false;
+  }
+  // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
+  function moveWords(san, lang) {
+    const M = V.moves[lang] || V.moves.en;
+    if (!M) return [];
+    const s = String(san).replace(/[!?]+$/, '');
+    const tail = /#$/.test(s) ? [M.mate] : /\+$/.test(s) ? [M.check] : [];
+    if (/^O-O-O/.test(s)) return [M.castleQ].concat(tail);
+    if (/^O-O/.test(s)) return [M.castleK].concat(tail);
+    const m = s.match(/^([KQRBN])?([a-h])?([1-8])?(x)?([a-h])([1-8])(?:=([QRBN]))?/);
+    if (!m) return [];
+    const words = [M.piece[m[1] || 'P']];
+    if (m[4]) words.push(M.takes);
+    words.push(M.file[m[5]] + ' ' + M.rank[m[6]]);
+    if (m[7]) words.push(M.promote[m[7]]);
+    return words.concat(tail);
+  }
+  async function announce(san) {
+    if (!announceOn || callVoice === 'off') return false;
+    const v = voiceInfo(callVoice);
+    const lang = v ? v.lang : 'en';
+    const words = moveWords(san, lang).filter(Boolean);
+    if (!words.length) return false;
+    stopSpeech();
+    if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
+    return deviceFallback ? device(words.join(' '), 1.1, lang) : false;
+  }
+  function hush() { stopSpeech(); duck(false); }
 
   return {
     play,
@@ -3674,7 +3794,21 @@ function ChacklateAudio() {
     },
     // Browsers only allow sound after a user gesture; call this from one.
     unlock() { if (ready() && musicOn && !music) startMusic(); },
-    say, hush,
+    say, hush, event, announce, voiceKey, moveWords,
+    voices: () => V.voices.slice(),
+    setVoices(o) {
+      if (o.coach) coachVoice = o.coach;
+      if (o.calls) callVoice = o.calls;
+      if (o.announce !== undefined) announceOn = !!o.announce;
+      if (o.deviceFallback !== undefined) deviceFallback = !!o.deviceFallback;
+    },
+    // Plays a short sample of a voice, for the settings screen.
+    async preview(id) {
+      const v = voiceInfo(id);
+      if (!v) return device((V.events.en || {}).welcome || 'Hello', 1, 'en');
+      stopSpeech();
+      return playKeys(id, [voiceKey(V.events[v.lang].welcome)]);
+    },
     get musicOn() { return musicOn; },
   };
 }
@@ -3686,7 +3820,7 @@ function ChacklateAudio() {
 (function () {
   'use strict';
   const A = () => window.ChacklateApp;
-  let sock = null, ready = false, retry = 0, retryTimer = null, me = null, acct = null, ratings = null, seekingModal = null, friendModal = null, progressTimer = null;
+  let sock = null, ready = false, retry = 0, retryTimer = null, me = null, acct = null, safety = null, ratings = null, seekingModal = null, friendModal = null, progressTimer = null;
 
   function base() {
     const s = A() && A().state.settings.server;
@@ -3722,7 +3856,8 @@ function ChacklateAudio() {
     if (!app) return;
     switch (m.type) {
       case 'welcome': {
-        ready = true; me = m.user; ratings = m.ratings; acct = m.account || null;
+        ready = true; me = m.user; ratings = m.ratings; acct = m.account || null; safety = m.safety || null;
+        app.setSafety(safety);
         setAccount({ token: m.token, name: me.name, guest: me.guest, id: me.id });
         // Adopt the server copy of progress when it is further along (a second device, a cleared browser).
         if (m.progress && m.progress.xp > app.state.progress.xp) { app.state.progress = app.PG.migrate(m.progress); app.save(); if (app.state.screen !== 'game') app.go(app.state.screen); }
@@ -3733,6 +3868,7 @@ function ChacklateAudio() {
         if (app.state.game && app.state.game.kind === 'online') send({ type: 'sync' });
         return;
       }
+      case 'safety': safety = m.safety; app.setSafety(safety); refreshPanel(); return;
       case 'seeking': return showSeeking(m.tc);
       case 'idle': closeSeeking(); return;
       case 'friend-code': return showCode(m.code, m.tc);
@@ -3817,39 +3953,37 @@ function ChacklateAudio() {
       (me.guest ? '' : '<button class="btn small" id="ac-out">Sign out</button>') + '</div>' +
       '<div class="today" style="margin:12px 0">' + rating('bullet') + rating('blitz') + rating('rapid') + '</div>' +
       (me.guest ?
-        '<form id="ac-form" class="acct-form"><p style="color:var(--muted);margin:0 0 8px">Pick a name to keep your rating, appear on leaderboards and play on any device.</p>' +
-        '<div class="field"><label for="ac-name">Name</label><input class="text-in" id="ac-name" autocomplete="username" maxlength="20" required></div>' +
-        '<div class="field"><label for="ac-pw">Password</label><input class="text-in" id="ac-pw" type="password" autocomplete="new-password" minlength="8" required></div>' +
-        '<p class="err" id="ac-err"></p><div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button><button class="btn ghost small" id="ac-forgot" type="button">Forgot password?</button></div></form>'
-        : accountTools()) +
+        '<div class="acct-form"><p style="color:var(--muted);margin:0 0 8px">Make an account to keep your rating and play on any device. Players under 18 need a parent to say yes before playing online.</p>' +
+        '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg" type="button">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button><button class="btn ghost small" id="ac-forgot" type="button">Forgot password?</button></div></div>'
+        : safetyPanel() + accountTools()) +
       '<h3 class="section-title">Leaderboard</h3><div class="seg" id="lb-pool">' + ['bullet', 'blitz', 'rapid'].map((p) => '<label><input type="radio" name="lbp" value="' + p + '"' + (p === board ? ' checked' : '') + '><span>' + p + '</span></label>').join('') + '</div>' +
       '<ol class="leaderboard" id="lb"><li style="color:var(--muted)">Loading…</li></ol>';
     const out = el.querySelector('#ac-out');
     if (out) out.onclick = async () => { try { await api('/api/logout', {}); } catch (e) { /* signed out locally either way */ } setAccount({ token: '', guest: true }); app.setEntitlements(null); app.save(); connect(); };
-    const form = el.querySelector('#ac-form');
-    if (form) {
-      const submit = async (path) => {
-        const err = el.querySelector('#ac-err');
-        err.textContent = '';
-        try {
-          const res = await api(path, { name: el.querySelector('#ac-name').value.trim(), password: el.querySelector('#ac-pw').value });
-          setAccount({ token: res.token, name: res.user.name, guest: false });
-          app.state.settings.name = res.user.name; app.save();
-          app.toast('Welcome, ' + res.user.name + '.');
-          connect();
-        } catch (e) { err.textContent = e.message; }
-      };
-      form.onsubmit = (e) => { e.preventDefault(); submit('/api/register'); };
-      el.querySelector('#ac-login').onclick = () => submit('/api/login');
-    }
+    const reg = el.querySelector('#ac-reg');
+    if (reg) { reg.onclick = () => signUpModal(); el.querySelector('#ac-login').onclick = () => signInModal(); }
+    const age = el.querySelector('#ac-age');
+    if (age) age.onclick = () => signUpModal({ ageOnly: true });
+    const resend = el.querySelector('#ac-resend');
+    if (resend) resend.onclick = () => parentEmailModal();
     wireAccountTools(el);
     el.querySelector('#lb-pool').onchange = (e) => { board = e.target.value; loadBoard(el); };
     loadBoard(el);
   }
 
   // ---------------------------------------------------------------- account self-service
+  function minor() { return safety && safety.kind === 'minor'; }
+  // Under-18 accounts show their parent status instead of an email field.
+  function safetyPanel() {
+    if (!safety || safety.kind !== 'minor') return '';
+    const esc = A().esc;
+    if (!safety.band) return '<div class="callout">Tell us your age to keep playing online. <button class="btn small" id="ac-age" type="button">Add my age</button></div>';
+    if (!safety.consent) return '<div class="callout">Waiting for a parent to say yes. We emailed them a link. Until then you can play the computer, lessons and puzzles. <button class="btn small" id="ac-resend" type="button">Send it again</button></div>';
+    return '<div class="callout">A parent manages this account. ' + (safety.online ? esc(safety.online) : 'Online play is on.') + '</div>';
+  }
   function accountTools() {
     const esc = A().esc, a = acct || {};
+    if (minor()) return '<div class="acct-tools"><div class="row" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn small" id="ac-pw" type="button">Change password</button><button class="btn small" id="ac-export" type="button">Download my data</button><button class="btn small warn" id="ac-del" type="button">Delete account</button></div></div>';
     return '<div class="acct-tools">' +
       '<div class="field"><label for="ac-email">Email ' + (a.email ? (a.emailVerified ? '<span class="pill gold">confirmed</span>' : '<span class="pill">check your inbox</span>') : '<span class="pill">lets you reset your password</span>') + '</label>' +
       '<div style="display:flex;gap:8px"><input class="text-in" id="ac-email" type="email" autocomplete="email" value="' + esc(a.email || '') + '" placeholder="you@example.com"><button class="btn" id="ac-email-go" type="button">' + (a.email && !a.emailVerified ? 'Resend' : 'Save') + '</button></div></div>' +
@@ -3858,9 +3992,9 @@ function ChacklateAudio() {
   function wireAccountTools(el) {
     const app = A(), q = (s) => el.querySelector(s);
     const forgot = q('#ac-forgot');
-    if (forgot) forgot.onclick = () => forgotModal(q('#ac-name') ? q('#ac-name').value.trim() : '');
-    if (!q('#ac-email-go')) return;
-    q('#ac-email-go').onclick = async () => {
+    if (forgot) forgot.onclick = () => forgotModal('');
+    if (!q('#ac-pw') || q('#ac-pw').tagName !== 'BUTTON') return;
+    if (q('#ac-email-go')) q('#ac-email-go').onclick = async () => {
       try { const r = await api('/api/account/email', { email: q('#ac-email').value.trim() }); acct = { email: r.email, emailVerified: false }; app.toast('We sent a confirmation link to ' + app.esc(r.email) + '.'); renderAccount(el); }
       catch (e) { app.toast(app.esc(e.message), 'bad'); }
     };
@@ -3898,6 +4032,86 @@ function ChacklateAudio() {
       };
     };
   }
+  // ---------------------------------------------------------------- sign up and sign in
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function ageOf(y, mo) { const d = new Date(); let a = d.getFullYear() - y; if (d.getMonth() + 1 < mo) a--; return a; }
+  // A neutral age question first (no default, no hint about a "right" answer), then the right form for that age.
+  function signUpModal(opts) {
+    opts = opts || {};
+    const app = A(), esc = app.esc, year = new Date().getFullYear();
+    const years = []; for (let y = year - 4; y >= year - 100; y--) years.push(y);
+    const m = app.modal('<h2>' + (opts.ageOnly ? 'How old are you?' : 'Create your account') + '</h2><p class="sub">When were you born?</p>' +
+      '<div class="row" style="justify-content:flex-start"><select class="text-in" id="su-m" aria-label="Birth month"><option value="">Month</option>' + MONTHS.map((n, i) => '<option value="' + (i + 1) + '">' + n + '</option>').join('') + '</select>' +
+      '<select class="text-in" id="su-y" aria-label="Birth year"><option value="">Year</option>' + years.map((y) => '<option>' + y + '</option>').join('') + '</select></div>' +
+      '<div id="su-rest"></div><p class="err" id="su-err"></p>');
+    const q = (s) => m.querySelector(s);
+    let picked = null;
+    const step2 = async () => {
+      const mo = +q('#su-m').value, y = +q('#su-y').value;
+      if (!mo || !y) return;
+      const kid = ageOf(y, mo) < 18;
+      const needName = !opts.ageOnly || kid;
+      let names = [];
+      if (kid) { try { names = (await api('/api/names')).names; } catch (e) { names = []; } }
+      const nameField = !needName ? '' : kid
+        ? '<div class="field"><div class="label">Pick your player name</div><div class="chips" id="su-names">' + names.map((n) => '<button type="button" class="chip" data-n="' + esc(n) + '">' + esc(n) + '</button>').join('') + '</div><button type="button" class="btn ghost small" id="su-more">More names</button>' +
+          '<p class="fine">Names are made up for you, so nobody can tell who you are from your name.</p></div>'
+        : '<div class="field"><label for="su-name">Name</label><input class="text-in" id="su-name" autocomplete="username" maxlength="20" required></div>';
+      q('#su-rest').innerHTML = nameField +
+        (opts.ageOnly ? '' : '<div class="field"><label for="su-pw">Password</label><input class="text-in" id="su-pw" type="password" autocomplete="new-password" minlength="8" required></div>') +
+        (kid ? '<div class="field"><label for="su-pe">A parent or guardian\'s email</label><input class="text-in" id="su-pe" type="email" autocomplete="off" required>' +
+          '<p class="fine">We email them once to ask permission. Until they say yes you can play the computer, lessons and puzzles, but not online.</p></div>' : '') +
+        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" id="su-go" type="button">' + (opts.ageOnly ? 'Save' : 'Create account') + '</button></div>';
+      const wire = () => m.querySelectorAll('[data-n]').forEach((b) => { b.onclick = () => { picked = b.dataset.n; m.querySelectorAll('[data-n]').forEach((x) => x.classList.toggle('on', x === b)); }; });
+      wire();
+      const more = q('#su-more');
+      if (more) more.onclick = async () => { try { const r = await api('/api/names'); q('#su-names').innerHTML = r.names.map((n) => '<button type="button" class="chip" data-n="' + esc(n) + '">' + esc(n) + '</button>').join(''); picked = null; wire(); } catch (e) { /* keep the current names */ } };
+      q('#su-go').onclick = async () => {
+        const err = q('#su-err'); err.textContent = '';
+        const name = kid ? picked : q('#su-name') ? q('#su-name').value.trim() : '';
+        if (needName && !name) { err.textContent = kid ? 'Pick a name first.' : 'Choose a name.'; return; }
+        const body = { birthYear: y, birthMonth: mo, parentEmail: kid ? q('#su-pe').value.trim() : undefined };
+        try {
+          if (opts.ageOnly) {
+            await api('/api/account/age', Object.assign(body, { name })); m.close(); app.toast(kid ? 'Thanks. We emailed your parent.' : 'Thanks.'); connect(); return;
+          }
+          const res = await api('/api/register', Object.assign(body, { name, password: q('#su-pw').value }));
+          setAccount({ token: res.token, name: res.user.name, guest: false });
+          app.state.settings.name = res.user.name; app.save();
+          m.close();
+          app.toast(kid ? 'Welcome, ' + esc(res.user.name) + '. We emailed your parent.' : 'Welcome, ' + esc(res.user.name) + '.');
+          connect();
+        } catch (e) { err.textContent = e.message; }
+      };
+    };
+    q('#su-m').onchange = step2; q('#su-y').onchange = step2;
+  }
+  function signInModal() {
+    const app = A();
+    const m = app.modal('<h2>Sign in</h2><form id="si"><div class="field"><label for="si-name">Name</label><input class="text-in" id="si-name" autocomplete="username" maxlength="20" required></div>' +
+      '<div class="field"><label for="si-pw">Password</label><input class="text-in" id="si-pw" type="password" autocomplete="current-password" required></div><p class="err" id="si-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Sign in</button></div></form>');
+    m.querySelector('#si').onsubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const res = await api('/api/login', { name: m.querySelector('#si-name').value.trim(), password: m.querySelector('#si-pw').value });
+        setAccount({ token: res.token, name: res.user.name, guest: false });
+        app.state.settings.name = res.user.name; app.save();
+        m.close(); app.toast('Welcome back, ' + app.esc(res.user.name) + '.'); connect();
+      } catch (err) { m.querySelector('#si-err').textContent = err.message; }
+    };
+  }
+  function parentEmailModal() {
+    const app = A();
+    const m = app.modal('<h2>Ask a parent again</h2><form id="pe"><div class="field"><label for="pe-e">A parent or guardian\'s email</label><input class="text-in" id="pe-e" type="email" autocomplete="off" required></div><p class="err" id="pe-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Send</button></div></form>');
+    m.querySelector('#pe').onsubmit = async (e) => {
+      e.preventDefault();
+      try { await api('/api/account/consent/resend', { parentEmail: m.querySelector('#pe-e').value.trim() }); m.close(); app.toast('Sent. Ask them to check their inbox.'); }
+      catch (err) { m.querySelector('#pe-err').textContent = err.message; }
+    };
+  }
+
   function forgotModal(prefill) {
     const app = A();
     const m = app.modal('<h2>Reset your password</h2><p class="sub">Enter your name or email. If the account has a confirmed email, we send a link that works for an hour.</p>' +
@@ -3945,6 +4159,7 @@ function ChacklateAudio() {
 
   window.ChacklateNet = {
     available: () => ready,
+    safety: () => safety,
     api,
     resetModal,
     connect,
@@ -3974,6 +4189,8 @@ function ChacklateAudio() {
   const { WHITE, BLACK, LEVELS } = E;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // A plain end date rather than a countdown: no ticking clocks aimed at children.
+  const seasonEnd = (s) => new Date(s.ends + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   const STORE_KEY = 'chacklate-chess:v2';
   const GLYPH = { 1: '♟', 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' };
   const WGLYPH = { 1: '♙', 2: '♘', 3: '♗', 4: '♖', 5: '♕', 6: '♔' };
@@ -4011,7 +4228,7 @@ function ChacklateAudio() {
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, coach: 'normal',
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal',
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -4038,6 +4255,83 @@ function ChacklateAudio() {
     } catch (e) { /* storage unavailable: everything still works for this visit */ }
     if (window.ChacklateNet) ChacklateNet.syncProgress();
   }
+
+  // ------------------------------------------------------------ children's safety
+  // The server says what this account may do (see services/game-server/src/family.js); null
+  // means no server, which is offline play with nothing to buy or share.
+  let safety = null;
+  function setSafety(s) {
+    safety = s || null;
+    if (safety && !safety.reminders && state.settings.reminder && state.settings.reminder.on) { state.settings.reminder = Object.assign({}, state.settings.reminder, { on: false }); save(); }
+    checkPlayTime();
+    if (['store', 'home'].includes(state.screen) && !document.querySelector('.modal')) go(state.screen);
+  }
+  const isMinor = () => !!(safety && safety.kind === 'minor');
+
+  // Parent gate: a sum written in words, which a young child cannot read and an adult answers in
+  // a second. It sits in front of the store, purchases and turning reminders on, as Apple's Kids
+  // category and Google's Families policy ask. A pass lasts ten minutes.
+  const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  let gatePassed = 0;
+  function parentGate(why) {
+    if (Date.now() - gatePassed < 10 * 60e3) return Promise.resolve(true);
+    return new Promise((resolve) => {
+      const a = 3 + Math.floor(Math.random() * 7), b = 3 + Math.floor(Math.random() * 7);
+      let done = false;
+      const m = modal('<div class="eyebrow">For grown-ups</div><h2>Ask a parent</h2><p class="sub">' + esc(why) + '</p>' +
+        '<form id="pg"><div class="field"><label for="pg-a">What is ' + WORDS[a] + ' times ' + WORDS[b] + '?</label><input class="text-in" id="pg-a" inputmode="numeric" autocomplete="off" maxlength="3" required></div>' +
+        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Continue</button></div></form>',
+      { onClose() { if (!done) resolve(false); } });
+      m.querySelector('#pg').onsubmit = (e) => {
+        e.preventDefault();
+        done = true; m.close();
+        if (+m.querySelector('#pg-a').value === a * b) { gatePassed = Date.now(); resolve(true); }
+        else { toast('That answer is not right.', 'bad'); resolve(false); }
+      };
+    });
+  }
+  function askPin() {
+    return new Promise((resolve) => {
+      let done = false;
+      const m = modal('<div class="eyebrow">Parent PIN</div><h2>A parent needs to approve this</h2><p class="sub">Enter the PIN you chose on the parent page.</p>' +
+        '<form id="pp"><div class="field"><label for="pp-pin">PIN</label><input class="text-in" id="pp-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div>' +
+        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn gold" type="submit">Approve</button></div></form>',
+      { onClose() { if (!done) resolve(null); } });
+      m.querySelector('#pp').onsubmit = (e) => { e.preventDefault(); done = true; const v = m.querySelector('#pp-pin').value; m.close(); resolve(v); };
+    });
+  }
+
+  // Daily time limit a parent can set. Counts minutes with the page visible, per local day.
+  const PLAY_KEY = 'chacklate-chess:playtime';
+  const localDay = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  function playTime() {
+    let t = null; try { t = JSON.parse(localStorage.getItem(PLAY_KEY) || 'null'); } catch (e) { t = null; }
+    return t && t.day === localDay() ? t : { day: localDay(), ms: 0, extra: 0 };
+  }
+  let breakModal = null;
+  function checkPlayTime() {
+    const lim = safety && safety.dailyMinutes;
+    if (!lim) { if (breakModal) { breakModal.close(); breakModal = null; } return; }
+    const t = playTime();
+    if (t.ms < (lim + t.extra) * 60e3 || breakModal) return;
+    if (state.game && state.game.kind === 'online' && !state.game.g.outcome) return; // let the game finish
+    breakModal = modal('<div style="text-align:center"><div class="eyebrow">Time for a break</div><h2 class="result-title" style="margin-top:8px">That\'s today\'s chess</h2>' +
+      '<p class="sub">Your parent set ' + lim + ' minutes a day. Your progress is saved. See you tomorrow!</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">Grown-up: 15 more minutes</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
+    breakModal.querySelector('#br-more').onclick = async () => {
+      const m = breakModal; m.style.visibility = 'hidden';
+      if (await parentGate('A parent can allow 15 more minutes today.')) {
+        const t2 = playTime(); t2.extra += 15; try { localStorage.setItem(PLAY_KEY, JSON.stringify(t2)); } catch (e) { /* not stored */ }
+        breakModal = null; m.close();
+      } else m.style.visibility = '';
+    };
+  }
+  setInterval(() => {
+    if (document.hidden || !(safety && safety.dailyMinutes)) return;
+    const t = playTime(); t.ms += 30e3;
+    try { localStorage.setItem(PLAY_KEY, JSON.stringify(t)); } catch (e) { /* not stored */ }
+    checkPlayTime();
+  }, 30e3);
 
   // ------------------------------------------------------------ engine workers
   // Two workers: one plays and hints, one analyses (reviews, coach) so a long
@@ -4139,6 +4433,7 @@ function ChacklateAudio() {
     view.setAnimations(s.animations && !window.__SHOT);
     AU.setSfx(s.sfx, s.sfxVol);
     AU.setMusic(s.music, s.musicVol);
+    AU.setVoices({ coach: s.voiceCoach, calls: s.voiceCalls, announce: s.announce });
     applyLook();
   }
 
@@ -4338,7 +4633,7 @@ function ChacklateAudio() {
   function seasonStrip() {
     const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
     if (!s) return '';
-    return '<button class="season-strip glass" id="a-season"><div class="sg">' + icon('season') + '</div><div style="flex:1"><div class="eyebrow">Season ' + s.season.number + ' · ' + s.daysLeft + ' days left</div><b>' + esc(s.season.name) + ' · Tier ' + s.tier + '</b>' +
+    return '<button class="season-strip glass" id="a-season"><div class="sg">' + icon('season') + '</div><div style="flex:1"><div class="eyebrow">Season ' + s.season.number + ' · runs to ' + seasonEnd(s.season) + '</div><b>' + esc(s.season.name) + ' · Tier ' + s.tier + '</b>' +
       '<div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div><div class="go">›</div></button>';
   }
 
@@ -4376,7 +4671,7 @@ function ChacklateAudio() {
       const reached = s.tier >= t;
       rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === t ? ' next' : '') + '"><div class="tn">' + t + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
     }
-    mount(topbar({ back: 'Home' }) + '<section class="sheet glass"><header><div class="eyebrow">Season ' + s.season.number + ' · ' + s.daysLeft + ' days left</div><h2>' + esc(s.season.name) + '</h2><p>' + esc(s.season.blurb) + '</p></header><div class="body">' +
+    mount(topbar({ back: 'Home' }) + '<section class="sheet glass"><header><div class="eyebrow">Season ' + s.season.number + ' · runs to ' + seasonEnd(s.season) + '</div><h2>' + esc(s.season.name) + '</h2><p>' + esc(s.season.blurb) + '</p></header><div class="body">' +
       '<div class="hero-card"><div class="sg big">' + icon('season') + '</div><div style="flex:1"><div style="font:400 24px/1.1 var(--display)">Tier ' + s.tier + ' of ' + s.season.tiers + '</div>' +
       '<div style="color:var(--muted);font-size:13px;margin:4px 0 8px">' + (s.tier >= s.season.tiers ? 'Track complete.' : s.into + ' / ' + s.need + ' season XP to tier ' + (s.tier + 1)) + '</div><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div></div>' +
       (s.pass ? '<p class="pill gold" style="margin:4px 0 14px">' + icon('crown') + (P.premium ? ' Season Pass included with Premium' : ' Season Pass owned') + '</p>'
@@ -4397,6 +4692,15 @@ function ChacklateAudio() {
     const P = state.progress;
     let remote = null;
     function render() {
+      if (Date.now() - gatePassed >= 10 * 60e3) {
+        $('st-body').innerHTML = '<p class="sub">The store is for grown-ups. A parent can open it.</p><div class="row" style="justify-content:flex-start"><button class="btn primary" id="st-gate">' + icon('crown') + ' Parent: open the store</button></div>';
+        $('st-gate').onclick = async () => { if (await parentGate('Answer to open the store.')) render(); };
+        return;
+      }
+      if (safety && safety.kind === 'minor' && safety.purchases === 'off') {
+        $('st-body').innerHTML = '<p class="sub">A parent has turned purchases off for this account. Everything you have earned stays yours.</p>';
+        return;
+      }
       const ent = (state.account && state.account.ent) || {};
       const online = window.ChacklateNet && ChacklateNet.available();
       const products = STORE.products.map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
@@ -4426,8 +4730,11 @@ function ChacklateAudio() {
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
+      if (!await parentGate('A parent needs to approve purchases.')) return;
+      let pin;
+      if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
-        const o = await ChacklateNet.api('/api/store/checkout', { product: id });
+        const o = await ChacklateNet.api('/api/store/checkout', { product: id, pin });
         const p = STORE.products.find((x) => x.id === id);
         if (o.action.type === 'dev-confirm') {
           const m = modal('<h2>Test purchase</h2><p class="sub">' + esc(p.name) + (p.period ? ' (' + p.period + ')' : '') + '. This server runs the test store, so no money moves.</p><div class="row"><button class="btn" data-close>Cancel</button><button class="btn gold" id="tp-ok">Confirm</button></div>');
@@ -4474,6 +4781,15 @@ function ChacklateAudio() {
     const [m, s] = tc.split('+').map(Number);
     return { w: m * 60000, b: m * 60000, inc: s * 1000, since: 0 };
   }
+  // The spoken call for a finished game, a key into voice.json events.
+  function resultCall(reason, winner, youWon, youLost) {
+    if (!winner) return { stalemate: 'stalemate', threefold: 'draw.repetition', fivefold: 'draw.repetition', fifty: 'draw.fifty', seventyfive: 'draw.fifty',
+      insufficient: 'draw.material', 'timeout-insufficient': 'draw.material', agreement: 'draw.agreed' }[reason] || 'draw.agreed';
+    if (reason === 'resignation') return youLost ? 'resign.loss' : 'resign.win';
+    if (reason === 'timeout') return youLost ? 'time.loss' : 'time.win';
+    return youLost ? 'mate.loss' : youWon ? 'mate.win' : 'mate.loss';
+  }
+
   function startGame(setup, restore) {
     state.setup = Object.assign({}, setup);
     const kind = setup.mode;
@@ -4483,6 +4799,7 @@ function ChacklateAudio() {
     const game = { kind, setup: state.setup, g, human, clock: parseTc(setup.tc), selected: -1, hint: null, hintStep: 0, busy: false, thinking: false, request: 0,
       viewSide: kind === 'local' ? 'white' : human === WHITE ? 'white' : 'black', coachMsg: null, evals: {}, threat: null, resultShown: false, review: null,
       online: setup.online || null, takebacks: 0, drawOffered: false };
+    if (setup.online && !restore) setTimeout(() => AU.event('online.found'), 400);
     if (restore) {
       for (const u of restore.moves || []) if (!g.playText(u)) break;
       if (restore.clock && game.clock) Object.assign(game.clock, restore.clock, { since: 0 });
@@ -4651,6 +4968,7 @@ function ChacklateAudio() {
     const quick = G.clock && G.clock[moverKey] < 10000;   // effects off under 10 s, per the art bible
     const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
     setTimeout(() => AU.play(sound), dropped ? 0 : 140);
+    if (!g.outcome) setTimeout(() => AU.announce(info.san).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
     view.animateMove(info, () => {
       G.busy = false;
@@ -4691,7 +5009,7 @@ function ChacklateAudio() {
       if (G.clock.since) G.clock[k] = Math.max(0, G.clock[k] - (now - G.clock.since));
       G.clock.since = now;
       if (G.clock[k] <= 0) { G.request++; G.thinking = false; G.g.timeout(G.g.pos.side); endGame(); }
-      else if (G.clock[k] < 10000 && (G.kind === 'local' || G.g.pos.side === G.human) && Date.now() - lowTick > 1000) { lowTick = Date.now(); AU.play('low'); }
+      else if (G.clock[k] < 10000 && (G.kind === 'local' || G.g.pos.side === G.human) && Date.now() - lowTick > 1000) { lowTick = Date.now(); AU.play('low'); if (!G.lowCalled && G.kind !== 'local') { G.lowCalled = true; AU.event('time.low'); } }
     }
     renderClocks();
   }, 100);
@@ -4903,6 +5221,7 @@ function ChacklateAudio() {
     const vsSomeone = G.kind !== 'local';
     const youWon = vsSomeone && winner === G.human, youLost = vsSomeone && winner === -G.human;
     AU.play(winner ? (youLost ? 'loss' : 'win') : 'draw');
+    setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
     // Progress
     let res = null;
     if (G.kind !== 'local' || g.moves.length >= 10) {
@@ -5446,6 +5765,7 @@ function ChacklateAudio() {
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
       if (nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').innerHTML = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
       AU.play('win');
+      AU.event('lesson.passed');
       view.celebrate('win', -1, null, -1);
       dots();
       celebrate(res);
@@ -5464,7 +5784,7 @@ function ChacklateAudio() {
     const plan = trainingPlan();
     mount(topbar() + '<section class="sheet glass"><header><div class="eyebrow">Train</div><h2>Improve my chess</h2><p>Puzzles from engine-verified positions, honest game reviews and a plan built from your own mistakes.</p></header><div class="body">' +
       '<div class="cards">' +
-      (daily ? '<button class="card-btn feature" id="i-daily"><div class="big">☀</div><div><b>Daily puzzle' + (dailyDone ? ' · solved' : '') + '</b><br><small>' + (dailyDone ? 'Come back tomorrow for a new one.' : 'Rated ' + daily.rating + '. Keep your streak going.') + '</small></div></button>' : '') +
+      (daily ? '<button class="card-btn feature" id="i-daily"><div class="big">☀</div><div><b>Daily puzzle' + (dailyDone ? ' · solved' : '') + '</b><br><small>' + (dailyDone ? 'Come back tomorrow for a new one.' : 'Rated ' + daily.rating + '. A fresh puzzle for today.') + '</small></div></button>' : '') +
       '<button class="card-btn" id="i-rated"><div class="big">♞</div><b>Puzzle trainer</b><small>Rating ' + P.stats.puzzles.rating + ' · ' + PUZZLES.length + ' puzzles</small></button>' +
       '<button class="card-btn" id="i-plan"><div class="big">✎</div><b>Your training plan</b><small>' + esc(plan.summary) + '</small></button>' +
       '<button class="card-btn" id="i-lab"><div class="big">♗</div><b>Opening lab</b><small>' + OPENINGS.length + ' openings · ' + Object.values(P.openings).filter((r) => r.mastered).length + ' mastered</small></button>' +
@@ -5541,7 +5861,7 @@ function ChacklateAudio() {
     const res = PG.dojoFinished(state.progress, d, ok, mine);
     save(); renderHud();
     AU.play(ok ? 'win' : 'loss');
-    if (ok) view.celebrate('win', -1, null, -1);
+    if (ok) { view.celebrate('win', -1, null, -1); AU.event('dojo.won'); }
     const next = ENDGAMES[ENDGAMES.indexOf(d) + 1];
     const m = modal('<span class="result-badge' + (ok ? ' win' : ' loss') + '">Endgame dojo</span><h2 class="result-title">' + (ok ? 'Goal reached' : 'Not this time') + '</h2>' +
       '<p class="sub">' + esc(why) + ' ' + (ok && d.goal !== 'draw' ? mine + ' moves, par ' + d.par + '.' : '') + '</p>' + (ok ? '<p style="font-size:28px;margin:4px 0 10px">' + stars(res.stars) + '</p>' : '<p class="sub">' + esc(d.tip) + '</p>') +
@@ -5739,7 +6059,7 @@ function ChacklateAudio() {
       const t = new E.Game(S.pos.fen()); t.play(m);
       const ok = E.uci(m) === want || (t.outcome && t.outcome.reason === 'checkmate');
       if (!ok) {
-        S.failed = true; AU.play('wrong'); fb('bad', 'Not quite. That is not the strongest move. Try again.');
+        S.failed = true; AU.play('wrong'); AU.event('puzzle.wrong'); fb('bad', 'Not quite. That is not the strongest move. Try again.');
         view.setBoard(piecesOf(S.pos), null);
         return true;
       }
@@ -5747,7 +6067,7 @@ function ChacklateAudio() {
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
       view.animateMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
-        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', S.failed ? 'Solved, after a miss.' : 'Excellent! Puzzle solved.'); finish(true); return; }
+        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', S.failed ? 'Solved, after a miss.' : 'Excellent! Puzzle solved.'); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.cur.moves[S.step * 2 + 2]);
         S.step++;
         fb('ok', 'Good move. Keep going!');
@@ -5866,6 +6186,16 @@ function ChacklateAudio() {
   }
 
   // ---------------------------------------------------------------- settings
+  function voiceSection(s) {
+    const vs = AU.voices();
+    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
+    return '<div class="field"><div class="label">Voices</div>' +
+      '<label class="toggle">Lesson narration <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
+      '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
+      '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label></div>';
+  }
+
   function settingsModal() {
     const s = state.settings;
     const m = modal('<h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
@@ -5873,7 +6203,7 @@ function ChacklateAudio() {
       '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
       '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + '></label>' +
       '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Lesson narration (device voice) <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      voiceSection(s) +
       '<label class="toggle">Coach comments vs the computer <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Blunders only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
       '<label class="toggle">Evaluation bar vs the computer <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
       '<label class="toggle">Show legal moves <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
@@ -5889,6 +6219,9 @@ function ChacklateAudio() {
     on('#s-mus', 'change', (e) => { s.music = e.target.checked; AU.unlock(); applySettings(); save(); });
     on('#s-musv', 'input', (e) => { s.musicVol = +e.target.value; applySettings(); save(); });
     on('#s-narr', 'change', (e) => { s.narration = e.target.checked; if (!s.narration) AU.hush(); save(); });
+    on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
+    on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
+    on('#s-announce', 'change', (e) => { s.announce = e.target.checked; applySettings(); save(); if (s.announce) { AU.unlock(); AU.announce('Nf3'); } });
     on('#s-coach', 'change', (e) => { s.coach = e.target.value; save(); });
     on('#s-eval', 'change', (e) => { s.evalBar = e.target.checked; save(); renderEval(); });
     on('#s-legal', 'change', (e) => { s.legal = e.target.checked; save(); refreshHighlights(); });
@@ -5916,8 +6249,9 @@ function ChacklateAudio() {
         : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chacklate Chess</button>'
         : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
         : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') + '</div>' +
+      (safety && !safety.reminders ? '<label class="toggle">Daily reminder <small style="color:var(--faint)">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
       '<label class="toggle">Daily reminder' + (pushReady() ? '' : ' <small style="color:var(--faint)">(needs the game server and notification support)</small>') +
-      ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>';
+      ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>');
   }
   function wireAppSection(m) {
     const ib = m.querySelector('#s-install');
@@ -5925,6 +6259,7 @@ function ChacklateAudio() {
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
+      if (want.on && !await parentGate('A parent can turn on reminders.')) { box.checked = false; return; }
       try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? 'Reminder set for ' + String(want.hour).padStart(2, '0') + ':00 on days you have not played.' : 'Reminder off.'); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
@@ -5955,7 +6290,7 @@ function ChacklateAudio() {
 
   // ---------------------------------------------------------------- shared API for the online client
   window.ChacklateApp = {
-    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements,
+    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate,
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
@@ -5990,7 +6325,7 @@ function ChacklateAudio() {
       endGame();
     },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
-    drawOffered() { const G = state.game; if (!G) return; coachSay('Your opponent offers a draw.', [['Accept', 'accept-draw'], ['Decline', 'dismiss']]); const b = document.querySelector('[data-coach="accept-draw"]'); if (b) b.onclick = () => { ChacklateNet.send({ type: 'draw-accept' }); G.coachMsg = null; renderCoach(); }; },
+    drawOffered() { const G = state.game; if (!G) return; AU.event('draw.offer'); coachSay('Your opponent offers a draw.', [['Accept', 'accept-draw'], ['Decline', 'dismiss']]); const b = document.querySelector('[data-coach="accept-draw"]'); if (b) b.onclick = () => { ChacklateNet.send({ type: 'draw-accept' }); G.coachMsg = null; renderCoach(); }; },
   };
 
   // ---------------------------------------------------------------- boot

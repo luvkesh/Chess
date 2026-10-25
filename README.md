@@ -1,20 +1,22 @@
 # Chacklate Chess
 
-A premium, AI-backed 3D chess game for iOS, Android, PC/Mac and the web.
+A premium, AI-backed 3D chess game for iOS, Android, PC/Mac and the web, made for children first: parental consent, no chat, no ads, no tracking. See `docs/planning/children.md`.
 
 ## Repository layout
 
 ```
 apps/
   web-prototype/     The browser game (WebGL, offline coach, lessons, puzzles, online client)
-  website/           Marketing site
+  website/           Marketing site and the families privacy policy
+  parent/            Parent page: consent, controls, activity, data export and deletion
   admin/             Staff console
   unity/             Unity starter: C# rules port, server client, sample scripts
 packages/
   chess-core/        In-house engine (rules + AI), coach and puzzle generator
-  content/           Lessons, puzzles and the cosmetics catalogue (JSON)
+  content/           Lessons, puzzles, cosmetics, store prices and voice lines (JSON)
 services/
   game-server/       Accounts, Glicko-2 ratings, matchmaking, live games, leaderboards, admin API
+tools/voice/          Records the coach voices offline with Kokoro-82M (Apache-2.0)
 deploy/              Docker Compose with HTTPS (Caddy), daily backups, configuration
 docs/
   planning/          Product and technical plan
@@ -33,12 +35,12 @@ open apps/web-prototype/dist/chacklate-chess.html    # play offline
 
 cd services/game-server
 CHACKLATE_ADMIN_EMAIL=you@example.com CHACKLATE_ADMIN_PASSWORD='a long password' node src/server.js
-# http://localhost:8080 site, /play game with online play, /admin console
+# http://localhost:8080 site, /play game with online play, /parent, /privacy, /admin console
 ```
 
 Deploy with Docker: see `deploy/README.md` (`docker compose up -d --build` with a domain pointed at the host).
 
-Tests: `node packages/chess-core/test/engine.test.js`, `node packages/chess-core/test/coach.test.js`, `node packages/content/test/content.test.js`, `node apps/web-prototype/test/progress.test.js`, `cd services/game-server && npm test`, and the Unity core tests in `apps/unity/README.md`.
+Tests: `node packages/chess-core/test/engine.test.js`, `node packages/chess-core/test/coach.test.js`, `node packages/content/test/content.test.js`, `node apps/web-prototype/test/progress.test.js`, `node apps/web-prototype/test/voice.test.js`, `cd services/game-server && npm test`, and the Unity core tests in `apps/unity/README.md`.
 
 ## Status
 

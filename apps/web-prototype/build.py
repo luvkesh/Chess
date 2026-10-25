@@ -35,6 +35,7 @@ parts = [
     data('CHACKLATE_SEASONS', 'seasons.json'),
     data('CHACKLATE_MISSIONS', 'missions.json'),
     data('CHACKLATE_STORE', 'store.json'),
+    data('CHACKLATE_VOICE', 'voice.json'),
 ]
 for path in SCRIPTS:
     if path.exists():

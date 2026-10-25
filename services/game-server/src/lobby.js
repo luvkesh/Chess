@@ -26,11 +26,13 @@ class Lobby {
     this.log = opts.log || (() => {});
     this.entitlements = opts.entitlements || (() => null);
     this.onGameEnd = opts.onGameEnd || (() => {});
+    // Children's safety rules (src/family.js policy). The default lets everyone play everyone.
+    this.policy = Object.assign({ online: () => null, rated: () => true, pool: () => 'open', syncProgress: () => true, info: () => null }, opts.policy || {});
     this.clientIp = opts.clientIp || ((req) => req.socket.remoteAddress);
     this.players = new Map();   // userId -> { user, sockets: Set, gameId, seek }
     this.games = new Map();     // gameId -> room
-    this.seeks = [];            // { userId, tc, since }
-    this.codes = new Map();     // code -> { userId, tc, expires }
+    this.seeks = [];            // { userId, tc, since, pool }
+    this.codes = new Map();     // code -> { userId, tc, expires, pool }
     this.limit = auth.limiter(40, 10000);
     this.tick = setInterval(() => this.matchmake(), 1000);
     this.tick.unref();
@@ -100,7 +102,7 @@ class Lobby {
     if (!p) { p = { user, sockets: new Set(), gameId: null }; this.players.set(user.id, p); }
     p.user = user;
     p.sockets.add(socket);
-    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), account: { email: user.email || null, emailVerified: !!user.email_verified }, timeControls: TIME_CONTROLS });
+    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), account: { email: user.email || null, emailVerified: !!user.email_verified }, safety: this.policy.info(user), timeControls: TIME_CONTROLS });
     // Back into a live game after a reconnect.
     const room = p.gameId && this.games.get(p.gameId);
     if (room) {
@@ -141,9 +143,11 @@ class Lobby {
     switch (msg.type) {
       case 'seek': {
         if (room) return socket.send(this.startMsg(room, room.white === uid ? 'w' : 'b'));
+        const no = this.policy.online(p.user);
+        if (no) return socket.send({ type: 'error', message: no, safety: true });
         const tc = TIME_CONTROLS.includes(msg.tc) ? msg.tc : '5+3';
         this.cancelSeek(uid);
-        this.seeks.push({ userId: uid, tc, since: this.now() });
+        this.seeks.push({ userId: uid, tc, since: this.now(), pool: this.policy.pool(p.user), rated: this.policy.rated(p.user) });
         this.send(uid, { type: 'seeking', tc });
         this.matchmake();
         return;
@@ -151,10 +155,12 @@ class Lobby {
       case 'cancel': this.cancelSeek(uid); return this.send(uid, { type: 'idle' });
       case 'friend-create': {
         if (room) return;
+        const no = this.policy.online(p.user);
+        if (no) return socket.send({ type: 'error', message: no, safety: true });
         const tc = TIME_CONTROLS.includes(msg.tc) ? msg.tc : '10+0';
         let code;
         do { code = Array.from({ length: 6 }, () => CODE_ALPHABET[crypto.randomInt(CODE_ALPHABET.length)]).join(''); } while (this.codes.has(code));
-        this.codes.set(code, { userId: uid, tc, expires: this.now() + 10 * 60000 });
+        this.codes.set(code, { userId: uid, tc, expires: this.now() + 10 * 60000, pool: this.policy.pool(p.user) });
         return this.send(uid, { type: 'friend-code', code, tc });
       }
       case 'friend-join': {
@@ -163,11 +169,16 @@ class Lobby {
         if (!c || c.expires < this.now()) { this.codes.delete(code); return socket.send({ type: 'error', message: 'That code has expired or does not exist.' }); }
         if (c.userId === uid) return socket.send({ type: 'error', message: 'Share the code with a friend; you cannot join your own game.' });
         if (room) return;
+        const no = this.policy.online(p.user);
+        if (no) return socket.send({ type: 'error', message: no, safety: true });
+        // Children and adults never meet, not even through a code.
+        if (c.pool !== this.policy.pool(p.user)) return socket.send({ type: 'error', message: 'That code is for a different group of players. Ask your friend for a new one.' });
         this.codes.delete(code);
         const flip = crypto.randomInt(2) === 0;
         return this.createGame(flip ? c.userId : uid, flip ? uid : c.userId, c.tc, false);
       }
       case 'progress': {
+        if (!this.policy.syncProgress(p.user)) return;
         const json = JSON.stringify(msg.data || null);
         if (json.length < 200000) this.db.run('UPDATE users SET progress = ? WHERE id = ?', json, uid);
         return;
@@ -218,7 +229,7 @@ class Lobby {
       const window = 150 + 50 * Math.floor((now - a.since) / 5000);
       let best = null, bestGap = Infinity;
       for (const b of list) {
-        if (b === a || taken.has(b.userId) || b.tc !== a.tc) continue;
+        if (b === a || taken.has(b.userId) || b.tc !== a.tc || b.pool !== a.pool) continue;
         const gap = Math.abs(this.rating(b.userId, poolFor(b.tc)).rating - ra);
         const bw = 150 + 50 * Math.floor((now - b.since) / 5000);
         if (gap <= Math.max(window, bw) && gap < bestGap) { best = b; bestGap = gap; }
@@ -226,7 +237,7 @@ class Lobby {
       if (!best) continue;
       taken.add(a.userId); taken.add(best.userId);
       const flip = crypto.randomInt(2) === 0;
-      this.createGame(flip ? a.userId : best.userId, flip ? best.userId : a.userId, a.tc, true);
+      this.createGame(flip ? a.userId : best.userId, flip ? best.userId : a.userId, a.tc, a.rated !== false && best.rated !== false);
     }
     if (taken.size) this.seeks = this.seeks.filter((s) => !taken.has(s.userId));
   }
@@ -354,7 +365,7 @@ class Lobby {
   leaderboard(pool, limit) {
     return this.db.all(
       'SELECT u.name, r.rating, r.rd, r.games FROM ratings r JOIN users u ON u.id = r.user_id ' +
-      'WHERE r.pool = ? AND u.guest = 0 AND u.banned IS NULL AND r.games >= ? ORDER BY r.rating DESC LIMIT ?',
+      "WHERE r.pool = ? AND u.guest = 0 AND u.banned IS NULL AND u.age_band = 'adult' AND r.games >= ? ORDER BY r.rating DESC LIMIT ?",
       pool, this.minGames, Math.min(100, limit || 50),
     ).map((r, i) => ({ rank: i + 1, name: r.name, rating: Math.round(r.rating), rd: Math.round(r.rd), games: r.games }));
   }
@@ -363,6 +374,15 @@ class Lobby {
     let online = 0;
     for (const p of this.players.values()) if (p.sockets.size) online++;
     return { online, games: this.games.size, seeking: this.seeks.length };
+  }
+
+  // Re-reads a player's account (after a parent changes a setting) and tells their open apps.
+  refresh(userId) {
+    const p = this.players.get(userId);
+    if (!p) return;
+    p.user = this.db.get('SELECT * FROM users WHERE id = ?', userId) || p.user;
+    if (this.policy.online(p.user)) this.cancelSeek(userId);
+    for (const s of p.sockets) s.send({ type: 'safety', safety: this.policy.info(p.user) });
   }
 
   // Ends live games and closes sockets for a banned user.

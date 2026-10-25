@@ -1,6 +1,6 @@
 // Chacklate sound: every effect and the ambient score are synthesised with the
-// Web Audio API, so there are no audio files to download. Four sound packs
-// change the material (wood, marble, glass, soft) of the piece sounds.
+// Web Audio API. Four sound packs change the material (wood, marble, glass, soft)
+// of the piece sounds. The only audio files are the recorded voices.
 function ChacklateAudio() {
   'use strict';
   let ctx = null, master = null, sfxBus = null, musicBus = null, verb = null, verbSend = null;
@@ -178,25 +178,137 @@ function ChacklateAudio() {
     }
   }
 
-  // Narration through the device's speech engine (no network, no downloads).
-  let voice = null;
-  function pickVoice() {
+  // Recorded voices (voice/<id>/<key>.mp3, made by tools/voice). When the game runs from the
+  // single offline file there are no recordings, and lessons fall back to the device's speech engine.
+  const V = (typeof CHACKLATE_VOICE !== 'undefined') ? CHACKLATE_VOICE : { voices: [], events: {}, moves: {} };
+  let coachVoice = 'mira', callVoice = 'mira', announceOn = false, deviceFallback = true;
+  let index = null, indexLoad = null, current = null, queueId = 0;
+  const clips = new Map();
+  function voiceKey(text) {
+    let h = 0x811c9dc5;
+    for (const ch of String(text).normalize('NFC')) {
+      const c = ch.codePointAt(0);
+      h ^= c & 0xff; h = Math.imul(h, 0x01000193);
+      if (c > 0xff) { h ^= (c >>> 8) & 0xff; h = Math.imul(h, 0x01000193); }
+      if (c > 0xffff) { h ^= (c >>> 16) & 0xff; h = Math.imul(h, 0x01000193); }
+    }
+    return (h >>> 0).toString(16).padStart(8, '0');
+  }
+  function loadIndex() {
+    if (indexLoad) return indexLoad;
+    if (typeof fetch === 'undefined' || location.protocol === 'file:') { index = {}; return (indexLoad = Promise.resolve(index)); }
+    indexLoad = fetch('voice/index.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => {
+      index = {};
+      for (const id of Object.keys(j.voices || {})) index[id] = new Set(j.voices[id]);
+      return index;
+    });
+    return indexLoad;
+  }
+  function has(id, key) { return !!(index && index[id] && index[id].has(key)); }
+  function clip(id, key) {
+    const k = id + '/' + key;
+    if (!clips.has(k)) {
+      clips.set(k, fetch('voice/' + k + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { clips.delete(k); throw e; }));
+    }
+    return clips.get(k);
+  }
+  function duck(on) {
+    if (music && ctx) musicBus.gain.setTargetAtTime(musicVol * (on ? 0.2 : 0.5), ctx.currentTime, on ? 0.3 : 0.8);
+  }
+  function stopSpeech() {
+    queueId++;
+    if (current) { try { current.stop(); } catch (e) { /* already ended */ } current = null; }
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+  }
+  // Plays recordings back to back with a short breath between them. Resolves false if any is missing.
+  async function playKeys(id, keys, gap) {
+    if (!ready()) return false;
+    await loadIndex();
+    if (!keys.every((k) => has(id, k))) return false;
+    const my = ++queueId;
+    let bufs;
+    try { bufs = await Promise.all(keys.map((k) => clip(id, k))); } catch (e) { return false; }
+    if (my !== queueId) return true;
+    if (current) { try { current.stop(); } catch (e) { /* already ended */ } }
+    const voiceBus = ctx.createGain(); voiceBus.gain.value = 1; voiceBus.connect(master);
+    let t = ctx.currentTime + 0.03, last = null;
+    for (const b of bufs) {
+      const s = ctx.createBufferSource(); s.buffer = b; s.connect(voiceBus); s.start(t);
+      t += b.duration + (gap || 0.06); last = s;
+    }
+    current = last;
+    duck(true);
+    last.onended = () => { if (current === last) { current = null; duck(false); } };
+    return true;
+  }
+
+  // Device speech engine, used only when there is no recording.
+  let deviceVoice = null;
+  function pickVoice(lang) {
     if (!('speechSynthesis' in window)) return null;
     const vs = speechSynthesis.getVoices();
+    if (lang === 'hi') return vs.find((v) => /^hi/i.test(v.lang)) || null;
     return vs.find((v) => /en-(IN|GB)/i.test(v.lang) && /female|natural|neural|samantha|serena|veena/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
   }
-  function say(text, rate) {
+  function device(text, rate, lang) {
     if (!('speechSynthesis' in window)) return false;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    voice = voice || pickVoice();
-    if (voice) u.voice = voice;
+    const v = lang === 'hi' ? pickVoice('hi') : (deviceVoice = deviceVoice || pickVoice('en'));
+    if (v) u.voice = v;
+    if (lang === 'hi') u.lang = 'hi-IN';
     u.rate = rate || 1; u.pitch = 1;
-    if (music) { musicBus.gain.setTargetAtTime(musicVol * 0.2, ctx.currentTime, 0.3); u.onend = () => { if (music) musicBus.gain.setTargetAtTime(musicVol * 0.5, ctx.currentTime, 0.8); }; }
+    if (music) { duck(true); u.onend = () => duck(false); }
     speechSynthesis.speak(u);
     return true;
   }
-  function hush() { if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+  const voiceInfo = (id) => V.voices.find((v) => v.id === id) || null;
+  // Lesson and coach lines (English text from the content files).
+  async function say(text, rate) {
+    stopSpeech();
+    const id = coachVoice;
+    if (id !== 'device' && await playKeys(id, [voiceKey(text)])) return true;
+    return deviceFallback ? device(text, rate, 'en') : false;
+  }
+  // A game call such as "check" or "mate.win", in the language of the chosen call voice.
+  async function event(key) {
+    if (callVoice === 'off') return false;
+    const v = voiceInfo(callVoice);
+    const lang = v ? v.lang : 'en';
+    const text = (V.events[lang] || {})[key] || (V.events.en || {})[key];
+    if (!text) return false;
+    stopSpeech();
+    if (v && await playKeys(v.id, [voiceKey(text)])) return true;
+    return deviceFallback ? device(text, 1, lang) : false;
+  }
+  // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
+  function moveWords(san, lang) {
+    const M = V.moves[lang] || V.moves.en;
+    if (!M) return [];
+    const s = String(san).replace(/[!?]+$/, '');
+    const tail = /#$/.test(s) ? [M.mate] : /\+$/.test(s) ? [M.check] : [];
+    if (/^O-O-O/.test(s)) return [M.castleQ].concat(tail);
+    if (/^O-O/.test(s)) return [M.castleK].concat(tail);
+    const m = s.match(/^([KQRBN])?([a-h])?([1-8])?(x)?([a-h])([1-8])(?:=([QRBN]))?/);
+    if (!m) return [];
+    const words = [M.piece[m[1] || 'P']];
+    if (m[4]) words.push(M.takes);
+    words.push(M.file[m[5]] + ' ' + M.rank[m[6]]);
+    if (m[7]) words.push(M.promote[m[7]]);
+    return words.concat(tail);
+  }
+  async function announce(san) {
+    if (!announceOn || callVoice === 'off') return false;
+    const v = voiceInfo(callVoice);
+    const lang = v ? v.lang : 'en';
+    const words = moveWords(san, lang).filter(Boolean);
+    if (!words.length) return false;
+    stopSpeech();
+    if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
+    return deviceFallback ? device(words.join(' '), 1.1, lang) : false;
+  }
+  function hush() { stopSpeech(); duck(false); }
 
   return {
     play,
@@ -209,7 +321,21 @@ function ChacklateAudio() {
     },
     // Browsers only allow sound after a user gesture; call this from one.
     unlock() { if (ready() && musicOn && !music) startMusic(); },
-    say, hush,
+    say, hush, event, announce, voiceKey, moveWords,
+    voices: () => V.voices.slice(),
+    setVoices(o) {
+      if (o.coach) coachVoice = o.coach;
+      if (o.calls) callVoice = o.calls;
+      if (o.announce !== undefined) announceOn = !!o.announce;
+      if (o.deviceFallback !== undefined) deviceFallback = !!o.deviceFallback;
+    },
+    // Plays a short sample of a voice, for the settings screen.
+    async preview(id) {
+      const v = voiceInfo(id);
+      if (!v) return device((V.events.en || {}).welcome || 'Hello', 1, 'en');
+      stopSpeech();
+      return playKeys(id, [voiceKey(V.events[v.lang].welcome)]);
+    },
     get musicOn() { return musicOn; },
   };
 }
