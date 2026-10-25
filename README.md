@@ -29,4 +29,4 @@ Phase 0 planning and Phase 1 prototypes are approved. Production engine, renderi
 
 ## Licence
 
-Licensing is not final. It depends on a pending legal review of using Stockfish (GPL-3) on iOS.
+No licence is granted. All rights reserved.

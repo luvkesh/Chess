@@ -23,4 +23,4 @@ python3 build.py           # or: npm run build
 
 Open `dist/chacklate-chess.html` in a browser to play. After changing anything in `src/`, rebuild and commit the updated `dist/` file; CI fails if it is stale.
 
-This prototype is a playable reference. The production clients are planned in Unity with Stockfish (see `docs/`).
+This prototype is a playable reference. The production clients are planned in Unity with an in-house engine (see `docs/`).
