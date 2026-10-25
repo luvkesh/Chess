@@ -45,7 +45,12 @@ function createServer(opts) {
   const pushTimer = setInterval(() => notify.tick(), 60000);
   pushTimer.unref();
   const fair = fairplay.create(db, Object.assign({ log: opts.log }, opts.fairplay));
-  const lobby = new Lobby(Object.assign({ db, E, entitlements: (id) => shop.entitlements(id), onGameEnd: (g) => fair.enqueue(g) }, opts.lobby || {}));
+  // Behind a reverse proxy every request comes from the proxy, so rate limits key on X-Forwarded-For.
+  const clientIp = (req) => {
+    if (opts.trustProxy) { const f = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim(); if (f) return f; }
+    return req.socket.remoteAddress;
+  };
+  const lobby = new Lobby(Object.assign({ db, E, clientIp, entitlements: (id) => shop.entitlements(id), onGameEnd: (g) => fair.enqueue(g) }, opts.lobby || {}));
   const adminApi = admin.routes(db, lobby, shop, fair);
   const mail = opts.mailer || mailer.create(Object.assign({ log: opts.log }, opts.mail));
   const accountApi = account.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
@@ -60,7 +65,10 @@ function createServer(opts) {
 
   async function api(req, url, body, ip) {
     const p = url.pathname;
-    if (p === '/api/health') return [200, { ok: true, ...lobby.stats() }];
+    if (p === '/api/health') {
+      try { db.get('SELECT 1'); } catch (e) { return [503, { ok: false, error: 'database unavailable' }]; }
+      return [200, { ok: true, version: opts.version || 'dev', uptime: Math.round(process.uptime()), ...lobby.stats() }];
+    }
     if (p.startsWith('/api/admin/')) return adminApi(req, p, req.method === 'GET' ? Object.fromEntries(url.searchParams) : body, ip);
     if (p === '/api/leaderboard') {
       const pool = ['bullet', 'blitz', 'rapid'].includes(url.searchParams.get('pool')) ? url.searchParams.get('pool') : 'blitz';
@@ -129,7 +137,7 @@ function createServer(opts) {
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
-    const ip = req.socket.remoteAddress;
+    const ip = clientIp(req);
     if (url.pathname.startsWith('/api/')) {
       // Token auth only (no cookies), so any origin may call the API; the file:// build needs this.
       const head = Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Cache-Control': 'no-store' }, SECURITY_HEADERS);
@@ -183,6 +191,8 @@ if (require.main === module) {
     adminEmail: process.env.CHACKLATE_ADMIN_EMAIL,
     adminPassword: process.env.CHACKLATE_ADMIN_PASSWORD,
     publicUrl: process.env.CHACKLATE_PUBLIC_URL,
+    trustProxy: process.env.CHACKLATE_TRUST_PROXY === '1',
+    version: process.env.CHACKLATE_VERSION,
     mail: { mode: process.env.CHACKLATE_MAIL || 'log', url: process.env.CHACKLATE_MAIL_URL || 'https://api.resend.com/emails', key: process.env.CHACKLATE_MAIL_KEY, from: process.env.CHACKLATE_MAIL_FROM },
     push: { subject: process.env.CHACKLATE_PUSH_SUBJECT, vapid: { publicKey: process.env.CHACKLATE_VAPID_PUBLIC, privateKey: process.env.CHACKLATE_VAPID_PRIVATE } },
     payments: { mode: process.env.CHACKLATE_PAYMENTS || 'off', secret: process.env.CHACKLATE_PAYMENT_SECRET, checkoutUrl: process.env.CHACKLATE_CHECKOUT_URL },

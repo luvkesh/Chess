@@ -15,7 +15,7 @@ function poolFor(tc) {
 }
 
 class Lobby {
-  // opts: { db, E (engine instance), now?, firstMoveMs?, reconnectMs?, minGamesForBoard?, log?, entitlements?, onGameEnd? }
+  // opts: { db, E (engine instance), now?, firstMoveMs?, reconnectMs?, minGamesForBoard?, log?, entitlements?, onGameEnd?, clientIp? }
   constructor(opts) {
     this.db = opts.db;
     this.E = opts.E;
@@ -26,6 +26,7 @@ class Lobby {
     this.log = opts.log || (() => {});
     this.entitlements = opts.entitlements || (() => null);
     this.onGameEnd = opts.onGameEnd || (() => {});
+    this.clientIp = opts.clientIp || ((req) => req.socket.remoteAddress);
     this.players = new Map();   // userId -> { user, sockets: Set, gameId, seek }
     this.games = new Map();     // gameId -> room
     this.seeks = [];            // { userId, tc, since }
@@ -77,7 +78,7 @@ class Lobby {
   // ------------------------------------------------------------------ sockets
   connect(socket) {
     let player = null;
-    const ip = socket.req && socket.req.socket ? socket.req.socket.remoteAddress : 'local';
+    const ip = socket.req && socket.req.socket ? this.clientIp(socket.req) : 'local';
     socket.on('message', (msg) => {
       if (!this.limit(player ? 'u' + player.user.id : ip)) return socket.send({ type: 'error', message: 'Slow down a little.' });
       if (!player) {

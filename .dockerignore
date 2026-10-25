@@ -1,0 +1,11 @@
+.git
+.github
+docs
+**/node_modules
+**/*.db
+**/*.db-*
+apps/web-prototype/src
+apps/web-prototype/test
+apps/web-prototype/tools
+services/game-server/test
+deploy

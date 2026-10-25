@@ -59,3 +59,22 @@ jobs:
           node-version: 22
       - name: Server tests
         run: node --test test/*.test.js
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -t chacklate:ci --build-arg VERSION=${{ github.sha }} .
+      - name: Run and check health, pages and backups
+        run: |
+          docker run -d --name app -p 8080:8080 chacklate:ci
+          for i in $(seq 1 30); do curl -sf localhost:8080/api/health && break; sleep 1; done
+          curl -sf localhost:8080/api/health | grep '"ok":true'
+          for p in / /play /admin /sw.js /manifest.webmanifest /icons/icon-512.png; do curl -sf -o /dev/null "localhost:8080$p" || { echo "missing $p"; exit 1; }; done
+          docker exec app node src/cli.js backup /data/backups
+          docker exec app sh -c 'ls /data/backups/chacklate-*.db'
+      - name: Server log
+        if: always()
+        run: docker logs app || true
