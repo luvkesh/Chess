@@ -1,0 +1,997 @@
+<title>Chacklate Chess Launch Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a long technical dossier. Sticky contents rail on wide screens, single column on phones. Ruby-chocolate accent on cocoa-tinted neutrals. */
+:root{
+  --bg:#f8f5f3; --surface:#fffdfc; --sunk:#efe9e5; --line:#ddd2cb;
+  --ink:#2a1c16; --muted:#6f5d54; --accent:#a3294f; --accent-soft:#f6e3e9; --cocoa:#5b3a2b;
+  --ok:#2e7d4f; --warn:#a86a00; --crit:#b3261e; --ok-bg:#e3f2e8; --warn-bg:#fbefd9; --crit-bg:#f9e1df;
+  --display:"Young Serif", Georgia, "Times New Roman", serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#16100d; --surface:#1f1814; --sunk:#271e19; --line:#3b2e27;
+  --ink:#f1e8e3; --muted:#b8a69c; --accent:#ec7c9c; --accent-soft:#3a1c26; --cocoa:#d7a98f;
+  --ok:#7fd0a0; --warn:#f0b75a; --crit:#f08a80; --ok-bg:#183024; --warn-bg:#33270f; --crit-bg:#3a1a17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16100d; --surface:#1f1814; --sunk:#271e19; --line:#3b2e27;
+  --ink:#f1e8e3; --muted:#b8a69c; --accent:#ec7c9c; --accent-soft:#3a1c26; --cocoa:#d7a98f;
+  --ok:#7fd0a0; --warn:#f0b75a; --crit:#f08a80; --ok-bg:#183024; --warn-bg:#33270f; --crit-bg:#3a1a17; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15.5px/1.6 var(--body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.wrap{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;padding-block:40px 80px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:24px;padding-block:24px 60px}}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top, 0px) + 20px);align-self:start;max-height:calc(100vh - 40px);overflow:auto;font-size:13.5px}
+@media (max-width:900px){nav.toc{position:static;max-height:none;border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--surface)}}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:t}
+nav.toc a{display:grid;grid-template-columns:2.2em 1fr;color:var(--muted);text-decoration:none;padding:3px 6px;border-radius:4px}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--ink);background:var(--sunk)}
+nav.toc a span:first-child{font-family:var(--mono);font-size:11.5px;padding-top:2px;color:var(--accent)}
+nav.toc .h{font-family:var(--display);font-size:17px;color:var(--ink);margin:0 0 10px}
+main{min-width:0}
+header.hero{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:8px}
+.eyebrow{font:600 11.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h1{font:400 clamp(34px,5vw,52px)/1.05 var(--display);margin:10px 0 12px;text-wrap:balance}
+h2{font:400 28px/1.15 var(--display);margin:0 0 6px;text-wrap:balance}
+h3{font:700 16px/1.3 var(--body);margin:26px 0 8px}
+h4{font:600 13px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 6px}
+p,li{max-width:72ch}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 12px;padding-left:1.25em}
+li{margin:3px 0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lede{font-size:17.5px;color:var(--muted);max-width:68ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font:12.5px var(--mono);color:var(--muted);margin-top:14px}
+section.doc{padding-top:44px;scroll-margin-top:20px}
+.sec-head{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:16px}
+.sec-num{font:600 13px var(--mono);color:var(--accent)}
+.sec-sub{grid-column:2;color:var(--muted);font-size:14px}
+.tbl{overflow-x:auto;margin:10px 0 18px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:8px 11px;border-bottom:1px solid var(--line)}
+th{font:600 11.5px/1.3 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--sunk);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--sunk);padding:1px 5px;border-radius:3px}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0}
+.callout p:last-child{margin:0}
+.callout.plain{border-left-color:var(--cocoa);background:var(--sunk)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:12px 0}
+.grid2>div{min-width:0}
+.card{border:1px solid var(--line);border-radius:6px;padding:14px 16px;background:var(--surface)}
+.card h3{margin-top:0}
+.pill{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.04em;padding:4px 7px;border-radius:999px;white-space:nowrap}
+.p-crit{background:var(--crit-bg);color:var(--crit)}
+.p-warn{background:var(--warn-bg);color:var(--warn)}
+.p-ok{background:var(--ok-bg);color:var(--ok)}
+.p-acc{background:var(--accent-soft);color:var(--accent)}
+.score{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13px}
+.verdict{font-weight:700}
+.ply{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.ply span{font:600 12.5px var(--mono);padding:5px 9px;border-radius:4px;border:1px solid var(--line);background:var(--surface)}
+.ply span.me{border-color:var(--accent);color:var(--accent)}
+.heat{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:4px;font-size:12.5px;margin:12px 0 18px;max-width:640px}
+.heat div{padding:8px;border-radius:4px;min-height:44px}
+.heat .ax{font:600 11px var(--mono);color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;min-height:0}
+.heat .c1{background:var(--ok-bg)} .heat .c2{background:var(--warn-bg)} .heat .c3{background:var(--crit-bg)}
+.calc{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px}
+@media (max-width:700px){.calc{grid-template-columns:minmax(0,1fr)}}
+.calc label{display:grid;grid-template-columns:1fr 120px;align-items:center;gap:10px;font-size:13.5px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.calc input{font:14px var(--mono);padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;box-sizing:border-box;text-align:right}
+.seg{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.seg button{font:600 12.5px var(--mono);padding:6px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:4px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.out{display:grid;gap:6px;align-content:start}
+.out div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:5px 0;font-size:14px}
+.out b{font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.out .big{font-size:16px}
+.approve{counter-reset:a;list-style:none;padding:0;display:grid;gap:10px}
+.approve li{counter-increment:a;display:grid;grid-template-columns:2.4em minmax(0,1fr);gap:10px;border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--surface);max-width:none}
+.approve li::before{content:"A" counter(a);font:600 13px var(--mono);color:var(--accent)}
+.approve li strong{display:block}
+pre.mermaid{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto}
+footer{margin-top:60px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <p class="h">Contents</p>
+  <ol>
+    <li><a href="#decided"><span>00</span><span>Decisions recorded</span></a></li>
+    <li><a href="#exec"><span>01</span><span>Executive summary</span></a></li>
+    <li><a href="#audit"><span>02</span><span>Repository audit</span></a></li>
+    <li><a href="#prd"><span>03</span><span>Product requirements</span></a></li>
+    <li><a href="#gdd"><span>04</span><span>Game design &amp; modes</span></a></li>
+    <li><a href="#art"><span>05</span><span>Visual direction &amp; art bible</span></a></li>
+    <li><a href="#catalogue"><span>06</span><span>Customisation catalogue</span></a></li>
+    <li><a href="#campaign"><span>07</span><span>Campaign &amp; lesson template</span></a></li>
+    <li><a href="#ai"><span>08</span><span>On-device AI &amp; engine</span></a></li>
+    <li><a href="#arch"><span>09</span><span>Platform architecture</span></a></li>
+    <li><a href="#poc"><span>10</span><span>Proof-of-concepts</span></a></li>
+    <li><a href="#backend"><span>11</span><span>Backend, data &amp; APIs</span></a></li>
+    <li><a href="#mp"><span>12</span><span>Multiplayer, ratings, fair play</span></a></li>
+    <li><a href="#money"><span>13</span><span>Monetisation &amp; finance</span></a></li>
+    <li><a href="#web"><span>14</span><span>Website &amp; admin console</span></a></li>
+    <li><a href="#quality"><span>15</span><span>Security, privacy, a11y, testing</span></a></li>
+    <li><a href="#roadmap"><span>16</span><span>Roadmap, staffing &amp; cost</span></a></li>
+    <li><a href="#risks"><span>17</span><span>Risk register</span></a></li>
+    <li><a href="#decisions"><span>18</span><span>Open decisions &amp; defaults</span></a></li>
+    <li><a href="#approval"><span>19</span><span>Approval required</span></a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">Phase 0 · Planning &amp; feasibility package · v0.1</div>
+  <h1>Chacklate Chess</h1>
+  <p class="lede">A premium full-3D chess game with a voice-guided campaign, an offline engine-grounded coach, online multiplayer at launch, and a freemium model. This package covers the game, the marketing website and the admin/operations application, and ends with the decisions that need approval before any implementation starts.</p>
+  <div class="meta"><span>Prepared 24 Oct 2026</span><span>v0.2: decisions recorded 24 Oct 2026</span><span>Phase 0 + 1 approved</span><span>No implementation code written</span></div>
+</header>
+
+<section class="doc" id="decided">
+  <div class="sec-head"><span class="sec-num">00</span><h2>Decisions recorded (v0.2)</h2><span class="sec-sub">Your choices on 24 Oct 2026. Where they differ from the v0.1 recommendation, they override the sections below.</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>Decision</th><th>Your choice</th><th>Impact on the plan</th></tr></thead>
+    <tbody>
+      <tr><td>A1</td><td>Phase 0 + prototypes</td><td>Approved</td><td>Phase 0 starts now; prototype code starts once the repository exists</td></tr>
+      <tr><td>A2</td><td>3D technology</td><td>Unity 6 as a Library, no bake-off</td><td>PoC 2 becomes a Unity validation with the same pass/fail thresholds. Unity Pro seats needed (above Unity's revenue/funding threshold); about 20 seats, list price to be re-verified. The scene runtime in section 9 is Unity, not Filament</td></tr>
+      <tr><td>A3</td><td>Chess engine</td><td>In-house engine, no Stockfish (revised 2026-10-25)</td><td>Originally decided as Stockfish with GPL-3 open-source apps. Reversed on 2026-10-25 because Stockfish would have to be linked into the iOS app, which conflicts with the proprietary Unity runtime. The apps stay closed source and need no GPL licence; the engine is built in-house as originally proposed.</td></tr>
+      <tr><td>A4</td><td>PC/Mac delivery</td><td>Native macOS + separate Windows client</td><td>macOS: SwiftUI app sharing iOS code, with Unity embedded (Unity as a Library on macOS must be proven in PoC 2). Windows: Unity standalone app with Unity-built UI. Adds about 2–3 engineers compared with the web-shell option</td></tr>
+      <tr><td>A5</td><td>Backend</td><td>Rust game service + TypeScript APIs on AWS Mumbai</td><td>As in section 11</td></tr>
+      <tr><td>A6</td><td>Launch catalogue</td><td>20 per required category at launch</td><td>About 140 premium items across the seven categories. Either launch moves out about 4–6 months, or the art vendor budget grows by roughly ₹3–5 crore to keep the date. Default assumption: grow the vendor budget and keep the date, confirmed at the Phase 2 gate</td></tr>
+      <tr><td>A7</td><td>Lifetime purchase</td><td>All Premium incl. seasonal tracks; separately sold cosmetics excluded; ₹5,999</td><td>As in section 13; no higher-price test</td></tr>
+      <tr><td>A8</td><td>Legal and brand</td><td>Start all now</td><td>Trademark search, domains, DPDP/COPPA review, store accounts, GPL opinion</td></tr>
+      <tr><td>A9</td><td>Repository</td><td>You will create a new repository</td><td>Once you share its name, I attach it and set up the monorepo, docs and CI</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><p><strong>Revised totals (rough, ±40%).</strong> Development about ₹22–30 crore over 20–24 months, plus art and voice of about ₹5–8 crore (up from ₹2–3 crore because of the 20-per-category launch), plus Unity licences. Dropping the in-house engine offsets part of the Mac/Windows and art increase. Peak team about 42–48.</p></div>
+</section>
+
+<!-- 01 -->
+<section class="doc" id="exec">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Executive summary &amp; product definition</h2><span class="sec-sub">What we are building, and the shape of the recommendation</span></div>
+  <h3>Confirmed constraints (treated as fixed)</h3>
+  <ul>
+    <li>Premium full-3D visuals with reduced-effects and low-graphics options.</li>
+    <li>Native Swift/SwiftUI on iOS and native Kotlin on Android, with a shared backend, chess core, content definitions and domain logic.</li>
+    <li>On-device AI first: rules, engine analysis and core coaching work fully offline. No cloud AI in core gameplay or coaching.</li>
+    <li>Free tier with ads, Premium subscription, lifetime purchase and optional cosmetics. Chapters 1–3 free, the rest included in Premium. No per-chapter sales by default.</li>
+    <li>Simultaneous public launch on iOS, Android, PC/Mac and web, with online multiplayer available at launch.</li>
+    <li>Three deliverables with separate identities: (A) the game, (B) the marketing website, (C) the admin/operations application.</li>
+  </ul>
+  <h3>Recommendation in one paragraph</h3>
+  <p>Build one portable chess core in Rust (rules, PGN/FEN, clocks, result logic) that is compiled into every client and into the game server, so a rated result is computed by the same code everywhere. Put native SwiftUI and Jetpack Compose shells around a shared 3D scene runtime, and serve PC/Mac by packaging the web client in a lightweight native shell. The rendering technology is the single most consequential choice; the plan runs a short bake-off between a Filament-based shared scene runtime (lead candidate) and Unity 6 as a Library (challenger) before committing. Coaching is engine-first: every claim comes from the engine and a deterministic tactic detector, and an on-device language model, where the device supports one, only rephrases those verified facts.</p>
+  <div class="callout">
+    <p><strong>Candid feasibility view.</strong> A simultaneous four-platform 3D launch with multiplayer, 74 narrated lessons and seven cosmetic categories is achievable, but realistically needs about 20–24 months and a peak team of roughly 38–45 people. Keeping the launch date and all four platforms is credible if launch catalogue counts are set below the 20-per-category targets (those become the 12-month targets) and the lower-priority distinctive features move to post-launch. Section 16 shows the alternatives if the budget or timeline is tighter.</p>
+  </div>
+  <h3>Product pillars</h3>
+  <div class="grid2">
+    <div class="card"><h3>Play beautifully</h3><p>Premium 3D boards, pieces and rooms, with an always-available clean top-down view for readability and fast time controls.</p></div>
+    <div class="card"><h3>Learn measurably</h3><p>74 voice-guided lessons with mastery checks, and progress measured by assessments, tactic accuracy and blunder trends, never promised rating gains.</p></div>
+    <div class="card"><h3>Understand every move</h3><p>An offline coach that explains threats, plans and mistakes using verified engine lines, with adjustable hints and verbosity.</p></div>
+    <div class="card"><h3>Compete fairly</h3><p>Server-authoritative rated play, separate rating pools, seasons and leaderboards, and a published fair-play policy.</p></div>
+  </div>
+  <h3>Home screen (kept deliberately small)</h3>
+  <p>Four primary actions: <strong>Quick Play</strong>, <strong>Continue Learning</strong>, <strong>Play a Friend</strong>, <strong>Improve My Chess</strong>. Everything else (puzzles, analysis board, tournaments, seasons, collection, store, settings) lives in a secondary tab bar or menu.</p>
+</section>
+
+<!-- 02 -->
+<section class="doc" id="audit">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Repository audit</h2><span class="sec-sub">What was actually checked on 24 Oct 2026</span></div>
+  <div class="callout"><p><strong>No Chacklate or chess repository is available.</strong> This plan is written as a greenfield project. Nothing was assumed to exist.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Source checked</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>GitHub repositories visible to this workspace</td><td>One repository: <code>luvkesh/Nibbland</code> (private, last push 5 Oct 2026). The name is unrelated to chess, so it was not opened or treated as part of this project. If it contains reusable code, tell me and I will audit it.</td></tr>
+      <tr><td>Repositories attached to this project</td><td>None.</td></tr>
+      <tr><td>Shared project files</td><td>Empty before this package was written. No uploads, briefs, assets or brand files.</td></tr>
+      <tr><td>Linked computer</td><td>One MacBook Pro folder (<code>~/Downloads/Claude</code>) is registered but was offline and not approved, so it was not inspected.</td></tr>
+      <tr><td>Existing brand assets, art, lesson content, accounts</td><td>None found. No store developer accounts, domains, trademarks or cloud accounts were visible.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Before implementation, a new repository is needed. I cannot create repositories from this workspace; you would create it on GitHub and I would attach it. A proposed monorepo layout is in section 9.</p>
+</section>
+
+<!-- 03 -->
+<section class="doc" id="prd">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Product requirements document</h2><span class="sec-sub">Audiences, goals, launch scope and non-goals</span></div>
+  <h3>Target players</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Segment</th><th>Need</th><th>What wins them</th></tr></thead>
+    <tbody>
+      <tr><td>Curious beginners (incl. returning adults, parents with teens)</td><td>Learn rules and basics without feeling judged</td><td>Campaign chapters 1–3, friendly AI, gentle hints, clear 3D</td></tr>
+      <tr><td>Improving club-level players (≈800–1600)</td><td>Find out why they lose and fix it</td><td>Post-game coach, recurring-mistake training, tactics</td></tr>
+      <tr><td>Social and competitive players</td><td>Fast games with friends and fair rated play</td><td>Join codes, rematches, seasons, local leaderboards</td></tr>
+      <tr><td>Collectors and aesthetes</td><td>Make the board their own</td><td>Premium 3D catalogue, rooms, seasonal collections</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Launch requirements (must-have)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Area</th><th>Launch scope</th></tr></thead>
+    <tbody>
+      <tr><td>Platforms</td><td>iOS, iPadOS, Android phones and tablets, Windows, macOS, modern browsers (Chrome, Edge, Safari, Firefox, last two major versions)</td></tr>
+      <tr><td>Core play</td><td>Quick Play, AI opponents (8 personalities), local pass-and-play, Play a Friend with invite/join codes, online casual and rated, rematch, game history and replay, analysis board</td></tr>
+      <tr><td>Learning</td><td>Full 10-chapter campaign (74 lessons) with offline narration, daily puzzle, puzzle trainer</td></tr>
+      <tr><td>Coaching</td><td>Offline post-game review, adjustable hints in practice modes, threat and plan explanations, FEN/PGN import, screenshot-to-position on supported devices</td></tr>
+      <tr><td>Competition</td><td>Glicko-2 ratings per time control, global/country/friends leaderboards, city leaderboards (opt-in), first season live at launch</td></tr>
+      <tr><td>Customisation</td><td>Launch catalogue across all seven required categories (counts in section 6), preview before purchase, equip, restore</td></tr>
+      <tr><td>Commerce</td><td>Ads (free tier), Premium monthly/annual, lifetime, individual cosmetics, cross-platform entitlements where store rules allow</td></tr>
+      <tr><td>Accounts</td><td>Guest play, Sign in with Apple, Google, email; account linking; data export and deletion</td></tr>
+      <tr><td>Safety</td><td>Report, block, basic moderation, age gate, fair-play policy and appeals</td></tr>
+      <tr><td>B and C</td><td>Marketing website and admin console live before launch with their own identities and deployments</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Launch-lite (included if Phase 3 gates pass, otherwise first post-launch update)</h3>
+  <ul><li>Friend and club tournaments (scheduled arena/Swiss) and spectator mode for friends' games.</li><li>Opening lab and endgame dojo as Premium training tools.</li></ul>
+  <h3>Explicit non-goals for launch</h3>
+  <ul>
+    <li>Cloud AI features of any kind.</li>
+    <li>Open text chat between strangers (preset messages and emotes only; reduces moderation and child-safety load).</li>
+    <li>Chess variants in rated play (designed for, shipped post-launch with separate ratings).</li>
+    <li>Voice input or speech recognition.</li>
+  </ul>
+  <h3>Success measures (to be baselined in soft launch)</h3>
+  <ul>
+    <li>First game completed within 3 minutes of install for at least 70% of new players.</li>
+    <li>Day-1 / Day-7 / Day-30 retention, campaign chapter 1 completion, assessment mastery rates.</li>
+    <li>Free-to-paid conversion, refund rate below 3%, crash-free sessions at or above 99.7%.</li>
+  </ul>
+</section>
+
+<!-- 04 -->
+<section class="doc" id="gdd">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Game design document &amp; mode definitions</h2><span class="sec-sub">Modes, AI personalities, time controls and the feature scorecard</span></div>
+  <h3>Mode definitions</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Mode</th><th>Network</th><th>Rated</th><th>Hints / coach</th><th>Takeback</th><th>Launch</th></tr></thead>
+    <tbody>
+      <tr><td>Quick Play (auto-picks online casual or AI if offline)</td><td>Either</td><td>No</td><td>Off online, optional vs AI</td><td>vs AI only</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>AI opponents</td><td>Offline</td><td>No</td><td>Configurable</td><td>Yes</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Online rated</td><td>Online</td><td>Yes</td><td>Disabled</td><td>No</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Online casual</td><td>Online</td><td>No</td><td>Disabled</td><td>By mutual agreement</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Play a Friend (invite link, 6-char join code)</td><td>Online</td><td>Optional</td><td>Disabled</td><td>Casual only, mutual</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Local pass-and-play</td><td>Offline</td><td>No</td><td>Optional</td><td>Yes</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Campaign</td><td>Offline after download</td><td>No</td><td>Lesson hints</td><td>Yes</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Puzzles &amp; daily challenge</td><td>Offline packs, daily needs sync</td><td>Puzzle rating</td><td>Hint ladder</td><td>n/a</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Analysis board &amp; replay</td><td>Offline</td><td>No</td><td>Full engine</td><td>n/a</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>Tournaments</td><td>Online</td><td>Yes</td><td>Disabled</td><td>No</td><td><span class="pill p-warn">Launch-lite</span></td></tr>
+      <tr><td>Spectator</td><td>Online</td><td>n/a</td><td>No engine bar during live game</td><td>n/a</td><td><span class="pill p-warn">Launch-lite</span></td></tr>
+      <tr><td>Variants (Chess960 first)</td><td>Either</td><td>Separate pools</td><td>Variant-aware</td><td>Per mode</td><td><span class="pill p-acc">Post-launch</span></td></tr>
+    </tbody>
+  </table></div>
+  <h3>Time controls (rules, separate from clock skins)</h3>
+  <p>Bullet (&lt;3 min), Blitz (3–9 min), Rapid (10–29 min), Classical (30+ min), plus custom. Increment (Fischer) and delay (Bronstein and simple delay) are supported in the core. Pool assignment uses estimated duration = base + 40 × increment, the same convention most online platforms use. Rated pools at launch: 1+0, 2+1, 3+0, 3+2, 5+0, 5+3, 10+0, 10+5, 15+10, 30+0.</p>
+  <h3>AI opponent personalities</h3>
+  <p>Strength is labelled with an approximate band calibrated against reference play, never presented as a FIDE rating. Difficulty never changes during a game. The "Personal" opponent picks a level from your recent results before the game starts and tells you which level it chose.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Working name</th><th>Style</th><th class="n">Approx. band</th><th>Free tier</th></tr></thead>
+    <tbody>
+      <tr><td>Truffle</td><td>Learner: hangs pieces, explains its own mistakes</td><td class="n">250–500</td><td>Yes</td></tr>
+      <tr><td>Builder</td><td>Develops solidly, avoids tactics</td><td class="n">500–800</td><td>Yes</td></tr>
+      <tr><td>Rusher</td><td>Early attacks, overextends</td><td class="n">800–1100</td><td>Yes</td></tr>
+      <tr><td>Wall</td><td>Defensive, trades down, grinds endgames</td><td class="n">1100–1400</td><td>Yes</td></tr>
+      <tr><td>Trickster</td><td>Sets traps, plays for swindles</td><td class="n">1400–1700</td><td>Premium</td></tr>
+      <tr><td>Strategist</td><td>Positional, pawn-structure driven</td><td class="n">1700–2000</td><td>Premium</td></tr>
+      <tr><td>Tactician</td><td>Sharp, sacrificial, calculates deeply</td><td class="n">2000–2300</td><td>Premium</td></tr>
+      <tr><td>Grandmaster mode</td><td>Full strength, no personality limits</td><td class="n">2400+</td><td>Premium</td></tr>
+    </tbody>
+  </table></div>
+  <p>Personalities are produced by search and evaluation parameters (contempt, risk weights, piece-trade bias, deliberate-error model) on top of the same engine, so they cost nothing per game and work offline.</p>
+  <h3>Distinctive features scorecard</h3>
+  <p>Scores are 1 (low) to 5 (high). For cost, operating cost and risk, a higher number means more expensive or riskier.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>Feature</th><th class="n">Value</th><th class="n">Diff.</th><th class="n">Eng. cost</th><th class="n">Op. cost</th><th class="n">Risk</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td>9</td><td>Engine-grounded narrated post-game coach replay</td><td class="n">5</td><td class="n">5</td><td class="n">4</td><td class="n">1</td><td class="n">3</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>2</td><td>Replay the turning point of a finished game</td><td class="n">5</td><td class="n">4</td><td class="n">2</td><td class="n">1</td><td class="n">1</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>3</td><td>Predict the opponent's strongest response</td><td class="n">4</td><td class="n">3</td><td class="n">2</td><td class="n">1</td><td class="n">1</td><td><span class="pill p-ok">Launch</span> practice only</td></tr>
+      <tr><td>1</td><td>Personalised AI opponent (transparent level choice)</td><td class="n">4</td><td class="n">3</td><td class="n">3</td><td class="n">1</td><td class="n">2</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>13</td><td>Personalised training plan from recurring mistakes</td><td class="n">5</td><td class="n">4</td><td class="n">4</td><td class="n">1</td><td class="n">3</td><td><span class="pill p-ok">Launch</span> v1</td></tr>
+      <tr><td>11</td><td>Unlockable rooms and furniture collections</td><td class="n">4</td><td class="n">4</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>7</td><td>Visual chess journey and skill progression</td><td class="n">4</td><td class="n">3</td><td class="n">2</td><td class="n">1</td><td class="n">1</td><td><span class="pill p-ok">Launch</span></td></tr>
+      <tr><td>12</td><td>Seasonal puzzle events</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td class="n">2</td><td class="n">1</td><td><span class="pill p-ok">Launch</span> season 1</td></tr>
+      <tr><td>6</td><td>Endgame training dojo</td><td class="n">4</td><td class="n">3</td><td class="n">3</td><td class="n">1</td><td class="n">2</td><td><span class="pill p-warn">Launch-lite</span></td></tr>
+      <tr><td>5</td><td>Opening lab with plans and explanations</td><td class="n">4</td><td class="n">3</td><td class="n">4</td><td class="n">2</td><td class="n">3</td><td><span class="pill p-warn">Launch-lite</span></td></tr>
+      <tr><td>15</td><td>Scheduled tournament nights (friends, clubs, public)</td><td class="n">4</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td><span class="pill p-warn">Launch-lite</span></td></tr>
+      <tr><td>4</td><td>Daily themed chess stories</td><td class="n">3</td><td class="n">4</td><td class="n">2</td><td class="n">4</td><td class="n">2</td><td><span class="pill p-acc">Post-launch</span></td></tr>
+      <tr><td>14</td><td>Blindfold / notation-based practice</td><td class="n">2</td><td class="n">2</td><td class="n">1</td><td class="n">1</td><td class="n">1</td><td><span class="pill p-acc">Post-launch</span></td></tr>
+      <tr><td>8</td><td>Collaborative analysis with friends</td><td class="n">3</td><td class="n">3</td><td class="n">4</td><td class="n">3</td><td class="n">3</td><td><span class="pill p-acc">Post-launch</span></td></tr>
+      <tr><td>10</td><td>Spectator rooms with commentary</td><td class="n">3</td><td class="n">3</td><td class="n">4</td><td class="n">4</td><td class="n">4</td><td><span class="pill p-acc">Post-launch</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 05 -->
+<section class="doc" id="art">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Visual direction &amp; 3D art bible</h2><span class="sec-sub">Proposed direction for approval, plus the technical rules every asset follows</span></div>
+  <h3>Proposed direction: "Tempered"</h3>
+  <p>The name Chacklate suggests the craft of a chocolatier: tempered gloss, cocoa woods, cream stone, gold foil and ruby accents. The proposal is to borrow those <em>materials and the atelier mood</em> while keeping the game unmistakably chess: classical Staunton-derived silhouettes for the default set, calm rooms, and a signature ruby-chocolate accent used sparingly for selection and highlights. It must never look like a confectionery or casual game. The brand identity (logo, wordmark, app icon) is a separate commission and depends on trademark clearance (section 18).</p>
+  <h3>Readability rules (non-negotiable for every board and piece set)</h3>
+  <ul>
+    <li>Light and dark squares keep a minimum luminance contrast that is checked automatically in the asset pipeline; pieces must remain distinguishable from both square colours under every lighting preset.</li>
+    <li>King, queen, rook, bishop, knight and pawn must be identified correctly in a 32 px top-down silhouette test and a 3/4 camera test, by at least 95% of testers (including colour-blind testers).</li>
+    <li>Move, check, last-move and premove highlights use shape plus colour, never colour alone; colour-blind palettes ship at launch.</li>
+    <li>A clean top-down "Tournament view" is always one tap away, renders with no room, and is the default for bullet.</li>
+    <li>Cosmetics never change hitboxes, legal targets, animation timing in timed games, or visibility. Capture and victory effects are skipped automatically when the player's clock is under 10 seconds in online play.</li>
+  </ul>
+  <h3>Lighting, materials, camera</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Topic</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Materials</td><td>Physically based (metal/roughness), glTF 2.0 as the interchange format. Each piece set ships a shared material library so finishes and colourways are parameter swaps, not new textures.</td></tr>
+      <tr><td>Lighting</td><td>One key directional light with soft shadows, image-based ambient light, baked lightmaps for rooms. Real-time reflections only on High tier; screen-space or probe reflections on board surfaces where supported.</td></tr>
+      <tr><td>Camera</td><td>Four presets: player 3/4 (default), low dramatic, top-down, and free orbit in analysis. Auto-orients for the player's colour; never moves during the opponent's turn in timed games.</td></tr>
+      <tr><td>Animation</td><td>Piece moves 180–260 ms with ease-out; capture effects under 600 ms and non-blocking (input is accepted immediately); victory sequences 2–5 s and skippable.</td></tr>
+      <tr><td>Graphics tiers</td><td>Low (no shadows, baked lighting, 1K textures, 30 fps cap), Medium (2K, soft shadows, 60 fps), High (2K–4K, reflections, post effects). Reduced Effects is a separate accessibility toggle that removes particles, camera shake and flashes on any tier.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Technical asset budgets (initial hypotheses, validated in PoC 2)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Asset</th><th class="n">Low</th><th class="n">Medium</th><th class="n">High</th></tr></thead>
+    <tbody>
+      <tr><td>Full piece set (32 pieces, instanced, LOD0)</td><td class="n">≤ 25k tris</td><td class="n">≤ 60k tris</td><td class="n">≤ 120k tris</td></tr>
+      <tr><td>Board</td><td class="n">≤ 5k tris</td><td class="n">≤ 15k tris</td><td class="n">≤ 40k tris</td></tr>
+      <tr><td>Room / environment</td><td class="n">≤ 60k tris</td><td class="n">≤ 150k tris</td><td class="n">≤ 400k tris</td></tr>
+      <tr><td>Texture size (KTX2 / Basis Universal)</td><td class="n">1K</td><td class="n">2K</td><td class="n">2K–4K</td></tr>
+      <tr><td>Scene memory (GPU + assets)</td><td class="n">≤ 250 MB</td><td class="n">≤ 450 MB</td><td class="n">≤ 800 MB</td></tr>
+      <tr><td>Download per room (compressed)</td><td class="n">≤ 8 MB</td><td class="n">≤ 20 MB</td><td class="n">≤ 45 MB</td></tr>
+    </tbody>
+  </table></div>
+  <p>Meshes are compressed with meshopt or Draco, textures with KTX2/Basis Universal (transcoded per GPU), audio with Opus. Three LOD levels per asset. Every category has a bundled fallback asset so a failed download never blocks a game.</p>
+</section>
+
+<!-- 06 -->
+<section class="doc" id="catalogue">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Customisation catalogue strategy &amp; asset production</h2><span class="sec-sub">Launch counts versus catalogue targets, and how items are defined</span></div>
+  <p>The 20-per-category target is kept as the 12-month catalogue goal. Launch counts are set by what can be produced at premium quality and tested on four platforms in time. Seasons add roughly 6–10 items each, so the targets are reached through live operations rather than padding the launch with near-duplicates.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Category</th><th class="n">Launch</th><th class="n">12-month target</th><th class="n">Free at launch</th><th>Production note</th></tr></thead>
+    <tbody>
+      <tr><td>Chess boards</td><td class="n">10</td><td class="n">24</td><td class="n">3</td><td>Cheapest premium category; finish variants count only if visually distinct</td></tr>
+      <tr><td>Piece sets (distinct silhouettes)</td><td class="n">10</td><td class="n">22</td><td class="n">2</td><td>Most expensive to validate (silhouette tests); 2–3 weeks each</td></tr>
+      <tr><td>Environments / rooms</td><td class="n">6</td><td class="n">20</td><td class="n">2</td><td>Heaviest download and memory; 4–6 weeks each incl. lighting</td></tr>
+      <tr><td>Chairs &amp; furniture</td><td class="n">10</td><td class="n">24</td><td class="n">2</td><td>Grouped into room-compatible collections</td></tr>
+      <tr><td>Victory / result animations</td><td class="n">10</td><td class="n">20</td><td class="n">2</td><td>Each has variants for checkmate, resignation, timeout, draw, tournament win</td></tr>
+      <tr><td>Capture animations</td><td class="n">10</td><td class="n">22</td><td class="n">2</td><td>Must read under 600 ms; disable switch always available</td></tr>
+      <tr><td>Clock skins</td><td class="n">12</td><td class="n">22</td><td class="n">3</td><td>2D/3D hybrid; cheap, good seasonal filler</td></tr>
+      <tr><td>Additional (finishes, colourways, move trails, check/promotion effects, sound packs, music, avatars, frames, emotes, menu themes, loading scenes)</td><td class="n">≈ 60</td><td class="n">≈ 180</td><td class="n">≈ 20</td><td>Mostly parameter or 2D work</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Catalogue item definition (data-driven, no item hardcoded in screens)</h3>
+  <p>Each item has: stable ID (<code>board.walnut_gold.v1</code> style, never reused), category, display name keys, rarity, collection, price list by product SKU, unlock conditions (purchase, Premium, season reward, achievement, free), compatibility (e.g. furniture valid for which rooms), preview model reference, asset bundle versions per platform and tier, minimum client version, availability window, and a fallback item ID. The client downloads a signed catalogue manifest; new items and price changes ship without an app update, while new <em>shader or code features</em> are gated by minimum client version.</p>
+  <h3>Production pipeline</h3>
+  <ol>
+    <li>Concept and silhouette review (art director plus chess readability check).</li>
+    <li>Modelling to budget, LODs, materials from the shared library.</li>
+    <li>Automated validation: triangle and texture budgets, naming, square-contrast check, glTF validator.</li>
+    <li>Build per platform and tier, upload to the asset CDN with content hashes.</li>
+    <li>Preview on device matrix, then publish through the admin console with approval.</li>
+  </ol>
+  <p>Outsourcing to a 3D art vendor is assumed for about half of launch assets, with in-house art direction and technical art owning quality.</p>
+</section>
+
+<!-- 07 -->
+<section class="doc" id="campaign">
+  <div class="sec-head"><span class="sec-num">07</span><h2>Campaign outline &amp; lesson template</h2><span class="sec-sub">74 lessons in 10 chapters, to be reviewed by a qualified chess educator</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th class="n">Ch.</th><th>Theme</th><th class="n">Lessons</th><th>Example lesson titles</th><th>Access</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td>Board, setup, pieces and movement</td><td class="n">7</td><td>The board and its squares · Rook and bishop · The knight's jump · Pawns and promotion</td><td><span class="pill p-ok">Free</span></td></tr>
+      <tr><td class="n">2</td><td>Rules, check, checkmate, stalemate, draws</td><td class="n">7</td><td>Check and its three escapes · Castling rules · En passant · Stalemate is not a win</td><td><span class="pill p-ok">Free</span></td></tr>
+      <tr><td class="n">3</td><td>Opening principles and development</td><td class="n">8</td><td>Fight for the centre · Develop before you attack · King safety and castling timing</td><td><span class="pill p-ok">Free</span></td></tr>
+      <tr><td class="n">4</td><td>Tactical vision</td><td class="n">9</td><td>Forks · Pins · Skewers · Discovered attacks · Removing the defender</td><td>Premium</td></tr>
+      <tr><td class="n">5</td><td>Defence, king safety, escaping threats</td><td class="n">7</td><td>Scan for checks, captures, threats · Blocking and counter-attacking</td><td>Premium</td></tr>
+      <tr><td class="n">6</td><td>Positional play, pawn structure, strong squares</td><td class="n">8</td><td>Isolated and doubled pawns · Outposts · Open files</td><td>Premium</td></tr>
+      <tr><td class="n">7</td><td>Planning, exchanges, initiative, strategy</td><td class="n">8</td><td>When to trade · Making a plan in three questions</td><td>Premium</td></tr>
+      <tr><td class="n">8</td><td>Endgames, king activity, promotion, opposition</td><td class="n">7</td><td>King and pawn basics · Opposition · Rook endgame essentials</td><td>Premium</td></tr>
+      <tr><td class="n">9</td><td>Calculation, candidate moves, combinations</td><td class="n">7</td><td>Choosing candidates · Forcing moves first · Visualising two moves deep</td><td>Premium</td></tr>
+      <tr><td class="n">10</td><td>Competitive preparation, time management, review</td><td class="n">6</td><td>Using your clock · Reviewing your own games</td><td>Premium</td></tr>
+      <tr><td></td><td><strong>Total</strong></td><td class="n"><strong>74</strong></td><td>Free chapters 1–3 = 22 lessons (30%)</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <p>Default: chapters 1–3 free. Making only chapters 1–2 free would raise conversion pressure but cuts off the opening-principles chapter that most clearly shows the coaching value; the plan recommends three and tests two in soft launch.</p>
+  <h3>Lesson template (every lesson is a content file, not code)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Field</th><th>Content</th></tr></thead>
+    <tbody>
+      <tr><td>Identity</td><td><code>lesson.c04.l03.forks</code>, version, locale keys</td></tr>
+      <tr><td>Objectives</td><td>2–3 observable skills ("spot a knight fork in one move")</td></tr>
+      <tr><td>Duration and prerequisites</td><td>Estimated minutes; prerequisite lesson IDs</td></tr>
+      <tr><td>Narration script</td><td>Segmented script with board cues (arrows, highlights, piece moves) keyed to audio timestamps; captions and transcript generated from the same source</td></tr>
+      <tr><td>Demonstrations</td><td>FEN start positions and scripted move sequences</td></tr>
+      <tr><td>Exercises</td><td>Find-the-move, choose-the-plan, identify-the-threat, mini-games; each with accepted answers validated by the chess core</td></tr>
+      <tr><td>Hints and feedback</td><td>Three-step hint ladder; specific feedback for common wrong answers</td></tr>
+      <tr><td>Assessment and mastery</td><td>5–8 unseen positions; mastery at ≥ 80% first-try accuracy; spaced review scheduled at 1, 7 and 30 days</td></tr>
+      <tr><td>Rewards and progression</td><td>XP, journey map node, occasional cosmetic</td></tr>
+      <tr><td>Accessibility</td><td>Captions, transcript, screen-reader descriptions of every demonstration, no timed exercises unless the lesson is about time</td></tr>
+      <tr><td>Analytics</td><td>Start, segment complete, hint used, exercise result, assessment score, mastery, abandon point</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Narration</h3>
+  <p>Roughly 6 minutes of narration per lesson gives about 7.5 hours of audio. At 48 kbps Opus that is about 160 MB per language, downloaded per chapter. Recommended default: professional human voice for English at launch (best perceived quality, clear rights), with synthetic voice only from a provider whose licence covers commercial redistribution, if used for later languages. Players get pause, replay segment, 0.75×–1.5× speed, captions and full transcripts. No lesson requires speaking.</p>
+  <h3>Measuring improvement honestly</h3>
+  <p>Track per-skill assessment accuracy, tactic puzzle accuracy by motif, blunders per 40 moves in real games, threat-recognition speed, and retention on spaced reviews. The product reports these trends; it does not promise a rating increase unless a properly designed study later supports a claim.</p>
+</section>
+
+<!-- 08 -->
+<section class="doc" id="ai">
+  <div class="sec-head"><span class="sec-num">08</span><h2>On-device AI &amp; chess-engine specification</h2><span class="sec-sub">Engine-first coaching, licensing, and a device capability matrix</span></div>
+  <h3>Coaching architecture</h3>
+  <ol>
+    <li><strong>Chess core</strong> validates positions and moves.</li>
+    <li><strong>Engine</strong> produces evaluations, principal variations and multi-PV candidates.</li>
+    <li><strong>Deterministic analysers</strong> classify each move (best, good, inaccuracy, mistake, blunder, missed win) by evaluation and win-probability loss, and detect motifs: forks, pins, skewers, discovered attacks, hanging pieces, back-rank weakness, stalemate traps, king exposure.</li>
+    <li><strong>Fact sheet</strong>: a structured, verified record of all the above for the position.</li>
+    <li><strong>Explainer</strong>: templated, chess-reviewed sentences generate the explanation on every device. Where an on-device language model is available, it may rephrase the fact sheet or answer a question about it, but its output is checked: any move, square or evaluation it mentions must appear in the fact sheet, otherwise the templated text is shown.</li>
+  </ol>
+  <p>The language model never chooses or calculates moves. If the fact sheet cannot answer a question, the coach says so and offers the deterministic explanation.</p>
+  <h3>What "a 3-move plan" means</h3>
+  <p>Defined in the player's own moves, each followed by the opponent's reply, starting and ending with the player's move. An <em>N-move plan</em> is 2N − 1 plies. The UI shows "3 moves (5 plies)" in the help text.</p>
+  <div class="ply" aria-label="Example: a 3-move plan is 5 plies"><span class="me">1 · you</span><span>2 · reply</span><span class="me">3 · you</span><span>4 · reply</span><span class="me">5 · you</span></div>
+  <h3>Engine licensing (decision required)</h3>
+  <div class="callout">
+    <p>Stockfish, Leela Chess Zero and most top open-source engines are licensed under GPL-3.0. Embedding one inside a closed-source iOS or Android app would require releasing the app's corresponding source under GPL, and App Store distribution terms are widely considered to conflict with GPL. Stockfish's own neural networks carry the same licence. This needs a legal opinion, but the plan should not depend on it.</p>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Option</th><th>Strength</th><th>Cost</th><th>Risk</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>A. In-house engine (Rust, alpha-beta + NNUE trained on CC0 Lichess database games and own self-play)</td><td>Realistic 2500–2900 equivalent within 6–9 months with one specialist; more than enough for coaching club players</td><td>1–2 specialist engineers, training compute (modest)</td><td>Schedule; needs a rare skill set</td><td class="verdict">Recommended default</td></tr>
+      <tr><td>B. License a commercial engine</td><td>Very strong immediately</td><td>Licence fee, unknown until quoted</td><td>Vendor dependency, platform port terms, WASM availability</td><td class="verdict">Get quotes in Phase 0 as a fallback</td></tr>
+      <tr><td>C. Embed a GPL engine and release the apps under GPL</td><td>Strongest</td><td>Low</td><td>Store-terms conflict, competitors can fork the client, reduces monetisation control</td><td class="verdict">Not recommended</td></tr>
+    </tbody>
+  </table></div>
+  <p>Human-like play for the personalities comes from the engine's error model rather than GPL-licensed human-move models. The chess rules core will be written in-house for the same licensing reason (most mature rule libraries in Rust are GPL; permissive JavaScript ones cannot be shared with native clients cleanly).</p>
+  <h3>On-device language model options</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Option</th><th>Where</th><th>Size</th><th>Licence</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Apple Foundation Models framework</td><td>iOS/iPadOS/macOS on Apple Intelligence devices</td><td>No download</td><td>Apple platform terms</td><td>Best battery and size profile; only newer devices; guided generation helps structured output</td></tr>
+      <tr><td>Gemini Nano via Android ML Kit GenAI / AICore</td><td>Selected recent Android flagships</td><td>No download</td><td>Google terms</td><td>Narrow device coverage, especially in the Indian mid/low market</td></tr>
+      <tr><td>Small open-weight model (Qwen 1.5B–3B class, Apache-2.0; Phi mini, MIT) via llama.cpp or MLC</td><td>High-tier phones, desktop, opt-in download</td><td>≈ 1–2 GB at 4-bit</td><td>Check each model's licence</td><td>Uniform behaviour across platforms; download size and thermals are the cost</td></tr>
+      <tr><td>WebLLM (WebGPU)</td><td>Desktop browsers with WebGPU</td><td>≈ 1–2 GB</td><td>Runtime Apache-2.0</td><td>Opt-in only; not viable as a default on web</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Capability matrix by device class</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Capability</th><th>Low-tier phone</th><th>Mid-tier phone</th><th>High-tier phone</th><th>Desktop app</th><th>Web</th></tr></thead>
+    <tbody>
+      <tr><td>Rules, engine play, all AI opponents</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes (WASM, multi-threaded where cross-origin isolation is available)</td></tr>
+      <tr><td>Post-game review</td><td>Yes, shallower depth, takes longer</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Templated explanations and hints</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Free-form chess questions (language model)</td><td>No, guided question menu instead</td><td>Where OS model exists</td><td>Yes (OS model or download)</td><td>Yes (download)</td><td>Opt-in on WebGPU</td></tr>
+      <tr><td>Screenshot to position</td><td>Yes, slower</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Documents (PDF/text containing PGN)</td><td>Text PGN only</td><td>Up to 10 MB</td><td>Up to 10 MB</td><td>Up to 25 MB</td><td>Up to 10 MB</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Screenshot and import pipeline</h3>
+  <p>Board detection (corner finding plus perspective correction), a small square classifier (13 classes) trained on synthetic renders of our own piece sets plus licensed or self-captured screenshots, orientation detection from coordinates and piece placement, candidate FEN, legality check by the chess core, then an edit screen where the player confirms or fixes uncertain squares. Runs with Core ML, TensorFlow Lite / LiteRT and ONNX Runtime Web. Images are processed locally and discarded after confirmation unless the player saves the position.</p>
+  <h3>Fair-play boundary</h3>
+  <p>The coach, hints, evaluation bar and analysis are disabled in all online games while the game is live, including casual. They unlock the moment the game ends. The app cannot stop someone using another device, so fair-play detection still happens on the server (section 12).</p>
+  <h3>Cost principle</h3>
+  <p>Offline engine and coaching have no marginal service cost, so there are no AI credits. Premium gates advanced <em>features</em> (deep review, training plans, opening lab), not compute.</p>
+</section>
+
+<!-- 09 -->
+<section class="doc" id="arch">
+  <div class="sec-head"><span class="sec-num">09</span><h2>Platform architecture comparison &amp; recommendation</h2><span class="sec-sub">The highest-leverage technical decision in the project</span></div>
+  <h3>Rendering and client options</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Option</th><th>How it works</th><th>Strengths</th><th>Weaknesses</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td><strong>B. Native shells + shared Filament scene runtime</strong></td><td>SwiftUI and Compose own all UI; a shared C++ scene module on Google's Filament (Apache-2.0) renders the board via Metal, Vulkan/GLES and WebGL2/WASM</td><td>Best native fidelity; small binary; permissive licence; one renderer and material model on all platforms; PBR quality suited to a mostly static scene</td><td>Not a game engine: particles, VFX timelines and authoring tools must be built; needs 2–3 strong rendering engineers</td><td class="verdict">Lead candidate</td></tr>
+      <tr><td><strong>A. Native shells + Unity 6 as a Library</strong></td><td>Unity renders the 3D view inside native apps; Unity standalone for desktop; Unity Web build for browsers</td><td>Mature art and VFX tooling (good for 40+ animated effects); large hiring pool; fast content iteration</td><td>One Unity instance per app with memory overhead; native/Unity bridging complexity; web download size and mobile-browser performance; seat licensing and vendor policy history</td><td class="verdict">Challenger in bake-off</td></tr>
+      <tr><td>C. Separate native renderers (RealityKit, Filament/SceneView, Three.js)</td><td>Each platform renders natively</td><td>Maximum platform integration</td><td>Three implementations of every effect; visual parity drifts; triple QA</td><td class="verdict">Rejected</td></tr>
+      <tr><td>D. Full cross-platform engine with engine UI (Unity/Godot/Unreal for everything)</td><td>Engine owns UI on all platforms</td><td>Single codebase</td><td>Conflicts with the confirmed native SwiftUI/Kotlin requirement; Unreal has no supported web export</td><td class="verdict">Rejected</td></tr>
+      <tr><td>E. Web tech in native WebViews</td><td>Three.js/Babylon inside native shells</td><td>One rendering codebase in TypeScript</td><td>WebView GPU performance and memory on low-end Android; weaker native feel</td><td class="verdict">Rejected for mobile</td></tr>
+      <tr><td>F. Godot 4 embedded</td><td>Godot as embedded library</td><td>MIT licence; good tooling</td><td>Library embedding in native iOS/Android is still maturing; C# not supported on web export</td><td class="verdict">Watch, not chosen</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Bake-off decision criteria (PoC 2):</strong> visual quality judged blind by art lead and three external players, 60 fps on mid-tier phones, 30 fps on the low-tier Android reference, web time-to-interactive under 6 s on a 20 Mbps connection, binary size added, memory, and engineering effort to build one capture and one victory effect. If B fails the effects-effort test by a wide margin, A is chosen.</p>
+  <h3>PC/Mac delivery</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Option</th><th>Assessment</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Web client in a Tauri 2 shell (recommended)</strong></td><td>One codebase for Windows and macOS, small installer, native menus, file access for PGN, offline engine in WASM or native sidecar. Distribution: direct download, Microsoft Store, Mac App Store, and Steam as an option (Steam builds must use Steam payments).</td></tr>
+      <tr><td>Native macOS from the iOS SwiftUI code, plus a separate Windows client</td><td>Best Mac fidelity, but Windows still needs its own client; two desktop codebases.</td></tr>
+      <tr><td>Electron</td><td>Works, but heavier footprint than Tauri for no benefit here.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Shared code strategy</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Layer</th><th>Technology</th><th>Shared by</th></tr></thead>
+    <tbody>
+      <tr><td>Chess core (rules, FEN/PGN, clocks, results, repetition)</td><td>Rust, bindings via UniFFI (Swift, Kotlin) and wasm-bindgen (web)</td><td>All clients and the game server</td></tr>
+      <tr><td>Engine and analysers</td><td>Rust, same binding approach</td><td>All clients; server for fair-play analysis</td></tr>
+      <tr><td>Scene runtime (camera, animations, effects, asset loading)</td><td>C++ on Filament (or Unity if chosen)</td><td>All clients</td></tr>
+      <tr><td>Contracts (API, realtime messages, content and catalogue schemas)</td><td>Protocol Buffers with buf, generated code for Swift, Kotlin, TypeScript, Rust</td><td>Everything</td></tr>
+      <tr><td>App domain logic (view models, flows)</td><td>Native per platform (Swift, Kotlin, TypeScript) against the shared core</td><td>Per platform; tested against shared fixtures</td></tr>
+    </tbody>
+  </table></div>
+  <h3>System overview</h3>
+<pre class="mermaid">
+flowchart LR
+  subgraph Clients
+    iOS[iOS / iPadOS<br/>SwiftUI]
+    And[Android<br/>Compose]
+    Web[Web<br/>TypeScript]
+    Desk[PC / Mac<br/>Tauri shell]
+  end
+  Core[(Rust chess core<br/>+ engine)]
+  Scene[(Shared 3D scene runtime)]
+  Clients --- Core
+  Clients --- Scene
+  Clients -->|HTTPS| API[Platform API<br/>accounts, commerce, content]
+  Clients -->|WebSocket| GS[Game service<br/>Rust, authoritative]
+  GS --- Core
+  API --> PG[(PostgreSQL)]
+  GS --> RD[(Redis)]
+  GS --> PG
+  API --> S3[(Object storage + CDN<br/>assets, narration)]
+  Admin[Admin console<br/>Chacklate Ops] -->|SSO + approvals| AAPI[Admin API]
+  AAPI --> PG
+  Site[Marketing website] --> CMS[(Headless CMS)]
+  Stores[App Store / Play / Razorpay / Stripe] -->|server notifications| API
+</pre>
+  <h3>Proposed repository layout (monorepo)</h3>
+  <p><code>core/</code> chess rules · <code>engine/</code> · <code>scene/</code> · <code>apps/ios</code> · <code>apps/android</code> · <code>apps/web</code> · <code>apps/desktop</code> · <code>services/game</code> · <code>services/platform</code> · <code>services/admin-api</code> · <code>admin/</code> · <code>website/</code> · <code>content/</code> (lessons, catalogue) · <code>schemas/</code> · <code>docs/adr</code> (architecture decision records), <code>docs/requirements</code>, <code>docs/test-evidence</code>, <code>CHANGELOG.md</code>.</p>
+  <h3>Minimum supported platforms (default)</h3>
+  <p>iOS/iPadOS 17+, Android 10 (API 29)+ with OpenGL ES 3.1 or Vulkan, Windows 10 22H2+, macOS 13+, browsers with WebGL2 (WebGPU used where available later). To be confirmed against the device matrix in PoC 2.</p>
+</section>
+
+<!-- 10 -->
+<section class="doc" id="poc">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Proof-of-concept plans</h2><span class="sec-sub">Five prototypes with pass/fail thresholds, run before full production</span></div>
+  <h3>Device matrix (to buy or rent via a device cloud)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Tier</th><th>iOS</th><th>Android</th><th>Desktop / Web</th></tr></thead>
+    <tbody>
+      <tr><td>Low</td><td>iPhone 11 (A13), iPad 9th gen</td><td>4 GB RAM, Helio G85 / Unisoc T606 class (≈ ₹8–10k phone)</td><td>Windows laptop, Intel UHD 620, 8 GB; Chrome on low-tier Android</td></tr>
+      <tr><td>Mid</td><td>iPhone 13</td><td>6–8 GB, Snapdragon 7-series class</td><td>MacBook Air M1; Safari on iPhone 13</td></tr>
+      <tr><td>High</td><td>iPhone 16 Pro or newer</td><td>Pixel 9 / Snapdragon 8-series</td><td>Windows desktop with discrete GPU</td></tr>
+    </tbody>
+  </table></div>
+  <p>Estimated device and device-cloud cost for Phase 1: ₹4–6 lakh.</p>
+  <h3>Recommended sequence</h3>
+  <p>PoC 1 starts first because PoC 3 and 4 depend on the core. PoC 2 and PoC 5 run in parallel from week 1. Total Phase 1 duration about 10–12 weeks with 9–11 people.</p>
+<pre class="mermaid">
+gantt
+  dateFormat  YYYY-MM-DD
+  axisFormat  W%W
+  section Core
+  PoC 1 Chess core parity      :p1, 2027-01-04, 3w
+  section Rendering
+  PoC 2 3D bake-off            :p2, 2027-01-04, 8w
+  section AI
+  PoC 3 Offline engine + coach :p3, after p1, 7w
+  section Online
+  PoC 4 Authoritative match    :p4, after p1, 5w
+  section Commerce
+  PoC 5 Identity + purchases   :p5, 2027-01-11, 5w
+  section Gate
+  Phase 1 review               :milestone, 2027-03-22, 0d
+</pre>
+  <div class="tbl"><table>
+    <thead><tr><th>PoC</th><th>Scope</th><th>Pass thresholds</th><th>Duration / people</th><th>Depends on</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. Chess core parity</strong></td><td>Rust core with Swift, Kotlin, WASM and server bindings; shared test vectors</td><td>Perft results correct to depth 6 from standard and 6+ tricky positions; 100% agreement on 10,000 random games and 2,000 edge-case positions (castling through check, en passant pins, under-promotion, threefold, 50-move, insufficient material, timeout vs insufficient material) across all four bindings; FEN/PGN round-trip on 100k Lichess CC0 games with zero loss</td><td>3 weeks, 2 engineers</td><td>None</td></tr>
+      <tr><td><strong>2. Premium 3D bake-off</strong></td><td>One board, two piece sets, one room, move/capture/victory animation, top-down view, in both Filament and Unity candidates on iOS, Android, web</td><td>Mid tier ≥ 60 fps sustained 10 min; low tier ≥ 30 fps on Low graphics; web TTI ≤ 6 s at 20 Mbps (cold) and ≤ 2 s (cached); scene memory within section 5 budgets; blind visual rating ≥ 4/5; no thermal throttling below target in 20 min</td><td>8 weeks, 2 rendering engineers, 1 tech artist, 1 3D artist, part-time iOS/Android</td><td>Art direction sketch</td></tr>
+      <tr><td><strong>3. Offline engine &amp; coaching</strong></td><td>Engine prototype, move classifier, 6 motif detectors, templated explanations, one on-device LLM rephrase path, screenshot recognition</td><td>Engine ≥ 2200 equivalent vs calibrated reference at 1 s/move on mid tier; full 40-move review ≤ 20 s mid tier, ≤ 60 s low tier; motif precision ≥ 95% on a 500-position expert-labelled set; zero LLM statements outside the fact sheet in 1,000 test prompts (validator blocks all); screenshot FEN fully correct ≥ 90% on clean screenshots of supported sites, with all errors surfaced as uncertain squares; battery ≤ 6% per 10-min review session on mid tier</td><td>7 weeks, 2 engine/ML engineers, 1 chess expert part-time</td><td>PoC 1; engine licensing decision</td></tr>
+      <tr><td><strong>4. Authoritative online match</strong></td><td>Rust game service, WebSocket protocol, clocks with lag compensation, reconnect, result and Glicko-2 update, simple matchmaker</td><td>Move round-trip p95 ≤ 250 ms in-region; clocks never drift more than 100 ms from server truth; 99% reconnect success after 10 s network loss; duplicate and replayed moves rejected 100%; client-declared results ignored; 10,000 concurrent simulated games on 2 small nodes with p99 ≤ 400 ms</td><td>5 weeks, 2 backend engineers</td><td>PoC 1</td></tr>
+      <tr><td><strong>5. Identity, purchases, entitlements</strong></td><td>Guest → linked account, Sign in with Apple, Google, email; StoreKit 2, Play Billing, Razorpay/Stripe web; entitlement ledger; restore</td><td>Purchase on any platform unlocks on all others within 60 s where store rules allow; sandbox renewals, cancellations, refunds and expiry reflected within 5 min via server notifications; restore works after reinstall; zero entitlement granted without a validated receipt</td><td>5 weeks, 1 backend, iOS and Android part-time</td><td>Store developer accounts</td></tr>
+    </tbody>
+  </table></div>
+  <p>Estimated Phase 1 cost: ₹1.1–1.6 crore (people, devices, cloud, tools), assuming India-based team rates. Not built in Phase 1: the catalogue, the campaign, the admin console, or production infrastructure.</p>
+</section>
+
+<!-- 11 -->
+<section class="doc" id="backend">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Backend architecture, data model &amp; API plan</h2><span class="sec-sub">Services, storage, contracts and core entities</span></div>
+  <h3>Services</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Service</th><th>Language</th><th>Responsibility</th></tr></thead>
+    <tbody>
+      <tr><td>Game service</td><td>Rust (tokio, axum)</td><td>Live games, clocks, matchmaking, tournaments, spectating; uses the shared chess core so the server validates every move with the same code as clients</td></tr>
+      <tr><td>Platform API</td><td>TypeScript (Node, Fastify)</td><td>Accounts, profiles, social graph, content delivery, catalogue, inventory, commerce, seasons, leaderboards, notifications</td></tr>
+      <tr><td>Admin API</td><td>TypeScript, separate deployment</td><td>Command-based operations with RBAC, approvals and audit; no generic database access</td></tr>
+      <tr><td>Workers</td><td>Rust and TypeScript</td><td>Rating finalisation, leaderboard snapshots, fair-play analysis, store notification processing, data export/deletion</td></tr>
+    </tbody>
+  </table></div>
+  <p>Two server languages is a deliberate trade-off: Rust where chess correctness lives, TypeScript where the web, admin and website teams already work. An all-Rust backend is the alternative if hiring allows.</p>
+  <h3>Infrastructure (default)</h3>
+  <p>AWS with the primary region in Mumbai (ap-south-1): containers on ECS Fargate, PostgreSQL (Aurora), Redis (ElastiCache) for live game state and matchmaking queues, S3 + CloudFront for assets and narration, SQS/EventBridge for events, OpenTelemetry with Grafana for metrics and traces, Sentry for client crashes. Game nodes added in Frankfurt and Virginia if more than 20% of players are outside Asia after soft launch. Infrastructure as code (Terraform), separate AWS accounts for dev, staging and production.</p>
+  <h3>API principles</h3>
+  <ul>
+    <li>Versioned contracts (<code>/v1</code>, protobuf packages <code>chacklate.game.v1</code>) with backward-compatible evolution and a minimum-client-version gate.</li>
+    <li>All writes that grant value (purchases, rating changes, rewards, inventory) require an idempotency key and are recorded in append-only ledgers.</li>
+    <li>Public data (profile card, leaderboard rows) served from separate read models from private data (email, purchases, precise settings).</li>
+    <li>Rate limits per account, device and IP; signed request timestamps to reject replays.</li>
+  </ul>
+  <h3>Core entities by domain</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Domain</th><th>Entities (key fields)</th></tr></thead>
+    <tbody>
+      <tr><td>Identity</td><td><code>user</code> (id, created_at, status, age_band, country), <code>profile</code> (handle, avatar_id, public_location_level), <code>account_link</code> (provider, subject), <code>preferences</code>, <code>privacy_settings</code>, <code>consent_record</code></td></tr>
+      <tr><td>Games</td><td><code>game</code> (id, mode, variant, time_control, rated, players, status, result, termination, pgn_ref), <code>move</code> (game_id, ply, uci, san, fen_after, clock_ms, server_ts, client_move_id), <code>clock_state</code>, <code>game_event</code></td></tr>
+      <tr><td>Ratings &amp; matchmaking</td><td><code>rating</code> (user, pool, r, rd, vol, games, provisional), <code>rating_history</code>, <code>match_ticket</code>, <code>tournament</code>, <code>tournament_entry</code>, <code>fair_play_signal</code>, <code>fair_play_case</code></td></tr>
+      <tr><td>Learning</td><td><code>chapter</code>, <code>lesson</code> (version, locale), <code>exercise</code>, <code>attempt</code>, <code>mastery</code>, <code>narration_asset</code>, <code>translation</code>, <code>puzzle</code>, <code>puzzle_attempt</code></td></tr>
+      <tr><td>AI</td><td><code>ai_settings</code> (hint level, verbosity, frequency), <code>analysis_meta</code> (engine version, depth, only if user saves), <code>model_compat</code> (device class → capabilities), <code>coach_feedback</code> (thumbs, reason; no conversation text by default)</td></tr>
+      <tr><td>Catalogue</td><td><code>catalog_item</code> (stable id, category, rarity, unlock rule, compat), <code>asset_version</code> (platform, tier, hash, size, min_client), <code>collection</code></td></tr>
+      <tr><td>Inventory</td><td><code>inventory_item</code> (user, item, source, granted_at, grant_id), <code>loadout</code> (equipped per slot), <code>entitlement</code> (user, kind, source, starts, ends, status)</td></tr>
+      <tr><td>Commerce</td><td><code>product</code>, <code>price_point</code> (store, region, currency), <code>purchase</code>, <code>receipt</code> (store, original_txn_id, verified), <code>subscription_state</code>, <code>refund</code>, <code>lifetime_grant</code></td></tr>
+      <tr><td>Seasons</td><td><code>season</code> (id, starts, ends, config_version), <code>mission</code>, <code>mission_progress</code>, <code>reward_grant</code> (idempotent), <code>leaderboard_snapshot</code>, <code>achievement</code>, <code>user_achievement</code></td></tr>
+      <tr><td>Social &amp; safety</td><td><code>session</code>, <code>invitation</code> (code, expires), <code>reconnect_token</code>, <code>friendship</code>, <code>block</code>, <code>report</code>, <code>moderation_action</code>, <code>appeal</code></td></tr>
+      <tr><td>Operations</td><td><code>feature_flag</code>, <code>remote_config</code>, <code>content_version</code>, <code>incident</code>, <code>admin_user</code>, <code>admin_role</code>, <code>approval_request</code>, <code>admin_action</code> (hash-chained audit), <code>analytics_event</code> (in warehouse, not OLTP)</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Data lifecycle</h3>
+  <p>Retention defaults: game records kept for the life of the account; moderation reports 2 years; raw analytics 13 months then aggregated; imported screenshots and documents not uploaded at all. Self-service data export (JSON + PGN) and account deletion with a 14-day grace period, removing personal data and anonymising games that other players still have in their history.</p>
+</section>
+
+<!-- 12 -->
+<section class="doc" id="mp">
+  <div class="sec-head"><span class="sec-num">12</span><h2>Multiplayer, rating, tournament &amp; fair-play specification</h2><span class="sec-sub">Server-authoritative from the first rated game</span></div>
+  <h3>Realtime protocol</h3>
+  <ul>
+    <li>WebSocket over TLS, protobuf messages, one connection per client multiplexing games.</li>
+    <li>Each game is a single-writer actor on one node, holding authoritative position, clocks and sequence number. Events are persisted before acknowledgement.</li>
+    <li>Client sends <code>MoveIntent{game_id, expected_ply, uci, client_move_id}</code>. The server rejects wrong ply, illegal move or duplicate id, and broadcasts <code>MoveApplied{seq, uci, clocks, server_ts}</code>.</li>
+    <li>Clocks run on server time. Lag compensation credits measured network delay up to a cap (for example 1 s per move in blitz) to keep fast games fair without letting a client claim unlimited lag.</li>
+    <li>Reconnect: client presents a reconnect token and last seq; server replays missing events. Clients show "Opponent reconnecting" with a countdown.</li>
+  </ul>
+  <h3>Game-ending rules</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Situation</th><th>Rule (default)</th></tr></thead>
+    <tbody>
+      <tr><td>No first move</td><td>Game aborted, no rating change, if a player doesn't move within 30 s (bullet/blitz) or 60 s (rapid+)</td></tr>
+      <tr><td>Disconnect</td><td>Clock keeps running; after 30 s (bullet/blitz) or 60 s (rapid+) of absence the opponent may claim a win or a draw</td></tr>
+      <tr><td>Timeout</td><td>Loss, unless the opponent has insufficient mating material, then draw (decided by the core)</td></tr>
+      <tr><td>Draw offers</td><td>One pending offer at a time, limited per game to prevent spam; threefold and 50-move claimable, fivefold and 75-move automatic</td></tr>
+      <tr><td>Repeated abandonment</td><td>Escalating matchmaking cooldowns, not instant bans</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Matchmaking</h3>
+  <p>Pools per time control and rated/casual. The search starts at ±100 rating and widens over time, preferring players in the same region. At launch, liquidity is a real risk: if no match is found within 45 s, offer a rated-pool widening or a casual game against an AI clearly labelled as a computer. Bots are never presented as humans.</p>
+  <h3>Ratings</h3>
+  <p>Glicko-2, separate pools for bullet, blitz, rapid, classical, puzzles, and each future variant. New players start at 1500 with high rating deviation and a provisional marker for their first 20 games. Shown as "Chacklate rating", never compared to FIDE. Rating updates happen only on the server, idempotently per game id.</p>
+  <h3>Leaderboards and seasons</h3>
+  <ul>
+    <li>Global, country, city, friends and seasonal boards per pool, plus puzzle and tournament boards. Minimum 20 rated games and recent activity to appear.</li>
+    <li>Country from store region with user override; city is opt-in, chosen from a list, never derived from GPS. Players can hide their location entirely.</li>
+    <li>Seasons default to 8 weeks (6–8 configurable). Ratings never reset; seasons track season points from games, missions and puzzles. Lifetime history, peak ratings, achievements and past season ranks are permanent.</li>
+    <li>Season config is server-side and versioned; every reward grant has an idempotency key and audit record.</li>
+  </ul>
+  <h3>Tournaments (launch-lite)</h3>
+  <p>Arena and Swiss formats for scheduled public events and private friend/club tournaments, using the same game service. Pairing and standings are computed on the server.</p>
+  <h3>Fair play</h3>
+  <ul>
+    <li>Policy published in plain language: no outside assistance in live games; analysis allowed after the game.</li>
+    <li>Signals: engine-match rates and centipawn loss relative to rating, move-time patterns, focus-loss events reported by the client (weak signal), rating jumps, account links.</li>
+    <li>Signals open a case for human review; no automatic severe penalty from statistics alone. Ladder: warning, rated-play restriction, rating removal, suspension, ban. Every action is appealable and logged.</li>
+    <li>Ratings of affected opponents are restored when a cheater is confirmed.</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section class="doc" id="money">
+  <div class="sec-head"><span class="sec-num">13</span><h2>Monetisation &amp; financial model</h2><span class="sec-sub">Offer design, price arithmetic, and low/base/high scenarios</span></div>
+  <h3>Offer</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Tier</th><th>Includes</th></tr></thead>
+    <tbody>
+      <tr><td>Free</td><td>All standard play including online rated and casual, 4 AI personalities, campaign chapters 1–3, daily puzzle, basic post-game review (key moments and top 3 mistakes), starter cosmetics, ads</td></tr>
+      <tr><td>Premium (monthly / annual)</td><td>Chapters 4–10 and all future core campaign lessons, no ads anywhere, all 8 AI personalities, deep review and narrated coach replay, personalised training plans, opening lab and endgame dojo, Premium cosmetic collection, seasonal Premium track</td></tr>
+      <tr><td>Lifetime</td><td>Everything in Premium as described above, permanently, including future core campaign lessons and the seasonal Premium track. Excludes separately sold cosmetic collections. Online services are provided for as long as Chacklate operates them, with at least 90 days' notice before any shutdown; offline play and downloaded content keep working.</td></tr>
+      <tr><td>Cosmetics</td><td>Individual items and collections, previewed in 3D before purchase, restored across platforms where store rules allow</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Advertising rules</h3>
+  <ul>
+    <li>Never during a game, a player's turn, a lesson, or an assessment. Never in rated play flows.</li>
+    <li>Rewarded ads are optional, for example an extra hint in a puzzle or a 24-hour trial of a cosmetic.</li>
+    <li>Interstitials only after finished casual games against AI: at most one per three games, at least 4 minutes apart, never in the first session.</li>
+    <li>Players under 18 (or local age of majority) get contextual, non-personalised ads only, in line with India's DPDP Act and similar rules.</li>
+  </ul>
+  <h3>Price arithmetic for the INR hypotheses</h3>
+  <p>Consumer prices in India include 18% GST. Store fees shown as 15% (Google Play subscriptions, Apple Small Business Program, Apple subscriptions after year one) and 30% (Apple standard first-year rate, Steam). Web assumes about 2.5% payment processing. Store terms in India have been subject to regulatory change, so these must be re-verified in Phase 0.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Product</th><th class="n">Price</th><th class="n">Ex-GST</th><th class="n">Net @ 15%</th><th class="n">Net @ 30%</th><th class="n">Net on web</th></tr></thead>
+    <tbody>
+      <tr><td>Monthly</td><td class="n">₹299</td><td class="n">₹253</td><td class="n">₹215</td><td class="n">₹177</td><td class="n">₹247</td></tr>
+      <tr><td>Annual</td><td class="n">₹1,999</td><td class="n">₹1,694</td><td class="n">₹1,440</td><td class="n">₹1,186</td><td class="n">₹1,652</td></tr>
+      <tr><td>Lifetime</td><td class="n">₹5,999</td><td class="n">₹5,084</td><td class="n">₹4,321</td><td class="n">₹3,559</td><td class="n">₹4,957</td></tr>
+    </tbody>
+  </table></div>
+  <p>Observations: the annual plan is a 44% discount on twelve monthly payments, which is normal. Lifetime at exactly 3× annual is low if average annual subscribers stay longer than three years, and it caps revenue from the most committed players; testing ₹6,999–₹7,999 or a launch-only lifetime offer is worth considering. International price points (for example USD/EUR tiers) and competitor pricing have <em>not</em> been researched in this package; that is a Phase 0 task.</p>
+  <h3>Scenario model (month 12 after launch, operating view)</h3>
+  <p>Assumptions are hypotheses for planning, not forecasts. Pick a scenario or edit any input; the build cost is shown separately in section 16.</p>
+  <div class="card">
+    <div class="seg" role="group" aria-label="Scenario">
+      <button type="button" data-s="low" aria-pressed="false">Low</button>
+      <button type="button" data-s="base" aria-pressed="true">Base</button>
+      <button type="button" data-s="high" aria-pressed="false">High</button>
+    </div>
+    <div class="calc">
+      <div>
+        <label for="mau">Monthly active users<input id="mau" type="number" min="0" step="1000"></label>
+        <label for="dau">DAU / MAU (%)<input id="dau" type="number" min="0" max="100" step="1"></label>
+        <label for="conv">Paying players, % of MAU<input id="conv" type="number" min="0" step="0.1"></label>
+        <label for="arppu">Net ₹ per payer per month (after GST, fees)<input id="arppu" type="number" min="0" step="5"></label>
+        <label for="ads">Net ad ₹ per free DAU per month<input id="ads" type="number" min="0" step="0.5"></label>
+        <label for="cos">Net cosmetics ₹ per MAU per month<input id="cos" type="number" min="0" step="0.1"></label>
+        <label for="var">Variable cost ₹ per MAU per month (hosting, CDN, support, moderation, tools)<input id="var" type="number" min="0" step="0.1"></label>
+        <label for="team">Live-ops team cost, ₹ lakh per month<input id="team" type="number" min="0" step="1"></label>
+      </div>
+      <div class="out" aria-live="polite">
+        <div><span>Subscriptions &amp; lifetime</span><b id="o-sub"></b></div>
+        <div><span>Advertising</span><b id="o-ads"></b></div>
+        <div><span>Cosmetics</span><b id="o-cos"></b></div>
+        <div class="big"><span>Net revenue / month</span><b id="o-rev"></b></div>
+        <div><span>Variable costs</span><b id="o-var"></b></div>
+        <div><span>Live-ops team</span><b id="o-team"></b></div>
+        <div class="big"><span>Operating result / month</span><b id="o-net"></b></div>
+        <div><span>Break-even MAU at these rates</span><b id="o-be"></b></div>
+      </div>
+    </div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Input</th><th class="n">Low</th><th class="n">Base</th><th class="n">High</th><th>Basis</th></tr></thead>
+    <tbody>
+      <tr><td>MAU at month 12</td><td class="n">50,000</td><td class="n">250,000</td><td class="n">1,000,000</td><td>Depends heavily on marketing spend, not modelled</td></tr>
+      <tr><td>DAU/MAU</td><td class="n">18%</td><td class="n">22%</td><td class="n">25%</td><td>Chess is a habitual daily game; to validate in soft launch</td></tr>
+      <tr><td>Payer conversion</td><td class="n">1.0%</td><td class="n">2.0%</td><td class="n">3.0%</td><td>Freemium subscription apps commonly fall in 1–5%</td></tr>
+      <tr><td>Net per payer / month</td><td class="n">₹170</td><td class="n">₹200</td><td class="n">₹260</td><td>Blended monthly/annual/lifetime amortised; higher with international mix</td></tr>
+      <tr><td>Ads per free DAU / month</td><td class="n">₹4</td><td class="n">₹8</td><td class="n">₹15</td><td>Conservative ad rules and India-heavy audience</td></tr>
+      <tr><td>Cosmetics per MAU / month</td><td class="n">₹0.5</td><td class="n">₹1.5</td><td class="n">₹3</td><td>To validate</td></tr>
+      <tr><td>Variable cost per MAU / month</td><td class="n">₹5.0</td><td class="n">₹3.2</td><td class="n">₹2.8</td><td>Scale economies; includes support and moderation</td></tr>
+      <tr><td>Live-ops team</td><td class="n">₹25 L</td><td class="n">₹38 L</td><td class="n">₹55 L</td><td>≈ 10 / 15 / 22 people</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout plain"><p><strong>Reading the model.</strong> In the base case the game covers its variable costs but not the live-ops team at month 12; break-even needs roughly 0.9–1 million MAU at base rates, or better conversion and international revenue. That is why international pricing, soft-launch conversion data and marketing budget belong in the Phase 0–1 decisions rather than after launch.</p></div>
+</section>
+
+<!-- 14 -->
+<section class="doc" id="web">
+  <div class="sec-head"><span class="sec-num">14</span><h2>Marketing website &amp; admin console specifications</h2><span class="sec-sub">Deliverables B and C, each with its own identity and deployment</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Deliverable</th><th>Working identity</th><th>Entry point</th><th>Favicon concept</th><th>Deployment</th></tr></thead>
+    <tbody>
+      <tr><td>A. Game</td><td>Chacklate Chess</td><td>App stores, desktop installers, <code>play.</code> subdomain</td><td>Full-colour knight mark on ruby</td><td>Stores, CDN for web build</td></tr>
+      <tr><td>B. Website</td><td>Chacklate</td><td>Apex domain</td><td>Wordmark initial "C" in cocoa</td><td>Static hosting + CDN</td></tr>
+      <tr><td>C. Admin</td><td>Chacklate Ops</td><td><code>ops.</code> subdomain behind zero-trust access</td><td>Monochrome knight with a gear notch, distinct colour</td><td>Separate AWS account, private network</td></tr>
+    </tbody>
+  </table></div>
+  <p>Domain names are placeholders until a domain is confirmed (section 18).</p>
+  <h3>B. Marketing website</h3>
+  <ul>
+    <li><strong>Pages:</strong> home, features, learn (campaign preview with sample lesson video), coach, play online, customise (3D catalogue showcase), Premium comparison and pricing, download (platform detection), FAQ, support and contact, blog/guides (SEO), press kit, privacy policy, terms, fair-play policy, accessibility statement.</li>
+    <li><strong>Stack:</strong> Astro static site with a headless CMS (Sanity or Payload) so marketing edits content without deploys; localisation-ready; images and video through a CDN.</li>
+    <li><strong>Performance:</strong> LCP ≤ 2.5 s on mid-tier mobile, CLS ≤ 0.1, WCAG 2.2 AA.</li>
+    <li><strong>Analytics:</strong> consent-aware, privacy-friendly analytics; conversion events: store badge click, pricing view, plan selected, web checkout start/complete, newsletter signup. UTM attribution to store installs via store campaign links.</li>
+    <li><strong>Claims policy:</strong> every claim about AI, ratings, offline capability, security or performance needs a linked evidence note in the CMS and legal review before publishing. No "AI grandmaster", no rating-gain promises.</li>
+  </ul>
+  <h3>C. Admin and operations console</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Module</th><th>Key operations</th><th>Sensitive (needs second approver)</th></tr></thead>
+    <tbody>
+      <tr><td>Dashboard</td><td>Live players, games, matchmaking times, revenue, incidents</td><td></td></tr>
+      <tr><td>Players &amp; support</td><td>Lookup, profile view (PII masked by default), games, purchases, tickets, data export/deletion requests</td><td>Unmasking PII, deletion overrides</td></tr>
+      <tr><td>Subscriptions &amp; entitlements</td><td>View store state, resync, grant compensation</td><td>Manual grants above threshold, lifetime grants</td></tr>
+      <tr><td>Content &amp; lessons</td><td>Edit lessons, exercises, hints, translations, with chess-core validation of every position</td><td>Publish to production</td></tr>
+      <tr><td>Voice narration</td><td>Upload audio, align to script segments, captions</td><td>Publish</td></tr>
+      <tr><td>Cosmetics &amp; catalogue</td><td>Items, collections, asset versions, previews</td><td>Publish, price changes</td></tr>
+      <tr><td>Pricing</td><td>Price points per store and region (mirrors store consoles)</td><td>All changes</td></tr>
+      <tr><td>Seasons, missions, rewards</td><td>Configure, schedule, preview, simulate</td><td>Publish, retroactive reward grants</td></tr>
+      <tr><td>Leaderboards &amp; tournaments</td><td>Create events, pause, review standings</td><td>Result corrections, removals</td></tr>
+      <tr><td>Moderation &amp; fair play</td><td>Report queues, case review with evidence, actions, appeals</td><td>Suspensions, bans, rating removal</td></tr>
+      <tr><td>Analytics</td><td>Read-only dashboards (warehouse-backed)</td><td></td></tr>
+      <tr><td>Feature flags &amp; release config</td><td>Flags, remote config, minimum client version, kill switches</td><td>Production changes</td></tr>
+      <tr><td>Incidents</td><td>Declare, status page message, timeline, postmortem</td><td></td></tr>
+      <tr><td>Audit log</td><td>Search all admin actions; tamper-evident, exportable</td><td>Read-only for everyone</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Roles (least privilege):</strong> Viewer, Support Agent, Moderator, Fair-Play Reviewer, Content Editor, Content Publisher, LiveOps Manager, Commerce Manager, Finance (read), On-call Engineer, Security Admin, and a break-glass Super Admin that alerts the whole admin group when used.</p>
+  <p><strong>Safeguards:</strong> separate workforce identity (SSO with hardware-key MFA), zero-trust network access, every change is a typed command validated by the admin API (no SQL console, no raw table editing), approval requests show a diff and expire, dev/staging/production are separate with promotion workflows, and all actions are written to a hash-chained audit log. Stack: React + TypeScript on the admin API.</p>
+</section>
+
+<!-- 15 -->
+<section class="doc" id="quality">
+  <div class="sec-head"><span class="sec-num">15</span><h2>Security, privacy, accessibility, testing &amp; release</h2><span class="sec-sub">Targets are provisional until PoCs and the device matrix confirm them</span></div>
+  <h3>Security</h3>
+  <ul>
+    <li>OAuth 2.0 / OIDC sign-in, short-lived access tokens with rotating refresh tokens, device-bound sessions, Sign in with Apple wherever other social logins are offered on iOS.</li>
+    <li>Server-authoritative competitive state, receipt validation server-to-server, idempotency keys, replay protection, rate limits, bot detection on signup.</li>
+    <li>Dependency and container scanning in CI, signed builds, SBOM per release, secrets in a managed vault, annual penetration test before launch and yearly after.</li>
+    <li>Encrypted backups with tested restores (quarterly drill), defined RPO 15 min and RTO 4 h for the platform database.</li>
+    <li>Vulnerability disclosure policy and incident response runbooks.</li>
+  </ul>
+  <h3>Privacy and child safety</h3>
+  <ul>
+    <li>India's DPDP Act defines children as under 18 and requires verifiable parental consent and no behavioural tracking or targeted ads for them. Default plan: age gate at sign-up; under-18 accounts get contextual ads only, restricted social features (no free text, friends-only invites), and parental consent flow where required. COPPA (US, under 13) and GDPR rules for EU minors handled the same way. Legal review required before launch.</li>
+    <li>Consent management where required (EU/UK), App Tracking Transparency on iOS, Google Play Data Safety and Apple privacy labels kept accurate.</li>
+    <li>Coach questions, screenshots and documents stay on the device. Analytics never includes chess conversation text or imported files.</li>
+  </ul>
+  <h3>Accessibility</h3>
+  <p>VoiceOver and TalkBack support with spoken board state and move announcements; keyboard play on web/desktop (type <code>e4</code> or <code>Nf3</code>); dynamic type; colour-blind board and highlight palettes; high-contrast boards; Reduced Effects; captions and transcripts for all narration; no time pressure in lessons. Web, website and admin target WCAG 2.2 AA.</p>
+  <h3>Provisional performance targets</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Cold start to home screen</td><td>≤ 3 s mid tier, ≤ 5 s low tier</td></tr>
+      <tr><td>Frame rate in game</td><td>60 fps mid/high, 30 fps low (Low graphics)</td></tr>
+      <tr><td>Room switch / asset load</td><td>≤ 2 s cached, progress shown when downloading</td></tr>
+      <tr><td>Hint response offline</td><td>≤ 1 s mid tier</td></tr>
+      <tr><td>Full game review offline</td><td>≤ 20 s mid tier, ≤ 60 s low tier</td></tr>
+      <tr><td>Battery</td><td>≤ 8% per 30 min of 3D play on mid tier</td></tr>
+      <tr><td>Crash-free sessions</td><td>≥ 99.7%</td></tr>
+      <tr><td>Move round-trip (in region)</td><td>p95 ≤ 250 ms</td></tr>
+      <tr><td>Matchmaking</td><td>Median ≤ 10 s in popular pools</td></tr>
+      <tr><td>Reconnect success</td><td>≥ 99% within 30 s</td></tr>
+      <tr><td>Capacity at launch</td><td>50,000 concurrent games tested, autoscaling beyond</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Testing strategy</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Area</th><th>Approach</th></tr></thead>
+    <tbody>
+      <tr><td>Chess rules</td><td>Perft, property-based tests (random legal games stay legal, FEN round-trips), curated edge cases, regression corpus; same vectors run on Swift, Kotlin, WASM and server in CI</td></tr>
+      <tr><td>Engine and coach</td><td>Strength regression gauntlets per build; expert-labelled motif sets; snapshot tests of explanations; LLM validator tests</td></tr>
+      <tr><td>Rendering</td><td>Automated screenshot comparisons per tier, performance runs on the device lab, low-memory and interrupted-download tests</td></tr>
+      <tr><td>Multiplayer</td><td>Load tests (simulated clients), network chaos (latency, loss, drops), duplicate/replay injection, clock accuracy tests</td></tr>
+      <tr><td>Commerce</td><td>Store sandboxes for purchase, renewal, grace period, cancellation, refund, restore, cross-platform unlock</td></tr>
+      <tr><td>Learning</td><td>Every lesson validated by content linter (positions legal, answers reachable), progression save/resume tests, educator sign-off</td></tr>
+      <tr><td>Accessibility</td><td>Automated checks plus manual screen-reader passes per release</td></tr>
+      <tr><td>Security and recovery</td><td>SAST/DAST, pen test, backup restore drills, incident game days</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Release strategy</h3>
+  <p>CI/CD with GitHub Actions and fastlane; TestFlight and Play internal/closed tracks; staged rollouts (1% → 10% → 50% → 100%); feature flags and remote kill switches; minimum-version enforcement for protocol changes. A closed beta, then an 8–12 week soft launch in one or two markets on all four platforms, then the coordinated global launch.</p>
+</section>
+
+<!-- 16 -->
+<section class="doc" id="roadmap">
+  <div class="sec-head"><span class="sec-num">16</span><h2>Roadmap, staffing, costs &amp; acceptance gates</h2><span class="sec-sub">Rough-order estimates, ±40%, India-based team rates</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Phase</th><th class="n">Duration</th><th>Team</th><th class="n">Cost (₹ crore)</th><th>Key deliverables</th><th>Acceptance gate</th></tr></thead>
+    <tbody>
+      <tr><td>0. Discovery</td><td class="n">4–6 wks</td><td>5–7 (leads, legal, chess educator)</td><td class="n">0.3–0.5</td><td>Approved plan, ADRs, legal opinions (engine, trademark, DPDP), store accounts, hiring plan, engine quotes</td><td>Decisions in section 19 approved; budget committed</td></tr>
+      <tr><td>1. Proof-of-concepts</td><td class="n">10–12 wks</td><td>9–11</td><td class="n">1.1–1.6</td><td>Five PoCs, device lab, rendering choice</td><td>All PoC thresholds met or explicit waivers; go/no-go on rendering and engine</td></tr>
+      <tr><td>2. Foundation</td><td class="n">14–16 wks</td><td>22–28</td><td class="n">3.5–4.5</td><td>Monorepo, CI, identity, chess flow on all platforms, scene integration, platform API, content pipeline, first art set</td><td>Play a full offline game and an online casual game on all four platforms from one build pipeline</td></tr>
+      <tr><td>3. Playable product</td><td class="n">16–20 wks</td><td>35–42</td><td class="n">6–7.5</td><td>AI personalities, rated multiplayer, chapters 1–4, commerce, initial cosmetics, coach v1</td><td>Internal alpha: rated play, purchases and restore work across platforms</td></tr>
+      <tr><td>4. Content &amp; operations</td><td class="n">16–20 wks (overlaps 3)</td><td>38–45</td><td class="n">5.5–7</td><td>All 74 lessons + narration, full launch catalogue, admin console, seasons, leaderboards, tournaments (lite)</td><td>Closed beta; educator sign-off; admin approvals and audit verified</td></tr>
+      <tr><td>5. Hardening</td><td class="n">10–12 wks</td><td>38–45</td><td class="n">3.5–4.5</td><td>Performance, accessibility, security, load tests, store compliance, soft launch</td><td>Soft-launch KPIs and every launch target in section 15 met</td></tr>
+      <tr><td>6. Global launch</td><td class="n">4–6 wks</td><td>30–40 + marketing</td><td class="n">1.5–2 + marketing</td><td>Coordinated launch on all platforms, website live, live-ops running</td><td>Launch readiness review signed off</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Total to global launch:</strong> about 20–24 months, ₹21–28 crore (≈ US$2.5–3.4M) for development, plus outsourced art and voice (≈ ₹2–3 crore) and launch marketing (not estimated). A US/EU-based team would cost roughly 3–4×.</p>
+  <h3>Peak staffing (≈ 40)</h3>
+  <p>Product lead 1 · producers 2 · game designer 1 · chess content lead + educator 2 · UX/UI 3 · art director 1 · 3D artists 4 (+ vendor) · technical artists 2 · VFX/animation 2 · audio (contract) · rendering engineers 3 · iOS 3 · Android 3 · web/desktop 3 · engine/AI engineers 3 · ML (vision) 1 · backend 5 · DevOps/SRE 2 · QA 5 · data/analytics 1 · security (fractional) 1 · website 1.</p>
+  <h3>If the timeline or budget must shrink (without dropping confirmed requirements)</h3>
+  <ul>
+    <li><strong>Lower launch catalogue counts</strong> further (for example 6 boards, 6 piece sets, 4 rooms) and lean on seasons. Saves 2–3 months of art.</li>
+    <li><strong>Launch the campaign with chapters 1–6 complete</strong> and 7–10 delivered in the first two seasons, communicated clearly to Premium buyers. Saves about 2 months, but changes the launch promise and needs your approval.</li>
+    <li><strong>Move tournaments and spectating</strong> fully post-launch. Saves about 6 weeks.</li>
+    <li><strong>Choose Unity over Filament</strong> if the bake-off shows effects tooling is the bottleneck. Shifts cost from engineering to licences.</li>
+  </ul>
+</section>
+
+<!-- 17 -->
+<section class="doc" id="risks">
+  <div class="sec-head"><span class="sec-num">17</span><h2>Risk register</h2><span class="sec-sub">Ranked by likelihood × impact</span></div>
+  <div class="heat" aria-label="Risk heat map">
+    <div class="ax"></div><div class="ax">Impact: medium</div><div class="ax">Impact: high</div><div class="ax">Impact: critical</div>
+    <div class="ax">Likely</div><div class="c2">R7, R8</div><div class="c3">R3, R4, R5</div><div class="c3">R1, R2</div>
+    <div class="ax">Possible</div><div class="c1">R13, R14</div><div class="c2">R9, R10, R11, R12</div><div class="c3">R6</div>
+    <div class="ax">Unlikely</div><div class="c1">R15</div><div class="c1"></div><div class="c2"></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>Risk</th><th>L</th><th>I</th><th>Mitigation</th><th>Validation</th></tr></thead>
+    <tbody>
+      <tr><td>R1</td><td>Simultaneous four-platform 3D launch overruns schedule and budget</td><td>Likely</td><td>Critical</td><td>Shared core and scene, desktop via web shell, launch counts below targets, launch-lite tier, phase gates</td><td>Phase 2 gate: same build on all four platforms</td></tr>
+      <tr><td>R2</td><td>Chess engine licensing (GPL) blocks a closed-source app</td><td>Likely</td><td>Critical</td><td>In-house engine default; commercial quotes as fallback; legal opinion</td><td>PoC 3 strength threshold; legal sign-off</td></tr>
+      <tr><td>R3</td><td>Premium 3D underperforms on web and low-end Android</td><td>Likely</td><td>High</td><td>Graphics tiers, top-down view, budgets enforced in pipeline, bake-off</td><td>PoC 2 thresholds on device matrix</td></tr>
+      <tr><td>R4</td><td>On-device language models vary widely by device, giving uneven coaching</td><td>Likely</td><td>High</td><td>Engine-first templated coach everywhere; LLM is optional enhancement; capability matrix in product copy</td><td>PoC 3 validator and quality tests</td></tr>
+      <tr><td>R5</td><td>Unit economics: India-heavy ARPU below live-ops cost</td><td>Likely</td><td>High</td><td>International pricing, annual/lifetime mix, cosmetics, lean live-ops, soft-launch data</td><td>Soft-launch conversion and retention vs model</td></tr>
+      <tr><td>R6</td><td>Children's privacy compliance (DPDP under-18, COPPA) and ad rules</td><td>Possible</td><td>Critical</td><td>Age gate, contextual ads for minors, restricted social, legal review</td><td>Pre-launch legal and store review</td></tr>
+      <tr><td>R7</td><td>Low matchmaking liquidity at launch makes online play feel empty</td><td>Likely</td><td>Medium</td><td>Fewer pools at launch, wider rating windows, labelled AI fallback, friend invites</td><td>Soft-launch matchmaking times</td></tr>
+      <tr><td>R8</td><td>Cheating with external engines</td><td>Likely</td><td>Medium</td><td>Statistical detection, human review, appeals, rating restoration</td><td>Seeded cheat tests in beta</td></tr>
+      <tr><td>R9</td><td>Content production volume (74 lessons, narration, catalogue)</td><td>Possible</td><td>High</td><td>Data-driven lesson tooling, vendor art, early educator hire</td><td>Lesson throughput per week in Phase 3</td></tr>
+      <tr><td>R10</td><td>Hiring rendering and engine specialists</td><td>Possible</td><td>High</td><td>Start hiring in Phase 0; contractors for PoCs; Unity fallback widens talent pool</td><td>Key hires signed before Phase 2</td></tr>
+      <tr><td>R11</td><td>Cross-platform entitlement rules (Apple, Google, Steam) differ</td><td>Possible</td><td>High</td><td>Entitlement ledger, store-specific flows, policy review</td><td>PoC 5</td></tr>
+      <tr><td>R12</td><td>Brand "Chacklate" cannot be registered or confuses with confectionery</td><td>Possible</td><td>High</td><td>Trademark search in India (classes 9, 28, 41) and key markets before identity work</td><td>Phase 0 trademark opinion</td></tr>
+      <tr><td>R13</td><td>Web download size hurts conversion</td><td>Possible</td><td>Medium</td><td>Streaming assets, lightweight first scene, cached builds</td><td>PoC 2 web TTI</td></tr>
+      <tr><td>R14</td><td>Ad SDKs conflict with privacy commitments</td><td>Possible</td><td>Medium</td><td>Vetted SDK list, non-personalised by default where required, data-flow audit</td><td>Pre-launch SDK audit</td></tr>
+      <tr><td>R15</td><td>Curriculum quality challenged by experienced players</td><td>Unlikely</td><td>Medium</td><td>Qualified educator review, beta feedback, no unsupported improvement claims</td><td>Educator sign-off; lesson ratings</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 18 -->
+<section class="doc" id="decisions">
+  <div class="sec-head"><span class="sec-num">18</span><h2>Open decisions &amp; recommended defaults</h2><span class="sec-sub">None of these block Phase 0; defaults apply unless you change them</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Decision</th><th>Recommended default</th><th>Needed by</th></tr></thead>
+    <tbody>
+      <tr><td>3D rendering technology</td><td>Bake-off; Filament-based shared scene runtime leads, Unity 6 as a Library challenger</td><td>End of Phase 1</td></tr>
+      <tr><td>Chess engine path</td><td>In-house Rust engine; request commercial quotes; no GPL embedding</td><td>Start of PoC 3</td></tr>
+      <tr><td>PC/Mac delivery</td><td>Web client in a Tauri shell; Steam optional</td><td>Phase 2</td></tr>
+      <tr><td>Backend stack and cloud</td><td>Rust game service, TypeScript platform/admin APIs, AWS Mumbai primary</td><td>Phase 1</td></tr>
+      <tr><td>Purchase infrastructure</td><td>Own entitlement ledger; evaluate RevenueCat vs in-house receipt handling in PoC 5</td><td>End of PoC 5</td></tr>
+      <tr><td>Free chapters</td><td>Chapters 1–3 free (22 lessons); test 2 vs 3 in soft launch</td><td>Phase 3</td></tr>
+      <tr><td>Lifetime definition and price</td><td>As in section 13; test ₹5,999 vs higher</td><td>Phase 3</td></tr>
+      <tr><td>Season length</td><td>8 weeks</td><td>Phase 4</td></tr>
+      <tr><td>Launch languages</td><td>English UI and narration at launch; Hindi UI as first localisation; narration in more languages post-launch</td><td>Phase 2</td></tr>
+      <tr><td>Minimum age and minors</td><td>Open to all ages with under-18 protections as in section 15</td><td>Phase 2 (legal)</td></tr>
+      <tr><td>Social text chat</td><td>Preset messages only at launch</td><td>Phase 3</td></tr>
+      <tr><td>Narration voice</td><td>Professional human voice for English</td><td>Phase 3</td></tr>
+      <tr><td>Brand clearance and domains</td><td>Commission trademark search and secure domains before identity work</td><td>Phase 0</td></tr>
+      <tr><td>Soft-launch markets</td><td>India plus one English-speaking market</td><td>Phase 5</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 19 -->
+<section class="doc" id="approval">
+  <div class="sec-head"><span class="sec-num">19</span><h2>What requires your approval before implementation</h2><span class="sec-sub">No code has been written, nothing installed, no repository or infrastructure created</span></div>
+  <ol class="approve">
+    <li><div><strong>Approve Phase 0 and Phase 1 scope and budget</strong>Discovery plus the five proof-of-concepts, about 14–18 weeks and ₹1.4–2.1 crore. Full production is approved separately at the Phase 1 gate.</div></li>
+    <li><div><strong>Approve the rendering bake-off</strong>Filament-based shared runtime versus Unity 6 as a Library, decided by the PoC 2 criteria.</div></li>
+    <li><div><strong>Approve the engine licensing path</strong>Build an in-house engine, collect commercial quotes, and do not embed GPL engines. Includes commissioning a legal opinion.</div></li>
+    <li><div><strong>Approve the platform delivery approach</strong>Native SwiftUI and Compose clients, PC/Mac through the web client in a Tauri shell, shared Rust chess core.</div></li>
+    <li><div><strong>Approve the backend stack and hosting</strong>Rust game service, TypeScript platform and admin APIs, AWS with Mumbai as the primary region.</div></li>
+    <li><div><strong>Approve launch catalogue counts</strong>10/10/6/10/10/10/12 at launch with 20+ per category as the 12-month target, instead of 20 per category at launch.</div></li>
+    <li><div><strong>Approve the lifetime purchase definition</strong>Includes all core campaign and seasonal Premium tracks, excludes separately sold cosmetics, online services as long as they operate with 90 days' notice.</div></li>
+    <li><div><strong>Approve legal and brand work in Phase 0</strong>Trademark search for "Chacklate", domain acquisition, DPDP/COPPA review, store account setup.</div></li>
+    <li><div><strong>Create the project repository</strong>A new GitHub repository needs to be created by you; I then attach it and set up the monorepo skeleton, docs and CI as the first Phase 1 task.</div></li>
+  </ol>
+  <div class="callout"><p><strong>Status (v0.2):</strong> all nine items were answered on 24 Oct 2026. Section 00 lists your choices, which override the v0.1 recommendations above. Phase 0 is under way. No implementation code has been written. Prototype code starts once the repository is attached, and full production still needs approval at the Phase 1 gate.</p></div>
+</section>
+
+<footer>Chacklate Chess · Planning &amp; feasibility package v0.1 · 24 October 2026 · All costs and targets are estimates to be validated in Phase 0–1. Store fees, regulations and third-party licences must be re-verified before commitments are made.</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  var S={
+    low:{mau:50000,dau:18,conv:1.0,arppu:170,ads:4,cos:0.5,var:5.0,team:25},
+    base:{mau:250000,dau:22,conv:2.0,arppu:200,ads:8,cos:1.5,var:3.2,team:38},
+    high:{mau:1000000,dau:25,conv:3.0,arppu:260,ads:15,cos:3,var:2.8,team:55}
+  };
+  var ids=["mau","dau","conv","arppu","ads","cos","var","team"];
+  function el(i){return document.getElementById(i)}
+  function inr(v){
+    var neg=v<0; v=Math.abs(v);
+    var s = v>=1e7 ? "₹"+(v/1e7).toFixed(2)+" Cr" : "₹"+(v/1e5).toFixed(1)+" L";
+    return (neg?"−":"")+s;
+  }
+  function num(i){var v=parseFloat(el(i).value);return isFinite(v)?v:0}
+  function calc(){
+    var mau=num("mau"),dau=mau*num("dau")/100,payers=mau*num("conv")/100;
+    var freeDau=Math.max(0,dau*(1-num("conv")/100));
+    var sub=payers*num("arppu"),ads=freeDau*num("ads"),cos=mau*num("cos");
+    var rev=sub+ads+cos,vc=mau*num("var"),team=num("team")*1e5,net=rev-vc-team;
+    var perMau=(num("conv")/100*num("arppu"))+(num("dau")/100*(1-num("conv")/100)*num("ads"))+num("cos")-num("var");
+    el("o-sub").textContent=inr(sub);el("o-ads").textContent=inr(ads);el("o-cos").textContent=inr(cos);
+    el("o-rev").textContent=inr(rev);el("o-var").textContent=inr(vc);el("o-team").textContent=inr(team);
+    var n=el("o-net");n.textContent=inr(net);n.style.color=net>=0?"var(--ok)":"var(--crit)";
+    el("o-be").textContent=perMau>0?Math.round(team/perMau).toLocaleString("en-IN"):"not reached";
+  }
+  function load(k){
+    ids.forEach(function(i){el(i).value=S[k][i]});
+    document.querySelectorAll(".seg button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.s===k?"true":"false")});
+    calc();
+  }
+  document.querySelectorAll(".seg button").forEach(function(b){b.addEventListener("click",function(){load(b.dataset.s)})});
+  ids.forEach(function(i){el(i).addEventListener("input",function(){
+    document.querySelectorAll(".seg button").forEach(function(b){b.setAttribute("aria-pressed","false")});calc();})});
+  load("base");
+})();
+</script>

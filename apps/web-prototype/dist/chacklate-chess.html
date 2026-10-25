@@ -1,0 +1,2605 @@
+<title>Chacklate Chess</title>
+<meta name="description" content="Premium 3D chess with a built-in computer opponent. Plays offline; no downloads.">
+<style>
+/* Layout: one-screen app. 3D stage fills the left; a control panel sits right on wide screens and below on phones.
+   A single committed dark "chocolatier's study" look, so the 3D scene reads the same on any host theme. */
+:root {
+  color-scheme: dark;
+  --bg: #120c0a; --panel: #1a1210; --raise: #241915; --sunk: #0f0a08; --line: #3a2a22;
+  --ink: #f4ebe3; --muted: #b9a497; --faint: #8a766a;
+  --ruby: #d2466f; --ruby-ink: #ffd9e4; --gold: #e3b25a; --teal: #3fc6b4; --ok: #7fd0a0; --danger: #ff7a6e;
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); overflow: hidden; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 360px; }
+.stage { position: relative; min-height: 0; min-width: 0; background: radial-gradient(ellipse at 50% 40%, #2a1b15 0%, var(--bg) 70%); }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.hud-top { position: absolute; top: 14px; left: max(14px, env(safe-area-inset-left, 0px)); right: 14px; display: flex; gap: 8px; pointer-events: none; }
+.chip { pointer-events: auto; background: rgba(18, 12, 10, 0.78); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 13px; color: var(--ink); backdrop-filter: blur(6px); }
+.chip.thinking::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-right: 8px; animation: pulse 1s ease-in-out infinite; vertical-align: 1px; }
+.chip.check { border-color: var(--danger); color: #ffd6d1; }
+@keyframes pulse { 50% { opacity: 0.25; } }
+.hud-bottom { position: absolute; bottom: 14px; left: max(14px, env(safe-area-inset-left, 0px)); display: flex; gap: 6px; flex-wrap: wrap; }
+.hud-bottom button { background: rgba(18, 12, 10, 0.78); border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; font-size: 13px; backdrop-filter: blur(6px); }
+.hud-bottom button:hover { border-color: var(--muted); }
+.nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); }
+
+.panel { min-height: 0; overflow: auto; background: var(--panel); border-left: 1px solid var(--line);
+  padding: 18px max(16px, env(safe-area-inset-right, 0px)) 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.mark { width: 42px; height: 42px; border-radius: 10px; display: grid; place-items: center; font-size: 26px; background: linear-gradient(145deg, #a3294f, #5c1328); color: #ffe9ef; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18); }
+.brand h1 { font: 400 22px/1.1 var(--display); margin: 0; letter-spacing: 0.01em; }
+.brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+.players { display: grid; gap: 6px; }
+.player { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "who clock" "caps clock"; gap: 2px 10px; align-items: center;
+  background: var(--raise); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+.player.to-move { border-color: var(--gold); }
+.who { grid-area: who; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.who .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.swatch { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.35); flex: none; }
+.swatch.white { background: #efe2cb; } .swatch.black { background: #3a2218; }
+.caps { grid-area: caps; font-size: 15px; color: var(--muted); min-height: 1.2em; letter-spacing: -0.06em; white-space: nowrap; overflow: hidden; }
+.caps .adv { letter-spacing: 0; font-size: 12px; margin-left: 6px; color: var(--ok); font-family: var(--mono); }
+.clock { grid-area: clock; font: 600 20px/1 var(--mono); font-variant-numeric: tabular-nums; padding: 6px 10px; border-radius: 6px; background: var(--sunk); color: var(--muted); min-width: 4.2em; text-align: center; }
+.clock.running { color: var(--ink); background: #2f2018; }
+.clock.low { color: var(--danger); }
+
+.status { margin: 0; min-height: 1.4em; color: var(--ink); font-size: 14px; }
+.status .hint { color: var(--teal); }
+
+.actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.btn { border: 1px solid var(--line); background: var(--raise); border-radius: 8px; padding: 9px 6px; font-size: 13.5px; text-align: center; }
+.btn:hover:not(:disabled) { border-color: var(--muted); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.primary { background: var(--ruby); border-color: var(--ruby); color: #fff; font-weight: 600; }
+.btn.primary:hover:not(:disabled) { background: #e0567d; }
+.btn.warn { border-color: var(--danger); color: #ffd6d1; }
+.claim { width: 100%; }
+
+.move-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+.move-form label { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.move-form input { background: var(--sunk); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+.move-form .err { grid-column: 1 / -1; font-size: 12.5px; color: var(--danger); min-height: 0; margin: 0; }
+
+.moves-wrap { flex: 1 1 auto; min-height: 120px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--sunk); }
+.moves { list-style: none; margin: 0; padding: 6px 0; display: grid; grid-template-columns: 2.6em 1fr 1fr; font: 14px/1.6 var(--mono); }
+.moves li { display: contents; }
+.moves .n { color: var(--faint); text-align: right; padding-right: 10px; }
+.moves .m { padding: 0 8px; border-radius: 4px; }
+.moves .m.last { background: rgba(227, 178, 90, 0.18); color: #fff3dc; }
+.moves .empty { grid-column: 1 / -1; color: var(--faint); font-family: var(--body); font-size: 13px; padding: 4px 12px; }
+
+.tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.tools .btn { flex: 1 1 auto; }
+
+/* Modals */
+.modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(8, 5, 4, 0.72); backdrop-filter: blur(3px);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.card { width: min(560px, 100%); max-height: 100%; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+.card h2 { font: 400 26px/1.15 var(--display); margin: 0 0 4px; }
+.card .sub { color: var(--muted); margin: 0 0 16px; }
+.field { border: 0; margin: 0 0 16px; padding: 0; }
+.field legend, .field > label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; padding: 0; display: block; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: inline-block; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--raise); font-size: 14px; }
+.seg input:checked + span { border-color: var(--ruby); background: rgba(210, 70, 111, 0.16); color: var(--ruby-ink); }
+.seg input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+.levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
+.levels label { position: relative; display: block; }
+.levels input { position: absolute; opacity: 0; pointer-events: none; }
+.levels .lv { display: block; height: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--raise); }
+.levels .lv b { display: block; font-weight: 600; font-size: 14px; }
+.levels .lv small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.35; margin-top: 2px; }
+.levels .lv i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--gold); }
+.levels input:checked + .lv { border-color: var(--ruby); background: rgba(210, 70, 111, 0.14); }
+.levels input:focus-visible + .lv { outline: 2px solid var(--gold); outline-offset: 2px; }
+.text-in { width: 100%; box-sizing: border-box; background: var(--sunk); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; font-family: var(--mono); font-size: 13px; }
+.row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px; }
+.row .btn { padding: 10px 16px; }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatches label { position: relative; }
+.swatches input { position: absolute; opacity: 0; pointer-events: none; }
+.swatches .sw { display: flex; align-items: center; gap: 8px; padding: 7px 11px 7px 7px; border: 1px solid var(--line); border-radius: 10px; background: var(--raise); font-size: 13.5px; }
+.swatches .sw em { width: 26px; height: 26px; border-radius: 6px; display: block; }
+.swatches input:checked + .sw { border-color: var(--ruby); }
+.swatches input:focus-visible + .sw { outline: 2px solid var(--gold); outline-offset: 2px; }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--ruby); }
+.promo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.promo button { font-size: 40px; line-height: 1; padding: 14px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--raise); }
+.promo button span { display: block; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.result-title { font: 400 34px/1.1 var(--display); margin: 0 0 6px; }
+.result-badge { display: inline-block; font: 600 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 8px; border-radius: 999px; background: rgba(227, 178, 90, 0.16); color: var(--gold); margin-bottom: 10px; }
+.result-badge.win { background: rgba(127, 208, 160, 0.16); color: var(--ok); }
+.result-badge.loss { background: rgba(255, 122, 110, 0.14); color: var(--danger); }
+textarea.share { width: 100%; box-sizing: border-box; min-height: 180px; background: var(--sunk); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 12.5px/1.5 var(--mono); }
+.toast { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; background: var(--raise); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: 13.5px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(260px, 56%) minmax(0, 1fr); }
+  .panel { border-left: 0; border-top: 1px solid var(--line); padding: 12px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); gap: 10px; }
+  .brand { display: none; }
+  .clock { font-size: 17px; }
+  .moves-wrap { min-height: 90px; }
+}
+@media (prefers-reduced-motion: reduce) { .chip.thinking::before { animation: none; } }
+</style>
+
+<div class="app">
+  <section class="stage" aria-label="Chess board">
+    <canvas id="board"></canvas>
+    <div class="hud-top"><div id="chip" class="chip" role="status">Loading…</div></div>
+    <div class="hud-bottom">
+      <button type="button" id="view-flip" title="Turn the board around">Flip board</button>
+      <button type="button" id="view-toggle" title="Switch between the 3D view and a flat top-down view">Top view</button>
+    </div>
+    <div id="nogl" class="nogl" hidden>
+      <p>This device or browser could not start 3D graphics (WebGL). You can still play by typing moves in the panel.</p>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <header class="brand">
+      <div class="mark" aria-hidden="true">♞</div>
+      <div><h1>Chacklate Chess</h1><p id="mode-line">Loading…</p></div>
+    </header>
+
+    <div class="players">
+      <div class="player" id="p-top">
+        <div class="who"><span class="swatch"></span><span class="name"></span></div>
+        <div class="caps"></div>
+        <div class="clock" hidden></div>
+      </div>
+      <div class="player" id="p-bottom">
+        <div class="who"><span class="swatch"></span><span class="name"></span></div>
+        <div class="caps"></div>
+        <div class="clock" hidden></div>
+      </div>
+    </div>
+
+    <p id="status" class="status" aria-live="polite"></p>
+
+    <div class="actions">
+      <button type="button" class="btn primary" id="btn-new">New game</button>
+      <button type="button" class="btn" id="btn-undo">Undo</button>
+      <button type="button" class="btn" id="btn-hint">Hint</button>
+      <button type="button" class="btn" id="btn-resign">Resign</button>
+    </div>
+    <button type="button" class="btn claim" id="btn-claim" hidden>Claim draw</button>
+
+    <form class="move-form" id="move-form" autocomplete="off">
+      <label for="move-input">Type a move instead of clicking</label>
+      <input id="move-input" placeholder="e4, Nf3, O-O, e7e8q" spellcheck="false" autocapitalize="off">
+      <button type="submit" class="btn">Play</button>
+      <p class="err" id="move-err" aria-live="polite"></p>
+    </form>
+
+    <div class="moves-wrap" id="moves-wrap"><ol class="moves" id="moves" aria-label="Moves played"></ol></div>
+
+    <footer class="tools">
+      <button type="button" class="btn" id="btn-settings">Settings</button>
+      <button type="button" class="btn" id="btn-pgn">Copy PGN</button>
+      <button type="button" class="btn" id="btn-fen">Copy FEN</button>
+    </footer>
+  </aside>
+</div>
+
+<div class="modal" id="m-new" hidden role="dialog" aria-modal="true" aria-labelledby="m-new-title">
+  <form class="card" id="new-form">
+    <h2 id="m-new-title">New game</h2>
+    <p class="sub">Everything runs on this device. No account, no internet needed once loaded.</p>
+    <fieldset class="field"><legend>Opponent</legend>
+      <div class="seg">
+        <label><input type="radio" name="mode" value="ai" id="mode-ai" checked><span>Computer</span></label>
+        <label><input type="radio" name="mode" value="local" id="mode-local"><span>Two players, one device</span></label>
+      </div>
+    </fieldset>
+    <fieldset class="field" id="f-color"><legend>Play as</legend>
+      <div class="seg">
+        <label><input type="radio" name="color" value="white" id="color-white" checked><span>White</span></label>
+        <label><input type="radio" name="color" value="black" id="color-black"><span>Black</span></label>
+        <label><input type="radio" name="color" value="random" id="color-random"><span>Random</span></label>
+      </div>
+    </fieldset>
+    <fieldset class="field" id="f-level"><legend>Computer level</legend>
+      <div class="levels" id="levels"></div>
+    </fieldset>
+    <fieldset class="field"><legend>Clock</legend>
+      <div class="seg">
+        <label><input type="radio" name="tc" value="none" id="tc-none" checked><span>No clock</span></label>
+        <label><input type="radio" name="tc" value="3+2" id="tc-3-2"><span>3+2</span></label>
+        <label><input type="radio" name="tc" value="5+0" id="tc-5-0"><span>5+0</span></label>
+        <label><input type="radio" name="tc" value="10+5" id="tc-10-5"><span>10+5</span></label>
+        <label><input type="radio" name="tc" value="15+10" id="tc-15-10"><span>15+10</span></label>
+      </div>
+    </fieldset>
+    <div class="field"><label for="fen-in">Start from a position (optional FEN)</label>
+      <input class="text-in" id="fen-in" placeholder="Leave empty for the standard start" spellcheck="false">
+      <p class="err" id="fen-err" style="color:var(--danger);font-size:12.5px;margin:6px 0 0"></p>
+    </div>
+    <div class="row">
+      <button type="button" class="btn" data-close>Cancel</button>
+      <button type="submit" class="btn primary">Start game</button>
+    </div>
+  </form>
+</div>
+
+<div class="modal" id="m-settings" hidden role="dialog" aria-modal="true" aria-labelledby="m-set-title">
+  <div class="card">
+    <h2 id="m-set-title">Settings</h2>
+    <p class="sub">Looks only. Nothing here changes the rules or the computer's strength.</p>
+    <fieldset class="field"><legend>Board</legend><div class="swatches" id="sw-board"></div></fieldset>
+    <fieldset class="field"><legend>Pieces</legend><div class="swatches" id="sw-pieces"></div></fieldset>
+    <fieldset class="field"><legend>Graphics</legend>
+      <div class="seg">
+        <label><input type="radio" name="quality" value="high" id="q-high"><span>High (shadows, wood grain)</span></label>
+        <label><input type="radio" name="quality" value="low" id="q-low"><span>Low (faster, saves battery)</span></label>
+      </div>
+    </fieldset>
+    <div class="field">
+      <label class="toggle" for="s-anim">Animate moves and results <input type="checkbox" id="s-anim"></label>
+      <label class="toggle" for="s-sound">Sound effects <input type="checkbox" id="s-sound"></label>
+      <label class="toggle" for="s-legal">Show legal moves <input type="checkbox" id="s-legal"></label>
+      <label class="toggle" for="s-turn">Turn the board each move (two players) <input type="checkbox" id="s-turn"></label>
+    </div>
+    <div class="row"><button type="button" class="btn primary" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="m-promo" hidden role="dialog" aria-modal="true" aria-labelledby="m-promo-title">
+  <div class="card">
+    <h2 id="m-promo-title">Promote your pawn</h2>
+    <p class="sub">Choose the piece your pawn becomes.</p>
+    <div class="promo" id="promo-choices"></div>
+    <div class="row"><button type="button" class="btn" data-close>Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal" id="m-result" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">
+  <div class="card">
+    <span class="result-badge" id="result-badge"></span>
+    <h2 class="result-title" id="result-title"></h2>
+    <p class="sub" id="result-sub"></p>
+    <div class="row">
+      <button type="button" class="btn" data-close>Look at the board</button>
+      <button type="button" class="btn" id="btn-result-pgn">Copy PGN</button>
+      <button type="button" class="btn primary" id="btn-rematch">Rematch</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="m-share" hidden role="dialog" aria-modal="true" aria-labelledby="share-title">
+  <div class="card">
+    <h2 id="share-title">Copy</h2>
+    <p class="sub">Your browser blocked automatic copying. Select the text below and copy it.</p>
+    <textarea class="share" id="share-text" readonly></textarea>
+    <div class="row"><button type="button" class="btn primary" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+// Chacklate Chess engine: rules, notation and the computer opponent.
+// Self-contained so the same source runs on the page and inside a Web Worker
+// (the worker is built from ChacklateEngine.toString()).
+function ChacklateEngine() {
+  'use strict';
+
+  const P = 1, N = 2, B = 3, R = 4, Q = 5, K = 6;
+  const WHITE = 1, BLACK = -1;
+  const F_CAP = 1, F_DBL = 2, F_EP = 4, F_CASTLE = 8, F_PROMO = 16;
+  const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  const VALUE = [0, 100, 320, 330, 500, 900, 20000];
+  const PHASE = [0, 0, 1, 1, 2, 4, 0];
+  const LETTER = ['', 'P', 'N', 'B', 'R', 'Q', 'K'];
+  const KNIGHT_DIRS = [33, 31, 18, 14, -33, -31, -18, -14];
+  const KING_DIRS = [1, -1, 16, -16, 15, 17, -15, -17];
+  const BISHOP_DIRS = [15, 17, -15, -17];
+  const ROOK_DIRS = [1, -1, 16, -16];
+  const STACK = 2048;
+
+  // Castling rights bits: 1 = white O-O, 2 = white O-O-O, 4 = black O-O, 8 = black O-O-O.
+  // Moving from or to these squares clears the matching rights.
+  const CASTLE_MASK = new Uint8Array(128).fill(15);
+  CASTLE_MASK[0x00] = 13; CASTLE_MASK[0x07] = 14; CASTLE_MASK[0x04] = 12;
+  CASTLE_MASK[0x70] = 7; CASTLE_MASK[0x77] = 11; CASTLE_MASK[0x74] = 3;
+
+  // Deterministic Zobrist keys (two 32-bit halves) so every platform hashes alike.
+  let seed = 0x2545f491;
+  function rand32() {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return (t ^ (t >>> 14)) | 0;
+  }
+  const ZPL = new Int32Array(13 * 128), ZPH = new Int32Array(13 * 128);
+  for (let i = 0; i < ZPL.length; i++) { ZPL[i] = rand32(); ZPH[i] = rand32(); }
+  const ZCL = new Int32Array(16), ZCH = new Int32Array(16);
+  for (let i = 0; i < 16; i++) { ZCL[i] = rand32(); ZCH[i] = rand32(); }
+  const ZEL = new Int32Array(8), ZEH = new Int32Array(8);
+  for (let i = 0; i < 8; i++) { ZEL[i] = rand32(); ZEH[i] = rand32(); }
+  const ZSL = rand32(), ZSH = rand32();
+
+  const mv = (from, to, promo, flags) => from | (to << 7) | (promo << 14) | (flags << 17);
+  const mFrom = (m) => m & 127;
+  const mTo = (m) => (m >> 7) & 127;
+  const mPromo = (m) => (m >> 14) & 7;
+  const mFlags = (m) => (m >> 17) & 31;
+
+  const to64 = (sq) => (sq >> 4) * 8 + (sq & 7);
+  const to88 = (sq) => (sq >> 3) * 16 + (sq & 7);
+  const sqName = (sq) => 'abcdefgh'[sq & 7] + (1 + (sq >> 4));
+  const parseSq = (s) => {
+    if (!/^[a-h][1-8]$/.test(s)) return -1;
+    return (s.charCodeAt(1) - 49) * 16 + (s.charCodeAt(0) - 97);
+  };
+
+  // ---------------------------------------------------------------- Position
+
+  function Pos() {
+    this.b = new Int8Array(128);
+    this.side = WHITE;
+    this.castle = 0;
+    this.ep = -1;
+    this.half = 0;
+    this.full = 1;
+    this.kings = [0, 0];
+    this.hl = 0; this.hh = 0;
+    this.sp = 0;
+    this.uMove = new Int32Array(STACK); this.uCap = new Int8Array(STACK);
+    this.uCastle = new Uint8Array(STACK); this.uEp = new Int16Array(STACK);
+    this.uHalf = new Int32Array(STACK);
+    this.uHl = new Int32Array(STACK); this.uHh = new Int32Array(STACK);
+  }
+
+  const kIdx = (side) => (side === WHITE ? 0 : 1);
+
+  Pos.prototype.load = function (fen) {
+    const f = String(fen).trim().split(/\s+/);
+    if (f.length !== 4 && f.length !== 6) return 'A FEN needs 6 fields.';
+    const b = new Int8Array(128);
+    const ranks = f[0].split('/');
+    if (ranks.length !== 8) return 'The board needs 8 ranks.';
+    const counts = { 1: [0, 0, 0, 0, 0, 0, 0], '-1': [0, 0, 0, 0, 0, 0, 0] };
+    for (let i = 0; i < 8; i++) {
+      const rank = 7 - i;
+      let file = 0;
+      for (const c of ranks[i]) {
+        if (/[1-8]/.test(c)) { file += +c; continue; }
+        const kind = 'pnbrqk'.indexOf(c.toLowerCase()) + 1;
+        if (!kind) return 'Unexpected character "' + c + '" in the board.';
+        if (file > 7) return 'Rank ' + (rank + 1) + ' is too long.';
+        const color = c === c.toUpperCase() ? WHITE : BLACK;
+        if (kind === P && (rank === 0 || rank === 7)) return 'Pawns cannot stand on the first or last rank.';
+        b[rank * 16 + file] = kind * color;
+        counts[color][kind]++;
+        file++;
+      }
+      if (file !== 8) return 'Rank ' + (rank + 1) + ' does not have 8 squares.';
+    }
+    for (const color of [WHITE, BLACK]) {
+      const c = counts[color];
+      if (c[K] !== 1) return 'Each side needs exactly one king.';
+      if (c[P] > 8) return 'A side cannot have more than 8 pawns.';
+      if (c.reduce((a, x) => a + x, 0) > 16) return 'A side cannot have more than 16 pieces.';
+    }
+    if (f[1] !== 'w' && f[1] !== 'b') return 'Side to move must be w or b.';
+    let castle = 0;
+    if (f[2] !== '-') {
+      for (const c of f[2]) {
+        const bit = { K: 1, Q: 2, k: 4, q: 8 }[c];
+        if (!bit || castle & bit) return 'Invalid castling field.';
+        castle |= bit;
+      }
+    }
+    if ((castle & 3 && b[4] !== K) || (castle & 1 && b[7] !== R) || (castle & 2 && b[0] !== R)) return 'White castling rights do not match the board.';
+    if ((castle & 12 && b[0x74] !== -K) || (castle & 4 && b[0x77] !== -R) || (castle & 8 && b[0x70] !== -R)) return 'Black castling rights do not match the board.';
+    let ep = -1;
+    if (f[3] !== '-') {
+      ep = parseSq(f[3]);
+      if (ep < 0) return 'Invalid en passant square.';
+      const mover = f[1] === 'w' ? BLACK : WHITE;
+      const pawn = ep + 16 * mover;
+      if ((ep >> 4) !== (mover === WHITE ? 2 : 5) || b[pawn] !== P * mover || b[ep] || b[ep - 16 * mover]) return 'The en passant square does not match the board.';
+    }
+    let half = 0, full = 1;
+    if (f.length === 6) {
+      half = parseInt(f[4], 10); full = parseInt(f[5], 10);
+      if (!(half >= 0) || !(full >= 1)) return 'Invalid move counters.';
+    }
+    this.b = b; this.side = f[1] === 'w' ? WHITE : BLACK; this.castle = castle; this.ep = ep;
+    this.half = half; this.full = full; this.sp = 0;
+    for (let sq = 0; sq < 128; sq++) {
+      if (b[sq] === K) this.kings[0] = sq;
+      if (b[sq] === -K) this.kings[1] = sq;
+    }
+    if (this.attacked(this.kings[kIdx(-this.side)], this.side)) return 'The side not to move is in check.';
+    this.rehash();
+    return null;
+  };
+
+  Pos.prototype.rehash = function () {
+    let hl = 0, hh = 0;
+    for (let sq = 0; sq < 128; sq++) {
+      if (sq & 0x88) { sq += 7; continue; }
+      const p = this.b[sq];
+      if (p) { hl ^= ZPL[(p + 6) * 128 + sq]; hh ^= ZPH[(p + 6) * 128 + sq]; }
+    }
+    hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
+    if (this.ep >= 0) { hl ^= ZEL[this.ep & 7]; hh ^= ZEH[this.ep & 7]; }
+    if (this.side === BLACK) { hl ^= ZSL; hh ^= ZSH; }
+    this.hl = hl; this.hh = hh;
+  };
+
+  Pos.prototype.fen = function () {
+    let s = '';
+    for (let rank = 7; rank >= 0; rank--) {
+      let empty = 0;
+      for (let file = 0; file < 8; file++) {
+        const p = this.b[rank * 16 + file];
+        if (!p) { empty++; continue; }
+        if (empty) { s += empty; empty = 0; }
+        const ch = LETTER[Math.abs(p)];
+        s += p > 0 ? ch : ch.toLowerCase();
+      }
+      if (empty) s += empty;
+      if (rank) s += '/';
+    }
+    let c = '';
+    if (this.castle & 1) c += 'K';
+    if (this.castle & 2) c += 'Q';
+    if (this.castle & 4) c += 'k';
+    if (this.castle & 8) c += 'q';
+    return s + ' ' + (this.side === WHITE ? 'w' : 'b') + ' ' + (c || '-') + ' ' +
+      (this.ep >= 0 ? sqName(this.ep) : '-') + ' ' + this.half + ' ' + this.full;
+  };
+
+  // Is `sq` attacked by side `by`?
+  Pos.prototype.attacked = function (sq, by) {
+    const b = this.b;
+    let s;
+    if (by === WHITE) {
+      s = sq - 15; if (!(s & 0x88) && b[s] === P) return true;
+      s = sq - 17; if (!(s & 0x88) && b[s] === P) return true;
+    } else {
+      s = sq + 15; if (!(s & 0x88) && b[s] === -P) return true;
+      s = sq + 17; if (!(s & 0x88) && b[s] === -P) return true;
+    }
+    const n = N * by, k = K * by, bi = B * by, r = R * by, q = Q * by;
+    for (let i = 0; i < 8; i++) {
+      s = sq + KNIGHT_DIRS[i]; if (!(s & 0x88) && b[s] === n) return true;
+      s = sq + KING_DIRS[i]; if (!(s & 0x88) && b[s] === k) return true;
+    }
+    for (let i = 0; i < 4; i++) {
+      let d = BISHOP_DIRS[i];
+      s = sq + d;
+      while (!(s & 0x88)) { const p = b[s]; if (p) { if (p === bi || p === q) return true; break; } s += d; }
+      d = ROOK_DIRS[i];
+      s = sq + d;
+      while (!(s & 0x88)) { const p = b[s]; if (p) { if (p === r || p === q) return true; break; } s += d; }
+    }
+    return false;
+  };
+
+  Pos.prototype.inCheck = function (side) {
+    const s = side === undefined ? this.side : side;
+    return this.attacked(this.kings[kIdx(s)], -s);
+  };
+
+  // Pseudo-legal moves. With capturesOnly, also includes queen promotions.
+  Pos.prototype.gen = function (list, capturesOnly) {
+    const b = this.b, us = this.side;
+    for (let sq = 0; sq < 128; sq++) {
+      if (sq & 0x88) { sq += 7; continue; }
+      const p = b[sq];
+      if (!p || (p > 0) !== (us > 0)) continue;
+      const kind = p * us;
+      if (kind === P) {
+        const fwd = 16 * us;
+        const promoRank = us === WHITE ? 7 : 0;
+        const one = sq + fwd;
+        if (!(one & 0x88) && !b[one]) {
+          if ((one >> 4) === promoRank) {
+            list.push(mv(sq, one, Q, F_PROMO));
+            if (!capturesOnly) { list.push(mv(sq, one, R, F_PROMO)); list.push(mv(sq, one, B, F_PROMO)); list.push(mv(sq, one, N, F_PROMO)); }
+          } else if (!capturesOnly) {
+            list.push(mv(sq, one, 0, 0));
+            const two = one + fwd;
+            if ((sq >> 4) === (us === WHITE ? 1 : 6) && !b[two]) list.push(mv(sq, two, 0, F_DBL));
+          }
+        }
+        for (const d of [fwd - 1, fwd + 1]) {
+          const t = sq + d;
+          if (t & 0x88) continue;
+          const c = b[t];
+          if (c && (c > 0) !== (us > 0)) {
+            if ((t >> 4) === promoRank) {
+              list.push(mv(sq, t, Q, F_CAP | F_PROMO));
+              if (!capturesOnly) { list.push(mv(sq, t, R, F_CAP | F_PROMO)); list.push(mv(sq, t, B, F_CAP | F_PROMO)); list.push(mv(sq, t, N, F_CAP | F_PROMO)); }
+            } else list.push(mv(sq, t, 0, F_CAP));
+          } else if (t === this.ep) list.push(mv(sq, t, 0, F_CAP | F_EP));
+        }
+      } else if (kind === N || kind === K) {
+        const dirs = kind === N ? KNIGHT_DIRS : KING_DIRS;
+        for (let i = 0; i < 8; i++) {
+          const t = sq + dirs[i];
+          if (t & 0x88) continue;
+          const c = b[t];
+          if (!c) { if (!capturesOnly) list.push(mv(sq, t, 0, 0)); }
+          else if ((c > 0) !== (us > 0)) list.push(mv(sq, t, 0, F_CAP));
+        }
+        if (kind === K && !capturesOnly) this.genCastles(sq, list);
+      } else {
+        const dirs = kind === B ? BISHOP_DIRS : kind === R ? ROOK_DIRS : KING_DIRS;
+        for (let i = 0; i < dirs.length; i++) {
+          const d = dirs[i];
+          let t = sq + d;
+          while (!(t & 0x88)) {
+            const c = b[t];
+            if (!c) { if (!capturesOnly) list.push(mv(sq, t, 0, 0)); }
+            else { if ((c > 0) !== (us > 0)) list.push(mv(sq, t, 0, F_CAP)); break; }
+            t += d;
+          }
+        }
+      }
+    }
+    return list;
+  };
+
+  // The king may not castle out of, through, or into check.
+  Pos.prototype.genCastles = function (sq, list) {
+    const b = this.b, us = this.side, them = -us;
+    const home = us === WHITE ? 0x04 : 0x74;
+    if (sq !== home) return;
+    const ks = us === WHITE ? 1 : 4, qs = us === WHITE ? 2 : 8;
+    if (!(this.castle & (ks | qs)) || this.attacked(home, them)) return;
+    if (this.castle & ks && !b[home + 1] && !b[home + 2] && b[home + 3] === R * us &&
+        !this.attacked(home + 1, them) && !this.attacked(home + 2, them)) list.push(mv(home, home + 2, 0, F_CASTLE));
+    if (this.castle & qs && !b[home - 1] && !b[home - 2] && !b[home - 3] && b[home - 4] === R * us &&
+        !this.attacked(home - 1, them) && !this.attacked(home - 2, them)) list.push(mv(home, home - 2, 0, F_CASTLE));
+  };
+
+  // Plays a pseudo-legal move. Returns false (and undoes it) if it leaves the king in check.
+  Pos.prototype.make = function (m) {
+    const b = this.b, us = this.side;
+    const from = mFrom(m), to = mTo(m), flags = mFlags(m), promo = mPromo(m);
+    const piece = b[from], cap = b[to];
+    const sp = this.sp++;
+    this.uMove[sp] = m; this.uCap[sp] = cap; this.uCastle[sp] = this.castle; this.uEp[sp] = this.ep;
+    this.uHalf[sp] = this.half; this.uHl[sp] = this.hl; this.uHh[sp] = this.hh;
+    let hl = this.hl, hh = this.hh;
+
+    hl ^= ZPL[(piece + 6) * 128 + from]; hh ^= ZPH[(piece + 6) * 128 + from];
+    if (cap) { hl ^= ZPL[(cap + 6) * 128 + to]; hh ^= ZPH[(cap + 6) * 128 + to]; }
+    if (flags & F_EP) {
+      const cs = to - 16 * us, cp = -P * us;
+      b[cs] = 0;
+      hl ^= ZPL[(cp + 6) * 128 + cs]; hh ^= ZPH[(cp + 6) * 128 + cs];
+    }
+    const placed = promo ? promo * us : piece;
+    b[to] = placed; b[from] = 0;
+    hl ^= ZPL[(placed + 6) * 128 + to]; hh ^= ZPH[(placed + 6) * 128 + to];
+    if (flags & F_CASTLE) {
+      const rf = to > from ? from + 3 : from - 4, rt = to > from ? from + 1 : from - 1;
+      const rook = b[rf];
+      b[rt] = rook; b[rf] = 0;
+      hl ^= ZPL[(rook + 6) * 128 + rf] ^ ZPL[(rook + 6) * 128 + rt];
+      hh ^= ZPH[(rook + 6) * 128 + rf] ^ ZPH[(rook + 6) * 128 + rt];
+    }
+    if (piece * us === K) this.kings[kIdx(us)] = to;
+    hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
+    this.castle &= CASTLE_MASK[from] & CASTLE_MASK[to];
+    hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
+    if (this.ep >= 0) { hl ^= ZEL[this.ep & 7]; hh ^= ZEH[this.ep & 7]; }
+    this.ep = flags & F_DBL ? from + 16 * us : -1;
+    if (this.ep >= 0) { hl ^= ZEL[this.ep & 7]; hh ^= ZEH[this.ep & 7]; }
+    this.half = piece * us === P || cap || flags & F_EP ? 0 : this.half + 1;
+    if (us === BLACK) this.full++;
+    this.side = -us;
+    hl ^= ZSL; hh ^= ZSH;
+    this.hl = hl; this.hh = hh;
+    if (this.attacked(this.kings[kIdx(us)], -us)) { this.unmake(); return false; }
+    return true;
+  };
+
+  Pos.prototype.unmake = function () {
+    const sp = --this.sp;
+    const m = this.uMove[sp], b = this.b;
+    const us = -this.side;
+    const from = mFrom(m), to = mTo(m), flags = mFlags(m), promo = mPromo(m);
+    const piece = promo ? P * us : b[to];
+    b[from] = piece; b[to] = this.uCap[sp];
+    if (flags & F_EP) b[to - 16 * us] = -P * us;
+    if (flags & F_CASTLE) {
+      const rf = to > from ? from + 3 : from - 4, rt = to > from ? from + 1 : from - 1;
+      b[rf] = b[rt]; b[rt] = 0;
+    }
+    if (piece * us === K) this.kings[kIdx(us)] = from;
+    this.castle = this.uCastle[sp]; this.ep = this.uEp[sp]; this.half = this.uHalf[sp];
+    this.hl = this.uHl[sp]; this.hh = this.uHh[sp];
+    if (us === BLACK) this.full--;
+    this.side = us;
+  };
+
+  Pos.prototype.makeNull = function () {
+    const sp = this.sp++;
+    this.uMove[sp] = 0; this.uCastle[sp] = this.castle; this.uEp[sp] = this.ep;
+    this.uHalf[sp] = this.half; this.uHl[sp] = this.hl; this.uHh[sp] = this.hh;
+    if (this.ep >= 0) { this.hl ^= ZEL[this.ep & 7]; this.hh ^= ZEH[this.ep & 7]; }
+    this.ep = -1; this.half++;
+    this.side = -this.side; this.hl ^= ZSL; this.hh ^= ZSH;
+  };
+
+  Pos.prototype.unmakeNull = function () {
+    const sp = --this.sp;
+    this.ep = this.uEp[sp]; this.half = this.uHalf[sp];
+    this.hl = this.uHl[sp]; this.hh = this.uHh[sp];
+    this.side = -this.side;
+  };
+
+  Pos.prototype.legalMoves = function () {
+    const out = [];
+    for (const m of this.gen([], false)) {
+      if (this.make(m)) { this.unmake(); out.push(m); }
+    }
+    return out;
+  };
+
+  // Repetition identity (FIDE 9.2): the en passant square counts only if a capture is legal.
+  Pos.prototype.repKey = function () {
+    let hl = this.hl, hh = this.hh;
+    if (this.ep >= 0 && !this.legalMoves().some((m) => mFlags(m) & F_EP)) {
+      hl ^= ZEL[this.ep & 7]; hh ^= ZEH[this.ep & 7];
+    }
+    return (hl >>> 0).toString(16) + ':' + (hh >>> 0).toString(16);
+  };
+
+  // Dead positions found automatically: K v K, K+minor v K, and bishops all on one square colour.
+  Pos.prototype.insufficient = function () {
+    const others = [];
+    for (let sq = 0; sq < 128; sq++) {
+      if (sq & 0x88) { sq += 7; continue; }
+      const k = Math.abs(this.b[sq]);
+      if (!k || k === K) continue;
+      if (k === P || k === R || k === Q) return false;
+      others.push([k, sq]);
+    }
+    if (others.length <= 1) return true;
+    if (!others.every((o) => o[0] === B)) return false;
+    const shade = (sq) => ((sq >> 4) + (sq & 7)) & 1;
+    return others.every((o) => shade(o[1]) === shade(others[0][1]));
+  };
+
+  // Could `side` still checkmate? Used when the opponent's flag falls (FIDE 6.9).
+  // Conservative: a bare king, or a lone minor against a bare king, cannot.
+  Pos.prototype.canMate = function (side) {
+    if (this.insufficient()) return false;
+    const own = [];
+    let opponentBare = true;
+    for (let sq = 0; sq < 128; sq++) {
+      if (sq & 0x88) { sq += 7; continue; }
+      const p = this.b[sq];
+      if (!p || Math.abs(p) === K) continue;
+      if ((p > 0) === (side > 0)) own.push(Math.abs(p)); else opponentBare = false;
+    }
+    if (own.length === 0) return false;
+    if (own.length === 1 && (own[0] === N || own[0] === B)) return !opponentBare;
+    return true;
+  };
+
+  Pos.prototype.hasNonPawn = function (side) {
+    for (let sq = 0; sq < 128; sq++) {
+      if (sq & 0x88) { sq += 7; continue; }
+      const k = this.b[sq] * side;
+      if (k > P && k < K) return true;
+    }
+    return false;
+  };
+
+  // SAN for a legal move in this position.
+  Pos.prototype.san = function (m, legal) {
+    const from = mFrom(m), to = mTo(m), flags = mFlags(m), promo = mPromo(m);
+    const piece = this.b[from], kind = Math.abs(piece);
+    let s;
+    if (flags & F_CASTLE) s = to > from ? 'O-O' : 'O-O-O';
+    else {
+      s = '';
+      if (kind === P) {
+        if (flags & F_CAP) s += 'abcdefgh'[from & 7] + 'x';
+        s += sqName(to);
+        if (promo) s += '=' + LETTER[promo];
+      } else {
+        s += LETTER[kind];
+        const rivals = (legal || this.legalMoves()).filter((o) => mTo(o) === to && mFrom(o) !== from && this.b[mFrom(o)] === piece);
+        if (rivals.length) {
+          const sameFile = rivals.some((o) => (mFrom(o) & 7) === (from & 7));
+          const sameRank = rivals.some((o) => (mFrom(o) >> 4) === (from >> 4));
+          if (!sameFile) s += 'abcdefgh'[from & 7];
+          else if (!sameRank) s += 1 + (from >> 4);
+          else s += sqName(from);
+        }
+        if (flags & F_CAP) s += 'x';
+        s += sqName(to);
+      }
+    }
+    this.make(m);
+    if (this.inCheck()) s += this.legalMoves().length ? '+' : '#';
+    this.unmake();
+    return s;
+  };
+
+  // Reads SAN (lenient: 0-0, missing =, extra disambiguation, !? marks) or UCI.
+  Pos.prototype.parseMove = function (text, legal) {
+    legal = legal || this.legalMoves();
+    const raw = String(text).trim();
+    const uci = raw.toLowerCase().match(/^([a-h][1-8])([a-h][1-8])([qrbn])?$/);
+    if (uci) {
+      const from = parseSq(uci[1]), to = parseSq(uci[2]), promo = uci[3] ? 'pnbrqk'.indexOf(uci[3]) + 1 : 0;
+      const hit = legal.find((m) => mFrom(m) === from && mTo(m) === to && mPromo(m) === promo);
+      if (hit !== undefined) return hit;
+    }
+    let s = raw.replace(/[+#!?]+$/, '');
+    if (/^(O-O|0-0)$/.test(s)) return legal.find((m) => mFlags(m) & F_CASTLE && mTo(m) > mFrom(m)) ?? null;
+    if (/^(O-O-O|0-0-0)$/.test(s)) return legal.find((m) => mFlags(m) & F_CASTLE && mTo(m) < mFrom(m)) ?? null;
+    let kind = P;
+    if (/^[KQRBN]/.test(s)) { kind = LETTER.indexOf(s[0]); s = s.slice(1); }
+    let promo = 0;
+    if (kind === P) {
+      const pm = s.match(/^(.*[18])=?([QRBNqrbn])$/);
+      if (pm) { promo = 'pnbrqk'.indexOf(pm[2].toLowerCase()) + 1; s = pm[1]; }
+    }
+    s = s.replace(/[x:\-]/g, '');
+    const parts = s.match(/^([a-h])?([1-8])?([a-h][1-8])$/);
+    if (!parts) return null;
+    const ff = parts[1] ? parts[1].charCodeAt(0) - 97 : -1;
+    const fr = parts[2] ? +parts[2] - 1 : -1;
+    const to = parseSq(parts[3]);
+    const hits = legal.filter((m) => !(mFlags(m) & F_CASTLE) && mTo(m) === to && Math.abs(this.b[mFrom(m)]) === kind &&
+      mPromo(m) === promo && (ff < 0 || (mFrom(m) & 7) === ff) && (fr < 0 || (mFrom(m) >> 4) === fr));
+    return hits.length === 1 ? hits[0] : null;
+  };
+
+  // ------------------------------------------------------------- Evaluation
+
+  // Piece-square tables, written from White's side with rank 8 on the first row.
+  const PST = [null,
+    [0, 0, 0, 0, 0, 0, 0, 0, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 20, 30, 30, 20, 10, 10, 5, 5, 10, 25, 25, 10, 5, 5,
+      0, 0, 0, 20, 20, 0, 0, 0, 5, -5, -10, 0, 0, -10, -5, 5, 5, 10, 10, -20, -20, 10, 10, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+    [-50, -40, -30, -30, -30, -30, -40, -50, -40, -20, 0, 0, 0, 0, -20, -40, -30, 0, 10, 15, 15, 10, 0, -30, -30, 5, 15, 20, 20, 15, 5, -30,
+      -30, 0, 15, 20, 20, 15, 0, -30, -30, 5, 10, 15, 15, 10, 5, -30, -40, -20, 0, 5, 5, 0, -20, -40, -50, -40, -30, -30, -30, -30, -40, -50],
+    [-20, -10, -10, -10, -10, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 10, 10, 5, 0, -10, -10, 5, 5, 10, 10, 5, 5, -10,
+      -10, 0, 10, 10, 10, 10, 0, -10, -10, 10, 10, 10, 10, 10, 10, -10, -10, 5, 0, 0, 0, 0, 5, -10, -20, -10, -10, -10, -10, -10, -10, -20],
+    [0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 10, 10, 10, 10, 10, 5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5,
+      -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, 0, 0, 0, 5, 5, 0, 0, 0],
+    [-20, -10, -10, -5, -5, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 5, 5, 5, 0, -10, -5, 0, 5, 5, 5, 5, 0, -5,
+      0, 0, 5, 5, 5, 5, 0, -5, -10, 5, 5, 5, 5, 5, 0, -10, -10, 0, 5, 0, 0, 0, 0, -10, -20, -10, -10, -5, -5, -10, -10, -20],
+  ];
+  const KING_MG = [-30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30,
+    -30, -40, -40, -50, -50, -40, -40, -30, -20, -30, -30, -40, -40, -30, -30, -20, -10, -20, -20, -20, -20, -20, -20, -10,
+    20, 20, 0, 0, 0, 0, 20, 20, 20, 30, 10, 0, 0, 10, 30, 20];
+  const KING_EG = [-50, -40, -30, -20, -20, -30, -40, -50, -30, -20, -10, 0, 0, -10, -20, -30, -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -10, 30, 40, 40, 30, -10, -30, -30, -10, 30, 40, 40, 30, -10, -30, -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -30, 0, 0, 0, 0, -30, -30, -50, -30, -30, -30, -30, -30, -30, -50];
+  const PASSED = [0, 5, 10, 20, 35, 60, 100, 0];
+
+  // Static evaluation in centipawns from White's point of view.
+  // `style` tilts the personality: aggression rewards pieces near the enemy king,
+  // caution rewards pawns sheltering one's own king.
+  function evaluate(pos, style) {
+    const b = pos.b;
+    let mg = 0, eg = 0, phase = 0;
+    const pawnFiles = [new Int8Array(8), new Int8Array(8)];
+    const pawns = [];
+    const bishops = [0, 0];
+    const material = [0, 0];
+    for (let sq = 0; sq < 128; sq++) {
+      if (sq & 0x88) { sq += 7; continue; }
+      const p = b[sq];
+      if (!p) continue;
+      const kind = p > 0 ? p : -p, color = p > 0 ? 1 : -1, ci = p > 0 ? 0 : 1;
+      const f = sq & 7, r = sq >> 4;
+      const idx = color === 1 ? (7 - r) * 8 + f : r * 8 + f;
+      if (kind === K) { mg += color * KING_MG[idx]; eg += color * KING_EG[idx]; continue; }
+      const v = VALUE[kind], t = PST[kind][idx];
+      mg += color * (v + t);
+      eg += color * (v + (kind === P ? 0 : t));
+      phase += PHASE[kind];
+      if (kind !== P) material[ci] += v;
+      if (kind === P) { pawnFiles[ci][f]++; pawns.push(sq, color); }
+      if (kind === B) bishops[ci]++;
+      if (style && style.aggression && kind !== P) {
+        const ek = pos.kings[color === 1 ? 1 : 0];
+        const dist = Math.max(Math.abs((ek & 7) - f), Math.abs((ek >> 4) - r));
+        mg += color * (7 - dist) * 3 * style.aggression;
+      }
+    }
+    for (let i = 0; i < pawns.length; i += 2) {
+      const sq = pawns[i], color = pawns[i + 1], ci = color === 1 ? 0 : 1, oi = 1 - ci;
+      const f = sq & 7, r = sq >> 4;
+      if (pawnFiles[ci][f] > 1) { mg -= color * 8; eg -= color * 15; }
+      if ((f === 0 || !pawnFiles[ci][f - 1]) && (f === 7 || !pawnFiles[ci][f + 1])) { mg -= color * 10; eg -= color * 12; }
+      let passed = true;
+      for (let df = -1; df <= 1 && passed; df++) {
+        const ff = f + df;
+        if (ff < 0 || ff > 7 || !pawnFiles[oi][ff]) continue;
+        for (let rr = r + color; rr >= 0 && rr <= 7; rr += color) {
+          if (b[rr * 16 + ff] === -P * color) { passed = false; break; }
+        }
+      }
+      if (passed) {
+        const adv = color === 1 ? r : 7 - r;
+        mg += color * PASSED[adv] / 2;
+        eg += color * PASSED[adv];
+      }
+    }
+    if (bishops[0] >= 2) { mg += 30; eg += 40; }
+    if (bishops[1] >= 2) { mg -= 30; eg -= 40; }
+    if (style && style.caution) {
+      for (const color of [1, -1]) {
+        const k = pos.kings[color === 1 ? 0 : 1];
+        let shelter = 0;
+        for (let df = -1; df <= 1; df++) {
+          const s1 = k + 16 * color + df, s2 = k + 32 * color + df;
+          if (!(s1 & 0x88) && b[s1] === P * color) shelter += 12;
+          else if (!(s2 & 0x88) && b[s2] === P * color) shelter += 6;
+        }
+        mg += color * shelter * style.caution;
+      }
+    }
+    if (phase > 24) phase = 24;
+    let score = (mg * phase + eg * (24 - phase)) / 24;
+    // Mop-up: with a clear material lead and no enemy pawns, drive the enemy king to the edge.
+    if (phase <= 8) {
+      const lead = material[0] - material[1];
+      if (Math.abs(lead) >= 300) {
+        const winner = lead > 0 ? 0 : 1, loser = 1 - winner;
+        const hasLoserPawns = pawns.some((x, i) => i % 2 === 1 && (x === 1 ? 0 : 1) === loser);
+        if (!hasLoserPawns) {
+          const lk = pos.kings[loser], wk = pos.kings[winner];
+          const lf = lk & 7, lr = lk >> 4;
+          const centre = Math.max(3 - lf, lf - 4) + Math.max(3 - lr, lr - 4);
+          const kd = Math.abs(lf - (wk & 7)) + Math.abs(lr - (wk >> 4));
+          score += (winner === 0 ? 1 : -1) * (centre * 12 + (14 - kd) * 5);
+        }
+      }
+    }
+    return score | 0;
+  }
+
+  // ------------------------------------------------------------------ Search
+
+  const INF = 32000, MATE = 30000;
+  const TT_BITS = 19, TT_SIZE = 1 << TT_BITS, TT_MASK = TT_SIZE - 1;
+  const EXACT = 1, LOWER = 2, UPPER = 3;
+  let ttH = null, ttM, ttS, ttD, ttF;
+  function ensureTT() {
+    if (ttH) return;
+    ttH = new Int32Array(TT_SIZE); ttM = new Int32Array(TT_SIZE); ttS = new Int16Array(TT_SIZE);
+    ttD = new Int8Array(TT_SIZE); ttF = new Uint8Array(TT_SIZE);
+  }
+
+  // Strength levels. Labels are descriptive only; strength is not rating-calibrated.
+  const LEVELS = [
+    { name: 'Truffle', blurb: 'Brand-new learner. Leaves pieces hanging.', depth: 1, noise: 260, quiesce: false, timeMs: 200 },
+    { name: 'Builder', blurb: 'Develops calmly and avoids tricks.', depth: 2, noise: 110, quiesce: true, timeMs: 300 },
+    { name: 'Rusher', blurb: 'Attacks early and overreaches.', depth: 3, noise: 45, quiesce: true, timeMs: 500, style: { aggression: 1.2 } },
+    { name: 'Wall', blurb: 'Solid defender who grinds endgames.', depth: 5, noise: 12, quiesce: true, timeMs: 600, style: { caution: 1.5 } },
+    { name: 'Strategist', blurb: 'Patient positional player.', depth: 64, noise: 0, quiesce: true, timeMs: 1300 },
+    { name: 'Grandmaster mode', blurb: 'Full strength, thinks longest.', depth: 64, noise: 0, quiesce: true, timeMs: 3000 },
+  ];
+
+  function search(pos, opts) {
+    ensureTT();
+    const maxDepth = opts.depth || 64;
+    const timeMs = opts.timeMs || 1000;
+    const quiesce = opts.quiesce !== false;
+    const style = opts.style || null;
+    const noise = opts.noise || 0;
+    const random = opts.random || Math.random;
+    const start = Date.now(), stopAt = start + timeMs;
+    let nodes = 0, stopped = false;
+    const killers = new Int32Array(256);
+    const history = new Int32Array(128 * 128);
+
+    const evalSide = () => evaluate(pos, style) * pos.side + 10;
+    const toTT = (s, ply) => (s > MATE - 500 ? s + ply : s < -MATE + 500 ? s - ply : s);
+    const fromTT = (s, ply) => (s > MATE - 500 ? s - ply : s < -MATE + 500 ? s + ply : s);
+
+    function tick() {
+      if ((++nodes & 1023) === 0 && Date.now() > stopAt) stopped = true;
+    }
+
+    function isRepetition() {
+      const lim = Math.max(0, pos.sp - pos.half);
+      for (let i = pos.sp - 2; i >= lim; i -= 2) {
+        if (pos.uHl[i] === pos.hl && pos.uHh[i] === pos.hh) return true;
+      }
+      return false;
+    }
+
+    function order(list, ttMove, ply) {
+      const scores = new Int32Array(list.length);
+      for (let i = 0; i < list.length; i++) {
+        const m = list[i], fl = mFlags(m);
+        if (m === ttMove) scores[i] = 1e7;
+        else if (fl & F_CAP) {
+          const victim = fl & F_EP ? P : Math.abs(pos.b[mTo(m)]);
+          scores[i] = 1e6 + VALUE[victim] * 10 - VALUE[Math.abs(pos.b[mFrom(m)])] / 10;
+        } else if (fl & F_PROMO) scores[i] = 9e5;
+        else if (m === killers[ply * 2]) scores[i] = 8e5;
+        else if (m === killers[ply * 2 + 1]) scores[i] = 7e5;
+        else scores[i] = history[mFrom(m) * 128 + mTo(m)];
+      }
+      return scores;
+    }
+
+    function pick(list, scores, i) {
+      let best = i;
+      for (let j = i + 1; j < list.length; j++) if (scores[j] > scores[best]) best = j;
+      if (best !== i) {
+        const m = list[i]; list[i] = list[best]; list[best] = m;
+        const s = scores[i]; scores[i] = scores[best]; scores[best] = s;
+      }
+      return list[i];
+    }
+
+    function qsearch(alpha, beta, ply) {
+      tick();
+      if (stopped) return 0;
+      const stand = evalSide();
+      if (stand >= beta) return beta;
+      if (stand > alpha) alpha = stand;
+      if (ply > 60) return stand;
+      const list = pos.gen([], true);
+      const scores = order(list, 0, ply);
+      for (let i = 0; i < list.length; i++) {
+        const m = pick(list, scores, i);
+        if (!pos.make(m)) continue;
+        const s = -qsearch(-beta, -alpha, ply + 1);
+        pos.unmake();
+        if (stopped) return 0;
+        if (s >= beta) return beta;
+        if (s > alpha) alpha = s;
+      }
+      return alpha;
+    }
+
+    let rootBest = 0;
+    function negamax(depth, alpha, beta, ply, allowNull) {
+      if (ply > 0) {
+        if (pos.half >= 100 || isRepetition() || pos.insufficient()) return 0;
+      }
+      const inCheck = pos.inCheck();
+      if (inCheck) depth++;
+      if (depth <= 0) return quiesce ? qsearch(alpha, beta, ply) : evalSide();
+      tick();
+      if (stopped) return 0;
+      if (ply >= 100) return evalSide();
+
+      const idx = pos.hl & TT_MASK;
+      let ttMove = 0;
+      if (ttH[idx] === pos.hh && ttF[idx]) {
+        ttMove = ttM[idx];
+        if (ply > 0 && ttD[idx] >= depth) {
+          const s = fromTT(ttS[idx], ply), f = ttF[idx];
+          if (f === EXACT || (f === LOWER && s >= beta) || (f === UPPER && s <= alpha)) return s;
+        }
+      }
+
+      if (allowNull && !inCheck && depth >= 3 && ply > 0 && beta < MATE - 500 && pos.hasNonPawn(pos.side) && evalSide() >= beta) {
+        pos.makeNull();
+        const s = -negamax(depth - 3, -beta, -beta + 1, ply + 1, false);
+        pos.unmakeNull();
+        if (stopped) return 0;
+        if (s >= beta) return beta;
+      }
+
+      const list = pos.gen([], false);
+      const scores = order(list, ttMove, ply);
+      const origAlpha = alpha;
+      let best = -INF, bestMove = 0, legal = 0;
+      for (let i = 0; i < list.length; i++) {
+        const m = pick(list, scores, i);
+        if (!pos.make(m)) continue;
+        legal++;
+        const quiet = !(mFlags(m) & (F_CAP | F_PROMO));
+        let s;
+        if (legal === 1) s = -negamax(depth - 1, -beta, -alpha, ply + 1, true);
+        else {
+          const reduce = depth >= 3 && legal > 4 && quiet && !inCheck && !pos.inCheck() ? 1 : 0;
+          s = -negamax(depth - 1 - reduce, -alpha - 1, -alpha, ply + 1, true);
+          if (s > alpha && !stopped && (reduce || s < beta)) s = -negamax(depth - 1, -beta, -alpha, ply + 1, true);
+        }
+        pos.unmake();
+        if (stopped) return 0;
+        if (s > best) { best = s; bestMove = m; if (ply === 0) rootBest = m; }
+        if (s > alpha) {
+          alpha = s;
+          if (alpha >= beta) {
+            if (quiet) {
+              if (killers[ply * 2] !== m) { killers[ply * 2 + 1] = killers[ply * 2]; killers[ply * 2] = m; }
+              history[mFrom(m) * 128 + mTo(m)] += depth * depth;
+            }
+            break;
+          }
+        }
+      }
+      if (!legal) return inCheck ? -MATE + ply : 0;
+      ttH[idx] = pos.hh; ttM[idx] = bestMove; ttS[idx] = toTT(best, ply); ttD[idx] = depth;
+      ttF[idx] = best <= origAlpha ? UPPER : best >= beta ? LOWER : EXACT;
+      return best;
+    }
+
+    const rootMoves = pos.legalMoves();
+    if (!rootMoves.length) return { move: 0, score: 0, depth: 0, nodes: 0 };
+
+    // Lower levels: score every root move at a fixed depth, then add noise.
+    // The level is chosen before the game and never changes during it.
+    if (noise > 0) {
+      let bestMove = rootMoves[0], bestScore = -INF;
+      for (const m of rootMoves) {
+        pos.make(m);
+        let s;
+        if (maxDepth <= 1) s = quiesce ? -qsearch(-INF, INF, 1) : -evalSide();
+        else s = -negamax(maxDepth - 1, -INF, INF, 1, true);
+        pos.unmake();
+        stopped = false;
+        const noisy = s + (random() * 2 - 1) * noise;
+        if (noisy > bestScore) { bestScore = noisy; bestMove = m; }
+      }
+      return { move: bestMove, score: bestScore | 0, depth: maxDepth, nodes };
+    }
+
+    let bestMove = rootMoves[0], bestScore = 0, depthDone = 0;
+    for (let d = 1; d <= maxDepth; d++) {
+      rootBest = 0;
+      const s = negamax(d, -INF, INF, 0, false);
+      if (stopped) { break; }
+      if (rootBest) { bestMove = rootBest; bestScore = s; depthDone = d; }
+      if (Math.abs(s) > MATE - 500) break;
+      if (Date.now() - start > timeMs * 0.55) break;
+    }
+    return { move: bestMove, score: bestScore, depth: depthDone, nodes };
+  }
+
+  // -------------------------------------------------------------------- Game
+
+  function Game(fen) {
+    this.pos = new Pos();
+    const err = this.pos.load(fen || START_FEN);
+    if (err) throw new Error(err);
+    this.startFen = this.pos.fen();
+    this.moves = [];
+    this.sans = [];
+    this.captured = [];
+    this.keys = [this.pos.repKey()];
+    this.ended = null; // {result, reason} for endings not decided by the board
+    this.refresh();
+  }
+
+  Game.prototype.refresh = function () {
+    this.legal = this.pos.legalMoves();
+    this.outcome = this.ended || this.boardOutcome();
+  };
+
+  Game.prototype.repetitions = function () {
+    const last = this.keys[this.keys.length - 1];
+    return this.keys.filter((k) => k === last).length;
+  };
+
+  // Automatic endings. Checkmate takes precedence over the 75-move and fivefold rules.
+  Game.prototype.boardOutcome = function () {
+    const p = this.pos;
+    if (!this.legal.length) {
+      if (p.inCheck()) return { result: p.side === WHITE ? '0-1' : '1-0', reason: 'checkmate' };
+      return { result: '1/2-1/2', reason: 'stalemate' };
+    }
+    if (p.insufficient()) return { result: '1/2-1/2', reason: 'insufficient' };
+    if (this.repetitions() >= 5) return { result: '1/2-1/2', reason: 'fivefold' };
+    if (p.half >= 150) return { result: '1/2-1/2', reason: 'seventyfive' };
+    return null;
+  };
+
+  Game.prototype.claimable = function () {
+    if (this.outcome) return null;
+    if (this.repetitions() >= 3) return 'threefold';
+    if (this.pos.half >= 100) return 'fifty';
+    return null;
+  };
+
+  Game.prototype.find = function (from64, to64, promo) {
+    const from = to88(from64), to = to88(to64);
+    return this.legal.find((m) => mFrom(m) === from && mTo(m) === to && mPromo(m) === (promo || 0)) ?? null;
+  };
+
+  Game.prototype.targets = function (from64) {
+    const from = to88(from64);
+    return this.legal.filter((m) => mFrom(m) === from).map((m) => to64(mTo(m)));
+  };
+
+  Game.prototype.needsPromotion = function (from64, to64) {
+    const from = to88(from64), to = to88(to64);
+    return this.legal.some((m) => mFrom(m) === from && mTo(m) === to && mPromo(m));
+  };
+
+  // Plays a legal move (as returned by find/parse). Returns details for animation.
+  Game.prototype.play = function (m) {
+    if (this.outcome || !this.legal.includes(m)) return null;
+    const p = this.pos;
+    const from = mFrom(m), to = mTo(m), flags = mFlags(m);
+    const san = p.san(m, this.legal);
+    const capSq = flags & F_EP ? to - 16 * p.side : to;
+    const capturedPiece = flags & F_CAP ? p.b[capSq] : 0;
+    const mover = p.b[from];
+    p.make(m);
+    this.moves.push(m);
+    this.sans.push(san);
+    this.captured.push(capturedPiece);
+    this.keys.push(p.repKey());
+    this.refresh();
+    let rook = null;
+    if (flags & F_CASTLE) rook = to > from ? [to64(from + 3), to64(from + 1)] : [to64(from - 4), to64(from - 1)];
+    return {
+      move: m, san, from: to64(from), to: to64(to), mover, promo: mPromo(m) * (mover > 0 ? 1 : -1),
+      captured: capturedPiece, capturedSq: capturedPiece ? to64(capSq) : -1, rook, check: p.inCheck(),
+    };
+  };
+
+  Game.prototype.playText = function (text) {
+    if (this.outcome) return null;
+    const m = this.pos.parseMove(text, this.legal);
+    return m === null || m === undefined ? null : this.play(m);
+  };
+
+  Game.prototype.undo = function () {
+    if (!this.moves.length || this.ended) return false;
+    this.pos.unmake();
+    this.moves.pop(); this.sans.pop(); this.captured.pop(); this.keys.pop();
+    this.refresh();
+    return true;
+  };
+
+  Game.prototype.finish = function (result, reason) {
+    if (this.outcome) return false;
+    this.ended = { result, reason };
+    this.outcome = this.ended;
+    return true;
+  };
+
+  Game.prototype.resign = function (side) { return this.finish(side === WHITE ? '0-1' : '1-0', 'resignation'); };
+  Game.prototype.agreeDraw = function () { return this.finish('1/2-1/2', 'agreement'); };
+  Game.prototype.claimDraw = function () { const c = this.claimable(); return c ? this.finish('1/2-1/2', c) : false; };
+  Game.prototype.timeout = function (side) {
+    return this.pos.canMate(-side) ? this.finish(side === WHITE ? '0-1' : '1-0', 'timeout') : this.finish('1/2-1/2', 'timeout-insufficient');
+  };
+
+  Game.prototype.uciMoves = function () {
+    return this.moves.map(uci);
+  };
+
+  Game.prototype.pgn = function (tags) {
+    const result = this.outcome ? this.outcome.result : '*';
+    const t = Object.assign({ Event: 'Casual game', Site: 'Chacklate Chess', Date: '????.??.??', Round: '-', White: '?', Black: '?' }, tags || {});
+    t.Result = result;
+    if (this.startFen !== START_FEN) { t.SetUp = '1'; t.FEN = this.startFen; }
+    const order = ['Event', 'Site', 'Date', 'Round', 'White', 'Black', 'Result'];
+    const keys = order.concat(Object.keys(t).filter((k) => !order.includes(k)));
+    let out = keys.map((k) => '[' + k + ' "' + String(t[k]).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"]').join('\n') + '\n\n';
+    const startPos = new Pos(); startPos.load(this.startFen);
+    let num = startPos.full, white = startPos.side === WHITE;
+    const tokens = [];
+    this.sans.forEach((san, i) => {
+      if (white) tokens.push(num + '.');
+      else if (i === 0) tokens.push(num + '...');
+      tokens.push(san);
+      if (!white) num++;
+      white = !white;
+    });
+    tokens.push(result);
+    let line = '';
+    for (const tok of tokens) {
+      if (line.length + tok.length + 1 > 79) { out += line + '\n'; line = tok; } else line = line ? line + ' ' + tok : tok;
+    }
+    return out + line + '\n';
+  };
+
+  // Rebuilds a position from a start FEN and UCI moves (used by the worker).
+  function positionFrom(fen, ucis) {
+    const p = new Pos();
+    const err = p.load(fen || START_FEN);
+    if (err) throw new Error(err);
+    for (const u of ucis || []) {
+      const m = p.parseMove(u);
+      if (m === null || m === undefined) throw new Error('Illegal move in history: ' + u);
+      p.make(m);
+    }
+    return p;
+  }
+
+  function uci(m) {
+    const promo = mPromo(m);
+    return sqName(mFrom(m)) + sqName(mTo(m)) + (promo ? 'pnbrqk'[promo - 1] : '');
+  }
+
+  function perft(pos, depth) {
+    if (depth === 0) return 1;
+    let n = 0;
+    for (const m of pos.gen([], false)) {
+      if (!pos.make(m)) continue;
+      n += depth === 1 ? 1 : perft(pos, depth - 1);
+      pos.unmake();
+    }
+    return n;
+  }
+
+  return {
+    START_FEN, WHITE, BLACK, P, N, B, R, Q, K, LEVELS,
+    Pos, Game, search, evaluate, perft, positionFrom, uci,
+    to64, to88, sqName, mFrom: (m) => to64(mFrom(m)), mTo: (m) => to64(mTo(m)), mPromo,
+    pieceAt(pos, sq64) { return pos.b[to88(sq64)]; },
+  };
+}
+
+
+
+</script>
+<script>
+// Chacklate Chess 3D view: hand-written WebGL (no libraries).
+// Draws the room, board and pieces with soft shadows, animates moves, and
+// turns clicks into board squares.
+function ChacklateRenderer(canvas, options) {
+  'use strict';
+  const opts = Object.assign({ onSquare() {}, onContextLost() {} }, options);
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false, preserveDrawingBuffer: false });
+  if (!gl) return null;
+
+  // ------------------------------------------------------------ math helpers
+  const V = {
+    sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+    add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+    scale: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
+    dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+    cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+    norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; },
+  };
+  function mul(a, b) {
+    const o = new Float32Array(16);
+    for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
+      o[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] + a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+    }
+    return o;
+  }
+  function perspective(fovy, aspect, near, far) {
+    const f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
+    return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0]);
+  }
+  function ortho(l, r, b, t, n, f) {
+    const lr = 1 / (l - r), bt = 1 / (b - t), nf = 1 / (n - f);
+    return new Float32Array([-2 * lr, 0, 0, 0, 0, -2 * bt, 0, 0, 0, 0, 2 * nf, 0, (l + r) * lr, (t + b) * bt, (f + n) * nf, 1]);
+  }
+  function lookAt(eye, center, up) {
+    const z = V.norm(V.sub(eye, center)), x = V.norm(V.cross(up, z)), y = V.cross(z, x);
+    return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -V.dot(x, eye), -V.dot(y, eye), -V.dot(z, eye), 1]);
+  }
+  // Translate · rotateY(yaw) · rotateX(tilt) · uniform scale.
+  function model(x, y, z, yaw, tilt, s) {
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cx = Math.cos(tilt), sx = Math.sin(tilt);
+    return new Float32Array([
+      cy * s, 0, -sy * s, 0,
+      sy * sx * s, cx * s, cy * sx * s, 0,
+      sy * cx * s, -sx * s, cy * cx * s, 0,
+      x, y, z, 1,
+    ]);
+  }
+  const normalMat = (m) => new Float32Array([m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10]]);
+  const lin = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => Math.pow(c / 255, 2.2));
+  };
+  const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+
+  // --------------------------------------------------------------- geometry
+  // Vertex layout: position(3) normal(3) uv(2).
+  function lathe(profile, segs) {
+    const out = [];
+    const segN = [];
+    for (let i = 0; i < profile.length - 1; i++) {
+      const dr = profile[i + 1][0] - profile[i][0], dy = profile[i + 1][1] - profile[i][1];
+      const l = Math.hypot(dr, dy) || 1;
+      segN.push([dy / l, -dr / l]);
+    }
+    const smooth = Math.cos((42 * Math.PI) / 180);
+    const vn = (seg, other) => {
+      const n = segN[seg];
+      if (other < 0 || other >= segN.length) return n;
+      const o = segN[other];
+      if (n[0] * o[0] + n[1] * o[1] < smooth) return n;
+      const a = n[0] + o[0], b = n[1] + o[1], l = Math.hypot(a, b);
+      return [a / l, b / l];
+    };
+    for (let s = 0; s < profile.length - 1; s++) {
+      const p0 = profile[s], p1 = profile[s + 1];
+      if (p0[0] === p1[0] && p0[1] === p1[1]) continue;
+      const n0 = vn(s, s - 1), n1 = vn(s, s + 1);
+      for (let j = 0; j < segs; j++) {
+        const a0 = (j / segs) * Math.PI * 2, a1 = ((j + 1) / segs) * Math.PI * 2;
+        const v = (p, n, a) => [p[0] * Math.cos(a), p[1], p[0] * Math.sin(a), n[0] * Math.cos(a), n[1], n[0] * Math.sin(a), j / segs, p[1]];
+        out.push(...v(p0, n0, a0), ...v(p1, n1, a0), ...v(p1, n1, a1), ...v(p0, n0, a0), ...v(p1, n1, a1), ...v(p0, n0, a1));
+      }
+    }
+    return out;
+  }
+  function sphereProfile(r, cy, from, to, steps) {
+    const pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const a = from + ((to - from) * i) / steps;
+      pts.push([Math.max(0, r * Math.cos(a)), cy + r * Math.sin(a)]);
+    }
+    return pts;
+  }
+  function box(w, h, d, cx, cy, cz) {
+    const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - h / 2, y1 = cy + h / 2, z0 = cz - d / 2, z1 = cz + d / 2;
+    const faces = [
+      [[x0, y1, z1], [x1, y1, z1], [x1, y1, z0], [x0, y1, z0], [0, 1, 0]],
+      [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1], [0, -1, 0]],
+      [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1], [0, 0, 1]],
+      [[x1, y0, z0], [x0, y0, z0], [x0, y1, z0], [x1, y1, z0], [0, 0, -1]],
+      [[x1, y0, z1], [x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [1, 0, 0]],
+      [[x0, y0, z0], [x0, y0, z1], [x0, y1, z1], [x0, y1, z0], [-1, 0, 0]],
+    ];
+    const out = [];
+    for (const f of faces) {
+      const n = f[4];
+      const uv = (p) => [(p[0] - x0) / w, (p[2] - z0) / d];
+      for (const i of [0, 1, 2, 0, 2, 3]) out.push(...f[i], ...n, ...uv(f[i]));
+    }
+    return out;
+  }
+  function triangulate(pts) {
+    const idx = pts.map((_, i) => i), tris = [];
+    const cr = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+    const inside = (p, a, b, c) => cr(a, b, p) > 0 && cr(b, c, p) > 0 && cr(c, a, p) > 0;
+    let guard = 0;
+    while (idx.length > 3 && guard++ < 2000) {
+      let clipped = false;
+      for (let i = 0; i < idx.length; i++) {
+        const a = idx[(i + idx.length - 1) % idx.length], b = idx[i], c = idx[(i + 1) % idx.length];
+        if (cr(pts[a], pts[b], pts[c]) <= 0) continue;
+        if (idx.some((j) => j !== a && j !== b && j !== c && inside(pts[j], pts[a], pts[b], pts[c]))) continue;
+        tris.push([a, b, c]); idx.splice(i, 1); clipped = true; break;
+      }
+      if (!clipped) break;
+    }
+    if (idx.length === 3) tris.push(idx.slice());
+    return tris;
+  }
+  // Extrudes a counter-clockwise outline in the x/y plane to thickness t (centred on z = 0).
+  function extrude(pts, t) {
+    const out = [], h = t / 2;
+    for (const [a, b, c] of triangulate(pts)) {
+      out.push(pts[a][0], pts[a][1], h, 0, 0, 1, 0, 0, pts[b][0], pts[b][1], h, 0, 0, 1, 0, 0, pts[c][0], pts[c][1], h, 0, 0, 1, 0, 0);
+      out.push(pts[a][0], pts[a][1], -h, 0, 0, -1, 0, 0, pts[c][0], pts[c][1], -h, 0, 0, -1, 0, 0, pts[b][0], pts[b][1], -h, 0, 0, -1, 0, 0);
+    }
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i], q = pts[(i + 1) % pts.length];
+      const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1;
+      const n = [dy / l, -dx / l, 0];
+      out.push(p[0], p[1], h, ...n, 0, 0, q[0], q[1], h, ...n, 0, 0, q[0], q[1], -h, ...n, 0, 0);
+      out.push(p[0], p[1], h, ...n, 0, 0, q[0], q[1], -h, ...n, 0, 0, p[0], p[1], -h, ...n, 0, 0);
+    }
+    return out;
+  }
+  function transform(arr, yaw, dx, dy, dz) {
+    const c = Math.cos(yaw), s = Math.sin(yaw), out = arr.slice();
+    for (let i = 0; i < out.length; i += 8) {
+      const x = arr[i], z = arr[i + 2], nx = arr[i + 3], nz = arr[i + 5];
+      out[i] = c * x + s * z + dx; out[i + 1] = arr[i + 1] + dy; out[i + 2] = -s * x + c * z + dz;
+      out[i + 3] = c * nx + s * nz; out[i + 5] = -s * nx + c * nz;
+    }
+    return out;
+  }
+
+  const SEG = 44;
+  const BASE = [[0, 0], [0.36, 0], [0.37, 0.025], [0.37, 0.05], [0.35, 0.075], [0.31, 0.09], [0.32, 0.115], [0.29, 0.14], [0.26, 0.16]];
+  const geo = {};
+  geo[1] = lathe([...BASE, [0.22, 0.2], [0.15, 0.29], [0.11, 0.41], [0.17, 0.45], [0.17, 0.48], [0.1, 0.51],
+    ...sphereProfile(0.155, 0.635, -1.15, Math.PI / 2, 14)], SEG);
+  geo[4] = lathe([...BASE, [0.25, 0.22], [0.21, 0.32], [0.19, 0.66], [0.25, 0.7], [0.26, 0.74], [0.25, 0.77], [0.25, 0.9], [0.18, 0.9], [0.18, 0.84], [0, 0.84]], SEG)
+    .concat(...[0, 1, 2, 3, 4, 5].map((i) => transform(box(0.1, 0.12, 0.13, 0.215, 0.95, 0), (i * Math.PI) / 3 + 0.26, 0, 0, 0)));
+  geo[3] = lathe([...BASE, [0.22, 0.21], [0.14, 0.33], [0.1, 0.66], [0.2, 0.7], [0.2, 0.735], [0.12, 0.76], [0.11, 0.78],
+    [0.15, 0.83], [0.172, 0.9], [0.165, 0.97], [0.13, 1.04], [0.075, 1.1], [0.03, 1.13], ...sphereProfile(0.058, 1.18, -1.0, Math.PI / 2, 8)], SEG);
+  geo[5] = lathe([...BASE, [0.25, 0.22], [0.16, 0.35], [0.11, 0.74], [0.21, 0.8], [0.21, 0.845], [0.13, 0.87], [0.17, 0.98],
+    [0.215, 1.08], [0.2, 1.11], [0.12, 1.13], [0.07, 1.17], ...sphereProfile(0.075, 1.235, -0.9, Math.PI / 2, 10)], SEG)
+    .concat(...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => transform(lathe(sphereProfile(0.042, 0, -Math.PI / 2, Math.PI / 2, 8), 12), (i * Math.PI) / 4, 0.205 * Math.cos((i * Math.PI) / 4), 1.115, -0.205 * Math.sin((i * Math.PI) / 4))));
+  geo[6] = lathe([...BASE, [0.26, 0.22], [0.17, 0.36], [0.12, 0.84], [0.225, 0.9], [0.225, 0.945], [0.14, 0.97], [0.185, 1.12], [0.2, 1.18], [0.13, 1.21], [0, 1.22]], SEG)
+    .concat(box(0.065, 0.27, 0.065, 0, 1.33, 0), box(0.2, 0.065, 0.065, 0, 1.36, 0));
+  const KNIGHT_OUTLINE = [[-0.22, 0.2], [0.2, 0.2], [0.22, 0.3], [0.17, 0.42], [0.2, 0.5], [0.3, 0.56], [0.38, 0.63], [0.4, 0.72],
+    [0.35, 0.8], [0.25, 0.84], [0.2, 0.92], [0.16, 1.02], [0.1, 1.08], [0.05, 0.98], [-0.04, 1.0], [-0.13, 0.94],
+    [-0.2, 0.82], [-0.25, 0.65], [-0.27, 0.45], [-0.26, 0.3]];
+  geo[2] = lathe([...BASE, [0.27, 0.2], [0, 0.21]], SEG).concat(extrude(KNIGHT_OUTLINE, 0.25));
+
+  geo.tile = box(1, 0.1, 1, 0, -0.05, 0);
+  geo.frame = box(9.4, 0.24, 9.4, 0, -0.13, 0);
+  geo.table = box(46, 0.2, 46, 0, -0.35, 0);
+  geo.overlay = box(0.98, 0.012, 0.98, 0, 0.004, 0);
+  geo.dot = lathe([[0, 0], [0.13, 0], [0.13, 0.02], [0, 0.02]], 24);
+  geo.ring = lathe([[0.4, 0.01], [0.47, 0.01], [0.47, 0.03], [0.4, 0.03], [0.4, 0.01]], 40);
+
+  const meshes = {};
+  for (const k of Object.keys(geo)) {
+    const data = new Float32Array(geo[k]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    meshes[k] = { buf, count: data.length / 8 };
+  }
+
+  // ---------------------------------------------------------------- shaders
+  const VS = `
+    attribute vec3 aPos; attribute vec3 aNrm; attribute vec2 aUV;
+    uniform mat4 uModel, uViewProj, uLightVP; uniform mat3 uNormal;
+    varying vec3 vWorld; varying vec3 vNrm; varying vec4 vLight; varying vec2 vUV;
+    void main() {
+      vec4 w = uModel * vec4(aPos, 1.0);
+      vWorld = w.xyz; vNrm = uNormal * aNrm; vLight = uLightVP * w; vUV = aUV;
+      gl_Position = uViewProj * w;
+    }`;
+  const FS = `
+    precision mediump float;
+    varying vec3 vWorld; varying vec3 vNrm; varying vec4 vLight; varying vec2 vUV;
+    uniform vec3 uColor, uEmissive, uEye, uLightDir;
+    uniform float uAlpha, uGloss, uSpec, uShadowOn, uTexel, uUseTex, uGrain, uGrainDir;
+    uniform sampler2D uShadowMap, uTex;
+    float unpack(vec4 c) { return dot(c, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0)); }
+    float shadow() {
+      if (uShadowOn < 0.5) return 1.0;
+      vec3 p = vLight.xyz / vLight.w * 0.5 + 0.5;
+      if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0 || p.z > 1.0) return 1.0;
+      float s = 0.0;
+      for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) {
+        float d = unpack(texture2D(uShadowMap, p.xy + vec2(float(x), float(y)) * uTexel));
+        s += (p.z - 0.002 > d) ? 0.0 : 1.0;
+      }
+      return mix(0.35, 1.0, s / 9.0);
+    }
+    void main() {
+      vec3 n = normalize(vNrm);
+      vec3 v = normalize(uEye - vWorld);
+      if (dot(n, v) < 0.0) n = -n;
+      vec3 base = uColor;
+      if (uUseTex > 0.5) base = pow(texture2D(uTex, vUV).rgb, vec3(2.2));
+      if (uGrain > 0.0) {
+        float a = uGrainDir > 0.5 ? vWorld.x : vWorld.z, b = uGrainDir > 0.5 ? vWorld.z : vWorld.x;
+        float g = sin(a * 2.0 + sin(b * 21.0) * 0.7 + sin(b * 57.0 + a) * 0.25);
+        base *= 1.0 + g * 0.07 * uGrain;
+      }
+      vec3 L = normalize(uLightDir);
+      float sh = shadow();
+      float ndl = max(dot(n, L), 0.0);
+      vec3 h = normalize(L + v);
+      float spec = pow(max(dot(n, h), 0.0), uGloss) * uSpec;
+      float fill = max(dot(n, normalize(vec3(0.7, 0.45, -0.6))), 0.0) * 0.28;
+      vec3 amb = mix(vec3(0.09, 0.065, 0.055), vec3(0.34, 0.31, 0.33), n.y * 0.5 + 0.5);
+      float fres = pow(1.0 - max(dot(n, v), 0.0), 4.0) * uSpec;
+      vec3 key = vec3(1.0, 0.92, 0.82) * 1.35;
+      vec3 col = base * (amb + key * ndl * sh + vec3(0.7, 0.8, 1.0) * fill) + key * spec * sh + vec3(0.55, 0.5, 0.48) * fres * 0.35 + uEmissive;
+      col = vec3(1.0) - exp(-col * 1.15);
+      gl_FragColor = vec4(pow(col, vec3(1.0 / 2.2)), uAlpha);
+    }`;
+  const SVS = `
+    attribute vec3 aPos; uniform mat4 uModel, uLightVP;
+    void main() { gl_Position = uLightVP * uModel * vec4(aPos, 1.0); }`;
+  const SFS = `
+    precision highp float;
+    void main() {
+      vec4 e = fract(vec4(1.0, 255.0, 65025.0, 16581375.0) * gl_FragCoord.z);
+      e -= e.yzww * vec4(1.0 / 255.0, 1.0 / 255.0, 1.0 / 255.0, 0.0);
+      gl_FragColor = e;
+    }`;
+  function program(vs, fs) {
+    const p = gl.createProgram();
+    for (const [type, src] of [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]]) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      gl.attachShader(p, s);
+    }
+    gl.bindAttribLocation(p, 0, 'aPos'); gl.bindAttribLocation(p, 1, 'aNrm'); gl.bindAttribLocation(p, 2, 'aUV');
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {};
+    const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) { const info = gl.getActiveUniform(p, i); u[info.name] = gl.getUniformLocation(p, info.name); }
+    return { p, u };
+  }
+  const main = program(VS, FS);
+  const depth = program(SVS, SFS);
+
+  // Shadow map (depth packed into RGBA; works on every WebGL1 device).
+  const SHADOW = 2048;
+  const shadowTex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, shadowTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SHADOW, SHADOW, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const shadowFB = gl.createFramebuffer();
+  const shadowRB = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, shadowRB);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, SHADOW, SHADOW);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFB);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, shadowTex, 0);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, shadowRB);
+  const shadowOk = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+  const LIGHT_DIR = V.norm([-0.5, 1.0, 0.42]);
+  const lightVP = mul(ortho(-7.2, 7.2, -7.2, 7.2, 2, 40), lookAt(V.scale(LIGHT_DIR, 20), [0, 0, 0], [0, 1, 0]));
+
+  // Frame texture with coordinates, redrawn per board theme.
+  const frameTex = gl.createTexture();
+  let labelSide = 'white';
+  function drawFrameTexture(theme) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 1024;
+    const g = c.getContext('2d');
+    g.fillStyle = theme.frame; g.fillRect(0, 0, 1024, 1024);
+    const px = (x) => (x / 9.4 + 0.5) * 1024;
+    g.strokeStyle = theme.frameLine; g.lineWidth = 3;
+    g.strokeRect(px(-4.62), px(-4.62), px(4.62) - px(-4.62), px(4.62) - px(-4.62));
+    g.fillStyle = theme.label;
+    g.font = '600 34px Georgia, "Times New Roman", serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    const write = (text, x, z, rot) => { g.save(); g.translate(px(x), px(z)); g.rotate(rot); g.fillText(text, 0, 0); g.restore(); };
+    const black = labelSide === 'black';
+    for (let i = 0; i < 8; i++) {
+      if (black) { write('abcdefgh'[i], i - 3.5, -4.36, Math.PI); write(String(i + 1), 4.36, 3.5 - i, Math.PI); }
+      else { write('abcdefgh'[i], i - 3.5, 4.36, 0); write(String(i + 1), -4.36, 3.5 - i, 0); }
+    }
+    gl.bindTexture(gl.TEXTURE_2D, frameTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  }
+
+  // ------------------------------------------------------------------ state
+  const BOARD_THEMES = {
+    walnut: { name: 'Walnut & Maple', light: '#ddb98c', dark: '#6e4530', frame: '#3a2419', frameLine: '#8c6a4c', label: '#e8d3b4', table: '#1d1411', grain: 1 },
+    cocoa: { name: 'Cocoa & Cream', light: '#ecdfca', dark: '#7a4a3a', frame: '#2c1b15', frameLine: '#a2705a', label: '#f2e3cb', table: '#181010', grain: 0.6 },
+    marble: { name: 'Night Marble', light: '#d9d9dd', dark: '#4f5a66', frame: '#262a31', frameLine: '#7c8794', label: '#dfe3ea', table: '#121418', grain: 0 },
+  };
+  const PIECE_THEMES = {
+    tempered: { name: 'Tempered', white: '#efe2cb', black: '#3a2218', wGloss: 50, bGloss: 90, wSpec: 0.45, bSpec: 0.8 },
+    ruby: { name: 'Ruby & Pearl', white: '#f1ece6', black: '#7a1630', wGloss: 70, bGloss: 110, wSpec: 0.6, bSpec: 0.9 },
+    classic: { name: 'Boxwood & Ebony', white: '#e2c896', black: '#1f1c1d', wGloss: 35, bGloss: 70, wSpec: 0.35, bSpec: 0.7 },
+  };
+  let boardTheme = BOARD_THEMES.walnut, pieceTheme = PIECE_THEMES.tempered;
+  let quality = 'high', animations = true;
+  let sprites = [];
+  let highlights = {};
+  let raf = 0;
+  const cam = { yaw: 0, pitch: 0.95, dist: 13.2, tYaw: 0, tPitch: 0.95, tDist: 13.2 };
+  const fov = (40 * Math.PI) / 180;
+  const tileJitter = Array.from({ length: 64 }, (_, i) => 1 + (((i * 2654435761) >>> 0) % 1000 / 1000 - 0.5) * 0.06);
+
+  const sqX = (sq) => (sq & 7) - 3.5;
+  const sqZ = (sq) => 3.5 - (sq >> 3);
+
+  function makeSprite(piece, sq) {
+    return { piece, sq, x: sqX(sq), z: sqZ(sq), y: 0, scale: 1, alpha: 1, tilt: 0, yaw: baseYaw(piece, sq), anim: null };
+  }
+  function baseYaw(piece, sq) {
+    if (Math.abs(piece) === 2) return piece > 0 ? Math.PI : 0;
+    return ((sq * 37) % 11) * 0.12; // slight natural variation, never affects play
+  }
+
+  // ------------------------------------------------------------------ drawing
+  function eyePos() {
+    const cp = Math.cos(cam.pitch);
+    return [Math.sin(cam.yaw) * cp * cam.dist, Math.sin(cam.pitch) * cam.dist, Math.cos(cam.yaw) * cp * cam.dist];
+  }
+
+  function bindMesh(mesh, withNormals) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buf);
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 32, 0);
+    gl.enableVertexAttribArray(0);
+    if (withNormals) {
+      gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 32, 12); gl.enableVertexAttribArray(1);
+      gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 32, 24); gl.enableVertexAttribArray(2);
+    } else {
+      gl.disableVertexAttribArray(1); gl.disableVertexAttribArray(2);
+    }
+  }
+
+  function drawList() {
+    const list = [];
+    const tableC = lin(boardTheme.table);
+    list.push({ mesh: 'table', m: model(0, 0, 0, 0, 0, 1), color: tableC, gloss: 20, spec: 0.08, caster: false });
+    list.push({ mesh: 'frame', m: model(0, 0, 0, 0, 0, 1), tex: true, gloss: 60, spec: 0.35, caster: true });
+    const light = lin(boardTheme.light), dark = lin(boardTheme.dark);
+    for (let sq = 0; sq < 64; sq++) {
+      const isLight = ((sq >> 3) + (sq & 7)) % 2 === 1;
+      const base = isLight ? light : dark;
+      const j = tileJitter[sq];
+      list.push({ mesh: 'tile', m: model(sqX(sq), 0, sqZ(sq), 0, 0, 1), color: base.map((c) => c * j), gloss: 70, spec: boardTheme.grain ? 0.25 : 0.55,
+        grain: boardTheme.grain, grainDir: (sq + (sq >> 3)) % 2, caster: false });
+    }
+    const pw = lin(pieceTheme.white), pb = lin(pieceTheme.black);
+    for (const s of sprites) {
+      if (s.alpha <= 0.01) continue;
+      const white = s.piece > 0;
+      list.push({ mesh: Math.abs(s.piece), m: model(s.x, s.y, s.z, s.yaw, s.tilt, s.scale), color: white ? pw : pb,
+        gloss: white ? pieceTheme.wGloss : pieceTheme.bGloss, spec: white ? pieceTheme.wSpec : pieceTheme.bSpec,
+        alpha: s.alpha, caster: true, emissive: s.glow ? [s.glow * 0.25, s.glow * 0.02, s.glow * 0.06] : null });
+    }
+    return list;
+  }
+
+  function overlayList() {
+    const out = [];
+    const h = highlights;
+    const sq = (s, color, alpha) => out.push({ mesh: 'overlay', m: model(sqX(s), 0, sqZ(s), 0, 0, 1), color: lin(color), alpha, emissive: lin(color).map((c) => c * 0.35) });
+    if (h.lastFrom >= 0) sq(h.lastFrom, '#e3b25a', 0.32);
+    if (h.lastTo >= 0) sq(h.lastTo, '#e3b25a', 0.42);
+    if (h.hintFrom >= 0) sq(h.hintFrom, '#3fc6b4', 0.5);
+    if (h.hintTo >= 0) sq(h.hintTo, '#3fc6b4', 0.6);
+    if (h.check >= 0) sq(h.check, '#ff3b30', 0.6);
+    if (h.selected >= 0) sq(h.selected, '#c2335e', 0.6);
+    if (h.cursor >= 0) sq(h.cursor, '#9ad0ff', 0.35);
+    for (const t of h.targets || []) out.push({ mesh: 'dot', m: model(sqX(t), 0.004, sqZ(t), 0, 0, 1), color: lin('#c2335e'), alpha: 0.85, emissive: lin('#c2335e').map((c) => c * 0.4) });
+    for (const t of h.captures || []) out.push({ mesh: 'ring', m: model(sqX(t), 0, sqZ(t), 0, 0, 1), color: lin('#c2335e'), alpha: 0.9, emissive: lin('#c2335e').map((c) => c * 0.4) });
+    return out;
+  }
+
+  function render() {
+    const w = canvas.width, h = canvas.height;
+    const list = drawList();
+    const shadowsOn = quality === 'high' && shadowOk;
+    gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+
+    if (shadowsOn) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFB);
+      gl.viewport(0, 0, SHADOW, SHADOW);
+      gl.clearColor(1, 1, 1, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(depth.p);
+      gl.uniformMatrix4fv(depth.u.uLightVP, false, lightVP);
+      for (const d of list) {
+        if (!d.caster || (d.alpha !== undefined && d.alpha < 0.5)) continue;
+        bindMesh(meshes[d.mesh], false);
+        gl.uniformMatrix4fv(depth.u.uModel, false, d.m);
+        gl.drawArrays(gl.TRIANGLES, 0, meshes[d.mesh].count);
+      }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+
+    gl.viewport(0, 0, w, h);
+    const bg = lin(boardTheme.table).map((c) => Math.pow(c * 0.55, 1 / 2.2));
+    gl.clearColor(bg[0], bg[1], bg[2], 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    const eye = eyePos();
+    const viewProj = mul(perspective(fov, w / Math.max(1, h), 0.5, 120), lookAt(eye, [0, 0, 0], [0, 1, 0]));
+    const u = main.u;
+    gl.useProgram(main.p);
+    gl.uniformMatrix4fv(u.uViewProj, false, viewProj);
+    gl.uniformMatrix4fv(u.uLightVP, false, lightVP);
+    gl.uniform3fv(u.uEye, eye);
+    gl.uniform3fv(u.uLightDir, LIGHT_DIR);
+    gl.uniform1f(u.uShadowOn, shadowsOn ? 1 : 0);
+    gl.uniform1f(u.uTexel, 1 / SHADOW);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, shadowTex); gl.uniform1i(u.uShadowMap, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, frameTex); gl.uniform1i(u.uTex, 1);
+
+    const draw = (d) => {
+      bindMesh(meshes[d.mesh], true);
+      gl.uniformMatrix4fv(u.uModel, false, d.m);
+      gl.uniformMatrix3fv(u.uNormal, false, normalMat(d.m));
+      gl.uniform3fv(u.uColor, d.color || [1, 1, 1]);
+      gl.uniform3fv(u.uEmissive, d.emissive || [0, 0, 0]);
+      gl.uniform1f(u.uAlpha, d.alpha === undefined ? 1 : d.alpha);
+      gl.uniform1f(u.uGloss, d.gloss || 40);
+      gl.uniform1f(u.uSpec, d.spec === undefined ? 0.3 : d.spec);
+      gl.uniform1f(u.uUseTex, d.tex ? 1 : 0);
+      gl.uniform1f(u.uGrain, quality === 'high' ? d.grain || 0 : 0);
+      gl.uniform1f(u.uGrainDir, d.grainDir || 0);
+      gl.drawArrays(gl.TRIANGLES, 0, meshes[d.mesh].count);
+    };
+    const opaque = list.filter((d) => d.alpha === undefined || d.alpha >= 0.999);
+    const faded = list.filter((d) => d.alpha !== undefined && d.alpha < 0.999);
+    opaque.forEach(draw);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+    overlayList().forEach(draw);
+    gl.depthMask(true);
+    faded.forEach(draw);
+    gl.disable(gl.BLEND);
+  }
+
+  // --------------------------------------------------------------- animation
+  function step(now) {
+    let busy = false;
+    for (const k of ['yaw', 'pitch', 'dist']) {
+      const t = 't' + k[0].toUpperCase() + k.slice(1);
+      const d = cam[t] - cam[k];
+      if (Math.abs(d) > 0.0005) { cam[k] += d * 0.14; busy = true; } else cam[k] = cam[t];
+    }
+    for (const s of sprites) {
+      const a = s.anim;
+      if (!a) continue;
+      const t = Math.min(1, Math.max(0, (now - a.start) / a.dur));
+      const e = ease(t);
+      if (a.type === 'move') {
+        s.x = a.fx + (a.tx - a.fx) * e; s.z = a.fz + (a.tz - a.fz) * e;
+        s.y = Math.sin(Math.PI * t) * a.arc;
+        if (t >= 1 && a.promoteTo) s.piece = a.promoteTo;
+      } else if (a.type === 'capture') {
+        s.scale = 1 - 0.75 * e; s.alpha = 1 - e; s.y = -0.15 * e; s.yaw += 0.08;
+      } else if (a.type === 'topple') {
+        s.tilt = a.to * (1 - Math.pow(1 - t, 3));
+      } else if (a.type === 'glow') {
+        s.glow = Math.sin(Math.PI * Math.min(1, t * 2)) * 1.0;
+      }
+      if (t < 1) busy = true;
+      else { s.anim = null; if (a.done) a.done(); }
+    }
+    sprites = sprites.filter((s) => !(s.dead && !s.anim));
+    return busy;
+  }
+
+  function frame(now) {
+    raf = 0;
+    const busy = step(now);
+    render();
+    if (busy) requestRender();
+  }
+  function requestRender() {
+    if (!raf) raf = requestAnimationFrame(frame);
+  }
+
+  // ----------------------------------------------------------------- input
+  const pointers = new Map();
+  let drag = null, pinch = 0;
+  canvas.addEventListener('pointerdown', (e) => {
+    canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, moved: false };
+    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); drag = null; }
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      if (pinch) cam.tDist = Math.min(22, Math.max(8, cam.tDist * (pinch / d)));
+      pinch = d; requestRender();
+      return;
+    }
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 7) return;
+    drag.moved = true;
+    cam.tYaw -= dx * 0.008; cam.tPitch = Math.min(1.54, Math.max(0.42, cam.tPitch + dy * 0.006));
+    cam.yaw = cam.tYaw; cam.pitch = cam.tPitch;
+    drag.x = e.clientX; drag.y = e.clientY;
+    requestRender();
+  });
+  const end = (e) => {
+    pointers.delete(e.pointerId);
+    if (drag && !drag.moved && pointers.size === 0) {
+      const sq = pick(e.clientX, e.clientY);
+      if (sq >= 0) opts.onSquare(sq);
+    }
+    if (pointers.size === 0) { drag = null; pinch = 0; }
+  };
+  canvas.addEventListener('pointerup', end);
+  canvas.addEventListener('pointercancel', (e) => { pointers.delete(e.pointerId); drag = null; pinch = 0; });
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    cam.tDist = Math.min(22, Math.max(8, cam.tDist * (1 + Math.sign(e.deltaY) * 0.08)));
+    requestRender();
+  }, { passive: false });
+  canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); opts.onContextLost(); });
+
+  function pick(clientX, clientY) {
+    const r = canvas.getBoundingClientRect();
+    const nx = ((clientX - r.left) / r.width) * 2 - 1, ny = 1 - ((clientY - r.top) / r.height) * 2;
+    const eye = eyePos();
+    const f = V.norm(V.sub([0, 0, 0], eye)), right = V.norm(V.cross(f, [0, 1, 0])), up = V.cross(right, f);
+    const t = Math.tan(fov / 2);
+    const dir = V.add(f, V.add(V.scale(right, nx * t * (r.width / r.height)), V.scale(up, ny * t)));
+    if (dir[1] >= 0) return -1;
+    const k = -eye[1] / dir[1];
+    const x = eye[0] + dir[0] * k, z = eye[2] + dir[2] * k;
+    const file = Math.floor(x + 4), rank = Math.floor(4 - z);
+    return file >= 0 && file < 8 && rank >= 0 && rank < 8 ? rank * 8 + file : -1;
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, quality === 'high' ? 2 : 1);
+    const w = Math.max(1, Math.round(canvas.clientWidth * dpr)), h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    // Keep the whole board in view on narrow screens.
+    const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
+    cam.minDist = aspect < 1 ? 14 / Math.max(0.62, aspect) : 13.2;
+    if (cam.tDist < cam.minDist * 0.94) cam.tDist = cam.minDist;
+    requestRender();
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  drawFrameTexture(boardTheme);
+
+  // ------------------------------------------------------------------- API
+  return {
+    BOARD_THEMES, PIECE_THEMES,
+    setBoard(pieces) {
+      sprites = pieces.map(([sq, piece]) => makeSprite(piece, sq));
+      requestRender();
+    },
+    setHighlights(h) { highlights = h; requestRender(); },
+    setTheme(board, piece) {
+      if (BOARD_THEMES[board]) { boardTheme = BOARD_THEMES[board]; drawFrameTexture(boardTheme); }
+      if (PIECE_THEMES[piece]) pieceTheme = PIECE_THEMES[piece];
+      requestRender();
+    },
+    setQuality(q) { quality = q; resize(); },
+    setAnimations(on) { animations = on; },
+    // view: 'white' | 'black'; preset: 'player' | 'top'
+    setView(side, preset, instant) {
+      if (side !== labelSide) { labelSide = side; drawFrameTexture(boardTheme); }
+      const narrow = (cam.minDist || 13.2) > 13.2;
+      cam.tYaw = side === 'black' ? Math.PI : 0;
+      cam.tPitch = preset === 'top' ? 1.54 : narrow ? 1.15 : 0.95;
+      cam.tDist = preset === 'top' ? Math.max(12.5, (cam.minDist || 13.2) * 0.95) : (cam.minDist || 13.2);
+      // Take the short way round.
+      while (cam.tYaw - cam.yaw > Math.PI) cam.tYaw -= Math.PI * 2;
+      while (cam.yaw - cam.tYaw > Math.PI) cam.tYaw += Math.PI * 2;
+      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.dist = cam.tDist; }
+      requestRender();
+    },
+    // info from Game.play(). Calls done() once the pieces have settled.
+    animateMove(info, done) {
+      const now = performance.now();
+      const mover = sprites.find((s) => s.sq === info.from && !s.dead);
+      const victim = info.capturedSq >= 0 ? sprites.find((s) => s.sq === info.capturedSq && s !== mover && !s.dead) : null;
+      const finish = () => { if (done) done(); };
+      if (!animations || !mover) {
+        if (victim) victim.dead = true;
+        if (mover) { mover.sq = info.to; mover.x = sqX(info.to); mover.z = sqZ(info.to); if (info.promo) mover.piece = info.promo; }
+        if (info.rook) { const r = sprites.find((s) => s.sq === info.rook[0] && !s.dead); if (r) { r.sq = info.rook[1]; r.x = sqX(r.sq); r.z = sqZ(r.sq); } }
+        sprites = sprites.filter((s) => !s.dead);
+        requestRender(); finish();
+        return;
+      }
+      const knight = Math.abs(info.mover) === 2;
+      const dist = Math.hypot(sqX(info.to) - mover.x, sqZ(info.to) - mover.z);
+      const dur = 200 + Math.min(220, dist * 45) + (knight ? 80 : 0);
+      mover.anim = { type: 'move', start: now, dur, fx: mover.x, fz: mover.z, tx: sqX(info.to), tz: sqZ(info.to),
+        arc: knight ? 0.55 : 0.12, promoteTo: info.promo || 0, done: finish };
+      mover.sq = info.to;
+      if (victim) {
+        victim.dead = true;
+        victim.anim = { type: 'capture', start: now + dur * 0.55, dur: 320 };
+      }
+      if (info.rook) {
+        const r = sprites.find((s) => s.sq === info.rook[0] && !s.dead);
+        if (r) { r.anim = { type: 'move', start: now + 60, dur, fx: r.x, fz: r.z, tx: sqX(info.rook[1]), tz: sqZ(info.rook[1]), arc: 0.3 }; r.sq = info.rook[1]; }
+      }
+      requestRender();
+    },
+    // Result effects: the beaten king tips over; a draw makes both kings glow.
+    celebrate(kind, loserSq, kingSqs) {
+      const now = performance.now();
+      if (kind === 'win' && loserSq >= 0) {
+        const k = sprites.find((s) => s.sq === loserSq && !s.dead);
+        if (k) { k.anim = { type: 'topple', start: now + 150, dur: animations ? 900 : 1, to: 1.42 }; }
+      } else if (kind === 'draw') {
+        for (const sq of kingSqs || []) {
+          const k = sprites.find((s) => s.sq === sq && !s.dead);
+          if (k) k.anim = { type: 'glow', start: now, dur: animations ? 1600 : 1 };
+        }
+      }
+      requestRender();
+    },
+    requestRender,
+    resize,
+  };
+}
+
+</script>
+<script>
+// Chacklate Chess app: wires the rules engine, the computer opponent (in a
+// Web Worker) and the 3D view to the panel controls.
+(function () {
+  'use strict';
+  const E = ChacklateEngine();
+  const { WHITE, BLACK, LEVELS } = E;
+  const $ = (id) => document.getElementById(id);
+  const STORE_KEY = 'chacklate-chess:v1';
+  const GLYPH = { 1: '♟', 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' };
+  const VALUE = [0, 1, 3, 3, 5, 9, 0];
+  const REASON_TEXT = {
+    checkmate: 'Checkmate',
+    resignation: 'Resignation',
+    timeout: 'Time ran out',
+    'timeout-insufficient': 'Time ran out, but no mate was possible',
+    stalemate: 'Stalemate',
+    insufficient: 'Not enough material to checkmate',
+    threefold: 'Threefold repetition',
+    fivefold: 'Fivefold repetition',
+    fifty: 'Fifty-move rule',
+    seventyfive: 'Seventy-five-move rule',
+    agreement: 'Draw agreed',
+  };
+
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const state = {
+    settings: { board: 'walnut', pieces: 'tempered', quality: 'high', animations: !reducedMotion, sound: true, legal: true, turnBoard: true },
+    setup: { mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '' },
+    game: null,
+    human: WHITE,
+    clock: null,
+    selected: -1,
+    hint: null,
+    busy: false,
+    thinking: false,
+    request: 0,
+    viewSide: 'white',
+    viewPreset: 'player',
+    resignArmed: 0,
+    resultShown: false,
+  };
+
+  // ------------------------------------------------------------ persistence
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function save() {
+    try {
+      const g = state.game;
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        settings: state.settings, setup: state.setup, human: state.human,
+        game: g ? { start: g.startFen, moves: g.uciMoves(), ended: g.ended } : null,
+        clock: state.clock ? { w: state.clock.w, b: state.clock.b, inc: state.clock.inc } : null,
+      }));
+    } catch (e) { /* storage unavailable: the game still works, it just isn't remembered */ }
+  }
+
+  // ------------------------------------------------------------------ sound
+  let audio = null;
+  function tone(kind) {
+    if (!state.settings.sound) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      const t = audio.currentTime;
+      if (kind === 'move' || kind === 'capture') {
+        const len = kind === 'capture' ? 0.11 : 0.06;
+        const buf = audio.createBuffer(1, Math.ceil(audio.sampleRate * len), audio.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 3);
+        const src = audio.createBufferSource(); src.buffer = buf;
+        const f = audio.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = kind === 'capture' ? 650 : 1100; f.Q.value = 1.4;
+        const g = audio.createGain(); g.gain.value = kind === 'capture' ? 0.9 : 0.6;
+        src.connect(f).connect(g).connect(audio.destination); src.start(t);
+      } else {
+        const notes = kind === 'check' ? [880, 1175] : kind === 'win' ? [523, 659, 784, 1047] : kind === 'loss' ? [392, 330, 262] : [523, 523];
+        notes.forEach((hz, i) => {
+          const o = audio.createOscillator(), g = audio.createGain();
+          o.type = 'sine'; o.frequency.value = hz;
+          g.gain.setValueAtTime(0.0001, t + i * 0.11);
+          g.gain.exponentialRampToValueAtTime(0.18, t + i * 0.11 + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.11 + 0.35);
+          o.connect(g).connect(audio.destination); o.start(t + i * 0.11); o.stop(t + i * 0.11 + 0.4);
+        });
+      }
+    } catch (e) { /* audio unavailable */ }
+  }
+
+  // ------------------------------------------------------------ AI worker
+  let worker = null;
+  const pending = new Map();
+  try {
+    const src = 'const E=(' + ChacklateEngine.toString() + ')();' +
+      'onmessage=function(e){var d=e.data;try{var p=E.positionFrom(d.fen,d.moves);var r=E.search(p,d.opts);' +
+      'postMessage({id:d.id,uci:r.move?E.uci(r.move):null,score:r.score,depth:r.depth});}' +
+      'catch(err){postMessage({id:d.id,error:String(err)});}};';
+    worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    worker.onmessage = (e) => { const cb = pending.get(e.data.id); pending.delete(e.data.id); if (cb) cb(e.data); };
+    worker.onerror = () => { worker = null; };
+  } catch (e) { worker = null; }
+
+  function think(opts, cb) {
+    const id = ++state.request;
+    const g = state.game;
+    const msg = { id, fen: g.startFen, moves: g.uciMoves(), opts };
+    if (worker) { pending.set(id, cb); worker.postMessage(msg); }
+    else {
+      // No worker available: think on the page (the view pauses briefly).
+      setTimeout(() => {
+        const p = E.positionFrom(msg.fen, msg.moves);
+        const r = E.search(p, opts);
+        cb({ id, uci: r.move ? E.uci(r.move) : null, score: r.score, depth: r.depth });
+      }, 30);
+    }
+    return id;
+  }
+
+  // ------------------------------------------------------------------ view
+  const canvas = $('board');
+  let view = null;
+  try {
+    view = ChacklateRenderer(canvas, {
+      onSquare,
+      onContextLost() { $('nogl').hidden = false; },
+    });
+  } catch (e) { view = null; }
+  if (!view) { $('nogl').hidden = false; view = nullView(); }
+
+  function nullView() {
+    const noop = () => {};
+    return { BOARD_THEMES: {}, PIECE_THEMES: {}, setBoard: noop, setHighlights: noop, setTheme: noop, setQuality: noop, setAnimations: noop,
+      setView: noop, celebrate: noop, requestRender: noop, resize: noop, animateMove(info, done) { done(); } };
+  }
+
+  function boardPieces() {
+    const out = [];
+    for (let sq = 0; sq < 64; sq++) { const p = E.pieceAt(state.game.pos, sq); if (p) out.push([sq, p]); }
+    return out;
+  }
+
+  function kingSquare(side) {
+    for (let sq = 0; sq < 64; sq++) if (E.pieceAt(state.game.pos, sq) === E.K * side) return sq;
+    return -1;
+  }
+
+  function applyView(instant) { view.setView(state.viewSide, state.viewPreset, instant); $('view-toggle').textContent = state.viewPreset === 'top' ? '3D view' : 'Top view'; }
+
+  function refreshHighlights() {
+    const g = state.game;
+    if (!g) return;
+    const h = { selected: state.selected, targets: [], captures: [], lastFrom: -1, lastTo: -1, check: -1, hintFrom: -1, hintTo: -1 };
+    if (g.moves.length) { const last = g.moves[g.moves.length - 1]; h.lastFrom = E.mFrom(last); h.lastTo = E.mTo(last); }
+    if (!g.outcome && g.pos.inCheck()) h.check = kingSquare(g.pos.side);
+    if (g.outcome && g.outcome.reason === 'checkmate') h.check = kingSquare(g.pos.side);
+    if (state.selected >= 0 && state.settings.legal) {
+      for (const t of g.targets(state.selected)) {
+        const victim = E.pieceAt(g.pos, t);
+        const isEp = !victim && Math.abs(E.pieceAt(g.pos, state.selected)) === E.P && (t & 7) !== (state.selected & 7);
+        (victim || isEp ? h.captures : h.targets).push(t);
+      }
+    }
+    if (state.hint) { h.hintFrom = state.hint.from; h.hintTo = state.hint.to; }
+    view.setHighlights(h);
+  }
+
+  // ----------------------------------------------------------------- clock
+  function parseTc(tc) {
+    if (tc === 'none') return null;
+    const [m, s] = tc.split('+').map(Number);
+    return { w: m * 60000, b: m * 60000, inc: s * 1000, since: 0 };
+  }
+  function clockSide() { return state.game.pos.side === WHITE ? 'w' : 'b'; }
+  // The clock starts once White has made the first move.
+  function clockRunning() { return state.clock && !state.game.outcome && state.game.moves.length > 0 ; }
+  function chargeClock(now) {
+    const c = state.clock;
+    if (!c || !clockRunning() || !c.since) { if (c) c.since = now; return; }
+    const k = clockSide();
+    c[k] = Math.max(0, c[k] - (now - c.since));
+    c.since = now;
+  }
+  function pressClock(moverKey) {
+    const c = state.clock;
+    if (!c) return;
+    const now = performance.now();
+    if (state.game.moves.length > 1 && c.since) c[moverKey] = Math.max(0, c[moverKey] - (now - c.since));
+    if (state.game.moves.length > 1) c[moverKey] += c.inc;
+    c.since = now;
+  }
+  setInterval(() => {
+    if (!state.clock || !state.game || state.game.outcome || state.game.moves.length === 0) return;
+    chargeClock(performance.now());
+    const k = clockSide();
+    if (state.clock[k] <= 0) {
+      state.request++; // cancel any pending computer move
+      state.thinking = false;
+      state.game.timeout(state.game.pos.side);
+      endGame();
+    }
+    renderClocks();
+  }, 100);
+
+  function fmt(ms) {
+    const s = Math.max(0, ms) / 1000;
+    if (s < 10) return s.toFixed(1);
+    const m = Math.floor(s / 60), r = Math.floor(s % 60);
+    return m + ':' + String(r).padStart(2, '0');
+  }
+
+  // ------------------------------------------------------------- game flow
+  function sideName(side) {
+    if (state.setup.mode === 'ai') return side === state.human ? 'You' : LEVELS[state.setup.level].name;
+    return side === WHITE ? 'White' : 'Black';
+  }
+
+  function startGame(setup, restore) {
+    state.setup = Object.assign({}, setup);
+    state.request++;
+    state.thinking = false; state.busy = false; state.selected = -1; state.hint = null; state.resultShown = false;
+    let game;
+    try { game = new E.Game(setup.fen || E.START_FEN); } catch (e) { game = new E.Game(); state.setup.fen = ''; }
+    state.game = game;
+    state.human = setup.color === 'black' ? BLACK : setup.color === 'random' ? (Math.random() < 0.5 ? WHITE : BLACK) : WHITE;
+    state.clock = parseTc(setup.tc);
+    if (restore) {
+      if (restore.human) state.human = restore.human;
+      for (const u of restore.moves || []) { if (!game.playText(u)) break; }
+      if (restore.ended) game.finish(restore.ended.result, restore.ended.reason);
+      if (restore.clock && state.clock) Object.assign(state.clock, restore.clock, { since: 0 });
+      state.resultShown = !!game.outcome;
+    }
+    state.viewSide = setup.mode === 'ai' ? (state.human === WHITE ? 'white' : 'black')
+      : (state.settings.turnBoard ? (game.pos.side === WHITE ? 'white' : 'black') : 'white');
+    view.setBoard(boardPieces());
+    applyView(true);
+    refreshHighlights();
+    renderAll();
+    save();
+    if (game.outcome && !restore) endGame();
+    maybeComputer();
+  }
+
+  function humanTurn() {
+    const g = state.game;
+    if (!g || g.outcome || state.busy || state.thinking) return false;
+    return state.setup.mode === 'local' || g.pos.side === state.human;
+  }
+
+  function onSquare(sq) {
+    if (!humanTurn()) return;
+    const g = state.game;
+    const piece = E.pieceAt(g.pos, sq);
+    if (state.selected >= 0 && g.targets(state.selected).includes(sq)) { attempt(state.selected, sq); return; }
+    if (piece && Math.sign(piece) === g.pos.side && g.targets(sq).length) state.selected = sq;
+    else if (piece && Math.sign(piece) === g.pos.side) { state.selected = sq; toast('That piece has no legal moves.'); }
+    else state.selected = -1;
+    refreshHighlights();
+  }
+
+  function attempt(from, to) {
+    const g = state.game;
+    if (g.needsPromotion(from, to)) {
+      choosePromotion(g.pos.side, (kind) => { const m = g.find(from, to, kind); if (m !== null) playMove(m); });
+      return;
+    }
+    const m = g.find(from, to, 0);
+    if (m !== null) playMove(m);
+  }
+
+  function playMove(m) {
+    const g = state.game;
+    const moverKey = clockSide();
+    const info = g.play(m);
+    if (!info) return;
+    pressClock(moverKey);
+    state.request++; // drop any hint still being computed for the old position
+    state.selected = -1; state.hint = null;
+    state.busy = true;
+    tone(info.captured ? 'capture' : 'move');
+    if (info.check && !g.outcome) setTimeout(() => tone('check'), 90);
+    renderAll();
+    view.animateMove(info, () => {
+      state.busy = false;
+      view.setBoard(boardPieces());
+      if (state.setup.mode === 'local' && state.settings.turnBoard && !g.outcome) {
+        state.viewSide = g.pos.side === WHITE ? 'white' : 'black';
+        applyView(false);
+      }
+      refreshHighlights();
+      renderAll();
+      save();
+      if (g.outcome) endGame();
+      else maybeComputer();
+    });
+    refreshHighlights();
+  }
+
+  function maybeComputer() {
+    const g = state.game;
+    if (state.setup.mode !== 'ai' || g.outcome || g.pos.side === state.human || state.busy) return;
+    const level = LEVELS[state.setup.level];
+    let timeMs = level.timeMs;
+    if (state.clock) {
+      const left = state.clock[clockSide()];
+      timeMs = Math.max(120, Math.min(timeMs, left / 30 + state.clock.inc * 0.6));
+    }
+    state.thinking = true;
+    renderAll();
+    const started = performance.now();
+    const id = think(Object.assign({}, level, { timeMs }), (r) => {
+      if (id !== state.request || state.game !== g) return; // superseded by undo/new game
+      state.thinking = false;
+      // Short pause so instant replies at low levels still feel like a turn.
+      const delay = Math.max(0, 350 - (performance.now() - started));
+      setTimeout(() => {
+        if (id !== state.request || state.game !== g) return;
+        const m = r.uci ? g.pos.parseMove(r.uci, g.legal) : null;
+        if (m !== null && m !== undefined) playMove(m);
+        else renderAll();
+      }, delay);
+    });
+  }
+
+  function endGame() {
+    const g = state.game;
+    state.selected = -1; state.hint = null; state.thinking = false;
+    refreshHighlights();
+    renderAll();
+    save();
+    if (state.resultShown) return;
+    state.resultShown = true;
+    const o = g.outcome;
+    const winner = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
+    if (winner) view.celebrate('win', kingSquare(-winner));
+    else view.celebrate('draw', -1, [kingSquare(WHITE), kingSquare(BLACK)]);
+    const ai = state.setup.mode === 'ai';
+    const youWon = ai && winner === state.human, youLost = ai && winner === -state.human;
+    tone(winner ? (ai && youLost ? 'loss' : 'win') : 'draw');
+    const badge = $('result-badge');
+    badge.className = 'result-badge' + (youWon ? ' win' : youLost ? ' loss' : '');
+    badge.textContent = REASON_TEXT[o.reason] || 'Game over';
+    let title;
+    if (!winner) title = 'Draw';
+    else if (ai) title = youWon ? 'You win' : LEVELS[state.setup.level].name + ' wins';
+    else title = (winner === WHITE ? 'White' : 'Black') + ' wins';
+    $('result-title').textContent = title;
+    const loser = winner ? sideName(-winner) : '';
+    const sub = {
+      checkmate: (winner ? sideName(winner) + ' delivered checkmate' : '') + ' in ' + Math.ceil(g.moves.length / 2) + ' moves.',
+      resignation: loser + (loser === 'You' ? ' resigned.' : ' resigned.'),
+      timeout: (loser === 'You' ? 'Your' : loser + "'s") + ' clock ran out.',
+      'timeout-insufficient': 'A clock ran out, but the other side had no way to checkmate, so it is a draw.',
+      stalemate: 'The side to move has no legal moves and is not in check.',
+      insufficient: 'Neither side has enough pieces left to checkmate.',
+      threefold: 'The same position appeared three times.',
+      fivefold: 'The same position appeared five times.',
+      fifty: 'Fifty moves passed with no capture or pawn move.',
+      seventyfive: 'Seventy-five moves passed with no capture or pawn move.',
+      agreement: 'Both sides agreed to a draw.',
+    }[o.reason] || '';
+    $('result-sub').textContent = sub.trim();
+    setTimeout(() => openModal('m-result'), state.settings.animations ? 1100 : 150);
+  }
+
+  function undo() {
+    const g = state.game;
+    if (!g.moves.length || g.ended || state.busy) return;
+    state.request++; state.thinking = false;
+    if (state.setup.mode === 'ai') {
+      // Take back the computer's reply too, so it is your turn again.
+      g.undo();
+      if (g.moves.length && g.pos.side !== state.human) g.undo();
+    } else g.undo();
+    state.selected = -1; state.hint = null; state.resultShown = false;
+    view.setBoard(boardPieces());
+    if (state.setup.mode === 'local' && state.settings.turnBoard) { state.viewSide = g.pos.side === WHITE ? 'white' : 'black'; applyView(false); }
+    refreshHighlights();
+    renderAll();
+    save();
+    maybeComputer();
+  }
+
+  function hint() {
+    if (!humanTurn()) return;
+    const g = state.game;
+    $('status').innerHTML = '<span class="hint">Looking for a good move…</span>';
+    $('btn-hint').disabled = true;
+    const id = think(Object.assign({}, LEVELS[5], { timeMs: 1200 }), (r) => {
+      if (id !== state.request || state.game !== g) return;
+      const m = r.uci ? g.pos.parseMove(r.uci, g.legal) : null;
+      if (m === null || m === undefined) { renderAll(); return; }
+      state.hint = { from: E.mFrom(m), to: E.mTo(m), san: g.pos.san(m, g.legal) };
+      refreshHighlights();
+      renderAll();
+    });
+  }
+
+  function resign() {
+    const g = state.game;
+    if (g.outcome) return;
+    const btn = $('btn-resign');
+    if (Date.now() - state.resignArmed > 3000) {
+      state.resignArmed = Date.now();
+      btn.textContent = 'Confirm'; btn.classList.add('warn');
+      setTimeout(() => { if (Date.now() - state.resignArmed >= 3000) { btn.textContent = 'Resign'; btn.classList.remove('warn'); } }, 3100);
+      return;
+    }
+    state.resignArmed = 0; btn.textContent = 'Resign'; btn.classList.remove('warn');
+    state.request++; state.thinking = false;
+    g.resign(state.setup.mode === 'ai' ? state.human : g.pos.side);
+    endGame();
+  }
+
+  // ----------------------------------------------------------------- render
+  function capturedLists() {
+    // Pieces each side has taken, plus the material difference.
+    const g = state.game;
+    const taken = { [WHITE]: [], [BLACK]: [] };
+    g.captured.forEach((p) => { if (p) taken[-Math.sign(p)].push(Math.abs(p)); });
+    const score = (side) => taken[side].reduce((a, k) => a + VALUE[k], 0);
+    // Promotions change material too; derive the difference from the board.
+    let diff = 0;
+    for (let sq = 0; sq < 64; sq++) { const p = E.pieceAt(g.pos, sq); if (p) diff += Math.sign(p) * VALUE[Math.abs(p)]; }
+    return { taken, diff, score };
+  }
+
+  function renderPlayers() {
+    const g = state.game;
+    const bottomSide = state.viewSide === 'black' ? BLACK : WHITE;
+    const { taken, diff } = capturedLists();
+    for (const [id, side] of [['p-bottom', bottomSide], ['p-top', -bottomSide]]) {
+      const el = $(id);
+      el.querySelector('.swatch').className = 'swatch ' + (side === WHITE ? 'white' : 'black');
+      el.querySelector('.name').textContent = sideName(side) + (state.setup.mode === 'ai' && side !== state.human ? ' (computer)' : '');
+      const list = taken[side].slice().sort((a, b) => VALUE[b] - VALUE[a] || b - a);
+      const adv = diff * side;
+      el.querySelector('.caps').innerHTML = list.map((k) => GLYPH[k]).join('') + (adv > 0 ? '<span class="adv">+' + adv + '</span>' : '');
+      el.classList.toggle('to-move', !g.outcome && g.pos.side === side);
+    }
+    renderClocks();
+  }
+
+  function renderClocks() {
+    const g = state.game;
+    const bottomSide = state.viewSide === 'black' ? BLACK : WHITE;
+    for (const [id, side] of [['p-bottom', bottomSide], ['p-top', -bottomSide]]) {
+      const el = $(id).querySelector('.clock');
+      if (!state.clock) { el.hidden = true; continue; }
+      el.hidden = false;
+      const ms = state.clock[side === WHITE ? 'w' : 'b'];
+      el.textContent = fmt(ms);
+      el.classList.toggle('running', !!clockRunning() && g.pos.side === side);
+      el.classList.toggle('low', ms < 20000);
+    }
+  }
+
+  function renderMoves() {
+    const g = state.game;
+    const ol = $('moves');
+    if (!g.sans.length) { ol.innerHTML = '<li><span class="empty">No moves yet. Click a piece, then a square.</span></li>'; return; }
+    const start = new E.Pos(); start.load(g.startFen);
+    let num = start.full, white = start.side === WHITE;
+    const rows = [];
+    let row = null;
+    g.sans.forEach((san, i) => {
+      const last = i === g.sans.length - 1 ? ' last' : '';
+      if (white || !row) { row = { n: num, w: white ? san : '…', b: '', wl: white ? last : '', bl: '' }; rows.push(row); if (!white) { row.b = san; row.bl = last; num++; } }
+      else { row.b = san; row.bl = last; num++; }
+      white = !white;
+    });
+    ol.innerHTML = rows.map((r) => '<li><span class="n">' + r.n + '.</span><span class="m' + r.wl + '">' + r.w + '</span><span class="m' + r.bl + '">' + r.b + '</span></li>').join('');
+    const wrap = $('moves-wrap'); wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  function renderStatus() {
+    const g = state.game;
+    const chip = $('chip');
+    chip.className = 'chip';
+    let text;
+    if (g.outcome) {
+      const o = g.outcome;
+      text = (o.result === '1/2-1/2' ? 'Draw' : (o.result === '1-0' ? 'White' : 'Black') + ' wins') + ' · ' + (REASON_TEXT[o.reason] || '');
+    } else if (state.thinking) { text = LEVELS[state.setup.level].name + ' is thinking'; chip.classList.add('thinking'); }
+    else {
+      const who = state.setup.mode === 'ai' ? (g.pos.side === state.human ? 'Your move' : LEVELS[state.setup.level].name + ' to move')
+        : (g.pos.side === WHITE ? 'White' : 'Black') + ' to move';
+      text = who;
+      if (g.pos.inCheck()) { text = 'Check! ' + who; chip.classList.add('check'); }
+    }
+    chip.textContent = text;
+    const status = $('status');
+    if (state.hint && !g.outcome) status.innerHTML = '<span class="hint">Hint: ' + state.hint.san + ' is worth a look.</span>';
+    else status.textContent = g.outcome ? 'Game over. Start a new game or review the moves.' : (g.claimable() ? 'You can claim a draw.' : '');
+    const lv = LEVELS[state.setup.level];
+    $('mode-line').textContent = (state.setup.mode === 'ai' ? 'vs ' + lv.name : 'Two players') + ' · ' + (state.setup.tc === 'none' ? 'No clock' : state.setup.tc);
+  }
+
+  function renderButtons() {
+    const g = state.game;
+    $('btn-undo').disabled = !g.moves.length || !!g.ended || state.busy;
+    $('btn-hint').disabled = !humanTurn();
+    $('btn-resign').disabled = !!g.outcome;
+    const claim = g.claimable();
+    $('btn-claim').hidden = !claim || !humanTurn();
+    $('btn-claim').textContent = claim === 'threefold' ? 'Claim draw by threefold repetition' : 'Claim draw by the fifty-move rule';
+    $('move-input').disabled = !humanTurn();
+  }
+
+  function renderAll() {
+    renderPlayers(); renderMoves(); renderStatus(); renderButtons();
+  }
+
+  // ---------------------------------------------------------------- modals
+  let promoCallback = null;
+  function openModal(id) {
+    const m = $(id);
+    m.hidden = false;
+    const focusable = m.querySelector('input:checked, button.primary, button, input');
+    if (focusable) setTimeout(() => focusable.focus(), 0);
+  }
+  function closeModal(id) { $(id).hidden = true; if (id === 'm-promo') promoCallback = null; }
+  document.querySelectorAll('.modal').forEach((m) => {
+    m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('[data-close]')) closeModal(m.id); });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = [...document.querySelectorAll('.modal')].find((m) => !m.hidden);
+    if (open) closeModal(open.id);
+    else if (state.selected >= 0) { state.selected = -1; refreshHighlights(); }
+  });
+
+  function choosePromotion(side, cb) {
+    promoCallback = cb;
+    const names = { 5: 'Queen', 4: 'Rook', 3: 'Bishop', 2: 'Knight' };
+    const box = $('promo-choices');
+    box.innerHTML = '';
+    for (const k of [5, 4, 3, 2]) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = (side === WHITE ? '♕♖♗♘'['5432'.indexOf(String(k))] : GLYPH[k]) + '<span>' + names[k] + '</span>';
+      b.addEventListener('click', () => { const f = promoCallback; closeModal('m-promo'); if (f) f(k); });
+      box.appendChild(b);
+    }
+    openModal('m-promo');
+  }
+
+  function buildLevels() {
+    $('levels').innerHTML = LEVELS.map((lv, i) =>
+      '<label><input type="radio" name="level" value="' + i + '" id="level-' + i + '"><span class="lv"><i>Level ' + (i + 1) + '</i><b>' + lv.name + '</b><small>' + lv.blurb + '</small></span></label>').join('');
+  }
+
+  function openNewGame() {
+    const s = state.setup;
+    $('mode-' + s.mode).checked = true;
+    $('color-' + s.color).checked = true;
+    $('level-' + s.level).checked = true;
+    $('tc-' + s.tc.replace('+', '-')).checked = true;
+    $('fen-in').value = s.fen || '';
+    $('fen-err').textContent = '';
+    syncNewGameForm();
+    openModal('m-new');
+  }
+  function syncNewGameForm() {
+    const ai = $('mode-ai').checked;
+    $('f-color').hidden = !ai; $('f-level').hidden = !ai;
+  }
+  $('new-form').addEventListener('change', syncNewGameForm);
+  $('new-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const fen = $('fen-in').value.trim();
+    if (fen) {
+      const err = new E.Pos().load(fen);
+      if (err) { $('fen-err').textContent = err; return; }
+    }
+    closeModal('m-new');
+    startGame({ mode: f.get('mode'), color: f.get('color') || 'white', level: +(f.get('level') || 1), tc: f.get('tc'), fen });
+  });
+
+  function buildSettings() {
+    const swatch = (group, key, theme, colors) =>
+      '<label><input type="radio" name="' + group + '" value="' + key + '" id="' + group + '-' + key + '"><span class="sw"><em style="background:linear-gradient(135deg,' +
+      colors[0] + ' 50%,' + colors[1] + ' 50%)"></em>' + theme.name + '</span></label>';
+    $('sw-board').innerHTML = Object.entries(view.BOARD_THEMES).map(([k, t]) => swatch('board', k, t, [t.light, t.dark])).join('');
+    $('sw-pieces').innerHTML = Object.entries(view.PIECE_THEMES).map(([k, t]) => swatch('pieces', k, t, [t.white, t.black])).join('');
+  }
+  function openSettings() {
+    const s = state.settings;
+    const b = $('board-' + s.board); if (b) b.checked = true;
+    const p = $('pieces-' + s.pieces); if (p) p.checked = true;
+    $('q-' + s.quality).checked = true;
+    $('s-anim').checked = s.animations; $('s-sound').checked = s.sound; $('s-legal').checked = s.legal; $('s-turn').checked = s.turnBoard;
+    openModal('m-settings');
+  }
+  $('m-settings').addEventListener('change', (e) => {
+    const s = state.settings, t = e.target;
+    if (t.name === 'board') s.board = t.value;
+    if (t.name === 'pieces') s.pieces = t.value;
+    if (t.name === 'quality') s.quality = t.value;
+    if (t.id === 's-anim') s.animations = t.checked;
+    if (t.id === 's-sound') s.sound = t.checked;
+    if (t.id === 's-legal') s.legal = t.checked;
+    if (t.id === 's-turn') s.turnBoard = t.checked;
+    applySettings();
+    save();
+  });
+  function applySettings() {
+    const s = state.settings;
+    view.setTheme(s.board, s.pieces);
+    view.setQuality(s.quality);
+    view.setAnimations(s.animations);
+    refreshHighlights();
+  }
+
+  // ----------------------------------------------------------------- copy
+  function copy(text, label) {
+    const fallback = () => { $('share-title').textContent = 'Copy ' + label; $('share-text').value = text; openModal('m-share'); setTimeout(() => $('share-text').select(), 30); };
+    try {
+      navigator.clipboard.writeText(text).then(() => toast(label + ' copied.'), fallback);
+    } catch (e) { fallback(); }
+  }
+  let toastTimer = 0;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2200);
+  }
+  function pgn() {
+    const d = new Date();
+    const date = d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+    const name = (side) => (state.setup.mode === 'ai' ? (side === state.human ? 'Player' : 'Chacklate ' + LEVELS[state.setup.level].name) : side === WHITE ? 'White' : 'Black');
+    return state.game.pgn({ Date: date, White: name(WHITE), Black: name(BLACK), TimeControl: state.setup.tc === 'none' ? '-' : state.setup.tc.replace('+', '+').split('+').map((x, i) => (i ? x : x * 60)).join('+') });
+  }
+
+  // ---------------------------------------------------------------- wiring
+  $('btn-new').addEventListener('click', openNewGame);
+  $('btn-undo').addEventListener('click', undo);
+  $('btn-hint').addEventListener('click', hint);
+  $('btn-resign').addEventListener('click', resign);
+  $('btn-claim').addEventListener('click', () => { if (state.game.claimDraw()) { state.request++; endGame(); } });
+  $('btn-settings').addEventListener('click', openSettings);
+  $('btn-pgn').addEventListener('click', () => copy(pgn(), 'PGN'));
+  $('btn-result-pgn').addEventListener('click', () => copy(pgn(), 'PGN'));
+  $('btn-fen').addEventListener('click', () => copy(state.game.pos.fen(), 'FEN'));
+  $('btn-rematch').addEventListener('click', () => {
+    closeModal('m-result');
+    const s = Object.assign({}, state.setup);
+    if (s.mode === 'ai' && s.color !== 'random') s.color = s.color === 'white' ? 'black' : 'white';
+    startGame(s);
+  });
+  $('view-flip').addEventListener('click', () => { state.viewSide = state.viewSide === 'white' ? 'black' : 'white'; applyView(false); renderPlayers(); });
+  $('view-toggle').addEventListener('click', () => { state.viewPreset = state.viewPreset === 'top' ? 'player' : 'top'; applyView(false); });
+  $('move-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = $('move-input');
+    const text = input.value.trim();
+    if (!text || !humanTurn()) return;
+    const g = state.game;
+    const m = g.pos.parseMove(text, g.legal);
+    if (m === null || m === undefined) { $('move-err').textContent = '"' + text + '" is not a legal move here.'; return; }
+    $('move-err').textContent = '';
+    input.value = '';
+    playMove(m);
+  });
+
+  // ------------------------------------------------------------------ boot
+  buildLevels();
+  buildSettings();
+  const saved = load();
+  if (saved && saved.settings) Object.assign(state.settings, saved.settings);
+  applySettings();
+  if (saved && saved.setup && saved.game) {
+    startGame(Object.assign({}, state.setup, saved.setup, { fen: saved.game.start === E.START_FEN ? '' : saved.game.start }),
+      { moves: saved.game.moves, ended: saved.game.ended, human: saved.human, clock: saved.clock });
+  } else {
+    startGame(state.setup);
+  }
+  window.addEventListener('pagehide', save);
+})();
+
+</script>
