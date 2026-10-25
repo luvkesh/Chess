@@ -432,3 +432,52 @@ test('web push: RFC 8291 test vector, VAPID signature, daily reminders once per 
     assert.strictEqual(app.db.get('SELECT COUNT(*) n FROM push_subs').n, 0);
   } finally { await app.close(); }
 });
+
+test('fair play: engine agreement is measured per side and repeated engine-like games reach the report queue', async () => {
+  const { analyse } = require('../src/fairplay-analyse');
+  const E = require('../../../packages/chess-core/src/engine.js')();
+  // White plays the engine's first choice; Black mixes in random moves.
+  const g = new E.Game(), ucis = [];
+  let seed = 7; const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296);
+  for (let i = 0; i < 120 && !g.outcome; i++) {
+    const m = g.pos.side === E.WHITE ? E.search(g.pos, { depth: 3, timeMs: 5000 }).move : rnd() < 0.5 ? E.search(g.pos, { depth: 1, timeMs: 5000 }).move : g.legal[Math.floor(rnd() * g.legal.length)];
+    ucis.push(E.uci(m)); g.play(m);
+  }
+  const a = analyse(ucis, { depth: 3, skipPlies: 4 });
+  assert.ok(a.w.moves >= 4 && a.b.moves >= 4, JSON.stringify(a));
+  assert.ok(a.w.match > a.b.match + 0.3, JSON.stringify(a));
+  assert.ok(a.w.acpl < a.b.acpl, JSON.stringify(a));
+
+  // Thresholds low enough for short test games; the worker does the analysis.
+  const app = createServer({ log: () => {}, adminEmail: 'owner@example.com', adminPassword: 'correct horse battery',
+    fairplay: { thresholds: { depth: 3, timeMs: 2000, skipPlies: 4, game: { minMoves: 4, match: 0.8, acpl: 40 }, recent: { flagged: 2 } } } });
+  const port = await app.listen(0, '127.0.0.1');
+  try {
+    const db = app.db;
+    const mk = (name) => Number(db.run('INSERT INTO users (name, name_key, guest, created, seen) VALUES (?, ?, 0, 0, 0)', name, name.toLowerCase()).lastInsertRowid);
+    const cheat = mk('engineer'), honest = mk('human');
+    assert.strictEqual(app.fairplay.enqueue({ id: 'g1', rated: false, white: cheat, black: honest, moves: ucis }), false, 'casual games are not analysed');
+    for (const id of ['g1', 'g2']) app.fairplay.enqueue({ id, rated: true, white: cheat, black: honest, moves: ucis });
+    await app.fairplay.idle();
+    const rows = db.all('SELECT * FROM fairplay ORDER BY game_id, color');
+    assert.strictEqual(rows.length, 4);
+    assert.ok(rows.filter((r) => r.user_id === cheat).every((r) => r.flagged === 1));
+    const reports = db.all('SELECT * FROM reports');
+    assert.strictEqual(reports.length, 1, 'one automatic report');
+    assert.strictEqual(reports[0].target, cheat);
+    assert.match(reports[0].reason, /^Fair play: \d+% engine agreement/);
+    // A third engine-like game inside a week does not report again.
+    app.fairplay.enqueue({ id: 'g3', rated: true, white: cheat, black: honest, moves: ucis });
+    await app.fairplay.idle();
+    assert.strictEqual(db.all('SELECT * FROM reports').length, 1);
+    // Staff see it in the queue and on the fair play board.
+    const T = (await call(port, 'POST', '/api/admin/login', { email: 'owner@example.com', password: 'correct horse battery' })).body.token;
+    const q = await call(port, 'GET', '/api/admin/reports', null, T);
+    assert.strictEqual(q.body[0].reporter_name, 'Fair play system');
+    const board = await call(port, 'GET', '/api/admin/fairplay', null, T);
+    assert.strictEqual(board.body.rows[0].id, cheat);
+    assert.strictEqual(board.body.rows[0].suspicious, true);
+    const detail = await call(port, 'GET', '/api/admin/users/' + cheat, null, T);
+    assert.strictEqual(detail.body.fairplay.games.length, 3);
+  } finally { await app.close(); }
+});

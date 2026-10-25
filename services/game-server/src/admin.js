@@ -20,7 +20,7 @@ function createStaff(db, email, role, password) {
   return pw;
 }
 
-function routes(db, lobby, shop) {
+function routes(db, lobby, shop, fair) {
   const loginLimit = auth.limiter(10, 60000);
 
   function staffFor(req) {
@@ -86,6 +86,7 @@ function routes(db, lobby, shop) {
         u.ratings = lobby.ratings(u.id);
         u.games = db.all('SELECT * FROM games WHERE white = ? OR black = ? ORDER BY started DESC LIMIT 30', u.id, u.id);
         u.reports = db.all('SELECT * FROM reports WHERE target = ? ORDER BY created DESC LIMIT 30', u.id);
+        if (fair) u.fairplay = { summary: fair.summary(u.id), games: db.all('SELECT * FROM fairplay WHERE user_id = ? ORDER BY created DESC LIMIT 20', u.id) };
         if (can(me.role, 'orders.read')) {
           u.orders = db.all('SELECT * FROM orders WHERE user_id = ? ORDER BY created DESC LIMIT 30', u.id);
           u.entitlements = db.all('SELECT * FROM entitlements WHERE user_id = ? ORDER BY granted DESC LIMIT 50', u.id);
@@ -149,7 +150,14 @@ function routes(db, lobby, shop) {
       }
       if (path === '/api/admin/reports') {
         need('reports.read');
-        return [200, db.all("SELECT r.*, a.name reporter_name, t.name target_name FROM reports r JOIN users a ON a.id = r.reporter JOIN users t ON t.id = r.target ORDER BY (r.status = 'open') DESC, r.created DESC LIMIT 100")];
+        return [200, db.all("SELECT r.*, COALESCE(a.name, 'Fair play system') reporter_name, t.name target_name FROM reports r LEFT JOIN users a ON a.id = r.reporter JOIN users t ON t.id = r.target ORDER BY (r.status = 'open') DESC, r.created DESC LIMIT 100")];
+      }
+      if (path === '/api/admin/fairplay') {
+        need('reports.read');
+        const players = db.all('SELECT DISTINCT u.id, u.name, u.banned FROM fairplay f JOIN users u ON u.id = f.user_id WHERE f.created > ?', Date.now() - 30 * 86400e3);
+        const rows = players.map((u) => { const s = fair.summary(u.id); return Object.assign({ id: u.id, name: u.name, banned: !!u.banned, suspicious: fair.suspicious(s) }, s); })
+          .sort((a, b) => (b.suspicious - a.suspicious) || (b.match - a.match));
+        return [200, { thresholds: fair.thresholds, rows: rows.slice(0, 100) }];
       }
       if ((m = path.match(/^\/api\/admin\/reports\/(\d+)$/)) && req.method === 'POST') {
         need('reports.resolve');

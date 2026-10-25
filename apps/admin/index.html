@@ -99,7 +99,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
   async function boot() {
     if (!token) return login();
     try { me = await api('/me'); } catch (e) { return; }
-    const tabs = [['overview', 'Overview', 'stats.read'], ['reports', 'Reports', 'reports.read'], ['users', 'Players', 'users.read'], ['games', 'Games', 'games.read'], ['orders', 'Orders', 'orders.read'], ['audit', 'Audit log', 'audit.read'], ['staff', 'Staff', 'staff.manage']].filter((t) => can(t[2]));
+    const tabs = [['overview', 'Overview', 'stats.read'], ['reports', 'Reports', 'reports.read'], ['fairplay', 'Fair play', 'reports.read'], ['users', 'Players', 'users.read'], ['games', 'Games', 'games.read'], ['orders', 'Orders', 'orders.read'], ['audit', 'Audit log', 'audit.read'], ['staff', 'Staff', 'staff.manage']].filter((t) => can(t[2]));
     $('#app').innerHTML = '<div class="shell"><nav><div class="brand">Chacklate<small>Admin</small></div>' +
       tabs.map((t) => '<button data-tab="' + t[0] + '">' + t[1] + (t[0] === 'reports' ? '<span class="count" id="rc" hidden></span>' : '') + '</button>').join('') +
       '<div class="who">' + esc(me.email) + '<br>' + esc(me.role) + ' · <a href="#" id="out">Sign out</a></div></nav><main id="main"></main></div>';
@@ -152,6 +152,15 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
       const rows = await api('/games');
       main.innerHTML = '<h2>Games</h2><table><tr><th>Started</th><th>White</th><th>Black</th><th>Time</th><th>Result</th><th>Moves</th></tr>' + rows.map((g) =>
         '<tr><td>' + when(g.started) + '</td><td>' + esc(g.white_name) + '</td><td>' + esc(g.black_name) + '</td><td>' + esc(g.tc) + (g.rated ? '' : ' <span class="tag">casual</span>') + '</td><td>' + esc(g.result || 'live') + ' <span class="muted">' + esc(g.reason || '') + '</span></td><td class="mono">' + (g.moves ? g.moves.split(' ').length : 0) + '</td></tr>').join('') + '</table>';
+    },
+    async fairplay(main) {
+      const r = await api('/fairplay');
+      const t = r.thresholds, pct = (x) => Math.round(x * 100) + '%';
+      main.innerHTML = '<h2>Fair play</h2><p class="muted">Every finished rated game is checked against the engine. A player is marked when ' + t.recent.flagged + ' of their last ' + t.recent.games + ' rated games look engine-like (' + pct(t.game.match) + '+ agreement, ' + t.game.acpl + ' or less average loss), or when they reach ' + pct(t.recent.match) + ' agreement over ' + t.recent.minMoves + '+ moves. Marked players go to the Reports queue. These are signals for a person to review, not proof.</p>' +
+        (r.rows.length ? '<table><tr><th>Player</th><th>Games</th><th>Moves</th><th>Engine agreement</th><th>Avg. loss</th><th>Engine-like games</th><th></th></tr>' + r.rows.map((x) =>
+          '<tr class="click" data-id="' + x.id + '"><td>' + esc(x.name) + (x.banned ? ' <span class="tag bad">suspended</span>' : '') + '</td><td>' + x.games + '</td><td>' + x.moves + '</td><td>' + pct(x.match) + '</td><td>' + Math.round(x.acpl) + '</td><td>' + x.flagged + '</td><td>' + (x.suspicious ? '<span class="tag warn">review</span>' : '') + '</td></tr>').join('') + '</table>'
+          : '<p class="muted">No analysed games in the last 30 days.</p>');
+      main.querySelectorAll('[data-id]').forEach((tr) => { tr.onclick = () => openUser(tr.dataset.id); });
     },
     async orders(main) {
       const rows = await api('/orders');
@@ -208,6 +217,8 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
         (u.entitlements.length ? '<table><tr><th>Granted</th><th>What</th><th>Source</th><th>Expires</th><th></th></tr>' + u.entitlements.map((x) => '<tr><td>' + when(x.granted) + '</td><td>' + esc(x.key) + '</td><td>' + esc(x.source) + (x.note ? ' <span class="muted">' + esc(x.note) + '</span>' : '') + '</td><td>' + (x.expires ? when(x.expires) : 'never') + '</td><td>' +
           (x.revoked ? '<span class="tag bad">revoked</span>' : can('entitlements.manage') ? '<button class="btn" data-revoke="' + x.id + '">Revoke…</button>' : '') + '</td></tr>').join('') + '</table>' : '') +
         (can('entitlements.manage') && !u.guest ? '<div class="actions"><button class="btn" data-grant="premium" data-days="30">Grant 30 days Premium…</button><button class="btn" data-grant="premium" data-days="0">Grant lifetime…</button></div>' : '') : '') +
+      (u.fairplay && u.fairplay.games.length ? '<h3>Fair play</h3><p class="muted">Last ' + u.fairplay.summary.games + ' analysed games: ' + Math.round(u.fairplay.summary.match * 100) + '% engine agreement, ' + Math.round(u.fairplay.summary.acpl) + ' average loss, ' + u.fairplay.summary.flagged + ' engine-like.</p>' +
+        '<table><tr><th>When</th><th>Game</th><th>Moves</th><th>Agreement</th><th>Avg. loss</th></tr>' + u.fairplay.games.map((x) => '<tr><td>' + when(x.created) + '</td><td class="mono">' + esc(x.game_id) + '</td><td>' + x.moves + '</td><td>' + Math.round(x.match * 100) + '%' + (x.flagged ? ' <span class="tag warn">engine-like</span>' : '') + '</td><td>' + Math.round(x.acpl) + '</td></tr>').join('') + '</table>' : '') +
       '<h3>Reports against this player</h3>' + (u.reports.length ? '<table><tr><th>When</th><th>Reason</th><th>Status</th></tr>' + u.reports.map((x) => '<tr><td>' + when(x.created) + '</td><td>' + esc(x.reason) + '</td><td>' + x.status + '</td></tr>').join('') + '</table>' : '<p class="muted">None.</p>') +
       '<h3>Recent games</h3>' + (u.games.length ? '<table><tr><th>When</th><th>Colour</th><th>Time</th><th>Result</th></tr>' + u.games.map((g) => '<tr><td>' + when(g.started) + '</td><td>' + (g.white === u.id ? 'White' : 'Black') + '</td><td>' + esc(g.tc) + '</td><td>' + esc(g.result || 'live') + ' <span class="muted">' + esc(g.reason || '') + '</span></td></tr>').join('') + '</table>' : '<p class="muted">None.</p>');
     document.body.appendChild(d);
