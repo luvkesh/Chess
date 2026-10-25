@@ -9,6 +9,7 @@ apps/
   web-prototype/     The browser game (WebGL, offline coach, lessons, puzzles, online client)
   website/           Marketing site
   admin/             Staff console
+  unity/             Unity starter: C# rules port, server client, sample scripts
 packages/
   chess-core/        In-house engine (rules + AI), coach and puzzle generator
   content/           Lessons, puzzles and the cosmetics catalogue (JSON)
@@ -20,7 +21,7 @@ docs/
 .github/workflows/   CI
 ```
 
-The Unity clients for iOS, Android, Mac and Windows will be added under `apps/` and reuse `packages/` and the server protocol.
+`apps/unity` is the start of the native clients for iOS, Android, Mac and Windows. Its C# rules are checked against `packages/chess-core` in CI; see `apps/unity/README.md` for what is and is not verified.
 
 ## Quick start
 
@@ -37,11 +38,11 @@ CHACKLATE_ADMIN_EMAIL=you@example.com CHACKLATE_ADMIN_PASSWORD='a long password'
 
 Deploy with Docker: see `deploy/README.md` (`docker compose up -d --build` with a domain pointed at the host).
 
-Tests: `node packages/chess-core/test/engine.test.js`, `node packages/chess-core/test/coach.test.js`, `node packages/content/test/content.test.js`, `node apps/web-prototype/test/progress.test.js`, `cd services/game-server && npm test`.
+Tests: `node packages/chess-core/test/engine.test.js`, `node packages/chess-core/test/coach.test.js`, `node packages/content/test/content.test.js`, `node apps/web-prototype/test/progress.test.js`, `cd services/game-server && npm test`, and the Unity core tests in `apps/unity/README.md`.
 
 ## Status
 
-Phase 0 planning and Phase 1 prototypes are approved. The engine is in-house (no Stockfish). The browser game, server, website and admin console here are working references; Unity clients, store listings and production infrastructure are not built yet.
+Phase 0 planning and Phase 1 prototypes are approved. The engine is in-house (no Stockfish). The browser game, server (accounts, ratings, store and entitlements, fair play, push reminders), website, admin console and Docker deployment work and are tested. The Unity clients are a starter (rules and online client only, not yet opened in the Unity editor). Store listings, a payment provider, an email provider and production hosting still need accounts that only the owner can create.
 
 ## Licence
 

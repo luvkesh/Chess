@@ -1,0 +1,12 @@
+# Unity generates these
+/Library/
+/Temp/
+/Obj/
+/Build/
+/Builds/
+/Logs/
+/UserSettings/
+/MemoryCaptures/
+*.csproj
+*.sln
+!Tests/**/*.csproj
