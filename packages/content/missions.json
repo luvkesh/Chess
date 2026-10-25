@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "perDay": 3,
+  "allDoneXp": 50,
+  "missions": [
+    { "id": "play-2", "event": "game", "goal": 2, "xp": 40, "text": "Finish 2 games" },
+    { "id": "play-4", "event": "game", "goal": 4, "xp": 70, "text": "Finish 4 games" },
+    { "id": "win-1", "event": "win", "goal": 1, "xp": 50, "text": "Win a game" },
+    { "id": "win-3", "event": "win", "goal": 3, "xp": 90, "text": "Win 3 games" },
+    { "id": "puzzle-3", "event": "puzzle", "goal": 3, "xp": 40, "text": "Solve 3 puzzles" },
+    { "id": "puzzle-8", "event": "puzzle", "goal": 8, "xp": 80, "text": "Solve 8 puzzles" },
+    { "id": "daily", "event": "daily", "goal": 1, "xp": 30, "text": "Solve the daily puzzle" },
+    { "id": "lesson-1", "event": "lesson", "goal": 1, "xp": 50, "text": "Complete a lesson" },
+    { "id": "drill-2", "event": "drill", "goal": 2, "xp": 40, "text": "Run 2 opening drills" },
+    { "id": "dojo-1", "event": "dojo", "goal": 1, "xp": 50, "text": "Earn a star in the Endgame dojo" },
+    { "id": "review-1", "event": "review", "goal": 1, "xp": 40, "text": "Review a game with the coach" },
+    { "id": "online-1", "event": "online", "goal": 1, "xp": 60, "text": "Finish an online game", "needs": "online" }
+  ]
+}

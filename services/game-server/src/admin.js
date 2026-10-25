@@ -8,7 +8,7 @@ const ROLES = ['support', 'moderator', 'admin'];
 const NEEDS = {
   'stats.read': 'support', 'users.read': 'support', 'games.read': 'support', 'reports.read': 'support', 'audit.read': 'support',
   'users.mute': 'support', 'reports.resolve': 'moderator', 'users.ban': 'moderator',
-  'ratings.reset': 'admin', 'staff.manage': 'admin',
+  'orders.read': 'support', 'ratings.reset': 'admin', 'staff.manage': 'admin', 'entitlements.manage': 'admin',
 };
 const can = (role, perm) => ROLES.indexOf(role) >= ROLES.indexOf(NEEDS[perm]);
 
@@ -20,7 +20,7 @@ function createStaff(db, email, role, password) {
   return pw;
 }
 
-function routes(db, lobby) {
+function routes(db, lobby, shop) {
   const loginLimit = auth.limiter(10, 60000);
 
   function staffFor(req) {
@@ -65,6 +65,10 @@ function routes(db, lobby) {
           games24h: db.get('SELECT COUNT(*) n FROM games WHERE started > ?', day).n,
           openReports: db.get("SELECT COUNT(*) n FROM reports WHERE status = 'open'").n,
           banned: db.get('SELECT COUNT(*) n FROM users WHERE banned IS NOT NULL').n,
+          premium: db.get('SELECT COUNT(DISTINCT user_id) n FROM entitlements WHERE key = ? AND revoked IS NULL AND (expires IS NULL OR expires > ?)', 'premium', Date.now()).n,
+          orders24h: db.get("SELECT COUNT(*) n FROM orders WHERE status = 'paid' AND updated > ?", day).n,
+          revenue30d: db.all("SELECT currency, SUM(amount) amount FROM orders WHERE status = 'paid' AND updated > ? GROUP BY currency", Date.now() - 30 * 86400e3),
+          storeMode: shop ? shop.mode : 'off',
         })];
       }
       if (path === '/api/admin/users') {
@@ -82,6 +86,11 @@ function routes(db, lobby) {
         u.ratings = lobby.ratings(u.id);
         u.games = db.all('SELECT * FROM games WHERE white = ? OR black = ? ORDER BY started DESC LIMIT 30', u.id, u.id);
         u.reports = db.all('SELECT * FROM reports WHERE target = ? ORDER BY created DESC LIMIT 30', u.id);
+        if (can(me.role, 'orders.read')) {
+          u.orders = db.all('SELECT * FROM orders WHERE user_id = ? ORDER BY created DESC LIMIT 30', u.id);
+          u.entitlements = db.all('SELECT * FROM entitlements WHERE user_id = ? ORDER BY granted DESC LIMIT 50', u.id);
+          u.owns = shop ? shop.entitlements(u.id) : null;
+        }
         return [200, u];
       }
       if ((m = path.match(/^\/api\/admin\/users\/(\d+)\/(ban|unban|mute|unmute|reset-ratings)$/)) && req.method === 'POST') {
@@ -99,6 +108,39 @@ function routes(db, lobby) {
         else if (act === 'mute' || act === 'unmute') { need('users.mute'); db.run('UPDATE users SET muted = ? WHERE id = ?', act === 'mute' ? 1 : 0, id); }
         else { need('ratings.reset'); if (!reason) return [400, { error: 'A reason is required.' }]; db.run('DELETE FROM ratings WHERE user_id = ?', id); }
         log('user.' + act, id, reason || null);
+        return [200, { ok: true }];
+      }
+      if ((m = path.match(/^\/api\/admin\/users\/(\d+)\/entitlements$/)) && req.method === 'POST') {
+        need('entitlements.manage');
+        const id = Number(m[1]), key = String(body.key || '');
+        if (!db.get('SELECT id FROM users WHERE id = ? AND guest = 0', id)) return [404, { error: 'No such registered player.' }];
+        if (!/^(premium|pass:[a-z0-9-]{1,20})$/.test(key)) return [400, { error: 'Unknown entitlement.' }];
+        const note = String(body.note || '').trim().slice(0, 300);
+        if (!note) return [400, { error: 'A note is required.' }];
+        const days = Math.max(0, Math.min(3660, Math.floor(Number(body.days) || 0)));
+        const eid = shop.grant(id, key, days, 'staff', null, note);
+        log('entitlement.grant', id, { key, days: days || 'forever', note, entitlement: eid });
+        return [200, { ok: true, id: eid }];
+      }
+      if ((m = path.match(/^\/api\/admin\/entitlements\/(\d+)\/revoke$/)) && req.method === 'POST') {
+        need('entitlements.manage');
+        const note = String(body.note || '').trim().slice(0, 300);
+        if (!note) return [400, { error: 'A note is required.' }];
+        const r = db.run('UPDATE entitlements SET revoked = ? WHERE id = ? AND revoked IS NULL', Date.now(), Number(m[1]));
+        if (!r.changes) return [404, { error: 'Nothing to revoke.' }];
+        log('entitlement.revoke', m[1], note);
+        return [200, { ok: true }];
+      }
+      if (path === '/api/admin/orders') {
+        need('orders.read');
+        return [200, db.all('SELECT o.*, u.name user_name FROM orders o JOIN users u ON u.id = o.user_id ORDER BY o.created DESC LIMIT 200')];
+      }
+      if ((m = path.match(/^\/api\/admin\/orders\/([A-Za-z0-9_-]{4,40})\/refund$/)) && req.method === 'POST') {
+        need('entitlements.manage');
+        const note = String(body.note || '').trim().slice(0, 300);
+        if (!note) return [400, { error: 'A note is required.' }];
+        // Marks the order refunded and removes what it bought. Send the money back in the provider's dashboard.
+        if (!shop.refund(m[1], me.email, note)) return [409, { error: 'Only paid orders can be refunded.' }];
         return [200, { ok: true }];
       }
       if (path === '/api/admin/games') {

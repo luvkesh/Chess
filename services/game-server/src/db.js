@@ -59,6 +59,31 @@ CREATE TABLE IF NOT EXISTS staff_sessions (
   staff_id INTEGER NOT NULL REFERENCES staff(id),
   created INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS orders (
+  id TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  product TEXT NOT NULL,
+  amount INTEGER NOT NULL,           -- minor units (paise)
+  currency TEXT NOT NULL,
+  provider TEXT NOT NULL,            -- dev | external
+  provider_ref TEXT,
+  status TEXT NOT NULL,              -- created | paid | refunded | failed
+  created INTEGER NOT NULL,
+  updated INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS orders_user ON orders(user_id);
+CREATE TABLE IF NOT EXISTS entitlements (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  key TEXT NOT NULL,                 -- premium | pass:<season>
+  source TEXT NOT NULL,              -- purchase | staff
+  order_id TEXT,
+  granted INTEGER NOT NULL,
+  expires INTEGER,                   -- NULL = forever
+  revoked INTEGER,
+  note TEXT
+);
+CREATE INDEX IF NOT EXISTS entitlements_user ON entitlements(user_id);
 CREATE TABLE IF NOT EXISTS audit (
   id INTEGER PRIMARY KEY,
   at INTEGER NOT NULL,

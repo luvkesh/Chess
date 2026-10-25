@@ -8,6 +8,7 @@ const store = require('./db');
 const auth = require('./auth');
 const ws = require('./ws');
 const admin = require('./admin');
+const commerce = require('./commerce');
 const { Lobby } = require('./lobby');
 
 const ROOT = path.resolve(__dirname, '../../..');
@@ -26,8 +27,9 @@ function createServer(opts) {
   opts = opts || {};
   const db = store.open(opts.dbFile);
   const E = ChacklateEngine();
-  const lobby = new Lobby(Object.assign({ db, E }, opts.lobby || {}));
-  const adminApi = admin.routes(db, lobby);
+  const shop = commerce.create(db, opts.payments);
+  const lobby = new Lobby(Object.assign({ db, E, entitlements: (id) => shop.entitlements(id) }, opts.lobby || {}));
+  const adminApi = admin.routes(db, lobby, shop);
   const accountLimit = auth.limiter(20, 60000);
 
   if (opts.adminEmail && opts.adminPassword && !db.get('SELECT id FROM staff LIMIT 1')) {
@@ -35,7 +37,7 @@ function createServer(opts) {
   }
 
   const bearer = (req) => { const h = req.headers.authorization || ''; return h.startsWith('Bearer ') ? h.slice(7) : ''; };
-  const profile = (u, token) => ({ token, user: lobby.publicUser(u), ratings: lobby.ratings(u.id) });
+  const profile = (u, token) => ({ token, user: lobby.publicUser(u), ratings: lobby.ratings(u.id), entitlements: shop.entitlements(u.id) });
 
   async function api(req, url, body, ip) {
     const p = url.pathname;
@@ -74,6 +76,14 @@ function createServer(opts) {
       const u = lobby.userForToken(bearer(req));
       return u ? [200, profile(u)] : [401, { error: 'Not signed in.' }];
     }
+    if (p === '/api/store') return [200, { mode: shop.mode, perks: shop.perks, products: shop.publicProducts() }];
+    if (p === '/api/store/webhook' && req.method === 'POST') return shop.webhook(req.rawBody || '', req.headers['x-chacklate-signature']);
+    if (p.startsWith('/api/store/') && req.method === 'POST') {
+      const u = lobby.userForToken(bearer(req));
+      if (!u) return [401, { error: 'Not signed in.' }];
+      if (p === '/api/store/checkout') return shop.checkout(u, String(body.product || ''));
+      if (p === '/api/store/dev/complete') return shop.devComplete(u, body.order);
+    }
     let m;
     if ((m = p.match(/^\/api\/players\/([A-Za-z0-9_-]{3,20})$/))) {
       const u = db.get('SELECT * FROM users WHERE name_key = ? AND banned IS NULL', m[1].toLowerCase());
@@ -99,6 +109,7 @@ function createServer(opts) {
       if (req.method === 'POST') {
         let raw = '';
         for await (const chunk of req) { raw += chunk; if (raw.length > 100000) { res.writeHead(413, head); return res.end('{}'); } }
+        req.rawBody = raw;
         try { body = raw ? JSON.parse(raw) : {}; } catch { res.writeHead(400, head); return res.end(JSON.stringify({ error: 'Bad JSON.' })); }
         if (!body || typeof body !== 'object') body = {};
       }
@@ -137,6 +148,7 @@ if (require.main === module) {
     dbFile: process.env.CHACKLATE_DB || path.join(__dirname, '..', 'chacklate.db'),
     adminEmail: process.env.CHACKLATE_ADMIN_EMAIL,
     adminPassword: process.env.CHACKLATE_ADMIN_PASSWORD,
+    payments: { mode: process.env.CHACKLATE_PAYMENTS || 'off', secret: process.env.CHACKLATE_PAYMENT_SECRET, checkoutUrl: process.env.CHACKLATE_CHECKOUT_URL },
     log: console.log,
     lobby: { log: (...a) => console.log(new Date().toISOString(), ...a) },
   });

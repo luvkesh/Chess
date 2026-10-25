@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "tierXp": 300,
+  "seasons": [
+    {
+      "id": "s1",
+      "number": 1,
+      "name": "Cocoa Harvest",
+      "starts": "2026-10-15",
+      "ends": "2027-01-15",
+      "tiers": 30,
+      "blurb": "Thirty tiers of harvest-gold boards, pieces, rooms and effects. Every XP you earn while the season runs moves you up the track."
+    }
+  ]
+}
