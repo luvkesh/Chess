@@ -1,0 +1,1008 @@
+// Chacklate table scene (three.js). Same API as the old hand-written renderer, so the game
+// logic drives it unchanged: setBoard, setHighlights, setArrows, animateMove, celebrate,
+// setView, setShift, setClock and friends. The scene is a lit room around a round table:
+// an inlaid board, sculpted pieces with real reflections and shadows, velvet trays for
+// captures, a chess clock, candles, a chandelier, and a gentle glow on bright highlights.
+function ChacklateScene(canvas, options) {
+  'use strict';
+  const THREE = window.THREE;
+  if (!THREE) return null;
+  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {} }, options);
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
+  } catch (e) { return null; }
+  if (!renderer.getContext()) return null;
+  const K = ChacklateKit(THREE), P = ChacklatePieces(THREE, K), W = ChacklateWorld(THREE, K);
+  const TAU = Math.PI * 2;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setClearColor('#120a07');
+
+  const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+  const clamp01 = (t) => Math.min(1, Math.max(0, t));
+  const sqX = (sq) => (sq & 7) - 3.5;
+  const sqZ = (sq) => 3.5 - (sq >> 3);
+  const TYPE = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 5: 'q', 6: 'k' };
+  const kindOf = (p) => Math.abs(p);
+
+  // ------------------------------------------------------------------ scene graph
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 200);
+  const roomGroup = new THREE.Group(), boardGroup = new THREE.Group(), pieceGroup = new THREE.Group(), fxGroup = new THREE.Group();
+  scene.add(roomGroup, boardGroup, pieceGroup, fxGroup);
+  const key = new THREE.DirectionalLight('#ffeedd', 2.0);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  Object.assign(key.shadow.camera, { left: -7.5, right: 7.5, top: 7.5, bottom: -7.5, near: 2, far: 40 });
+  key.shadow.bias = -0.0003; key.shadow.normalBias = 0.025; key.shadow.radius = 3;
+  scene.add(key, key.target);
+  // The rim light sits low behind the board so its mirror image on the polished table and
+  // floor falls outside the room; both lights turn with the player's side.
+  const rim = new THREE.DirectionalLight('#ffd6a0', 0.9); scene.add(rim);
+  function placeLights(side) {
+    const k = side === 'black' ? -1 : 1;
+    key.position.set(-6 * k, 14, 7 * k); rim.position.set(4 * k, 3, -9 * k);
+  }
+  placeLights('white');
+  const hemi = new THREE.HemisphereLight('#ffe2c0', '#1a0d08', 0.35); scene.add(hemi);
+  const chandLight = new THREE.PointLight('#ffc480', 14, 40, 2); chandLight.position.set(0, 7.2, 0); scene.add(chandLight);
+
+  // ------------------------------------------------------------------ post-processing
+  let composer = null, bloom = null, quality = 'high', animations = true;
+  function buildComposer() {
+    if (composer) { composer.dispose(); composer = null; }
+    if (quality !== 'high') return;
+    const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+    const rt = new THREE.WebGLRenderTarget(size.x, size.y, { samples: 4, type: THREE.HalfFloatType });
+    composer = new THREE.EffectComposer(renderer, rt);
+    composer.addPass(new THREE.RenderPass(scene, camera));
+    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.42, 0.55, 1.05);
+    composer.addPass(bloom);
+    composer.addPass(new THREE.ShaderPass(GRADE));
+    composer.addPass(new THREE.OutputPass());
+  }
+  // Warm grade and vignette, in linear light before tone mapping.
+  const GRADE = {
+    uniforms: { tDiffuse: { value: null }, vignette: { value: 0.42 }, warmth: { value: new THREE.Vector3(1.03, 1.0, 0.95) } },
+    vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: `uniform sampler2D tDiffuse; uniform float vignette; uniform vec3 warmth; varying vec2 vUv;
+      void main() {
+        vec4 c = texture2D(tDiffuse, vUv);
+        vec2 d = vUv - 0.5; float v = 1.0 - vignette * smoothstep(0.25, 0.85, dot(d, d) * 2.2);
+        gl_FragColor = vec4(c.rgb * warmth * v, c.a);
+      }`,
+  };
+
+  // ------------------------------------------------------------------ planar reflection of the pieces
+  const REFLECT = 2;
+  let reflRT = null;
+  const mirrorCam = new THREE.PerspectiveCamera();
+  const texMat = new THREE.Matrix4();
+  const reflMat = new THREE.ShaderMaterial({
+    uniforms: { tRefl: { value: null }, texMat: { value: texMat }, strength: { value: 0.3 }, camPos: { value: new THREE.Vector3() } },
+    vertexShader: 'uniform mat4 texMat; varying vec4 vUv; varying vec3 vW; void main() { vUv = texMat * vec4(position, 1.0); vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+    fragmentShader: `uniform sampler2D tRefl; uniform float strength; uniform vec3 camPos; varying vec4 vUv; varying vec3 vW;
+      void main() {
+        vec2 uv = vUv.xy / vUv.w; vec2 o = vec2(0.0018, 0.0026);
+        vec3 c = texture2D(tRefl, uv).rgb * 0.36 + (texture2D(tRefl, uv + vec2(o.x, 0.0)).rgb + texture2D(tRefl, uv - vec2(o.x, 0.0)).rgb + texture2D(tRefl, uv + vec2(0.0, o.y)).rgb + texture2D(tRefl, uv - vec2(0.0, o.y)).rgb) * 0.16;
+        vec3 v = normalize(camPos - vW); float fres = 0.3 + 0.7 * pow(1.0 - max(v.y, 0.0), 2.5);
+        gl_FragColor = vec4(c * strength * fres, 1.0);
+      }`,
+    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const reflPlane = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), reflMat);
+  reflPlane.rotation.x = -Math.PI / 2; reflPlane.position.y = 0.0015; reflPlane.renderOrder = 1;
+  scene.add(reflPlane);
+  function renderReflection() {
+    if (!reflRT || quality !== 'high' || !reflPlane.visible) return;
+    reflPlane.updateMatrixWorld();
+    const n = new THREE.Vector3(0, 1, 0), mp = new THREE.Vector3(0, 0, 0), cp = camera.position;
+    const view = new THREE.Vector3().subVectors(mp, cp).reflect(n).negate().add(mp);
+    const rot = new THREE.Matrix4().extractRotation(camera.matrixWorld);
+    const look = new THREE.Vector3(0, 0, -1).applyMatrix4(rot).add(cp);
+    const target = new THREE.Vector3().subVectors(mp, look).reflect(n).negate().add(mp);
+    mirrorCam.position.copy(view);
+    mirrorCam.up.set(0, 1, 0).applyMatrix4(rot).reflect(n);
+    mirrorCam.lookAt(target);
+    mirrorCam.far = camera.far; mirrorCam.near = camera.near;
+    mirrorCam.updateMatrixWorld();
+    mirrorCam.projectionMatrix.copy(camera.projectionMatrix);
+    mirrorCam.projectionMatrixInverse.copy(camera.projectionMatrixInverse);
+    mirrorCam.layers.set(REFLECT);
+    texMat.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1);
+    texMat.multiply(mirrorCam.projectionMatrix).multiply(mirrorCam.matrixWorldInverse).multiply(reflPlane.matrixWorld);
+    reflMat.uniforms.camPos.value.copy(camera.position);
+    const bg = scene.background, fog = scene.fog;
+    scene.background = null; scene.fog = null;
+    reflPlane.visible = false;
+    renderer.setRenderTarget(reflRT);
+    renderer.setClearColor(0x000000, 1); renderer.clear();
+    renderer.render(scene, mirrorCam);
+    renderer.setRenderTarget(null);
+    renderer.setClearColor('#120a07');
+    reflPlane.visible = true;
+    scene.background = bg; scene.fog = fog;
+  }
+
+  // ------------------------------------------------------------------ themes
+  let boardId = 'walnut', setId = 'regency', roomId = 'salon', labelSide = 'white';
+  let room = null, boardMesh = null;
+  function loadRoom(id) {
+    if (room && room.def && id === roomId && roomGroup.children.length) return;
+    roomId = id;
+    while (roomGroup.children.length) { const c = roomGroup.children.pop(); c.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); }
+    room = W.room(id);
+    roomGroup.add(room.group);
+    scene.fog = new THREE.FogExp2(room.fog, 0.022);
+    scene.background = new THREE.Color(room.fog);
+    hemi.color.set(room.hemi[0]); hemi.groundColor.set(room.hemi[1]);
+    scene.environment = W.environment(renderer, room.env);
+    scene.environmentIntensity = 0.9;
+    // flames are reflected in the board too
+    room.flames.forEach((f) => { f.m.layers.enable(REFLECT); f.halo.layers.enable(REFLECT); });
+    placeTrays();
+  }
+  function loadBoard(id) {
+    if (boardMesh && id === boardId) return;
+    boardId = id;
+    if (boardMesh) { boardGroup.remove(boardMesh); boardMesh.userData.dispose(); }
+    boardMesh = W.board(id, labelSide);
+    boardGroup.add(boardMesh);
+  }
+  function loadSet(id) {
+    if (id === setId && sprites.length && sprites[0].obj && sprites[0].obj.userData.set === id) return;
+    setId = P.SETS[id] ? id : 'regency';
+    for (const s of sprites.concat(graveyard)) rebuildSprite(s);
+  }
+
+  // ------------------------------------------------------------------ trays and clock
+  // Captured pieces rest on velvet in walnut trays: beside the board on wide screens, in
+  // front of each player on tall ones.
+  const TABLE_Y = -0.46;
+  let trays = null, layoutPortrait = false;
+  const trayParts = (() => {
+    const wood = new THREE.MeshPhysicalMaterial({ color: '#2a170e', roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.08 });
+    const pile = K.canvasTex('tray-velvet', 256, 1024, (g, w, h) => {
+      g.fillStyle = '#3c0d18'; g.fillRect(0, 0, w, h);
+      const R = K.rng(17);
+      for (let i = 0; i < 26000; i++) { g.fillStyle = R() > 0.5 ? 'rgba(255,190,200,0.05)' : 'rgba(0,0,0,0.09)'; g.fillRect(R() * w, R() * h, 1, 2); }
+      // a soft inner shadow where the velvet meets the rails
+      const edge = (x0, y0, x1, y1) => { const grd = g.createLinearGradient(x0, y0, x1, y1); grd.addColorStop(0, 'rgba(0,0,0,0.55)'); grd.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = grd; g.fillRect(0, 0, w, h); };
+      edge(0, 0, 26, 0); edge(w, 0, w - 26, 0); edge(0, 0, 0, 26); edge(0, h, 0, h - 26);
+    });
+    const velvet = new THREE.MeshPhysicalMaterial({ map: pile, color: '#ffffff', roughness: 0.9, sheen: 1, sheenRoughness: 0.32, sheenColor: new THREE.Color('#c86478') });
+    const frameG = W.slab(W.roundedSquare(1, 0.1), 0, 0.15, 0.025); frameG.scale(0.8, 1, 2.8);
+    const bedG = new THREE.PlaneGeometry(1.38, 5.36); bedG.rotateX(-Math.PI / 2); bedG.translate(0, 0.152, 0);
+    const rimG = K.merge([-1, 1].map((k) => { const b = new THREE.BoxGeometry(1.5, 0.028, 0.028); b.translate(0, 0.158, k * 2.7); return b; })
+      .concat([-1, 1].map((k) => { const b = new THREE.BoxGeometry(0.028, 0.028, 5.4); b.translate(k * 0.72, 0.158, 0); return b; })));
+    return { wood, velvet, frameG, bedG, rimG };
+  })();
+  function placeTrays() {
+    if (trays) scene.remove(trays);
+    trays = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const t = new THREE.Group();
+      const frame = new THREE.Mesh(trayParts.frameG, trayParts.wood); frame.castShadow = true; frame.receiveShadow = true;
+      const bed = new THREE.Mesh(trayParts.bedG, trayParts.velvet); bed.receiveShadow = true;
+      t.add(frame, bed, new THREE.Mesh(trayParts.rimG, K.MAT.gold()));
+      if (layoutPortrait) { t.rotation.y = Math.PI / 2; t.position.set(0, TABLE_Y, s * 6.3); } else t.position.set(s * 6.1, TABLE_Y, 0);
+      trays.add(t);
+    }
+    scene.add(trays);
+  }
+  const TRAY_Y = TABLE_Y + 0.152;
+  function gravePos(capturer, i) {
+    const col = Math.floor(i / 8), row = i % 8;
+    if (layoutPortrait) return capturer > 0 ? [-2.31 + row * 0.66, 5.98 + col * 0.64] : [2.31 - row * 0.66, -5.98 - col * 0.64];
+    return capturer > 0 ? [5.78 + col * 0.64, 2.31 - row * 0.66] : [-5.78 - col * 0.64, -2.31 + row * 0.66];
+  }
+  const graveYaw = (capturer) => (layoutPortrait ? (capturer > 0 ? 0 : Math.PI) : capturer > 0 ? -Math.PI / 2 : Math.PI / 2);
+  function relayoutGrave() {
+    for (const s of graveyard) {
+      if (s.cap === undefined) continue;
+      const [x, z] = gravePos(s.cap, s.gi); s.x = x; s.z = z; s.yaw = graveYaw(s.cap); placeSprite(s);
+    }
+  }
+  function placeClock() {
+    if (!clock) return;
+    const black = labelSide === 'black';
+    clock.rotation.y = black ? Math.PI - 0.35 : -0.35;
+    clock.position.set(black ? -6.1 : 6.1, TABLE_Y, black ? -3.7 : 3.7);
+    clock.visible = !!clockState && !layoutPortrait;
+  }
+  // Chess clock: a walnut case with two brass-rimmed faces and plungers.
+  let clock = null, clockState = null, clockSkin = null, clockKey = '';
+  const clockCanvas = document.createElement('canvas'); clockCanvas.width = 1024; clockCanvas.height = 384;
+  const clockTex = new THREE.CanvasTexture(clockCanvas); clockTex.colorSpace = THREE.SRGBColorSpace;
+  function buildClock() {
+    const g = new THREE.Group();
+    const wood = new THREE.MeshPhysicalMaterial({ color: '#3a1f12', roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.06 });
+    const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.9, 0.7), wood); body.position.y = 0.45; body.castShadow = true; body.receiveShadow = true; g.add(body);
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.75), new THREE.MeshBasicMaterial({ map: clockTex, toneMapped: false }));
+    face.position.set(0, 0.47, 0.352); g.add(face);
+    for (const s of [-1, 1]) {
+      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.16, 20), K.MAT.brass()); b.position.set(s * 0.6, 0.98, 0); b.castShadow = true; g.add(b);
+      b.userData.side = s; g.userData['btn' + s] = b;
+      const bez = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.03, 8, 40), K.MAT.gold()); bez.position.set(s * 0.5, 0.47, 0.36); g.add(bez);
+    }
+    g.visible = false;
+    return g;
+  }
+  function drawClock() {
+    if (!clockState) return;
+    const fmt = (ms) => { const s = Math.max(0, ms) / 1000; if (s < 10) return s.toFixed(1); const m = Math.floor(s / 60); return m + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+    const left = clockState.blackMs, right = clockState.whiteMs;
+    const k = fmt(left) + '|' + fmt(right) + '|' + clockState.active + '|' + (clockSkin && clockSkin.id);
+    if (k === clockKey) return;
+    clockKey = k;
+    const g = clockCanvas.getContext('2d');
+    const sk = clockSkin || { face: '#f4ead8', ink: '#2a1a10', glow: '#b8862e', accent: '#d2466f' };
+    g.fillStyle = '#1a0e08'; g.fillRect(0, 0, 1024, 384);
+    for (let i = 0; i < 2; i++) {
+      const cx = 256 + i * 512, on = clockState.active === (i === 0 ? 'b' : 'w');
+      const grd = g.createRadialGradient(cx, 170, 20, cx, 192, 170);
+      grd.addColorStop(0, sk.face); grd.addColorStop(1, W.shade(sk.face, -0.18));
+      g.fillStyle = grd; g.beginPath(); g.arc(cx, 192, 150, 0, TAU); g.fill();
+      g.fillStyle = on ? sk.glow : sk.ink; g.globalAlpha = on ? 1 : 0.7;
+      g.font = '600 92px "Cinzel", Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(fmt(i === 0 ? left : right), cx, 196);
+      g.globalAlpha = 1;
+      if (on) { g.fillStyle = sk.accent; g.beginPath(); g.arc(cx, 292, 10, 0, TAU); g.fill(); }
+    }
+    clockTex.needsUpdate = true;
+  }
+  clock = buildClock(); scene.add(clock); placeClock();
+
+  // ------------------------------------------------------------------ sprites (pieces)
+  let sprites = [], graveyard = [], particles = [], arrows = [];
+  let highlights = {}, selectedSq = -1, hoverSq = -1, dragging = null, attract = false, captureFxOn = true;
+  let fx = { capture: { kind: 'dust', colors: ['#c8a27a', '#8a5a3a'] }, victory: { kind: 'confetti', colors: ['#e3b25a', '#d2466f', '#f4ebe3'] }, trail: null };
+  const shadowTex = K.canvasTex('contact', 128, 128, (g, w) => {
+    const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
+    grd.addColorStop(0, 'rgba(0,0,0,0.75)'); grd.addColorStop(0.45, 'rgba(0,0,0,0.42)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grd; g.fillRect(0, 0, w, w);
+  });
+  const contactGeo = new THREE.PlaneGeometry(1, 1); contactGeo.rotateX(-Math.PI / 2);
+  const contactMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, opacity: 0.8 });
+  function baseYaw(piece, sq) {
+    if (kindOf(piece) === 2) return piece > 0 ? Math.PI - 0.95 : -0.95;   // knights look ahead, turned to show their profile
+    if (kindOf(piece) === 3) return piece > 0 ? Math.PI * 0.75 : -Math.PI * 0.25;
+    return piece > 0 ? Math.PI : 0;
+  }
+  function makeSprite(piece, sq) {
+    const s = { piece, sq, x: sqX(sq), z: sqZ(sq), y: 0, scale: 1, tilt: 0, yaw: baseYaw(piece, sq), anim: null, lift: 0, glow: 0, obj: null, contact: null };
+    rebuildSprite(s);
+    return s;
+  }
+  function rebuildSprite(s) {
+    if (s.obj) pieceGroup.remove(s.obj);
+    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b');
+    obj.traverse((m) => { m.layers.enable(REFLECT); });
+    s.obj = obj;
+    pieceGroup.add(obj);
+    if (!s.contact) { s.contact = new THREE.Mesh(contactGeo, contactMat); s.contact.renderOrder = 2; fxGroup.add(s.contact); }
+    placeSprite(s);
+  }
+  function dropSprite(s) { if (s.obj) pieceGroup.remove(s.obj); if (s.contact) fxGroup.remove(s.contact); s.obj = null; s.contact = null; }
+  function placeSprite(s) {
+    const o = s.obj;
+    if (!o) return;
+    const base = s.grave ? TRAY_Y : 0;
+    const lift = s.y + s.lift;
+    o.position.set(s.x, base + lift + Math.sin(Math.abs(s.tilt)) * 0.3 * s.scale, s.z);
+    o.rotation.set(0, s.yaw, 0);
+    if (s.tilt) { o.rotation.z = s.tilt; }
+    o.scale.setScalar(s.scale);
+    if (s.contact) {
+      const r = (kindOf(s.piece) === 1 ? 0.62 : 0.78) * s.scale * (1 + lift * 0.8);
+      s.contact.scale.set(r, 1, r);
+      s.contact.position.set(s.x, base + 0.004, s.z);
+      s.contact.visible = !s.tilt;
+      s.contact.material = contactMat;
+    }
+  }
+
+  // ------------------------------------------------------------------ highlights and arrows
+  const SHAPES = ['fill', 'frame', 'dot', 'ring', 'glow'].map((name) => K.canvasTex('hl-' + name, 256, 256, (g, w) => {
+    g.clearRect(0, 0, w, w);
+    if (name === 'fill') { g.fillStyle = '#fff'; W.roundRect(g, 10, 10, w - 20, w - 20, 26); g.fill(); }
+    if (name === 'frame') { g.strokeStyle = '#fff'; g.lineWidth = 14; W.roundRect(g, 14, 14, w - 28, w - 28, 24); g.stroke(); }
+    if (name === 'dot') { const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w * 0.17); grd.addColorStop(0, '#fff'); grd.addColorStop(0.7, 'rgba(255,255,255,0.9)'); grd.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = grd; g.fillRect(0, 0, w, w); }
+    if (name === 'ring') { g.strokeStyle = '#fff'; g.lineWidth = 16; g.beginPath(); g.arc(w / 2, w / 2, w * 0.4, 0, TAU); g.stroke(); }
+    if (name === 'glow') { const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.5, 'rgba(255,255,255,0.5)'); grd.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = grd; g.fillRect(0, 0, w, w); }
+  }));
+  const hlGeo = new THREE.PlaneGeometry(1, 1); hlGeo.rotateX(-Math.PI / 2);
+  const hlPool = [];
+  let hlUsed = 0;
+  function hl(sq, color, alpha, shape, scale, glowy) {
+    let m = hlPool[hlUsed];
+    if (!m) { m = new THREE.Mesh(hlGeo, new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false })); m.renderOrder = 3; hlPool.push(m); fxGroup.add(m); }
+    hlUsed++;
+    m.visible = true;
+    m.material.map = SHAPES[shape];
+    m.material.color.set(color).multiplyScalar(glowy ? 1.6 : 1);
+    m.material.opacity = alpha;
+    m.material.blending = glowy ? THREE.AdditiveBlending : THREE.NormalBlending;
+    m.scale.set(scale || 1, 1, scale || 1);
+    m.position.set(sqX(sq), 0.004 + hlUsed * 0.0002, sqZ(sq));
+    m.userData.pulse = shape === 4;
+  }
+  function drawHighlights() {
+    hlUsed = 0;
+    const h = highlights;
+    if (h.lastFrom >= 0) hl(h.lastFrom, '#f0c26a', 0.22, 0);
+    if (h.lastTo >= 0) { hl(h.lastTo, '#f0c26a', 0.28, 0); hl(h.lastTo, '#f6d58a', 0.7, 1); }
+    if (h.hintFrom >= 0) hl(h.hintFrom, '#3fe0c8', 0.85, 1, 1, true);
+    if (h.hintTo >= 0) { hl(h.hintTo, '#3fe0c8', 0.3, 0); hl(h.hintTo, '#3fe0c8', 0.9, 1, 1, true); }
+    for (const s of h.marks || []) hl(s.sq, s.color || '#3fe0c8', s.alpha || 0.45, s.shape === undefined ? 0 : s.shape);
+    if (h.check >= 0) hl(h.check, '#ff3b30', 0.95, 4, 1.35, true);
+    if (h.selected >= 0) { hl(h.selected, '#e9b65c', 0.32, 0); hl(h.selected, '#ffd27a', 0.9, 1, 1, true); }
+    const cursor = dragging && dragging.moved ? dragging.over : hoverSq;
+    if (cursor >= 0 && cursor !== h.selected) hl(cursor, '#fff1d6', 0.55, 1);
+    // move dots: a soft dark well with a gold glint, readable on light and dark squares
+    for (const t of h.targets || []) { hl(t, '#1a0d04', 0.55, 2, 1.1); hl(t, '#ffd27a', 0.9, 2, 0.52, true); }
+    for (const t of h.captures || []) { hl(t, '#1a0d04', 0.35, 3, 1.02); hl(t, '#ff8aa0', 0.85, 3, 0.96, true); }
+    for (let i = hlUsed; i < hlPool.length; i++) hlPool[i].visible = false;
+  }
+  const arrowMeshes = [];
+  function drawArrows() {
+    arrowMeshes.forEach((m) => { fxGroup.remove(m); m.geometry.dispose(); m.material.dispose(); });
+    arrowMeshes.length = 0;
+    for (const a of arrows) {
+      const x0 = sqX(a.from), z0 = sqZ(a.from), x1 = sqX(a.to), z1 = sqZ(a.to);
+      const knight = Math.abs((a.from & 7) - (a.to & 7)) * Math.abs((a.from >> 3) - (a.to >> 3)) === 2;
+      const pts = knight ? [[x0, z0], Math.abs(x1 - x0) > Math.abs(z1 - z0) ? [x1, z0] : [x0, z1], [x1, z1]] : [[x0, z0], [x1, z1]];
+      const w = 0.085 * (a.width || 1), hw = 0.24 * (a.width || 1), hlen = 0.36;
+      const pos = [];
+      const tri = (ax, az, bx, bz, cx, cz) => pos.push(ax, 0, az, bx, 0, bz, cx, 0, cz);
+      for (let i = 0; i < pts.length - 1; i++) {
+        let [ax, az] = pts[i]; let [bx, bz] = pts[i + 1];
+        const dx = bx - ax, dz = bz - az, l = Math.hypot(dx, dz), ux = dx / l, uz = dz / l, nx = -uz, nz = ux;
+        if (i === 0) { ax += ux * 0.25; az += uz * 0.25; }
+        const last = i === pts.length - 2;
+        if (last) { bx -= ux * hlen; bz -= uz * hlen; } else { bx += ux * w; bz += uz * w; }
+        tri(ax + nx * w, az + nz * w, ax - nx * w, az - nz * w, bx - nx * w, bz - nz * w);
+        tri(ax + nx * w, az + nz * w, bx - nx * w, bz - nz * w, bx + nx * w, bz + nz * w);
+        if (last) tri(bx + nx * hw, bz + nz * hw, bx - nx * hw, bz - nz * hw, bx + ux * hlen, bz + uz * hlen);
+      }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: new THREE.Color(a.color || '#3fe0c8').multiplyScalar(1.3), transparent: true, opacity: a.alpha || 0.82, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+      m.position.y = 0.012; m.renderOrder = 4;
+      fxGroup.add(m); arrowMeshes.push(m);
+    }
+  }
+
+  // ------------------------------------------------------------------ particles
+  const MAXP = 900;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(MAXP * 3), pCol = new Float32Array(MAXP * 4), pSize = new Float32Array(MAXP), pShape = new Float32Array(MAXP);
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 4));
+  pGeo.setAttribute('size', new THREE.BufferAttribute(pSize, 1));
+  pGeo.setAttribute('shape', new THREE.BufferAttribute(pShape, 1));
+  const pMat = (additive) => new THREE.ShaderMaterial({
+    uniforms: { scale: { value: 600 } },
+    vertexShader: `attribute vec4 color; attribute float size; attribute float shape; uniform float scale; varying vec4 vC; varying float vS;
+      void main() { vC = color; vS = shape; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = size * scale / -mv.z; gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `varying vec4 vC; varying float vS;
+      void main() { vec2 d = gl_PointCoord - 0.5; float a = vS > 0.5 ? step(max(abs(d.x), abs(d.y) * 1.6), 0.45) : smoothstep(0.5, 0.0, length(d)); if (a < 0.01) discard; gl_FragColor = vec4(vC.rgb, vC.a * a); }`,
+    transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending, toneMapped: false,
+  });
+  const pAdd = new THREE.Points(pGeo, pMat(true)), pNorm = new THREE.Points(pGeo.clone(), pMat(false));
+  pAdd.frustumCulled = false; pNorm.frustumCulled = false; pAdd.renderOrder = 6; pNorm.renderOrder = 5;
+  scene.add(pAdd, pNorm);
+  const lin = (h) => new THREE.Color(h);
+  function spawn(kind, x, y, z, colors, count) {
+    if (!animations) return;
+    const cols = (colors || ['#ffffff']).map(lin);
+    const now = performance.now();
+    for (let i = 0; i < count; i++) {
+      if (particles.length >= MAXP - 2) break;
+      const a = Math.random() * TAU, sp = Math.random();
+      const c = cols[i % cols.length];
+      const p = { x, y, z, vx: Math.cos(a) * sp, vy: 0, vz: Math.sin(a) * sp, born: now, life: 700, size: 0.06, color: c, alpha: 1, kind, square: false, add: true, g: 0, drag: 0.9 };
+      if (kind === 'dust') { p.vx *= 1.3; p.vz *= 1.3; p.vy = 0.4 + Math.random() * 0.7; p.g = 2.2; p.life = 650; p.size = 0.05 + Math.random() * 0.05; p.add = false; p.alpha = 0.7; }
+      else if (kind === 'sparks') { p.vx *= 3.2; p.vz *= 3.2; p.vy = 1.5 + Math.random() * 2.2; p.g = 6; p.life = 560; p.size = 0.035 + Math.random() * 0.03; }
+      else if (kind === 'petals') { p.vx *= 1.2; p.vz *= 1.2; p.vy = 1.2 + Math.random() * 1.2; p.g = 1.4; p.life = 1300; p.size = 0.08; p.square = true; p.add = false; p.drag = 0.6; }
+      else if (kind === 'ink') { p.vx *= 0.6; p.vz *= 0.6; p.vy = 0.5 + Math.random() * 0.6; p.g = -0.2; p.life = 900; p.size = 0.14 + Math.random() * 0.1; p.add = false; p.alpha = 0.5; p.grow = 1.8; }
+      else if (kind === 'frost') { p.vx *= 1.6; p.vz *= 1.6; p.vy = 0.8 + Math.random(); p.g = 1.0; p.life = 900; p.size = 0.045 + Math.random() * 0.03; }
+      else if (kind === 'confetti') { p.vx *= 2.5; p.vz *= 2.5; p.vy = 3.5 + Math.random() * 3; p.g = 4.2; p.life = 2800; p.size = 0.08; p.square = true; p.add = false; p.drag = 0.5; p.flutter = Math.random() * 6; }
+      else if (kind === 'firework') { const e = Math.random() * Math.PI - Math.PI / 2; p.vx = Math.cos(a) * Math.cos(e) * 3; p.vz = Math.sin(a) * Math.cos(e) * 3; p.vy = Math.sin(e) * 3 + 0.6; p.g = 1.6; p.life = 1600; p.size = 0.06; }
+      else if (kind === 'mote') { p.vx = (Math.random() - 0.5) * 0.05; p.vz = (Math.random() - 0.5) * 0.05; p.vy = 0.02 + Math.random() * 0.04; p.g = 0; p.life = 9000 + Math.random() * 6000; p.size = 0.03 + Math.random() * 0.03; p.alpha = 0.3; p.drag = 1; p.born = now - Math.random() * 4000; }
+      else if (kind === 'trail') { p.vx *= 0.15; p.vz *= 0.15; p.vy = 0.15; p.g = 0; p.life = 450; p.size = 0.07; p.alpha = 0.7; }
+      particles.push(p);
+    }
+    requestRender();
+  }
+  function stepParticles(now, dt) {
+    particles = particles.filter((p) => now - p.born < p.life);
+    for (const p of particles) {
+      if (now < p.born) continue;
+      p.vy -= p.g * dt;
+      const d = Math.pow(p.drag, dt * 4);
+      p.vx *= d; p.vz *= d;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+      if (p.flutter) p.x += Math.sin(now / 200 + p.flutter) * dt * 0.4;
+      if (p.y < 0.01 && p.kind !== 'mote') { p.y = 0.01; p.vy *= -0.25; p.vx *= 0.6; p.vz *= 0.6; }
+    }
+    if (motesOn() && particles.filter((p) => p.kind === 'mote').length < 80) {
+      const n = 80 - particles.filter((p) => p.kind === 'mote').length;
+      for (let i = 0; i < n; i++) spawn('mote', (Math.random() - 0.5) * 14, 0.3 + Math.random() * 6, (Math.random() - 0.5) * 14, ['#ffd8a8'], 1);
+    }
+  }
+  function uploadParticles(now) {
+    const A = pAdd.geometry, N = pNorm.geometry;
+    const fill = (geo, list) => {
+      const pos = geo.attributes.position.array, col = geo.attributes.color.array, size = geo.attributes.size.array, shape = geo.attributes.shape.array;
+      let n = 0;
+      for (const p of list) {
+        if (now < p.born) continue;
+        const t = (now - p.born) / p.life, fade = p.kind === 'mote' ? Math.sin(Math.PI * t) : 1 - t * t;
+        pos[n * 3] = p.x; pos[n * 3 + 1] = p.y; pos[n * 3 + 2] = p.z;
+        const boost = p.add ? 2.2 : 1;
+        col[n * 4] = p.color.r * boost; col[n * 4 + 1] = p.color.g * boost; col[n * 4 + 2] = p.color.b * boost; col[n * 4 + 3] = p.alpha * fade;
+        size[n] = p.size * (p.grow ? 1 + t * p.grow : 1); shape[n] = p.square ? 1 : 0;
+        n++;
+      }
+      geo.setDrawRange(0, n);
+      ['position', 'color', 'size', 'shape'].forEach((k) => { geo.attributes[k].needsUpdate = true; });
+    };
+    fill(A, particles.filter((p) => p.add));
+    fill(N, particles.filter((p) => !p.add));
+  }
+  const motesOn = () => quality === 'high' && animations && !window.__SHOT;
+
+  // ------------------------------------------------------------------ camera
+  // The camera orbits the table. Its distance is fitted so the board, and the tallest pieces
+  // on the far rank, fill the free part of the screen (what the HUD leaves, as insets in CSS
+  // px), and the view is offset so the board sits in the middle of that space. On tall phone
+  // screens the lens widens rather than backing the camera out of the room.
+  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, intro: null,
+    ins: { top: 0, right: 0, bottom: 0, left: 0 }, tIns: { top: 0, right: 0, bottom: 0, left: 0 } };
+  const FIT = [], FIT_TALL = [];
+  for (const x of [-5.05, 5.05]) for (const z of [-5.05, 5.05]) FIT.push([x, 0.06, z], [x, -0.46, z]);
+  for (const z of [-3.5, 3.5]) FIT.push([-0.5, 1.62, z], [0.5, 1.62, z], [-3.5, 0.97, z], [3.5, 0.97, z]);
+  // on tall screens the capture trays in front of each player belong in the frame too
+  FIT_TALL.push(...FIT);
+  for (const x of [-2.75, 2.75]) for (const z of [-7.0, 7.0]) FIT_TALL.push([x, -0.3, z]);
+  const fitCam = new THREE.PerspectiveCamera(), fitV = new THREE.Vector3(), fitCache = new Map();
+  function extent(pitch, d, lookY) {
+    fitCam.position.set(0, Math.sin(pitch) * d + lookY, Math.cos(pitch) * d);
+    fitCam.lookAt(0, lookY, 0); fitCam.updateMatrixWorld();
+    let x0 = 9, x1 = -9, y0 = 9, y1 = -9;
+    for (const p of layoutPortrait ? FIT_TALL : FIT) {
+      fitV.set(p[0], p[1], p[2]).project(fitCam);
+      if (fitV.x < x0) x0 = fitV.x; if (fitV.x > x1) x1 = fitV.x; if (fitV.y < y0) y0 = fitV.y; if (fitV.y > y1) y1 = fitV.y;
+    }
+    return [x0, x1, y0, y1];
+  }
+  function fitView(pitch, lookY, ins, W, H) {
+    const k = [layoutPortrait, Math.round(pitch * 500), Math.round(lookY * 100), Math.round(ins.top), Math.round(ins.right), Math.round(ins.bottom), Math.round(ins.left), W, H].join();
+    let f = fitCache.get(k);
+    if (f) return f;
+    const fw = Math.max(60, W - ins.left - ins.right), fh = Math.max(60, H - ins.top - ins.bottom);
+    const m = Math.min(fw, fh) * 0.03;
+    const ax = (fw / 2 - m) / (W / 2), ay = (fh / 2 - m) / (H / 2);
+    fitCam.aspect = W / H;
+    let fov = 34, dist = 0;
+    for (;;) {
+      fitCam.fov = fov; fitCam.updateProjectionMatrix();
+      let lo = 3, hi = 90;
+      for (let i = 0; i < 22; i++) {
+        const mid = (lo + hi) / 2, e = extent(pitch, mid, lookY);
+        if (e[1] - e[0] <= 2 * ax && e[3] - e[2] <= 2 * ay) hi = mid; else lo = mid;
+      }
+      dist = hi;
+      // steep views may rise above the ceiling (it is only drawn from below); low ones stay inside
+      if (dist <= (pitch > 0.9 ? 23 : 16) || fov >= 70) break;
+      fov += 4;
+    }
+    const e = extent(pitch, dist, lookY);
+    const fcx = ((ins.left + fw / 2) / W) * 2 - 1, fcy = 1 - ((ins.top + fh / 2) / H) * 2;
+    f = { dist, fov, ox: (e[0] + e[1]) / 2 - fcx, oy: (e[2] + e[3]) / 2 - fcy };
+    if (fitCache.size > 500) fitCache.clear();
+    fitCache.set(k, f);
+    return f;
+  }
+  function applyCamera() {
+    const W = canvas.clientWidth || 1, H = canvas.clientHeight || 1;
+    const f = fitView(cam.pitch, cam.lookY, cam.ins, W, H);
+    const d = f.dist * cam.zoom, cp = Math.cos(cam.pitch);
+    camera.position.set(Math.sin(cam.yaw) * cp * d, Math.sin(cam.pitch) * d + cam.lookY, Math.cos(cam.yaw) * cp * d);
+    camera.lookAt(0, cam.lookY, 0);
+    camera.fov = f.fov; camera.aspect = W / H;
+    camera.setViewOffset(W, H, (f.ox * W) / 2, (-f.oy * H) / 2, W, H);
+    camera.updateProjectionMatrix();
+    // the chandelier steps aside when it would hang between the camera and the board
+    if (room && room.chandelier) {
+      const c = camera.position, cy = room.chandelierY;
+      let hide = false;
+      if (c.y > cy - 1.2) {
+        for (const [x, z] of [[0, 0], [4, 4], [-4, 4], [4, -4], [-4, -4], [0, 6.6], [0, -6.6], [2.7, 6.6], [-2.7, -6.6]]) {
+          for (const h of [cy - 0.9, cy + 1]) {
+            if (c.y <= h) continue;
+            const t = (c.y - h) / c.y, px = c.x + (x - c.x) * t, pz = c.z + (z - c.z) * t;
+            if (px * px + pz * pz < 3.0 * 3.0) { hide = true; break; }
+          }
+          if (hide) break;
+        }
+      }
+      room.chandelier.visible = !hide;
+    }
+  }
+  const portraitNow = () => (canvas.clientWidth || 1) / (canvas.clientHeight || 1) < 0.8;
+
+  // ------------------------------------------------------------------ animation loop
+  let raf = 0, lastFrame = 0, ambientTimer = 0;
+  function step(now) {
+    const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
+    lastFrame = now;
+    let busy = false;
+    if (cam.intro) {
+      const t = clamp01((now - cam.intro.start) / cam.intro.dur), e = easeInOut(t);
+      cam.yaw = cam.intro.fYaw + (cam.tYaw - cam.intro.fYaw) * e;
+      cam.pitch = cam.intro.fPitch + (cam.tPitch - cam.intro.fPitch) * e;
+      cam.zoom = cam.intro.fZoom + (cam.tZoom - cam.intro.fZoom) * e;
+      if (t >= 1) cam.intro = null;
+      busy = true;
+    } else {
+      if (attract && !window.__SHOT) cam.tYaw += dt * 0.06;
+      for (const k of ['yaw', 'pitch', 'zoom', 'lookY']) {
+        const t = 't' + k[0].toUpperCase() + k.slice(1);
+        const d = cam[t] - cam[k];
+        if (Math.abs(d) > 0.0005) { cam[k] += d * Math.min(1, dt * 7); busy = true; } else cam[k] = cam[t];
+      }
+    }
+    for (const k of ['top', 'right', 'bottom', 'left']) {
+      const d = cam.tIns[k] - cam.ins[k];
+      if (Math.abs(d) > 0.5) { cam.ins[k] += d * Math.min(1, dt * 7); busy = true; } else cam.ins[k] = cam.tIns[k];
+    }
+    for (const s of sprites.concat(graveyard)) {
+      const target = s.selected ? 0.16 : s.hover ? 0.06 : 0;
+      if (Math.abs(s.lift - target) > 0.002) { s.lift += (target - s.lift) * Math.min(1, dt * 14); busy = true; } else s.lift = target;
+      const a = s.anim;
+      if (a) {
+        if (now < a.start) { busy = true; placeSprite(s); continue; }
+        const t = clamp01((now - a.start) / a.dur);
+        if (a.type === 'move') {
+          const e = easeOut(t);
+          s.x = a.fx + (a.tx - a.fx) * e; s.z = a.fz + (a.tz - a.fz) * e;
+          s.y = a.fy * (1 - e) + Math.sin(Math.PI * Math.min(1, t * 1.08)) * a.arc;
+          if (fx.trail && t < 0.9 && Math.random() < 0.6) spawn('trail', s.x, s.y + 0.15, s.z, fx.trail.colors, 1);
+          if (t >= 1 && a.promoteTo) { s.piece = a.promoteTo; rebuildSprite(s); spawn('sparks', s.x, 0.6, s.z, ['#ffe28a', '#ffffff'], 46); }
+          if (t >= 1 && a.land) a.land();
+        } else if (a.type === 'grave') {
+          const e = easeInOut(t);
+          s.x = a.fx + (a.tx - a.fx) * e; s.z = a.fz + (a.tz - a.fz) * e;
+          s.y = Math.sin(Math.PI * t) * 1.2 + (TRAY_Y) * e * 0; s.grave = t > 0.5;
+          if (s.grave) s.y -= 0;
+          s.scale = 1 - 0.28 * e; s.yaw = a.fyaw + e * Math.PI * 1.5;
+        } else if (a.type === 'topple') {
+          s.tilt = a.to * (1 - Math.pow(1 - t, 3)) + Math.sin(t * Math.PI * 3) * 0.04 * (1 - t);
+        } else if (a.type === 'glow') {
+          s.glow = Math.sin(Math.PI * Math.min(1, t * 2));
+        } else if (a.type === 'hop') {
+          s.y = Math.sin(Math.PI * t) * 0.35;
+        } else if (a.type === 'back') {
+          const e = easeOut(t);
+          s.x = a.fx + (a.tx - a.fx) * e; s.z = a.fz + (a.tz - a.fz) * e; s.y = a.fy * (1 - e);
+        }
+        if (t < 1) busy = true;
+        else { s.anim = null; if (a.done) a.done(); }
+      }
+      placeSprite(s);
+    }
+    if (particles.length || motesOn()) { stepParticles(now, dt); busy = busy || particles.some((p) => p.kind !== 'mote'); }
+    if (clockState && clockState.running) busy = true;
+    return busy;
+  }
+  const ambient = () => !window.__SHOT && (attract || motesOn() || particles.length > 0 || (highlights.check >= 0 && animations) || (room && room.flames.length && animations && quality === 'high'));
+  function render(now) {
+    applyCamera();
+    if (room && animations) room.update(now / 1000);
+    hlPool.forEach((m) => { if (m.visible && m.userData.pulse) m.material.opacity = 0.65 + 0.3 * Math.sin(now / 160); });
+    drawClock();
+    uploadParticles(now);
+    renderReflection();
+    if (composer) composer.render(); else renderer.render(scene, camera);
+  }
+  function frame(now) {
+    raf = 0;
+    const busy = step(now);
+    render(now);
+    if (busy) requestRender();
+    else if (ambient() && !ambientTimer && !document.hidden) {
+      // Candle flicker, dust in the light and the idle orbit run at a calm 30 fps.
+      ambientTimer = setTimeout(() => { ambientTimer = 0; requestRender(); }, 33);
+    }
+  }
+  function requestRender() { if (!raf) raf = requestAnimationFrame(frame); }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) requestRender(); });
+
+  // ------------------------------------------------------------------ input
+  const raycaster = new THREE.Raycaster();
+  const pointers = new Map();
+  let drag = null, pinch = 0;
+  function ndc(clientX, clientY) {
+    const r = canvas.getBoundingClientRect();
+    return new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, 1 - ((clientY - r.top) / r.height) * 2);
+  }
+  function groundPoint(clientX, clientY, y) {
+    applyCamera(); camera.updateMatrixWorld();
+    raycaster.setFromCamera(ndc(clientX, clientY), camera);
+    const ray = raycaster.ray;
+    if (ray.direction.y >= -1e-4) return null;
+    const k = ((y || 0) - ray.origin.y) / ray.direction.y;
+    return [ray.origin.x + ray.direction.x * k, ray.origin.z + ray.direction.z * k];
+  }
+  const sqAt = (x, z) => { const file = Math.floor(x + 4), rank = Math.floor(4 - z); return file >= 0 && file < 8 && rank >= 0 && rank < 8 ? rank * 8 + file : -1; };
+  function pick(clientX, clientY) {
+    applyCamera(); camera.updateMatrixWorld();
+    raycaster.setFromCamera(ndc(clientX, clientY), camera);
+    const live = sprites.filter((s) => s.obj && !s.dead);
+    const hits = raycaster.intersectObjects(live.map((s) => s.obj), true);
+    if (hits.length) {
+      let o = hits[0].object; while (o && !live.some((s) => s.obj === o)) o = o.parent;
+      const s = live.find((x) => x.obj === o);
+      if (s) return s.sq;
+    }
+    const g = groundPoint(clientX, clientY, 0);
+    return g ? sqAt(g[0], g[1]) : -1;
+  }
+  function setHover(sq) {
+    if (sq === hoverSq) return;
+    hoverSq = sq;
+    for (const s of sprites) s.hover = s.sq === sq && opts.canDrag(sq);
+    drawHighlights();
+    canvas.style.cursor = sq >= 0 && opts.canDrag(sq) ? 'grab' : '';
+    requestRender();
+  }
+  canvas.addEventListener('pointerdown', (e) => {
+    canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pointers.size === 1) {
+      const sq = pick(e.clientX, e.clientY);
+      const sprite = sq >= 0 ? sprites.find((s) => s.sq === sq && !s.dead && !s.anim) : null;
+      if (sprite && opts.canDrag(sq)) {
+        dragging = { sq, sprite, x: e.clientX, y: e.clientY, moved: false, over: sq };
+        opts.onSquare(sq, 'down');
+      } else drag = { x: e.clientX, y: e.clientY, moved: false };
+    }
+    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); drag = null; if (dragging) cancelDrag(); }
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) {
+      if (e.pointerType === 'mouse') setHover(pick(e.clientX, e.clientY));
+      return;
+    }
+    pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      if (pinch) cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * (pinch / d)));
+      pinch = d; requestRender();
+      return;
+    }
+    if (dragging) {
+      if (!dragging.moved && Math.hypot(e.clientX - dragging.x, e.clientY - dragging.y) < 6) return;
+      dragging.moved = true;
+      canvas.style.cursor = 'grabbing';
+      const g = groundPoint(e.clientX, e.clientY, 0.35);
+      if (g) {
+        dragging.sprite.x = Math.max(-4.4, Math.min(4.4, g[0])); dragging.sprite.z = Math.max(-4.4, Math.min(4.4, g[1]));
+        dragging.sprite.y = 0.35;
+        dragging.over = sqAt(dragging.sprite.x, dragging.sprite.z);
+        drawHighlights();
+      }
+      requestRender();
+      return;
+    }
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 7) return;
+    drag.moved = true;
+    cam.intro = null;
+    cam.tYaw -= dx * 0.008; cam.tPitch = Math.min(1.54, Math.max(0.3, cam.tPitch + dy * 0.006));
+    cam.yaw = cam.tYaw; cam.pitch = cam.tPitch;
+    drag.x = e.clientX; drag.y = e.clientY;
+    requestRender();
+  });
+  function cancelDrag() {
+    if (!dragging) return;
+    const s = dragging.sprite;
+    s.anim = { type: 'back', start: performance.now(), dur: 170, fx: s.x, fz: s.z, fy: s.y, tx: sqX(s.sq), tz: sqZ(s.sq) };
+    dragging = null;
+    drawHighlights();
+    requestRender();
+  }
+  const end = (e) => {
+    pointers.delete(e.pointerId);
+    if (dragging && pointers.size === 0) {
+      const d = dragging;
+      if (d.moved) {
+        const to = d.over;
+        dragging = null;
+        if (!(to >= 0 && to !== d.sq && opts.onDrop(d.sq, to))) { dragging = d; cancelDrag(); }
+      } else dragging = null;
+      canvas.style.cursor = '';
+    } else if (drag && !drag.moved && pointers.size === 0) {
+      const sq = pick(e.clientX, e.clientY);
+      if (sq >= 0) opts.onSquare(sq, 'click');
+    }
+    if (pointers.size === 0) { drag = null; pinch = 0; }
+    requestRender();
+  };
+  canvas.addEventListener('pointerup', end);
+  canvas.addEventListener('pointercancel', (e) => { pointers.delete(e.pointerId); drag = null; pinch = 0; cancelDrag(); });
+  canvas.addEventListener('pointerleave', () => setHover(-1));
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * (1 + Math.sign(e.deltaY) * 0.08)));
+    requestRender();
+  }, { passive: false });
+  canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); opts.onContextLost(); });
+
+  // ------------------------------------------------------------------ sizing
+  let lastW = 0, lastH = 0;
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, quality === 'high' ? 1.75 : 1);
+    const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
+    if (w !== lastW || h !== lastH || renderer.getPixelRatio() !== dpr) {
+      lastW = w; lastH = h;
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(w, h, false);
+      buildComposer();
+      if (reflRT) reflRT.dispose();
+      reflRT = quality === 'high' ? new THREE.WebGLRenderTarget(Math.round(w * dpr / 2), Math.round(h * dpr / 2), { type: THREE.HalfFloatType }) : null;
+      reflMat.uniforms.tRefl.value = reflRT ? reflRT.texture : null;
+      reflPlane.visible = !!reflRT;
+      pAdd.material.uniforms.scale.value = pNorm.material.uniforms.scale.value = h * dpr * 0.9;
+    }
+    // Tall screens put the capture trays in front of each player instead of beside the board.
+    const portrait = portraitNow();
+    if (portrait !== layoutPortrait) { layoutPortrait = portrait; placeTrays(); relayoutGrave(); placeClock(); }
+    requestRender();
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  // ------------------------------------------------------------------ captured pieces
+  function settleGrave(captured) {
+    graveyard.forEach(dropSprite);
+    graveyard = [];
+    for (const capturer of [1, -1]) {
+      const list = (captured && captured[capturer > 0 ? 'byWhite' : 'byBlack']) || [];
+      list.forEach((piece, i) => {
+        const [x, z] = gravePos(capturer, i);
+        const s = makeSprite(piece, -1);
+        s.x = x; s.z = z; s.scale = 0.72; s.grave = true; s.yaw = graveYaw(capturer); s.cap = capturer; s.gi = i;
+        placeSprite(s);
+        graveyard.push(s);
+      });
+    }
+  }
+
+  // ------------------------------------------------------------------ snapshots for menus
+  // Renders a set, board or room into an image (data URL) for cards and the collection.
+  const snapCache = new Map();
+  let snapQueue = Promise.resolve();
+  function snapshot(spec, w, h) {
+    const keyS = JSON.stringify([spec, w, h]);
+    if (snapCache.has(keyS)) return Promise.resolve(snapCache.get(keyS));
+    snapQueue = snapQueue.then(() => new Promise((res) => requestAnimationFrame(() => {
+      const url = renderSnapshot(spec, w, h);
+      snapCache.set(keyS, url); res(url);
+    })));
+    return snapQueue;
+  }
+  function renderSnapshot(spec, w, h) {
+    const s2 = new THREE.Scene();
+    s2.environment = W.environment(renderer, (W.ROOMS[roomId] || W.ROOMS.salon).env);
+    s2.environmentIntensity = 0.95;
+    const c2 = new THREE.PerspectiveCamera(spec.fov || 24, w / h, 0.05, 100);
+    const l = new THREE.DirectionalLight('#fff0dd', 2.2); l.position.set(-3, 6, 5); s2.add(l);
+    const r2 = new THREE.DirectionalLight('#ffd9a8', 1.1); r2.position.set(4, 3, -5); s2.add(r2);
+    s2.add(new THREE.HemisphereLight('#ffe8d0', '#20120a', 0.4));
+    let disposeList = [];
+    if (spec.kind === 'pieces' || spec.kind === 'piece') {
+      const types = spec.kind === 'piece' ? [spec.type || 'k'] : ['r', 'n', 'b', 'q', 'k', 'p'];
+      const sides = spec.kind === 'piece' ? [spec.side || 'w'] : ['w', 'b'];
+      sides.forEach((side, row) => types.forEach((t, i) => {
+        const g = P.make(spec.set, t, side);
+        g.position.set((i - (types.length - 1) / 2) * 0.78, 0, row ? -0.85 : 0.2);
+        g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
+        s2.add(g);
+      }));
+      if (spec.kind === 'piece') { c2.position.set(0.2, 1.15, 3.6); c2.lookAt(0, (P.HEIGHT[types[0]] || 1) * 0.5, 0); }
+      else { c2.position.set(0, 1.9, 6.0); c2.lookAt(0, 0.55, -0.3); }
+      const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
+      floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
+      s2.background = null;
+    } else if (spec.kind === 'board') {
+      const b = W.board(spec.board, 'white'); s2.add(b); disposeList.push(b);
+      const g = P.make(setId, 'k', 'w'); g.position.set(-0.5, 0, 0.5); s2.add(g);
+      const g2 = P.make(setId, 'n', 'b'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
+      c2.position.set(3.2, 4.2, 5.4); c2.lookAt(0.3, 0, 0.6);
+    }
+    const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
+    const prevT = renderer.toneMapping;
+    renderer.setRenderTarget(rt);
+    renderer.setClearColor(0x000000, 0); renderer.clear();
+    renderer.render(s2, c2);
+    const px = new Uint8Array(w * h * 4);
+    renderer.readRenderTargetPixels(rt, 0, 0, w, h, px);
+    renderer.setRenderTarget(null);
+    renderer.setClearColor('#120a07', 1);
+    renderer.toneMapping = prevT;
+    rt.dispose();
+    disposeList.forEach((o) => { if (o.userData && o.userData.dispose) o.userData.dispose(); });
+    // render targets are linear: tone map and encode in the copy
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const g = cv.getContext('2d'), img = g.createImageData(w, h);
+    const aces = (x) => { const a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14; return Math.max(0, Math.min(1, (x * (a * x + b)) / (x * (c * x + d) + e))); };
+    const enc = (x) => (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055) * 255;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const si = ((h - 1 - y) * w + x) * 4, di = (y * w + x) * 4;
+      img.data[di] = enc(aces(px[si] / 255 * 1.1)); img.data[di + 1] = enc(aces(px[si + 1] / 255 * 1.1)); img.data[di + 2] = enc(aces(px[si + 2] / 255 * 1.1)); img.data[di + 3] = px[si + 3];
+    }
+    g.putImageData(img, 0, 0);
+    return cv.toDataURL('image/png');
+  }
+
+  // ------------------------------------------------------------------ boot
+  loadRoom('salon');
+  loadBoard('walnut');
+  resize();
+  applyCamera();
+
+  // ------------------------------------------------------------------- API
+  return {
+    three: { renderer, scene, camera },
+    setBoard(pieces, captured) {
+      sprites.forEach(dropSprite);
+      sprites = pieces.map(([sq, piece]) => makeSprite(piece, sq));
+      for (const s of sprites) s.selected = s.sq === selectedSq;
+      settleGrave(captured);
+      dragging = null;
+      requestRender();
+    },
+    setHighlights(h) {
+      highlights = h || {};
+      selectedSq = highlights.selected === undefined ? -1 : highlights.selected;
+      for (const s of sprites) s.selected = s.sq === selectedSq && !s.anim;
+      drawHighlights();
+      requestRender();
+    },
+    setArrows(list) { arrows = list || []; drawArrows(); requestRender(); },
+    // board and piece items from the catalog: { board: id } and { set: id }
+    setTheme(board, pieces) {
+      if (board) loadBoard(board.board || 'walnut');
+      if (pieces) loadSet(pieces.set || 'regency');
+      requestRender();
+    },
+    setRoom(r) { if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },
+    setFx(f) { fx = Object.assign({}, fx, f); },
+    setCaptureEffects(on) { captureFxOn = on; },
+    setQuality(q) { quality = q === 'low' ? 'low' : 'high'; renderer.shadowMap.type = quality === 'high' ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap; key.shadow.mapSize.set(quality === 'high' ? 2048 : 1024, quality === 'high' ? 2048 : 1024); if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; } lastW = 0; resize(); },
+    setAnimations(on) { animations = on; if (!on) particles = []; requestRender(); },
+    // Home-screen showcase: a low, slowly circling view across the board.
+    setAttract(on, instant) {
+      attract = on;
+      if (on) { cam.tPitch = 0.36; cam.tLookY = 0.9; cam.tZoom = 1; }
+      else cam.tLookY = 0;
+      if (instant || !animations) { cam.pitch = cam.tPitch; cam.lookY = cam.tLookY; cam.zoom = cam.tZoom; }
+      requestRender();
+    },
+    // Screen space the HUD covers, in CSS px; the board is fitted into what is left.
+    setInsets(ins, instant) {
+      Object.assign(cam.tIns, { top: 0, right: 0, bottom: 0, left: 0 }, ins || {});
+      if (instant || !animations) Object.assign(cam.ins, cam.tIns);
+      requestRender();
+    },
+    // side: 'white' | 'black'; preset: 'player' | 'top' | 'low'
+    setView(side, preset, instant) {
+      if (side !== labelSide) { labelSide = side; if (boardMesh) boardMesh.userData.relabel(side); placeClock(); placeLights(side); }
+      attract = false; cam.tLookY = 0; cam.tZoom = 1;
+      let yaw = side === 'black' ? Math.PI : 0;
+      while (yaw - cam.yaw > Math.PI) yaw -= TAU;
+      while (cam.yaw - yaw > Math.PI) yaw += TAU;
+      cam.tYaw = yaw;
+      cam.tPitch = preset === 'top' ? 1.5 : preset === 'low' ? 0.58 : portraitNow() ? 1.08 : 0.8;
+      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.zoom = 1; cam.lookY = 0; cam.intro = null; }
+      requestRender();
+    },
+    // Sweeping camera move into the player's seat at the start of a game.
+    intro() {
+      if (!animations) return;
+      cam.intro = { start: performance.now(), dur: 1700, fYaw: cam.tYaw + 0.9, fPitch: 0.42, fZoom: 1.25 };
+      requestRender();
+    },
+    animateMove(info, done, o) {
+      const now = performance.now();
+      const quick = o && o.quick;
+      const mover = sprites.find((s) => s.sq === info.from && !s.dead);
+      const victim = info.capturedSq >= 0 ? sprites.find((s) => s.sq === info.capturedSq && s !== mover && !s.dead) : null;
+      const finish = () => { if (done) done(); };
+      const capturer = info.mover > 0 ? 1 : -1;
+      const graveIdx = graveyard.filter((g) => g.cap === capturer).length;
+      if (mover) mover.selected = false;
+      const toGrave = (v) => {
+        sprites = sprites.filter((s) => s !== v);
+        const [gx, gz] = gravePos(capturer, graveIdx);
+        v.x = gx; v.z = gz; v.scale = 0.72; v.yaw = graveYaw(capturer); v.sq = -1; v.grave = true; v.y = 0; v.dead = false; v.cap = capturer; v.gi = graveIdx;
+        graveyard.push(v); placeSprite(v);
+      };
+      if (!animations || !mover) {
+        if (victim) toGrave(victim);
+        if (mover) { mover.sq = info.to; mover.x = sqX(info.to); mover.z = sqZ(info.to); mover.y = 0; if (info.promo) { mover.piece = info.promo; rebuildSprite(mover); } placeSprite(mover); }
+        if (info.rook) { const r = sprites.find((s) => s.sq === info.rook[0] && !s.dead); if (r) { r.sq = info.rook[1]; r.x = sqX(r.sq); r.z = sqZ(r.sq); placeSprite(r); } }
+        requestRender(); finish();
+        return;
+      }
+      const knight = kindOf(info.mover) === 2;
+      const dist = Math.hypot(sqX(info.to) - mover.x, sqZ(info.to) - mover.z);
+      const dur = dist < 0.6 ? 130 : Math.min(300, 200 + dist * 14) + (knight ? 50 : 0);
+      const landX = sqX(info.to), landZ = sqZ(info.to);
+      mover.anim = { type: 'move', start: now, dur, fx: mover.x, fz: mover.z, fy: mover.y, tx: landX, tz: landZ,
+        arc: dist < 0.6 ? 0 : knight ? 0.6 : 0.16, promoteTo: info.promo || 0, done: finish,
+        land: () => { if (!victim && !quick) spawn('dust', landX, 0.02, landZ, ['#fff2dc'], 7); } };
+      mover.sq = info.to;
+      if (victim) {
+        victim.dead = true;
+        const [gx, gz] = gravePos(capturer, graveIdx);
+        const vx = victim.x, vz = victim.z;
+        const impact = now + dur * 0.8;
+        if (!quick && captureFxOn && fx.capture && fx.capture.kind !== 'none') {
+          setTimeout(() => spawn(fx.capture.kind, vx, 0.4, vz, fx.capture.colors, fx.capture.kind === 'sparks' ? 46 : 30), Math.max(0, impact - performance.now()));
+        }
+        victim.anim = { type: 'grave', start: impact, dur: quick ? 220 : 560, fx: vx, fz: vz, tx: gx, tz: gz, fyaw: victim.yaw, done: () => toGrave(victim) };
+      }
+      if (info.rook) {
+        const r = sprites.find((s) => s.sq === info.rook[0] && !s.dead);
+        if (r) { r.anim = { type: 'move', start: now + 80, dur, fx: r.x, fz: r.z, fy: 0, tx: sqX(info.rook[1]), tz: sqZ(info.rook[1]), arc: 0.34 }; r.sq = info.rook[1]; }
+      }
+      requestRender();
+    },
+    celebrate(kind, loserSq, kingSqs, winnerSq) {
+      const now = performance.now();
+      if (kind === 'win') {
+        const k = loserSq >= 0 ? sprites.find((s) => s.sq === loserSq && !s.dead) : null;
+        if (k) k.anim = { type: 'topple', start: now + 150, dur: animations ? 1100 : 1, to: 1.45 };
+        const w = winnerSq >= 0 ? sprites.find((s) => s.sq === winnerSq && !s.dead) : null;
+        if (w && animations) w.anim = { type: 'hop', start: now + 300, dur: 520 };
+        if (animations && fx.victory && fx.victory.kind !== 'none') {
+          const v = fx.victory;
+          const at = w ? [w.x, 1.4, w.z] : [0, 1.2, 0];
+          const burst = (dx, dz, delay) => setTimeout(() => spawn(v.kind === 'fireworks' ? 'firework' : v.kind === 'petals' ? 'petals' : v.kind === 'sparks' ? 'sparks' : 'confetti', at[0] + dx, at[1] + (v.kind === 'fireworks' ? 2 : 0), at[2] + dz, v.colors, v.kind === 'fireworks' ? 80 : 100), delay);
+          burst(0, 0, 500);
+          if (v.kind === 'fireworks') { burst(-2, -1, 900); burst(2, 1, 1300); }
+          if (v.kind === 'confetti') burst(0, 0, 900);
+        }
+      } else if (kind === 'draw') {
+        for (const sq of kingSqs || []) {
+          const k = sprites.find((s) => s.sq === sq && !s.dead);
+          if (k) { k.anim = { type: 'glow', start: now, dur: animations ? 1800 : 1 }; spawn('sparks', k.x, 1.2, k.z, ['#ffe6a8', '#ffffff'], 30); }
+        }
+      }
+      requestRender();
+    },
+    setClock(state, skin) {
+      clockState = state; if (skin) clockSkin = skin;
+      placeClock();
+      clockKey = '';
+      requestRender();
+    },
+    showcase(on) { attract = !!on; requestRender(); },
+    snapshot,
+    sets: P.list,
+    boards: () => W.BOARDS,
+    rooms: () => W.ROOMS,
+    cancelDrag,
+    requestRender,
+    resize,
+  };
+}
+if (typeof module !== 'undefined') module.exports = ChacklateScene;

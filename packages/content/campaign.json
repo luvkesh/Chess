@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "coach": { "id": "praline", "name": "Praline", "full": "Praline the Red Panda", "animal": "redpanda", "colors": ["#d9773a", "#5c1a10"], "blurb": "Your coach. Praline explains every move, cheers your best ones and helps you learn from the rest." },
+  "opponents": [
+    { "level": 0, "id": "truffle", "name": "Truffle", "full": "Truffle the Bunny", "animal": "bunny", "colors": ["#f2c6cf", "#8a3a52"], "blurb": "Brand new to chess. Truffle hops about happily and often leaves pieces where you can take them." },
+    { "level": 1, "id": "bramble", "name": "Bramble", "full": "Bramble the Beaver", "animal": "beaver", "colors": ["#c08a54", "#4a2a14"], "blurb": "A calm builder. Bramble brings out the pieces one by one and avoids tricks." },
+    { "level": 2, "id": "zippy", "name": "Zippy", "full": "Zippy the Squirrel", "animal": "squirrel", "colors": ["#e8963c", "#6a2c0c"], "blurb": "Races into attack! Zippy is fast, sometimes a little too fast." },
+    { "level": 3, "id": "shelly", "name": "Shelly", "full": "Shelly the Tortoise", "animal": "tortoise", "colors": ["#7ab56e", "#1c3a1e"], "blurb": "Slow and steady. Shelly defends well and loves a long endgame." },
+    { "level": 4, "id": "rocco", "name": "Rocco", "full": "Rocco the Raccoon", "animal": "raccoon", "colors": ["#9aa0ae", "#24262e"], "blurb": "A sneaky trickster who sets traps. Look twice before you grab a piece!" },
+    { "level": 5, "id": "ivy", "name": "Ivy", "full": "Ivy the Giraffe", "animal": "giraffe", "colors": ["#f0c060", "#7a4a1a"], "blurb": "Sees far across the board and makes patient plans." },
+    { "level": 6, "id": "onyx", "name": "Onyx", "full": "Onyx the Raven", "animal": "raven", "colors": ["#6a6e9a", "#12121c"], "blurb": "Sharp and clever. Onyx calculates deeply and loves a surprise sacrifice." },
+    { "level": 7, "id": "ember", "name": "Ember", "full": "Ember the Dragon", "animal": "dragon", "colors": ["#e8563a", "#3a0806"], "blurb": "Full strength. Ember thinks the longest and plays the very best moves." }
+  ],
+  "eras": [
+    {
+      "id": "egypt", "n": 1, "name": "Ancient Egypt", "title": "The Pharaoh's Board", "when": "c. 1330 BC", "place": "Thebes, on the Nile", "access": "free",
+      "set": "pharaoh", "board": "nile", "room": "nile", "landmark": "pyramids", "colors": ["#e8c070", "#1d2f7a"],
+      "coach": { "id": "miu", "name": "Miu", "full": "Miu the Cat", "animal": "cat",
+        "hello": "You have learned well. Now play me! Win, and the Pharaoh's Treasure set is yours.",
+        "win": "Purr-fect! The Pharaoh's Treasure belongs to you now.",
+        "lose": "So close! Every great player loses on the way. Try again!" },
+      "stages": [
+        { "kind": "tale", "title": "Games of the pharaohs", "pages": [
+          "Welcome to Egypt, more than 3,000 years ago! The great river Nile flows past temples and pyramids, and in the palace the young pharaoh Tutankhamun is playing a board game called Senet.",
+          "Chess had not been invented yet. It would appear in India about two thousand years later. But the Egyptians loved games of skill, and Tutankhamun was buried with several Senet boards.",
+          "I am Miu. Cats were treasured in ancient Egypt, you know. Today I will teach you the knight, the piece shaped like a horse. The pharaoh's horses pulled his golden chariots!"],
+          "quiz": { "q": "Which board game did Tutankhamun play?", "options": ["Senet", "Football", "Chess"], "answer": 0, "explain": "Senet is one of the oldest board games we know. Chess came much later." } },
+        { "kind": "lesson", "title": "The knight's jump", "lesson": "lesson.c01.l05.knight" },
+        { "kind": "puzzles", "title": "Tomb treasure", "intro": "Treasure is lying about! In each puzzle, find a piece you can take for free.", "theme": "hangingPiece", "count": 3, "max": 800 },
+        { "kind": "champion", "title": "Miu's challenge", "level": 0, "color": "white" }
+      ]
+    },
+    {
+      "id": "greece", "n": 2, "name": "Ancient Greece", "title": "Wisdom of Athens", "when": "c. 440 BC", "place": "Athens", "access": "free",
+      "set": "olympian", "board": "athens", "room": "athens", "landmark": "parthenon", "colors": ["#e8e0cc", "#1f3a30"],
+      "coach": { "id": "sophie", "name": "Sophie", "full": "Sophie the Owl", "animal": "owl",
+        "hello": "Let us see if you are as wise as an owl. Win, and the Olympian Marble set is yours.",
+        "win": "Wonderful! Athena herself would be proud of you.",
+        "lose": "Even the wisest owl loses sometimes. Think, then try again." },
+      "stages": [
+        { "kind": "tale", "title": "Thinkers and their games", "pages": [
+          "Welcome to Athens! On the hill called the Acropolis, builders are finishing the Parthenon, a temple of white marble for the goddess Athena.",
+          "The Greeks played a game called petteia, trapping the other side's pieces on a grid. The philosopher Plato wrote about it! Greek thinkers loved numbers and logic, just like chess players.",
+          "I am Sophie. The owl was Athena's bird, a sign of wisdom. Wise players count before they capture: a pawn is worth 1, a knight or a bishop 3, a rook 5 and a queen 9."],
+          "quiz": { "q": "How many points is a rook worth?", "options": ["3", "5", "9"], "answer": 1, "explain": "A rook is worth 5: more than a knight or a bishop, less than a queen." } },
+        { "kind": "lesson", "title": "Counting captures", "lesson": "lesson.c01.l07.values" },
+        { "kind": "puzzles", "title": "The owl's eyes", "intro": "An owl sees everything. Count what each side can take, then win the most valuable piece.", "theme": "advantage", "count": 3, "max": 1020 },
+        { "kind": "champion", "title": "Sophie's challenge", "level": 1, "color": "white" }
+      ]
+    },
+    {
+      "id": "rome", "n": 3, "name": "Ancient Rome", "title": "The Emperor's Column", "when": "AD 113", "place": "Rome", "access": "free",
+      "set": "imperial", "board": "roma", "room": "roma", "landmark": "colosseum", "colors": ["#d8b060", "#4c1526"],
+      "coach": { "id": "marcus", "name": "Marcus", "full": "Marcus the Wolf", "animal": "wolf",
+        "hello": "Ave! Show me the courage of a Roman. Win, and the Imperial Rome set is yours.",
+        "win": "Victory! You fight like a true Roman.",
+        "lose": "Rome was not built in a day. Try again!" },
+      "stages": [
+        { "kind": "tale", "title": "The game of little soldiers", "pages": [
+          "Welcome to Rome! Emperor Trajan has just finished a great column, carved with a spiral of more than 2,500 figures that winds all the way to the top.",
+          "Roman soldiers played ludus latrunculorum, the game of little soldiers. You captured an enemy piece by trapping it between two of your own.",
+          "I am Marcus. In Rome's oldest legend, a wolf looked after the twins Romulus and Remus. A battle is won when the enemy leader is trapped. In chess we call that checkmate!"],
+          "quiz": { "q": "What is checkmate?", "options": ["The king is attacked and cannot escape", "You take the queen", "All the pawns are gone"], "answer": 0, "explain": "Checkmate ends the game: the king is in check and has no way out." } },
+        { "kind": "lesson", "title": "Checkmate", "lesson": "lesson.c02.l02.checkmate" },
+        { "kind": "puzzles", "title": "Trap the general", "intro": "Each puzzle has a checkmate in one move. Find it!", "theme": "mateIn1", "count": 3 },
+        { "kind": "champion", "title": "Marcus's challenge", "level": 2, "color": "white" }
+      ]
+    },
+    {
+      "id": "mughal", "n": 4, "name": "Mughal India", "title": "Where Chess Was Born", "when": "c. 1640", "place": "Agra", "access": "free",
+      "set": "maharaja", "board": "mughal", "room": "mughal", "landmark": "taj", "colors": ["#f0d8a8", "#0f3322"],
+      "coach": { "id": "moti", "name": "Moti", "full": "Moti the Elephant", "animal": "elephant",
+        "hello": "Welcome to the emperor's court. Win, and the Maharaja's Jade set is yours.",
+        "win": "Shabash! Well played. The jade set is yours.",
+        "lose": "Elephants never forget, so remember this game and try again." },
+      "stages": [
+        { "kind": "tale", "title": "Chaturanga", "pages": [
+          "Welcome to Agra! Emperor Shah Jahan is building the Taj Mahal, a tomb of white marble so beautiful that people still travel from all over the world to see it.",
+          "Chess was born in India about 1,500 years ago. It was called chaturanga, the four parts of an army: foot soldiers, horses, elephants and chariots. Today they are our pawns, knights, bishops and rooks.",
+          "I am Moti. Yes, the bishop used to be an elephant! Like elephants in a battle, chess pieces are strongest in the middle. Control the centre and your army can go anywhere."],
+          "quiz": { "q": "Where was chess born?", "options": ["India", "Egypt", "Rome"], "answer": 0, "explain": "Chess began in India as chaturanga, then travelled to Persia, the Arab world and Europe." } },
+        { "kind": "lesson", "title": "Fight for the centre", "lesson": "lesson.c03.l01.centre" },
+        { "kind": "puzzles", "title": "The elephant's fork", "intro": "Find a move that attacks two pieces at once. Your opponent can only save one!", "theme": "fork", "count": 3 },
+        { "kind": "champion", "title": "Moti's challenge", "level": 3, "color": "white" }
+      ]
+    },
+    {
+      "id": "ming", "n": 5, "name": "Ming China", "title": "The Forbidden City", "when": "c. 1420", "place": "Beijing", "access": "premium",
+      "set": "dynasty", "board": "ming", "room": "ming", "landmark": "pagoda", "colors": ["#f0d8a0", "#7a1410"],
+      "coach": { "id": "bao", "name": "Bao", "full": "Bao the Panda", "animal": "panda",
+        "hello": "Ni hao! Patience and sharp eyes win games. Beat me, and the Ming Porcelain set is yours.",
+        "win": "Excellent! The porcelain set is yours. Handle it with care!",
+        "lose": "Bamboo grows slowly, but it grows strong. Try again!" },
+      "stages": [
+        { "kind": "tale", "title": "Elephants, cannons and a river", "pages": [
+          "Welcome to Beijing! The Forbidden City has just been finished: a palace of red walls and golden roofs with hundreds of buildings, where the emperor lived.",
+          "In China people play xiangqi, a cousin of chess. The pieces are flat discs with characters on them, a river runs across the middle of the board, and cannons jump over pieces to capture!",
+          "I am Bao. Pandas are patient, and patient players spot skewers: attack a big piece, and when it moves away, take the piece behind it."],
+          "quiz": { "q": "What runs across the middle of a xiangqi board?", "options": ["A river", "A wall", "A road"], "answer": 0, "explain": "The river divides the two armies. Some pieces move differently once they cross it." } },
+        { "kind": "lesson", "title": "Skewers", "lesson": "lesson.c04.l03.skewers" },
+        { "kind": "puzzles", "title": "The panda's skewer", "intro": "Attack a valuable piece so that the piece behind it falls when it moves.", "theme": "skewer", "count": 3 },
+        { "kind": "champion", "title": "Bao's challenge", "level": 4, "color": "white" }
+      ]
+    },
+    {
+      "id": "venice", "n": 6, "name": "Venice", "title": "The City on the Water", "when": "c. 1700", "place": "Venice", "access": "premium",
+      "set": "murano", "board": "venice", "room": "venice", "landmark": "venice", "colors": ["#f0d8a0", "#14347c"],
+      "coach": { "id": "marco", "name": "Marco", "full": "Marco the Winged Lion", "animal": "lion",
+        "hello": "Benvenuto! Let us see what you can do with a queen. Win, and the Murano Glass set is yours.",
+        "win": "Bravissimo! The Murano Glass set is yours.",
+        "lose": "So close! In Venice we say: little by little, one goes far. Try again!" },
+      "stages": [
+        { "kind": "tale", "title": "The queen gets her power", "pages": [
+          "Welcome to Venice, a city built on water, where people travel by gondola along the canals. On the island of Murano, glassmakers blow the finest glass in the world.",
+          "Long ago the queen could only move one square diagonally. Then, around 1475, players in Spain and Italy gave her new powers: she could move any distance, in any direction. People called it mad queen chess!",
+          "I am Marco. The winged lion is the symbol of Venice. With great power comes great care: bring your queen out too early and she will be chased all over the board."],
+          "quiz": { "q": "What did the queen gain around 1475?", "options": ["Long moves in any direction", "A golden crown", "The power to jump"], "answer": 0, "explain": "That change made the queen the strongest piece and made chess much faster." } },
+        { "kind": "lesson", "title": "The queen comes out", "lesson": "lesson.c03.l05.queen-early" },
+        { "kind": "endgame", "title": "The queen's power", "intro": "Use your queen and king together to checkmate the lone king.", "endgame": "endgame.kq-k" },
+        { "kind": "champion", "title": "Marco's challenge", "level": 4, "color": "white" }
+      ]
+    },
+    {
+      "id": "russia", "n": 7, "name": "Imperial Russia", "title": "Jewels in the Snow", "when": "c. 1900", "place": "Saint Petersburg", "access": "premium",
+      "set": "tsarina", "board": "winter", "room": "winter", "landmark": "domes", "colors": ["#f0e4d0", "#13563a"],
+      "coach": { "id": "mishka", "name": "Mishka", "full": "Mishka the Bear", "animal": "bear",
+        "hello": "Privet! Can you win an endgame against a bear? Win, and the Tsarina's Faberge set is yours.",
+        "win": "Molodets! Well done! The Faberge set is yours.",
+        "lose": "Bears are strong, but you are getting stronger. Try again!" },
+      "stages": [
+        { "kind": "tale", "title": "The endgame school", "pages": [
+          "Welcome to Saint Petersburg! Snow sparkles on golden domes, and the royal jewellers are making jewelled Easter eggs for the Tsar's family.",
+          "Russia loves chess. It has produced many world champions, and its chess schools are famous for teaching the endgame: the last part of the game, when only a few pieces are left.",
+          "I am Mishka. In the endgame even the king becomes a fighter! When two kings stand face to face with one square between them, we call it the opposition."],
+          "quiz": { "q": "In the endgame, what should your king do?", "options": ["Join the fight", "Hide in a corner", "Stay on its first square"], "answer": 0, "explain": "With fewer pieces about, the king is safe enough to help, and it is a strong piece." } },
+        { "kind": "lesson", "title": "The opposition", "lesson": "lesson.c08.l03.opposition" },
+        { "kind": "endgame", "title": "March of the pawn", "intro": "Walk your pawn to the far side and make a new queen, with your king leading the way.", "endgame": "endgame.kp-k" },
+        { "kind": "champion", "title": "Mishka's challenge", "level": 5, "color": "white" }
+      ]
+    },
+    {
+      "id": "deco", "n": 8, "name": "New York", "title": "Chess in the Sky", "when": "1930", "place": "Manhattan", "access": "premium",
+      "set": "manhattan", "board": "deco", "room": "deco", "landmark": "skyline", "colors": ["#e8ecf0", "#14161c"],
+      "coach": { "id": "skye", "name": "Skye", "full": "Skye the Eagle", "animal": "eagle",
+        "hello": "Welcome to the top of the world! This is the final challenge. Win, and the Manhattan Deco set is yours.",
+        "win": "Spectacular! You have travelled through time and won in every era.",
+        "lose": "Even eagles have to try again sometimes. You can do it!" },
+      "stages": [
+        { "kind": "tale", "title": "The city of chess clubs", "pages": [
+          "Welcome to New York in 1930! The Chrysler Building has just become the tallest building in the world, with a shining steel crown of arches and a needle-sharp spire.",
+          "The city is full of chess clubs, and the Manhattan Chess Club is one of the most famous in the world. The great Cuban champion José Raúl Capablanca played there.",
+          "I am Skye. From up high, an eagle sees the whole board. Strong players know their checkmate patterns by heart, so they can spot them in a flash."],
+          "quiz": { "q": "Which world champion from Cuba played at the Manhattan Chess Club?", "options": ["José Raúl Capablanca", "Napoleon", "Leonardo da Vinci"], "answer": 0, "explain": "Capablanca was world champion from 1921 to 1927 and was famous for his clear, simple style." } },
+        { "kind": "lesson", "title": "Mating patterns", "lesson": "lesson.c04.l06.mates" },
+        { "kind": "puzzles", "title": "Skyline finish", "intro": "Each puzzle ends in checkmate. Find the moves that force it.", "theme": ["mateIn2", "mateIn3"], "count": 3 },
+        { "kind": "champion", "title": "Skye's challenge", "level": 6, "color": "white" }
+      ]
+    }
+  ]
+}
