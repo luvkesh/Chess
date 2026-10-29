@@ -155,5 +155,40 @@ assert.strictEqual(m.xp, 123);
 assert.strictEqual(m.stats.games, 4);
 assert.strictEqual(m.stats.puzzles.rating, 800);
 assert.deepStrictEqual(PG.migrate({ v: 99 }), PG.fresh());
+assert.deepStrictEqual(PG.migrate({ v: 1, xp: 5 }).journey, {}, 'old saves get an empty journey');
+
+// Journey Through Time: eras open in order, the last four need Premium, and finishing an
+// era's stages unlocks its set, board, room and avatar.
+const campaign = require('../../../packages/content/campaign.json');
+const PJ = ChacklateProgress(catalog, { seasons, missions, campaign });
+s = PJ.fresh();
+const [egypt, greece] = campaign.eras;
+const ming = campaign.eras.find((e) => e.access === 'premium');
+assert(PJ.eraOpen(s, egypt.id) && !PJ.eraOpen(s, greece.id), 'only the first era is open at the start');
+assert(!PJ.eraOpen(s, ming.id));
+const reward = catalog.items.filter((i) => i.unlock.type === 'journey' && i.unlock.era === egypt.id);
+assert(reward.some((i) => i.category === 'pieces') && reward.some((i) => i.category === 'board') && reward.some((i) => i.category === 'avatar'));
+assert(reward.every((i) => !PJ.isUnlocked(s, i)));
+assert(/^Journey: Ancient Egypt$/.test(PJ.unlockText(reward[0])));
+let jr;
+for (let i = 0; i < egypt.stages.length - 1; i++) { jr = PJ.journeyStage(s, egypt.id, i, day(7)); assert(jr.xp > 0 && !jr.eraDone, 'stage ' + i); }
+assert.strictEqual(PJ.journeyInfo(s, egypt.id).count, egypt.stages.length - 1);
+assert.strictEqual(PJ.journeyInfo(s, egypt.id).next, egypt.stages.length - 1);
+assert.strictEqual(PJ.journeyStage(s, egypt.id, 0, day(7)).xp, 0, 'a stage pays out once');
+jr = PJ.journeyStage(s, egypt.id, egypt.stages.length - 1, day(7));
+assert.strictEqual(jr.eraDone.id, egypt.id);
+assert(jr.achievements.some((a) => a.id === 'era-1'));
+assert(reward.every((i) => jr.unlocked.includes(i)), 'the era rewards are announced');
+assert(reward.every((i) => PJ.isUnlocked(s, i)));
+assert(PJ.journeyInfo(s, egypt.id).done && PJ.eraOpen(s, greece.id));
+assert.strictEqual(PJ.journeyStage(s, ming.id, 0, day(7)).xp, 0, 'a closed era records nothing');
+for (const e of campaign.eras) if (e.access === 'free') for (let i = 0; i < e.stages.length; i++) PJ.journeyStage(s, e.id, i, day(7));
+assert(!PJ.eraOpen(s, ming.id), 'premium eras need Premium');
+s.premium = true;
+assert(PJ.eraOpen(s, ming.id));
+assert(/Premium/.test(PJ.unlockText(catalog.items.find((i) => i.unlock.type === 'journey' && i.unlock.era === ming.id))));
+for (const e of campaign.eras) for (let i = 0; i < e.stages.length; i++) PJ.journeyStage(s, e.id, i, day(8));
+assert(s.achievements['era-4'] && s.achievements['era-all']);
+assert(catalog.items.filter((i) => i.unlock.type === 'journey').every((i) => PJ.isUnlocked(s, i)));
 
 console.log('progress ok');

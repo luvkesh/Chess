@@ -131,42 +131,133 @@ function ChacklateAudio() {
   }
 
   // ---------------------------------------------------------- ambient score
-  // Slow suspended chords on a warm pad with a sparse electric piano. A new
-  // voicing every eight seconds; nothing repeats exactly.
-  const CHORDS = [[48, 55, 62, 64, 71], [45, 52, 59, 60, 67], [41, 48, 55, 57, 64], [43, 50, 57, 59, 66], [40, 47, 54, 55, 62], [41, 48, 53, 57, 64]];
-  const SCALE = [60, 62, 64, 67, 69, 72, 74, 76, 79, 81];
+  // Slow chords on a warm pad with a sparse melody over them. Each era room has its own
+  // mood: the mode it is written in and the instrument that carries the tune (a harp on
+  // the Nile, a sitar by the Taj, a guzheng in the Ming palace, a harpsichord in Venice).
+  // A new voicing every few seconds; the melody wanders the scale, so nothing repeats exactly.
+  const MOODS = {
+    salon: { chords: [[48, 55, 62, 64, 71], [45, 52, 59, 60, 67], [41, 48, 55, 57, 64], [43, 50, 57, 59, 66], [40, 47, 54, 55, 62], [41, 48, 53, 57, 64]],
+      scale: [60, 62, 64, 67, 69, 72, 74, 76, 79, 81], voice: 'ep', every: 8000 },
+    library: { chords: [[45, 52, 57, 60, 64], [41, 48, 53, 57, 64], [43, 50, 55, 59, 62], [40, 47, 52, 55, 59]],
+      scale: [57, 59, 60, 62, 64, 65, 67, 69, 71, 72], voice: 'ep', every: 9000 },
+    marble: { chords: [[36, 48, 52, 55, 64], [41, 48, 53, 57, 65], [43, 50, 55, 59, 67], [45, 52, 57, 60, 64]],
+      scale: [72, 74, 76, 77, 79, 81, 83, 84, 86, 88], voice: 'harp', every: 8000 },
+    harvest: { chords: [[43, 50, 55, 59, 62], [36, 48, 52, 55, 64], [38, 50, 54, 57, 62], [40, 52, 55, 59, 64]],
+      scale: [67, 69, 71, 74, 76, 79, 81, 83, 86, 88], voice: 'lyre', every: 7000 },
+    // D hijaz, over a held D
+    nile: { chords: [[38, 45, 50, 54, 57], [38, 46, 51, 55, 58], [38, 46, 50, 55, 58], [38, 48, 51, 55, 60]],
+      scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'harp', every: 8000 },
+    // D dorian, open and bright
+    athens: { chords: [[38, 50, 53, 57, 64], [43, 50, 55, 59, 62], [45, 52, 57, 60, 64], [36, 48, 52, 55, 62]],
+      scale: [62, 64, 65, 67, 69, 71, 72, 74, 76, 77], voice: 'lyre', every: 8000 },
+    // G mixolydian, stately
+    roma: { chords: [[43, 50, 55, 59, 62], [41, 48, 53, 57, 60], [36, 48, 52, 55, 60], [43, 50, 55, 57, 62]],
+      scale: [67, 69, 71, 72, 74, 76, 77, 79, 81, 83], voice: 'horn', every: 8000 },
+    // an evening raga (yaman) over a drone of C and G
+    mughal: { chords: [[36, 43, 48, 55, 64], [36, 43, 48, 54, 59], [36, 43, 47, 55, 62], [36, 43, 48, 57, 64]],
+      scale: [59, 62, 64, 66, 69, 71, 72, 74, 76, 78], voice: 'sitar', every: 9000 },
+    // the five-note scale, in open fifths
+    ming: { chords: [[36, 43, 50, 55, 62], [33, 40, 45, 52, 57], [31, 38, 43, 50, 55], [36, 43, 45, 52, 57]],
+      scale: [67, 69, 72, 74, 76, 79, 81, 84, 86, 88], voice: 'guzheng', every: 8000 },
+    // D minor, as Vivaldi might have it
+    venice: { chords: [[38, 50, 53, 57, 62], [34, 46, 50, 53, 58], [31, 43, 50, 55, 58], [33, 45, 49, 52, 57]],
+      scale: [62, 64, 65, 67, 69, 70, 73, 74, 76, 77], voice: 'harpsichord', every: 7000 },
+    // E minor, a ballet in the snow
+    winter: { chords: [[40, 52, 55, 59, 64], [36, 48, 52, 55, 64], [33, 45, 52, 57, 60], [35, 47, 51, 54, 57]],
+      scale: [64, 66, 67, 69, 71, 72, 75, 76, 78, 79], voice: 'celesta', every: 8000 },
+    // ninth chords and a blue note, late at night
+    deco: { chords: [[36, 47, 52, 55, 62], [33, 43, 48, 52, 59], [38, 48, 53, 57, 64], [31, 41, 47, 52, 57]],
+      scale: [60, 62, 63, 64, 67, 69, 72, 74, 75, 76], voice: 'ep', every: 7000 },
+  };
+  let mood = MOODS.salon;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
+  // A plucked string: a bright tone whose filter closes as it rings. bend (in semitones)
+  // slides into the note, vib adds a late vibrato, as on a guzheng or a sitar.
+  function pluck(t, hz, dur, gain, bright, out, o) {
+    o = o || {};
+    const a = ctx.createOscillator(), b = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    a.type = 'sawtooth'; b.type = 'triangle';
+    for (const [osc, k] of [[a, 1], [b, 2.003]]) {
+      if (o.bend) { osc.frequency.setValueAtTime(hz * k * Math.pow(2, -o.bend / 12), t); osc.frequency.exponentialRampToValueAtTime(hz * k, t + 0.09); } else osc.frequency.value = hz * k;
+    }
+    if (o.vib) {
+      const l = ctx.createOscillator(), lg = ctx.createGain(); l.frequency.value = 5.2;
+      lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(hz * 0.012, t + 0.5);
+      l.connect(lg); lg.connect(a.frequency); lg.connect(b.frequency); l.start(t); l.stop(t + dur + 0.1);
+    }
+    f.type = 'lowpass'; f.Q.value = o.buzz ? 6 : 1.5;
+    f.frequency.setValueAtTime(Math.min(16000, hz * bright), t); f.frequency.exponentialRampToValueAtTime(hz * 1.1, t + dur * 0.55);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    a.connect(f); b.connect(f); f.connect(g).connect(out);
+    const send = ctx.createGain(); send.gain.value = 0.7; g.connect(send).connect(verbSend);
+    a.start(t); b.start(t); a.stop(t + dur + 0.1); b.stop(t + dur + 0.1);
+  }
+  // A soft brass voice: the filter opens with the breath and closes again.
+  function horn(t, hz, dur, gain, out) {
+    const o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    o.type = 'sawtooth'; o.frequency.value = hz;
+    f.type = 'lowpass'; f.Q.value = 0.7;
+    f.frequency.setValueAtTime(hz * 1.2, t); f.frequency.linearRampToValueAtTime(hz * 3.2, t + 0.25); f.frequency.exponentialRampToValueAtTime(hz * 1.4, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.18); g.gain.setValueAtTime(gain, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(f).connect(g).connect(out);
+    const send = ctx.createGain(); send.gain.value = 0.8; g.connect(send).connect(verbSend);
+    o.start(t); o.stop(t + dur + 0.1);
+  }
+  function note(voice, t, hz, gain, out) {
+    switch (voice) {
+      case 'harp': return pluck(t, hz, 2.8, gain * 1.3, 7, out);
+      case 'lyre': return pluck(t, hz, 3.4, gain * 1.2, 4, out);
+      case 'sitar': return pluck(t, hz, 3.2, gain * 1.1, 14, out, { bend: 1, buzz: true, vib: true });
+      case 'guzheng': return pluck(t, hz, 2.6, gain * 1.2, 9, out, { vib: true });
+      case 'harpsichord': pluck(t, hz, 1.4, gain * 1.1, 16, out); return pluck(t, hz * 2, 1.0, gain * 0.4, 12, out);
+      case 'celesta': bell(t, hz * 2, 2.4, gain, 4, 0.6, out); return bell(t, hz * 4, 1.2, gain * 0.25, 4, 0.4, out);
+      case 'horn': return horn(t, hz / 2, 2.6, gain * 0.9, out);
+      default: return bell(t, hz, 3, gain, 1, 0.9, out);
+    }
+  }
   function startMusic() {
     if (music || !ready()) return;
     const out = ctx.createGain(); out.gain.value = 1; out.connect(musicBus);
     const wet = ctx.createGain(); wet.gain.value = 1.6; out.connect(wet).connect(verbSend);
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.4; lp.connect(out);
     const lfo = ctx.createOscillator(), lfoG = ctx.createGain(); lfo.frequency.value = 0.05; lfoG.gain.value = 350; lfo.connect(lfoG).connect(lp.frequency); lfo.start();
-    music = { out, lp, lfo, timer: 0, step: 0 };
+    music = { out, lp, lfo, timer: 0, step: 0, at: 4, mood: null };
     musicBus.gain.cancelScheduledValues(ctx.currentTime);
     musicBus.gain.setTargetAtTime(musicVol * 0.5, ctx.currentTime, 1.5);
     const chord = () => {
       if (!music) return;
-      const t = ctx.currentTime + 0.05;
-      const c = CHORDS[music.step % CHORDS.length];
+      const m = mood, t = ctx.currentTime + 0.05;
+      if (music.mood !== m) { music.mood = m; music.step = 0; music.at = 3 + Math.floor(Math.random() * 4); }
+      const c = m.chords[music.step % m.chords.length];
       music.step += 1 + (Math.random() < 0.3 ? 1 : 0);
+      const len = m.every / 1000 + 2;
       for (const n of c) {
         for (const det of [-6, 6]) {
           const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(n); o.detune.value = det + (Math.random() - 0.5) * 4;
           const g = ctx.createGain();
-          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.018, t + 2.5); g.gain.setValueAtTime(0.018, t + 6.5); g.gain.exponentialRampToValueAtTime(0.0001, t + 10);
-          o.connect(g).connect(music.lp); o.start(t); o.stop(t + 10.2);
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.018, t + 2.5); g.gain.setValueAtTime(0.018, t + len - 3.5); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+          o.connect(g).connect(music.lp); o.start(t); o.stop(t + len + 0.2);
         }
       }
-      // Sparse melody on the electric piano.
-      const notes = 2 + Math.floor(Math.random() * 3);
+      // The melody wanders up and down the scale, mostly by step, on a slow beat.
+      const notes = 2 + Math.floor(Math.random() * 3), beat = m.voice === 'harpsichord' ? 0.2 : 0.75;
+      let when = t + 1 + Math.random();
       for (let i = 0; i < notes; i++) {
-        const when = t + 1 + Math.random() * 6;
-        bell(when, midi(SCALE[Math.floor(Math.random() * SCALE.length)]), 3, 0.05 + Math.random() * 0.03, 1, 0.9, out);
+        music.at = Math.max(0, Math.min(m.scale.length - 1, music.at + [-2, -1, -1, 1, 1, 2][Math.floor(Math.random() * 6)]));
+        note(m.voice, when, midi(m.scale[music.at]), 0.05 + Math.random() * 0.03, out);
+        when += beat * (1 + Math.floor(Math.random() * (m.voice === 'harpsichord' ? 2 : 3)));
       }
-      music.timer = setTimeout(chord, 8000);
+      music.timer = setTimeout(chord, m.every);
     };
+    music.next = chord;
     chord();
+  }
+  // The room on the table sets the mood; a new one comes in on the next chord, soon after.
+  function setMood(id) {
+    const m = MOODS[id] || MOODS.salon;
+    if (m === mood) return;
+    mood = m;
+    if (music) { clearTimeout(music.timer); music.timer = setTimeout(music.next, 1500); }
   }
   function stopMusic() {
     if (!music) return;
@@ -313,6 +404,7 @@ function ChacklateAudio() {
   return {
     play,
     setPack(p) { if (PACKS[p]) pack = p; },
+    setMood,
     setSfx(on, vol) { sfxOn = on; if (vol !== undefined) sfxVol = vol; if (sfxBus) sfxBus.gain.value = sfxVol; },
     setMusic(on, vol) {
       musicOn = on; if (vol !== undefined) musicVol = vol;

@@ -127,12 +127,16 @@ const catalog = require('../catalog.json');
 const seasons = require('../seasons.json');
 const missions = require('../missions.json');
 const store = require('../store.json');
+const campaign = require('../campaign.json');
 const itemIds = new Set();
 const cats = new Set(catalog.categories.map((c) => c.id));
 for (const it of catalog.items) {
   assert.ok(!itemIds.has(it.id), 'duplicate item ' + it.id); itemIds.add(it.id);
   assert.ok(cats.has(it.category), it.id + ' category');
-  assert.ok(['free', 'level', 'achievement', 'premium', 'season'].includes(it.unlock.type), it.id + ' unlock');
+  assert.ok(['free', 'level', 'achievement', 'premium', 'season', 'journey'].includes(it.unlock.type), it.id + ' unlock');
+  assert.ok(typeof it.desc === 'string' && it.desc.length > 3, it.id + ' description');
+  if (it.unlock.type === 'journey') assert.ok(campaign.eras.some((e) => e.id === it.unlock.era), it.id + ' era');
+  if (it.category === 'avatar') assert.ok(/^(piece:[kqrbnp]|animal:[a-z]+|emblem:[a-z]+)$/.test(it.data.art), it.id + ' art');
   if (it.unlock.type === 'season') {
     const s = seasons.seasons.find((x) => x.id === it.unlock.season);
     assert.ok(s, it.id + ' season');
@@ -155,3 +159,51 @@ for (const p of store.products) {
   if (p.price) assert.ok(Number.isInteger(p.price.amount) && p.price.amount > 0 && /^[A-Z]{3}$/.test(p.price.currency), p.id + ' price');
 }
 console.log('catalog, seasons, missions and store ok:', catalog.items.length, 'items');
+
+// Journey Through Time: every stage points at real content, every era pays out a set, board,
+// room and coach avatar, and the coaches and opponents have portraits.
+const ANIMALS = new Set();
+const eraIds = new Set();
+for (const o of campaign.opponents) {
+  assert.ok(o.level >= 0 && o.level <= 7 && o.full && o.blurb && o.animal, 'opponent ' + o.id); ANIMALS.add(o.animal);
+  // what each rival says when a game starts and ends (shown in the game and on the result card)
+  for (const k of ['hello', 'win', 'lose', 'draw']) assert.ok(typeof o[k] === 'string' && o[k].length > 5 && o[k].length < 140, o.id + ' ' + k + ' line');
+}
+assert.deepStrictEqual(campaign.opponents.map((o) => o.level), [0, 1, 2, 3, 4, 5, 6, 7]);
+assert.ok(campaign.coach.animal && campaign.coach.full);
+campaign.eras.forEach((e, k) => {
+  assert.ok(!eraIds.has(e.id), 'duplicate era ' + e.id); eraIds.add(e.id);
+  assert.strictEqual(e.n, k + 1, e.id + ' order');
+  assert.ok(['free', 'premium'].includes(e.access), e.id + ' access');
+  assert.ok(e.name && e.title && e.when && e.place && e.landmark && e.colors.length === 2, e.id + ' text');
+  assert.ok(e.coach && e.coach.full && e.coach.animal && e.coach.hello && e.coach.win && e.coach.lose, e.id + ' coach');
+  assert.ok(!ANIMALS.has(e.coach.animal), e.id + ' coach animal is unique'); ANIMALS.add(e.coach.animal);
+  for (const cat of ['pieces', 'board', 'room', 'avatar']) assert.ok(catalog.items.some((i) => i.category === cat && i.unlock.type === 'journey' && i.unlock.era === e.id), e.id + ' rewards a ' + cat);
+  const set = catalog.items.find((i) => i.category === 'pieces' && i.unlock.era === e.id);
+  assert.strictEqual(set.data.set, e.set, e.id + ' set');
+  assert.strictEqual(e.stages[0].kind, 'tale', e.id + ' opens with a tale');
+  assert.strictEqual(e.stages[e.stages.length - 1].kind, 'champion', e.id + ' ends with its champion');
+  for (const st of e.stages) {
+    assert.ok(st.title, e.id + ' stage title');
+    if (st.kind === 'tale') {
+      assert.ok(st.pages.length >= 2 && st.pages.every((t) => t.length > 40 && t.length < 330), e.id + ' tale pages');
+      assert.ok(st.quiz.options.length >= 2 && st.quiz.options[st.quiz.answer] && st.quiz.explain, e.id + ' quiz');
+    } else if (st.kind === 'lesson') {
+      const l = lessons.lessons.find((x) => x.id === st.lesson);
+      assert.ok(l, e.id + ' lesson ' + st.lesson);
+      const ch = lessons.chapters.find((c) => c.n === l.chapter);
+      assert.ok(e.access === 'premium' || ch.access === 'free', e.id + ' free eras use free lessons');
+    } else if (st.kind === 'puzzles') {
+      const themes = [].concat(st.theme);
+      const pool = puzzles.filter((p) => p.themes.some((t) => themes.includes(t)) && p.rating >= (st.min || 0) && p.rating <= (st.max || 9999));
+      assert.ok(pool.length >= st.count, e.id + ' has ' + pool.length + ' puzzles for ' + themes.join('/'));
+    } else if (st.kind === 'endgame') {
+      const d = endgames.find((x) => x.id === st.endgame);
+      assert.ok(d && (e.access === 'premium' || d.access === 'free'), e.id + ' endgame ' + st.endgame);
+    } else if (st.kind === 'champion') {
+      assert.ok(st.level >= 0 && st.level <= 7 && ['white', 'black'].includes(st.color), e.id + ' champion');
+      assert.ok(e.access === 'premium' || st.level <= 3, e.id + ' free eras play free levels');
+    } else assert.fail(e.id + ' stage kind ' + st.kind);
+  }
+});
+console.log('campaign ok:', campaign.eras.length, 'eras,', ANIMALS.size, 'portraits');

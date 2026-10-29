@@ -1,23 +1,24 @@
 // Chacklate progression: XP, levels, achievements, streaks, stats and
-// cosmetic unlocks, daily missions and the season track. Pure functions over a
-// plain state object, so the page can save it locally and the platform API can
-// store the same shape per account.
+// cosmetic unlocks, daily missions, the season track and the Journey Through Time
+// campaign. Pure functions over a plain state object, so the page can save it
+// locally and the platform API can store the same shape per account.
 function ChacklateProgress(catalog, extras) {
   'use strict';
   const SEASONS = (extras && extras.seasons) || { tierXp: 300, seasons: [] };
   const MISSIONS = (extras && extras.missions) || { perDay: 3, allDoneXp: 0, missions: [] };
+  const CAMPAIGN = (extras && extras.campaign) || { eras: [] };
   const TITLES = [[1, 'Cocoa Bean'], [5, 'Apprentice'], [10, 'Chocolatier'], [15, 'Maître'], [20, 'Grand Maître']];
   const ACHIEVEMENTS = [
     { id: 'first-game', name: 'First move', desc: 'Finish your first game.', xp: 20 },
     { id: 'first-win', name: 'First win', desc: 'Beat a computer opponent.', xp: 40 },
-    { id: 'beat-truffle', name: 'Sweet start', desc: 'Beat Truffle.', xp: 20 },
-    { id: 'beat-builder', name: 'Foundations', desc: 'Beat Builder.', xp: 30 },
-    { id: 'beat-rusher', name: 'Hold the line', desc: 'Beat Rusher.', xp: 40 },
-    { id: 'beat-wall', name: 'Wall breaker', desc: 'Beat Wall.', xp: 60 },
-    { id: 'beat-trickster', name: 'No tricks on me', desc: 'Beat Trickster.', xp: 80 },
-    { id: 'beat-strategist', name: 'Master plan', desc: 'Beat Strategist.', xp: 100 },
-    { id: 'beat-tactician', name: 'Sharper still', desc: 'Beat Tactician.', xp: 150 },
-    { id: 'beat-gm', name: 'Grandmaster slayer', desc: 'Beat Grandmaster mode.', xp: 300 },
+    { id: 'beat-truffle', name: 'Sweet start', desc: 'Beat Truffle the Bunny.', xp: 20 },
+    { id: 'beat-builder', name: 'Foundations', desc: 'Beat Bramble the Beaver.', xp: 30 },
+    { id: 'beat-rusher', name: 'Hold the line', desc: 'Beat Zippy the Squirrel.', xp: 40 },
+    { id: 'beat-wall', name: 'Shell breaker', desc: 'Beat Shelly the Tortoise.', xp: 60 },
+    { id: 'beat-trickster', name: 'No tricks on me', desc: 'Beat Rocco the Raccoon.', xp: 80 },
+    { id: 'beat-strategist', name: 'Master plan', desc: 'Beat Ivy the Giraffe.', xp: 100 },
+    { id: 'beat-tactician', name: 'Sharper still', desc: 'Beat Onyx the Raven.', xp: 150 },
+    { id: 'beat-gm', name: 'Dragon tamer', desc: 'Beat Ember the Dragon at full strength.', xp: 300 },
     { id: 'long-castle', name: 'The long way round', desc: 'Castle queenside in a game.', xp: 15 },
     { id: 'promote', name: 'Promotion party', desc: 'Promote a pawn in a game.', xp: 15 },
     { id: 'en-passant', name: 'In passing', desc: 'Capture en passant in a game.', xp: 25 },
@@ -38,6 +39,9 @@ function ChacklateProgress(catalog, extras) {
     { id: 'accuracy-90', name: 'Precision', desc: 'Score 90% accuracy in a reviewed game of 20+ moves.', xp: 60 },
     { id: 'brilliant', name: 'Brilliant!', desc: 'Play a move the coach rates brilliant.', xp: 60 },
     { id: 'online-first', name: 'Out into the world', desc: 'Finish an online game.', xp: 30 },
+    { id: 'era-1', name: 'Time traveller', desc: 'Complete an era of the Journey Through Time.', xp: 50 },
+    { id: 'era-4', name: 'Ancient wonders', desc: 'Complete four eras of the Journey.', xp: 120 },
+    { id: 'era-all', name: 'Through the ages', desc: 'Complete all eight eras of the Journey.', xp: 400 },
   ];
   const BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));
   const LEVEL_ACH = ['beat-truffle', 'beat-builder', 'beat-rusher', 'beat-wall', 'beat-trickster', 'beat-strategist', 'beat-tactician', 'beat-gm'];
@@ -56,7 +60,7 @@ function ChacklateProgress(catalog, extras) {
       v: 1, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
-      equipped: Object.assign({}, catalog.defaults), history: [], seen: {},
+      equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
     };
   }
   function migrate(s) {
@@ -67,6 +71,7 @@ function ChacklateProgress(catalog, extras) {
     out.stats.puzzles = Object.assign(fresh().stats.puzzles, (s.stats || {}).puzzles || {});
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
     out.missions = Object.assign(f.missions, s.missions || {});
+    out.journey = Object.assign({}, s.journey || {});
     return out;
   }
 
@@ -298,6 +303,49 @@ function ChacklateProgress(catalog, extras) {
     return out;
   }
 
+  // ------------------------------------------------------------ journey through time
+  // Eight eras, each a short run of stages (a tale, a lesson, a trial and a champion game).
+  // Eras open in order; the last four need Premium. Finishing an era unlocks its piece set,
+  // board, room and coach avatar.
+  const eraById = (id) => CAMPAIGN.eras.find((e) => e.id === id) || null;
+  const eraRec = (state, id) => (state.journey && state.journey[id]) || { stages: [], done: false };
+  function eraOpen(state, id) {
+    const e = eraById(id); if (!e) return false;
+    if (e.access === 'premium' && !state.premium) return false;
+    const prev = CAMPAIGN.eras[CAMPAIGN.eras.indexOf(e) - 1];
+    return !prev || eraRec(state, prev.id).done;
+  }
+  function journeyInfo(state, id) {
+    const e = eraById(id); if (!e) return null;
+    const r = eraRec(state, id);
+    const stages = e.stages.map((_, i) => !!r.stages[i]);
+    const next = stages.findIndex((d) => !d);
+    return { era: e, stages, done: !!r.done, open: eraOpen(state, id), next: next < 0 ? null : next, count: stages.filter(Boolean).length, premium: e.access === 'premium' };
+  }
+  const STAGE_XP = { tale: 20, lesson: 10, puzzles: 30, endgame: 30, champion: 100 };
+  // A stage can be done in any order once the era is open; the champion waits for the rest.
+  function journeyStage(state, id, index, now) {
+    const out = result();
+    const e = eraById(id);
+    if (!e || !e.stages[index] || !eraOpen(state, id)) return out;
+    if (!state.journey) state.journey = {};
+    const r = state.journey[id] || (state.journey[id] = { stages: [], done: false });
+    if (!r.stages[index]) { r.stages[index] = PG_today(now); grant(state, STAGE_XP[e.stages[index].kind] || 20, out); }
+    if (!r.done && e.stages.every((_, i) => r.stages[i])) {
+      r.done = PG_today(now);
+      out.eraDone = e;
+      out.unlocked.push(...catalog.items.filter((i) => i.unlock.type === 'journey' && i.unlock.era === id));
+      grant(state, 150, out);
+      const n = CAMPAIGN.eras.filter((x) => eraRec(state, x.id).done).length;
+      if (n >= 1) achieve(state, 'era-1', out);
+      if (n >= 4) achieve(state, 'era-4', out);
+      if (n >= CAMPAIGN.eras.length) achieve(state, 'era-all', out);
+    }
+    touchStreak(state, now ? new Date(now) : undefined, out);
+    return out;
+  }
+  const PG_today = (now) => today(now ? new Date(now) : undefined);
+
   function isUnlocked(state, item) {
     const u = item.unlock;
     if (u.type === 'free') return true;
@@ -305,6 +353,7 @@ function ChacklateProgress(catalog, extras) {
     if (u.type === 'achievement') return !!state.achievements[u.achievement];
     if (u.type === 'premium') return !!state.premium;
     if (u.type === 'season') return tierOf(state, u.season) >= u.tier && (u.track === 'free' || hasPass(state, u.season));
+    if (u.type === 'journey') return !!eraRec(state, u.era).done;
     return false;
   }
   function unlockText(item) {
@@ -313,6 +362,7 @@ function ChacklateProgress(catalog, extras) {
     if (u.type === 'achievement') return 'Achievement: ' + (BY_ID[u.achievement] ? BY_ID[u.achievement].name : u.achievement);
     if (u.type === 'premium') return 'Premium';
     if (u.type === 'season') { const s = seasonById(u.season); return (s ? s.name : 'Season') + ' tier ' + u.tier + (u.track === 'pass' ? ' · Season Pass' : ''); }
+    if (u.type === 'journey') { const e = eraById(u.era); return 'Journey: ' + (e ? e.name : u.era) + (e && e.access === 'premium' ? ' · Premium' : ''); }
     return 'Free';
   }
   function equip(state, item) {
@@ -347,8 +397,8 @@ function ChacklateProgress(catalog, extras) {
     return Math.min(best, maxLevel);
   }
 
-  return { ACHIEVEMENTS, SEASONS, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
-    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions };
+  return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
+    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateProgress;
