@@ -257,6 +257,7 @@
       canDrag: (sq) => ctlHooks.canDrag(sq),
       onDrop: (f, t) => ctlHooks.onDrop(f, t),
       onContextLost() { $('nogl').hidden = false; },
+      onContextRestored() { $('nogl').hidden = true; },
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }

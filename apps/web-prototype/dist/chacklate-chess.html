@@ -10967,8 +10967,13 @@ function ChacklateWorld(THREE, K) {
     envCache.set(key, rt.texture);
     return rt.texture;
   }
+  // After a lost GPU context the cached maps are empty and have to be rendered again.
+  function resetEnvironments() {
+    envCache.forEach((t) => t.dispose());
+    envCache.clear();
+  }
 
-  return { BOARDS, ROOMS, board, room, environment, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
+  return { BOARDS, ROOMS, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 
 // ---- scene.js ----
@@ -10981,7 +10986,7 @@ function ChacklateScene(canvas, options) {
   'use strict';
   const THREE = window.THREE;
   if (!THREE) return null;
-  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {} }, options);
+  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {} }, options);
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
@@ -10993,6 +10998,11 @@ function ChacklateScene(canvas, options) {
   renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // Shadows only change when something on the table moves, not when the camera does, so the
+  // shadow map is redrawn on demand (dirtyShadows) instead of on every frame.
+  renderer.shadowMap.autoUpdate = false;
+  let shadowDirty = true;
+  const dirtyShadows = () => { shadowDirty = true; };
   renderer.setClearColor('#120a07');
 
   const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
@@ -11021,24 +11031,62 @@ function ChacklateScene(canvas, options) {
   function placeLights(side) {
     const k = side === 'black' ? -1 : 1;
     key.position.set(-6 * k, 14, 7 * k); rim.position.set(8 * k, 3, -8 * k);
+    dirtyShadows();
   }
   placeLights('white');
   const hemi = new THREE.HemisphereLight('#ffe2c0', '#1a0d08', 0.35); scene.add(hemi);
   const chandLight = new THREE.PointLight('#ffc480', 14, 40, 2); chandLight.position.set(0, 7.2, 0); scene.add(chandLight);
 
+  // ------------------------------------------------------------------ performance level
+  // 0 is full detail. When frames keep arriving late the level steps up (see govern) and the
+  // table gives up detail in this order: resolution, MSAA, the piece reflections, then bloom
+  // and the dust motes. Phones and small machines start a step or two in. 'low' quality
+  // starts at 1x resolution and only lowers it further.
+  const PERF_DPR = { high: [1.75, 1.5, 1.25, 1, 1, 0.85], low: [1, 1, 0.85, 0.75, 0.75, 0.75] };
+  const MAX_PERF = 5;
+  let perf = (() => {
+    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const cores = navigator.hardwareConcurrency || 4, mem = navigator.deviceMemory || 8;
+    if (mem <= 2 || cores <= 2) return 3;
+    if (coarse && (mem <= 4 || cores <= 4)) return 2;
+    if (coarse || mem <= 4) return 1;
+    return 0;
+  })();
+  if (window.__SHOT) perf = 0;   // screenshots always show full detail
+  const reflectOn = () => quality === 'high' && perf < 3;
+  const bloomOn = () => quality === 'high' && perf < 4;
+
   // ------------------------------------------------------------------ post-processing
   let composer = null, bloom = null, quality = 'high', animations = true;
+  function disposeComposer() {
+    if (!composer) return;
+    composer.passes.forEach((p) => { if (p.dispose) p.dispose(); });
+    composer.dispose();
+    composer = null; bloom = null;
+  }
   function buildComposer() {
-    if (composer) { composer.dispose(); composer = null; }
-    if (quality !== 'high') return;
-    const size = renderer.getDrawingBufferSize(new THREE.Vector2());
-    const rt = new THREE.WebGLRenderTarget(size.x, size.y, { samples: 4, type: THREE.HalfFloatType });
+    disposeComposer();
+    if (!bloomOn()) return;
+    // The scene is drawn into the composer's second target (its read buffer), so only that
+    // one needs MSAA; the first only ever holds the graded copy.
+    const rt = new THREE.WebGLRenderTarget(1, 1, { samples: perf >= 2 ? 2 : 4, type: THREE.HalfFloatType });
     composer = new THREE.EffectComposer(renderer, rt);
+    composer.renderTarget1.samples = 0;
     composer.addPass(new THREE.RenderPass(scene, camera));
-    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.42, 0.55, 1.25);
+    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(1, 1), 0.42, 0.55, 1.25);
     composer.addPass(bloom);
     composer.addPass(new THREE.ShaderPass(GRADE));
     composer.addPass(new THREE.OutputPass());
+    sizeComposer();
+  }
+  // Render targets are resized in place: making new ones on every resize (and browser zoom
+  // fires lots of them) leaked the old bloom buffers until the GPU ran out of memory.
+  const sizeV = new THREE.Vector2();
+  function sizeComposer() {
+    if (!composer) return;
+    renderer.getSize(sizeV);
+    composer.setPixelRatio(renderer.getPixelRatio());
+    composer.setSize(sizeV.x, sizeV.y);
   }
   // Warm grade and vignette, in linear light before tone mapping.
   const GRADE = {
@@ -11073,7 +11121,7 @@ function ChacklateScene(canvas, options) {
   reflPlane.rotation.x = -Math.PI / 2; reflPlane.position.y = 0.0015; reflPlane.renderOrder = 1;
   scene.add(reflPlane);
   function renderReflection() {
-    if (!reflRT || quality !== 'high' || !reflPlane.visible) return;
+    if (!reflRT || !reflectOn() || !reflPlane.visible) return;
     reflPlane.updateMatrixWorld();
     const n = new THREE.Vector3(0, 1, 0), mp = new THREE.Vector3(0, 0, 0), cp = camera.position;
     const view = new THREE.Vector3().subVectors(mp, cp).reflect(n).negate().add(mp);
@@ -11122,6 +11170,7 @@ function ChacklateScene(canvas, options) {
     // flames are reflected in the board too
     room.flames.forEach((f) => { f.m.layers.enable(REFLECT); f.halo.layers.enable(REFLECT); });
     placeTrays();
+    dirtyShadows();
   }
   function loadBoard(id) {
     if (boardMesh && id === boardId) return;
@@ -11129,6 +11178,7 @@ function ChacklateScene(canvas, options) {
     if (boardMesh) { boardGroup.remove(boardMesh); boardMesh.userData.dispose(); }
     boardMesh = W.board(id, labelSide);
     boardGroup.add(boardMesh);
+    dirtyShadows();
   }
   function loadSet(id) {
     if (id === setId && sprites.length && sprites[0].obj && sprites[0].obj.userData.set === id) return;
@@ -11170,6 +11220,7 @@ function ChacklateScene(canvas, options) {
       trays.add(t);
     }
     scene.add(trays);
+    dirtyShadows();
   }
   const TRAY_Y = TABLE_Y + 0.152;
   function gravePos(capturer, i) {
@@ -11190,6 +11241,7 @@ function ChacklateScene(canvas, options) {
     clock.rotation.y = black ? Math.PI - 0.35 : -0.35;
     clock.position.set(black ? -6.1 : 6.1, TABLE_Y, black ? -3.7 : 3.7);
     clock.visible = !!clockState && !layoutPortrait;
+    dirtyShadows();
   }
   // Chess clock: a walnut case with two brass-rimmed faces and plungers.
   let clock = null, clockState = null, clockSkin = null, clockKey = '';
@@ -11262,14 +11314,18 @@ function ChacklateScene(canvas, options) {
     s.obj = obj;
     pieceGroup.add(obj);
     if (!s.contact) { s.contact = new THREE.Mesh(contactGeo, contactMat); s.contact.renderOrder = 2; fxGroup.add(s.contact); }
+    s.placed = '';
     placeSprite(s);
   }
-  function dropSprite(s) { if (s.obj) pieceGroup.remove(s.obj); if (s.contact) fxGroup.remove(s.contact); s.obj = null; s.contact = null; }
+  function dropSprite(s) { if (s.obj) pieceGroup.remove(s.obj); if (s.contact) fxGroup.remove(s.contact); s.obj = null; s.contact = null; dirtyShadows(); }
   function placeSprite(s) {
     const o = s.obj;
     if (!o) return;
     const base = s.grave ? TRAY_Y : 0;
     const lift = s.y + s.lift;
+    // every sprite is placed on every frame; only a real change redraws the shadows
+    const at = s.x + ',' + s.z + ',' + (base + lift) + ',' + s.yaw + ',' + s.tilt + ',' + s.scale;
+    if (at !== s.placed) { s.placed = at; dirtyShadows(); }
     o.position.set(s.x, base + lift + Math.sin(Math.abs(s.tilt)) * 0.3 * s.scale, s.z);
     o.rotation.set(0, s.yaw, 0);
     if (s.tilt) { o.rotation.z = s.tilt; }
@@ -11431,7 +11487,7 @@ function ChacklateScene(canvas, options) {
     fill(A, particles.filter((p) => p.add));
     fill(N, particles.filter((p) => !p.add));
   }
-  const motesOn = () => quality === 'high' && animations && !window.__SHOT;
+  const motesOn = () => quality === 'high' && perf < 4 && animations && !window.__SHOT;
 
   // ------------------------------------------------------------------ camera
   // The camera orbits the table. Its distance is fitted so the board, and the tallest pieces
@@ -11509,13 +11565,13 @@ function ChacklateScene(canvas, options) {
           if (hide) break;
         }
       }
-      room.chandelier.visible = !hide;
+      if (room.chandelier.visible === hide) { room.chandelier.visible = !hide; dirtyShadows(); }
     }
   }
   const portraitNow = () => (canvas.clientWidth || 1) / (canvas.clientHeight || 1) < 0.8;
 
   // ------------------------------------------------------------------ animation loop
-  let raf = 0, lastFrame = 0, ambientTimer = 0, paused = false;
+  let raf = 0, lastFrame = 0, ambientTimer = 0, paused = false, glLost = false;
   function step(now) {
     const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
     lastFrame = now;
@@ -11587,19 +11643,60 @@ function ChacklateScene(canvas, options) {
     drawClock();
     uploadParticles(now);
     renderReflection();
+    // set after the reflection pass: that one only sees the pieces' layer, and a shadow map
+    // drawn there would be missing the board and the clock
+    if (shadowDirty) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
     if (composer) composer.render(); else renderer.render(scene, camera);
   }
+  // the idle frame gap: 30 fps, or 20 fps once the table has had to give up detail
+  const ambientMs = () => (perf >= 3 ? 50 : 33);
   function frame(now) {
     raf = 0;
+    if (glLost) return;
+    const t0 = performance.now();
     const busy = step(now);
     render(now);
+    govern(t0 - reqAt, performance.now() - t0);
     if (busy) requestRender();
     else if (ambient() && !ambientTimer && !document.hidden) {
-      // Candle flicker, dust in the light and the idle orbit run at a calm 30 fps.
-      ambientTimer = setTimeout(() => { ambientTimer = 0; requestRender(); }, 33);
+      // Candle flicker, dust in the light and the idle orbit run on a calm timer.
+      ambientTimer = setTimeout(() => { ambientTimer = 0; requestRender(); }, ambientMs());
     }
   }
-  function requestRender() { if (!raf) raf = requestAnimationFrame(frame); }
+  let reqAt = 0;
+  function requestRender() { if (!raf && !glLost) { reqAt = performance.now(); raf = requestAnimationFrame(frame); } }
+  // Watches what each frame costs: how long the browser held it back after it was asked for
+  // (that grows when the GPU falls behind) plus the time spent drawing it. When the average
+  // stays more than ~22 ms over one display frame for 40 frames, the performance level steps
+  // up. Single slow frames (shaders compiling for a new room) are capped so they can't do it
+  // alone, and the level never steps back down in a session, so the view doesn't flicker.
+  let govLate = 0, govN = 0;
+  function govern(waitMs, drawMs) {
+    if (window.__SHOT || document.hidden || perf >= MAX_PERF) { govN = 0; return; }
+    const late = Math.min(80, Math.max(0, waitMs + drawMs - 17));
+    govLate = govN ? govLate * 0.94 + late * 0.06 : late;
+    if (++govN >= 40 && govLate > 22) { setPerf(perf + 1); govN = 0; }
+  }
+  function shadowQuality() {
+    const full = quality === 'high' && perf < 3;
+    renderer.shadowMap.type = full ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+    const size = full ? 2048 : 1024;
+    if (key.shadow.mapSize.x !== size) {
+      key.shadow.mapSize.set(size, size);
+      if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; }
+    }
+    dirtyShadows();
+  }
+  function setPerf(level) {
+    level = Math.max(0, Math.min(MAX_PERF, level));
+    if (level === perf) return;
+    const hadBloom = bloomOn();
+    perf = level;
+    if (bloomOn() !== hadBloom || (composer && perf === 2)) buildComposer();
+    if (!motesOn()) particles = particles.filter((p) => p.kind !== 'mote');
+    shadowQuality();
+    lastW = 0; resize();
+  }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) requestRender(); });
 
   // ------------------------------------------------------------------ input
@@ -11720,23 +11817,56 @@ function ChacklateScene(canvas, options) {
   canvas.addEventListener('pointerleave', () => setHover(-1));
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
-    cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * (1 + Math.sign(e.deltaY) * 0.08)));
+    // Trackpads (and their pinch, which arrives as ctrl+wheel) send many small steps, a mouse
+    // wheel a few big ones: zoom by how far it scrolled, not by how many events came.
+    const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1) * (e.ctrlKey ? 4 : 1);
+    cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0012)));
     requestRender();
   }, { passive: false });
-  canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); opts.onContextLost(); });
+  // Safari's own pinch gesture would zoom the page under the table.
+  canvas.addEventListener('gesturestart', (e) => e.preventDefault());
+  // If the GPU drops the context (memory pressure, a driver reset, the tab in the background),
+  // three.js rebuilds its state when the browser gives it back. What lived only in GPU memory
+  // is drawn again here: the room's reflection map and the shadows. The table then steps
+  // down a performance level, since running out of memory is the usual cause.
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    glLost = true;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    if (ambientTimer) { clearTimeout(ambientTimer); ambientTimer = 0; }
+    // let go of what belonged to the old context now, while deleting it is still a no-op
+    W.resetEnvironments();
+    if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; }
+    disposeComposer();
+    if (reflRT) { reflRT.dispose(); reflRT = null; }
+    opts.onContextLost();
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    glLost = false;
+    if (room) scene.environment = W.environment(renderer, room.env);
+    clockKey = '';
+    if (!window.__SHOT) perf = Math.min(MAX_PERF, perf + 1);
+    buildComposer();
+    shadowQuality();
+    lastW = 0; resize();
+    opts.onContextRestored();
+    requestRender();
+  });
 
   // ------------------------------------------------------------------ sizing
   let lastW = 0, lastH = 0;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, quality === 'high' ? 1.75 : 1);
+    const dpr = Math.min(window.devicePixelRatio || 1, PERF_DPR[quality][perf]);
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
     if (w !== lastW || h !== lastH || renderer.getPixelRatio() !== dpr) {
       lastW = w; lastH = h;
       renderer.setPixelRatio(dpr);
       renderer.setSize(w, h, false);
-      buildComposer();
-      if (reflRT) reflRT.dispose();
-      reflRT = quality === 'high' ? new THREE.WebGLRenderTarget(Math.round(w * dpr / 2), Math.round(h * dpr / 2), { type: THREE.HalfFloatType }) : null;
+      if (composer) sizeComposer(); else if (bloomOn()) buildComposer();
+      const rw = Math.max(1, Math.round(w * dpr / 2)), rh = Math.max(1, Math.round(h * dpr / 2));
+      if (!reflectOn()) { if (reflRT) { reflRT.dispose(); reflRT = null; } }
+      else if (reflRT) reflRT.setSize(rw, rh);
+      else reflRT = new THREE.WebGLRenderTarget(rw, rh, { type: THREE.HalfFloatType });
       reflMat.uniforms.tRefl.value = reflRT ? reflRT.texture : null;
       reflPlane.visible = !!reflRT;
       pAdd.material.uniforms.scale.value = pNorm.material.uniforms.scale.value = h * dpr * 0.9;
@@ -11877,6 +12007,7 @@ function ChacklateScene(canvas, options) {
   // ------------------------------------------------------------------ boot
   loadRoom('salon');
   loadBoard('walnut');
+  shadowQuality();
   resize();
   applyCamera();
 
@@ -11908,7 +12039,17 @@ function ChacklateScene(canvas, options) {
     setRoom(r) { if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },
     setFx(f) { fx = Object.assign({}, fx, f); },
     setCaptureEffects(on) { captureFxOn = on; },
-    setQuality(q) { quality = q === 'low' ? 'low' : 'high'; renderer.shadowMap.type = quality === 'high' ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap; key.shadow.mapSize.set(quality === 'high' ? 2048 : 1024, quality === 'high' ? 2048 : 1024); if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; } lastW = 0; resize(); },
+    setQuality(q) {
+      q = q === 'low' ? 'low' : 'high';
+      if (q === quality && (composer || !bloomOn())) return;   // settings are re-applied on every change
+      quality = q;
+      buildComposer();
+      shadowQuality();
+      lastW = 0; resize();
+    },
+    // 0 (full detail) to 5; the table also changes it by itself when frames run late
+    perf: () => perf,
+    setPerf,
     setAnimations(on) { animations = on; if (!on) particles = []; requestRender(); },
     // Home-screen showcase: a low, slowly circling view across the board.
     setAttract(on, instant) {
@@ -14125,6 +14266,7 @@ function ChacklateAudio() {
       canDrag: (sq) => ctlHooks.canDrag(sq),
       onDrop: (f, t) => ctlHooks.onDrop(f, t),
       onContextLost() { $('nogl').hidden = false; },
+      onContextRestored() { $('nogl').hidden = true; },
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }
