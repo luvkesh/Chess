@@ -270,11 +270,16 @@ function ChacklateWorld(THREE, K) {
     const plinth = new THREE.Mesh(slab(roundedSquare(5.05, 0.22), -0.46, -0.33, 0.03, 16), frameSide);
     plinth.receiveShadow = true; plinth.castShadow = true;
     grp.add(plinth);
+    let labelSide = side, gone = false;
     grp.userData.relabel = (s) => {
+      labelSide = s;
       const t = texFrom(frameTexture(b, s)); t.repeat.copy(topTex.repeat); t.offset.copy(topTex.offset); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
       frameTop.map.dispose(); frameTop.map = t; frameTop.needsUpdate = true;
     };
-    grp.userData.dispose = () => { fieldTex.dispose(); frameTop.map.dispose(); fieldMat.dispose(); frameTop.dispose(); frameSide.dispose(); grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); };
+    grp.userData.dispose = () => { gone = true; fieldTex.dispose(); frameTop.map.dispose(); fieldMat.dispose(); frameTop.dispose(); frameSide.dispose(); grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); };
+    // The letters are painted in Cinzel. If it is still loading, paint them again once it is in.
+    const LABEL_FONT = '600 64px "Cinzel"';
+    if (typeof document !== 'undefined' && document.fonts && !document.fonts.check(LABEL_FONT)) document.fonts.load(LABEL_FONT).then(() => { if (!gone) grp.userData.relabel(labelSide); }, () => {});
     return grp;
   }
 
@@ -1767,9 +1772,10 @@ function ChacklateWorld(THREE, K) {
     const nicheKind = def.wall === 'deco' ? 'rect' : wd && wd.kind === 'pointed' ? 'pointed' : 'arch';
     const nicheTex = (() => { const c = canvas(32, 256), g = c.getContext('2d'); g.fillStyle = vgrad(g, 0, 256, [shade(o.paper, -0.72), shade(o.paper, -0.45), shade(o.paper, -0.3)]); g.fillRect(0, 0, 32, 256); return own(texFrom(c)); })();
     const stoneMat = def.wall === 'stone' ? new THREE.MeshStandardMaterial({ map: TEX.stone(o.paper, o.paperInk, { scale: 3 }), roughness: 0.8 }) : wallMats.wood;
-    // the moon hangs in the window nearest straight ahead
-    let moonAt = -1;
-    def.faces.forEach((f, k) => { if (f === 'window' && (moonAt < 0 || Math.min(k, NF - k) < Math.min(moonAt, NF - moonAt))) moonAt = k; });
+    // the moon hangs in the window nearest straight ahead, but not in the one right behind the
+    // home screen's crest, where it would peep out from behind it
+    let moonAt = def.faces[0] === 'window' ? 0 : -1;
+    def.faces.forEach((f, k) => { if (f === 'window' && k > 0 && (moonAt <= 0 || Math.min(k, NF - k) < Math.min(moonAt, NF - moonAt))) moonAt = k; });
     for (let i = 0; i < NF; i++) {
       const a = (i / NF) * TAU, kind = def.faces[i];
       const face = new THREE.Group();
