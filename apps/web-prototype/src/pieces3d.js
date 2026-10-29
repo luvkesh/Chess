@@ -1514,6 +1514,8 @@ function ChacklatePieces(THREE, K) {
     porcelain: () => phys('porcelain', { map: blueAndWhite(), roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.03 }),
     cinnabar: () => phys('cinnabar', { map: TEX.mottle('#a3221a', { amount: 0.1 }), normalMap: carved(), normalScale: new THREE.Vector2(0.6, 0.6), roughness: 0.42, clearcoat: 0.55, clearcoatRoughness: 0.2 }),
     jade: () => phys('jade-g', { color: '#3f8f5e', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05, sheen: 0.4, sheenColor: new THREE.Color('#bff0cf') }),
+    // vetro lattimo: Murano's milk-white glass, made to rival Chinese porcelain
+    lattimo: () => phys('lattimo', { color: '#f7f4ee', roughness: 0.1, transmission: 0.2, ior: 1.5, thickness: 0.6, attenuationColor: new THREE.Color('#efe6da'), attenuationDistance: 0.25, clearcoat: 1, clearcoatRoughness: 0.03, sheen: 0.3, sheenColor: new THREE.Color('#ffffff'), specularIntensity: 1 }),
     crystal: () => phys('crystal', { color: '#ffffff', metalness: 0, roughness: 0.02, transmission: 1, ior: 1.52, thickness: 0.45, attenuationColor: new THREE.Color('#fff4e4'), attenuationDistance: 1.6, specularIntensity: 1, envMapIntensity: 1.3 }),
     cobalt: () => phys('cobalt', { color: '#2f58e6', metalness: 0, roughness: 0.04, transmission: 0.62, ior: 1.52, thickness: 0.4, attenuationColor: new THREE.Color('#1d46e0'), attenuationDistance: 0.4, specularIntensity: 1, envMapIntensity: 1.4, clearcoat: 1, clearcoatRoughness: 0.03 }),
     enamel: () => phys('enamel', { color: '#f6f3ef', roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.02, iridescence: 0.35, iridescenceIOR: 1.35, normalMap: guilloche(), normalScale: new THREE.Vector2(0.35, 0.35) }),
@@ -1572,7 +1574,7 @@ function ChacklatePieces(THREE, K) {
   // ------------------------------------------------------------------ sets
   const SETS = {
     regency: {
-      id: 'regency', name: 'Regency Gilt', era: 'Regency England', year: 'c. 1815',
+      id: 'regency', name: 'Regency Gilt', era: 'Regency England', year: 'c. 1815', tint: '#5c1428',
       story: 'Made for a royal summer house by the sea, where the Prince Regent played on a lacquered table under painted dragons. White and black lacquer, polished until it mirrors candlelight, with crowns, pearls and manes laid in real-looking gold leaf.',
       lore: {
         k: 'His crown has eight arches, each set with four pearls, and a gold cross to show he is the most important piece on the board.',
@@ -1590,7 +1592,7 @@ function ChacklatePieces(THREE, K) {
       },
     },
     staunton: {
-      id: 'staunton', name: 'Classic Staunton', era: 'Victorian London', year: '1849',
+      id: 'staunton', name: 'Classic Staunton', era: 'Victorian London', year: '1849', tint: '#1d4a32',
       story: 'In 1849 a London games maker launched a design so clear that players anywhere could read it at a glance. Boxwood and ebony, turned on a lathe and carved by hand: almost every chess set since has learned from this one.',
       lore: {
         k: 'A ribbed crown and a carved cross. The tallest piece, and the one you must protect.',
@@ -1604,7 +1606,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => (side === 'w' ? { body: MATS.boxwood() } : { body: MATS.ebony() }),
     },
     pharaoh: {
-      id: 'pharaoh', name: "Pharaoh's Treasure", era: 'Ancient Egypt', year: 'c. 1330 BC',
+      id: 'pharaoh', name: "Pharaoh's Treasure", era: 'Ancient Egypt', year: 'c. 1330 BC', tint: '#1d2f7a',
       story: 'Inspired by the treasures of the boy king Tutankhamun: alabaster that glows like moonlight, black basalt from the desert, and collars of gold and blue lapis lazuli. Every piece stands on a papyrus column, the plant that gave the world paper.',
       lore: {
         k: 'He wears the Blue Crown and carries an ankh, the Egyptian sign of life, in place of a cross.',
@@ -1618,7 +1620,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.alabaster() } : { body: MATS.basalt() }, { trim: MAT.gold('#ebb84f'), accent: MATS.lapis(), accent2: MATS.carnelian() }),
     },
     olympian: {
-      id: 'olympian', name: 'Olympian Marble', era: 'Ancient Greece', year: 'c. 440 BC',
+      id: 'olympian', name: 'Olympian Marble', era: 'Ancient Greece', year: 'c. 440 BC', tint: '#2a5a7a',
       story: 'Carved in the spirit of the Parthenon in Athens: white marble from Mount Pentelicus, dark marble from Eleusis, and bronze that shines like the shields of Olympia. Look for the Greek key that runs round every base like a little maze.',
       lore: {
         k: 'An Ionic column with curling scrolls, a crown of olive leaves and a bronze cross.',
@@ -1632,7 +1634,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.pentelic() } : { body: MATS.nero() }, { trim: MATS.bronze() }),
     },
     imperial: {
-      id: 'imperial', name: 'Imperial Rome', era: 'Ancient Rome', year: 'AD 113',
+      id: 'imperial', name: 'Imperial Rome', era: 'Ancient Rome', year: 'AD 113', tint: '#4a1840',
       story: 'Fit for an emperor: purple porphyry, a stone so rare that only emperors could use it, set against white Carrara marble and gilded bronze. Every column winds with a spiral band, like Trajan\'s Column, which still stands in Rome today.',
       lore: {
         k: 'A golden laurel crown, an orb and a cross above a spiral column.',
@@ -1646,7 +1648,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.carrara() } : { body: MATS.porphyry() }, { trim: MATS.gilt() }),
     },
     maharaja: {
-      id: 'maharaja', name: "Maharaja's Jade", era: 'Mughal India', year: 'c. 1640',
+      id: 'maharaja', name: "Maharaja's Jade", era: 'Mughal India', year: 'c. 1640', tint: '#0e5a52',
       story: 'From the age of the Taj Mahal, when Shah Jahan\'s craftsmen carved white and deep green jade as thin as a leaf and set it with rubies and emeralds. Lotus cushions, pointed arches and onion domes: every piece is a little palace.',
       lore: {
         k: 'An onion dome on a drum of pointed arches, set with rubies and crowned with a golden cross.',
@@ -1660,7 +1662,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.jadeWhite() } : { body: MATS.jadeBlack() }, { trim: MAT.gold('#f0c35a'), accent: MATS.ruby(), accent2: MATS.emerald() }),
     },
     dynasty: {
-      id: 'dynasty', name: 'Ming Porcelain', era: 'Ming China', year: 'c. 1420',
+      id: 'dynasty', name: 'Ming Porcelain', era: 'Ming China', year: 'c. 1420', tint: '#8a1e16',
       story: 'Blue-and-white porcelain from the imperial kilns of Jingdezhen faces carved cinnabar lacquer, as red as the walls of the Forbidden City. Lotus scrolls, cloud collars and pagoda roofs with upturned corners decorate every piece.',
       lore: {
         k: 'A vase-shaped body under two golden pagoda roofs and a cross.',
@@ -1674,10 +1676,10 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.porcelain() } : { body: MATS.cinnabar() }, { trim: MAT.gold('#ecbc58'), accent: MATS.jade() }),
     },
     murano: {
-      id: 'murano', name: 'Murano Glass', era: 'Venice', year: 'c. 1700',
-      story: 'Blown by the glassmakers of Murano, an island so secret that its masters were not allowed to leave. Clear crystal with gold leaf against deep cobalt blue, with twisted stems that catch the light.',
+      id: 'murano', name: 'Murano Glass', era: 'Venice', year: 'c. 1700', tint: '#14506a',
+      story: 'Blown by the glassmakers of Murano, an island so secret that its masters were not allowed to leave. Milk-white lattimo glass, made to rival Chinese porcelain, faces deep cobalt blue, with gold leaf and twisted stems that catch the light.',
       lore: {
-        k: 'A crystal goblet crown under a glass ball and a golden cross.',
+        k: 'A goblet crown under a glass ball and a golden cross.',
         q: 'A goblet whose rim rises into eight points, each tipped with gold.',
         b: 'A glass mitre on a twisted stem, with the bishop\'s slit.',
         n: 'A glass horse with a mane of gold.',
@@ -1685,10 +1687,10 @@ function ChacklatePieces(THREE, K) {
         p: 'A glass bubble on a twisted stem.',
       },
       pieces: MURANO,
-      mats: (side) => Object.assign(side === 'w' ? { body: MATS.crystal() } : { body: MATS.cobalt() }, { trim: MAT.gold('#f0c564') }),
+      mats: (side) => Object.assign(side === 'w' ? { body: MATS.lattimo() } : { body: MATS.cobalt() }, { trim: MAT.gold('#f0c564') }),
     },
     tsarina: {
-      id: 'tsarina', name: "Tsarina's Faberge", era: 'Imperial Russia', year: 'c. 1900',
+      id: 'tsarina', name: "Tsarina's Faberge", era: 'Imperial Russia', year: 'c. 1900', tint: '#13563a',
       story: 'Inspired by the jewellers who made Easter eggs for the Tsars: shimmering white enamel over engraved waves, green malachite from the Ural Mountains, gold, pearls and diamonds. The rooks wear the swallowtail battlements of the Moscow Kremlin.',
       lore: {
         k: 'The Great Imperial Crown: two half-domes, an arch of pearls, a red spinel and a cross.',
@@ -1702,7 +1704,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.enamel() } : { body: MATS.malachite() }, { trim: MATS.roseGold(), accent: MATS.diamond(), accent2: MATS.spinel(), accent3: MATS.pearl() }),
     },
     manhattan: {
-      id: 'manhattan', name: 'Manhattan Deco', era: 'New York', year: '1930',
+      id: 'manhattan', name: 'Manhattan Deco', era: 'New York', year: '1930', tint: '#2a2a36',
       story: 'Made in the year the Chrysler Building reached for the clouds: cream enamel and black onyx, trimmed with polished nickel and gold, stepped like skyscrapers, with a sunburst on the queen and a spire on the king.',
       lore: {
         k: 'A skyscraper with setbacks and a crown of stacked arches, topped by a spire and a cross.',
@@ -1724,34 +1726,34 @@ function ChacklatePieces(THREE, K) {
   // Tempered chocolate: a soft gloss with a warm sheen at grazing angles.
   const choc = (key, color, sheen) => phys('choc-' + key, { color, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.14, sheen: 0.6, sheenColor: new THREE.Color(sheen || '#ffcf9e'), sheenRoughness: 0.45 });
   const COLOURWAYS = {
-    'ruby-pearl': { name: 'Ruby & Pearl', shape: 'regency', era: 'Belle Epoque Paris', year: '1889',
+    'ruby-pearl': { tint: '#6a0c22', name: 'Ruby & Pearl', shape: 'regency', era: 'Belle Epoque Paris', year: '1889',
       story: 'Made for the World\'s Fair in Paris, the year the Eiffel Tower opened. Pearly white faces deep ruby lacquer, and every crown and mane is laid in gold leaf.',
       w: () => ({ body: MATS.pearl(), trim: MAT.goldLeaf() }), b: () => ({ body: lacquer('ruby', '#5e0a1e', { sheen: 0.3, sheenColor: new THREE.Color('#ff8aa4') }), trim: MAT.goldLeaf() }) },
-    marble: { name: 'Carrara & Nero', shape: 'staunton', era: 'Tuscany and Spain', year: 'Today',
+    marble: { tint: '#45454c', name: 'Carrara & Nero', shape: 'staunton', era: 'Tuscany and Spain', year: 'Today',
       story: 'White marble from Carrara in Tuscany, the stone Michelangelo used for his statue of David, faces black Nero Marquina from northern Spain.',
       w: () => ({ body: MATS.carrara() }), b: () => ({ body: MATS.nero() }) },
-    'cocoa-gilt': { name: 'Cocoa & Gilt', shape: 'regency', era: 'A chocolatier\'s salon', year: 'c. 1900',
+    'cocoa-gilt': { tint: '#4a2410', name: 'Cocoa & Gilt', shape: 'regency', era: 'A chocolatier\'s salon', year: 'c. 1900',
       story: 'A chocolatier kept this set in the shop window: bright gilt against dark cocoa lacquer, polished until it looked good enough to eat. (Please do not try.)',
       w: () => ({ body: MAT.gold('#e2b45c'), trim: lacquer('cocoa-trim', '#2a140c') }), b: () => ({ body: lacquer('cocoa', '#2a140c', { sheen: 0.4, sheenColor: new THREE.Color('#d89060') }), trim: MAT.goldLeaf() }) },
-    'jade-onyx': { name: 'Jade & Onyx', shape: 'staunton', era: 'Stones of legend', year: 'Ancient and modern',
+    'jade-onyx': { tint: '#1e5a46', name: 'Jade & Onyx', shape: 'staunton', era: 'Stones of legend', year: 'Ancient and modern',
       story: 'Pale green jade, treasured in China for thousands of years, against polished black onyx. Earned by beating Shelly the Tortoise.',
       w: () => ({ body: MATS.jade() }), b: () => ({ body: MATS.onyx() }) },
-    'gold-silver': { name: 'Gold & Platinum', shape: 'regency', era: 'The trophy cabinet', year: 'Champions only',
+    'gold-silver': { tint: '#5a4418', name: 'Gold & Platinum', shape: 'regency', era: 'The trophy cabinet', year: 'Champions only',
       story: 'Made for a champion\'s trophy cabinet: polished gold against cool platinum, each trimmed with the other.',
       w: () => ({ body: MATS.nickel(), trim: MAT.gold('#f0c35a') }), b: () => ({ body: MAT.gold('#e0b050'), trim: MATS.nickel() }) },
-    'ruby-chocolate': { name: 'Ruby Chocolate', shape: 'staunton', era: 'The newest chocolate', year: '2017',
+    'ruby-chocolate': { tint: '#8a3a4c', name: 'Ruby Chocolate', shape: 'staunton', era: 'The newest chocolate', year: '2017',
       story: 'Ruby chocolate is real: a pink chocolate made from ruby cocoa beans, first shown to the world in 2017. Here it faces the darkest bittersweet.',
       w: () => ({ body: choc('ruby', '#e7a3ae', '#ffd6de') }), b: () => ({ body: choc('dark', '#2a120a') }) },
-    'milk-dark': { name: 'Milk & Dark', shape: 'staunton', era: 'Cocoa Harvest', year: 'Season 1',
+    'milk-dark': { tint: '#5a3418', name: 'Milk & Dark', shape: 'staunton', era: 'Cocoa Harvest', year: 'Season 1',
       story: 'Milk chocolate against dark, as glossy as a freshly tempered bar. The top prize of the Cocoa Harvest season track.',
       w: () => ({ body: choc('milk', '#b9784a') }), b: () => ({ body: choc('dark', '#2a120a') }) },
-    'caramel-cream': { name: 'Caramel & Cream', shape: 'regency', era: 'Cocoa Harvest', year: 'Season 1',
+    'caramel-cream': { tint: '#7a4a1c', name: 'Caramel & Cream', shape: 'regency', era: 'Cocoa Harvest', year: 'Season 1',
       story: 'Golden caramel and fresh cream, with crowns and manes in gold leaf. A Season Pass reward from the Cocoa Harvest.',
       w: () => ({ body: lacquer('cream', '#f4ead6', { sheen: 0.3, sheenColor: new THREE.Color('#fff6e0') }), trim: MAT.goldLeaf() }), b: () => ({ body: choc('caramel', '#a9601e', '#ffd28a'), trim: MAT.goldLeaf() }) },
   };
   for (const [id, c] of Object.entries(COLOURWAYS)) {
     const base = SETS[c.shape];
-    SETS[id] = { id, name: c.name, era: c.era, year: c.year, story: c.story, lore: base.lore, pieces: base.pieces, shape: c.shape, mats: (side) => (side === 'w' ? c.w() : c.b()) };
+    SETS[id] = { id, name: c.name, era: c.era, year: c.year, story: c.story, tint: c.tint, lore: base.lore, pieces: base.pieces, shape: c.shape, mats: (side) => (side === 'w' ? c.w() : c.b()) };
   }
 
   // ------------------------------------------------------------------ building and caching

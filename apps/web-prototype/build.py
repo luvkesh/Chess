@@ -1,4 +1,4 @@
-"""Inline the shared packages, the web client and the content JSON into one HTML file."""
+"""Inline the shared packages, three.js, the fonts, the web client and the content JSON into one HTML file."""
 import json
 import pathlib
 import re
@@ -8,11 +8,17 @@ root = here.parent.parent
 core = root / 'packages' / 'chess-core' / 'src'
 content = root / 'packages' / 'content'
 src = here / 'src'
+vendor = here / 'vendor'
 
 SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
-    src / 'render.js',
+    vendor / 'three.bundle.js',
+    src / 'kit3d.js',
+    src / 'pieces3d.js',
+    src / 'world3d.js',
+    src / 'scene.js',
+    src / 'art.js',
     src / 'progress.js',
     src / 'audio.js',
     src / 'net.js',
@@ -36,14 +42,17 @@ parts = [
     data('CHACKLATE_MISSIONS', 'missions.json'),
     data('CHACKLATE_STORE', 'store.json'),
     data('CHACKLATE_VOICE', 'voice.json'),
+    data('CHACKLATE_CAMPAIGN', 'campaign.json'),
 ]
 for path in SCRIPTS:
-    if path.exists():
-        parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
+    parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
 code = '\n'.join(parts)
 assert '</script' not in code.lower()
 
-html = (src / 'shell.html').read_text().replace('/*SCRIPTS*/', code)
+fonts = (vendor / 'fonts.css').read_text()
+assert '</style' not in fonts.lower()
+
+html = (src / 'shell.html').read_text().replace('/*FONTS*/', fonts).replace('/*SCRIPTS*/', code)
 out = here / 'dist' / 'chacklate-chess.html'
 out.parent.mkdir(exist_ok=True)
 out.write_text(html)

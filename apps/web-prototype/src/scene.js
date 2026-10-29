@@ -40,12 +40,13 @@ function ChacklateScene(canvas, options) {
   Object.assign(key.shadow.camera, { left: -7.5, right: 7.5, top: 7.5, bottom: -7.5, near: 2, far: 40 });
   key.shadow.bias = -0.0003; key.shadow.normalBias = 0.025; key.shadow.radius = 3;
   scene.add(key, key.target);
-  // The rim light sits low behind the board so its mirror image on the polished table and
-  // floor falls outside the room; both lights turn with the player's side.
-  const rim = new THREE.DirectionalLight('#ffd6a0', 0.9); scene.add(rim);
+  // The rim light sits low behind the board and well off to one side, so its mirror image on
+  // the polished table stays out of the low home-screen view; both lights turn with the
+  // player's side.
+  const rim = new THREE.DirectionalLight('#ffd6a0', 0.6); scene.add(rim);
   function placeLights(side) {
     const k = side === 'black' ? -1 : 1;
-    key.position.set(-6 * k, 14, 7 * k); rim.position.set(4 * k, 3, -9 * k);
+    key.position.set(-6 * k, 14, 7 * k); rim.position.set(8 * k, 3, -8 * k);
   }
   placeLights('white');
   const hemi = new THREE.HemisphereLight('#ffe2c0', '#1a0d08', 0.35); scene.add(hemi);
@@ -60,7 +61,7 @@ function ChacklateScene(canvas, options) {
     const rt = new THREE.WebGLRenderTarget(size.x, size.y, { samples: 4, type: THREE.HalfFloatType });
     composer = new THREE.EffectComposer(renderer, rt);
     composer.addPass(new THREE.RenderPass(scene, camera));
-    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.42, 0.55, 1.05);
+    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.42, 0.55, 1.25);
     composer.addPass(bloom);
     composer.addPass(new THREE.ShaderPass(GRADE));
     composer.addPass(new THREE.OutputPass());
@@ -134,12 +135,14 @@ function ChacklateScene(canvas, options) {
   function loadRoom(id) {
     if (room && room.def && id === roomId && roomGroup.children.length) return;
     roomId = id;
-    while (roomGroup.children.length) { const c = roomGroup.children.pop(); c.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); }
+    while (roomGroup.children.length) roomGroup.children.pop();
+    if (room && room.dispose) room.dispose();
     room = W.room(id);
     roomGroup.add(room.group);
     scene.fog = new THREE.FogExp2(room.fog, 0.022);
     scene.background = new THREE.Color(room.fog);
-    hemi.color.set(room.hemi[0]); hemi.groundColor.set(room.hemi[1]);
+    hemi.color.set(room.hemi[0]); hemi.groundColor.set(room.hemi[1]); hemi.intensity = room.lights.hemi;
+    chandLight.intensity = room.lights.chand; chandLight.color.set(room.lights.color);
     scene.environment = W.environment(renderer, room.env);
     scene.environmentIntensity = 0.9;
     // flames are reflected in the board too
@@ -463,6 +466,7 @@ function ChacklateScene(canvas, options) {
   // screens the lens widens rather than backing the camera out of the room.
   const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, intro: null,
     ins: { top: 0, right: 0, bottom: 0, left: 0 }, tIns: { top: 0, right: 0, bottom: 0, left: 0 } };
+  if (window.__SHOT) { window.__cam = cam; window.__scene = scene; }   // screenshot tooling reads the camera and scene
   const FIT = [], FIT_TALL = [];
   for (const x of [-5.05, 5.05]) for (const z of [-5.05, 5.05]) FIT.push([x, 0.06, z], [x, -0.46, z]);
   for (const z of [-3.5, 3.5]) FIT.push([-0.5, 1.62, z], [0.5, 1.62, z], [-3.5, 0.97, z], [3.5, 0.97, z]);
@@ -537,7 +541,7 @@ function ChacklateScene(canvas, options) {
   const portraitNow = () => (canvas.clientWidth || 1) / (canvas.clientHeight || 1) < 0.8;
 
   // ------------------------------------------------------------------ animation loop
-  let raf = 0, lastFrame = 0, ambientTimer = 0;
+  let raf = 0, lastFrame = 0, ambientTimer = 0, paused = false;
   function step(now) {
     const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
     lastFrame = now;
@@ -550,7 +554,8 @@ function ChacklateScene(canvas, options) {
       if (t >= 1) cam.intro = null;
       busy = true;
     } else {
-      if (attract && !window.__SHOT) cam.tYaw += dt * 0.06;
+      // the idle orbit turns the camera directly, so it runs on the calm ambient timer
+      if (attract && !window.__SHOT && !paused) { cam.tYaw += dt * 0.06; cam.yaw += dt * 0.06; }
       for (const k of ['yaw', 'pitch', 'zoom', 'lookY']) {
         const t = 't' + k[0].toUpperCase() + k.slice(1);
         const d = cam[t] - cam[k];
@@ -600,7 +605,7 @@ function ChacklateScene(canvas, options) {
     if (clockState && clockState.running) busy = true;
     return busy;
   }
-  const ambient = () => !window.__SHOT && (attract || motesOn() || particles.length > 0 || (highlights.check >= 0 && animations) || (room && room.flames.length && animations && quality === 'high'));
+  const ambient = () => !paused && !window.__SHOT && (attract || motesOn() || particles.length > 0 || (highlights.check >= 0 && animations) || (room && room.flames.length && animations && quality === 'high'));
   function render(now) {
     applyCamera();
     if (room && animations) room.update(now / 1000);
@@ -816,17 +821,57 @@ function ChacklateScene(canvas, options) {
         g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
       }));
-      if (spec.kind === 'piece') { c2.position.set(0.2, 1.15, 3.6); c2.lookAt(0, (P.HEIGHT[types[0]] || 1) * 0.5, 0); }
+      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); c2.lookAt(0, ht * 0.48, 0); }
       else { c2.position.set(0, 1.9, 6.0); c2.lookAt(0, 0.55, -0.3); }
       const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
       floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
       s2.background = null;
+    } else if (spec.kind === 'vignette') {
+      // A few pieces on a velvet plinth with a gold rim, for menu cards.
+      const gold = new THREE.MeshPhysicalMaterial({ color: '#e2b35e', metalness: 1, roughness: 0.24, clearcoat: 0.4 });
+      const felt = new THREE.MeshPhysicalMaterial({ color: spec.felt || '#5c1428', roughness: 0.9, sheen: 1, sheenColor: new THREE.Color(spec.sheen || '#ff9cb8'), sheenRoughness: 0.45 });
+      const R = spec.r || 1.3;
+      const top = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 0.12, 72), felt); top.position.y = -0.06;
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(R, 0.055, 18, 120), gold); rim.rotation.x = Math.PI / 2;
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.06, R * 0.86, 0.22, 72), gold); base.position.y = -0.23;
+      const foot = new THREE.Mesh(new THREE.TorusGeometry(R * 0.86, 0.04, 14, 96), gold); foot.rotation.x = Math.PI / 2; foot.position.y = -0.34;
+      for (const m of [top, rim, base, foot]) { s2.add(m); disposeList.push(m); }
+      (spec.items || []).forEach((it) => {
+        const g = P.make(it.set || setId, it.type || 'k', it.side || 'w');
+        g.position.set(it.x || 0, it.y || 0, it.z || 0);
+        g.rotation.set(0, it.rot || 0, it.tilt || 0, 'YXZ');
+        if (it.scale) g.scale.setScalar(it.scale);
+        s2.add(g);
+      });
+      const tall = Math.max(0.8, ...(spec.items || []).map((it) => (P.HEIGHT[it.type || 'k'] || 1) * (it.scale || 1)));
+      c2.fov = spec.fov || 23;
+      c2.position.set(0, 1.3 + tall * 0.55, 6.8);
+      c2.lookAt(0, tall * 0.45 - 0.1, 0);
+      s2.background = null;
+    } else if (spec.kind === 'room') {
+      // The room from a seat at the table, with the board set up, for the collection.
+      const rm = W.room(spec.room);
+      s2.add(rm.group); disposeList.push({ userData: { dispose: rm.dispose } });
+      s2.environment = W.environment(renderer, rm.env);
+      s2.background = new THREE.Color(rm.fog);
+      s2.fog = new THREE.FogExp2(rm.fog, 0.018);
+      const cl = new THREE.PointLight(rm.lights.color, rm.lights.chand, 40, 2); cl.position.set(0, 7.2, 0); s2.add(cl);
+      s2.add(new THREE.HemisphereLight(rm.hemi[0], rm.hemi[1], Math.max(0, rm.lights.hemi - 0.4)));
+      const b = W.board(spec.board || boardId, 'white'); s2.add(b); disposeList.push(b);
+      [['r', 'w', -3.5, 3.5], ['k', 'w', 0.5, 3.5], ['q', 'w', -0.5, 3.5], ['n', 'w', 1.5, 1.5], ['k', 'b', 0.5, -3.5], ['q', 'b', -0.5, -3.5], ['r', 'b', 3.5, -3.5], ['b', 'b', -1.5, -2.5]].forEach(([t, side, x, z]) => {
+        const g = P.make(setId, t, side); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
+      });
+      c2.fov = spec.fov || 46;
+      c2.position.set(5.5, 5.2, 12.5);
+      c2.lookAt(0, 1.6, -2);
     } else if (spec.kind === 'board') {
       const b = W.board(spec.board, 'white'); s2.add(b); disposeList.push(b);
       const g = P.make(setId, 'k', 'w'); g.position.set(-0.5, 0, 0.5); s2.add(g);
       const g2 = P.make(setId, 'n', 'b'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
-      c2.position.set(3.2, 4.2, 5.4); c2.lookAt(0.3, 0, 0.6);
+      // back far enough that both pieces fit, with the frame and its letters in front
+      c2.position.set(3.0, 5.6, 11.2); c2.lookAt(0, 0.35, 1.6);
     }
+    c2.aspect = w / h; c2.updateProjectionMatrix();
     const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
     const prevT = renderer.toneMapping;
     renderer.setRenderTarget(rt);
@@ -838,7 +883,10 @@ function ChacklateScene(canvas, options) {
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
     rt.dispose();
-    disposeList.forEach((o) => { if (o.userData && o.userData.dispose) o.userData.dispose(); });
+    disposeList.forEach((o) => {
+      if (o.userData && o.userData.dispose) o.userData.dispose();
+      else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
+    });
     // render targets are linear: tone map and encode in the copy
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
     const g = cv.getContext('2d'), img = g.createImageData(w, h);
@@ -996,6 +1044,8 @@ function ChacklateScene(canvas, options) {
       requestRender();
     },
     showcase(on) { attract = !!on; requestRender(); },
+    // Menu pages blur the room behind them; nothing there needs to move, so the idle frames stop.
+    setPaused(on) { paused = !!on; if (!paused) requestRender(); },
     snapshot,
     sets: P.list,
     boards: () => W.BOARDS,

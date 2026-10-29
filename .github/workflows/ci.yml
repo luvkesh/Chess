@@ -39,6 +39,8 @@ jobs:
         run: node apps/web-prototype/test/progress.test.js
       - name: Voice script and clips
         run: node apps/web-prototype/test/voice.test.js
+      - name: Catalog looks exist in the 3D code
+        run: node apps/web-prototype/test/looks.test.js
       - name: Build single-file game
         run: python3 apps/web-prototype/build.py
       - name: Check committed build is up to date

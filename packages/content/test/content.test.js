@@ -164,7 +164,11 @@ console.log('catalog, seasons, missions and store ok:', catalog.items.length, 'i
 // room and coach avatar, and the coaches and opponents have portraits.
 const ANIMALS = new Set();
 const eraIds = new Set();
-for (const o of campaign.opponents) { assert.ok(o.level >= 0 && o.level <= 7 && o.full && o.blurb && o.animal, 'opponent ' + o.id); ANIMALS.add(o.animal); }
+for (const o of campaign.opponents) {
+  assert.ok(o.level >= 0 && o.level <= 7 && o.full && o.blurb && o.animal, 'opponent ' + o.id); ANIMALS.add(o.animal);
+  // what each rival says when a game starts and ends (shown in the game and on the result card)
+  for (const k of ['hello', 'win', 'lose', 'draw']) assert.ok(typeof o[k] === 'string' && o[k].length > 5 && o[k].length < 140, o.id + ' ' + k + ' line');
+}
 assert.deepStrictEqual(campaign.opponents.map((o) => o.level), [0, 1, 2, 3, 4, 5, 6, 7]);
 assert.ok(campaign.coach.animal && campaign.coach.full);
 campaign.eras.forEach((e, k) => {
