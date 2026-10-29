@@ -396,7 +396,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .item .ib .st { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 8px; }
 .item .ib .st span { font: 600 10.5px/1.3 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-2); }
 .item .ib .st span.lk { color: var(--faint); font: 500 12px/1.3 var(--body); letter-spacing: 0; text-transform: none; }
-.item.locked .sw img { filter: saturate(0.85) brightness(0.84); }   /* still tempting: the lock row says how to get it */
+.item.locked .sw img { filter: saturate(0.85) brightness(0.84); }   /* in colour, so every set can be admired; the lock row says how to earn it */
 .item .eye { width: 34px; height: 34px; }
 .museum { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; }
 .museum .stagebox { border-radius: 20px; overflow: hidden; background: radial-gradient(100% 90% at 50% 30%, var(--tint, rgba(80, 52, 36, 0.55)), rgba(10, 6, 4, 0.95)); border: 1px solid var(--line); display: grid; place-items: center; min-height: 300px; position: relative; }
@@ -713,8 +713,8 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .leaderboard .nm { flex: 1; font-weight: 500; }
 .leaderboard .rt { font-variant-numeric: tabular-nums; }
 .today { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.mini { padding: 12px 14px; border-radius: 14px; }
-.mini b { display: block; font: 500 24px/1.1 var(--serif); margin-top: 4px; }
+.today .mini { padding: 12px 14px; border-radius: 14px; }
+.today .mini b { display: block; font: 500 24px/1.1 var(--serif); margin-top: 4px; }
 
 /* ------------------------------------------------------------ missions, season, store */
 .missions { padding: 16px 18px; border-radius: 20px; display: grid; gap: 10px; }
@@ -784,11 +784,15 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .subnav { display: flex; gap: 6px; padding: 4px; border-radius: 14px; border: 1px solid var(--line); background: rgba(14, 9, 6, 0.6); margin-bottom: 18px; }
   .subnav button { flex: 1; padding: 10px 6px; border-radius: 10px; font: 600 11px/1 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
   .subnav button[aria-current="page"] { color: #2a1606; background: linear-gradient(180deg, #fbe6ad, #d9a54e); }
-  .hero { padding-top: 2.4vh; padding-bottom: calc(96px + var(--safe-b)); }
+  .hero { padding-top: 2.4vh; padding-bottom: calc(96px + var(--safe-b)); isolation: isolate; }
+  /* a soft shade behind the title, so the chandelier's candles never sit right behind the words */
+  .hero::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 0; width: 150%; height: 520px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(12, 6, 3, 0.62), rgba(12, 6, 3, 0.3) 60%, transparent); pointer-events: none; }
   .hero .lux-row { grid-template-columns: 1fr; gap: 12px; max-width: 560px; }
   .lux.h { display: grid; grid-template-columns: 84px 1fr 40px; grid-template-rows: auto auto; column-gap: 16px; align-items: center; text-align: left; padding: 14px 16px; border-radius: 18px; }
   .lux.h .art { grid-row: 1 / span 2; width: 84px; height: 76px !important; margin: 0; }
   .lux.h .art img.portrait { width: 72px; height: 72px; }
+  .lux.h .art img.snap { width: 100%; height: 100%; object-fit: contain; transform: scale(1.3); }
+  .lux.h .art img.portrait.mini { width: 34px; height: 34px; left: calc(50% + 12px); bottom: 0; }
   .lux.h h3 { font-size: 13.5px; align-self: end; }
   .lux.h h3::after { margin: 9px 0 0; width: 30px; background: linear-gradient(90deg, var(--gold), transparent); }
   .lux.h p { margin: 8px 0 0; font-size: 13px; align-self: start; }
@@ -807,6 +811,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .stage { grid-template-columns: 52px 1fr; padding: 14px; }
   .stage .badge-ic, .stage .badge-ic img { width: 52px; height: 52px; }
   .stage > .go { display: none; }
+  .stage > .pill { grid-column: 2; justify-self: start; margin-top: -6px; }
   .items { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .item .sw { height: 118px; }
   .item .ib { padding: 11px 12px; } .item .ib b { font-size: 18px; } .item .ib .d { display: none; }
@@ -834,7 +839,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .lesson .content { padding: 12px 14px; } .lesson .say { font-size: 17px; } .lesson .prompt { font-size: 19px; }
   .lesson footer { padding: 10px 12px; }
   .player-card { top: calc(var(--safe-t) + 62px); bottom: auto; width: calc(50% - 15px); height: 52px; max-width: none; padding: 5px 8px 5px 5px; gap: 8px; }
-  .player-card.top { left: max(10px, var(--safe-l)); right: auto; }
+  .player-card.top { top: calc(var(--safe-t) + 62px); left: max(10px, var(--safe-l)); right: auto; }
   .player-card.bottom { right: max(10px, var(--safe-r)); bottom: auto; }
   .player-card .pp, .player-card .pp .avatar { width: 40px; height: 40px; }
   .player-card .name { font-size: 16px; } .player-card .sub { display: none; }

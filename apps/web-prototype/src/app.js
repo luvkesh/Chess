@@ -1819,8 +1819,10 @@
           const bestM = pre.best ? pos.parseMove(pre.best) : null;
           const ex = C.explain({ cls, side: before.side, san: info.san, facts: f, refutation: refut, bestSan: pre.bestSan || (bestM ? pos.san(bestM, pos.legalMoves()) : ''), bestFacts: bestM ? C.facts(pos, bestM) : null, mateAgainst: post.mate > 0 ? post.mate : 0, missedMate: 0 });
           text = (cls === 'blunder' ? 'Careful! ' : 'Hmm. ') + ex;
-          actions = [['Take it back', 'takeback'], ['Show the reply', 'reply'], ['Play on', 'dismiss']];
-          if (refut) G.coachArrow = { from: sqIndex(refut.from), to: sqIndex(refut.to), color: '#ff5a50' };
+          // The computer may have answered already, and then the reply is on the board.
+          const replied = G.g.moves.length > ply + 1;
+          actions = replied ? [['Take it back', 'takeback'], ['Play on', 'dismiss']] : [['Take it back', 'takeback'], ['Show the reply', 'reply'], ['Play on', 'dismiss']];
+          if (refut && !replied) G.coachArrow = { from: sqIndex(refut.from), to: sqIndex(refut.to), color: '#ff5a50' };
         } else if (cls === 'brilliant' && lvl !== 'quiet') { text = 'Brilliant! ' + (C.describe(f) || 'A bold sacrifice that the engine likes.'); actions = [['Thanks', 'dismiss']]; }
         else if (lvl === 'chatty' && (cls === 'best' || cls === 'excellent')) { const d = C.describe(f); text = (cls === 'best' ? 'Top move. ' : 'Nice. ') + (d || ''); actions = [['Thanks', 'dismiss']]; }
         else if (lvl === 'chatty' && cls === 'inaccuracy') { text = 'Playable, but ' + (pre.bestSan || 'another move') + ' was a little more precise.'; actions = [['OK', 'dismiss']]; }

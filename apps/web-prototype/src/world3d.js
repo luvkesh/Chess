@@ -376,8 +376,9 @@ function ChacklateWorld(THREE, K) {
     g.strokeStyle = o.trim; g.lineWidth = 3; g.strokeRect(70, 70, 372, 244);
     return texFrom(c);
   }
-  function skyTexture(o) {
-    const c = canvas(512, 1024), g = c.getContext('2d'), R = rng(4);
+  // A night sky for plain windows; each window gets its own stars, and only one the moon.
+  function skyTexture(o, seed, moon) {
+    const c = canvas(512, 1024), g = c.getContext('2d'), R = rng(4 + (seed || 0) * 7);
     const grd = g.createLinearGradient(0, 0, 0, 1024);
     o.sky.forEach((col, i) => grd.addColorStop(i / (o.sky.length - 1), col));
     g.fillStyle = grd; g.fillRect(0, 0, 512, 1024);
@@ -386,7 +387,7 @@ function ChacklateWorld(THREE, K) {
       g.fillStyle = 'rgba(255,248,230,' + a + ')'; const s = R() < 0.06 ? 2.6 : 1.2;
       g.beginPath(); g.arc(R() * 512, y, s, 0, TAU); g.fill();
     }
-    if (o.moon) {
+    if (o.moon && moon) {
       g.fillStyle = 'rgba(255,240,205,0.95)'; g.beginPath(); g.arc(360, 210, 46, 0, TAU); g.fill();
       g.fillStyle = 'rgba(255,240,205,0.12)'; g.beginPath(); g.arc(360, 210, 100, 0, TAU); g.fill();
       g.fillStyle = o.sky[0]; g.beginPath(); g.arc(342, 196, 40, 0, TAU); g.fill();
@@ -1766,6 +1767,9 @@ function ChacklateWorld(THREE, K) {
     const nicheKind = def.wall === 'deco' ? 'rect' : wd && wd.kind === 'pointed' ? 'pointed' : 'arch';
     const nicheTex = (() => { const c = canvas(32, 256), g = c.getContext('2d'); g.fillStyle = vgrad(g, 0, 256, [shade(o.paper, -0.72), shade(o.paper, -0.45), shade(o.paper, -0.3)]); g.fillRect(0, 0, 32, 256); return own(texFrom(c)); })();
     const stoneMat = def.wall === 'stone' ? new THREE.MeshStandardMaterial({ map: TEX.stone(o.paper, o.paperInk, { scale: 3 }), roughness: 0.8 }) : wallMats.wood;
+    // the moon hangs in the window nearest straight ahead
+    let moonAt = -1;
+    def.faces.forEach((f, k) => { if (f === 'window' && (moonAt < 0 || Math.min(k, NF - k) < Math.min(moonAt, NF - moonAt))) moonAt = k; });
     for (let i = 0; i < NF; i++) {
       const a = (i / NF) * TAU, kind = def.faces[i];
       const face = new THREE.Group();
@@ -1784,7 +1788,7 @@ function ChacklateWorld(THREE, K) {
       const cornice = new THREE.Mesh(new THREE.BoxGeometry(faceW + 0.4, 0.6, 0.6), wallMats.wood); at(cornice, 0, FLOOR + H - 0.6, 0.3);
       if (frieze) { const fz = new THREE.Mesh(new THREE.PlaneGeometry(faceW, 0.9), new THREE.MeshStandardMaterial({ map: frieze, roughness: 0.5, metalness: 0.1 })); at(fz, 0, friezeY, 0.04); }
       if (kind === 'window' && !def.view) {
-        const sky = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 7.4), new THREE.MeshBasicMaterial({ map: own(skyTexture(o)), toneMapped: true }));
+        const sky = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 7.4), new THREE.MeshBasicMaterial({ map: own(skyTexture(o, i, i === moonAt)), toneMapped: true }));
         at(sky, 0, FLOOR + WAIN + 4.4, 0.05);
         const frameM = new THREE.Mesh(K.merge([
           ...[-1.85, 0, 1.85].map((x) => { const b = new THREE.BoxGeometry(0.12, 7.6, 0.16); b.translate(x, 0, 0); return b; }),
