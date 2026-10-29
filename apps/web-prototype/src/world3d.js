@@ -1965,7 +1965,12 @@ function ChacklateWorld(THREE, K) {
     envCache.set(key, rt.texture);
     return rt.texture;
   }
+  // After a lost GPU context the cached maps are empty and have to be rendered again.
+  function resetEnvironments() {
+    envCache.forEach((t) => t.dispose());
+    envCache.clear();
+  }
 
-  return { BOARDS, ROOMS, board, room, environment, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
+  return { BOARDS, ROOMS, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateWorld;
