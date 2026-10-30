@@ -1,4 +1,5 @@
-"""Turn the PNGs from tools/shoot-art.js into the small WebP files in src/art/ (needs Pillow).
+"""Make the small WebP files in src/art/ (needs Pillow): the medal pieces from tools/shoot-art.js
+and the era views from the website's era pictures.
 build.py inlines them as CHACKLATE_ART, so the game stays one file."""
 import pathlib
 
@@ -19,13 +20,14 @@ for t in 'kqrbnp':
     im = im.resize((round(im.width * 240 / im.height), 240), Image.LANCZOS)
     im.save(dest / ('piece-%s.webp' % t), quality=84, method=6)
 
-# Each era's painting, cropped wide around its landmark for the Journey banners and portholes.
-for f in sorted(out.glob('view-*.png')):
+# Each era's room and landmark for the Journey banners and portholes, cropped wide from the
+# website's era pictures (apps/website/tools/shoot.js), which are rendered from the live table.
+for f in sorted((here.parent.parent / 'website' / 'img').glob('*-hero.webp')):
     im = Image.open(f).convert('RGB')
     w, h = im.size
-    cw, ch = round(w * 0.72), round(w * 0.36)
-    box = ((w - cw) // 2, round(h * 0.2), (w - cw) // 2 + cw, round(h * 0.2) + ch)
-    im.crop(box).resize((720, 360), Image.LANCZOS).save(dest / (f.stem + '.webp'), quality=76, method=6)
+    cw = round(w * 0.75)
+    box = ((w - cw) // 2, round(h * 0.02), (w - cw) // 2 + cw, round(h * 0.02) + cw // 2)
+    im.crop(box).resize((600, 300), Image.LANCZOS).save(dest / ('view-' + f.stem[:-5] + '.webp'), quality=72, method=6)
 
 for f in sorted(dest.glob('*.webp')):
     print(f.name, f.stat().st_size)

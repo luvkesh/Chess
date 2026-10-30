@@ -1,5 +1,4 @@
-// Renders the menu pictures that are drawn from the game's own 3D models and paintings:
-// the gold pieces on the medals and the view of each Journey era.
+// Renders the gold pieces on the menu medals from the game's own 3D set.
 //   node tools/shoot-art.js            (after python3 build.py)
 // Writes PNGs to tools/out/ (git-ignored); then run python3 tools/art-webp.py.
 // Needs Playwright with Chromium. WebGL runs on SwiftShader, so it takes a minute or two.
@@ -9,7 +8,6 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const here = path.resolve(__dirname, '..');
-const C = require(path.join(here, '../../packages/content/campaign.json'));
 const out = path.join(__dirname, 'out');
 const only = process.argv[2] ? process.argv[2].split(',') : null;
 const want = (k) => !only || only.includes(k);
@@ -30,19 +28,6 @@ const SET = process.env.ART_SET || 'regency', SIDE = process.env.ART_SIDE || 'w'
     const url = await page.evaluate(([set, t, side, gild]) => window.__view.snapshot({ kind: 'piece', set, type: t, side, floor: false, gild: gild || undefined }, 800, 1000), [SET, t, SIDE, GILD]);
     save('piece-' + t, url);
     console.log('piece', t);
-  }
-  if (want('view')) {
-    for (const e of C.eras) {
-      const url = await page.evaluate((room) => {
-        const W = ChacklateWorld(window.THREE, ChacklateKit(window.THREE));
-        const src = W.panoramaCanvas(W.ROOMS[room], 1536, 1024);
-        const c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
-        c.getContext('2d').drawImage(src, 0, 0);
-        return c.toDataURL('image/png');
-      }, e.room);
-      save('view-' + e.id, url);
-      console.log('view', e.id);
-    }
   }
   await browser.close();
 })();

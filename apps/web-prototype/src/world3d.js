@@ -1155,11 +1155,9 @@ function ChacklateWorld(THREE, K) {
     for (let i = 0; i < 260; i++) { const y = y0 + Math.pow(R(), 1.6) * (y1 - y0); g.fillRect(R() * VW, y, 20 + R() * 80, 1 + (y - y0) / 120); }
   }
 
-  function panorama(def) { return texFrom(panoramaCanvas(def)); }
-  // The painting itself, also used for the Journey's era pictures (tools/shoot-art.js).
-  function panoramaCanvas(def, w, h) {
+  function panorama(def) {
     const v = def.view, o = def.palette, R = rng(v.seed || 7);
-    const c = canvas(w || 1200, h || 800), g = c.getContext('2d');
+    const c = canvas(1200, 800), g = c.getContext('2d');
     g.scale(c.width / VW, c.height / VH);
     g.fillStyle = vgrad(g, 0, HZ, o.sky); g.fillRect(0, 0, VW, HZ + 4);
     if (v.stars) for (let i = 0; i < v.stars; i++) {
@@ -1176,7 +1174,7 @@ function ChacklateWorld(THREE, K) {
     g.fillStyle = vgrad(g, HZ - 220, HZ, [rgba(v.haze || o.sky[o.sky.length - 1], 0), rgba(v.haze || o.sky[o.sky.length - 1], 0.6)]); g.fillRect(0, HZ - 220, VW, 224);
     const L = LAND[v.landmark];
     if (L) { L.back(g, v, R); L.front(g, v, R); }
-    return c;
+    return texFrom(c);
   }
 
   // ------------------------------------------------------------------ era interiors
@@ -2020,6 +2018,6 @@ function ChacklateWorld(THREE, K) {
       envCaches.delete(r);
     }
   }
-  return { BOARDS, ROOMS, board, room, panoramaCanvas, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
+  return { BOARDS, ROOMS, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateWorld;
