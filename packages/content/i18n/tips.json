@@ -1,260 +1,88 @@
 {
-  "chip.color.black": {
-    "en": "Black|Your opponent makes the first move."
-  },
-  "chip.color.random": {
-    "en": "Surprise me|We pick White or Black for you."
-  },
-  "chip.color.white": {
-    "en": "White|You make the first move."
-  },
-  "chip.mode.ai": {
-    "en": "Play one of the animal friends on this device."
-  },
-  "chip.mode.local": {
-    "en": "Two players share this device and take turns."
-  },
-  "clock.bonus": {
-    "en": "{m} minutes + {s} seconds|Each player gets {m} minutes for the whole game. Every time you make a move, {s} bonus seconds are added to your clock. If your time runs out, you usually lose."
-  },
-  "clock.none": {
-    "en": "No clock|Take as long as you like to think about every move."
-  },
-  "clock.one": {
-    "en": "1 minute|Each player gets just 1 minute for the whole game. Super fast! If your time runs out, you usually lose."
-  },
-  "clock.plain": {
-    "en": "{m} minutes|Each player gets {m} minutes for the whole game. No bonus time is added, so keep an eye on your clock! If your time runs out, you usually lose."
-  },
-  "control.br-more": {
-    "en": "Only for grown-ups|Allow 15 more minutes of play today."
-  },
-  "control.dr-hint": {
-    "en": "Hint|See the next move of this opening."
-  },
-  "control.dr-reset": {
-    "en": "Restart|Go back to the start of this opening."
-  },
-  "control.dr-set": {
-    "en": "Settings|Sound, music, graphics, voices and coaching."
-  },
-  "control.fr-create": {
-    "en": "Make a game|Get a 6-letter code. Your friend types it in to join you."
-  },
-  "control.fr-join": {
-    "en": "Join|Type the code your friend gave you, then join their game."
-  },
-  "control.fr-local": {
-    "en": "Take turns here|Play on this one device and pass it back and forth."
-  },
-  "control.g-claim": {
-    "en": "Claim a draw|The rules say this game can end as a tie right now. Tap to end it."
-  },
-  "control.g-copy": {
-    "en": "PGN|Copy every move of this game as text, to save it or share it with a grown-up."
-  },
-  "control.g-draw": {
-    "en": "Draw|Ask to end the game as a tie, with no winner."
-  },
-  "control.g-emote": {
-    "en": "React|Send a friendly picture to the other player. There is no chat."
-  },
-  "control.g-flip": {
-    "en": "Flip|Turn the board around to see it from the other side."
-  },
-  "control.g-hint": {
-    "en": "Hint|Rooky shows you a good move to think about."
-  },
-  "control.g-music": {
-    "en": "Music|Turn the background music on or off."
-  },
-  "control.g-resign": {
-    "en": "Resign|Give up this game. Your opponent wins."
-  },
-  "control.g-review": {
-    "en": "Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes."
-  },
-  "control.g-rules": {
-    "en": "Rule book|The special rules that matter in this game right now: castling, en passant, promotion and draws. In a game against a person the clock keeps running."
-  },
-  "control.g-settings": {
-    "en": "Settings|Sound, music, graphics, voices and coaching."
-  },
-  "control.g-threat": {
-    "en": "Threat|See what your opponent would love to do next, so you can stop it."
-  },
-  "control.g-undo": {
-    "en": "Undo|Take back your last move and try a different one."
-  },
-  "control.g-view": {
-    "en": "Camera|Switch between looking down from above and sitting at the table."
-  },
-  "control.l-review": {
-    "en": "Reviews|Quick refreshers of lessons you learned a while ago, so you never forget them."
-  },
-  "control.ls-hint": {
-    "en": "Hint|Get a little clue."
-  },
-  "control.ls-set": {
-    "en": "Settings|Sound, music, graphics, voices and coaching."
-  },
-  "control.ls-voice": {
-    "en": "Narration|Hear Rooky read the lesson out loud."
-  },
-  "control.mu-eq": {
-    "en": "Equip|Use this in your games from now on."
-  },
-  "control.nv-music": {
-    "en": "Music|Turn the background music on or off."
-  },
-  "control.nv-set": {
-    "en": "Settings|Sound, music, graphics, voices and coaching."
-  },
-  "control.pk-eq": {
-    "en": "Equip|Use this in your games from now on."
-  },
-  "control.pz-hint": {
-    "en": "Hint|Get a little clue."
-  },
-  "control.pz-set": {
-    "en": "Settings|Sound, music, graphics, voices and coaching."
-  },
-  "control.pz-sol": {
-    "en": "Solution|Show the answer to this puzzle."
-  },
-  "control.rv-best": {
-    "en": "Best line|Show the moves Rooky would have played here."
-  },
-  "control.rv-practice": {
-    "en": "Play from here|Start a new game from this exact position."
-  },
-  "control.rv-set": {
-    "en": "Settings|Sound, music, graphics, voices and coaching."
-  },
-  "control.rv-turn": {
-    "en": "Turning point|Jump to the move where the game changed the most."
-  },
-  "control.st-restore": {
-    "en": "Restore purchases|Bring back things a grown-up already bought, for example on a new device."
-  },
-  "control.w-go": {
-    "en": "Find a player|We look for someone, anywhere in the world, who picked the same clock."
-  },
-  "game.clock": {
-    "en": "Clock|Time left for this player. It only counts down on their turn."
-  },
-  "game.clock.bonus": {
-    "en": "They get {s} bonus seconds after each move."
-  },
-  "game.eval": {
-    "en": "Who is winning|{now} More white in the bar means White is doing better."
-  },
-  "game.eval.ahead": {
-    "en": "{side} is ahead by about {n} pawns."
-  },
-  "game.eval.even": {
-    "en": "It is about even."
-  },
-  "game.eval.mate": {
-    "en": "{side} can checkmate in {n}!"
-  },
-  "settings.anim": {
-    "en": "Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game."
-  },
-  "settings.announce": {
-    "en": "Hear every move said out loud, like “Knight to f3”."
-  },
-  "settings.cine": {
-    "en": "Short movie scenes when a piece is captured or a king castles. Tap the board to skip one."
-  },
-  "settings.toss": {
-    "en": "Before a Surprise me game, tap one of two paws to find out your colour."
-  },
-  "settings.coach": {
-    "en": "Rooky's comments|How often Rooky talks about your moves during a game."
-  },
-  "settings.coach.chatty": {
-    "en": "Rooky says something about every move. Great for learning."
-  },
-  "settings.coach.normal": {
-    "en": "Rooky points out mistakes and cheers your great moves."
-  },
-  "settings.coach.off": {
-    "en": "Rooky stays quiet, so you can play on your own."
-  },
-  "settings.coach.quiet": {
-    "en": "Rooky speaks up only when a move loses something big."
-  },
-  "settings.eval": {
-    "en": "A bar beside the board shows who is ahead. It is hidden in online games."
-  },
-  "settings.guide": {
-    "en": "Shows Rooky's card that tells you what to do next on each screen."
-  },
-  "settings.install": {
-    "en": "Add Chackmate to the home screen so it opens like an app."
-  },
-  "settings.legal": {
-    "en": "Dots show every square your chosen piece can move to."
-  },
-  "settings.music": {
-    "en": "Gentle music for each room. Slide for loudness; the tick box turns it on or off."
-  },
-  "settings.narr": {
-    "en": "Rooky and friends read the guide, stories and lessons out loud."
-  },
-  "settings.quality": {
-    "en": "Graphics|How detailed the 3D tables look."
-  },
-  "settings.quality.high": {
-    "en": "Shadows, reflections and candlelight. The most beautiful, but older phones may run slowly and get warm."
-  },
-  "settings.quality.low": {
-    "en": "Simpler pictures that run smoothly on older phones and tablets and save battery."
-  },
-  "settings.reminder": {
-    "en": "A gentle daily reminder to play, at the hour you pick. A parent must allow it."
-  },
-  "settings.reset": {
-    "en": "Start again from the beginning. Stars, levels and unlocks on this device are cleared."
-  },
-  "settings.server": {
-    "en": "For grown-ups who run their own game server. Leave it empty to play online as usual."
-  },
-  "settings.sfx": {
-    "en": "Clicks and chimes for moves and buttons. Slide for loudness; the tick box turns them on or off."
-  },
-  "settings.turn": {
-    "en": "With two players on one device, the board turns so each player sees it from their side."
-  },
-  "settings.vcalls": {
-    "en": "The voice that says check, game results and puzzle results."
-  },
-  "settings.vcoach": {
-    "en": "The voice that reads lessons and stories."
-  },
-  "side.black": {
-    "en": "Black"
-  },
-  "side.white": {
-    "en": "White"
-  },
-  "voice.arthur": {
-    "en": "A calm club captain, in British English."
-  },
-  "voice.dev": {
-    "en": "Says game calls and moves in Hindi, in a man's voice."
-  },
-  "voice.device": {
-    "en": "Uses the voice already built into this phone, tablet or computer."
-  },
-  "voice.mira": {
-    "en": "Warm and encouraging, in American English."
-  },
-  "voice.off": {
-    "en": "No spoken game calls; you will still hear sound effects."
-  },
-  "voice.priya": {
-    "en": "Says game calls and moves in Hindi, in a woman's voice."
-  }
+  "chip.color.black": { "en": "Black|Your opponent makes the first move.", "hi": "काला|आपका विरोधी पहली चाल चलता है।", "check": ["hi"] },
+  "chip.color.random": { "en": "Surprise me|We pick White or Black for you.", "hi": "मुझे चौंकाएँ|हम आपके लिए सफ़ेद या काला चुनेंगे।", "check": ["hi"] },
+  "chip.color.white": { "en": "White|You make the first move.", "hi": "सफ़ेद|पहली चाल आप चलते हैं।", "check": ["hi"] },
+  "chip.mode.ai": { "en": "Play one of the animal friends on this device.", "hi": "इसी डिवाइस पर किसी जानवर दोस्त के साथ खेलें।", "check": ["hi"] },
+  "chip.mode.local": { "en": "Two players share this device and take turns.", "hi": "दो खिलाड़ी यह डिवाइस बाँटते हैं और बारी-बारी खेलते हैं।", "check": ["hi"] },
+  "clock.bonus": { "en": "{m} minutes + {s} seconds|Each player gets {m} minutes for the whole game. Every time you make a move, {s} bonus seconds are added to your clock. If your time runs out, you usually lose.", "hi": "{m} मिनट + {s} सेकंड|हर खिलाड़ी को पूरे खेल के लिए {m} मिनट मिलते हैं। हर चाल के बाद आपकी घड़ी में {s} सेकंड जुड़ जाते हैं। अगर आपका समय ख़त्म हो जाए, तो आम तौर पर आप हार जाते हैं।", "check": ["hi"] },
+  "clock.none": { "en": "No clock|Take as long as you like to think about every move.", "hi": "बिना घड़ी|हर चाल पर जितना चाहें उतना सोचें।", "check": ["hi"] },
+  "clock.one": { "en": "1 minute|Each player gets just 1 minute for the whole game. Super fast! If your time runs out, you usually lose.", "hi": "1 मिनट|हर खिलाड़ी को पूरे खेल के लिए सिर्फ़ 1 मिनट मिलता है। बहुत तेज़! अगर आपका समय ख़त्म हो जाए, तो आम तौर पर आप हार जाते हैं।", "check": ["hi"] },
+  "clock.plain": { "en": "{m} minutes|Each player gets {m} minutes for the whole game. No bonus time is added, so keep an eye on your clock! If your time runs out, you usually lose.", "hi": "{m} मिनट|हर खिलाड़ी को पूरे खेल के लिए {m} मिनट मिलते हैं। कोई अतिरिक्त समय नहीं जुड़ता, इसलिए अपनी घड़ी पर नज़र रखें! अगर आपका समय ख़त्म हो जाए, तो आम तौर पर आप हार जाते हैं।", "check": ["hi"] },
+  "control.br-more": { "en": "Only for grown-ups|Allow 15 more minutes of play today.", "hi": "सिर्फ़ बड़ों के लिए|आज 15 मिनट और खेलने दें।", "check": ["hi"] },
+  "control.dr-hint": { "en": "Hint|See the next move of this opening.", "hi": "संकेत|इस ओपनिंग की अगली चाल देखें।", "check": ["hi"] },
+  "control.dr-reset": { "en": "Restart|Go back to the start of this opening.", "hi": "फिर से शुरू|इस ओपनिंग की शुरुआत पर लौटें।", "check": ["hi"] },
+  "control.dr-set": { "en": "Settings|Sound, music, graphics, voices and coaching.", "hi": "सेटिंग्स|आवाज़, संगीत, ग्राफ़िक्स, आवाज़ें और कोचिंग।", "check": ["hi"] },
+  "control.fr-create": { "en": "Make a game|Get a 6-letter code. Your friend types it in to join you.", "hi": "खेल बनाएँ|6 अक्षरों का कोड पाएँ। आपका दोस्त उसे टाइप करके आपके साथ जुड़ता है।", "check": ["hi"] },
+  "control.fr-join": { "en": "Join|Type the code your friend gave you, then join their game.", "hi": "जुड़ें|दोस्त का दिया कोड टाइप करें, फिर उनके खेल में जुड़ें।", "check": ["hi"] },
+  "control.fr-local": { "en": "Take turns here|Play on this one device and pass it back and forth.", "hi": "यहीं बारी-बारी|इसी एक डिवाइस पर खेलें और उसे एक-दूसरे को देते रहें।", "check": ["hi"] },
+  "control.g-claim": { "en": "Claim a draw|The rules say this game can end as a tie right now. Tap to end it.", "hi": "ड्रॉ का दावा|नियमों के हिसाब से यह खेल अभी बराबरी पर ख़त्म हो सकता है। ख़त्म करने के लिए टैप करें।", "check": ["hi"] },
+  "control.g-copy": { "en": "PGN|Copy every move of this game as text, to save it or share it with a grown-up.", "hi": "PGN|इस खेल की हर चाल टेक्स्ट के रूप में कॉपी करें, सेव करने या किसी बड़े को दिखाने के लिए।", "check": ["hi"] },
+  "control.g-draw": { "en": "Draw|Ask to end the game as a tie, with no winner.", "hi": "ड्रॉ|खेल को बराबरी पर, बिना विजेता के, ख़त्म करने को कहें।", "check": ["hi"] },
+  "control.g-emote": { "en": "React|Send a friendly picture to the other player. There is no chat.", "hi": "प्रतिक्रिया|दूसरे खिलाड़ी को एक दोस्ताना तस्वीर भेजें। कोई चैट नहीं है।", "check": ["hi"] },
+  "control.g-flip": { "en": "Flip|Turn the board around to see it from the other side.", "hi": "पलटें|बिसात को घुमाकर दूसरी तरफ़ से देखें।", "check": ["hi"] },
+  "control.g-hint": { "en": "Hint|Rooky shows you a good move to think about.", "hi": "संकेत|Rooky आपको सोचने के लिए एक अच्छी चाल दिखाता है।", "check": ["hi"] },
+  "control.g-music": { "en": "Music|Turn the background music on or off.", "hi": "संगीत|पीछे का संगीत चालू या बंद करें।", "check": ["hi"] },
+  "control.g-resign": { "en": "Resign|Give up this game. Your opponent wins.", "hi": "हार मानें|यह खेल छोड़ दें। आपका विरोधी जीत जाता है।", "check": ["hi"] },
+  "control.g-review": { "en": "Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes.", "hi": "Rooky के साथ समीक्षा|Rooky आपके खेल को देखकर आपकी सबसे अच्छी चालें और ग़लतियाँ दिखाता है।", "check": ["hi"] },
+  "control.g-rules": { "en": "Rule book|The special rules that matter in this game right now: castling, en passant, promotion and draws. In a game against a person the clock keeps running.", "hi": "नियम-पुस्तिका|वे ख़ास नियम जो इस खेल में अभी मायने रखते हैं: किलाबंदी, आँ पासाँ, तरक्की और ड्रॉ। किसी इंसान के साथ खेल में घड़ी चलती रहती है।", "check": ["hi"] },
+  "control.g-settings": { "en": "Settings|Sound, music, graphics, voices and coaching.", "hi": "सेटिंग्स|आवाज़, संगीत, ग्राफ़िक्स, आवाज़ें और कोचिंग।", "check": ["hi"] },
+  "control.g-threat": { "en": "Threat|See what your opponent would love to do next, so you can stop it.", "hi": "ख़तरा|देखें कि आपका विरोधी आगे क्या करना चाहेगा, ताकि आप उसे रोक सकें।", "check": ["hi"] },
+  "control.g-undo": { "en": "Undo|Take back your last move and try a different one.", "hi": "वापस लें|अपनी पिछली चाल वापस लें और कोई दूसरी आज़माएँ।", "check": ["hi"] },
+  "control.g-view": { "en": "Camera|Switch between looking down from above and sitting at the table.", "hi": "कैमरा|ऊपर से देखने और मेज़ पर बैठकर देखने के बीच बदलें।", "check": ["hi"] },
+  "control.l-review": { "en": "Reviews|Quick refreshers of lessons you learned a while ago, so you never forget them.", "hi": "दोहराना|कुछ समय पहले सीखे पाठों को जल्दी से दोहराएँ, ताकि आप उन्हें कभी न भूलें।", "check": ["hi"] },
+  "control.ls-hint": { "en": "Hint|Get a little clue.", "hi": "संकेत|एक छोटा सा इशारा पाएँ।", "check": ["hi"] },
+  "control.ls-set": { "en": "Settings|Sound, music, graphics, voices and coaching.", "hi": "सेटिंग्स|आवाज़, संगीत, ग्राफ़िक्स, आवाज़ें और कोचिंग।", "check": ["hi"] },
+  "control.ls-voice": { "en": "Narration|Hear Rooky read the lesson out loud.", "hi": "पढ़कर सुनाना|Rooky से पाठ ज़ोर से पढ़वाकर सुनें।", "check": ["hi"] },
+  "control.mu-eq": { "en": "Equip|Use this in your games from now on.", "hi": "लगाएँ|अब से इसे अपने खेलों में इस्तेमाल करें।", "check": ["hi"] },
+  "control.nv-music": { "en": "Music|Turn the background music on or off.", "hi": "संगीत|पीछे का संगीत चालू या बंद करें।", "check": ["hi"] },
+  "control.nv-set": { "en": "Settings|Sound, music, graphics, voices and coaching.", "hi": "सेटिंग्स|आवाज़, संगीत, ग्राफ़िक्स, आवाज़ें और कोचिंग।", "check": ["hi"] },
+  "control.pk-eq": { "en": "Equip|Use this in your games from now on.", "hi": "लगाएँ|अब से इसे अपने खेलों में इस्तेमाल करें।", "check": ["hi"] },
+  "control.pz-hint": { "en": "Hint|Get a little clue.", "hi": "संकेत|एक छोटा सा इशारा पाएँ।", "check": ["hi"] },
+  "control.pz-set": { "en": "Settings|Sound, music, graphics, voices and coaching.", "hi": "सेटिंग्स|आवाज़, संगीत, ग्राफ़िक्स, आवाज़ें और कोचिंग।", "check": ["hi"] },
+  "control.pz-sol": { "en": "Solution|Show the answer to this puzzle.", "hi": "हल|इस पहेली का जवाब दिखाएँ।", "check": ["hi"] },
+  "control.rv-best": { "en": "Best line|Show the moves Rooky would have played here.", "hi": "सबसे अच्छी लाइन|वे चालें दिखाएँ जो Rooky यहाँ चलता।", "check": ["hi"] },
+  "control.rv-practice": { "en": "Play from here|Start a new game from this exact position.", "hi": "यहाँ से खेलें|ठीक इसी स्थिति से एक नया खेल शुरू करें।", "check": ["hi"] },
+  "control.rv-set": { "en": "Settings|Sound, music, graphics, voices and coaching.", "hi": "सेटिंग्स|आवाज़, संगीत, ग्राफ़िक्स, आवाज़ें और कोचिंग।", "check": ["hi"] },
+  "control.rv-turn": { "en": "Turning point|Jump to the move where the game changed the most.", "hi": "खेल का मोड़|उस चाल पर जाएँ जहाँ खेल सबसे ज़्यादा बदला।", "check": ["hi"] },
+  "control.st-restore": { "en": "Restore purchases|Bring back things a grown-up already bought, for example on a new device.", "hi": "ख़रीदारी वापस लाएँ|किसी बड़े की पहले से ख़रीदी चीज़ें वापस लाएँ, जैसे किसी नए डिवाइस पर।", "check": ["hi"] },
+  "control.w-go": { "en": "Find a player|We look for someone, anywhere in the world, who picked the same clock.", "hi": "खिलाड़ी खोजें|हम दुनिया में कहीं भी ऐसा खिलाड़ी खोजते हैं जिसने यही घड़ी चुनी हो।", "check": ["hi"] },
+  "game.clock": { "en": "Clock|Time left for this player. It only counts down on their turn.", "hi": "घड़ी|इस खिलाड़ी का बचा हुआ समय। यह सिर्फ़ उसकी बारी पर घटता है।", "check": ["hi"] },
+  "game.clock.bonus": { "en": "They get {s} bonus seconds after each move.", "hi": "हर चाल के बाद उन्हें {s} सेकंड और मिलते हैं।", "check": ["hi"] },
+  "game.eval": { "en": "Who is winning|{now} More white in the bar means White is doing better.", "hi": "कौन जीत रहा है|{now} पट्टी में ज़्यादा सफ़ेद का मतलब है कि सफ़ेद बेहतर खेल रहा है।", "check": ["hi"] },
+  "game.eval.ahead": { "en": "{side} is ahead by about {n} pawns.", "hi": "{side} लगभग {n} प्यादों से आगे है।", "check": ["hi"] },
+  "game.eval.even": { "en": "It is about even.", "hi": "लगभग बराबरी है।", "check": ["hi"] },
+  "game.eval.mate": { "en": "{side} can checkmate in {n}!", "hi": "{side} {n} चाल में शह-मात दे सकता है!", "check": ["hi"] },
+  "settings.anim": { "en": "Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game.", "hi": "मोहरे सरकते, चमकते और जश्न मनाते हैं। शांत और तेज़ खेल के लिए इसे बंद करें।", "check": ["hi"] },
+  "settings.announce": { "en": "Hear every move said out loud, like “Knight to f3”.", "hi": "हर चाल ज़ोर से सुनें, जैसे “घोड़ा f3 पर”।", "check": ["hi"] },
+  "settings.cine": { "en": "Short movie scenes when a piece is captured or a king castles. Tap the board to skip one.", "hi": "जब कोई मोहरा मारा जाए या राजा किलाबंदी करे, तो छोटे फ़िल्मी दृश्य। छोड़ने के लिए बिसात पर टैप करें।", "check": ["hi"] },
+  "settings.toss": { "en": "Before a Surprise me game, tap one of two paws to find out your colour.", "hi": "\"मुझे चौंकाएँ\" वाले खेल से पहले, अपना रंग जानने के लिए दो पंजों में से एक पर टैप करें।", "check": ["hi"] },
+  "settings.coach": { "en": "Rooky's comments|How often Rooky talks about your moves during a game.", "hi": "Rooky की बातें|खेल के दौरान Rooky आपकी चालों पर कितनी बार बोलता है।", "check": ["hi"] },
+  "settings.coach.chatty": { "en": "Rooky says something about every move. Great for learning.", "hi": "Rooky हर चाल पर कुछ कहता है। सीखने के लिए बढ़िया।", "check": ["hi"] },
+  "settings.coach.normal": { "en": "Rooky points out mistakes and cheers your great moves.", "hi": "Rooky ग़लतियाँ बताता है और आपकी शानदार चालों पर ख़ुश होता है।", "check": ["hi"] },
+  "settings.coach.off": { "en": "Rooky stays quiet, so you can play on your own.", "hi": "Rooky चुप रहता है, ताकि आप अपने दम पर खेल सकें।", "check": ["hi"] },
+  "settings.coach.quiet": { "en": "Rooky speaks up only when a move loses something big.", "hi": "Rooky तभी बोलता है जब किसी चाल से कुछ बड़ा नुक़सान हो।", "check": ["hi"] },
+  "settings.eval": { "en": "A bar beside the board shows who is ahead. It is hidden in online games.", "hi": "बिसात के बगल में एक पट्टी दिखाती है कि कौन आगे है। ऑनलाइन खेलों में यह छिपी रहती है।", "check": ["hi"] },
+  "settings.guide": { "en": "Shows Rooky's card that tells you what to do next on each screen.", "hi": "Rooky का कार्ड दिखाता है, जो हर स्क्रीन पर बताता है कि आगे क्या करना है।", "check": ["hi"] },
+  "settings.install": { "en": "Add Chackmate to the home screen so it opens like an app.", "hi": "Chackmate को होम स्क्रीन पर जोड़ें ताकि यह ऐप की तरह खुले।", "check": ["hi"] },
+  "settings.legal": { "en": "Dots show every square your chosen piece can move to.", "hi": "बिंदु वे सारे खाने दिखाते हैं जहाँ आपका चुना मोहरा जा सकता है।", "check": ["hi"] },
+  "settings.music": { "en": "Gentle music for each room. Slide for loudness; the tick box turns it on or off.", "hi": "हर कमरे के लिए हल्का संगीत। आवाज़ के लिए स्लाइड करें; टिक बॉक्स से चालू या बंद करें।", "check": ["hi"] },
+  "settings.narr": { "en": "Rooky and friends read the guide, stories and lessons out loud.", "hi": "Rooky और दोस्त गाइड, कहानियाँ और पाठ ज़ोर से पढ़कर सुनाते हैं।", "check": ["hi"] },
+  "settings.quality": { "en": "Graphics|How detailed the 3D tables look.", "hi": "ग्राफ़िक्स|3D मेज़ें कितनी बारीकी से दिखें।", "check": ["hi"] },
+  "settings.quality.high": { "en": "Shadows, reflections and candlelight. The most beautiful, but older phones may run slowly and get warm.", "hi": "परछाइयाँ, चमक और मोमबत्ती की रोशनी। सबसे सुंदर, पर पुराने फ़ोन धीमे और गर्म हो सकते हैं।", "check": ["hi"] },
+  "settings.quality.low": { "en": "Simpler pictures that run smoothly on older phones and tablets and save battery.", "hi": "सादी तस्वीरें जो पुराने फ़ोन और टैबलेट पर आराम से चलती हैं और बैटरी बचाती हैं।", "check": ["hi"] },
+  "settings.reminder": { "en": "A gentle daily reminder to play, at the hour you pick. A parent must allow it.", "hi": "आपके चुने समय पर खेलने की रोज़ एक हल्की याद। इसके लिए माता-पिता की अनुमति चाहिए।", "check": ["hi"] },
+  "settings.reset": { "en": "Start again from the beginning. Stars, levels and unlocks on this device are cleared.", "hi": "शुरू से फिर शुरू करें। इस डिवाइस के सितारे, लेवल और खुली चीज़ें मिट जाएँगी।", "check": ["hi"] },
+  "settings.server": { "en": "For grown-ups who run their own game server. Leave it empty to play online as usual.", "hi": "उन बड़ों के लिए जो अपना गेम सर्वर चलाते हैं। आम तरह से ऑनलाइन खेलने के लिए इसे ख़ाली छोड़ें।", "check": ["hi"] },
+  "settings.sfx": { "en": "Clicks and chimes for moves and buttons. Slide for loudness; the tick box turns them on or off.", "hi": "चालों और बटनों के लिए क्लिक और घंटियाँ। आवाज़ के लिए स्लाइड करें; टिक बॉक्स से चालू या बंद करें।", "check": ["hi"] },
+  "settings.turn": { "en": "With two players on one device, the board turns so each player sees it from their side.", "hi": "एक डिवाइस पर दो खिलाड़ी हों, तो बिसात घूमती है ताकि हर खिलाड़ी उसे अपनी तरफ़ से देखे।", "check": ["hi"] },
+  "settings.vcalls": { "en": "The voice that says check, game results and puzzle results.", "hi": "वह आवाज़ जो शह, खेल के नतीजे और पहेलियों के नतीजे बोलती है।", "check": ["hi"] },
+  "settings.vcoach": { "en": "The voice that reads lessons and stories.", "hi": "वह आवाज़ जो पाठ और कहानियाँ पढ़ती है।", "check": ["hi"] },
+  "side.black": { "en": "Black", "hi": "काला", "check": ["hi"] },
+  "side.white": { "en": "White", "hi": "सफ़ेद", "check": ["hi"] },
+  "voice.arthur": { "en": "A calm club captain, in British English.", "hi": "एक शांत क्लब कप्तान, ब्रिटिश अंग्रेज़ी में।", "check": ["hi"] },
+  "voice.dev": { "en": "Says game calls and moves in Hindi, in a man's voice.", "hi": "खेल की घोषणाएँ और चालें हिन्दी में, पुरुष की आवाज़ में।", "check": ["hi"] },
+  "voice.device": { "en": "Uses the voice already built into this phone, tablet or computer.", "hi": "इस फ़ोन, टैबलेट या कंप्यूटर में पहले से मौजूद आवाज़।", "check": ["hi"] },
+  "voice.mira": { "en": "Warm and encouraging, in American English.", "hi": "प्यारी और हौसला बढ़ाने वाली, अमेरिकी अंग्रेज़ी में।", "check": ["hi"] },
+  "voice.off": { "en": "No spoken game calls; you will still hear sound effects.", "hi": "कोई बोली गई घोषणा नहीं; साउंड इफ़ेक्ट फिर भी सुनाई देंगे।", "check": ["hi"] },
+  "voice.priya": { "en": "Says game calls and moves in Hindi, in a woman's voice.", "hi": "खेल की घोषणाएँ और चालें हिन्दी में, महिला की आवाज़ में।", "check": ["hi"] }
 }
