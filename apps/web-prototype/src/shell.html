@@ -528,6 +528,9 @@ body.peeking .shade { background: radial-gradient(ellipse 85% 75% at 50% 42%, tr
 .peekbar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px); bottom: calc(var(--safe-b) + 24px); z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 22px; border-radius: 999px; animation: rise .5s var(--ease) both; }
 .peekbar small { display: block; font: 600 10px/1.2 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
 .peekbar b { font: 500 21px/1.15 var(--serif); }
+/* capture scenes: a quiet pill under the top bar; a tap anywhere on the table skips too */
+.cine-skip { position: fixed; left: 50%; top: calc(var(--safe-t) + 78px); z-index: 30; transform: translate(-50%, -6px); opacity: 0; pointer-events: none; padding: 8px 16px; border-radius: 999px; background: rgba(14, 9, 6, 0.72); border: 1px solid var(--line-2); color: var(--gold-2); font: 600 10.5px/1 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; transition: opacity .35s var(--ease), transform .35s var(--ease); }
+.cine-skip.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 
 /* ------------------------------------------------------------ the game HUD */
 /* The table fills the screen. A column on the right holds the opponent, the moves and the

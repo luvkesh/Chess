@@ -92,7 +92,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal',
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -1385,6 +1385,7 @@
     const m = modal('<div class="eyebrow">Settings</div><h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
       '<div class="label set-h">Graphics</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
       '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Capture scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
       '<div class="label set-h">Sound</div>' +
       '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
       '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
@@ -1400,6 +1401,7 @@
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
+    on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
     on('#s-sfx', 'change', (e) => { s.sfx = e.target.checked; applySettings(); save(); });
     on('#s-sfxv', 'input', (e) => { s.sfxVol = +e.target.value; applySettings(); AU.play('move'); save(); });
     on('#s-mus', 'change', (e) => { s.music = e.target.checked; AU.unlock(); applySettings(); save(); renderNav(); });
@@ -1710,6 +1712,9 @@
     if (m !== null) playMove(m, true, dropped);
   }
 
+  // Lessons, drills and puzzles keep moving: their captures skip the capture scene.
+  const quickMove = (info, done) => view.animateMove(info, done, { cinema: false });
+
   function playMove(m, byHuman, dropped) {
     const G = state.game, g = G.g;
     const moverKey = g.pos.side === WHITE ? 'w' : 'b';
@@ -1724,12 +1729,15 @@
     if (G.coachMsg && G.coachMsg.who && !G.coachMsg.cls) G.coachMsg = null;
     G.busy = true;
     const quick = G.clock && G.clock[moverKey] < 10000;   // effects off under 10 s, per the art bible
-    const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
+    // Captures play a short scene, except online, where the server's clock keeps running.
+    const cinema = !!info.captured && !quick && state.settings.captureScenes && G.kind !== 'online';
+    const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : info.rook ? 'castle' : info.captured && !cinema ? 'capture' : 'move';
     setTimeout(() => AU.play(sound), dropped ? 0 : 140);
     if (!g.outcome) setTimeout(() => AU.announce(info.san).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
-    view.animateMove(info, () => {
+    G.cinema = view.animateMove(info, () => {
       G.busy = false;
+      if (G.cinema) { G.cinema = false; if (G.clock) G.clock.since = performance.now(); }
       if (state.game !== G) return;
       view.setBoard(piecesOf(g.pos), capturedFor(g));
       if (G.kind === 'local' && state.settings.turnBoard && !g.outcome) {
@@ -1743,14 +1751,16 @@
       if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
       else maybeComputer();
-    }, { quick });
+    }, { quick, cinema, onImpact: () => AU.play('capture') });
+    // the clocks wait while a capture scene plays (local games; see clockRunning)
+    if (G.cinema && G.clock) G.clock.since = 0;
     refreshHighlights();
     if (byHuman && G.kind === 'ai') liveCoach(before, info);
     if (!g.outcome) preAnalyse();
   }
 
   // ----- clocks (local games; online clocks come from the server)
-  function clockRunning(G) { return G.clock && !G.g.outcome && G.g.moves.length > 0 && G.kind !== 'online'; }
+  function clockRunning(G) { return G.clock && !G.g.outcome && G.g.moves.length > 0 && G.kind !== 'online' && !(G.cinema && view.capturePlaying()); }
   function pressClock(moverKey) {
     const G = state.game, c = G.clock;
     if (!c) return;
@@ -2353,7 +2363,7 @@
           const g = new E.Game(S.pos.fen());
           const info = g.playText(playMoves[k++]);
           if (!info) return;
-          view.animateMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to }); AU.play(info.captured ? 'capture' : 'move'); setTimeout(stepPlay, 650); });
+          quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to }); AU.play(info.captured ? 'capture' : 'move'); setTimeout(stepPlay, 650); });
         };
         setTimeout(stepPlay, 700);
       } else if (cb) cb();
@@ -2482,12 +2492,12 @@
           if (ok && S.pz * 2 + 2 < x.puzzle.moves.length) {
             const info = g.play(m);
             AU.play(info.captured ? 'capture' : 'move');
-            view.animateMove(info, () => {
+            quickMove(info, () => {
               S.pos = g.pos; view.setBoard(piecesOf(g.pos), null);
               const reply = g.playText(x.puzzle.moves[S.pz * 2 + 2]);
               S.pz++;
               fb('ok', 'Good. Keep going.');
-              setTimeout(() => view.animateMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play('move'); }), 350);
+              setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play('move'); }), 350);
             });
             return;
           }
@@ -2495,7 +2505,7 @@
         if (ok) {
           const info = g.play(m);
           AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
-          view.animateMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); });
+          quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); });
           answer(S.tries === 0, msg);
         } else {
           S.tries++; AU.play('wrong'); fb('bad', msg); view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
@@ -2586,7 +2596,7 @@
         const info = S.g.playText(o.moves[S.i]);
         const note = o.notes[S.i];
         S.i++;
-        view.animateMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', 'They play ' + info.san + ': ' + note); advance(); });
+        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', 'They play ' + info.san + ': ' + note); advance(); });
       }, 450);
     }
     function finish() {
@@ -2619,7 +2629,7 @@
       S.i++;
       AU.play(info.captured ? 'capture' : info.rook ? 'castle' : 'move');
       if (o.notes[S.i - 1]) fb('ok', info.san + ': ' + o.notes[S.i - 1]); else fb('ok', info.san + '. Good.');
-      view.animateMove(info, () => { show(info); advance(); });
+      quickMove(info, () => { show(info); advance(); });
       return true;
     }
     setHooks({
@@ -2706,7 +2716,7 @@
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        view.animateMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); });
+        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
@@ -2747,13 +2757,13 @@
       }
       const info = g.play(m);
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
-      view.animateMove(info, () => {
+      quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
         if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', S.failed ? 'Solved, after a miss.' : 'Excellent! Puzzle solved.'); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.cur.moves[S.step * 2 + 2]);
         S.step++;
         fb('ok', 'Good move. Keep going!');
-        setTimeout(() => view.animateMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
+        setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
       });
       return true;
     }
