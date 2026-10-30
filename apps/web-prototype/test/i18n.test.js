@@ -65,6 +65,13 @@ for (const [k, en] of Object.entries(want)) {
   else if (have[k].en !== en) problems.push('content.' + k + ': English changed to "' + en + '", update the translations');
 }
 for (const k of Object.keys(have)) if (!(k in want)) problems.push('content.' + k + ': no longer in the content files');
+// The coach's sentences: coach.js keeps the English (it also runs in Node and in workers).
+const E = require('../../../packages/chess-core/src/engine.js');
+const coachEN = require('../../../packages/chess-core/src/coach.js')(typeof E === 'function' ? E() : E).EN;
+for (const [k, en] of Object.entries(coachEN)) {
+  if (!(strings.coach || {})[k]) problems.push('coach.' + k + ': missing (English: ' + en + ')');
+  else if (strings.coach[k].en !== en) problems.push('coach.' + k + ': English in coach.js changed to "' + en + '", update the translations');
+}
 
 assert.ok(problems.length === 0, problems.length + ' string problems:\n  ' + problems.join('\n  '));
 

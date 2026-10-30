@@ -2,12 +2,40 @@
 // Every claim comes from the engine or a deterministic detector here; the
 // sentences are templates filled from a verified "fact sheet". Pure functions,
 // so the same source runs in Node tests, on the page and inside a Web Worker.
-function ChacklateCoach(E) {
+// strings: the coach's sentences in another language (packages/content/i18n/coach.json, one
+// language's column); anything missing falls back to the English below.
+function ChacklateCoach(E, strings) {
   'use strict';
   const { WHITE, P, N, B, R, Q, K, MATE } = E;
-  const NAME = ['', 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
+  const EN = {
+    'side.w': 'White', 'side.b': 'Black', 'and': 'and', 'on': '{piece} on {sq}',
+    'piece.1': 'pawn', 'piece.2': 'knight', 'piece.3': 'bishop', 'piece.4': 'rook', 'piece.5': 'queen', 'piece.6': 'king',
+    'd.mate': '{san} is checkmate.', 'd.stalemate': '{san} stalemates: the game is drawn.', 'd.sentence': '{san} {bits}.',
+    'd.fork': 'forks the {list}', 'd.pinKing': 'pins the {piece} on {sq} to the king', 'd.pin': 'pins the {piece} on {sq} to the {behind}',
+    'd.skewer': 'skewers the {piece} on {sq}, winning the {behind} behind it', 'd.discovered': 'uncovers an attack on the {piece} on {sq}',
+    'd.promote': 'promotes to a {piece}', 'd.attacks': 'attacks the {list}', 'd.wins': 'wins a {piece}', 'd.takes': 'takes the {piece}',
+    'd.check': 'gives check', 'd.castle': 'tucks the king away',
+    'label.brilliant': 'Brilliant', 'label.best': 'Best', 'label.excellent': 'Excellent', 'label.good': 'Good', 'label.inaccuracy': 'Inaccuracy', 'label.mistake': 'Mistake', 'label.blunder': 'Blunder',
+    'x.sacrifice': '{san} gives up material for a lasting attack.', 'x.sacrificeOk': 'A strong sacrifice: the engine agrees.',
+    'x.top': 'The engine\'s top choice.', 'x.nearly': 'Nearly as good as the best move.', 'x.sound': 'A sound move.',
+    'x.allowsMate': 'This allows checkmate: {san}.', 'x.walksIntoMate': 'This walks into a forced mate in {n}, starting with {san}.',
+    'x.allowsFork': 'This allows {san}, forking your {list}.', 'x.losesPawn': 'This lets {side} win a pawn with {san}.', 'x.losesPiece': 'This lets {side} win your {piece} with {san}.',
+    'x.losesPawnAttack': 'This lets {side} win a pawn with {san}, which also attacks your {target}.', 'x.losesPieceAttack': 'This lets {side} win your {piece} with {san}, which also attacks your {target}.',
+    'x.allowsAttack': 'This allows {san}, attacking your {list}.', 'x.leaves': 'This leaves your {piece} on {sq} undefended.', 'x.allows': 'This allows {what}',
+    'x.initiative': 'After {san}, {side} takes over the initiative.', 'x.better': 'Better was {san}: {bits}.', 'x.betterPlain': 'Better was {san}.', 'x.betterMate': 'Better was {san}, which is checkmate.', 'x.missedMate': 'There was a forced mate in {n}.',
+    't.mate': '{side} threatens checkmate with {san}.', 't.forcedMate': '{side} threatens a forced mate starting with {san}.', 't.which': '{side} threatens {san}, which {bits}.',
+    't.none': '{side} has no direct threat. Their best idea is {san}.',
+    'h.forcing': 'Look for your most forcing move: checks, captures, then threats.', 'h.mate': 'There is a checkmate in one move.', 'h.fork': 'Look for a fork: one piece attacking two targets.',
+    'h.pin': 'Look for a pin along a line.', 'h.skewer': 'Look for a skewer.', 'h.discovered': 'Look for a discovered attack.', 'h.capture': 'Something can be captured safely.',
+    'h.promote': 'A pawn is ready to promote.', 'h.castle': 'Think about king safety.', 'h.attacked': 'One of your pieces is under attack. Look at your {piece} on {sq}.',
+  };
+  const tr = (key, vars) => {
+    const s = (strings && strings[key]) || EN[key];
+    return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] === undefined ? m : vars[k])) : s;
+  };
+  const NAME = ['', 1, 2, 3, 4, 5, 6].map((k) => (k ? tr('piece.' + k) : ''));
   const PTS = [0, 1, 3, 3, 5, 9, 100];
-  const SIDE = (s) => (s === WHITE ? 'White' : 'Black');
+  const SIDE = (s) => tr(s === WHITE ? 'side.w' : 'side.b');
   const sqn = (sq88) => 'abcdefgh'[sq88 & 7] + (1 + (sq88 >> 4));
   const on = (sq) => !(sq & 0x88);
 
@@ -148,25 +176,30 @@ function ChacklateCoach(E) {
     return f;
   }
 
-  const list2 = (items) => items.length <= 1 ? items.join('') : items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+  const list2 = (items) => items.length <= 1 ? items.join('') : items.slice(0, -1).join(', ') + ' ' + tr('and') + ' ' + items[items.length - 1];
+  const onSq = (kind, sq) => tr('on', { piece: NAME[kind], sq });
 
+  // What a move does, as phrases joined into one ("forks the rook on a8 and gives check").
+  function bitsOf(f) {
+    const bits = [];
+    if (f.forks.length) bits.push(tr('d.fork', { list: list2(f.forks.map((t) => onSq(t.kind, t.sq))) }));
+    if (f.pin) bits.push(tr(f.pin.absolute ? 'd.pinKing' : 'd.pin', { piece: NAME[f.pin.piece], sq: f.pin.at, behind: NAME[f.pin.behind] }));
+    if (f.skewer) bits.push(tr('d.skewer', { piece: NAME[f.skewer.front], sq: f.skewer.at, behind: NAME[f.skewer.behind] }));
+    if (f.discovered.length) bits.push(tr('d.discovered', { piece: NAME[f.discovered[0].target], sq: f.discovered[0].at }));
+    if (f.promotion) bits.push(tr('d.promote', { piece: NAME[f.promotion] }));
+    if (f.attacks.length && !f.forks.length && !f.pin && !f.skewer) bits.push(tr('d.attacks', { list: list2(f.attacks.map((t) => onSq(t.kind, t.sq))) }));
+    if (f.capture && !bits.length) bits.push(tr('d.wins', { piece: NAME[f.capture] }));
+    else if (f.capture) bits.unshift(tr('d.takes', { piece: NAME[f.capture] }));
+    if (f.check && !f.forks.length) bits.push(tr('d.check'));
+    if (f.castle) bits.push(tr('d.castle'));
+    return bits.length ? list2(bits) : '';
+  }
   // One sentence describing what a move does, from its fact sheet.
   function describe(f) {
-    if (f.mate) return f.san + ' is checkmate.';
-    if (f.stalemate) return f.san + ' stalemates: the game is drawn.';
-    const bits = [];
-    if (f.forks.length) bits.push('forks the ' + list2(f.forks.map((t) => NAME[t.kind] + ' on ' + t.sq)));
-    if (f.pin) bits.push('pins the ' + NAME[f.pin.piece] + ' on ' + f.pin.at + (f.pin.absolute ? ' to the king' : ' to the ' + NAME[f.pin.behind]));
-    if (f.skewer) bits.push('skewers the ' + NAME[f.skewer.front] + ' on ' + f.skewer.at + ', winning the ' + NAME[f.skewer.behind] + ' behind it');
-    if (f.discovered.length) bits.push('uncovers an attack on the ' + NAME[f.discovered[0].target] + ' on ' + f.discovered[0].at);
-    if (f.promotion) bits.push('promotes to a ' + NAME[f.promotion]);
-    if (f.attacks.length && !f.forks.length && !f.pin && !f.skewer) bits.push('attacks the ' + list2(f.attacks.map((t) => NAME[t.kind] + ' on ' + t.sq)));
-    if (f.capture && !bits.length) bits.push('wins a ' + NAME[f.capture]);
-    else if (f.capture) bits.unshift('takes the ' + NAME[f.capture]);
-    if (f.check && !f.forks.length) bits.push('gives check');
-    if (f.castle) bits.push('tucks the king away');
-    if (!bits.length) return '';
-    return f.san + ' ' + list2(bits) + '.';
+    if (f.mate) return tr('d.mate', { san: f.san });
+    if (f.stalemate) return tr('d.stalemate', { san: f.san });
+    const bits = bitsOf(f);
+    return bits ? tr('d.sentence', { san: f.san, bits }) : '';
   }
 
   // Classify by how much winning chance the move gave away.
@@ -179,7 +212,8 @@ function ChacklateCoach(E) {
     if (wpLoss < 0.2) return 'mistake';
     return 'blunder';
   }
-  const LABEL = { brilliant: 'Brilliant', best: 'Best', excellent: 'Excellent', good: 'Good', inaccuracy: 'Inaccuracy', mistake: 'Mistake', blunder: 'Blunder' };
+  const LABEL = {};
+  for (const k of ['brilliant', 'best', 'excellent', 'good', 'inaccuracy', 'mistake', 'blunder']) LABEL[k] = tr('label.' + k);
   const SYMBOL = { brilliant: '!!', best: '★', excellent: '!', good: '', inaccuracy: '?!', mistake: '?', blunder: '??' };
 
   // Explains a played move using the engine's reply and its preferred move.
@@ -187,26 +221,27 @@ function ChacklateCoach(E) {
     const out = [];
     const you = ply.side;
     const own = describe(ply.facts);
-    if (ply.cls === 'brilliant') out.push(own || ply.san + ' gives up material for a lasting attack.', 'A strong sacrifice: the engine agrees.');
-    else if (ply.cls === 'best' || ply.cls === 'excellent') out.push(own || (ply.cls === 'best' ? 'The engine\'s top choice.' : 'Nearly as good as the best move.'));
-    else if (ply.cls === 'good') out.push(own || 'A sound move.');
+    if (ply.cls === 'brilliant') out.push(own || tr('x.sacrifice', { san: ply.san }), tr('x.sacrificeOk'));
+    else if (ply.cls === 'best' || ply.cls === 'excellent') out.push(own || tr(ply.cls === 'best' ? 'x.top' : 'x.nearly'));
+    else if (ply.cls === 'good') out.push(own || tr('x.sound'));
     else {
       const r = ply.refutation;
       const loose = (ply.facts.hangs || []).filter((h) => h.kind !== P);
-      if (r && r.mate) out.push('This allows checkmate: ' + r.san + '.');
-      else if (ply.mateAgainst > 0) out.push('This walks into a forced mate in ' + ply.mateAgainst + ', starting with ' + r.san + '.');
-      else if (r && r.forks.length) out.push('This allows ' + r.san + ', forking your ' + list2(r.forks.map((t) => NAME[t.kind])) + '.');
-      else if (r && r.capture) out.push('This lets ' + SIDE(-you) + ' win ' + (r.capture === P ? 'a pawn' : 'your ' + NAME[r.capture]) + ' with ' + r.san +
-        (r.attacks.length ? ', which also attacks your ' + NAME[r.attacks[0].kind] + ' on ' + r.attacks[0].sq : '') + '.');
-      else if (r && r.attacks.length) out.push('This allows ' + r.san + ', attacking your ' + list2(r.attacks.map((t) => NAME[t.kind] + ' on ' + t.sq)) + '.');
-      else if (loose.length) out.push('This leaves your ' + NAME[loose[0].kind] + ' on ' + loose[0].sq + ' undefended.');
-      else if (r && (r.pin || r.skewer)) out.push('This allows ' + describe(r));
-      else if (r) out.push('After ' + r.san + ', ' + SIDE(-you) + ' takes over the initiative.');
+      if (r && r.mate) out.push(tr('x.allowsMate', { san: r.san }));
+      else if (ply.mateAgainst > 0) out.push(tr('x.walksIntoMate', { n: ply.mateAgainst, san: r.san }));
+      else if (r && r.forks.length) out.push(tr('x.allowsFork', { san: r.san, list: list2(r.forks.map((t) => NAME[t.kind])) }));
+      else if (r && r.capture) {
+        const v = { side: SIDE(-you), san: r.san, piece: NAME[r.capture], target: r.attacks.length ? onSq(r.attacks[0].kind, r.attacks[0].sq) : '' };
+        out.push(tr((r.capture === P ? 'x.losesPawn' : 'x.losesPiece') + (r.attacks.length ? 'Attack' : ''), v));
+      } else if (r && r.attacks.length) out.push(tr('x.allowsAttack', { san: r.san, list: list2(r.attacks.map((t) => onSq(t.kind, t.sq))) }));
+      else if (loose.length) out.push(tr('x.leaves', { piece: NAME[loose[0].kind], sq: loose[0].sq }));
+      else if (r && (r.pin || r.skewer)) out.push(tr('x.allows', { what: describe(r) }));
+      else if (r) out.push(tr('x.initiative', { san: r.san, side: SIDE(-you) }));
       if (ply.bestFacts) {
-        const b = describe(ply.bestFacts);
-        out.push('Better was ' + ply.bestSan + (b ? ': ' + b.slice(ply.bestSan.length + 1) : '.'));
+        const b = ply.bestFacts.mate || ply.bestFacts.stalemate ? '' : bitsOf(ply.bestFacts);
+        out.push(tr(ply.bestFacts.mate ? 'x.betterMate' : b ? 'x.better' : 'x.betterPlain', { san: ply.bestSan, bits: b }));
       }
-      if (ply.missedMate > 0) out.push('There was a forced mate in ' + ply.missedMate + '.');
+      if (ply.missedMate > 0) out.push(tr('x.missedMate', { n: ply.missedMate }));
     }
     return out.join(' ');
   }
@@ -299,11 +334,12 @@ function ChacklateCoach(E) {
     return { facts: f, serious, mate: mateIn(r.score), text: threatText(f, mateIn(r.score)) };
   }
   function threatText(f, mate) {
-    if (f.mate) return SIDE(f.side) + ' threatens checkmate with ' + f.san + '.';
-    if (mate > 0) return SIDE(f.side) + ' threatens a forced mate starting with ' + f.san + '.';
-    const d = describe(f);
-    if (d) return SIDE(f.side) + ' threatens ' + f.san + ', which ' + d.slice(f.san.length + 1);
-    return SIDE(f.side) + ' has no direct threat. Their best idea is ' + f.san + '.';
+    const v = { side: SIDE(f.side), san: f.san };
+    if (f.mate) return tr('t.mate', v);
+    if (mate > 0) return tr('t.forcedMate', v);
+    const bits = f.stalemate ? '' : bitsOf(f);
+    if (bits) return tr('t.which', Object.assign(v, { bits }));
+    return tr('t.none', v);
   }
 
   // Principal line by repeated shallow searches (used for "show me the plan").
@@ -324,24 +360,24 @@ function ChacklateCoach(E) {
   // Hint ladder for a position: theme first, then the piece, then the move.
   function hintLadder(pos, best) {
     const f = facts(pos, best);
-    let theme = 'Look for your most forcing move: checks, captures, then threats.';
-    if (f.mate) theme = 'There is a checkmate in one move.';
-    else if (f.forks.length) theme = 'Look for a fork: one piece attacking two targets.';
-    else if (f.pin) theme = 'Look for a pin along a line.';
-    else if (f.skewer) theme = 'Look for a skewer.';
-    else if (f.discovered.length) theme = 'Look for a discovered attack.';
-    else if (f.capture && f.capture !== P) theme = 'Something can be captured safely.';
-    else if (f.promotion) theme = 'A pawn is ready to promote.';
-    else if (f.castle) theme = 'Think about king safety.';
+    let theme = tr('h.forcing');
+    if (f.mate) theme = tr('h.mate');
+    else if (f.forks.length) theme = tr('h.fork');
+    else if (f.pin) theme = tr('h.pin');
+    else if (f.skewer) theme = tr('h.skewer');
+    else if (f.discovered.length) theme = tr('h.discovered');
+    else if (f.capture && f.capture !== P) theme = tr('h.capture');
+    else if (f.promotion) theme = tr('h.promote');
+    else if (f.castle) theme = tr('h.castle');
     else {
       const loose = hangingPieces(pos, pos.side);
-      if (loose.length) theme = 'One of your pieces is under attack. Look at your ' + NAME[loose[0].kind] + ' on ' + sqn(loose[0].sq) + '.';
+      if (loose.length) theme = tr('h.attacked', { piece: NAME[loose[0].kind], sq: sqn(loose[0].sq) });
     }
-    return { theme, piece: NAME[f.piece] + ' on ' + f.from, from: f.from, to: f.to, san: f.san, text: describe(f) };
+    return { theme, piece: onSq(f.piece, f.from), from: f.from, to: f.to, san: f.san, text: describe(f) };
   }
 
   return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, classify, explain, review, threat, line, hintLadder,
-    moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME };
+    moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME, EN };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateCoach;

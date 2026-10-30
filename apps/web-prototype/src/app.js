@@ -4,7 +4,9 @@
 (function () {
   'use strict';
   const E = ChacklateEngine();
-  const C = ChacklateCoach(E);
+  // The coach speaks the player's language (its sentences: i18n/coach.json). Rebuilt when that changes.
+  const coachStrings = () => { const out = {}; const c = ChacklateI18n.strings.coach || {}; for (const k in c) out[k] = c[k][ChacklateI18n.lang] || c[k].en; return out; };
+  let C = ChacklateCoach(E);
   const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES;
   const OPENINGS = CHACKLATE_OPENINGS.openings, ENDGAMES = CHACKLATE_ENDGAMES.endgames;
   const STORE = CHACKLATE_STORE, CAMPAIGN = CHACKLATE_CAMPAIGN;
@@ -124,6 +126,7 @@
   const callsFor = (lang, cur) => (cur === 'off' ? cur : lang === 'hi' ? 'priya' : AU.voices().some((v) => v.id === cur && v.lang === 'en') ? cur : CALLS_DEFAULT);
   if (!(saved.settings && saved.settings.lang)) state.settings.voiceCalls = callsFor(state.settings.lang, state.settings.voiceCalls);
   I18N.set(state.settings.lang);
+  if (I18N.lang !== 'en') C = ChacklateCoach(E, coachStrings());
   const myName = () => (state.settings.name === 'You' ? t('common.you') : state.settings.name);
   // Names and lines from the content files (eras, the animal friends, missions) are English there;
   // i18n/content.json holds the other languages, and the test keeps its English in step.
@@ -235,7 +238,7 @@
   // review never delays the computer's move.
   function makeWorker() {
     try {
-      const src = 'const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E);' +
+      const src = 'const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E,' + JSON.stringify(coachStrings()) + ');' +
         'onmessage=function(e){var d=e.data;try{var p=E.positionFrom(d.fen,d.moves);var r;' +
         'if(d.type==="search"){var s=E.search(p,d.opts);r={uci:s.move?E.uci(s.move):null,score:s.score,depth:s.depth};}' +
         'else if(d.type==="analyse"){var a=C.engineAnalyser({timeMs:d.timeMs||200})(p);r={cp:a.cp,mate:a.mate,best:a.best?E.uci(a.best):null,bestSan:a.best?p.san(a.best,p.legalMoves()):null};}' +
@@ -257,6 +260,15 @@
     } catch (e) { return null; }
   }
   const workers = { play: makeWorker(), analysis: makeWorker() };
+  // A new language: the coach and its workers start again with the new sentences.
+  function coachLanguage() {
+    C = ChacklateCoach(E, coachStrings());
+    for (const k of Object.keys(workers)) {
+      const old = workers[k];
+      workers[k] = makeWorker();
+      if (old) { for (const cb of old.pending.values()) cb.done({ error: 'worker' }); old.w.terminate(); }
+    }
+  }
   let reqId = 0;
   // Runs a job on a worker; falls back to the page if workers are unavailable.
   function job(which, msg, done, progress) {
@@ -1740,7 +1752,7 @@
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     // A new language: Hindi brings Priya for the game calls; the coach voice stays. The menus redraw.
-    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); s.voiceCalls = callsFor(s.lang, s.voiceCalls); applySettings(); save(); m.close(); relocalise(); settingsModal(); });
+    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); applySettings(); save(); m.close(); relocalise(); settingsModal(); });
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
     on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
     on('#s-sfx', 'change', (e) => { s.sfx = e.target.checked; applySettings(); save(); });
