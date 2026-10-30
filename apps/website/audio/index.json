@@ -137,7 +137,7 @@
         }
       ]
     },
-    "set-egypt": {
+    "item-sets-pharaoh": {
       "text": "Look at this one shine! Pharaoh's Treasure is carved from smooth white alabaster and dark basalt, with collars of gold, blue lapis and red carnelian, just like a real pharaoh's jewels. Beat the champion in Ancient Egypt, and it's yours.",
       "cues": [
         {
@@ -154,7 +154,7 @@
         }
       ]
     },
-    "set-greece": {
+    "item-sets-olympian": {
       "text": "Olympian Marble looks like it came straight from a temple in Athens. Bright white marble, bronze laurel leaves, and the Greek key pattern running all the way round. Every piece stands like a little statue of a hero.",
       "cues": [
         {
@@ -171,7 +171,7 @@
         }
       ]
     },
-    "set-rome": {
+    "item-sets-imperial": {
       "text": "This set is fit for an emperor! Imperial Rome is white Carrara marble and deep purple porphyry, the stone only emperors could use, with golden laurels on top. Win in Rome, and you can rule the board with it.",
       "cues": [
         {
@@ -188,7 +188,7 @@
         }
       ]
     },
-    "set-mughal": {
+    "item-sets-maharaja": {
       "text": "Maharaja's Jade is one of my favourites. White and green jade, polished until it glows, and set with tiny rubies and emeralds, like the treasures of the Taj Mahal. It's a set made for a king.",
       "cues": [
         {
@@ -205,7 +205,7 @@
         }
       ]
     },
-    "set-ming": {
+    "item-sets-dynasty": {
       "text": "Blue and white, like a precious Ming vase. Ming Porcelain is painted by hand in deep cobalt blue, and stands on red cinnabar lacquer carved with patterns. It feels like playing chess in the Forbidden City.",
       "cues": [
         {
@@ -222,7 +222,7 @@
         }
       ]
     },
-    "set-venice": {
+    "item-sets-murano": {
       "text": "Hold this one up to the light! Murano Glass is milky white and cobalt blue glass, with twisted stems and touches of gold, made the way Venice's glassmakers have worked for hundreds of years. Every move looks like magic.",
       "cues": [
         {
@@ -239,7 +239,7 @@
         }
       ]
     },
-    "set-paris": {
+    "item-sets-ruby-pearl": {
       "text": "Ruby and Pearl is pure Paris, from the year the Eiffel Tower was built. Lilies and tulips in shining pearl and deep ruby red, wrapped in golden tendrils. It's the most romantic set in the whole collection.",
       "cues": [
         {
@@ -256,7 +256,7 @@
         }
       ]
     },
-    "set-russia": {
+    "item-sets-tsarina": {
       "text": "This one is the crown jewel. The Tsarina's set is shimmering enamel and green malachite, with pearls, sparkling diamonds and rose gold, like the jewelled eggs made for Russia's royal family. Every piece is a treasure.",
       "cues": [
         {
@@ -273,7 +273,7 @@
         }
       ]
     },
-    "set-deco": {
+    "item-sets-manhattan": {
       "text": "Manhattan Deco is as tall and stylish as New York itself. Cream enamel and shiny black onyx, stepped like skyscrapers, with the bold lines of the jazz age. Win in New York, and you'll have the coolest set on the block.",
       "cues": [
         {

@@ -137,6 +137,7 @@ const doEvent = (ev) => {
   if (ev === 'drill') return PS.openingFinished(s, 'opening.a', true, day(4));
   if (ev === 'dojo') return PS.dojoFinished(s, eg, true, 5, day(4));
   if (ev === 'review') return PS.reviewFinished(s, { summary: { accuracy: { 0: 80 } }, plies: [] }, 0, 30, day(4));
+  if (ev === 'mini') return PS.miniFinished(s, 'tour', 40, day(4));
 };
 let bonus = 0, done = [];
 for (let k = 0; k < 10 && !s.missions.list.every((x) => x.done); k++) for (const t of todays) { const o = doEvent(t.event); if (o) { done.push(...o.missions.map((x) => x.id)); if (o.missionsAll) bonus++; } }
@@ -195,5 +196,122 @@ assert(/Premium/.test(PJ.unlockText(catalog.items.find((i) => i.unlock.type === 
 for (const e of campaign.eras) for (let i = 0; i < e.stages.length; i++) PJ.journeyStage(s, e.id, i, day(8));
 assert(s.achievements['era-4'] && s.achievements['era-all']);
 assert(catalog.items.filter((i) => i.unlock.type === 'journey').every((i) => PJ.isUnlocked(s, i)));
+
+// Choco Coins: earned by play in fixed amounts with daily limits, spent only on level looks in reach.
+s = PG.fresh();
+assert.strictEqual(s.coins, 0);
+assert.strictEqual(PG.dailyBonus(s, day(10)).coins, 20);
+assert.strictEqual(PG.dailyBonus(s, day(10)).coins, 0, 'one daily bonus a day');
+assert.strictEqual(PG.dailyBonus(s, day(11)).coins, 20, 'a new day, a new bonus');
+s = PG.fresh();
+assert.strictEqual(PG.gameFinished(s, Object.assign({}, win, { plies: 40 }), day(10)).coins, 20, 'a win pays 20');
+assert.strictEqual(PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 40, sans: [] }, day(10)).coins, 10, 'any finished game pays 10');
+assert.strictEqual(PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 2, sans: [] }, day(10)).coins, 0, 'instant resignations pay nothing');
+for (let i = 0; i < 12; i++) PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 40, sans: [] }, day(10));
+assert.strictEqual(s.earned.n.game, 10, 'ten paid games a day');
+assert.strictEqual(PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 40, sans: [] }, day(11)).coins, 10, 'the limit resets the next day');
+// lessons pay once, the daily puzzle once a day
+s = PG.fresh();
+assert(PG.lessonFinished(s, lessons[0], 3, 3, lessons, day(10)).coins >= 25);
+assert.strictEqual(s.earned.by.lesson, 25);
+PG.lessonFinished(s, lessons[0], 3, 3, lessons, day(10));
+assert.strictEqual(s.earned.by.lesson, 25, 'a replayed lesson does not pay again');
+const pz = { id: 'pz-coin', rating: 900 };
+assert(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins >= 30);
+assert.strictEqual(s.earned.by['daily-puzzle'], 30);
+// the generic earn API with a per-source daily cap (mini-games use this)
+s = PG.fresh();
+const got = [1, 2, 3, 4, 5, 6].map(() => PG.earn(s, 'mini:test', 10, { cap: 50, now: day(10) }));
+assert.deepStrictEqual(got, [10, 10, 10, 10, 10, 0]);
+assert.strictEqual(PG.earn(s, 'mini:other', 10, { cap: 50, now: day(10) }), 10, 'caps are per source');
+assert.strictEqual(s.coins, 60);
+// spending: level items only, within two levels, never journey, season, achievement or premium items
+const lvItems = catalog.items.filter((i) => i.unlock.type === 'level').sort((a, b) => a.unlock.level - b.unlock.level);
+for (const t of ['journey', 'season', 'achievement', 'premium', 'free']) for (const it of catalog.items.filter((i) => i.unlock.type === t)) assert.strictEqual(PG.coinPrice(it), null, it.id);
+s = PG.fresh(); s.coins = 100000;
+const far = lvItems.find((i) => i.unlock.level >= 6);
+assert.strictEqual(PG.coinOffer(s, far).reason, 'too-far');
+assert(!PG.buyWithCoins(s, far) && s.coins === 100000);
+const near = lvItems.find((i) => i.unlock.level <= 3);
+assert(!PG.isUnlocked(s, near));
+assert(PG.coinOffer(s, near).ok);
+assert(PG.buyWithCoins(s, near));
+assert(PG.isUnlocked(s, near) && s.coins === 100000 - PG.coinPrice(near));
+assert.strictEqual(PG.coinOffer(s, near).reason, 'owned');
+assert(!PG.buyWithCoins(s, near), 'cannot buy twice');
+s.coins = 10;
+const near2 = lvItems.find((i) => i.unlock.level <= 3 && i !== near);
+assert.strictEqual(PG.coinOffer(s, near2).reason, 'short');
+// old saves gain an empty purse; bought items survive a save
+const back = PG.migrate(JSON.parse(JSON.stringify(s)));
+assert(back.bought.includes(near.id) && back.coins === 10);
+const old = PG.fresh(); delete old.coins; delete old.earned; delete old.bought;
+const mig = PG.migrate(old);
+assert(mig.coins === 0 && Array.isArray(mig.bought) && mig.earned.by);
+
+// Developer mode can grant any item on this device; grants survive a save and reload.
+{
+  const g = PG.fresh();
+  const item = catalog.items.find((i) => i.unlock.type === 'premium');
+  assert(!PG.isUnlocked(g, item));
+  g.granted[item.id] = true;
+  assert(PG.isUnlocked(g, item));
+  assert(PG.isUnlocked(PG.migrate(JSON.parse(JSON.stringify(g))), item));
+  assert.deepStrictEqual(PG.migrate({ v: 1 }).granted, {});
+}
+
+// Mini-games: best and daily best, a capped reward per game per day, a mission event, and no rating.
+{
+  const t = PS.fresh();
+  const before = JSON.stringify(t.stats);
+  const first = PS.miniFinished(t, 'rush', 30, day(9));
+  assert.strictEqual(first.paid, 10);
+  assert(!first.newBest, 'the first round is not called a new best');
+  assert(PS.miniFinished(t, 'rush', 50, day(9)).newBest);
+  assert.strictEqual(PS.miniFinished(t, 'rush', 0, day(9)).paid, 0, 'a round that scores nothing pays nothing');
+  let paid = 0;
+  for (let k = 0; k < 8; k++) paid += PS.miniFinished(t, 'rush', 20, day(9)).paid;
+  assert.strictEqual(paid + 20, 50, 'capped at 50 coins a day from one game');
+  assert.strictEqual(PS.miniFinished(t, 'tour', 20, day(9)).paid, 10, 'each game has its own cap');
+  assert.deepStrictEqual(PS.miniToday(t, 'rush', day(9)), { best: 50, earned: 50 });
+  assert.strictEqual(PS.miniFinished(t, 'rush', 10, day(10)).paid, 10, 'the cap starts again the next day');
+  assert.deepStrictEqual(PS.miniToday(t, 'rush', day(10)), { best: 10, earned: 10 });
+  assert.strictEqual(t.mini.best.rush, 50);
+  assert.strictEqual(JSON.stringify(t.stats), before, 'mini-games never change a rating or game stats');
+  assert(t.coins >= 70, 'the coins land in the purse');
+  assert(missions.missions.some((m) => m.event === 'mini'), 'there is a mini-game mission');
+  assert.deepStrictEqual(PG.migrate({ v: 1, xp: 5 }).mini.best, {}, 'old saves get empty mini-game records');
+
+}
+
+// The placement test: the score picks the band (chapter and badge) and a friend; only a perfect,
+// quick test suggests Onyx or Ember; free players are offered free friends; a retake replaces the
+// result and adds that band's badge; until a game is played Quick Play follows the suggestion.
+{
+  const placement = require('../../../packages/content/placement.json');
+  const PP = ChacklateProgress(catalog, { placement });
+  const n = placement.questions.length;
+  assert.strictEqual(PP.placementResult(0, 200, 7).chapter, 1);
+  assert.strictEqual(PP.placementResult(0, 200, 7).level, 0);
+  let last = 0;
+  for (let k = 0; k <= n; k++) { const r = PP.placementResult(k, 500, 7); assert(r.chapter >= last && r.band.badge); last = r.chapter; }
+  assert.strictEqual(PP.placementResult(n, 500, 7).level, 5, 'a slow perfect score suggests Ivy');
+  assert.strictEqual(PP.placementResult(n, 100, 7).level, 6);
+  assert.strictEqual(PP.placementResult(n, 50, 7).level, 7, 'a fast perfect score suggests Ember');
+  assert.strictEqual(PP.placementResult(n - 1, 50, 7).level, 4);
+  const free = PP.placementResult(n, 50, 3);
+  assert(free.level === 3 && free.capped && free.wanted === 7, 'free players are offered free friends');
+  const t = PP.fresh();
+  assert.strictEqual(t.placement, null);
+  const pr = PP.placementFinished(t, 7, 150, 3, day(9));
+  assert(t.placement.chapter === 4 && t.placement.level === 3 && t.placement.score === 7 && t.placement.total === n);
+  assert(pr.achievements.some((a) => a.id === 'placed-4') && pr.xp >= 50);
+  assert.strictEqual(PP.personalLevel(t, 3), 3, 'Quick Play follows the placement before any game');
+  const again = PP.placementFinished(t, 2, 150, 3, day(9));
+  assert(t.placement.chapter === 1 && t.achievements['placed-4'] && t.achievements['placed-1'], 'a retake keeps earlier badges');
+  assert.strictEqual(again.xp, 20, 'the first-test XP is paid once');
+  PP.gameFinished(t, Object.assign({}, win, { won: false, plies: 40 }), day(9));
+  assert.strictEqual(PP.personalLevel(t, 3), 0, 'real games take over from the placement');
+}
 
 console.log('progress ok');

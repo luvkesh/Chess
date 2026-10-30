@@ -37,22 +37,24 @@ function checkLesson(l) {
     for (const a of s.arrows || []) assert.ok(sq(a[0]) >= 0 && sq(a[1]) >= 0, where + ' arrow');
     for (const m of s.marks || []) assert.ok(sq(m) >= 0, where + ' mark ' + m);
   }
-  for (const [i, x] of l.exercises.entries()) {
-    const where = l.id + ' exercise ' + i;
+  for (const [i, x] of l.exercises.entries()) checkExercise(x, l.id + ' exercise ' + i);
+}
+function checkExercise(x, where) {
+  {
     assert.ok(x.prompt, where + ' prompt');
     if (x.fen && x.type === 'choice') load(x.fen, where);
-    if (x.type === 'choice') { assert.ok(x.options.length >= 2 && x.answer >= 0 && x.answer < x.options.length, where); checked++; continue; }
-    if (x.type === "puzzles") { if (!puzzles.length) { checked++; continue; } assert.ok(puzzles.some((p) => p.themes.includes(x.theme) || (x.theme === 'mate' && p.themes.some((t) => t.startsWith('mateIn')))), where + ' has puzzles for ' + x.theme); checked++; continue; }
+    if (x.type === 'choice') { assert.ok(x.options.length >= 2 && x.answer >= 0 && x.answer < x.options.length, where); checked++; return; }
+    if (x.type === "puzzles") { if (!puzzles.length) { checked++; return; } assert.ok(puzzles.some((p) => p.themes.includes(x.theme) || (x.theme === 'mate' && p.themes.some((t) => t.startsWith('mateIn')))), where + ' has puzzles for ' + x.theme); checked++; return; }
     const p = load(x.fen, where);
     const legal = p.legalMoves();
-    if (x.type === 'square') { for (const a of x.answers) assert.ok(sq(a) >= 0, where); checked++; continue; }
+    if (x.type === 'square') { for (const a of x.answers) assert.ok(sq(a) >= 0, where); checked++; return; }
     if (x.type === 'targets') {
       const from = sq(x.from);
       assert.ok(p.b[from] && Math.sign(p.b[from]) === p.side, where + ' piece of side to move on ' + x.from);
       assert.ok(legal.some((m) => (m & 127) === from), where + ' has moves');
-      checked++; continue;
+      checked++; return;
     }
-    if (x.type === 'anyLegal') { assert.ok(legal.length > 0, where); checked++; continue; }
+    if (x.type === 'anyLegal') { assert.ok(legal.length > 0, where); checked++; return; }
     if (x.type === 'move' || x.type === 'mate') {
       const answers = x.answers || [];
       if (x.type === 'move') assert.ok(answers.length, where + ' answers');
@@ -83,7 +85,7 @@ function checkLesson(l) {
         assert.ok(mates.length >= 1, where + ' has a mate in one');
         for (const u of Object.keys(x.wrong || {})) { const m = p.parseMove(u, legal); assert.ok(!mates.includes(m), where + ' wrong answer is not mate'); }
       }
-      checked++; continue;
+      checked++; return;
     }
     assert.fail(where + ' unknown type ' + x.type);
   }
@@ -154,7 +156,7 @@ for (const s of seasons.seasons) {
   const slots = catalog.items.filter((i) => i.unlock.season === s.id).map((i) => i.unlock.track + i.unlock.tier);
   assert.strictEqual(new Set(slots).size, slots.length, s.id + ' one reward per tier and track');
 }
-const EVENTS = ['game', 'win', 'online', 'puzzle', 'daily', 'lesson', 'drill', 'dojo', 'review'];
+const EVENTS = ['game', 'win', 'online', 'puzzle', 'daily', 'lesson', 'drill', 'dojo', 'review', 'mini'];
 for (const m of missions.missions) assert.ok(EVENTS.includes(m.event) && m.goal > 0 && m.xp > 0 && m.text, m.id);
 assert.ok(new Set(missions.missions.map((m) => m.event)).size >= missions.perDay);
 for (const p of store.products) {
@@ -232,3 +234,39 @@ campaign.eras.forEach((e, k) => {
   }
 });
 console.log('campaign ok:', campaign.eras.length, 'eras,', ANIMALS.size, 'portraits');
+
+// The placement test: ten new board questions, easiest first. Every position passes the same checks
+// as a lesson exercise, none is a Learn or era position, and its puzzles are used by no lesson or era.
+const placement = require('../placement.json');
+{
+  const qids = new Set();
+  for (const q of placement.questions) {
+    const where = 'placement ' + q.id;
+    assert.ok(/^q\d\d$/.test(q.id) && !qids.has(q.id) && q.skill, where + ' id'); qids.add(q.id);
+    if (q.type === 'puzzle') {
+      const pz = puzzles.find((p) => p.id === q.puzzle);
+      assert.ok(pz && q.prompt, where + ' puzzle ' + q.puzzle);
+      assert.ok(!learnPuzzles.has(pz.id) && !eraPuzzles.has(pz.id), where + ' repeats ' + pz.id + ' from a lesson or era');
+      continue;
+    }
+    checkExercise(q, where);
+    assert.ok(!learnBoards.has(board(q.fen)), where + ' repeats a Learn position');
+    assert.ok(!eraBoards.has(board(q.fen)), where + ' repeats an era position');
+  }
+  assert.ok(placement.questions.length >= 8 && placement.questions.length <= 10, 'eight to ten questions');
+  // the puzzles come last, easier first
+  const pz = placement.questions.filter((q) => q.type === 'puzzle').map((q) => puzzles.find((p) => p.id === q.puzzle).rating);
+  assert.deepStrictEqual(pz, pz.slice().sort((a, b) => a - b), 'puzzles rise in difficulty');
+  // bands rise from 0, each with a real chapter and its own badge; a friend for every score
+  const bands = placement.bands;
+  assert.strictEqual(bands[0].min, 0);
+  bands.forEach((b, k) => {
+    assert.ok(k === 0 || (b.min > bands[k - 1].min && b.chapter > bands[k - 1].chapter), 'band ' + k + ' order');
+    assert.ok(lessons.chapters.some((c) => c.n === b.chapter) && b.badge.id && b.badge.name && b.badge.desc && b.say, 'band ' + k);
+  });
+  assert.strictEqual(new Set(bands.map((b) => b.badge.id)).size, bands.length);
+  const f = placement.friends;
+  assert.strictEqual(f.byScore.length, placement.questions.length + 1);
+  for (const lv of f.byScore.concat(f.perfect.map((p) => p[1]))) assert.ok(campaign.opponents.some((o) => o.level === lv), 'friend level ' + lv);
+  console.log('placement ok:', placement.questions.length, 'questions,', bands.length, 'bands');
+}

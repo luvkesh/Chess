@@ -7,6 +7,21 @@ function ChacklateProgress(catalog, extras) {
   const SEASONS = (extras && extras.seasons) || { tierXp: 300, seasons: [] };
   const MISSIONS = (extras && extras.missions) || { perDay: 3, allDoneXp: 0, missions: [] };
   const CAMPAIGN = (extras && extras.campaign) || { eras: [] };
+  const PLACEMENT = (extras && extras.placement) || null;
+  // Choco Coins: the soft currency. Earned only by playing, never bought with money, and only
+  // spent on looks, so nothing bought changes gameplay or rating.
+  const COIN_NAME = 'Choco Coins', COIN_ONE = 'Choco Coin';
+  const COINS = {
+    daily: { amount: 20, times: 1 },          // first visit of the day
+    game: { amount: 10, win: 20, times: 10 }, // a finished game of 6+ plies
+    lesson: { amount: 25 },                   // a lesson passed for the first time
+    'daily-puzzle': { amount: 30, times: 1 },
+    mission: { amount: 15, all: 25 },
+    mini: { amount: 10, cap: 50 },            // per mini-game per day (see earn)
+  };
+  // Level items can be bought with coins once the player is within this many levels of them.
+  const COIN_REACH = 2;
+  const COIN_PRICE = { common: 200, rare: 400, epic: 900, legendary: 1500 };
   const TITLES = [[1, 'Cocoa Bean'], [5, 'Apprentice'], [10, 'Chocolatier'], [15, 'Maître'], [20, 'Grand Maître']];
   const ACHIEVEMENTS = [
     { id: 'first-game', name: 'First move', desc: 'Finish your first game.', xp: 20 },
@@ -43,6 +58,8 @@ function ChacklateProgress(catalog, extras) {
     { id: 'era-4', name: 'Ancient wonders', desc: 'Complete four eras of the Journey.', xp: 120 },
     { id: 'era-all', name: 'Through the ages', desc: 'Complete every era of the Journey.', xp: 400 },
   ];
+  // One badge for each placement result (packages/content/placement.json).
+  if (PLACEMENT) for (const b of PLACEMENT.bands) ACHIEVEMENTS.push(Object.assign({ xp: 20 }, b.badge));
   const BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));
   const LEVEL_ACH = ['beat-truffle', 'beat-builder', 'beat-rusher', 'beat-wall', 'beat-trickster', 'beat-strategist', 'beat-tactician', 'beat-gm'];
 
@@ -60,7 +77,10 @@ function ChacklateProgress(catalog, extras) {
       v: 1, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
-      equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
+      equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {}, placement: null,
+      coins: 0, earned: { date: '', by: {}, n: {} }, bought: [],
+      granted: {},   // items handed out by developer mode, on this device only
+      mini: { best: {}, plays: {}, day: { date: '', best: {} }, seen: [] },
     };
   }
   function migrate(s) {
@@ -72,6 +92,11 @@ function ChacklateProgress(catalog, extras) {
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
     out.missions = Object.assign(f.missions, s.missions || {});
     out.journey = Object.assign({}, s.journey || {});
+    out.granted = Object.assign({}, s.granted || {});
+    out.coins = Math.max(0, Math.floor(+s.coins || 0));
+    out.earned = Object.assign(f.earned, s.earned || {});
+    out.bought = Array.isArray(s.bought) ? s.bought.slice() : [];
+    out.mini = Object.assign(f.mini, s.mini || {});
     return out;
   }
 
@@ -96,6 +121,47 @@ function ChacklateProgress(catalog, extras) {
         out.unlocked.push(...seasonItems(sid).filter((i) => i.unlock.tier > t0 && i.unlock.tier <= t1 && (i.unlock.track === 'free' || hasPass(state, sid))));
       }
     }
+  }
+
+  // ------------------------------------------------------------ choco coins
+  // The one way coins are earned. source names what paid (e.g. 'game', 'mini:knight-tour');
+  // opts.cap limits the coins from that source per local day, opts.times the number of grants.
+  // Returns the coins actually granted, which is 0 once a limit is reached.
+  function earn(state, source, amount, opts, out) {
+    opts = opts || {};
+    const d = today(opts.now ? new Date(opts.now) : undefined);
+    if (state.earned.date !== d) state.earned = { date: d, by: {}, n: {} };
+    const e = state.earned, had = e.by[source] || 0, n = e.n[source] || 0;
+    let give = Math.max(0, Math.floor(amount));
+    if (opts.times && n >= opts.times) give = 0;
+    if (opts.cap) give = Math.max(0, Math.min(give, opts.cap - had));
+    if (!give) return 0;
+    e.by[source] = had + give; e.n[source] = n + 1;
+    state.coins = (state.coins || 0) + give;
+    if (out) out.coins = (out.coins || 0) + give;
+    return give;
+  }
+  // Daily bonus on the first visit of the day.
+  function dailyBonus(state, now) {
+    const out = result();
+    earn(state, 'daily', COINS.daily.amount, { times: 1, now }, out);
+    return out;
+  }
+  const coinPrice = (item) => item && item.unlock.type === 'level' ? (COIN_PRICE[item.rarity] || COIN_PRICE.rare) : null;
+  // Whether an item can be bought with coins now: { ok, price, reason }.
+  function coinOffer(state, item) {
+    const price = coinPrice(item);
+    if (price === null || isUnlocked(state, item)) return { ok: false, price, reason: price === null ? 'not-for-coins' : 'owned' };
+    if (levelFor(state.xp).level < item.unlock.level - COIN_REACH) return { ok: false, price, reason: 'too-far' };
+    if ((state.coins || 0) < price) return { ok: false, price, reason: 'short', short: price - (state.coins || 0) };
+    return { ok: true, price };
+  }
+  function buyWithCoins(state, item) {
+    const o = coinOffer(state, item);
+    if (!o.ok) return false;
+    state.coins -= o.price;
+    state.bought.push(item.id);
+    return true;
   }
 
   // ------------------------------------------------------------ seasons
@@ -151,9 +217,9 @@ function ChacklateProgress(catalog, extras) {
       const def = missionDef(rec.id);
       if (!def || rec.done || def.event !== event) continue;
       rec.n = Math.min(def.goal, rec.n + n);
-      if (rec.n >= def.goal) { rec.done = true; out.missions.push(def); grant(state, def.xp, out); }
+      if (rec.n >= def.goal) { rec.done = true; out.missions.push(def); grant(state, def.xp, out); earn(state, 'mission', COINS.mission.amount, { now }, out); }
     }
-    if (!ms.bonus && ms.list.length && ms.list.every((r) => r.done)) { ms.bonus = true; out.missionsAll = true; grant(state, MISSIONS.allDoneXp, out); }
+    if (!ms.bonus && ms.list.length && ms.list.every((r) => r.done)) { ms.bonus = true; out.missionsAll = true; grant(state, MISSIONS.allDoneXp, out); earn(state, 'missions-all', COINS.mission.all, { times: 1, now }, out); }
   }
   function missionList(state, now, opts) {
     return ensureMissions(state, now, opts).list.map((r) => Object.assign({}, missionDef(r.id), r));
@@ -181,7 +247,7 @@ function ChacklateProgress(catalog, extras) {
   function unlocksBetween(state, from, to) {
     return catalog.items.filter((i) => i.unlock.type === 'level' && i.unlock.level > from && i.unlock.level <= to);
   }
-  const result = () => ({ xp: 0, levelUp: 0, achievements: [], unlocked: [], missions: [], seasonTier: 0 });
+  const result = () => ({ xp: 0, coins: 0, levelUp: 0, achievements: [], unlocked: [], missions: [], seasonTier: 0 });
 
   // A finished game. g = { mode, level, won, drawn, lost, reason, moves (plies), sans, startFen, accuracy, online }
   function gameFinished(state, g, now) {
@@ -200,6 +266,7 @@ function ChacklateProgress(catalog, extras) {
     if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); achieve(state, LEVEL_ACH[lv], out); }
     if (g.online) achieve(state, 'online-first', out);
     if (g.plies >= 6) {
+      earn(state, 'game', g.won ? COINS.game.win : COINS.game.amount, { times: COINS.game.times, now }, out);
       track(state, 'game', 1, now, out);
       if (g.won) track(state, 'win', 1, now, out);
       if (g.online) track(state, 'online', 1, now, out);
@@ -233,7 +300,7 @@ function ChacklateProgress(catalog, extras) {
     if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
-    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
+    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
     if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
@@ -249,7 +316,7 @@ function ChacklateProgress(catalog, extras) {
     const rec = { stars: Math.max(stars, prev ? prev.stars : 0), attempts: (prev ? prev.attempts : 0) + 1, mastered: pct >= 0.8 || !!(prev && prev.mastered),
       completed: today(new Date(t)), reviews: prev && prev.reviews ? prev.reviews : [1, 7, 30].map((d) => today(new Date(t + d * 86400000))) };
     state.lessons[lesson.id] = rec;
-    if (!prev) grant(state, 30, out);
+    if (!prev) { grant(state, 30, out); earn(state, 'lesson', COINS.lesson.amount, { now: t }, out); }
     if (rec.mastered && !(prev && prev.mastered)) grant(state, 40, out);
     if (!prev && stars === 3) grant(state, 10, out);
     out.stars = stars;
@@ -262,6 +329,28 @@ function ChacklateProgress(catalog, extras) {
     track(state, 'lesson', 1, t, out);
     touchStreak(state, new Date(t), out);
     return out;
+  }
+
+  // The placement test: the score (one try per question) picks a band, which sets the chapter the
+  // learning path starts at and a badge; the score and speed suggest an animal friend. Free players
+  // are offered free friends only. Earlier chapters always stay open; a retake replaces the result.
+  function placementResult(score, seconds, maxLevel) {
+    const bands = PLACEMENT.bands, f = PLACEMENT.friends;
+    const band = bands.filter((b) => score >= b.min).pop();
+    let level = f.byScore[Math.min(score, f.byScore.length - 1)];
+    if (score >= PLACEMENT.questions.length) for (const [s, lv] of f.perfect) if (seconds <= s) { level = Math.max(level, lv); break; }
+    const capped = level > maxLevel;
+    return { band, chapter: band.chapter, level: Math.min(level, maxLevel), wanted: level, capped };
+  }
+  function placementFinished(state, score, seconds, maxLevel, now) {
+    const out = result();
+    const r = placementResult(score, seconds, maxLevel);
+    const first = !state.placement;
+    state.placement = { date: today(now ? new Date(now) : undefined), score, total: PLACEMENT.questions.length, seconds: Math.round(seconds), chapter: r.chapter, level: r.level };
+    if (first) grant(state, 30, out);
+    achieve(state, r.band.badge.id, out);
+    touchStreak(state, now ? new Date(now) : new Date(), out);
+    return Object.assign(out, r);
   }
 
   // Opening drill: a clean run has no wrong moves; three clean runs master the line.
@@ -348,10 +437,35 @@ function ChacklateProgress(catalog, extras) {
   }
   const PG_today = (now) => today(now ? new Date(now) : undefined);
 
+  // ------------------------------------------------------------ mini-games
+  // A finished round of a mini-game: its best score, today's best and its coins (COINS.mini:
+  // a round that scores pays, up to a cap a day from each game). Mini-games never change a rating,
+  // and count toward the mini-game missions.
+  function miniFinished(state, id, score, now) {
+    const out = result();
+    const m = state.mini, d = PG_today(now);
+    if (m.day.date !== d) m.day = { date: d, best: {} };
+    out.newBest = score > (m.best[id] || 0) && (m.plays[id] || 0) > 0;
+    out.newDailyBest = score > (m.day.best[id] || 0) && m.day.best[id] !== undefined;
+    m.best[id] = Math.max(m.best[id] || 0, score);
+    m.day.best[id] = Math.max(m.day.best[id] || 0, score);
+    m.plays[id] = (m.plays[id] || 0) + 1;
+    out.paid = score > 0 ? earn(state, 'mini:' + id, COINS.mini.amount, { cap: COINS.mini.cap, now }, out) : 0;
+    out.capped = score > 0 && !out.paid;
+    track(state, 'mini', 1, now, out);
+    touchStreak(state, now ? new Date(now) : undefined, out);
+    return out;
+  }
+  // Today's best and the coins a game has paid today.
+  function miniToday(state, id, now) {
+    const d = PG_today(now), day = state.mini.day, e = state.earned || {};
+    return { best: day.date === d ? day.best[id] : undefined, earned: e.date === d ? (e.by || {})['mini:' + id] || 0 : 0 };
+  }
+
   function isUnlocked(state, item) {
     const u = item.unlock;
-    if (u.type === 'free') return true;
-    if (u.type === 'level') return levelFor(state.xp).level >= u.level;
+    if (u.type === 'free' || (state.granted && state.granted[item.id])) return true;
+    if (u.type === 'level') return levelFor(state.xp).level >= u.level || (state.bought || []).includes(item.id);
     if (u.type === 'achievement') return !!state.achievements[u.achievement];
     if (u.type === 'premium') return !!state.premium;
     if (u.type === 'season') return tierOf(state, u.season) >= u.tier && (u.track === 'free' || hasPass(state, u.season));
@@ -389,6 +503,8 @@ function ChacklateProgress(catalog, extras) {
   }
   // "Personal" opponent: picks a level from your recent results against the computer.
   function personalLevel(state, maxLevel) {
+    // Before any game, the placement test's suggestion is the best guess.
+    if (!Object.keys(state.stats.byLevel).length && state.placement) return Math.min(state.placement.level, maxLevel);
     let best = 0;
     for (let lv = 0; lv <= maxLevel; lv++) {
       const b = state.stats.byLevel[lv];
@@ -399,8 +515,9 @@ function ChacklateProgress(catalog, extras) {
     return Math.min(best, maxLevel);
   }
 
-  return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
-    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage };
+  return { COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished,
+    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateProgress;

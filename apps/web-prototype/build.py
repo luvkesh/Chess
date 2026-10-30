@@ -26,7 +26,11 @@ SCRIPTS = [
     src / 'audio.js',
     src / 'net.js',
     src / 'relay.js',
+    src / 'places.js',
+    src / 'club.js',
     src / 'tips.js',
+    src / 'minigames.js',
+    src / 'rules.js',
     src / 'app.js',
 ]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
@@ -49,7 +53,26 @@ parts = [
     data('CHACKLATE_VOICE', 'voice.json'),
     data('CHACKLATE_CAMPAIGN', 'campaign.json'),
     data('CHACKLATE_GUIDE', 'guide.json'),
+    data('CHACKLATE_PLACEMENT', 'placement.json'),
 ]
+# What Rooky says about each Collection item. A chess set from an era plays the website's recording of
+# its pitch (pitch/site/<key>.mp3, served from apps/website/audio), so each pitch is recorded once.
+site = here.parent / 'website'
+coach = json.loads((content / 'campaign.json').read_text())['coach']['name']
+site_lines = json.loads((site / 'guide.json').read_text())['lines']
+site_said = json.loads((site / 'audio' / 'index.json').read_text())['lines']
+pitch = {}
+for key, line in json.loads((content / 'pitches.json').read_text())['lines'].items():
+    if isinstance(line, dict):
+        text = site_lines[line['site']].replace('{coach}', coach)
+        assert site_said[line['site']]['text'] == text, 'the website clip %s says something else' % line['site']
+        pitch[key] = {'text': text, 'src': 'pitch/site/%s.mp3' % line['site']}
+    else:
+        pitch[key] = {'text': line, 'src': 'pitch/%s.mp3' % key}
+parts.append('const CHACKLATE_PITCH = %s;' % json.dumps(pitch, separators=(',', ':'), ensure_ascii=False))
+# Translatable strings, one file per kind in packages/content/i18n, keyed by file name.
+strings = {f.stem: json.loads(f.read_text()) for f in sorted((content / 'i18n').glob('*.json'))}
+parts.append('const CHACKLATE_STRINGS = %s;' % json.dumps(strings, separators=(',', ':'), ensure_ascii=False))
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
 look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
@@ -67,6 +90,8 @@ for f in sorted((src / 'art').glob('*.webp')):
 parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')))
 for path in SCRIPTS:
     parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
+# The build id on the version line in Settings: a hash of everything inlined above.
+parts.insert(0, "const CHACKLATE_BUILD = '%s';" % hashlib.sha1('\n'.join(parts).encode()).hexdigest()[:7])
 code = '\n'.join(parts)
 assert '</script' not in code.lower()
 

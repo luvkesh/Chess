@@ -49,6 +49,8 @@ function create(db, lobby, opts) {
       orders: db.all('SELECT id, product, amount, currency, status, created FROM orders WHERE user_id = ?', u.id),
       entitlements: db.all('SELECT key, source, granted, expires, revoked FROM entitlements WHERE user_id = ?', u.id),
       notifications: db.all('SELECT endpoint, hour, tz, created FROM push_subs WHERE user_id = ?', u.id),
+      location: { country: u.country || null, city: u.city || null, source: u.loc_src || null },
+      friends: db.all('SELECT u.name, f.since FROM friends f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ?', u.id),
     };
   }
 
@@ -57,9 +59,10 @@ function create(db, lobby, opts) {
   function deleteAccount(u) {
     const label = 'Deleted player ' + u.id;
     db.tx(() => {
-      db.run('UPDATE users SET name = ?, name_key = NULL, pass = NULL, email = NULL, email_key = NULL, email_verified = 0, progress = NULL, guest = 1, deleted = ?, parent_id = NULL, birth_ym = NULL, controls = NULL, consent = NULL WHERE id = ?', label, now(), u.id);
+      db.run('UPDATE users SET name = ?, name_key = NULL, pass = NULL, email = NULL, email_key = NULL, email_verified = 0, progress = NULL, guest = 1, deleted = ?, parent_id = NULL, birth_ym = NULL, controls = NULL, consent = NULL, country = NULL, city = NULL, loc_src = NULL WHERE id = ?', label, now(), u.id);
       for (const t of ['sessions', 'push_subs', 'account_tokens', 'fairplay']) db.run('DELETE FROM ' + t + ' WHERE user_id = ?', u.id);
       db.run('DELETE FROM ratings WHERE user_id = ?', u.id);
+      db.run('DELETE FROM friends WHERE user_id = ? OR friend_id = ?', u.id, u.id);
     });
     lobby.kick(u.id, 'This account was deleted.', 'deleted');
     audit.append(db, 'system', 'account.deleted', u.id, null);

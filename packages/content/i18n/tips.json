@@ -1,0 +1,287 @@
+{
+  "chip.color.black": {
+    "en": "Black|Your opponent makes the first move."
+  },
+  "chip.color.random": {
+    "en": "Surprise me|We pick White or Black for you."
+  },
+  "chip.color.white": {
+    "en": "White|You make the first move."
+  },
+  "chip.mode.ai": {
+    "en": "Play one of the animal friends on this device."
+  },
+  "chip.mode.local": {
+    "en": "Two players share this device and take turns."
+  },
+  "clock.bonus": {
+    "en": "{m} minutes + {s} seconds|Each player gets {m} minutes for the whole game. Every time you make a move, {s} bonus seconds are added to your clock. If your time runs out, you usually lose."
+  },
+  "clock.none": {
+    "en": "No clock|Take as long as you like to think about every move."
+  },
+  "clock.one": {
+    "en": "1 minute|Each player gets just 1 minute for the whole game. Super fast! If your time runs out, you usually lose."
+  },
+  "clock.plain": {
+    "en": "{m} minutes|Each player gets {m} minutes for the whole game. No bonus time is added, so keep an eye on your clock! If your time runs out, you usually lose."
+  },
+  "collection.coins": {
+    "en": "Acquire|Get it for {n} {coins}."
+  },
+  "collection.equip": {
+    "en": "Equip|Use it from now on."
+  },
+  "collection.pass": {
+    "en": "Acquire|A grown-up can get this with the Season Pass."
+  },
+  "collection.rooky": {
+    "en": "{coach}|Tap to hear what {coach} thinks of it."
+  },
+  "collection.rooky.stop": {
+    "en": "Stop|Tap to stop {coach}."
+  },
+  "collection.store": {
+    "en": "Acquire|A grown-up can get this in the store."
+  },
+  "collection.view": {
+    "en": "View|See it up close and hear {coach} tell you about it."
+  },
+  "control.br-more": {
+    "en": "Only for grown-ups|Allow 15 more minutes of play today."
+  },
+  "control.dr-hint": {
+    "en": "Hint|See the next move of this opening."
+  },
+  "control.dr-reset": {
+    "en": "Restart|Go back to the start of this opening."
+  },
+  "control.dr-set": {
+    "en": "Settings|Sound, music, graphics, voices and coaching."
+  },
+  "control.ex-back": {
+    "en": "Back to the table|Press R or Esc too."
+  },
+  "control.fr-create": {
+    "en": "Make a game|Get a 6-letter code. Your friend types it in to join you."
+  },
+  "control.fr-join": {
+    "en": "Join|Type the code your friend gave you, then join their game."
+  },
+  "control.fr-local": {
+    "en": "Take turns here|Play on this one device and pass it back and forth."
+  },
+  "control.g-claim": {
+    "en": "Claim a draw|The rules say this game can end as a tie right now. Tap to end it."
+  },
+  "control.g-copy": {
+    "en": "PGN|Copy every move of this game as text, to save it or share it with a grown-up."
+  },
+  "control.g-draw": {
+    "en": "Draw|Ask to end the game as a tie, with no winner."
+  },
+  "control.g-emote": {
+    "en": "React|Send a friendly picture to the other player. There is no chat."
+  },
+  "control.g-explore": {
+    "en": "Explore the room|Leave your seat and look all around the room. Press R or Esc to come back to the table."
+  },
+  "control.g-flip": {
+    "en": "Flip|Turn the board around to see it from the other side."
+  },
+  "control.g-hint": {
+    "en": "Hint|Rooky shows you a good move to think about."
+  },
+  "control.g-music": {
+    "en": "Music|Turn the background music on or off."
+  },
+  "control.g-resign": {
+    "en": "Resign|Give up this game. Your opponent wins."
+  },
+  "control.g-review": {
+    "en": "Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes."
+  },
+  "control.g-rules": {
+    "en": "Rule book|The special rules that matter in this game right now: castling, en passant, promotion and draws. In a game against a person the clock keeps running."
+  },
+  "control.g-settings": {
+    "en": "Settings|Sound, music, graphics, voices and coaching."
+  },
+  "control.g-threat": {
+    "en": "Threat|See what your opponent would love to do next, so you can stop it."
+  },
+  "control.g-undo": {
+    "en": "Undo|Take back your last move and try a different one."
+  },
+  "control.g-view": {
+    "en": "Camera|Switch between looking down from above and sitting at the table."
+  },
+  "control.l-review": {
+    "en": "Reviews|Quick refreshers of lessons you learned a while ago, so you never forget them."
+  },
+  "control.ls-hint": {
+    "en": "Hint|Get a little clue."
+  },
+  "control.ls-set": {
+    "en": "Settings|Sound, music, graphics, voices and coaching."
+  },
+  "control.ls-voice": {
+    "en": "Narration|Hear Rooky read the lesson out loud."
+  },
+  "control.mu-eq": {
+    "en": "Equip|Use this in your games from now on."
+  },
+  "control.nv-music": {
+    "en": "Music|Turn the background music on or off."
+  },
+  "control.nv-set": {
+    "en": "Settings|Sound, music, graphics, voices and coaching."
+  },
+  "control.pk-eq": {
+    "en": "Equip|Use this in your games from now on."
+  },
+  "control.pz-hint": {
+    "en": "Hint|Get a little clue."
+  },
+  "control.pz-set": {
+    "en": "Settings|Sound, music, graphics, voices and coaching."
+  },
+  "control.pz-sol": {
+    "en": "Solution|Show the answer to this puzzle."
+  },
+  "control.rv-best": {
+    "en": "Best line|Show the moves Rooky would have played here."
+  },
+  "control.rv-practice": {
+    "en": "Play from here|Start a new game from this exact position."
+  },
+  "control.rv-set": {
+    "en": "Settings|Sound, music, graphics, voices and coaching."
+  },
+  "control.rv-turn": {
+    "en": "Turning point|Jump to the move where the game changed the most."
+  },
+  "control.st-restore": {
+    "en": "Restore purchases|Bring back things a grown-up already bought, for example on a new device."
+  },
+  "control.w-go": {
+    "en": "Find a player|We look for someone, anywhere in the world, who picked the same clock."
+  },
+  "game.clock": {
+    "en": "Clock|Time left for this player. It only counts down on their turn."
+  },
+  "game.clock.bonus": {
+    "en": "They get {s} bonus seconds after each move."
+  },
+  "game.eval": {
+    "en": "Who is winning|{now} More white in the bar means White is doing better."
+  },
+  "game.eval.ahead": {
+    "en": "{side} is ahead by about {n} pawns."
+  },
+  "game.eval.even": {
+    "en": "It is about even."
+  },
+  "game.eval.mate": {
+    "en": "{side} can checkmate in {n}!"
+  },
+  "settings.anim": {
+    "en": "Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game."
+  },
+  "settings.announce": {
+    "en": "Hear every move said out loud, like “Knight to f3”."
+  },
+  "settings.cine": {
+    "en": "Short movie scenes when a piece is captured or a king castles. Tap the board to skip one."
+  },
+  "settings.coach": {
+    "en": "Rooky's comments|How often Rooky talks about your moves during a game."
+  },
+  "settings.coach.chatty": {
+    "en": "Rooky says something about every move. Great for learning."
+  },
+  "settings.coach.normal": {
+    "en": "Rooky points out mistakes and cheers your great moves."
+  },
+  "settings.coach.off": {
+    "en": "Rooky stays quiet, so you can play on your own."
+  },
+  "settings.coach.quiet": {
+    "en": "Rooky speaks up only when a move loses something big."
+  },
+  "settings.eval": {
+    "en": "A bar beside the board shows who is ahead. It is hidden in online games."
+  },
+  "settings.guide": {
+    "en": "Shows Rooky's card that tells you what to do next on each screen."
+  },
+  "settings.install": {
+    "en": "Add Chackmate to the home screen so it opens like an app."
+  },
+  "settings.legal": {
+    "en": "Dots show every square your chosen piece can move to."
+  },
+  "settings.music": {
+    "en": "Gentle music for each room. Slide for loudness; the tick box turns it on or off."
+  },
+  "settings.narr": {
+    "en": "Rooky and friends read the guide, stories and lessons out loud."
+  },
+  "settings.quality": {
+    "en": "Graphics|How detailed the 3D tables look."
+  },
+  "settings.quality.high": {
+    "en": "Shadows, reflections and candlelight. The most beautiful, but older phones may run slowly and get warm."
+  },
+  "settings.quality.low": {
+    "en": "Simpler pictures that run smoothly on older phones and tablets and save battery."
+  },
+  "settings.reminder": {
+    "en": "A gentle daily reminder to play, at the hour you pick. A parent must allow it."
+  },
+  "settings.reset": {
+    "en": "Start again from the beginning. Stars, levels and unlocks on this device are cleared."
+  },
+  "settings.server": {
+    "en": "For grown-ups who run their own game server. Leave it empty to play online as usual."
+  },
+  "settings.sfx": {
+    "en": "Clicks and chimes for moves and buttons. Slide for loudness; the tick box turns them on or off."
+  },
+  "settings.toss": {
+    "en": "Before a Surprise me game, tap one of two paws to find out your colour."
+  },
+  "settings.turn": {
+    "en": "With two players on one device, the board turns so each player sees it from their side."
+  },
+  "settings.vcalls": {
+    "en": "The voice that says check, game results and puzzle results."
+  },
+  "settings.vcoach": {
+    "en": "The voice that reads lessons and stories."
+  },
+  "side.black": {
+    "en": "Black"
+  },
+  "side.white": {
+    "en": "White"
+  },
+  "voice.arthur": {
+    "en": "A calm club captain, in British English."
+  },
+  "voice.dev": {
+    "en": "Says game calls and moves in Hindi, in a man's voice."
+  },
+  "voice.device": {
+    "en": "Uses the voice already built into this phone, tablet or computer."
+  },
+  "voice.mira": {
+    "en": "Warm and encouraging, in American English."
+  },
+  "voice.off": {
+    "en": "No spoken game calls; you will still hear sound effects."
+  },
+  "voice.priya": {
+    "en": "Says game calls and moves in Hindi, in a woman's voice."
+  }
+}

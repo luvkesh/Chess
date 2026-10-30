@@ -39,6 +39,16 @@
   "voice": "am_puck,am_michael",
   "text": "Let's practise! Pick a skill, and we'll work on it together."
  },
+ "minis": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Mini-games are quick! Pick one, and beat your best score."
+ },
+ "mini": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap the scroll if you need the rules. Have fun!"
+ },
  "openings": {
   "who": "rooky",
   "voice": "am_puck,am_michael",
@@ -52,12 +62,17 @@
  "collection": {
   "who": "rooky",
   "voice": "am_puck,am_michael",
-  "text": "This is your collection! Tap anything to see it up close. Then tap Use, to put it on your table."
+  "text": "This is your collection! Tap anything to see it up close, and I will tell you all about it. Then tap Equip, to put it on your table."
  },
  "profile": {
   "who": "rooky",
   "voice": "am_puck,am_michael",
   "text": "This is you! Here you can see your level, your games, and your badges."
+ },
+ "club": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Welcome to the Club! See how you rank, climb the leagues, and find the friends you play with a code."
  },
  "season": {
   "who": "rooky",
@@ -363,5 +378,85 @@
   "who": "skye",
   "voice": "af_nova",
   "text": "You beat me! The Manhattan Deco set is yours. What a journey, all the way through chess history!"
+ },
+ "placement.offer": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Have you played chess before? Take my short test, and I'll pick your first lesson and a friend to play. Or skip it, and we'll start at the beginning."
+ },
+ "placement.q01": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap every square the rook can reach. Remember, it can take a black piece, but not jump over one."
+ },
+ "placement.q02": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Now the knight. Tap every square it can jump to."
+ },
+ "placement.q03": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Your knight can take a piece. Take the one that nobody guards."
+ },
+ "placement.q04": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Give check with your queen, on a square where she cannot be taken."
+ },
+ "placement.q05": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Find checkmate in one move."
+ },
+ "placement.q06": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The black king is stuck behind his pawns. Find checkmate in one move."
+ },
+ "placement.q07": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Find a knight move that attacks the king and the rook at once."
+ },
+ "placement.q08": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "White moves first. Can the black king catch the pawn before it becomes a queen?"
+ },
+ "placement.q09": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Your opponent has just moved. Find the best move, then keep going."
+ },
+ "placement.q10": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Last one, and the hardest. Find the best move, then keep going."
+ },
+ "placement.r1": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Thanks for trying! We'll start at the very beginning, with how the pieces move. You'll pick it up in no time!"
+ },
+ "placement.r2": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Nice work! You know how the pieces move, so we'll start with check and checkmate."
+ },
+ "placement.r3": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Great job! You know the rules, so your path starts with opening ideas."
+ },
+ "placement.r4": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Wow, you spotted the fork! You're ready for tactics, like forks and pins."
+ },
+ "placement.r5": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Amazing, you found nearly everything! You're ready to learn defence and king safety."
  }
 }
