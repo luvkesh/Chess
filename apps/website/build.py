@@ -50,9 +50,9 @@ SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 
 LINKS = {
-    'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms'},
+    'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/'},
     'preview': {'PLAY': 'https://claude.ai/artifact/LPXvesS3kLgtjYFDkxGJFL', 'PARENT': 'privacy.html#rights',
-                'PRIVACY': 'privacy.html', 'TERMS': 'terms.html'},
+                'PRIVACY': 'privacy.html', 'TERMS': 'terms.html', 'PITCHES': 'audio/'},
 }
 
 
@@ -149,18 +149,22 @@ def data_uri(path):
     return 'data:%s;base64,%s' % (kind, base64.b64encode(path.read_bytes()).decode())
 
 
-def guide(coach, eras):
-    """The coach's recorded guide (a clip per section and a pitch per chess set), checked against guide.json and the coach's name."""
+def guide(coach, collection):
+    """The coach's recorded guide (a clip per section and a pitch per collectible), checked against guide.json and the coach's name."""
     lines = json.loads((here / 'guide.json').read_text())['lines']
     recorded = json.loads((here / 'audio' / 'index.json').read_text())['lines']
-    for e in eras:
-        assert 'item-sets-' + e['set']['id'] in lines, 'guide.json has no pitch for item-sets-' + e['set']['id']
+    for items in collection.values():
+        for it in items:
+            assert it['key'] in lines, 'guide.json has no pitch for ' + it['key']
     out = {}
     for key, line in lines.items():
         text = line.replace('{coach}', coach)
         assert recorded.get(key, {}).get('text') == text, 'audio/%s.mp3 says something else; run tools/record-guide.py' % key
-        out[key] = {'text': text, 'cues': recorded[key]['cues'],
-                    'src': 'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode()}
+        # The section lines are inlined so the tour starts at once; the 60 piece pitches are
+        # fetched when needed (the game server serves them at /pitch/site/, the preview beside the page).
+        src = ('@@PITCHES@@' + key + '.mp3' if key.startswith('item-') else
+               'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode())
+        out[key] = {'text': text, 'cues': recorded[key]['cues'], 'src': src}
     return out
 
 
@@ -247,7 +251,7 @@ def build(target):
         for it in items:
             assert it['key'] in img, 'missing img/%s; run tools/shoot.js items and tools/to-webp.py' % it['key']
     shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-') or k.startswith('item-')}
-    lines = guide(coach['name'], eras)
+    lines = guide(coach['name'], collection)
     keep = {coach['name'], coach['full'], 'Chackmate'} | {o['name'] for o in opponents} | {it['name'] for items in collection.values() for it in items}
     page = page.replace('/*FONTS*/', fonts + (here / 'vendor' / 'devanagari.css').read_text())
     filled = fill(page, img, art, counts, coach, target)
@@ -284,6 +288,9 @@ def main():
         out = pathlib.Path(args.preview)
         out.mkdir(parents=True, exist_ok=True)
         (out / 'index.html').write_text(build('preview'))
+        (out / 'audio').mkdir(exist_ok=True)
+        for clip in (here / 'audio').glob('item-*.mp3'):
+            (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
         for name in ('privacy', 'terms'):
             text = (here / (name + '.html')).read_text()
             text = text.replace('href="/"', 'href="index.html"').replace('href="/parent"', 'href="privacy.html#rights"')
