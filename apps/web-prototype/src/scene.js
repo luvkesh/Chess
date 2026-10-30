@@ -1422,13 +1422,19 @@ function ChacklateScene(canvas, options) {
       }));
       if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
       else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
-      const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
-      floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
+      // floor: false leaves the pieces standing on nothing (the menu medals, tools/shoot-art.js)
+      if (spec.floor !== false) {
+        const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
+        floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
+      }
+      // gild: every surface in polished gold, for the medals' gold pieces
+      if (spec.gild) { const gold = new THREE.MeshPhysicalMaterial({ color: spec.gild, metalness: 1, roughness: 0.2, clearcoat: 0.5, clearcoatRoughness: 0.12, envMapIntensity: 1.35 }); s2.traverse((m) => { if (m.isMesh) m.material = gold; }); }
       s2.background = null;
     } else if (spec.kind === 'vignette') {
       // A few pieces on a velvet plinth with a gold rim, for menu cards.
       const gold = new THREE.MeshPhysicalMaterial({ color: '#e2b35e', metalness: 1, roughness: 0.24, clearcoat: 0.4 });
-      const felt = new THREE.MeshPhysicalMaterial({ color: spec.felt || '#5c1428', roughness: 0.9, sheen: 1, sheenColor: new THREE.Color(spec.sheen || '#ff9cb8'), sheenRoughness: 0.45 });
+      // deep velvet: the colour is kept dark so the plinth reads as cloth, not painted candy
+      const felt = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(spec.felt || '#5c1428').multiplyScalar(0.55), roughness: 0.92, sheen: 1, sheenColor: new THREE.Color(spec.sheen || '#b86a80').multiplyScalar(0.6), sheenRoughness: 0.6 });
       const R = spec.r || 1.3;
       const top = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 0.12, 72), felt); top.position.y = -0.06;
       const rim = new THREE.Mesh(new THREE.TorusGeometry(R, 0.055, 18, 120), gold); rim.rotation.x = Math.PI / 2;

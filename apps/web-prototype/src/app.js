@@ -349,12 +349,12 @@
   }
   // Little arrangements on a velvet plinth with a gold rim.
   const VIGN = {
-    duo: (set) => ({ kind: 'vignette', felt: '#5c1428', items: [{ set, type: 'k', side: 'w', x: -0.42, z: 0.06, rot: 0.35 }, { set, type: 'q', side: 'b', x: 0.44, z: -0.12, rot: -0.5 }] }),
-    fork: (set) => ({ kind: 'vignette', felt: '#173a2a', sheen: '#9fe0bc', items: [{ set, type: 'n', side: 'w', x: 0.04, z: 0.5, rot: -1.15 }, { set, type: 'k', side: 'b', x: -0.62, z: -0.4, rot: 0.3 }, { set, type: 'r', side: 'b', x: 0.66, z: -0.36, rot: -0.2 }] }),
-    trio: (set, felt, sheen) => ({ kind: 'vignette', felt: felt || '#5c1428', sheen: sheen || '#ff9cb8', items: [{ set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }),
-    endgame: (set) => ({ kind: 'vignette', felt: '#2a2440', sheen: '#c8b8ff', items: [{ set, type: 'k', side: 'w', x: -0.5, z: 0.05, rot: 0.3 }, { set, type: 'p', side: 'w', x: 0.12, z: 0.42 }, { set, type: 'k', side: 'b', x: 0.6, z: -0.42, rot: -0.4 }] }),
-    opening: (set) => ({ kind: 'vignette', felt: '#14304a', sheen: '#9cc8ff', items: [{ set, type: 'p', side: 'w', x: -0.62, z: 0.3 }, { set, type: 'b', side: 'w', x: -0.05, z: -0.05, rot: 0.6 }, { set, type: 'n', side: 'w', x: 0.6, z: 0.24, rot: -1.2 }] }),
-    review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#ffd9a8', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
+    duo: (set) => ({ kind: 'vignette', felt: '#4a0f20', items: [{ set, type: 'k', side: 'w', x: -0.42, z: 0.06, rot: 0.35 }, { set, type: 'q', side: 'b', x: 0.44, z: -0.12, rot: -0.5 }] }),
+    fork: (set) => ({ kind: 'vignette', felt: '#173a2a', sheen: '#6aa88a', items: [{ set, type: 'n', side: 'w', x: 0.04, z: 0.5, rot: -1.15 }, { set, type: 'k', side: 'b', x: -0.62, z: -0.4, rot: 0.3 }, { set, type: 'r', side: 'b', x: 0.66, z: -0.36, rot: -0.2 }] }),
+    trio: (set, felt, sheen) => ({ kind: 'vignette', felt: felt || '#5c1428', sheen: sheen || '#b86a80', items: [{ set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }),
+    endgame: (set) => ({ kind: 'vignette', felt: '#2a2440', sheen: '#9a8cc8', items: [{ set, type: 'k', side: 'w', x: -0.5, z: 0.05, rot: 0.3 }, { set, type: 'p', side: 'w', x: 0.12, z: 0.42 }, { set, type: 'k', side: 'b', x: 0.6, z: -0.42, rot: -0.4 }] }),
+    opening: (set) => ({ kind: 'vignette', felt: '#14304a', sheen: '#7a9cc8', items: [{ set, type: 'p', side: 'w', x: -0.62, z: 0.3 }, { set, type: 'b', side: 'w', x: -0.05, z: -0.05, rot: 0.6 }, { set, type: 'n', side: 'w', x: 0.6, z: 0.24, rot: -1.2 }] }),
+    review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#c8a47a', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
   };
   const medal = (art, from, to, o) => ART.medalUri(art, Object.assign({ from, to }, o || {}));
   const eraFelt = (e) => [ART.dim(e.colors[1], 0.15), e.colors[0]];
