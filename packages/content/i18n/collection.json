@@ -1,0 +1,7 @@
+{
+  "trying": { "en": "Trying" },
+  "preview": { "en": "Preview" },
+  "equipped": { "en": "Equipped" },
+  "equip": { "en": "Equip" },
+  "equippedToast": { "en": "Equipped {name}" }
+}
