@@ -193,7 +193,7 @@
     };
     game.unsub = h.room.onPeers(() => fromOpponent());
     h.room.presence({ game: game.id, moves: '', clock: game.clock, end: null, drawOffer: null, drawAccept: null, emote: null }).catch(() => {});
-    A().startOnline({ id: game.id, color, tc: start.tc, opponent: { name: clean(opp.presence && opp.presence.name), label: t(h.world ? 'online.worldPlayer' : 'online.yourFriend') }, moves: [], clock: clockMsg() });
+    A().startOnline({ id: game.id, color, tc: start.tc, friend: !h.world, opponent: { name: clean(opp.presence && opp.presence.name), label: t(h.world ? 'online.worldPlayer' : 'online.yourFriend') }, moves: [], clock: clockMsg() });
     fromOpponent();
   }
 

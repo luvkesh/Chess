@@ -580,6 +580,81 @@ const ChacklateArt = (() => {
     return svg(p, '0 0 200 200', out);
   }
 
+  // A mini-game's medal: a little enamelled chessboard seen from above the table, with the game's
+  // gold pieces standing on it and the move it trains drawn in gold wire or light.
+  function miniMedal(kind, o) {
+    o = o || {};
+    const p = pic();
+    p.raw('soft', SOFT);
+    p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="87"/></clipPath>');
+    p.raw('glow', '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>');
+    // board squares (u, v from 0 to 4) on a diamond seen at an angle
+    const pt = (u, v) => [100 + (u - v) * 19.5, 104 + (u + v) * 8.6];
+    const quad = (u, v) => { const a = pt(u, v), b = pt(u + 1, v), c = pt(u + 1, v + 1), d = pt(u, v + 1); return 'M' + a + 'L' + b + 'L' + c + 'L' + d + 'Z'; };
+    const mid = (u, v) => pt(u + 0.5, v + 0.5);
+    const light = o.light || '#efd9ae', dark = o.dark || dim(o.to || '#4a0c1e', 0.1);
+    let board = P('M' + pt(-0.35, -0.35) + 'L' + pt(4.35, -0.35) + 'L' + pt(4.35, 4.35) + 'L' + pt(-0.35, 4.35) + 'Z', p.gold(), ' filter="url(#lift)"');
+    for (let u = 0; u < 4; u++) for (let v = 0; v < 4; v++) board += P(quad(u, v), p.sh((u + v) % 2 ? light : dark, { hi: 0.18, lo: 0.2 }), ol('#d6aa58', 0.7));
+    const goldFill = p.lin([[0, '#fff3c4'], [0.35, '#f0cf7e'], [0.7, '#c08a36'], [1, '#7a4a14']], 0.2, 0, 0.8, 1);
+    // a gold piece standing on square (u, v); s is its height in medal units
+    const piece = (name, u, v, s, x) => {
+      const [cx, cy] = mid(u, v), w = s * 0.96;
+      const shadow = E(cx, cy + 1, w * 0.3, w * 0.09, 'rgba(0,0,0,.5)', ' filter="url(#soft)"');
+      if (ART_IMG.piece[name]) return shadow + '<image href="' + ART_IMG.piece[name] + '" x="' + (cx - w / 2).toFixed(1) + '" y="' + (cy - s + 2).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + s.toFixed(1) + '" preserveAspectRatio="xMidYMax meet"' + (x || '') + '/>';
+      const k = s / 100;
+      return shadow + '<g transform="translate(' + (cx - 50 * k).toFixed(1) + ' ' + (cy - 92 * k + 2).toFixed(1) + ') scale(' + k.toFixed(3) + ')"' + (x || '') + '>' + P(PIECE[name] || PIECE.p, goldFill, ' stroke="#6a3e10" stroke-width="2" stroke-linejoin="round"') + '</g>';
+    };
+    // a path of light drawn over a dark underlay, so it reads on light and dark squares alike
+    const wire = (pts, c) => { const d = 'M' + pts.map((q) => q.map((n) => n.toFixed(1)).join(' ')).join('L'); return '<path d="' + d + '" fill="none" stroke="#1a0d04" stroke-opacity=".7" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>' + '<path d="' + d + '" fill="none" stroke="' + (c || '#ffe7a8') + '" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>'; };
+    const dot = (u, v, c, r) => { const [x, y] = mid(u, v); return E(x, y, r || 5.5, (r || 5.5) * 0.45, c || '#ffe7a8', ' filter="url(#glow)"'); };
+    const tint = (u, v, c, a) => P(quad(u, v), c, ' opacity="' + (a || 0.7) + '"');
+    let art = '';
+    const ebony = ' style="filter:brightness(.42) saturate(.5) contrast(1.2)"';
+    if (kind === 'tour') {
+      // the knight's path so far, each visited square marked with a gold stud
+      const path = [[0, 3], [1, 1], [2, 3], [3, 1]];
+      for (const [u, v] of path.slice(0, -1)) art += tint(u, v, '#f2c462', 0.55) + dot(u, v);
+      art += wire(path.map(([u, v]) => mid(u, v)));
+      art += piece('n', 3, 1, 88);
+    } else if (kind === 'spotter') {
+      // one square lit up as the coach calls its name, with a sighting ring over it
+      art += tint(2, 2, '#2fd8ff', 0.8);
+      const [x, y] = mid(2, 2);
+      art += E(x, y, 30, 12, 'none', ' stroke="#9af0ff" stroke-width="2.6" filter="url(#glow)"') + E(x, y, 17, 6.8, 'none', ' stroke="#ffe7a8" stroke-width="1.8"');
+      for (const [dx, dy] of [[-40, 0], [40, 0], [0, -16], [0, 16]]) art += '<path d="M' + (x + dx * 0.7) + ' ' + (y + dy * 0.7) + 'L' + (x + dx) + ' ' + (y + dy) + '" stroke="#ffe7a8" stroke-width="2.6" stroke-linecap="round"/>';
+      art += '<text x="100" y="86" text-anchor="middle" font-family="Cinzel, Georgia, \'Times New Roman\', serif" font-size="58" font-weight="700" fill="' + p.gold() + '" stroke="#5a3410" stroke-width="1.6" filter="url(#lift)">e4</text>';
+    } else if (kind === 'pawns') {
+      // two pawns racing up the board, the gold one a step ahead, with its trail
+      art += '<path d="M' + pt(0, 0) + 'L' + pt(4, 0) + '" stroke="#ffe7a8" stroke-width="3.4" stroke-linecap="round" filter="url(#glow)"/>';
+      art += wire([mid(0.6, 3.4), mid(0.6, 1.1)]) + wire([mid(3.2, 3.6), mid(3.2, 1.9)], '#e9b8c8');
+      art += piece('p', 3.2, 1.9, 62, ebony) + piece('p', 0.6, 1.1, 76);
+    } else if (kind === 'queen') {
+      // the queen's safe road across, with the guarded squares glowing red
+      for (const [u, v] of [[1, 2], [2, 2], [2, 1], [3, 2]]) art += tint(u, v, '#ff4a40', 0.6);
+      art += wire([mid(0, 3), mid(0, 1), mid(1, 0), mid(3, 0)]);
+      art += piece('b', 3, 3, 56, ebony) + piece('q', 0, 3, 94);
+    } else if (kind === 'memory') {
+      // a position half remembered: one piece in gold, the others still ghosts of light
+      const ghost = ' opacity=".55" style="filter:brightness(2.2) saturate(0) blur(.4px)"';
+      art += piece('b', 2.2, 0.6, 66, ghost) + piece('n', 3, 2.2, 62, ghost) + piece('r', 1, 2, 80);
+      const ex = 140, ey = 50;
+      art += '<g filter="url(#lift)">' + P('M' + (ex - 30) + ' ' + ey + ' Q' + ex + ' ' + (ey - 25) + ' ' + (ex + 30) + ' ' + ey + ' Q' + ex + ' ' + (ey + 25) + ' ' + (ex - 30) + ' ' + ey + 'Z', p.gold(), ol('#c08a36', 1.2)) +
+        C(ex, ey, 10.5, p.rad([[0, '#d6c4ff'], [0.6, '#6a4ab8'], [1, '#2a1a5a']], 0.35, 0.3, 0.8)) + C(ex, ey, 4.2, '#12082a') + E(ex - 3.5, ey - 3.5, 3, 1.8, '#fff', ' opacity=".85"') + '</g>';
+    } else if (kind === 'rush') {
+      // the king in checkmate, ringed in red, under a stopwatch's sweep and a bolt of lightning
+      let ticks = '';
+      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; ticks += 'M' + (100 + Math.cos(a) * 70).toFixed(1) + ' ' + (100 + Math.sin(a) * 70).toFixed(1) + 'L' + (100 + Math.cos(a) * 78).toFixed(1) + ' ' + (100 + Math.sin(a) * 78).toFixed(1); }
+      art += '<path d="' + ticks + '" stroke="#ffe7a8" stroke-width="3" stroke-linecap="round" opacity=".8"/>';
+      art += '<path d="M100 100 L' + (100 + Math.cos(-1.2) * 66).toFixed(1) + ' ' + (100 + Math.sin(-1.2) * 66).toFixed(1) + '" stroke="#ffe7a8" stroke-width="3" stroke-linecap="round" filter="url(#glow)"/>';
+      const [x, y] = mid(1.5, 1.5);
+      art += E(x, y, 30, 12, p.rad([[0, '#ff4a40', 0.85], [1, '#ff4a40', 0]], 0.5, 0.5, 0.5)) + piece('k', 1.5, 1.5, 96);
+      art += P('M146 54 L126 88 L140 88 L130 120 L160 80 L145 80 L156 54Z', p.gold(), ol('#c08a36', 1.2) + ' filter="url(#lift)"');
+    }
+    const out = ring(p, 97) + '<g clip-path="url(#inner)">' + field(p, 87, o.from || '#a3294f', o.to || '#4a0c1e') + board + art +
+      C(100, 100, 87, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
+    return svg(p, '0 0 200 200', out);
+  }
+
   // The Chackmate crest: a gold knight on ruby enamel inside a laurel.
   function crest(o) {
     o = o || {};
@@ -696,6 +771,85 @@ const ChacklateArt = (() => {
     return svg(p, '0 0 200 160', s);
   }
 
+  // ------------------------------------------------------------ the rule book
+  // The rule-book button: a ruby leather book with gold corners, a clasp and the gold knight
+  // tooled on its cover, on an emerald enamel medal in the gold bezel.
+  function ruleBook() {
+    const p = pic();
+    p.raw('soft', SOFT);
+    p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="87"/></clipPath>');
+    const leather = p.lin([[0, '#c4385c'], [0.45, '#8e1f3a'], [1, '#4a0a1c']], 0.1, 0, 0.9, 1);
+    const spine = p.lin([[0, '#3a0614'], [0.5, '#7a1830'], [1, '#3a0614']], 0, 0, 1, 0);
+    const paper = p.lin([[0, '#fbf1da'], [1, '#d8bf92']], 0, 0, 1, 1);
+    const gold = p.gold();
+    let edge = '';
+    for (let i = 0; i < 6; i++) edge += 'M' + (143.5 + i * 1.3) + ' ' + (58 + i * 0.6) + 'V' + (156 - i * 0.6);
+    for (let i = 0; i < 4; i++) edge += 'M' + (66 + i * 0.8) + ' ' + (157 + i * 1.3) + 'H' + (142 + i * 1.1);
+    const corner = (x, y, sx, sy) => P('M' + x + ' ' + y + 'h' + (16 * sx) + 'l' + (-16 * sx) + ' ' + (16 * sy) + 'Z', gold, ' stroke="#6a3e10" stroke-width=".8"');
+    const book =
+      // the page block behind the cover, its edges showing on the right and at the foot
+      '<rect x="62" y="52" width="90" height="112" rx="6" fill="' + paper + '" stroke="#9a7a4a" stroke-width="1"/>' +
+      '<path d="' + edge + '" stroke="#b49866" stroke-width=".7" fill="none"/>' +
+      // the cover and its spine
+      '<rect x="52" y="44" width="92" height="114" rx="7" fill="' + leather + '" stroke="#d6aa58" stroke-width="1.6"/>' +
+      '<rect x="52" y="44" width="15" height="114" rx="6" fill="' + spine + '"/>' +
+      '<path d="M52 62H67M52 66H67M52 136H67M52 140H67" stroke="' + gold + '" stroke-width="1.6"/>' +
+      // a tooled gold frame, corner pieces and the knight
+      '<rect x="74" y="54" width="60" height="94" rx="4" fill="none" stroke="' + gold + '" stroke-width="1.5"/>' +
+      '<rect x="78" y="58" width="52" height="86" rx="3" fill="none" stroke="#f0cf7e" stroke-opacity=".45" stroke-width=".7"/>' +
+      corner(144, 44, -1, 1) + corner(144, 158, -1, -1) +
+      '<g transform="translate(78 70) scale(.52)">' + P(PIECE.n, gold, ' stroke="#4a2008" stroke-width="2.4" stroke-linejoin="round"') + C(PIECE_EYE.n[0], PIECE_EYE.n[1], PIECE_EYE.n[2] * 1.4, '#4a1a08') + '</g>' +
+      '<path d="M88 132H120" stroke="' + gold + '" stroke-width="1.4"/><circle cx="104" cy="132" r="2.4" fill="' + gold + '"/>' +
+      // the clasp and the ribbon marker
+      '<rect x="136" y="92" width="16" height="20" rx="4" fill="' + gold + '" stroke="#6a3e10" stroke-width="1"/>' + C(146, 102, 2.6, '#6a3e10') +
+      P('M110 158V178L115 172L120 178V158Z', p.lin([[0, '#3f8f86'], [1, '#174a44']], 0, 0, 1, 1), ' stroke="#d6aa58" stroke-width=".8"') +
+      // a soft sheen across the leather
+      P('M56 50Q98 42 140 50V78Q98 66 56 82Z', '#fff', ' opacity=".08"');
+    const out = ring(p, 97) + '<g clip-path="url(#inner)">' + field(p, 87, '#1f6a54', '#06261d') +
+      E(102, 168, 50, 7, 'rgba(0,0,0,.5)', ' filter="url(#soft)"') + '<g filter="url(#lift)" transform="rotate(-8 100 104)">' + book + '</g>' +
+      C(100, 100, 87, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
+    return svg(p, '0 0 200 200', out);
+  }
+
+  // A small board picture for the rule book: part of a board, its pieces (ivory and ebony),
+  // arrows and glowing squares. o: { fen, files: [from, to], ranks: [from, to], arrows: [[a, b]], marks: [sq] }
+  function diagram(o) {
+    const p = pic();
+    const S = 24, f0 = o.files[0], f1 = o.files[1], r0 = o.ranks[0], r1 = o.ranks[1];
+    const W = (f1 - f0 + 1) * S, H = (r1 - r0 + 1) * S, pad = 5;
+    const X = (f) => pad + (f - f0) * S, Y = (r) => pad + (r1 - r) * S;
+    const at = (n) => [n.charCodeAt(0) - 97, n.charCodeAt(1) - 49];
+    let s = '<rect x="0.5" y="0.5" width="' + (W + pad * 2 - 1) + '" height="' + (H + pad * 2 - 1) + '" rx="5" fill="' + p.lin([[0, '#5a3418'], [1, '#2a1408']], 0, 0, 1, 1) + '" stroke="#d6aa58" stroke-width="1"/>';
+    for (let r = r0; r <= r1; r++) for (let f = f0; f <= f1; f++) s += '<rect x="' + X(f) + '" y="' + Y(r) + '" width="' + S + '" height="' + S + '" fill="' + ((f + r) % 2 ? '#ecd6ae' : '#a8743f') + '"/>';
+    for (const m of o.marks || []) { const [f, r] = at(m); s += '<rect x="' + (X(f) + 1.5) + '" y="' + (Y(r) + 1.5) + '" width="' + (S - 3) + '" height="' + (S - 3) + '" rx="3" fill="#ffd36a" fill-opacity=".35" stroke="#ffcf5a" stroke-width="2"/>'; }
+    const rows = o.fen.split(' ')[0].split('/');
+    rows.forEach((row, i) => {
+      let f = 0;
+      for (const ch of row) {
+        if (/\d/.test(ch)) { f += +ch; continue; }
+        const r = 7 - i;
+        if (f >= f0 && f <= f1 && r >= r0 && r <= r1) {
+          const white = ch === ch.toUpperCase(), t = ch.toLowerCase();
+          s += '<g transform="translate(' + (X(f) - S * 0.14) + ' ' + (Y(r) - S * 0.2) + ') scale(' + (S * 1.28 / 100) + ')">' +
+            P(PIECE[t], white ? '#f6ecd9' : '#2b1c14', ' stroke="' + (white ? '#5a4630' : '#d9b46a') + '" stroke-width="4" stroke-linejoin="round"') +
+            (PIECE_EYE[t] ? C(PIECE_EYE[t][0], PIECE_EYE[t][1], PIECE_EYE[t][2] * 1.6, white ? '#5a4630' : '#d9b46a') : '') + '</g>';
+        }
+        f++;
+      }
+    });
+    // an arrow's third value bends it (in squares, up the board), so two arrows on one rank don't overlap
+    for (const [a, b, bend] of o.arrows || []) {
+      const [fa, ra] = at(a), [fb, rb] = at(b);
+      const x1 = X(fa) + S / 2, y1 = Y(ra) + S / 2, x2 = X(fb) + S / 2, y2 = Y(rb) + S / 2;
+      const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2 - (bend || 0) * S * 2;
+      const len = Math.hypot(x2 - cx, y2 - cy), ux = (x2 - cx) / len, uy = (y2 - cy) / len;
+      const ex = x2 - ux * 7, ey = y2 - uy * 7;
+      s += '<path d="M' + x1 + ' ' + y1 + 'Q' + cx + ' ' + cy + ' ' + ex.toFixed(1) + ' ' + ey.toFixed(1) + '" fill="none" stroke="#2fb8e8" stroke-width="4" stroke-linecap="round" opacity=".9"/>' +
+        '<path d="M' + x2 + ' ' + y2 + 'L' + (ex - uy * 6).toFixed(1) + ' ' + (ey + ux * 6).toFixed(1) + 'L' + (ex + uy * 6).toFixed(1) + ' ' + (ey - ux * 6).toFixed(1) + 'Z" fill="#2fb8e8" opacity=".95"/>';
+    }
+    return svg(p, '0 0 ' + (W + pad * 2) + ' ' + (H + pad * 2), s);
+  }
+
   // ------------------------------------------------------------ public API
   const cache = new Map();
   const memo = (key, make) => { if (!cache.has(key)) cache.set(key, uri(make())); return cache.get(key); };
@@ -706,11 +860,14 @@ const ChacklateArt = (() => {
     portraitUri: (animal, o) => memo('p' + animal + JSON.stringify(o || {}), () => portrait(animal, o)),
     medalUri: (art, o) => memo('m' + art + JSON.stringify(o || {}), () => medal(art, o)),
     crestUri: () => memo('crest', () => crest()),
+    miniUri: (kind, o) => memo('mini' + kind + JSON.stringify(o || {}), () => miniMedal(kind, o)),
     // an era's own painted view (as seen from its room's window) where the build has it
     bannerUri: (id, o) => ART_IMG.view[id] || memo('b' + id + JSON.stringify(o || {}), () => banner(id, o)),
     pieceUri: (type, o) => memo('s' + type + JSON.stringify(o || {}), () => pieceSvg(type, o)),
     fxUri: (kind, colors) => memo('f' + kind + (colors || []).join(), () => fx(kind, colors)),
     clockUri: (d) => memo('c' + JSON.stringify(d || {}), () => clock(d)),
+    ruleBookUri: () => memo('rulebook', () => ruleBook()),
+    diagramUri: (o) => memo('d' + JSON.stringify(o), () => diagram(o)),
     mix, lit, dim,
   };
 })();
