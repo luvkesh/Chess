@@ -77,6 +77,7 @@ function ChacklateProgress(catalog, extras) {
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
       coins: 0, earned: { date: '', by: {}, n: {} }, bought: [],
       granted: {},   // items handed out by developer mode, on this device only
+      mini: { best: {}, plays: {}, day: { date: '', best: {} }, seen: [] },
     };
   }
   function migrate(s) {
@@ -92,6 +93,7 @@ function ChacklateProgress(catalog, extras) {
     out.coins = Math.max(0, Math.floor(+s.coins || 0));
     out.earned = Object.assign(f.earned, s.earned || {});
     out.bought = Array.isArray(s.bought) ? s.bought.slice() : [];
+    out.mini = Object.assign(f.mini, s.mini || {});
     return out;
   }
 
@@ -410,6 +412,31 @@ function ChacklateProgress(catalog, extras) {
   }
   const PG_today = (now) => today(now ? new Date(now) : undefined);
 
+  // ------------------------------------------------------------ mini-games
+  // A finished round of a mini-game: its best score, today's best and its coins (COINS.mini:
+  // a round that scores pays, up to a cap a day from each game). Mini-games never change a rating,
+  // and count toward the mini-game missions.
+  function miniFinished(state, id, score, now) {
+    const out = result();
+    const m = state.mini, d = PG_today(now);
+    if (m.day.date !== d) m.day = { date: d, best: {} };
+    out.newBest = score > (m.best[id] || 0) && (m.plays[id] || 0) > 0;
+    out.newDailyBest = score > (m.day.best[id] || 0) && m.day.best[id] !== undefined;
+    m.best[id] = Math.max(m.best[id] || 0, score);
+    m.day.best[id] = Math.max(m.day.best[id] || 0, score);
+    m.plays[id] = (m.plays[id] || 0) + 1;
+    out.paid = score > 0 ? earn(state, 'mini:' + id, COINS.mini.amount, { cap: COINS.mini.cap, now }, out) : 0;
+    out.capped = score > 0 && !out.paid;
+    track(state, 'mini', 1, now, out);
+    touchStreak(state, now ? new Date(now) : undefined, out);
+    return out;
+  }
+  // Today's best and the coins a game has paid today.
+  function miniToday(state, id, now) {
+    const d = PG_today(now), day = state.mini.day, e = state.earned || {};
+    return { best: day.date === d ? day.best[id] : undefined, earned: e.date === d ? (e.by || {})['mini:' + id] || 0 : 0 };
+  }
+
   function isUnlocked(state, item) {
     const u = item.unlock;
     if (u.type === 'free' || (state.granted && state.granted[item.id])) return true;
@@ -463,7 +490,7 @@ function ChacklateProgress(catalog, extras) {
 
   return { COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
     ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
-    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage };
+    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateProgress;

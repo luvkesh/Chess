@@ -27,6 +27,7 @@ SCRIPTS = [
     src / 'net.js',
     src / 'relay.js',
     src / 'tips.js',
+    src / 'minigames.js',
     src / 'rules.js',
     src / 'app.js',
 ]

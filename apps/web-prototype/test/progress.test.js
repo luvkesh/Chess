@@ -137,6 +137,7 @@ const doEvent = (ev) => {
   if (ev === 'drill') return PS.openingFinished(s, 'opening.a', true, day(4));
   if (ev === 'dojo') return PS.dojoFinished(s, eg, true, 5, day(4));
   if (ev === 'review') return PS.reviewFinished(s, { summary: { accuracy: { 0: 80 } }, plies: [] }, 0, 30, day(4));
+  if (ev === 'mini') return PS.miniFinished(s, 'tour', 40, day(4));
 };
 let bonus = 0, done = [];
 for (let k = 0; k < 10 && !s.missions.list.every((x) => x.done); k++) for (const t of todays) { const o = doEvent(t.event); if (o) { done.push(...o.missions.map((x) => x.id)); if (o.missionsAll) bonus++; } }
@@ -258,4 +259,28 @@ assert(mig.coins === 0 && Array.isArray(mig.bought) && mig.earned.by);
   assert(PG.isUnlocked(PG.migrate(JSON.parse(JSON.stringify(g))), item));
   assert.deepStrictEqual(PG.migrate({ v: 1 }).granted, {});
 }
+
+// Mini-games: best and daily best, a capped reward per game per day, a mission event, and no rating.
+{
+  const t = PS.fresh();
+  const before = JSON.stringify(t.stats);
+  const first = PS.miniFinished(t, 'rush', 30, day(9));
+  assert.strictEqual(first.paid, 10);
+  assert(!first.newBest, 'the first round is not called a new best');
+  assert(PS.miniFinished(t, 'rush', 50, day(9)).newBest);
+  assert.strictEqual(PS.miniFinished(t, 'rush', 0, day(9)).paid, 0, 'a round that scores nothing pays nothing');
+  let paid = 0;
+  for (let k = 0; k < 8; k++) paid += PS.miniFinished(t, 'rush', 20, day(9)).paid;
+  assert.strictEqual(paid + 20, 50, 'capped at 50 coins a day from one game');
+  assert.strictEqual(PS.miniFinished(t, 'tour', 20, day(9)).paid, 10, 'each game has its own cap');
+  assert.deepStrictEqual(PS.miniToday(t, 'rush', day(9)), { best: 50, earned: 50 });
+  assert.strictEqual(PS.miniFinished(t, 'rush', 10, day(10)).paid, 10, 'the cap starts again the next day');
+  assert.deepStrictEqual(PS.miniToday(t, 'rush', day(10)), { best: 10, earned: 10 });
+  assert.strictEqual(t.mini.best.rush, 50);
+  assert.strictEqual(JSON.stringify(t.stats), before, 'mini-games never change a rating or game stats');
+  assert(t.coins >= 70, 'the coins land in the purse');
+  assert(missions.missions.some((m) => m.event === 'mini'), 'there is a mini-game mission');
+  assert.deepStrictEqual(PG.migrate({ v: 1, xp: 5 }).mini.best, {}, 'old saves get empty mini-game records');
+}
+
 console.log('progress ok');

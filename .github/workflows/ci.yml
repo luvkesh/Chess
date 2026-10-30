@@ -45,6 +45,8 @@ jobs:
         run: node apps/web-prototype/test/tips.test.js
       - name: Catalog looks exist in the 3D code
         run: node apps/web-prototype/test/looks.test.js
+      - name: Mini-games can be won
+        run: node apps/web-prototype/test/minigames.test.js
       - name: Rule book follows the position
         run: node apps/web-prototype/test/rules.test.js
       - name: Build single-file game
