@@ -3677,8 +3677,8 @@
     const T = { path: [start], hint: -1, busy: false };
     const cur = () => T.path[T.path.length - 1];
     const moves = () => MINI.tourMoves(cur(), T.path, size);
-    H.eyebrow('Knight\'s Tour · ' + size + ' × ' + size); H.title('Visit every square once');
-    H.body('<p class="say">Tap a glowing square to jump. Plan ahead: squares near the edge are the hardest to reach later.</p>');
+    H.eyebrow(t('minis.tour.eyebrow', { n: size })); H.title(t('minis.tour.title'));
+    H.body('<p class="say">' + t('minis.tour.say') + '</p>');
     H.side('white');
     function draw() {
       const marks = [];
@@ -3686,7 +3686,7 @@
       T.path.slice(0, -1).forEach((sq) => marks.push({ sq, color: '#f2c462', alpha: 0.55 }));
       view.setBoard([[cur(), 2]], null);
       view.setHighlights({ marks, selected: cur(), targets: moves(), spots: T.hint >= 0 ? [{ sq: T.hint }] : [] });
-      H.stats([['Squares', T.path.length + ' / ' + all], ['Score', MINI.tourScore(T.path.length, size, S.used)]]);
+      H.stats([[t('minis.st.squares'), T.path.length + ' / ' + all], [t('minis.st.score'), MINI.tourScore(T.path.length, size, S.used)]]);
     }
     function jump(sq, animate) {
       if (T.busy || !moves().includes(sq)) return false;
@@ -3695,18 +3695,18 @@
       const after = () => {
         T.busy = false; draw();
         AU.play('move');
-        if (T.path.length === all) { H.fb('ok', 'The whole board! A perfect tour.'); H.finish(MINI.tourScore(all, size, S.used), { title: 'Tour complete!', line: 'Your knight visited all ' + all + ' squares.' }); }
-        else if (!moves().length) { H.fb('bad', 'No more jumps from here. You visited ' + T.path.length + ' squares.'); H.finish(MINI.tourScore(T.path.length, size, S.used), { won: T.path.length > all / 2, title: T.path.length + ' squares', line: 'Stuck! Next time, try the square with the fewest ways out.' }); }
+        if (T.path.length === all) { H.fb('ok', t('minis.tour.whole')); H.finish(MINI.tourScore(all, size, S.used), { title: t('minis.tour.done'), line: t('minis.tour.doneLine', { n: all }) }); }
+        else if (!moves().length) { H.fb('bad', t('minis.tour.stuck', { n: T.path.length })); H.finish(MINI.tourScore(T.path.length, size, S.used), { won: T.path.length > all / 2, title: t('minis.tour.squares', { n: T.path.length }), line: t('minis.tour.stuckLine') }); }
         else H.fb('', '');
       };
       if (animate) { T.busy = true; quickMove({ from, to: sq, capturedSq: -1, mover: 2 }, after); } else after();
       return true;
     }
-    H.tools([['hint', 'hint', 'Hint', () => { S.used.hints++; T.hint = MINI.tourHint(cur(), T.path, size); H.fb('hint', 'Try the square with the fewest ways out after it.'); draw(); AU.play('coach'); }],
-      ['undo', 'undo', 'Undo', () => { if (T.path.length > 1 && !T.busy) { T.path.pop(); S.used.undos++; T.hint = -1; draw(); } }]]);
+    H.tools([['hint', 'hint', t('minis.hint'), () => { S.used.hints++; T.hint = MINI.tourHint(cur(), T.path, size); H.fb('hint', t('minis.tour.hint')); draw(); AU.play('coach'); }],
+      ['undo', 'undo', t('minis.undo'), () => { if (T.path.length > 1 && !T.busy) { T.path.pop(); S.used.undos++; T.hint = -1; draw(); } }]]);
     draw();
     return {
-      onSquare(sq) { if (!jump(sq, true) && sq !== cur()) { AU.play('illegal'); H.fb('bad', 'A knight cannot jump there. Try a glowing square.'); } },
+      onSquare(sq) { if (!jump(sq, true) && sq !== cur()) { AU.play('illegal'); H.fb('bad', t('minis.tour.cannot')); } },
       canDrag: (sq) => sq === cur() && !T.busy,
       onDrop: (f, tq) => jump(tq, false),
     };
@@ -3715,19 +3715,19 @@
   MINI_PLAY.spotter = function (H, level, S, seed) {
     const rounds = MINI.spotterRounds(seed);
     const T = { i: -1, lives: MINI.SPOT_LIVES, score: 0, left: 0, limit: 1, live: false };
-    H.eyebrow('Square Spotter'); H.title('Find the square');
+    H.eyebrow(t('minis.spot.eyebrow')); H.title(t('minis.spot.title'));
     view.setBoard([], null);
-    const stats = () => H.stats([['Round', Math.min(T.i + 1, MINI.SPOT_ROUNDS) + ' / ' + MINI.SPOT_ROUNDS], ['Lives', '♥'.repeat(T.lives) + '<span class="off">' + '♥'.repeat(MINI.SPOT_LIVES - T.lives) + '</span>'], ['Score', T.score]]);
+    const stats = () => H.stats([[t('minis.st.round'), Math.min(T.i + 1, MINI.SPOT_ROUNDS) + ' / ' + MINI.SPOT_ROUNDS], [t('minis.st.lives'), '♥'.repeat(T.lives) + '<span class="off">' + '♥'.repeat(MINI.SPOT_LIVES - T.lives) + '</span>'], [t('minis.st.score'), T.score]]);
     function next() {
       T.i++;
       if (T.i >= MINI.SPOT_ROUNDS || T.lives <= 0) {
-        H.finish(T.score, { won: T.lives > 0, title: T.lives > 0 ? 'All ' + MINI.SPOT_ROUNDS + ' squares!' : T.score + ' points', line: T.lives > 0 ? 'You know your way around the board.' : 'Out of lives. The board names get easier every time you play.' });
+        H.finish(T.score, { won: T.lives > 0, title: T.lives > 0 ? t('minis.spot.all', { n: MINI.SPOT_ROUNDS }) : t('minis.spot.points', { n: T.score }), line: T.lives > 0 ? t('minis.spot.know') : t('minis.spot.out') });
         return;
       }
       const side = T.i % 2 ? 'black' : 'white';
       H.side(side);
       view.setHighlights({});
-      H.body('<p class="say">Playing as ' + side + '. Tap:</p><p class="mini-call">' + MINI.name(rounds[T.i]) + '</p>');
+      H.body('<p class="say">' + t('minis.spot.' + side) + '</p><p class="mini-call">' + MINI.name(rounds[T.i]) + '</p>');
       H.timer(1); H.fb('', '');
       T.limit = MINI.spotTime(level, T.i); T.left = T.limit; T.live = false;
       stats();
@@ -3740,22 +3740,22 @@
       view.setHighlights({ spots: [{ sq: rounds[T.i], color: '#2fd8ff' }].concat(tapped >= 0 ? [{ sq: tapped, color: '#ff4a40', pulse: false }] : []) });
       stats(); H.later(next, 1300);
     }
-    H.body('<p class="say">Get ready…</p>');
+    H.body('<p class="say">' + t('minis.ready') + '</p>');
     H.later(next, 400);
     return {
       tick(dt) {
         if (!T.live) return;
         T.left -= dt; H.timer(T.left / T.limit);
-        if (T.left <= 0) miss('Time! ' + MINI.name(rounds[T.i]) + ' is the glowing square.', -1);
+        if (T.left <= 0) miss(t('minis.spot.time', { sq: MINI.name(rounds[T.i]) }), -1);
       },
       onSquare(sq) {
         if (!T.live) return;
         if (sq === rounds[T.i]) {
           T.live = false; T.score += MINI.spotPoints(T.left, T.limit);
-          AU.play('correct'); H.fb('ok', 'Yes! That is ' + MINI.name(sq) + '.');
+          AU.play('correct'); H.fb('ok', t('minis.spot.yes', { sq: MINI.name(sq) }));
           view.setHighlights({ spots: [{ sq, color: '#3ee07a', pulse: false }] });
           stats(); H.later(next, 650);
-        } else miss('That is ' + MINI.name(sq) + '. ' + MINI.name(rounds[T.i]) + ' is the glowing one.', sq);
+        } else miss(t('minis.spot.miss', { sq: MINI.name(sq), want: MINI.name(rounds[T.i]) }), sq);
       },
     };
   };
@@ -3763,22 +3763,22 @@
   MINI_PLAY.pawns = function (H, level, S) {
     const lv = MINI.PAWN_START[level] ? level : 'break';
     const T = { st: MINI.PAWN_START[lv](), sel: -1, busy: false, mine: 0, last: null };
-    H.eyebrow(lv === 'break' ? 'Pawn Race · Breakthrough' : 'Pawn Race · Pawn war'); H.title('First to the far side wins');
-    H.body('<p class="say">' + (lv === 'break' ? 'Three pawns each. Black looks safe, but there is a way through. Can you find it?' : 'All sixteen pawns. Make a pawn that nobody can stop.') + '</p>');
+    H.eyebrow(t(lv === 'break' ? 'minis.pawns.break' : 'minis.pawns.war')); H.title(t('minis.pawns.title'));
+    H.body('<p class="say">' + t(lv === 'break' ? 'minis.pawns.sayBreak' : 'minis.pawns.sayWar') + '</p>');
     H.side('white');
     const pieces = () => T.st.w.map((s) => [s, 1]).concat(T.st.b.map((s) => [s, -1]));
     function draw() {
       view.setBoard(pieces(), null);
       const tg = T.sel >= 0 ? MINI.pawnMoves(T.st).filter((m) => m.from === T.sel) : [];
       view.setHighlights({ lastFrom: T.last ? T.last.from : -1, lastTo: T.last ? T.last.to : -1, selected: T.sel, targets: tg.filter((m) => m.cap === undefined).map((m) => m.to), captures: tg.filter((m) => m.cap !== undefined).map((m) => m.to) });
-      H.stats([['Your moves', T.mine], ['Pawns', T.st.w.length + ' v ' + T.st.b.length]]);
+      H.stats([[t('minis.st.yourMoves'), T.mine], [t('minis.st.pawns'), t('minis.st.vs', { a: T.st.w.length, b: T.st.b.length })]]);
     }
     function over() {
       const r = MINI.pawnResult(T.st);
       if (r === null) return false;
       const score = Math.max(0, MINI.pawnScore(r, T.mine) - S.used.hints * 10);
-      H.fb(r === 1 ? 'ok' : 'bad', r === 1 ? 'Your pawn made it! A new queen.' : r === -1 ? 'Black got there first.' : 'Nobody can move: a draw.');
-      H.finish(score, { won: r === 1, title: r === 1 ? 'You broke through!' : r === 0 ? 'A draw' : 'Black won the race', line: r === 1 ? 'Won in ' + T.mine + ' moves.' : lv === 'break' ? 'Tip: a pawn sacrifice in the middle opens the way.' : 'Tip: count who reaches the far side first before you race.' });
+      H.fb(r === 1 ? 'ok' : 'bad', t(r === 1 ? 'minis.pawns.made' : r === -1 ? 'minis.pawns.first' : 'minis.pawns.stuck'));
+      H.finish(score, { won: r === 1, title: t(r === 1 ? 'minis.pawns.won' : r === 0 ? 'minis.pawns.draw' : 'minis.pawns.lost'), line: r === 1 ? t('minis.pawns.wonLine', { n: T.mine }) : t(lv === 'break' ? 'minis.pawns.tipBreak' : 'minis.pawns.tipWar') });
       return true;
     }
     function play(m, animate, then) {
@@ -3794,7 +3794,7 @@
       play(m, animate, () => { T.busy = true; H.later(() => { T.busy = false; play(MINI.pawnBest(T.st, lv === 'war' ? 3 : undefined), true); }, 450); });
       return true;
     }
-    H.tools([['hint', 'hint', 'Hint', () => { if (T.busy || T.st.side !== 1) return; S.used.hints++; const b = MINI.pawnBest(T.st); view.setArrows([{ from: b.from, to: b.to, color: '#2fd8ff' }]); H.fb('hint', 'Rooky would play ' + MINI.name(b.from) + ' to ' + MINI.name(b.to) + '.'); AU.play('coach'); }]]);
+    H.tools([['hint', 'hint', t('minis.hint'), () => { if (T.busy || T.st.side !== 1) return; S.used.hints++; const b = MINI.pawnBest(T.st); view.setArrows([{ from: b.from, to: b.to, color: '#2fd8ff' }]); H.fb('hint', t('minis.pawns.hint', { from: MINI.name(b.from), to: MINI.name(b.to) })); AU.play('coach'); }]]);
     draw();
     return {
       onSquare(sq) {
@@ -3811,7 +3811,7 @@
   // Queen's path: five boards; a guarded square refuses the queen and shows who guards it.
   MINI_PLAY.queen = function (H, level, S, seed) {
     const T = { k: -1, b: null, q: 0, moves: 0, bumps: 0, total: 0, busy: false, peek: false };
-    H.eyebrow('Queen\'s Path'); H.title('Cross without stopping on a guarded square');
+    H.eyebrow(t('minis.queen.eyebrow')); H.title(t('minis.queen.title'));
     H.side('white');
     function draw() {
       const goal = [56, 57, 58, 59, 60, 61, 62, 63].map((sq) => ({ sq, color: '#f2c462', alpha: 0.32 }));
@@ -3819,13 +3819,13 @@
       const peek = T.peek ? [...att.keys()].map((sq) => ({ sq, color: '#ff4a40', alpha: 0.42 })) : [];
       view.setBoard([[T.q, 5]].concat(T.b.guards.map(([sq, p]) => [sq, -p])), null);
       view.setHighlights({ marks: goal.concat(peek), selected: T.q, targets: T.busy ? [] : MINI.queenMoves(T.q, T.b.guards) });
-      H.stats([['Board', (T.k + 1) + ' / ' + MINI.QUEEN_BOARDS], ['Moves', T.moves + ' (best ' + T.b.par + ')'], ['Score', T.total]]);
+      H.stats([[t('minis.st.board'), (T.k + 1) + ' / ' + MINI.QUEEN_BOARDS], [t('minis.st.moves'), t('minis.st.movesBest', { n: T.moves, par: T.b.par })], [t('minis.st.score'), T.total]]);
     }
     function nextBoard() {
       T.k++;
-      if (T.k >= MINI.QUEEN_BOARDS) { H.finish(T.total, { title: 'Safe across five times!', line: T.total + ' points. Fewer moves and no bumps score the most.' }); return; }
+      if (T.k >= MINI.QUEEN_BOARDS) { H.finish(T.total, { title: t('minis.queen.done'), line: t('minis.queen.doneLine', { n: T.total }) }); return; }
       T.b = MINI.queenBoard(seed + T.k * 7919, level); T.q = T.b.queen; T.moves = 0; T.bumps = 0; T.peek = false;
-      H.body('<p class="say">Reach any gold square on the far row. You can do it in ' + T.b.par + ' moves.</p>');
+      H.body('<p class="say">' + t('minis.queen.say', { n: T.b.par }) + '</p>');
       H.fb('', ''); view.setArrows([]);
       draw();
     }
@@ -3834,9 +3834,9 @@
       const by = MINI.guardAttacks(T.b.guards).get(to);
       if (by) {
         T.bumps++; AU.play('wrong');
-        const names = { 1: 'pawn', 2: 'knight', 3: 'bishop', 4: 'rook', 6: 'king' };
+        const names = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 6: 'k' };
         const g0 = T.b.guards.find(([sq]) => sq === by[0]);
-        H.fb('bad', MINI.name(to) + ' is guarded by the ' + names[g0[1]] + ' on ' + MINI.name(by[0]) + '. Pick another square.');
+        H.fb('bad', t('minis.queen.guarded', { sq: MINI.name(to), piece: PIECE_NAME[names[g0[1]]].toLowerCase(), from: MINI.name(by[0]) }));
         view.setArrows(by.map((f) => ({ from: f, to, color: '#ff4a40' })));
         view.setHighlights({ spots: [{ sq: to, color: '#ff4a40', pulse: false }], selected: T.q, targets: MINI.queenMoves(T.q, T.b.guards) });
         H.later(() => { view.setArrows([]); draw(); }, 1800);
@@ -3849,14 +3849,14 @@
         if ((to >> 3) === 7) {
           const pts = MINI.queenBoardScore(T.moves, T.b.par, T.bumps + (T.hinted ? 1 : 0));
           T.total += pts; T.hinted = false;
-          AU.play('correct'); H.fb('ok', (T.moves <= T.b.par ? 'Perfect, in ' + T.moves + '!' : 'Across in ' + T.moves + ' moves.') + ' +' + pts);
+          AU.play('correct'); H.fb('ok', t(T.moves <= T.b.par ? 'minis.queen.perfect' : 'minis.queen.across', { n: T.moves }) + ' +' + pts);
           T.busy = true; H.later(() => { T.busy = false; nextBoard(); }, 1100);
         }
       };
       if (animate) { T.busy = true; quickMove({ from, to, capturedSq: -1, mover: 5 }, after); } else after();
       return true;
     }
-    H.tools([['hint', 'eye', 'Show guards', () => { T.peek = true; T.hinted = true; S.used.hints++; draw(); H.later(() => { T.peek = false; draw(); }, 2500); }]]);
+    H.tools([['hint', 'eye', t('minis.queen.show'), () => { T.peek = true; T.hinted = true; S.used.hints++; draw(); H.later(() => { T.peek = false; draw(); }, 2500); }]]);
     nextBoard();
     return {
       onSquare(sq) { if (sq !== T.q) go2(sq, true); },
@@ -3870,22 +3870,22 @@
     const T = { k: -1, want: [], placed: new Map(), pick: 0, phase: 'look', left: 0, total: 0 };
     const KINDS = [6, 5, 4, 3, 2, 1];
     const ink = (p) => p > 0 ? { fill: '#f4ead6', stroke: '#7a5a3a' } : { fill: '#2a1d18', stroke: '#d8b56a', ink: '#d8b56a' };
-    H.eyebrow('Memory Board'); H.title('Remember the position');
+    H.eyebrow(t('minis.mem.eyebrow')); H.title(t('minis.mem.title'));
     H.side('white');
-    const stats = () => H.stats([['Position', (T.k + 1) + ' / ' + sizes.length], ['Pieces', sizes[T.k]], ['Score', T.total]]);
+    const stats = () => H.stats([[t('minis.st.position'), (T.k + 1) + ' / ' + sizes.length], [t('minis.st.pieces'), sizes[T.k]], [t('minis.st.score'), T.total]]);
     const placedList = () => [...T.placed.entries()];
     function tray() {
-      H.body('<p class="say">Pick a piece, then tap its square. Tap a piece on the board to take it off.</p><div class="mini-tray">' +
-        [1, -1].map((c) => KINDS.map((k) => '<button class="' + (T.pick === k * c ? 'on' : '') + '" data-pc="' + k * c + '" aria-label="' + (c > 0 ? 'White ' : 'Black ') + PIECE_NAME[TYPE[k]].toLowerCase() + '"><img src="' + ART.pieceUri(TYPE[k], ink(c)) + '" alt=""></button>').join('')).join('') + '</div>');
+      H.body('<p class="say">' + t('minis.mem.place') + '</p><div class="mini-tray">' +
+        [1, -1].map((c) => KINDS.map((k) => '<button class="' + (T.pick === k * c ? 'on' : '') + '" data-pc="' + k * c + '" aria-label="' + t(c > 0 ? 'play.capWhite' : 'play.capBlack', { piece: PIECE_NAME[TYPE[k]].toLowerCase() }) + '"><img src="' + ART.pieceUri(TYPE[k], ink(c)) + '" alt=""></button>').join('')).join('') + '</div>');
       document.querySelectorAll('[data-pc]').forEach((b) => { b.onclick = () => { T.pick = +b.dataset.pc; AU.play('select'); tray(); }; });
     }
     function next() {
       T.k++;
-      if (T.k >= sizes.length) { H.finish(T.total, { title: 'What a memory!', line: T.total + ' points from ' + sizes.length + ' positions.' }); return; }
+      if (T.k >= sizes.length) { H.finish(T.total, { title: t('minis.mem.done'), line: t('minis.mem.doneLine', { n: T.total, of: sizes.length }) }); return; }
       T.want = MINI.memoryPosition(seed + T.k * 104729, sizes[T.k]); T.placed = new Map(); T.pick = 0;
       T.phase = 'look'; T.left = MINI.MEMORY_SECONDS;
       view.setBoard(T.want, null); view.setHighlights({});
-      H.body('<p class="say">Look closely! Remember where every piece stands.</p>'); H.fb('', ''); H.timer(1); H.main(null);
+      H.body('<p class="say">' + t('minis.mem.look') + '</p>'); H.fb('', ''); H.timer(1); H.main(null);
       stats();
     }
     function build() {
@@ -3893,7 +3893,7 @@
       view.setBoard([], null);
       AU.play('tick');
       tray();
-      H.main('Check', check);
+      H.main(t('minis.mem.check'), check);
     }
     function check() {
       T.phase = 'checked';
@@ -3904,10 +3904,10 @@
       view.setHighlights({ marks: got.map(([sq, p]) => ({ sq, color: right.has(sq + ':' + p) ? '#3ee07a' : '#ff4a40', alpha: 0.5 })),
         spots: T.want.filter((x) => !got.some((y) => y[0] === x[0] && y[1] === x[1])).map(([sq]) => ({ sq, color: '#2fd8ff', pulse: false })) });
       AU.play(c.perfect ? 'correct' : 'tap');
-      H.body('<p class="say">' + (c.perfect ? 'Perfect! Every piece in its place.' : c.right + ' of ' + T.want.length + ' right. Green is right, red was wrong, and blue shows a piece you missed.') + '</p>');
+      H.body('<p class="say">' + (c.perfect ? t('minis.mem.perfect') : t('minis.mem.right', { n: c.right, of: T.want.length })) + '</p>');
       H.fb(c.perfect ? 'ok' : 'hint', '+' + pts + ' points');
       stats();
-      H.main(T.k + 1 >= sizes.length ? 'Finish' : 'Next position', next);
+      H.main(T.k + 1 >= sizes.length ? t('common.finish') : t('minis.mem.next'), next);
     }
     next();
     return {
@@ -3916,7 +3916,7 @@
         if (T.phase !== 'build') return;
         if (T.placed.has(sq)) T.placed.delete(sq);
         else if (T.pick) T.placed.set(sq, T.pick);
-        else { H.fb('hint', 'First pick a piece from the tray.'); return; }
+        else { H.fb('hint', t('minis.mem.pickFirst')); return; }
         H.fb('', ''); AU.play('move');
         view.setBoard(placedList(), null);
       },
@@ -3926,15 +3926,15 @@
   MINI_PLAY.rush = function (H, level, S, seed) {
     const list = MINI.rng(seed).shuffle(MINI.matePool());
     const T = { i: -1, left: MINI.RUSH_SECONDS, mates: 0, pos: null, sel: -1, live: false };
-    H.eyebrow('Mate Rush'); H.title('Checkmate in one');
-    const stats = () => H.stats([['Mates', T.mates], ['Time', Math.ceil(Math.max(0, T.left)) + 's']]);
+    H.eyebrow(t('minis.rush.eyebrow')); H.title(t('minis.rush.title'));
+    const stats = () => H.stats([[t('minis.st.mates'), T.mates], [t('minis.st.time'), t('minis.st.secs', { n: Math.ceil(Math.max(0, T.left)) })]]);
     function next() {
       T.i++;
       const fen = list[T.i % list.length];
       T.pos = E.positionFrom(fen, []); T.sel = -1; T.live = true;
       H.side(T.pos.side === WHITE ? 'white' : 'black');
       view.setBoard(piecesOf(T.pos), null); view.setHighlights({ check: -1 }); view.setArrows([]);
-      H.body('<p class="say">' + (T.pos.side === WHITE ? 'White' : 'Black') + ' to move. Find the checkmate!</p>');
+      H.body('<p class="say">' + t(T.pos.side === WHITE ? 'minis.rush.white' : 'minis.rush.black') + '</p>');
       stats();
     }
     function tryMove(from, to, promo) {
@@ -3945,13 +3945,13 @@
       const info = g.play(m);
       if (tq.outcome && tq.outcome.reason === 'checkmate') {
         T.mates++; AU.play('check');
-        quickMove(info, () => { view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: kingSquare(g.pos, g.pos.side) }); AU.play('correct'); H.fb('ok', 'Checkmate!'); stats(); H.later(next, 550); });
+        quickMove(info, () => { view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: kingSquare(g.pos, g.pos.side) }); AU.play('correct'); H.fb('ok', t('minis.rush.mate')); stats(); H.later(next, 550); });
       } else {
         AU.play('wrong');
         view.setBoard(piecesOf(T.pos), null);
         const u = MINI.matingMoves(T.pos.fen())[0];
         view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
-        H.fb('bad', 'Not mate. Follow the arrow to see it.');
+        H.fb('bad', t('minis.rush.not'));
         T.paused = true; H.later(() => { T.paused = false; H.fb('', ''); next(); }, 1400);
       }
       return true;
@@ -3962,14 +3962,14 @@
       if (g.needsPromotion(from, to)) { choosePromotion(T.pos.side, (k) => { if (k) tryMove(from, to, k); else view.setBoard(piecesOf(T.pos), null); }); return true; }
       return tryMove(from, to);
     }
-    H.tools([['skip', 'next', 'Skip', () => { if (T.live) { T.live = false; H.fb('', ''); next(); } }]]);
+    H.tools([['skip', 'next', t('minis.skip'), () => { if (T.live) { T.live = false; H.fb('', ''); next(); } }]]);
     H.timer(1);
     next();
     return {
       tick(dt) {
         if (T.paused) return;
         T.left -= dt; H.timer(T.left / MINI.RUSH_SECONDS); stats();
-        if (T.left <= 0) { T.live = false; H.finish(T.mates * 10, { won: T.mates > 0, title: T.mates + (T.mates === 1 ? ' checkmate' : ' checkmates'), line: T.mates ? 'Every one a checkmate in one move. Score: ' + T.mates * 10 + '.' : 'Look for checks first: one of them is the mate.' }); }
+        if (T.left <= 0) { T.live = false; H.finish(T.mates * 10, { won: T.mates > 0, title: t(T.mates === 1 ? 'minis.rush.one' : 'minis.rush.many', { n: T.mates }), line: T.mates ? t('minis.rush.line', { n: T.mates * 10 }) : t('minis.rush.none') }); }
       },
       onSquare(sq) {
         if (!T.live) return;

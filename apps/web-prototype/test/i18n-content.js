@@ -1,5 +1,5 @@
 // The English of every content string the menus show: the animal friends, the era names and
-// their friends' lines, missions, the season, achievements and level titles. The content files
+// their friends' lines, missions, the season, achievements, level titles and the mini-games. The content files
 // stay the source of the English; packages/content/i18n/content.json holds the other languages
 // under these keys, and test/i18n.test.js checks the two agree. Story pages, lessons, openings
 // and endgames are narrated and stay in English for now.
@@ -26,6 +26,11 @@ function expected() {
   for (const s of seasons.seasons) { put('season.' + s.id + '.name', s.name); put('season.' + s.id + '.blurb', s.blurb); }
   for (const a of PG.ACHIEVEMENTS) { put('ach.' + a.id + '.name', a.name); put('ach.' + a.id + '.desc', a.desc); }
   for (let l = 1; l < 100; l++) { const t = PG.levelFor(PG.xpFor(l)).title; put('title.' + slug(t), t); }
+  for (const g of require('../src/minigames.js')(require('../../../packages/chess-core/src/engine.js')()).GAMES) {
+    for (const f of ['title', 'blurb', 'skill', 'minutes']) put('mini.' + g.id + '.' + f, g[f]);
+    g.howTo.forEach((s, i) => put('mini.' + g.id + '.how' + i, s));
+    for (const [v, n] of g.levels) put('mini.' + g.id + '.lv.' + v, n);
+  }
   return out;
 }
 module.exports = { expected, slug };
