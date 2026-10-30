@@ -132,7 +132,10 @@ def build(target):
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
     assert '</script' not in scene.lower()
-    page = page.replace('/*FONTS*/', fonts).replace('/*DATA*/', data).replace('/*SCENE*/', scene)
+    # Tooltips are the game's own, so the site's bubbles look and behave the same.
+    tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
+    assert '</script' not in tips.lower()
+    page = page.replace('/*FONTS*/', fonts).replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips)
     page = re.sub(r'@@IMG:([\w-]+)@@', lambda m: img[m.group(1)], page)
     page = re.sub(r'@@ART:([\w-]+)@@', lambda m: art[m.group(1)], page)
     page = re.sub(r'@@N:(\w+)@@', lambda m: str(counts[m.group(1)]), page)

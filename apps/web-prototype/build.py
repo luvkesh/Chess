@@ -26,6 +26,7 @@ SCRIPTS = [
     src / 'audio.js',
     src / 'net.js',
     src / 'relay.js',
+    src / 'tips.js',
     src / 'app.js',
 ]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
