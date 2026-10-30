@@ -11329,7 +11329,7 @@ function ChacklateScene(canvas, options) {
     return piece > 0 ? Math.PI : 0;
   }
   function makeSprite(piece, sq) {
-    const s = { piece, sq, x: sqX(sq), z: sqZ(sq), y: 0, scale: 1, tilt: 0, yaw: baseYaw(piece, sq), anim: null, lift: 0, glow: 0, obj: null, contact: null };
+    const s = { piece, sq, x: sqX(sq), z: sqZ(sq), y: 0, scale: 1, tilt: 0, bow: 0, yaw: baseYaw(piece, sq), anim: null, lift: 0, glow: 0, obj: null, contact: null };
     rebuildSprite(s);
     return s;
   }
@@ -11351,17 +11351,17 @@ function ChacklateScene(canvas, options) {
     const base = s.grave ? TRAY_Y : 0;
     const lift = s.y + s.lift;
     // every sprite is placed on every frame; only a real change redraws the shadows
-    const at = s.x + ',' + s.z + ',' + (base + lift) + ',' + s.yaw + ',' + s.tilt + ',' + s.scale;
+    const at = s.x + ',' + s.z + ',' + (base + lift) + ',' + s.yaw + ',' + s.tilt + ',' + s.bow + ',' + s.scale;
     if (at !== s.placed) { s.placed = at; dirtyShadows(); }
     o.position.set(s.x, base + lift + Math.sin(Math.abs(s.tilt)) * 0.3 * s.scale, s.z);
-    o.rotation.set(0, s.yaw, 0);
-    if (s.tilt) { o.rotation.z = s.tilt; }
+    // bow tips the piece toward the way it faces (capture scenes); tilt tips it sideways
+    o.rotation.set(s.bow || 0, s.yaw, s.tilt || 0, 'YXZ');
     o.scale.setScalar(s.scale);
     if (s.contact) {
       const r = (kindOf(s.piece) === 1 ? 0.62 : 0.78) * s.scale * (1 + lift * 0.8);
       s.contact.scale.set(r, 1, r);
       s.contact.position.set(s.x, base + 0.004, s.z);
-      s.contact.visible = !s.tilt;
+      s.contact.visible = !s.tilt && Math.abs(s.bow || 0) < 0.3;
       s.contact.material = contactMat;
     }
   }
@@ -11538,12 +11538,265 @@ function ChacklateScene(canvas, options) {
   }
   const motesOn = () => hq() && lvl() < 4 && animations && !window.__SHOT;
 
+  // ------------------------------------------------------------------ capture scenes
+  // A capture plays as a short scene between the two pieces (3.5 to 4.5 s): a bow, a friendly
+  // duel, a waltz, a magic trick, a frosty slide, leapfrog or a sparkler send-off. Every one is
+  // gentle: the taken piece is never hurt, it says goodbye and goes to the tray. The camera
+  // leans in and pulls back out. A tap on the table (or Space, Enter or Escape) skips to the end.
+  // Scenes move only the two existing pieces and a few particles, so they cost no more to draw
+  // than an ordinary move; on slow devices the particles are thinned and shadows refresh less.
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const lerpA = (a, b, t) => { let d = (b - a) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return a + d * t; };
+  const seg = (t, a, b) => clamp01((t - a) / (b - a));
+  const bell = (t, a, b) => (t > a && t < b ? Math.sin(Math.PI * seg(t, a, b)) : 0);
+  const pn = (n) => Math.max(1, Math.round(n * (lvl() >= 3 ? 0.45 : lvl() >= 1 ? 0.75 : 1)));
+  // which scene each capture effect plays; items may also name one with data.scene
+  const SCENE_FOR = { dust: 'bow', sparks: 'duel', petals: 'waltz', ink: 'magic', frost: 'frost', nibs: 'leapfrog', rocket: 'sendoff' };
+  let cine = null, skipEl = null, skipTimer = 0;
+
+  function once(c, key, at, t, fn) { if (t >= at && !c.fired.has(key)) { c.fired.add(key); fn(); } }
+  function puff(c, kind, x, y, z, n) { spawn(kind, x, y, z, c.colors, pn(n)); }
+  const worldY = (s) => (s.grave ? TRAY_Y : 0) + s.y;
+  // the attacker walks (a knight leaps) up to the piece it takes and turns to face it
+  function approach(c, t, t0, t1) {
+    const k = seg(t, t0, t1), e = easeInOut(k), m = c.m;
+    m.x = lerp(c.sx, c.px, e); m.z = lerp(c.sz, c.pz, e);
+    m.y = Math.sin(Math.PI * k) * (c.knight ? 0.6 : c.far ? 0.14 : 0.06);
+    m.yaw = lerpA(c.mYaw, c.fM, easeOut(seg(t, t0, t0 + (t1 - t0) * 0.6)));
+  }
+  function faceUp(c, t, t0, t1) { if (t < t1 + 40) c.v.yaw = lerpA(c.vYaw, c.fV, easeInOut(seg(t, t0, t1))); }
+  // the attacker takes the square (from where the scene left it), facing ahead again
+  function settle(c, t, t0, t1, o) {
+    if (t < t0) return;
+    o = o || {};
+    const k = seg(t, t0, t1), e = easeInOut(k), m = c.m;
+    m.x = lerp(o.x !== undefined ? o.x : c.px, c.tx, e); m.z = lerp(o.z !== undefined ? o.z : c.pz, c.tz, e);
+    m.y = Math.sin(Math.PI * k) * (o.arc || 0.08);
+    m.bow = 0;
+    m.yaw = lerpA(o.yaw !== undefined ? o.yaw : c.fM, c.endYaw, e);
+  }
+  // the taken piece travels to its tray: o.arc (height), o.spin (turns), o.hops (little steps),
+  // o.bounces, o.ease, o.from [x, z], o.scale (size it starts at)
+  function exit(c, t, t0, t1, o) {
+    if (t < t0) return;
+    o = o || {};
+    const k = seg(t, t0, t1), e = (o.ease || easeInOut)(k), v = c.v;
+    const fx = o.from ? o.from[0] : c.vx, fz = o.from ? o.from[1] : c.vz;
+    v.x = lerp(fx, c.gx, e); v.z = lerp(fz, c.gz, e);
+    let h = lerp(0, TRAY_Y, e) + Math.sin(Math.PI * k) * (o.arc === undefined ? 1 : o.arc);
+    if (o.hops) h += Math.abs(Math.sin(Math.PI * k * o.hops)) * 0.2 * (1 - k);
+    if (o.bounces) h = lerp(0, TRAY_Y, e) + Math.abs(Math.sin(Math.PI * k * o.bounces)) * (0.25 + 0.85 * (1 - k));
+    v.grave = k > 0.5;
+    v.y = v.grave ? h - TRAY_Y : h;
+    v.scale = lerp(o.scale || 1, 0.72, e);
+    v.bow = 0; v.tilt = 0;
+    v.yaw = lerpA(c.fV, c.gYaw, e) + (o.spin || 0) * TAU * e;
+  }
+
+  const SCENES = {
+    // Cocoa Dust: they bow to each other; the taken piece gives a little hop goodbye and
+    // toddles off to the tray in a puff of cocoa.
+    bow: { dur: 3500, impact: 1950, run(c, t) {
+      approach(c, t, 0, 700); faceUp(c, t, 350, 900);
+      c.m.bow = 0.38 * bell(t, 950, 1650);
+      c.v.bow = 0.42 * bell(t, 1100, 1800);
+      if (t < 2250) c.v.y = 0.22 * bell(t, 1900, 2250);
+      once(c, 'puff', 1950, t, () => puff(c, c.kind, c.vx, 0.35, c.vz, 30));
+      exit(c, t, 2250, 3150, { arc: 0.55, hops: 4 });
+      settle(c, t, 2950, 3450);
+    } },
+    // Gold Sparks: a friendly duel of three touches, sparks at each, then the taken piece
+    // twirls, bows to the winner and hops away.
+    duel: { dur: 4450, impact: 1990, gap: 0.9, run(c, t) {
+      approach(c, t, 0, 650); faceUp(c, t, 300, 800);
+      const ml = bell(t, 900, 1280) + bell(t, 1800, 2180), vl = bell(t, 1350, 1730);
+      const dm = 0.26 * ml - 0.1 * vl, dv = 0.26 * vl - 0.1 * ml;
+      if (t >= 650) { c.m.x = c.px + c.dx * dm; c.m.z = c.pz + c.dz * dm; c.m.bow = 0.24 * ml - 0.14 * vl; }
+      if (t < 3300) { c.v.x = c.vx - c.dx * dv; c.v.z = c.vz - c.dz * dv; c.v.bow = 0.24 * vl - 0.14 * ml; }
+      for (const at of [1090, 1540, 1990]) once(c, 'touch' + at, at, t, () => puff(c, 'sparks', c.vx - c.dx * c.gap / 2, 0.95, c.vz - c.dz * c.gap / 2, at === 1990 ? 30 : 16));
+      if (t >= 2200 && t < 3300) {
+        const k = seg(t, 2200, 2900);
+        c.v.yaw = c.fV + TAU * 2 * easeOut(k);
+        c.v.tilt = 0.14 * Math.sin(k * TAU * 3) * (1 - k);
+        c.v.bow = 0.45 * bell(t, 2900, 3300);
+      }
+      exit(c, t, 3300, 4100, { arc: 0.6, hops: 4 });
+      settle(c, t, 3900, 4400, { arc: 0.3 });
+    } },
+    // Ruby Petals: the two waltz once round each other in a swirl of petals, then the taken
+    // piece twirls away to the tray.
+    waltz: { dur: 3750, impact: 900, run(c, t) {
+      approach(c, t, 0, 650); faceUp(c, t, 300, 700);
+      if (t >= 750 && t < 2450) {
+        const e = easeInOut(seg(t, 750, 2350));
+        const cx = (c.px + c.vx) / 2, cz = (c.pz + c.vz) / 2, r = c.gap / 2, a0 = Math.atan2(c.pz - cz, c.px - cx), a = a0 + e * TAU;
+        c.m.x = cx + Math.cos(a) * r; c.m.z = cz + Math.sin(a) * r;
+        c.v.x = cx - Math.cos(a) * r; c.v.z = cz - Math.sin(a) * r;
+        c.m.yaw = Math.atan2(c.v.x - c.m.x, c.v.z - c.m.z); c.v.yaw = Math.atan2(c.m.x - c.v.x, c.m.z - c.v.z);
+        c.m.y = c.v.y = 0.1 * Math.abs(Math.sin(e * Math.PI * 4));
+      }
+      for (const at of [900, 1500, 2100]) once(c, 'petal' + at, at, t, () => puff(c, c.kind, (c.px + c.vx) / 2, 0.8, (c.pz + c.vz) / 2, 18));
+      for (const at of [2550, 2850]) once(c, 'trail' + at, at, t, () => puff(c, c.kind, c.v.x, worldY(c.v) + 0.6, c.v.z, 10));
+      exit(c, t, 2450, 3350, { arc: 0.9, spin: 3 });
+      settle(c, t, 3150, 3700);
+    } },
+    // Ink Smoke: a magic trick. The attacker spins like a wand, the taken piece twirls into a
+    // cloud of ink and pops up again, small and safe, in the tray.
+    magic: { dur: 3450, impact: 1150, run(c, t) {
+      approach(c, t, 0, 650); faceUp(c, t, 300, 750);
+      if (t >= 800 && t < 1600) { const k = seg(t, 800, 1500); c.m.y = 0.2 * Math.sin(Math.PI * k); c.m.yaw = c.fM + TAU * easeInOut(k); }
+      [1150, 1400, 1650, 1900].forEach((at, i) => once(c, 'ink' + at, at, t, () => puff(c, 'ink', c.vx + (i % 2 ? 0.15 : -0.15), 0.3 + i * 0.22, c.vz, 14)));
+      if (t >= 1300 && t < 2150) {
+        const k = seg(t, 1300, 2100);
+        c.v.yaw = c.fV + TAU * 3 * k * k; c.v.scale = 1 - 0.96 * k * k * k; c.v.y = 0.15 * Math.sin(Math.PI * k);
+      }
+      once(c, 'pop', 2200, t, () => puff(c, 'ink', c.gx, TRAY_Y + 0.4, c.gz, 14));
+      if (t >= 2150) {
+        const k = seg(t, 2200, 2800), back = k * k * (2.7 * k - 1.7);   // overshoots a little, like a pop
+        Object.assign(c.v, { x: c.gx, z: c.gz, y: 0, grave: true, scale: Math.max(0.03, 0.03 + 0.69 * back), yaw: c.gYaw + TAU * (1 - k) });
+      }
+      settle(c, t, 2850, 3400);
+    } },
+    // Frost Crystals: the attacker breathes a frosty puff, the taken piece shivers, frosts
+    // over and slides away across the board like a skater, into the tray.
+    frost: { dur: 3650, impact: 1450, back: 2000, run(c, t) {
+      approach(c, t, 0, 650); faceUp(c, t, 300, 750);
+      if (t >= 650 && t < 1500) c.m.bow = -0.14 * bell(t, 750, 1150) + 0.18 * bell(t, 1150, 1450);
+      [1150, 1230, 1310, 1390].forEach((at, i) => once(c, 'breath' + at, at, t, () => puff(c, c.kind, lerp(c.px, c.vx, (i + 1) / 5), 0.75, lerp(c.pz, c.vz, (i + 1) / 5), 8)));
+      once(c, 'freeze', 1450, t, () => puff(c, c.kind, c.vx, 0.6, c.vz, 32));
+      if (t >= 1400 && t < 1950) c.v.yaw = c.fV + 0.07 * Math.sin(t / 22) * (1 - seg(t, 1400, 1950));
+      for (let i = 0; i < 7; i++) once(c, 'ice' + i, 2050 + i * 150, t, () => puff(c, c.kind, c.v.x, worldY(c.v) + 0.15, c.v.z, 5));
+      exit(c, t, 1950, 3150, { arc: 0.25, spin: 2, ease: easeOut });
+      if (t >= 2950) { settle(c, t, 2950, 3600, { arc: 0.01 }); c.m.tilt = 0.08 * Math.sin(seg(t, 2950, 3600) * TAU); }
+    } },
+    // Cocoa Nibs: leapfrog. The attacker somersaults over the taken piece, which wobbles,
+    // then bounces like a ball to the tray, scattering nibs.
+    leapfrog: { dur: 3650, impact: 1450, run(c, t) {
+      approach(c, t, 0, 600); faceUp(c, t, 250, 700);
+      const bx = c.vx + c.dx * c.gap, bz = c.vz + c.dz * c.gap;
+      if (t < 1900) c.v.bow = 0.32 * bell(t, 650, 1600);
+      if (t >= 750 && t < 3050) {
+        const k = seg(t, 750, 1450), e = easeInOut(k);
+        c.m.x = lerp(c.px, bx, e); c.m.z = lerp(c.pz, bz, e);
+        c.m.y = Math.sin(Math.PI * k) * 1.5;
+        c.m.bow = k < 1 ? TAU * e : 0;
+        c.m.yaw = lerpA(c.fM, c.fM + Math.PI, easeInOut(seg(t, 1450, 1750)));
+      }
+      once(c, 'land', 1450, t, () => puff(c, c.kind, bx, 0.1, bz, 18));
+      if (t >= 1450 && t < 1900) { const k = seg(t, 1450, 1900); c.v.tilt = 0.18 * Math.sin(k * TAU * 2) * (1 - k); }
+      for (let i = 1; i <= 3; i++) once(c, 'bounce' + i, 1900 + i * 383, t, () => puff(c, c.kind, c.v.x, worldY(c.v) + 0.05, c.v.z, 10));
+      exit(c, t, 1900, 3050, { bounces: 3, spin: 1, ease: (k) => k });
+      settle(c, t, 3050, 3600, { x: bx, z: bz, yaw: c.fM + Math.PI, arc: 0.3 });
+    } },
+    // Caramel Sparks: a sparkler send-off. Two happy hops together, then the taken piece
+    // whooshes up on a trail of sparks and lands in the tray while the attacker looks up.
+    sendoff: { dur: 3650, impact: 1100, back: 1750, run(c, t) {
+      approach(c, t, 0, 650); faceUp(c, t, 300, 750);
+      const hop = 0.26 * (bell(t, 800, 1100) + bell(t, 1150, 1450));
+      if (t >= 650 && t < 1800) { c.m.y = hop; c.v.y = hop; }
+      for (const at of [1100, 1450]) once(c, 'five' + at, at, t, () => puff(c, 'sparks', (c.px + c.vx) / 2, 0.9, (c.pz + c.vz) / 2, 10));
+      if (t >= 1500 && t < 1800) c.v.tilt = 0.06 * Math.sin(t / 18);
+      if (t >= 1800 && t < 3100) {
+        const k = seg(t, 1800, 3100), e = easeInOut(k), v = c.v;
+        v.x = lerp(c.vx, c.gx, e); v.z = lerp(c.vz, c.gz, e); v.tilt = 0;
+        const h = lerp(0, TRAY_Y, e) + Math.sin(Math.PI * k) * 2.4;
+        v.grave = k > 0.5; v.y = v.grave ? h - TRAY_Y : h;
+        v.scale = lerp(1, 0.72, e); v.yaw = c.fV + TAU * 4 * e;
+        if (k < 0.9 && Math.random() < 0.6) puff(c, 'sparks', v.x, h + 0.1, v.z, 2);
+      }
+      if (t >= 1800 && t < 3000) c.m.bow = -0.28 * bell(t, 1800, 3000);
+      settle(c, t, 3000, 3600);
+    } },
+  };
+
+  function sceneFor(f) {
+    if (!f || f.kind === 'none') return null;
+    const name = f.scene || SCENE_FOR[f.kind];
+    return SCENES[name] ? name : null;
+  }
+  function startCine(name, info, m, v, grave, gYaw, toGrave, done, o) {
+    const S = SCENES[name], now = performance.now();
+    const sx = m.x, sz = m.z, vx = v.x, vz = v.z;
+    const L = Math.hypot(vx - sx, vz - sz) || 1, dx = (vx - sx) / L, dz = (vz - sz) / L;
+    const gap = S.gap || 0.8;
+    m.anim = null; v.anim = null; v.dead = true; m.selected = false;
+    cine = { name, S, start: now, info, m, v, sx, sz, vx, vz, dx, dz, gap, px: vx - dx * gap, pz: vz - dz * gap,
+      tx: sqX(info.to), tz: sqZ(info.to), gx: grave[0], gz: grave[1], gYaw,
+      mYaw: m.yaw, vYaw: v.yaw, fM: Math.atan2(dx, dz), fV: Math.atan2(-dx, -dz),
+      endYaw: baseYaw(info.promo || m.piece, info.to), knight: kindOf(m.piece) === 2, far: L > 1.6,
+      kind: fx.capture.kind === 'nibs' ? 'dust' : fx.capture.kind === 'rocket' ? 'sparks' : fx.capture.kind, colors: fx.capture.colors,
+      fired: new Set(), toGrave, done, onImpact: o && o.onImpact,
+      saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
+    // lean in toward the two pieces, turned a little for depth
+    if (!attract) {
+      const midX = (vx + cine.px) / 2, midZ = (vz + cine.pz) / 2;
+      // aim a little past the pair: the fitted view sits the board's middle high on the screen
+      cam.tPanX = midX - Math.sin(cam.tYaw) * 1.1; cam.tPanZ = midZ - Math.cos(cam.tYaw) * 1.1;
+      cam.tZoom = Math.max(ZOOM_MIN, cam.tZoom * 0.5);
+      cam.tPitch = Math.max(0.5, cam.tPitch - 0.22);
+      cam.tLookY = 0.45; cam.tLookZ = 0;
+      cam.tYaw += midX * Math.cos(cam.yaw) >= 0 ? -0.2 : 0.2;
+    }
+    clearTimeout(skipTimer);
+    if (!o || o.skipHint !== false) skipTimer = setTimeout(() => showSkip(true), 500);
+    requestRender();
+  }
+  function stepCine(now) {
+    const c = cine, t = now - c.start;
+    c.S.run(c, t);
+    if (c.onImpact) once(c, 'impact', c.S.impact, t, c.onImpact);
+    // pull back out once the taken piece heads for the tray
+    once(c, 'pullback', c.S.back || c.S.dur - 1300, t, restoreCam);
+    if (t >= c.S.dur) endCine(false);
+  }
+  function restoreCam() {
+    const c = cine;
+    if (!c || c.restored) return;
+    c.restored = true;
+    cam.tPanX = 0; cam.tPanZ = 0;
+    if (!attract) { cam.tYaw = c.saved.yaw; cam.tPitch = c.saved.pitch; cam.tZoom = c.saved.zoom; cam.tLookY = c.saved.lookY; cam.tLookZ = c.saved.lookZ; }
+  }
+  // Ends the scene: skipped or finished, the pieces land where the move leaves them.
+  // dropped: the board was replaced under it, so nothing is placed and nobody is told.
+  function endCine(skipped, dropped) {
+    const c = cine;
+    if (!c) return;
+    restoreCam();
+    cine = null;
+    clearTimeout(skipTimer); showSkip(false);
+    if (dropped) return;
+    if (skipped && c.onImpact && !c.fired.has('impact')) c.onImpact();
+    const m = c.m, v = c.v;
+    Object.assign(v, { bow: 0, tilt: 0 });
+    c.toGrave(v);
+    Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, scale: 1, yaw: c.endYaw });
+    if (c.info.promo) { m.piece = c.info.promo; rebuildSprite(m); if (!skipped) spawn('sparks', m.x, 0.6, m.z, ['#ffe28a', '#ffffff'], pn(46)); }
+    placeSprite(m);
+    if (skipped) particles = particles.filter((p) => p.kind === 'mote');
+    requestRender();
+    if (c.done) c.done();
+  }
+  function skipCine() { if (cine) endCine(true); }
+  function showSkip(on) {
+    if (on && !skipEl) {
+      skipEl = document.createElement('button');
+      skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = 'Tap to skip';
+      skipEl.addEventListener('click', (e) => { e.stopPropagation(); skipCine(); });
+      document.body.appendChild(skipEl);
+    }
+    if (skipEl) skipEl.classList.toggle('on', !!on && !!cine);
+  }
+  document.addEventListener('keydown', (e) => {
+    if (cine && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopImmediatePropagation(); skipCine(); }
+  }, true);
+
   // ------------------------------------------------------------------ camera
   // The camera orbits the table. Its distance is fitted so the board, and the tallest pieces
   // on the far rank, fill the free part of the screen (what the HUD leaves, as insets in CSS
   // px), and the view is offset so the board sits in the middle of that space. On tall phone
   // screens the lens widens rather than backing the camera out of the room.
-  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, lookZ: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, tLookZ: 0, intro: null,
+  // panX/panZ slide the whole view across the table; only capture scenes use them.
+  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, lookZ: 0, panX: 0, panZ: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, tLookZ: 0, tPanX: 0, tPanZ: 0, intro: null,
     ins: { top: 0, right: 0, bottom: 0, left: 0 }, tIns: { top: 0, right: 0, bottom: 0, left: 0 } };
   if (window.__SHOT) { window.__cam = cam; window.__scene = scene; }   // screenshot tooling reads the camera and scene
   const FIT = [], FIT_TALL = [];
@@ -11596,7 +11849,7 @@ function ChacklateScene(canvas, options) {
     const f = fitView(cam.pitch, cam.lookY, cam.ins, W, H);
     const d = f.dist * cam.zoom, cp = Math.cos(cam.pitch);
     // lookZ slides the point the camera turns around toward the near side of the table
-    const tx = Math.sin(cam.yaw) * cam.lookZ, tz = Math.cos(cam.yaw) * cam.lookZ;
+    const tx = Math.sin(cam.yaw) * cam.lookZ + cam.panX, tz = Math.cos(cam.yaw) * cam.lookZ + cam.panZ;
     camera.position.set(tx + Math.sin(cam.yaw) * cp * d, Math.sin(cam.pitch) * d + cam.lookY, tz + Math.cos(cam.yaw) * cp * d);
     camera.lookAt(tx, cam.lookY, tz);
     camera.fov = f.fov; camera.aspect = W / H;
@@ -11622,7 +11875,7 @@ function ChacklateScene(canvas, options) {
   const portraitNow = () => (canvas.clientWidth || 1) / (canvas.clientHeight || 1) < 0.8;
 
   // ------------------------------------------------------------------ animation loop
-  let raf = 0, lastFrame = 0, ambientTimer = 0, paused = false, glLost = false;
+  let raf = 0, lastFrame = 0, ambientTimer = 0, paused = false, glLost = false, shadowAt = 0;
   function step(now) {
     const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
     lastFrame = now;
@@ -11637,7 +11890,7 @@ function ChacklateScene(canvas, options) {
     } else {
       // the idle orbit turns the camera directly, so it runs on the calm ambient timer
       if (attract && !window.__SHOT && !paused) { cam.tYaw += dt * 0.06; cam.yaw += dt * 0.06; }
-      for (const k of ['yaw', 'pitch', 'zoom', 'lookY', 'lookZ']) {
+      for (const k of ['yaw', 'pitch', 'zoom', 'lookY', 'lookZ', 'panX', 'panZ']) {
         const t = 't' + k[0].toUpperCase() + k.slice(1);
         const d = cam[t] - cam[k];
         if (Math.abs(d) > 0.0005) { cam[k] += d * Math.min(1, dt * 7); busy = true; } else cam[k] = cam[t];
@@ -11647,6 +11900,7 @@ function ChacklateScene(canvas, options) {
       const d = cam.tIns[k] - cam.ins[k];
       if (Math.abs(d) > 0.5) { cam.ins[k] += d * Math.min(1, dt * 7); busy = true; } else cam.ins[k] = cam.tIns[k];
     }
+    if (cine) { stepCine(now); busy = true; }
     for (const s of sprites.concat(graveyard)) {
       const target = s.selected ? 0.16 : s.hover ? 0.06 : 0;
       if (Math.abs(s.lift - target) > 0.002) { s.lift += (target - s.lift) * Math.min(1, dt * 14); busy = true; } else s.lift = target;
@@ -11706,7 +11960,8 @@ function ChacklateScene(canvas, options) {
     renderReflection();
     // set after the reflection pass: that one only sees the pieces' layer, and a shadow map
     // drawn there would be missing the board and the clock
-    if (shadowDirty) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
+    // during a capture scene slow devices refresh the shadows at about 12 fps
+    if (shadowDirty && (!cine || lvl() < 3 || now - shadowAt > 80)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; shadowAt = now; }
     if (composer) composer.render(); else renderer.render(scene, camera);
   }
   // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
@@ -11815,6 +12070,7 @@ function ChacklateScene(canvas, options) {
     requestRender();
   }
   canvas.addEventListener('pointerdown', (e) => {
+    if (cine) { skipCine(); return; }
     canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, [e.clientX, e.clientY]);
     if (pointers.size === 1) {
@@ -12290,6 +12546,7 @@ function ChacklateScene(canvas, options) {
   return {
     three: { renderer, scene, camera },
     setBoard(pieces, captured) {
+      endCine(false, true);
       sprites.forEach(dropSprite);
       sprites = pieces.map(([sq, piece]) => makeSprite(piece, sq));
       for (const s of sprites) s.selected = s.sq === selectedSq;
@@ -12371,7 +12628,11 @@ function ChacklateScene(canvas, options) {
       cam.intro = { start: performance.now(), dur: 1700, fYaw: cam.tYaw + 0.9, fPitch: 0.42, fZoom: 1.25 };
       requestRender();
     },
+    // o.quick: a bare move (low clock); o.cinema === false: no capture scene (lessons, puzzles,
+    // online games); o.onImpact: called at the scene's moment of capture. Returns true when a
+    // capture scene plays, so the caller can hold the clocks for it.
     animateMove(info, done, o) {
+      if (cine) endCine(true);
       const now = performance.now();
       const quick = o && o.quick;
       const mover = sprites.find((s) => s.sq === info.from && !s.dead);
@@ -12392,6 +12653,12 @@ function ChacklateScene(canvas, options) {
         if (info.rook) { const r = sprites.find((s) => s.sq === info.rook[0] && !s.dead); if (r) { r.sq = info.rook[1]; r.x = sqX(r.sq); r.z = sqZ(r.sq); placeSprite(r); } }
         requestRender(); finish();
         return;
+      }
+      const scene = victim && !quick && captureFxOn && !(o && o.cinema === false) && sceneFor(fx.capture);
+      if (scene) {
+        mover.sq = info.to;
+        startCine(scene, info, mover, victim, gravePos(capturer, graveIdx), graveYaw(capturer), toGrave, finish, o);
+        return true;
       }
       const knight = kindOf(info.mover) === 2;
       const dist = Math.hypot(sqX(info.to) - mover.x, sqZ(info.to) - mover.z);
@@ -12416,7 +12683,10 @@ function ChacklateScene(canvas, options) {
         if (r) { r.anim = { type: 'move', start: now + 80, dur, fx: r.x, fz: r.z, fy: 0, tx: sqX(info.rook[1]), tz: sqZ(info.rook[1]), arc: 0.34 }; r.sq = info.rook[1]; }
       }
       requestRender();
+      return false;
     },
+    skipCapture: skipCine,
+    capturePlaying: () => !!cine,
     celebrate(kind, loserSq, kingSqs, winnerSq) {
       const now = performance.now();
       if (kind === 'win') {
