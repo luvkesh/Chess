@@ -275,7 +275,8 @@ function ChacklateAudio() {
   // Recorded voices: one pack per voice (voice/<id>.mp3, made by tools/voice) holding every clip
   // back to back, and voice/index.json giving each clip's size. A clip is fetched as a byte range;
   // where the host ignores ranges, the first request brings the whole pack and later clips are cut
-  // from it. Hosts that only serve text get the pack as base64 (index entry { url, b64: true }).
+  // from it. A host with a file size limit can split a pack into parts, each a run of whole clips
+  // (index entry parts: [{ url, n, b64 }]), and a host that only serves text gets parts as base64.
   // When the game runs from the single offline file there are no recordings, and lessons fall back
   // to the device's speech engine.
   const V = (typeof CHACKLATE_VOICE !== 'undefined') ? CHACKLATE_VOICE : { voices: [], events: {}, moves: {} };
@@ -301,14 +302,17 @@ function ChacklateAudio() {
       for (const [id, v] of Object.entries(j.voices || {})) {
         const keys = (j.keys || {})[v.lang] || [];
         if (keys.length !== v.sizes.length) continue;
+        const parts = (v.parts || [{ url: 'voice/' + id + '.mp3' + (v.v ? '?v=' + v.v : ''), n: keys.length }]).map((p) => ({ url: p.url, b64: !!p.b64, n: p.n }));
+        if (parts.reduce((t, p) => t + p.n, 0) !== keys.length) continue;
         const at = new Map();
-        let start = 0, start64 = 0;
+        let part = 0, left = parts[0].n, start = 0;
         keys.forEach((k, i) => {
-          const n = v.sizes[i];
-          at.set(k, v.b64 ? [start64, start64 + 4 * Math.ceil(n / 3)] : [start, start + n]);
-          start += n; start64 += 4 * Math.ceil(n / 3);
+          if (!left) { part++; left = parts[part].n; start = 0; }
+          const n = parts[part].b64 ? 4 * Math.ceil(v.sizes[i] / 3) : v.sizes[i];
+          at.set(k, [parts[part], start, start + n]);
+          start += n; left--;
         });
-        index[id] = { url: v.url || 'voice/' + id + '.mp3' + (v.v ? '?v=' + v.v : ''), b64: !!v.b64, at };
+        index[id] = { at };
       }
       return index;
     });
@@ -320,31 +324,30 @@ function ChacklateAudio() {
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
     return out.buffer;
   }
-  // The whole pack, fetched once.
-  function whole(id) {
-    const v = index[id];
-    if (!packs.has(id)) {
-      packs.set(id, fetch(v.url).then((r) => { if (!r.ok) throw new Error('missing'); return v.b64 ? r.text() : r.arrayBuffer(); })
-        .catch((e) => { packs.delete(id); throw e; }));
+  // A whole pack (or part), fetched once.
+  function whole(p) {
+    if (!packs.has(p.url)) {
+      packs.set(p.url, fetch(p.url).then((r) => { if (!r.ok) throw new Error('missing'); return p.b64 ? r.text() : r.arrayBuffer(); })
+        .catch((e) => { packs.delete(p.url); throw e; }));
     }
-    return packs.get(id);
+    return packs.get(p.url);
   }
-  const cut = (v, data, a, b) => (v.b64 ? unbase64(data.slice(a, b)) : data.slice(a, b));
+  const cut = (p, data, a, b) => (p.b64 ? unbase64(data.slice(a, b)) : data.slice(a, b));
   // The bytes of one clip: a range request while the host honours them, else a cut of the whole pack.
   async function bytes(id, key) {
-    const v = index[id], [a, b] = v.at.get(key);
-    if (packs.has(id) || v.ranges === false) return cut(v, await whole(id), a, b);
+    const [p, a, b] = index[id].at.get(key);
+    if (packs.has(p.url) || p.ranges === false) return cut(p, await whole(p), a, b);
     // Until the first answer shows whether ranges work, other clips wait rather than each
     // risking a download of the whole pack.
-    if (v.ranges === undefined && v.probe) { await v.probe.catch(() => {}); return bytes(id, key); }
-    const req = fetch(v.url, { headers: { Range: 'bytes=' + a + '-' + (b - 1) } });
-    if (v.ranges === undefined) v.probe = req;
-    const r = await req.catch((e) => { v.probe = null; throw e; });
-    if (!r.ok) { v.probe = null; throw new Error('missing'); }
-    if (r.status === 206) { v.ranges = true; return v.b64 ? unbase64(await r.text()) : r.arrayBuffer(); }
-    v.ranges = false;
-    if (!packs.has(id)) packs.set(id, v.b64 ? r.text() : r.arrayBuffer());
-    return cut(v, await whole(id), a, b);
+    if (p.ranges === undefined && p.probe) { await p.probe.catch(() => {}); return bytes(id, key); }
+    const req = fetch(p.url, { headers: { Range: 'bytes=' + a + '-' + (b - 1) } });
+    if (p.ranges === undefined) p.probe = req;
+    const r = await req.catch((e) => { p.probe = null; throw e; });
+    if (!r.ok) { p.probe = null; throw new Error('missing'); }
+    if (r.status === 206) { p.ranges = true; return p.b64 ? unbase64(await r.text()) : r.arrayBuffer(); }
+    p.ranges = false;
+    if (!packs.has(p.url)) packs.set(p.url, p.b64 ? r.text() : r.arrayBuffer());
+    return cut(p, await whole(p), a, b);
   }
   function clip(id, key) {
     const k = id + '/' + key;
