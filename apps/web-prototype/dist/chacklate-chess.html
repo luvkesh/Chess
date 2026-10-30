@@ -768,11 +768,17 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .perks { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 8px; }
 .perks li { display: flex; gap: 10px; align-items: center; color: var(--ink); font-size: 14.5px; }
 .perks .ico { width: 16px; height: 16px; color: var(--gold); flex: none; }
-.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.products { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .product { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 20px 16px 16px; border-radius: 18px; border: 1px solid var(--line); background: rgba(24, 15, 11, 0.6); }
 .product.focus { border-color: var(--gold); box-shadow: var(--glow); }
-.product b { font: 500 20px/1.15 var(--serif); } .product .price { font: 500 30px/1.1 var(--serif); color: var(--gold-2); margin-bottom: 6px; }
+.product b { font: 500 20px/1.15 var(--serif); }
+/* Amounts use the sans in lining, tabular figures: the serif's old-style numerals read soft at this size. */
+.product .price, .amount { font: 600 30px/1.1 var(--body); font-variant-numeric: lining-nums tabular-nums; letter-spacing: 0; color: var(--gold-2); margin-bottom: 6px; }
 .product .btn, .product .pill { margin-top: auto; align-self: stretch; justify-content: center; }
+/* The featured card's gold button keeps the same words and size as its neighbours, and wraps rather than clips. */
+.product .btn.gold { font: 600 14px/1.2 var(--body); letter-spacing: 0.02em; text-transform: none; }
+.product .btn { white-space: normal; text-align: center; min-width: 0; padding-left: 12px; padding-right: 12px; }
+.product .btn.gold:disabled { opacity: 0.6; }
 .pbadge { position: absolute; top: -10px; right: 12px; font: 600 9.5px/1 var(--caps); letter-spacing: .14em; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; background: linear-gradient(180deg, #fbe6ad, #c38f3f); color: #2a1606; }
 
 /* ------------------------------------------------------------ responsive */
