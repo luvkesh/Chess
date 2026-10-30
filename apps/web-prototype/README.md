@@ -23,6 +23,7 @@ The playable Chackmate client: a 3D chess game that runs from one HTML file. thr
 | `test/voice.test.js` | Voice lines and recorded clips. |
 | `test/looks.test.js` | Every set, board and room the catalog and the Journey hand out exists in the 3D code. |
 | `test/online.e2e.js` | Two pages play each other through a stand-in room (`test/fake-room.js`): a friend code game to checkmate with a reaction, worldwide pairing, a resignation and a loss on time. Needs Playwright: `node test/online.e2e.js` after a build. |
+| `tools/button-contrast.js` | Every button style, in every panel that restyles buttons, keeps text at 4.5:1 contrast at rest and on hover, focus and press. Needs Playwright: `node tools/button-contrast.js` after a build. |
 | `dist/chackmate.html` | The built game, committed so it can be opened directly. |
 
 ## Commands
