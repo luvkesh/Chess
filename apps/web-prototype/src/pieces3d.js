@@ -5,7 +5,7 @@
 // the knight a horse head, the rook battlements, the pawn a round head.
 function ChacklatePieces(THREE, K) {
   'use strict';
-  const { TAU, clamp, mix, smooth, profile, revolve, MOD, mods, SD, spline, strand, strandField, sdfGeometry, beadRing, ring, extrude, merge, MAT, TEX, alongProfile, rng } = K;
+  const { DETAIL, TAU, clamp, mix, smooth, profile, revolve, MOD, mods, SD, spline, strand, strandField, sdfGeometry, beadRing, ring, extrude, merge, MAT, TEX, alongProfile, rng } = K;
   const Q = { segs: 96, cell: 0.0052, mane: 0.0042 };
 
   // ------------------------------------------------------------------ assembly
@@ -266,7 +266,7 @@ function ChacklatePieces(THREE, K) {
   // The horse is the slowest part to build, and sets share a few variants: cache by options.
   const horseCache = new Map();
   function horse(o) {
-    const key = JSON.stringify(o || {}) + Q.cell + Q.mane;
+    const key = JSON.stringify(o || {}) + Q.cell + Q.mane + JSON.stringify(DETAIL);
     if (!horseCache.has(key)) horseCache.set(key, sculptHorse(o));
     return horseCache.get(key);
   }
@@ -1757,22 +1757,34 @@ function ChacklatePieces(THREE, K) {
   }
 
   // ------------------------------------------------------------------ building and caching
+  // Two levels of detail. 'show' is the full sculpt for close-ups: menu art, the collection
+  // and the museum. 'play' is what stands on the table, where a piece is a few hundred
+  // pixels tall at most and all 32 are drawn for the view, the shadows and the
+  // reflection: about a sixth of the triangles, and quicker to build when a game loads.
+  const LOD = {
+    show: { around: 1, along: 1, tube: 1, cell: 0.0052, mane: 0.0042 },
+    play: { around: 0.4, along: 0.34, tube: 0.45, cell: 0.012, mane: 0.0095 },
+  };
   const geomCache = new Map();
-  function geometry(setId, type) {
+  function geometry(setId, type, detail) {
     const set = SETS[setId] || SETS.regency;
     const shape = set.shape || set.id;
-    const key = shape + type + Q.segs;
+    const lod = LOD[detail] ? detail : 'show';
+    const key = shape + type + lod;
     if (!geomCache.has(key)) {
       const t0 = performance.now();
-      geomCache.set(key, SETS[shape].pieces[type]({ Q }).geoms());
-      if (typeof window !== 'undefined' && window.__PIECE_TIMES) window.__PIECE_TIMES.push([shape, type, Math.round(performance.now() - t0)]);
+      const L = LOD[lod], keep = { around: DETAIL.around, along: DETAIL.along, tube: DETAIL.tube, cell: Q.cell, mane: Q.mane };
+      Object.assign(DETAIL, { around: L.around, along: L.along, tube: L.tube }); Q.cell = L.cell; Q.mane = L.mane;
+      try { geomCache.set(key, SETS[shape].pieces[type]({ Q }).geoms()); }
+      finally { Object.assign(DETAIL, { around: keep.around, along: keep.along, tube: keep.tube }); Q.cell = keep.cell; Q.mane = keep.mane; }
+      if (typeof window !== 'undefined' && window.__PIECE_TIMES) window.__PIECE_TIMES.push([shape, type, lod, Math.round(performance.now() - t0)]);
     }
     return geomCache.get(key);
   }
   // A ready-to-place group for one piece: meshes share geometry and materials.
-  function make(setId, type, side) {
+  function make(setId, type, side, detail) {
     const set = SETS[setId] || SETS.regency;
-    const g = geometry(set.id, type);
+    const g = geometry(set.id, type, detail);
     const mats = set.mats(side);
     const grp = new THREE.Group();
     for (const slot of Object.keys(g)) {
@@ -1784,10 +1796,7 @@ function ChacklatePieces(THREE, K) {
     grp.userData = { set: set.id, type, side };
     return grp;
   }
-  function setDetail(level) {
-    if (level === 'low') { Q.segs = 48; Q.cell = 0.0075; Q.mane = 0.0055; } else { Q.segs = 96; Q.cell = 0.0052; Q.mane = 0.0042; }
-  }
   const HEIGHT = { k: 1.62, q: 1.43, b: 1.24, n: 1.06, r: 0.97, p: 0.72 };
-  return { SETS, make, geometry, setDetail, HEIGHT, list: () => Object.keys(SETS).map((k) => SETS[k]) };
+  return { SETS, make, geometry, HEIGHT, list: () => Object.keys(SETS).map((k) => SETS[k]) };
 }
 if (typeof module !== 'undefined') module.exports = ChacklatePieces;

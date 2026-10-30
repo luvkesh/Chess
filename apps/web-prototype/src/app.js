@@ -258,9 +258,11 @@
       onDrop: (f, t) => ctlHooks.onDrop(f, t),
       onContextLost() { $('nogl').hidden = false; },
       onContextRestored() { $('nogl').hidden = true; },
+      onPerf: (level) => document.body.classList.toggle('lite', level >= 2),
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }
+  else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
   function nullView() {
     const noop = () => {};
@@ -326,6 +328,8 @@
       if (!img.dataset.snap) return;
       const [spec, w, h] = JSON.parse(img.dataset.snap);
       delete img.dataset.snap;
+      // small menu-card art doesn't need the full sculpt (and building it slows the first screen)
+      if (w <= 240 && !spec.detail) spec.detail = 'play';
       const k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
       view.snapshot(spec, Math.round(w * k), Math.round(h * k)).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
     };
