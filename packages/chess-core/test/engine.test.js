@@ -206,3 +206,73 @@ for (const lv of E.LEVELS) {
   assert.ok(pp.legalMoves().includes(rr.move), 'chaturanga ' + lv.name);
 }
 console.log('chaturanga ok');
+
+// Chess960: the start numbering, Shredder castling rights, perft against published values and
+// castling by moving the king onto its own rook.
+assert.strictEqual(E.chess960Fen(518), E.VARIANTS.chess960.start, 'position 518 is the chess start');
+assert.strictEqual(E.chess960Fen(0), 'chess960:bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w HFhf - 0 1');
+{
+  const seen = new Set();
+  for (let n = 0; n < 960; n++) {
+    const back = E.chess960Fen(n).split(':')[1].split('/')[0];
+    seen.add(back);
+    const b = [...back].map((c, i) => [c, i]).filter(([c]) => c === 'b').map(([, i]) => i % 2);
+    const r = [...back].map((c, i) => [c, i]).filter(([c]) => c === 'r').map(([, i]) => i), k = back.indexOf('k');
+    assert.ok(b[0] !== b[1] && r[0] < k && k < r[1], 'shuffle rules ' + n);
+  }
+  assert.strictEqual(seen.size, 960, '960 different back rows');
+}
+for (const [fen, counts] of [
+  ['chess960:bqnb1rkr/pp3ppp/3ppn2/2p5/5P2/P2P4/NPP1P1PP/BQ1BNRKR w HFhf - 2 9', [21, 528, 12189]],
+  ['chess960:2nnrbkr/p1qppppp/8/1ppb4/6PP/3PP3/PPP2P2/BQNNRBKR w HEhe - 1 9', [21, 807, 18002]],
+  ['chess960:qbbnnrkr/2pp2pp/p7/1p2pp2/8/P3PP2/1PPP1KPP/QBBNNR1R w hf - 0 9', [22, 593, 13440, 382958]],
+]) {
+  const p = new E.Pos(); assert.strictEqual(p.load(fen), null, fen);
+  counts.forEach((n, i) => assert.strictEqual(E.perft(p, i + 1), n, fen + ' d' + (i + 1)));
+  assert.strictEqual(p.fen(), fen, '960 FEN round trip');
+}
+g = new E.Game('chess960:4k3/pppppppp/8/8/8/8/PPPPPPPP/1RK4R w HB - 0 1');
+assert.ok(g.targets(E.to64(E.parseSq('c1'))).includes(E.to64(E.parseSq('h1'))), 'king onto its rook');
+assert.strictEqual(E.uci(g.find(E.to64(E.parseSq('c1')), E.to64(E.parseSq('g1')), 0)), 'c1h1', 'the landing square castles too');
+g.play(g.find(E.to64(E.parseSq('c1')), E.to64(E.parseSq('h1')), 0));
+assert.strictEqual(g.pos.fen(), 'chess960:4k3/pppppppp/8/8/8/8/PPPPPPPP/1R3RK1 b - - 1 1');
+console.log('chess960 ok');
+
+// King of the Hill: a king on a centre square wins at once, a lone king can still win, and the
+// bot walks onto a free hill square.
+g = new E.Game('koth:7k/8/8/8/8/4K3/8/8 w - - 0 1');
+assert.strictEqual(g.outcome, null, 'two bare kings are not a draw on the hill');
+g.playText('Ke4');
+assert.deepStrictEqual([g.outcome.result, g.outcome.reason], ['1-0', 'hill']);
+g = new E.Game('koth:7k/8/1b6/8/8/3K4/8/8 w - - 0 1');
+assert.ok(!g.playText('Kd4'), 'a guarded hill square is closed');
+{
+  const gm = new E.Game('koth:7k/8/8/8/8/4K3/8/8 w - - 0 1');
+  gm.play(E.search(gm.pos, { timeMs: 200 }).move);
+  assert.strictEqual(gm.outcome && gm.outcome.reason, 'hill', 'the bot climbs the hill');
+}
+console.log('king of the hill ok');
+
+// Three-check: the counter rides in the FEN, survives undo and wins on the third check.
+g = new E.Game(E.VARIANTS.threecheck.start);
+for (const s of ['e4', 'e5', 'Bc4', 'd6', 'Bxf7+']) g.playText(s);
+assert.ok(g.pos.fen().endsWith(' +1+0'), g.pos.fen());
+g = new E.Game('threecheck:4k3/8/8/8/8/8/8/R3K3 w - - 0 1 +2+0');
+assert.strictEqual(g.outcome, null, 'rook and king are not a draw while checks can come');
+g.playText('Ra8');
+assert.deepStrictEqual([g.outcome.result, g.outcome.reason], ['1-0', 'three-check']);
+{
+  const p = new E.Pos(); p.load('threecheck:4k3/8/8/8/8/8/8/R3K3 w - - 0 1 +2+0');
+  const h = p.hl ^ p.hh, m = p.parseMove('a1a8');
+  p.make(m); assert.ok(p.fen().endsWith('+3+0')); p.unmake(m);
+  assert.strictEqual(p.hl ^ p.hh, h, 'undo restores the count');
+  const gm = new E.Game('threecheck:4k3/8/8/8/8/8/8/R3K3 w - - 0 1 +2+0');
+  gm.play(E.search(gm.pos, { timeMs: 200 }).move);
+  assert.strictEqual(gm.outcome && gm.outcome.reason, 'three-check', 'the bot takes the third check');
+}
+for (const id of ['chess960', 'koth', 'threecheck']) for (const lv of E.LEVELS) {
+  const pp = E.positionFrom(E.VARIANTS[id].start, ['e2e4', 'e7e5']);
+  const rr = E.search(pp, Object.assign({}, lv, { timeMs: Math.min(lv.timeMs, 200) }));
+  assert.ok(pp.legalMoves().includes(rr.move), id + ' ' + lv.name);
+}
+console.log('three-check ok');

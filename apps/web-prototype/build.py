@@ -15,6 +15,7 @@ vendor = here / 'vendor'
 SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
+    core / 'xiangqi.js',
     src / 'i18n.js',
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
@@ -23,6 +24,7 @@ SCRIPTS = [
     src / 'world3d.js',
     src / 'elements3d.js',
     src / 'scene.js',
+    src / 'xiangqi3d.js',
     src / 'art.js',
     src / 'progress.js',
     src / 'audio.js',
@@ -80,6 +82,9 @@ strings = {f.stem: {k: {l: v for l, v in e.items() if l != 'check'} for k, e in 
 parts.append('const CHACKLATE_STRINGS = %s;' % json.dumps(strings, separators=(',', ':'), ensure_ascii=False))
 # Fonts for non-Latin scripts, added to the page only when such a language is chosen.
 parts.append('const CHACKLATE_SCRIPT_FONTS = %s;' % json.dumps({'deva': (vendor / 'fonts-deva.css').read_text()}))
+# The carved names on the Xiangqi pieces and the river: a Noto Serif SC cut of just those 18
+# characters (SIL Open Font License 1.1, (c) Google LLC), loaded by xiangqi3d.js.
+parts.append("const CHACKLATE_XQ_FONT = 'data:font/ttf;base64,%s';" % base64.b64encode((vendor / 'xiangqi-han.ttf').read_bytes()).decode())
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
 look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]

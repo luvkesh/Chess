@@ -528,5 +528,195 @@
   "who": "rooky",
   "voice": "am_puck,am_michael",
   "text": "Find a move that leaves Black with no move at all. In chaturanga, that wins!"
+ },
+ "variant.chess960.hello": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "A world champion called Bobby Fischer had a fun idea: shuffle the back row before every game! It is called Chess960."
+ },
+ "variant.chess960.mirror": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Look closely. Black's pieces copy White's, file by file, like a mirror. The pawns stay right where they always are."
+ },
+ "variant.chess960.order": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "There are only two rules for the shuffle. The bishops stand on different colours, and the king stands between the rooks."
+ },
+ "variant.chess960.castle": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Castling ends just like in chess: the king on the g-file or the c-file, the rook right beside it. To castle, move your king onto your rook."
+ },
+ "variant.chess960.think": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Nobody knows the openings here, so think from your very first move. Bring out your pieces and keep your king safe."
+ },
+ "variant.chess960.ex.short": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Castle on the king's side. Put your king on the rook on h1."
+ },
+ "variant.chess960.ex.long": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Now castle on the queen's side, towards the a-file."
+ },
+ "variant.chess960.ex.land": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "If White castles on the king's side here, where does the king land?"
+ },
+ "variant.chess960.ex.rule": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Which rule is always true in Chess960?"
+ },
+ "variant.koth.hello": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Welcome to King of the Hill! The four squares in the middle are the hill. Get your king up there and you win."
+ },
+ "variant.koth.hill": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "See the glowing squares? d4, e4, d5 and e5. One step onto any of them wins the game at once."
+ },
+ "variant.koth.safe": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "But a king can never step onto a square an enemy guards. This rook guards the fourth row, so those hill squares are closed."
+ },
+ "variant.koth.block": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "So watch the enemy king too! If it gets close to the hill, guard the hill squares before it climbs."
+ },
+ "variant.koth.same": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate still wins, and every piece moves just like in chess. Now, let's climb!"
+ },
+ "variant.koth.ex.climb": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Walk your king onto the hill."
+ },
+ "variant.koth.ex.stop": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Black's king wants the hill. Stop it with one rook move."
+ },
+ "variant.koth.ex.guarded": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The bishop guards one hill square. Find the safe one and climb."
+ },
+ "variant.threecheck.hello": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "In Three-check, every check counts! Give check three times and you win, even without checkmate."
+ },
+ "variant.threecheck.count": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "White's bishop just gave check, so White's counter shows one. The counters sit beside the players' names."
+ },
+ "variant.threecheck.safe": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "So keep your king tucked away. Don't open lines toward it too early, or the checks pile up fast."
+ },
+ "variant.threecheck.same": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate still wins, and every piece moves just like in chess. Let's practise!"
+ },
+ "variant.threecheck.ex.third": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "You have given two checks. Give the third and win."
+ },
+ "variant.threecheck.ex.knight": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Two checks done. Can your knight give the third?"
+ },
+ "variant.threecheck.ex.what": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "What happens when you give your third check?"
+ },
+ "variant.xiangqi.hello": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Welcome to the Ming court! This is xiangqi, Chinese chess. Red moves first, and every piece has its name carved on top."
+ },
+ "variant.xiangqi.points": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Look closely: the pieces stand on the points where the lines cross, not in the squares. The band across the middle is the river."
+ },
+ "variant.xiangqi.palace": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "These nine points with the cross are the palace. The general and his two advisors never leave it. The general steps along the lines, the advisors on the slant."
+ },
+ "variant.xiangqi.horse": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The horse moves like a knight: one step along a line, then one on a slant. But a piece right next to it blocks that way. See how the soldier below stops two moves?"
+ },
+ "variant.xiangqi.elephant": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The elephant jumps exactly two points on a slant. It is a home guard: it can never cross the river."
+ },
+ "variant.xiangqi.cannon": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Here is a piece chess doesn't have: the cannon! It moves like a chariot, but to capture it must jump over exactly one piece, called the screen."
+ },
+ "variant.xiangqi.soldier": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Soldiers march one step forward. Once they cross the river, they may also step sideways. They never move back."
+ },
+ "variant.xiangqi.generals": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "A special rule: the two generals may never face each other on an open line. So your general guards his whole line, all the way up the board!"
+ },
+ "variant.xiangqi.win": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate wins. And a side with no legal move at all loses too. Let's practise!"
+ },
+ "variant.xiangqi.ex.horse": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap every point this horse can reach."
+ },
+ "variant.xiangqi.ex.elephant": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap every point this elephant can reach."
+ },
+ "variant.xiangqi.ex.cannon": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Use the cannon to capture Black's chariot."
+ },
+ "variant.xiangqi.ex.mate": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate in one move. Your general can help!"
+ },
+ "variant.xiangqi.ex.river": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Which piece can cross the river?"
  }
 }

@@ -8,6 +8,8 @@
   "clock.none": { "en": "No clock|Take as long as you like to think about every move.", "hi": "बिना घड़ी|हर चाल पर जितना चाहें उतना सोचें।", "check": ["hi"] },
   "clock.one": { "en": "1 minute|Each player gets just 1 minute for the whole game. Super fast! If your time runs out, you usually lose.", "hi": "1 मिनट|हर खिलाड़ी को पूरे खेल के लिए सिर्फ़ 1 मिनट मिलता है। बहुत तेज़! अगर आपका समय ख़त्म हो जाए, तो आम तौर पर आप हार जाते हैं।", "check": ["hi"] },
   "clock.plain": { "en": "{m} minutes|Each player gets {m} minutes for the whole game. No bonus time is added, so keep an eye on your clock! If your time runs out, you usually lose.", "hi": "{m} मिनट|हर खिलाड़ी को पूरे खेल के लिए {m} मिनट मिलते हैं। कोई अतिरिक्त समय नहीं जुड़ता, इसलिए अपनी घड़ी पर नज़र रखें! अगर आपका समय ख़त्म हो जाए, तो आम तौर पर आप हार जाते हैं।", "check": ["hi"] },
+  "control.pk-prev": { "en": "Previous|Try the one before, without leaving the table. The left arrow key works too.", "hi": "पिछला|टेबल छोड़े बिना पिछला वाला आज़माएँ। बायाँ तीर वाला बटन भी चलता है।", "check": ["hi"] },
+  "control.pk-next": { "en": "Next|Try the next one, without leaving the table. The right arrow key works too.", "hi": "अगला|टेबल छोड़े बिना अगला वाला आज़माएँ। दायाँ तीर वाला बटन भी चलता है।", "check": ["hi"] },
   "collection.coins": { "en": "Acquire|Get it for {n} {coins}.", "hi": "पाएँ|इसे {n} {coins} में पाएँ।", "check": ["hi"] },
   "collection.equip": { "en": "Equip|Use it from now on.", "hi": "लगाएँ|अब से इसे इस्तेमाल करें।", "check": ["hi"] },
   "collection.pass": { "en": "Acquire|A grown-up can get this with the Season Pass.", "hi": "पाएँ|कोई बड़ा इसे सीज़न पास से ले सकता है।", "check": ["hi"] },
@@ -94,5 +96,6 @@
   "voice.device": { "en": "Uses the voice already built into this phone, tablet or computer.", "hi": "इस फ़ोन, टैबलेट या कंप्यूटर में पहले से मौजूद आवाज़।", "check": ["hi"] },
   "voice.mira": { "en": "Warm and encouraging, in American English.", "hi": "प्यारी और हौसला बढ़ाने वाली, अमेरिकी अंग्रेज़ी में।", "check": ["hi"] },
   "voice.off": { "en": "No spoken game calls; you will still hear sound effects.", "hi": "कोई बोली गई घोषणा नहीं; साउंड इफ़ेक्ट फिर भी सुनाई देंगे।", "check": ["hi"] },
-  "voice.priya": { "en": "Says game calls and moves in Hindi, in a woman's voice.", "hi": "खेल की घोषणाएँ और चालें हिन्दी में, महिला की आवाज़ में।", "check": ["hi"] }
+  "voice.priya": { "en": "Says game calls and moves in Hindi, in a woman's voice.", "hi": "खेल की घोषणाएँ और चालें हिन्दी में, महिला की आवाज़ में।", "check": ["hi"] },
+  "voice.toby": { "en": "Rooky's own voice: young, soft and calm, in American English.", "hi": "रूकी की अपनी आवाज़: युवा, नरम और शांत, अमेरिकी अंग्रेज़ी में।", "check": ["hi"] }
 }

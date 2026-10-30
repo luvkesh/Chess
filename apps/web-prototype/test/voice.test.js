@@ -21,9 +21,13 @@ assert.deepStrictEqual([...AU.moveWords('Nxe5+', 'en')], ['Knight', 'takes', 'ee
 assert.deepStrictEqual([...AU.moveWords('e8=Q#', 'en')], ['Pawn', 'ee eight', 'promotes to a queen', 'checkmate']);
 assert.deepStrictEqual([...AU.moveWords('O-O-O', 'en')], ['Castles queenside']);
 assert.deepStrictEqual([...AU.moveWords('Rad1', 'hi')], ['हाथी', 'डी एक']);
+// Chaturanga keeps the old names: the Q code is the Mantri, the B code the Gaja.
+assert.deepStrictEqual([...AU.moveWords('Qxe5+', 'en', true)], ['Mantri', 'takes', 'ee five', 'check']);
+assert.deepStrictEqual([...AU.moveWords('e8=Q', 'en', true)], ['Padati', 'ee eight', 'becomes a Mantri']);
+assert.deepStrictEqual([...AU.moveWords('Bd4', 'hi', true)], ['गज', 'डी चार']);
 const frag = { en: new Set(lines.fragments(V.moves.en)), hi: new Set(lines.fragments(V.moves.hi)) };
 for (const san of ['Nf3', 'exd5', 'Qxh7#', 'O-O', 'a8=N+', 'Kxg2', 'Bb5+']) {
-  for (const lang of ['en', 'hi']) for (const w of AU.moveWords(san, lang)) assert(frag[lang].has(w), lang + ' ' + san + ': ' + w);
+  for (const lang of ['en', 'hi']) for (const old of [false, true]) for (const w of AU.moveWords(san, lang, old)) assert(frag[lang].has(w), lang + ' ' + san + ': ' + w);
 }
 
 // Every voice says every game call, in both languages.
@@ -69,4 +73,21 @@ for (const x of wlines) {
 }
 const shipped = fs.readdirSync(wdir).filter((d) => !d.includes('.')).flatMap((d) => fs.readdirSync(path.join(wdir, d)).map((f) => d + '/' + f.replace(/\.mp3$/, ''))).sort();
 assert.deepStrictEqual(shipped, wlines.map((x) => x.who + '/' + x.key).sort(), 'one words clip per line, nothing extra');
+// Packs for hosts with a file limit: every clip comes back byte for byte from its pack.
+const os = require('os');
+const { execFileSync } = require('child_process');
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'packs-'));
+execFileSync('node', [path.join(__dirname, '../../../tools/voice/pack.js'), tmp]);
+const packs = JSON.parse(fs.readFileSync(path.join(tmp, 'voice/packs.json'), 'utf8')).voices;
+const packBuf = {};
+for (const v of V.voices) {
+  assert.deepStrictEqual(Object.keys(packs[v.id]).sort(), want[v.id].slice().sort(), v.id + ' is packed whole');
+  for (const [key, [file, at, len]] of Object.entries(packs[v.id])) {
+    const b = packBuf[file] = packBuf[file] || fs.readFileSync(path.join(tmp, 'voice', file));
+    assert(b.subarray(at, at + len).equals(fs.readFileSync(path.join(dir, v.id, key + '.mp3'))), v.id + '/' + key + ' packs whole');
+  }
+}
+fs.rmSync(tmp, { recursive: true, force: true });
+// Rooky's own voice is the default coach.
+assert(/voiceCoach: 'toby'/.test(fs.readFileSync(path.join(__dirname, '../src/app.js'), 'utf8')), 'Toby is the default coach voice');
 console.log('voice tests passed:', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');

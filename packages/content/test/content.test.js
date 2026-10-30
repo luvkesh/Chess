@@ -244,11 +244,12 @@ for (const v of variants) {
   assert.ok(['ready', 'soon'].includes(v.status) && v.name && v.tagline && v.blurb, v.id);
   if (v.era) assert.ok(campaignEras.has(v.era), v.id + ' era ' + v.era);
   if (v.status !== 'ready') continue;
+  if (v.id === 'xiangqi') { checkXiangqi(v); continue; }
   assert.ok(E.VARIANTS[v.id], v.id + ' has rules in the engine');
   assert.strictEqual(v.start, E.VARIANTS[v.id].start, v.id + ' start');
   assert.strictEqual(E.variantOf(load(v.start, v.id).fen()), v.id);
-  assert.ok(v.pieces.length === 6 && v.rules.length && v.rules.some((r) => r.differs), v.id + ' rule sheet');
-  for (const pc of v.pieces) {
+  assert.ok((!v.pieces || v.pieces.length === 6) && v.rules.length && v.rules.some((r) => r.differs), v.id + ' rule sheet');
+  for (const pc of v.pieces || []) {
     assert.ok('kqbnrp'.includes(pc.kind) && pc.name && pc.en && pc.moves, v.id + ' piece ' + pc.kind);
     assert.strictEqual(pc.fen.split('/').length, 8, v.id + ' ' + pc.name + ' picture');
     assert.ok(pc.dots.every((d) => sq(d) >= 0), v.id + ' ' + pc.name + ' dots');
@@ -265,6 +266,33 @@ for (const v of variants) {
     else if (x.type === 'move') for (const u of x.answers) assert.ok(g.legal.some((m) => E.uci(m) === u), where + ' answer ' + u);
     else if (x.type === 'choice') assert.ok(x.options[x.answer], where + ' answer');
     else if (x.type === 'win') assert.ok(g.legal.some((m) => { const t = new E.Game(x.fen); t.play(m); return t.outcome && t.outcome.result === (g.pos.side === E.WHITE ? '1-0' : '0-1'); }), where + ' has a winning move');
+    else assert.fail(where + ' type ' + x.type);
+    checked++;
+  });
+}
+// Xiangqi has its own engine (packages/chess-core/src/xiangqi.js) and board of nine by ten points.
+function checkXiangqi(v) {
+  const X = require('../../chess-core/src/xiangqi.js')();
+  const game = (fen, where) => { const g = new X.Game(fen); const p = g.pos; assert.ok(!p.attacked(p.kingSq(-p.side), p.side), where + ': the side not to move is in check'); return g; };
+  const pt = (n, where) => { const s = X.parseSq(n); assert.ok(s >= 0, where + ' point ' + n); return s; };
+  assert.strictEqual(v.start, X.START_FEN, 'xiangqi start');
+  assert.ok(v.rules.length && v.rules.some((r) => r.differs) && v.pieces.length === 7, 'xiangqi rule sheet');
+  assert.deepStrictEqual(v.pieces.map((pc) => pc.kind).join(''), 'kabnrcp', 'xiangqi pieces in order');
+  for (const pc of v.pieces) {
+    const where = 'xiangqi ' + pc.name, g = game('xiangqi:' + pc.fen + ' w - - 0 1', where);
+    const reach = new Set(g.legal.map((m) => X.mTo(m)));
+    assert.ok(pc.name && pc.en && pc.moves && pc.dots.length, where);
+    for (const d of pc.dots) assert.ok(reach.has(pt(d, where)), where + ' can reach ' + d);
+  }
+  const L = v.lesson;
+  assert.ok(L.title && L.objectives.length && L.steps.length && L.exercises.length && L.steps.concat(L.exercises).some((x) => x.differs), 'xiangqi lesson');
+  L.steps.forEach((s, i) => { game(s.fen, 'xiangqi step ' + i); (s.marks || []).forEach((m) => pt(m, 'xiangqi step ' + i)); assert.ok(s.line, 'xiangqi step ' + i + ' line'); checked++; });
+  L.exercises.forEach((x, i) => {
+    const where = 'xiangqi exercise ' + i, g = game(x.fen, where);
+    if (x.type === 'targets') assert.ok(g.targets(pt(x.from, where)).length >= 2, where + ' targets');
+    else if (x.type === 'move') for (const u of x.answers) assert.ok(g.legal.some((m) => X.uci(m) === u), where + ' answer ' + u);
+    else if (x.type === 'choice') assert.ok(x.options[x.answer], where + ' answer');
+    else if (x.type === 'win') assert.ok(g.legal.some((m) => { const t = new X.Game(x.fen); t.play(m); return t.outcome && t.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1'); }), where + ' has a winning move');
     else assert.fail(where + ' type ' + x.type);
     checked++;
   });

@@ -2,6 +2,7 @@
   "version": 1,
   "note": "Recorded with Kokoro-82M (Apache-2.0) by tools/voice/record.py. 'lessons' voices also read every lesson, opening and endgame line; the others read game calls and moves.",
   "voices": [
+    { "id": "toby", "name": "Toby", "lang": "en", "engine": "am_puck,am_michael", "speed": 0.95, "blurb": "Rooky's own voice: young, soft and calm. American English.", "lessons": true },
     { "id": "mira", "name": "Mira", "lang": "en", "engine": "af_heart", "speed": 1.0, "blurb": "Warm and encouraging. American English.", "lessons": true },
     { "id": "arthur", "name": "Arthur", "lang": "en", "engine": "bm_george", "speed": 0.95, "blurb": "Calm club captain. British English.", "lessons": true },
     { "id": "priya", "name": "Priya", "lang": "hi", "engine": "hf_alpha", "speed": 1.0, "blurb": "Game calls and moves in Hindi.", "lessons": false },
@@ -88,7 +89,8 @@
       "castleQ": "Castles queenside",
       "promote": { "Q": "promotes to a queen", "R": "promotes to a rook", "B": "promotes to a bishop", "N": "promotes to a knight" },
       "check": "check",
-      "mate": "checkmate"
+      "mate": "checkmate",
+      "old": { "piece": { "K": "Raja", "Q": "Mantri", "R": "Ratha", "B": "Gaja", "N": "Ashva", "P": "Padati" }, "promote": { "Q": "becomes a Mantri" }, "say": { "Mantri": "Muntree", "Ratha": "Rutta", "Gaja": "Gudja", "Ashva": "Ushva", "Padati": "Puddatee", "becomes a Mantri": "becomes a Muntree" } }
     },
     "hi": {
       "piece": { "K": "राजा", "Q": "वज़ीर", "R": "हाथी", "B": "ऊँट", "N": "घोड़ा", "P": "प्यादा" },
@@ -100,7 +102,8 @@
       "castleQ": "बड़ी कैसलिंग",
       "promote": { "Q": "वज़ीर बना", "R": "हाथी बना", "B": "ऊँट बना", "N": "घोड़ा बना" },
       "check": "शह",
-      "mate": "शह और मात"
+      "mate": "शह और मात",
+      "old": { "piece": { "K": "राजा", "Q": "मंत्री", "R": "रथ", "B": "गज", "N": "अश्व", "P": "पदाति" }, "promote": { "Q": "मंत्री बना" } }
     }
   }
 }

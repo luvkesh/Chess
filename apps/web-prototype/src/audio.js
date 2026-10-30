@@ -272,12 +272,14 @@ function ChacklateAudio() {
     }
   }
 
-  // Recorded voices (voice/<id>/<key>.mp3, made by tools/voice). When the game runs from the
-  // single offline file there are no recordings, and lessons fall back to the device's speech engine.
+  // Recorded voices (voice/<id>/<key>.mp3, made by tools/voice). Where voice/packs.json is served, the
+  // clips come instead from a few packs per voice (tools/voice/pack.js), each clip a byte range of one
+  // pack, so a host with a file limit can carry every voice. When the game runs from the single offline
+  // file there are no recordings, and lessons fall back to the device's speech engine.
   const V = (typeof CHACKLATE_VOICE !== 'undefined') ? CHACKLATE_VOICE : { voices: [], events: {}, moves: {} };
-  let coachVoice = 'mira', callVoice = 'mira', announceOn = false, deviceFallback = true;
-  let index = null, indexLoad = null, current = null, queueId = 0;
-  const clips = new Map();
+  let coachVoice = 'toby', callVoice = 'toby', announceOn = false, deviceFallback = true;
+  let index = null, indexLoad = null, current = null, queueId = 0, packs = null;
+  const clips = new Map(), packFiles = new Map();
   function voiceKey(text) {
     let h = 0x811c9dc5;
     for (const ch of String(text).normalize('NFC')) {
@@ -291,18 +293,32 @@ function ChacklateAudio() {
   function loadIndex() {
     if (indexLoad) return indexLoad;
     if (typeof fetch === 'undefined' || location.protocol === 'file:') { index = {}; return (indexLoad = Promise.resolve(index)); }
-    indexLoad = fetch('voice/index.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => {
+    const get = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    indexLoad = get('voice/packs.json').then((p) => {
+      if (p && p.voices) { packs = p.voices; return { voices: Object.fromEntries(Object.entries(packs).map(([id, v]) => [id, Object.keys(v)])) }; }
+      return get('voice/index.json');
+    }).then((j) => {
       index = {};
-      for (const id of Object.keys(j.voices || {})) index[id] = new Set(j.voices[id]);
+      for (const id of Object.keys((j && j.voices) || {})) index[id] = new Set(j.voices[id]);
       return index;
     });
     return indexLoad;
+  }
+  function packBytes(file) {
+    if (!packFiles.has(file)) {
+      packFiles.set(file, fetch('voice/' + file).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+        .catch((e) => { packFiles.delete(file); throw e; }));
+    }
+    return packFiles.get(file);
   }
   function has(id, key) { return !!(index && index[id] && index[id].has(key)); }
   function clip(id, key) {
     const k = id + '/' + key;
     if (!clips.has(k)) {
-      clips.set(k, fetch('voice/' + k + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+      const at = packs && packs[id] && packs[id][key];   // [pack file, first byte, length]
+      const bytes = at ? packBytes(at[0]).then((b) => b.slice(at[1], at[1] + at[2]))
+        : fetch('voice/' + k + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); });
+      clips.set(k, bytes
         .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { clips.delete(k); throw e; }));
     }
     return clips.get(k);
@@ -390,9 +406,11 @@ function ChacklateAudio() {
     return deviceFallback ? device(text, 1, lang) : false;
   }
   // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
-  function moveWords(san, lang) {
-    const M = V.moves[lang] || V.moves.en;
-    if (!M) return [];
+  // old: an old variation (Chaturanga), whose pieces keep their old names (Mantri, Gaja...).
+  function moveWords(san, lang, old) {
+    const B = V.moves[lang] || V.moves.en;
+    if (!B) return [];
+    const M = old && B.old ? Object.assign({}, B, { piece: B.old.piece, promote: Object.assign({}, B.promote, B.old.promote) }) : B;
     const s = String(san).replace(/[!?]+$/, '');
     const tail = /#$/.test(s) ? [M.mate] : /\+$/.test(s) ? [M.check] : [];
     if (/^O-O-O/.test(s)) return [M.castleQ].concat(tail);
@@ -405,11 +423,11 @@ function ChacklateAudio() {
     if (m[7]) words.push(M.promote[m[7]]);
     return words.concat(tail);
   }
-  async function announce(san) {
+  async function announce(san, old) {
     if (!announceOn || callVoice === 'off') return false;
     const v = voiceInfo(callVoice);
     const lang = v ? v.lang : 'en';
-    const words = moveWords(san, lang).filter(Boolean);
+    const words = moveWords(san, lang, old).filter(Boolean);
     if (!words.length) return false;
     stopSpeech();
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
