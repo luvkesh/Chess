@@ -13,6 +13,8 @@
     { "id": "lesson-1", "event": "lesson", "goal": 1, "xp": 50, "text": "Complete a lesson" },
     { "id": "drill-2", "event": "drill", "goal": 2, "xp": 40, "text": "Run 2 opening drills" },
     { "id": "dojo-1", "event": "dojo", "goal": 1, "xp": 50, "text": "Earn a star in the Endgame dojo" },
+    { "id": "mini-2", "event": "mini", "goal": 2, "xp": 40, "text": "Play 2 mini-games" },
+    { "id": "mini-4", "event": "mini", "goal": 4, "xp": 70, "text": "Play 4 mini-games" },
     { "id": "review-1", "event": "review", "goal": 1, "xp": 40, "text": "Review a game with the coach" },
     { "id": "online-1", "event": "online", "goal": 1, "xp": 60, "text": "Finish an online game", "needs": "online" }
   ]

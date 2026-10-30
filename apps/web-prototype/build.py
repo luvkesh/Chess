@@ -27,6 +27,8 @@ SCRIPTS = [
     src / 'net.js',
     src / 'relay.js',
     src / 'tips.js',
+    src / 'minigames.js',
+    src / 'rules.js',
     src / 'app.js',
 ]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
@@ -51,6 +53,9 @@ parts = [
     data('CHACKLATE_GUIDE', 'guide.json'),
     data('CHACKLATE_VARIANTS', 'variants.json'),
 ]
+# Translatable strings, one file per kind in packages/content/i18n, keyed by file name.
+strings = {f.stem: json.loads(f.read_text()) for f in sorted((content / 'i18n').glob('*.json'))}
+parts.append('const CHACKLATE_STRINGS = %s;' % json.dumps(strings, separators=(',', ':'), ensure_ascii=False))
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
 look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
@@ -68,6 +73,8 @@ for f in sorted((src / 'art').glob('*.webp')):
 parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')))
 for path in SCRIPTS:
     parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
+# The build id on the version line in Settings: a hash of everything inlined above.
+parts.insert(0, "const CHACKLATE_BUILD = '%s';" % hashlib.sha1('\n'.join(parts).encode()).hexdigest()[:7])
 code = '\n'.join(parts)
 assert '</script' not in code.lower()
 

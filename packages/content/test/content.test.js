@@ -154,7 +154,7 @@ for (const s of seasons.seasons) {
   const slots = catalog.items.filter((i) => i.unlock.season === s.id).map((i) => i.unlock.track + i.unlock.tier);
   assert.strictEqual(new Set(slots).size, slots.length, s.id + ' one reward per tier and track');
 }
-const EVENTS = ['game', 'win', 'online', 'puzzle', 'daily', 'lesson', 'drill', 'dojo', 'review'];
+const EVENTS = ['game', 'win', 'online', 'puzzle', 'daily', 'lesson', 'drill', 'dojo', 'review', 'mini'];
 for (const m of missions.missions) assert.ok(EVENTS.includes(m.event) && m.goal > 0 && m.xp > 0 && m.text, m.id);
 assert.ok(new Set(missions.missions.map((m) => m.event)).size >= missions.perDay);
 for (const p of store.products) {
