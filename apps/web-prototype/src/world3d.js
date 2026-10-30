@@ -1937,6 +1937,10 @@ function ChacklateWorld(THREE, K) {
     K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
+      // where a free camera may go: inside the walls, clear of what stands against them, and
+      // under the ceiling; outdoors, over the terrace and not far above it
+      bounds: outdoor ? { r: def.terrace.r - 1.2, y0: FLOOR + 0.6, y1: FLOOR + 13, tableR: 7.9, tableY: TOP }
+        : { r: RAD * Math.cos(Math.PI / NF) - 3.2, y0: FLOOR + 0.6, y1: FLOOR + H - 0.9, tableR: 7.9, tableY: TOP },
       fog: vista ? vista.fog.color : o.fog, fogDensity: vista ? vista.fog.density : 0.022, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
       chandelierLight: new THREE.Vector3(0, 7.2, 0),
       update(t) {
