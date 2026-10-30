@@ -74,5 +74,21 @@
   "era.deco.done": { "en": "You beat me! The Manhattan Deco set is yours. What a journey, all the way through chess history!", "hi": "आपने मुझे हरा दिया! Manhattan Deco सेट आपका है। क्या सफ़र रहा, शतरंज के पूरे इतिहास से होकर!", "check": ["hi"] },
   "minis": { "en": "Mini-games are quick! Pick one, and beat your best score.", "hi": "मिनी-गेम झटपट होते हैं! एक चुनें, और अपना सबसे अच्छा स्कोर तोड़ें।", "check": ["hi"] },
   "mini": { "en": "Tap the scroll if you need the rules. Have fun!", "hi": "नियम चाहिए तो स्क्रॉल पर टैप करें। मज़े करें!", "check": ["hi"] },
-  "club": { "en": "Welcome to the Club! See how you rank, climb the leagues, and find the friends you play with a code.", "hi": "क्लब में आपका स्वागत है! देखें कि आपकी रैंक क्या है, लीग में ऊपर चढ़ें, और उन दोस्तों को ढूँढें जिनके साथ आप कोड से खेलते हैं।", "check": ["hi"] }
+  "club": { "en": "Welcome to the Club! See how you rank, climb the leagues, and find the friends you play with a code.", "hi": "क्लब में आपका स्वागत है! देखें कि आपकी रैंक क्या है, लीग में ऊपर चढ़ें, और उन दोस्तों को ढूँढें जिनके साथ आप कोड से खेलते हैं।", "check": ["hi"] },
+  "placement.offer": { "en": "Have you played chess before? Take my short test, and I'll pick your first lesson and a friend to play. Or skip it, and we'll start at the beginning.", "hi": "क्या आपने पहले शतरंज खेली है? मेरी छोटी-सी जाँच दें, और मैं आपका पहला पाठ और खेलने के लिए एक दोस्त चुनूँगा। या इसे छोड़ दें, और हम शुरू से शुरू करेंगे।", "check": ["hi"] },
+  "placement.q01": { "en": "Tap every square the rook can reach. Remember, it can take a black piece, but not jump over one.", "hi": "उन सभी खानों पर टैप करें जहाँ हाथी पहुँच सकता है। याद रखें, वह काले मोहरे को मार सकता है, पर उसके ऊपर से कूद नहीं सकता।", "check": ["hi"] },
+  "placement.q02": { "en": "Now the knight. Tap every square it can jump to.", "hi": "अब घोड़ा। उन सभी खानों पर टैप करें जहाँ वह कूद सकता है।", "check": ["hi"] },
+  "placement.q03": { "en": "Your knight can take a piece. Take the one that nobody guards.", "hi": "आपका घोड़ा एक मोहरा मार सकता है। वह मोहरा मारें जिसकी कोई रक्षा नहीं कर रहा।", "check": ["hi"] },
+  "placement.q04": { "en": "Give check with your queen, on a square where she cannot be taken.", "hi": "अपनी रानी से शह दें, ऐसे खाने पर जहाँ उसे मारा न जा सके।", "check": ["hi"] },
+  "placement.q05": { "en": "Find checkmate in one move.", "hi": "एक चाल में शह-मात ढूँढें।", "check": ["hi"] },
+  "placement.q06": { "en": "The black king is stuck behind his pawns. Find checkmate in one move.", "hi": "काला राजा अपने प्यादों के पीछे फँसा है। एक चाल में शह-मात ढूँढें।", "check": ["hi"] },
+  "placement.q07": { "en": "Find a knight move that attacks the king and the rook at once.", "hi": "घोड़े की ऐसी चाल ढूँढें जो राजा और हाथी पर एक साथ हमला करे।", "check": ["hi"] },
+  "placement.q08": { "en": "White moves first. Can the black king catch the pawn before it becomes a queen?", "hi": "सफ़ेद पहले चलता है। क्या काला राजा प्यादे के रानी बनने से पहले उसे पकड़ सकता है?", "check": ["hi"] },
+  "placement.q09": { "en": "Your opponent has just moved. Find the best move, then keep going.", "hi": "आपके विरोधी ने अभी चाल चली है। सबसे अच्छी चाल ढूँढें, फिर आगे बढ़ते रहें।", "check": ["hi"] },
+  "placement.q10": { "en": "Last one, and the hardest. Find the best move, then keep going.", "hi": "आख़िरी सवाल, और सबसे मुश्किल। सबसे अच्छी चाल ढूँढें, फिर आगे बढ़ते रहें।", "check": ["hi"] },
+  "placement.r1": { "en": "Thanks for trying! We'll start at the very beginning, with how the pieces move. You'll pick it up in no time!", "hi": "कोशिश के लिए शुक्रिया! हम बिल्कुल शुरू से शुरू करेंगे, कि मोहरे कैसे चलते हैं। आप जल्दी सीख जाएँगे!", "check": ["hi"] },
+  "placement.r2": { "en": "Nice work! You know how the pieces move, so we'll start with check and checkmate.", "hi": "बहुत बढ़िया! आप जानते हैं कि मोहरे कैसे चलते हैं, तो हम शह और शह-मात से शुरू करेंगे।", "check": ["hi"] },
+  "placement.r3": { "en": "Great job! You know the rules, so your path starts with opening ideas.", "hi": "शाबाश! आप नियम जानते हैं, तो आपका रास्ता शुरुआत की चालों के विचारों से शुरू होता है।", "check": ["hi"] },
+  "placement.r4": { "en": "Wow, you spotted the fork! You're ready for tactics, like forks and pins.", "hi": "वाह, आपने फ़ोर्क पकड़ लिया! आप फ़ोर्क और पिन जैसी चालों के लिए तैयार हैं।", "check": ["hi"] },
+  "placement.r5": { "en": "Amazing, you found nearly everything! You're ready to learn defence and king safety.", "hi": "कमाल, आपने लगभग सब ढूँढ लिया! आप बचाव और राजा की सुरक्षा सीखने के लिए तैयार हैं।", "check": ["hi"] }
 }

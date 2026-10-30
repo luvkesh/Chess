@@ -151,5 +151,14 @@
   "dr.play": { "en": "Play {san}.", "hi": "{san} चलें।", "check": ["hi"] },
   "level.basic": { "en": "Basic", "hi": "शुरुआती", "check": ["hi"] },
   "level.advanced": { "en": "Advanced", "hi": "आगे का", "check": ["hi"] },
-  "level.master": { "en": "Master", "hi": "उस्ताद", "check": ["hi"] }
+  "level.master": { "en": "Master", "hi": "उस्ताद", "check": ["hi"] },
+  "place.eyebrow": { "en": "Placement test", "hi": "शुरुआत की जाँच", "check": ["hi"] },
+  "place.score": { "en": "{n} of {of} · ready for Chapter {ch}", "hi": "{of} में से {n} · अध्याय {ch} के लिए तैयार", "check": ["hi"] },
+  "place.again": { "en": "{title}. Take the test again any time.", "hi": "{title}। यह जाँच कभी भी दोबारा दें।", "check": ["hi"] },
+  "place.before": { "en": "Played chess before?", "hi": "पहले शतरंज खेली है?", "check": ["hi"] },
+  "place.text": { "en": "{n} questions, about {min} minutes. {coach} picks where you start.", "hi": "{n} सवाल, लगभग {min} मिनट। {coach} चुनेगा कि आप कहाँ से शुरू करें।", "check": ["hi"] },
+  "place.badge": { "en": "{n} questions · about {min} minutes", "hi": "{n} सवाल · लगभग {min} मिनट", "check": ["hi"] },
+  "place.retake": { "en": "Take the test again?", "hi": "जाँच दोबारा दें?", "check": ["hi"] },
+  "place.skip": { "en": "Skip, start at the beginning", "hi": "छोड़ें, शुरू से सीखें", "check": ["hi"] },
+  "place.go": { "en": "Take the test", "hi": "जाँच दें", "check": ["hi"] }
 }
