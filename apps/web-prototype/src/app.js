@@ -40,6 +40,7 @@
     flag: '<path d="M4 22V4M4 4h13l-2 4 2 4H4"/>',
     draw: '<path d="M7 12h10M7 8h10M7 16h10"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+    bag: '<path d="M4.5 8h15l-1.3 12.2a2 2 0 0 1-2 1.8H7.8a2 2 0 0 1-2-1.8z"/><path d="M8.5 10.5V7a3.5 3.5 0 0 1 7 0v3.5"/>',
     flip: '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
     cam: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
@@ -537,7 +538,7 @@
     $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
     $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
     $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
-    AU.onTalk((on) => el.classList.toggle('speaking', on));
+    AU.onTalk((on, what) => el.classList.toggle('speaking', on && what === 'guide'));
     return el;
   }
   function guideTuck() {
@@ -1340,6 +1341,44 @@
   const CAT_ORDER = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock', 'sound'];
   const CAT_ICON = { pieces: 'pawn', board: 'grid', room: 'home', avatar: 'profile', frame: 'frame', capture: 'sparkle', victory: 'trophy', trail: 'wave', clock: 'clock', sound: 'speaker' };
   const eraOfRoom = (r) => CAMPAIGN.eras.find((e) => e.room === r) || null;
+  // Acquire: things a grown-up can get in the store (Premium, and the Season Pass track). Everything
+  // else is earned, and the pop-over says how instead.
+  const canAcquire = (it) => it.unlock.type === 'premium' || (it.unlock.type === 'season' && it.unlock.track === 'pass');
+  function acquire(it) {
+    if (it.unlock.type === 'season') go('season'); else go('store');
+  }
+  // How to get an earned item, in a child's words, and where to go to do it.
+  function howToGet(it) {
+    const u = it.unlock, P = state.progress;
+    if (u.type === 'level') return { text: 'Reach level ' + u.level + '. You are level ' + PG.levelFor(P.xp).level + ' now, and every game, lesson and puzzle helps.', go: ['play'], label: 'Play a game' };
+    if (u.type === 'achievement') {
+      const a = PG.ACHIEVEMENTS.find((x) => x.id === u.achievement);
+      return { text: a ? 'Earn the ' + a.name + ' badge: ' + a.desc : PG.unlockText(it) + '.', go: ['play'], label: 'Play a game' };
+    }
+    if (u.type === 'journey') {
+      const e = eraById(u.era);
+      return { text: e ? 'Beat ' + eraCoach(e).name + ', the champion of ' + e.name + ', on The Journey.' : PG.unlockText(it) + '.', go: e ? ['era', e.id] : ['journey'], label: 'Go there' };
+    }
+    if (u.type === 'season') return { text: 'Reach tier ' + u.tier + ' of the season' + (u.track === 'pass' ? ' with the Season Pass' : '') + '. Missions and games move you up.', go: ['season'], label: 'See the season' };
+    if (u.type === 'premium') return { text: 'This comes with Premium. Ask a grown-up to have a look.', go: ['store'], label: 'Ask a grown-up' };
+    return { text: 'It is yours already.', go: null };
+  }
+  function equipItem(it) {
+    if (!PG.equip(state.progress, it)) return false;
+    save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); renderNav();
+    return true;
+  }
+  // The round drawn buttons on a card: View always, then Equip or Acquire when they apply.
+  function cardActs(it, un, on) {
+    const b = (act, ic, label, tip) => '<button class="round sm" data-act="' + act + '" aria-label="' + esc(label) + '" title="' + esc(tip) + '">' + icon(ic) + '</button>';
+    return b('view', 'eye', 'View ' + it.name, 'View|See it up close and hear ' + COACH.name + ' tell you about it.') +
+      (un && !on ? b('equip', 'check', 'Equip ' + it.name, 'Equip|Use it from now on.') : '') +
+      (!un && canAcquire(it) ? b('get', 'bag', 'Acquire ' + it.name, 'Acquire|A grown-up can get this in the ' + (it.unlock.type === 'season' ? 'Season Pass.' : 'store.')) : '');
+  }
+  // What Rooky says about each item (packages/content/pitches.json): the clip and its words.
+  const PITCH = typeof CHACKLATE_PITCH !== 'undefined' ? CHACKLATE_PITCH : {};
+  let pitchTalk = null;   // the open pop-over hears when Rooky stops, or someone else starts talking
+  AU.onTalk((on, what) => { if (pitchTalk) pitchTalk(on, what); });
   function soundArt(pack) {
     const h = { wood: [5, 9, 6, 11, 7, 4, 8, 10, 6, 4], soft: [3, 5, 4, 6, 5, 3, 4, 5, 3, 2], marble: [8, 12, 7, 13, 9, 6, 11, 12, 8, 5], glass: [6, 10, 13, 8, 12, 9, 13, 7, 10, 6] }[pack] || [5, 8, 6, 9, 7, 5, 8, 9, 6, 4];
     const bars = h.map((v, i) => '<rect x="' + (38 + i * 13) + '" y="' + (80 - v * 3.6) + '" width="7" height="' + (v * 7.2) + '" rx="3.5" fill="url(#g)"/>').join('');
@@ -1401,18 +1440,19 @@
         (filter === 'all' || (filter === 'owned') === PG.isUnlocked(P, i)));
       $('items').innerHTML = items.length ? items.map((it) => {
         const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
-        return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
+        return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="View ' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
           '<span class="rar ' + it.rarity + '">' + it.rarity + '</span>' +
           '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(it.desc) + '</span><span class="st">' +
           (un ? '<span>' + (on ? icon('check') + ' Equipped' : 'Owned') + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
-          '<button class="round sm eye" data-peek="' + it.id + '" aria-label="Try ' + esc(it.name) + ' on the table" title="Try it on the table">' + icon('eye') + '</button></span></div></div>';
+          '<span class="acts">' + cardActs(it, un, on) + '</span></span></div></div>';
       }).join('') : '<p class="muted">Nothing here yet. Try another search.</p>';
       hydrate($('items'), true);
+      // JongClub's cards: round drawn buttons (View, Acquire, Equip), and the whole card opens View.
       $('items').querySelectorAll('.item').forEach((el) => {
         el.onclick = (e) => {
-          const it = PG.item(el.dataset.item);
-          AU.play('tap');
-          if (e.target.closest('[data-peek]')) peek(it); else itemModal(it, render, items);
+          const it = PG.item(el.dataset.item), act = e.target.closest('[data-act]');
+          AU.play('tap'); AU.unlock();
+          if (act && act.dataset.act === 'equip') { equipItem(it); render(); } else if (act && act.dataset.act === 'get') acquire(it); else itemModal(it, render, items);
         };
       });
       $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, 'collected');
@@ -1430,10 +1470,40 @@
     list = list && list.includes(it) ? list : [it];
     let at = list.indexOf(it), live = null;
     const many = list.length > 1;
-    const m = modal('<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
+    // Rooky's round face sits by the close button, like JongClub's narrator: he says his piece about
+    // each item as it opens (if the voice is on), his face pulses while he talks, and a tap on it
+    // says it again or stops him. The speaker beside it is the game's one voice switch.
+    const m = modal('<div class="mu-rooky"><button class="narrator" id="mu-say"><img src="' + face(COACH) + '" alt=""></button>' +
+      '<button class="gd-btn" id="mu-voice" data-voice="' + esc(COACH.name) + '"></button></div>' +
+      '<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
       (many ? '<button class="round mu-nav prev" aria-label="Previous item">' + icon('prev') + '</button><button class="round mu-nav next" aria-label="Next item">' + icon('next') + '</button><span class="mu-count" id="mu-count"></span>' : '') +
-      '</div><div id="mu-info"></div></div>', { cls: 'wide', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); } });
-    const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info');
+      '</div><div id="mu-info"></div></div>', { cls: 'wide museum-card', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); quiet(); pitchTalk = null; } });
+    const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info'), sayBtn = m.querySelector('#mu-say');
+    let talk = 0, talkingNow = false;
+    function talkState(on) {
+      talkingNow = on;
+      m.querySelector('.mu-rooky').classList.toggle('speaking', on);
+      sayBtn.setAttribute('aria-label', on ? 'Stop ' + COACH.name : 'Hear ' + COACH.name + ' again');
+      sayBtn.title = on ? 'Stop|Tap to stop ' + COACH.name + '.' : COACH.name + '|Tap to hear what ' + COACH.name + ' thinks of it.';
+    }
+    pitchTalk = (on, what) => { if ((!on || what !== 'pitch') && talkingNow) talkState(false); };
+    function pitch(it) {
+      const p = PITCH[it.id];
+      const my = ++talk;
+      if (!p || !state.settings.narration || !AU.canTalk()) { talkState(false); return; }
+      talkState(true);
+      AU.pitch(p.src, p.text).then(() => { if (my === talk) talkState(false); });
+    }
+    function quiet() { talk++; if (talkingNow) { AU.hush(); talkState(false); } }
+    sayBtn.onclick = () => {
+      AU.unlock();
+      if (talkingNow) { quiet(); return; }
+      if (!state.settings.narration) setVoice(true, true);
+      pitch(list[at]);
+    };
+    m.querySelector('#mu-voice').onclick = () => { AU.unlock(); talk++; setVoice(!state.settings.narration, true); if (state.settings.narration) pitch(list[at]); else talkState(false); };
+    voiceIcon(m.querySelector('#mu-voice'), COACH.name);
+    talkState(false);
     function fill(it, dir) {
       const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
       const d = it.data || {};
@@ -1443,8 +1513,12 @@
         '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
         (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
           '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
+        (PITCH[it.id] ? '<p class="mu-quote"><b>' + esc(COACH.name) + ':</b> “' + esc(PITCH[it.id].text) + '”</p>' : '') +
         '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
-        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
+        '<div class="mu-how" id="mu-how" hidden></div>' +
+        '<div class="row" style="justify-content:flex-start">' +
+        (un ? (on ? '' : '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>') :
+          canAcquire(it) ? '<button class="btn primary" id="mu-get">' + icon('bag') + ' Acquire</button>' : '<button class="btn primary" id="mu-howbtn" aria-expanded="false">' + icon('hint') + ' How to get it</button>') +
         '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
       if (many) m.querySelector('#mu-count').textContent = (at + 1) + ' of ' + list.length;
@@ -1469,8 +1543,23 @@
         };
       });
       const eq = info.querySelector('#mu-eq');
-      if (eq) eq.onclick = () => { PG.equip(P, it); save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); m.close(); renderNav(); if (after) after(); };
+      if (eq) eq.onclick = () => { equipItem(it); m.close(); if (after) after(); };
+      const get = info.querySelector('#mu-get');
+      if (get) get.onclick = () => { m.close(); acquire(it); };
+      const how = info.querySelector('#mu-howbtn');
+      if (how) {
+        how.onclick = () => {
+          const h = howToGet(it), box = info.querySelector('#mu-how');
+          AU.play('tap');
+          if (!box.hidden) { box.hidden = true; how.setAttribute('aria-expanded', 'false'); return; }
+          box.innerHTML = '<p>' + esc(h.text) + '</p>' + (h.go ? '<button class="btn small" id="mu-go">' + esc(h.label) + ' ' + icon('arrow') + '</button>' : '');
+          box.hidden = false; how.setAttribute('aria-expanded', 'true');
+          const g = box.querySelector('#mu-go');
+          if (g) g.onclick = () => { m.close(); go(...h.go); };
+        };
+      }
       info.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
+      pitch(it);
     }
     function step(dir) {
       if (!many) return;

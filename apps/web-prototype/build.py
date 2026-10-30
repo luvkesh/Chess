@@ -50,6 +50,21 @@ parts = [
     data('CHACKLATE_CAMPAIGN', 'campaign.json'),
     data('CHACKLATE_GUIDE', 'guide.json'),
 ]
+# What Rooky says about each Collection item. A chess set from an era plays the website's recording of
+# its pitch (pitch/site/<key>.mp3, served from apps/website/audio), so each pitch is recorded once.
+site = here.parent / 'website'
+coach = json.loads((content / 'campaign.json').read_text())['coach']['name']
+site_lines = json.loads((site / 'guide.json').read_text())['lines']
+site_said = json.loads((site / 'audio' / 'index.json').read_text())['lines']
+pitch = {}
+for key, line in json.loads((content / 'pitches.json').read_text())['lines'].items():
+    if isinstance(line, dict):
+        text = site_lines[line['site']].replace('{coach}', coach)
+        assert site_said[line['site']]['text'] == text, 'the website clip %s says something else' % line['site']
+        pitch[key] = {'text': text, 'src': 'pitch/site/%s.mp3' % line['site']}
+    else:
+        pitch[key] = {'text': line, 'src': 'pitch/%s.mp3' % key}
+parts.append('const CHACKLATE_PITCH = %s;' % json.dumps(pitch, separators=(',', ':'), ensure_ascii=False))
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
 look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
