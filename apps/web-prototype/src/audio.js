@@ -455,6 +455,8 @@ function ChacklateAudio() {
   // Lessons with their own speakers (words/<who>/<key>.mp3, recorded by tools/voice/record-words.py):
   // Rooky in English, Priya in Hindi.
   const words = (who, text) => line('words/' + who + '/' + voiceKey(text) + '.mp3', text, 'words', who === 'priya' ? 'hi' : 'en');
+  // An era's story, read by that era's friend (tale/<era>/<key>.mp3, recorded by tools/voice/record-tales.py).
+  const tale = (era, text) => line('tale/' + era + '/' + voiceKey(text) + '.mp3', text, 'tale', 'en');
   // True once the browser lets the game make sound (from the first tap on).
   let tapped = false;
   const canTalk = () => tapped || !!(ctx && ctx.state === 'running');
@@ -472,7 +474,7 @@ function ChacklateAudio() {
     },
     // Browsers only allow sound after a user gesture; call this from one.
     unlock() { if (ready()) { tapped = true; if (musicOn && !music) startMusic(); } },
-    say, hush, event, announce, voiceKey, moveWords, guide, pitch, words, canTalk, phrases,
+    say, hush, event, announce, voiceKey, moveWords, guide, pitch, words, tale, canTalk, phrases,
     onTalk(fn) { talkers.push(fn); },
     voices: () => V.voices.slice(),
     setVoices(o) {
