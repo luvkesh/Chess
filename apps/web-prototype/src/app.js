@@ -557,7 +557,7 @@
     if (el.dataset.ready) return el;
     el.dataset.ready = '1';
     el.innerHTML = '<button class="narrator" id="gd-show" tabindex="-1" aria-label="' + t('common.guide.show') + '" title="' + t('common.guide.show') + '"><img alt=""></button>' +
-      '<div class="gd-body"><div class="gd-head"><p class="eyebrow" id="gd-who"></p>' +
+      '<div class="gd-body"><div class="gd-head"><p class="gd-who" id="gd-who"></p>' +
       '<button class="gd-btn" id="gd-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button>' +
       '<button class="gd-btn" id="gd-voice"></button>' +
       '<button class="gd-btn" id="gd-hide" aria-label="' + t('common.guide.hide') + '" title="' + t('common.guide.hide') + '">' + icon('down') + '</button></div>' +
