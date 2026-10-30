@@ -74,6 +74,7 @@
     medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 3l2.5 6.2M15.5 3L13 9.2"/><path d="M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/>',
     swords: '<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/>',
     rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    coin: '<circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="3.6" ry="5.4" transform="rotate(30 12 12)"/><path d="M10.2 7.8c1.4 1.6 1.4 6.8 3.6 8.4"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
   const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
@@ -255,82 +256,46 @@
 
   // ------------------------------------------------------------------ tooltips
   // Hover (or hold on a touch screen) to read what a control does, in words a child knows.
-  // Icon-only buttons fall back to their aria-label; everything else unclear is written here.
-  const SETTINGS_TIP = 'Settings|Sound, music, graphics, voices and coaching.';
-  const TIPS = {
-    'nv-set': SETTINGS_TIP, 'g-settings': SETTINGS_TIP, 'rv-set': SETTINGS_TIP, 'ls-set': SETTINGS_TIP, 'dr-set': SETTINGS_TIP, 'pz-set': SETTINGS_TIP,
-    'nv-music': 'Music|Turn the background music on or off.', 'g-music': 'Music|Turn the background music on or off.',
-    'ls-voice': 'Narration|Hear Rooky read the lesson out loud.',
-    'g-undo': 'Undo|Take back your last move and try a different one.',
-    'g-hint': 'Hint|Rooky shows you a good move to think about.',
-    'g-threat': 'Threat|See what your opponent would love to do next, so you can stop it.',
-    'g-flip': 'Flip|Turn the board around to see it from the other side.',
-    'g-view': 'Camera|Switch between looking down from above and sitting at the table.',
-    'g-draw': 'Draw|Ask to end the game as a tie, with no winner.',
-    'g-resign': 'Resign|Give up this game. Your opponent wins.',
-    'g-emote': 'React|Send a friendly picture to the other player. There is no chat.',
-    'g-claim': 'Claim a draw|The rules say this game can end as a tie right now. Tap to end it.',
-    'g-rules': 'Rule book|The special rules that matter in this game right now: castling, en passant, promotion and draws. In a game against a person the clock keeps running.',
-    'g-copy': 'PGN|Copy every move of this game as text, to save it or share it with a grown-up.',
-    'g-review': 'Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes.',
-    'rv-turn': 'Turning point|Jump to the move where the game changed the most.',
-    'rv-best': 'Best line|Show the moves Rooky would have played here.',
-    'rv-practice': 'Play from here|Start a new game from this exact position.',
-    'pz-hint': 'Hint|Get a little clue.', 'ls-hint': 'Hint|Get a little clue.', 'dr-hint': 'Hint|See the next move of this opening.',
-    'pz-sol': 'Solution|Show the answer to this puzzle.',
-    'dr-reset': 'Restart|Go back to the start of this opening.',
-    'l-review': 'Reviews|Quick refreshers of lessons you learned a while ago, so you never forget them.',
-    'fr-create': 'Make a game|Get a 6-letter code. Your friend types it in to join you.',
-    'fr-join': 'Join|Type the code your friend gave you, then join their game.',
-    'fr-local': 'Take turns here|Play on this one device and pass it back and forth.',
-    'w-go': 'Find a player|We look for someone, anywhere in the world, who picked the same clock.',
-    'mu-eq': 'Equip|Use this in your games from now on.', 'pk-eq': 'Equip|Use this in your games from now on.',
-    'st-restore': 'Restore purchases|Bring back things a grown-up already bought, for example on a new device.',
-    's-reset': 'Reset progress|Start again from the beginning. Your stars, levels and rewards on this device are cleared.',
-    'br-more': 'Only for grown-ups|Allow 15 more minutes of play today.',
-    // settings switches (the tip sits on the whole row)
-    's-anim': 'Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game.',
-    's-cine': 'Short movie scenes when a piece is captured or a king castles.',
-    's-sfxv': 'Slide to make sound effects louder or quieter. The switch turns them off.',
-    's-musv': 'Slide to make the music louder or quieter. The switch turns it off.',
-    's-narr': 'Rooky reads the stories and lessons out loud.',
-    's-vcoach': 'The voice that reads lessons and stories.',
-    's-vcalls': 'The voice that says “check”, game results and puzzle results.',
-    's-announce': 'Hear every move said out loud, like “Knight to f3”.',
-    's-coach': 'How often Rooky talks to you during a game.',
-    's-eval': 'A bar beside the board that shows who is ahead. More white means White is doing better.',
-    's-legal': 'Dots show every square the piece you picked can move to.',
-    's-turn': 'When two players share a device, the board turns so each player sees it from their side.',
-  };
-  // The choice chips in the game setup windows, by radio name and value.
-  const CHIP_TIPS = {
-    'color:white': 'White|You make the first move.',
-    'color:black': 'Black|Your opponent makes the first move.',
-    'color:random': 'Surprise me|We pick White or Black for you.',
-    'mode:ai': 'Play one of the animal friends on this device.',
-    'mode:local': 'Two players share this device and take turns.',
-    'q:high': 'The most beautiful tables. Uses more battery.',
-    'q:low': 'Simpler pictures that run faster on older phones and tablets.',
-  };
+  // Every tip lives in packages/content/i18n/tips.json, so it is translated with the rest.
+  // Icon-only buttons fall back to their aria-label.
+  const TIP_STRINGS = (typeof CHACKLATE_STRINGS !== 'undefined' && CHACKLATE_STRINGS.tips) || {};
+  const TIP_I = ChacklateTips.icon;   // the drawn (i) that opens a tip with a tap on touch screens
+  function tip(key, vars) {
+    let s = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('tips.' + key, vars) : null;
+    if (!s || s === 'tips.' + key) {
+      const e = TIP_STRINGS[key];
+      if (!e) return null;
+      s = e.en.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m));
+    }
+    return s;
+  }
   // "3+2" means 3 minutes each, plus 2 seconds back on your clock after every move you make.
   function clockTip(tc) {
-    if (!tc || tc === 'none') return 'No clock|Take as long as you like to think about every move.';
+    if (!tc || tc === 'none') return tip('clock.none');
     const [m, inc] = tc.split('+').map(Number);
-    const mins = m + (m === 1 ? ' minute' : ' minutes');
-    return mins + (inc ? ' + ' + inc + ' seconds' : '') + '|Each player gets ' + mins + ' for the whole game. ' +
-      (inc ? 'Every time you make a move, ' + inc + ' bonus seconds are added to your clock.' : 'No bonus time is added, so keep an eye on your clock!') +
-      ' If your time runs out, you usually lose.';
+    return inc ? tip('clock.bonus', { m, s: inc }) : m === 1 ? tip('clock.one') : tip('clock.plain', { m });
+  }
+  // A settings row: what it does, then what the chosen option means. A row of chips
+  // (data-radio) lists every option, each named as on its chip.
+  function settingTip(key, el) {
+    const head = tip(key);
+    if (!head) return null;
+    const line = (v, label) => { const t = tip(key + '.' + v) || tip('voice.' + v); return t && label ? label + ': ' + t : t; };
+    const sel = el.querySelector('select');
+    const more = sel ? [line(sel.value, sel.selectedOptions[0] && sel.selectedOptions[0].textContent.split(' · ')[0])]
+      : el.dataset.radio ? [...el.parentElement.querySelectorAll('input[name=' + el.dataset.radio + ']')].map((r) => line(r.value, r.nextElementSibling.textContent.split(':')[0])) : [];
+    return [head].concat(more.filter(Boolean)).join('\n\n');
   }
   function tipFor(el) {
-    if (el.id && TIPS[el.id]) return TIPS[el.id];
+    if (el.dataset.tk) return settingTip(el.dataset.tk, el);
+    if (el.id) { const t = tip('control.' + el.id); if (t) return t; }
     if (el.tagName === 'LABEL') {
       const r = el.querySelector('input[type=radio]');
-      if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : CHIP_TIPS[r.name + ':' + r.value] || null;
-      if (el.classList.contains('toggle')) { const c = el.querySelector('input, select'); return c && TIPS[c.id] || null; }
+      if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : tip('chip.' + r.name + '.' + r.value);
     }
     if (el.classList.contains('clock') && el.dataset.side) {
       const inc = state.game ? +(String(state.game.setup.tc || '').split('+')[1] || 0) : 0;
-      return 'Clock|Time left for this player. It only counts down on their turn.' + (inc ? ' They get ' + inc + ' bonus seconds after each move.' : '');
+      return tip('game.clock') + (inc ? ' ' + tip('game.clock.bonus', { s: inc }) : '');
     }
     return null;
   }
@@ -473,6 +438,7 @@
   // Show XP, level-ups, achievements and unlocks from a progress result.
   function celebrate(res, quiet) {
     if (!res) return;
+    if (res.coins) setTimeout(() => { AU.play('select'); toast('<i class="coin-i">' + icon('coin') + '</i><div><small>' + esc(PG.COIN_NAME) + '</small><b>+' + res.coins + '</b> · ' + coinCount(state.progress.coins) + ' in all</div>', 'ach'); }, 300);
     res.achievements.forEach((a, i) => setTimeout(() => {
       AU.play('achievement');
       toast('<i>★</i><div><small>Achievement</small><b>' + esc(a.name) + '</b> · +' + a.xp + ' XP</div>', 'ach');
@@ -841,6 +807,7 @@
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     const ms = $('a-missions'); if (ms) ms.onclick = () => { AU.play('tap'); missionsModal(); };
     const ss = $('a-season'); if (ss) ss.onclick = () => { AU.play('tap'); go('season'); };
+    const cs = $('a-coins'); if (cs) cs.onclick = () => { AU.play('tap'); go('store', 'coins'); };
   }
   SCREENS.home = function () {
     idleBoard();
@@ -863,7 +830,7 @@
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
       lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
       '</div>' +
-      '<div class="home-foot">' + missionsStrip() + seasonStrip() + '</div>' +
+      '<div class="home-foot">' + coinsStrip() + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
     hydrate();
     wireLinks();
@@ -874,6 +841,64 @@
     $('h-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
     return { leave() { view.setAttract(false); } };
   };
+
+  // ---------------------------------------------------------------- choco coins
+  // Coins are earned by playing and spent on looks. They are never sold, so spending them needs no
+  // parent gate; every real-money step stays in the gated part of the store.
+  const coinCount = (n) => n.toLocaleString('en-IN') + ' ' + (n === 1 ? PG.COIN_ONE : PG.COIN_NAME);
+  const coinsPill = () => '<span class="pill gold coins" title="' + esc(PG.COIN_NAME) + ': earned by playing, never bought">' + icon('coin') + '<b>' + state.progress.coins.toLocaleString('en-IN') + '</b> ' + esc(PG.COIN_NAME) + '</span>';
+  // Level items the player can buy now or soon, nearest first.
+  function coinShelf() {
+    const P = state.progress;
+    return CATALOG.items.filter((i) => PG.coinPrice(i) !== null && !PG.isUnlocked(P, i))
+      .sort((a, b) => a.unlock.level - b.unlock.level || PG.coinPrice(a) - PG.coinPrice(b));
+  }
+  function coinsStrip() {
+    const P = state.progress, shelf = coinShelf(), reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
+    const next = reach.find((i) => PG.coinOffer(P, i).ok) || reach[0];
+    const line = !next ? 'Keep playing to fill your purse' : PG.coinOffer(P, next).ok ? 'You can buy ' + next.name + ' now' : 'Next: ' + next.name + ' for ' + PG.coinPrice(next).toLocaleString('en-IN');
+    return '<button class="strip glass" id="a-coins"><span class="sg gold">' + icon('coin') + '</span><span style="flex:1"><small>' + esc(PG.COIN_NAME) + ' · ' + P.coins.toLocaleString('en-IN') + '</small><b>' + esc(line) + '</b>' +
+      (next ? '<span class="bar"><i style="width:' + Math.min(100, Math.round(P.coins / PG.coinPrice(next) * 100)) + '%"></i></span>' : '') + '</span><span class="go">' + icon('arrow') + '</span></button>';
+  }
+  // Ask once before spending; returns true when bought.
+  function buyWithCoins(it, after) {
+    const P = state.progress, o = PG.coinOffer(P, it);
+    if (!o.ok) { toast(o.reason === 'short' ? 'You need ' + coinCount(o.short) + ' more.' : o.reason === 'too-far' ? 'Get within ' + PG.COIN_REACH + ' levels of level ' + it.unlock.level + ' to buy this.' : 'This one cannot be bought with coins.', 'bad'); return; }
+    const m = modal('<div class="eyebrow">' + esc(PG.COIN_NAME) + '</div><h2>Buy ' + esc(it.name) + '?</h2><p class="sub">It costs ' + coinCount(o.price) + '. You have ' + coinCount(P.coins) + '. It is yours to keep, and it only changes how things look.</p>' +
+      '<div class="row"><button class="btn" data-close>Not now</button><button class="btn gold" id="cb-ok">' + icon('coin') + ' Buy for ' + o.price.toLocaleString('en-IN') + '</button></div>');
+    m.querySelector('#cb-ok').onclick = () => {
+      m.close();
+      if (!PG.buyWithCoins(P, it)) return;
+      AU.play('achievement');
+      toast('<i>★</i><div><small>Yours to keep</small><b>' + esc(it.name) + '</b></div>', 'ach');
+      save(); renderNav();
+      if (after) after();
+    };
+  }
+  function coinShopHtml() {
+    const P = state.progress, shelf = coinShelf();
+    const reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
+    const later = shelf.find((i) => PG.coinOffer(P, i).reason === 'too-far');
+    const lv = PG.levelFor(P.xp).level;
+    return '<p class="sub">Earn ' + esc(PG.COIN_NAME) + ' by playing games, passing lessons, solving the daily puzzle and finishing missions. Once you are within ' + PG.COIN_REACH + ' levels of a level reward, you can buy it early. ' + esc(PG.COIN_NAME) + ' are never sold for money, and nothing bought changes how the game plays.</p>' +
+      (reach.length ? '<div class="items">' + reach.map((it) => {
+        const o = PG.coinOffer(P, it);
+        return '<div class="item locked" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button><span class="rar ' + it.rarity + '">' + it.rarity + '</span>' +
+          '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(catName(it.category)) + ' · level ' + it.unlock.level + ' reward</span><span class="st">' +
+          '<button class="btn small ' + (o.ok ? 'gold' : '') + '" data-coinbuy="' + it.id + '"' + (o.ok ? '' : ' aria-disabled="true"') + '>' + icon('coin') + ' ' + o.price.toLocaleString('en-IN') + '</button>' +
+          (o.ok ? '' : '<span class="lk">' + o.short.toLocaleString('en-IN') + ' more</span>') + '</span></div></div>';
+      }).join('') + '</div>' : '<p class="muted">' + (later ? 'Nothing in reach yet. ' + esc(later.name) + ' opens to coins at level ' + Math.max(1, later.unlock.level - PG.COIN_REACH) + ' (you are level ' + lv + ').' : 'You own every level reward. Splendid!') + '</p>');
+  }
+  function wireCoinShop(root, after) {
+    root.querySelectorAll('.item').forEach((el) => {
+      el.onclick = (e) => {
+        const it = PG.item(el.dataset.item);
+        AU.play('tap');
+        if (e.target.closest('[data-coinbuy]')) buyWithCoins(it, after); else itemModal(it, after);
+      };
+    });
+    hydrate(root, true);
+  }
 
   // ---------------------------------------------------------------- missions and season
   function missionsStrip() {
@@ -892,7 +917,7 @@
   function missionsCard() {
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
     if (!list.length) return '<p class="sub">New missions arrive every day.</p>';
-    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(m.text) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? 'Done' : m.n + '/' + m.goal) + '<br><span>+' + m.xp + ' XP</span></small></div>').join('') + '</div>';
+    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(m.text) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? 'Done' : m.n + '/' + m.goal) + '<br><span>+' + m.xp + ' XP · +' + PG.COINS.mission.amount + ' ' + icon('coin') + '</span></small></div>').join('') + '</div>';
   }
   function missionsModal() {
     modal('<div class="eyebrow">Today</div><h2>Daily missions</h2><p class="sub">Three little goals each day. Finish them all for a bonus of ' + CHACKLATE_MISSIONS.allDoneXp + ' XP.</p>' + missionsCard() +
@@ -1441,6 +1466,7 @@
     const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info');
     function fill(it, dir) {
       const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
+      const offer = un ? null : PG.coinOffer(P, it);
       const d = it.data || {};
       const set = it.category === 'pieces' ? setInfo(d.set) : null;
       info.innerHTML = '<div class="eyebrow">' + esc(catName(it.category)) + '</div><h2>' + esc(it.name) + '</h2>' +
@@ -1449,7 +1475,9 @@
         (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
           '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
         '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
+        (offer && offer.price !== null ? '<p class="fine">' + icon('coin') + ' ' + (offer.reason === 'too-far' ? 'Can be bought for ' + coinCount(offer.price) + ' from level ' + Math.max(1, it.unlock.level - PG.COIN_REACH) + '.' : offer.ok ? 'Or buy it now for ' + coinCount(offer.price) + '.' : 'Or buy it for ' + coinCount(offer.price) + ' (' + offer.short.toLocaleString('en-IN') + ' more to go).') + '</p>' : '') +
         '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
+        (offer && offer.ok ? '<button class="btn gold" id="mu-coin">' + icon('coin') + ' Buy for ' + offer.price.toLocaleString('en-IN') + '</button>' : '') +
         '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
       if (many) m.querySelector('#mu-count').textContent = (at + 1) + ' of ' + list.length;
@@ -1476,6 +1504,8 @@
       const eq = info.querySelector('#mu-eq');
       if (eq) eq.onclick = () => { PG.equip(P, it); save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); m.close(); renderNav(); if (after) after(); };
       info.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
+      const cb = info.querySelector('#mu-coin');
+      if (cb) cb.onclick = () => buyWithCoins(it, () => { fill(it, 0); if (after) after(); });
     }
     function step(dir) {
       if (!many) return;
@@ -1670,10 +1700,18 @@
         '<p class="sub">' + (pass ? 'Every gold-track reward you have reached is now yours.' : 'Every animal friend, chapter, opening, endgame and era is open, and the season pass is included.') + '</p>' +
         '<div class="row" style="justify-content:center"><button class="btn primary" data-close>Let\'s play</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
-    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.') +
-      '<div class="panel glass" id="st-body"></div></div></div>');
+    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.', '<span id="st-purse">' + coinsPill() + '</span>') +
+      sec('coin', 'Coin shop', 'for players') + '<div class="panel glass" id="st-coins"></div>' +
+      sec('crown', 'Premium', 'for grown-ups') + '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
+    function renderCoins() {
+      $('st-coins').innerHTML = coinShopHtml();
+      $('st-purse').innerHTML = coinsPill();
+      wireCoinShop($('st-coins'), renderCoins);
+    }
+    renderCoins();
     render();
+    if (focus === 'coins') $('st-coins').scrollIntoView({ block: 'start' });
     if (netOn()) ChacklateNet.api('/api/store').then((r) => { remote = r; if (state.screen === 'store') render(); }).catch(() => {});
     return {};
   };
@@ -1683,31 +1721,31 @@
     const vs = AU.voices();
     const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
     return '<div class="label set-h">Voices</div>' +
-      '<label class="toggle">Voice: the guide, stories and lessons <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Show the guide card <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
-      '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
-      '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
+      '<label class="toggle" data-tk="settings.narr">Voice: the guide, stories and lessons' + TIP_I + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.guide">Show the guide card' + TIP_I + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.vcoach">Coach voice' + TIP_I + ' <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
+      '<label class="toggle" data-tk="settings.vcalls">Game calls (check, results, puzzles)' + TIP_I + ' <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
+      '<label class="toggle" data-tk="settings.announce">Read every move aloud' + TIP_I + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
   function settingsModal() {
     const s = state.settings;
     const m = modal('<div class="eyebrow">Settings</div><h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
-      '<div class="label set-h">Graphics</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
-      '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Capture and castling scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+      '<div class="label set-h" data-tk="settings.quality" data-radio="q">Graphics' + TIP_I + '</div><div class="seg"><label data-tk="settings.quality.high"><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label data-tk="settings.quality.low"><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
+      '<label class="toggle" data-tk="settings.anim">Animations and effects' + TIP_I + ' <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.cine">Capture and castling scenes (a few seconds, tap to skip)' + TIP_I + ' <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
       '<div class="label set-h">Sound</div>' +
-      '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
-      '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
+      '<label class="toggle" data-tk="settings.sfx">Sound effects' + TIP_I + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
+      '<label class="toggle" data-tk="settings.music">Music' + TIP_I + ' <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
       voiceSection(s) +
       '<div class="label set-h">Coaching</div>' +
-      '<label class="toggle">Rooky\'s comments in games <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
-      '<label class="toggle">Show who is winning (evaluation bar) <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Show where pieces can move <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Turn the board each move (two players) <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.coach">Rooky\'s comments in games' + TIP_I + ' <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
+      '<label class="toggle" data-tk="settings.eval">Show who is winning (evaluation bar)' + TIP_I + ' <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.legal">Show where pieces can move' + TIP_I + ' <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.turn">Turn the board each move (two players)' + TIP_I + ' <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
       appSection() +
-      '<div class="field" style="margin-top:14px"><label for="s-server">Game server (for online play)</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
+      '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">Game server (for online play)' + TIP_I + '</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
       (s.dev ? devSection() : '') +
-      '<div class="row"><button class="btn warn" id="s-reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>' +
+      '<div class="row"><button class="btn warn" id="s-reset" data-tk="settings.reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>' +
       '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · build ' + BUILD + (s.dev ? ' · developer mode' : '') + '</button>', { x: true });
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
@@ -1817,11 +1855,11 @@
     const hours = Array.from({ length: 24 }, (_, h) => '<option value="' + h + '"' + (r.hour === h ? ' selected' : '') + '>' + String(h).padStart(2, '0') + ':00</option>').join('');
     return '<div class="label set-h">App</div>' +
       (standalone() ? '<p class="sub" style="margin:0 0 8px">Running as an installed app.</p>'
-        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chackmate</button>'
+        : installPrompt ? '<button class="btn" id="s-install" type="button" data-tk="settings.install">' + icon('play') + ' Install Chackmate</button>'
         : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
         : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') +
-      (safety && !safety.reminders ? '<label class="toggle">Daily reminder <small class="faint">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
-      '<label class="toggle">Daily reminder' + (pushReady() ? '' : ' <small class="faint">(needs the game server and notification support)</small>') +
+      (safety && !safety.reminders ? '<label class="toggle" data-tk="settings.reminder">Daily reminder' + TIP_I + ' <small class="faint">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
+      '<label class="toggle" data-tk="settings.reminder">Daily reminder' + TIP_I + (pushReady() ? '' : ' <small class="faint">(needs the game server and notification support)</small>') +
       ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>');
   }
   function wireAppSection(m) {
@@ -3403,7 +3441,9 @@
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
   if (window.__SHOT) window.__go = go;
+  const bonus = PG.dailyBonus(state.progress);
   go('home');
+  if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => applyInsets());
   // App shortcuts from the installed icon's menu, and links from emails.
