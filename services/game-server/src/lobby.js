@@ -105,7 +105,7 @@ class Lobby {
     if (!p) { p = { user, sockets: new Set(), gameId: null }; this.players.set(user.id, p); }
     p.user = user;
     p.sockets.add(socket);
-    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), account: { email: user.email || null, emailVerified: !!user.email_verified, location: { country: user.country || null, city: user.age_band === 'adult' && !user.guest ? user.city || null : null, source: user.loc_src || null } }, safety: this.policy.info(user), timeControls: TIME_CONTROLS });
+    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), account: { email: user.email || null, emailVerified: !!user.email_verified, location: { country: user.country || null, city: user.city || null, source: user.loc_src || null } }, safety: this.policy.info(user), timeControls: TIME_CONTROLS });
     // Back into a live game after a reconnect.
     const room = p.gameId && this.games.get(p.gameId);
     if (room) {

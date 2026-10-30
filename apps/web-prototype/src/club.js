@@ -7,10 +7,9 @@
 // players in the page's live room, and ratings move on this device after world games.
 //
 // Children's safety: the place starts as a guess from the time zone (nothing is looked up
-// online), then a pick that sticks. A city, and the location button, are for grown-ups only:
-// an adult account on the server, or a grown-up who passes the parent gate on this device.
-// Everyone else keeps a country. Coordinates are matched to the nearest city here and dropped;
-// only a country is ever shared with other players in the live room.
+// online), then a pick that sticks; the location button is used only when tapped. Everyone may
+// keep a city (the owner's choice, 2026-10-30). Coordinates are matched to the nearest city here
+// and dropped, and only a country is ever shared with other players in the live room.
 const ChacklateClub = (function () {
   'use strict';
   const A = () => window.ChacklateApp;
@@ -77,22 +76,14 @@ const ChacklateClub = (function () {
     return c;
   }
   const server = () => !!(NET() && NET().mode && NET().mode() === 'server');
-  const safety = () => (NET() && NET().safety ? NET().safety() : null);
-  // May this player keep a city? An adult account says yes; an under-18 or a guest account says
-  // no. Without the server, a grown-up can say so behind the parent gate.
-  function grownUp() {
-    const s = safety();
-    if (server() && s) return s.kind === 'adult';
-    return !!data().grownUp;
-  }
   function place() {
     const c = data();
-    return { country: c.country || null, city: grownUp() ? c.city || null : null, source: c.src || null };
+    return { country: c.country || null, city: c.city || null, source: c.src || null };
   }
   function setPlace(p) {
     const c = data();
     c.country = p.country || null;
-    c.city = p.country && grownUp() ? p.city || null : null;
+    c.city = p.country ? p.city || null : null;
     c.src = c.country ? p.source || 'manual' : null;
     A().save();
     if (server()) NET().api('/api/account/location', { country: c.country, city: c.city, source: c.src }).catch(() => {});
@@ -111,14 +102,7 @@ const ChacklateClub = (function () {
     if (!loc || !loc.country) { if (data().country && server()) setPlace(place()); return; }
     const c = data();
     if (c.src === 'manual' && loc.source !== 'manual' && c.country) return;
-    c.country = loc.country; c.city = loc.city || (grownUp() ? c.city : null); c.src = loc.source || 'manual';
-    A().save();
-  }
-  function setGrownUp(on) {
-    const c = data();
-    c.grownUp = !!on;
-    if (!on) c.city = null;
-    else if (!c.city && c.country) c.city = c.src === 'tz' ? (guess() || {}).city || citiesOf(c.country)[0] : citiesOf(c.country)[0];
+    c.country = loc.country; c.city = loc.city || c.city || null; c.src = loc.source || 'manual';
     A().save();
   }
 
@@ -259,8 +243,7 @@ const ChacklateClub = (function () {
       if (!here.country) needs = 'country';
       else people = ai.concat(real).filter((r) => r.country === here.country);
     } else if (scope === 'city') {
-      if (!grownUp()) needs = 'adult';
-      else if (!here.city) needs = 'city';
+      if (!here.city) needs = 'city';
       else people = ai.filter((r) => r.city === here.city);
     } else if (scope === 'following') {
       const liveIds = new Set(real.map((r) => r.id));
@@ -287,7 +270,7 @@ const ChacklateClub = (function () {
   return {
     POOLS, LEAGUES, leagueOf, START,
     countryName, flag, countries, citiesOf, countryOfCity, guess, nearest, gps,
-    data, grownUp, place, setPlace, autoLocate, fromServer, setGrownUp,
+    data, place, setPlace, autoLocate, fromServer,
     members, droppingBy, following, toggleFollow,
     card, publish, livePeers, addFriend, friends, removeFriend, rated, board, myRating,
     server,

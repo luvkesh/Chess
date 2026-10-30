@@ -183,7 +183,7 @@ test('friend codes pair two players in an unrated game; draws by agreement', asy
   } finally { await app.close(); }
 });
 
-test('club: rankings by country and city, friends from codes, under-18s keep a country only', async () => {
+test('club: rankings by country and city, friends from codes, under-18s never shown to others', async () => {
   const { app, port } = await boot();
   const year = new Date().getUTCFullYear();
   try {
@@ -232,22 +232,20 @@ test('club: rankings by country and city, friends from codes, under-18s keep a c
     assert.strictEqual((await call(port, 'GET', '/api/friends', null, A.token)).body.friends.length, 0);
     assert.strictEqual((await call(port, 'GET', '/api/friends')).status, 401);
 
-    // Under-18s: the city is dropped, they never appear on public boards or in "In the club now",
-    // and the City filter is for adults.
+    // Under-18s keep a city too, but never appear on public boards or in "In the club now".
     const name = (await call(port, 'GET', '/api/names')).body.names[0];
     const kid = (await call(port, 'POST', '/api/register', { name, password: 'a long password', birthYear: year - 10, birthMonth: 1, parentEmail: 'mum@example.com' })).body;
     const lk = await call(port, 'POST', '/api/account/location', { country: 'IN', city: 'Mumbai', source: 'gps' }, kid.token);
-    assert.deepStrictEqual(lk.body, { country: 'IN', city: null, source: 'gps' });
+    assert.deepStrictEqual(lk.body, { country: 'IN', city: 'Mumbai', source: 'gps' });
     const k = await client(port, kid.token); await k.next('welcome');
-    assert.strictEqual((await club('city', kid.token)).needs, 'adult');
+    const kc = await club('city', kid.token);
+    assert.deepStrictEqual([kc.rows.map((r) => r.name), kc.me.rank], [['Truffle'], 2]);
     const kv = await club('country', kid.token);
     assert.deepStrictEqual(kv.rows.map((r) => r.name), ['Truffle', 'Ember']);
     assert.deepStrictEqual([kv.me.rank, kv.me.listed], [2, false]);
     const seen = await club('global', A.token);
     assert.ok(!seen.rows.some((r) => r.name === name));
     assert.ok(!seen.now.people.some((p) => p.name === name));
-    // An adult who says they are under 18 loses their city.
-    await call(port, 'POST', '/api/account/age', { birthYear: year - 15, birthMonth: 1, parentEmail: 'dad@example.com', name: (await call(port, 'GET', '/api/names')).body.names[0] }, B.token);
     const exp = await call(port, 'GET', '/api/account/export', null, A.token);
     assert.deepStrictEqual(exp.body.location, { country: 'IN', city: 'Mumbai', source: 'tz' });
     for (const c of [a, b, k]) c.close();

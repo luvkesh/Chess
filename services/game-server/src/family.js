@@ -217,7 +217,6 @@ function create(db, lobby, opts) {
         db.run('UPDATE users SET name = ?, name_key = ? WHERE id = ?', nn, nn.toLowerCase(), user.id);
       }
       db.run('UPDATE users SET birth_ym = ?, age_band = ? WHERE id = ?', b.year + '-' + String(b.month).padStart(2, '0'), band, user.id);
-      if (band !== 'adult') db.run('UPDATE users SET city = NULL WHERE id = ?', user.id);   // under-18s keep a country only
       if (band !== 'adult') {
         const pe = String(body.parentEmail || '').trim();
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(pe)) return [400, { error: 'Ask a parent for their email address.' }];

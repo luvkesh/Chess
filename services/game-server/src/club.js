@@ -5,7 +5,8 @@
 // Children's safety (src/family.js):
 //   - public rankings (Global, Country, City) and "In the club now" list adults only, as the
 //     privacy policy promises; an under-18 sees their own place but is never shown to others;
-//   - under-18s keep a country only, never a city; nobody's coordinates are ever sent or kept;
+//   - anyone may keep a country and a city (the owner chose this, 2026-10-30), but an under-18's
+//     city is never shown to other players; nobody's coordinates are ever sent or kept;
 //   - friends come only from games started with a code, which friends share in person.
 
 // Rating where each league starts. Everyone starts at 1500, in Bronze.
@@ -21,16 +22,15 @@ const validCity = (c) => typeof c === 'string' && c.length <= 40 && /^[\p{L}][\p
 function create(db, lobby, policy) {
   const adult = (u) => policy.publicProfile(u);
 
-  // The player's place, as the player sees it. City only for adults.
-  function location(u) { return { country: u.country || null, city: adult(u) ? u.city || null : null, source: u.loc_src || null }; }
+  // The player's place, as the player sees it.
+  function location(u) { return { country: u.country || null, city: u.city || null, source: u.loc_src || null }; }
 
   function setLocation(u, body) {
     const country = body.country === null || body.country === '' ? null : String(body.country || '').toUpperCase();
     if (country !== null && !validCountry(country)) return [400, { error: 'Choose a country from the list.' }];
     let city = body.city == null || body.city === '' ? null : String(body.city).trim();
     if (city !== null && !validCity(city)) return [400, { error: 'Choose a city from the list.' }];
-    // No city for under-18s, ever: the country is as close as the Club gets.
-    if (!adult(u) || !country) city = null;
+    if (!country) city = null;
     const source = SOURCES.includes(body.source) ? body.source : 'manual';
     db.run('UPDATE users SET country = ?, city = ?, loc_src = ? WHERE id = ?', country, city, country ? source : null, u.id);
     return [200, location(Object.assign({}, u, { country, city, loc_src: country ? source : null }))];
@@ -54,8 +54,7 @@ function create(db, lobby, policy) {
       if (!viewer || !viewer.country) { out.needs = 'country'; return out; }
       where += 'AND u.country = ? '; args.push(viewer.country);
     } else if (scope === 'city') {
-      if (!viewer || !adult(viewer)) { out.needs = 'adult'; return out; }
-      if (!viewer.city) { out.needs = 'city'; return out; }
+      if (!viewer || !viewer.city) { out.needs = 'city'; return out; }
       where += 'AND u.country = ? AND u.city = ? '; args.push(viewer.country, viewer.city);
     } else if (scope === 'following') {
       if (!viewer) { out.needs = 'account'; return out; }

@@ -1632,9 +1632,9 @@
     }
     function renderFilters() {
       const p = C.place();
-      const label = { country: p.country ? ChacklateClub.flag(p.country) + ' ' + esc(C.countryName(p.country)) : 'Country', city: C.grownUp() ? esc(p.city || 'City') : 'City' };
+      const label = { country: p.country ? ChacklateClub.flag(p.country) + ' ' + esc(C.countryName(p.country)) : 'Country', city: esc(p.city || 'City') };
       $('cl-filters').innerHTML = SCOPES.map(([k, t, ic]) => '<button role="radio" aria-checked="' + (k === clubView.scope) + '" class="' + (k === clubView.scope ? 'on' : '') + '" data-scope="' + k + '">' +
-        (k === 'city' && !C.grownUp() ? icon('lock') : icon(ic)) + '<span>' + (label[k] || t) + '</span></button>').join('');
+        icon(ic) + '<span>' + (label[k] || t) + '</span></button>').join('');
       $('cl-filters').querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { AU.play('tap'); clubView.scope = b.dataset.scope; renderFilters(); loadBoard(); }; });
     }
     function renderPeople(now) {
@@ -1674,7 +1674,6 @@
       if (n === 'country') return 'Choose your country under Your place to see players near you.';
       if (n === 'city') return 'Choose your city under Your place to see players near you.';
       if (n === 'account') return 'Sign in under Profile to see your friends here.';
-      if (n === 'adult') return 'City rankings are for grown-ups. Players under 18 show their country only.' + (C.server() ? '' : ' <button class="linkish" id="cl-grown">I\'m a grown-up</button>');
       const me = res.me;
       let t = me && me.rank ? 'You are ' + ordinal(me.rank) + ' of ' + res.total + '. ' : '';
       if (clubView.scope === 'following' && res.rows.filter((r) => !r.me).length === 0) t = 'Play a friend with a code and they appear here. You can follow AI players too. ';
@@ -1698,8 +1697,6 @@
           '<span class="cl-lg">' + leagueBadge(r.league, 20) + '<span>' + esc(r.league) + '</span></span>' +
           '<span class="num">' + r.rating + (r.provisional ? '?' : '') + '</span></div>').join('');
       $('cl-note').innerHTML = boardNote(res);
-      const g = $('cl-grown');
-      if (g) g.onclick = async () => { if (await parentGate('add a city to the Club')) { C.setGrownUp(true); renderAll(); } };
     }
     async function loadFriends() {
       const list = await C.friends();
@@ -1722,15 +1719,14 @@
       });
     }
     function renderLoc(busy, msg) {
-      const p = C.place(), grown = C.grownUp();
+      const p = C.place();
       const NOTE = { tz: 'A guess from your time zone.', manual: 'Chosen by you.', gps: 'From your device\'s location, matched to the nearest city. Your exact position is never kept.' };
       $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="Country">' + (p.country ? '' : '<option value="">Choose your country</option>') +
         C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + C.flag(cc) + ' ' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
-        (grown && p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="City">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
-        (grown ? '<button class="round" id="cl-gps" aria-label="Use my location" title="Use my location"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>' : '') + '</div>' +
+        (p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="City">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
+        ('<button class="round" id="cl-gps" aria-label="Use my location" title="Use my location"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
         '<p class="fine">' + (busy ? 'Finding you…' : msg || (p.source ? NOTE[p.source] : 'Choose your country for the local rankings.')) +
-        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">Guess from my time zone</button>' : '') + '</p>' +
-        (grown ? '' : '<p class="fine">Players under 18 show their country only, never a city.' + (C.server() ? '' : ' <button class="linkish" id="cl-grown2">I\'m a grown-up</button>') + '</p>');
+        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">Guess from my time zone</button>' : '') + '</p>';
       $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
       const city = $('cl-city'); if (city) city.onchange = (e) => { C.setPlace({ country: p.country, city: e.target.value, source: 'manual' }); renderAll(); };
       const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your time zone did not tell us a place, so we kept your choice.'); };
@@ -1741,7 +1737,6 @@
         if (!alive) return;
         if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your device did not share its location, so we kept ' + esc(p.city || 'your choice') + '.');
       };
-      const g2 = $('cl-grown2'); if (g2) g2.onclick = async () => { if (await parentGate('add a city to the Club')) { C.setGrownUp(true); renderAll(); } };
     }
     function renderAll() { renderWhere(); renderFilters(); renderLoc(); loadBoard(); }
     $('cl-where').onclick = () => { $('cl-loc-panel').scrollIntoView({ behavior: 'smooth', block: 'center' }); };

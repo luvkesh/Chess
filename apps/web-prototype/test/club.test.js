@@ -1,12 +1,12 @@
-// The Club's data on the device (src/club.js): places, leagues, AI players, and the rule that
-// only grown-ups keep a city. Run: node apps/web-prototype/test/club.test.js
+// The Club's data on the device (src/club.js): places, leagues, AI players, the place picker,
+// and what is shared with the live room. Run: node apps/web-prototype/test/club.test.js
 const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
 const vm = require('vm');
 
 const settings = {};
-let safety = null, mode = 'offline';
+const safety = null, mode = 'offline';
 const ctx = {
   window: {}, navigator: { language: 'en-GB', languages: ['en-GB'] }, Intl, Math, Date, Promise, String, Number, JSON, Array, Set, Object,
 };
@@ -35,18 +35,11 @@ assert.ok(ai.every((m) => m.ai && /^[A-Z][a-z]+ [A-Z][a-z]+$/.test(m.name)));
 assert.ok(ai.filter((m) => m.country === 'IN').length > 15);
 assert.ok(new Set(ai.map((m) => C.leagueOf(m.ratings.blitz))).size >= 5);
 
-// A city is for grown-ups: an adult account, or a grown-up on this device.
+// Anyone may keep a city; a pick sticks.
 C.setPlace({ country: 'IN', city: 'Pune', source: 'manual' });
-assert.deepStrictEqual(JSON.parse(JSON.stringify(C.place())), { country: 'IN', city: null, source: 'manual' });
-C.setGrownUp(true);
-C.setPlace({ country: 'IN', city: 'Pune', source: 'manual' });
-assert.strictEqual(C.place().city, 'Pune');
-// With the server, the account decides, whatever this device said.
-mode = 'server'; safety = { kind: 'minor' };
-assert.strictEqual(C.place().city, null);
-safety = { kind: 'adult' };
-assert.strictEqual(C.place().city, 'Pune');
-mode = 'offline'; safety = null;
+assert.deepStrictEqual(JSON.parse(JSON.stringify(C.place())), { country: 'IN', city: 'Pune', source: 'manual' });
+C.autoLocate();
+assert.strictEqual(C.place().source, 'manual');
 // Only a country goes into the live room.
 assert.deepStrictEqual(Object.keys(C.card()).sort(), ['cc', 'cid', 'name', 'r']);
 
