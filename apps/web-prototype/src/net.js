@@ -3,6 +3,7 @@
 // When no server is reachable everything else in the app keeps working offline.
 (function () {
   'use strict';
+  const t = (k, v) => ChacklateI18n.t(k, v);
   const A = () => window.ChacklateApp;
   let sock = null, ready = false, retry = 0, retryTimer = null, me = null, acct = null, safety = null, ratings = null, seekingModal = null, friendModal = null, progressTimer = null;
 
@@ -24,7 +25,7 @@
     sock.onmessage = (e) => { let m; try { m = JSON.parse(e.data); } catch (err) { return; } onMessage(m); };
     sock.onclose = () => {
       const was = ready; ready = false; sock = null;
-      if (was && A()) { A().toast('Reconnecting to the game server…'); A().onlineStatus({ offline: true }); }
+      if (was && A()) { A().toast(t('account.reconnecting')); A().onlineStatus({ offline: true }); }
       schedule();
     };
   }
@@ -42,6 +43,7 @@
       case 'welcome': {
         ready = true; me = m.user; ratings = m.ratings; acct = m.account || null; safety = m.safety || null;
         app.setSafety(safety);
+        if (window.ChacklateClub) ChacklateClub.fromServer(acct && acct.location);
         setAccount({ token: m.token, name: me.name, guest: me.guest, id: me.id });
         // Adopt the server copy of progress when it is further along (a second device, a cleared browser).
         if (m.progress && m.progress.xp > app.state.progress.xp) { app.state.progress = app.PG.migrate(m.progress); app.save(); if (app.state.screen !== 'game') app.go(app.state.screen); }
@@ -71,14 +73,14 @@
       case 'end':
         if (m.rating) { const g = app.state.game; const pool = poolFor(g && g.online ? g.online.tc : '5+3'); if (ratings && ratings[pool]) { ratings[pool].rating = m.rating.after; ratings[pool].games++; } }
         return app.onlineEnd(m.result, m.reason, m.rating);
-      case 'reported': return app.toast('Thanks. A moderator will review the game.');
+      case 'reported': return app.toast(t('account.reported'));
       case 'banned':
         setAccount({ token: '' });
-        app.toast('This account is suspended: ' + m.reason, 'bad');
+        app.toast(t('account.suspended', { reason: m.reason }), 'bad');
         return;
       case 'deleted':
         setAccount({ token: '', guest: true, ent: null }); app.setEntitlements(null); app.save();
-        app.toast('Your account was deleted.');
+        app.toast(t('account.deleted'));
         return;
       case 'error': return app.toast(m.message, 'bad');
     }
@@ -90,9 +92,9 @@
     const app = A();
     if (seekingModal) return;
     const started = Date.now();
-    seekingModal = app.modal('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">Finding an opponent</h2>' +
-      '<p class="sub" style="text-align:center">' + app.esc(tc) + ' · rated · <span id="sk-t">0:00</span></p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="sk-ai">Play the computer instead</button><button class="btn" data-close>Cancel</button></div>',
+    seekingModal = app.modal('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('account.seek.title') + '</h2>' +
+      '<p class="sub" style="text-align:center">' + app.esc(tc) + ' · ' + t('account.seek.rated') + ' · <span id="sk-t">0:00</span></p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" id="sk-ai">' + t('account.seek.ai') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
     { sticky: true, onClose() { clearInterval(seekingModal && seekingModal.timer); if (seekingModal && !seekingModal.matched) send({ type: 'cancel' }); seekingModal = null; } });
     seekingModal.timer = setInterval(() => {
       const s = Math.floor((Date.now() - started) / 1000), el = seekingModal && seekingModal.querySelector('#sk-t');
@@ -104,11 +106,11 @@
 
   function showCode(code, tc) {
     const app = A();
-    friendModal = app.modal('<h2>Share this code</h2><p class="sub">Your friend opens Chackmate, taps Play a Friend and enters the code. ' + app.esc(tc) + ', unrated. The code lasts 10 minutes.</p>' +
+    friendModal = app.modal('<h2>' + t('account.code.title') + '</h2><p class="sub">' + t('account.code.how', { tc: app.esc(tc) }) + '</p>' +
       '<div class="friend-code">' + app.esc(code) + '</div>' +
-      '<div class="row"><button class="btn" id="fc-copy">' + app.icon('copy') + ' Copy</button><button class="btn" data-close>Cancel</button></div>',
+      '<div class="row"><button class="btn" id="fc-copy">' + app.icon('copy') + ' ' + t('account.code.copy') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
     { sticky: true, onClose() { friendModal = null; } });
-    friendModal.querySelector('#fc-copy').onclick = () => { try { navigator.clipboard.writeText(code); app.toast('Code copied.'); } catch (e) { /* clipboard blocked */ } };
+    friendModal.querySelector('#fc-copy').onclick = () => { try { navigator.clipboard.writeText(code); app.toast(t('account.code.copied')); } catch (e) { /* clipboard blocked */ } };
   }
 
   // ---------------------------------------------------------------- HTTP API
@@ -119,30 +121,29 @@
       body: body ? JSON.stringify(body) : undefined,
     });
     const out = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(out.error || 'The server said no (' + res.status + ').');
+    if (!res.ok) throw new Error(out.error || t('account.serverNo', { status: res.status }));
     return out;
   }
 
-  let panel = null, board = 'blitz';
+  let panel = null;
   function refreshPanel() { if (panel && document.body.contains(panel)) renderAccount(panel); }
 
   function renderAccount(el) {
     panel = el;
     const app = A(), esc = app.esc;
-    if (!base()) { el.innerHTML = '<p style="color:var(--muted)">Online play needs the game server. Open the game from your server\'s address, or set it under Settings.</p>'; return; }
-    if (!ready || !me) { el.innerHTML = '<p style="color:var(--muted)">Connecting to ' + esc(base()) + '…</p>'; return; }
+    if (!base()) { el.innerHTML = '<p style="color:var(--muted)">' + t('account.needServer') + '</p>'; return; }
+    if (!ready || !me) { el.innerHTML = '<p style="color:var(--muted)">' + t('account.connecting', { server: esc(base()) }) + '</p>'; return; }
     const r = ratings || {};
     const rating = (p) => r[p] ? '<div class="mini glass"><div class="eyebrow">' + p + '</div><b>' + r[p].rating + (r[p].games < 5 ? '?' : '') + '</b><small style="color:var(--muted)">' + r[p].games + ' games</small></div>' : '';
     el.innerHTML =
-      '<div class="acct-row">' + app.avatarHtml('sm') + '<div style="flex:1"><b>' + esc(me.name) + '</b><div style="color:var(--muted);font-size:13px">' + (me.guest ? 'Guest account on this device' : 'Signed in') + '</div></div>' +
-      (me.guest ? '' : '<button class="btn small" id="ac-out">Sign out</button>') + '</div>' +
+      '<div class="acct-row">' + app.avatarHtml('sm') + '<div style="flex:1"><b>' + esc(me.name) + '</b><div style="color:var(--muted);font-size:13px">' + (me.guest ? t('account.guest') : t('account.signedIn')) + '</div></div>' +
+      (me.guest ? '' : '<button class="btn small" id="ac-out">' + t('account.signOut') + '</button>') + '</div>' +
       '<div class="today" style="margin:12px 0">' + rating('bullet') + rating('blitz') + rating('rapid') + '</div>' +
       (me.guest ?
-        '<div class="acct-form"><p style="color:var(--muted);margin:0 0 8px">Make an account to keep your rating and play on any device. Players under 18 need a parent to say yes before playing online.</p>' +
-        '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg" type="button">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button><button class="btn ghost small" id="ac-forgot" type="button">Forgot password?</button></div></div>'
+        '<div class="acct-form"><p style="color:var(--muted);margin:0 0 8px">' + t('account.why') + '</p>' +
+        '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg" type="button">' + t('account.create') + '</button><button class="btn" id="ac-login" type="button">' + t('account.haveOne') + '</button><button class="btn ghost small" id="ac-forgot" type="button">' + t('account.forgot') + '</button></div></div>'
         : safetyPanel() + accountTools()) +
-      '<h3 class="section-title">Leaderboard</h3><div class="seg" id="lb-pool">' + ['bullet', 'blitz', 'rapid'].map((p) => '<label><input type="radio" name="lbp" value="' + p + '"' + (p === board ? ' checked' : '') + '><span>' + p + '</span></label>').join('') + '</div>' +
-      '<ol class="leaderboard" id="lb"><li style="color:var(--muted)">Loading…</li></ol>';
+      '<div class="row" style="justify-content:flex-start;margin-top:12px"><button class="btn" data-nav="club" type="button">' + app.icon('users') + ' ' + t('account.club') + '</button></div>';
     const out = el.querySelector('#ac-out');
     if (out) out.onclick = async () => { try { await api('/api/logout', {}); } catch (e) { /* signed out locally either way */ } setAccount({ token: '', guest: true }); app.setEntitlements(null); app.save(); connect(); };
     const reg = el.querySelector('#ac-reg');
@@ -152,8 +153,7 @@
     const resend = el.querySelector('#ac-resend');
     if (resend) resend.onclick = () => parentEmailModal();
     wireAccountTools(el);
-    el.querySelector('#lb-pool').onchange = (e) => { board = e.target.value; loadBoard(el); };
-    loadBoard(el);
+    el.querySelector('[data-nav="club"]').onclick = () => app.go('club');
   }
 
   // ---------------------------------------------------------------- account self-service
@@ -162,17 +162,17 @@
   function safetyPanel() {
     if (!safety || safety.kind !== 'minor') return '';
     const esc = A().esc;
-    if (!safety.band) return '<div class="callout">Tell us your age to keep playing online. <button class="btn small" id="ac-age" type="button">Add my age</button></div>';
-    if (!safety.consent) return '<div class="callout">Waiting for a parent to say yes. We emailed them a link. Until then you can play the computer, lessons and puzzles. <button class="btn small" id="ac-resend" type="button">Send it again</button></div>';
-    return '<div class="callout">A parent manages this account. ' + (safety.online ? esc(safety.online) : 'Online play is on.') + '</div>';
+    if (!safety.band) return '<div class="callout">' + t('account.age.need') + ' <button class="btn small" id="ac-age" type="button">' + t('account.age.add') + '</button></div>';
+    if (!safety.consent) return '<div class="callout">' + t('account.consent.wait') + ' <button class="btn small" id="ac-resend" type="button">' + t('account.consent.resend') + '</button></div>';
+    return '<div class="callout">' + t('account.parent') + ' ' + (safety.online ? esc(safety.online) : t('account.onlineOn')) + '</div>';
   }
   function accountTools() {
     const esc = A().esc, a = acct || {};
-    if (minor()) return '<div class="acct-tools"><div class="row" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn small" id="ac-pw" type="button">Change password</button><button class="btn small" id="ac-export" type="button">Download my data</button><button class="btn small warn" id="ac-del" type="button">Delete account</button></div></div>';
+    if (minor()) return '<div class="acct-tools"><div class="row" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn small" id="ac-pw" type="button">' + t('account.pw.change') + '</button><button class="btn small" id="ac-export" type="button">' + t('account.export') + '</button><button class="btn small warn" id="ac-del" type="button">' + t('account.del') + '</button></div></div>';
     return '<div class="acct-tools">' +
-      '<div class="field"><label for="ac-email">Email ' + (a.email ? (a.emailVerified ? '<span class="pill gold">confirmed</span>' : '<span class="pill">check your inbox</span>') : '<span class="pill">lets you reset your password</span>') + '</label>' +
-      '<div style="display:flex;gap:8px"><input class="text-in" id="ac-email" type="email" autocomplete="email" value="' + esc(a.email || '') + '" placeholder="you@example.com"><button class="btn" id="ac-email-go" type="button">' + (a.email && !a.emailVerified ? 'Resend' : 'Save') + '</button></div></div>' +
-      '<div class="row" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn small" id="ac-pw" type="button">Change password</button><button class="btn small" id="ac-export" type="button">Download my data</button><button class="btn small warn" id="ac-del" type="button">Delete account</button></div></div>';
+      '<div class="field"><label for="ac-email">' + t('account.email') + ' ' + (a.email ? (a.emailVerified ? '<span class="pill gold">' + t('account.email.ok') + '</span>' : '<span class="pill">' + t('account.email.check') + '</span>') : '<span class="pill">' + t('account.email.why') + '</span>') + '</label>' +
+      '<div style="display:flex;gap:8px"><input class="text-in" id="ac-email" type="email" autocomplete="email" value="' + esc(a.email || '') + '" placeholder="you@example.com"><button class="btn" id="ac-email-go" type="button">' + (a.email && !a.emailVerified ? t('account.email.resend') : t('common.save')) + '</button></div></div>' +
+      '<div class="row" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn small" id="ac-pw" type="button">' + t('account.pw.change') + '</button><button class="btn small" id="ac-export" type="button">' + t('account.export') + '</button><button class="btn small warn" id="ac-del" type="button">' + t('account.del') + '</button></div></div>';
   }
   function wireAccountTools(el) {
     const app = A(), q = (s) => el.querySelector(s);
@@ -180,16 +180,16 @@
     if (forgot) forgot.onclick = () => forgotModal('');
     if (!q('#ac-pw') || q('#ac-pw').tagName !== 'BUTTON') return;
     if (q('#ac-email-go')) q('#ac-email-go').onclick = async () => {
-      try { const r = await api('/api/account/email', { email: q('#ac-email').value.trim() }); acct = { email: r.email, emailVerified: false }; app.toast('We sent a confirmation link to ' + app.esc(r.email) + '.'); renderAccount(el); }
+      try { const r = await api('/api/account/email', { email: q('#ac-email').value.trim() }); acct = { email: r.email, emailVerified: false }; app.toast(t('account.email.sent', { email: app.esc(r.email) })); renderAccount(el); }
       catch (e) { app.toast(app.esc(e.message), 'bad'); }
     };
     q('#ac-pw').onclick = () => {
-      const m = app.modal('<h2>Change password</h2><form id="cp"><div class="field"><label for="cp-old">Current password</label><input class="text-in" id="cp-old" type="password" autocomplete="current-password" required></div>' +
-        '<div class="field"><label for="cp-new">New password</label><input class="text-in" id="cp-new" type="password" autocomplete="new-password" minlength="8" required></div><p class="err" id="cp-err"></p>' +
-        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Change</button></div></form><p class="sub">Other devices are signed out.</p>');
+      const m = app.modal('<h2>' + t('account.pw.change') + '</h2><form id="cp"><div class="field"><label for="cp-old">' + t('account.pw.current') + '</label><input class="text-in" id="cp-old" type="password" autocomplete="current-password" required></div>' +
+        '<div class="field"><label for="cp-new">' + t('account.pw.new') + '</label><input class="text-in" id="cp-new" type="password" autocomplete="new-password" minlength="8" required></div><p class="err" id="cp-err"></p>' +
+        '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('account.pw.go') + '</button></div></form><p class="sub">' + t('account.pw.others') + '</p>');
       m.querySelector('#cp').onsubmit = async (e) => {
         e.preventDefault();
-        try { await api('/api/account/password', { current: m.querySelector('#cp-old').value, password: m.querySelector('#cp-new').value }); m.close(); app.toast('Password changed.'); }
+        try { await api('/api/account/password', { current: m.querySelector('#cp-old').value, password: m.querySelector('#cp-new').value }); m.close(); app.toast(t('account.pw.done')); }
         catch (err) { m.querySelector('#cp-err').textContent = err.message; }
       };
     };
@@ -202,9 +202,9 @@
       } catch (e) { app.toast(app.esc(e.message), 'bad'); }
     };
     q('#ac-del').onclick = () => {
-      const m = app.modal('<h2>Delete your account?</h2><p class="sub">Your name, email, password, progress, ratings and devices are removed. Games stay in your opponents\' histories as "Deleted player". Purchases end and cannot be restored. This cannot be undone.</p>' +
-        '<form id="da"><div class="field"><label for="da-pw">Password</label><input class="text-in" id="da-pw" type="password" autocomplete="current-password" required></div><p class="err" id="da-err"></p>' +
-        '<div class="row"><button class="btn" type="button" data-close>Keep my account</button><button class="btn warn">Delete forever</button></div></form>');
+      const m = app.modal('<h2>' + t('account.del.title') + '</h2><p class="sub">' + t('account.del.what') + '</p>' +
+        '<form id="da"><div class="field"><label for="da-pw">' + t('account.password') + '</label><input class="text-in" id="da-pw" type="password" autocomplete="current-password" required></div><p class="err" id="da-err"></p>' +
+        '<div class="row"><button class="btn" type="button" data-close>' + t('account.del.keep') + '</button><button class="btn warn">' + t('account.del.go') + '</button></div></form>');
       m.querySelector('#da').onsubmit = async (e) => {
         e.preventDefault();
         try {
@@ -212,22 +212,22 @@
           m.close();
           app.state.progress = app.PG.fresh(); app.PG.setSeason(app.state.progress);
           setAccount({ token: '', guest: true, ent: null }); app.setEntitlements(null); app.save();
-          app.toast('Your account was deleted.'); connect(); app.go('home');
+          app.toast(t('account.deleted')); connect(); app.go('home');
         } catch (err) { m.querySelector('#da-err').textContent = err.message; }
       };
     };
   }
   // ---------------------------------------------------------------- sign up and sign in
-  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MONTHS = () => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => t('account.month.' + n));
   function ageOf(y, mo) { const d = new Date(); let a = d.getFullYear() - y; if (d.getMonth() + 1 < mo) a--; return a; }
   // A neutral age question first (no default, no hint about a "right" answer), then the right form for that age.
   function signUpModal(opts) {
     opts = opts || {};
     const app = A(), esc = app.esc, year = new Date().getFullYear();
     const years = []; for (let y = year - 4; y >= year - 100; y--) years.push(y);
-    const m = app.modal('<h2>' + (opts.ageOnly ? 'How old are you?' : 'Create your account') + '</h2><p class="sub">When were you born?</p>' +
-      '<div class="row" style="justify-content:flex-start"><select class="text-in" id="su-m" aria-label="Birth month"><option value="">Month</option>' + MONTHS.map((n, i) => '<option value="' + (i + 1) + '">' + n + '</option>').join('') + '</select>' +
-      '<select class="text-in" id="su-y" aria-label="Birth year"><option value="">Year</option>' + years.map((y) => '<option>' + y + '</option>').join('') + '</select></div>' +
+    const m = app.modal('<h2>' + (opts.ageOnly ? t('account.age.title') : t('account.create.title')) + '</h2><p class="sub">' + t('account.born') + '</p>' +
+      '<div class="row" style="justify-content:flex-start"><select class="text-in" id="su-m" aria-label="' + t('account.birthMonth') + '"><option value="">' + t('account.month') + '</option>' + MONTHS().map((n, i) => '<option value="' + (i + 1) + '">' + n + '</option>').join('') + '</select>' +
+      '<select class="text-in" id="su-y" aria-label="' + t('account.birthYear') + '"><option value="">' + t('account.year') + '</option>' + years.map((y) => '<option>' + y + '</option>').join('') + '</select></div>' +
       '<div id="su-rest"></div><p class="err" id="su-err"></p>');
     const q = (s) => m.querySelector(s);
     let picked = null;
@@ -239,14 +239,14 @@
       let names = [];
       if (kid) { try { names = (await api('/api/names')).names; } catch (e) { names = []; } }
       const nameField = !needName ? '' : kid
-        ? '<div class="field"><div class="label">Pick your player name</div><div class="chips" id="su-names">' + names.map((n) => '<button type="button" class="chip" data-n="' + esc(n) + '">' + esc(n) + '</button>').join('') + '</div><button type="button" class="btn ghost small" id="su-more">More names</button>' +
-          '<p class="fine">Names are made up for you, so nobody can tell who you are from your name.</p></div>'
-        : '<div class="field"><label for="su-name">Name</label><input class="text-in" id="su-name" autocomplete="username" maxlength="20" required></div>';
+        ? '<div class="field"><div class="label">' + t('account.pickName') + '</div><div class="chips" id="su-names">' + names.map((n) => '<button type="button" class="chip" data-n="' + esc(n) + '">' + esc(n) + '</button>').join('') + '</div><button type="button" class="btn ghost small" id="su-more">' + t('account.moreNames') + '</button>' +
+          '<p class="fine">' + t('account.namesWhy') + '</p></div>'
+        : '<div class="field"><label for="su-name">' + t('account.name') + '</label><input class="text-in" id="su-name" autocomplete="username" maxlength="20" required></div>';
       q('#su-rest').innerHTML = nameField +
-        (opts.ageOnly ? '' : '<div class="field"><label for="su-pw">Password</label><input class="text-in" id="su-pw" type="password" autocomplete="new-password" minlength="8" required></div>') +
-        (kid ? '<div class="field"><label for="su-pe">A parent or guardian\'s email</label><input class="text-in" id="su-pe" type="email" autocomplete="off" required>' +
-          '<p class="fine">We email them once to ask permission. Until they say yes you can play the computer, lessons and puzzles, but not online.</p></div>' : '') +
-        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" id="su-go" type="button">' + (opts.ageOnly ? 'Save' : 'Create account') + '</button></div>';
+        (opts.ageOnly ? '' : '<div class="field"><label for="su-pw">' + t('account.password') + '</label><input class="text-in" id="su-pw" type="password" autocomplete="new-password" minlength="8" required></div>') +
+        (kid ? '<div class="field"><label for="su-pe">' + t('account.parentEmail') + '</label><input class="text-in" id="su-pe" type="email" autocomplete="off" required>' +
+          '<p class="fine">' + t('account.parentAsk') + '</p></div>' : '') +
+        '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn primary" id="su-go" type="button">' + (opts.ageOnly ? t('common.save') : t('account.create')) + '</button></div>';
       const wire = () => m.querySelectorAll('[data-n]').forEach((b) => { b.onclick = () => { picked = b.dataset.n; m.querySelectorAll('[data-n]').forEach((x) => x.classList.toggle('on', x === b)); }; });
       wire();
       const more = q('#su-more');
@@ -254,17 +254,17 @@
       q('#su-go').onclick = async () => {
         const err = q('#su-err'); err.textContent = '';
         const name = kid ? picked : q('#su-name') ? q('#su-name').value.trim() : '';
-        if (needName && !name) { err.textContent = kid ? 'Pick a name first.' : 'Choose a name.'; return; }
+        if (needName && !name) { err.textContent = kid ? t('account.pickFirst') : t('account.chooseName'); return; }
         const body = { birthYear: y, birthMonth: mo, parentEmail: kid ? q('#su-pe').value.trim() : undefined };
         try {
           if (opts.ageOnly) {
-            await api('/api/account/age', Object.assign(body, { name })); m.close(); app.toast(kid ? 'Thanks. We emailed your parent.' : 'Thanks.'); connect(); return;
+            await api('/api/account/age', Object.assign(body, { name })); m.close(); app.toast(kid ? t('account.thanksParent') : t('account.thanks')); connect(); return;
           }
           const res = await api('/api/register', Object.assign(body, { name, password: q('#su-pw').value }));
           setAccount({ token: res.token, name: res.user.name, guest: false });
           app.state.settings.name = res.user.name; app.save();
           m.close();
-          app.toast(kid ? 'Welcome, ' + esc(res.user.name) + '. We emailed your parent.' : 'Welcome, ' + esc(res.user.name) + '.');
+          app.toast(kid ? t('account.welcomeKid', { name: esc(res.user.name) }) : t('account.welcome', { name: esc(res.user.name) }));
           connect();
         } catch (e) { err.textContent = e.message; }
       };
@@ -273,35 +273,35 @@
   }
   function signInModal() {
     const app = A();
-    const m = app.modal('<h2>Sign in</h2><form id="si"><div class="field"><label for="si-name">Name</label><input class="text-in" id="si-name" autocomplete="username" maxlength="20" required></div>' +
-      '<div class="field"><label for="si-pw">Password</label><input class="text-in" id="si-pw" type="password" autocomplete="current-password" required></div><p class="err" id="si-err"></p>' +
-      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Sign in</button></div></form>');
+    const m = app.modal('<h2>' + t('account.signIn') + '</h2><form id="si"><div class="field"><label for="si-name">' + t('account.name') + '</label><input class="text-in" id="si-name" autocomplete="username" maxlength="20" required></div>' +
+      '<div class="field"><label for="si-pw">' + t('account.password') + '</label><input class="text-in" id="si-pw" type="password" autocomplete="current-password" required></div><p class="err" id="si-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('account.signIn') + '</button></div></form>');
     m.querySelector('#si').onsubmit = async (e) => {
       e.preventDefault();
       try {
         const res = await api('/api/login', { name: m.querySelector('#si-name').value.trim(), password: m.querySelector('#si-pw').value });
         setAccount({ token: res.token, name: res.user.name, guest: false });
         app.state.settings.name = res.user.name; app.save();
-        m.close(); app.toast('Welcome back, ' + app.esc(res.user.name) + '.'); connect();
+        m.close(); app.toast(t('account.welcomeBack', { name: app.esc(res.user.name) })); connect();
       } catch (err) { m.querySelector('#si-err').textContent = err.message; }
     };
   }
   function parentEmailModal() {
     const app = A();
-    const m = app.modal('<h2>Ask a parent again</h2><form id="pe"><div class="field"><label for="pe-e">A parent or guardian\'s email</label><input class="text-in" id="pe-e" type="email" autocomplete="off" required></div><p class="err" id="pe-err"></p>' +
-      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Send</button></div></form>');
+    const m = app.modal('<h2>' + t('account.askAgain') + '</h2><form id="pe"><div class="field"><label for="pe-e">' + t('account.parentEmail') + '</label><input class="text-in" id="pe-e" type="email" autocomplete="off" required></div><p class="err" id="pe-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('account.send') + '</button></div></form>');
     m.querySelector('#pe').onsubmit = async (e) => {
       e.preventDefault();
-      try { await api('/api/account/consent/resend', { parentEmail: m.querySelector('#pe-e').value.trim() }); m.close(); app.toast('Sent. Ask them to check their inbox.'); }
+      try { await api('/api/account/consent/resend', { parentEmail: m.querySelector('#pe-e').value.trim() }); m.close(); app.toast(t('account.sentCheck')); }
       catch (err) { m.querySelector('#pe-err').textContent = err.message; }
     };
   }
 
   function forgotModal(prefill) {
     const app = A();
-    const m = app.modal('<h2>Reset your password</h2><p class="sub">Enter your name or email. If the account has a confirmed email, we send a link that works for an hour.</p>' +
-      '<form id="fp"><div class="field"><label for="fp-who">Name or email</label><input class="text-in" id="fp-who" value="' + app.esc(prefill || '') + '" required></div>' +
-      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Send link</button></div></form>');
+    const m = app.modal('<h2>' + t('account.reset.title') + '</h2><p class="sub">' + t('account.reset.how') + '</p>' +
+      '<form id="fp"><div class="field"><label for="fp-who">' + t('account.reset.who') + '</label><input class="text-in" id="fp-who" value="' + app.esc(prefill || '') + '" required></div>' +
+      '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('account.reset.send') + '</button></div></form>');
     m.querySelector('#fp').onsubmit = async (e) => {
       e.preventDefault();
       try { const r = await api('/api/account/forgot', { who: m.querySelector('#fp-who').value.trim() }); m.close(); app.toast(app.esc(r.message)); }
@@ -311,8 +311,8 @@
   // The emailed reset link opens /play#reset=<token>.
   function resetModal(token) {
     const app = A();
-    const m = app.modal('<h2>Choose a new password</h2><form id="rp"><div class="field"><label for="rp-new">New password</label><input class="text-in" id="rp-new" type="password" autocomplete="new-password" minlength="8" required></div><p class="err" id="rp-err"></p>' +
-      '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary">Save and sign in</button></div></form>');
+    const m = app.modal('<h2>' + t('account.reset.new') + '</h2><form id="rp"><div class="field"><label for="rp-new">' + t('account.pw.new') + '</label><input class="text-in" id="rp-new" type="password" autocomplete="new-password" minlength="8" required></div><p class="err" id="rp-err"></p>' +
+      '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('account.reset.go') + '</button></div></form>');
     m.querySelector('#rp').onsubmit = async (e) => {
       e.preventDefault();
       const pw = m.querySelector('#rp-new').value;
@@ -321,20 +321,9 @@
         const res = await api('/api/login', { name: r.name, password: pw });
         setAccount({ token: res.token, name: res.user.name, guest: false });
         app.state.settings.name = res.user.name; app.save();
-        m.close(); app.toast('Password changed. Welcome back, ' + app.esc(res.user.name) + '.'); connect();
+        m.close(); app.toast(t('account.reset.done', { name: app.esc(res.user.name) })); connect();
       } catch (err) { m.querySelector('#rp-err').textContent = err.message; }
     };
-  }
-
-  async function loadBoard(el) {
-    const list = el.querySelector('#lb');
-    try {
-      const res = await api('/api/leaderboard?pool=' + board);
-      const esc = A().esc;
-      list.innerHTML = res.rows.length
-        ? res.rows.map((r) => '<li' + (me && r.name === me.name ? ' class="me"' : '') + '><span class="rk">' + r.rank + '</span><span class="nm">' + esc(r.name) + '</span><span class="rt">' + r.rating + '</span></li>').join('')
-        : '<li style="color:var(--muted)">No ranked players yet. Five rated games puts you on the board.</li>';
-    } catch (e) { list.innerHTML = '<li style="color:var(--muted)">' + A().esc(e.message) + '</li>'; }
   }
 
   function syncProgress() {

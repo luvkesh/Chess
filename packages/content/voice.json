@@ -128,7 +128,8 @@
       "castleQ": "Castles queenside",
       "promote": { "Q": "promotes to a queen", "R": "promotes to a rook", "B": "promotes to a bishop", "N": "promotes to a knight" },
       "check": "check",
-      "mate": "checkmate"
+      "mate": "checkmate",
+      "old": { "piece": { "K": "Raja", "Q": "Mantri", "R": "Ratha", "B": "Gaja", "N": "Ashva", "P": "Padati" }, "promote": { "Q": "becomes a Mantri" }, "say": { "Mantri": "Muntree", "Ratha": "Rutta", "Gaja": "Gudja", "Ashva": "Ushva", "Padati": "Puddatee", "becomes a Mantri": "becomes a Muntree" } }
     },
     "hi": {
       "piece": { "K": "राजा", "Q": "वज़ीर", "R": "हाथी", "B": "ऊँट", "N": "घोड़ा", "P": "प्यादा" },
@@ -140,7 +141,8 @@
       "castleQ": "बड़ी कैसलिंग",
       "promote": { "Q": "वज़ीर बना", "R": "हाथी बना", "B": "ऊँट बना", "N": "घोड़ा बना" },
       "check": "शह",
-      "mate": "शह और मात"
+      "mate": "शह और मात",
+      "old": { "piece": { "K": "राजा", "Q": "मंत्री", "R": "रथ", "B": "गज", "N": "अश्व", "P": "पदाति" }, "promote": { "Q": "मंत्री बना" } }
     }
   }
 }

@@ -1,0 +1,572 @@
+{
+  "note": "The in-game audio guide. On every screen one short line tells the child what to do next; on an era page the era's friend says it, everywhere else Rooky does. Lines are recorded offline with Kokoro-82M by tools/voice/record-guide.py into apps/web-prototype/public/guide/, each sentence and clause on its own, joined with pauses (commas short, full stops longer). After changing a line, record again: test/guide.test.js checks every clip matches its words.",
+  "pause": {
+    "comma": 0.3,
+    "stop": 0.65
+  },
+  "speed": 0.95,
+  "speakers": {
+    "rooky": {
+      "engine": "am_puck,am_michael",
+      "note": "Rooky the red panda: \"Toby\", young, soft and calm, excited at times"
+    },
+    "miu": {
+      "engine": "af_bella",
+      "note": "Miu the Cat: bright and playful"
+    },
+    "sophie": {
+      "engine": "bf_isabella",
+      "note": "Sophie the Owl: a warm, wise storyteller"
+    },
+    "marcus": {
+      "engine": "am_michael,am_fenrir",
+      "note": "Marcus the Wolf: warm and a little deeper"
+    },
+    "moti": {
+      "engine": "bm_fable,bm_lewis",
+      "note": "Moti the Elephant: friendly, slow and deep"
+    },
+    "bao": {
+      "engine": "af_sky",
+      "note": "Bao the Panda: light and young"
+    },
+    "marco": {
+      "engine": "bm_george,bm_fable",
+      "note": "Marco the Winged Lion: grand, with a storyteller's lift"
+    },
+    "mishka": {
+      "engine": "am_fenrir",
+      "note": "Mishka the Bear: big, deep and kind"
+    },
+    "skye": {
+      "engine": "af_nova",
+      "note": "Skye the Eagle: crisp and modern"
+    },
+    "gaston": {
+      "engine": "am_puck",
+      "note": "Gaston the Rooster: playful and full of energy"
+    }
+  },
+  "lines": {
+    "home.first": {
+      "who": "rooky",
+      "text": "Hi, I'm Rooky! Tap The Journey to travel through time with me, or tap Quick Play for a game with an animal friend."
+    },
+    "home": {
+      "who": "rooky",
+      "text": "Welcome back! Tap The Journey to carry on your adventure, or tap Quick Play for a fun game."
+    },
+    "home.resume": {
+      "who": "rooky",
+      "text": "Your game is waiting for you! Tap Resume Game, and carry on where you left off."
+    },
+    "play": {
+      "who": "rooky",
+      "text": "Pick an animal friend to play with. If you're new, start with Truffle the bunny. Each friend is a little stronger than the last."
+    },
+    "journey": {
+      "who": "rooky",
+      "text": "Every era is a new adventure! Tap an open era, and meet the friend who lives there."
+    },
+    "learn": {
+      "who": "rooky",
+      "text": "Pick a lesson, and I'll teach you, step by step. Start at the top, and work your way down."
+    },
+    "puzzles": {
+      "who": "rooky",
+      "text": "Puzzles are little treasure hunts. Pick one, then find the best move."
+    },
+    "training": {
+      "who": "rooky",
+      "text": "Let's practise! Pick a skill, and we'll work on it together."
+    },
+    "minis": {
+      "who": "rooky",
+      "text": "Mini-games are quick! Pick one, and beat your best score."
+    },
+    "mini": {
+      "who": "rooky",
+      "text": "Tap the scroll if you need the rules. Have fun!"
+    },
+    "openings": {
+      "who": "rooky",
+      "text": "Openings are the first moves of a game. Pick one, and try it on the board."
+    },
+    "dojo": {
+      "who": "rooky",
+      "text": "Endgames are the end of a game, when only a few pieces are left. Pick one, and win it, step by step."
+    },
+    "collection": {
+      "who": "rooky",
+      "text": "This is your collection! Tap anything to see it up close, and I will tell you all about it. Then tap Equip, to put it on your table."
+    },
+    "profile": {
+      "who": "rooky",
+      "text": "This is you! Here you can see your level, your games, and your badges."
+    },
+    "club": {
+      "who": "rooky",
+      "text": "Welcome to the Club! See how you rank, climb the leagues, and find the friends you play with a code."
+    },
+    "season": {
+      "who": "rooky",
+      "text": "Play games, learn, and solve puzzles to climb the season. Every tier has a prize!"
+    },
+    "store": {
+      "who": "rooky",
+      "text": "This part is for grown-ups. Please ask a grown-up before you buy anything."
+    },
+    "review": {
+      "who": "rooky",
+      "text": "Let's look back at your game. Tap the arrows, and step through it, one move at a time."
+    },
+    "game.white": {
+      "who": "rooky",
+      "text": "You go first! Tap one of your pieces, then tap the square where you want it to go."
+    },
+    "game.black": {
+      "who": "rooky",
+      "text": "Your friend moves first. Watch their move, and then it's your turn!"
+    },
+    "game.check": {
+      "who": "rooky",
+      "text": "Uh oh, your king is in check! Move it to safety, block the attack, or take the attacker."
+    },
+    "game.idle": {
+      "who": "rooky",
+      "text": "Take your time. If you're stuck, tap Hint, and I'll show you a good idea."
+    },
+    "game.over": {
+      "who": "rooky",
+      "text": "Good game! Tap Review with Rooky to see your best moves, or play again."
+    },
+    "lesson.steps": {
+      "who": "rooky",
+      "text": "Let's learn! Listen, and watch the board. Then tap Next, when you're ready."
+    },
+    "lesson.ex": {
+      "who": "rooky",
+      "text": "Now it's your turn! Move a piece on the board, to answer."
+    },
+    "lesson.idle": {
+      "who": "rooky",
+      "text": "Need some help? Tap Hint, and I'll give you a clue."
+    },
+    "lesson.done": {
+      "who": "rooky",
+      "text": "Well done, you finished the lesson! Tap the gold button to carry on."
+    },
+    "puzzle.start": {
+      "who": "rooky",
+      "text": "Find the best move! Look for checks, captures, and threats."
+    },
+    "puzzle.wrong": {
+      "who": "rooky",
+      "text": "Good try! Have another look, or tap Hint for a clue."
+    },
+    "puzzle.idle": {
+      "who": "rooky",
+      "text": "Stuck? Tap Hint, and I'll give you a clue."
+    },
+    "puzzle.solved": {
+      "who": "rooky",
+      "text": "You did it! Tap Next puzzle, to keep going."
+    },
+    "era.egypt.tale": {
+      "who": "miu",
+      "text": "Welcome to Ancient Egypt! I'm Miu. Tap the first stage, Games of the pharaohs, and I'll tell you a story."
+    },
+    "era.egypt.lesson": {
+      "who": "miu",
+      "text": "Great listening! Now tap the lesson, The chariot race, and learn something new."
+    },
+    "era.egypt.puzzles": {
+      "who": "miu",
+      "text": "Well done! Next, tap Tomb treasure, and solve my puzzles."
+    },
+    "era.egypt.champion": {
+      "who": "miu",
+      "text": "You're ready! Tap Miu's challenge, and play me. Win, and the Pharaoh's Treasure set is yours!"
+    },
+    "era.egypt.done": {
+      "who": "miu",
+      "text": "You beat me! The Pharaoh's Treasure set is yours. Tap All eras, and travel on to Ancient Greece."
+    },
+    "era.greece.tale": {
+      "who": "sophie",
+      "text": "Welcome to Ancient Greece! I'm Sophie. Tap the first stage, Thinkers and their games, and I'll tell you a story."
+    },
+    "era.greece.lesson": {
+      "who": "sophie",
+      "text": "Great listening! Now tap the lesson, The agora market, and learn something new."
+    },
+    "era.greece.puzzles": {
+      "who": "sophie",
+      "text": "Well done! Next, tap The owl's eyes, and solve my puzzles."
+    },
+    "era.greece.champion": {
+      "who": "sophie",
+      "text": "You're ready! Tap Sophie's challenge, and play me. Win, and the Olympian Marble set is yours!"
+    },
+    "era.greece.done": {
+      "who": "sophie",
+      "text": "You beat me! The Olympian Marble set is yours. Tap All eras, and travel on to Ancient Rome."
+    },
+    "era.rome.tale": {
+      "who": "marcus",
+      "text": "Welcome to Ancient Rome! I'm Marcus. Tap the first stage, The game of little soldiers, and I'll tell you a story."
+    },
+    "era.rome.lesson": {
+      "who": "marcus",
+      "text": "Great listening! Now tap the lesson, The legion's wall, and learn something new."
+    },
+    "era.rome.puzzles": {
+      "who": "marcus",
+      "text": "Well done! Next, tap Trap the general, and solve my puzzles."
+    },
+    "era.rome.champion": {
+      "who": "marcus",
+      "text": "You're ready! Tap Marcus's challenge, and play me. Win, and the Imperial Rome set is yours!"
+    },
+    "era.rome.done": {
+      "who": "marcus",
+      "text": "You beat me! The Imperial Rome set is yours. Tap All eras, and travel on to Mughal India."
+    },
+    "era.mughal.tale": {
+      "who": "moti",
+      "text": "Welcome to Mughal India! I'm Moti. Tap the first stage, Chaturanga, and I'll tell you a story."
+    },
+    "era.mughal.lesson": {
+      "who": "moti",
+      "text": "Great listening! Now tap the lesson, Elephants to the middle, and learn something new."
+    },
+    "era.mughal.puzzles": {
+      "who": "moti",
+      "text": "Well done! Next, tap The elephant's fork, and solve my puzzles."
+    },
+    "era.mughal.champion": {
+      "who": "moti",
+      "text": "You're ready! Tap Moti's challenge, and play me. Win, and the Maharaja's Jade set is yours!"
+    },
+    "era.mughal.done": {
+      "who": "moti",
+      "text": "You beat me! The Maharaja's Jade set is yours. Tap All eras, and travel on to Ming China."
+    },
+    "era.ming.tale": {
+      "who": "bao",
+      "text": "Welcome to Ming China! I'm Bao. Tap the first stage, Elephants, cannons and a river, and I'll tell you a story."
+    },
+    "era.ming.lesson": {
+      "who": "bao",
+      "text": "Great listening! Now tap the lesson, Bao's bamboo spear, and learn something new."
+    },
+    "era.ming.puzzles": {
+      "who": "bao",
+      "text": "Well done! Next, tap The panda's skewer, and solve my puzzles."
+    },
+    "era.ming.champion": {
+      "who": "bao",
+      "text": "You're ready! Tap Bao's challenge, and play me. Win, and the Ming Porcelain set is yours!"
+    },
+    "era.ming.done": {
+      "who": "bao",
+      "text": "You beat me! The Ming Porcelain set is yours. Tap All eras, and travel on to Venice."
+    },
+    "era.venice.tale": {
+      "who": "marco",
+      "text": "Welcome to Venice! I'm Marco. Tap the first stage, The queen gets her power, and I'll tell you a story."
+    },
+    "era.venice.lesson": {
+      "who": "marco",
+      "text": "Great listening! Now tap the lesson, The doge's warning, and learn something new."
+    },
+    "era.venice.endgame": {
+      "who": "marco",
+      "text": "Well done! Next, tap Crown a new queen, and win the endgame."
+    },
+    "era.venice.champion": {
+      "who": "marco",
+      "text": "You're ready! Tap Marco's challenge, and play me. Win, and the Murano Glass set is yours!"
+    },
+    "era.venice.done": {
+      "who": "marco",
+      "text": "You beat me! The Murano Glass set is yours. Tap All eras, and travel on to Paris."
+    },
+    "era.paris.tale": {
+      "who": "gaston",
+      "text": "Welcome to Paris! I'm Gaston. Tap the first stage, The soul of chess, and I'll tell you a story."
+    },
+    "era.paris.lesson": {
+      "who": "gaston",
+      "text": "Great listening! Now tap the lesson, Pawns on the march, and learn something new."
+    },
+    "era.paris.puzzles": {
+      "who": "gaston",
+      "text": "Well done! Next, tap Café puzzles, and solve my puzzles."
+    },
+    "era.paris.champion": {
+      "who": "gaston",
+      "text": "You're ready! Tap Gaston's challenge, and play me. Win, and the Ruby and Pearl set is yours!"
+    },
+    "era.paris.done": {
+      "who": "gaston",
+      "text": "You beat me! The Ruby and Pearl set is yours. Tap All eras, and travel on to Imperial Russia."
+    },
+    "era.russia.tale": {
+      "who": "mishka",
+      "text": "Welcome to Imperial Russia! I'm Mishka. Tap the first stage, The endgame school, and I'll tell you a story."
+    },
+    "era.russia.lesson": {
+      "who": "mishka",
+      "text": "Great listening! Now tap the lesson, Kings in the snow, and learn something new."
+    },
+    "era.russia.endgame": {
+      "who": "mishka",
+      "text": "Well done! Next, tap March of the pawn, and win the endgame."
+    },
+    "era.russia.champion": {
+      "who": "mishka",
+      "text": "You're ready! Tap Mishka's challenge, and play me. Win, and the Tsarina's Faberge set is yours!"
+    },
+    "era.russia.done": {
+      "who": "mishka",
+      "text": "You beat me! The Tsarina's Faberge set is yours. Tap All eras, and travel on to New York."
+    },
+    "era.deco.tale": {
+      "who": "skye",
+      "text": "Welcome to New York! I'm Skye. Tap the first stage, The city of chess clubs, and I'll tell you a story."
+    },
+    "era.deco.lesson": {
+      "who": "skye",
+      "text": "Great listening! Now tap the lesson, Rooftop mates, and learn something new."
+    },
+    "era.deco.puzzles": {
+      "who": "skye",
+      "text": "Well done! Next, tap Skyline finish, and solve my puzzles."
+    },
+    "era.deco.champion": {
+      "who": "skye",
+      "text": "You're ready! Tap Skye's challenge, and play me. Win, and the Manhattan Deco set is yours!"
+    },
+    "era.deco.done": {
+      "who": "skye",
+      "text": "You beat me! The Manhattan Deco set is yours. What a journey, all the way through chess history!"
+    },
+    "placement.offer": {
+      "who": "rooky",
+      "text": "Have you played chess before? Take my short test, and I'll pick your first lesson and a friend to play. Or skip it, and we'll start at the beginning."
+    },
+    "placement.q01": {
+      "who": "rooky",
+      "text": "Tap every square the rook can reach. Remember, it can take a black piece, but not jump over one."
+    },
+    "placement.q02": {
+      "who": "rooky",
+      "text": "Now the knight. Tap every square it can jump to."
+    },
+    "placement.q03": {
+      "who": "rooky",
+      "text": "Your knight can take a piece. Take the one that nobody guards."
+    },
+    "placement.q04": {
+      "who": "rooky",
+      "text": "Give check with your queen, on a square where she cannot be taken."
+    },
+    "placement.q05": {
+      "who": "rooky",
+      "text": "Find checkmate in one move."
+    },
+    "placement.q06": {
+      "who": "rooky",
+      "text": "The black king is stuck behind his pawns. Find checkmate in one move."
+    },
+    "placement.q07": {
+      "who": "rooky",
+      "text": "Find a knight move that attacks the king and the rook at once."
+    },
+    "placement.q08": {
+      "who": "rooky",
+      "text": "White moves first. Can the black king catch the pawn before it becomes a queen?"
+    },
+    "placement.q09": {
+      "who": "rooky",
+      "text": "Your opponent has just moved. Find the best move, then keep going."
+    },
+    "placement.q10": {
+      "who": "rooky",
+      "text": "Last one, and the hardest. Find the best move, then keep going."
+    },
+    "placement.r1": {
+      "who": "rooky",
+      "text": "Thanks for trying! We'll start at the very beginning, with how the pieces move. You'll pick it up in no time!"
+    },
+    "placement.r2": {
+      "who": "rooky",
+      "text": "Nice work! You know how the pieces move, so we'll start with check and checkmate."
+    },
+    "placement.r3": {
+      "who": "rooky",
+      "text": "Great job! You know the rules, so your path starts with opening ideas."
+    },
+    "placement.r4": {
+      "who": "rooky",
+      "text": "Wow, you spotted the fork! You're ready for tactics, like forks and pins."
+    },
+    "placement.r5": {
+      "who": "rooky",
+      "text": "Amazing, you found nearly everything! You're ready to learn defence and king safety."
+    },
+    "variants": {
+      "who": "rooky",
+      "text": "Chess has cousins from all over the world! Pick one to learn its rules, then play it."
+    },
+    "variant": {
+      "who": "rooky",
+      "text": "Here are the rules on one page. The gold ones are not like chess. Try my short lesson, then pick a friend to play."
+    },
+    "variant.chaturanga.hello": {
+      "who": "rooky",
+      "text": "Long ago in India, chess had another name: chaturanga. It means the four parts of an army. Let's play it the old way!"
+    },
+    "variant.chaturanga.same": {
+      "who": "rooky",
+      "text": "The king, the horse and the chariot move just like our king, knight and rook. The foot soldiers are the pawns."
+    },
+    "variant.chaturanga.mantri": {
+      "who": "rooky",
+      "text": "Next to the king stands the Mantri, his wise counsellor. He takes one small step, on a slant. Much later, he grew into the queen!"
+    },
+    "variant.chaturanga.gaja": {
+      "who": "rooky",
+      "text": "The Gaja is a war elephant. It jumps exactly two squares on a slant, right over anything in the way. It grew into the bishop."
+    },
+    "variant.chaturanga.soldier": {
+      "who": "rooky",
+      "text": "Foot soldiers march one square at a time, even on their first move. A soldier who reaches the far side becomes a Mantri."
+    },
+    "variant.chaturanga.castle": {
+      "who": "rooky",
+      "text": "There is no castling in chaturanga. Walk your king to safety, one step at a time."
+    },
+    "variant.chaturanga.win": {
+      "who": "rooky",
+      "text": "Checkmate still wins. You also win if you capture every enemy piece except the king. And a king with no move at all loses too!"
+    },
+    "variant.chaturanga.ex.mantri": {
+      "who": "rooky",
+      "text": "Tap every square the Mantri can step to."
+    },
+    "variant.chaturanga.ex.gaja": {
+      "who": "rooky",
+      "text": "Tap every square the Gaja can jump to."
+    },
+    "variant.chaturanga.ex.bare": {
+      "who": "rooky",
+      "text": "Capture Black's last piece, and leave the king all alone."
+    },
+    "variant.chaturanga.ex.promote": {
+      "who": "rooky",
+      "text": "This foot soldier is about to reach the far side. What will he become?"
+    },
+    "variant.chaturanga.ex.stuck": {
+      "who": "rooky",
+      "text": "Find a move that leaves Black with no move at all. In chaturanga, that wins!"
+    },
+    "variant.chess960.hello": {
+      "who": "rooky",
+      "text": "A world champion called Bobby Fischer had a fun idea: shuffle the back row before every game! It is called Chess960."
+    },
+    "variant.chess960.mirror": {
+      "who": "rooky",
+      "text": "Look closely. Black's pieces copy White's, file by file, like a mirror. The pawns stay right where they always are."
+    },
+    "variant.chess960.order": {
+      "who": "rooky",
+      "text": "There are only two rules for the shuffle. The bishops stand on different colours, and the king stands between the rooks."
+    },
+    "variant.chess960.castle": {
+      "who": "rooky",
+      "text": "Castling ends just like in chess: the king on the g-file or the c-file, the rook right beside it. To castle, move your king onto your rook."
+    },
+    "variant.chess960.think": {
+      "who": "rooky",
+      "text": "Nobody knows the openings here, so think from your very first move. Bring out your pieces and keep your king safe."
+    },
+    "variant.chess960.ex.short": {
+      "who": "rooky",
+      "text": "Castle on the king's side. Put your king on the rook on h1."
+    },
+    "variant.chess960.ex.long": {
+      "who": "rooky",
+      "text": "Now castle on the queen's side, towards the a-file."
+    },
+    "variant.chess960.ex.land": {
+      "who": "rooky",
+      "text": "If White castles on the king's side here, where does the king land?"
+    },
+    "variant.chess960.ex.rule": {
+      "who": "rooky",
+      "text": "Which rule is always true in Chess960?"
+    },
+    "variant.koth.hello": {
+      "who": "rooky",
+      "text": "Welcome to King of the Hill! The four squares in the middle are the hill. Get your king up there and you win."
+    },
+    "variant.koth.hill": {
+      "who": "rooky",
+      "text": "See the glowing squares? d4, e4, d5 and e5. One step onto any of them wins the game at once."
+    },
+    "variant.koth.safe": {
+      "who": "rooky",
+      "text": "But a king can never step onto a square an enemy guards. This rook guards the fourth row, so those hill squares are closed."
+    },
+    "variant.koth.block": {
+      "who": "rooky",
+      "text": "So watch the enemy king too! If it gets close to the hill, guard the hill squares before it climbs."
+    },
+    "variant.koth.same": {
+      "who": "rooky",
+      "text": "Checkmate still wins, and every piece moves just like in chess. Now, let's climb!"
+    },
+    "variant.koth.ex.climb": {
+      "who": "rooky",
+      "text": "Walk your king onto the hill."
+    },
+    "variant.koth.ex.stop": {
+      "who": "rooky",
+      "text": "Black's king wants the hill. Stop it with one rook move."
+    },
+    "variant.koth.ex.guarded": {
+      "who": "rooky",
+      "text": "The bishop guards one hill square. Find the safe one and climb."
+    },
+    "variant.threecheck.hello": {
+      "who": "rooky",
+      "text": "In Three-check, every check counts! Give check three times and you win, even without checkmate."
+    },
+    "variant.threecheck.count": {
+      "who": "rooky",
+      "text": "White's bishop just gave check, so White's counter shows one. The counters sit beside the players' names."
+    },
+    "variant.threecheck.safe": {
+      "who": "rooky",
+      "text": "So keep your king tucked away. Don't open lines toward it too early, or the checks pile up fast."
+    },
+    "variant.threecheck.same": {
+      "who": "rooky",
+      "text": "Checkmate still wins, and every piece moves just like in chess. Let's practise!"
+    },
+    "variant.threecheck.ex.third": {
+      "who": "rooky",
+      "text": "You have given two checks. Give the third and win."
+    },
+    "variant.threecheck.ex.knight": {
+      "who": "rooky",
+      "text": "Two checks done. Can your knight give the third?"
+    },
+    "variant.threecheck.ex.what": {
+      "who": "rooky",
+      "text": "What happens when you give your third check?"
+    }
+  }
+}

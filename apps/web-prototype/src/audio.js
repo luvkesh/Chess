@@ -391,16 +391,29 @@ function ChacklateAudio() {
     if (lang === 'hi') return vs.find((v) => /^hi/i.test(v.lang)) || null;
     return vs.find((v) => /en-(IN|GB)/i.test(v.lang) && /female|natural|neural|samantha|serena|veena/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
   }
-  function device(text, rate, lang) {
+  // Sentences and clauses are spoken one at a time with a breath between them (longer after a full
+  // stop than after a comma), because device voices tend to run a whole paragraph together.
+  function phrases(text) {
+    return (String(text).match(/[^,;:.!?]+(?:[,;:]|[.!?]+["”’)]*|$)/g) || []).map((p) => p.trim()).filter(Boolean);
+  }
+  function device(text, rate, lang, onEnd) {
     if (!('speechSynthesis' in window)) return false;
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
     const v = lang === 'hi' ? pickVoice('hi') : (deviceVoice = deviceVoice || pickVoice('en'));
-    if (v) u.voice = v;
-    if (lang === 'hi') u.lang = 'hi-IN';
-    u.rate = rate || 1; u.pitch = 1;
-    if (music) { duck(true); u.onend = () => duck(false); }
-    speechSynthesis.speak(u);
+    const parts = phrases(text), my = queueId;
+    if (music) duck(true);
+    const next = (i) => {
+      if (my !== queueId) { if (onEnd) onEnd(); return; }   // cut short by something else: still finished
+      if (i >= parts.length) { duck(false); if (onEnd) onEnd(); return; }
+      const u = new SpeechSynthesisUtterance(parts[i]);
+      if (v) u.voice = v;
+      if (lang === 'hi') u.lang = 'hi-IN';
+      u.rate = rate || 1; u.pitch = 1;
+      u.onend = () => setTimeout(() => next(i + 1), /[,;:]$/.test(parts[i]) ? PAUSE.comma : PAUSE.stop);
+      u.onerror = () => { if (my !== queueId && onEnd) onEnd(); };
+      speechSynthesis.speak(u);
+    };
+    next(0);
     return true;
   }
   const voiceInfo = (id) => V.voices.find((v) => v.id === id) || null;
@@ -423,9 +436,11 @@ function ChacklateAudio() {
     return deviceFallback ? device(text, 1, lang) : false;
   }
   // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
-  function moveWords(san, lang) {
-    const M = V.moves[lang] || V.moves.en;
-    if (!M) return [];
+  // old: an old variation (Chaturanga), whose pieces keep their old names (Mantri, Gaja...).
+  function moveWords(san, lang, old) {
+    const B = V.moves[lang] || V.moves.en;
+    if (!B) return [];
+    const M = old && B.old ? Object.assign({}, B, { piece: B.old.piece, promote: Object.assign({}, B.promote, B.old.promote) }) : B;
     const s = String(san).replace(/[!?]+$/, '');
     const tail = /#$/.test(s) ? [M.mate] : /\+$/.test(s) ? [M.check] : [];
     if (/^O-O-O/.test(s)) return [M.castleQ].concat(tail);
@@ -438,17 +453,62 @@ function ChacklateAudio() {
     if (m[7]) words.push(M.promote[m[7]]);
     return words.concat(tail);
   }
-  async function announce(san) {
+  async function announce(san, old) {
     if (!announceOn || callVoice === 'off') return false;
     const v = voiceInfo(callVoice);
     const lang = v ? v.lang : 'en';
-    const words = moveWords(san, lang).filter(Boolean);
+    const words = moveWords(san, lang, old).filter(Boolean);
     if (!words.length) return false;
     stopSpeech();
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
     return deviceFallback ? device(words.join(' '), 1.1, lang) : false;
   }
-  function hush() { stopSpeech(); duck(false); }
+  // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
+  // says the line) and Rooky's word on each Collection item (pitch/...). onTalk(fn) hears
+  // fn(true, what) when someone starts talking ('guide' or 'pitch') and fn(false, what) when they stop.
+  const PAUSE = { comma: 280, stop: 550 };
+  const lineClips = new Map();
+  const talkers = [];
+  function talking(on, what) { for (const fn of talkers) fn(on, what); }
+  function lineClip(url) {
+    if (!lineClips.has(url)) {
+      lineClips.set(url, fetch(url).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { lineClips.delete(url); throw e; }));
+    }
+    return lineClips.get(url);
+  }
+  // Says one recorded line; falls back to the device's voice where the recording can't be fetched
+  // (the single offline file). Resolves when the line has finished or was cut short, or at once if nothing was said.
+  function line(url, text, what, lang) {
+    stopSpeech();
+    const my = queueId;
+    return new Promise((done) => {
+      const end = () => { if (my === queueId) talking(false, what); done(); };
+      if (!canTalk() || !ready()) return done();
+      talking(true, what);
+      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, lang || 'en', end))) end(); };
+      if (typeof fetch === 'undefined' || location.protocol === 'file:' || !url) return viaDevice();
+      lineClip(url).then((b) => {
+        if (my !== queueId) return done();
+        const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(master);
+        const s = ctx.createBufferSource(); s.buffer = b; s.connect(bus); s.start(ctx.currentTime + 0.03);
+        current = s;
+        duck(true);
+        s.onended = () => { if (current === s) { current = null; duck(false); } end(); };
+      }, viaDevice);
+    });
+  }
+  const guide = (key, text) => line('guide/' + key + '.mp3', text, 'guide', 'en');
+  const pitch = (url, text) => line(url, text, 'pitch', 'en');
+  // Lessons with their own speakers (words/<who>/<key>.mp3, recorded by tools/voice/record-words.py):
+  // Rooky in English, Priya in Hindi.
+  const words = (who, text) => line('words/' + who + '/' + voiceKey(text) + '.mp3', text, 'words', who === 'priya' ? 'hi' : 'en');
+  // An era's story, read by that era's friend (tale/<era>/<key>.mp3, recorded by tools/voice/record-tales.py).
+  const tale = (era, text) => line('tale/' + era + '/' + voiceKey(text) + '.mp3', text, 'tale', 'en');
+  // True once the browser lets the game make sound (from the first tap on).
+  let tapped = false;
+  const canTalk = () => tapped || !!(ctx && ctx.state === 'running');
+  function hush() { stopSpeech(); duck(false); talking(false, null); }
 
   return {
     play,
@@ -461,8 +521,9 @@ function ChacklateAudio() {
       if (on) { if (music) musicBus.gain.setTargetAtTime(musicVol * 0.5, ctx.currentTime, 0.4); else startMusic(); } else stopMusic();
     },
     // Browsers only allow sound after a user gesture; call this from one.
-    unlock() { if (ready() && musicOn && !music) startMusic(); },
-    say, hush, event, announce, voiceKey, moveWords,
+    unlock() { if (ready()) { tapped = true; if (musicOn && !music) startMusic(); } },
+    say, hush, event, announce, voiceKey, moveWords, guide, pitch, words, tale, canTalk, phrases,
+    onTalk(fn) { talkers.push(fn); },
     voices: () => V.voices.slice(),
     setVoices(o) {
       if (o.coach) coachVoice = OLD_IDS[o.coach] || o.coach;

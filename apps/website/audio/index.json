@@ -1,13 +1,1289 @@
 {
   "voice": "am_puck,am_michael",
   "lines": {
-    "hero": "Hi! I'm Rooky, your chess coach. Welcome to Chackmate, chess for every age! Scroll down, and I'll show you around.",
-    "learn": "This is me, teaching on a real board. Every time you move, I tell you why, in one simple sentence. No long words, I promise.",
-    "lessons": "Start with how the pieces move, then try puzzles, famous openings and endgames. A new puzzle is waiting for you every day.",
-    "wonders": "Every game happens somewhere amazing! Some places are grand rooms, and some are out in the open, right in front of a wonder of the world. Beat each champion to unlock the next place.",
-    "collect": "Every chess set has its own story. Win them, collect them, and try them on your table! Nothing is random, and nobody can buy a stronger army.",
-    "ages": "Pick a friend to play. Truffle the bunny is gentle with beginners. Ember the dragon plays at full strength. You'll get better with every game.",
-    "families": "Grown-ups, this part is for you. There's no chat with strangers, no ads and no tracking. Parents decide about online play and buying things.",
-    "close": "Your first move is waiting. Let's play!"
+    "hero": {
+      "text": "Hi! I'm Rooky, your chess coach. Welcome to Chackmate, chess for every age! Scroll down, and I'll show you around.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hi!"
+        },
+        {
+          "t": 0.61,
+          "text": "I'm Rooky, your chess coach."
+        },
+        {
+          "t": 3.12,
+          "text": "Welcome to Chackmate, chess for every age!"
+        },
+        {
+          "t": 6.27,
+          "text": "Scroll down, and I'll show you around."
+        }
+      ]
+    },
+    "learn": {
+      "text": "This is me, teaching on a real board. Every time you move, I tell you why, in one simple sentence. No long words, I promise.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This is me, teaching on a real board."
+        },
+        {
+          "t": 2.89,
+          "text": "Every time you move, I tell you why, in one simple sentence."
+        },
+        {
+          "t": 7.78,
+          "text": "No long words, I promise."
+        }
+      ]
+    },
+    "lessons": {
+      "text": "Start with how the pieces move, then try puzzles, famous openings and endgames. A new puzzle is waiting for you every day.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Start with how the pieces move, then try puzzles, famous openings and endgames."
+        },
+        {
+          "t": 6.14,
+          "text": "A new puzzle is waiting for you every day."
+        }
+      ]
+    },
+    "wonders": {
+      "text": "Every game happens somewhere amazing! Some places are grand rooms, and some are out in the open, right in front of a wonder of the world. Beat each champion to unlock the next place.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every game happens somewhere amazing!"
+        },
+        {
+          "t": 2.9,
+          "text": "Some places are grand rooms, and some are out in the open, right in front of a wonder of the world."
+        },
+        {
+          "t": 9.87,
+          "text": "Beat each champion to unlock the next place."
+        }
+      ]
+    },
+    "collect": {
+      "text": "Every chess set has its own story. Win them, collect them, and try them on your table! Nothing is random, and nobody can buy a stronger army.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every chess set has its own story."
+        },
+        {
+          "t": 2.73,
+          "text": "Win them, collect them, and try them on your table!"
+        },
+        {
+          "t": 6.8,
+          "text": "Nothing is random, and nobody can buy a stronger army."
+        }
+      ]
+    },
+    "ages": {
+      "text": "Pick a friend to play. Truffle the bunny is gentle with beginners. Ember the dragon plays at full strength. You'll get better with every game.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Pick a friend to play."
+        },
+        {
+          "t": 1.44,
+          "text": "Truffle the bunny is gentle with beginners."
+        },
+        {
+          "t": 4.64,
+          "text": "Ember the dragon plays at full strength."
+        },
+        {
+          "t": 7.44,
+          "text": "You'll get better with every game."
+        }
+      ]
+    },
+    "families": {
+      "text": "Grown-ups, this part is for you. There's no chat with strangers, no ads and no tracking. Parents decide about online play and buying things.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Grown-ups, this part is for you."
+        },
+        {
+          "t": 2.39,
+          "text": "There's no chat with strangers, no ads and no tracking."
+        },
+        {
+          "t": 6.68,
+          "text": "Parents decide about online play and buying things."
+        }
+      ]
+    },
+    "close": {
+      "text": "Your first move is waiting. Let's play!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Your first move is waiting."
+        },
+        {
+          "t": 1.6,
+          "text": "Let's play!"
+        }
+      ]
+    },
+    "item-sets-pharaoh": {
+      "text": "Look at this one shine! Pharaoh's Treasure is smooth white alabaster and dark basalt, and every piece wears a collar of gold, blue lapis and red carnelian, like a real pharaoh's jewels. Miu the Cat guards it on the Nile. Beat her, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Look at this one shine!"
+        },
+        {
+          "t": 1.79,
+          "text": "Pharaoh's Treasure is smooth white alabaster and dark basalt, and every piece wears a collar of gold, blue lapis and red carnelian, like a real pharaoh's jewels."
+        },
+        {
+          "t": 13.21,
+          "text": "Miu the Cat guards it on the Nile."
+        },
+        {
+          "t": 15.63,
+          "text": "Beat her, and it's yours."
+        }
+      ]
+    },
+    "item-sets-olympian": {
+      "text": "Run your finger down this king. Those grooves are carved like the columns of a Greek temple, in white Pentelic marble with a bronze laurel crown. Sophie the Owl guards this set, and it's yours when you beat her in Athens.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Run your finger down this king."
+        },
+        {
+          "t": 2.35,
+          "text": "Those grooves are carved like the columns of a Greek temple, in white Pentelic marble with a bronze laurel crown."
+        },
+        {
+          "t": 10.27,
+          "text": "Sophie the Owl guards this set, and it's yours when you beat her in Athens."
+        }
+      ]
+    },
+    "item-sets-imperial": {
+      "text": "Here is a set fit for an emperor. Imperial Rome pairs white Carrara marble with deep purple porphyry, a stone so rare that only emperors could use it, and every king wears a gilded laurel wreath. Beat Marcus the Wolf in Rome to make it yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Here is a set fit for an emperor."
+        },
+        {
+          "t": 2.44,
+          "text": "Imperial Rome pairs white Carrara marble with deep purple porphyry, a stone so rare that only emperors could use it, and every king wears a gilded laurel wreath."
+        },
+        {
+          "t": 14.09,
+          "text": "Beat Marcus the Wolf in Rome to make it yours."
+        }
+      ]
+    },
+    "item-sets-maharaja": {
+      "text": "This one is fit for a palace. White and green jade, with tiny rubies and emeralds set into the crowns, just like the jewels of the Mughal emperors. Hold the queen up to the light and watch the green glow.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This one is fit for a palace."
+        },
+        {
+          "t": 2.46,
+          "text": "White and green jade, with tiny rubies and emeralds set into the crowns, just like the jewels of the Mughal emperors."
+        },
+        {
+          "t": 10.73,
+          "text": "Hold the queen up to the light and watch the green glow."
+        }
+      ]
+    },
+    "item-sets-dynasty": {
+      "text": "Blue and white, like a precious Ming vase. Ming Porcelain is painted by hand in deep cobalt blue, and each piece stands on red cinnabar lacquer, carved layer by layer into patterns. Win against Bao the Panda in Beijing, and the Forbidden City's own set is yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Blue and white, like a precious Ming vase."
+        },
+        {
+          "t": 3.39,
+          "text": "Ming Porcelain is painted by hand in deep cobalt blue, and each piece stands on red cinnabar lacquer, carved layer by layer into patterns."
+        },
+        {
+          "t": 13.61,
+          "text": "Win against Bao the Panda in Beijing, and the Forbidden City's own set is yours."
+        }
+      ]
+    },
+    "item-sets-murano": {
+      "text": "Glassmakers in Venice have spun glass like this for seven hundred years. Milk-white and cobalt blue, with twisted stems and threads of gold. Every piece catches the light differently, so no two games look the same.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Glassmakers in Venice have spun glass like this for seven hundred years."
+        },
+        {
+          "t": 4.92,
+          "text": "Milk-white and cobalt blue, with twisted stems and threads of gold."
+        },
+        {
+          "t": 10.07,
+          "text": "Every piece catches the light differently, so no two games look the same."
+        }
+      ]
+    },
+    "item-sets-ruby-pearl": {
+      "text": "Paris, 1889: the Eiffel Tower is brand new, and so is this set. Ruby and Pearl has lilies and tulips climbing every piece, in creamy pearl and deep ruby red, wrapped in thin golden tendrils. Beat Gaston the Rooster in Paris, and this romantic set is yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Paris, 1889: the Eiffel Tower is brand new, and so is this set."
+        },
+        {
+          "t": 6.38,
+          "text": "Ruby and Pearl has lilies and tulips climbing every piece, in creamy pearl and deep ruby red, wrapped in thin golden tendrils."
+        },
+        {
+          "t": 15.55,
+          "text": "Beat Gaston the Rooster in Paris, and this romantic set is yours."
+        }
+      ]
+    },
+    "item-sets-tsarina": {
+      "text": "Now for the crown jewel. The Tsarina's set shimmers with guilloche enamel, tiny engraved lines glowing under clear colour, with green malachite, pearls, little diamonds and rose gold. It looks like treasure from a royal palace. Beat Mishka the Bear in Saint Petersburg, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Now for the crown jewel."
+        },
+        {
+          "t": 1.92,
+          "text": "The Tsarina's set shimmers with guilloche enamel, tiny engraved lines glowing under clear colour, with green malachite, pearls, little diamonds and rose gold."
+        },
+        {
+          "t": 13.36,
+          "text": "It looks like treasure from a royal palace."
+        },
+        {
+          "t": 16.34,
+          "text": "Beat Mishka the Bear in Saint Petersburg, and it's yours."
+        }
+      ]
+    },
+    "item-sets-manhattan": {
+      "text": "Manhattan Deco is as tall and stylish as New York itself. Cream enamel and shiny black onyx rise in steps, just like the skyscrapers of the 1930s, with the bold lines of the jazz age. Beat Skye the Eagle high above Manhattan to claim it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Manhattan Deco is as tall and stylish as New York itself."
+        },
+        {
+          "t": 4.54,
+          "text": "Cream enamel and shiny black onyx rise in steps, just like the skyscrapers of the 1930s, with the bold lines of the jazz age."
+        },
+        {
+          "t": 14.42,
+          "text": "Beat Skye the Eagle high above Manhattan to claim it."
+        }
+      ]
+    },
+    "item-sets-regency": {
+      "text": "Every great collection starts somewhere, and yours starts here. Regency Gilt is glossy black and white lacquer, and the crowns and horses' manes are brushed with real gold leaf, the way furniture makers worked two hundred years ago. It's waiting for you from your very first game.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every great collection starts somewhere, and yours starts here."
+        },
+        {
+          "t": 4.1,
+          "text": "Regency Gilt is glossy black and white lacquer, and the crowns and horses' manes are brushed with real gold leaf, the way furniture makers worked two hundred years ago."
+        },
+        {
+          "t": 15.55,
+          "text": "It's waiting for you from your very first game."
+        }
+      ]
+    },
+    "item-sets-staunton": {
+      "text": "Almost every chess set in the world learned its shape from this one. Classic Staunton is pale boxwood and dark ebony, with a proud carved horse for a knight and a little cross on the king. Simple, honest and smart. It's yours from the start.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Almost every chess set in the world learned its shape from this one."
+        },
+        {
+          "t": 4.02,
+          "text": "Classic Staunton is pale boxwood and dark ebony, with a proud carved horse for a knight and a little cross on the king."
+        },
+        {
+          "t": 12.02,
+          "text": "Simple, honest and smart."
+        },
+        {
+          "t": 14.91,
+          "text": "It's yours from the start."
+        }
+      ]
+    },
+    "item-sets-marble": {
+      "text": "Some sets whisper instead of shout. Carrara and Nero is made of simple shapes, cones, spheres and discs, cut from white and black marble and polished until they feel cool and smooth in your hand. Grown-ups love this one. Reach level seven to unlock it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Some sets whisper instead of shout."
+        },
+        {
+          "t": 2.53,
+          "text": "Carrara and Nero is made of simple shapes, cones, spheres and discs, cut from white and black marble and polished until they feel cool and smooth in your hand."
+        },
+        {
+          "t": 13.46,
+          "text": "Grown-ups love this one."
+        },
+        {
+          "t": 15.58,
+          "text": "Reach level seven to unlock it."
+        }
+      ]
+    },
+    "item-sets-cocoa-gilt": {
+      "text": "Careful, this one looks good enough to eat! Cocoa and Gilt turns every piece into a treat: chocolate truffles, piped rosettes and little paper cups, in dark cocoa and shiny gilt. It's the sweetest set in the collection. Reach level ten, and the box is yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Careful, this one looks good enough to eat!"
+        },
+        {
+          "t": 3.01,
+          "text": "Cocoa and Gilt turns every piece into a treat: chocolate truffles, piped rosettes and little paper cups, in dark cocoa and shiny gilt."
+        },
+        {
+          "t": 12.99,
+          "text": "It's the sweetest set in the collection."
+        },
+        {
+          "t": 15.6,
+          "text": "Reach level ten, and the box is yours."
+        }
+      ]
+    },
+    "item-sets-jade-onyx": {
+      "text": "These pieces stand like ancient stones in a misty field. Jade and Onyx is square-cut from pale green jade and deep black onyx, with sharp, clean edges you can feel. Shelly the Tortoise guards it, so beat her slow and steady game to take it home.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "These pieces stand like ancient stones in a misty field."
+        },
+        {
+          "t": 4.04,
+          "text": "Jade and Onyx is square-cut from pale green jade and deep black onyx, with sharp, clean edges you can feel."
+        },
+        {
+          "t": 12.13,
+          "text": "Shelly the Tortoise guards it, so beat her slow and steady game to take it home."
+        }
+      ]
+    },
+    "item-sets-gold-silver": {
+      "text": "Every piece in this set is a trophy. Gold and Platinum gives each one gleaming cups and curly handles, polished like the prizes at a big tournament, and the king holds the tallest cup of all. It comes with Premium, for players who love a little sparkle.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every piece in this set is a trophy."
+        },
+        {
+          "t": 2.8,
+          "text": "Gold and Platinum gives each one gleaming cups and curly handles, polished like the prizes at a big tournament, and the king holds the tallest cup of all."
+        },
+        {
+          "t": 13.12,
+          "text": "It comes with Premium, for players who love a little sparkle."
+        }
+      ]
+    },
+    "item-sets-ruby-chocolate": {
+      "text": "Pink chocolate is real, and here it is on your board! Ruby Chocolate is soft, bubbly moulded pieces in rosy ruby and dark bittersweet, with little bumps like chocolate fresh out of the mould. It's sweet, cheerful and very pink. It comes with Premium.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Pink chocolate is real, and here it is on your board!"
+        },
+        {
+          "t": 3.89,
+          "text": "Ruby Chocolate is soft, bubbly moulded pieces in rosy ruby and dark bittersweet, with little bumps like chocolate fresh out of the mould."
+        },
+        {
+          "t": 13.24,
+          "text": "It's sweet, cheerful and very pink."
+        },
+        {
+          "t": 16.49,
+          "text": "It comes with Premium."
+        }
+      ]
+    },
+    "item-sets-milk-dark": {
+      "text": "Did you know chocolate grows in pods on trees? Milk and Dark turns every piece into a ribbed cocoa pod standing on leafy feet, in creamy milk and rich dark chocolate. It's the top prize on the free Cocoa Harvest season track, so keep playing to reach it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Did you know chocolate grows in pods on trees?"
+        },
+        {
+          "t": 3.23,
+          "text": "Milk and Dark turns every piece into a ribbed cocoa pod standing on leafy feet, in creamy milk and rich dark chocolate."
+        },
+        {
+          "t": 11.69,
+          "text": "It's the top prize on the free Cocoa Harvest season track, so keep playing to reach it."
+        }
+      ]
+    },
+    "item-sets-caramel-cream": {
+      "text": "Watch the light run down these twists. Caramel and Cream is barley-sugar spirals in golden caramel and fresh white cream, like sweets in an old shop window. They look almost sticky! It's one of the rewards on the Cocoa Harvest season pass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Watch the light run down these twists."
+        },
+        {
+          "t": 2.83,
+          "text": "Caramel and Cream is barley-sugar spirals in golden caramel and fresh white cream, like sweets in an old shop window."
+        },
+        {
+          "t": 10.68,
+          "text": "They look almost sticky!"
+        },
+        {
+          "t": 12.72,
+          "text": "It's one of the rewards on the Cocoa Harvest season pass."
+        }
+      ]
+    },
+    "item-sets-crystal": {
+      "text": "Hold a piece up to the window and watch the colours dance. Crystal Jewels is cut crystal, clear for one side and jet black for the other, and every kind of piece carries its own coloured gem. Each one sparkles differently. It comes with Premium.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hold a piece up to the window and watch the colours dance."
+        },
+        {
+          "t": 3.86,
+          "text": "Crystal Jewels is cut crystal, clear for one side and jet black for the other, and every kind of piece carries its own coloured gem."
+        },
+        {
+          "t": 13.04,
+          "text": "Each one sparkles differently."
+        },
+        {
+          "t": 15.19,
+          "text": "It comes with Premium."
+        }
+      ]
+    },
+    "item-sets-celestial": {
+      "text": "This set comes from the night sky. Celestial Opal is milky white and black opal set in silver, with ringed planets, a crescent moon and little golden stars. Turn it slowly and the opal flashes blue and green. It comes with Premium, for dreamers.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This set comes from the night sky."
+        },
+        {
+          "t": 2.38,
+          "text": "Celestial Opal is milky white and black opal set in silver, with ringed planets, a crescent moon and little golden stars."
+        },
+        {
+          "t": 11.27,
+          "text": "Turn it slowly and the opal flashes blue and green."
+        },
+        {
+          "t": 14.98,
+          "text": "It comes with Premium, for dreamers."
+        }
+      ]
+    },
+    "item-sets-peacock": {
+      "text": "Peacocks are the proudest birds in the garden, and these pieces know it. Peacock Court is ivory and peacock-blue enamel, with fanned tails, tiny crests and feather eyes on every piece. It's elegant, bright and a little bit royal. It comes with Premium.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Peacocks are the proudest birds in the garden, and these pieces know it."
+        },
+        {
+          "t": 4.66,
+          "text": "Peacock Court is ivory and peacock-blue enamel, with fanned tails, tiny crests and feather eyes on every piece."
+        },
+        {
+          "t": 13.14,
+          "text": "It's elegant, bright and a little bit royal."
+        },
+        {
+          "t": 16.39,
+          "text": "It comes with Premium."
+        }
+      ]
+    },
+    "item-sets-army": {
+      "text": "Here comes a whole army! In The Royal Army, the rook is a war elephant, the bishop rides a camel, the knight is a horseman and the pawns carry swords and shields. Chess began as a game of armies in India, and this set remembers it. It comes with Premium.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Here comes a whole army!"
+        },
+        {
+          "t": 2.14,
+          "text": "In The Royal Army, the rook is a war elephant, the bishop rides a camel, the knight is a horseman and the pawns carry swords and shields."
+        },
+        {
+          "t": 11.61,
+          "text": "Chess began as a game of armies in India, and this set remembers it."
+        },
+        {
+          "t": 16.45,
+          "text": "It comes with Premium."
+        }
+      ]
+    },
+    "item-sets-robots": {
+      "text": "Beep boop! Robot Squad is a team of friendly toy robots in glossy plastic and shiny chrome, and every one of them has glowing eyes. They look ready to march across the board. Younger players love this one, and it unlocks when you reach level five.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Beep boop!"
+        },
+        {
+          "t": 0.9,
+          "text": "Robot Squad is a team of friendly toy robots in glossy plastic and shiny chrome, and every one of them has glowing eyes."
+        },
+        {
+          "t": 9.59,
+          "text": "They look ready to march across the board."
+        },
+        {
+          "t": 12.44,
+          "text": "Younger players love this one, and it unlocks when you reach level five."
+        }
+      ]
+    },
+    "item-sets-ocean": {
+      "text": "Dive under the sea! Coral Kingdom is a whole undersea court, with merfolk, an octopus, a seahorse, a coral castle and puffed-up pufferfish for pawns. Every piece is painted in bright ocean colours. Reach level twelve, and the whole kingdom swims onto your board.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Dive under the sea!"
+        },
+        {
+          "t": 1.77,
+          "text": "Coral Kingdom is a whole undersea court, with merfolk, an octopus, a seahorse, a coral castle and puffed-up pufferfish for pawns."
+        },
+        {
+          "t": 11.92,
+          "text": "Every piece is painted in bright ocean colours."
+        },
+        {
+          "t": 15.27,
+          "text": "Reach level twelve, and the whole kingdom swims onto your board."
+        }
+      ]
+    },
+    "item-boards-walnut": {
+      "text": "A good board starts with good wood. Walnut and Maple sets dark figured walnut beside pale maple, in a frame joined at the corners like fine furniture, with thin gold lines all around. It's warm, classic and yours from your very first game.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "A good board starts with good wood."
+        },
+        {
+          "t": 2.67,
+          "text": "Walnut and Maple sets dark figured walnut beside pale maple, in a frame joined at the corners like fine furniture, with thin gold lines all around."
+        },
+        {
+          "t": 13.22,
+          "text": "It's warm, classic and yours from your very first game."
+        }
+      ]
+    },
+    "item-boards-cocoa-cream": {
+      "text": "Doesn't this look like a fancy chocolate box? Cocoa and Cream has squares of glossy cocoa lacquer and soft cream, with fine raspberry-red seams running between them. It's cosy and sweet, and it's yours from the start.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Doesn't this look like a fancy chocolate box?"
+        },
+        {
+          "t": 2.99,
+          "text": "Cocoa and Cream has squares of glossy cocoa lacquer and soft cream, with fine raspberry-red seams running between them."
+        },
+        {
+          "t": 11.45,
+          "text": "It's cosy and sweet, and it's yours from the start."
+        }
+      ]
+    },
+    "item-boards-tournament": {
+      "text": "Visit any chess club, and you'll see this board. Tournament Green is the green and buff that players use in clubs and championships all over the world, with clear squares that are easy on the eyes. It's ready for you from the start.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Visit any chess club, and you'll see this board."
+        },
+        {
+          "t": 3.55,
+          "text": "Tournament Green is the green and buff that players use in clubs and championships all over the world, with clear squares that are easy on the eyes."
+        },
+        {
+          "t": 13.2,
+          "text": "It's ready for you from the start."
+        }
+      ]
+    },
+    "item-boards-night-marble": {
+      "text": "Imagine playing on a palace floor. Carrara and Nero is white Carrara and black Nero Marquina marble, polished until you can almost see your pieces reflected in it. It feels cool, calm and grand. Reach level three to unlock it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Imagine playing on a palace floor."
+        },
+        {
+          "t": 2.54,
+          "text": "Carrara and Nero is white Carrara and black Nero Marquina marble, polished until you can almost see your pieces reflected in it."
+        },
+        {
+          "t": 10.8,
+          "text": "It feels cool, calm and grand."
+        },
+        {
+          "t": 14.28,
+          "text": "Reach level three to unlock it."
+        }
+      ]
+    },
+    "item-boards-rosewood-gold": {
+      "text": "Rosewood has a deep red glow that gets richer with time. Rosewood and Gold Leaf sets it against honey-coloured squares, and the frame is laid with real gold leaf, one thin sheet at a time. Reach level five, and it's on your table.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Rosewood has a deep red glow that gets richer with time."
+        },
+        {
+          "t": 4.2,
+          "text": "Rosewood and Gold Leaf sets it against honey-coloured squares, and the frame is laid with real gold leaf, one thin sheet at a time."
+        },
+        {
+          "t": 13.62,
+          "text": "Reach level five, and it's on your table."
+        }
+      ]
+    },
+    "item-boards-emerald-ivory": {
+      "text": "Peer into the green squares. Emerald and Ivory is green marble with veins of jade running through it, set against warm ivory stone, so no two squares are quite the same. It's fresh and elegant, and it unlocks at level eight.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Peer into the green squares."
+        },
+        {
+          "t": 2.35,
+          "text": "Emerald and Ivory is green marble with veins of jade running through it, set against warm ivory stone, so no two squares are quite the same."
+        },
+        {
+          "t": 12.31,
+          "text": "It's fresh and elegant, and it unlocks at level eight."
+        }
+      ]
+    },
+    "item-boards-obsidian": {
+      "text": "Obsidian is glass made by volcanoes! Obsidian Glass is smoky black volcanic glass with a shining chrome rim, and every piece you place shows its reflection underneath. It's sleek and a little mysterious. Reach level twelve to unlock it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Obsidian is glass made by volcanoes!"
+        },
+        {
+          "t": 3.07,
+          "text": "Obsidian Glass is smoky black volcanic glass with a shining chrome rim, and every piece you place shows its reflection underneath."
+        },
+        {
+          "t": 12.03,
+          "text": "It's sleek and a little mysterious."
+        },
+        {
+          "t": 14.77,
+          "text": "Reach level twelve to unlock it."
+        }
+      ]
+    },
+    "item-boards-sakura": {
+      "text": "In Japan, families picnic under the cherry blossoms every spring. Sakura Lacquer captures that soft pink in layers of glossy lacquer, smooth as a petal. You earn it by playing seven days in a row, so it's a reward for keeping your chess habit going.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "In Japan, families picnic under the cherry blossoms every spring."
+        },
+        {
+          "t": 5.03,
+          "text": "Sakura Lacquer captures that soft pink in layers of glossy lacquer, smooth as a petal."
+        },
+        {
+          "t": 11.71,
+          "text": "You earn it by playing seven days in a row, so it's a reward for keeping your chess habit going."
+        }
+      ]
+    },
+    "item-boards-sandstone": {
+      "text": "Jaipur is called the Pink City because its palaces are built from this stone. Jaipur Sandstone sets pink and honey sandstone side by side, glowing like the city at sunset. It's a little piece of India on your table. Reach level fifteen to unlock it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Jaipur is called the Pink City because its palaces are built from this stone."
+        },
+        {
+          "t": 4.74,
+          "text": "Jaipur Sandstone sets pink and honey sandstone side by side, glowing like the city at sunset."
+        },
+        {
+          "t": 12.12,
+          "text": "It's a little piece of India on your table."
+        },
+        {
+          "t": 15.15,
+          "text": "Reach level fifteen to unlock it."
+        }
+      ]
+    },
+    "item-boards-ruby-truffle": {
+      "text": "Got a sweet tooth? Ruby Truffle has squares of glossy ruby lacquer and pale praline, divided by thin seams of gold, just like a box of fine truffles. It's rich and cheerful, and it comes with Premium.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Got a sweet tooth?"
+        },
+        {
+          "t": 1.47,
+          "text": "Ruby Truffle has squares of glossy ruby lacquer and pale praline, divided by thin seams of gold, just like a box of fine truffles."
+        },
+        {
+          "t": 11.34,
+          "text": "It's rich and cheerful, and it comes with Premium."
+        }
+      ]
+    },
+    "item-boards-gilded-ebony": {
+      "text": "Some boards are made for a grand occasion. Gilded Ebony is deep black lacquer and soft ivory, and every single seam between the squares is drawn in gold, so under the lights the whole board glows. It comes with Premium.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Some boards are made for a grand occasion."
+        },
+        {
+          "t": 3.07,
+          "text": "Gilded Ebony is deep black lacquer and soft ivory, and every single seam between the squares is drawn in gold, so under the lights the whole board glows."
+        },
+        {
+          "t": 13.77,
+          "text": "It comes with Premium."
+        }
+      ]
+    },
+    "item-boards-harvest-oak": {
+      "text": "Smell that? It's harvest time! Harvest Oak is golden oak with a warm, honey-coloured grain, like a farmhouse table at the end of summer. It's a free reward on the Cocoa Harvest season track, so every player can earn it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Smell that?"
+        },
+        {
+          "t": 1.01,
+          "text": "It's harvest time!"
+        },
+        {
+          "t": 2.77,
+          "text": "Harvest Oak is golden oak with a warm, honey-coloured grain, like a farmhouse table at the end of summer."
+        },
+        {
+          "t": 10.3,
+          "text": "It's a free reward on the Cocoa Harvest season track, so every player can earn it."
+        }
+      ]
+    },
+    "item-boards-cacao-pod": {
+      "text": "Have you ever seen a ripe cacao pod? Cacao Pod paints the board in the warm colours of the pod and the beans inside it, the very beans that become chocolate. It's a cheerful board, and a reward on the Cocoa Harvest season pass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Have you ever seen a ripe cacao pod?"
+        },
+        {
+          "t": 2.67,
+          "text": "Cacao Pod paints the board in the warm colours of the pod and the beans inside it, the very beans that become chocolate."
+        },
+        {
+          "t": 10.73,
+          "text": "It's a cheerful board, and a reward on the Cocoa Harvest season pass."
+        }
+      ]
+    },
+    "item-boards-single-origin": {
+      "text": "At the very top of the season sits this board. Single Origin uses the darkest wood of all, set in a frame of black marble, like the finest chocolate made from one special farm. It waits at the end of the Cocoa Harvest season pass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "At the very top of the season sits this board."
+        },
+        {
+          "t": 3.2,
+          "text": "Single Origin uses the darkest wood of all, set in a frame of black marble, like the finest chocolate made from one special farm."
+        },
+        {
+          "t": 12.8,
+          "text": "It waits at the end of the Cocoa Harvest season pass."
+        }
+      ]
+    },
+    "item-boards-nile": {
+      "text": "Hieroglyphs run all the way around this frame, just like the walls of an Egyptian temple. Sandstone and Lapis sets desert-gold sandstone beside deep blue lapis lazuli, the stone the pharaohs loved. Beat Miu the Cat on the Nile, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hieroglyphs run all the way around this frame, just like the walls of an Egyptian temple."
+        },
+        {
+          "t": 6.15,
+          "text": "Sandstone and Lapis sets desert-gold sandstone beside deep blue lapis lazuli, the stone the pharaohs loved."
+        },
+        {
+          "t": 14.47,
+          "text": "Beat Miu the Cat on the Nile, and it's yours."
+        }
+      ]
+    },
+    "item-boards-athens": {
+      "text": "The Greeks loved marble, and this board shows why. Pentelic and Verde puts white Pentelic marble, the stone of the Parthenon, beside green verde antico, with a Greek key pattern around the edge. Win against Sophie the Owl in Athens to take it home.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "The Greeks loved marble, and this board shows why."
+        },
+        {
+          "t": 3.86,
+          "text": "Pentelic and Verde puts white Pentelic marble, the stone of the Parthenon, beside green verde antico, with a Greek key pattern around the edge."
+        },
+        {
+          "t": 14.17,
+          "text": "Win against Sophie the Owl in Athens to take it home."
+        }
+      ]
+    },
+    "item-boards-roma": {
+      "text": "Romans built with stone that lasted thousands of years. Porphyry and Travertine sets warm travertine beside grey marble, framed in imperial porphyry with a bronze rim. It feels as solid as the Colosseum. Beat Marcus the Wolf in Rome, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Romans built with stone that lasted thousands of years."
+        },
+        {
+          "t": 3.83,
+          "text": "Porphyry and Travertine sets warm travertine beside grey marble, framed in imperial porphyry with a bronze rim."
+        },
+        {
+          "t": 12.02,
+          "text": "It feels as solid as the Colosseum."
+        },
+        {
+          "t": 15.15,
+          "text": "Beat Marcus the Wolf in Rome, and it's yours."
+        }
+      ]
+    },
+    "item-boards-mughal": {
+      "text": "Look closer: those flowers aren't painted, they're stone. Taj Marble is white marble inlaid with tiny stone flowers, the way the Taj Mahal was decorated, set against warm red sandstone. Beat Moti the Elephant in Agra to bring it home.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Look closer: those flowers aren't painted, they're stone."
+        },
+        {
+          "t": 4.38,
+          "text": "Taj Marble is white marble inlaid with tiny stone flowers, the way the Taj Mahal was decorated, set against warm red sandstone."
+        },
+        {
+          "t": 14.28,
+          "text": "Beat Moti the Elephant in Agra to bring it home."
+        }
+      ]
+    },
+    "item-boards-ming": {
+      "text": "Silk, lacquer and gold, the treasures of an emperor's study. Cinnabar and Gold has black lacquer and pale silk squares with golden seams, in a frame of carved red cinnabar. Win against Bao the Panda in Beijing, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Silk, lacquer and gold, the treasures of an emperor's study."
+        },
+        {
+          "t": 4.79,
+          "text": "Cinnabar and Gold has black lacquer and pale silk squares with golden seams, in a frame of carved red cinnabar."
+        },
+        {
+          "t": 12.86,
+          "text": "Win against Bao the Panda in Beijing, and it's yours."
+        }
+      ]
+    },
+    "item-boards-venice": {
+      "text": "Here's a lucky story. Long ago, glassmakers on Murano made a mistake and discovered aventurine, a glass that sparkles with flecks of gold. Murano Mirror sets it beside silver mirror glass. Beat Marco the Winged Lion in Venice to win it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Here's a lucky story."
+        },
+        {
+          "t": 1.89,
+          "text": "Long ago, glassmakers on Murano made a mistake and discovered aventurine, a glass that sparkles with flecks of gold."
+        },
+        {
+          "t": 10.72,
+          "text": "Murano Mirror sets it beside silver mirror glass."
+        },
+        {
+          "t": 14.69,
+          "text": "Beat Marco the Winged Lion in Venice to win it."
+        }
+      ]
+    },
+    "item-boards-belle": {
+      "text": "This board comes from the grand houses of Paris. Bleu Turquin and Carrara sets blue-grey marble beside white Carrara, in a frame of kingwood, a wood so fine it was used for royal furniture. Beat Gaston the Rooster in Paris to win it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This board comes from the grand houses of Paris."
+        },
+        {
+          "t": 3.43,
+          "text": "Bleu Turquin and Carrara sets blue-grey marble beside white Carrara, in a frame of kingwood, a wood so fine it was used for royal furniture."
+        },
+        {
+          "t": 13.15,
+          "text": "Beat Gaston the Rooster in Paris to win it."
+        }
+      ]
+    },
+    "item-boards-winter": {
+      "text": "The green swirls in this frame are malachite, dug from the Ural Mountains of Russia. Malachite and Rhodonite sets rose-pink rhodonite beside white onyx inside it, like a palace garden in the snow. Beat Mishka the Bear, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "The green swirls in this frame are malachite, dug from the Ural Mountains of Russia."
+        },
+        {
+          "t": 5.81,
+          "text": "Malachite and Rhodonite sets rose-pink rhodonite beside white onyx inside it, like a palace garden in the snow."
+        },
+        {
+          "t": 13.59,
+          "text": "Beat Mishka the Bear, and it's yours."
+        }
+      ]
+    },
+    "item-boards-deco": {
+      "text": "Step into a 1930s penthouse. Macassar and Chrome has striped macassar ebony, a wood with bold dark and golden stripes, beside gleaming chrome. It's sharp, shiny and very New York. Beat Skye the Eagle above Manhattan, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Step into a 1930s penthouse."
+        },
+        {
+          "t": 3.02,
+          "text": "Macassar and Chrome has striped macassar ebony, a wood with bold dark and golden stripes, beside gleaming chrome."
+        },
+        {
+          "t": 11.21,
+          "text": "It's sharp, shiny and very New York."
+        },
+        {
+          "t": 14.62,
+          "text": "Beat Skye the Eagle above Manhattan, and it's yours."
+        }
+      ]
+    },
+    "item-places-salon": {
+      "text": "Pull up a chair by the fire. The Grand Cocoa Salon is a Regency drawing room with candlelight, a sparkling chandelier and a fire that crackles while you think. It's cosy, calm and the perfect first place to play. It's yours from the start.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Pull up a chair by the fire."
+        },
+        {
+          "t": 2.17,
+          "text": "The Grand Cocoa Salon is a Regency drawing room with candlelight, a sparkling chandelier and a fire that crackles while you think."
+        },
+        {
+          "t": 10.84,
+          "text": "It's cosy, calm and the perfect first place to play."
+        },
+        {
+          "t": 15.14,
+          "text": "It's yours from the start."
+        }
+      ]
+    },
+    "item-places-library": {
+      "text": "Shh, this is my favourite place to think. The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky. It's quiet, a little magical and perfect for a long game. Reach level four to open its doors.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Shh, this is my favourite place to think."
+        },
+        {
+          "t": 3.65,
+          "text": "The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky."
+        },
+        {
+          "t": 10.59,
+          "text": "It's quiet, a little magical and perfect for a long game."
+        },
+        {
+          "t": 15.02,
+          "text": "Reach level four to open its doors."
+        }
+      ]
+    },
+    "item-places-marble-hall": {
+      "text": "Good morning! The Marble Hall is white marble and gold, with sunlight pouring in so everything feels bright and fresh. Every step echoes softly on the polished floor. It's the kind of room where a champion might play. It comes with Premium.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Good morning!"
+        },
+        {
+          "t": 1.01,
+          "text": "The Marble Hall is white marble and gold, with sunlight pouring in so everything feels bright and fresh."
+        },
+        {
+          "t": 8.03,
+          "text": "Every step echoes softly on the polished floor."
+        },
+        {
+          "t": 11.52,
+          "text": "It's the kind of room where a champion might play."
+        },
+        {
+          "t": 14.58,
+          "text": "It comes with Premium."
+        }
+      ]
+    },
+    "item-places-harvest-loft": {
+      "text": "Climb the ladder into the loft! The Harvest Loft is a warm wooden room at harvest time, filled with golden afternoon light. It's snug and happy, like a secret hideout just for you. It's a reward on the Cocoa Harvest season pass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Climb the ladder into the loft!"
+        },
+        {
+          "t": 2.48,
+          "text": "The Harvest Loft is a warm wooden room at harvest time, filled with golden afternoon light."
+        },
+        {
+          "t": 9.17,
+          "text": "It's snug and happy, like a secret hideout just for you."
+        },
+        {
+          "t": 13.25,
+          "text": "It's a reward on the Cocoa Harvest season pass."
+        }
+      ]
+    },
+    "item-places-nile": {
+      "text": "Feel the warm desert wind. Giza Plateau puts your table on a terrace at sunset, with the Pyramids and the Sphinx glowing orange right in front of you. It's outdoors, under the open sky, and it's where your journey begins, with Miu the Cat.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Feel the warm desert wind."
+        },
+        {
+          "t": 2.68,
+          "text": "Giza Plateau puts your table on a terrace at sunset, with the Pyramids and the Sphinx glowing orange right in front of you."
+        },
+        {
+          "t": 10.56,
+          "text": "It's outdoors, under the open sky, and it's where your journey begins, with Miu the Cat."
+        }
+      ]
+    },
+    "item-places-athens": {
+      "text": "Stand between tall marble columns and look up the hill. The Stoa of Athens is a shady colonnade where Greek thinkers once talked and argued, with the Parthenon shining outside. It's indoors, but full of air and light. Sophie the Owl is waiting for you here.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Stand between tall marble columns and look up the hill."
+        },
+        {
+          "t": 3.62,
+          "text": "The Stoa of Athens is a shady colonnade where Greek thinkers once talked and argued, with the Parthenon shining outside."
+        },
+        {
+          "t": 11.5,
+          "text": "It's indoors, but full of air and light."
+        },
+        {
+          "t": 14.94,
+          "text": "Sophie the Owl is waiting for you here."
+        }
+      ]
+    },
+    "item-places-roma": {
+      "text": "Hear the crowd? Your table stands right on the arena floor of the Colosseum at dusk, with torches burning on every tier around you. It's outdoors and very dramatic. Marcus the Wolf is waiting for you here, so be brave.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hear the crowd?"
+        },
+        {
+          "t": 1.23,
+          "text": "Your table stands right on the arena floor of the Colosseum at dusk, with torches burning on every tier around you."
+        },
+        {
+          "t": 8.79,
+          "text": "It's outdoors and very dramatic."
+        },
+        {
+          "t": 11.74,
+          "text": "Marcus the Wolf is waiting for you here, so be brave."
+        }
+      ]
+    },
+    "item-places-mughal": {
+      "text": "Take a deep breath. The Taj Mahal Gardens put your table on a terrace across the long pool from the Taj Mahal, glowing white in the moonlight. It's outdoors, peaceful and beautiful. Moti the Elephant plays here, gently but cleverly.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Take a deep breath."
+        },
+        {
+          "t": 1.63,
+          "text": "The Taj Mahal Gardens put your table on a terrace across the long pool from the Taj Mahal, glowing white in the moonlight."
+        },
+        {
+          "t": 9.56,
+          "text": "It's outdoors, peaceful and beautiful."
+        },
+        {
+          "t": 12.91,
+          "text": "Moti the Elephant plays here, gently but cleverly."
+        }
+      ]
+    },
+    "item-places-ming": {
+      "text": "Welcome to the emperor's study. The Forbidden City Study is red lacquer and gold, and through the doors you can see the Hall of Supreme Harmony. It's indoors, calm and very grand. Bao the Panda is waiting here for a game.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Welcome to the emperor's study."
+        },
+        {
+          "t": 2.29,
+          "text": "The Forbidden City Study is red lacquer and gold, and through the doors you can see the Hall of Supreme Harmony."
+        },
+        {
+          "t": 9.8,
+          "text": "It's indoors, calm and very grand."
+        },
+        {
+          "t": 13.32,
+          "text": "Bao the Panda is waiting here for a game."
+        }
+      ]
+    },
+    "item-places-venice": {
+      "text": "Listen to the water lapping below. The Palazzo on the Canal puts your table on a balcony over the Grand Canal, with gondolas gliding past and the Rialto Bridge just ahead. Marco the Winged Lion plays here, so watch out.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Listen to the water lapping below."
+        },
+        {
+          "t": 2.62,
+          "text": "The Palazzo on the Canal puts your table on a balcony over the Grand Canal, with gondolas gliding past and the Rialto Bridge just ahead."
+        },
+        {
+          "t": 11.86,
+          "text": "Marco the Winged Lion plays here, so watch out."
+        }
+      ]
+    },
+    "item-places-paris": {
+      "text": "It's 1889, and the Eiffel Tower has just been finished. The Champ de Mars puts your table on a garden terrace right below it, lit up for the World's Fair. It's outdoors and full of sparkle. Gaston the Rooster is waiting for you here.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "It's 1889, and the Eiffel Tower has just been finished."
+        },
+        {
+          "t": 4.6,
+          "text": "The Champ de Mars puts your table on a garden terrace right below it, lit up for the World's Fair."
+        },
+        {
+          "t": 11.09,
+          "text": "It's outdoors and full of sparkle."
+        },
+        {
+          "t": 14.07,
+          "text": "Gaston the Rooster is waiting for you here."
+        }
+      ]
+    },
+    "item-places-winter": {
+      "text": "Snow is falling outside the windows. The Winter Palace is a golden ballroom facing the colourful onion domes of the Savior on Spilled Blood. It's indoors, warm and sparkling. Mishka the Bear is waiting here for a game.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Snow is falling outside the windows."
+        },
+        {
+          "t": 2.83,
+          "text": "The Winter Palace is a golden ballroom facing the colourful onion domes of the Savior on Spilled Blood."
+        },
+        {
+          "t": 9.88,
+          "text": "It's indoors, warm and sparkling."
+        },
+        {
+          "t": 13.36,
+          "text": "Mishka the Bear is waiting here for a game."
+        }
+      ]
+    },
+    "item-places-deco": {
+      "text": "So many lights! The Times Square Rooftop puts your table high above Broadway, in a sea of glowing neon signs. It's outdoors, buzzing and exciting, and it's the very last place on the journey. Skye the Eagle is waiting at the top.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "So many lights!"
+        },
+        {
+          "t": 1.39,
+          "text": "The Times Square Rooftop puts your table high above Broadway, in a sea of glowing neon signs."
+        },
+        {
+          "t": 8.11,
+          "text": "It's outdoors, buzzing and exciting, and it's the very last place on the journey."
+        },
+        {
+          "t": 13.99,
+          "text": "Skye the Eagle is waiting at the top."
+        }
+      ]
+    }
   }
 }

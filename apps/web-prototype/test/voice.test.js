@@ -21,9 +21,13 @@ assert.deepStrictEqual([...AU.moveWords('Nxe5+', 'en')], ['Knight', 'takes', 'ee
 assert.deepStrictEqual([...AU.moveWords('e8=Q#', 'en')], ['Pawn', 'ee eight', 'promotes to a queen', 'checkmate']);
 assert.deepStrictEqual([...AU.moveWords('O-O-O', 'en')], ['Castles queenside']);
 assert.deepStrictEqual([...AU.moveWords('Rad1', 'hi')], ['हाथी', 'डी एक']);
+// Chaturanga keeps the old names: the Q code is the Mantri, the B code the Gaja.
+assert.deepStrictEqual([...AU.moveWords('Qxe5+', 'en', true)], ['Mantri', 'takes', 'ee five', 'check']);
+assert.deepStrictEqual([...AU.moveWords('e8=Q', 'en', true)], ['Padati', 'ee eight', 'becomes a Mantri']);
+assert.deepStrictEqual([...AU.moveWords('Bd4', 'hi', true)], ['गज', 'डी चार']);
 const frag = { en: new Set(lines.fragments(V.moves.en)), hi: new Set(lines.fragments(V.moves.hi)) };
 for (const san of ['Nf3', 'exd5', 'Qxh7#', 'O-O', 'a8=N+', 'Kxg2', 'Bb5+']) {
-  for (const lang of ['en', 'hi']) for (const w of AU.moveWords(san, lang)) assert(frag[lang].has(w), lang + ' ' + san + ': ' + w);
+  for (const lang of ['en', 'hi']) for (const old of [false, true]) for (const w of AU.moveWords(san, lang, old)) assert(frag[lang].has(w), lang + ' ' + san + ': ' + w);
 }
 
 // Every voice says every game call, in both languages.
@@ -60,4 +64,30 @@ for (const v of V.voices) {
   names.add(v.name);
   if (v.lang === 'en') assert(['US', 'UK'].includes(v.accent) && ['F', 'M'].includes(v.gender), v.id + ' has an accent and gender');
 }
+// Lessons with their own speakers (Words at the table): Rooky says every English line, Priya every
+// Hindi word, each recorded with today's words and voice, and nothing extra is shipped.
+const G = require('../../../packages/content/guide.json');
+const L = require('../../../packages/content/lessons.json');
+const engine = { rooky: G.speakers.rooky.engine, priya: V.voices.find((v) => v.id === 'priya').engine };
+const wdir = path.join(__dirname, '../public/words');
+const windex = JSON.parse(fs.readFileSync(path.join(wdir, 'index.json'), 'utf8'));
+const wlines = lines.wordLines();
+const own = L.lessons.filter((l) => l.voice);
+assert(own.length, 'a lesson has its own speakers');
+for (const l of own) {
+  assert.strictEqual(l.voice, 'rooky', l.id + ' is said by Rooky');
+  const words = l.steps.filter((s) => s.word);
+  assert(words.length && l.steps[l.steps.length - 1].glossary, l.id + ' ends with a page listing every word');
+  for (const s of words) assert(s.word.en && s.word.hi && s.word.latin && /[\u0900-\u097f]/.test(s.word.hi), l.id + ': ' + s.word.en + ' has its Hindi');
+  for (const s of l.steps) assert(wlines.some((x) => x.text === s.say && x.who === 'rooky'), l.id + ': ' + s.say);
+}
+for (const x of wlines) {
+  const name = x.who + '/' + x.key;
+  assert.deepStrictEqual(windex[name], { voice: engine[x.who], text: x.text }, name + ' "' + x.text + '" was recorded with other words or another voice: run tools/voice/record-words.py');
+  assert(fs.existsSync(path.join(wdir, name + '.mp3')), name + '.mp3');
+}
+const shipped = fs.readdirSync(wdir).filter((d) => !d.includes('.')).flatMap((d) => fs.readdirSync(path.join(wdir, d)).map((f) => d + '/' + f.replace(/\.mp3$/, ''))).sort();
+assert.deepStrictEqual(shipped, wlines.map((x) => x.who + '/' + x.key).sort(), 'one words clip per line, nothing extra');
+// Rooky's own voice is the default coach.
+assert(/voiceCoach: 'toby'/.test(fs.readFileSync(path.join(__dirname, '../src/app.js'), 'utf8')), 'Toby is the default coach voice');
 console.log('voice tests passed:', V.voices.length, 'voices,', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');

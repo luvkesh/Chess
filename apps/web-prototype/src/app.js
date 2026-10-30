@@ -4,28 +4,37 @@
 (function () {
   'use strict';
   const E = ChacklateEngine();
-  const C = ChacklateCoach(E);
+  // The coach speaks the player's language (its sentences: i18n/coach.json). Rebuilt when that changes.
+  const coachStrings = () => { const out = {}; const c = ChacklateI18n.strings.coach || {}; for (const k in c) out[k] = c[k][ChacklateI18n.lang] || c[k].en; return out; };
+  let C = ChacklateCoach(E);
   const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES;
   const OPENINGS = CHACKLATE_OPENINGS.openings, ENDGAMES = CHACKLATE_ENDGAMES.endgames;
   const STORE = CHACKLATE_STORE, CAMPAIGN = CHACKLATE_CAMPAIGN;
-  const PG = ChacklateProgress(CATALOG, { seasons: CHACKLATE_SEASONS, missions: CHACKLATE_MISSIONS, campaign: CAMPAIGN });
+  const VARIANTS = CHACKLATE_VARIANTS.variants;
+  const PG = ChacklateProgress(CATALOG, { seasons: CHACKLATE_SEASONS, missions: CHACKLATE_MISSIONS, campaign: CAMPAIGN, placement: CHACKLATE_PLACEMENT });
+  const PLACEMENT = CHACKLATE_PLACEMENT;
+  const PLACE_ART = ['piece:p', 'piece:n', 'piece:b', 'piece:r', 'piece:q'];   // the badge of each placement band
   const AU = ChacklateAudio();
   const ART = ChacklateArt;
+  const I18N = ChacklateI18n, t = I18N.t;
+  const RULES = ChacklateRules(E);
   const { WHITE, BLACK, LEVELS } = E;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   // A plain end date rather than a countdown: no ticking clocks aimed at children.
-  const seasonEnd = (s) => new Date(s.ends + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const seasonEnd = (s) => ChacklateI18n.date(new Date(s.ends + 'T00:00:00'), { day: 'numeric', month: 'short' });
   const STORE_KEY = 'chacklate-chess:v2';
+  const APP_VERSION = '0.9 beta';
+  const BUILD = typeof CHACKLATE_BUILD !== 'undefined' ? CHACKLATE_BUILD : 'dev';
   const VALUE = [0, 1, 3, 3, 5, 9, 0];
+  const VALUE_OLD = [0, 1, 3, 1, 5, 2, 0];   // Chaturanga: the Gaja and the Mantri are short-range pieces
+  // Chaturanga's drawn pieces: the Mantri sits on the Q code, the Gaja on the B code (art.js PIECE).
+  const pieceArt = (t, old) => (old && { q: 'mantri', b: 'gaja' }[t]) || t;
   const TYPE = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 5: 'q', 6: 'k' };
-  const PIECE_NAME = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
+  const PIECE_NAME = new Proxy({}, { get: (o, k) => t('common.piece.' + k) });
+  const OLD_NAME = new Proxy({}, { get: (o, k) => t('common.oldPiece.' + k) });   // Chaturanga's pieces
   const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-  const REASON_TEXT = {
-    checkmate: 'Checkmate', resignation: 'Resignation', timeout: 'Time ran out', 'timeout-insufficient': 'Time ran out, but no mate was possible',
-    stalemate: 'Stalemate', insufficient: 'Not enough material', threefold: 'Threefold repetition', fivefold: 'Fivefold repetition',
-    fifty: 'Fifty-move rule', seventyfive: 'Seventy-five-move rule', agreement: 'Draw agreed', abandoned: 'Opponent left', aborted: 'Game aborted', dojo: 'Endgame dojo',
-  };
+  const REASON_TEXT = new Proxy({}, { get: (o, k) => (I18N.has('play.reason.' + k) ? t('play.reason.' + k) : undefined) });
   const I = {
     home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
     learn: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',
@@ -38,12 +47,18 @@
     undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
     hint: '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
     flag: '<path d="M4 22V4M4 4h13l-2 4 2 4H4"/>',
+    pin: '<path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+    city: '<path d="M3 21h18M5 21V8l6-3v16M11 21V3l8 4v14"/><path d="M14 9h2M14 13h2M14 17h2M7.5 11h1M7.5 15h1"/>',
+    locate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
     draw: '<path d="M7 12h10M7 8h10M7 16h10"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+    bag: '<path d="M4.5 8h15l-1.3 12.2a2 2 0 0 1-2 1.8H7.8a2 2 0 0 1-2-1.8z"/><path d="M8.5 10.5V7a3.5 3.5 0 0 1 7 0v3.5"/>',
     flip: '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
     cam: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>',
     smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
@@ -70,6 +85,8 @@
     medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 3l2.5 6.2M15.5 3L13 9.2"/><path d="M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/>',
     swords: '<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/>',
     rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    shield: '<path d="M12 3L5 6v5.5c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    coin: '<circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="3.6" ry="5.4" transform="rotate(30 12 12)"/><path d="M10.2 7.8c1.4 1.6 1.4 6.8 3.6 8.4"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
   const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
@@ -88,13 +105,22 @@
   const eraCoach = (e) => Object.assign({}, e.coach, { colors: e.colors, era: e.id });
   // Who sits across the board in a computer game: an opponent, or an era's champion.
   const rival = (G) => (G.setup.rival || persona(G.setup.level));
-  const sayLine = (who, kind) => who[kind] || ({ hello: 'Let\'s play!', win: 'Well played!', lose: 'Good game! Try again?', draw: 'A draw! Well played, both of us.' })[kind];
+  const whoKey = (who) => 'content.' + (who.era ? 'coach.' : 'opp.') + who.id + '.';
+  const sayLine = (who, kind) => (who[kind] ? tx(whoKey(who) + kind, who[kind]) : t('play.say.' + kind));
+  const fullName = (who) => tx(whoKey(who) + 'full', who.full || who.name);
+  const oppFull = fullName;
+  const oppBlurb = (o) => tx(whoKey(o) + 'blurb', o.blurb);
+  const speciesName = (o) => tx(whoKey(o) + 'species', 'the ' + species(o));
+  const bandName = (lv) => (LEVELS[lv].band === 'Strongest' ? t('play.strongest') : LEVELS[lv].band);
+  const eraText = (e, f) => tx('content.era.' + e.id + '.' + f, e[f]);
+  const eraName = (e) => eraText(e, 'name'), eraWhen = (e) => eraText(e, 'when');
+  const stageTitle = (e, k) => tx('content.era.' + e.id + '.stage' + k, e.stages[k].title);
 
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true,
-      legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, colourToss: true,
+      legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You', lang: I18N.guess(navigator.languages || [navigator.language]) }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
     screen: 'home',
@@ -112,6 +138,37 @@
     state.progress.passes = e.passes || [];
   }
   setEntitlements(state.account && state.account.ent);
+  // Languages: Hindi brings Priya for the game calls (check, results); the coach voice stays as chosen.
+  const CALLS_DEFAULT = 'toby';
+  // Rooky's own voice (Toby) replaced Mira as the default; players still on the old default move over once.
+  if (!state.settings.voiceRev) {
+    if (state.settings.voiceCoach === 'mira') state.settings.voiceCoach = 'toby';
+    if (state.settings.voiceCalls === 'mira') state.settings.voiceCalls = 'toby';
+    state.settings.voiceRev = 1;
+  }
+  const callsFor = (lang, cur) => (cur === 'off' ? cur : lang === 'hi' ? 'priya' : AU.voices().some((v) => v.id === cur && v.lang === 'en') ? cur : CALLS_DEFAULT);
+  if (!(saved.settings && saved.settings.lang)) state.settings.voiceCalls = callsFor(state.settings.lang, state.settings.voiceCalls);
+  I18N.set(state.settings.lang);
+  if (I18N.lang !== 'en') C = ChacklateCoach(E, coachStrings());
+  const myName = () => (state.settings.name === 'You' ? t('common.you') : state.settings.name);
+  // Names and lines from the content files (eras, the animal friends, missions) are English there;
+  // i18n/content.json holds the other languages, and the test keeps its English in step.
+  const tx = (key, en) => (I18N.lang !== 'en' && I18N.has(key) ? t(key) : en);
+  const slug = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const levelTitle = (lv) => tx('content.title.' + slug(lv.title), lv.title);
+  const achName = (a) => tx('content.ach.' + a.id + '.name', a.name), achDesc = (a) => tx('content.ach.' + a.id + '.desc', a.desc);
+  const missionText = (m) => tx('content.mission.' + m.id, m.text);
+  const seasonName = (s) => tx('content.season.' + s.id + '.name', s.name);
+  // What unlocks an item, as progress.js words it, in the player's language.
+  function unlockText(item) {
+    const u = item.unlock;
+    if (u.type === 'level') return t('collection.unlock.level', { n: u.level });
+    if (u.type === 'achievement') { const a = PG.ACHIEVEMENTS.find((x) => x.id === u.achievement); return t('collection.unlock.achievement', { name: a ? achName(a) : u.achievement }); }
+    if (u.type === 'premium') return t('common.premium');
+    if (u.type === 'season') { const s = PG.SEASONS.seasons.find((x) => x.id === u.season); return t('collection.unlock.season', { name: s ? seasonName(s) : t('season.eyebrow'), n: u.tier }) + (u.track === 'pass' ? ' · ' + t('season.pass') : ''); }
+    if (u.type === 'journey') { const e = eraById(u.era); return t('collection.unlock.journey', { era: e ? eraName(e) : u.era }) + (e && e.access === 'premium' ? ' · ' + t('common.premium') : ''); }
+    return t('collection.unlock.free');
+  }
   PG.setSeason(state.progress);
   function save() {
     try {
@@ -137,31 +194,31 @@
   // Parent gate: a sum written in words, which a young child cannot read and an adult answers in
   // a second. It sits in front of the store, purchases and turning reminders on, as Apple's Kids
   // category and Google's Families policy ask. A pass lasts ten minutes.
-  const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const WORDS = (n) => t('store.gate.n' + n);
   let gatePassed = 0;
   function parentGate(why) {
     if (Date.now() - gatePassed < 10 * 60e3) return Promise.resolve(true);
     return new Promise((resolve) => {
       const a = 3 + Math.floor(Math.random() * 7), b = 3 + Math.floor(Math.random() * 7);
       let done = false;
-      const m = modal('<div class="eyebrow">For grown-ups</div><h2>Ask a parent</h2><p class="sub">' + esc(why) + '</p>' +
-        '<form id="pg"><div class="field"><label for="pg-a">What is ' + WORDS[a] + ' times ' + WORDS[b] + '?</label><input class="text-in" id="pg-a" inputmode="numeric" autocomplete="off" maxlength="3" required></div>' +
-        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn primary" type="submit">Continue</button></div></form>',
+      const m = modal('<div class="eyebrow">' + t('store.gate.eyebrow') + '</div><h2>' + t('store.gate.title') + '</h2><p class="sub">' + esc(why) + '</p>' +
+        '<form id="pg"><div class="field"><label for="pg-a">' + t('store.gate.question', { a: WORDS(a), b: WORDS(b) }) + '</label><input class="text-in" id="pg-a" inputmode="numeric" autocomplete="off" maxlength="3" required></div>' +
+        '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn primary" type="submit">' + t('common.continue') + '</button></div></form>',
       { onClose() { if (!done) resolve(false); } });
       m.querySelector('#pg').onsubmit = (e) => {
         e.preventDefault();
         done = true; m.close();
         if (+m.querySelector('#pg-a').value === a * b) { gatePassed = Date.now(); resolve(true); }
-        else { toast('That answer is not right.', 'bad'); resolve(false); }
+        else { toast(t('store.gate.wrong'), 'bad'); resolve(false); }
       };
     });
   }
   function askPin() {
     return new Promise((resolve) => {
       let done = false;
-      const m = modal('<div class="eyebrow">Parent PIN</div><h2>A parent needs to approve this</h2><p class="sub">Enter the PIN you chose on the parent page.</p>' +
-        '<form id="pp"><div class="field"><label for="pp-pin">PIN</label><input class="text-in" id="pp-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div>' +
-        '<div class="row"><button class="btn" type="button" data-close>Cancel</button><button class="btn gold" type="submit">Approve</button></div></form>',
+      const m = modal('<div class="eyebrow">' + t('store.pin.eyebrow') + '</div><h2>' + t('store.pin.title') + '</h2><p class="sub">' + t('store.pin.sub') + '</p>' +
+        '<form id="pp"><div class="field"><label for="pp-pin">' + t('store.pin.label') + '</label><input class="text-in" id="pp-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div>' +
+        '<div class="row"><button class="btn" type="button" data-close>' + t('common.cancel') + '</button><button class="btn gold" type="submit">' + t('store.pin.approve') + '</button></div></form>',
       { onClose() { if (!done) resolve(null); } });
       m.querySelector('#pp').onsubmit = (e) => { e.preventDefault(); done = true; const v = m.querySelector('#pp-pin').value; m.close(); resolve(v); };
     });
@@ -171,22 +228,22 @@
   const PLAY_KEY = 'chacklate-chess:playtime';
   const localDay = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
   function playTime() {
-    let t = null; try { t = JSON.parse(localStorage.getItem(PLAY_KEY) || 'null'); } catch (e) { t = null; }
-    return t && t.day === localDay() ? t : { day: localDay(), ms: 0, extra: 0 };
+    let pt = null; try { pt = JSON.parse(localStorage.getItem(PLAY_KEY) || 'null'); } catch (e) { pt = null; }
+    return pt && pt.day === localDay() ? pt : { day: localDay(), ms: 0, extra: 0 };
   }
   let breakModal = null;
   function checkPlayTime() {
     const lim = safety && safety.dailyMinutes;
     if (!lim) { if (breakModal) { breakModal.close(); breakModal = null; } return; }
-    const t = playTime();
-    if (t.ms < (lim + t.extra) * 60e3 || breakModal) return;
+    const pt = playTime();
+    if (pt.ms < (lim + pt.extra) * 60e3 || breakModal) return;
     if (state.game && state.game.kind === 'online' && !state.game.g.outcome) return; // let the game finish
-    breakModal = modal('<div class="result-hero">' + faceImg(COACH) + '<span class="result-badge">Time for a break</span><h2 class="result-title">That\'s today\'s chess</h2>' +
-      '<p class="sub">Your parent set ' + lim + ' minutes a day. Your progress is saved. See you tomorrow!</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">Grown-up: 15 more minutes</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
+    breakModal = modal('<div class="result-hero">' + faceImg(COACH) + '<span class="result-badge">' + t('home.break.badge') + '</span><h2 class="result-title">' + t('home.break.title') + '</h2>' +
+      '<p class="sub">' + t('home.break.sub', { n: lim }) + '</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">' + t('home.break.more') + '</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
     breakModal.querySelector('#br-more').onclick = async () => {
       const m = breakModal; m.style.visibility = 'hidden';
-      if (await parentGate('A parent can allow 15 more minutes today.')) {
+      if (await parentGate(t('home.break.gate'))) {
         const t2 = playTime(); t2.extra += 15; try { localStorage.setItem(PLAY_KEY, JSON.stringify(t2)); } catch (e) { /* not stored */ }
         breakModal = null; m.close();
       } else m.style.visibility = '';
@@ -194,8 +251,8 @@
   }
   setInterval(() => {
     if (document.hidden || !(safety && safety.dailyMinutes)) return;
-    const t = playTime(); t.ms += 30e3;
-    try { localStorage.setItem(PLAY_KEY, JSON.stringify(t)); } catch (e) { /* not stored */ }
+    const pt = playTime(); pt.ms += 30e3;
+    try { localStorage.setItem(PLAY_KEY, JSON.stringify(pt)); } catch (e) { /* not stored */ }
     checkPlayTime();
   }, 30e3);
 
@@ -204,7 +261,7 @@
   // review never delays the computer's move.
   function makeWorker() {
     try {
-      const src = 'const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E);' +
+      const src = 'const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E,' + JSON.stringify(coachStrings()) + ');' +
         'onmessage=function(e){var d=e.data;try{var p=E.positionFrom(d.fen,d.moves);var r;' +
         'if(d.type==="search"){var s=E.search(p,d.opts);r={uci:s.move?E.uci(s.move):null,score:s.score,depth:s.depth};}' +
         'else if(d.type==="analyse"){var a=C.engineAnalyser({timeMs:d.timeMs||200})(p);r={cp:a.cp,mate:a.mate,best:a.best?E.uci(a.best):null,bestSan:a.best?p.san(a.best,p.legalMoves()):null};}' +
@@ -226,6 +283,15 @@
     } catch (e) { return null; }
   }
   const workers = { play: makeWorker(), analysis: makeWorker() };
+  // A new language: the coach and its workers start again with the new sentences.
+  function coachLanguage() {
+    C = ChacklateCoach(E, coachStrings());
+    for (const k of Object.keys(workers)) {
+      const old = workers[k];
+      workers[k] = makeWorker();
+      if (old) { for (const cb of old.pending.values()) cb.done({ error: 'worker' }); old.w.terminate(); }
+    }
+  }
   let reqId = 0;
   // Runs a job on a worker; falls back to the page if workers are unavailable.
   function job(which, msg, done, progress) {
@@ -249,6 +315,53 @@
     return id;
   }
 
+  // ------------------------------------------------------------------ tooltips
+  // Hover (or hold on a touch screen) to read what a control does, in words a child knows.
+  // Every tip lives in packages/content/i18n/tips.json, so it is translated with the rest.
+  // Icon-only buttons fall back to their aria-label.
+  const TIP_STRINGS = (typeof CHACKLATE_STRINGS !== 'undefined' && CHACKLATE_STRINGS.tips) || {};
+  const TIP_I = ChacklateTips.icon;   // the drawn (i) that opens a tip with a tap on touch screens
+  function tip(key, vars) {
+    let s = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('tips.' + key, vars) : null;
+    if (!s || s === 'tips.' + key) {
+      const e = TIP_STRINGS[key];
+      if (!e) return null;
+      s = e.en.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m));
+    }
+    return s;
+  }
+  // "3+2" means 3 minutes each, plus 2 seconds back on your clock after every move you make.
+  function clockTip(tc) {
+    if (!tc || tc === 'none') return tip('clock.none');
+    const [m, inc] = tc.split('+').map(Number);
+    return inc ? tip('clock.bonus', { m, s: inc }) : m === 1 ? tip('clock.one') : tip('clock.plain', { m });
+  }
+  // A settings row: what it does, then what the chosen option means. A row of chips
+  // (data-radio) lists every option, each named as on its chip.
+  function settingTip(key, el) {
+    const head = tip(key);
+    if (!head) return null;
+    const line = (v, label) => { const t = tip(key + '.' + v) || tip('voice.' + v); return t && label ? label + ': ' + t : t; };
+    const sel = el.querySelector('select');
+    const more = sel ? [line(sel.value, sel.selectedOptions[0] && sel.selectedOptions[0].textContent.split(' · ')[0])]
+      : el.dataset.radio ? [...el.parentElement.querySelectorAll('input[name=' + el.dataset.radio + ']')].map((r) => line(r.value, r.nextElementSibling.textContent.split(':')[0])) : [];
+    return [head].concat(more.filter(Boolean)).join('\n\n');
+  }
+  function tipFor(el) {
+    if (el.dataset.tk) return settingTip(el.dataset.tk, el);
+    if (el.id) { const t = tip('control.' + el.id); if (t) return t; }
+    if (el.tagName === 'LABEL') {
+      const r = el.querySelector('input[type=radio]');
+      if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : tip('chip.' + r.name + '.' + r.value);
+    }
+    if (el.classList.contains('clock') && el.dataset.side) {
+      const inc = state.game ? +(String(state.game.setup.tc || '').split('+')[1] || 0) : 0;
+      return tip('game.clock') + (inc ? ' ' + tip('game.clock.bonus', { s: inc }) : '');
+    }
+    return null;
+  }
+  ChacklateTips.init({ resolve: tipFor });
+
   // ------------------------------------------------------------------ the 3D table
   const canvas = $('board');
   let view = null;
@@ -261,11 +374,15 @@
       onContextLost() { $('nogl').hidden = false; },
       onContextRestored() { $('nogl').hidden = true; },
       onPerf: (level) => document.body.classList.toggle('lite', level >= 2),
+      onExplore: (on, name) => exploreChanged(on, name),
+      // the equipped look is built first, not the default one and then this one
+      look: { room: PG.equipped(state.progress, 'room').data.room, board: PG.equipped(state.progress, 'board').data.board, set: PG.equipped(state.progress, 'pieces').data.set },
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }
   else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
+  if (state.settings.dev && state.settings.devFps) setTimeout(() => fpsMeter(true), 0);
   function nullView() {
     const noop = () => {};
     let sets = null;
@@ -322,8 +439,9 @@
   // 3D renders of real pieces for cards and the collection, drawn by the scene into images.
   // Each starts as a drawn medal and swaps to the render once it is ready.
   const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-  function snap(spec, w, h, fallback, cls) {
-    return '<img class="snap' + (cls ? ' ' + cls : '') + '" alt="" width="' + w + '" height="' + h + '" src="' + (fallback || BLANK) + '" data-snap="' + esc(JSON.stringify([spec, w, h])) + '">';
+  // shown: [width, height] to show it at, when that differs from the size it is drawn at
+  function snap(spec, w, h, fallback, cls, shown) {
+    return '<img class="snap' + (cls ? ' ' + cls : '') + '" alt="" width="' + (shown ? shown[0] : w) + '" height="' + (shown ? shown[1] : h) + '" src="' + (fallback || BLANK) + '" data-snap="' + esc(JSON.stringify([spec, w, h])) + '">';
   }
   let snapObserver = null;
   function hydrate(root, lazy) {
@@ -350,12 +468,12 @@
   }
   // Little arrangements on a velvet plinth with a gold rim.
   const VIGN = {
-    duo: (set) => ({ kind: 'vignette', felt: '#5c1428', items: [{ set, type: 'k', side: 'w', x: -0.42, z: 0.06, rot: 0.35 }, { set, type: 'q', side: 'b', x: 0.44, z: -0.12, rot: -0.5 }] }),
-    fork: (set) => ({ kind: 'vignette', felt: '#173a2a', sheen: '#9fe0bc', items: [{ set, type: 'n', side: 'w', x: 0.04, z: 0.5, rot: -1.15 }, { set, type: 'k', side: 'b', x: -0.62, z: -0.4, rot: 0.3 }, { set, type: 'r', side: 'b', x: 0.66, z: -0.36, rot: -0.2 }] }),
-    trio: (set, felt, sheen) => ({ kind: 'vignette', felt: felt || '#5c1428', sheen: sheen || '#ff9cb8', items: [{ set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }),
-    endgame: (set) => ({ kind: 'vignette', felt: '#2a2440', sheen: '#c8b8ff', items: [{ set, type: 'k', side: 'w', x: -0.5, z: 0.05, rot: 0.3 }, { set, type: 'p', side: 'w', x: 0.12, z: 0.42 }, { set, type: 'k', side: 'b', x: 0.6, z: -0.42, rot: -0.4 }] }),
-    opening: (set) => ({ kind: 'vignette', felt: '#14304a', sheen: '#9cc8ff', items: [{ set, type: 'p', side: 'w', x: -0.62, z: 0.3 }, { set, type: 'b', side: 'w', x: -0.05, z: -0.05, rot: 0.6 }, { set, type: 'n', side: 'w', x: 0.6, z: 0.24, rot: -1.2 }] }),
-    review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#ffd9a8', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
+    duo: (set) => ({ kind: 'vignette', felt: '#4a0f20', items: [{ set, type: 'k', side: 'w', x: -0.42, z: 0.06, rot: 0.35 }, { set, type: 'q', side: 'b', x: 0.44, z: -0.12, rot: -0.5 }] }),
+    fork: (set) => ({ kind: 'vignette', felt: '#173a2a', sheen: '#6aa88a', items: [{ set, type: 'n', side: 'w', x: 0.04, z: 0.5, rot: -1.15 }, { set, type: 'k', side: 'b', x: -0.62, z: -0.4, rot: 0.3 }, { set, type: 'r', side: 'b', x: 0.66, z: -0.36, rot: -0.2 }] }),
+    trio: (set, felt, sheen) => ({ kind: 'vignette', felt: felt || '#5c1428', sheen: sheen || '#b86a80', items: [{ set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }),
+    endgame: (set) => ({ kind: 'vignette', felt: '#2a2440', sheen: '#9a8cc8', items: [{ set, type: 'k', side: 'w', x: -0.5, z: 0.05, rot: 0.3 }, { set, type: 'p', side: 'w', x: 0.12, z: 0.42 }, { set, type: 'k', side: 'b', x: 0.6, z: -0.42, rot: -0.4 }] }),
+    opening: (set) => ({ kind: 'vignette', felt: '#14304a', sheen: '#7a9cc8', items: [{ set, type: 'p', side: 'w', x: -0.62, z: 0.3 }, { set, type: 'b', side: 'w', x: -0.05, z: -0.05, rot: 0.6 }, { set, type: 'n', side: 'w', x: 0.6, z: 0.24, rot: -1.2 }] }),
+    review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#c8a47a', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
   };
   const medal = (art, from, to, o) => ART.medalUri(art, Object.assign({ from, to }, o || {}));
   const eraFelt = (e) => [ART.dim(e.colors[1], 0.15), e.colors[0]];
@@ -375,28 +493,29 @@
 
   // ------------------------------------------------------------------ toasts
   function toast(msg, kind) {
-    const t = document.createElement('div');
-    t.className = 'toast glass' + (kind ? ' ' + kind : '');
-    t.innerHTML = msg;
-    $('toasts').appendChild(t);
-    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 400); }, kind === 'ach' ? 3600 : 2400);
+    const el = document.createElement('div');
+    el.className = 'toast glass' + (kind ? ' ' + kind : '');
+    el.innerHTML = msg;
+    $('toasts').appendChild(el);
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, kind === 'ach' ? 3600 : 2400);
   }
   // Show XP, level-ups, achievements and unlocks from a progress result.
   function celebrate(res, quiet) {
     if (!res) return;
+    if (res.coins) setTimeout(() => { AU.play('select'); toast('<i class="coin-i">' + icon('coin') + '</i><div><small>' + t('common.coins') + '</small><b>+' + res.coins + '</b> · ' + t('home.coins.inAll', { n: coinCount(state.progress.coins) }) + '</div>', 'ach'); }, 300);
     res.achievements.forEach((a, i) => setTimeout(() => {
       AU.play('achievement');
-      toast('<i>★</i><div><small>Achievement</small><b>' + esc(a.name) + '</b> · +' + a.xp + ' XP</div>', 'ach');
+      toast('<i>★</i><div><small>' + t('home.toast.achievement') + '</small><b>' + esc(achName(a)) + '</b> · +' + t('common.xp', { n: a.xp }) + '</div>', 'ach');
     }, 600 + i * 900));
     const lag = 600 + res.achievements.length * 900;
     (res.missions || []).forEach((m, i) => setTimeout(() => {
       AU.play('achievement');
-      toast('<i>✓</i><div><small>Mission complete</small><b>' + esc(m.text) + '</b> · +' + m.xp + ' XP</div>', 'ach');
+      toast('<i>✓</i><div><small>' + t('home.toast.mission') + '</small><b>' + esc(missionText(m)) + '</b> · +' + t('common.xp', { n: m.xp }) + '</div>', 'ach');
     }, lag + i * 900));
-    if (res.missionsAll) setTimeout(() => toast('All of today\'s missions done. +' + CHACKLATE_MISSIONS.allDoneXp + ' XP bonus.'), lag + (res.missions || []).length * 900);
-    if (res.seasonTier && !res.levelUp) setTimeout(() => toast('Season tier ' + res.seasonTier + ' reached.'), lag + 300);
+    if (res.missionsAll) setTimeout(() => toast(t('home.toast.allMissions', { n: CHACKLATE_MISSIONS.allDoneXp })), lag + (res.missions || []).length * 900);
+    if (res.seasonTier && !res.levelUp) setTimeout(() => toast(t('home.toast.tier', { n: res.seasonTier })), lag + 300);
     if (res.levelUp) setTimeout(() => levelUpModal(res.levelUp, res.unlocked), lag + (res.missions || []).length * 900);
-    else if (res.unlocked.length && !quiet) toast('Unlocked: ' + res.unlocked.map((u) => esc(u.name)).join(', '));
+    else if (res.unlocked.length && !quiet) toast(t('home.toast.unlocked', { list: res.unlocked.map((u) => esc(u.name)).join(', ') }));
     save();
     renderNav();
   }
@@ -407,7 +526,7 @@
     const wrap = document.createElement('div');
     wrap.className = 'modal';
     wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true');
-    wrap.innerHTML = '<div class="card' + (opts.cls ? ' ' + opts.cls : '') + '">' + (opts.x ? '<button class="round sm x" data-close aria-label="Close">' + icon('x') + '</button>' : '') + html + '</div>';
+    wrap.innerHTML = '<div class="card' + (opts.cls ? ' ' + opts.cls : '') + '">' + (opts.x ? '<button class="round sm x" data-close aria-label="' + t('common.close') + '">' + icon('x') + '</button>' : '') + html + '</div>';
     $('modals').appendChild(wrap);
     AU.play('open');
     const close = () => { wrap.remove(); if (opts.onClose) opts.onClose(); };
@@ -425,31 +544,152 @@
       if (open) open.close();
       else if (peeking) endPeek();
       else if (current && current.escape) current.escape();
+    } else if (peeking && !document.querySelector('.modal') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !/input|textarea|select/i.test((e.target.tagName || ''))) {
+      e.preventDefault(); peekStep(e.key === 'ArrowLeft' ? -1 : 1);
     } else if (!document.querySelector('.modal') && current && current.key && !/input|textarea|select/i.test((e.target.tagName || ''))) current.key(e);
   });
+
+  // ------------------------------------------------------------------ the audio guide
+  // Built like the website's guided tour: one card in the corner. On every screen it says, in one or
+  // two short sentences, what to do next. On an era page the era's friend says it; everywhere else
+  // Rooky does. The card has Hear that again, the voice on or off, and hide (it tucks into the
+  // portrait). The voice switch is the same one as story and lesson narration, so one tap quiets
+  // every spoken line. Lines are recorded (packages/content/guide.json, public/guide/).
+  const GUIDE = CHACKLATE_GUIDE;
+  const GUIDE_WHO = { rooky: COACH };
+  for (const e of CAMPAIGN.eras) GUIDE_WHO[e.coach.id] = eraCoach(e);
+  const GUIDE_AGAIN = 120000;   // a screen's line is said again only after two minutes
+  const guideSt = { key: null, said: {}, idle: null, run: 0 };
+  function guideCard() {
+    let el = $('guide');
+    if (el.dataset.ready) return el;
+    el.dataset.ready = '1';
+    el.innerHTML = '<button class="narrator" id="gd-show" tabindex="-1" aria-label="' + t('common.guide.show') + '" title="' + t('common.guide.show') + '"><img alt=""></button>' +
+      '<div class="gd-body"><div class="gd-head"><p class="gd-who" id="gd-who"></p>' +
+      '<button class="gd-btn" id="gd-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button>' +
+      '<button class="gd-btn" id="gd-voice"></button>' +
+      '<button class="gd-btn" id="gd-hide" aria-label="' + t('common.guide.hide') + '" title="' + t('common.guide.hide') + '">' + icon('down') + '</button></div>' +
+      '<p class="gd-text" id="gd-text"></p><p class="gd-extra" id="gd-extra"></p></div>';
+    $('gd-again').onclick = () => { AU.unlock(); if (guideSt.key) { if (!state.settings.narration) setVoice(true, true); guideSay(guideSt.key, { force: true }); } };
+    $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
+    $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
+    $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
+    AU.onTalk((on, what) => el.classList.toggle('speaking', on && what !== 'pitch' && what !== 'tale'));
+    return el;
+  }
+  function guideTuck() {
+    const el = guideCard();
+    el.classList.toggle('tucked', !state.settings.guide);
+    $('gd-show').tabIndex = state.settings.guide ? -1 : 0;
+    applyInsets();
+  }
+  function voiceIcon(btn, who) {
+    const on = !!state.settings.narration;
+    btn.innerHTML = icon(on ? 'speaker' : 'speakerOff');
+    btn.setAttribute('aria-pressed', String(on));
+    btn.setAttribute('aria-label', t(on ? 'common.voice.turnOff' : 'common.voice.turnOn'));
+    btn.title = on ? t('common.voice.onTip') : t('common.voice.offTip', { who });
+  }
+  // The one voice switch: the guide, stories and lessons. Every button that shows it follows along.
+  function setVoice(on, quiet) {
+    state.settings.narration = !!on; save();
+    if (!on) AU.hush();
+    document.querySelectorAll('[data-voice]').forEach((b) => voiceIcon(b, b.dataset.voice));
+    const el = guideCard();
+    voiceIcon($('gd-voice'), (GUIDE_WHO[(GUIDE.lines[guideSt.key] || {}).who] || COACH).name);
+    if (guideSt.key) guideShow(guideSt.key);
+    if (on && !quiet && guideSt.key && !document.querySelector('.modal')) guideSay(guideSt.key, { force: true });
+    return el;
+  }
+  function guideShow(key) {
+    const line = GUIDE.lines[key], who = GUIDE_WHO[line.who] || COACH;
+    const el = guideCard();
+    el.hidden = false;
+    $('gd-who').textContent = fullName(who);
+    const img = el.querySelector('#gd-show img'); const src = face(who);
+    if (img.getAttribute('src') !== src) img.src = src;
+    // the caption is in the player's language; the recorded voice stays English for now
+    $('gd-text').textContent = t('guide.' + key);
+    $('gd-extra').textContent = !state.settings.narration ? t('common.guide.tapSpeaker', { who: who.name }) : AU.canTalk() ? '' : t('common.guide.tapAnywhere', { who: who.name });
+    voiceIcon($('gd-voice'), who.name);
+    if (guideSt.key !== key) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    guideSt.key = key;
+    if (KIND[state.screen] === 'hud' && el.offsetHeight !== guideSt.h) { guideSt.h = el.offsetHeight; applyInsets(); }
+  }
+  // Show a line and say it. opts.force says it even if it was said a moment ago; opts.delay waits
+  // first (to let a sound or a game call finish); opts.then runs once it has been said.
+  function guideSay(key, opts) {
+    opts = opts || {};
+    if (!GUIDE.lines[key]) { if (opts.then) opts.then(); return; }
+    const run = ++guideSt.run, screen = state.screen;
+    const go = () => {
+      if (run !== guideSt.run || state.screen !== screen) return;
+      guideShow(key);
+      const fresh = opts.force || !guideSt.said[key] || Date.now() - guideSt.said[key] > GUIDE_AGAIN;
+      if (state.settings.narration && fresh && !AU.canTalk()) guideSt.pending = key;
+      if (!state.settings.narration || !fresh || !AU.canTalk()) { if (opts.then) opts.then(); return; }
+      guideSt.pending = null;
+      guideSt.said[key] = Date.now();
+      AU.guide(key, GUIDE.lines[key].text).then(() => { if (run === guideSt.run && opts.then) opts.then(); });
+    };
+    if (opts.delay) setTimeout(go, opts.delay); else go();
+  }
+  const guideFresh = (key) => !!state.settings.narration && (!guideSt.said[key] || Date.now() - guideSt.said[key] > GUIDE_AGAIN);
+  // Browsers keep quiet until the first tap, so a line shown before then is said after it, unless
+  // that tap moved on to another screen with its own line.
+  document.addEventListener('click', (e) => {
+    const key = guideSt.pending;
+    if (!key) return;
+    AU.unlock();
+    // the first tap on the speaker means "let me hear it", not "be quiet"
+    if (e.target.closest && e.target.closest('#gd-voice')) e.stopPropagation();
+    setTimeout(() => { if (guideSt.pending === key && guideSt.key === key) guideSay(key, { force: true }); guideSt.pending = null; }, 0);
+  }, true);
+  // A nudge when nothing happens for a while: once for each wait, cleared by the next move or screen.
+  function guideIdle(key, ms) {
+    clearTimeout(guideSt.idle);
+    if (key) guideSt.idle = setTimeout(() => { if (!document.querySelector('.modal')) guideSay(key, { force: true }); }, ms || 30000);
+  }
+  // The line for a menu screen. Era, lesson, puzzle and game screens choose their own as things change.
+  function guideScreen(name) {
+    if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
+    let key = name;
+    if (name === 'home') {
+      const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+      key = resume ? 'home.resume' : state.progress.xp ? 'home' : 'home.first';
+    }
+    if (GUIDE.lines[key]) guideSay(key);
+  }
+  function eraGuideKey(e) {
+    const info = PG.journeyInfo(state.progress, e.id), champ = e.stages.length - 1;
+    if (info.done) return 'era.' + e.id + '.done';
+    if (e.stages.every((s, k) => k === champ || info.stages[k])) return 'era.' + e.id + '.champion';
+    return 'era.' + e.id + '.' + e.stages[info.next].kind;
+  }
 
   // ------------------------------------------------------------------ navigation
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
-  const NAV = [['home', 'Home', 'home'], ['play', 'Play', 'play'], ['journey', 'Journey', 'journey'], ['learn', 'Learn', 'learn'],
-    ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['profile', 'Profile', 'profile']];
+  const NAV = [['home', 'home'], ['play', 'play'], ['journey', 'journey'], ['learn', 'learn'],
+    ['puzzles', 'puzzle'], ['training', 'improve'], ['collection', 'collection'], ['club', 'users'], ['profile', 'profile']];
+  const navName = (k) => t('common.nav.' + k);
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
-  const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training' };
-  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn' };
-  const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud' };
+  const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play', variants: 'play', variant: 'play' };
+  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
+  const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
   function renderNav() {
     const secId = SECTION[state.screen] || state.screen;
     const lv = PG.levelFor(state.progress.xp);
-    $('topnav').innerHTML = '<button class="brand" data-nav="home" aria-label="Chackmate home"><img src="' + ART.crestUri() + '" alt=""><span>Chackmate</span></button>' +
-      '<nav class="links" aria-label="Main">' + NAV.map(([k, t]) => '<button data-nav="' + k + '"' + (k === secId ? ' aria-current="page"' : '') + '>' + t + '</button>').join('') + '</nav>' +
-      '<div class="tools">' + (state.progress.premium ? '' : '<button class="prem-btn" data-nav="store" aria-label="Premium">' + icon('crown') + '<span>Premium</span></button>') +
-      '<button class="round" id="nv-music" aria-pressed="' + !!state.settings.music + '" aria-label="Music" title="Music">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
-      '<button class="round" id="nv-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button>' +
-      '<button class="mepill" data-nav="profile" aria-label="Your profile">' + avatarHtml('sm') + '<span class="who"><b>' + esc(state.settings.name) + '</b><small>Level ' + lv.level + '</small></span></button></div>';
+    $('topnav').innerHTML = '<button class="brand" data-nav="home" aria-label="' + t('common.nav.brand') + '"><img src="' + ART.crestUri() + '" alt=""><span>Chackmate</span></button>' +
+      '<nav class="links" aria-label="Main">' + NAV.map(([k]) => '<button data-nav="' + k + '"' + (k === secId ? ' aria-current="page"' : '') + '>' + navName(k) + '</button>').join('') + '</nav>' +
+      '<div class="tools">' + (state.progress.premium ? '' : '<button class="prem-btn" data-nav="store" aria-label="' + t('common.premium') + '">' + icon('crown') + '<span>' + t('common.premium') + '</span></button>') +
+      '<button class="round" id="nv-music" aria-pressed="' + !!state.settings.music + '" aria-label="' + t('settings.music') + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
+      '<button class="round" id="nv-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button>' +
+      '<button class="mepill" data-nav="profile" aria-label="' + t('common.nav.yourProfile') + '">' + avatarHtml('sm') + '<span class="who"><b>' + esc(myName()) + '</b><small>' + t('common.level', { n: lv.level }) + '</small></span></button></div>';
     const tab = TAB_OF[secId] || secId;
-    $('tabbar').innerHTML = TABS.map((k) => { const n = NAV.find((x) => x[0] === k); return '<button data-nav="' + k + '"' + (k === tab ? ' aria-current="page"' : '') + '>' + icon(n[2]) + '<span>' + n[1] + '</span></button>'; }).join('');
+    $('tabbar').innerHTML = TABS.map((k) => { const n = NAV.find((x) => x[0] === k); return '<button data-nav="' + k + '"' + (k === tab ? ' aria-current="page"' : '') + '>' + icon(n[1]) + '<span>' + navName(k) + '</span></button>'; }).join('');
     document.querySelectorAll('#topnav [data-nav], #tabbar [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     $('nv-music').onclick = () => { state.settings.music = !state.settings.music; AU.unlock(); applySettings(); save(); renderNav(); };
     $('nv-set').onclick = () => { AU.play('tap'); settingsModal(); };
@@ -464,6 +704,7 @@
     if (peeking) endPeek(true);
     if (current && current.leave) current.leave();
     AU.hush();
+    guideIdle(null);
     view.setArrows([]);
     setHooks({});
     preview = null; lookOverride = null; applyLook();
@@ -475,6 +716,7 @@
     view.setPaused(kind === 'page');
     renderNav();
     current = SCREENS[name](arg) || {};
+    guideScreen(name);
     applyInsets();
     const scr = $('screens').querySelector('.screen');
     if (scr) scr.classList.add('enter');
@@ -498,12 +740,16 @@
         if (r.width && r.bottom < H * 0.5 && (sheet || r.left < W * 0.5)) top = Math.max(top, r.bottom);
       });
       ins.top = top + 8;
-      if (sheet) ins.bottom = H - side.top + 8;
+      // The guide card: above the sheet on phones, top left elsewhere. The board makes room for it.
+      const gd = $('guide'), gdOn = gd && !gd.hidden && !gd.classList.contains('tucked');
+      document.body.style.setProperty('--sheet-top', (sheet ? H - side.top + 8 : 0) + 'px');
+      if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? gd.offsetHeight + 8 : 0);
       else {
         if (side) ins.right = W - side.left + 12;
         ins.bottom = bar ? H - bar.top + 10 : 16;
         const eb = rect('.evalbar');
         ins.left = eb ? eb.right + 10 : 10;
+        if (gdOn) ins.top = Math.max(ins.top, gd.getBoundingClientRect().bottom + 8);
       }
     }
     view.setInsets(ins, kind !== 'hud');
@@ -534,13 +780,14 @@
     piecesTall: { pitch: 0.62, zoom: 0.7, lookY: 0.45, lookZ: 1.2 },   // a phone held upright: all eight files still fit
     board: { pitch: 0.95, zoom: 0.72, lookZ: 0.6 },
     move: { pitch: 0.7, zoom: 0.62, lookY: 0.3, lookZ: 0.2 },   // capture effects and trails, close to the move
+    clock: { pitch: 0.78, zoom: 1.08, lookY: 0.3, lookZ: 0.9 },   // pulled back, so the chess clock beside the board is in view
     other: { zoom: 0.8 },
   };
   // Capture effects and trails only show on a move, so the preview plays one again and again:
   // a knight hops in to take a pawn, or the queen sweeps across the board. The next round
   // starts a second after the last one ends, however long its capture scene runs.
   function peekDemo(it) {
-    const capture = it.category === 'capture';
+    const capture = it.category === 'capture' || it.category === 'sound';
     const [from, to, piece] = capture ? ['f3', 'e5', 2] : ['d1', 'h5', 5];
     const live = () => peeking && peeking.it === it;
     const play = () => {
@@ -551,16 +798,20 @@
       peeking.timers.push(setTimeout(() => {
         if (!live()) return;
         view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
-          () => { if (live()) peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false });
+          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move'); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false });
       }, 450));
     };
     play();
     peeking.demo = true;
   }
   let peeking = null;
-  function peek(it) {
+  // list: the items to step through with the bar's arrows (the arrow keys and a swipe on the bar do the
+  // same), so a child can watch one animation after another without leaving the table. By default,
+  // everything in the item's category.
+  function peek(it, list, stepped) {
     if (peeking) endPeek(true);   // one item on the table at a time
-    peeking = { it, timers: [] };
+    list = list && list.includes(it) ? list.filter((x) => x.category === it.category) : CATALOG.items.filter((x) => x.category === it.category);
+    peeking = { it, list, timers: [] };
     preview = it; applyLook();
     document.body.classList.add('peeking');
     view.setPaused(false);
@@ -569,32 +820,80 @@
     view.setFullDetail(true);
     if (it.category === 'room') { view.setAttract(true); view.setFocus({ zoom: 0.8 }); }
     else {
-      const moving = it.category === 'capture' || it.category === 'trail';
+      const moving = it.category === 'capture' || it.category === 'trail' || it.category === 'sound';
       view.setAttract(false); view.setView('white', 'player');
       view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[moving ? 'move' : it.category] || PEEK_FOCUS.other);
     }
-    if (it.category === 'capture' || it.category === 'trail') peekDemo(it);
+    if (it.category === 'capture' || it.category === 'trail' || it.category === 'sound') peekDemo(it);
     if (it.category === 'victory') {
       const win = () => view.celebrate('win', -1, null, sqIndex('e1'));
       peeking.timers.push(setTimeout(win, 500), setInterval(win, 4200));
     }
     if (it.category === 'sound') AU.play('capture');
+    // Clocks, pictures and frames are not on the table, so they show on a player card above the bar,
+    // the way they look in a game; a clock counts down there and on the chess clock by the board.
+    if (['clock', 'avatar', 'frame'].includes(it.category)) peekCard(it);
     const un = PG.isUnlocked(state.progress, it), on = state.progress.equipped[it.category] === it.id;
     const bar = document.createElement('div');
-    bar.className = 'peekbar glass';
-    bar.innerHTML = '<div><small>' + (un ? 'Trying' : 'Preview') + '</small><b>' + esc(it.name) + '</b></div>' +
-      (un ? (on ? '<span class="pill gold">' + icon('check') + ' Equipped</span>' : '<button class="btn primary small" id="pk-eq">Equip</button>') : '<span class="pill lock">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
-      '<button class="btn small" id="pk-back">' + icon('back') + ' Back</button>';
+    bar.className = 'peekbar glass' + (stepped ? ' still' : '');
+    const many = list.length > 1, at = list.indexOf(it);
+    bar.innerHTML = (many ? '<button class="round sm pk-nav" id="pk-prev" aria-label="' + esc(t('collection.prevItem')) + '">' + icon('prev') + '</button>' : '') +
+      '<div class="pk-name"><small>' + t(un ? 'collection.trying' : 'collection.preview') + (many ? ' · ' + t('collection.count', { n: at + 1, of: list.length }) : '') + '</small><b>' + esc(it.name) + '</b></div>' +
+      (many ? '<button class="round sm pk-nav" id="pk-next" aria-label="' + esc(t('collection.nextItem')) + '">' + icon('next') + '</button>' : '') +
+      (un ? (on ? '<span class="pill gold">' + icon('check') + ' ' + t('collection.equipped') + '</span>' : '<button class="btn primary small" id="pk-eq">' + t('collection.equip') + '</button>') : '<span class="pill lock">' + icon('lock') + ' ' + esc(unlockText(it)) + '</span>') +
+      '<button class="btn small" id="pk-back" aria-label="' + esc(t('common.back')) + '">' + icon('back') + '<span class="bk-t"> ' + t('common.back') + '</span></button>';
     document.body.appendChild(bar);
     peeking.bar = bar;
     bar.querySelector('#pk-back').onclick = () => endPeek();
+    if (many) {
+      bar.querySelector('#pk-prev').onclick = () => peekStep(-1);
+      bar.querySelector('#pk-next').onclick = () => peekStep(1);
+      // a sideways swipe on the bar (not on the board, where a drag turns the camera)
+      let sw = null;
+      bar.addEventListener('pointerdown', (e) => { sw = e.target.closest('button') ? null : { x: e.clientX, y: e.clientY }; });
+      bar.addEventListener('pointerup', (e) => {
+        if (!sw) return;
+        const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) peekStep(dx < 0 ? 1 : -1);
+        sw = null;
+      });
+      bar.addEventListener('pointercancel', () => { sw = null; });
+    }
     const eq = bar.querySelector('#pk-eq');
-    if (eq) eq.onclick = () => { PG.equip(state.progress, it); save(); toast('Equipped ' + esc(it.name)); endPeek(); };
+    if (eq) eq.onclick = () => { PG.equip(state.progress, it); save(); toast(t('collection.equippedToast', { name: esc(it.name) })); endPeek(); };
+  }
+  function peekCard(it) {
+    const P = state.progress, card = document.createElement('div');
+    const avatar = it.category === 'avatar' ? it.id : PG.equipped(P, 'avatar').id;
+    const frame = it.category === 'frame' ? it.id : PG.equipped(P, 'frame').id;
+    const isClock = it.category === 'clock';
+    card.className = 'peekcard glass' + (isClock ? ' timed' : '');
+    card.innerHTML = '<div class="pp">' + avatarHtml(isClock ? 'sm' : 'lg', avatar, frame) + '</div><div class="who"><div class="name">' + esc(t('common.you')) + '</div><div class="sub">' + esc(t('common.level', { n: PG.levelFor(P.xp).level })) + '</div></div>' +
+      (isClock ? '<div class="clock running skin-' + esc(it.data.css) + '" id="pk-clock">5:00</div><div class="clock skin-' + esc(it.data.css) + '">5:00</div>' : '');
+    document.body.appendChild(card);
+    peeking.card = card;
+    if (!isClock) return;
+    let ms = 300000;
+    const tick = () => {
+      const el = card.querySelector('#pk-clock');
+      el.textContent = Math.floor(ms / 60000) + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0');
+      view.setClock({ whiteMs: ms, blackMs: 300000, active: 'w', running: true }, it.data);
+      ms = ms > 1000 ? ms - 1000 : 300000;
+    };
+    tick();
+    peeking.timers.push(setInterval(tick, 1000));
+  }
+  function peekStep(dir) {
+    if (!peeking || peeking.list.length < 2) return;
+    const list = peeking.list, at = list.indexOf(peeking.it);
+    AU.play('tap');
+    peek(list[(at + dir + list.length) % list.length], list, true);
   }
   function endPeek(silent) {
     if (!peeking) return;
     peeking.timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
     peeking.bar.remove();
+    if (peeking.card) { peeking.card.remove(); view.setClock(null); }
     const demo = peeking.demo;
     peeking = null;
     if (demo) idleBoard();
@@ -610,8 +909,13 @@
   }
 
   // ---------------------------------------------------------------- home
+  // The next lesson on the path. After the placement test the path starts at the chapter it chose:
+  // the first open lesson from there on, else the nearest open chapter before it. Earlier chapters
+  // stay open to anyone who wants them.
   function nextLesson() {
-    return LESSONS.lessons.find((l) => !state.progress.lessons[l.id] && lessonOpen(l)) || null;
+    const todo = LESSONS.lessons.filter((l) => !state.progress.lessons[l.id] && lessonOpen(l));
+    const from = state.progress.placement ? state.progress.placement.chapter : 1;
+    return todo.find((l) => l.chapter >= from) || todo.filter((l) => l.chapter < from).sort((a, b) => b.chapter - a.chapter)[0] || null;
   }
   const lessonOpen = (l) => LESSONS.chapters.find((c) => c.n === l.chapter).access === 'free' || state.progress.premium;
   function dailyPuzzle() {
@@ -624,11 +928,14 @@
   const dailyDone = () => state.progress.daily.date === PG.today() && state.progress.daily.done;
   const nextEra = () => CAMPAIGN.eras.find((e) => !PG.journeyInfo(state.progress, e.id).done) || null;
   const duoArt = () => '<span class="duo"><img src="' + medal('piece:n', '#a3294f', '#5c1328') + '" alt=""><img src="' + medal('piece:r', '#2f6f6a', '#173b39') + '" alt=""><i>' + icon('users') + '</i></span>';
+  // three of the mini-game medals, fanned out
+  const miniHomeArt = () => '<span class="minifan">' + ['tour', 'rush', 'queen'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span>';
   const worldArt = () => '<span class="duo"><img src="' + medal('piece:k', '#2f6f6a', '#173b39') + '" alt=""><img src="' + medal('piece:q', '#b8862b', '#5c3d0c') + '" alt=""><i>' + icon('globe') + '</i></span>';
   function wireLinks() {
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     const ms = $('a-missions'); if (ms) ms.onclick = () => { AU.play('tap'); missionsModal(); };
     const ss = $('a-season'); if (ss) ss.onclick = () => { AU.play('tap'); go('season'); };
+    const cs = $('a-coins'); if (cs) cs.onclick = () => { AU.play('tap'); go('store', 'coins'); };
   }
   SCREENS.home = function () {
     idleBoard();
@@ -638,53 +945,134 @@
     const daily = dailyPuzzle();
     const ne = nextEra();
     const set = equippedSet();
-    mount('<section class="hero" aria-label="Home">' +
+    mount('<section class="hero" aria-label="' + t('common.nav.home') + '">' +
       '<img class="crest" src="' + ART.crestUri() + '" alt="">' +
       '<h1 class="wordmark">Chackmate</h1>' +
-      '<p class="tagline">Chess Through the Ages</p>' +
-      '<p class="motto">Learn. Play. Collect.</p>' +
+      '<p class="tagline">' + t('home.tagline') + '</p>' +
+      '<p class="motto">' + t('home.motto') + '</p>' +
       '<div class="lux-row">' +
-      lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: resume ? 'Resume Game' : 'Quick Play',
-        text: resume ? saved.game.moves.length + ' moves in. Pick up where you left off.' : online ? 'A friendly game online, or an animal friend if no one is around.' : 'A game against the animal friend that suits you best.' }) +
-      lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: 'The Journey', text: ne ? 'Next stop: ' + ne.name + ', ' + ne.when + '.' : 'Every era complete. What a traveller!' }) +
-      lux({ id: 'h-learn', art: faceImg(COACH), title: 'Learn Chess', text: nl ? 'With Rooky, your coach. Next: ' + nl.title + '.' : 'Every open lesson done. Try the puzzles!' }) +
-      lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
-      lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
+      lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
+        text: resume ? t('home.resumeText', { n: saved.game.moves.length }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
+      lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
+      lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
+      lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
+      lux({ id: 'h-friend', art: duoArt(), title: t('play.friend'), text: t('play.friendText') }) +
+      lux({ id: 'h-minis', art: miniHomeArt(), title: t('home.minis'), text: t('home.minisText') }) +
       '</div>' +
-      '<div class="home-foot">' + missionsStrip() + seasonStrip() + '</div>' +
+      '<div class="home-foot">' + coinsStrip() + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
     hydrate();
     wireLinks();
     $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (resume) resumeSaved(); else quickPlay(); };
     $('h-journey').onclick = () => { AU.unlock(); AU.play('tap'); if (ne && PG.eraOpen(state.progress, ne.id)) go('era', ne.id); else go('journey'); };
     $('h-learn').onclick = () => { AU.unlock(); AU.play('tap'); if (nl) go('lesson', nl.id); else go('learn'); };
-    $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: 'Daily puzzle' }); else go('puzzles'); };
+    $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: t('learn.dailyPuzzle') }); else go('puzzles'); };
     $('h-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+    $('h-minis').onclick = () => { AU.unlock(); AU.play('tap'); go('minis'); };
+    const P = state.progress;
+    if (!P.placement && !P.xp && !P.seen.placementOffer) setTimeout(() => { if (state.screen === 'home' && !document.querySelector('.modal')) placementOffer('home'); }, window.__SHOT ? 0 : 1600);
     return { leave() { view.setAttract(false); } };
   };
+
+  // A new player is asked once, after Rooky's welcome: take the short placement test, or skip it.
+  // Learn offers it again at any time.
+  function placementOffer(from) {
+    const P = state.progress;
+    P.seen.placementOffer = true; save();
+    const retake = !!P.placement;
+    const m = modal('<div class="result-hero">' + faceImg(COACH) + '<span class="result-badge">' + t('learn.place.badge', { n: PLACEMENT.questions.length, min: PLACEMENT.minutes }) + '</span>' +
+      '<h2 class="result-title">' + t(retake ? 'learn.place.retake' : 'learn.place.before') + '</h2>' +
+      '<p class="sub">' + esc(t('guide.placement.offer')) + '</p>' +
+      '<div class="offer-tools"><button class="round sm" id="po-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="round sm" id="po-voice" data-voice="' + esc(COACH.name) + '"></button></div></div>' +
+      '<div class="row"><button class="btn" data-close>' + t(retake ? 'common.notNow' : 'learn.place.skip') + '</button><button class="btn primary" id="po-go" autofocus>' + t('learn.place.go') + '</button></div>', { onClose() { AU.hush(); } });
+    const voice = m.querySelector('#po-voice');
+    voiceIcon(voice, COACH.name);
+    voice.onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) guideSay('placement.offer', { force: true }); };
+    m.querySelector('#po-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); guideSay('placement.offer', { force: true }); };
+    m.querySelector('#po-go').onclick = () => { AU.unlock(); AU.play('tap'); guideSt.pending = null; m.close(); go('lesson', { placement: true, from }); };
+    guideSay('placement.offer', { force: true });
+  }
+
+  // ---------------------------------------------------------------- choco coins
+  // Coins are earned by playing and spent on looks. They are never sold, so spending them needs no
+  // parent gate; every real-money step stays in the gated part of the store.
+  const coinCount = (n) => I18N.num(n) + ' ' + t(n === 1 ? 'common.coin' : 'common.coins');
+  const coinsPill = () => '<span class="pill gold coins" title="' + t('home.coins.pillTip', { coins: t('common.coins') }) + '">' + icon('coin') + '<b>' + state.progress.coins.toLocaleString('en-IN') + '</b> ' + t('common.coins') + '</span>';
+  // Level items the player can buy now or soon, nearest first.
+  function coinShelf() {
+    const P = state.progress;
+    return CATALOG.items.filter((i) => PG.coinPrice(i) !== null && !PG.isUnlocked(P, i))
+      .sort((a, b) => a.unlock.level - b.unlock.level || PG.coinPrice(a) - PG.coinPrice(b));
+  }
+  function coinsStrip() {
+    const P = state.progress, shelf = coinShelf(), reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
+    const next = reach.find((i) => PG.coinOffer(P, i).ok) || reach[0];
+    const line = !next ? t('home.coins.keep') : PG.coinOffer(P, next).ok ? t('home.coins.canBuy', { name: next.name }) : t('home.coins.next', { name: next.name, n: I18N.num(PG.coinPrice(next)) });
+    return '<button class="strip glass" id="a-coins"><span class="sg gold">' + icon('coin') + '</span><span style="flex:1"><small>' + t('common.coins') + ' · ' + I18N.num(P.coins) + '</small><b>' + esc(line) + '</b>' +
+      (next ? '<span class="bar"><i style="width:' + Math.min(100, Math.round(P.coins / PG.coinPrice(next) * 100)) + '%"></i></span>' : '') + '</span><span class="go">' + icon('arrow') + '</span></button>';
+  }
+  // Ask once before spending; returns true when bought.
+  function buyWithCoins(it, after) {
+    const P = state.progress, o = PG.coinOffer(P, it);
+    if (!o.ok) { toast(o.reason === 'short' ? t('store.coin.short', { n: coinCount(o.short) }) : o.reason === 'too-far' ? t('store.coin.far', { reach: PG.COIN_REACH, level: it.unlock.level }) : t('store.coin.never'), 'bad'); return; }
+    const m = modal('<div class="eyebrow">' + t('common.coins') + '</div><h2>' + t('store.coin.ask', { name: esc(it.name) }) + '</h2><p class="sub">' + t('store.coin.costs', { price: coinCount(o.price), have: coinCount(P.coins) }) + '</p>' +
+      '<div class="row"><button class="btn" data-close>' + t('common.notNow') + '</button><button class="btn gold" id="cb-ok">' + icon('coin') + ' ' + t('store.coin.buyFor', { n: I18N.num(o.price) }) + '</button></div>');
+    m.querySelector('#cb-ok').onclick = () => {
+      m.close();
+      if (!PG.buyWithCoins(P, it)) return;
+      AU.play('achievement');
+      toast('<i>★</i><div><small>' + t('store.coin.yours') + '</small><b>' + esc(it.name) + '</b></div>', 'ach');
+      save(); renderNav();
+      if (after) after();
+    };
+  }
+  function coinShopHtml() {
+    const P = state.progress, shelf = coinShelf();
+    const reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
+    const later = shelf.find((i) => PG.coinOffer(P, i).reason === 'too-far');
+    const lv = PG.levelFor(P.xp).level;
+    return '<p class="sub">' + t('store.coin.how', { coins: t('common.coins'), reach: PG.COIN_REACH }) + '</p>' +
+      (reach.length ? '<div class="items">' + reach.map((it) => {
+        const o = PG.coinOffer(P, it);
+        return '<div class="item locked" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button><span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' +
+          '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(catName(it.category)) + ' · ' + t('store.coin.levelReward', { n: it.unlock.level }) + '</span><span class="st">' +
+          '<button class="btn small ' + (o.ok ? 'gold' : '') + '" data-coinbuy="' + it.id + '"' + (o.ok ? '' : ' aria-disabled="true"') + '>' + icon('coin') + ' ' + I18N.num(o.price) + '</button>' +
+          (o.ok ? '' : '<span class="lk">' + t('store.coin.more', { n: I18N.num(o.short) }) + '</span>') + '</span></div></div>';
+      }).join('') + '</div>' : '<p class="muted">' + (later ? t('store.coin.later', { name: esc(later.name), at: Math.max(1, later.unlock.level - PG.COIN_REACH), lv }) : t('store.coin.all')) + '</p>');
+  }
+  function wireCoinShop(root, after) {
+    root.querySelectorAll('.item').forEach((el) => {
+      el.onclick = (e) => {
+        const it = PG.item(el.dataset.item);
+        AU.play('tap');
+        if (e.target.closest('[data-coinbuy]')) buyWithCoins(it, after); else itemModal(it, after);
+      };
+    });
+    hydrate(root, true);
+  }
 
   // ---------------------------------------------------------------- missions and season
   function missionsStrip() {
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
     if (!list.length) return '';
     const done = list.filter((m) => m.done).length;
-    return '<button class="strip glass" id="a-missions"><span class="sg' + (done === list.length ? ' gold' : '') + '">' + icon('target') + '</span><span style="flex:1"><small>Today\'s missions</small><b>' + (done === list.length ? 'All done. Brilliant!' : done + ' of ' + list.length + ' done') + '</b>' +
+    return '<button class="strip glass" id="a-missions"><span class="sg' + (done === list.length ? ' gold' : '') + '">' + icon('target') + '</span><span style="flex:1"><small>' + t('home.missions.today') + '</small><b>' + (done === list.length ? t('home.missions.allDone') : t('home.missions.progress', { n: done, of: list.length })) + '</b>' +
       '<span class="bar"><i style="width:' + Math.round(done / list.length * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
   }
   function seasonStrip() {
     const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
     if (!s) return '';
-    return '<button class="strip glass" id="a-season"><span class="sg">' + icon('season') + '</span><span style="flex:1"><small>Season ' + s.season.number + ' · until ' + seasonEnd(s.season) + '</small><b>' + esc(s.season.name) + ' · Tier ' + s.tier + '</b>' +
+    return '<button class="strip glass" id="a-season"><span class="sg">' + icon('season') + '</span><span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(seasonName(s.season)) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
       '<span class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
   }
   function missionsCard() {
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
-    if (!list.length) return '<p class="sub">New missions arrive every day.</p>';
-    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(m.text) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? 'Done' : m.n + '/' + m.goal) + '<br><span>+' + m.xp + ' XP</span></small></div>').join('') + '</div>';
+    if (!list.length) return '<p class="sub">' + t('home.missions.none') + '</p>';
+    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(missionText(m)) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? t('home.missions.done') : m.n + '/' + m.goal) + '<br><span>+' + t('common.xp', { n: m.xp }) + '</span></small></div>').join('') + '</div>';
   }
   function missionsModal() {
-    modal('<div class="eyebrow">Today</div><h2>Daily missions</h2><p class="sub">Three little goals each day. Finish them all for a bonus of ' + CHACKLATE_MISSIONS.allDoneXp + ' XP.</p>' + missionsCard() +
-      '<div class="row"><button class="btn primary" data-close>Let\'s go</button></div>', { x: true });
+    modal('<div class="eyebrow">' + t('home.missions.eyebrow') + '</div><h2>' + t('home.missions.title') + '</h2><p class="sub">' + t('home.missions.sub', { n: CHACKLATE_MISSIONS.allDoneXp }) + '</p>' + missionsCard() +
+      '<div class="row"><button class="btn primary" data-close>' + t('common.letsGo') + '</button></div>', { x: true });
   }
 
   // ---------------------------------------------------------------- play
@@ -694,9 +1082,9 @@
     const rec = P.stats.byLevel[o.level];
     const beaten = rec && rec.w > 0;
     return '<button class="persona' + (locked ? ' locked' : '') + (beaten ? ' beaten' : '') + '" data-opp="' + o.level + '" style="--tint:' + o.colors[0] + '">' +
-      (locked ? '<span class="tag pill lock">' + icon('lock') + ' Premium</span>' : beaten ? '<span class="tag pill gold">' + icon('crown') + ' Beaten</span>' : '') +
-      faceImg(o) + '<span class="lvl">Level ' + (o.level + 1) + ' · ' + esc(lv.band) + '</span><h3>' + esc(o.name) + '</h3><span class="species">the ' + esc(species(o)) + '</span>' +
-      '<p>' + esc(o.blurb) + '</p><span class="rec">' + (rec && rec.w + rec.d + rec.l ? '<span class="pill ok">' + rec.w + ' won</span><span class="pill">' + rec.d + ' drawn</span><span class="pill">' + rec.l + ' lost</span>' : '<span class="pill">Not played yet</span>') + '</span></button>';
+      (locked ? '<span class="tag pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : beaten ? '<span class="tag pill gold">' + icon('crown') + ' ' + t('play.beaten') + '</span>' : '') +
+      faceImg(o) + '<span class="lvl">' + t('common.level', { n: o.level + 1 }) + ' · ' + esc(bandName(o.level)) + '</span><h3>' + esc(o.name) + '</h3><span class="species">' + esc(speciesName(o)) + '</span>' +
+      '<p>' + esc(oppBlurb(o)) + '</p><span class="rec">' + (rec && rec.w + rec.d + rec.l ? '<span class="pill ok">' + t('play.won', { n: rec.w }) + '</span><span class="pill">' + t('play.drawn', { n: rec.d }) + '</span><span class="pill">' + t('play.lost', { n: rec.l }) + '</span>' : '<span class="pill">' + t('play.notPlayed') + '</span>') + '</span></button>';
   }
   SCREENS.play = function () {
     idleBoard();
@@ -705,15 +1093,18 @@
     const online = netOn();
     const best = persona(PG.personalLevel(P, P.premium ? 7 : 3));
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Play', 'Play Chess', 'Choose an animal friend to play. Each one plays in its own way, from brand new to grandmaster.', '<span class="pill gold">' + icon('star') + ' Your best match: ' + esc(best.full) + '</span>') +
-      sec('play', 'Start playing') +
+      pageHead(t('common.nav.play'), t('play.title'), t('play.sub'), '<span class="pill gold">' + icon('star') + ' ' + t('play.bestMatch', { name: esc(oppFull(best)) }) + '</span>') +
+      sec('play', t('play.start')) +
       '<div class="lux-row four">' +
-      lux({ id: 'p-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: 'Quick Play', text: online ? 'A friendly game online, or ' + best.name + ' if no one is around.' : 'Play ' + best.name + ', picked from your recent games.' }) +
-      lux({ id: 'p-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
-      lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: online ? 'A timed game against a player from anywhere, 10 minutes at most.' : 'Online play is not connected right now.' }) +
-      lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
+      lux({ id: 'p-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t('home.quick'), text: online ? t('play.quickOnline', { name: best.name }) : t('play.quickOffline', { name: best.name }) }) +
+      lux({ id: 'p-friend', art: duoArt(), title: t('play.friend'), text: t('play.friendText') }) +
+      lux({ id: 'p-world', art: worldArt(), title: t('play.world'), text: t('play.worldText') }) +
+      lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: t('play.custom'), text: t('play.customText') }) +
       '</div>' +
-      sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
+      '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>' + t('home.minis') + '</small><b>' + t('play.minis') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
+      variationsTile() +
+      '<button class="strip glass mini-strip" data-nav="club"><span class="sg gold">' + icon('trophy') + '</span><span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
+      sec('users', t('play.choose'), t('play.friends', { n: OPP.length })) +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
     hydrate();
@@ -722,26 +1113,28 @@
     $('p-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
     $('p-world').onclick = () => { AU.unlock(); AU.play('tap'); worldModal(); };
     $('p-custom').onclick = () => { AU.unlock(); AU.play('tap'); newGameModal(); };
+    $('p-var').onclick = () => { AU.unlock(); AU.play('tap'); go('variants'); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp); }; });
     return {};
   };
-  const CLOCKS = [['none', 'No clock'], ['3+2', '3 + 2'], ['5+0', '5 min'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', '30 min']];
-  function opponentModal(level) {
-    const o = persona(level), lv = LEVELS[level];
-    if (lv.premium && !state.progress.premium) { premiumModal(o.full + ' plays with Premium, along with Rocco, Ivy, Onyx and Ember.', o); return; }
+  const CLOCKS = [['none', 'play.clock.none'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']];
+  const clockName = (l) => (I18N.has(l) ? t(l) : l);
+  function opponentModal(level, variant) {
+    const o = persona(level), lv = LEVELS[level], v = variant ? variantById(variant) : null;
+    if (lv.premium && !state.progress.premium) { premiumModal(t('play.premiumOpp', { name: oppFull(o) }), o); return; }
     const s = state.setup;
-    const m = modal('<div class="setup-hero">' + faceImg(o, 'big') + '<div><div class="eyebrow">Level ' + (level + 1) + ' · ' + esc(lv.band) + '</div><h2>' + esc(o.full) + '</h2><p class="quote">“' + esc(sayLine(o, 'hello')) + '”</p></div></div>' +
-      '<form id="os"><div class="field"><div class="label">Play as</div><div class="seg">' + [['white', 'White'], ['black', 'Black'], ['random', 'Surprise me']].map(([v, t]) => '<label><input type="radio" name="color" value="' + v + '"' + ((s.color || 'white') === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
-      '<div class="field"><div class="label">Clock</div><div class="seg">' + CLOCKS.map(([v, t]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
-      '<div class="row"><button type="button" class="btn" data-close>Not now</button><button class="btn primary">' + icon('play') + ' Play ' + esc(o.name) + '</button></div></form>', { x: true });
+    const m = modal('<div class="setup-hero">' + faceImg(o, 'big') + '<div><div class="eyebrow">' + (v ? esc(v.name) + ' · ' : '') + t('common.level', { n: level + 1 }) + ' · ' + esc(bandName(level)) + '</div><h2>' + esc(oppFull(o)) + '</h2><p class="quote">“' + esc(sayLine(o, 'hello')) + '”</p></div></div>' +
+      '<form id="os"><div class="field"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + ['white', 'black', 'random'].map((v) => '<label><input type="radio" name="color" value="' + v + '"' + ((s.color || 'white') === v ? ' checked' : '') + '><span>' + t('play.color.' + v) + '</span></label>').join('') + '</div></div>' +
+      '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + CLOCKS.map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
+      '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.playName', { name: esc(o.name) }) + '</button></div></form>', { x: true });
     const form = m.querySelector('#os');
-    form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); startGame({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '' }); };
+    form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
   }
   // Premium things a child taps are explained, and the store itself sits behind the parent gate.
   function premiumModal(why, who) {
     const m = modal('<div class="result-hero">' + (who ? faceImg(who) : '<img class="portrait" src="' + medal('emblem:crown', '#ffd27a', '#b8862b') + '" alt="">') +
-      '<span class="result-badge">Premium</span><h2 class="result-title">More to explore</h2><p class="sub">' + esc(why) + ' A grown-up can find Premium in the store.</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" data-close>OK</button><button class="btn primary" id="pm-store">' + icon('crown') + ' Ask a grown-up</button></div></div>');
+      '<span class="result-badge">' + t('common.premium') + '</span><h2 class="result-title">' + t('store.more.title') + '</h2><p class="sub">' + esc(why) + ' ' + t('store.more.sub') + '</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.ok') + '</button><button class="btn primary" id="pm-store">' + icon('crown') + ' ' + t('store.more.ask') + '</button></div></div>');
     m.querySelector('#pm-store').onclick = () => { m.close(); go('store'); };
   }
   function quickPlay() {
@@ -750,25 +1143,119 @@
   }
   function quickPlayOffline() {
     const lv = PG.personalLevel(state.progress, state.progress.premium ? 7 : 3);
-    toast('Your opponent: ' + esc(persona(lv).full) + ', picked from your recent games.');
+    toast(t('play.quickToast', { name: esc(oppFull(persona(lv))) }));
     startGame({ mode: 'ai', color: 'random', level: lv, tc: 'none', fen: '', personal: true });
   }
+
+  // ---------------------------------------------------------------- variations
+  // Other ways to play (packages/content/variants.json). Each has its rules in the engine (the
+  // variation rides in the FEN, e.g. "chaturanga:rnbq..."), a one-page rule sheet, a short lesson
+  // with Rooky and the animal friends as bots. Rules that are not like chess are marked in gold.
+  // There is no online play or rating for a variation yet.
+  const varText = (v, f) => tx('content.var.' + v.id + '.' + f, v[f]);
+  const variantById = (id) => VARIANTS.find((v) => v.id === id) || null;
+  const variantOfGame = (g) => (g.variant === 'standard' ? null : variantById(g.variant));
+  // Chaturanga's old Mantri and Gaja have their own shapes in the era's jade set (pieces3d.js, CHATURANGA).
+  const variantLook = (v) => { const l = v.era ? eraLook(v.era) : null; return l && E.VARIANTS[v.id] && E.VARIANTS[v.id].old ? Object.assign(l, { set: 'chaturanga' }) : l; };
+  // Chess960 deals a new back row for every game (number 518 is the usual chess start, so skip it).
+  const variantStart = (v) => { if (!v.shuffle) return { fen: v.start }; let n = Math.floor(Math.random() * 959); if (n >= 518) n++; return { fen: E.chess960Fen(n), n960: n }; };
+  const variantArt = (v) => { const e = v.era && eraById(v.era); return e ? ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) : medal('piece:' + ({ koth: 'k', threecheck: 'q', chess960: 'n' }[v.id] || 'r'), '#5b4a8a', '#2c2248'); };
+  function variationsTile() {
+    const ready = VARIANTS.filter((v) => v.status === 'ready');
+    return '<button class="tile wide var-tile" id="p-var"><span class="ic">' + icon('grid') + '</span><span><span class="eyebrow">' + t('play.var.eyebrow') + '</span><b>' + t('play.var.head') + '</b>' +
+      '<small>' + esc(ready.map((v) => v.name + ': ' + varText(v, 'tagline')).join('. ')) + '. ' + t('play.var.more') + '</small></span><span class="go">' + icon('arrow') + '</span></button>';
+  }
+  // A small flat board for the rule sheet: pieces from the FEN's board field and dots on the
+  // squares they reach, cropped to the squares that matter (at least 5 by 5).
+  function miniBoard(fen, dots, label, old) {
+    const at = {};
+    String(fen).replace(/^[a-z0-9]+:/, '').split(' ')[0].split('/').forEach((row, i) => { let f = 0; for (const c of row) { if (/\d/.test(c)) f += +c; else { at[f + ',' + (7 - i)] = c; f++; } } });
+    const spots = (dots || []).map((d) => [d.charCodeAt(0) - 97, +d[1] - 1]);
+    const cells = Object.keys(at).map((k) => k.split(',').map(Number)).concat(spots);
+    const span = (i) => { let lo = Math.min(...cells.map((c) => c[i])), hi = Math.max(...cells.map((c) => c[i])); while (hi - lo < 4) { if (lo > 0) lo--; if (hi - lo < 4 && hi < 7) hi++; } return [lo, hi]; };
+    const [f0, f1] = span(0), [r0, r1] = span(1);
+    let html = '<div class="mini" role="img" aria-label="' + esc(label || '') + '" style="--cols:' + (f1 - f0 + 1) + '">';
+    for (let r = r1; r >= r0; r--) {
+      for (let f = f0; f <= f1; f++) {
+        const c = at[f + ',' + r], dot = spots.some((d) => d[0] === f && d[1] === r);
+        html += '<i class="' + ((f + r) % 2 ? 'l' : 'd') + (dot ? (c ? ' hit' : ' dot') : '') + '">' + (c ? '<img src="' + ART.pieceUri(pieceArt(c.toLowerCase(), old), CAP_INK[c === c.toUpperCase() ? 'w' : 'b']) + '" alt="">' : '') + '</i>';
+      }
+    }
+    return html + '</div>';
+  }
+  const differs = () => '<span class="differs">' + icon('sparkle') + ' ' + t('play.var.differs') + '</span>';
+  function ruleSheet(v) {
+    return '<div class="rulesheet' + (v.pieces ? '' : ' no-pieces') + '">' + (v.pieces ? '<section><h3>' + t('play.var.pieces') + '</h3><div class="rs-pieces">' + v.pieces.map((pc) =>
+      '<div class="rs-piece' + (pc.differs ? ' diff' : '') + '">' + miniBoard(pc.fen, pc.dots, pc.name + ': ' + pc.moves, (E.VARIANTS[v.id] || {}).old) +
+      '<div><h4>' + esc(pc.name) + ' <small>' + esc(pc.en) + '</small></h4>' + (pc.differs ? differs() : '') + '<p>' + esc(pc.moves) + '</p></div></div>').join('') + '</div></section>' : '') +
+      '<section><h3>' + t('play.var.rules') + '</h3><ul class="rs-rules">' + v.rules.map((r) => '<li' + (r.differs ? ' class="diff"' : '') + '><b>' + esc(r.title) + '</b>' + (r.differs ? differs() : '') + '<p>' + esc(r.text) + '</p></li>').join('') + '</ul>' +
+      (v.notes || []).map((n) => '<p class="fine">' + esc(n) + '</p>').join('') + '</section></div>';
+  }
+  const variantRecord = (id) => { const r = (state.progress.stats.variants || {})[id]; return r && r.w + r.d + r.l ? r : null; };
+  SCREENS.variants = function () {
+    idleBoard();
+    mount('<div class="page"><div class="page-in">' +
+      '<button class="backlink" data-nav="play">' + icon('back') + ' ' + t('common.nav.play') + '</button>' +
+      pageHead(t('play.var.title'), t('play.var.head'), t('play.var.sub', { coach: COACH.name })) +
+      '<div class="variants">' + VARIANTS.map((v) => {
+        const ready = v.status === 'ready', rec = ready && variantRecord(v.id), e = v.era && eraById(v.era);
+        return '<button class="variant' + (ready ? '' : ' soon') + '" data-variant="' + v.id + '"' + (ready ? '' : ' disabled') + '>' +
+          '<span class="banner"><img' + (v.era ? '' : ' class="medal"') + ' src="' + variantArt(v) + '" alt=""><span class="when pill">' + esc(varText(v, 'when')) + '</span></span>' +
+          '<span class="body"><h3>' + esc(v.name) + '</h3><span class="t">' + esc(varText(v, 'tagline')) + (e ? ' · ' + t('play.var.era', { era: esc(eraName(e)) }) : '') + '</span><p>' + esc(varText(v, 'blurb')) + '</p></span>' +
+          '<span class="foot">' + (ready ? (rec ? '<span class="pill ok">' + t('play.won', { n: rec.w }) + '</span><span class="pill">' + t('play.drawn', { n: rec.d }) + '</span><span class="pill">' + t('play.lost', { n: rec.l }) + '</span>' : '<span class="pill gold">' + icon('sparkle') + ' ' + t('play.var.ready') + '</span>') + '<span class="go">' + icon('arrow') + '</span>' : '<span class="pill">' + icon('clock') + ' ' + t('play.var.soon') + '</span>') + '</span></button>';
+      }).join('') + '</div></div></div>');
+    wireLinks();
+    document.querySelectorAll('[data-variant]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('variant', b.dataset.variant); }; });
+    return {};
+  };
+  SCREENS.variant = function (id) {
+    const v = variantById(id);
+    if (!v || v.status !== 'ready') { setTimeout(() => go('variants'), 0); return {}; }
+    idleBoard();
+    if (variantLook(v)) setLook(variantLook(v));
+    const e = v.era && eraById(v.era), host = e ? eraCoach(e) : COACH;
+    const learned = !!state.progress.variantLessons[v.id];
+    mount('<div class="page"><div class="page-in">' +
+      '<button class="backlink" data-nav="variants">' + icon('back') + ' ' + t('play.var.all') + '</button>' +
+      '<section class="era-hero"><img class="bg" src="' + variantArt(v) + '" alt="">' +
+      '<div class="in">' + faceImg(host, 'coach-big') + '<div><div class="eyebrow">' + t('play.var.kicker', { when: esc(varText(v, 'when')) }) + (e ? ' · ' + esc(eraName(e)) : '') + '</div><h1>' + esc(v.name) + '</h1>' +
+      '<p class="quote">' + esc(varText(v, 'blurb')) + '</p></div></div></section>' +
+      '<div class="lux-row three var-actions">' +
+      lux({ id: 'v-learn', feature: !learned, art: faceImg(COACH), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), text: t('play.var.lessonText', { title: v.lesson.title }) }) +
+      lux({ id: 'v-rules', art: '<span class="ic-big">' + icon('scroll') + '</span>', title: t('play.var.sheet'), text: t('play.var.sheetText') }) +
+      lux({ id: 'v-local', art: duoArt(), title: t('play.ng.local'), text: t('play.var.localText') }) +
+      '</div>' +
+      '<div id="v-sheet">' + sec('scroll', t('play.var.sheet'), t('play.var.gold')) + '<div class="glass rs-card">' + ruleSheet(v) + '</div></div>' +
+      sec('users', t('play.choose'), t((E.VARIANTS[v.id] || {}).old ? 'play.var.oldRules' : 'play.var.knowRules')) +
+      '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
+      '<p class="fine">' + t('play.var.deviceOnly', { name: esc(v.name) }) + '</p>' +
+      '</div></div>');
+    hydrate();
+    wireLinks();
+    $('v-learn').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { variant: v.id }); };
+    $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); startGame(Object.assign({ mode: 'local', color: 'white', level: 0, tc: 'none', look: variantLook(v) }, variantStart(v))); };
+    document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp, v.id); }; });
+    // The cards' records and "beaten" badges are for chess; a variation keeps its own record.
+    document.querySelectorAll('.personas .rec, .personas .tag.gold').forEach((el) => el.remove());
+    return {};
+  };
 
   // ---------------------------------------------------------------- the Journey Through Time
   // Nine eras in order. Each has a story, a lesson, a trial and a champion; beating the
   // champion brings that era's chess set, board, room and portrait home.
-  const STAGE = { tale: ['scroll', 'Story'], lesson: ['learn', 'Lesson'], puzzles: ['puzzle', 'Puzzles'], endgame: ['crown', 'Endgame'], champion: ['swords', 'Champion'] };
+  const STAGE = { tale: 'scroll', lesson: 'learn', puzzles: 'puzzle', endgame: 'crown', champion: 'swords' };
   const eraRewards = (e) => CATALOG.items.filter((it) => it.unlock.type === 'journey' && it.unlock.era === e.id);
   function eraCard(e, i) {
     const info = PG.journeyInfo(state.progress, e.id);
     const set = setInfo(e.set);
-    const why = info.open ? '' : info.premium && !state.progress.premium ? 'Premium' : 'Finish ' + CAMPAIGN.eras[i - 1].name + ' first';
+    const why = info.open ? '' : info.premium && !state.progress.premium ? t('common.premium') : t('journey.finishFirst', { era: eraName(CAMPAIGN.eras[i - 1]) });
     return '<button class="era' + (info.open ? '' : ' locked') + (info.done ? ' done' : '') + '" data-era="' + e.id + '">' +
-      '<span class="banner"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""><span class="num">Era ' + ROMAN[i] + '</span><span class="when pill">' + esc(e.when) + '</span></span>' +
+      '<span class="banner"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""><span class="num">' + t('journey.era', { n: ROMAN[i] }) + '</span><span class="when pill">' + esc(eraWhen(e)) + '</span></span>' +
       '<img class="coach portrait" src="' + face(eraCoach(e)) + '" alt="">' +
-      '<span class="body"><h3>' + esc(e.name) + '</h3><span class="t">' + esc(e.coach.full) + ' · ' + esc(e.place) + '</span></span>' +
+      '<span class="body"><h3>' + esc(eraName(e)) + '</h3><span class="t">' + esc(fullName(eraCoach(e))) + ' · ' + esc(eraText(e, 'place')) + '</span></span>' +
       '<span class="foot"><span class="stagedots">' + info.stages.map((d) => '<i' + (d ? ' class="on"' : '') + '></i>').join('') + '</span>' +
-      '<span class="reward">' + (info.done ? icon('check') + ' <b>' + esc(set ? set.name : '') + '</b> is yours' : why ? icon('lock') + ' ' + esc(why) : 'Prize: <b>' + esc(set ? set.name : '') + '</b>') + '</span>' +
+      '<span class="reward">' + (info.done ? icon('check') + ' ' + t('journey.yours', { set: '<b>' + esc(set ? set.name : '') + '</b>' }) : why ? icon('lock') + ' ' + esc(why) : t('journey.prize', { set: '<b>' + esc(set ? set.name : '') + '</b>' })) + '</span>' +
       '<span class="go">' + icon(info.open ? 'arrow' : 'lock') + '</span></span></button>';
   }
   SCREENS.journey = function () {
@@ -776,9 +1263,9 @@
     const P = state.progress;
     const done = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length;
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Journey Through Time', 'Chess through the ages', 'Travel from the pharaohs of Egypt to 1930s New York. In every era a new friend tells you a story, teaches you something new and then challenges you to a game. Win, and their chess set comes home with you.', meter(done, CAMPAIGN.eras.length, 'eras complete')) +
+      pageHead(t('journey.eyebrow'), t('journey.title'), t('journey.sub'), meter(done, CAMPAIGN.eras.length, t('journey.complete'))) +
       '<div class="eras">' + CAMPAIGN.eras.map(eraCard).join('') + '</div>' +
-      '<p class="fine">Eras open one after another. The first four are free; the last four come with Premium.</p>' +
+      '<p class="fine">' + t('journey.fine') + '</p>' +
       '</div></div>');
     wireLinks();
     document.querySelectorAll('[data-era]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); openEra(b.dataset.era); }; });
@@ -788,8 +1275,8 @@
     const info = PG.journeyInfo(state.progress, id);
     if (info.open) return go('era', id);
     const e = info.era, i = CAMPAIGN.eras.indexOf(e);
-    if (info.premium && !state.progress.premium) return premiumModal('The journey continues to ' + e.name + ' with Premium: four more eras and four more chess sets to win.', eraCoach(e));
-    toast('Finish ' + esc(CAMPAIGN.eras[i - 1].name) + ' to travel on to ' + esc(e.name) + '.');
+    if (info.premium && !state.progress.premium) return premiumModal(t('journey.premium', { era: eraName(e) }), eraCoach(e));
+    toast(t('journey.finishToast', { prev: esc(eraName(CAMPAIGN.eras[i - 1])), era: esc(eraName(e)) }));
   }
   function rewardRow(it) {
     const d = it.data || {};
@@ -797,7 +1284,7 @@
     const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="thumb">' + itemArt(it) + '</span>';
     return '<li>' + art + '<span><b>' + esc(it.name) + '</b><small>' + esc(catName(it.category)) + '</small></span></li>';
   }
-  const catName = (id) => { const c = CATALOG.categories.find((x) => x.id === id); return c ? c.name.replace(/s$/, '').replace(/^Piece set$/, 'Chess set') : id; };
+  const catName = (id) => t('collection.one.' + id);
   SCREENS.era = function (id) {
     const e = eraById(id) || CAMPAIGN.eras[0];
     const P = state.progress;
@@ -809,30 +1296,33 @@
     const i = CAMPAIGN.eras.indexOf(e);
     const champ = e.stages.length - 1;
     const ready = e.stages.every((s, k) => k === champ || info.stages[k]);
-    const quote = info.done ? co.win : ready ? co.hello : info.count ? 'Well done so far! Finish every stage, then come and play me.' : 'Welcome to ' + e.name + '! I am ' + co.name + '. Read my story first, then we will learn and play together.';
+    const quote = info.done ? sayLine(co, 'win') : ready ? sayLine(co, 'hello') : info.count ? t('journey.soFar') : t('journey.welcome', { era: eraName(e), name: co.name });
     const [felt, sheen] = eraFelt(e);
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="journey">' + icon('back') + ' All eras</button>' +
+      '<button class="backlink" data-nav="journey">' + icon('back') + ' ' + t('journey.allEras') + '</button>' +
       '<section class="era-hero"><img class="bg" src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt="">' +
-      '<div class="in">' + faceImg(co, 'coach-big') + '<div><div class="eyebrow">Era ' + ROMAN[i] + ' · ' + esc(e.when) + ' · ' + esc(e.place) + '</div><h1>' + esc(e.title) + '</h1>' +
-      '<p class="quote"><b>' + esc(co.full) + '</b>“' + esc(quote) + '”</p></div></div></section>' +
+      '<div class="in">' + faceImg(co, 'coach-big') + '<div><div class="eyebrow">' + t('journey.era', { n: ROMAN[i] }) + ' · ' + esc(eraWhen(e)) + ' · ' + esc(eraText(e, 'place')) + '</div><h1>' + esc(eraText(e, 'title')) + '</h1>' +
+      '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(quote) + '”</p></div></div></section>' +
       '<div class="era-layout"><div class="stages">' + e.stages.map((s, k) => {
         const done = info.stages[k], locked = k === champ && !ready && !done;
         const next = !done && !locked && (k === champ ? ready : info.next === k);
-        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: (s.objectives || []).join('. ') + '.', puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
+        const desc = { tale: t('journey.taleDesc', { name: co.name }), lesson: (s.objectives || []).join('. ') + '.', puzzles: s.intro, endgame: s.intro, champion: t('journey.champDesc', { name: co.name, set: set.name }) }[s.kind];
         return '<button class="stage' + (done ? ' done' : '') + (next ? ' next' : '') + '" data-stage="' + k + '"' + (locked ? ' disabled' : '') + '>' +
-          '<span class="badge-ic">' + (s.kind === 'champion' ? '<img src="' + face(co) + '" alt="">' : icon(STAGE[s.kind][0])) + '</span>' +
-          '<span><span class="k">Stage ' + (k + 1) + ' · ' + STAGE[s.kind][1] + '</span><h4>' + esc(s.title) + '</h4><small>' + esc(locked ? 'Finish the other stages first, then ' + co.name + ' will play you.' : desc) + '</small></span>' +
-          (done ? '<span class="pill ok">' + icon('check') + ' Done</span>' : '<span class="go">' + icon(locked ? 'lock' : 'arrow') + '</span>') + '</button>';
+          '<span class="badge-ic">' + (s.kind === 'champion' ? '<img src="' + face(co) + '" alt="">' : icon(STAGE[s.kind])) + '</span>' +
+          '<span><span class="k">' + t('journey.stageN', { n: k + 1 }) + ' · ' + t('journey.stage.' + s.kind) + '</span><h4>' + esc(stageTitle(e, k)) + '</h4><small>' + esc(locked ? t('journey.lockedDesc', { name: co.name }) : desc) + '</small></span>' +
+          (done ? '<span class="pill ok">' + icon('check') + ' ' + t('home.missions.done') + '</span>' : '<span class="go">' + icon(locked ? 'lock' : 'arrow') + '</span>') + '</button>';
       }).join('') + '</div>' +
-      '<aside class="reward-card glass"><div class="eyebrow">' + (info.done ? 'Yours to keep' : 'The prize') + '</div>' +
+      '<aside class="reward-card glass"><div class="eyebrow">' + t(info.done ? 'journey.keep' : 'journey.thePrize') + '</div>' +
       '<div class="vign">' + snap(VIGN.trio(e.set, felt, sheen), 320, 200, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
       '<h3>' + esc(set.name) + '</h3><p class="muted">' + esc(set.story) + '</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul></aside></div>' +
+      VARIANTS.filter((v) => v.era === e.id && v.status === 'ready').map((v) => '<button class="tile wide var-tile" data-era-variant="' + v.id + '"><span class="ic face">' + faceImg(co) + '</span><span><span class="eyebrow">Variation · ' + esc(v.when) + '</span><b>Play ' + esc(v.name) + ', the game of this land</b><small>' + esc(v.tagline) + '. Learn the rules with Rooky, then play.</small></span><span class="go">' + icon('arrow') + '</span></button>').join('') +
       '</div></div>');
     hydrate();
     wireLinks();
+    document.querySelectorAll('[data-era-variant]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('variant', b.dataset.eraVariant); }; });
     document.querySelectorAll('[data-stage]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); runStage(e, +b.dataset.stage); }; });
+    guideSay(eraGuideKey(e));
     return {};
   };
   function runStage(e, k) {
@@ -840,7 +1330,7 @@
     const journey = { era: e.id, stage: k };
     if (s.kind === 'tale') return taleModal(e, k);
     if (s.kind === 'lesson') return go('lesson', { journey });
-    if (s.kind === 'puzzles') return go('puzzle', { list: stagePuzzles(s), title: s.title, intro: s.intro, journey });
+    if (s.kind === 'puzzles') return go('puzzle', { list: stagePuzzles(s), title: stageTitle(e, k), intro: s.intro, journey });
     if (s.kind === 'endgame') return startDojo(s.endgame.id, journey);
     if (s.kind === 'champion') return startGame({ mode: 'ai', color: s.color || 'white', level: s.level, tc: 'none', fen: '', rival: eraCoach(e), look: { set: e.set, board: e.board, room: e.room }, journey });
   }
@@ -862,15 +1352,15 @@
     AU.event('lesson.passed');
     const m = modal('<div class="result-hero">' +
       '<div class="vign">' + snap(VIGN.trio(e.set, felt, sheen), 360, 220, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
-      '<span class="result-badge win">Era ' + ROMAN[CAMPAIGN.eras.indexOf(e)] + ' complete</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
-      '<p class="quote"><b>' + esc(co.full) + '</b>“' + esc(co.win) + '”</p>' +
+      '<span class="result-badge win">' + t('journey.eraDone', { n: ROMAN[CAMPAIGN.eras.indexOf(e)] }) + '</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
+      '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(sayLine(co, 'win')) + '”</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' Journey map</button><button class="btn primary" id="ed-use">' + icon('check') + ' Use my new set</button></div></div>', { cls: 'narrow' });
+      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' ' + t('journey.map') + '</button><button class="btn primary" id="ed-use">' + icon('check') + ' ' + t('journey.useSet') + '</button></div></div>', { cls: 'narrow' });
     hydrate(m);
     m.querySelector('#ed-map').onclick = () => { m.close(); go('journey'); };
     m.querySelector('#ed-use').onclick = () => {
       eraRewards(e).filter((it) => ['pieces', 'board', 'room'].includes(it.category)).forEach((it) => PG.equip(state.progress, it));
-      save(); applyLook(); m.close(); toast('Your table now has the ' + esc(set.name) + ' set.'); go('collection', 'pieces');
+      save(); applyLook(); m.close(); toast(t('journey.setToast', { set: esc(set.name) })); go('collection', 'pieces');
     };
     celebrate(res, true);
   }
@@ -878,33 +1368,39 @@
   function taleModal(e, k) {
     const s = e.stages[k], co = eraCoach(e);
     let page = 0, solved = !!PG.journeyInfo(state.progress, e.id).stages[k];
-    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(e.name) + ' · ' + esc(e.when) + '</div><h2>' + esc(s.title) + '</h2></div></div>' +
-      '<div id="tl-body"></div><div class="nav"><span class="pdots" id="tl-dots"></span><span class="grow"></span><button class="btn" id="tl-prev">' + icon('prev') + ' Back</button><button class="btn primary" id="tl-next">Next</button></div></div>',
+    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(eraName(e)) + ' · ' + esc(eraWhen(e)) + '</div><h2>' + esc(stageTitle(e, k)) + '</h2></div>' +
+      '<div class="tl-tools"><button class="tl-btn" id="tl-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="tl-btn" id="tl-voice" data-voice="' + esc(co.name) + '"></button></div></div>' +
+      '<div id="tl-body"></div><div class="nav"><span class="pdots" id="tl-dots"></span><span class="grow"></span><button class="btn" id="tl-prev">' + icon('prev') + ' ' + t('common.back') + '</button><button class="btn primary" id="tl-next">' + t('common.next') + '</button></div></div>',
     { cls: 'tale', onClose() { AU.hush(); } });
     const body = m.querySelector('#tl-body'), next = m.querySelector('#tl-next'), prev = m.querySelector('#tl-prev');
+    const line = () => (page < s.pages.length ? s.pages[page] : s.quiz.q);
+    voiceIcon(m.querySelector('#tl-voice'), co.name);
+    m.querySelector('#tl-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) AU.tale(e.id, line()); };
+    m.querySelector('#tl-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); AU.tale(e.id, line()); };
     function render() {
       m.querySelector('#tl-dots').innerHTML = s.pages.concat([0]).map((_, j) => '<i' + (j <= page ? ' class="on"' : '') + '></i>').join('');
       prev.disabled = page === 0;
       AU.hush();
       if (page < s.pages.length) {
         body.innerHTML = '<p class="text">' + esc(s.pages[page]) + '</p>';
-        next.hidden = false; next.textContent = page === s.pages.length - 1 ? 'Question' : 'Next';
-        if (state.settings.narration) AU.say(s.pages[page]);
+        next.hidden = false; next.textContent = t(page === s.pages.length - 1 ? 'journey.question' : 'common.next');
+        if (state.settings.narration) AU.tale(e.id, s.pages[page]);
         return;
       }
       body.innerHTML = '<p class="text q">' + esc(s.quiz.q) + '</p><div class="opts">' + s.quiz.options.map((o, j) => '<button data-o="' + j + '">' + esc(o) + '</button>').join('') + '</div><div id="tl-ex"></div>';
-      next.hidden = !solved; next.textContent = 'Finish';
-      if (state.settings.narration) AU.say(s.quiz.q);
+      next.hidden = !solved; next.textContent = t('common.finish');
+      if (state.settings.narration) AU.tale(e.id, s.quiz.q);
       body.querySelectorAll('[data-o]').forEach((b) => {
         b.onclick = () => {
           const right = +b.dataset.o === s.quiz.answer;
           b.classList.add(right ? 'right' : 'wrong');
           b.disabled = true;
           AU.play(right ? 'correct' : 'wrong');
-          body.querySelector('#tl-ex').innerHTML = '<p class="explain">' + (right ? '<b>Yes!</b> ' : '<b>Not quite.</b> ') + esc(right ? s.quiz.explain : 'Have another look and try again.') + '</p>';
+          body.querySelector('#tl-ex').innerHTML = '<p class="explain">' + '<b>' + t(right ? 'journey.yes' : 'journey.notQuite') + '</b> ' + esc(right ? s.quiz.explain : t('journey.tryAgain')) + '</p>';
           if (!right) return;
           body.querySelectorAll('[data-o]').forEach((x) => { x.disabled = true; });
           next.hidden = false;
+          if (state.settings.narration) AU.tale(e.id, s.quiz.explain);
           if (!solved) { solved = true; m.dataset.won = '1'; }
         };
       });
@@ -920,8 +1416,8 @@
   }
 
   // ---------------------------------------------------------------- learn, puzzles, training
-  const subnav = (cur) => '<nav class="subnav" aria-label="Learning">' + [['learn', 'Lessons'], ['puzzles', 'Puzzles'], ['training', 'Training']].map(([k, t]) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t + '</button>').join('') + '</nav>';
-  const stars = (n) => '<span class="stars" aria-label="' + n + ' of 3 stars">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
+  const subnav = (cur) => '<nav class="subnav" aria-label="' + t('learn.nav') + '">' + ['learn', 'puzzles', 'training'].map((k) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t('learn.sub.' + k) + '</button>').join('') + '</nav>';
+  const stars = (n) => '<span class="stars" aria-label="' + t('learn.stars', { n }) + '">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
   const locked = (item) => item.access === 'premium' && !state.progress.premium;
   SCREENS.learn = function () {
     idleBoard();
@@ -930,53 +1426,63 @@
     const due = PG.dueReviews(P);
     const total = LESSONS.lessons.length, done = LESSONS.lessons.filter((l) => P.lessons[l.id]).length;
     mount('<div class="page"><div class="page-in">' + subnav('learn') +
-      pageHead('Chess Academy', 'Learning path', 'Short lessons with Rooky, your coach, each followed by little exercises. ' + done + ' of ' + total + ' completed.',
-        due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + due.length + ' review' + (due.length > 1 ? 's' : '') + ' due</button>' : '') +
+      pageHead(t('learn.eyebrow'), t('learn.title'), t('learn.sub', { n: done, of: total }),
+        due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + t(due.length > 1 ? 'learn.reviewsDue' : 'learn.reviewDue', { n: due.length }) + '</button>' : '') +
       '<div class="bar path-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></div>' +
-      (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">Now learning · Chapter ' + nl.chapter + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') +
+      placementTile() +
+      (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">' + t('learn.now', { n: nl.chapter }) + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') +
       '<div class="chapters">' + LESSONS.chapters.map((ch) => {
         const ls = LESSONS.lessons.filter((l) => l.chapter === ch.n);
         const n = ls.filter((l) => P.lessons[l.id]).length;
         const lock = ch.access !== 'free' && !P.premium;
-        return '<section class="chapter glass"><header><span class="cn">' + ch.n + '</span><div><h3>' + esc(ch.title) + (lock ? ' <span class="pill lock">' + icon('lock') + ' Premium</span>' : '') + '</h3><div class="meta">' + n + ' of ' + ls.length + ' complete</div></div>' +
+        return '<section class="chapter glass"><header><span class="cn">' + ch.n + '</span><div><h3>' + esc(ch.title) + (lock ? ' <span class="pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : '') + '</h3><div class="meta">' + t('learn.chapterDone', { n, of: ls.length }) + '</div></div>' +
           '<div class="bar"><i style="width:' + Math.round(n / ls.length * 100) + '%"></i></div></header><div class="lessons">' +
           ls.map((l) => {
             const r = P.lessons[l.id];
             return '<button class="node' + (r ? ' done' : '') + (nl && nl.id === l.id ? ' next' : '') + '" data-lesson="' + l.id + '"' + (lock ? ' disabled' : '') + '><span><b>' + esc(l.title) + '</b><small>' + esc(l.objectives[0]) + '</small></span>' +
-              (r ? stars(r.stars) : '<small>' + l.minutes + ' min</small>') + '</button>';
+              (r ? stars(r.stars) : '<small>' + t('learn.min', { n: l.minutes }) + '</small>') + '</button>';
           }).join('') + '</div></section>';
       }).join('') + '</div></div></div>');
     wireLinks();
     document.querySelectorAll('[data-lesson]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', b.dataset.lesson); }; });
     if ($('l-next')) $('l-next').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', nl.id); };
     if ($('l-review')) $('l-review').onclick = () => { AU.unlock(); go('lesson', due[0]); };
+    $('l-place').onclick = () => { AU.unlock(); AU.play('tap'); if (P.placement) placementOffer('learn'); else go('lesson', { placement: true, from: 'learn' }); };
     return {};
   };
 
-  const THEMES = [['fork', 'Forks', 'piece:n', 'One piece attacks two at once.'], ['pin', 'Pins', 'piece:b', 'A piece that cannot move without trouble.'], ['skewer', 'Skewers', 'piece:r', 'Attack through one piece to the one behind.'],
-    ['discoveredAttack', 'Discovered attacks', 'piece:q', 'Move one piece to unleash another.'], ['hangingPiece', 'Free pieces', 'piece:p', 'Spot a piece nobody is guarding.'], ['mate', 'Checkmates', 'piece:k', 'Find the move that ends the game.']];
-  const themePuzzles = (t) => PUZZLES.filter((p) => t === 'mate' ? p.themes.some((x) => x.startsWith('mateIn')) : p.themes.includes(t));
+  function placementTile() {
+    const r = state.progress.placement;
+    const ch = r && LESSONS.chapters.find((c) => c.n === r.chapter);
+    return '<button class="tile wide" id="l-place"><span class="ic"><img src="' + medal(PLACE_ART[r ? r.chapter - 1 : 0], '#ffd27a', '#b8862b') + '" alt=""></span><span><span class="eyebrow">' + t('learn.place.eyebrow') + '</span>' +
+      (r ? '<b>' + t('learn.place.score', { n: r.score, of: r.total, ch: ch.n }) + '</b><small>' + t('learn.place.again', { title: esc(ch.title) }) + '</small>'
+        : '<b>' + t('learn.place.before') + '</b><small>' + t('learn.place.text', { n: PLACEMENT.questions.length, min: PLACEMENT.minutes, coach: COACH.name }) + '</small>') +
+      '</span><span class="go">' + icon(r ? 'refresh' : 'arrow') + '</span></button>';
+  }
+  const THEMES = [['fork', 'piece:n'], ['pin', 'piece:b'], ['skewer', 'piece:r'], ['discoveredAttack', 'piece:q'], ['hangingPiece', 'piece:p'], ['mate', 'piece:k']];
+  const themeName = (th) => (I18N.has('learn.theme.' + th) ? t('learn.theme.' + th) : th);
+  const themePuzzles = (th) => PUZZLES.filter((p) => th === 'mate' ? p.themes.some((x) => x.startsWith('mateIn')) : p.themes.includes(th));
   SCREENS.puzzles = function () {
     idleBoard();
     const P = state.progress, set = equippedSet();
     const daily = dailyPuzzle();
     const plan = trainingPlan();
     mount('<div class="page"><div class="page-in">' + subnav('puzzles') +
-      pageHead('Puzzles', 'Puzzles', 'Find the best move! Every puzzle comes from a real game and has been checked by the engine.', '<div class="meter">' + icon('star') + '<b>Puzzle rating <em>' + P.stats.puzzles.rating + '</em></b><span class="faint">' + P.stats.puzzles.solved + ' solved</span></div>') +
-      sec('play', 'Start solving') +
+      pageHead(t('learn.sub.puzzles'), t('learn.sub.puzzles'), t('learn.puzzlesSub'), '<div class="meter">' + icon('star') + '<b>' + t('learn.rating', { n: '<em>' + P.stats.puzzles.rating + '</em>' }) + '</b><span class="faint">' + t('learn.solved', { n: P.stats.puzzles.solved }) + '</span></div>') +
+      sec('play', t('learn.startSolving')) +
       '<div class="lux-row three">' +
-      lux({ id: 'z-daily', feature: !dailyDone(), art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'Today\'s puzzle, rated ' + daily.rating + '.' }) +
-      lux({ id: 'z-rated', art: snap(VIGN.duo(set), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Puzzle Trainer', text: 'Puzzles that match your rating, from ' + PUZZLES.length + ' to choose from.' }) +
-      lux({ id: 'z-plan', art: faceImg(COACH), title: 'Your Plan', text: plan.summary }) +
+      lux({ id: 'z-daily', feature: !dailyDone(), art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('learn.dailyText', { n: daily.rating }) }) +
+      lux({ id: 'z-rated', art: snap(VIGN.duo(set), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: t('learn.trainer'), text: t('learn.trainerText', { n: PUZZLES.length }) }) +
+      lux({ id: 'z-plan', art: faceImg(COACH), title: t('learn.plan'), text: plan.summary }) +
       '</div>' +
-      sec('puzzle', 'Themes') +
-      '<div class="cards">' + THEMES.map(([t, n, art, d]) => { const c = themePuzzles(t).length; return '<button class="tile" data-theme="' + t + '"' + (c ? '' : ' disabled') + '><span class="ic"><img src="' + medal(art, '#a3294f', '#4a0c1e', { ring: false }) + '" alt=""></span><b>' + n + '</b><small>' + esc(d) + ' ' + c + ' puzzles.</small><span class="go">' + icon('arrow') + '</span></button>'; }).join('') + '</div>' +
+      sec('puzzle', t('learn.themes')) +
+      '<div class="cards">' + THEMES.map(([th, art]) => { const c = themePuzzles(th).length; return '<button class="tile" data-theme="' + th + '"' + (c ? '' : ' disabled') + '><span class="ic"><img src="' + medal(art, '#a3294f', '#4a0c1e', { ring: false }) + '" alt=""></span><b>' + themeName(th) + '</b><small>' + esc(t('learn.themeText.' + th)) + ' ' + t('learn.nPuzzles', { n: c }) + '</small><span class="go">' + icon('arrow') + '</span></button>'; }).join('') + '</div>' +
       '</div></div>');
     hydrate();
     wireLinks();
-    $('z-daily').onclick = () => { AU.unlock(); if (daily) go('puzzle', { list: [daily], daily: true, title: 'Daily puzzle' }); };
-    $('z-rated').onclick = () => { AU.unlock(); go('puzzle', { rated: true, title: 'Puzzle trainer' }); };
-    $('z-plan').onclick = () => { AU.unlock(); go('puzzle', { theme: plan.theme, rated: true, title: 'Your plan: ' + plan.name }); };
+    $('z-daily').onclick = () => { AU.unlock(); if (daily) go('puzzle', { list: [daily], daily: true, title: t('learn.dailyPuzzle') }); };
+    $('z-rated').onclick = () => { AU.unlock(); go('puzzle', { rated: true, title: t('learn.trainerTitle') }); };
+    $('z-plan').onclick = () => { AU.unlock(); go('puzzle', { theme: plan.theme, rated: true, title: t('learn.planTitle', { name: plan.name }) }); };
     document.querySelectorAll('[data-theme]').forEach((b) => { b.onclick = () => { AU.unlock(); go('puzzle', { theme: b.dataset.theme, rated: true, title: b.querySelector('b').textContent }); }; });
     return {};
   };
@@ -984,24 +1490,23 @@
   function trainingPlan() {
     const counts = state.progress.seen.motifs || {};
     const order = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    const names = { fork: 'Forks', pin: 'Pins', skewer: 'Skewers', hangingPiece: 'Free pieces', mate: 'Checkmates', discoveredAttack: 'Discovered attacks' };
-    if (!order.length) return { theme: null, name: 'A mix', summary: 'Rooky picks puzzles from the patterns you miss most. Play a few to get started.' };
-    const [t] = order[0];
-    return { theme: t, name: names[t] || t, summary: 'Rooky suggests ' + (names[t] || t).toLowerCase() + ', the pattern you miss most often.' };
+    if (!order.length) return { theme: null, name: t('learn.mix'), summary: t('learn.planNone') };
+    const [th] = order[0];
+    return { theme: th, name: themeName(th), summary: t('learn.planText', { theme: themeName(th).toLowerCase() }) };
   }
   function noteMotif(theme) { const m = state.progress.seen.motifs || (state.progress.seen.motifs = {}); m[theme] = (m[theme] || 0) + 1; }
 
   function gameRow(h, i) {
     const who = h.mode === 'ai' ? persona(h.level) : null;
-    return '<button class="row-item" data-game="' + i + '"><span class="res ' + h.result + '">' + h.result.toUpperCase() + '</span>' +
-      '<span class="gr">' + (who ? '<img class="portrait mini" src="' + face(who) + '" alt="">' : '') + '<span><b>' + (who ? 'vs ' + esc(who.full) : h.mode === 'online' ? 'Online game' : 'Pass and play') + '</b><small>' +
-      esc(REASON_TEXT[h.reason] || h.reason || '') + ' · ' + Math.ceil(h.plies / 2) + ' moves · ' + esc(new Date(h.date).toLocaleDateString()) + '</small></span></span><span class="pill">' + icon('eye') + ' Review</span></button>';
+    return '<button class="row-item" data-game="' + i + '"><span class="res ' + h.result + '">' + (h.result === '-' ? '-' : t('learn.result.' + h.result)) + '</span>' +
+      '<span class="gr">' + (who ? '<img class="portrait mini" src="' + face(who) + '" alt="">' : '') + '<span><b>' + (who ? t('learn.vs', { name: esc(oppFull(who)) }) : t(h.mode === 'online' ? 'learn.online' : 'learn.local')) + '</b><small>' +
+      esc(REASON_TEXT[h.reason] || h.reason || '') + ' · ' + t('learn.moves', { n: Math.ceil(h.plies / 2) }) + ' · ' + esc(I18N.date(new Date(h.date))) + '</small></span></span><span class="pill">' + icon('eye') + ' ' + t('learn.review') + '</span></button>';
   }
   function wireGames(list) {
     document.querySelectorAll('[data-game]').forEach((b) => {
       b.onclick = () => {
         const h = list[+b.dataset.game];
-        if (h.ucis && h.ucis.length) go('review', { start: h.start || E.START_FEN, ucis: h.ucis, side: h.color || WHITE, title: h.mode === 'ai' ? 'vs ' + persona(h.level).name : h.mode === 'online' ? 'Online game' : 'Pass and play', level: h.level });
+        if (h.ucis && h.ucis.length) go('review', { start: h.start || E.START_FEN, ucis: h.ucis, side: h.color || WHITE, title: h.mode === 'ai' ? t('learn.vs', { name: persona(h.level).name }) : t(h.mode === 'online' ? 'learn.online' : 'learn.local'), level: h.level });
       };
     });
   }
@@ -1011,15 +1516,15 @@
     const mastered = Object.values(P.openings).filter((r) => r.mastered).length;
     const dojoStars = ENDGAMES.reduce((a, d) => a + (P.dojo[d.id] ? P.dojo[d.id].stars : 0), 0);
     mount('<div class="page"><div class="page-in">' + subnav('training') +
-      pageHead('Training', 'Training', 'Learn openings move by move, master the endgames every player needs, and let Rooky review your games.') +
-      sec('play', 'Train') +
+      pageHead(t('learn.sub.training'), t('learn.sub.training'), t('learn.trainingSub')) +
+      sec('play', t('learn.train')) +
       '<div class="lux-row three">' +
-      lux({ id: 't-open', art: snap(VIGN.opening(set), 240, 150, medal('piece:b', '#2f4f8a', '#14243e')), title: 'Opening Lab', text: OPENINGS.length + ' openings to learn. ' + mastered + ' mastered.' }) +
-      lux({ id: 't-dojo', art: snap(VIGN.endgame(set), 240, 150, medal('piece:k', '#5b4a8a', '#2c2248')), title: 'Endgame Dojo', text: ENDGAMES.length + ' endgames. ' + dojoStars + ' of ' + ENDGAMES.length * 3 + ' stars.' }) +
-      lux({ id: 't-review', art: snap(VIGN.review(set), 240, 150, medal('piece:q', '#8a5a2a', '#3a1e0e')), title: 'Game Reviews', text: P.history.length ? 'Look back at your games with Rooky.' : 'Play a game, then review it here.' }) +
+      lux({ id: 't-open', art: snap(VIGN.opening(set), 240, 150, medal('piece:b', '#2f4f8a', '#14243e')), title: t('learn.lab'), text: t('learn.labText', { n: OPENINGS.length, m: mastered }) }) +
+      lux({ id: 't-dojo', art: snap(VIGN.endgame(set), 240, 150, medal('piece:k', '#5b4a8a', '#2c2248')), title: t('learn.dojo'), text: t('learn.dojoText', { n: ENDGAMES.length, s: dojoStars, of: ENDGAMES.length * 3 }) }) +
+      lux({ id: 't-review', art: snap(VIGN.review(set), 240, 150, medal('piece:q', '#8a5a2a', '#3a1e0e')), title: t('learn.reviews'), text: t(P.history.length ? 'learn.reviewsText' : 'learn.reviewsNone') }) +
       '</div>' +
-      sec('refresh', 'Recent games') +
-      '<div class="list">' + (P.history.length ? P.history.slice(0, 6).map(gameRow).join('') : '<p class="muted">Your games will appear here. Rooky can review any of them.</p>') + '</div>' +
+      sec('refresh', t('learn.recent')) +
+      '<div class="list">' + (P.history.length ? P.history.slice(0, 6).map(gameRow).join('') : '<p class="muted">' + t('learn.recentNone') + '</p>') + '</div>' +
       '</div></div>');
     hydrate();
     wireLinks();
@@ -1034,14 +1539,14 @@
   SCREENS.dojo = function () {
     idleBoard();
     const P = state.progress;
-    const goalText = { mate: 'Checkmate', promote: 'Promote safely', draw: 'Hold the draw' };
+    const goalText = (g) => t('learn.goal.' + g);
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="training">' + icon('back') + ' Training</button>' +
-      pageHead('Training', 'Endgame dojo', 'The endgames every player needs, against the strongest defence. Reach the goal within par for three stars.') +
+      '<button class="backlink" data-nav="training">' + icon('back') + ' ' + t('learn.sub.training') + '</button>' +
+      pageHead(t('learn.sub.training'), t('learn.dojoTitle'), t('learn.dojoSub')) +
       '<div class="list">' + ENDGAMES.map((d) => {
         const r = P.dojo[d.id];
-        return '<button class="row-item" data-eg="' + d.id + '"' + (locked(d) ? ' disabled' : '') + '><span class="sg">' + icon(d.goal === 'draw' ? 'draw' : d.goal === 'promote' ? 'pawn' : 'crown') + '</span><span><b>' + esc(d.name) + '</b><br><small>' + esc(d.level) + ' · ' + goalText[d.goal] + (d.goal === 'draw' ? ' for ' + d.par + ' moves' : ' · par ' + d.par) + (r && r.best ? ' · best ' + r.best : '') + '</small></span>' +
-          (locked(d) ? '<span class="pill lock">' + icon('lock') + ' Premium</span>' : stars(r ? r.stars : 0)) + '</button>';
+        return '<button class="row-item" data-eg="' + d.id + '"' + (locked(d) ? ' disabled' : '') + '><span class="sg">' + icon(d.goal === 'draw' ? 'draw' : d.goal === 'promote' ? 'pawn' : 'crown') + '</span><span><b>' + esc(d.name) + '</b><br><small>' + esc(tx('learn.level.' + String(d.level).toLowerCase(), d.level)) + ' · ' + goalText(d.goal) + (d.goal === 'draw' ? ' ' + t('learn.forMoves', { n: d.par }) : ' · ' + t('learn.par', { n: d.par })) + (r && r.best ? ' · ' + t('learn.best', { n: r.best }) : '') + '</small></span>' +
+          (locked(d) ? '<span class="pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : stars(r ? r.stars : 0)) + '</button>';
       }).join('') + '</div></div></div>');
     wireLinks();
     document.querySelectorAll('[data-eg]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); startDojo(b.dataset.eg); }; });
@@ -1053,7 +1558,7 @@
     const d = endgameById(id);
     const side = E.positionFrom(d.fen, []).side;
     startGame({ mode: 'ai', color: side === WHITE ? 'white' : 'black', level: 7, tc: 'none', fen: d.fen, dojo: id, journey: journey || null, look: journey ? eraLook(journey.era) : null });
-    coachSay(d.tip, [['Got it', 'dismiss']]);
+    coachSay(d.tip, [[t('common.gotIt'), 'dismiss']]);
   }
   const eraLook = (id) => { const e = eraById(id); return e ? { set: e.set, board: e.board, room: e.room } : null; };
   // Called after every move of a dojo game. Returns true once the attempt is decided.
@@ -1067,13 +1572,13 @@
     if (o) {
       const w = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
       ok = w === me || (!w && d.goal === 'draw');
-      why = ok ? (w ? 'Checkmate.' : 'The game is drawn.') : w ? 'You were checkmated.' : (REASON_TEXT[o.reason] || 'Draw') + ': that lets the win slip.';
-    } else if (info && info.captured && Math.sign(info.captured) === me && Math.abs(info.captured) === E.P && d.goal === 'promote') { ok = false; why = 'Your pawn was captured.'; }
+      why = ok ? t(w ? 'learn.dj.mate' : 'learn.dj.drawn') : w ? t('learn.dj.mated') : t('learn.dj.slip', { reason: REASON_TEXT[o.reason] || t('learn.dj.draw') });
+    } else if (info && info.captured && Math.sign(info.captured) === me && Math.abs(info.captured) === E.P && d.goal === 'promote') { ok = false; why = t('learn.dj.pawnLost'); }
     else if (info && info.promo && Math.sign(info.mover) === me && d.goal === 'promote') {
       ok = !C.isHanging(g.pos, E.to88(info.to));
-      why = ok ? 'Promoted, and the new queen is safe.' : 'The new queen can be captured.';
-    } else if (info && info.promo && Math.sign(info.mover) === -me) { ok = false; why = 'Your opponent promoted.'; }
-    else if (d.goal === 'draw' && mine >= d.par && g.pos.side === me) { ok = true; why = 'You held for ' + d.par + ' moves.'; }
+      why = t(ok ? 'learn.dj.promoted' : 'learn.dj.queenHangs');
+    } else if (info && info.promo && Math.sign(info.mover) === -me) { ok = false; why = t('learn.dj.theyPromoted'); }
+    else if (d.goal === 'draw' && mine >= d.par && g.pos.side === me) { ok = true; why = t('learn.dj.held', { n: d.par }); }
     if (ok === null) return false;
     G.dojoDone = true;
     if (!o) g.finish(ok === (me === WHITE) ? '1-0' : '0-1', 'dojo');
@@ -1083,11 +1588,11 @@
     if (ok) { view.celebrate('win', -1, null, -1); AU.event('dojo.won'); }
     const j = G.setup.journey, e = j && eraById(j.era);
     const next = ENDGAMES[ENDGAMES.indexOf(d) + 1];
-    const m = modal('<div class="result-hero">' + faceImg(e ? eraCoach(e) : COACH) + '<span class="result-badge' + (ok ? ' win' : ' loss') + '">' + (e ? esc(e.name) : 'Endgame dojo') + '</span><h2 class="result-title">' + (ok ? 'Goal reached' : 'Not this time') + '</h2>' +
-      '<p class="sub">' + esc(why) + ' ' + (ok && d.goal !== 'draw' ? mine + ' moves, par ' + d.par + '.' : '') + '</p>' + (ok ? '<p class="big-stars">' + stars(res.stars) + '</p>' : '<p class="sub">' + esc(d.tip) + '</p>') +
-      '<div class="row" style="justify-content:center">' + (e ? '<button class="btn" id="dj-era">' + icon('journey') + ' Back to ' + esc(e.name) + '</button>' : '<button class="btn" id="dj-list">All endgames</button>') +
-      '<button class="btn' + (ok ? '' : ' primary') + '" id="dj-again">Try again</button>' +
-      (!e && ok && next && !locked(next) ? '<button class="btn primary" id="dj-next">Next: ' + esc(next.name) + '</button>' : '') + '</div></div>');
+    const m = modal('<div class="result-hero">' + faceImg(e ? eraCoach(e) : COACH) + '<span class="result-badge' + (ok ? ' win' : ' loss') + '">' + (e ? esc(eraName(e)) : t('learn.dojoTitle')) + '</span><h2 class="result-title">' + t(ok ? 'learn.dj.goal' : 'learn.dj.notThisTime') + '</h2>' +
+      '<p class="sub">' + esc(why) + ' ' + (ok && d.goal !== 'draw' ? t('learn.dj.score', { n: mine, par: d.par }) : '') + '</p>' + (ok ? '<p class="big-stars">' + stars(res.stars) + '</p>' : '<p class="sub">' + esc(d.tip) + '</p>') +
+      '<div class="row" style="justify-content:center">' + (e ? '<button class="btn" id="dj-era">' + icon('journey') + ' ' + t('learn.dj.backTo', { era: esc(eraName(e)) }) + '</button>' : '<button class="btn" id="dj-list">' + t('learn.dj.all') + '</button>') +
+      '<button class="btn' + (ok ? '' : ' primary') + '" id="dj-again">' + t('common.tryAgain') + '</button>' +
+      (!e && ok && next && !locked(next) ? '<button class="btn primary" id="dj-next">' + t('learn.dj.next', { name: esc(next.name) }) + '</button>' : '') + '</div></div>');
     const on = (id, fn) => { const b = m.querySelector(id); if (b) b.onclick = () => { m.close(); fn(); }; };
     on('#dj-list', () => go('dojo'));
     on('#dj-era', () => go('era', e.id));
@@ -1104,9 +1609,9 @@
     const P = state.progress;
     let side = tab || 'white';
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="training">' + icon('back') + ' Training</button>' +
-      pageHead('Training', 'Opening lab', 'Play through each opening with the coach. Three clean runs and it is mastered; then try it against an animal friend.') +
-      '<div class="tabs" role="tablist"><button role="tab" data-side="white">' + icon('pawn') + ' As White</button><button role="tab" data-side="black">' + icon('pawn') + ' As Black</button></div>' +
+      '<button class="backlink" data-nav="training">' + icon('back') + ' ' + t('learn.sub.training') + '</button>' +
+      pageHead(t('learn.sub.training'), t('learn.labTitle'), t('learn.labSub')) +
+      '<div class="tabs" role="tablist"><button role="tab" data-side="white">' + icon('pawn') + ' ' + t('learn.asWhite') + '</button><button role="tab" data-side="black">' + icon('pawn') + ' ' + t('learn.asBlack') + '</button></div>' +
       '<div class="list" id="ol"></div></div></div>');
     wireLinks();
     const draw = () => {
@@ -1114,7 +1619,7 @@
       $('ol').innerHTML = OPENINGS.filter((o) => o.side === side).map((o) => {
         const r = P.openings[o.id];
         return '<button class="row-item" data-op="' + o.id + '"' + (locked(o) ? ' disabled' : '') + '><span class="pill">' + esc(o.eco) + '</span><span><b>' + esc(o.name) + '</b><br><small>' + esc(o.summary) + '</small></span>' +
-          (locked(o) ? '<span class="pill lock">' + icon('lock') + ' Premium</span>' : r && r.mastered ? '<span class="pill gold">' + icon('check') + ' Mastered</span>' : '<small>' + (r ? r.clean + '/3 clean' : (o.moves.length / 2 | 0) + ' moves') + '</small>') + '</button>';
+          (locked(o) ? '<span class="pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : r && r.mastered ? '<span class="pill gold">' + icon('check') + ' ' + t('learn.mastered') + '</span>' : '<small>' + (r ? t('learn.clean', { n: r.clean }) : t('learn.moves', { n: o.moves.length / 2 | 0 })) + '</small>') + '</button>';
       }).join('');
       document.querySelectorAll('[data-op]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('drill', b.dataset.op); }; });
     };
@@ -1126,7 +1631,48 @@
   // ---------------------------------------------------------------- collection
   const CAT_ORDER = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock', 'sound'];
   const CAT_ICON = { pieces: 'pawn', board: 'grid', room: 'home', avatar: 'profile', frame: 'frame', capture: 'sparkle', victory: 'trophy', trail: 'wave', clock: 'clock', sound: 'speaker' };
+  const rarity = (it) => (I18N.has('collection.rarity.' + it.rarity) ? t('collection.rarity.' + it.rarity) : it.rarity);
   const eraOfRoom = (r) => CAMPAIGN.eras.find((e) => e.room === r) || null;
+  // Acquire: things a grown-up can get in the store (Premium, and the Season Pass track). Everything
+  // else is earned, and the pop-over says how instead.
+  const canAcquire = (it) => it.unlock.type === 'premium' || (it.unlock.type === 'season' && it.unlock.track === 'pass');
+  const coinsNow = (it) => PG.coinOffer(state.progress, it).ok;   // a level reward in reach of the player's Choco Coins
+  function acquire(it, after) {
+    if (coinsNow(it)) buyWithCoins(it, after); else if (it.unlock.type === 'season') go('season'); else go('store');
+  }
+  // How to get an earned item, in a child's words, and where to go to do it.
+  function howToGet(it) {
+    const u = it.unlock, P = state.progress;
+    if (u.type === 'level') return { text: t('collection.get.level', { n: u.level, now: PG.levelFor(P.xp).level }), go: ['play'], label: t('collection.get.play') };
+    if (u.type === 'achievement') {
+      const a = PG.ACHIEVEMENTS.find((x) => x.id === u.achievement);
+      return { text: a ? t('collection.get.badge', { name: achName(a), desc: achDesc(a) }) : unlockText(it) + '.', go: ['play'], label: t('collection.get.play') };
+    }
+    if (u.type === 'journey') {
+      const e = eraById(u.era);
+      return { text: e ? t('collection.get.journey', { coach: eraCoach(e).name, era: eraName(e) }) : unlockText(it) + '.', go: e ? ['era', e.id] : ['journey'], label: t('collection.get.goThere') };
+    }
+    if (u.type === 'season') return { text: t(u.track === 'pass' ? 'collection.get.seasonPass' : 'collection.get.season', { n: u.tier }), go: ['season'], label: t('collection.get.seeSeason') };
+    if (u.type === 'premium') return { text: t('collection.get.premium'), go: ['store'], label: t('collection.get.askGrownUp') };
+    return { text: t('collection.get.yours'), go: null };
+  }
+  function equipItem(it) {
+    if (!PG.equip(state.progress, it)) return false;
+    save(); applyLook(); AU.play('select'); toast(t('collection.equippedToast', { name: esc(it.name) })); renderNav();
+    return true;
+  }
+  // The round drawn buttons on a card: View always, then Equip or Acquire when they apply.
+  function cardActs(it, un, on) {
+    const b = (act, ic, label, tip) => '<button class="round sm" data-act="' + act + '" aria-label="' + esc(label) + '" title="' + esc(tip) + '">' + icon(ic) + '</button>';
+    return b('view', 'eye', t('collection.view', { name: it.name }), tip('collection.view', { coach: COACH.name })) +
+      (un && !on ? b('equip', 'check', t('collection.equipName', { name: it.name }), tip('collection.equip')) : '') +
+      (!un && coinsNow(it) ? b('get', 'bag', t('collection.acquireName', { name: it.name }), tip('collection.coins', { n: I18N.num(PG.coinPrice(it)), coins: t('common.coins') })) :
+        !un && canAcquire(it) ? b('get', 'bag', t('collection.acquireName', { name: it.name }), tip(it.unlock.type === 'season' ? 'collection.pass' : 'collection.store')) : '');
+  }
+  // What Rooky says about each item (packages/content/pitches.json): the clip and its words.
+  const PITCH = typeof CHACKLATE_PITCH !== 'undefined' ? CHACKLATE_PITCH : {};
+  let pitchTalk = null;   // the open pop-over hears when Rooky stops, or someone else starts talking
+  AU.onTalk((on, what) => { if (pitchTalk) pitchTalk(on, what); });
   function soundArt(pack) {
     const h = { wood: [5, 9, 6, 11, 7, 4, 8, 10, 6, 4], soft: [3, 5, 4, 6, 5, 3, 4, 5, 3, 2], marble: [8, 12, 7, 13, 9, 6, 11, 12, 8, 5], glass: [6, 10, 13, 8, 12, 9, 13, 7, 10, 6] }[pack] || [5, 8, 6, 9, 7, 5, 8, 9, 6, 4];
     const bars = h.map((v, i) => '<rect x="' + (38 + i * 13) + '" y="' + (80 - v * 3.6) + '" width="7" height="' + (v * 7.2) + '" rx="3.5" fill="url(#g)"/>').join('');
@@ -1145,15 +1691,20 @@
     if (it.category === 'room' && view.rooms()[d.room]) return { kind: 'room', room: d.room };
     return null;
   }
-  function itemArt(it, big) {
+  // The grid's pictures use the pieces' table detail: at card size it looks the same, and the
+  // full sculpt took several times as long to build and draw. big: the museum card's picture;
+  // cardPic: show the grid card's picture there (already drawn, while the live model loads).
+  function itemArt(it, big, cardPic) {
     const d = it.data || {};
-    const W = big ? 520 : 260, H = big ? 360 : 180;
-    if (it.category === 'pieces') return snap(itemSpec(it), W, H, medal('piece:k', '#8a5a2a', '#2a1408'), 'fit');
-    if (it.category === 'board') return snap(itemSpec(it), W, H, medal('emblem:crown', '#5c3a1e', '#1e120a'), 'cover');
+    const W = big && !cardPic ? 520 : 260, H = big && !cardPic ? 360 : 180, shown = big && cardPic ? [520, 360] : null;
+    const spec = itemSpec(it);
+    if (spec && !(big && !cardPic)) spec.detail = 'play';
+    if (it.category === 'pieces') return snap(spec, W, H, medal('piece:k', '#8a5a2a', '#2a1408'), 'fit', shown);
+    if (it.category === 'board') return snap(spec, W, H, medal('emblem:crown', '#5c3a1e', '#1e120a'), 'cover', shown);
     if (it.category === 'room') {
       const e = eraOfRoom(d.room);
       const fallback = e ? ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) : BLANK;
-      return itemSpec(it) ? snap(itemSpec(it), W, H, fallback, 'cover') : '<img class="cover" src="' + fallback + '" alt="">';
+      return spec ? snap(spec, W, H, fallback, 'cover', shown) : '<img class="cover" src="' + fallback + '" alt="">';
     }
     if (it.category === 'avatar') return '<img class="port" src="' + medal(d.art, d.from, d.to) + '" alt="">';
     if (it.category === 'frame') return avatarHtml(big ? 'xl' : 'lg', PG.equipped(state.progress, 'avatar').id, it.id);
@@ -1168,10 +1719,10 @@
     let active = CAT_ORDER.includes(cat) ? cat : 'pieces', q = '', filter = 'all';
     const owned = () => CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length;
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Collection', 'Your collection', 'Chess sets from every age, boards, rooms and more. Open anything to read its story, or try it on the table.', '<span id="c-meter">' + meter(owned(), CATALOG.items.length, 'collected') + '</span>') +
-      '<div class="cats glass" role="tablist">' + CAT_ORDER.map((c) => '<button role="tab" data-cat="' + c + '">' + icon(CAT_ICON[c]) + '<span>' + esc(CATALOG.categories.find((x) => x.id === c).name) + '</span></button>').join('') + '</div>' +
-      '<div class="col-tools"><label class="search">' + icon('search') + '<input id="c-q" type="search" placeholder="Search the collection" autocomplete="off" aria-label="Search the collection"></label>' +
-      '<div class="seg" id="c-f">' + [['all', 'All items'], ['owned', 'Owned'], ['locked', 'To unlock']].map(([v, t], k) => '<label><input type="radio" name="cf" value="' + v + '"' + (k ? '' : ' checked') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
+      pageHead(t('common.nav.collection'), t('collection.title'), t('collection.sub'), '<span id="c-meter">' + meter(owned(), CATALOG.items.length, t('collection.collected')) + '</span>') +
+      '<div class="cats glass" role="tablist">' + CAT_ORDER.map((c) => '<button role="tab" data-cat="' + c + '">' + icon(CAT_ICON[c]) + '<span>' + t('collection.cat.' + c) + '</span></button>').join('') + '</div>' +
+      '<div class="col-tools"><label class="search">' + icon('search') + '<input id="c-q" type="search" placeholder="' + t('collection.search') + '" autocomplete="off" aria-label="' + t('collection.search') + '"></label>' +
+      '<div class="seg" id="c-f">' + ['all', 'owned', 'locked'].map((v, k) => '<label><input type="radio" name="cf" value="' + v + '"' + (k ? '' : ' checked') + '><span>' + t('collection.filter.' + v) + '</span></label>').join('') + '</div></div>' +
       '<div class="items" id="items"></div>' +
       '</div></div>');
     wireLinks();
@@ -1179,25 +1730,26 @@
       document.querySelectorAll('[data-cat]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.cat === active)));
       const words = q.toLowerCase().split(/\s+/).filter(Boolean);
       const items = CATALOG.items.filter((i) => (words.length ? true : i.category === active) &&
-        words.every((w) => (i.name + ' ' + i.desc + ' ' + i.category).toLowerCase().includes(w)) &&
+        words.every((w) => (i.name + ' ' + i.desc + ' ' + i.category + ' ' + catName(i.category)).toLowerCase().includes(w)) &&
         (filter === 'all' || (filter === 'owned') === PG.isUnlocked(P, i)));
       $('items').innerHTML = items.length ? items.map((it) => {
         const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
-        return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
-          '<span class="rar ' + it.rarity + '">' + it.rarity + '</span>' +
+        return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="' + t('collection.view', { name: esc(it.name) }) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
+          '<span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' +
           '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(it.desc) + '</span><span class="st">' +
-          (un ? '<span>' + (on ? icon('check') + ' Equipped' : 'Owned') + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
-          '<button class="round sm eye" data-peek="' + it.id + '" aria-label="Try ' + esc(it.name) + ' on the table" title="Try it on the table">' + icon('eye') + '</button></span></div></div>';
-      }).join('') : '<p class="muted">Nothing here yet. Try another search.</p>';
+          (un ? '<span>' + (on ? icon('check') + ' ' + t('collection.equipped') : t('collection.filter.owned')) + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(unlockText(it)) + '</span>') +
+          '<span class="acts">' + cardActs(it, un, on) + '</span></span></div></div>';
+      }).join('') : '<p class="muted">' + t('collection.none') + '</p>';
       hydrate($('items'), true);
+      // JongClub's cards: round drawn buttons (View, Acquire, Equip), and the whole card opens View.
       $('items').querySelectorAll('.item').forEach((el) => {
         el.onclick = (e) => {
-          const it = PG.item(el.dataset.item);
-          AU.play('tap');
-          if (e.target.closest('[data-peek]')) peek(it); else itemModal(it, render, items);
+          const it = PG.item(el.dataset.item), act = e.target.closest('[data-act]');
+          AU.play('tap'); AU.unlock();
+          if (act && act.dataset.act === 'equip') { equipItem(it); render(); } else if (act && act.dataset.act === 'get') acquire(it, render); else itemModal(it, render, items);
         };
       });
-      $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, 'collected');
+      $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, t('collection.collected'));
     }
     document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { active = b.dataset.cat; q = ''; $('c-q').value = ''; AU.play('tap'); render(); }; });
     $('c-q').oninput = (e) => { q = e.target.value; render(); };
@@ -1212,47 +1764,101 @@
     list = list && list.includes(it) ? list : [it];
     let at = list.indexOf(it), live = null;
     const many = list.length > 1;
-    const m = modal('<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
-      (many ? '<button class="round mu-nav prev" aria-label="Previous item">' + icon('prev') + '</button><button class="round mu-nav next" aria-label="Next item">' + icon('next') + '</button><span class="mu-count" id="mu-count"></span>' : '') +
-      '</div><div id="mu-info"></div></div>', { cls: 'wide', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); } });
-    const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info');
+    // Rooky's round face sits by the close button, like JongClub's narrator: he says his piece about
+    // each item as it opens (if the voice is on), his face pulses while he talks, and a tap on it
+    // says it again or stops him. The speaker beside it is the game's one voice switch.
+    const m = modal('<div class="mu-rooky"><button class="narrator" id="mu-say"><img src="' + face(COACH) + '" alt=""></button>' +
+      '<button class="gd-btn" id="mu-voice" data-voice="' + esc(COACH.name) + '"></button></div>' +
+      '<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
+      (many ? '<button class="round mu-nav prev" aria-label="' + t('collection.prevItem') + '">' + icon('prev') + '</button><button class="round mu-nav next" aria-label="' + t('collection.nextItem') + '">' + icon('next') + '</button><span class="mu-count" id="mu-count"></span>' : '') +
+      '</div><div id="mu-info"></div></div>', { cls: 'wide museum-card', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); quiet(); pitchTalk = null; } });
+    const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info'), sayBtn = m.querySelector('#mu-say');
+    let talk = 0, talkingNow = false;
+    function talkState(on) {
+      talkingNow = on;
+      m.querySelector('.mu-rooky').classList.toggle('speaking', on);
+      sayBtn.setAttribute('aria-label', t(on ? 'collection.rooky.stopLabel' : 'collection.rooky.again', { coach: COACH.name }));
+      sayBtn.title = tip(on ? 'collection.rooky.stop' : 'collection.rooky', { coach: COACH.name });
+    }
+    pitchTalk = (on, what) => { if ((!on || what !== 'pitch') && talkingNow) talkState(false); };
+    function pitch(it) {
+      const p = PITCH[it.id];
+      const my = ++talk;
+      if (!p || !state.settings.narration || !AU.canTalk()) { talkState(false); return; }
+      talkState(true);
+      AU.pitch(p.src, p.text).then(() => { if (my === talk) talkState(false); });
+    }
+    function quiet() { talk++; if (talkingNow) { AU.hush(); talkState(false); } }
+    sayBtn.onclick = () => {
+      AU.unlock();
+      if (talkingNow) { quiet(); return; }
+      if (!state.settings.narration) setVoice(true, true);
+      pitch(list[at]);
+    };
+    m.querySelector('#mu-voice').onclick = () => { AU.unlock(); talk++; setVoice(!state.settings.narration, true); if (state.settings.narration) pitch(list[at]); else talkState(false); };
+    voiceIcon(m.querySelector('#mu-voice'), COACH.name);
+    talkState(false);
     function fill(it, dir) {
       const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
+      const offer = un ? null : PG.coinOffer(P, it);
       const d = it.data || {};
       const set = it.category === 'pieces' ? setInfo(d.set) : null;
       info.innerHTML = '<div class="eyebrow">' + esc(catName(it.category)) + '</div><h2>' + esc(it.name) + '</h2>' +
-        '<div class="facts"><span class="rar ' + it.rarity + '">' + it.rarity + '</span>' + (set ? '<span class="pill gold">' + esc(set.era) + '</span><span class="pill">' + esc(set.year) + '</span>' : '') + '</div>' +
+        '<div class="facts"><span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' + (set ? '<span class="pill gold">' + esc(set.era) + '</span><span class="pill">' + esc(set.year) + '</span>' : '') + '</div>' +
         '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
-        (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
-          '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
-        '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
-        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
-        '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
+        (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((pt) => '<button data-pt="' + pt + '" aria-pressed="false" title="' + PIECE_NAME[pt] + '">' + snap({ kind: 'piece', set: d.set, type: pt, side: 'w' }, 84, 104, ART.pieceUri(pt)) + '</button>').join('') + '</div>' +
+          '<p class="plore" id="mu-lore">' + t('collection.tapPiece') + '</p>' : '') +
+        (PITCH[it.id] ? '<p class="mu-quote"><b>' + esc(COACH.name) + ':</b> “' + esc(PITCH[it.id].text) + '”</p>' : '') +
+        '<p class="fine">' + (un ? (on ? icon('check') + ' ' + t('collection.equippedDot') : t('collection.yours')) : icon('lock') + ' ' + t('collection.toUnlock', { how: esc(unlockText(it)) })) + '</p>' +
+        (offer && offer.price !== null ? '<p class="fine">' + icon('coin') + ' ' + (offer.reason === 'too-far' ? t('collection.coin.far', { price: coinCount(offer.price), n: Math.max(1, it.unlock.level - PG.COIN_REACH) }) : offer.ok ? t('collection.coin.now', { price: coinCount(offer.price) }) : t('collection.coin.short', { price: coinCount(offer.price), n: I18N.num(offer.short) })) + '</p>' : '') +
+        '<div class="mu-how" id="mu-how" hidden></div>' +
+        '<div class="row" style="justify-content:flex-start">' +
+        (un ? (on ? '' : '<button class="btn primary" id="mu-eq">' + icon('check') + ' ' + t('collection.equip') + '</button>') :
+          offer && offer.ok ? '<button class="btn gold" id="mu-coin">' + icon('coin') + ' ' + t('collection.acquireFor', { n: I18N.num(offer.price) }) + '</button>' :
+          canAcquire(it) ? '<button class="btn primary" id="mu-get">' + icon('bag') + ' ' + t('collection.acquire') + '</button>' : '<button class="btn primary" id="mu-howbtn" aria-expanded="false">' + icon('hint') + ' ' + t('collection.howToGet') + '</button>') +
+        '<button class="btn outline" id="mu-try">' + icon('eye') + ' ' + t('collection.try') + '</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
-      if (many) m.querySelector('#mu-count').textContent = (at + 1) + ' of ' + list.length;
+      if (many) m.querySelector('#mu-count').textContent = t('collection.count', { n: at + 1, of: list.length });
       // The picture is only a placeholder: the item itself turns on the stage in real 3D.
       if (live) { live.stop(); live = null; }
       stageEl.setAttribute('style', tintStyle(it).replace(/^ style="|"$/g, ''));
-      stageEl.innerHTML = itemArt(it, true);
+      const spec = itemSpec(it), staged = !!(spec && view.stage);
+      stageEl.innerHTML = itemArt(it, true, staged);
       hydrate(m);
-      const spec = itemSpec(it);
       live = spec && view.stage ? view.stage(stageEl, spec, 520 / 360) : null;
-      if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' Drag to turn · pinch to zoom</span>');
+      if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' ' + t('collection.drag') + '</span>');
       info.querySelectorAll('[data-pt]').forEach((b) => {
         b.onclick = () => {
-          const t = b.dataset.pt;
+          const pt = b.dataset.pt;
           AU.play('select');
           info.querySelectorAll('[data-pt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-          info.querySelector('#mu-lore').innerHTML = '<b>The ' + PIECE_NAME[t] + '.</b> ' + esc(set.lore[t]);
-          const one = { kind: 'piece', set: d.set, type: t, side: t === 'q' || t === 'b' ? 'b' : 'w' };
+          info.querySelector('#mu-lore').innerHTML = '<b>' + t('collection.thePiece', { piece: PIECE_NAME[pt] }) + '</b> ' + esc(set.lore[pt]);
+          const one = { kind: 'piece', set: d.set, type: pt, side: pt === 'q' || pt === 'b' ? 'b' : 'w' };
           if (live) { live.show(one, 360 / 400); return; }
-          stageEl.innerHTML = snap(one, 360, 400, ART.pieceUri(t), 'fit');
+          stageEl.innerHTML = snap(one, 360, 400, ART.pieceUri(pt), 'fit');
           hydrate(stageEl);
         };
       });
       const eq = info.querySelector('#mu-eq');
-      if (eq) eq.onclick = () => { PG.equip(P, it); save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); m.close(); renderNav(); if (after) after(); };
-      info.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
+      if (eq) eq.onclick = () => { equipItem(it); m.close(); if (after) after(); };
+      const get = info.querySelector('#mu-get');
+      if (get) get.onclick = () => { m.close(); acquire(it); };
+      const how = info.querySelector('#mu-howbtn');
+      if (how) {
+        how.onclick = () => {
+          const h = howToGet(it), box = info.querySelector('#mu-how');
+          AU.play('tap');
+          if (!box.hidden) { box.hidden = true; how.setAttribute('aria-expanded', 'false'); return; }
+          box.innerHTML = '<p>' + esc(h.text) + '</p>' + (h.go ? '<button class="btn small" id="mu-go">' + esc(h.label) + ' ' + icon('arrow') + '</button>' : '');
+          box.hidden = false; how.setAttribute('aria-expanded', 'true');
+          const g = box.querySelector('#mu-go');
+          if (g) g.onclick = () => { m.close(); go(...h.go); };
+        };
+      }
+      info.querySelector('#mu-try').onclick = () => { m.close(); peek(it, list); };
+      const cb = info.querySelector('#mu-coin');
+      if (cb) cb.onclick = () => buyWithCoins(it, () => { fill(it, 0); if (after) after(); });
+      pitch(it);
     }
     function step(dir) {
       if (!many) return;
@@ -1293,43 +1899,209 @@
     const got = Object.keys(P.achievements).length;
     const stat = (ic, label, v) => '<div class="stat"><span class="ic">' + icon(ic) + '</span><span><small>' + label + '</small><b>' + v + '</b></span></div>';
     mount('<div class="page"><div class="page-in">' +
-      '<section class="pbanner glass"><button class="pav" id="pf-av" aria-label="Change your picture">' + avatarHtml('xl') + '<span class="round sm">' + icon('edit') + '</span></button>' +
-      '<div class="who"><div class="eyebrow">' + esc(lv.title) + ' · Level ' + lv.level + '</div><h1>' + esc(state.settings.name) + ' <button class="round sm" id="pf-name" aria-label="Change your name">' + icon('edit') + '</button></h1>' +
-      '<div class="xp"><div class="bar"><i style="width:' + Math.round(lv.into / lv.need * 100) + '%"></i></div><small>' + lv.into + ' / ' + lv.need + ' XP to level ' + (lv.level + 1) + '</small></div>' +
-      '<div class="chips">' + (P.streak.count > 1 ? '<span class="pill gold">' + icon('flame') + ' ' + P.streak.count + '-day streak</span>' : '') +
-      '<span class="pill">' + icon('journey') + ' ' + eras + ' of ' + CAMPAIGN.eras.length + ' eras</span>' + (P.premium ? '<span class="pill gold">' + icon('crown') + ' Premium</span>' : '') + '</div></div></section>' +
-      '<section class="stats glass"><div class="stat big"><span class="ic">' + icon('star') + '</span><small>Puzzle rating</small><b>' + st.puzzles.rating + '</b></div>' +
-      stat('swords', 'Games', st.games) + stat('trophy', 'Wins', st.wins) + stat('percent', 'Win rate', rate) + stat('flame', 'Day streak', P.streak.count) +
-      stat('learn', 'Lessons', Object.keys(P.lessons).length) + stat('puzzle', 'Puzzles solved', st.puzzles.solved) + stat('chart', 'Accuracy', acc) + stat('collection', 'Collected', CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length) +
+      '<section class="pbanner glass"><button class="pav" id="pf-av" aria-label="' + t('profile.changePic') + '">' + avatarHtml('xl') + '<span class="round sm">' + icon('edit') + '</span></button>' +
+      '<div class="who"><div class="eyebrow">' + esc(levelTitle(lv)) + ' · ' + t('common.level', { n: lv.level }) + '</div><h1>' + esc(myName()) + ' <button class="round sm" id="pf-name" aria-label="' + t('profile.changeName') + '">' + icon('edit') + '</button></h1>' +
+      '<div class="xp"><div class="bar"><i style="width:' + Math.round(lv.into / lv.need * 100) + '%"></i></div><small>' + t('profile.xpTo', { n: lv.into, of: lv.need, level: lv.level + 1 }) + '</small></div>' +
+      '<div class="chips">' + (P.streak.count > 1 ? '<span class="pill gold">' + icon('flame') + ' ' + t('profile.streak', { n: P.streak.count }) + '</span>' : '') +
+      '<span class="pill">' + icon('journey') + ' ' + t('profile.eras', { n: eras, of: CAMPAIGN.eras.length }) + '</span>' + (P.premium ? '<span class="pill gold">' + icon('crown') + ' ' + t('common.premium') + '</span>' : '') + '</div></div></section>' +
+      '<section class="stats glass"><div class="stat big"><span class="ic">' + icon('star') + '</span><small>' + t('profile.stat.rating') + '</small><b>' + st.puzzles.rating + '</b></div>' +
+      stat('swords', t('profile.stat.games'), st.games) + stat('trophy', t('profile.stat.wins'), st.wins) + stat('percent', t('profile.stat.rate'), rate) + stat('flame', t('profile.stat.streak'), P.streak.count) +
+      stat('learn', t('profile.stat.lessons'), Object.keys(P.lessons).length) + stat('puzzle', t('profile.stat.puzzles'), st.puzzles.solved) + stat('chart', t('profile.stat.accuracy'), acc) + stat('collection', t('profile.stat.collected'), CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length) +
       '</section>' +
-      sec('medal', 'Achievements', got + ' of ' + PG.ACHIEVEMENTS.length) +
-      '<div class="ach">' + PG.ACHIEVEMENTS.map((a) => '<div class="badge' + (P.achievements[a.id] ? ' got' : '') + '"><i>' + (P.achievements[a.id] ? '★' : '☆') + '</i><div><b>' + esc(a.name) + '</b><small>' + esc(a.desc) + '</small></div></div>').join('') + '</div>' +
-      '<h2 class="sec" id="games">' + icon('refresh') + '<span>Recent games</span></h2>' +
-      '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">No games yet. Your games appear here for Rooky to review.</p>') + '</div>' +
-      '<h2 class="sec" id="acct">' + icon('globe') + '<span>Online account</span></h2><div class="panel glass" id="pf-account"></div>' +
-      sec('crown', 'Premium') + '<div class="panel glass">' + premiumLine() +
-      '<label class="toggle">Preview Premium on this device, for testing without a server. It does not change your account. <input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></label></div>' +
+      sec('medal', t('profile.achievements'), t('collection.count', { n: got, of: PG.ACHIEVEMENTS.length })) +
+      '<div class="ach">' + PG.ACHIEVEMENTS.map((a) => '<div class="badge' + (P.achievements[a.id] ? ' got' : '') + '"><i>' + (P.achievements[a.id] ? '★' : '☆') + '</i><div><b>' + esc(achName(a)) + '</b><small>' + esc(achDesc(a)) + '</small></div></div>').join('') + '</div>' +
+      '<h2 class="sec" id="games">' + icon('refresh') + '<span>' + t('learn.recent') + '</span></h2>' +
+      '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">' + t('profile.noGames') + '</p>') + '</div>' +
+      '<h2 class="sec" id="acct">' + icon('globe') + '<span>' + t('profile.account') + '</span></h2><div class="panel glass" id="pf-account"></div>' +
+      sec('crown', t('common.premium')) + '<div class="panel glass">' + premiumLine() +
+      '<label class="toggle">' + t('profile.preview') + ' <input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></label></div>' +
       '</div></div>');
     wireLinks();
     wireGames(P.history);
     $('pf-av').onclick = () => { AU.play('tap'); go('collection', 'avatar'); };
     $('pf-name').onclick = () => {
-      const m = modal('<div class="eyebrow">Profile</div><h2>Your name</h2><form id="nm"><div class="field"><label for="nm-v">Display name</label><input class="text-in" id="nm-v" maxlength="20" value="' + esc(state.settings.name) + '" autofocus></div>' +
-        '<p class="fine">Use a nickname, not your real full name.</p><div class="row"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save</button></div></form>');
-      m.querySelector('#nm').onsubmit = (e) => { e.preventDefault(); const v = m.querySelector('#nm-v').value.trim().slice(0, 20); if (v) { state.settings.name = v; save(); m.close(); toast('Name saved.'); go('profile'); } };
+      const m = modal('<div class="eyebrow">' + t('common.nav.profile') + '</div><h2>' + t('profile.nameTitle') + '</h2><form id="nm"><div class="field"><label for="nm-v">' + t('profile.nameLabel') + '</label><input class="text-in" id="nm-v" maxlength="20" value="' + esc(myName()) + '" autofocus></div>' +
+        '<p class="fine">' + t('profile.nameFine') + '</p><div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('common.save') + '</button></div></form>');
+      m.querySelector('#nm').onsubmit = (e) => { e.preventDefault(); const v = m.querySelector('#nm-v').value.trim().slice(0, 20); if (v) { state.settings.name = v; save(); m.close(); toast(t('profile.nameSaved')); go('profile'); } };
     };
-    $('pf-prem').onchange = (e) => { state.settings.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); save(); toast(e.target.checked ? 'Premium preview on.' : 'Premium preview off.'); go('profile'); };
+    $('pf-prem').onchange = (e) => { state.settings.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); save(); toast(t(e.target.checked ? 'profile.previewOn' : 'profile.previewOff')); go('profile'); };
     $('pf-store').onclick = () => go('store');
-    if (window.ChacklateNet) ChacklateNet.renderAccount($('pf-account')); else $('pf-account').innerHTML = '<p class="muted">Online play is not available in this build.</p>';
+    if (window.ChacklateNet) ChacklateNet.renderAccount($('pf-account')); else $('pf-account').innerHTML = '<p class="muted">' + t('profile.noOnline') + '</p>';
     if (section === 'games') setTimeout(() => $('games').scrollIntoView({ behavior: 'smooth' }), 120);
     if (section === 'account') setTimeout(() => $('acct').scrollIntoView({ behavior: 'smooth' }), 120);
     return {};
   };
   function premiumLine() {
     const e = (state.account && state.account.ent) || {};
-    const what = e.premium ? (e.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(e.premiumUntil).toLocaleDateString()) : (e.passes || []).length ? 'Free plan with a Season Pass' : 'Free plan';
-    return '<div class="acct-row"><span class="sg gold">' + icon('crown') + '</span><span style="flex:1"><b>' + esc(what) + '</b><br><small class="muted">Purchases belong to your online account.</small></span><button class="btn small gold" id="pf-store">Store</button></div>';
+    const what = e.premium ? (e.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(e.premiumUntil)) })) : t((e.passes || []).length ? 'store.freePass' : 'store.free');
+    return '<div class="acct-row"><span class="sg gold">' + icon('crown') + '</span><span style="flex:1"><b>' + esc(what) + '</b><br><small class="muted">' + t('store.belong') + '</small></span><button class="btn small gold" id="pf-store">' + t('store.store') + '</button></div>';
   }
+
+
+  // ---------------------------------------------------------------- the Club
+  // Rankings, leagues, friends and who is here now, like Jong Club's Club (src/club.js has the data).
+  const LEAGUE_HUE = { Beginner: ['#b9bec9', '#5d6270'], Bronze: ['#e6a26a', '#7a3f16'], Silver: ['#eef1f6', '#7d8494'], Gold: ['#ffe08a', '#a8761c'],
+    Platinum: ['#c9f2ec', '#3f8c86'], Diamond: ['#cfe2ff', '#3a64b8'], Master: ['#ffb3c8', '#8a1f45'] };
+  // A small enamel medal for a league: a ringed disc in the league's metal with a star.
+  function leagueBadge(name, size) {
+    const [a, b] = LEAGUE_HUE[name] || LEAGUE_HUE.Beginner, id = 'lg' + name;
+    return '<svg class="lg-badge" width="' + size + '" height="' + size + '" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient></defs>' +
+      '<circle cx="20" cy="20" r="18" fill="url(#' + id + ')" stroke="rgba(255,240,200,.55)" stroke-width="1.5"/><circle cx="20" cy="20" r="13" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>' +
+      '<path d="M20 10.5l2.8 6.1 6.6.6-5 4.4 1.5 6.5L20 24.7l-5.9 3.4 1.5-6.5-5-4.4 6.6-.6z" fill="rgba(255,255,255,.85)" stroke="rgba(0,0,0,.25)" stroke-width=".8"/></svg>';
+  }
+  const rankMedal = (n) => n <= 3 ? '<span class="cl-rk medal m' + n + '" aria-label="' + n + '">' + n + '</span>' : '<span class="cl-rk">' + n + '</span>';
+  const initial = (name) => '<span class="cl-av init" aria-hidden="true">' + esc(String(name || '?').trim().charAt(0).toUpperCase() || '?') + '</span>';
+  function clubAvatar(r) {
+    if (r.me) return avatarHtml('sm');
+    if (r.ai && r.member) return '<img class="cl-av" src="' + medal('piece:' + r.member.piece, r.member.from, r.member.to) + '" alt="">';
+    return initial(r.name);
+  }
+  const leagueName = (n) => (I18N.has('club.lg.' + n) ? t('club.lg.' + n) : n);
+  const poolName = (p) => t('club.pool.' + p);
+  const placeText = (country, city) => (country ? ChacklateClub.flag(country) + ' ' : '') + esc(city || (country ? ChacklateClub.countryName(country) : ''));
+  const clubView = { pool: 'blitz', scope: 'global' };
+  SCREENS.club = function () {
+    idleBoard();
+    const C = ChacklateClub;
+    C.autoLocate();
+    const SCOPES = [['global', 'globe'], ['country', 'pin'], ['city', 'city'], ['following', 'users']];
+    mount('<div class="page"><div class="page-in club">' +
+      pageHead(t('club.title'), t('club.head'), t('club.sub'), '<button class="pill gold" id="cl-where">' + icon('pin') + ' <span id="cl-where-t"></span></button>') +
+      '<section class="cl-now glass"><div class="cl-head"><h3>' + t('club.now') + '</h3><p id="cl-now-note" class="muted"></p></div><div class="cl-people" id="cl-people"></div></section>' +
+      '<div class="cl-split">' +
+      '<section class="cl-panel glass cl-rankings"><div class="cl-head"><h3>' + t('club.rankings') + '</h3></div>' +
+      '<div class="seg cl-pools" role="radiogroup" aria-label="' + t('club.poolLabel') + '">' + C.POOLS.map((p) => '<label><input type="radio" name="clp" value="' + p + '"' + (p === clubView.pool ? ' checked' : '') + '><span>' + poolName(p) + '</span></label>').join('') + '</div>' +
+      '<div class="cl-filters" role="radiogroup" aria-label="' + t('club.who') + '" id="cl-filters"></div>' +
+      '<div class="cl-board" role="table" aria-label="' + t('club.rankings') + '" id="cl-board"></div><p class="cl-note" id="cl-note"></p></section>' +
+      '<div class="cl-side">' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>' + t('club.leagues') + '</h3><small class="muted" id="cl-lg-pool"></small></div><ol class="cl-tiers" id="cl-tiers"></ol><div id="cl-next"></div></section>' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>' + t('club.friends') + '</h3><span class="pill" id="cl-fr-n" hidden></span></div><div id="cl-friends"><p class="muted">' + t('common.loading') + '</p></div></section>' +
+      '<section class="cl-panel glass" id="cl-loc-panel"><div class="cl-head"><h3>' + t('club.place') + '</h3></div><div id="cl-loc"></div></section>' +
+      '</div></div></div></div>');
+    wireLinks();
+    let alive = true, seq = 0;
+
+    function renderWhere() {
+      const p = C.place();
+      $('cl-where-t').innerHTML = p.country ? placeText(p.country, p.city) : t('club.setPlace');
+    }
+    function renderFilters() {
+      const p = C.place();
+      const label = { country: p.country ? ChacklateClub.flag(p.country) + ' ' + esc(C.countryName(p.country)) : t('club.country'), city: esc(p.city || t('club.city')) };
+      $('cl-filters').innerHTML = SCOPES.map(([k, ic]) => '<button role="radio" aria-checked="' + (k === clubView.scope) + '" class="' + (k === clubView.scope ? 'on' : '') + '" data-scope="' + k + '">' +
+        icon(ic) + '<span>' + (label[k] || t('club.scope.' + k)) + '</span></button>').join('');
+      $('cl-filters').querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { AU.play('tap'); clubView.scope = b.dataset.scope; renderFilters(); loadBoard(); }; });
+    }
+    function renderPeople(now) {
+      const people = now.people;
+      const live = people.filter((x) => x.live).length;
+      $('cl-now-note').innerHTML = (live ? t(live === 1 ? 'club.livePeople1' : 'club.livePeople', { n: live }) + ' ' : t('club.aiOnly') + ' ') +
+        '<span class="pill">' + icon('sparkle') + ' ' + t('club.aiLabelled') + '</span>';
+      $('cl-people').innerHTML = people.map((x) => {
+        const f = x.ai && C.following(x.id);
+        return '<div class="cl-person' + (x.live ? ' live' : '') + '">' + clubAvatar(x) +
+          '<div class="cl-pmain"><div class="cl-pname">' + esc(x.name) + (x.live ? '<span class="cl-tag live">' + t(x.friend ? 'club.tag.friend' : 'club.tag.live') + '</span>' : '<span class="cl-tag ai">' + t('club.tag.ai') + '</span>') + '</div>' +
+          '<div class="cl-pmeta">' + placeText(x.country, x.ai ? x.city : null) + ' · ' + esc(leagueName(x.league)) + (x.playing ? ' · ' + t('club.atTable') : '') + '</div></div>' +
+          (x.ai ? '<button class="cl-follow' + (f ? ' on' : '') + '" aria-pressed="' + f + '" data-follow="' + esc(x.id) + '">' + icon(f ? 'check' : 'users') + '<span>' + t(f ? 'club.following' : 'club.follow') + '</span></button>' : '') + '</div>';
+      }).join('');
+      $('cl-people').querySelectorAll('[data-follow]').forEach((b) => {
+        b.onclick = () => {
+          AU.play('tap');
+          const on = C.toggleFollow(b.dataset.follow);
+          b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+          b.innerHTML = icon(on ? 'check' : 'users') + '<span>' + t(on ? 'club.following' : 'club.follow') + '</span>';
+          if (clubView.scope === 'following') loadBoard();
+        };
+      });
+    }
+    function renderLeagues(me) {
+      const rating = me ? me.rating : C.myRating(clubView.pool), mine = C.leagueOf(rating);
+      $('cl-lg-pool').textContent = poolName(clubView.pool);
+      $('cl-tiers').innerHTML = C.LEAGUES.map(([n, min]) => '<li class="' + (n === mine ? 'on' : '') + '">' + leagueBadge(n, 30) + '<b>' + leagueName(n) + '</b><small>' + (n === mine ? t('club.youRating', { n: rating }) : min ? min + '+' : '') + '</small></li>').join('');
+      const i = C.LEAGUES.findIndex(([n]) => n === mine);
+      if (i <= 0) { $('cl-next').innerHTML = '<p class="cl-next-done">' + icon('crown') + ' ' + t('club.top') + '</p>'; return; }
+      const [next, at] = C.LEAGUES[i - 1], from = C.LEAGUES[i][1];
+      const pct = Math.max(2, Math.min(100, Math.round((rating - from) / Math.max(1, at - from) * 100)));
+      $('cl-next').innerHTML = '<div class="cl-next">' + leagueBadge(next, 40) + '<div><p>' + t('club.next', { league: leagueName(next), n: at }) + '</p><div class="bar"><i style="width:' + pct + '%"></i></div><small class="muted">' + t('club.toGo', { n: at - rating }) + '</small></div></div>';
+    }
+    function boardNote(res) {
+      const n = res.needs;
+      if (n === 'country') return t('club.needCountry');
+      if (n === 'city') return t('club.needCity');
+      if (n === 'account') return t('club.needAccount');
+      const me = res.me;
+      let note = me && me.rank ? t('club.rank', { n: me.rank, of: res.total }) + ' ' : '';
+      if (clubView.scope === 'following' && res.rows.filter((r) => !r.me).length === 0) note = t('club.noFollow') + ' ';
+      note += t('club.ratingsMove');
+      if (!res.live) note += ' ' + t('club.notLive');
+      return note;
+    }
+    async function loadBoard() {
+      const my = ++seq;
+      $('cl-board').innerHTML = '<p class="muted cl-loading">' + t('common.loading') + '</p>';
+      let res;
+      try { res = await C.board(clubView.pool, clubView.scope); } catch (e) { if (alive && my === seq) { $('cl-board').innerHTML = ''; $('cl-note').textContent = e.message; } return; }
+      if (!alive || my !== seq) return;
+      renderPeople(res.now);
+      renderLeagues(res.me);
+      $('cl-board').innerHTML = res.needs ? '' :
+        '<div class="cl-row head" role="row">' + ['#', t('club.col.player'), t('club.col.place'), t('club.col.league'), t('club.col.rating')].map((h, i) => '<span role="columnheader"' + (['', '', ' class="cl-loc"', ' class="cl-lg"', ' class="num"'][i]) + '>' + h + '</span>').join('') + '</div>' +
+        res.rows.map((r, i) => (i && r.rank > res.rows[i - 1].rank + 1 ? '<div class="cl-gap" aria-hidden="true">⋯</div>' : '') + '<div class="cl-row' + (r.me ? ' me' : '') + '" role="row">' + rankMedal(r.rank) +
+          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm">' + esc(r.name) + (r.me && r.name !== 'You' ? ' <em>' + t('club.you') + '</em>' : '') + (r.ai ? '<span class="cl-tag ai">' + t('club.tag.aiShort') + '</span>' : r.friend ? '<span class="cl-tag live">' + t('club.tag.friend') + '</span>' : '') + '</span></span>' +
+          '<span class="cl-loc">' + placeText(r.country, r.city) + '</span>' +
+          '<span class="cl-lg">' + leagueBadge(r.league, 20) + '<span>' + esc(leagueName(r.league)) + '</span></span>' +
+          '<span class="num">' + r.rating + (r.provisional ? '?' : '') + '</span></div>').join('');
+      $('cl-note').innerHTML = boardNote(res);
+    }
+    async function loadFriends() {
+      const list = await C.friends();
+      if (!alive) return;
+      const n = $('cl-fr-n');
+      n.hidden = !list.length; n.textContent = t(list.length === 1 ? 'club.friend1' : 'club.friendN', { n: list.length });
+      $('cl-friends').innerHTML = list.length ? '<div class="cl-friend-list">' + list.map((f) => '<div class="cl-friend">' + initial(f.name) +
+        '<div class="cl-pmain"><div class="cl-pname">' + esc(f.name) + (f.online ? '<span class="cl-tag live">' + t('club.tag.online') + '</span>' : '') + '</div><div class="cl-pmeta">' + (f.country ? placeText(f.country) + ' · ' : '') +
+        t('club.together', { date: I18N.date(new Date(f.since), { day: 'numeric', month: 'short' }) }) + '</div></div>' +
+        '<button class="round sm" data-unfriend="' + esc(String(f.id)) + '" aria-label="' + t('club.remove', { name: esc(f.name) }) + '" title="' + t('club.removeShort') + '">' + icon('x') + '</button></div>').join('') + '</div>' +
+        '<button class="btn small" id="cl-play-friend">' + icon('users') + ' ' + t('club.playFriend') + '</button>'
+        : '<div class="cl-empty">' + icon('users') + '<p>' + t('club.emptyFriends') + '</p><button class="btn small primary" id="cl-play-friend">' + icon('users') + ' ' + t('club.playFriend') + '</button></div>';
+      $('cl-play-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+      $('cl-friends').querySelectorAll('[data-unfriend]').forEach((b) => {
+        b.onclick = () => {
+          const f = list.find((x) => String(x.id) === b.dataset.unfriend);
+          const m = modal('<h2>' + t('club.removeQ', { name: esc(f.name) }) + '</h2><p class="sub">' + t('club.removeSub') + '</p><div class="row"><button class="btn" data-close>' + t('club.keep') + '</button><button class="btn warn" id="uf-go">' + t('club.removeShort') + '</button></div>');
+          m.querySelector('#uf-go').onclick = async () => { m.close(); await C.removeFriend(f.id); loadFriends(); if (clubView.scope === 'following') loadBoard(); };
+        };
+      });
+    }
+    function renderLoc(busy, msg) {
+      const p = C.place();
+      const NOTE = { tz: t('club.note.tz'), manual: t('club.note.manual'), gps: t('club.note.gps') };
+      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="' + t('club.country') + '">' + (p.country ? '' : '<option value="">' + t('club.chooseCountry') + '</option>') +
+        C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + C.flag(cc) + ' ' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
+        (p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="' + t('club.city') + '">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
+        ('<button class="round" id="cl-gps" aria-label="' + t('club.useLoc') + '" title="' + t('club.useLoc') + '"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
+        '<p class="fine">' + (busy ? t('club.finding') : msg || (p.source ? NOTE[p.source] : t('club.chooseLocal'))) +
+        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">' + t('club.guessTz') + '</button>' : '') + '</p>';
+      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
+      const city = $('cl-city'); if (city) city.onchange = (e) => { C.setPlace({ country: p.country, city: e.target.value, source: 'manual' }); renderAll(); };
+      const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, t('club.tzFail')); };
+      const gp = $('cl-gps');
+      if (gp) gp.onclick = async () => {
+        renderLoc(true);
+        const g = await C.gps();
+        if (!alive) return;
+        if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, t('club.gpsFail', { place: esc(p.city || t('club.yourChoice')) }));
+      };
+    }
+    function renderAll() { renderWhere(); renderFilters(); renderLoc(); loadBoard(); }
+    $('cl-where').onclick = () => { $('cl-loc-panel').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    document.querySelectorAll('input[name=clp]').forEach((r) => { r.onchange = () => { AU.play('tap'); clubView.pool = r.value; loadBoard(); }; });
+    renderAll();
+    loadFriends();
+    // Who is here changes: refresh "In the club now" and the board every 20 seconds.
+    const timer = setInterval(() => { if (!document.querySelector('.modal')) loadBoard(); }, 20000);
+    return { leave() { alive = false; clearInterval(timer); } };
+  };
 
   // ---------------------------------------------------------------- season
   function seasonSwatch(it) {
@@ -1347,27 +2119,27 @@
     const P = state.progress;
     const id = P.season || (PG.SEASONS.seasons[PG.SEASONS.seasons.length - 1] || {}).id;
     const s = id && PG.seasonInfo(P, id);
-    if (!s) { mount('<div class="page"><div class="page-in">' + pageHead('Season', 'Seasons', 'The next season starts soon.') + '</div></div>'); return {}; }
+    if (!s) { mount('<div class="page"><div class="page-in">' + pageHead(t('season.eyebrow'), t('season.title'), t('season.soon')) + '</div></div>'); return {}; }
     const at = (tier, track) => s.items.find((i) => i.unlock.tier === tier && i.unlock.track === track);
     const cell = (it, track, reached) => {
       if (!it) return '<div class="tcell empty"></div>';
       const un = PG.isUnlocked(P, it);
       return '<button class="tcell' + (un ? ' got' : '') + (track === 'pass' ? ' pass' : '') + '" data-item="' + it.id + '"><span class="sw">' + seasonSwatch(it) + '</span><span><b>' + esc(it.name) + '</b><small>' +
-        esc(catName(it.category)) + ' · ' + (un ? 'Unlocked' : reached && track === 'pass' ? 'Needs the pass' : 'Tier ' + it.unlock.tier) + '</small></span></button>';
+        esc(catName(it.category)) + ' · ' + (un ? t('season.unlocked') : reached && track === 'pass' ? t('season.needsPass') : t('home.season.tier', { n: it.unlock.tier })) + '</small></span></button>';
     };
     const rows = [];
-    for (let t = 1; t <= s.season.tiers; t++) {
-      const f = at(t, 'free'), p = at(t, 'pass');
+    for (let n = 1; n <= s.season.tiers; n++) {
+      const f = at(n, 'free'), p = at(n, 'pass');
       if (!f && !p) continue;
-      const reached = s.tier >= t;
-      rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === t ? ' next' : '') + '"><div class="tn">' + t + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
+      const reached = s.tier >= n;
+      rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === n ? ' next' : '') + '"><div class="tn">' + n + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
     }
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Season ' + s.season.number + ' · until ' + seasonEnd(s.season), s.season.name, esc(s.season.blurb), '<div class="meter">' + icon('season') + '<b>Tier <em>' + s.tier + '</em> / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
-      (s.pass ? '<p class="pill gold">' + icon('crown') + (P.premium ? ' Season Pass included with Premium' : ' Season Pass owned') + '</p>'
-        : '<div class="pass-cta"><div><b>Season Pass</b><small>Unlock the gold track: ' + s.items.filter((i) => i.unlock.track === 'pass').length + ' extra rewards, including tiers you have already reached.</small></div><button class="btn gold" id="se-buy">Ask a grown-up</button></div>') +
-      '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">Free track</div><div class="eyebrow">Season Pass</div></div>' + rows.join('') + '</div>' +
-      '<p class="fine">Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends.</p></div></div>');
+      pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), seasonName(s.season), esc(tx('content.season.' + s.season.id + '.blurb', s.season.blurb)), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
+      (s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
+        : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.ask') + '</button></div>') +
+      '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">' + t('season.free') + '</div><div class="eyebrow">' + t('season.pass') + '</div></div>' + rows.join('') + '</div>' +
+      '<p class="fine">' + t('season.fine') + '</p></div></div>');
     hydrate(null, true);
     wireLinks();
     const b = $('se-buy'); if (b) b.onclick = () => go('store', 'pass.' + id);
@@ -1376,66 +2148,66 @@
   };
 
   // ---------------------------------------------------------------- store
-  const money = (p) => !p ? 'Price at launch' : new Intl.NumberFormat('en-IN', { style: 'currency', currency: p.currency, maximumFractionDigits: 0 }).format(p.amount / 100);
+  const money = (p) => !p ? t('store.priceLater') : new Intl.NumberFormat(I18N.lang === 'hi' ? 'hi-IN' : 'en-IN', { style: 'currency', currency: p.currency, maximumFractionDigits: 0 }).format(p.amount / 100);
   SCREENS.store = function (focus) {
     idleBoard();
     const P = state.progress;
     let remote = null;
     function render() {
       if (Date.now() - gatePassed >= 10 * 60e3) {
-        $('st-body').innerHTML = '<div class="gate"><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>The store is for grown-ups.</b><p class="muted">Ask a parent to open it. Everything you have earned stays yours.</p></div><button class="btn primary" id="st-gate">' + icon('lock') + ' Parent: open the store</button></div>';
-        $('st-gate').onclick = async () => { if (await parentGate('Answer to open the store.')) render(); };
+        $('st-body').innerHTML = '<div class="gate"><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>' + t('store.grownups') + '</b><p class="muted">' + t('store.askParent') + '</p></div><button class="btn primary" id="st-gate">' + icon('lock') + ' ' + t('store.parentOpen') + '</button></div>';
+        $('st-gate').onclick = async () => { if (await parentGate(t('store.gateWhy'))) render(); };
         return;
       }
       if (safety && safety.kind === 'minor' && safety.purchases === 'off') {
-        $('st-body').innerHTML = '<p class="sub">A parent has turned purchases off for this account. Everything you have earned stays yours.</p>';
+        $('st-body').innerHTML = '<p class="sub">' + t('store.off') + '</p>';
         return;
       }
       const ent = (state.account && state.account.ent) || {};
       const online = netOn();
       const products = STORE.products.map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
       const owned = (p) => p.id.startsWith('pass.') ? PG.hasPass(P, p.id.slice(5)) : p.id === 'premium.lifetime' ? ent.premiumUntil === 'lifetime' : false;
-      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(ent.premiumUntil).toLocaleDateString()) : state.settings.previewPremium ? 'Premium preview on this device' : 'Free';
+      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(ent.premiumUntil)) })) : t(state.settings.previewPremium ? 'store.previewStatus' : 'store.freeStatus');
       $('st-body').innerHTML =
-        '<div class="hero-card"><span class="sg big gold">' + icon('crown') + '</span><span style="flex:1"><span class="eyebrow">Your plan</span><b class="plan">' + esc(status) + '</b></span></div>' +
-        '<ul class="perks">' + STORE.perks.map((t) => '<li>' + icon('check') + esc(t) + '</li>').join('') + '</ul>' +
-        '<div class="products">' + products.map((p) => '<div class="product' + (p.id === focus ? ' focus' : '') + '">' + (p.badge ? '<span class="pbadge">' + esc(p.badge) + '</span>' : '') +
-          '<span class="eyebrow plain">' + esc(p.kind === 'subscription' ? 'Every ' + p.period : 'One payment') + '</span><b>' + esc(p.name) + '</b><div class="price">' + money(p.price) + '</div>' +
-          (owned(p) ? '<span class="pill gold">Owned</span>' : '<button class="btn ' + (p.id === 'premium.yearly' || p.id === focus ? 'gold' : '') + '" data-buy="' + p.id + '"' + (p.onSale ? '' : ' disabled') + '>' + (p.onSale ? 'Buy' : 'Opens at launch') + '</button>') + '</div>').join('') + '</div>' +
-        '<p class="fine">' + (!online ? 'Purchases go through your Chackmate account on the game server, which is not connected.' : remote && remote.mode === 'dev' ? 'Test store: purchases complete without payment. Nothing is charged.' : remote && remote.mode === 'off' ? 'The store opens at launch.' : 'Payments are handled by our payment provider. Subscriptions renew until cancelled.') +
-        ' Purchases are tied to your account and restore on any device.</p>' +
-        '<div class="row" style="justify-content:flex-start"><button class="btn small" id="st-restore">' + icon('refresh') + ' Restore purchases</button></div>';
+        '<div class="hero-card"><span class="sg big gold">' + icon('crown') + '</span><span style="flex:1"><span class="eyebrow">' + t('store.yourPlan') + '</span><b class="plan">' + esc(status) + '</b></span></div>' +
+        '<ul class="perks">' + STORE.perks.map((p, k) => '<li>' + icon('check') + esc(t('store.perk' + k)) + '</li>').join('') + '</ul>' +
+        '<div class="products">' + products.map((p) => '<div class="product' + (p.id === focus ? ' focus' : '') + '">' + (p.badge ? '<span class="pbadge">' + esc(tx('store.badge.' + p.id, p.badge)) + '</span>' : '') +
+          '<span class="eyebrow plain">' + esc(p.kind === 'subscription' ? t('store.every.' + p.period) : t('store.once')) + '</span><b>' + esc(tx('store.name.' + p.id, p.name)) + '</b><div class="price">' + money(p.price) + '</div>' +
+          (owned(p) ? '<span class="pill gold">' + t('collection.filter.owned') + '</span>' : '<button class="btn ' + (p.id === 'premium.yearly' || p.id === focus ? 'gold' : '') + '" data-buy="' + p.id + '"' + (p.onSale ? '' : ' disabled') + '>' + t(p.onSale ? 'store.buy' : 'store.atLaunch') + '</button>') + '</div>').join('') + '</div>' +
+        '<p class="fine">' + t(!online ? 'store.fine.offline' : remote && remote.mode === 'dev' ? 'store.fine.dev' : remote && remote.mode === 'off' ? 'store.fine.off' : 'store.fine.live') +
+        ' ' + t('store.fine.restore') + '</p>' +
+        '<div class="row" style="justify-content:flex-start"><button class="btn small" id="st-restore">' + icon('refresh') + ' ' + t('store.restore') + '</button></div>';
       document.querySelectorAll('[data-buy]').forEach((b) => { b.onclick = () => buy(b.dataset.buy); });
       $('st-restore').onclick = restore;
     }
     async function restore() {
-      if (!netOn()) return toast('Connect to the game server first.', 'bad');
-      try { const me = await ChacklateNet.api('/api/me'); setEntitlements(me.entitlements); save(); toast(me.entitlements.premium || me.entitlements.passes.length ? 'Purchases restored.' : 'No purchases on this account yet.'); go('store', focus); }
+      if (!netOn()) return toast(t('store.connect'), 'bad');
+      try { const me = await ChacklateNet.api('/api/me'); setEntitlements(me.entitlements); save(); toast(t(me.entitlements.premium || me.entitlements.passes.length ? 'store.restored' : 'store.nothing')); go('store', focus); }
       catch (e) { toast(esc(e.message), 'bad'); }
     }
     async function buy(id) {
       const acct = state.account || {};
       if (!acct.token || acct.guest) {
-        const m = modal('<h2>Create an account first</h2><p class="sub">Purchases belong to your account, so they are safe if you change phones or clear this browser.</p><div class="row"><button class="btn" data-close>Not now</button><button class="btn primary" id="ca-go">Create account</button></div>');
+        const m = modal('<h2>' + t('store.acct.title') + '</h2><p class="sub">' + t('store.acct.sub') + '</p><div class="row"><button class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary" id="ca-go">' + t('store.acct.create') + '</button></div>');
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
-      if (!await parentGate('A parent needs to approve purchases.')) return;
+      if (!await parentGate(t('store.gateBuy'))) return;
       let pin;
       if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
         const o = await ChacklateNet.api('/api/store/checkout', { product: id, pin });
         const p = STORE.products.find((x) => x.id === id);
         if (o.action.type === 'dev-confirm') {
-          const m = modal('<h2>Test purchase</h2><p class="sub">' + esc(p.name) + (p.period ? ' (' + p.period + ')' : '') + '. This server runs the test store, so no money moves.</p><div class="row"><button class="btn" data-close>Cancel</button><button class="btn gold" id="tp-ok">Confirm</button></div>');
+          const m = modal('<h2>' + t('store.test.title') + '</h2><p class="sub">' + esc(tx('store.name.' + p.id, p.name)) + (p.period ? ' (' + t('store.every.' + p.period) + ')' : '') + '. ' + t('store.test.sub') + '</p><div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn gold" id="tp-ok">' + t('common.confirm') + '</button></div>');
           m.querySelector('#tp-ok').onclick = async () => {
             m.close();
             try { const r = await ChacklateNet.api('/api/store/dev/complete', { order: o.order }); thanks(p, r.entitlements); } catch (e) { toast(esc(e.message), 'bad'); }
           };
         } else if (o.action.type === 'redirect' && o.action.url) {
           window.open(o.action.url, '_blank', 'noopener');
-          const m = modal('<h2>Finish paying in the new tab</h2><p class="sub">Come back here when you are done. Your purchase appears as soon as the payment provider confirms it.</p><div class="row"><button class="btn" data-close>Close</button><button class="btn primary" id="pp-check">I have paid</button></div>');
-          m.querySelector('#pp-check').onclick = async () => { const me = await ChacklateNet.api('/api/me'); if (me.entitlements.premium || me.entitlements.passes.length) { m.close(); thanks(p, me.entitlements); } else toast('Not confirmed yet. Give it a moment.'); };
+          const m = modal('<h2>' + t('store.pay.title') + '</h2><p class="sub">' + t('store.pay.sub') + '</p><div class="row"><button class="btn" data-close>' + t('common.close') + '</button><button class="btn primary" id="pp-check">' + t('store.pay.paid') + '</button></div>');
+          m.querySelector('#pp-check').onclick = async () => { const me = await ChacklateNet.api('/api/me'); if (me.entitlements.premium || me.entitlements.passes.length) { m.close(); thanks(p, me.entitlements); } else toast(t('store.pay.wait')); };
         }
       } catch (e) { toast(esc(e.message), 'bad'); }
     }
@@ -1443,14 +2215,22 @@
       setEntitlements(ent); save();
       AU.play('levelUp');
       const pass = p.id.startsWith('pass.');
-      modal('<div class="result-hero"><img class="portrait" src="' + medal('emblem:crown', '#ffd27a', '#b8862b') + '" alt=""><span class="result-badge win">Thank you</span><h2 class="result-title">' + (pass ? 'Season Pass unlocked' : 'Welcome to Premium') + '</h2>' +
-        '<p class="sub">' + (pass ? 'Every gold-track reward you have reached is now yours.' : 'Every animal friend, chapter, opening, endgame and era is open, and the season pass is included.') + '</p>' +
-        '<div class="row" style="justify-content:center"><button class="btn primary" data-close>Let\'s play</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
+      modal('<div class="result-hero"><img class="portrait" src="' + medal('emblem:crown', '#ffd27a', '#b8862b') + '" alt=""><span class="result-badge win">' + t('store.thanks') + '</span><h2 class="result-title">' + t(pass ? 'store.passUnlocked' : 'store.welcome') + '</h2>' +
+        '<p class="sub">' + t(pass ? 'store.passText' : 'store.welcomeText') + '</p>' +
+        '<div class="row" style="justify-content:center"><button class="btn primary" data-close>' + t('common.letsPlay') + '</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
-    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.') +
-      '<div class="panel glass" id="st-body"></div></div></div>');
+    mount('<div class="page"><div class="page-in">' + pageHead(t('store.store'), t('store.title'), t('store.sub'), '<span id="st-purse">' + coinsPill() + '</span>') +
+      sec('coin', t('store.coinShop'), t('store.forPlayers')) + '<div class="panel glass" id="st-coins"></div>' +
+      sec('crown', t('common.premium'), t('store.forGrownups')) + '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
+    function renderCoins() {
+      $('st-coins').innerHTML = coinShopHtml();
+      $('st-purse').innerHTML = coinsPill();
+      wireCoinShop($('st-coins'), renderCoins);
+    }
+    renderCoins();
     render();
+    if (focus === 'coins') $('st-coins').scrollIntoView({ block: 'start' });
     if (netOn()) ChacklateNet.api('/api/store').then((r) => { remote = r; if (state.screen === 'store') render(); }).catch(() => {});
     return {};
   };
@@ -1459,42 +2239,54 @@
   function voiceSection(s) {
     const vs = AU.voices();
     const GROUPS = [['US', 'F', 'American · Female'], ['US', 'M', 'American · Male'], ['UK', 'F', 'British · Female'], ['UK', 'M', 'British · Male']];
-    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb.replace(/ (American|British) English, (fe)?male\.$/, '')) + '</option>';
-    const groups = (cur, pick) => GROUPS.map(([a, g, t]) => '<optgroup label="' + t + '">' + vs.filter((v) => v.accent === a && v.gender === g && pick(v)).map((v) => opt(v, cur)).join('') + '</optgroup>').join('');
-    const hindi = (cur) => '<optgroup label="Hindi">' + vs.filter((v) => v.lang === 'hi').map((v) => opt(v, cur)).join('') + '</optgroup>';
-    return '<div class="label set-h">Voices</div>' +
-      '<label class="toggle">Lesson and story narration <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Coach voice <span class="voice-pick"><select id="s-vcoach">' + groups(s.voiceCoach, (v) => v.lessons) + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select><button type="button" class="btn small" id="s-vcoach-try" aria-label="Hear the coach voice">▶</button></span></label>' +
-      '<label class="toggle">Game calls (check, results, puzzles) <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + hindi(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select><button type="button" class="btn small" id="s-vcalls-try" aria-label="Hear the game call voice">▶</button></span></label>' +
-      '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
+    const blurb = (v) => tx('settings.voiceBlurb.' + v.id, v.blurb.replace(/ (American|British) English, (fe)?male\.$/, ''));
+    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(blurb(v)) + '</option>';
+    const groups = (cur, pick) => GROUPS.map(([a, g, label]) => '<optgroup label="' + esc(tx('settings.voiceGroup.' + a + g, label)) + '">' + vs.filter((v) => v.accent === a && v.gender === g && pick(v)).map((v) => opt(v, cur)).join('') + '</optgroup>').join('');
+    const hindi = (cur) => '<optgroup label="' + esc(tx('settings.voiceGroup.hi', 'Hindi')) + '">' + vs.filter((v) => v.lang === 'hi').map((v) => opt(v, cur)).join('') + '</optgroup>';
+    const tryBtn = (id) => '<button type="button" class="btn small" id="' + id + '" aria-label="' + esc(tx('settings.hearVoice', 'Hear this voice')) + '">▶</button>';
+    return '<div class="label set-h">' + t('settings.voices') + '</div>' +
+      '<label class="toggle" data-tk="settings.narr">' + t('settings.narration') + TIP_I + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.guide">' + t('settings.guideCard') + TIP_I + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.vcoach">' + t('settings.coachVoice') + TIP_I + ' <span class="voice-pick"><select id="s-vcoach">' + groups(s.voiceCoach, (v) => v.lessons) + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>' + t('settings.deviceVoice') + '</option></select>' + tryBtn('s-vcoach-try') + '</span></label>' +
+      '<label class="toggle" data-tk="settings.vcalls">' + t('settings.calls') + TIP_I + ' <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + hindi(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select>' + tryBtn('s-vcalls-try') + '</span></label>' +
+      '<label class="toggle" data-tk="settings.announce">' + t('settings.announce') + TIP_I + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
   function settingsModal() {
     const s = state.settings;
-    const m = modal('<div class="eyebrow">Settings</div><h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
-      '<div class="label set-h">Graphics</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
-      '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Capture and castling scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
-      '<div class="label set-h">Sound</div>' +
-      '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
-      '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
+    const m = modal('<div class="eyebrow">' + t('settings.title') + '</div><h2>' + t('settings.title') + '</h2><p class="sub">' + t('settings.sub') + '</p>' +
+      '<div class="label set-h">' + t('settings.language') + '</div>' +
+      '<label class="toggle">' + t('settings.languageLabel') + ' <select id="s-lang">' + I18N.LANGS.map((l) => '<option value="' + l.id + '" lang="' + l.id + '"' + (s.lang === l.id ? ' selected' : '') + '>' + esc(l.native === l.name ? l.native : l.native + ' · ' + l.name) + '</option>').join('') + '</select></label>' +
+      '<div class="label set-h" data-tk="settings.quality" data-radio="q">' + t('settings.graphics') + TIP_I + '</div><div class="seg"><label data-tk="settings.quality.high"><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>' + t('settings.high') + '</span></label><label data-tk="settings.quality.low"><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>' + t('settings.low') + '</span></label></div>' +
+      '<label class="toggle" data-tk="settings.anim">' + t('settings.anim') + TIP_I + ' <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.cine">' + t('settings.cine') + TIP_I + ' <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.toss">' + t('settings.toss') + TIP_I + ' <input type="checkbox" id="s-toss"' + (s.colourToss !== false ? ' checked' : '') + '></label>' +
+      '<div class="label set-h">' + t('settings.sound') + '</div>' +
+      '<label class="toggle" data-tk="settings.sfx">' + t('settings.sfx') + TIP_I + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="' + t('settings.sfxVol') + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="' + t('settings.sfxOn') + '"></label>' +
+      '<label class="toggle" data-tk="settings.music">' + t('settings.music') + TIP_I + ' <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="' + t('settings.musicVol') + '"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="' + t('settings.musicOn') + '"></label>' +
       voiceSection(s) +
-      '<div class="label set-h">Coaching</div>' +
-      '<label class="toggle">Rooky\'s comments in games <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
-      '<label class="toggle">Show who is winning (evaluation bar) <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Show where pieces can move <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Turn the board each move (two players) <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
+      '<div class="label set-h">' + t('settings.coaching') + '</div>' +
+      '<label class="toggle" data-tk="settings.coach">' + t('settings.comments') + TIP_I + ' <select id="s-coach">' + ['off', 'quiet', 'normal', 'chatty'].map((v) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t('settings.coach.' + v) + '</option>').join('') + '</select></label>' +
+      '<label class="toggle" data-tk="settings.eval">' + t('settings.eval') + TIP_I + ' <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.legal">' + t('settings.legal') + TIP_I + ' <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.turn">' + t('settings.turn') + TIP_I + ' <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
       appSection() +
-      '<div class="field" style="margin-top:14px"><label for="s-server">Game server (for online play)</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
-      '<div class="row"><button class="btn warn" id="s-reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>', { x: true });
+      '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">' + t('settings.server') + TIP_I + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>' +
+      (s.dev ? devSection() : '') +
+      '<div class="row"><button class="btn warn" id="s-reset" data-tk="settings.reset">' + t('settings.reset') + '</button><button class="btn primary" data-close>' + t('common.done') + '</button></div>' +
+      '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · ' + t('settings.build') + ' ' + BUILD + (s.dev ? ' · developer mode' : '') + '</button>', { x: true });
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
+    // A new language: Hindi brings Priya for the game calls; the coach voice stays. The menus redraw.
+    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); applySettings(); save(); m.close(); relocalise(); settingsModal(); });
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
     on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
+    on('#s-toss', 'change', (e) => { s.colourToss = e.target.checked; save(); });
     on('#s-sfx', 'change', (e) => { s.sfx = e.target.checked; applySettings(); save(); });
     on('#s-sfxv', 'input', (e) => { s.sfxVol = +e.target.value; applySettings(); AU.play('move'); save(); });
     on('#s-mus', 'change', (e) => { s.music = e.target.checked; AU.unlock(); applySettings(); save(); renderNav(); });
     on('#s-musv', 'input', (e) => { s.musicVol = +e.target.value; applySettings(); save(); });
-    on('#s-narr', 'change', (e) => { s.narration = e.target.checked; if (!s.narration) AU.hush(); save(); });
+    on('#s-narr', 'change', (e) => { setVoice(e.target.checked, true); });
+    on('#s-guide', 'change', (e) => { s.guide = e.target.checked; save(); guideTuck(); });
     on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-vcoach-try', 'click', (e) => { e.preventDefault(); AU.unlock(); AU.preview(s.voiceCoach); });
@@ -1506,7 +2298,87 @@
     on('#s-turn', 'change', (e) => { s.turnBoard = e.target.checked; save(); });
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
     wireAppSection(m);
-    on('#s-reset', 'click', () => { if (confirm('Reset all progress, unlocks and history on this device?')) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+    on('#s-ver', 'click', () => versionTap(m));
+    if (s.dev) wireDevSection(m);
+    on('#s-reset', 'click', () => { if (confirm(t('settings.resetConfirm'))) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+  }
+
+  // Redraw everything a player reads in the new language. A game, lesson or puzzle in progress
+  // keeps going: only its panels are drawn again.
+  function relocalise() {
+    renderNav();
+    if (KIND[state.screen] === 'hud') { if (current && current.refresh) current.refresh(); if (state.game && state.screen === 'game') { renderTitle(); renderCards(); renderHud(); renderCoach(); } }
+    else go(state.screen, state.screenArg);
+    if (guideSt.key) guideShow(guideSt.key);
+  }
+
+  // ---------------------------------------------------------------- developer mode
+  // Seven taps on the version line in Settings show the developer tools; seven more hide them.
+  // Players never see them otherwise. Everything here stays on this device.
+  let verTaps = 0, verAt = 0;
+  function versionTap(m) {
+    const now = Date.now();
+    verTaps = now - verAt > 1500 ? 1 : verTaps + 1;
+    verAt = now;
+    const on = !!state.settings.dev;
+    if (verTaps >= 7) {
+      verTaps = 0;
+      state.settings.dev = !on; save();
+      fpsMeter(!on && state.settings.devFps);
+      m.close(); settingsModal();
+      toast(on ? 'Developer mode is off.' : 'Developer mode is on.');
+    } else if (verTaps >= 4) toast((7 - verTaps) + (7 - verTaps === 1 ? ' more tap' : ' more taps') + (on ? ' to turn developer mode off.' : ' to turn on developer mode.'));
+  }
+  function devSection() {
+    const G = state.game, P = state.progress;
+    const fen = G && state.screen === 'game' ? G.g.pos.fen() : E.START_FEN;
+    const cats = [...new Set(CATALOG.items.map((i) => i.category))];
+    const locked = CATALOG.items.filter((i) => !PG.isUnlocked(P, i));
+    const opts = cats.map((c) => { const list = locked.filter((i) => i.category === c); return list.length ? '<optgroup label="' + esc(c) + '">' + list.map((i) => '<option value="' + esc(i.id) + '">' + esc(i.name) + '</option>').join('') + '</optgroup>' : ''; }).join('');
+    return '<div class="label set-h">Developer tools</div>' +
+      '<div class="field"><label for="d-fen">Set any position (FEN)</label><div class="dev-row"><input class="text-in" id="d-fen" spellcheck="false" autocapitalize="off" value="' + esc(fen) + '"><button class="btn small" id="d-fen-go" type="button">Play it</button></div></div>' +
+      '<div class="field"><label for="d-item">Grant items</label><div class="dev-row">' + (opts ? '<select id="d-item">' + opts + '</select><button class="btn small" id="d-grant" type="button">Grant</button><button class="btn small" id="d-grant-all" type="button">Grant all</button>' : '<span class="faint">Every item is already unlocked.</span>') + '</div></div>' +
+      '<div class="field"><label>Streak</label><div class="dev-row"><span class="grow">' + P.streak.count + (P.streak.count === 1 ? ' day' : ' days') + '</span><button class="btn small" id="d-streak" type="button">Reset streak</button></div></div>' +
+      '<label class="toggle">Show frame rate <input type="checkbox" id="d-fps"' + (state.settings.devFps ? ' checked' : '') + '></label>' +
+      '<p class="sub faint" style="margin:8px 0 0">Tap the version line seven times to hide these tools.</p>';
+  }
+  function wireDevSection(m) {
+    const q = (sel) => m.querySelector(sel);
+    q('#d-fen-go').onclick = () => {
+      const fen = q('#d-fen').value.trim(), err = new E.Pos().load(fen);
+      if (err) { toast('That FEN does not load: ' + esc(err), 'bad'); return; }
+      m.close();
+      const mode = state.setup.mode === 'online' ? 'ai' : state.setup.mode;
+      startGame(Object.assign({}, state.setup, { mode, fen, dev: true, color: fen.split(' ')[1] === 'b' ? 'black' : 'white' }));
+    };
+    const grant = (items) => {
+      items.forEach((i) => { state.progress.granted[i.id] = true; });
+      save();
+      toast('Granted ' + (items.length === 1 ? esc(items[0].name) : items.length + ' items') + '.');
+      m.close(); settingsModal();
+    };
+    if (q('#d-grant')) q('#d-grant').onclick = () => grant(CATALOG.items.filter((i) => i.id === q('#d-item').value));
+    if (q('#d-grant-all')) q('#d-grant-all').onclick = () => grant(CATALOG.items.filter((i) => !PG.isUnlocked(state.progress, i)));
+    q('#d-streak').onclick = () => { state.progress.streak = { count: 0, last: '' }; save(); renderNav(); toast('Streak reset.'); m.close(); settingsModal(); };
+    q('#d-fps').onchange = (e) => { state.settings.devFps = e.target.checked; save(); fpsMeter(e.target.checked); };
+  }
+  // The frame-rate readout: frames the table drew in the last second (it draws only when
+  // something moves, so a still table reads low), the average time per frame and the detail level.
+  let fpsTimer = 0;
+  function fpsMeter(on) {
+    clearInterval(fpsTimer); fpsTimer = 0;
+    let el = $('fps');
+    if (!on) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('div'); el.id = 'fps'; el.className = 'fps'; el.setAttribute('aria-hidden', 'true'); document.body.appendChild(el); }
+    let last = view.stats ? view.stats() : null, at = performance.now();
+    el.textContent = 'measuring…';
+    fpsTimer = setInterval(() => {
+      const now = performance.now(), cur = view.stats ? view.stats() : null;
+      if (!cur || !last) { el.textContent = 'no 3D table'; return; }
+      const n = cur.frames - last.frames, secs = (now - at) / 1000;
+      el.textContent = Math.round(n / secs) + ' fps · ' + (n ? ((cur.drawMs - last.drawMs) / n).toFixed(1) : '0.0') + ' ms a frame · detail ' + cur.perf;
+      last = cur; at = now;
+    }, 1000);
   }
 
   // ---------------------------------------------------------------- installable app and reminders
@@ -1514,7 +2386,7 @@
   const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; });
-  window.addEventListener('appinstalled', () => { installPrompt = null; toast('Chackmate is installed.'); });
+  window.addEventListener('appinstalled', () => { installPrompt = null; toast(t('settings.installed')); });
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register('/sw.js').then((r) => { swReg = r; }).catch(() => { /* not served by the game server: no offline shell */ });
   }
@@ -1522,13 +2394,13 @@
   function appSection() {
     const s = state.settings, r = s.reminder || { on: false, hour: 19 };
     const hours = Array.from({ length: 24 }, (_, h) => '<option value="' + h + '"' + (r.hour === h ? ' selected' : '') + '>' + String(h).padStart(2, '0') + ':00</option>').join('');
-    return '<div class="label set-h">App</div>' +
-      (standalone() ? '<p class="sub" style="margin:0 0 8px">Running as an installed app.</p>'
-        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chackmate</button>'
-        : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
-        : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') +
-      (safety && !safety.reminders ? '<label class="toggle">Daily reminder <small class="faint">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
-      '<label class="toggle">Daily reminder' + (pushReady() ? '' : ' <small class="faint">(needs the game server and notification support)</small>') +
+    return '<div class="label set-h">' + t('settings.app') + '</div>' +
+      (standalone() ? '<p class="sub" style="margin:0 0 8px">' + t('settings.app.installed') + '</p>'
+        : installPrompt ? '<button class="btn" id="s-install" type="button" data-tk="settings.install">' + icon('play') + ' ' + t('settings.app.install') + '</button>'
+        : isIOS() ? '<p class="sub" style="margin:0 0 8px">' + t('settings.app.ios') + '</p>'
+        : '<p class="sub" style="margin:0 0 8px">' + t('settings.app.browser') + '</p>') +
+      (safety && !safety.reminders ? '<label class="toggle" data-tk="settings.reminder">' + t('settings.reminder') + TIP_I + ' <small class="faint">' + t('settings.reminder.parent') + '</small><input type="checkbox" disabled></label>' :
+      '<label class="toggle" data-tk="settings.reminder">' + t('settings.reminder') + TIP_I + (pushReady() ? '' : ' <small class="faint">' + t('settings.reminder.needs') + '</small>') +
       ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>');
   }
   function wireAppSection(m) {
@@ -1537,8 +2409,8 @@
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
-      if (want.on && !await parentGate('A parent can turn on reminders.')) { box.checked = false; return; }
-      try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? 'Reminder set for ' + String(want.hour).padStart(2, '0') + ':00 on days you have not played.' : 'Reminder off.'); }
+      if (want.on && !await parentGate(t('settings.reminder.gate'))) { box.checked = false; return; }
+      try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? t('settings.reminder.set', { time: String(want.hour).padStart(2, '0') + ':00' }) : t('settings.reminder.off')); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
     if (box) { box.onchange = apply; hr.onchange = () => { if (box.checked) apply(); }; }
@@ -1549,7 +2421,7 @@
       if (sub) { try { await ChacklateNet.api('/api/push/unsubscribe', { endpoint: sub.endpoint }); } catch (e) { /* removed locally anyway */ } await sub.unsubscribe(); }
       return;
     }
-    if (await Notification.requestPermission() !== 'granted') throw new Error('Notifications are blocked for this site. Allow them in your browser settings.');
+    if (await Notification.requestPermission() !== 'granted') throw new Error(t('settings.reminder.blocked'));
     const { publicKey } = await ChacklateNet.api('/api/push/key');
     const key = Uint8Array.from(atob(publicKey.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
     const s = sub || await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
@@ -1559,9 +2431,9 @@
   function levelUpModal(level, unlocked) {
     AU.play('levelUp');
     const lv = PG.levelFor(state.progress.xp);
-    const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">Level up</span><h2 class="result-title">Level ' + level + '</h2><p class="sub">You are now ' + esc(lv.title) + '.</p>' +
-      (unlocked.length ? '<div class="eyebrow">Unlocked</div><div class="unlocks">' + unlocked.map((u) => '<span class="pill gold">' + esc(u.name) + '</span>').join('') + '</div>' : '') +
-      '<div class="row" style="justify-content:center;margin-top:18px">' + (unlocked.length ? '<button class="btn" id="lu-col">See collection</button>' : '') + '<button class="btn primary" data-close>Continue</button></div></div>');
+    const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">' + t('home.levelUp') + '</span><h2 class="result-title">' + t('common.level', { n: level }) + '</h2><p class="sub">' + t('home.youAreNow', { title: esc(levelTitle(lv)) }) + '</p>' +
+      (unlocked.length ? '<div class="eyebrow">' + t('season.unlocked') + '</div><div class="unlocks">' + unlocked.map((u) => '<span class="pill gold">' + esc(u.name) + '</span>').join('') + '</div>' : '') +
+      '<div class="row" style="justify-content:center;margin-top:18px">' + (unlocked.length ? '<button class="btn" id="lu-col">' + t('home.seeCollection') + '</button>' : '') + '<button class="btn primary" data-close>' + t('common.continue') + '</button></div></div>');
     if (KIND[state.screen] === 'hud') view.celebrate('win', -1, null, -1);
     const b = m.querySelector('#lu-col'); if (b) b.onclick = () => { m.close(); go('collection', unlocked[0].category); };
   }
@@ -1575,6 +2447,8 @@
     return { w: m * 60000, b: m * 60000, inc: s * 1000, since: 0 };
   }
   // The spoken call for a finished game, a key into voice.json events.
+  // Endings only a variation has: the announcer has no call for them, the result card explains them.
+  const VARIANT_END = new Set(['bare-king', 'stalemate-win', 'hill', 'three-check']);
   function resultCall(reason, winner, youWon, youLost) {
     if (!winner) return { stalemate: 'stalemate', threefold: 'draw.repetition', fivefold: 'draw.repetition', fifty: 'draw.fifty', seventyfive: 'draw.fifty',
       insufficient: 'draw.material', 'timeout-insufficient': 'draw.material', agreement: 'draw.agreed' }[reason] || 'draw.agreed';
@@ -1586,7 +2460,7 @@
   function startGame(setup, restore) {
     // Only ordinary games become the defaults for the next one; dojo, journey and online
     // games keep their own setup.
-    if (!setup.dojo && !setup.journey && setup.mode !== 'online') state.setup = Object.assign({}, setup);
+    if (!setup.dojo && !setup.journey && !setup.dev && setup.mode !== 'online' && E.variantOf(setup.fen) === 'standard') state.setup = Object.assign({}, setup);
     const kind = setup.mode;
     let g;
     try { g = new E.Game(setup.fen || E.START_FEN); } catch (e) { g = new E.Game(); }
@@ -1600,15 +2474,110 @@
       if (restore.clock && game.clock) Object.assign(game.clock, restore.clock, { since: 0 });
       if (kind === 'local' && state.settings.turnBoard) game.viewSide = g.pos.side === WHITE ? 'white' : 'black';
     }
+    // "Surprise me": the opponent hides a white and a black pawn in two paws and the player picks
+    // one. The table waits (no moves, the camera on White's side) until the pawn is shown.
+    // A table with a friend online draws the colours itself, so there the paws only show them.
+    const toss = !g.moves.length && state.settings.colourToss !== false && (!window.__SHOT || window.__TOSS) &&
+      (kind === 'ai' ? setup.color === 'random' && !setup.dojo && !setup.journey && !restore : kind === 'online' && !!setup.tossBy);
+    if (toss) { game.tossing = true; game.viewSide = 'white'; }
     state.game = game;
     go('game', game);
     view.setView(game.viewSide, state.settings.view, true);
-    if (!g.moves.length) view.intro();
+    if (!g.moves.length && !toss) view.intro();
     save();
     // The opponent says hello across the table.
-    if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [['Let\'s play!', 'dismiss']], null, who); }
-    if (!g.outcome) maybeComputer();
+    if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [[t('play.say.hello'), 'dismiss']], null, who); }
+    const begin = () => {
+      if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: toss ? 2600 : 600 });
+      gameNudge(game);
+      if (!g.outcome) maybeComputer();
+    };
+    if (toss) colourToss(game, begin); else begin();
     preAnalyse();
+  }
+  // About three seconds: two closed paws, a tap, the paws open, the pawn in the tapped one is
+  // the player's colour. Skip (or Escape) goes straight to the game. The colour was drawn at
+  // random when the game was made, so the tapped paw simply holds it.
+  // a closed paw seen from the front: four knuckles on top, the thumb tucked along the side
+  const PAW_CLOSED = '<svg viewBox="0 0 120 120" aria-hidden="true"><path class="cuff" d="M38 96h44l-4 20H42z"/>' +
+    '<path class="fill" d="M16 44c0-10 6-16 14-16 4-8 12-12 20-8 6-6 14-6 20 0 8-4 16 0 20 8 8 0 14 6 14 16v28c0 18-16 30-44 30S16 90 16 72z"/>' +
+    '<path class="line" d="M38 30v18M60 22v24M82 30v18"/>' +
+    '<path class="fill thumb" d="M10 58c0-8 8-12 14-8l10 10c4 6 2 16-6 18-10 2-18-8-18-20z"/>' +
+    '<ellipse class="shine" cx="70" cy="44" rx="18" ry="7" transform="rotate(-12 70 44)"/></svg>';
+  const PAW_OPEN = '<svg viewBox="0 0 120 120" aria-hidden="true"><path class="cuff" d="M38 96h44l-4 20H42z"/>' +
+    '<ellipse class="fill" cx="60" cy="76" rx="46" ry="26"/>' +
+    [[22, 50], [43, 40], [77, 40], [98, 50]].map(([x, y]) => '<ellipse class="fill" cx="' + x + '" cy="' + y + '" rx="10" ry="12"/><ellipse class="pad" cx="' + x + '" cy="' + (y + 2) + '" rx="5.5" ry="6.5"/>').join('') +
+    '<path class="pad" d="M38 80c0-12 44-12 44 0 0 10-44 10-44 0z"/></svg>';
+  function colourToss(G, then) {
+    const host = document.querySelector('#screens .screen');
+    const who = G.kind === 'ai' ? rival(G) : null;
+    const name = who ? who.name : G.setup.tossBy || t('online.yourFriend');
+    const tint = who ? who.colors : ['#2f6f6a', '#173b39'];
+    const set = equippedSet(), quick = !state.settings.animations;
+    const pawn = (side) => snap({ kind: 'piece', set, type: 'p', side, floor: false }, 96, 128,
+      side === 'w' ? medal('piece:p', '#f4e6cc', '#a08a6a') : medal('piece:p', '#4a2c1d', '#140b07'), 'toss-pawn');
+    const mine = G.human === WHITE ? 'w' : 'b', other = mine === 'w' ? 'b' : 'w';
+    const el = document.createElement('div');
+    el.className = 'toss' + (quick ? ' still' : '');
+    el.setAttribute('data-no-tips', '');
+    el.style.setProperty('--paw', tint[0]); el.style.setProperty('--paw-2', tint[1]);
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', t('play.toss.label'));
+    el.innerHTML = '<div class="toss-in">' + (who ? faceImg(who, 'toss-face') : '') +
+      '<div class="eyebrow">' + t('play.toss.eyebrow') + '</div><h2 id="toss-h">' + t('play.toss.title') + '</h2>' +
+      '<p class="sub" id="toss-p">' + t('play.toss.hiding', { name: esc(name) }) + '</p>' +
+      '<div class="toss-hands">' + ['left', 'right'].map((h) => '<button class="toss-hand ' + h + '" data-hand="' + h + '" aria-label="' + t('play.toss.' + h) + '">' +
+        '<span class="paw closed">' + PAW_CLOSED + '</span><span class="paw open">' + PAW_OPEN + '</span><span class="toss-slot"></span></button>').join('') + '</div>' +
+      '<button class="btn small" id="toss-skip">' + t('play.toss.skip') + '</button></div>';
+    host.appendChild(el);
+    document.body.classList.add('tossing');
+    let done = false, picked = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      G.toss = null;
+      el.classList.add('out');
+      setTimeout(() => el.remove(), quick ? 0 : 320);
+      document.body.classList.remove('tossing');
+      if (state.game !== G) return;
+      G.tossing = false;
+      G.viewSide = G.kind === 'local' || G.human === WHITE ? 'white' : 'black';
+      view.setView(G.viewSide, state.settings.view, true);
+      view.intro();
+      renderCards(); refreshHighlights(); renderHud();
+      AU.event(G.human === WHITE ? 'start.white' : 'start.black');
+      save();
+      then();
+    };
+    const pick = (hand) => {
+      if (picked) return;
+      picked = true;
+      AU.unlock(); AU.play('tap');
+      el.querySelectorAll('.toss-hand').forEach((b) => {
+        const yours = b.dataset.hand === hand;
+        b.querySelector('.toss-slot').appendChild(el.querySelector('.toss-pawn.' + (yours ? mine : other)));
+        b.classList.add(yours ? 'yours' : 'theirs');
+        b.disabled = true;
+      });
+      el.classList.add('opened');
+      $('toss-h').textContent = mine === 'w' ? t('play.toss.white') : t('play.toss.black', { name });
+      $('toss-p').textContent = t(mine === 'w' ? 'play.toss.haveWhite' : 'play.toss.haveBlack');
+      AU.play('move');
+      setTimeout(finish, quick ? 1400 : 1900);
+    };
+    // the pawns wait out of sight until a paw opens
+    const stash = document.createElement('div');
+    stash.className = 'toss-stash'; stash.innerHTML = pawn('w') + pawn('b');
+    stash.querySelectorAll('img').forEach((img, i) => img.classList.add(i ? 'b' : 'w'));
+    el.appendChild(stash);
+    hydrate(stash);
+    el.querySelectorAll('.toss-hand').forEach((b) => { b.onclick = () => pick(b.dataset.hand); });
+    $('toss-skip').onclick = () => { AU.play('tap'); finish(); };
+    G.toss = { skip: finish };
+  }
+  function backToGame() {
+    const G = state.game;
+    go('game', G);
+    view.setView(G.viewSide, state.settings.view, true);
   }
   function resumeSaved() {
     const s = saved.game;
@@ -1624,36 +2593,40 @@
     const j = G.setup.journey, era = j && eraById(j.era);
     const dojo = G.setup.dojo && endgameById(G.setup.dojo);
     mount(
-      '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? era.name : dojo ? 'Endgames' : 'Home') + '</span></button>' +
+      '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? eraName(era) : (dojo ? t('play.hud.endgames') : variantOfGame(G.g) ? variantOfGame(G.g).name + (G.setup.n960 >= 0 ? ' · ' + t('play.var.startNo', { n: G.setup.n960 }) : '') : t('common.nav.home'))) + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
-      '<button class="round" id="g-music" aria-label="Music" aria-pressed="' + !!state.settings.music + '" title="Music">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
-      '<button class="round" id="g-settings" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
+      '<button class="round rb" id="g-rules" aria-label="' + t('play.rules.title') + '" aria-expanded="false"><img src="' + ART.ruleBookUri() + '" alt=""></button>' +
+      '<button class="round" id="g-music" aria-label="' + t('settings.music') + '" aria-pressed="' + !!state.settings.music + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
+      '<button class="round" id="g-settings" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<div class="player-card glass top" id="p-top"></div><div class="player-card glass bottom" id="p-bottom"></div>' +
       '<div class="evalbar" id="evalbar" hidden><i id="evalfill" style="height:50%"></i></div>' +
-      '<aside class="side glass" id="side"><header><b id="side-title">' + esc(dojo ? dojo.name : 'Moves') + '</b><button class="btn small ghost" id="g-copy" title="Copy the game as PGN">PGN</button></header>' +
-      '<div id="coach-slot"></div><div class="moves-wrap" id="moves-wrap"><ol class="moves" id="moves" aria-label="Moves played"></ol></div>' +
-      '<form id="move-form" class="move-form" autocomplete="off"><label class="sr" for="move-input">Type a move</label><input id="move-input" class="text-in" placeholder="Type a move: e4, Nf3, O-O" spellcheck="false" autocapitalize="off"><button class="btn small">Play</button></form></aside>' +
+      '<aside class="side glass" id="side"><header><b id="side-title">' + esc(dojo ? dojo.name : t('play.hud.moves')) + '</b><button class="btn small ghost" id="g-copy" title="' + t('play.hud.copyPgn') + '">PGN</button></header>' +
+      '<div id="coach-slot"></div><div class="moves-wrap" id="moves-wrap"><ol class="moves" id="moves" aria-label="' + t('play.hud.played') + '"></ol></div>' +
+      '<form id="move-form" class="move-form" autocomplete="off"><label class="sr" for="move-input">' + t('play.hud.type') + '</label><input id="move-input" class="text-in" placeholder="' + t('play.hud.typeHint') + '" spellcheck="false" autocapitalize="off"><button class="btn small">' + t('common.nav.play') + '</button></form></aside>' +
       '<div class="actionbar glass" id="actionbar">' +
-      (online ? '' : '<button class="btn" id="g-undo">' + icon('undo') + '<span class="lbl">Undo</span></button>') +
-      (online ? '' : '<button class="btn" id="g-hint">' + icon('hint') + '<span class="lbl">Hint</span></button>') +
-      (online ? '' : '<button class="btn" id="g-threat">' + icon('eye') + '<span class="lbl">Threat</span></button>') +
+      (online ? '' : '<button class="btn" id="g-undo">' + icon('undo') + '<span class="lbl">' + t('play.btn.undo') + '</span></button>') +
+      (online ? '' : '<button class="btn" id="g-hint">' + icon('hint') + '<span class="lbl">' + t('play.btn.hint') + '</span></button>') +
+      (online ? '' : '<button class="btn" id="g-threat">' + icon('eye') + '<span class="lbl">' + t('play.btn.threat') + '</span></button>') +
       '<span class="sep"></span>' +
-      '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">Flip</span></button>' +
-      '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">Top view</span></button>' +
+      '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">' + t('play.btn.flip') + '</span></button>' +
+      '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">' + t('play.btn.topView') + '</span></button>' +
       '<span class="sep"></span>' +
-      (online ? '<button class="btn" id="g-emote" aria-haspopup="true">' + icon('smile') + '<span class="lbl">React</span></button>' : '') +
-      (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">Draw</span></button>') +
-      '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">Resign</span></button>' +
-      '<button class="btn primary" id="g-claim" hidden>Claim draw</button>' +
-      '<button class="btn primary" id="g-review" hidden>' + icon('star') + '<span>Review with Rooky</span></button>' +
-      '<button class="btn" id="g-new" hidden>' + icon('play') + '<span>New game</span></button>' +
+      (online ? '<button class="btn" id="g-emote" aria-haspopup="true">' + icon('smile') + '<span class="lbl">' + t('play.btn.react') + '</span></button>' : '') +
+      (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">' + t('play.btn.draw') + '</span></button>') +
+      '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">' + t('play.btn.resign') + '</span></button>' +
+      '<button class="btn primary" id="g-claim" hidden>' + t('play.btn.claim') + '</button>' +
+      '<button class="btn primary" id="g-review" hidden>' + icon('star') + '<span>' + t('play.btn.review') + '</span></button>' +
+      '<button class="btn" id="g-new" hidden>' + icon('play') + '<span>' + t('play.btn.new') + '</span></button>' +
+      '<button class="btn" id="g-explore" hidden>' + icon('compass') + '<span class="lbl">' + t('play.btn.explore') + '</span></button>' +
       '</div>');
-    $('g-home').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else if (dojo) go('dojo'); else go('home'); };
+    const gv = variantOfGame(G.g);
+    $('g-home').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else if (dojo) go('dojo'); else if (gv) go('variant', gv.id); else go('home'); };
     $('g-music').onclick = () => {
       state.settings.music = !state.settings.music; AU.unlock(); applySettings(); save();
       $('g-music').innerHTML = icon(state.settings.music ? 'music' : 'musicOff'); $('g-music').setAttribute('aria-pressed', String(!!state.settings.music));
     };
     $('g-settings').onclick = () => settingsModal();
+    $('g-rules').onclick = () => { AU.play('tap'); ruleBook(!G.rulebook); };
     $('g-copy').onclick = () => copy(pgn(), 'PGN');
     if ($('g-undo')) $('g-undo').onclick = undo;
     if ($('g-hint')) $('g-hint').onclick = hint;
@@ -1666,12 +2639,13 @@
     $('g-claim').onclick = () => { if (G.g.claimDraw()) { G.request++; if (online) ChacklateNet.send({ type: 'claim' }); endGame(); } };
     $('g-review').onclick = () => go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: local ? WHITE : G.human, title: titleFor(G), review: G.review, level: G.kind === 'ai' ? G.setup.level : undefined, rival: G.kind === 'ai' ? rival(G) : null });
     $('g-new').onclick = () => newGameModal();
+    $('g-explore').onclick = () => { if (view.explore && view.explore(true)) AU.play('tap'); };
     $('move-form').onsubmit = (e) => {
       e.preventDefault();
       const input = $('move-input'), text = input.value.trim();
       if (!text || !humanTurn()) return;
       const m = G.g.pos.parseMove(text, G.g.legal);
-      if (m === null || m === undefined) { toast('"' + esc(text) + '" is not a legal move here.'); AU.play('illegal'); return; }
+      if (m === null || m === undefined) { toast(t('play.notLegal', { move: esc(text) })); AU.play('illegal'); return; }
       input.value = '';
       playMove(m, true);
     };
@@ -1685,21 +2659,28 @@
       },
     });
     view.setBoard(piecesOf(G.g.pos), capturedFor(G.g));
+    G.rulebook = false;
+    pauseClock(G, false);
     renderTitle();
     renderCards();
     refreshHighlights();
     renderHud();
     return {
-      leave() { view.setClock(null); save(); },
-      escape() { if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
-      key(e) { if (e.key === 'f') $('g-flip').click(); },
+      leave() { if (exploring) view.explore(false, true); view.setClock(null); document.body.classList.remove('tossing'); save(); },
+      escape() { if (exploring) view.explore(false); else if (G.toss) G.toss.skip(); else if (G.rulebook) ruleBook(false); else if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
+      key(e) {
+        if (exploring) { if (e.key === 'r' || e.key === 'R') view.explore(false); return; }
+        if (e.key === 'f') $('g-flip').click();
+      },
     };
   };
   function titleFor(G) {
-    if (G.setup.dojo) { const d = endgameById(G.setup.dojo); return (G.setup.journey ? 'Journey' : 'Endgame dojo') + (d ? ' · ' + d.name : ''); }
-    if (G.kind === 'ai') return 'vs ' + rival(G).name;
-    if (G.kind === 'online') return 'Online · ' + (G.online && G.online.tc || G.setup.tc || '');
-    return 'Pass and play';
+    const v = variantOfGame(G.g);
+    if (v) return v.name + ' · ' + (G.kind === 'ai' ? t('learn.vs', { name: rival(G).name }) : t('learn.local'));
+    if (G.setup.dojo) { const d = endgameById(G.setup.dojo); return t(G.setup.journey ? 'common.nav.journey' : 'learn.dojoTitle') + (d ? ' · ' + d.name : ''); }
+    if (G.kind === 'ai') return t('learn.vs', { name: rival(G).name });
+    if (G.kind === 'online') return t('play.onlineTitle', { tc: G.online && G.online.tc || G.setup.tc || '' });
+    return t('learn.local');
   }
   function renderTitle() {
     const G = state.game, el = $('g-mode');
@@ -1709,6 +2690,67 @@
     el.innerHTML = '<img class="portrait" src="' + art + '" alt=""><span>' + esc(titleFor(G)) + (G.setup.tc && G.setup.tc !== 'none' && G.kind !== 'online' ? ' · ' + esc(G.setup.tc) : '') + '</span>';
   }
 
+  // ----- the rule book
+  // A sheet over the moves panel with the special rules that matter in this game right now, each
+  // with a small board picture and its lesson. The board stays playable underneath. Against a bot
+  // the clocks wait while it is open; a game against a person is never paused.
+  const againstPerson = (G) => G.kind === 'online' || G.kind === 'local';
+  function pauseClock(G, on) {
+    if (!G.clock || (on && againstPerson(G))) return;
+    G.paused = on;
+    G.clock.since = 0;   // the next tick starts counting again from then
+  }
+  function ruleBook(open) {
+    const G = state.game;
+    if (!G || state.screen !== 'game') return;
+    G.rulebook = open;
+    pauseClock(G, open);
+    $('g-rules').setAttribute('aria-expanded', String(open));
+    $('g-rules').classList.toggle('on', open);
+    let el = $('rulebook');
+    if (!open) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('aside');
+      el.id = 'rulebook';
+      el.className = 'side glass rulebook';
+      el.setAttribute('aria-label', t('play.rules.title'));
+      $('side').after(el);
+    }
+    renderRuleBook();
+    const first = el.querySelector('.x'); if (first) first.focus({ preventScroll: true });
+  }
+  function renderRuleBook() {
+    const G = state.game, el = $('rulebook');
+    if (!G || !el) return;
+    const local = G.kind === 'local';
+    const side = local ? G.g.pos.side : G.human;
+    const list = RULES.forGame(G.g, side, !local);
+    const timedPerson = againstPerson(G) && (G.clock || G.kind === 'online');
+    const note = timedPerson ? t('play.rules.running') : G.clock ? t('play.rules.wait') : '';
+    const link = (id, title) => '<button class="btn small ghost rb-link" data-rule-lesson="' + esc(id) + '">' + icon('learn') + '<span>' + t('play.rules.lesson', { title: esc(title) }) + '</span>' + icon('next') + '</button>';
+    const lessonTitle = (id) => (LESSONS.lessons.find((l) => l.id === id) || {}).title || 'Learn';
+    // A variation's rule book is its own rule sheet, with its lesson.
+    const v = variantOfGame(G.g);
+    el.innerHTML = '<header><img class="rb-ico" src="' + ART.ruleBookUri() + '" alt=""><b>' + (v ? t('play.rules.variant', { name: esc(v.name) }) : t('play.rules.title')) + '</b><button class="round sm x" id="rb-close" aria-label="' + t('play.rules.close') + '">' + icon('x') + '</button></header>' +
+      '<div class="rb-body">' + (note ? '<p class="rb-note">' + icon('clock') + '<span>' + esc(note) + '</span></p>' : '') +
+      (v ? ruleSheet(v) + '<button class="btn small ghost rb-link" data-rule-lesson="variant.' + esc(v.id) + '">' + icon('learn') + '<span>' + t('play.rules.lesson', { title: esc(v.lesson.title) }) + '</span>' + icon('next') + '</button>' : list.map((r) => '<article class="rule' + (r.now ? ' now' : '') + '"><img class="rb-pic" src="' + ART.diagramUri(r.pic) + '" alt="">' +
+        '<div><h3>' + esc(r.title) + (r.now ? ' <span class="pill gold">' + t('play.rules.now') + '</span>' : '') + '</h3>' +
+        '<p class="rb-line">' + esc(r.line) + '</p><p class="rb-text">' + esc(r.text) + '</p>' +
+        link(r.lesson, lessonTitle(r.lesson)) + (r.also ? link(r.also.id, lessonTitle(r.also.id)) : '') + '</div></article>').join('')) + '</div>';
+    $('rb-close').onclick = () => { AU.play('tap'); ruleBook(false); };
+    el.querySelectorAll('[data-rule-lesson]').forEach((b) => { b.onclick = () => ruleLesson(b.dataset.ruleLesson); });
+  }
+  // A game against a person keeps going, so its lessons wait for the end of the game; a bot waits
+  // for the player, so the lesson opens now and its back button returns to the table.
+  function ruleLesson(id) {
+    const G = state.game;
+    AU.play('tap');
+    if (againstPerson(G) && (G.clock || G.kind === 'online') && !G.g.outcome) { toast(t('play.rules.clockWaits')); return; }
+    if (!G.g.outcome) pauseClock(G, true);
+    if (id.startsWith('variant.')) go('lesson', { variant: id.slice(8), back: 'game' });
+    else go('lesson', { id, back: 'game' });
+  }
+
   function capturedFor(g) {
     const out = { byWhite: [], byBlack: [] };
     g.captured.forEach((p) => { if (p) (p < 0 ? out.byWhite : out.byBlack).push(p); });
@@ -1716,18 +2758,18 @@
   }
   function humanTurn() {
     const G = state.game;
-    if (!G || G.g.outcome || G.busy || G.thinking) return false;
+    if (!G || G.g.outcome || G.busy || G.thinking || G.tossing) return false;
     if (G.kind === 'local') return true;
     return G.g.pos.side === G.human;
   }
   function sideName(G, side) {
-    if (G.kind === 'ai') return side === G.human ? state.settings.name : rival(G).name;
-    if (G.kind === 'online') return side === G.human ? state.settings.name : (G.online && G.online.opponent ? G.online.opponent.name : 'Opponent');
-    return side === WHITE ? 'White' : 'Black';
+    if (G.kind === 'ai') return side === G.human ? myName() : rival(G).name;
+    if (G.kind === 'online') return side === G.human ? myName() : (G.online && G.online.opponent ? G.online.opponent.name : t('play.opponent'));
+    return t(side === WHITE ? 'play.color.white' : 'play.color.black');
   }
   // Little drawn pieces for the captured row: ivory for White's, ebony with gold for Black's.
   const CAP_INK = { w: { fill: '#f6ecd9', stroke: '#8a7458', ink: '#5a4630' }, b: { fill: '#2b1c14', stroke: '#d9b46a', ink: '#d9b46a' } };
-  const capImg = (t, color) => '<img src="' + ART.pieceUri(t, CAP_INK[color]) + '" alt="' + (color === 'w' ? 'White ' : 'Black ') + PIECE_NAME[t].toLowerCase() + '">';
+  const capImg = (pt, color, old) => '<img src="' + ART.pieceUri(pieceArt(pt, old), CAP_INK[color]) + '" alt="' + t(color === 'w' ? 'play.capWhite' : 'play.capBlack', { piece: old ? OLD_NAME[pt] : PIECE_NAME[pt].toLowerCase() }) + '">';
 
   // The two players' cards: portrait, name, who they are, the pieces they have taken and
   // their clock. The parts that change each move are filled in by renderHud.
@@ -1742,18 +2784,27 @@
       const opp = G.kind === 'online' && side !== G.human && G.online && G.online.opponent;
       const who = ai ? rival(G) : null;
       let pp, sub;
-      if (you) { pp = avatarHtml('sm'); sub = 'Level ' + PG.levelFor(state.progress.xp).level + (G.online && G.online.rating ? ' · Rating ' + G.online.rating : ''); }
-      else if (who) { pp = '<img class="portrait" src="' + face(who) + '" alt="">'; sub = G.setup.dojo ? 'Full-strength defence' : who.era ? 'Champion of ' + (eraById(who.era) || {}).name : 'Level ' + (G.setup.level + 1) + ' · ' + LEVELS[G.setup.level].band; }
-      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || 'Rating ' + (opp.rating || '?'); }
-      else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = side === WHITE ? 'Plays the light pieces' : 'Plays the dark pieces'; }
+      if (you) { pp = avatarHtml('sm'); sub = t('common.level', { n: PG.levelFor(state.progress.xp).level }) + (G.online && G.online.rating ? ' · ' + t('play.rating', { n: G.online.rating }) : ''); }
+      else if (who) { pp = '<img class="portrait" src="' + face(who) + '" alt="">'; sub = G.setup.dojo ? t('play.fullStrength') : who.era ? t('play.championOf', { era: eraName(eraById(who.era) || { name: '' }) }) : t('common.level', { n: G.setup.level + 1 }) + ' · ' + bandName(G.setup.level); }
+      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || t('play.rating', { n: opp.rating || '?' }); }
+      else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = t(side === WHITE ? 'play.lightPieces' : 'play.darkPieces'); }
       el.innerHTML = '<div class="pp">' + pp + '</div><div class="who"><div class="name">' + esc(sideName(G, side)) + '</div><div class="sub"><span class="tl">' + esc(sub) + '</span></div>' +
-        '<div class="taken"><span class="caps"></span><span class="adv"></span></div></div>' +
+        '<div class="taken"><span class="checks" hidden></span><span class="caps"></span><span class="adv"></span></div></div>' +
         '<div class="clock skin-' + (clockSkin ? clockSkin.css : 'classic') + '" data-side="' + side + '"' + (G.clock || G.kind === 'online' ? '' : ' hidden') + '></div>';
       el.dataset.side = side;
     }
     renderClocks();
   }
 
+  // A move's landing squares, split into empty ones and enemy pieces: a Chess960 castle lands on
+  // the player's own rook, which is not a capture.
+  const splitTargets = (pos, ts) => {
+    const foe = (s) => { const p = E.pieceAt(pos, s); return p && Math.sign(p) !== pos.side; };
+    return { targets: ts.filter((s) => !foe(s)), captures: ts.filter(foe) };
+  };
+  // King of the Hill: the four centre squares glow green.
+  const HILL = ['d4', 'e4', 'd5', 'e5'];
+  const hillMarks = (fen) => (E.variantOf(fen) === 'koth' ? HILL.flatMap((n) => [{ sq: sqIndex(n), color: '#5fd39a', alpha: 0.34 }, { sq: sqIndex(n), color: '#8ff0bf', alpha: 0.75, shape: 1 }]) : []);
   function refreshHighlights() {
     const G = state.game;
     if (!G || state.screen !== 'game') return;
@@ -1763,11 +2814,12 @@
     if (g.pos.inCheck()) h.check = kingSquare(g.pos, g.pos.side);
     if (G.selected >= 0 && state.settings.legal) {
       for (const t of g.targets(G.selected)) {
-        const victim = E.pieceAt(g.pos, t);
+        const victim = E.pieceAt(g.pos, t) * g.pos.side < 0;
         const isEp = !victim && Math.abs(E.pieceAt(g.pos, G.selected)) === E.P && (t & 7) !== (G.selected & 7);
         (victim || isEp ? h.captures : h.targets).push(t);
       }
     }
+    h.marks = hillMarks(g.pos.fen());
     if (G.hint && G.hintStep >= 2) h.hintFrom = sqIndex(G.hint.from);
     if (G.hint && G.hintStep >= 3) h.hintTo = sqIndex(G.hint.to);
     view.setHighlights(h);
@@ -1787,12 +2839,14 @@
     if (piece && Math.sign(piece) === g.pos.side) {
       if (G.selected !== sq) AU.play('select');
       G.selected = sq;
-      if (!g.targets(sq).length) toast('That piece has no legal moves.');
+      if (!g.targets(sq).length) toast(t('play.noMoves'));
     } else { if (G.selected >= 0 && piece === 0) AU.play('illegal'); G.selected = -1; }
     refreshHighlights();
   }
   function attempt(from, to, dropped) {
     const G = state.game, g = G.g;
+    // In chaturanga a soldier can only become a Mantri, so there is nothing to choose.
+    if (g.needsPromotion(from, to) && g.pos.ch) { const m = g.find(from, to, E.Q); if (m !== null) playMove(m, true, dropped); return; }
     if (g.needsPromotion(from, to)) {
       choosePromotion(g.pos.side, (kind) => {
         const m = kind ? g.find(from, to, kind) : null;
@@ -1813,6 +2867,7 @@
     const before = { fen: g.startFen, moves: g.uciMoves(), side: g.pos.side };
     const info = g.play(m);
     if (!info) return;
+    if (byHuman) guideIdle(null);
     if (G.kind === 'online' && byHuman) ChacklateNet.send({ type: 'move', uci: E.uci(m), ply: g.moves.length - 1 });
     if (G.kind !== 'online') pressClock(moverKey);
     G.request++;
@@ -1825,7 +2880,7 @@
     const cinema = !!(info.captured || info.rook) && !quick && state.settings.captureScenes && G.kind !== 'online';
     const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : cinema ? 'move' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
     setTimeout(() => AU.play(sound), dropped ? 0 : 140);
-    if (!g.outcome) setTimeout(() => AU.announce(info.san).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
+    if (!g.outcome) setTimeout(() => AU.announce(info.san, !!g.pos.ch).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
     G.cinema = view.animateMove(info, () => {
       G.busy = false;
@@ -1842,7 +2897,7 @@
       save();
       if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
-      else maybeComputer();
+      else { maybeComputer(); gameNudge(G); }
     }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture') });
     // the clocks wait while a capture scene plays (local games; see clockRunning)
     if (G.cinema && G.clock) G.clock.since = 0;
@@ -1852,7 +2907,7 @@
   }
 
   // ----- clocks (local games; online clocks come from the server)
-  function clockRunning(G) { return G.clock && !G.g.outcome && G.g.moves.length > 0 && G.kind !== 'online' && !(G.cinema && view.capturePlaying()); }
+  function clockRunning(G) { return G.clock && !G.g.outcome && G.g.moves.length > 0 && G.kind !== 'online' && !G.paused && !(G.cinema && view.capturePlaying()); }
   function pressClock(moverKey) {
     const G = state.game, c = G.clock;
     if (!c) return;
@@ -1878,6 +2933,13 @@
   const fmt = (ms) => { const s = Math.max(0, ms) / 1000; if (s < 10) return s.toFixed(1); const m = Math.floor(s / 60), r = Math.floor(s % 60); return m + ':' + String(r).padStart(2, '0'); };
 
   // ----- the computer
+  // The guide helps on the child's turn: a word when their king is in check (the first two times in
+  // a game), and the hint button when they have been thinking a long while.
+  function gameNudge(G) {
+    if (state.game !== G || G.g.outcome || G.kind === 'online' || G.setup.dojo || G.g.pos.side !== G.human && G.kind !== 'local') return;
+    if (G.g.pos.inCheck() && (G.checkTips = (G.checkTips || 0) + 1) <= 2) guideSay('game.check', { force: true, delay: 1100 });
+    if (G.kind === 'ai') guideIdle('game.idle', 40000);
+  }
   function maybeComputer() {
     const G = state.game, g = G.g;
     if (G.kind !== 'ai' || g.outcome || g.pos.side === G.human || G.busy) return;
@@ -1921,7 +2983,9 @@
     if (!show || !e) return;
     const white = e.cp * G.g.pos.side;
     $('evalfill').style.height = Math.round(C.winProb(white) * 100) + '%';
-    bar.title = e.mate ? 'Mate in ' + Math.abs(e.mate) : (white >= 0 ? '+' : '') + (white / 100).toFixed(1);
+    const sideWord = (w) => t(w ? 'play.color.white' : 'play.color.black');
+    bar.dataset.tip = t('play.eval.title') + '|' + (e.mate ? t('play.eval.mate', { side: sideWord(e.mate * G.g.pos.side > 0), n: Math.abs(e.mate) })
+      : Math.abs(white) < 30 ? t('play.eval.even') : t('play.eval.ahead', { side: sideWord(white > 0), n: (Math.abs(white) / 100).toFixed(1) })) + ' ' + t('play.eval.more');
   }
   function liveCoach(before, info) {
     const G = state.game;
@@ -1951,14 +3015,14 @@
           pos.unmake();
           const bestM = pre.best ? pos.parseMove(pre.best) : null;
           const ex = C.explain({ cls, side: before.side, san: info.san, facts: f, refutation: refut, bestSan: pre.bestSan || (bestM ? pos.san(bestM, pos.legalMoves()) : ''), bestFacts: bestM ? C.facts(pos, bestM) : null, mateAgainst: post.mate > 0 ? post.mate : 0, missedMate: 0 });
-          text = (cls === 'blunder' ? 'Careful! ' : 'Hmm. ') + ex;
+          text = t(cls === 'blunder' ? 'play.coach.careful' : 'play.coach.hmm') + ' ' + ex;
           // The computer may have answered already, and then the reply is on the board.
           const replied = G.g.moves.length > ply + 1;
-          actions = replied ? [['Take it back', 'takeback'], ['Play on', 'dismiss']] : [['Take it back', 'takeback'], ['Show the reply', 'reply'], ['Play on', 'dismiss']];
+          actions = replied ? [[t('play.coach.takeBack'), 'takeback'], [t('play.coach.playOn'), 'dismiss']] : [[t('play.coach.takeBack'), 'takeback'], [t('play.coach.showReply'), 'reply'], [t('play.coach.playOn'), 'dismiss']];
           if (refut && !replied) G.coachArrow = { from: sqIndex(refut.from), to: sqIndex(refut.to), color: '#ff5a50' };
-        } else if (cls === 'brilliant' && lvl !== 'quiet') { text = 'Brilliant! ' + (C.describe(f) || 'A bold sacrifice that the engine likes.'); actions = [['Thanks', 'dismiss']]; }
-        else if (lvl === 'chatty' && (cls === 'best' || cls === 'excellent')) { const d = C.describe(f); text = (cls === 'best' ? 'Top move. ' : 'Nice. ') + (d || ''); actions = [['Thanks', 'dismiss']]; }
-        else if (lvl === 'chatty' && cls === 'inaccuracy') { text = 'Playable, but ' + (pre.bestSan || 'another move') + ' was a little more precise.'; actions = [['OK', 'dismiss']]; }
+        } else if (cls === 'brilliant' && lvl !== 'quiet') { text = t('play.coach.brilliant') + ' ' + (C.describe(f) || t('play.coach.bold')); actions = [[t('play.coach.thanks'), 'dismiss']]; }
+        else if (lvl === 'chatty' && (cls === 'best' || cls === 'excellent')) { const d = C.describe(f); text = t(cls === 'best' ? 'play.coach.top' : 'play.coach.nice') + ' ' + (d || ''); actions = [[t('play.coach.thanks'), 'dismiss']]; }
+        else if (lvl === 'chatty' && cls === 'inaccuracy') { text = pre.bestSan ? t('play.coach.playable', { san: pre.bestSan }) : t('play.coach.playableOther'); actions = [[t('common.ok'), 'dismiss']]; }
         if (!text) return;
         G.coachArrow = G.coachArrow && cls !== 'blunder' && cls !== 'mistake' ? null : G.coachArrow;
         coachSay(text, actions, cls);
@@ -1978,8 +3042,8 @@
     if (!slot || !G) return;
     if (!G.coachMsg) { slot.innerHTML = ''; applyInsets(); return; }
     const m = G.coachMsg, who = m.who || COACH;
-    slot.innerHTML = '<div class="coach' + (m.who ? ' rival' : '') + '"><div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div><b>' + esc(m.who ? who.full : 'Rooky, your coach') + (m.cls ? ' · <span class="cls ' + m.cls + '">' + C.LABEL[m.cls] + '</span>' : '') + '</b><p>' + esc(m.text) + '</p>' +
-      '<div class="row">' + (m.actions || []).map(([t, a]) => '<button class="btn small' + (a === 'takeback' ? ' primary' : '') + '" data-coach="' + a + '">' + esc(t) + '</button>').join('') + '</div></div></div>';
+    slot.innerHTML = '<div class="coach' + (m.who ? ' rival' : '') + '"><div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div><b>' + esc(m.who ? fullName(who) : t('play.coach.rooky')) + (m.cls ? ' · <span class="cls ' + m.cls + '">' + C.LABEL[m.cls] + '</span>' : '') + '</b><p>' + esc(m.text) + '</p>' +
+      '<div class="row">' + (m.actions || []).map(([label, a]) => '<button class="btn small' + (a === 'takeback' ? ' primary' : '') + '" data-coach="' + a + '">' + esc(label) + '</button>').join('') + '</div></div></div>';
     slot.querySelectorAll('[data-coach]').forEach((b) => {
       b.onclick = () => {
         const a = b.dataset.coach;
@@ -2018,8 +3082,8 @@
   }
   function showHintStep() {
     const G = state.game, h = G.hint;
-    const text = G.hintStep === 1 ? h.theme : G.hintStep === 2 ? 'Look at your ' + h.piece + '.' : 'Try ' + h.san + '. ' + (h.text || '');
-    coachSay(text, G.hintStep < 3 ? [['Another hint', 'more'], ['Got it', 'dismiss']] : [['Got it', 'dismiss']]);
+    const text = G.hintStep === 1 ? h.theme : G.hintStep === 2 ? t('play.coach.lookAt', { piece: h.piece }) : t('play.coach.try', { san: h.san }) + ' ' + (h.text || '');
+    coachSay(text, G.hintStep < 3 ? [[t('play.coach.anotherHint'), 'more'], [t('common.gotIt'), 'dismiss']] : [[t('common.gotIt'), 'dismiss']]);
     const slot = $('coach-slot'), more = slot && slot.querySelector('[data-coach="more"]');
     if (more) more.onclick = () => { G.hintStep++; showHintStep(); };
     refreshHighlights();
@@ -2027,22 +3091,23 @@
   function showThreat() {
     const G = state.game;
     if (!humanTurn()) return;
-    if (G.g.pos.inCheck()) { coachSay('You are in check: that is the threat! Move the king, block, or capture the checking piece.', [['OK', 'dismiss']]); return; }
+    if (G.g.pos.inCheck()) { coachSay(t('play.coach.inCheck'), [[t('common.ok'), 'dismiss']]); return; }
     job('analysis', { type: 'threat', fen: G.g.startFen, moves: G.g.uciMoves(), timeMs: 300 }, (r) => {
       if (state.game !== G || !r.threat) return;
       G.threat = r.threat.serious ? r.threat : null;
-      coachSay(r.threat.serious ? r.threat.text : 'No immediate danger. ' + r.threat.text, [['OK', 'dismiss']]);
+      coachSay(r.threat.serious ? r.threat.text : t('play.coach.noDanger') + ' ' + r.threat.text, [[t('common.ok'), 'dismiss']]);
       refreshHighlights();
     });
   }
   // Online reactions: a short preset list, never typed text.
-  const EMOTES = { hello: ['👋', 'Hello!'], luck: ['🍀', 'Good luck!'], nice: ['👍', 'Nice move!'], wow: ['😮', 'Wow!'], think: ['🤔', 'Let me think…'], gg: ['🤝', 'Good game!'] };
+  const EMOTES = { hello: '👋', luck: '🍀', nice: '👍', wow: '😮', think: '🤔', gg: '🤝' };
+  const emoteText = (k) => t('play.emote.' + k);
   function emotePicker() {
     const old = document.querySelector('.emote-pop');
     if (old) { old.remove(); return; }
     const pop = document.createElement('div');
     pop.className = 'emote-pop glass'; pop.setAttribute('role', 'menu');
-    pop.innerHTML = Object.keys(EMOTES).map((k) => '<button class="btn small" role="menuitem" data-emote="' + k + '"><span aria-hidden="true">' + EMOTES[k][0] + '</span> ' + EMOTES[k][1] + '</button>').join('');
+    pop.innerHTML = Object.keys(EMOTES).map((k) => '<button class="btn small" role="menuitem" data-emote="' + k + '"><span aria-hidden="true">' + EMOTES[k] + '</span> ' + emoteText(k) + '</button>').join('');
     // Fixed above the action bar, which scrolls sideways on phones and would clip it.
     const r = $('g-emote').getBoundingClientRect();
     pop.style.left = Math.min(window.innerWidth - 150, Math.max(150, r.left + r.width / 2)) + 'px';
@@ -2061,7 +3126,7 @@
     const old = card.querySelector('.emote-bubble'); if (old) old.remove();
     const b = document.createElement('div');
     b.className = 'emote-bubble'; b.setAttribute('role', 'status');
-    b.innerHTML = '<span aria-hidden="true">' + em[0] + '</span> ' + esc(em[1]);
+    b.innerHTML = '<span aria-hidden="true">' + em + '</span> ' + esc(emoteText(id));
     card.appendChild(b);
     if (!mine) AU.play('tap');
     setTimeout(() => b.remove(), 3500);
@@ -2069,12 +3134,12 @@
   function offerDraw() {
     const G = state.game;
     if (G.g.outcome) return;
-    if (G.kind === 'online') { ChacklateNet.send({ type: 'draw-offer' }); toast('Draw offered.'); return; }
+    if (G.kind === 'online') { ChacklateNet.send({ type: 'draw-offer' }); toast(t('play.drawOffered')); return; }
     // The computer accepts only when it is clearly not better.
     const e = G.evals[G.g.moves.length];
     const aiView = e ? e.cp * (G.g.pos.side === G.human ? -1 : 1) : 0;
     if (G.g.moves.length >= 20 && aiView <= 30) { G.g.agreeDraw(); G.request++; endGame(); }
-    else { const who = rival(G); coachSay(G.g.moves.length < 20 ? 'Not yet! We have only just started. Let\'s play on.' : 'No thank you, I would like to keep playing.', [['OK', 'dismiss']], null, who); AU.play('illegal'); }
+    else { const who = rival(G); coachSay(t(G.g.moves.length < 20 ? 'play.drawEarly' : 'play.drawNo'), [[t('common.ok'), 'dismiss']], null, who); AU.play('illegal'); }
   }
   let resignArmed = 0;
   function resign() {
@@ -2083,8 +3148,8 @@
     const btn = $('g-resign');
     if (Date.now() - resignArmed > 3000) {
       resignArmed = Date.now();
-      btn.classList.add('warn'); btn.querySelector('.lbl').textContent = 'Sure?';
-      setTimeout(() => { if (Date.now() - resignArmed >= 3000 && btn.isConnected) { btn.classList.remove('warn'); btn.querySelector('.lbl').textContent = 'Resign'; } }, 3100);
+      btn.classList.add('warn'); btn.querySelector('.lbl').textContent = t('play.sure');
+      setTimeout(() => { if (Date.now() - resignArmed >= 3000 && btn.isConnected) { btn.classList.remove('warn'); btn.querySelector('.lbl').textContent = t('play.btn.resign'); } }, 3100);
       return;
     }
     resignArmed = 0;
@@ -2108,6 +3173,7 @@
     if (G.setup.dojo) { if (!G.dojoDone) dojoCheck(G, null); return; }
     if (G.resultShown) return;
     G.resultShown = true;
+    guideIdle(null);
     const o = g.outcome;
     const winner = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
     const pos = g.pos;
@@ -2116,7 +3182,7 @@
     const vsSomeone = G.kind !== 'local';
     const youWon = vsSomeone && winner === G.human, youLost = vsSomeone && winner === -G.human;
     AU.play(winner ? (youLost ? 'loss' : 'win') : 'draw');
-    setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
+    if (!VARIANT_END.has(o.reason)) setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
     // Progress
     let res = null;
     if (G.kind !== 'local' || g.moves.length >= 10) {
@@ -2124,7 +3190,7 @@
         mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
         plies: g.moves.length, sans: g.sans, firstIsMine: G.kind === 'local' ? true : (E.positionFrom(g.startFen, []).side === G.human), startFen: g.startFen, ucis: g.uciMoves(),
         enPassant: g.moves.some((m, i) => (E.mFlags(m) & E.F_EP) && (G.kind === 'local' || (i % 2 === 0) === (E.positionFrom(g.startFen, []).side === G.human))),
-        pgn: pgn(), color: G.human,
+        pgn: pgn(), color: G.human, variant: g.variant,
       });
     }
     // Beating an era's champion completes that stage of the journey.
@@ -2133,29 +3199,30 @@
     save();
     const who = G.kind === 'ai' ? rival(G) : null;
     const opp = G.kind === 'online' && G.online && G.online.opponent;
-    const badge = jr ? 'Champion beaten' : REASON_TEXT[o.reason] || 'Game over';
+    const badge = jr ? t('play.end.champion') : REASON_TEXT[o.reason] || t('play.end.over');
     let title;
-    if (!winner) title = 'It\'s a draw';
-    else if (who) title = youWon ? 'You beat ' + who.name + '!' : who.name + ' wins';
-    else if (G.kind === 'online') title = youWon ? 'Victory!' : 'Defeat';
-    else title = (winner === WHITE ? 'White' : 'Black') + ' wins!';
+    if (!winner) title = t('play.end.draw');
+    else if (who) title = youWon ? t('play.end.youBeat', { name: who.name }) : t('play.end.wins', { name: who.name });
+    else if (G.kind === 'online') title = t(youWon ? 'play.end.victory' : 'play.end.defeat');
+    else title = t(winner === WHITE ? 'play.end.whiteWins' : 'play.end.blackWins');
     const art = who ? '<img class="portrait big" src="' + face(who) + '" alt="">' : opp ? avatarHtml('xl', opp.avatar, opp.frame) : vsSomeone ? avatarHtml('xl') : '<img class="portrait big" src="' + ART.crestUri() + '" alt="">';
     const lv = PG.levelFor(state.progress.xp);
     const html = '<div class="result-hero">' + art +
       '<span class="result-badge' + (youWon ? ' win' : youLost ? ' loss' : '') + '">' + esc(badge) + '</span>' +
       '<h2 class="result-title">' + esc(title) + '</h2>' +
-      (who ? '<p class="quote"><b>' + esc(who.full) + '</b>“' + esc(sayLine(who, youWon ? 'win' : youLost ? 'lose' : 'draw')) + '”</p>' : '') +
+      (who ? '<p class="quote"><b>' + esc(fullName(who)) + '</b>“' + esc(sayLine(who, youWon ? 'win' : youLost ? 'lose' : 'draw')) + '”</p>' : '') +
       '<p class="sub">' + esc(resultSub(G, o, winner)) + '</p>' +
-      (res ? '<div class="xpline"><div class="top"><span>Level ' + lv.level + ' · ' + esc(lv.title) + '</span><b>+' + res.xp + ' XP</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
-      (G.online && G.online.ratingDelta !== undefined ? '<p class="sub">Rating: <b>' + G.online.rating + '</b> (' + (G.online.ratingDelta >= 0 ? '+' : '') + G.online.ratingDelta + ')</p>' : '') +
-      '<div class="row" style="justify-content:center"><button class="btn" data-close>Look at the board</button>' +
-      (era ? '<button class="btn" id="r-era">' + icon('journey') + ' ' + esc(era.name) + '</button>' : '<button class="btn" id="r-home">' + icon('home') + ' Home</button>') +
-      (G.kind === 'online' ? '<button class="btn" id="r-report">Report a problem</button>' : jr ? '' : '<button class="btn' + (era ? ' primary' : '') + '" id="r-rematch">' + icon('refresh') + ' ' + (era ? 'Try again' : 'Rematch') + '</button>') +
-      (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? 'Claim your prize' : 'Back to ' + esc(era.name)) + '</button>'
-        : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' Review with Rooky</button>' : '') + '</div></div>';
+      (res ? '<div class="xpline"><div class="top"><span>' + t('common.level', { n: lv.level }) + ' · ' + esc(levelTitle(lv)) + '</span><b>+' + t('common.xp', { n: res.xp }) + '</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
+      (G.online && G.online.ratingDelta !== undefined ? '<p class="sub">' + t('play.end.rating', { n: '<b>' + G.online.rating + '</b>', delta: (G.online.ratingDelta >= 0 ? '+' : '') + G.online.ratingDelta }) + '</p>' : '') +
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('play.end.look') + '</button>' +
+      (era ? '<button class="btn" id="r-era">' + icon('journey') + ' ' + esc(eraName(era)) + '</button>' : '<button class="btn" id="r-home">' + icon('home') + ' ' + t('common.nav.home') + '</button>') +
+      (G.kind === 'online' ? '<button class="btn" id="r-report">' + t('play.end.report') + '</button>' : jr ? '' : '<button class="btn' + (era ? ' primary' : '') + '" id="r-rematch">' + icon('refresh') + ' ' + t(era ? 'common.tryAgain' : 'play.end.rematch') + '</button>') +
+      (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? t('play.end.prize') : t('learn.dj.backTo', { era: esc(eraName(era)) })) + '</button>'
+        : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' ' + t('play.btn.review') + '</button>' : '') + '</div></div>';
     let prizeShown = false;
     setTimeout(() => {
       if (state.game !== G || state.screen !== 'game') return;
+      if (exploring) view.explore(false);
       const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr), 250); } } });
       setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
       const on = (id, fn) => { const b = mdl.querySelector(id); if (b) b.onclick = fn; };
@@ -2167,23 +3234,48 @@
       on('#r-prize', () => { mdl.close(); if (!jr.eraDone) go('era', era.id); });
       celebrate(res);
       if (jr && !jr.eraDone) celebrate(jr, true);
+      if (!era && mdl.querySelector('#r-review')) guideSay('game.over', { delay: 2200 });
     }, state.settings.animations ? 1500 : 200);
+  }
+  // ----- looking round the room after a game
+  // Like Jong Club's free camera. Once a game is over, Explore hides the HUD and the table
+  // (scene.js) lets the player walk round the room; R, Escape or Back return to the seat. The
+  // controls are shown on a small card the first time only.
+  let exploring = null;
+  function exploreChanged(on, name) {
+    document.body.classList.toggle('exploring', on);
+    if (exploring) { exploring.remove(); exploring = null; }
+    if (!on) { const b = $('g-explore'); if (b) b.focus({ preventScroll: true }); return; }
+    const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const el = document.createElement('div');
+    el.className = 'explore';
+    const hint = state.settings.exploreHint ? '' : '<div class="explorehint glass" role="note"><small>' + t('play.explore.look') + '</small><ul>' +
+      (touch ? '<li>' + t('play.explore.drag') + '</li><li>' + t('play.explore.pinch') + '</li><li>' + t('play.explore.walk2') + '</li><li>' + t('play.explore.tapBack') + '</li>'
+        : '<li>' + t('play.explore.drag') + '</li><li>' + t('play.explore.scroll') + '</li><li>' + t('play.explore.keys', { keys: '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>' }) + '</li><li>' + t('play.explore.turn', { q: '<kbd>Q</kbd>', e: '<kbd>E</kbd>' }) + '</li><li>' + t('play.explore.ret', { r: '<kbd>R</kbd>', esc: '<kbd>Esc</kbd>' }) + '</li>') +
+      '</ul><button class="btn small primary" id="ex-ok">' + t('common.gotIt') + '</button></div>';
+    el.innerHTML = hint + '<div class="explorebar glass"><div><small>' + t('play.explore.now') + '</small><b>' + esc(name || t('play.explore.room')) + '</b></div>' +
+      '<button class="btn small" id="ex-back">' + icon('back') + ' ' + t('common.back') + (touch ? '' : ' <kbd>R</kbd>') + '</button></div>';
+    document.body.appendChild(el);
+    exploring = el;
+    el.querySelector('#ex-back').onclick = () => { AU.play('tap'); view.explore(false); };
+    const ok = el.querySelector('#ex-ok');
+    if (ok) ok.onclick = () => { state.settings.exploreHint = true; save(); ok.parentElement.remove(); };
+    // the hint has been seen once it is up; it never comes back
+    if (ok) { state.settings.exploreHint = true; save(); }
   }
   function resultSub(G, o, winner) {
     const g = G.g;
     const loser = winner ? sideName(G, -winner) : '';
-    const you = state.settings.name;
-    return ({
-      checkmate: (winner ? sideName(G, winner) + ' delivered checkmate' : '') + ' in ' + Math.ceil(g.moves.length / 2) + ' moves.',
-      resignation: (loser === you ? 'You' : loser) + ' resigned.',
-      timeout: (loser === you ? 'Your' : loser + '\'s') + ' clock ran out.',
-      'timeout-insufficient': 'A clock ran out, but the other side could not checkmate, so it is a draw.',
-      stalemate: 'The side to move has no legal moves and is not in check.',
-      insufficient: 'Neither side has enough pieces left to checkmate.',
-      threefold: 'The same position appeared three times.', fivefold: 'The same position appeared five times.',
-      fifty: 'Fifty moves passed with no capture or pawn move.', seventyfive: 'Seventy-five moves passed with no capture or pawn move.',
-      agreement: 'Both sides agreed to a draw.', abandoned: 'Your opponent left the game.', aborted: 'No first move was made in time.',
-    }[o.reason] || '').trim();
+    const mine = G.kind !== 'local' && loser === myName();
+    const n = Math.ceil(g.moves.length / 2);
+    if (o.reason === 'checkmate') return winner ? t('play.why.checkmate', { name: sideName(G, winner), n }) : '';
+    if (o.reason === 'resignation') return mine ? t('play.why.youResigned') : t('play.why.resigned', { name: loser });
+    const vr = variantOfGame(g);
+    if (o.reason === 'bare-king' || o.reason === 'stalemate-win') return winner ? t('play.why.' + o.reason, { name: sideName(G, o.reason === 'bare-king' ? winner : -winner), variant: vr ? vr.name : '' }) : '';
+    if (o.reason === 'hill' || o.reason === 'three-check') return winner ? t('play.why.' + o.reason, { name: sideName(G, winner) }) : '';
+    if (o.reason === 'insufficient' && vr) return t('play.why.insufficientVariant');
+    if (o.reason === 'timeout') return mine ? t('play.why.yourClock') : t('play.why.clock', { name: loser });
+    return I18N.has('play.why.' + o.reason) ? t('play.why.' + o.reason) : '';
   }
 
   // ----- the HUD
@@ -2193,17 +3285,29 @@
     const g = G.g;
     const taken = { [WHITE]: [], [BLACK]: [] };
     g.captured.forEach((p) => { if (p) taken[-Math.sign(p)].push(Math.abs(p)); });
+    const VAL = g.pos.ch ? VALUE_OLD : VALUE;
     let diff = 0;
-    for (let sq = 0; sq < 64; sq++) { const p = E.pieceAt(g.pos, sq); if (p) diff += Math.sign(p) * VALUE[Math.abs(p)]; }
+    for (let sq = 0; sq < 64; sq++) { const p = E.pieceAt(g.pos, sq); if (p) diff += Math.sign(p) * VAL[Math.abs(p)]; }
     for (const id of ['p-bottom', 'p-top']) {
       const el = $(id), side = +el.dataset.side;
-      const list = taken[side].slice().sort((a, b) => VALUE[b] - VALUE[a] || b - a);
+      const list = taken[side].slice().sort((a, b) => VAL[b] - VAL[a] || b - a);
       const adv = diff * side;
       const key = list.join('') + '|' + adv;
       if (el.dataset.taken !== key) {
         el.dataset.taken = key;
-        el.querySelector('.caps').innerHTML = list.map((k) => capImg(TYPE[k], side === WHITE ? 'b' : 'w')).join('');
+        el.querySelector('.caps').innerHTML = list.map((k) => capImg(TYPE[k], side === WHITE ? 'b' : 'w', g.pos.ch)).join('');
         el.querySelector('.adv').textContent = adv > 0 ? '+' + adv : '';
+      }
+      // Three-check: three pips per player, one lit for every check they have given.
+      const ck = el.querySelector('.checks');
+      if (g.pos.v.checks) {
+        const n = g.pos.checks[side === WHITE ? 0 : 1];
+        if (ck.dataset.n !== String(n)) {
+          ck.dataset.n = n; ck.hidden = false;
+          ck.setAttribute('aria-label', t('play.checksGiven', { n, of: E.CHECKS_TO_WIN }));
+          ck.title = ck.getAttribute('aria-label');
+          ck.innerHTML = Array.from({ length: E.CHECKS_TO_WIN }, (_, i) => '<i' + (i < n ? ' class="on"' : '') + '></i>').join('');
+        }
       }
       el.classList.toggle('to-move', !g.outcome && g.pos.side === side);
     }
@@ -2211,12 +3315,12 @@
     const chip = $('g-chip');
     chip.className = 'status-chip glass';
     let text;
-    if (g.outcome) { const o = g.outcome; text = (o.result === '1/2-1/2' ? 'Draw' : (o.result === '1-0' ? 'White' : 'Black') + ' wins') + ' · ' + (REASON_TEXT[o.reason] || ''); }
-    else if (G.thinking) { text = rival(G).name + ' is thinking'; chip.classList.add('thinking'); }
-    else if (G.kind === 'online' && g.pos.side !== G.human) text = (G.online && G.online.opponentAway ? 'Opponent reconnecting…' : 'Opponent to move');
+    if (g.outcome) { const o = g.outcome; text = t(o.result === '1/2-1/2' ? 'play.chip.draw' : o.result === '1-0' ? 'play.chip.whiteWins' : 'play.chip.blackWins') + ' · ' + (REASON_TEXT[o.reason] || ''); }
+    else if (G.thinking) { text = t('play.chip.thinking', { name: rival(G).name }); chip.classList.add('thinking'); }
+    else if (G.kind === 'online' && g.pos.side !== G.human) text = t(G.online && G.online.opponentAway ? 'play.chip.reconnecting' : 'play.chip.theirMove');
     else {
-      text = G.kind === 'local' ? (g.pos.side === WHITE ? 'White' : 'Black') + ' to move' : 'Your move';
-      if (g.pos.inCheck()) { text = 'Check! ' + text; chip.classList.add('check'); }
+      text = G.kind === 'local' ? t(g.pos.side === WHITE ? 'play.chip.whiteToMove' : 'play.chip.blackToMove') : t('play.chip.yourMove');
+      if (g.pos.inCheck()) { text = t('play.chip.check') + ' ' + text; chip.classList.add('check'); }
     }
     chip.textContent = text;
     // buttons
@@ -2230,15 +3334,17 @@
     if ($('g-draw')) $('g-draw').hidden = done;
     const claim = !done && g.claimable();
     $('g-claim').hidden = !claim || !humanTurn();
-    if (claim) $('g-claim').textContent = claim === 'threefold' ? 'Claim draw (threefold)' : 'Claim draw (50 moves)';
+    if (claim) $('g-claim').textContent = t(claim === 'threefold' ? 'play.btn.claim3' : 'play.btn.claim50');
     $('g-review').hidden = !done || g.moves.length < 4;
     $('g-new').hidden = !done || G.kind === 'online' || !!G.setup.journey || !!G.setup.dojo;
-    $('g-view-lbl').textContent = state.settings.view === 'top' ? '3D view' : 'Top view';
+    $('g-explore').hidden = !done || !view.explore;
+    $('g-view-lbl').textContent = t(state.settings.view === 'top' ? 'play.btn.3dView' : 'play.btn.topView');
     $('move-input').disabled = !humanTurn();
     renderMoves();
     renderClocks();
     renderEval();
     renderCoach();
+    if (G.rulebook) renderRuleBook();
   }
   function renderClocks() {
     const G = state.game;
@@ -2259,7 +3365,7 @@
   function renderMoves() {
     const G = state.game, g = G.g;
     const ol = $('moves');
-    if (!g.sans.length) { ol.innerHTML = '<li><span class="empty">No moves yet. Drag a piece, or tap it and then tap a square.</span></li>'; return; }
+    if (!g.sans.length) { ol.innerHTML = '<li><span class="empty">' + t('play.noMovesYet') + '</span></li>'; return; }
     ol.innerHTML = moveRows(g.startFen, g.sans, g.sans.length - 1);
     const wrap = $('moves-wrap'); wrap.scrollTop = wrap.scrollHeight;
   }
@@ -2268,7 +3374,9 @@
     let num = start.full, white = start.side === WHITE;
     const rows = [];
     let row = null;
-    const cell = (i) => i < 0 ? '' : '<span class="m' + (i === cur ? ' cur' : '') + '" data-ply="' + i + '">' + esc(sans[i]) + (badges && badges[i] ? badges[i] : '') + '</span>';
+    // Chaturanga writes its own letters: M for the Mantri (Q code), G for the Gaja (B code).
+    const text = start.ch ? (x) => x.replace(/^Q/, 'M').replace(/^B/, 'G').replace(/=Q/, '=M') : (x) => x;
+    const cell = (i) => i < 0 ? '' : '<span class="m' + (i === cur ? ' cur' : '') + '" data-ply="' + i + '">' + esc(text(sans[i])) + (badges && badges[i] ? badges[i] : '') + '</span>';
     sans.forEach((san, i) => {
       if (white || !row) { row = { n: num, w: white ? i : -1, b: -1 }; rows.push(row); if (!white) { row.b = i; num++; } }
       else { row.b = i; num++; }
@@ -2285,16 +3393,16 @@
       TimeControl: !G.setup.tc || G.setup.tc === 'none' ? '-' : G.setup.tc.split('+').map((x, i) => (i ? x : x * 60)).join('+') });
   }
   function copy(text, label) {
-    const fallback = () => { const m = modal('<h2>Copy ' + esc(label) + '</h2><p class="sub">Select the text and copy it.</p><textarea class="share" readonly>' + esc(text) + '</textarea><div class="row"><button class="btn primary" data-close>Done</button></div>'); setTimeout(() => m.querySelector('textarea').select(), 40); };
-    try { navigator.clipboard.writeText(text).then(() => toast(esc(label) + ' copied.'), fallback); } catch (e) { fallback(); }
+    const fallback = () => { const m = modal('<h2>' + t('play.copy.title', { what: esc(label) }) + '</h2><p class="sub">' + t('play.copy.sub') + '</p><textarea class="share" readonly>' + esc(text) + '</textarea><div class="row"><button class="btn primary" data-close>' + t('common.done') + '</button></div>'); setTimeout(() => m.querySelector('textarea').select(), 40); };
+    try { navigator.clipboard.writeText(text).then(() => toast(t('play.copy.done', { what: esc(label) })), fallback); } catch (e) { fallback(); }
   }
 
   function choosePromotion(side, cb) {
-    const names = { 5: 'Queen', 4: 'Rook', 3: 'Bishop', 2: 'Knight' };
+    const names = { 5: PIECE_NAME.q, 4: PIECE_NAME.r, 3: PIECE_NAME.b, 2: PIECE_NAME.n };
     const ink = side === WHITE ? ['#f6ead2', '#a68a62'] : ['#4a2c1d', '#140b07'];
     let picked = false;
-    const m = modal('<div class="eyebrow">Promotion</div><h2>Your pawn reached the end!</h2><p class="sub">Choose what it becomes. Most players choose the queen.</p><div class="promo">' +
-      [5, 4, 3, 2].map((k) => '<button data-k="' + k + '"><img src="' + medal('piece:' + TYPE[k], ink[0], ink[1]) + '" alt=""><span>' + names[k] + '</span></button>').join('') + '</div><div class="row"><button class="btn" data-close>Cancel</button></div>',
+    const m = modal('<div class="eyebrow">' + t('play.promo.eyebrow') + '</div><h2>' + t('play.promo.title') + '</h2><p class="sub">' + t('play.promo.sub') + '</p><div class="promo">' +
+      [5, 4, 3, 2].map((k) => '<button data-k="' + k + '"><img src="' + medal('piece:' + TYPE[k], ink[0], ink[1]) + '" alt=""><span>' + names[k] + '</span></button>').join('') + '</div><div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
     { onClose() { if (!picked) cb(0); } });
     m.querySelectorAll('[data-k]').forEach((b) => { b.onclick = () => { picked = true; m.close(); AU.play('promote'); cb(+b.dataset.k); }; });
   }
@@ -2303,13 +3411,13 @@
   function newGameModal() {
     const s = state.setup;
     const prem = state.progress.premium;
-    const m = modal('<form id="ng"><div class="eyebrow">Custom game</div><h2>Set up a game</h2><p class="sub">Everything runs on this device. The animal friends never change how strongly they play during a game.</p>' +
-      '<div class="field"><div class="label">Opponent</div><div class="seg"><label><input type="radio" name="mode" value="ai"' + (s.mode !== 'local' ? ' checked' : '') + '><span>An animal friend</span></label><label><input type="radio" name="mode" value="local"' + (s.mode === 'local' ? ' checked' : '') + '><span>Two players, one device</span></label></div></div>' +
-      '<div class="field" id="f-color"><div class="label">Play as</div><div class="seg">' + [['white', 'White'], ['black', 'Black'], ['random', 'Surprise me']].map(([c, t]) => '<label><input type="radio" name="color" value="' + c + '"' + (s.color === c ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
-      '<div class="field" id="f-level"><div class="label">Who would you like to play?</div><div class="levels">' + LEVELS.map((lv, i) => { const o = persona(i); return '<label><input type="radio" name="level" value="' + i + '"' + (s.level === i ? ' checked' : '') + (lv.premium && !prem ? ' disabled' : '') + '><span class="lv"><img class="portrait" src="' + face(o) + '" alt=""><span><i>' + esc(lv.band) + (lv.premium && !prem ? ' · Premium' : '') + '</i><b>' + esc(o.name) + '</b><small>the ' + esc(species(o)) + '</small></span></span></label>'; }).join('') + '</div></div>' +
-      '<div class="field"><div class="label">Clock</div><div class="seg">' + [['none', 'No clock'], ['1+0', '1 min'], ['3+2', '3 + 2'], ['5+0', '5 min'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', '30 min']].map(([v, t]) => '<label><input type="radio" name="tc" value="' + v + '"' + (s.tc === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
-      '<div class="field"><label for="ng-fen">Start from a position (optional, as FEN)</label><input class="text-in" id="ng-fen" placeholder="Leave empty for the usual start" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div>' +
-      '<div class="row"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary">' + icon('play') + ' Start game</button></div></form>', { cls: 'wide', x: true });
+    const m = modal('<form id="ng"><div class="eyebrow">' + t('play.ng.eyebrow') + '</div><h2>' + t('play.ng.title') + '</h2><p class="sub">' + t('play.ng.sub') + '</p>' +
+      '<div class="field"><div class="label">' + t('play.opponent') + '</div><div class="seg"><label><input type="radio" name="mode" value="ai"' + (s.mode !== 'local' ? ' checked' : '') + '><span>' + t('play.ng.ai') + '</span></label><label><input type="radio" name="mode" value="local"' + (s.mode === 'local' ? ' checked' : '') + '><span>' + t('play.ng.local') + '</span></label></div></div>' +
+      '<div class="field" id="f-color"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + ['white', 'black', 'random'].map((c) => '<label><input type="radio" name="color" value="' + c + '"' + (s.color === c ? ' checked' : '') + '><span>' + t('play.color.' + c) + '</span></label>').join('') + '</div></div>' +
+      '<div class="field" id="f-level"><div class="label">' + t('play.ng.who') + '</div><div class="levels">' + LEVELS.map((lv, i) => { const o = persona(i); return '<label><input type="radio" name="level" value="' + i + '"' + (s.level === i ? ' checked' : '') + (lv.premium && !prem ? ' disabled' : '') + '><span class="lv"><img class="portrait" src="' + face(o) + '" alt=""><span><i>' + esc(bandName(i)) + (lv.premium && !prem ? ' · ' + t('common.premium') : '') + '</i><b>' + esc(o.name) + '</b><small>' + esc(speciesName(o)) + '</small></span></span></label>'; }).join('') + '</div></div>' +
+      '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + [['none', 'play.clock.none'], ['1+0', 'play.clock.1'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']].map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + (s.tc === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
+      '<div class="field"><label for="ng-fen">' + t('play.ng.fen') + '</label><input class="text-in" id="ng-fen" placeholder="' + t('play.ng.fenHint') + '" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div>' +
+      '<div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.ng.start') + '</button></div></form>', { cls: 'wide', x: true });
     const form = m.querySelector('#ng');
     const sync = () => { const ai = form.mode.value === 'ai'; m.querySelector('#f-color').hidden = !ai; m.querySelector('#f-level').hidden = !ai; };
     form.onchange = sync; sync();
@@ -2324,31 +3432,36 @@
     };
   }
   // Online clocks: every game is timed, with ten minutes a side at most.
-  const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', '5 min'], ['5+3', '5 + 3'], ['10+0', '10 min']];
+  const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['5+3', '5 + 3'], ['10+0', 'play.clock.10']];
   function worldModal() {
-    if (!netOn()) { toast('Online play is not connected right now. Try Quick Play for a game with an animal friend.'); return; }
-    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">Play the world</div><h2>Find a player</h2>' +
-      '<p class="sub">We pair you with someone waiting for the same clock. Players only see a made-up name, and you can send friendly reactions, never messages.</p></div></div>' +
-      '<div class="field"><div class="label">Clock (10 minutes at most)</div><div class="seg">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="wtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
-      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn primary" id="w-go">' + icon('globe') + ' Find a player</button></div>', { x: true });
+    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">' + t('play.world') + '</div><h2>' + t('play.w.title') + '</h2>' +
+      '<p class="sub">' + t('play.w.sub') + '</p></div></div>' +
+      '<div class="field"><div class="label">' + t('play.w.clock') + '</div><div class="seg">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="wtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
+      '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary" id="w-go">' + icon('globe') + ' ' + t('play.w.title') + '</button></div>', { x: true });
     m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
   }
+  // Play a friend on another device: create a table and share its code, or join one with a code.
+  // The online part is always offered; ChacklateNet waits for the connection or explains why there is none.
   function friendModal() {
-    const online = netOn();
-    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Two players</h2><p class="sub">' + (online ? 'Make a game and share its code, or join with your friend\'s code.' : 'Take turns on this device. Online codes need a connection, which is not available right now.') + '</p></div></div>' +
-      (online ? '<div class="field"><div class="label">Clock (every online game is timed, 10 minutes at most)</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="frtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
-        '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="fr-create">' + icon('users') + ' Make a game</button></div>' +
-        '<div class="field" style="margin-top:18px"><label for="fr-code">Join with a code</label><div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123"><button class="btn" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></div>' : '') +
-      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn' + (online ? '' : ' primary') + '" id="fr-local">' + icon('users') + ' Take turns here</button></div>', { x: true });
+    const link = window.ChacklateNet && ChacklateNet.link ? ChacklateNet.link() : 'unavailable';
+    const status = link === 'ready' ? '' : '<p class="fine">' + t(link === 'connecting' ? 'play.fr.connecting' : 'play.fr.unreachable') + '</p>';
+    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">' + t('play.friend') + '</div><h2>' + t('play.fr.title') + '</h2><p class="sub">' + t('play.fr.sub') + '</p></div></div>' +
+      '<div class="friend-pick"><section class="glass"><h3>' + icon('users') + ' ' + t('play.fr.create') + '</h3><p class="fine">' + t('play.fr.createSub') + '</p>' +
+      '<div class="label">' + t('play.fr.clock') + '</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="frtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div>' +
+      '<button class="btn primary" id="fr-create">' + icon('users') + ' ' + t('play.fr.createBtn') + '</button></section>' +
+      '<section class="glass"><h3>' + icon('play') + ' ' + t('play.fr.join') + '</h3><label class="fine" for="fr-code">' + t('play.fr.joinSub') + '</label>' +
+      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
+      status +
+      '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn" id="fr-local">' + icon('users') + ' ' + t('play.fr.local') + '</button></div>', { x: true });
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
-    if (online) {
-      m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
-      m.querySelector('#fr-join').onclick = () => {
-        const code = m.querySelector('#fr-code').value.trim().toUpperCase();
-        if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = 'Codes are 6 letters or digits.'; return; }
-        m.close(); ChacklateNet.joinFriend(code);
-      };
-    }
+    m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
+    const join = () => {
+      const code = m.querySelector('#fr-code').value.trim().toUpperCase();
+      if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = t('play.fr.badCode'); return; }
+      m.close(); ChacklateNet.joinFriend(code);
+    };
+    m.querySelector('#fr-join').onclick = join;
+    m.querySelector('#fr-code').onkeydown = (e) => { if (e.key === 'Enter') join(); };
   }
 
   // ---------------------------------------------------------------- review
@@ -2360,19 +3473,19 @@
     { const p = E.positionFrom(start, []); for (const u of ucis) { const m = p.parseMove(u); sans.push(p.san(m, p.legalMoves())); p.make(m); } }
     const fromGame = state.game && state.game.g.outcome && state.game.g.startFen === start && state.game.g.moves.length === ucis.length;
     if (fromGame) setLook(state.game.setup.look || null);
-    mount('<div class="hud-top"><button class="backbtn" id="rv-back">' + icon('back') + '<span>' + (fromGame ? 'Back to the game' : 'Back') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>Game review · ' + esc(arg.title || '') + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="rv-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="side glass wide" id="side"><header><b>Rooky\'s review</b><span class="pill" id="rv-depth"></span></header>' +
-      '<div id="rv-body" class="rv-body"><div class="progress-ring">' + faceImg(COACH) + '<div>Rooky is looking through your game…</div><div class="bar" style="width:180px"><i id="rv-prog" style="width:0%"></i></div></div></div></aside>' +
-      '<div class="actionbar glass"><button class="btn" id="rv-first" aria-label="First move">' + icon('first') + '</button><button class="btn" id="rv-prev" aria-label="Previous move">' + icon('prev') + '</button>' +
-      '<button class="btn" id="rv-next" aria-label="Next move">' + icon('next') + '</button><button class="btn" id="rv-last" aria-label="Last move">' + icon('last') + '</button><span class="sep"></span>' +
-      '<button class="btn" id="rv-turn">' + icon('star') + '<span class="lbl">Turning point</span></button><button class="btn" id="rv-best">' + icon('hint') + '<span class="lbl">Best line</span></button>' +
-      '<button class="btn primary" id="rv-practice">' + icon('play') + '<span class="lbl">Play from here</span></button></div>');
+    mount('<div class="hud-top"><button class="backbtn" id="rv-back">' + icon('back') + '<span>' + t(fromGame ? 'learn.rv.backGame' : 'common.back') + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + t('learn.rv.title', { name: esc(arg.title || '') }) + '</span></div><span class="spacer"></span>' +
+      '<button class="round" id="rv-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="side glass wide" id="side"><header><b>' + t('learn.rv.head') + '</b><span class="pill" id="rv-depth"></span></header>' +
+      '<div id="rv-body" class="rv-body"><div class="progress-ring">' + faceImg(COACH) + '<div>' + t('learn.rv.looking') + '</div><div class="bar" style="width:180px"><i id="rv-prog" style="width:0%"></i></div></div></div></aside>' +
+      '<div class="actionbar glass"><button class="btn" id="rv-first" aria-label="' + t('learn.rv.first') + '">' + icon('first') + '</button><button class="btn" id="rv-prev" aria-label="' + t('learn.rv.prev') + '">' + icon('prev') + '</button>' +
+      '<button class="btn" id="rv-next" aria-label="' + t('learn.rv.next') + '">' + icon('next') + '</button><button class="btn" id="rv-last" aria-label="' + t('learn.rv.last') + '">' + icon('last') + '</button><span class="sep"></span>' +
+      '<button class="btn" id="rv-turn">' + icon('star') + '<span class="lbl">' + t('learn.rv.turning') + '</span></button><button class="btn" id="rv-best">' + icon('hint') + '<span class="lbl">' + t('learn.rv.bestLine') + '</span></button>' +
+      '<button class="btn primary" id="rv-practice">' + icon('play') + '<span class="lbl">' + t('learn.rv.fromHere') + '</span></button></div>');
     $('rv-back').onclick = () => { AU.play('tap'); if (fromGame) go('game'); else go('training'); };
     $('rv-set').onclick = () => settingsModal();
     const deep = state.progress.premium;
-    $('rv-depth').textContent = deep ? 'Deep review' : 'Standard review';
+    $('rv-depth').textContent = t(deep ? 'learn.rv.deep' : 'learn.rv.standard');
     const show = () => {
       const p = E.positionFrom(start, ucis.slice(0, R.ply + 1));
       const cap = { byWhite: [], byBlack: [] };
@@ -2410,12 +3523,12 @@
       const badges = d.plies.map((p) => p.cls === 'good' ? '' : '<span class="cls ' + p.cls + '" title="' + C.LABEL[p.cls] + '">' + (C.SYMBOL[p.cls] || '') + '</span>');
       const pl = R.ply >= 0 ? d.plies[R.ply] : null;
       const cnt = (o, k) => (o[k] || 0);
-      const acc = (side, label) => { const c = s.counts[side]; return '<div class="acc' + (side === R.side ? ' me' : '') + '"><small>' + label + '</small><b>' + (s.accuracy[side] === null ? '–' : s.accuracy[side] + '%') + '</b><span>' + cnt(c, 'blunder') + ' blunders · ' + cnt(c, 'mistake') + ' mistakes</span></div>'; };
-      $('rv-body').innerHTML = '<svg class="graph" id="rv-graph" viewBox="0 0 300 110" preserveAspectRatio="none" aria-label="Who was winning, move by move"></svg>' +
-        '<div class="sum">' + acc(WHITE, 'White accuracy') + acc(BLACK, 'Black accuracy') + '</div>' +
+      const acc = (side, label) => { const c = s.counts[side]; return '<div class="acc' + (side === R.side ? ' me' : '') + '"><small>' + label + '</small><b>' + (s.accuracy[side] === null ? '–' : s.accuracy[side] + '%') + '</b><span>' + t('learn.rv.counts', { b: cnt(c, 'blunder'), m: cnt(c, 'mistake') }) + '</span></div>'; };
+      $('rv-body').innerHTML = '<svg class="graph" id="rv-graph" viewBox="0 0 300 110" preserveAspectRatio="none" aria-label="' + t('learn.rv.graph') + '"></svg>' +
+        '<div class="sum">' + acc(WHITE, t('learn.rv.whiteAcc')) + acc(BLACK, t('learn.rv.blackAcc')) + '</div>' +
         '<div class="comment" aria-live="polite">' + (pl ? '<div class="tagline2"><b>' + esc((pl.side === WHITE ? Math.floor(R.ply / 2) + 1 + '. ' : Math.floor(R.ply / 2) + 1 + '… ') + pl.san) + '</b><span class="cls ' + pl.cls + '">' + C.LABEL[pl.cls] + '</span>' +
-          (s.turning === R.ply ? '<span class="pill ruby">Turning point</span>' : '') + '</div>' + esc(pl.text) : '<span class="muted">Step through the game with the arrows. Green arrows show a better move; red ones show the reply that was missed.</span>') +
-        (R.line ? '<div class="bestline">Best line: ' + esc(R.line.join(' ')) + '</div>' : '') + '</div>' +
+          (s.turning === R.ply ? '<span class="pill ruby">' + t('learn.rv.turning') + '</span>' : '') + '</div>' + esc(pl.text) : '<span class="muted">' + t('learn.rv.step') + '</span>') +
+        (R.line ? '<div class="bestline">' + t('learn.rv.bestLineIs', { line: esc(R.line.join(' ')) }) + '</div>' : '') + '</div>' +
         '<div class="moves-wrap" id="rv-moves"><ol class="moves">' + moveRows(start, sans, R.ply, badges) + '</ol></div>';
       // the graph of who was winning
       const ev = d.evals.map((e) => C.winProb(e.cp));
@@ -2435,7 +3548,7 @@
     if (!R.data) {
       job('analysis', { type: 'review', fen: start, moves: ucis, timeMs: deep ? 450 : 160 }, (r) => {
         if (state.screen !== 'review') return;
-        if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>Rooky could not review this game on this device.</div></div>'; return; }
+        if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>' + t('learn.rv.failed') + '</div></div>'; return; }
         R.data = r.review;
         if (fromGame) state.game.review = r.review;
         const res = PG.reviewFinished(state.progress, r.review, R.side, ucis.length, Date.now());
@@ -2456,37 +3569,61 @@
     const journey = (arg && arg.journey) || null, era = journey && eraById(journey.era);
     // An era's lesson is written into its stage and is never part of Learn.
     const own = era && era.stages[journey.stage] && era.stages[journey.stage].steps ? era.stages[journey.stage] : null;
-    const L = own || LESSONS.lessons.find((l) => l.id === id);
+    // The placement test runs here too: no steps, one try per question, Rooky reads each question.
+    // A variation's lesson: Rooky's recorded guide lines are its words (variants.json names them).
+    const vr = arg && arg.variant ? variantById(arg.variant) : null;
+    const said = (x) => Object.assign({}, x, { say: GUIDE.lines[x.line].text, prompt: GUIDE.lines[x.line].text });
+    const test = !!(arg && arg.placement);
+    const L = test ? { id: 'placement', title: 'Placement test', steps: [], exercises: PLACEMENT.questions, objectives: [] } : vr ? Object.assign({ id: 'variant.' + vr.id }, vr.lesson, { steps: vr.lesson.steps.map(said), exercises: vr.lesson.exercises.map(said) })
+      : own || LESSONS.lessons.find((l) => l.id === id);
     const guide = own ? eraCoach(era) : COACH;
     if (!L) { setTimeout(() => go('learn'), 0); return {}; }
     view.setAttract(false);
     if (era) setLook(eraLook(era.id));
+    if (vr && variantLook(vr)) setLook(variantLook(vr));
     const ex = [];
     for (const x of L.exercises) {
-      if (x.type === 'puzzles') {
+      if (test && x.type === 'puzzle') ex.push(Object.assign({}, x, { puzzle: PUZZLES.find((p) => p.id === x.puzzle) }));
+      else if (x.type === 'puzzles') {
         const pool = PUZZLES.filter((p) => x.theme === 'mate' ? p.themes.some((t) => t.startsWith('mateIn')) : p.themes.includes(x.theme)).sort((a, b) => a.rating - b.rating).slice(0, x.count);
         pool.forEach((p) => ex.push({ type: 'puzzle', prompt: x.prompt, puzzle: p }));
       } else ex.push(x);
     }
-    const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
-    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="ls-voice" aria-label="Narration" aria-pressed="' + !!state.settings.narration + '" title="Narration">' + icon('speaker') + '</button>' +
+    const S = { phase: test ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, talk: 0, t0: Date.now() };
+    // a lesson opened from the rule book goes back to the game it came from
+    const toGame = arg && arg.back === 'game' && state.game ? state.game : null;
+    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? 'Back to the game' : era ? era.name : vr ? vr.name : 'Learn') + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (test ? 'Learn' : own ? esc(era.name) : vr ? esc(vr.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
+      '<button class="round" id="ls-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
-    const leaveTo = () => (era ? go('era', era.id) : go('learn'));
+    const leaveTo = () => (toGame && state.game === toGame ? backToGame() : era ? go('era', era.id) : test && arg.from === 'home' ? go('home') : vr ? go('variant', vr.id) : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
-    $('ls-voice').onclick = () => {
-      state.settings.narration = !state.settings.narration; save();
-      $('ls-voice').setAttribute('aria-pressed', String(state.settings.narration));
-      if (state.settings.narration) speak(); else AU.hush();
-      toast('Narration ' + (state.settings.narration ? 'on' : 'off'));
-    };
+    voiceIcon($('ls-voice'), guide.name);
+    $('ls-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) speak(true); };
+    $('ls-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); speak(true); };
     $('ls-prev').onclick = () => { if (S.phase === 'steps' && S.i > 0) { S.i--; renderStep(); } };
     $('ls-next').onclick = () => next();
-    const speak = () => { if (!state.settings.narration) return; const t = S.phase === 'steps' ? L.steps[S.i].say : ex[S.i] && ex[S.i].prompt; if (t) AU.say(t); };
+    // The guide's line comes first (how a lesson works, then how to answer), then the step itself.
+    const guided = {};
+    const speak = (now) => {
+      if (test) { const key = S.phase === 'ex' && ex[S.i] ? 'placement.' + ex[S.i].id : null; if (key) guideSay(key, { force: true }); return; }
+      const cur = S.phase === 'steps' ? L.steps[S.i] : S.phase === 'ex' ? ex[S.i] : null;
+      const t = cur ? (S.phase === 'steps' ? cur.say : cur.prompt) : null;
+      const w = S.phase === 'steps' && L.steps[S.i].word, run = ++S.talk;
+      // A lesson with its own speakers: Rooky says the line, then Priya says the word in Hindi.
+      const say = () => {
+        if (!t || !state.settings.narration) return;
+        if (cur.line) { AU.guide(cur.line, t); return; }   // a variation's lesson: Rooky's recorded guide line
+        if (!L.voice) { AU.say(t); return; }
+        AU.words(L.voice, t).then(() => { if (w && run === S.talk && state.screen === 'lesson' && state.settings.narration) AU.words('priya', w.hi); });
+      };
+      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
+      if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
+      if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
+    };
     function setPos(fen, playMoves, cb) {
       const p = new E.Pos(); p.load(fen);
       S.pos = p;
@@ -2504,6 +3641,12 @@
         setTimeout(stepPlay, 700);
       } else if (cb) cb();
     }
+    // A word at the table: the English that Rooky says beside the Hindi that Priya says. Tap either to hear it.
+    function tableWord(w) {
+      return '<div class="tw">' +
+        '<button class="tw-en" data-word="' + esc(L.voice) + '" data-text="' + esc(w.en) + '" aria-label="Hear ' + esc(w.en) + '">' + icon('speaker') + '<b>' + esc(w.en) + '</b>' + (w.note ? '<small>' + esc(w.note) + '</small>' : '') + '</button>' +
+        '<button class="tw-hi" data-word="priya" data-text="' + esc(w.hi) + '" aria-label="Hear it in Hindi: ' + esc(w.latin) + '">' + icon('speaker') + '<b lang="hi">' + esc(w.hi) + '</b><small>' + esc(w.latin) + '</small></button></div>';
+    }
     function dots() {
       const total = L.steps.length + ex.length;
       let html = '';
@@ -2518,11 +3661,16 @@
     function renderStep() {
       const st = L.steps[S.i];
       $('ls-phase').textContent = 'Lesson · ' + (S.i + 1) + ' of ' + L.steps.length;
-      $('ls-content').innerHTML = '<p class="say">' + esc(st.say) + '</p>' + (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
+      $('ls-content').innerHTML = (st.differs ? differs() : '') + '<p class="say">' + esc(st.say) + '</p>' + (st.word ? tableWord(st.word) : '') +
+        (st.glossary ? '<div class="tw-list">' + L.steps.filter((x) => x.word).map((x) => tableWord(x.word)).join('') + '</div>' : '') +
+        (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
+      document.querySelectorAll('#ls-content [data-word]').forEach((b) => {
+        b.onclick = () => { AU.unlock(); S.talk++; AU.words(b.dataset.word, b.dataset.text); };
+      });
       $('ls-prev').disabled = S.i === 0;
       $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Start the exercises' : 'Next';
       setHooks({});
-      view.setHighlights({ spots: (st.marks || []).map((m) => ({ sq: sqIndex(m) })) });
+      view.setHighlights({ marks: hillMarks(st.fen), spots: (st.marks || []).map((m) => ({ sq: sqIndex(m) })) });
       view.setArrows((st.arrows || []).map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#2fd8ff' })));
       setPos(st.fen, st.play);
       dots(); speak();
@@ -2530,18 +3678,20 @@
     function renderEx() {
       const x = ex[S.i];
       S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false;
-      $('ls-phase').textContent = 'Exercise · ' + (S.i + 1) + ' of ' + ex.length;
+      $('ls-phase').textContent = (test ? 'Question · ' : 'Exercise · ') + (S.i + 1) + ' of ' + ex.length;
       $('ls-prev').disabled = true;
-      $('ls-next').textContent = 'Skip';
-      view.setArrows([]); view.setHighlights({});
+      $('ls-prev').hidden = test;
+      $('ls-next').textContent = test ? 'I don\'t know' : 'Skip';
+      view.setArrows([]); view.setHighlights({ marks: hillMarks(x.fen || '') });
       if (x.type === 'choice') {
-        $('ls-content').innerHTML = '<p class="prompt">' + esc(x.prompt) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
+        $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.prompt) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
         document.querySelectorAll('[data-opt]').forEach((b) => {
           b.onclick = () => {
             if (S.answered) return;
             const ok = +b.dataset.opt === x.answer, why = x.explain ? ' ' + x.explain : '';
             if (ok) answer(true, 'Correct.' + why);
             else { S.answered = true; if (S.results[S.i] === undefined) S.results[S.i] = false; AU.play('wrong'); fb('bad', 'Not quite. The answer is: ' + x.options[x.answer] + '.' + why); $('ls-next').textContent = S.i === ex.length - 1 ? 'Finish' : 'Next'; dots(); }
+            if (test) $('ls-next').textContent = S.i === ex.length - 1 ? 'See my result' : 'Next';
             b.classList.add(ok ? 'right' : 'wrong');
           };
         });
@@ -2552,9 +3702,9 @@
       }
       const fen = x.type === 'puzzle' ? x.puzzle.fen : x.fen;
       const prompt = x.type === 'puzzle' ? x.prompt + ' (' + (E.positionFrom(fen, [x.puzzle.moves[0]]).side === WHITE ? 'White' : 'Black') + ' to move)' : x.prompt;
-      $('ls-content').innerHTML = '<p class="prompt">' + esc(prompt) + '</p>' + (x.type === 'targets' ? '<div class="pill" id="ls-count"></div>' : '') +
-        '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' Hint</button></div><div id="ls-fb"></div>';
-      $('ls-hint').onclick = () => {
+      $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(prompt) + '</p>' + (x.type === 'targets' ? '<div class="pill" id="ls-count"></div>' : '') +
+        (test ? '' : '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' Hint</button></div>') + '<div id="ls-fb"></div>';
+      if (!test) $('ls-hint').onclick = () => {
         const hints = x.type === 'puzzle' ? ['Look for forcing moves: checks, captures and threats.', 'Look at your ' + C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] + '.'] : x.hints || [];
         if (S.hintN < hints.length) { fb('hint', hints[S.hintN]); S.hintN++; }
         else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); S.tries++; }
@@ -2567,7 +3717,7 @@
       if (x.type === 'targets') updateCount();
       setHooks({
         onSquare: (sq) => exSquare(sq),
-        canDrag: (sq) => ['move', 'mate', 'anyLegal', 'puzzle'].includes(x.type) && !S.answered && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
+        canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !S.answered && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
         onDrop: (from, to) => { const g = new E.Game(S.pos.fen()); if (!g.targets(from).includes(to)) return false; exMove(from, to); return true; },
       });
       dots(); speak();
@@ -2594,7 +3744,7 @@
       if (x.type === 'targets') {
         const all = updateCount();
         if (all.includes(sq)) { if (!S.found.includes(sq)) { S.found.push(sq); AU.play('select'); } }
-        else if (sq !== sqIndex(x.from)) { S.tries++; AU.play('wrong'); fb('bad', sqName(sq) + ' cannot be reached from ' + x.from + '.'); }
+        else if (sq !== sqIndex(x.from)) { if (test) { fail(sqName(sq) + ' cannot be reached from ' + x.from + '.'); updateCount(); return; } S.tries++; AU.play('wrong'); fb('bad', sqName(sq) + ' cannot be reached from ' + x.from + '.'); }
         const left = updateCount();
         if (S.found.length === left.length) answer(S.tries === 0, 'All ' + left.length + ' squares found.');
         return;
@@ -2606,7 +3756,7 @@
       if (p && Math.sign(p) === S.pos.side) {
         S.selected = sq; AU.play('select');
         const t = g.targets(sq);
-        view.setHighlights({ selected: sq, targets: t.filter((s) => !E.pieceAt(S.pos, s)), captures: t.filter((s) => E.pieceAt(S.pos, s)) });
+        view.setHighlights(Object.assign({ selected: sq, marks: hillMarks(S.pos.fen()) }, splitTargets(S.pos, t)));
       }
     }
     function exMove(from, to) {
@@ -2619,6 +3769,7 @@
         let ok = false, msg = '';
         if (x.type === 'anyLegal') { ok = true; msg = 'Good: the king is safe.'; }
         else if (x.type === 'move') { ok = x.answers.includes(u); msg = ok ? 'Well played.' : (x.wrong && x.wrong[u]) || 'Not the move we are looking for. Try again.'; }
+        else if (x.type === 'win') { const t = new E.Game(S.pos.fen()); t.play(m); const won = t.outcome && t.outcome.result === (S.pos.side === WHITE ? '1-0' : '0-1'); ok = !!won; msg = ok ? (t.outcome.reason === 'checkmate' ? 'Checkmate! That wins too.' : x.yes || 'Black has no move left, so you win!') : x.no || 'Black can still move. Try again.'; }
         else if (x.type === 'mate') { const t = new E.Game(S.pos.fen()); t.play(m); ok = t.outcome && t.outcome.reason === 'checkmate'; msg = ok ? 'Checkmate!' : (x.wrong && x.wrong[u]) || (t.outcome && t.outcome.reason === 'stalemate' ? 'That is stalemate, only a draw.' : 'That is not checkmate. Try again.'); }
         else if (x.type === 'puzzle') {
           const want = x.puzzle.moves[S.pz * 2 + 1];
@@ -2643,19 +3794,33 @@
           AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
           quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); });
           answer(S.tries === 0, msg);
+        } else if (test) {
+          view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
+          fail(msg.replace(/ ?Try again\.$/, ''));
         } else {
-          S.tries++; AU.play('wrong'); fb('bad', msg); view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
+          S.tries++; AU.play('wrong'); fb('bad', msg); view.setBoard(piecesOf(S.pos), null); view.setHighlights({ marks: hillMarks(x.fen) });
         }
         S.selected = -1;
       };
-      if (g.needsPromotion(from, to)) choosePromotion(S.pos.side, (k) => { if (k) go2(k); else view.setBoard(piecesOf(S.pos), null); }); else go2(0);
+      if (g.needsPromotion(from, to) && g.pos.ch) go2(E.Q);
+      else if (g.needsPromotion(from, to)) choosePromotion(S.pos.side, (k) => { if (k) go2(k); else view.setBoard(piecesOf(S.pos), null); }); else go2(0);
     }
     function answer(firstTry, msg) {
       S.answered = true;
+      guideIdle(null);
       if (S.results[S.i] === undefined) S.results[S.i] = firstTry;
       AU.play('correct');
       fb('ok', msg + (firstTry ? '' : ' (Solved after a retry.)'));
-      $('ls-next').textContent = S.i === ex.length - 1 ? 'Finish' : 'Next';
+      $('ls-next').textContent = S.i === ex.length - 1 ? (test ? 'See my result' : 'Finish') : 'Next';
+      dots();
+    }
+    // In the placement test a wrong answer ends the question: no second try, no hint.
+    function fail(msg) {
+      S.answered = true;
+      S.results[S.i] = false;
+      AU.play('wrong');
+      fb('bad', (msg || 'Not this one.') + ' On to the next one.');
+      $('ls-next').textContent = S.i === ex.length - 1 ? 'See my result' : 'Next';
       dots();
     }
     function next() {
@@ -2671,10 +3836,12 @@
     function finish() {
       S.phase = 'done';
       setHooks({});
+      if (test) return placed();
       const first = S.results.filter((r) => r === true).length;
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       let res;
       if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
+      else if (vr) res = PG.variantLessonFinished(state.progress, vr.id, first, ex.length);
       else {
         const wasDue = PG.dueReviews(state.progress).includes(L.id);
         res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
@@ -2682,19 +3849,49 @@
       }
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : vr ? 'Now you know the rules. Pick a friend and play ' + esc(vr.name) + '!' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
         (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
-      $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
+      $('ls-next').textContent = toGame ? 'Back to the game' : era ? 'Back to ' + era.name : vr ? 'Play ' + vr.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
-      if (!era && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
+      if (!era && !vr && !toGame && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
       else $('ls-prev').hidden = true;
       AU.play('win');
       AU.event('lesson.passed');
+      guideIdle(null);
+      guideSay('lesson.done', { delay: 2200 });
       view.celebrate('win', -1, null, -1);
       dots();
       if (!own) { celebrate(res); if (journey) stageDone(journey); }
     }
-    renderStep();
+    // The placement result: the chapter the path now starts at, a friend to play and a badge.
+    function placed() {
+      const P = state.progress;
+      const score = S.results.filter((r) => r === true).length;
+      const res = PG.placementFinished(P, score, (Date.now() - S.t0) / 1000, P.premium ? 7 : 3);
+      save();
+      const ch = LESSONS.chapters.find((c) => c.n === res.chapter), o = persona(res.level), nl = nextLesson();
+      const chLocked = ch.access !== 'free' && !P.premium;
+      $('ls-phase').textContent = 'Your result';
+      $('ls-content').innerHTML = '<div class="done-card placed"><img class="medal" src="' + medal(PLACE_ART[res.chapter - 1], '#ffd27a', '#b8862b') + '" alt="">' +
+        '<p class="prompt">' + esc(res.band.badge.name) + '</p><p class="say">' + score + ' of ' + ex.length + ' right. ' +
+        (chLocked ? 'You are ready for Chapter ' + ch.n + ', ' + esc(ch.title) + ', which is part of Premium. Until then, your path carries on with the lessons just before it.'
+          : 'Your path now starts at Chapter ' + ch.n + ', ' + esc(ch.title) + '. Earlier chapters stay open whenever you want them.') + '</p>' +
+        '<div class="placed-friend">' + faceImg(o) + '<span><small>A good friend to play</small><b>' + esc(o.full) + '</b>' +
+        (res.capped ? '<small>' + esc(persona(res.wanted).name) + ' and the stronger friends are part of Premium.</small>' : '') + '</span></div>' +
+        (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') +
+        '<div class="row placed-go">' + (nl ? '<button class="btn primary" id="pl-learn">' + icon('learn') + ' Start: ' + esc(nl.title) + '</button>' : '') +
+        '<button class="btn" id="pl-play">' + icon('play') + ' Play ' + esc(o.name) + '</button></div></div>';
+      $('ls-next').textContent = arg.from === 'home' ? 'Home' : 'Back to Learn';
+      $('ls-prev').hidden = true;
+      if ($('pl-learn')) $('pl-learn').onclick = () => { AU.play('tap'); go('lesson', nl.id); };
+      $('pl-play').onclick = () => { AU.play('tap'); startGame({ mode: 'ai', color: 'random', level: res.level, tc: 'none', fen: '' }); };
+      AU.play('win');
+      guideSay(res.band.say, { force: true, delay: 1200 });
+      view.celebrate('win', -1, null, -1);
+      dots();
+      celebrate(res);
+    }
+    if (test) renderEx(); else renderStep();
     return { leave() { AU.hush(); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
   };
 
@@ -2706,12 +3903,12 @@
     const me = o.side === 'white' ? WHITE : BLACK;
     const S = { g: new E.Game(), i: 0, misses: 0, selected: -1, done: false, busy: false };
     view.setAttract(false);
-    mount('<div class="hud-top"><button class="backbtn" id="dr-back">' + icon('back') + '<span>Opening lab</span></button>' +
+    mount('<div class="hud-top"><button class="backbtn" id="dr-back">' + icon('back') + '<span>' + t('learn.labTitle') + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + esc(o.eco) + ' · ' + esc(o.name) + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="dr-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow">Playing ' + (o.side === 'white' ? 'White' : 'Black') + '</div><h3>' + esc(o.name) + '</h3></div></header><div class="content">' +
-      '<p class="say">' + esc(o.summary) + '</p><ul class="ideas">' + o.ideas.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul><div class="drill-moves" id="dr-moves"></div><div id="dr-fb"></div></div>' +
-      '<footer><button class="btn" id="dr-hint">' + icon('hint') + ' Hint</button><button class="btn" id="dr-reset">' + icon('refresh') + ' Restart</button><div class="grow"></div><button class="btn primary" id="dr-play" hidden>' + icon('play') + ' Play from here</button></footer></aside>');
+      '<button class="round" id="dr-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow">' + t(o.side === 'white' ? 'learn.dr.white' : 'learn.dr.black') + '</div><h3>' + esc(o.name) + '</h3></div></header><div class="content">' +
+      '<p class="say">' + esc(o.summary) + '</p><ul class="ideas">' + o.ideas.map((idea) => '<li>' + esc(idea) + '</li>').join('') + '</ul><div class="drill-moves" id="dr-moves"></div><div id="dr-fb"></div></div>' +
+      '<footer><button class="btn" id="dr-hint">' + icon('hint') + ' ' + t('play.btn.hint') + '</button><button class="btn" id="dr-reset">' + icon('refresh') + ' ' + t('learn.dr.restart') + '</button><div class="grow"></div><button class="btn primary" id="dr-play" hidden>' + icon('play') + ' ' + t('learn.rv.fromHere') + '</button></footer></aside>');
     $('dr-back').onclick = () => { AU.play('tap'); go('openings', o.side); };
     $('dr-set').onclick = () => settingsModal();
     const fb = (kind, t) => { $('dr-fb').innerHTML = t ? '<div class="feedback ' + kind + '">' + esc(t) + '</div>' : ''; };
@@ -2719,7 +3916,7 @@
     function moveList() {
       let h = '';
       S.g.sans.forEach((x, k) => { if (k % 2 === 0) h += '<span class="n">' + (k / 2 + 1) + '.</span>'; h += '<span class="m' + (k === S.g.sans.length - 1 ? ' last' : '') + '">' + esc(x) + '</span>'; });
-      $('dr-moves').innerHTML = h || '<span class="n">Your move.</span>';
+      $('dr-moves').innerHTML = h || '<span class="n">' + t('learn.dr.yourMove') + '</span>';
     }
     function show(info) {
       view.setBoard(piecesOf(S.g.pos), null);
@@ -2735,7 +3932,7 @@
         const info = S.g.playText(o.moves[S.i]);
         const note = o.notes[S.i];
         S.i++;
-        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', 'They play ' + info.san + ': ' + note); advance(); });
+        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', t('learn.dr.theyPlay', { san: info.san, note })); advance(); });
       }, 450);
     }
     function finish() {
@@ -2744,7 +3941,7 @@
       const res = PG.openingFinished(state.progress, o.id, S.misses === 0);
       save();
       const rec = state.progress.openings[o.id];
-      fb('ok', (S.misses ? 'Line complete with ' + S.misses + ' slip' + (S.misses > 1 ? 's' : '') + '. Run it again cleanly.' : 'Clean run! ') + (rec.mastered ? (res.mastered ? ' Opening mastered.' : '') : ' ' + rec.clean + ' of 3 clean runs.'));
+      fb('ok', (S.misses ? t(S.misses > 1 ? 'learn.dr.slips' : 'learn.dr.slip', { n: S.misses }) : t('learn.dr.clean')) + (rec.mastered ? (res.mastered ? ' ' + t('learn.dr.mastered') : '') : ' ' + t('learn.dr.runs', { n: rec.clean })));
       AU.play('correct');
       if (res.mastered) view.celebrate('win', -1, null, -1);
       $('dr-play').hidden = false;
@@ -2758,7 +3955,7 @@
       if (E.uci(m) !== want) {
         S.misses++;
         AU.play('wrong');
-        fb('bad', 'In this line we play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
+        fb('bad', t('learn.dr.inLine', { san: san(S.i + 1) }) + (o.notes[S.i] ? ' ' + o.notes[S.i] : ''));
         view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
         show(null);
         return true;
@@ -2777,7 +3974,7 @@
         const g = S.g;
         if (S.selected >= 0 && g.targets(S.selected).includes(sq)) { const f = S.selected; S.selected = -1; tryMove(f, sq); return; }
         const p = E.pieceAt(g.pos, sq);
-        if (p && Math.sign(p) === me) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights({ selected: sq, targets: t.filter((x) => !E.pieceAt(g.pos, x)), captures: t.filter((x) => E.pieceAt(g.pos, x)) }); }
+        if (p && Math.sign(p) === me) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights(Object.assign({ selected: sq }, splitTargets(g.pos, t))); }
       },
       canDrag: (sq) => !S.done && !S.busy && S.g.pos.side === me && E.pieceAt(S.g.pos, sq) && Math.sign(E.pieceAt(S.g.pos, sq)) === me,
       onDrop(from, to) { return S.g.targets(from).includes(to) ? tryMove(from, to) : false; },
@@ -2787,7 +3984,7 @@
       S.misses++;
       const want = o.moves[S.i];
       view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
-      fb('hint', 'Play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
+      fb('hint', t('learn.dr.play', { san: san(S.i + 1) }) + (o.notes[S.i] ? ' ' + o.notes[S.i] : ''));
       AU.play('coach');
     };
     $('dr-reset').onclick = () => { AU.play('tap'); go('drill', id); };
@@ -2824,20 +4021,20 @@
       pool.sort((a, b) => Math.abs(a.rating - r) - Math.abs(b.rating - r));
       return pool[Math.floor(Math.random() * Math.min(5, pool.length))];
     };
-    mount('<div class="hud-top"><button class="backbtn" id="pz-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Puzzles') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + esc(arg.title || 'Puzzles') + '</span></div><span class="spacer"></span>' +
-      '<div class="pill glass" id="pz-rating"></div><button class="round" id="pz-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="pz-eyebrow">Puzzle</div><h3 id="pz-title">Find the best move</h3></div></header><div class="content" id="pz-content"></div>' +
-      '<footer><div class="dots" id="pz-dots"></div><button class="btn" id="pz-hint">' + icon('hint') + ' Hint</button>' + (j ? '' : '<button class="btn" id="pz-sol">' + icon('eye') + ' Solution</button>') +
-      '<div class="grow"></div><button class="btn primary" id="pz-next" hidden>Next puzzle</button></footer></aside>');
+    mount('<div class="hud-top"><button class="backbtn" id="pz-back">' + icon('back') + '<span>' + esc(era ? eraName(era) : t('learn.sub.puzzles')) + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + esc(arg.title || t('learn.sub.puzzles')) + '</span></div><span class="spacer"></span>' +
+      '<div class="pill glass" id="pz-rating"></div><button class="round" id="pz-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="pz-eyebrow">' + t('learn.pz.puzzle') + '</div><h3 id="pz-title">' + t('learn.pz.find') + '</h3></div></header><div class="content" id="pz-content"></div>' +
+      '<footer><div class="dots" id="pz-dots"></div><button class="btn" id="pz-hint">' + icon('hint') + ' ' + t('play.btn.hint') + '</button>' + (j ? '' : '<button class="btn" id="pz-sol">' + icon('eye') + ' ' + t('learn.pz.solution') + '</button>') +
+      '<div class="grow"></div><button class="btn primary" id="pz-next" hidden>' + t('learn.pz.next') + '</button></footer></aside>');
     $('pz-back').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else go('puzzles'); };
     $('pz-set').onclick = () => settingsModal();
-    const ratingPill = (delta) => { $('pz-rating').innerHTML = icon('star') + ' Rating <b>' + P.stats.puzzles.rating + '</b>' + (delta ? ' <span class="' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '') + delta + '</span>' : ''); };
+    const ratingPill = (delta) => { $('pz-rating').innerHTML = icon('star') + ' ' + t('play.rating', { n: '<b>' + P.stats.puzzles.rating + '</b>' }) + (delta ? ' <span class="' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '') + delta + '</span>' : ''); };
     ratingPill();
     const dots = () => { if (list && list.length > 1) $('pz-dots').innerHTML = list.map((_, k) => '<i class="' + (k < S.idx || (k === S.idx && S.solved) ? 'ok' : k === S.idx ? 'on' : '') + '"></i>').join(''); };
     function load() {
       const pz = pickNext();
-      if (!pz) { $('pz-content').innerHTML = '<p class="say">No more puzzles here. Great work!</p>'; $('pz-next').hidden = true; return; }
+      if (!pz) { $('pz-content').innerHTML = '<p class="say">' + t('learn.pz.noMore') + '</p>'; $('pz-next').hidden = true; return; }
       S.cur = pz; S.step = 0; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0;
       const pre = E.positionFrom(pz.fen, []);
       S.pos = pre;
@@ -2845,9 +4042,9 @@
       view.setBoard(piecesOf(pre), null);
       view.setHighlights({}); view.setArrows([]);
       view.setView(solverSide === WHITE ? 'white' : 'black', 'player');
-      $('pz-eyebrow').textContent = (list && list.length > 1 ? 'Puzzle ' + (S.idx + 1) + ' of ' + list.length + ' · ' : arg.daily ? 'Daily puzzle · ' : '') + 'Rated ' + pz.rating;
-      $('pz-title').textContent = (solverSide === WHITE ? 'White' : 'Black') + ' to move: find the best move';
-      $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : 'Your opponent has just moved. Look for checks, captures and threats.') + '</p><div id="pz-fb"></div>';
+      $('pz-eyebrow').textContent = (list && list.length > 1 ? t('learn.pz.nOf', { n: S.idx + 1, of: list.length }) + ' · ' : arg.daily ? t('learn.dailyPuzzle') + ' · ' : '') + t('learn.pz.rated', { n: pz.rating });
+      $('pz-title').textContent = t(solverSide === WHITE ? 'learn.pz.whiteFind' : 'learn.pz.blackFind');
+      $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : t('learn.pz.intro')) + '</p><div id="pz-fb"></div>';
       if (arg.intro && S.idx <= 0 && state.settings.narration) AU.say(arg.intro);
       $('pz-next').hidden = true; $('pz-hint').disabled = false; if ($('pz-sol')) $('pz-sol').disabled = false;
       dots();
@@ -2856,13 +4053,14 @@
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); });
+        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
     function finish(solved) {
       if (S.solved) return;
       S.solved = true;
+      guideIdle(null);
       const res = PG.puzzleFinished(P, S.cur, solved && !S.failed, { daily: arg.daily });
       if (!solved || S.failed) for (const t of S.cur.themes) noteMotif(t.startsWith('mateIn') ? 'mate' : t);
       ratingPill(res.ratingDelta);
@@ -2871,17 +4069,18 @@
       if (solved && !S.failed) { AU.play('correct'); view.celebrate('win', -1, null, -1); }
       dots();
       const last = list && S.idx >= list.length - 1;
-      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.map((t) => '<span class="pill">' + esc(t) + '</span>').join('') + '</div>' + (arg.daily ? '<p class="say" style="margin-top:10px">Come back tomorrow for a new daily puzzle.</p>' : ''));
+      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.map((th) => '<span class="pill">' + esc(themeName(th)) + '</span>').join('') + '</div>' + (arg.daily ? '<p class="say" style="margin-top:10px">' + t('learn.pz.tomorrow') + '</p>' : ''));
       if (j && last) {
-        fb('ok', 'Trial complete! ' + guide.name + ' is impressed.');
-        $('pz-next').textContent = 'Back to ' + era.name;
+        fb('ok', t('learn.pz.trial', { name: guide.name }));
+        $('pz-next').textContent = t('learn.dj.backTo', { era: eraName(era) });
         $('pz-next').hidden = false;
         $('pz-next').onclick = () => { AU.play('tap'); go('era', era.id); };
         stageDone(j);
         return;
       }
-      $('pz-next').textContent = 'Next puzzle';
+      $('pz-next').textContent = t('learn.pz.next');
       $('pz-next').hidden = !!arg.daily || (list && last);
+      if (solved && !$('pz-next').hidden) guideSay('puzzle.solved', { delay: 1800 });
     }
     function tryMove(from, to, promo) {
       const g = new E.Game(S.pos.fen());
@@ -2891,7 +4090,7 @@
       const t = new E.Game(S.pos.fen()); t.play(m);
       const ok = E.uci(m) === want || (t.outcome && t.outcome.reason === 'checkmate');
       if (!ok) {
-        S.failed = true; AU.play('wrong'); AU.event('puzzle.wrong'); fb('bad', 'Not quite. That is not the strongest move. Try again.');
+        S.failed = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', t('learn.pz.wrong'));
         view.setBoard(piecesOf(S.pos), null);
         return true;
       }
@@ -2899,10 +4098,10 @@
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
-        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', S.failed ? 'Solved, after a miss.' : 'Excellent! Puzzle solved.'); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
+        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.cur.moves[S.step * 2 + 2]);
         S.step++;
-        fb('ok', 'Good move. Keep going!');
+        fb('ok', t('learn.pz.keepGoing'));
         setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
       });
       return true;
@@ -2913,7 +4112,7 @@
         const g = new E.Game(S.pos.fen());
         if (S.selected >= 0 && g.targets(S.selected).includes(sq)) { const f = S.selected; S.selected = -1; if (g.needsPromotion(f, sq)) choosePromotion(S.pos.side, (k) => k && tryMove(f, sq, k)); else tryMove(f, sq); return; }
         const p = E.pieceAt(S.pos, sq);
-        if (p && Math.sign(p) === S.pos.side) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights({ selected: sq, targets: t.filter((s) => !E.pieceAt(S.pos, s)), captures: t.filter((s) => E.pieceAt(S.pos, s)) }); }
+        if (p && Math.sign(p) === S.pos.side) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights(Object.assign({ selected: sq, marks: hillMarks(S.pos.fen()) }, splitTargets(S.pos, t))); }
       },
       canDrag: (sq) => S.pos && !S.solved && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
       onDrop(from, to) {
@@ -2926,10 +4125,11 @@
     $('pz-hint').onclick = () => {
       if (!S.cur || S.solved) return;
       S.failed = true; S.hints++;
+      guideIdle(null);
       const u = S.cur.moves[S.step * 2 + 1];
-      if (S.hints === 1) { const t = S.cur.themes[0]; fb('hint', { fork: 'Look for a fork.', pin: 'Look for a pin.', skewer: 'Look for a skewer.', discoveredAttack: 'Look for a discovered attack.', hangingPiece: 'Something is not guarded.', promotion: 'A pawn wants to promote.', sacrifice: 'Think about giving something away.' }[t] || (t.startsWith('mateIn') ? 'There is a checkmate to find.' : 'Look for the most forcing move.')); }
-      else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', 'Move the piece on ' + u.slice(0, 2) + '.'); }
-      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', 'Follow the arrow, then keep going.'); }
+      if (S.hints === 1) { const th = S.cur.themes[0]; fb('hint', I18N.has('learn.pzh.' + th) ? t('learn.pzh.' + th) : t(th.startsWith('mateIn') ? 'learn.pzh.mate' : 'learn.pzh.forcing')); }
+      else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', t('learn.pzh.piece', { sq: u.slice(0, 2) })); }
+      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', t('learn.pzh.arrow')); }
       AU.play('coach');
     };
     if ($('pz-sol')) $('pz-sol').onclick = () => {
@@ -2938,12 +4138,470 @@
       const u = S.cur.moves[S.step * 2 + 1];
       view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
-      fb('hint', 'The solution: ' + g.pos.san(m, g.legal) + '. ' + (C.describe(C.facts(g.pos, m)) || ''));
+      fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m)) || ''));
       finish(false);
     };
     $('pz-next').onclick = () => { AU.play('tap'); load(); };
     load();
     return {};
+  };
+
+  // ---------------------------------------------------------------- mini-games
+  // Six short games on the table, each training one skill (minigames.js has their rules). They pay
+  // coins (PG.COINS.mini), up to a daily cap from each game, keep a best and
+  // a best for today, and never change a rating. The how-to card opens by itself the first time.
+  const MINI = ChacklateMinis(E, { puzzles: PUZZLES, lessons: LESSONS.lessons, eras: CAMPAIGN.eras });
+  const miniUnit = () => t('common.coins');
+  const MINI_PAY = PG.COINS.mini;
+  const miniArt = (g) => ART.miniUri(g.art, { from: g.colors[0], to: g.colors[1] });
+  const miniLevel = (g) => { const l = (state.settings.miniLevels || {})[g.id]; return g.levels.some((x) => x[0] === l) ? l : g.levels.length ? g.levels[0][0] : ''; };
+  // The games' own words (title, blurb, how-to, levels) live in minigames.js in English.
+  const mg = (g, f) => tx('content.mini.' + g.id + '.' + f, g[f]);
+  const mgLevel = (g, v, n) => tx('content.mini.' + g.id + '.lv.' + v, n);
+  const howToList = (g) => '<ol class="mini-howto">' + g.howTo.map((s, i) => '<li>' + esc(tx('content.mini.' + g.id + '.how' + i, s)) + '</li>').join('') + '</ol>';
+  SCREENS.minis = function () {
+    idleBoard();
+    const P = state.progress, R = { perRound: MINI_PAY.amount, capPerDay: MINI_PAY.cap };
+    const today = MINI.GAMES.map((g) => PG.miniToday(P, g.id));
+    const earned = today.reduce((a, tq) => a + tq.earned, 0), plays = Object.values(P.mini.plays).reduce((a, n) => a + n, 0);
+    const cell = (ic, k, v) => '<div class="mini-cell"><span class="sg">' + icon(ic) + '</span><span><small>' + esc(k) + '</small><b>' + v + '</b></span></div>';
+    mount('<div class="page"><div class="page-in">' +
+      pageHead(t('minis.hub.title'), t('minis.hub.head'), t('minis.hub.sub', { coins: esc(miniUnit()) })) +
+      '<div class="mini-summary glass">' + cell('coin', t('minis.hub.earned'), earned + ' ' + esc(miniUnit())) + cell('target', t('minis.hub.rounds'), plays) + cell('shield', t('minis.hub.pays'), t('minis.hub.upTo', { n: R.capPerDay })) + '</div>' +
+      sec('play', t('minis.hub.games'), t('minis.hub.count', { n: MINI.GAMES.length })) +
+      '<div class="lux-row three mini-cards">' + MINI.GAMES.map((g, i) => {
+        const best = P.mini.best[g.id], tq = today[i], full = tq.earned >= R.capPerDay;
+        return '<button class="lux h mini-card" data-mini="' + g.id + '"><span class="tag pill">' + esc(mg(g, 'skill')) + '</span><div class="art"><img src="' + miniArt(g) + '" alt=""></div><h3>' + esc(mg(g, 'title')) + '</h3><p>' + esc(mg(g, 'blurb')) + '</p>' +
+          '<span class="mini-foot"><span>' + icon('clock') + esc(mg(g, 'minutes')) + '</span>' + (best ? '<span>' + icon('trophy') + t('minis.best', { n: best }) + '</span>' : '') + (tq.best !== undefined ? '<span>' + icon('sun') + t('minis.today', { n: tq.best }) + '</span>' : '') +
+          '<span class="mini-earn' + (full ? ' full' : '') + '">' + icon('coin') + tq.earned + ' / ' + R.capPerDay + ' ' + esc(miniUnit()) + '</span></span><span class="go">' + icon('arrow') + '</span></button>';
+      }).join('') + '</div>' +
+      '<p class="muted mini-cap">' + icon('shield') + ' ' + t('minis.hub.cap', { n: R.perRound, coins: esc(miniUnit()), cap: R.capPerDay }) + '</p>' +
+      '</div></div>');
+    wireLinks();
+    document.querySelectorAll('[data-mini]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); miniStart(MINI.game(b.dataset.mini)); }; });
+    return {};
+  };
+  // The start card: the level, the how-to (open the first time) and today's scores.
+  function miniStart(g) {
+    const P = state.progress, first = !P.mini.seen.includes(g.id), lv = miniLevel(g), tq = PG.miniToday(P, g.id);
+    const m = modal('<div class="setup-hero mini-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><div><div class="eyebrow">' + esc(mg(g, 'skill')) + ' · ' + esc(mg(g, 'minutes')) + '</div><h2>' + esc(mg(g, 'title')) + '</h2><p class="sub">' + esc(mg(g, 'blurb')) + '</p></div></div>' +
+      '<form id="mn-f">' + (g.levels.length ? '<div class="field"><div class="label">' + t('minis.level') + '</div><div class="seg">' + g.levels.map(([v, n]) => '<label><input type="radio" name="lv" value="' + v + '"' + (v === lv ? ' checked' : '') + '><span>' + esc(mgLevel(g, v, n)) + '</span></label>').join('') + '</div></div>' : '') +
+      (first ? '<div class="eyebrow">' + t('minis.howTo') + '</div>' + howToList(g) : '<details class="mini-more"><summary>' + t('minis.howTo') + '</summary>' + howToList(g) + '</details>') +
+      '<p class="mini-scores">' + (P.mini.best[g.id] ? icon('trophy') + ' ' + t('minis.bestB', { n: P.mini.best[g.id] }) : t('minis.noScore')) + (tq.best !== undefined ? ' · ' + t('minis.todayB', { n: tq.best }) : '') + '</p>' +
+      '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('minis.play') + '</button></div></form>', { x: true, cls: 'mini-sheet' });
+    m.querySelector('#mn-f').onsubmit = (e) => {
+      e.preventDefault();
+      const f = e.target, level = f.lv ? f.lv.value : '';
+      state.settings.miniLevels = Object.assign({}, state.settings.miniLevels, { [g.id]: level });
+      if (first) P.mini.seen.push(g.id);
+      save(); m.close(); AU.unlock(); go('mini', { id: g.id, level });
+    };
+  }
+
+  // The table for one mini-game. Each game is a small controller with the same hooks:
+  // begin, tick(seconds), onSquare, canDrag, onDrop, hint, undo.
+  SCREENS.mini = function (arg) {
+    const g = MINI.game(arg && arg.id);
+    if (!g) { setTimeout(() => go('minis'), 0); return {}; }
+    const level = (arg && arg.level) || miniLevel(g);
+    view.setAttract(false);
+    view.setArrows([]);
+    mount('<div class="hud-top"><button class="backbtn" id="mn-back">' + icon('back') + '<span>' + t('minis.hub.title') + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + miniArt(g) + '" alt=""><span>' + esc(mg(g, 'title')) + '</span></div><span class="spacer"></span>' +
+      '<div class="pill glass mini-stats" id="mn-stats" aria-live="polite"></div>' +
+      '<button class="round" id="mn-help" aria-label="' + t('minis.howTo') + '" title="' + t('minis.howTo') + '">' + icon('scroll') + '</button>' +
+      '<button class="round" id="mn-again" aria-label="' + t('minis.again') + '" title="' + t('minis.again') + '">' + icon('refresh') + '</button>' +
+      '<button class="round" id="mn-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass mini-panel"><header><img src="' + miniArt(g) + '" alt=""><div><div class="eyebrow" id="mn-eyebrow"></div><h3 id="mn-title"></h3></div></header>' +
+      '<div class="content"><div id="mn-body"></div><div class="mini-timer" id="mn-timer" hidden><i></i></div><div id="mn-fb"></div></div>' +
+      '<footer><span id="mn-tools"></span><div class="grow"></div><button class="btn primary" id="mn-main" hidden></button></footer></aside>');
+    const S = { over: false, used: { hints: 0, undos: 0 }, timers: [] };
+    const H = {
+      eyebrow(tq) { $('mn-eyebrow').textContent = tq; },
+      title(tq) { $('mn-title').textContent = tq; },
+      body(html) { $('mn-body').innerHTML = html; },
+      stats(list) { $('mn-stats').innerHTML = list.map(([k, v]) => '<span><small>' + esc(k) + '</small> <b>' + v + '</b></span>').join(''); },
+      fb(kind, text) { $('mn-fb').innerHTML = text ? '<div class="feedback ' + kind + '">' + esc(text) + '</div>' : ''; },
+      // left: the share of the time still to go (0 to 1), or null to hide the bar
+      timer(left) { const el = $('mn-timer'); el.hidden = left === null; if (left !== null) { el.firstChild.style.width = (Math.max(0, left) * 100).toFixed(1) + '%'; el.classList.toggle('low', left < 0.25); } },
+      tools(list) {
+        $('mn-tools').innerHTML = list.map(([id, ic, label]) => '<button class="btn small" id="mn-t-' + id + '">' + icon(ic) + ' ' + esc(label) + '</button>').join(' ');
+        list.forEach(([id, , , fn]) => { $('mn-t-' + id).onclick = () => { if (!S.over) { AU.play('tap'); fn(); } }; });
+      },
+      main(label, fn) { const b = $('mn-main'); b.hidden = !label; if (label) { b.textContent = label; b.onclick = () => { AU.play('tap'); fn(); }; } },
+      later(fn, ms) { const id = setTimeout(() => { if (state.screen === 'mini' && current === ctl) fn(); }, ms); S.timers.push(id); },
+      side(side) { view.setView(side, state.settings.view === 'top' ? 'top' : 'player'); },
+      finish: (score, o) => miniDone(g, level, score, o || {}, S),
+    };
+    let game = null;
+    const begin = () => {
+      S.timers.forEach(clearTimeout); S.timers = [];
+      S.over = false; S.used = { hints: 0, undos: 0 };
+      H.fb('', ''); H.timer(null); H.main(null); H.tools([]);
+      view.setArrows([]); view.setHighlights({});
+      game = MINI_PLAY[g.id](H, level, S, Math.floor(Math.random() * 1e9));
+      setHooks({
+        onSquare: (sq) => { if (!S.over && game.onSquare) game.onSquare(sq); },
+        canDrag: (sq) => !S.over && !!game.canDrag && game.canDrag(sq),
+        onDrop: (f, tq) => !S.over && !!game.onDrop && game.onDrop(f, tq),
+      });
+      applyInsets();
+    };
+    const help = () => { const m = modal('<div class="eyebrow">' + t('minis.howTo') + '</div><h2>' + esc(mg(g, 'title')) + '</h2>' + howToList(g) + '<div class="row"><button class="btn primary" data-close>' + icon('play') + ' ' + t('minis.play') + '</button></div>', { cls: 'mini-sheet' }); return m; };
+    $('mn-back').onclick = () => { AU.play('tap'); go('minis'); };
+    $('mn-help').onclick = () => { AU.play('tap'); help(); };
+    $('mn-again').onclick = () => { AU.play('tap'); begin(); };
+    $('mn-set').onclick = () => settingsModal();
+    // time only runs while nothing covers the board
+    let last = performance.now();
+    const clock = setInterval(() => {
+      const now = performance.now(), dt = Math.min(0.5, (now - last) / 1000);
+      last = now;
+      if (!S.over && game && game.tick && !document.querySelector('.modal') && !document.hidden) game.tick(dt);
+    }, 100);
+    const ctl = {
+      leave() { clearInterval(clock); S.timers.forEach(clearTimeout); S.over = true; view.setArrows([]); view.setHighlights({}); },
+      key(e) { if (e.key === 'Enter' && !$('mn-main').hidden) $('mn-main').click(); },
+    };
+    begin();
+    return ctl;
+  };
+  // A finished round: record it, pay for it and show the result card.
+  function miniDone(g, level, score, o, S) {
+    if (S.over) return;
+    S.over = true;
+    setHooks({});
+    score = Math.max(0, Math.round(score));
+    const res = PG.miniFinished(state.progress, g.id, score);
+    celebrate(res, true);
+    const tq = PG.miniToday(state.progress, g.id), cap = MINI_PAY.cap, unit = esc(miniUnit());
+    if (o.won !== false && score > 0) { AU.play('win'); view.celebrate('win', -1, null, -1); } else AU.play('draw');
+    setTimeout(() => {
+      if (state.screen !== 'mini') return;
+      const stat = (k, v) => '<div class="mini-stat"><small>' + esc(k) + '</small><b>' + v + '</b></div>';
+      const m = modal('<div class="result-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><span class="result-badge">' + esc(mg(g, 'title')) + '</span>' +
+        '<h2 class="result-title">' + esc(o.title || (score ? t('minis.res.well') : t('minis.res.over'))) + '</h2>' + (o.line ? '<p class="sub">' + esc(o.line) + '</p>' : '') +
+        '<div class="mini-result">' + stat(t('minis.res.score'), score) + stat(t('minis.res.best'), state.progress.mini.best[g.id] || 0) + stat(t('minis.res.today'), tq.best || 0) + '</div>' +
+        (res.newBest ? '<p class="mini-new">' + icon('trophy') + ' ' + t('minis.res.newBest') + '</p>' : res.newDailyBest ? '<p class="mini-new">' + icon('sun') + ' ' + t('minis.res.dayBest') + '</p>' : '') +
+        '<div class="mini-pay"><b>+' + res.paid + '</b> ' + unit + '<small>' + (res.capped ? t('minis.res.capped', { cap, coins: unit }) : score ? t('minis.res.earned', { n: tq.earned, cap, coins: unit }) : t('minis.res.scoreToEarn', { coins: unit })) + '</small></div>' +
+        '<div class="row" style="justify-content:center"><button class="btn" id="mr-hub">' + t('minis.hub.title') + '</button><button class="btn primary" id="mr-again">' + icon('refresh') + ' ' + t('minis.res.again') + '</button></div></div>', { cls: 'mini-sheet' });
+      m.querySelector('#mr-hub').onclick = () => { m.close(); go('minis'); };
+      m.querySelector('#mr-again').onclick = () => { m.close(); go('mini', { id: g.id, level }); };
+    }, score ? 1300 : 600);
+  }
+
+  const MINI_PLAY = {};
+  // Knight's tour: visited squares turn gold, squares off the board for this size go dark.
+  MINI_PLAY.tour = function (H, level, S, seed) {
+    const size = +level || 5, all = size * size;
+    const start = MINI.rng(seed).pick(MINI.tourCorners(size));
+    const T = { path: [start], hint: -1, busy: false };
+    const cur = () => T.path[T.path.length - 1];
+    const moves = () => MINI.tourMoves(cur(), T.path, size);
+    H.eyebrow(t('minis.tour.eyebrow', { n: size })); H.title(t('minis.tour.title'));
+    H.body('<p class="say">' + t('minis.tour.say') + '</p>');
+    H.side('white');
+    function draw() {
+      const marks = [];
+      for (let sq = 0; sq < 64; sq++) if ((sq & 7) >= size || (sq >> 3) >= size) marks.push({ sq, color: '#0b0603', alpha: 0.9 });
+      T.path.slice(0, -1).forEach((sq) => marks.push({ sq, color: '#f2c462', alpha: 0.55 }));
+      view.setBoard([[cur(), 2]], null);
+      view.setHighlights({ marks, selected: cur(), targets: moves(), spots: T.hint >= 0 ? [{ sq: T.hint }] : [] });
+      H.stats([[t('minis.st.squares'), T.path.length + ' / ' + all], [t('minis.st.score'), MINI.tourScore(T.path.length, size, S.used)]]);
+    }
+    function jump(sq, animate) {
+      if (T.busy || !moves().includes(sq)) return false;
+      const from = cur();
+      T.path.push(sq); T.hint = -1;
+      const after = () => {
+        T.busy = false; draw();
+        AU.play('move');
+        if (T.path.length === all) { H.fb('ok', t('minis.tour.whole')); H.finish(MINI.tourScore(all, size, S.used), { title: t('minis.tour.done'), line: t('minis.tour.doneLine', { n: all }) }); }
+        else if (!moves().length) { H.fb('bad', t('minis.tour.stuck', { n: T.path.length })); H.finish(MINI.tourScore(T.path.length, size, S.used), { won: T.path.length > all / 2, title: t('minis.tour.squares', { n: T.path.length }), line: t('minis.tour.stuckLine') }); }
+        else H.fb('', '');
+      };
+      if (animate) { T.busy = true; quickMove({ from, to: sq, capturedSq: -1, mover: 2 }, after); } else after();
+      return true;
+    }
+    H.tools([['hint', 'hint', t('minis.hint'), () => { S.used.hints++; T.hint = MINI.tourHint(cur(), T.path, size); H.fb('hint', t('minis.tour.hint')); draw(); AU.play('coach'); }],
+      ['undo', 'undo', t('minis.undo'), () => { if (T.path.length > 1 && !T.busy) { T.path.pop(); S.used.undos++; T.hint = -1; draw(); } }]]);
+    draw();
+    return {
+      onSquare(sq) { if (!jump(sq, true) && sq !== cur()) { AU.play('illegal'); H.fb('bad', t('minis.tour.cannot')); } },
+      canDrag: (sq) => sq === cur() && !T.busy,
+      onDrop: (f, tq) => jump(tq, false),
+    };
+  };
+  // Square spotter: a name, a tap, and the board turns round every round.
+  MINI_PLAY.spotter = function (H, level, S, seed) {
+    const rounds = MINI.spotterRounds(seed);
+    const T = { i: -1, lives: MINI.SPOT_LIVES, score: 0, left: 0, limit: 1, live: false };
+    H.eyebrow(t('minis.spot.eyebrow')); H.title(t('minis.spot.title'));
+    view.setBoard([], null);
+    const stats = () => H.stats([[t('minis.st.round'), Math.min(T.i + 1, MINI.SPOT_ROUNDS) + ' / ' + MINI.SPOT_ROUNDS], [t('minis.st.lives'), '♥'.repeat(T.lives) + '<span class="off">' + '♥'.repeat(MINI.SPOT_LIVES - T.lives) + '</span>'], [t('minis.st.score'), T.score]]);
+    function next() {
+      T.i++;
+      if (T.i >= MINI.SPOT_ROUNDS || T.lives <= 0) {
+        H.finish(T.score, { won: T.lives > 0, title: T.lives > 0 ? t('minis.spot.all', { n: MINI.SPOT_ROUNDS }) : t('minis.spot.points', { n: T.score }), line: T.lives > 0 ? t('minis.spot.know') : t('minis.spot.out') });
+        return;
+      }
+      const side = T.i % 2 ? 'black' : 'white';
+      H.side(side);
+      view.setHighlights({});
+      H.body('<p class="say">' + t('minis.spot.' + side) + '</p><p class="mini-call">' + MINI.name(rounds[T.i]) + '</p>');
+      H.timer(1); H.fb('', '');
+      T.limit = MINI.spotTime(level, T.i); T.left = T.limit; T.live = false;
+      stats();
+      // the clock starts once the board has turned
+      H.later(() => { T.live = true; }, 700);
+    }
+    function miss(text, tapped) {
+      T.live = false; T.lives--;
+      AU.play('wrong'); H.fb('bad', text);
+      view.setHighlights({ spots: [{ sq: rounds[T.i], color: '#2fd8ff' }].concat(tapped >= 0 ? [{ sq: tapped, color: '#ff4a40', pulse: false }] : []) });
+      stats(); H.later(next, 1300);
+    }
+    H.body('<p class="say">' + t('minis.ready') + '</p>');
+    H.later(next, 400);
+    return {
+      tick(dt) {
+        if (!T.live) return;
+        T.left -= dt; H.timer(T.left / T.limit);
+        if (T.left <= 0) miss(t('minis.spot.time', { sq: MINI.name(rounds[T.i]) }), -1);
+      },
+      onSquare(sq) {
+        if (!T.live) return;
+        if (sq === rounds[T.i]) {
+          T.live = false; T.score += MINI.spotPoints(T.left, T.limit);
+          AU.play('correct'); H.fb('ok', t('minis.spot.yes', { sq: MINI.name(sq) }));
+          view.setHighlights({ spots: [{ sq, color: '#3ee07a', pulse: false }] });
+          stats(); H.later(next, 650);
+        } else miss(t('minis.spot.miss', { sq: MINI.name(sq), want: MINI.name(rounds[T.i]) }), sq);
+      },
+    };
+  };
+  // Pawn race: you have White; the bot defends the breakthrough perfectly and plays the war a little softer.
+  MINI_PLAY.pawns = function (H, level, S) {
+    const lv = MINI.PAWN_START[level] ? level : 'break';
+    const T = { st: MINI.PAWN_START[lv](), sel: -1, busy: false, mine: 0, last: null };
+    H.eyebrow(t(lv === 'break' ? 'minis.pawns.break' : 'minis.pawns.war')); H.title(t('minis.pawns.title'));
+    H.body('<p class="say">' + t(lv === 'break' ? 'minis.pawns.sayBreak' : 'minis.pawns.sayWar') + '</p>');
+    H.side('white');
+    const pieces = () => T.st.w.map((s) => [s, 1]).concat(T.st.b.map((s) => [s, -1]));
+    function draw() {
+      view.setBoard(pieces(), null);
+      const tg = T.sel >= 0 ? MINI.pawnMoves(T.st).filter((m) => m.from === T.sel) : [];
+      view.setHighlights({ lastFrom: T.last ? T.last.from : -1, lastTo: T.last ? T.last.to : -1, selected: T.sel, targets: tg.filter((m) => m.cap === undefined).map((m) => m.to), captures: tg.filter((m) => m.cap !== undefined).map((m) => m.to) });
+      H.stats([[t('minis.st.yourMoves'), T.mine], [t('minis.st.pawns'), t('minis.st.vs', { a: T.st.w.length, b: T.st.b.length })]]);
+    }
+    function over() {
+      const r = MINI.pawnResult(T.st);
+      if (r === null) return false;
+      const score = Math.max(0, MINI.pawnScore(r, T.mine) - S.used.hints * 10);
+      H.fb(r === 1 ? 'ok' : 'bad', t(r === 1 ? 'minis.pawns.made' : r === -1 ? 'minis.pawns.first' : 'minis.pawns.stuck'));
+      H.finish(score, { won: r === 1, title: t(r === 1 ? 'minis.pawns.won' : r === 0 ? 'minis.pawns.draw' : 'minis.pawns.lost'), line: r === 1 ? t('minis.pawns.wonLine', { n: T.mine }) : t(lv === 'break' ? 'minis.pawns.tipBreak' : 'minis.pawns.tipWar') });
+      return true;
+    }
+    function play(m, animate, then) {
+      const mover = T.st.side;
+      const after = () => { T.st = MINI.pawnPlay(T.st, m); T.last = m; T.busy = false; draw(); AU.play(m.cap !== undefined ? 'capture' : 'move'); if (!over() && then) then(); };
+      T.sel = -1;
+      if (animate) { T.busy = true; quickMove({ from: m.from, to: m.to, capturedSq: m.cap === undefined ? -1 : m.cap, mover }, after); } else after();
+    }
+    function mine(from, to, animate) {
+      const m = MINI.pawnMoves(T.st).find((x) => x.from === from && x.to === to);
+      if (!m || T.busy || T.st.side !== 1) return false;
+      T.mine++; view.setArrows([]); H.fb('', '');
+      play(m, animate, () => { T.busy = true; H.later(() => { T.busy = false; play(MINI.pawnBest(T.st, lv === 'war' ? 3 : undefined), true); }, 450); });
+      return true;
+    }
+    H.tools([['hint', 'hint', t('minis.hint'), () => { if (T.busy || T.st.side !== 1) return; S.used.hints++; const b = MINI.pawnBest(T.st); view.setArrows([{ from: b.from, to: b.to, color: '#2fd8ff' }]); H.fb('hint', t('minis.pawns.hint', { from: MINI.name(b.from), to: MINI.name(b.to) })); AU.play('coach'); }]]);
+    draw();
+    return {
+      onSquare(sq) {
+        if (T.busy || T.st.side !== 1) return;
+        if (T.sel >= 0 && mine(T.sel, sq, true)) return;
+        T.sel = T.st.w.includes(sq) ? sq : -1;
+        if (T.sel >= 0) AU.play('select');
+        draw();
+      },
+      canDrag: (sq) => !T.busy && T.st.side === 1 && T.st.w.includes(sq),
+      onDrop: (f, tq) => mine(f, tq, false),
+    };
+  };
+  // Queen's path: five boards; a guarded square refuses the queen and shows who guards it.
+  MINI_PLAY.queen = function (H, level, S, seed) {
+    const T = { k: -1, b: null, q: 0, moves: 0, bumps: 0, total: 0, busy: false, peek: false };
+    H.eyebrow(t('minis.queen.eyebrow')); H.title(t('minis.queen.title'));
+    H.side('white');
+    function draw() {
+      const goal = [56, 57, 58, 59, 60, 61, 62, 63].map((sq) => ({ sq, color: '#f2c462', alpha: 0.32 }));
+      const att = MINI.guardAttacks(T.b.guards);
+      const peek = T.peek ? [...att.keys()].map((sq) => ({ sq, color: '#ff4a40', alpha: 0.42 })) : [];
+      view.setBoard([[T.q, 5]].concat(T.b.guards.map(([sq, p]) => [sq, -p])), null);
+      view.setHighlights({ marks: goal.concat(peek), selected: T.q, targets: T.busy ? [] : MINI.queenMoves(T.q, T.b.guards) });
+      H.stats([[t('minis.st.board'), (T.k + 1) + ' / ' + MINI.QUEEN_BOARDS], [t('minis.st.moves'), t('minis.st.movesBest', { n: T.moves, par: T.b.par })], [t('minis.st.score'), T.total]]);
+    }
+    function nextBoard() {
+      T.k++;
+      if (T.k >= MINI.QUEEN_BOARDS) { H.finish(T.total, { title: t('minis.queen.done'), line: t('minis.queen.doneLine', { n: T.total }) }); return; }
+      T.b = MINI.queenBoard(seed + T.k * 7919, level); T.q = T.b.queen; T.moves = 0; T.bumps = 0; T.peek = false;
+      H.body('<p class="say">' + t('minis.queen.say', { n: T.b.par }) + '</p>');
+      H.fb('', ''); view.setArrows([]);
+      draw();
+    }
+    function go2(to, animate) {
+      if (T.busy || !MINI.queenMoves(T.q, T.b.guards).includes(to)) return false;
+      const by = MINI.guardAttacks(T.b.guards).get(to);
+      if (by) {
+        T.bumps++; AU.play('wrong');
+        const names = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 6: 'k' };
+        const g0 = T.b.guards.find(([sq]) => sq === by[0]);
+        H.fb('bad', t('minis.queen.guarded', { sq: MINI.name(to), piece: PIECE_NAME[names[g0[1]]].toLowerCase(), from: MINI.name(by[0]) }));
+        view.setArrows(by.map((f) => ({ from: f, to, color: '#ff4a40' })));
+        view.setHighlights({ spots: [{ sq: to, color: '#ff4a40', pulse: false }], selected: T.q, targets: MINI.queenMoves(T.q, T.b.guards) });
+        H.later(() => { view.setArrows([]); draw(); }, 1800);
+        return false;
+      }
+      const from = T.q;
+      T.moves++; view.setArrows([]); H.fb('', '');
+      const after = () => {
+        T.q = to; T.busy = false; AU.play('move'); draw();
+        if ((to >> 3) === 7) {
+          const pts = MINI.queenBoardScore(T.moves, T.b.par, T.bumps + (T.hinted ? 1 : 0));
+          T.total += pts; T.hinted = false;
+          AU.play('correct'); H.fb('ok', t(T.moves <= T.b.par ? 'minis.queen.perfect' : 'minis.queen.across', { n: T.moves }) + ' +' + pts);
+          T.busy = true; H.later(() => { T.busy = false; nextBoard(); }, 1100);
+        }
+      };
+      if (animate) { T.busy = true; quickMove({ from, to, capturedSq: -1, mover: 5 }, after); } else after();
+      return true;
+    }
+    H.tools([['hint', 'eye', t('minis.queen.show'), () => { T.peek = true; T.hinted = true; S.used.hints++; draw(); H.later(() => { T.peek = false; draw(); }, 2500); }]]);
+    nextBoard();
+    return {
+      onSquare(sq) { if (sq !== T.q) go2(sq, true); },
+      canDrag: (sq) => sq === T.q && !T.busy,
+      onDrop: (f, tq) => go2(tq, false),
+    };
+  };
+  // Memory board: five seconds to look, then rebuild it from the tray.
+  MINI_PLAY.memory = function (H, level, S, seed) {
+    const sizes = MINI.MEMORY_SIZES[level] || MINI.MEMORY_SIZES.easy;
+    const T = { k: -1, want: [], placed: new Map(), pick: 0, phase: 'look', left: 0, total: 0 };
+    const KINDS = [6, 5, 4, 3, 2, 1];
+    const ink = (p) => p > 0 ? { fill: '#f4ead6', stroke: '#7a5a3a' } : { fill: '#2a1d18', stroke: '#d8b56a', ink: '#d8b56a' };
+    H.eyebrow(t('minis.mem.eyebrow')); H.title(t('minis.mem.title'));
+    H.side('white');
+    const stats = () => H.stats([[t('minis.st.position'), (T.k + 1) + ' / ' + sizes.length], [t('minis.st.pieces'), sizes[T.k]], [t('minis.st.score'), T.total]]);
+    const placedList = () => [...T.placed.entries()];
+    function tray() {
+      H.body('<p class="say">' + t('minis.mem.place') + '</p><div class="mini-tray">' +
+        [1, -1].map((c) => KINDS.map((k) => '<button class="' + (T.pick === k * c ? 'on' : '') + '" data-pc="' + k * c + '" aria-label="' + t(c > 0 ? 'play.capWhite' : 'play.capBlack', { piece: PIECE_NAME[TYPE[k]].toLowerCase() }) + '"><img src="' + ART.pieceUri(TYPE[k], ink(c)) + '" alt=""></button>').join('')).join('') + '</div>');
+      document.querySelectorAll('[data-pc]').forEach((b) => { b.onclick = () => { T.pick = +b.dataset.pc; AU.play('select'); tray(); }; });
+    }
+    function next() {
+      T.k++;
+      if (T.k >= sizes.length) { H.finish(T.total, { title: t('minis.mem.done'), line: t('minis.mem.doneLine', { n: T.total, of: sizes.length }) }); return; }
+      T.want = MINI.memoryPosition(seed + T.k * 104729, sizes[T.k]); T.placed = new Map(); T.pick = 0;
+      T.phase = 'look'; T.left = MINI.MEMORY_SECONDS;
+      view.setBoard(T.want, null); view.setHighlights({});
+      H.body('<p class="say">' + t('minis.mem.look') + '</p>'); H.fb('', ''); H.timer(1); H.main(null);
+      stats();
+    }
+    function build() {
+      T.phase = 'build'; H.timer(null);
+      view.setBoard([], null);
+      AU.play('tick');
+      tray();
+      H.main(t('minis.mem.check'), check);
+    }
+    function check() {
+      T.phase = 'checked';
+      const got = placedList(), c = MINI.memoryCheck(T.want, got), pts = MINI.memoryPoints(c);
+      T.total += pts;
+      const right = new Set(T.want.map((x) => x[0] + ':' + x[1]));
+      view.setBoard(T.want, null);
+      view.setHighlights({ marks: got.map(([sq, p]) => ({ sq, color: right.has(sq + ':' + p) ? '#3ee07a' : '#ff4a40', alpha: 0.5 })),
+        spots: T.want.filter((x) => !got.some((y) => y[0] === x[0] && y[1] === x[1])).map(([sq]) => ({ sq, color: '#2fd8ff', pulse: false })) });
+      AU.play(c.perfect ? 'correct' : 'tap');
+      H.body('<p class="say">' + (c.perfect ? t('minis.mem.perfect') : t('minis.mem.right', { n: c.right, of: T.want.length })) + '</p>');
+      H.fb(c.perfect ? 'ok' : 'hint', '+' + pts + ' points');
+      stats();
+      H.main(T.k + 1 >= sizes.length ? t('common.finish') : t('minis.mem.next'), next);
+    }
+    next();
+    return {
+      tick(dt) { if (T.phase !== 'look') return; T.left -= dt; H.timer(T.left / MINI.MEMORY_SECONDS); if (T.left <= 0) build(); },
+      onSquare(sq) {
+        if (T.phase !== 'build') return;
+        if (T.placed.has(sq)) T.placed.delete(sq);
+        else if (T.pick) T.placed.set(sq, T.pick);
+        else { H.fb('hint', t('minis.mem.pickFirst')); return; }
+        H.fb('', ''); AU.play('move');
+        view.setBoard(placedList(), null);
+      },
+    };
+  };
+  // Mate rush: sixty seconds of checkmates in one, in a fresh order every time.
+  MINI_PLAY.rush = function (H, level, S, seed) {
+    const list = MINI.rng(seed).shuffle(MINI.matePool());
+    const T = { i: -1, left: MINI.RUSH_SECONDS, mates: 0, pos: null, sel: -1, live: false };
+    H.eyebrow(t('minis.rush.eyebrow')); H.title(t('minis.rush.title'));
+    const stats = () => H.stats([[t('minis.st.mates'), T.mates], [t('minis.st.time'), t('minis.st.secs', { n: Math.ceil(Math.max(0, T.left)) })]]);
+    function next() {
+      T.i++;
+      const fen = list[T.i % list.length];
+      T.pos = E.positionFrom(fen, []); T.sel = -1; T.live = true;
+      H.side(T.pos.side === WHITE ? 'white' : 'black');
+      view.setBoard(piecesOf(T.pos), null); view.setHighlights({ check: -1 }); view.setArrows([]);
+      H.body('<p class="say">' + t(T.pos.side === WHITE ? 'minis.rush.white' : 'minis.rush.black') + '</p>');
+      stats();
+    }
+    function tryMove(from, to, promo) {
+      const g = new E.Game(T.pos.fen()), m = g.find(from, to, promo || 0);
+      if (m === null || !T.live) return false;
+      T.live = false;
+      const tq = new E.Game(T.pos.fen()); tq.play(m);
+      const info = g.play(m);
+      if (tq.outcome && tq.outcome.reason === 'checkmate') {
+        T.mates++; AU.play('check');
+        quickMove(info, () => { view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: kingSquare(g.pos, g.pos.side) }); AU.play('correct'); H.fb('ok', t('minis.rush.mate')); stats(); H.later(next, 550); });
+      } else {
+        AU.play('wrong');
+        view.setBoard(piecesOf(T.pos), null);
+        const u = MINI.matingMoves(T.pos.fen())[0];
+        view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
+        H.fb('bad', t('minis.rush.not'));
+        T.paused = true; H.later(() => { T.paused = false; H.fb('', ''); next(); }, 1400);
+      }
+      return true;
+    }
+    function move(from, to) {
+      const g = new E.Game(T.pos.fen());
+      if (!g.targets(from).includes(to)) return false;
+      if (g.needsPromotion(from, to)) { choosePromotion(T.pos.side, (k) => { if (k) tryMove(from, to, k); else view.setBoard(piecesOf(T.pos), null); }); return true; }
+      return tryMove(from, to);
+    }
+    H.tools([['skip', 'next', t('minis.skip'), () => { if (T.live) { T.live = false; H.fb('', ''); next(); } }]]);
+    H.timer(1);
+    next();
+    return {
+      tick(dt) {
+        if (T.paused) return;
+        T.left -= dt; H.timer(T.left / MINI.RUSH_SECONDS); stats();
+        if (T.left <= 0) { T.live = false; H.finish(T.mates * 10, { won: T.mates > 0, title: t(T.mates === 1 ? 'minis.rush.one' : 'minis.rush.many', { n: T.mates }), line: T.mates ? t('minis.rush.line', { n: T.mates * 10 }) : t('minis.rush.none') }); }
+      },
+      onSquare(sq) {
+        if (!T.live) return;
+        const g = new E.Game(T.pos.fen());
+        if (T.sel >= 0 && g.targets(T.sel).includes(sq)) { const f = T.sel; T.sel = -1; move(f, sq); return; }
+        const p = E.pieceAt(T.pos, sq);
+        if (p && Math.sign(p) === T.pos.side) { T.sel = sq; AU.play('select'); const tq = g.targets(sq); view.setHighlights({ selected: sq, targets: tq.filter((s) => !E.pieceAt(T.pos, s)), captures: tq.filter((s) => E.pieceAt(T.pos, s)) }); }
+      },
+      canDrag: (sq) => T.live && E.pieceAt(T.pos, sq) && Math.sign(E.pieceAt(T.pos, sq)) === T.pos.side,
+      onDrop: (f, tq) => move(f, tq),
+    };
   };
 
   // ---------------------------------------------------------------- shared API for the online client
@@ -2952,8 +4610,8 @@
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
-      // info: { id, color: 'white'|'black', tc, opponent, moves, clock, rating }
-      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
+      // info: { id, color: 'white'|'black', tc, opponent, moves, clock, rating, friend }; friend: a table made with a code
+      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null, tossBy: info.friend ? (info.opponent && info.opponent.name) || t('online.yourFriend') : '' }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
       const G = state.game;
       G.online = { id: info.id, tc: info.tc, opponent: info.opponent, rating: info.rating, clock: info.clock || { w: 0, b: 0, at: performance.now() },
         clockNow() { const c = this.clock; if (!c) return null; const out = { w: c.w, b: c.b }; if (!G.g.outcome && G.g.moves.length >= 2) { const k = G.g.pos.side === WHITE ? 'w' : 'b'; out[k] = Math.max(0, c[k] - (performance.now() - c.at)); } return out; } };
@@ -2987,7 +4645,7 @@
     drawOffered() {
       const G = state.game; if (!G) return;
       AU.event('draw.offer');
-      coachSay('Your opponent offers a draw.', [['Accept', 'accept-draw'], ['Decline', 'dismiss']]);
+      coachSay(t('play.offer'), [[t('play.accept'), 'accept-draw'], [t('play.decline'), 'dismiss']]);
       const b = document.querySelector('[data-coach="accept-draw"]');
       if (b) b.onclick = () => { ChacklateNet.send({ type: 'draw-accept' }); G.coachMsg = null; renderCoach(); };
     },
@@ -3009,16 +4667,18 @@
   applySettings();
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
-  if (window.__SHOT) window.__go = go;
+  if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; }   // tooling answers board questions through the hooks
+  const bonus = PG.dailyBonus(state.progress);
   go('home');
+  if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => applyInsets());
   // App shortcuts from the installed icon's menu, and links from emails.
   if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
   else if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
-  else if (location.hash === '#email-verified') toast('Email confirmed. Thank you.');
-  else if (location.hash === '#email-invalid') toast('That confirmation link has expired or was already used.', 'bad');
-  else if (location.hash === '#daily' && dailyPuzzle()) go('puzzle', { list: [dailyPuzzle()], daily: true, title: 'Daily puzzle' });
+  else if (location.hash === '#email-verified') toast(t('profile.emailOk'));
+  else if (location.hash === '#email-invalid') toast(t('profile.emailBad'), 'bad');
+  else if (location.hash === '#daily' && dailyPuzzle()) go('puzzle', { list: [dailyPuzzle()], daily: true, title: t('learn.dailyPuzzle') });
   else if (location.hash === '#journey') go('journey');
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   setTimeout(() => $('splash').classList.add('gone'), window.__SHOT ? 0 : 900);

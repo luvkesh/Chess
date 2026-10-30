@@ -1,0 +1,227 @@
+{
+ "egypt/1fea1819": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Welcome to Egypt, more than 3,000 years ago! The great river Nile flows past temples and pyramids, and in the palace the young pharaoh Tutankhamun is playing a board game called Senet."
+ },
+ "egypt/670bc788": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Chess had not been invented yet. It would appear in India about two thousand years later. But the Egyptians loved games of skill, and Tutankhamun was buried with several Senet boards."
+ },
+ "egypt/cf5183ec": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "I am Miu. Cats were treasured in ancient Egypt, you know. Today I will teach you the knight, the piece shaped like a horse. The pharaoh's horses pulled his golden chariots!"
+ },
+ "egypt/19a452ba": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Which board game did Tutankhamun play?"
+ },
+ "egypt/2718e162": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Senet is one of the oldest board games we know. Chess came much later."
+ },
+ "greece/3feb8e93": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "Welcome to Athens! On the hill called the Acropolis, builders are finishing the Parthenon, a temple of white marble for the goddess Athena."
+ },
+ "greece/2bfac466": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "The Greeks played a game called petteia, trapping the other side's pieces on a grid. The philosopher Plato wrote about it! Greek thinkers loved numbers and logic, just like chess players."
+ },
+ "greece/a680d06e": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "I am Sophie. The owl was Athena's bird, a sign of wisdom. Wise players count before they capture: a pawn is worth 1, a knight or a bishop 3, a rook 5 and a queen 9."
+ },
+ "greece/d750d5bc": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "How many points is a rook worth?"
+ },
+ "greece/39d5cca0": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "A rook is worth 5: more than a knight or a bishop, less than a queen."
+ },
+ "rome/561d65bc": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "Welcome to Rome! Emperor Trajan has just finished a great column, carved with a spiral of more than 2,500 figures that winds all the way to the top."
+ },
+ "rome/083a1db8": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "Roman soldiers played ludus latrunculorum, the game of little soldiers. You captured an enemy piece by trapping it between two of your own."
+ },
+ "rome/3fafd965": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "I am Marcus. In Rome's oldest legend, a wolf looked after the twins Romulus and Remus. A battle is won when the enemy leader is trapped. In chess we call that checkmate!"
+ },
+ "rome/25165a51": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "What is checkmate?"
+ },
+ "rome/c072deb7": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "Checkmate ends the game: the king is in check and has no way out."
+ },
+ "mughal/a57d0791": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "Welcome to Agra! Emperor Shah Jahan is building the Taj Mahal, a tomb of white marble so beautiful that people still travel from all over the world to see it."
+ },
+ "mughal/857ef9d4": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "Chess was born in India about 1,500 years ago. It was called chaturanga, the four parts of an army: foot soldiers, horses, elephants and chariots. Today they are our pawns, knights, bishops and rooks."
+ },
+ "mughal/7b1577ed": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "I am Moti. Yes, the bishop used to be an elephant! Like elephants in a battle, chess pieces are strongest in the middle. Control the centre and your army can go anywhere."
+ },
+ "mughal/734d8639": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "Where was chess born?"
+ },
+ "mughal/2b8cbaaf": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "Chess began in India as chaturanga, then travelled to Persia, the Arab world and Europe."
+ },
+ "ming/5e8dc59a": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "Welcome to Beijing! The Forbidden City has just been finished: a palace of red walls and golden roofs with hundreds of buildings, where the emperor lived."
+ },
+ "ming/82110e76": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "In China people play xiangqi, a cousin of chess. The pieces are flat discs with characters on them, a river runs across the middle of the board, and cannons jump over pieces to capture!"
+ },
+ "ming/f08c8330": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "I am Bao. Pandas are patient, and patient players spot skewers: attack a big piece, and when it moves away, take the piece behind it."
+ },
+ "ming/19dabdd2": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "What runs across the middle of a xiangqi board?"
+ },
+ "ming/77143c7a": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "The river divides the two armies. Some pieces move differently once they cross it."
+ },
+ "venice/a0989942": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "Welcome to Venice, a city built on water, where people travel by gondola along the canals. On the island of Murano, glassmakers blow the finest glass in the world."
+ },
+ "venice/69a901a2": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "Long ago the queen could only move one square diagonally. Then, around 1475, players in Spain and Italy gave her new powers: she could move any distance, in any direction. People called it mad queen chess!"
+ },
+ "venice/89c7c1a2": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "I am Marco. The winged lion is the symbol of Venice. With great power comes great care: bring your queen out too early and she will be chased all over the board."
+ },
+ "venice/31829e1d": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "What did the queen gain around 1475?"
+ },
+ "venice/daef22de": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "That change made the queen the strongest piece and made chess much faster."
+ },
+ "paris/dcc3c799": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "Welcome to Paris in 1889! For the World's Fair, the city has built the tallest tower on Earth, made of iron lace. It is called the Eiffel Tower."
+ },
+ "paris/370bb389": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "Not far away is the Café de la Régence, where people played chess for more than a hundred years. The great player Philidor learned the game there."
+ },
+ "paris/6b510f47": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "I am Gaston. The rooster is a symbol of France. Philidor said that pawns are the soul of chess. A pawn that nobody can stop may march all the way and become a queen!"
+ },
+ "paris/d534db0a": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "What did Philidor call the pawns?"
+ },
+ "paris/141e5e88": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "Pawns decide the shape of the game, and a pawn that reaches the far side becomes a queen."
+ },
+ "russia/af77e0c2": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "Welcome to Saint Petersburg! Snow sparkles on golden domes, and the royal jewellers are making jewelled Easter eggs for the Tsar's family."
+ },
+ "russia/b32a2b8f": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "Russia loves chess. It has produced many world champions, and its chess schools are famous for teaching the endgame: the last part of the game, when only a few pieces are left."
+ },
+ "russia/cfdd8b01": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "I am Mishka. In the endgame even the king becomes a fighter! When two kings stand face to face with one square between them, we call it the opposition."
+ },
+ "russia/97577293": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "In the endgame, what should your king do?"
+ },
+ "russia/efa8e499": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "With fewer pieces about, the king is safe enough to help, and it is a strong piece."
+ },
+ "deco/61166747": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "Welcome to New York in 1930! The Chrysler Building has just become the tallest building in the world, with a shining steel crown of arches and a needle-sharp spire."
+ },
+ "deco/4a19bacb": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "The city is full of chess clubs, and the Manhattan Chess Club is one of the most famous in the world. The great Cuban champion José Raúl Capablanca played there."
+ },
+ "deco/54aae469": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "I am Skye. From up high, an eagle sees the whole board. Strong players know their checkmate patterns by heart, so they can spot them in a flash."
+ },
+ "deco/c089bd6e": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "Which world champion from Cuba played at the Manhattan Chess Club?"
+ },
+ "deco/2b9b904a": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "Capablanca was world champion from 1921 to 1927 and was famous for his clear, simple style."
+ }
+}

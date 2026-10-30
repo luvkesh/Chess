@@ -253,13 +253,42 @@ function ChacklatePieces(THREE, K) {
   //   o.mane: 'flow' (loose gold locks), 'carved' (locks in the body), 'roach' (short upright),
   //   'braid' (a row of knots), 'none'; o.form: the breed and pose (see horseWarp)
   //   o.base: pedestal top; o.round: edge band of the inflation (bigger is softer)
+  // Most sets bend the same sculpt (see horseWarp), so the sculpt before bending is kept and
+  // only copied and bent for each set; so are the outline fields it is carved from.
+  const sculptCache = new Map(), outlineCache = new Map();
   function sculptHorse(o) {
     o = Object.assign({ base: 0.3, mane: 'flow', seed: 3, round: 0.088 }, o || {});
+    const facet = (o.form && o.form.facet) || 0;
+    const key = JSON.stringify(Object.assign({}, o, { form: facet })) + Q.cell + Q.mane + JSON.stringify(DETAIL);
+    if (!sculptCache.has(key)) sculptCache.set(key, sculptPlain(o, facet));
+    const plain = sculptCache.get(key);
+    if (!o.form) return plain;
+    const out = { body: plain.body && plain.body.clone(), mane: plain.mane && plain.mane.clone(), surf: plain.surf, Y: plain.Y };
+    const w = horseWarp(o.form, out.Y);
+    for (const k of ['body', 'mane']) {
+      let g = out[k];
+      if (!g) continue;
+      const p = g.attributes.position;
+      for (let i = 0; i < p.count; i++) { const q = w(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, q[0], q[1], q[2]); }
+      // a cut-stone horse (Deco, crystal): flat facets instead of a smooth sculpt
+      if (facet && k === 'body') g = out[k] = g.toNonIndexed();
+      g.computeVertexNormals(); g.computeBoundingSphere();
+    }
+    out.surf = (c, d, off) => w(...plain.surf(c, d, off));
+    return out;
+  }
+  function sculptPlain(o, facet) {
     const dy = o.base - 0.3, Y = (y) => y + dy;
     const box = [-0.24, Y(0.22), 0.38, Y(1.02)];
-    const sil = K.closedCurve((o.sil || HORSE_SIL).map(([z, y]) => [z, Y(y)]), 6);
-    const d2 = K.field2(sil, box, 0.0025);
-    const hwF = bake2(K.blendMap((o.widths || HORSE_W).map(([z, y, w]) => [z, Y(y), w]), 0.07), box, 0.005);
+    const okey = JSON.stringify([o.base, o.sil || 0, o.widths || 0]);
+    if (!outlineCache.has(okey)) {
+      const sil = K.closedCurve((o.sil || HORSE_SIL).map(([z, y]) => [z, Y(y)]), 6);
+      outlineCache.set(okey, {
+        d2: K.field2(sil, box, 0.0025),
+        hwF: bake2(K.blendMap((o.widths || HORSE_W).map(([z, y, w]) => [z, Y(y), w]), 0.07), box, 0.005),
+      });
+    }
+    const { d2, hwF } = outlineCache.get(okey);
     const R = o.round;
     const eyeZ = 0.128, eyeY = Y(0.884), eyeX = hwF(eyeZ, eyeY) - 0.003;
     const ears = [-1, 1].map((s) => strand(spline([[s * 0.026, Y(0.962), -0.01, 0.022], [s * 0.034, Y(1.01), 0.0, 0.017], [s * 0.042, Y(1.065), 0.022, 0.003]], 4)));
@@ -349,26 +378,13 @@ function ChacklatePieces(THREE, K) {
     }
     if (o.mane === 'carved' || o.mane === 'roach' || o.mane === 'braid') {
       const fieldM = strandField([].concat(...locks), 0.01, 0.03, 0.016);
-      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
+      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, facet ? Math.max(Q.cell, facet) : Q.cell);
     } else {
-      out.body = sdfGeometry(body, bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
+      out.body = sdfGeometry(body, bounds, facet ? Math.max(Q.cell, facet) : Q.cell);
       if (locks.length) {
         const fieldM = strandField([].concat(...locks), 0.02, 0.03, 0.016);
         out.mane = sdfGeometry(fieldM, [-0.16, Y(0.36), -0.36, 0.16, Y(1.02), 0.11], Q.mane, { band: 1.3 });
       }
-    }
-    if (o.form) {
-      const w = horseWarp(o.form, Y);
-      for (const k of ['body', 'mane']) {
-        let g = out[k];
-        if (!g) continue;
-        const p = g.attributes.position;
-        for (let i = 0; i < p.count; i++) { const q = w(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, q[0], q[1], q[2]); }
-        // a cut-stone horse (Deco, crystal): flat facets instead of a smooth sculpt
-        if (o.form.facet && k === 'body') g = out[k] = g.toNonIndexed();
-        g.computeVertexNormals(); g.computeBoundingSphere();
-      }
-      out.surf = (c, d, off) => w(...surf(c, d, off));
     }
     return out;
   }
@@ -1234,6 +1250,82 @@ function ChacklatePieces(THREE, K) {
       return P;
     },
   };
+
+  // ------------------------------------------------------------------ Chaturanga (Maharaja's Jade, the old pieces)
+  // Chaturanga games use the Mughal jade set, but two pieces move in the old way, so they get
+  // their old shapes: the Mantri (counsellor, Q code) is a courtier in a wide turban with a
+  // plume, and the Gaja (war elephant, B code) is an elephant under a little domed canopy.
+  // Not sold or shown in the Collection: only Chaturanga games stand these on the table.
+  const CHATURANGA = Object.assign({}, MUGHAL, {
+    q() {
+      const R = 0.32, P = new Piece();
+      const p = lotusBase(profile(0, 0), R, 0.136);
+      p.curve([[0.156, 0.2], [0.168, 0.27], [0.152, 0.35], [0.118, 0.42], [0.1, 0.5], [0.098, 0.56]])
+        .line(0.11, 0.57).arc(0.12, 0.588, 0.35)
+        // a robed courtier's shoulders under a lotus collar, then the neck
+        .curve([[0.15, 0.62], [0.17, 0.66], [0.168, 0.7]]).curve([[0.15, 0.73], [0.1, 0.75], [0.062, 0.758]]).line(0.05, 0.77)
+        .line(0, 0.771);
+      P.lathe('body', p, { mod: mods([lotusMod(), MOD.lobes(12, 0.16, 0.16, 0.38, { shape: 0.7 }), MOD.flutes(14, 0.06, 0.6, 0.74, { end: 0.02 })]) });
+      P.add('trim', beadRing(R - 0.004, 0.04, 42, 0.0058));
+      P.add('trim', around(10, 0.12, 0.6, () => curl(leaf(0.05, 0.08, 0.009), 3), { tilt: 0.42 }));
+      P.add('trim', around(18, 0.07, 0.752, () => sphere(0.0085, 0, 0, 0, 8)));                 // a string of pearls
+      // the face: a smooth jade head
+      P.add('body', sphere(0.088, 0, 0.85, 0, 28).scale(1, 1.06, 0.98));
+      // the wide, round turban (pagri), wound in twisted bands
+      P.lathe('body', profile(0, 0.876).line(0.09, 0.876).curve([[0.14, 0.884], [0.166, 0.92], [0.164, 0.97], [0.138, 1.012], [0.09, 1.036], [0.03, 1.044]]).line(0, 1.044),
+        { mod: MOD.flutes(14, 0.06, 0.886, 1.03, { twist: 7, soft: true, end: 0.01 }) });
+      P.add('trim', ring(0.122, 0.888, 0.008));
+      // the sarpech at the front, and a tall feather plume (kalgi) rising from it
+      P.add('trim', placeAt(curl(petal(0.05, 0.11, 0.009), -2), 0, 0.158, 0.93, { tilt: -0.1 }));
+      P.add('accent', placeAt(cabochon(0.02, 0.6), 0, 0.166, 0.95));
+      P.add('accent2', placeAt(sphere(0.012, 0, 0, 0, 10), 0, 0.162, 0.912));
+      P.add('trim', K.tube([[0, 0.99, 0.14], [0, 1.08, 0.13], [0, 1.18, 0.09], [0, 1.25, 0.04]], 0.016, { segs: 24, radial: 8, radiusAt: (t) => mix(1, 0.25, t) }));
+      return P;
+    },
+    b() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(lotusBase(profile(0, 0), R, 0.2), 0.2), { mod: lotusMod() });
+      P.add('trim', beadRing(R - 0.004, 0.04, 40, 0.0058));
+      const y0 = 0.31, s = 1.12, A = at([0, y0, 0.02], s);
+      const el = new Sculpt(0.03, 1.35);
+      el.floor = y0 - 0.004;
+      el.ell(A(0, 0.25, -0.03), [0.125 * s, 0.12 * s, 0.185 * s], 0.04);                        // body
+      el.pair((x) => {
+        el.cone(A(x * 0.07, 0.2, 0.08), A(x * 0.07, 0.0, 0.085), 0.048 * s, 0.046 * s, 0.03);
+        el.cone(A(x * 0.072, 0.2, -0.13), A(x * 0.072, 0.0, -0.13), 0.05 * s, 0.046 * s, 0.03);
+        el.ell(A(x * 0.098, 0.3, 0.115), [0.02 * s, 0.085 * s, 0.07 * s], 0.016);               // ears
+      });
+      el.ell(A(0, 0.31, 0.14), [0.082 * s, 0.09 * s, 0.072 * s], 0.04);                          // head
+      el.ell(A(0, 0.355, 0.15), [0.068 * s, 0.055 * s, 0.058 * s], 0.03);                        // brow
+      el.chain([[0, 0.29, 0.2, 0.038], [0, 0.22, 0.235, 0.031], [0, 0.14, 0.245, 0.025], [0, 0.07, 0.262, 0.02], [0, 0.06, 0.295, 0.017], [0, 0.085, 0.31, 0.014]].map(([x, y, z, r]) => A(x, y, z).concat(r * s)), 0.012, 3);   // trunk
+      el.pair((x) => el.ell(A(x * 0.052, 0.33, 0.205), [0.008, 0.008, 0.006], 0.004, true));   // eyes
+      el.chain([[0, 0.28, -0.21, 0.012], [0, 0.2, -0.23, 0.009], [0, 0.13, -0.225, 0.008]].map(([x, y, z, r]) => A(x, y, z).concat(r * s)), 0.008);   // tail
+      const ef = el.field();
+      P.add('body', el.mesh());
+      // a gold saddle cloth (jhool) with a ruby border, and gold anklets
+      P.add('trim', sdfGeometry(drape(ef, 0.012, (x, y, z) => Math.max(y0 + 0.22 * s - y, Math.abs(z - 0.02 + 0.03 * s) - 0.12 * s)), [-0.18, y0 + 0.18, -0.24, 0.18, y0 + 0.44, 0.2], Q.cell * 1.3));
+      el.pair((x) => { for (const z of [0.085, -0.13]) P.add('trim', ring(0.05 * s, y0 + 0.05 * s, 0.007).translate(x * 0.071 * s, 0, 0.02 + z * s)); });
+      // tusks capped in gold, and a gold forehead plate with a ruby
+      P.add('tusk', merge([-1, 1].map((x) => K.tube([A(x * 0.045, 0.25, 0.19), A(x * 0.06, 0.2, 0.24), A(x * 0.058, 0.21, 0.29), A(x * 0.05, 0.24, 0.31)], 0.012 * s, { segs: 24, radial: 8, radiusAt: (t) => mix(1, 0.25, t) }))));
+      const fp = cabochon(0.04 * s, 0.3); fp.scale(0.8, 1.2, 1); fp.rotateX(-0.5); fp.translate(...A(0, 0.345, 0.2)); P.add('trim', fp);
+      P.add('accent', placeAt(brilliant(0.013), 0, 0, 0).rotateX(-0.5).translate(...A(0, 0.35, 0.214)));
+      // the canopy: four gold posts carry a little onion dome, open on every side
+      const hy = y0 + 0.37 * s, hz = 0.02 - 0.03 * s, top = hy + 0.11;
+      P.add('trim', revolve(profile(0, hy).line(0.105, hy).line(0.105, hy + 0.022).line(0, hy + 0.022), { segs: 40 }).translate(0, 0, hz));
+      P.add('accent', studs(8, 0.106, hy + 0.011, 0.009, { phase: Math.PI / 8 }).translate(0, 0, hz));
+      for (let i = 0; i < 4; i++) {
+        const a = Math.PI / 4 + (i * Math.PI) / 2;
+        P.add('trim', new THREE.CylinderGeometry(0.01, 0.01, top - hy, 10).translate(Math.sin(a) * 0.082, (hy + top) / 2, hz + Math.cos(a) * 0.082));
+      }
+      P.lathe('body', profile(0, top).line(0.126, top).line(0.126, top + 0.016).line(0.104, top + 0.022)
+        .curve([[0.13, top + 0.06], [0.122, top + 0.11], [0.07, top + 0.15], [0.02, top + 0.18]]).line(0.006, top + 0.2).line(0, top + 0.2),
+        { mod: MOD.lobes(12, 0.06, top + 0.03, top + 0.17, { shape: 2 }) });
+      P.add('trim', ring(0.126, top + 0.008, 0.006));
+      P.add('trim', sphere(0.018, 0, top + 0.21, 0, 14));
+      for (const g of P.parts.body.slice(-1).concat(P.parts.trim.slice(-2))) g.translate(0, 0, hz);
+      return P;
+    },
+  });
 
   // ------------------------------------------------------------------ Ming Porcelain (China)
   // Blue-and-white porcelain against carved cinnabar lacquer: vase bodies, pagoda roofs, cloud collars.
@@ -3401,6 +3493,21 @@ function ChacklatePieces(THREE, K) {
       },
       pieces: MUGHAL,
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.jadeWhite() } : { body: MATS.jadeBlack() }, { trim: MAT.gold('#f0c35a'), accent: MATS.ruby(), accent2: MATS.emerald() }),
+    },
+    // Chaturanga's table: the jade set with the old Mantri and Gaja (see CHATURANGA). Hidden: not in the catalog.
+    chaturanga: {
+      id: 'chaturanga', name: "Maharaja's Jade", era: 'Mughal India', year: 'c. 1640', tint: '#0e5a52', hidden: true,
+      story: 'The jade set from the age of the Taj Mahal, with two pieces carved the old way for Chaturanga.',
+      lore: {
+        k: 'The Raja: an onion dome on a drum of pointed arches.',
+        q: 'The Mantri, the king\'s counsellor, in a wide turban with a jewelled plume. He steps one square on a slant.',
+        b: 'The Gaja, a war elephant under a little golden canopy. It jumps two squares on a slant.',
+        n: 'The Ashva, a royal horse with a jewelled bridle.',
+        r: 'The Ratha, the chariot, here a fort tower like the Red Fort in Delhi.',
+        p: 'A Padati, a foot soldier: a baluster with a lotus collar.',
+      },
+      pieces: CHATURANGA,
+      mats: (side) => Object.assign(side === 'w' ? { body: MATS.jadeWhite() } : { body: MATS.jadeBlack() }, { trim: MAT.gold('#f0c35a'), accent: MATS.ruby(), accent2: MATS.emerald(), tusk: MATS.ivoryEnamel() }),
     },
     dynasty: {
       id: 'dynasty', name: 'Ming Porcelain', era: 'Ming China', year: 'c. 1420', tint: '#8a1e16',
