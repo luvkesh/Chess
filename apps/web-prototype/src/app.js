@@ -519,7 +519,7 @@
     $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
     $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
     $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
-    AU.onTalk((on, what) => el.classList.toggle('speaking', on && what !== 'pitch'));
+    AU.onTalk((on, what) => el.classList.toggle('speaking', on && what !== 'pitch' && what !== 'tale'));
     return el;
   }
   function guideTuck() {
@@ -1260,8 +1260,8 @@
     const body = m.querySelector('#tl-body'), next = m.querySelector('#tl-next'), prev = m.querySelector('#tl-prev');
     const line = () => (page < s.pages.length ? s.pages[page] : s.quiz.q);
     voiceIcon(m.querySelector('#tl-voice'), co.name);
-    m.querySelector('#tl-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) AU.say(line()); };
-    m.querySelector('#tl-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); AU.say(line()); };
+    m.querySelector('#tl-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) AU.tale(e.id, line()); };
+    m.querySelector('#tl-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); AU.tale(e.id, line()); };
     function render() {
       m.querySelector('#tl-dots').innerHTML = s.pages.concat([0]).map((_, j) => '<i' + (j <= page ? ' class="on"' : '') + '></i>').join('');
       prev.disabled = page === 0;
@@ -1269,12 +1269,12 @@
       if (page < s.pages.length) {
         body.innerHTML = '<p class="text">' + esc(s.pages[page]) + '</p>';
         next.hidden = false; next.textContent = page === s.pages.length - 1 ? 'Question' : 'Next';
-        if (state.settings.narration) AU.say(s.pages[page]);
+        if (state.settings.narration) AU.tale(e.id, s.pages[page]);
         return;
       }
       body.innerHTML = '<p class="text q">' + esc(s.quiz.q) + '</p><div class="opts">' + s.quiz.options.map((o, j) => '<button data-o="' + j + '">' + esc(o) + '</button>').join('') + '</div><div id="tl-ex"></div>';
       next.hidden = !solved; next.textContent = 'Finish';
-      if (state.settings.narration) AU.say(s.quiz.q);
+      if (state.settings.narration) AU.tale(e.id, s.quiz.q);
       body.querySelectorAll('[data-o]').forEach((b) => {
         b.onclick = () => {
           const right = +b.dataset.o === s.quiz.answer;
@@ -1285,6 +1285,7 @@
           if (!right) return;
           body.querySelectorAll('[data-o]').forEach((x) => { x.disabled = true; });
           next.hidden = false;
+          if (state.settings.narration) AU.tale(e.id, s.quiz.explain);
           if (!solved) { solved = true; m.dataset.won = '1'; }
         };
       });
