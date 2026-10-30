@@ -2034,7 +2034,7 @@
   function colourToss(G, then) {
     const host = document.querySelector('#screens .screen');
     const who = G.kind === 'ai' ? rival(G) : null;
-    const name = who ? who.name : G.setup.tossBy || 'Your friend';
+    const name = who ? who.name : G.setup.tossBy || t('online.yourFriend');
     const tint = who ? who.colors : ['#2f6f6a', '#173b39'];
     const set = equippedSet(), quick = !state.settings.animations;
     const pawn = (side) => snap({ kind: 'piece', set, type: 'p', side, floor: false }, 96, 128,
@@ -2044,13 +2044,13 @@
     el.className = 'toss' + (quick ? ' still' : '');
     el.setAttribute('data-no-tips', '');
     el.style.setProperty('--paw', tint[0]); el.style.setProperty('--paw-2', tint[1]);
-    el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Pick a hand to choose your colour');
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', t('play.toss.label'));
     el.innerHTML = '<div class="toss-in">' + (who ? faceImg(who, 'toss-face') : '') +
-      '<div class="eyebrow">Who goes first?</div><h2 id="toss-h">Pick a hand!</h2>' +
-      '<p class="sub" id="toss-p">' + esc(name) + ' is hiding a white pawn and a black pawn.</p>' +
-      '<div class="toss-hands">' + ['left', 'right'].map((h) => '<button class="toss-hand ' + h + '" data-hand="' + h + '" aria-label="The ' + h + ' paw">' +
+      '<div class="eyebrow">' + t('play.toss.eyebrow') + '</div><h2 id="toss-h">' + t('play.toss.title') + '</h2>' +
+      '<p class="sub" id="toss-p">' + t('play.toss.hiding', { name: esc(name) }) + '</p>' +
+      '<div class="toss-hands">' + ['left', 'right'].map((h) => '<button class="toss-hand ' + h + '" data-hand="' + h + '" aria-label="' + t('play.toss.' + h) + '">' +
         '<span class="paw closed">' + PAW_CLOSED + '</span><span class="paw open">' + PAW_OPEN + '</span><span class="toss-slot"></span></button>').join('') + '</div>' +
-      '<button class="btn small" id="toss-skip">Skip</button></div>';
+      '<button class="btn small" id="toss-skip">' + t('play.toss.skip') + '</button></div>';
     host.appendChild(el);
     document.body.classList.add('tossing');
     let done = false, picked = false;
@@ -2082,8 +2082,8 @@
         b.disabled = true;
       });
       el.classList.add('opened');
-      $('toss-h').textContent = mine === 'w' ? 'White! You go first.' : 'Black! ' + name + ' goes first.';
-      $('toss-p').textContent = 'You have the ' + (mine === 'w' ? 'white' : 'black') + ' pieces.';
+      $('toss-h').textContent = mine === 'w' ? t('play.toss.white') : t('play.toss.black', { name });
+      $('toss-p').textContent = t(mine === 'w' ? 'play.toss.haveWhite' : 'play.toss.haveBlack');
       AU.play('move');
       setTimeout(finish, quick ? 1400 : 1900);
     };
@@ -2118,7 +2118,7 @@
     mount(
       '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? eraName(era) : t(dojo ? 'play.hud.endgames' : 'common.nav.home')) + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
-      '<button class="round rb" id="g-rules" aria-label="Rule book" aria-expanded="false"><img src="' + ART.ruleBookUri() + '" alt=""></button>' +
+      '<button class="round rb" id="g-rules" aria-label="' + t('play.rules.title') + '" aria-expanded="false"><img src="' + ART.ruleBookUri() + '" alt=""></button>' +
       '<button class="round" id="g-music" aria-label="' + t('settings.music') + '" aria-pressed="' + !!state.settings.music + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
       '<button class="round" id="g-settings" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<div class="player-card glass top" id="p-top"></div><div class="player-card glass bottom" id="p-bottom"></div>' +
@@ -2228,7 +2228,7 @@
       el = document.createElement('aside');
       el.id = 'rulebook';
       el.className = 'side glass rulebook';
-      el.setAttribute('aria-label', 'Rule book');
+      el.setAttribute('aria-label', t('play.rules.title'));
       $('side').after(el);
     }
     renderRuleBook();
@@ -2241,14 +2241,13 @@
     const side = local ? G.g.pos.side : G.human;
     const list = RULES.forGame(G.g, side, !local);
     const timedPerson = againstPerson(G) && (G.clock || G.kind === 'online');
-    const note = timedPerson ? 'The clock keeps running while you read: this is a game against a person.'
-      : G.clock ? 'The clocks wait while the rule book is open.' : '';
-    const link = (id, title) => '<button class="btn small ghost rb-link" data-rule-lesson="' + esc(id) + '">' + icon('learn') + '<span>Lesson: ' + esc(title) + '</span>' + icon('next') + '</button>';
+    const note = timedPerson ? t('play.rules.running') : G.clock ? t('play.rules.wait') : '';
+    const link = (id, title) => '<button class="btn small ghost rb-link" data-rule-lesson="' + esc(id) + '">' + icon('learn') + '<span>' + t('play.rules.lesson', { title: esc(title) }) + '</span>' + icon('next') + '</button>';
     const lessonTitle = (id) => (LESSONS.lessons.find((l) => l.id === id) || {}).title || 'Learn';
-    el.innerHTML = '<header><img class="rb-ico" src="' + ART.ruleBookUri() + '" alt=""><b>Rule book</b><button class="round sm x" id="rb-close" aria-label="Close the rule book">' + icon('x') + '</button></header>' +
+    el.innerHTML = '<header><img class="rb-ico" src="' + ART.ruleBookUri() + '" alt=""><b>' + t('play.rules.title') + '</b><button class="round sm x" id="rb-close" aria-label="' + t('play.rules.close') + '">' + icon('x') + '</button></header>' +
       '<div class="rb-body">' + (note ? '<p class="rb-note">' + icon('clock') + '<span>' + esc(note) + '</span></p>' : '') +
       list.map((r) => '<article class="rule' + (r.now ? ' now' : '') + '"><img class="rb-pic" src="' + ART.diagramUri(r.pic) + '" alt="">' +
-        '<div><h3>' + esc(r.title) + (r.now ? ' <span class="pill gold">Right now</span>' : '') + '</h3>' +
+        '<div><h3>' + esc(r.title) + (r.now ? ' <span class="pill gold">' + t('play.rules.now') + '</span>' : '') + '</h3>' +
         '<p class="rb-line">' + esc(r.line) + '</p><p class="rb-text">' + esc(r.text) + '</p>' +
         link(r.lesson, lessonTitle(r.lesson)) + (r.also ? link(r.also.id, lessonTitle(r.also.id)) : '') + '</div></article>').join('') + '</div>';
     $('rb-close').onclick = () => { AU.play('tap'); ruleBook(false); };
@@ -2259,7 +2258,7 @@
   function ruleLesson(id) {
     const G = state.game;
     AU.play('tap');
-    if (againstPerson(G) && (G.clock || G.kind === 'online') && !G.g.outcome) { toast('Your clock is running, so this lesson waits in Learn until after the game.'); return; }
+    if (againstPerson(G) && (G.clock || G.kind === 'online') && !G.g.outcome) { toast(t('play.rules.clockWaits')); return; }
     if (!G.g.outcome) pauseClock(G, true);
     go('lesson', { id, back: 'game' });
   }
@@ -3988,7 +3987,7 @@
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
       // info: { id, color: 'white'|'black', tc, opponent, moves, clock, rating, friend }; friend: a table made with a code
-      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null, tossBy: info.friend ? (info.opponent && info.opponent.name) || 'Your friend' : '' }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
+      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null, tossBy: info.friend ? (info.opponent && info.opponent.name) || t('online.yourFriend') : '' }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
       const G = state.game;
       G.online = { id: info.id, tc: info.tc, opponent: info.opponent, rating: info.rating, clock: info.clock || { w: 0, b: 0, at: performance.now() },
         clockNow() { const c = this.clock; if (!c) return null; const out = { w: c.w, b: c.b }; if (!G.g.outcome && G.g.moves.length >= 2) { const k = G.g.pos.side === WHITE ? 'w' : 'b'; out[k] = Math.max(0, c[k] - (performance.now() - c.at)); } return out; } };
