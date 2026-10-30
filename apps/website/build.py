@@ -22,19 +22,19 @@ game = root / 'apps' / 'web-prototype'
 
 # The instrument each room's music is played on (apps/web-prototype/src/audio.js MOODS).
 MUSIC = {'nile': 'Harp', 'athens': 'Lyre', 'roma': 'Horns', 'mughal': 'Sitar', 'ming': 'Guzheng',
-         'venice': 'Harpsichord', 'winter': 'Celesta', 'deco': 'Electric piano'}
+         'venice': 'Harpsichord', 'paris': 'Harp', 'winter': 'Celesta', 'deco': 'Electric piano'}
 # Strength of each animal friend, matching the engine's levels.
 RANGES = ['250–500', '500–800', '800–1100', '1100–1400', '1400–1700', '1700–2000', '2000–2300', 'Full strength']
 STAGES = {'tale': 'Story', 'lesson': 'Lesson', 'puzzles': 'Puzzles', 'endgame': 'Endgame', 'champion': 'Champion'}
 # The world wonder each era's table looks out on.
 LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome': 'The Colosseum', 'mughal': 'The Taj Mahal',
-             'ming': 'The Forbidden City', 'venice': "St Mark's and the Grand Canal", 'russia': "Saint Petersburg's onion domes",
-             'deco': 'The New York skyline'}
+             'ming': 'The Hall of Supreme Harmony', 'venice': 'The Grand Canal and the Rialto', 'paris': 'The Eiffel Tower',
+             'russia': 'The Savior on Spilled Blood', 'deco': 'Times Square'}
 # Pedestal velvet and sheen for each era set, as in tools/shoot.js.
 FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome': ('#4a1840', '#ff9cd8'), 'mughal': ('#0e5a52', '#9fe0cc'),
-        'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
+        'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'paris': ('#4a1426', '#ffb0c4'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
 # The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
-SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'world3d.js', 'scene.js')]
+SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 
 LINKS = {
@@ -51,7 +51,9 @@ def load(name):
 def set_tints():
     """Each era set's signature colour, read from the 3D code so the cards match the game."""
     src = (game / 'src' / 'pieces3d.js').read_text()
-    return dict(re.findall(r"id: '([\w-]+)', name: [^\n]*?tint: '(#[0-9a-f]{6})'", src))
+    tints = dict(re.findall(r"^\s*'([\w-]+)': \{ tint: '(#[0-9a-f]{6})'", src, re.M))
+    tints.update(re.findall(r"id: '([\w-]+)', name: [^\n]*?tint: '(#[0-9a-f]{6})'", src))
+    return tints
 
 
 def mix(a, b, t):

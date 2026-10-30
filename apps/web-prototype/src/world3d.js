@@ -132,6 +132,7 @@ function ChacklateWorld(THREE, K) {
     ming: { name: 'Cinnabar & Gold', field: { type: 'lacquer', light: '#efe2c4', dark: '#17110f', seamGold: 'rgba(230,190,90,0.7)' }, frame: { type: 'lacquer', color: '#80170f', diaper: true }, inlay: '#e8c06a', label: '#f4d28c', rim: 'gold', gloss: 0.14 },
     venice: { name: 'Murano Mirror Glass', field: { type: 'aventurine', light: '#e6ecf2', dark: '#7a3a12', seamGold: 'rgba(240,210,140,0.7)' }, frame: { type: 'lacquer', color: '#0c1830' }, inlay: '#f0d8a0', label: '#f6e8c4', rim: 'gold', gloss: 0.06, glass: true },
     winter: { name: 'Malachite & Rhodonite', field: { type: 'marble', light: '#efe8dc', dark: '#b86a78', veinLight: '#c8c0b0', veinDark: '#3a2228', marbleDark: { cloud: 0.4, strength: 0.5, freq: 3 } }, frame: { type: 'malachite', color: '#13563a' }, inlay: '#e8c06a', label: '#f2d696', rim: 'gold', gloss: 0.1 },
+    belle: { name: 'Bleu Turquin & Carrara', field: { type: 'marble', light: '#efe8dc', dark: '#3e4f63', veinLight: '#b8b4ac', veinDark: '#a8b8c8', marbleDark: { cloud: 0.5, strength: 0.45, freq: 3 } }, frame: { type: 'wood', color: '#3a1a14', grainLight: '#6a3424' }, inlay: '#e8c06a', label: '#f4e2b8', rim: 'gold', gloss: 0.1 },
     deco: { name: 'Macassar & Chrome', field: { type: 'wood', light: '#e6dccb', dark: '#7a5636', woodDark: { lines: 16, contrast: 0.75, warp: 2.4 }, woodLight: { lines: 70, contrast: 0.22 } }, frame: { type: 'lacquer', color: '#0e0e10' }, inlay: '#dfe3e8', label: '#e8ecf0', rim: 'chrome' },
     cocoa: { name: 'Cocoa & Cream', field: { type: 'lacquer', light: '#ecdcc4', dark: '#6a3d2a', seamGold: 'rgba(214,92,124,0.55)' }, frame: { type: 'wood', color: '#2c1a12', grainLight: '#4e3022' }, inlay: '#d9668a', label: '#f2e3cb', rim: 'gold', gloss: 0.16 },
     tournament: { name: 'Tournament Green', field: { type: 'lacquer', light: '#eceed0', dark: '#6f9150' }, frame: { type: 'wood', color: '#2e3a22', grainLight: '#4a5a36' }, inlay: '#d9d2a8', label: '#eeeed2', rim: 'bronze', gloss: 0.42 },
@@ -1563,6 +1564,7 @@ function ChacklateWorld(THREE, K) {
   // Every room is a twelve-sided hall around the same table. Faces carry windows, a
   // fireplace, shelves of books, paintings, niches with vases, mirrors or screens; the
   // palette, wall finish, columns, windows, light and the view outside set the era.
+  const LM = ChacklateLandmarks(THREE, K, { canvas, texFrom, shade, rgba, glowTexture, flame });
   const ROOMS = {
     salon: {
       name: 'Grand Cocoa Salon', era: 'A Regency drawing room',
@@ -1604,7 +1606,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#6a4a2a', floor: '#4a3018', ceiling: '#3a2614', key: '#fff0d0', keyI: 7, window: '#ffd890', windowI: 4, rim: '#ffd8a0', rimI: 5, lamp: '#ffb860', lampI: 9, fill: 0.9 },
     },
     nile: {
-      name: 'Temple on the Nile', era: 'A painted temple hall in Thebes, about 1330 BC',
+      name: 'Giza Plateau', era: 'A terrace before the pyramids of Giza at sunset, about 1330 BC', vista: 'giza', terrace: { r: 12.5, step: 0.8, edge: '#b8925e' },
       palette: { wall: '#a88454', paper: '#cfae78', paperInk: '#8a6a3e', wood: '#8a6a3e', trim: '#e8c070', floor: '#c8a87a', floorDark: '#6a4a2a', table: '#5a3a1e', inlay: '#e8c070',
         rugBorder: '#1d2f7a', rugField: '#c89a5a', rugGold: '#f0c860', rugAccent: '#a8402a', drape: '#e8dcc0', sky: ['#2a1a4a', '#7a3a5a', '#e07a4a', '#f8c070'],
         paintSky: ['#e07a4a', '#f8c070', '#f8e0a0'], paintLand: '#a87a4a', fog: '#2a1a10', hemi: ['#ffd8a8', '#3a2010'], ceiling: '#1a2a5a', dado: '#8a6a3e' },
@@ -1614,7 +1616,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#6a4a2a', floor: '#5a3e22', ceiling: '#1a2a5a', key: '#ffe8c8', keyI: 6, window: '#ffc890', windowI: 3.5, rim: '#ffc880', rimI: 5, lamp: '#ffb060', lampI: 9, fill: 0.75 },
     },
     athens: {
-      name: 'Stoa of Athens', era: 'A marble colonnade below the Parthenon, 440 BC',
+      name: 'Stoa of Athens', era: 'A marble colonnade below the Parthenon, 440 BC', vista: 'acropolis',
       palette: { wall: '#e2d8c6', paper: '#ece4d4', paperInk: '#b8ac96', wood: '#d8ccb6', trim: '#c8963b', floor: '#dccfb8', floorDark: '#9a8a70', table: '#5a3a22', inlay: '#c8963b',
         rugBorder: '#a8401e', rugField: '#e8dcc4', rugGold: '#1a1a1a', rugAccent: '#a8401e', drape: '#c8963b', sky: ['#141c3a', '#3a3a6a', '#c87a5a', '#f2c890'],
         paintSky: ['#3a3a6a', '#c87a5a', '#f2c890'], paintLand: '#6a6a4a', fog: '#3a3028', hemi: ['#ffe8d0', '#4a3a2a'], ceiling: '#3a2a20', dado: '#cfc4b0' },
@@ -1625,7 +1627,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#8a7a64', floor: '#6a5e4c', ceiling: '#3a2a20', key: '#fff0dc', keyI: 5.5, window: '#ffd8b0', windowI: 3, rim: '#ffd8a8', rimI: 4.5, lamp: '#ffb860', lampI: 8, fill: 0.65 },
     },
     roma: {
-      name: 'Palace of the Caesars', era: 'An imperial hall on the Palatine, AD 113',
+      name: 'The Colosseum', era: 'The arena floor of the Colosseum at dusk, AD 113', vista: 'colosseum', terrace: { r: 12.5, step: 0.5, edge: '#c8a878' },
       palette: { wall: '#5e1f24', paper: '#d8c8a8', paperInk: '#b8a888', wood: '#3a1416', trim: '#d8b060', floor: '#d8c8a8', floorDark: '#5e1f24', table: '#3a1a12', inlay: '#d8b060',
         rugBorder: '#4c1526', rugField: '#7a1e2e', rugGold: '#d8b060', rugAccent: '#1e3a2a', drape: '#4c1526', sky: ['#1a1430', '#5a2a4a', '#d8703a', '#f8b860'],
         paintSky: ['#5a2a4a', '#d8703a', '#f8b860'], paintLand: '#6a5a3a', fog: '#1e0e0c', hemi: ['#ffd8b0', '#2a100c'], ceiling: '#2a1410', dado: '#5e1f24' },
@@ -1636,7 +1638,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#5a2a24', floor: '#4a2a20', ceiling: '#2a1410', key: '#ffe8d0', keyI: 6, window: '#ffc890', windowI: 3.2, rim: '#ffc890', rimI: 5, lamp: '#ffb060', lampI: 9, fill: 0.65 },
     },
     mughal: {
-      name: 'Hall of Mirrors', era: 'A palace hall at Agra, about 1640',
+      name: 'Taj Mahal Gardens', era: 'The moonlit garden of the Taj Mahal, Agra, about 1650', vista: 'taj', terrace: { r: 12.5, step: 0.6, edge: '#d8dde8' },
       palette: { wall: '#efe8dc', paper: '#f2ece2', paperInk: '#cfc6b6', wood: '#e2d8c8', trim: '#d8b060', floor: '#f0ebe2', floorDark: '#9a3f2a', floorLine: 'rgba(216,176,96,0.5)', table: '#4a2a18', inlay: '#e8c06a',
         rugBorder: '#0f3322', rugField: '#7a1e1e', rugGold: '#e8c06a', rugAccent: '#1e4a8a', drape: '#0f3322', sky: ['#020612', '#0a1636', '#1a2e5a', '#2a3e6a'],
         paintSky: ['#1a2e5a', '#4a5a8a', '#c8b0a0'], paintLand: '#2a4a3a', fog: '#14100c', hemi: ['#e0e8ff', '#1a120a'], ceiling: '#2a2016', dado: '#e0d8c8' },
@@ -1647,7 +1649,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#5a5248', floor: '#4a4238', ceiling: '#2a2016', key: '#f4f0ff', keyI: 6, window: '#b8c8ff', windowI: 3, rim: '#ffe0b0', rimI: 5, lamp: '#ffb860', lampI: 10, fill: 0.7 },
     },
     ming: {
-      name: 'Forbidden City Study', era: 'A scholar\'s study in Beijing, about 1420',
+      name: 'Forbidden City Study', era: 'A study facing the Hall of Supreme Harmony, Beijing, about 1420', vista: 'hall',
       palette: { wall: '#7a1410', paper: '#8e1a14', paperInk: '#e8c06a', wood: '#5a0e0a', trim: '#e8b850', floor: '#4a4442', floorDark: '#2a2624', table: '#2a120c', inlay: '#e8b850',
         rugBorder: '#1a2a5a', rugField: '#e8c070', rugGold: '#9e1c16', rugAccent: '#1a2a5a', drape: '#e8b850', sky: ['#1a0e2a', '#4a1a2a', '#c8502a', '#f0a050'],
         paintSky: ['#efe6d2', '#e2d6bc', '#d4c6a8'], paintLand: '#4a4a44', fog: '#1a0a08', hemi: ['#ffd0a0', '#2a0a06'], ceiling: '#1a3a3a', dado: '#1a0a08' },
@@ -1658,7 +1660,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#5a1410', floor: '#2a2220', ceiling: '#1a3a3a', key: '#ffe8d0', keyI: 6, window: '#ffc890', windowI: 3, rim: '#ffc890', rimI: 5, lamp: '#ff9a4a', lampI: 10, fill: 0.6 },
     },
     venice: {
-      name: 'Palazzo on the Canal', era: 'A palazzo on the Grand Canal, about 1700',
+      name: 'Palazzo on the Canal', era: 'A palazzo on the Grand Canal, about 1700', vista: 'canal',
       palette: { wall: '#4a1424', paper: '#5a1a2c', paperInk: '#7a3040', wood: '#3a1a14', trim: '#e0c070', floor: '#c8b0a0', floorDark: '#6a4a48', table: '#3a1a14', inlay: '#e0c070',
         rugBorder: '#14347c', rugField: '#7a1a2a', rugGold: '#e0c070', rugAccent: '#1e5a6a', drape: '#14347c', sky: ['#0a1030', '#2a2a5a', '#a85a7a', '#f0a888'],
         paintSky: ['#2a3a6a', '#c88a7a', '#f0c8a0'], paintLand: '#3a5a5a', fog: '#140a0c', hemi: ['#ffe0d0', '#1a0a0c'], ceiling: '#2a1a14' },
@@ -1668,7 +1670,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#4a1a24', floor: '#3a2a28', ceiling: '#2a1a14', key: '#fff0e0', keyI: 6, window: '#d8c8ff', windowI: 3, rim: '#ffd8b0', rimI: 5, lamp: '#ffb860', lampI: 10, fill: 0.6 },
     },
     winter: {
-      name: 'Winter Palace', era: 'A ballroom in St Petersburg, 1780',
+      name: 'Winter Palace', era: 'A palace ballroom facing the Savior on Spilled Blood, St Petersburg, 1907', vista: 'church',
       palette: { wall: '#e8e6e0', paper: '#f0eeea', paperInk: '#c8c4bc', wood: '#e0dcd4', trim: '#e0b85a', floor: '#a87a4a', floorDark: '#3a2414', table: '#3a2414', inlay: '#e8c06a',
         rugBorder: '#13563a', rugField: '#7a1a1e', rugGold: '#e8c06a', rugAccent: '#1e2a5a', drape: '#13563a', sky: ['#040814', '#0e1a34', '#2a3a5a', '#4a5a7a'],
         paintSky: ['#4a5a7a', '#a8b0c0', '#e8e0d0'], paintLand: '#4a5a4a', fog: '#1a1816', hemi: ['#e8f0ff', '#2a2420'], ceiling: '#e0dcd4', dado: '#d8d4cc' },
@@ -1679,7 +1681,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#8a8680', floor: '#5a4030', ceiling: '#8a8680', key: '#f4f6ff', keyI: 7, window: '#c8d8ff', windowI: 3.5, rim: '#ffe8c8', rimI: 4, lamp: '#ffc070', lampI: 8, fill: 0.95 },
     },
     deco: {
-      name: 'Skyline Penthouse', era: 'A penthouse above Manhattan, 1930',
+      name: 'Times Square Rooftop', era: 'A penthouse terrace above Times Square, 1930', vista: 'times', terrace: { r: 12.9, step: 0.6, edge: '#e8e2d6' },
       palette: { wall: '#0e0e10', paper: '#121214', paperInk: '#d8b860', wood: '#141416', trim: '#dfe3e8', floor: '#efede8', floorDark: '#121214', floorLine: 'rgba(214,220,228,0.55)', table: '#1a1210', inlay: '#dfe3e8',
         rugBorder: '#121214', rugField: '#2a2a30', rugGold: '#d8b860', rugAccent: '#5a6a7a', drape: '#3a3a44', sky: ['#04040c', '#0e0c24', '#2a1a40', '#4a2a50'],
         paintSky: ['#1a1a34', '#5a3a5a', '#d8a080'], paintLand: '#2a2a3a', fog: '#0a0a0c', hemi: ['#e8e8ff', '#0a0a0c'], ceiling: '#121214', dado: '#121214' },
@@ -1689,6 +1691,15 @@ function ChacklateWorld(THREE, K) {
       view: { landmark: 'skyline', moon: [300, 140, 22, true], stars: 160, far: '#1a1a34', dark: '#0a0a14', steel: '#c8d0dc', glow: '#ffd890', beam: '#d8e4ff', water: '#0a0a1a', haze: '#4a2a50' },
       env: { wall: '#1a1a1e', floor: '#2a2a2e', ceiling: '#121214', key: '#f4f4ff', keyI: 7, window: '#b8b8ff', windowI: 3, rim: '#e8e8ff', rimI: 5, lamp: '#ffd8a0', lampI: 8, fill: 0.5 },
     },
+    paris: {
+      name: 'Champ de Mars', era: 'A garden below the new Eiffel Tower, Paris, 1889', vista: 'eiffel', terrace: { r: 12.5, step: 0.5, edge: '#c8b8a0' },
+      palette: { wall: '#3a2a2a', paper: '#e8dcc8', paperInk: '#c8b8a0', wood: '#3a1a12', trim: '#d8b060', floor: '#e2d6c0', floorDark: '#a8987e', table: '#3a1a12', inlay: '#e0b860',
+        rugBorder: '#20368a', rugField: '#6a0c22', rugGold: '#e0b860', rugAccent: '#f4f0e8', drape: '#6a0c22', sky: ['#14204a', '#34407a', '#9a7aa0', '#f0b898'],
+        paintSky: ['#34407a', '#9a7aa0', '#f0b898'], paintLand: '#3a5a34', fog: '#8a7a9a', hemi: ['#ffe0d0', '#2a2a3a'], ceiling: '#2a1a14' },
+      faces: ['window', 'window', 'window', 'painting', 'books', 'fire', 'books', 'painting', 'books', 'painting', 'books', 'painting'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 0.6, chand: 12 },
+      env: { wall: '#4a3a4a', floor: '#3a3a30', ceiling: '#34407a', key: '#fff0e0', keyI: 6, window: '#f0c0a0', windowI: 3.5, rim: '#ffd0a8', rimI: 4.5, lamp: '#ffc070', lampI: 8, fill: 0.8 },
+    },
   };
   // A flat outline as a mesh with 0..1 UVs (or the given ranges).
   function shapePlane(kind, w, h, u0, u1, v0, v1) {
@@ -1696,6 +1707,16 @@ function ChacklateWorld(THREE, K) {
     const p = g.attributes.position, uv = g.attributes.uv;
     const U0 = u0 === undefined ? 0 : u0, U1 = u1 === undefined ? 1 : u1, V0 = v0 === undefined ? 0 : v0, V1 = v1 === undefined ? 1 : v1;
     for (let i = 0; i < p.count; i++) uv.setXY(i, U0 + ((p.getX(i) + w / 2) / w) * (U1 - U0), V0 + ((p.getY(i) + h / 2) / h) * (V1 - V0));
+    return g;
+  }
+  // A wall panel w x h (centred on yc) with a window opening cut through it.
+  function wallWithOpening(w, h, wd, yc) {
+    const s = new THREE.Shape(); s.moveTo(-w / 2, -h / 2); s.lineTo(w / 2, -h / 2); s.lineTo(w / 2, h / 2); s.lineTo(-w / 2, h / 2); s.closePath();
+    const hole = opening(wd.kind, wd.w, wd.h, 0.02), dy = (wd.y !== undefined ? wd.y : -4.6 + 3.2 + 0.5 + wd.h / 2) - yc;
+    const path = new THREE.Path(hole.getPoints(40).map((p) => new THREE.Vector2(p.x, p.y + dy)));
+    s.holes.push(path);
+    const g = new THREE.ShapeGeometry(s, 40), p = g.attributes.position, uv = g.attributes.uv;
+    for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) + w / 2) / w, (p.getY(i) + h / 2) / h);
     return g;
   }
   // Mirror work (sheesh mahal): small silvered and gilt tiles in rosettes, set in plaster.
@@ -1731,10 +1752,21 @@ function ChacklateWorld(THREE, K) {
     const flames = [], owned = [];
     const own = (t) => { owned.push(t); return t; };
     const FLOOR = -4.6, TOP = -0.46, NF = def.faces.length, RAD = 19, H = 21;
+    // the world outside: a landmark to play in front of (outdoors) or to see through the windows
+    const vista = def.vista ? LM.build(def.vista, { groundY: FLOOR - (def.terrace ? def.terrace.step : LM.VISTAS[def.vista].drop || 0.4) }) : null;
+    const outdoor = !!(vista && vista.outdoor);
+    if (vista) grp.add(vista.group);
     // floor and rug
     const shiny = def.floor === 'octagon';   // polished marble
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 64), new THREE.MeshPhysicalMaterial({ map: own(floorTexture(def)), roughness: shiny ? 0.18 : 0.5, clearcoat: shiny ? 0.9 : 0.5, clearcoatRoughness: shiny ? 0.1 : 0.32 }));
+    const floorR = outdoor ? def.terrace.r : vista ? RAD + 0.6 : 30;
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(floorR, 64), new THREE.MeshPhysicalMaterial({ map: own(floorTexture(def)), roughness: shiny ? 0.18 : 0.5, clearcoat: shiny ? 0.9 : 0.5, clearcoatRoughness: shiny ? 0.1 : 0.32 }));
     floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR; floor.receiveShadow = true; grp.add(floor);
+    if (outdoor) {
+      // the terrace stands a step or two above the ground, edged in stone
+      const t = def.terrace, edge = MAT.matte(t.edge || o.floorDark, { roughness: 0.7 });
+      grp.add(new THREE.Mesh(new THREE.CylinderGeometry(floorR, floorR + 0.25, t.step, 96, 1, true).translate(0, FLOOR - t.step / 2, 0), edge));
+      grp.add(new THREE.Mesh(K.ring(floorR, FLOOR + 0.02, 0.12, { seg: 160 }), edge));
+    }
     const rug = new THREE.Mesh(new THREE.CircleGeometry(10.5, 96), new THREE.MeshStandardMaterial({ map: own(rugTexture(o)), roughness: 0.95, transparent: true }));
     rug.rotation.x = -Math.PI / 2; rug.position.y = FLOOR + 0.02; rug.receiveShadow = true; grp.add(rug);
     // the table: a round top with a moulded edge on a turned pedestal
@@ -1761,7 +1793,7 @@ function ChacklateWorld(THREE, K) {
     const faceW = 2 * RAD * Math.sin(Math.PI / NF), WAIN = 3.2;
     fin.map.wrapS = fin.map.wrapT = THREE.RepeatWrapping;
     fin.map.repeat.set(faceW / fin.tile[0], (H - WAIN) / fin.tile[1]);
-    const pano = def.view ? own(panorama(def)) : null;
+    const pano = def.view && !def.vista ? own(panorama(def)) : null;
     if (pano) pano.wrapS = THREE.RepeatWrapping;
     const wd = def.window;
     const frieze = def.frieze ? own(friezeTexture(def.frieze, o)) : null;
@@ -1776,13 +1808,18 @@ function ChacklateWorld(THREE, K) {
     // home screen's crest, where it would peep out from behind it
     let moonAt = def.faces[0] === 'window' ? 0 : -1;
     def.faces.forEach((f, k) => { if (f === 'window' && k > 0 && (moonAt <= 0 || Math.min(k, NF - k) < Math.min(moonAt, NF - moonAt))) moonAt = k; });
-    for (let i = 0; i < NF; i++) {
+    for (let i = 0; i < (outdoor ? 0 : NF); i++) {
       const a = (i / NF) * TAU, kind = def.faces[i];
+      // the windows straight ahead open wide onto the landmark: tall, unglazed, floor to frieze
+      const grand = vista && kind === 'window' && Math.min(i, NF - i) <= 1;
+      const wd = grand ? { kind: def.window.kind, w: 8.2, h: def.window.kind === 'moon' ? 8.2 : 13.4, y: def.window.kind === 'moon' ? FLOOR + WAIN + 5.4 : undefined, drape: def.window.drape, wood: def.window.wood, bars: 'none' } : def.window;
       const face = new THREE.Group();
       // white's camera is at +z; face 0 sits straight ahead (-z) and the rest go round
       face.rotation.y = -a;
       const at = (m, x, y, z) => { m.position.set(x, y, z - RAD * Math.cos(Math.PI / NF)); face.add(m); return m; };
-      const paper = new THREE.Mesh(new THREE.PlaneGeometry(faceW, H - WAIN), wallMats.paper); at(paper, 0, FLOOR + WAIN + (H - WAIN) / 2, 0);
+      // with a vista outside, a window is a real opening cut through the wall
+      const cut = vista && kind === 'window';
+      const paper = new THREE.Mesh(cut ? wallWithOpening(faceW, H - WAIN, wd, FLOOR + WAIN + (H - WAIN) / 2) : new THREE.PlaneGeometry(faceW, H - WAIN), wallMats.paper); at(paper, 0, FLOOR + WAIN + (H - WAIN) / 2, 0);
       const wains = new THREE.Mesh(new THREE.PlaneGeometry(faceW, WAIN), wallMats.wains); at(wains, 0, FLOOR + WAIN / 2, 0.02);
       const rail = new THREE.Mesh(new THREE.BoxGeometry(faceW, 0.16, 0.16), wallMats.wood); at(rail, 0, FLOOR + WAIN, 0.08);
       const railG = new THREE.Mesh(new THREE.BoxGeometry(faceW, 0.03, 0.03), wallMats.gold); at(railG, 0, FLOOR + WAIN + 0.1, 0.17);
@@ -1792,7 +1829,7 @@ function ChacklateWorld(THREE, K) {
         const cap = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.35, 0.42), wallMats.gold); at(cap, faceW / 2, FLOOR + H - 1.2, 0.2);
       }
       const cornice = new THREE.Mesh(new THREE.BoxGeometry(faceW + 0.4, 0.6, 0.6), wallMats.wood); at(cornice, 0, FLOOR + H - 0.6, 0.3);
-      if (frieze) { const fz = new THREE.Mesh(new THREE.PlaneGeometry(faceW, 0.9), new THREE.MeshStandardMaterial({ map: frieze, roughness: 0.5, metalness: 0.1 })); at(fz, 0, friezeY, 0.04); }
+      if (frieze && !grand) { const fz = new THREE.Mesh(new THREE.PlaneGeometry(faceW, 0.9), new THREE.MeshStandardMaterial({ map: frieze, roughness: 0.5, metalness: 0.1 })); at(fz, 0, friezeY, 0.04); }
       if (kind === 'window' && !def.view) {
         const sky = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 7.4), new THREE.MeshBasicMaterial({ map: own(skyTexture(o, i, i === moonAt)), toneMapped: true }));
         at(sky, 0, FLOOR + WAIN + 4.4, 0.05);
@@ -1810,8 +1847,7 @@ function ChacklateWorld(THREE, K) {
         // (which sees only the lower part of the far windows) still meets the landmark
         const v0 = wk === 'moon' ? 0.3 : def.view.v0 || 0.36, v1 = wk === 'moon' ? 0.86 : 1;
         const sw = (v1 - v0) * (w / h) * (VH / VW);
-        const sky = new THREE.Mesh(shapePlane(wk, w, h, uc - sw / 2, uc + sw / 2, v0, v1), new THREE.MeshBasicMaterial({ map: pano, toneMapped: true }));
-        at(sky, 0, yc, 0.05);
+        if (!vista) at(new THREE.Mesh(shapePlane(wk, w, h, uc - sw / 2, uc + sw / 2, v0, v1), new THREE.MeshBasicMaterial({ map: pano, toneMapped: true })), 0, yc, 0.05);
         const frameMat = wd.wood ? wallMats.wood : wk === 'portal' ? stoneMat : wallMats.gold;
         at(new THREE.Mesh(ringGeometry(wk, w, h, wk === 'portal' ? 0.55 : 0.24, 0.2), frameMat), 0, yc, 0.12);
         if (wd.bars !== 'none' && wk !== 'portal') at(new THREE.Mesh(glazing(wk, w, h, wd.bars), frameMat), 0, yc, 0.1);
@@ -1888,18 +1924,20 @@ function ChacklateWorld(THREE, K) {
       grp.add(face);
     }
     // ceiling
-    const ceil = new THREE.Mesh(new THREE.CircleGeometry(RAD + 1, 64), new THREE.MeshStandardMaterial({ color: o.ceiling || '#1a0f0a', roughness: 1 }));
-    ceil.rotation.x = Math.PI / 2; ceil.position.y = FLOOR + H; grp.add(ceil);
-    // the light over the table and two candelabra on it
-    const ch = fixture(def, 7.8, flames); grp.add(ch);
+    if (!outdoor) {
+      const ceil = new THREE.Mesh(new THREE.CircleGeometry(RAD + 1, 64), new THREE.MeshStandardMaterial({ color: o.ceiling || '#1a0f0a', roughness: 1 }));
+      ceil.rotation.x = Math.PI / 2; ceil.position.y = FLOOR + H; grp.add(ceil);
+    }
+    // the light over the table (indoors) and two candelabra on it
+    const ch = outdoor ? null : fixture(def, 7.8, flames); if (ch) grp.add(ch);
     grp.add(candelabrum(-5.9, TOP, -4.6, flames, wallMats.gold));
     grp.add(candelabrum(5.9, TOP, -4.6, flames, wallMats.gold));
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
     // the chandelier steps aside for the camera and the flames flicker; the rest stands still
-    K.batchStatic(grp, [ch].concat(flames.map((f) => f.m)));
+    K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
     return {
-      group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8,
-      fog: o.fog, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
+      group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
+      fog: vista ? vista.fog.color : o.fog, fogDensity: vista ? vista.fog.density : 0.022, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
       chandelierLight: new THREE.Vector3(0, 7.2, 0),
       update(t) {
         for (const f of flames) {
@@ -1911,6 +1949,7 @@ function ChacklateWorld(THREE, K) {
       },
       // frees what this room made for itself (shared materials and textures stay)
       dispose() {
+        if (vista) vista.dispose();
         owned.forEach((t) => t.dispose());
         grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
       },

@@ -8,7 +8,8 @@ The playable Chackmate client: a 3D chess game that runs from one HTML file. thr
 | `vendor/fonts.css` | Cinzel, Cormorant Garamond and Jost, embedded as data (SIL Open Font Licence). |
 | `src/kit3d.js` | Modelling kit: lathe profiles, flutes and carving, signed-distance sculpting, procedural marble, wood, malachite and lapis, shared materials. |
 | `src/pieces3d.js` | The chess sets: the era sets, each with its own shapes, materials, backstory and a note on every piece, plus the colourways. |
-| `src/world3d.js` | Boards (inlaid fields in carved frames) and rooms. Each era room has its own walls, columns, windows, lights and furniture, and a painted landmark outside the windows. |
+| `src/landmarks3d.js` | The landmark outside each era room, modelled in 3D: the sky, the ground and the monument (the Pyramids, the Parthenon, the Colosseum, the Taj Mahal, the Hall of Supreme Harmony, the Grand Canal, the Savior on Spilled Blood, Times Square and the Eiffel Tower). Static parts are merged per material, lights are one point cloud per colour, and water gets a mirrored copy instead of a reflection pass. |
+| `src/world3d.js` | Boards (inlaid fields in carved frames) and rooms. Outdoor rooms (Giza, the Colosseum, the Taj gardens, Times Square, the Champ de Mars) set the table on a terrace in front of the landmark; indoor rooms keep their walls and open three grand windows onto it. |
 | `src/scene.js` | The live table: camera framing around the menus, lighting, shadows, reflections, picking and dragging, move animations, the capture scenes (a 3.5 to 4.5 s scene for each capture effect: a bow, a friendly duel, a waltz, a magic trick, a frosty slide, leapfrog, a sparkler send-off; each piece type also moves and reacts in its own way; tap to skip), a castling scene, celebrations, and the renders used on menu cards. |
 | `src/art.js` | Flat art for the menus: animal portraits, crests, era banners and piece icons. |
 | `src/app.js` | The app: home, play, the Journey Through Time, lessons, puzzles, training, review, collection, season, store and profile screens; the AI and coach run in Web Workers. |
@@ -23,6 +24,7 @@ The playable Chackmate client: a 3D chess game that runs from one HTML file. thr
 | `test/voice.test.js` | Voice lines and recorded clips. |
 | `test/looks.test.js` | Every set, board and room the catalog and the Journey hand out exists in the 3D code. |
 | `test/online.e2e.js` | Two pages play each other through a stand-in room (`test/fake-room.js`): a friend code game to checkmate with a reaction, worldwide pairing, a resignation and a loss on time. Needs Playwright: `node test/online.e2e.js` after a build. |
+| `tools/button-contrast.js` | Every button style, in every panel that restyles buttons, keeps text at 4.5:1 contrast at rest and on hover, focus and press. Needs Playwright: `node tools/button-contrast.js` after a build. |
 | `dist/chackmate.html` | The built game, committed so it can be opened directly. |
 
 ## Commands
