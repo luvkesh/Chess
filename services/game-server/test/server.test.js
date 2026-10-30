@@ -1,6 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
+const fs = require('fs');
+const path = require('path');
 const { createServer } = require('../src/server');
 const glicko = require('../src/glicko');
 const audit = require('../src/audit');
@@ -724,6 +726,14 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     assert.strictEqual(line.status, 200);
     assert.strictEqual(line.headers.get('content-type'), 'audio/mpeg');
     assert.strictEqual((await fetch('http://127.0.0.1:' + port + '/guide/..%2Fsw.js')).status, 404);
+    // So are the words of Words at the table, said by Rooky and by Priya.
+    const words = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../apps/web-prototype/public/words/index.json'), 'utf8'));
+    for (const w of [Object.keys(words).find((k) => k.startsWith('rooky/')), Object.keys(words).find((k) => k.startsWith('priya/'))]) {
+      const r = await fetch('http://127.0.0.1:' + port + '/words/' + w + '.mp3');
+      assert.strictEqual(r.status, 200, w);
+      assert.strictEqual(r.headers.get('content-type'), 'audio/mpeg');
+    }
+    assert.strictEqual((await fetch('http://127.0.0.1:' + port + '/words/rooky/..%2F..%2Fsw.js')).status, 404);
     const me = await P('/api/parent/me', {}, PT);
     assert.strictEqual(me.body.children.length, 1);
     assert.strictEqual(me.body.children[0].activity.onlineGames, 1);

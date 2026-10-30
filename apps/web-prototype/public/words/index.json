@@ -1,0 +1,98 @@
+{
+ "priya/0e358aa6": {
+  "voice": "hf_alpha",
+  "text": "मैं ठीक कर दूँ।"
+ },
+ "priya/7ed8eab5": {
+  "voice": "hf_alpha",
+  "text": "शह!"
+ },
+ "priya/88dda80e": {
+  "voice": "hf_alpha",
+  "text": "अच्छा खेल!"
+ },
+ "priya/e895a935": {
+  "voice": "hf_alpha",
+  "text": "शह-मात!"
+ },
+ "priya/f3758071": {
+  "voice": "hf_alpha",
+  "text": "ड्रॉ करें?"
+ },
+ "rooky/0af42757": {
+  "voice": "am_puck,am_michael",
+  "text": "You already know when to offer a draw. Here are the words: I offer a draw. Your friend can say yes, or keep playing. In Hindi:"
+ },
+ "rooky/0cf0b5ad": {
+  "voice": "am_puck,am_michael",
+  "text": "Your queen can reach the top row."
+ },
+ "rooky/22b66bc9": {
+  "voice": "am_puck,am_michael",
+  "text": "When the king is attacked and cannot escape, the game is over. Say, checkmate! In Hindi, it is:"
+ },
+ "rooky/27232eb2": {
+  "voice": "am_puck,am_michael",
+  "text": "Check!"
+ },
+ "rooky/494ea93f": {
+  "voice": "am_puck,am_michael",
+  "text": "Your friend straightens a bishop and says, j'adoube. What do they mean?"
+ },
+ "rooky/4a583201": {
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate!"
+ },
+ "rooky/4f9b3e09": {
+  "voice": "am_puck,am_michael",
+  "text": "Remember saying adjust, before you straighten a piece? Players everywhere say it in French: j'adoube. It means, I adjust. In Hindi:"
+ },
+ "rooky/5ecabd91": {
+  "voice": "am_puck,am_michael",
+  "text": "J'adoube!"
+ },
+ "rooky/5f730ae1": {
+  "voice": "am_puck,am_michael",
+  "text": "When the game ends, win or lose, say, good game! It tells your friend you enjoyed playing. In Hindi:"
+ },
+ "rooky/630a4120": {
+  "voice": "am_puck,am_michael",
+  "text": "Chess players all over the world share a few little words. Let's learn what to say at the table, in English and in Hindi! Priya will say each Hindi word for you."
+ },
+ "rooky/65ef5f79": {
+  "voice": "am_puck,am_michael",
+  "text": "Which one is Hindi for checkmate?"
+ },
+ "rooky/663f96f8": {
+  "voice": "am_puck,am_michael",
+  "text": "Here are all your table words. Tap any word to hear it again, in English or in Hindi."
+ },
+ "rooky/9b58d5fb": {
+  "voice": "am_puck,am_michael",
+  "text": "Find the move that lets you say, checkmate!"
+ },
+ "rooky/9f91daa1": {
+  "voice": "am_puck,am_michael",
+  "text": "I offer a draw."
+ },
+ "rooky/b5d1e6ff": {
+  "voice": "am_puck,am_michael",
+  "text": "Fun fact: checkmate and Shah-maat come from the same old Persian words. Shah means king, so Shah-maat means, the king is stuck!"
+ },
+ "rooky/bc74f441": {
+  "voice": "am_puck,am_michael",
+  "text": "Good game!"
+ },
+ "rooky/d294802a": {
+  "voice": "am_puck,am_michael",
+  "text": "When your move attacks the king, you can say, check! It's friendly, not a rule. In Hindi, check is:"
+ },
+ "rooky/ec1358ba": {
+  "voice": "am_puck,am_michael",
+  "text": "Move the queen to b8."
+ },
+ "rooky/fd0b001c": {
+  "voice": "am_puck,am_michael",
+  "text": "The game is over, and you lost. What is a kind thing to say?"
+ }
+}

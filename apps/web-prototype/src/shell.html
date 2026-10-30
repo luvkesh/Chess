@@ -745,6 +745,18 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .lesson .prompt { font: 500 22px/1.35 var(--serif); margin: 0 0 12px; }
 .lesson footer { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); align-items: center; flex-wrap: wrap; }
 .lesson footer .grow { flex: 1; }
+/* Words at the table: the English word beside the Hindi, each a button that says it */
+.tw { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 12px; }
+.tw button { display: grid; grid-template-columns: auto 1fr; column-gap: 9px; align-items: center; text-align: left; min-height: 56px; padding: 9px 12px; border-radius: 14px; border: 1px solid rgba(232, 194, 122, 0.35); background: rgba(232, 194, 122, 0.07); color: var(--ink); cursor: pointer; }
+.tw button:hover, .tw button:focus-visible { background: rgba(232, 194, 122, 0.16); border-color: var(--gold); outline: none; }
+.tw button:active { transform: scale(0.98); }
+.tw svg { grid-row: span 2; width: 20px; height: 20px; fill: none; stroke: var(--gold); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tw b { font: 600 20px/1.2 var(--serif); }
+.tw b[lang="hi"] { font: 600 20px/1.35 'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Nirmala UI', Mangal, sans-serif; letter-spacing: 0; }
+.tw small { font-size: 12.5px; color: var(--muted); }
+.tw-list .tw { margin: 0 0 6px; }
+.tw-list .tw b { font-size: 17px; }
+.tw-list .tw button { min-height: 46px; padding: 6px 11px; }
 .objectives { display: grid; gap: 7px; margin-top: 14px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.05); }
 .objectives small { font: 600 10px/1.2 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
 .objectives span { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; color: var(--ink); line-height: 1.4; }

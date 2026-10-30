@@ -414,31 +414,29 @@ function ChacklateAudio() {
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
     return deviceFallback ? device(words.join(' '), 1.1, lang) : false;
   }
-  // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
-  // says the line). onTalk(true/false) tells the guide card when to show that someone is talking.
   const PAUSE = { comma: 280, stop: 550 };
-  const guideClips = new Map();
+  const lineClips = new Map();
   let onTalk = null;
   function talking(on) { if (onTalk) onTalk(on); }
-  function guideClip(key) {
-    if (!guideClips.has(key)) {
-      guideClips.set(key, fetch('guide/' + key + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
-        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { guideClips.delete(key); throw e; }));
+  function lineClip(url) {
+    if (!lineClips.has(url)) {
+      lineClips.set(url, fetch(url).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { lineClips.delete(url); throw e; }));
     }
-    return guideClips.get(key);
+    return lineClips.get(url);
   }
-  // Says one guide line; falls back to the device's voice where the recording can't be fetched
+  // Says one recorded line; falls back to the device's voice where the recording can't be fetched
   // (the single offline file). Resolves when the line has finished, or at once if nothing was said.
-  function guide(key, text) {
+  function line(url, text, lang) {
     stopSpeech();
     const my = queueId;
     return new Promise((done) => {
       const end = () => { if (my === queueId) talking(false); done(); };
       if (!canTalk() || !ready()) return done();
       talking(true);
-      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, 'en', end))) end(); };
+      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, lang || 'en', end))) end(); };
       if (typeof fetch === 'undefined' || location.protocol === 'file:') return viaDevice();
-      guideClip(key).then((b) => {
+      lineClip(url).then((b) => {
         if (my !== queueId) return done();
         const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(master);
         const s = ctx.createBufferSource(); s.buffer = b; s.connect(bus); s.start(ctx.currentTime + 0.03);
@@ -448,6 +446,12 @@ function ChacklateAudio() {
       }, viaDevice);
     });
   }
+  // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
+  // says the line). onTalk(true/false) tells the guide card when to show that someone is talking.
+  const guide = (key, text) => line('guide/' + key + '.mp3', text, 'en');
+  // Lessons with their own speakers (words/<who>/<key>.mp3, recorded by tools/voice/record-words.py):
+  // Rooky in English, Priya in Hindi.
+  const words = (who, text) => line('words/' + who + '/' + voiceKey(text) + '.mp3', text, who === 'priya' ? 'hi' : 'en');
   // True once the browser lets the game make sound (from the first tap on).
   let tapped = false;
   const canTalk = () => tapped || !!(ctx && ctx.state === 'running');
@@ -465,7 +469,7 @@ function ChacklateAudio() {
     },
     // Browsers only allow sound after a user gesture; call this from one.
     unlock() { if (ready()) { tapped = true; if (musicOn && !music) startMusic(); } },
-    say, hush, event, announce, voiceKey, moveWords, guide, canTalk, phrases,
+    say, hush, event, announce, voiceKey, moveWords, guide, words, canTalk, phrases,
     onTalk(fn) { onTalk = fn; },
     voices: () => V.voices.slice(),
     setVoices(o) {
