@@ -1,13 +1,13 @@
 {
-  "eyebrow": { "en": "Season" },
-  "title": { "en": "Seasons" },
-  "soon": { "en": "The next season starts soon." },
-  "unlocked": { "en": "Unlocked" },
-  "needsPass": { "en": "Needs the pass" },
-  "passIncluded": { "en": "Season Pass included with Premium" },
-  "passOwned": { "en": "Season Pass owned" },
-  "pass": { "en": "Season Pass" },
-  "passText": { "en": "Unlock the gold track: {n} extra rewards, including tiers you have already reached." },
-  "free": { "en": "Free track" },
-  "fine": { "en": "Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends." }
+  "eyebrow": { "en": "Season", "hi": "सीज़न", "check": ["hi"] },
+  "title": { "en": "Seasons", "hi": "सीज़न", "check": ["hi"] },
+  "soon": { "en": "The next season starts soon.", "hi": "अगला सीज़न जल्द शुरू होगा।", "check": ["hi"] },
+  "unlocked": { "en": "Unlocked", "hi": "खुल गया", "check": ["hi"] },
+  "needsPass": { "en": "Needs the pass", "hi": "पास चाहिए", "check": ["hi"] },
+  "passIncluded": { "en": "Season Pass included with Premium", "hi": "सीज़न पास प्रीमियम के साथ शामिल है", "check": ["hi"] },
+  "passOwned": { "en": "Season Pass owned", "hi": "सीज़न पास आपके पास है", "check": ["hi"] },
+  "pass": { "en": "Season Pass", "hi": "सीज़न पास", "check": ["hi"] },
+  "passText": { "en": "Unlock the gold track: {n} extra rewards, including tiers you have already reached.", "hi": "गोल्ड ट्रैक खोलें: {n} अतिरिक्त इनाम, उन टियर के भी जो आप पहले ही पा चुके हैं।", "check": ["hi"] },
+  "free": { "en": "Free track", "hi": "मुफ़्त ट्रैक", "check": ["hi"] },
+  "fine": { "en": "Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends.", "hi": "सीज़न के दौरान कमाया हर XP गिना जाता है: खेल, पहेलियाँ, पाठ, यात्रा, अभ्यास और रोज़ के मिशन। जो चीज़ें आप खोलते हैं, वे सीज़न ख़त्म होने के बाद भी आपकी रहती हैं।", "check": ["hi"] }
 }
