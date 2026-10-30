@@ -1879,7 +1879,7 @@
     if (!g.moves.length) view.intro();
     save();
     // The opponent says hello across the table.
-    if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [['Let\'s play!', 'dismiss']], null, who); }
+    if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [[t('play.say.hello'), 'dismiss']], null, who); }
     if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: 600 });
     gameNudge(game);
     if (!g.outcome) maybeComputer();
@@ -1899,29 +1899,29 @@
     const j = G.setup.journey, era = j && eraById(j.era);
     const dojo = G.setup.dojo && endgameById(G.setup.dojo);
     mount(
-      '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? era.name : dojo ? 'Endgames' : 'Home') + '</span></button>' +
+      '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? eraName(era) : t(dojo ? 'play.hud.endgames' : 'common.nav.home')) + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
-      '<button class="round" id="g-music" aria-label="Music" aria-pressed="' + !!state.settings.music + '" title="Music">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
-      '<button class="round" id="g-settings" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
+      '<button class="round" id="g-music" aria-label="' + t('settings.music') + '" aria-pressed="' + !!state.settings.music + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
+      '<button class="round" id="g-settings" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<div class="player-card glass top" id="p-top"></div><div class="player-card glass bottom" id="p-bottom"></div>' +
       '<div class="evalbar" id="evalbar" hidden><i id="evalfill" style="height:50%"></i></div>' +
-      '<aside class="side glass" id="side"><header><b id="side-title">' + esc(dojo ? dojo.name : 'Moves') + '</b><button class="btn small ghost" id="g-copy" title="Copy the game as PGN">PGN</button></header>' +
-      '<div id="coach-slot"></div><div class="moves-wrap" id="moves-wrap"><ol class="moves" id="moves" aria-label="Moves played"></ol></div>' +
-      '<form id="move-form" class="move-form" autocomplete="off"><label class="sr" for="move-input">Type a move</label><input id="move-input" class="text-in" placeholder="Type a move: e4, Nf3, O-O" spellcheck="false" autocapitalize="off"><button class="btn small">Play</button></form></aside>' +
+      '<aside class="side glass" id="side"><header><b id="side-title">' + esc(dojo ? dojo.name : t('play.hud.moves')) + '</b><button class="btn small ghost" id="g-copy" title="' + t('play.hud.copyPgn') + '">PGN</button></header>' +
+      '<div id="coach-slot"></div><div class="moves-wrap" id="moves-wrap"><ol class="moves" id="moves" aria-label="' + t('play.hud.played') + '"></ol></div>' +
+      '<form id="move-form" class="move-form" autocomplete="off"><label class="sr" for="move-input">' + t('play.hud.type') + '</label><input id="move-input" class="text-in" placeholder="' + t('play.hud.typeHint') + '" spellcheck="false" autocapitalize="off"><button class="btn small">' + t('common.nav.play') + '</button></form></aside>' +
       '<div class="actionbar glass" id="actionbar">' +
-      (online ? '' : '<button class="btn" id="g-undo">' + icon('undo') + '<span class="lbl">Undo</span></button>') +
-      (online ? '' : '<button class="btn" id="g-hint">' + icon('hint') + '<span class="lbl">Hint</span></button>') +
-      (online ? '' : '<button class="btn" id="g-threat">' + icon('eye') + '<span class="lbl">Threat</span></button>') +
+      (online ? '' : '<button class="btn" id="g-undo">' + icon('undo') + '<span class="lbl">' + t('play.btn.undo') + '</span></button>') +
+      (online ? '' : '<button class="btn" id="g-hint">' + icon('hint') + '<span class="lbl">' + t('play.btn.hint') + '</span></button>') +
+      (online ? '' : '<button class="btn" id="g-threat">' + icon('eye') + '<span class="lbl">' + t('play.btn.threat') + '</span></button>') +
       '<span class="sep"></span>' +
-      '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">Flip</span></button>' +
-      '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">Top view</span></button>' +
+      '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">' + t('play.btn.flip') + '</span></button>' +
+      '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">' + t('play.btn.topView') + '</span></button>' +
       '<span class="sep"></span>' +
-      (online ? '<button class="btn" id="g-emote" aria-haspopup="true">' + icon('smile') + '<span class="lbl">React</span></button>' : '') +
-      (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">Draw</span></button>') +
-      '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">Resign</span></button>' +
-      '<button class="btn primary" id="g-claim" hidden>Claim draw</button>' +
-      '<button class="btn primary" id="g-review" hidden>' + icon('star') + '<span>Review with Rooky</span></button>' +
-      '<button class="btn" id="g-new" hidden>' + icon('play') + '<span>New game</span></button>' +
+      (online ? '<button class="btn" id="g-emote" aria-haspopup="true">' + icon('smile') + '<span class="lbl">' + t('play.btn.react') + '</span></button>' : '') +
+      (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">' + t('play.btn.draw') + '</span></button>') +
+      '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">' + t('play.btn.resign') + '</span></button>' +
+      '<button class="btn primary" id="g-claim" hidden>' + t('play.btn.claim') + '</button>' +
+      '<button class="btn primary" id="g-review" hidden>' + icon('star') + '<span>' + t('play.btn.review') + '</span></button>' +
+      '<button class="btn" id="g-new" hidden>' + icon('play') + '<span>' + t('play.btn.new') + '</span></button>' +
       '</div>');
     $('g-home').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else if (dojo) go('dojo'); else go('home'); };
     $('g-music').onclick = () => {
@@ -1946,7 +1946,7 @@
       const input = $('move-input'), text = input.value.trim();
       if (!text || !humanTurn()) return;
       const m = G.g.pos.parseMove(text, G.g.legal);
-      if (m === null || m === undefined) { toast('"' + esc(text) + '" is not a legal move here.'); AU.play('illegal'); return; }
+      if (m === null || m === undefined) { toast(t('play.notLegal', { move: esc(text) })); AU.play('illegal'); return; }
       input.value = '';
       playMove(m, true);
     };
@@ -1971,10 +1971,10 @@
     };
   };
   function titleFor(G) {
-    if (G.setup.dojo) { const d = endgameById(G.setup.dojo); return (G.setup.journey ? 'Journey' : 'Endgame dojo') + (d ? ' · ' + d.name : ''); }
-    if (G.kind === 'ai') return 'vs ' + rival(G).name;
-    if (G.kind === 'online') return 'Online · ' + (G.online && G.online.tc || G.setup.tc || '');
-    return 'Pass and play';
+    if (G.setup.dojo) { const d = endgameById(G.setup.dojo); return t(G.setup.journey ? 'common.nav.journey' : 'learn.dojoTitle') + (d ? ' · ' + d.name : ''); }
+    if (G.kind === 'ai') return t('learn.vs', { name: rival(G).name });
+    if (G.kind === 'online') return t('play.onlineTitle', { tc: G.online && G.online.tc || G.setup.tc || '' });
+    return t('learn.local');
   }
   function renderTitle() {
     const G = state.game, el = $('g-mode');
@@ -1996,13 +1996,13 @@
     return G.g.pos.side === G.human;
   }
   function sideName(G, side) {
-    if (G.kind === 'ai') return side === G.human ? state.settings.name : rival(G).name;
-    if (G.kind === 'online') return side === G.human ? state.settings.name : (G.online && G.online.opponent ? G.online.opponent.name : 'Opponent');
-    return side === WHITE ? 'White' : 'Black';
+    if (G.kind === 'ai') return side === G.human ? myName() : rival(G).name;
+    if (G.kind === 'online') return side === G.human ? myName() : (G.online && G.online.opponent ? G.online.opponent.name : t('play.opponent'));
+    return t(side === WHITE ? 'play.color.white' : 'play.color.black');
   }
   // Little drawn pieces for the captured row: ivory for White's, ebony with gold for Black's.
   const CAP_INK = { w: { fill: '#f6ecd9', stroke: '#8a7458', ink: '#5a4630' }, b: { fill: '#2b1c14', stroke: '#d9b46a', ink: '#d9b46a' } };
-  const capImg = (t, color) => '<img src="' + ART.pieceUri(t, CAP_INK[color]) + '" alt="' + (color === 'w' ? 'White ' : 'Black ') + PIECE_NAME[t].toLowerCase() + '">';
+  const capImg = (pt, color) => '<img src="' + ART.pieceUri(pt, CAP_INK[color]) + '" alt="' + t(color === 'w' ? 'play.capWhite' : 'play.capBlack', { piece: PIECE_NAME[pt].toLowerCase() }) + '">';
 
   // The two players' cards: portrait, name, who they are, the pieces they have taken and
   // their clock. The parts that change each move are filled in by renderHud.
@@ -2017,10 +2017,10 @@
       const opp = G.kind === 'online' && side !== G.human && G.online && G.online.opponent;
       const who = ai ? rival(G) : null;
       let pp, sub;
-      if (you) { pp = avatarHtml('sm'); sub = 'Level ' + PG.levelFor(state.progress.xp).level + (G.online && G.online.rating ? ' · Rating ' + G.online.rating : ''); }
-      else if (who) { pp = '<img class="portrait" src="' + face(who) + '" alt="">'; sub = G.setup.dojo ? 'Full-strength defence' : who.era ? 'Champion of ' + (eraById(who.era) || {}).name : 'Level ' + (G.setup.level + 1) + ' · ' + LEVELS[G.setup.level].band; }
-      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || 'Rating ' + (opp.rating || '?'); }
-      else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = side === WHITE ? 'Plays the light pieces' : 'Plays the dark pieces'; }
+      if (you) { pp = avatarHtml('sm'); sub = t('common.level', { n: PG.levelFor(state.progress.xp).level }) + (G.online && G.online.rating ? ' · ' + t('play.rating', { n: G.online.rating }) : ''); }
+      else if (who) { pp = '<img class="portrait" src="' + face(who) + '" alt="">'; sub = G.setup.dojo ? t('play.fullStrength') : who.era ? t('play.championOf', { era: eraName(eraById(who.era) || { name: '' }) }) : t('common.level', { n: G.setup.level + 1 }) + ' · ' + bandName(G.setup.level); }
+      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || t('play.rating', { n: opp.rating || '?' }); }
+      else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = t(side === WHITE ? 'play.lightPieces' : 'play.darkPieces'); }
       el.innerHTML = '<div class="pp">' + pp + '</div><div class="who"><div class="name">' + esc(sideName(G, side)) + '</div><div class="sub"><span class="tl">' + esc(sub) + '</span></div>' +
         '<div class="taken"><span class="caps"></span><span class="adv"></span></div></div>' +
         '<div class="clock skin-' + (clockSkin ? clockSkin.css : 'classic') + '" data-side="' + side + '"' + (G.clock || G.kind === 'online' ? '' : ' hidden') + '></div>';
@@ -2062,7 +2062,7 @@
     if (piece && Math.sign(piece) === g.pos.side) {
       if (G.selected !== sq) AU.play('select');
       G.selected = sq;
-      if (!g.targets(sq).length) toast('That piece has no legal moves.');
+      if (!g.targets(sq).length) toast(t('play.noMoves'));
     } else { if (G.selected >= 0 && piece === 0) AU.play('illegal'); G.selected = -1; }
     refreshHighlights();
   }
