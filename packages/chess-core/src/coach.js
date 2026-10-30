@@ -7,6 +7,11 @@ function ChacklateCoach(E) {
   const { WHITE, P, N, B, R, Q, K, MATE } = E;
   const NAME = ['', 'pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
   const PTS = [0, 1, 3, 3, 5, 9, 100];
+  // Chaturanga's pieces by their English names (the engine reuses the codes of the pieces they grew into).
+  const NAME_OLD = ['', 'soldier', 'horse', 'elephant', 'chariot', 'counsellor', 'king'];
+  const PTS_OLD = [0, 1, 3, 1.4, 5, 1.8, 100];
+  const names = (old) => (old ? NAME_OLD : NAME);
+  const pts = (pos) => (pos.ch ? PTS_OLD : PTS);
   const SIDE = (s) => (s === WHITE ? 'White' : 'Black');
   const sqn = (sq88) => 'abcdefgh'[sq88 & 7] + (1 + (sq88 >> 4));
   const on = (sq) => !(sq & 0x88);
@@ -32,6 +37,10 @@ function ChacklateCoach(E) {
     for (const s of pawnFrom) if (on(s) && b[s] === P * side) out.push({ sq: s, kind: P });
     for (const d of E.KNIGHT_DIRS) { const s = sq + d; if (on(s) && b[s] === N * side) out.push({ sq: s, kind: N }); }
     for (const d of E.KING_DIRS) { const s = sq + d; if (on(s) && b[s] === K * side) out.push({ sq: s, kind: K }); }
+    if (pos.ch) {
+      for (const d of E.ALFIL_DIRS) { const s = sq + d; if (on(s) && b[s] === B * side) out.push({ sq: s, kind: B }); }
+      for (const d of E.BISHOP_DIRS) { const s = sq + d; if (on(s) && b[s] === Q * side) out.push({ sq: s, kind: Q }); }
+    }
     const slide = (dirs, kinds) => {
       for (const d of dirs) {
         let s = sq + d;
@@ -42,9 +51,10 @@ function ChacklateCoach(E) {
         }
       }
     };
-    slide(E.BISHOP_DIRS, [B, Q]);
-    slide(E.ROOK_DIRS, [R, Q]);
-    return out.sort((a, b2) => PTS[a.kind] - PTS[b2.kind]);
+    if (pos.ch) slide(E.ROOK_DIRS, [R]);
+    else { slide(E.BISHOP_DIRS, [B, Q]); slide(E.ROOK_DIRS, [R, Q]); }
+    const V = pts(pos);
+    return out.sort((a, b2) => V[a.kind] - V[b2.kind]);
   }
 
   // Squares attacked by the piece standing on `sq`.
@@ -52,7 +62,8 @@ function ChacklateCoach(E) {
     const b = pos.b, p = b[sq], kind = Math.abs(p), side = Math.sign(p), out = [];
     if (!p) return out;
     if (kind === P) { for (const d of side === WHITE ? [15, 17] : [-15, -17]) if (on(sq + d)) out.push(sq + d); return out; }
-    if (kind === N || kind === K) { for (const d of kind === N ? E.KNIGHT_DIRS : E.KING_DIRS) if (on(sq + d)) out.push(sq + d); return out; }
+    const step = kind === N ? E.KNIGHT_DIRS : kind === K ? E.KING_DIRS : pos.ch && kind === B ? E.ALFIL_DIRS : pos.ch && kind === Q ? E.BISHOP_DIRS : null;
+    if (step) { for (const d of step) if (on(sq + d)) out.push(sq + d); return out; }
     const dirs = kind === B ? E.BISHOP_DIRS : kind === R ? E.ROOK_DIRS : E.BISHOP_DIRS.concat(E.ROOK_DIRS);
     for (const d of dirs) { let s = sq + d; while (on(s)) { out.push(s); if (b[s]) break; s += d; } }
     return out;
@@ -66,7 +77,7 @@ function ChacklateCoach(E) {
     if (!att.length) return false;
     const def = attackers(pos, sq, side);
     if (!def.length) return true;
-    return PTS[att[0].kind] < PTS[Math.abs(p)];
+    return pts(pos)[att[0].kind] < pts(pos)[Math.abs(p)];
   }
   function hangingPieces(pos, side) {
     const out = [];
@@ -85,11 +96,12 @@ function ChacklateCoach(E) {
     const side = pos.side, mover = Math.abs(pos.b[from]);
     const capturedKind = fl & E.F_EP ? P : Math.abs(pos.b[to]);
     const san = pos.san(m, legal);
+    const PTS = pts(pos), sliders = pos.ch ? [R] : [B, R, Q];
     const hangBefore = new Set(hangingPieces(pos, side).map((h) => h.sq));
     pos.make(m);
     const f = { san, uci: E.uci(m), side, piece: mover, from: sqn(from), to: sqn(to), capture: fl & E.F_CAP ? capturedKind : 0,
       check: pos.inCheck(), mate: false, stalemate: false, promotion: promo, castle: !!(fl & E.F_CASTLE), forks: [], pin: null, skewer: null,
-      discovered: [], hangs: [], attacks: [], sacrifice: false };
+      discovered: [], hangs: [], attacks: [], sacrifice: false, old: pos.ch };
     const reply = pos.legalMoves();
     if (!reply.length) { f.mate = f.check; f.stalemate = !f.check; }
     // Fork: the moved piece attacks two or more targets worth more than it, or the king plus something loose.
@@ -97,7 +109,7 @@ function ChacklateCoach(E) {
     const valuable = targets.filter((t) => t.kind === K || (t.kind !== P && (PTS[t.kind] > PTS[mover] || !attackers(pos, t.sq, -side).length)));
     if (valuable.length >= 2 && !isHanging(pos, to)) f.forks = valuable.map((t) => ({ sq: sqn(t.sq), kind: t.kind }));
     // Pin or skewer along the moved piece's lines.
-    if ([B, R, Q].includes(Math.abs(pos.b[to]))) {
+    if (sliders.includes(Math.abs(pos.b[to]))) {
       const kind = Math.abs(pos.b[to]);
       const dirs = kind === B ? E.BISHOP_DIRS : kind === R ? E.ROOK_DIRS : E.BISHOP_DIRS.concat(E.ROOK_DIRS);
       for (const d of dirs) {
@@ -124,7 +136,7 @@ function ChacklateCoach(E) {
     for (let s = 0; s < 128; s++) {
       if (s & 0x88) { s += 7; continue; }
       const p = pos.b[s];
-      if (!p || Math.sign(p) !== side || s === to || ![B, R, Q].includes(Math.abs(p))) continue;
+      if (!p || Math.sign(p) !== side || s === to || !sliders.includes(Math.abs(p))) continue;
       for (const t of attacksFrom(pos, s)) {
         const v = pos.b[t];
         if (!v || Math.sign(v) !== -side || Math.abs(v) < R) continue;
@@ -152,8 +164,9 @@ function ChacklateCoach(E) {
 
   // One sentence describing what a move does, from its fact sheet.
   function describe(f) {
+    const NAME = names(f.old);
     if (f.mate) return f.san + ' is checkmate.';
-    if (f.stalemate) return f.san + ' stalemates: the game is drawn.';
+    if (f.stalemate) return f.san + (f.old ? ' leaves the king with no move: in chaturanga that wins.' : ' stalemates: the game is drawn.');
     const bits = [];
     if (f.forks.length) bits.push('forks the ' + list2(f.forks.map((t) => NAME[t.kind] + ' on ' + t.sq)));
     if (f.pin) bits.push('pins the ' + NAME[f.pin.piece] + ' on ' + f.pin.at + (f.pin.absolute ? ' to the king' : ' to the ' + NAME[f.pin.behind]));
@@ -184,6 +197,7 @@ function ChacklateCoach(E) {
 
   // Explains a played move using the engine's reply and its preferred move.
   function explain(ply) {
+    const NAME = names(ply.facts.old);
     const out = [];
     const you = ply.side;
     const own = describe(ply.facts);
@@ -323,7 +337,7 @@ function ChacklateCoach(E) {
 
   // Hint ladder for a position: theme first, then the piece, then the move.
   function hintLadder(pos, best) {
-    const f = facts(pos, best);
+    const f = facts(pos, best), NAME = names(pos.ch);
     let theme = 'Look for your most forcing move: checks, captures, then threats.';
     if (f.mate) theme = 'There is a checkmate in one move.';
     else if (f.forks.length) theme = 'Look for a fork: one piece attacking two targets.';
@@ -341,7 +355,7 @@ function ChacklateCoach(E) {
   }
 
   return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, classify, explain, review, threat, line, hintLadder,
-    moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME };
+    moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME, NAME_OLD };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateCoach;
