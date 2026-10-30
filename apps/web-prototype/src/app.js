@@ -332,7 +332,7 @@
       // small menu-card art doesn't need the full sculpt (and building it slows the first screen)
       if (w <= 240 && !spec.detail) spec.detail = 'play';
       const k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
-      view.snapshot(spec, Math.round(w * k), Math.round(h * k)).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
+      view.snapshot(spec, Math.round(w * k), Math.round(h * k), () => img.isConnected).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
     };
     if (!lazy || !('IntersectionObserver' in window)) { imgs.forEach(run); return; }
     if (snapObserver) snapObserver.disconnect();
@@ -524,11 +524,34 @@
     pieces: { pitch: 0.62, zoom: 0.6, lookY: 0.45, lookZ: 1.4 },
     piecesTall: { pitch: 0.62, zoom: 0.7, lookY: 0.45, lookZ: 1.2 },   // a phone held upright: all eight files still fit
     board: { pitch: 0.95, zoom: 0.72, lookZ: 0.6 },
+    move: { pitch: 0.7, zoom: 0.62, lookY: 0.3, lookZ: 0.2 },   // capture effects and trails, close to the move
     other: { zoom: 0.8 },
   };
+  // Capture effects and trails only show on a move, so the preview plays one again and again:
+  // a knight hops in to take a pawn, or the queen sweeps across the board. The next round
+  // starts a second after the last one ends, however long its capture scene runs.
+  function peekDemo(it) {
+    const capture = it.category === 'capture';
+    const [from, to, piece] = capture ? ['f3', 'e5', 2] : ['d1', 'h5', 5];
+    const live = () => peeking && peeking.it === it;
+    const play = () => {
+      if (!live()) return;
+      const start = [[sqIndex('e1'), 6], [sqIndex('e8'), -6], [sqIndex(from), piece]];
+      if (capture) start.push([sqIndex(to), -1]);
+      view.setBoard(start, null);
+      peeking.timers.push(setTimeout(() => {
+        if (!live()) return;
+        view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
+          () => { if (live()) peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false });
+      }, 450));
+    };
+    play();
+    peeking.demo = true;
+  }
   let peeking = null;
   function peek(it) {
-    peeking = { it };
+    if (peeking) endPeek(true);   // one item on the table at a time
+    peeking = { it, timers: [] };
     preview = it; applyLook();
     document.body.classList.add('peeking');
     view.setPaused(false);
@@ -536,8 +559,16 @@
     // full resolution while the item is on show, and a camera that starts close to it
     view.setFullDetail(true);
     if (it.category === 'room') { view.setAttract(true); view.setFocus({ zoom: 0.8 }); }
-    else { view.setAttract(false); view.setView('white', 'player'); view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[it.category] || PEEK_FOCUS.other); }
-    if (it.category === 'capture' || it.category === 'victory') setTimeout(() => view.celebrate('win', -1, null, sqIndex('e1')), 500);
+    else {
+      const moving = it.category === 'capture' || it.category === 'trail';
+      view.setAttract(false); view.setView('white', 'player');
+      view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[moving ? 'move' : it.category] || PEEK_FOCUS.other);
+    }
+    if (it.category === 'capture' || it.category === 'trail') peekDemo(it);
+    if (it.category === 'victory') {
+      const win = () => view.celebrate('win', -1, null, sqIndex('e1'));
+      peeking.timers.push(setTimeout(win, 500), setInterval(win, 4200));
+    }
     if (it.category === 'sound') AU.play('capture');
     const un = PG.isUnlocked(state.progress, it), on = state.progress.equipped[it.category] === it.id;
     const bar = document.createElement('div');
@@ -553,8 +584,11 @@
   }
   function endPeek(silent) {
     if (!peeking) return;
+    peeking.timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
     peeking.bar.remove();
+    const demo = peeking.demo;
     peeking = null;
+    if (demo) idleBoard();
     document.body.classList.remove('peeking');
     view.setFullDetail(false);
     preview = null; applyLook();

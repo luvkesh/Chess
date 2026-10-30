@@ -976,16 +976,63 @@ function ChacklateScene(canvas, options) {
 
   // ------------------------------------------------------------------ snapshots for menus
   // Renders a set, board or room into an image (data URL) for cards and the collection.
-  const snapCache = new Map();
-  let snapQueue = Promise.resolve();
-  function snapshot(spec, w, h) {
+  // Pictures are kept in memory and, between visits, in the browser's IndexedDB under the look
+  // of the 3D code (CHACKLATE_LOOK_ID, made by the build from the 3D sources, so a change to a
+  // piece, board or room draws them again). New ones are drawn one at a time with a pause
+  // between them, so the menu keeps answering; one nobody waits for any more (its card was
+  // closed or its tab left) is skipped. wanted() says whether it is still waited for.
+  const LOOK_ID = typeof CHACKLATE_LOOK_ID !== 'undefined' ? CHACKLATE_LOOK_ID : 'dev';
+  const snapCache = new Map(), snapPending = new Map();
+  let snapQueue = Promise.resolve(), snapDB = null;
+  function snapshot(spec, w, h, wanted) {
     const keyS = JSON.stringify([spec, w, h]);
     if (snapCache.has(keyS)) return Promise.resolve(snapCache.get(keyS));
-    snapQueue = snapQueue.then(() => new Promise((res) => requestAnimationFrame(() => {
-      const url = renderSnapshot(spec, w, h);
-      snapCache.set(keyS, url); res(url);
-    })));
-    return snapQueue;
+    if (snapPending.has(keyS)) return snapPending.get(keyS);
+    const keep = (blob) => { const url = URL.createObjectURL(blob); snapCache.set(keyS, url); return url; };
+    const p = snapGet(keyS).then((blob) => {
+      if (blob) return keep(blob);
+      const turn = snapQueue.then(() => (wanted && !wanted() ? null : new Promise((res) => {
+        let made;
+        try { made = renderSnapshot(spec, w, h); } catch (e) { made = Promise.resolve(null); }
+        made.then((b) => { if (b) snapPut(keyS, b); res(b ? keep(b) : null); }, () => res(null));
+      })));
+      snapQueue = turn.then(breath, breath);
+      return turn;
+    });
+    snapPending.set(keyS, p);
+    p.then(() => snapPending.delete(keyS), () => snapPending.delete(keyS));
+    return p;
+  }
+  const breath = () => new Promise((r) => (window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 150 }) : setTimeout(r, 40)));
+  function openSnapDB() {
+    if (snapDB) return snapDB;
+    snapDB = new Promise((res) => {
+      if (!window.indexedDB) return res(null);
+      try {
+        const rq = indexedDB.open('chacklate-pictures', 1);
+        rq.onupgradeneeded = () => rq.result.createObjectStore('snaps');
+        rq.onerror = rq.onblocked = () => res(null);
+        rq.onsuccess = () => {
+          const db = rq.result, tx = db.transaction('snaps', 'readwrite'), st = tx.objectStore('snaps');
+          // pictures of an older look are thrown away
+          const look = st.get('__look');
+          look.onsuccess = () => { if (look.result !== LOOK_ID) { st.clear(); st.put(LOOK_ID, '__look'); } };
+          tx.oncomplete = () => res(db);
+          tx.onerror = tx.onabort = () => res(null);
+        };
+      } catch (e) { res(null); }
+    });
+    return snapDB;
+  }
+  const snapGet = (k) => openSnapDB().then((db) => (db ? new Promise((res) => {
+    try { const r = db.transaction('snaps').objectStore('snaps').get(k); r.onsuccess = () => res(r.result instanceof Blob ? r.result : null); r.onerror = () => res(null); } catch (e) { res(null); }
+  }) : null));
+  const snapPut = (k, blob) => openSnapDB().then((db) => { try { if (db) db.transaction('snaps', 'readwrite').objectStore('snaps').put(blob, k); } catch (e) { /* storage full or private mode */ } });
+  // The tone curve (ACES, graded 10% brighter) and sRGB encoding, for each 8-bit value.
+  const SNAP_LUT = new Uint8ClampedArray(256);
+  for (let i = 0; i < 256; i++) {
+    const x = (i / 255) * 1.1, t = Math.max(0, Math.min(1, (x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14)));
+    SNAP_LUT[i] = Math.round((t <= 0.0031308 ? 12.92 * t : 1.055 * Math.pow(t, 1 / 2.4) - 0.055) * 255);
   }
   // Builds the little scene for a set, a piece, a board or a room. envFor(style) gives the
   // reflection map for the renderer that will draw it (each GPU context needs its own).
@@ -1069,8 +1116,17 @@ function ChacklateScene(canvas, options) {
     });
     return { scene: s2, camera: c2, look, spin, dispose };
   }
+  // The scene's shaders are compiled first without holding up the page (where the browser can
+  // compile in the background), then it is drawn on the next frame.
   function renderSnapshot(spec, w, h) {
-    const { scene: s2, camera: c2, dispose } = buildSpec(spec, w, h, (style) => W.environment(renderer, style));
+    const built = buildSpec(spec, w, h, (style) => W.environment(renderer, style));
+    const ready = renderer.compileAsync ? renderer.compileAsync(built.scene, built.camera).catch(() => {}) : Promise.resolve();
+    return ready.then(() => new Promise((res) => requestAnimationFrame(() => {
+      if (glLost) { built.dispose(); res(null); return; }
+      try { drawSnapshot(built, w, h).then(res, () => res(null)); } catch (e) { res(null); }
+    })));
+  }
+  function drawSnapshot({ scene: s2, camera: c2, dispose }, w, h) {
     const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
     const prevT = renderer.toneMapping;
     renderer.setRenderTarget(rt);
@@ -1083,17 +1139,17 @@ function ChacklateScene(canvas, options) {
     renderer.toneMapping = prevT;
     rt.dispose();
     dispose();
-    // render targets are linear: tone map and encode in the copy
+    // render targets are linear: tone map and encode in the copy, rows flipped
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-    const g = cv.getContext('2d'), img = g.createImageData(w, h);
-    const aces = (x) => { const a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14; return Math.max(0, Math.min(1, (x * (a * x + b)) / (x * (c * x + d) + e))); };
-    const enc = (x) => (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055) * 255;
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const si = ((h - 1 - y) * w + x) * 4, di = (y * w + x) * 4;
-      img.data[di] = enc(aces(px[si] / 255 * 1.1)); img.data[di + 1] = enc(aces(px[si + 1] / 255 * 1.1)); img.data[di + 2] = enc(aces(px[si + 2] / 255 * 1.1)); img.data[di + 3] = px[si + 3];
+    const g = cv.getContext('2d'), img = g.createImageData(w, h), out = img.data, row = w * 4;
+    for (let y = 0; y < h; y++) {
+      for (let si = (h - 1 - y) * row, di = y * row, end = di + row; di < end; si += 4, di += 4) {
+        out[di] = SNAP_LUT[px[si]]; out[di + 1] = SNAP_LUT[px[si + 1]]; out[di + 2] = SNAP_LUT[px[si + 2]]; out[di + 3] = px[si + 3];
+      }
     }
     g.putImageData(img, 0, 0);
-    return cv.toDataURL('image/png');
+    // encoded off the main thread; WebP where the browser can write it, PNG elsewhere
+    return new Promise((res) => cv.toBlob((b) => res(b), 'image/webp', 0.92));
   }
 
   // ------------------------------------------------------------------ live stage
