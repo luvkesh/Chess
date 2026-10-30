@@ -22,19 +22,19 @@ game = root / 'apps' / 'web-prototype'
 
 # The instrument each room's music is played on (apps/web-prototype/src/audio.js MOODS).
 MUSIC = {'nile': 'Harp', 'athens': 'Lyre', 'roma': 'Horns', 'mughal': 'Sitar', 'ming': 'Guzheng',
-         'venice': 'Harpsichord', 'winter': 'Celesta', 'deco': 'Electric piano'}
+         'venice': 'Harpsichord', 'paris': 'Harp', 'winter': 'Celesta', 'deco': 'Electric piano'}
 # Strength of each animal friend, matching the engine's levels.
 RANGES = ['250–500', '500–800', '800–1100', '1100–1400', '1400–1700', '1700–2000', '2000–2300', 'Full strength']
 STAGES = {'tale': 'Story', 'lesson': 'Lesson', 'puzzles': 'Puzzles', 'endgame': 'Endgame', 'champion': 'Champion'}
 # The world wonder each era's table looks out on.
 LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome': 'The Colosseum', 'mughal': 'The Taj Mahal',
-             'ming': 'The Forbidden City', 'venice': "St Mark's and the Grand Canal", 'russia': "Saint Petersburg's onion domes",
-             'deco': 'The New York skyline'}
+             'ming': 'The Hall of Supreme Harmony', 'venice': 'The Grand Canal and the Rialto', 'paris': 'The Eiffel Tower',
+             'russia': 'The Savior on Spilled Blood', 'deco': 'Times Square'}
 # Pedestal velvet and sheen for each era set, as in tools/shoot.js.
 FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome': ('#4a1840', '#ff9cd8'), 'mughal': ('#0e5a52', '#9fe0cc'),
-        'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
+        'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'paris': ('#4a1426', '#ffb0c4'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
 # The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
-SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'world3d.js', 'scene.js')]
+SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 
 LINKS = {
@@ -51,7 +51,9 @@ def load(name):
 def set_tints():
     """Each era set's signature colour, read from the 3D code so the cards match the game."""
     src = (game / 'src' / 'pieces3d.js').read_text()
-    return dict(re.findall(r"id: '([\w-]+)', name: [^\n]*?tint: '(#[0-9a-f]{6})'", src))
+    tints = dict(re.findall(r"^\s*'([\w-]+)': \{ tint: '(#[0-9a-f]{6})'", src, re.M))
+    tints.update(re.findall(r"id: '([\w-]+)', name: [^\n]*?tint: '(#[0-9a-f]{6})'", src))
+    return tints
 
 
 def mix(a, b, t):
@@ -89,7 +91,7 @@ def site_data():
         'openings': len(load('openings.json')['openings']), 'endgames': len(load('endgames.json')['endgames']),
         'items': len(catalog['items']), 'sets': cats['pieces'], 'boards': cats['board'], 'rooms': cats['room'],
     }
-    return eras, opponents, counts, campaign['coach']['blurb']
+    return eras, opponents, counts, campaign['coach']
 
 
 def data_uri(path):
@@ -97,8 +99,20 @@ def data_uri(path):
     return 'data:%s;base64,%s' % (kind, base64.b64encode(path.read_bytes()).decode())
 
 
+def guide(coach):
+    """The coach's recorded guide, one clip per section, checked against guide.json and the coach's name."""
+    lines = json.loads((here / 'guide.json').read_text())['lines']
+    recorded = json.loads((here / 'audio' / 'index.json').read_text())['lines']
+    out = {}
+    for key, line in lines.items():
+        text = line.replace('{coach}', coach)
+        assert recorded.get(key) == text, 'audio/%s.mp3 says something else; run tools/record-guide.py' % key
+        out[key] = {'text': text, 'src': 'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode()}
+    return out
+
+
 def build(target):
-    eras, opponents, counts, praline = site_data()
+    eras, opponents, counts, coach = site_data()
     art = json.loads(subprocess.run(['node', str(here / 'tools' / 'render-art.js')], check=True, capture_output=True, text=True).stdout)
     # art.js hands out URI-encoded SVG; base64 is about half the size
     prefix = 'data:image/svg+xml;charset=utf-8,'
@@ -113,16 +127,19 @@ def build(target):
     fonts = (game / 'vendor' / 'fonts.css').read_text()
     assert '</style' not in fonts.lower()
     shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-')}
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown},
+    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': guide(coach['name']), 'coach': coach['name']},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
     assert '</script' not in scene.lower()
-    page = page.replace('/*FONTS*/', fonts).replace('/*DATA*/', data).replace('/*SCENE*/', scene)
+    # Tooltips are the game's own, so the site's bubbles look and behave the same.
+    tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
+    assert '</script' not in tips.lower()
+    page = page.replace('/*FONTS*/', fonts).replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips)
     page = re.sub(r'@@IMG:([\w-]+)@@', lambda m: img[m.group(1)], page)
     page = re.sub(r'@@ART:([\w-]+)@@', lambda m: art[m.group(1)], page)
     page = re.sub(r'@@N:(\w+)@@', lambda m: str(counts[m.group(1)]), page)
-    page = page.replace('@@PRALINE@@', praline)
+    page = page.replace('@@COACHFULL@@', coach['full']).replace('@@COACH@@', coach['name'])
     for k, v in LINKS[target].items():
         page = page.replace('@@%s@@' % k, v)
     left = re.findall(r'@@\w+(?::[\w-]+)?@@', page)

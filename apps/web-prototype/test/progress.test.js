@@ -157,7 +157,7 @@ assert.strictEqual(m.stats.puzzles.rating, 800);
 assert.deepStrictEqual(PG.migrate({ v: 99 }), PG.fresh());
 assert.deepStrictEqual(PG.migrate({ v: 1, xp: 5 }).journey, {}, 'old saves get an empty journey');
 
-// Journey Through Time: eras open in order, the last four need Premium, and finishing an
+// Journey Through Time: eras open in order, the premium ones need Premium, and finishing an
 // era's stages unlocks its set, board, room and avatar.
 const campaign = require('../../../packages/content/campaign.json');
 const PJ = ChacklateProgress(catalog, { seasons, missions, campaign });
@@ -182,6 +182,11 @@ assert(reward.every((i) => jr.unlocked.includes(i)), 'the era rewards are announ
 assert(reward.every((i) => PJ.isUnlocked(s, i)));
 assert(PJ.journeyInfo(s, egypt.id).done && PJ.eraOpen(s, greece.id));
 assert.strictEqual(PJ.journeyStage(s, ming.id, 0, day(7)).xp, 0, 'a closed era records nothing');
+// an era a player already started stays open, even if a new era is later added before it
+{
+  const t = PJ.fresh(); t.premium = true; t.journey = { russia: { stages: [true], done: false } };
+  assert(PJ.eraOpen(t, 'russia') && !PJ.eraOpen(t, 'paris'), 'a started era stays open');
+}
 for (const e of campaign.eras) if (e.access === 'free') for (let i = 0; i < e.stages.length; i++) PJ.journeyStage(s, e.id, i, day(7));
 assert(!PJ.eraOpen(s, ming.id), 'premium eras need Premium');
 s.premium = true;

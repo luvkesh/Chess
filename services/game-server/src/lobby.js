@@ -5,7 +5,10 @@ const crypto = require('node:crypto');
 const glicko = require('./glicko');
 const auth = require('./auth');
 
-const TIME_CONTROLS = ['1+0', '2+1', '3+0', '3+2', '5+0', '5+3', '10+0', '10+5', '15+10', '30+0'];
+// Every online game is timed, with ten minutes a side at most.
+const TIME_CONTROLS = ['1+0', '2+1', '3+0', '3+2', '5+0', '5+3', '10+0'];
+// Preset reactions are the only thing players can send each other: no typed chat.
+const EMOTES = ['hello', 'luck', 'nice', 'wow', 'think', 'gg'];
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 function poolFor(tc) {
@@ -206,6 +209,14 @@ class Lobby {
         if (room.drawOffer && room.drawOffer !== side) return this.finish(room, '1/2-1/2', 'agreement');
         return;
       case 'draw-decline': room.drawOffer = null; return;
+      case 'emote': {
+        if (!EMOTES.includes(msg.id)) return;
+        const t = this.now();
+        room.emoteAt = room.emoteAt || {};
+        if (t - (room.emoteAt[side] || 0) < 1500) return;
+        room.emoteAt[side] = t;
+        return this.toSide(room, side === 'w' ? 'b' : 'w', { type: 'emote', id: msg.id });
+      }
       case 'claim': {
         const c = room.g.claimable();
         if (c) return this.finish(room, '1/2-1/2', c);
@@ -396,4 +407,4 @@ class Lobby {
   }
 }
 
-module.exports = { Lobby, poolFor, TIME_CONTROLS };
+module.exports = { Lobby, poolFor, TIME_CONTROLS, EMOTES };

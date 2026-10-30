@@ -8,7 +8,7 @@ const C = require(path.join(root, 'packages/content/campaign.json'));
 
 const out = { crest: ART.crestUri() };
 const face = (who) => ART.portraitUri(who.animal, { from: who.colors[0], to: who.colors[1] });
-out.praline = face(C.coach);
+out.coach = face(C.coach);
 for (const e of C.eras) {
   out['coach-' + e.id] = face({ animal: e.coach.animal, colors: e.colors });
   out['banner-' + e.id] = ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] });

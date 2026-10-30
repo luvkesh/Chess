@@ -24,6 +24,10 @@ for (const l of lessons.lessons) {
   assert.ok(/^lesson\.c\d\d\.l\d\d\.[a-z-]+$/.test(l.id), 'lesson id format: ' + l.id);
   assert.ok(!ids.has(l.id), 'duplicate id ' + l.id); ids.add(l.id);
   assert.ok(lessons.chapters.some((c) => c.n === l.chapter), l.id + ' chapter');
+  checkLesson(l);
+}
+// Shared by Learn lessons and the lessons written into each era of the journey.
+function checkLesson(l) {
   assert.ok(l.steps.length && l.exercises.length, l.id + ' has steps and exercises');
   for (const [i, s] of l.steps.entries()) {
     const where = l.id + ' step ' + i;
@@ -171,6 +175,18 @@ for (const o of campaign.opponents) {
 }
 assert.deepStrictEqual(campaign.opponents.map((o) => o.level), [0, 1, 2, 3, 4, 5, 6, 7]);
 assert.ok(campaign.coach.animal && campaign.coach.full);
+// Nothing in an era repeats Learn: no lesson, lesson position or lesson puzzle.
+const board = (fen) => fen.split(' ').slice(0, 2).join(' ');
+const learnBoards = new Set(), eraBoards = new Set(), eraPuzzles = new Set();
+const learnPuzzles = new Set();
+for (const l of lessons.lessons) {
+  for (const x of l.steps.concat(l.exercises)) if (x.fen) learnBoards.add(board(x.fen));
+  for (const x of l.exercises) if (x.type === 'puzzles') {
+    // the same pick the lesson screen makes
+    puzzles.filter((p) => x.theme === 'mate' ? p.themes.some((t) => t.startsWith('mateIn')) : p.themes.includes(x.theme))
+      .sort((a, b) => a.rating - b.rating).slice(0, x.count).forEach((p) => learnPuzzles.add(p.id));
+  }
+}
 campaign.eras.forEach((e, k) => {
   assert.ok(!eraIds.has(e.id), 'duplicate era ' + e.id); eraIds.add(e.id);
   assert.strictEqual(e.n, k + 1, e.id + ' order');
@@ -189,17 +205,26 @@ campaign.eras.forEach((e, k) => {
       assert.ok(st.pages.length >= 2 && st.pages.every((t) => t.length > 40 && t.length < 330), e.id + ' tale pages');
       assert.ok(st.quiz.options.length >= 2 && st.quiz.options[st.quiz.answer] && st.quiz.explain, e.id + ' quiz');
     } else if (st.kind === 'lesson') {
-      const l = lessons.lessons.find((x) => x.id === st.lesson);
-      assert.ok(l, e.id + ' lesson ' + st.lesson);
-      const ch = lessons.chapters.find((c) => c.n === l.chapter);
-      assert.ok(e.access === 'premium' || ch.access === 'free', e.id + ' free eras use free lessons');
+      // Each era teaches with its own lesson; Learn lessons are never repeated here.
+      assert.ok(!st.lesson && st.id === 'era.' + e.id + '.lesson' && st.objectives.length, e.id + ' has its own lesson');
+      checkLesson(st);
+      for (const pos of st.steps.concat(st.exercises)) if (pos.fen) {
+        assert.ok(!learnBoards.has(board(pos.fen)), st.id + ' repeats a Learn position ' + pos.fen);
+        eraBoards.add(board(pos.fen));
+      }
     } else if (st.kind === 'puzzles') {
-      const themes = [].concat(st.theme);
-      const pool = puzzles.filter((p) => p.themes.some((t) => themes.includes(t)) && p.rating >= (st.min || 0) && p.rating <= (st.max || 9999));
-      assert.ok(pool.length >= st.count, e.id + ' has ' + pool.length + ' puzzles for ' + themes.join('/'));
+      assert.ok(st.puzzles.length >= 3, e.id + ' puzzles');
+      for (const id of st.puzzles) {
+        assert.ok(puzzles.some((p) => p.id === id), e.id + ' puzzle ' + id);
+        assert.ok(!learnPuzzles.has(id), e.id + ' repeats ' + id + ' from a Learn lesson');
+        assert.ok(!eraPuzzles.has(id), e.id + ' repeats ' + id + ' from another era'); eraPuzzles.add(id);
+      }
     } else if (st.kind === 'endgame') {
-      const d = endgames.find((x) => x.id === st.endgame);
-      assert.ok(d && (e.access === 'premium' || d.access === 'free'), e.id + ' endgame ' + st.endgame);
+      // An era's endgame is its own position, not one from the Endgame Dojo.
+      const d = st.endgame;
+      assert.ok(d.id === 'era.' + e.id + '.endgame' && d.name && d.tip && d.par > 0 && ['mate', 'promote', 'draw'].includes(d.goal), e.id + ' endgame');
+      assert.ok(load(d.fen, d.id).legalMoves().length, d.id + ' position');
+      assert.ok(!endgames.some((x) => board(x.fen) === board(d.fen)), d.id + ' repeats a dojo position');
     } else if (st.kind === 'champion') {
       assert.ok(st.level >= 0 && st.level <= 7 && ['white', 'black'].includes(st.color), e.id + ' champion');
       assert.ok(e.access === 'premium' || st.level <= 3, e.id + ' free eras play free levels');

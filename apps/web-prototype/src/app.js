@@ -44,6 +44,8 @@
     cam: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>',
+    smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
     star: '<path d="M12 2l3 7h7l-5.5 4.5 2 7.5L12 17l-6.5 4 2-7.5L2 9h7z"/>', trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H3a4 4 0 0 0 4 4M17 6h4a4 4 0 0 1-4 4"/>',
@@ -92,7 +94,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true,
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -248,6 +250,88 @@
     return id;
   }
 
+  // ------------------------------------------------------------------ tooltips
+  // Hover (or hold on a touch screen) to read what a control does, in words a child knows.
+  // Icon-only buttons fall back to their aria-label; everything else unclear is written here.
+  const SETTINGS_TIP = 'Settings|Sound, music, graphics, voices and coaching.';
+  const TIPS = {
+    'nv-set': SETTINGS_TIP, 'g-settings': SETTINGS_TIP, 'rv-set': SETTINGS_TIP, 'ls-set': SETTINGS_TIP, 'dr-set': SETTINGS_TIP, 'pz-set': SETTINGS_TIP,
+    'nv-music': 'Music|Turn the background music on or off.', 'g-music': 'Music|Turn the background music on or off.',
+    'ls-voice': 'Narration|Hear Rooky read the lesson out loud.',
+    'g-undo': 'Undo|Take back your last move and try a different one.',
+    'g-hint': 'Hint|Rooky shows you a good move to think about.',
+    'g-threat': 'Threat|See what your opponent would love to do next, so you can stop it.',
+    'g-flip': 'Flip|Turn the board around to see it from the other side.',
+    'g-view': 'Camera|Switch between looking down from above and sitting at the table.',
+    'g-draw': 'Draw|Ask to end the game as a tie, with no winner.',
+    'g-resign': 'Resign|Give up this game. Your opponent wins.',
+    'g-emote': 'React|Send a friendly picture to the other player. There is no chat.',
+    'g-claim': 'Claim a draw|The rules say this game can end as a tie right now. Tap to end it.',
+    'g-copy': 'PGN|Copy every move of this game as text, to save it or share it with a grown-up.',
+    'g-review': 'Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes.',
+    'rv-turn': 'Turning point|Jump to the move where the game changed the most.',
+    'rv-best': 'Best line|Show the moves Rooky would have played here.',
+    'rv-practice': 'Play from here|Start a new game from this exact position.',
+    'pz-hint': 'Hint|Get a little clue.', 'ls-hint': 'Hint|Get a little clue.', 'dr-hint': 'Hint|See the next move of this opening.',
+    'pz-sol': 'Solution|Show the answer to this puzzle.',
+    'dr-reset': 'Restart|Go back to the start of this opening.',
+    'l-review': 'Reviews|Quick refreshers of lessons you learned a while ago, so you never forget them.',
+    'fr-create': 'Make a game|Get a 6-letter code. Your friend types it in to join you.',
+    'fr-join': 'Join|Type the code your friend gave you, then join their game.',
+    'fr-local': 'Take turns here|Play on this one device and pass it back and forth.',
+    'w-go': 'Find a player|We look for someone, anywhere in the world, who picked the same clock.',
+    'mu-eq': 'Equip|Use this in your games from now on.', 'pk-eq': 'Equip|Use this in your games from now on.',
+    'st-restore': 'Restore purchases|Bring back things a grown-up already bought, for example on a new device.',
+    's-reset': 'Reset progress|Start again from the beginning. Your stars, levels and rewards on this device are cleared.',
+    'br-more': 'Only for grown-ups|Allow 15 more minutes of play today.',
+    // settings switches (the tip sits on the whole row)
+    's-anim': 'Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game.',
+    's-cine': 'Short movie scenes when a piece is captured or a king castles.',
+    's-sfxv': 'Slide to make sound effects louder or quieter. The switch turns them off.',
+    's-musv': 'Slide to make the music louder or quieter. The switch turns it off.',
+    's-narr': 'Rooky reads the stories and lessons out loud.',
+    's-vcoach': 'The voice that reads lessons and stories.',
+    's-vcalls': 'The voice that says “check”, game results and puzzle results.',
+    's-announce': 'Hear every move said out loud, like “Knight to f3”.',
+    's-coach': 'How often Rooky talks to you during a game.',
+    's-eval': 'A bar beside the board that shows who is ahead. More white means White is doing better.',
+    's-legal': 'Dots show every square the piece you picked can move to.',
+    's-turn': 'When two players share a device, the board turns so each player sees it from their side.',
+  };
+  // The choice chips in the game setup windows, by radio name and value.
+  const CHIP_TIPS = {
+    'color:white': 'White|You make the first move.',
+    'color:black': 'Black|Your opponent makes the first move.',
+    'color:random': 'Surprise me|We pick White or Black for you.',
+    'mode:ai': 'Play one of the animal friends on this device.',
+    'mode:local': 'Two players share this device and take turns.',
+    'q:high': 'The most beautiful tables. Uses more battery.',
+    'q:low': 'Simpler pictures that run faster on older phones and tablets.',
+  };
+  // "3+2" means 3 minutes each, plus 2 seconds back on your clock after every move you make.
+  function clockTip(tc) {
+    if (!tc || tc === 'none') return 'No clock|Take as long as you like to think about every move.';
+    const [m, inc] = tc.split('+').map(Number);
+    const mins = m + (m === 1 ? ' minute' : ' minutes');
+    return mins + (inc ? ' + ' + inc + ' seconds' : '') + '|Each player gets ' + mins + ' for the whole game. ' +
+      (inc ? 'Every time you make a move, ' + inc + ' bonus seconds are added to your clock.' : 'No bonus time is added, so keep an eye on your clock!') +
+      ' If your time runs out, you usually lose.';
+  }
+  function tipFor(el) {
+    if (el.id && TIPS[el.id]) return TIPS[el.id];
+    if (el.tagName === 'LABEL') {
+      const r = el.querySelector('input[type=radio]');
+      if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : CHIP_TIPS[r.name + ':' + r.value] || null;
+      if (el.classList.contains('toggle')) { const c = el.querySelector('input, select'); return c && TIPS[c.id] || null; }
+    }
+    if (el.classList.contains('clock') && el.dataset.side) {
+      const inc = state.game ? +(String(state.game.setup.tc || '').split('+')[1] || 0) : 0;
+      return 'Clock|Time left for this player. It only counts down on their turn.' + (inc ? ' They get ' + inc + ' bonus seconds after each move.' : '');
+    }
+    return null;
+  }
+  ChacklateTips.init({ resolve: tipFor });
+
   // ------------------------------------------------------------------ the 3D table
   const canvas = $('board');
   let view = null;
@@ -335,7 +419,13 @@
       // small menu-card art doesn't need the full sculpt (and building it slows the first screen)
       if (w <= 240 && !spec.detail) spec.detail = 'play';
       const k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
-      view.snapshot(spec, Math.round(w * k), Math.round(h * k), () => img.isConnected).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
+      view.snapshot(spec, Math.round(w * k), Math.round(h * k), () => img.isConnected).then((url) => {
+        if (!url || !img.isConnected) return;
+        // if the browser cannot show the picture, keep the drawn medal rather than a broken image
+        const before = img.src;
+        img.onerror = () => { img.onerror = null; img.src = before; };
+        img.src = url; img.classList.add('in');
+      });
     };
     if (!lazy || !('IntersectionObserver' in window)) { imgs.forEach(run); return; }
     if (snapObserver) snapObserver.disconnect();
@@ -344,12 +434,12 @@
   }
   // Little arrangements on a velvet plinth with a gold rim.
   const VIGN = {
-    duo: (set) => ({ kind: 'vignette', felt: '#5c1428', items: [{ set, type: 'k', side: 'w', x: -0.42, z: 0.06, rot: 0.35 }, { set, type: 'q', side: 'b', x: 0.44, z: -0.12, rot: -0.5 }] }),
-    fork: (set) => ({ kind: 'vignette', felt: '#173a2a', sheen: '#9fe0bc', items: [{ set, type: 'n', side: 'w', x: 0.04, z: 0.5, rot: -1.15 }, { set, type: 'k', side: 'b', x: -0.62, z: -0.4, rot: 0.3 }, { set, type: 'r', side: 'b', x: 0.66, z: -0.36, rot: -0.2 }] }),
-    trio: (set, felt, sheen) => ({ kind: 'vignette', felt: felt || '#5c1428', sheen: sheen || '#ff9cb8', items: [{ set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }),
-    endgame: (set) => ({ kind: 'vignette', felt: '#2a2440', sheen: '#c8b8ff', items: [{ set, type: 'k', side: 'w', x: -0.5, z: 0.05, rot: 0.3 }, { set, type: 'p', side: 'w', x: 0.12, z: 0.42 }, { set, type: 'k', side: 'b', x: 0.6, z: -0.42, rot: -0.4 }] }),
-    opening: (set) => ({ kind: 'vignette', felt: '#14304a', sheen: '#9cc8ff', items: [{ set, type: 'p', side: 'w', x: -0.62, z: 0.3 }, { set, type: 'b', side: 'w', x: -0.05, z: -0.05, rot: 0.6 }, { set, type: 'n', side: 'w', x: 0.6, z: 0.24, rot: -1.2 }] }),
-    review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#ffd9a8', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
+    duo: (set) => ({ kind: 'vignette', felt: '#4a0f20', items: [{ set, type: 'k', side: 'w', x: -0.42, z: 0.06, rot: 0.35 }, { set, type: 'q', side: 'b', x: 0.44, z: -0.12, rot: -0.5 }] }),
+    fork: (set) => ({ kind: 'vignette', felt: '#173a2a', sheen: '#6aa88a', items: [{ set, type: 'n', side: 'w', x: 0.04, z: 0.5, rot: -1.15 }, { set, type: 'k', side: 'b', x: -0.62, z: -0.4, rot: 0.3 }, { set, type: 'r', side: 'b', x: 0.66, z: -0.36, rot: -0.2 }] }),
+    trio: (set, felt, sheen) => ({ kind: 'vignette', felt: felt || '#5c1428', sheen: sheen || '#b86a80', items: [{ set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }),
+    endgame: (set) => ({ kind: 'vignette', felt: '#2a2440', sheen: '#9a8cc8', items: [{ set, type: 'k', side: 'w', x: -0.5, z: 0.05, rot: 0.3 }, { set, type: 'p', side: 'w', x: 0.12, z: 0.42 }, { set, type: 'k', side: 'b', x: 0.6, z: -0.42, rot: -0.4 }] }),
+    opening: (set) => ({ kind: 'vignette', felt: '#14304a', sheen: '#7a9cc8', items: [{ set, type: 'p', side: 'w', x: -0.62, z: 0.3 }, { set, type: 'b', side: 'w', x: -0.05, z: -0.05, rot: 0.6 }, { set, type: 'n', side: 'w', x: 0.6, z: 0.24, rot: -1.2 }] }),
+    review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#c8a47a', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
   };
   const medal = (art, from, to, o) => ART.medalUri(art, Object.assign({ from, to }, o || {}));
   const eraFelt = (e) => [ART.dim(e.colors[1], 0.15), e.colors[0]];
@@ -422,6 +512,123 @@
     } else if (!document.querySelector('.modal') && current && current.key && !/input|textarea|select/i.test((e.target.tagName || ''))) current.key(e);
   });
 
+  // ------------------------------------------------------------------ the audio guide
+  // Built like the website's guided tour: one card in the corner. On every screen it says, in one or
+  // two short sentences, what to do next. On an era page the era's friend says it; everywhere else
+  // Rooky does. The card has Hear that again, the voice on or off, and hide (it tucks into the
+  // portrait). The voice switch is the same one as story and lesson narration, so one tap quiets
+  // every spoken line. Lines are recorded (packages/content/guide.json, public/guide/).
+  const GUIDE = CHACKLATE_GUIDE;
+  const GUIDE_WHO = { rooky: COACH };
+  for (const e of CAMPAIGN.eras) GUIDE_WHO[e.coach.id] = eraCoach(e);
+  const GUIDE_AGAIN = 120000;   // a screen's line is said again only after two minutes
+  const guideSt = { key: null, said: {}, idle: null, run: 0 };
+  function guideCard() {
+    let el = $('guide');
+    if (el.dataset.ready) return el;
+    el.dataset.ready = '1';
+    el.innerHTML = '<button class="narrator" id="gd-show" tabindex="-1" aria-label="Show the guide" title="Show the guide"><img alt=""></button>' +
+      '<div class="gd-body"><div class="gd-head"><p class="eyebrow" id="gd-who"></p>' +
+      '<button class="gd-btn" id="gd-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button>' +
+      '<button class="gd-btn" id="gd-voice"></button>' +
+      '<button class="gd-btn" id="gd-hide" aria-label="Hide the guide" title="Hide the guide">' + icon('down') + '</button></div>' +
+      '<p class="gd-text" id="gd-text"></p><p class="gd-extra" id="gd-extra"></p></div>';
+    $('gd-again').onclick = () => { AU.unlock(); if (guideSt.key) { if (!state.settings.narration) setVoice(true, true); guideSay(guideSt.key, { force: true }); } };
+    $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
+    $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
+    $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
+    AU.onTalk((on) => el.classList.toggle('speaking', on));
+    return el;
+  }
+  function guideTuck() {
+    const el = guideCard();
+    el.classList.toggle('tucked', !state.settings.guide);
+    $('gd-show').tabIndex = state.settings.guide ? -1 : 0;
+    applyInsets();
+  }
+  function voiceIcon(btn, who) {
+    const on = !!state.settings.narration;
+    btn.innerHTML = icon(on ? 'speaker' : 'speakerOff');
+    btn.setAttribute('aria-pressed', String(on));
+    btn.setAttribute('aria-label', on ? 'Turn the voice off' : 'Turn the voice on');
+    btn.title = on ? 'Voice on. Tap to mute' : 'Voice off. Tap to hear ' + who;
+  }
+  // The one voice switch: the guide, stories and lessons. Every button that shows it follows along.
+  function setVoice(on, quiet) {
+    state.settings.narration = !!on; save();
+    if (!on) AU.hush();
+    document.querySelectorAll('[data-voice]').forEach((b) => voiceIcon(b, b.dataset.voice));
+    const el = guideCard();
+    voiceIcon($('gd-voice'), (GUIDE_WHO[(GUIDE.lines[guideSt.key] || {}).who] || COACH).name);
+    if (guideSt.key) guideShow(guideSt.key);
+    if (on && !quiet && guideSt.key && !document.querySelector('.modal')) guideSay(guideSt.key, { force: true });
+    return el;
+  }
+  function guideShow(key) {
+    const line = GUIDE.lines[key], who = GUIDE_WHO[line.who] || COACH;
+    const el = guideCard();
+    el.hidden = false;
+    $('gd-who').textContent = who.full || who.name;
+    const img = el.querySelector('#gd-show img'); const src = face(who);
+    if (img.getAttribute('src') !== src) img.src = src;
+    $('gd-text').textContent = line.text;
+    $('gd-extra').textContent = !state.settings.narration ? 'Tap the speaker to hear ' + who.name + '.' : AU.canTalk() ? '' : 'Tap anywhere to hear ' + who.name + '.';
+    voiceIcon($('gd-voice'), who.name);
+    if (guideSt.key !== key) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    guideSt.key = key;
+    if (KIND[state.screen] === 'hud' && el.offsetHeight !== guideSt.h) { guideSt.h = el.offsetHeight; applyInsets(); }
+  }
+  // Show a line and say it. opts.force says it even if it was said a moment ago; opts.delay waits
+  // first (to let a sound or a game call finish); opts.then runs once it has been said.
+  function guideSay(key, opts) {
+    opts = opts || {};
+    if (!GUIDE.lines[key]) { if (opts.then) opts.then(); return; }
+    const run = ++guideSt.run, screen = state.screen;
+    const go = () => {
+      if (run !== guideSt.run || state.screen !== screen) return;
+      guideShow(key);
+      const fresh = opts.force || !guideSt.said[key] || Date.now() - guideSt.said[key] > GUIDE_AGAIN;
+      if (state.settings.narration && fresh && !AU.canTalk()) guideSt.pending = key;
+      if (!state.settings.narration || !fresh || !AU.canTalk()) { if (opts.then) opts.then(); return; }
+      guideSt.pending = null;
+      guideSt.said[key] = Date.now();
+      AU.guide(key, GUIDE.lines[key].text).then(() => { if (run === guideSt.run && opts.then) opts.then(); });
+    };
+    if (opts.delay) setTimeout(go, opts.delay); else go();
+  }
+  const guideFresh = (key) => !!state.settings.narration && (!guideSt.said[key] || Date.now() - guideSt.said[key] > GUIDE_AGAIN);
+  // Browsers keep quiet until the first tap, so a line shown before then is said after it, unless
+  // that tap moved on to another screen with its own line.
+  document.addEventListener('click', (e) => {
+    const key = guideSt.pending;
+    if (!key) return;
+    AU.unlock();
+    // the first tap on the speaker means "let me hear it", not "be quiet"
+    if (e.target.closest && e.target.closest('#gd-voice')) e.stopPropagation();
+    setTimeout(() => { if (guideSt.pending === key && guideSt.key === key) guideSay(key, { force: true }); guideSt.pending = null; }, 0);
+  }, true);
+  // A nudge when nothing happens for a while: once for each wait, cleared by the next move or screen.
+  function guideIdle(key, ms) {
+    clearTimeout(guideSt.idle);
+    if (key) guideSt.idle = setTimeout(() => { if (!document.querySelector('.modal')) guideSay(key, { force: true }); }, ms || 30000);
+  }
+  // The line for a menu screen. Era, lesson, puzzle and game screens choose their own as things change.
+  function guideScreen(name) {
+    if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
+    let key = name;
+    if (name === 'home') {
+      const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+      key = resume ? 'home.resume' : state.progress.xp ? 'home' : 'home.first';
+    }
+    if (GUIDE.lines[key]) guideSay(key);
+  }
+  function eraGuideKey(e) {
+    const info = PG.journeyInfo(state.progress, e.id), champ = e.stages.length - 1;
+    if (info.done) return 'era.' + e.id + '.done';
+    if (e.stages.every((s, k) => k === champ || info.stages[k])) return 'era.' + e.id + '.champion';
+    return 'era.' + e.id + '.' + e.stages[info.next].kind;
+  }
+
   // ------------------------------------------------------------------ navigation
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
@@ -458,6 +665,7 @@
     if (peeking) endPeek(true);
     if (current && current.leave) current.leave();
     AU.hush();
+    guideIdle(null);
     view.setArrows([]);
     setHooks({});
     preview = null; lookOverride = null; applyLook();
@@ -469,6 +677,7 @@
     view.setPaused(kind === 'page');
     renderNav();
     current = SCREENS[name](arg) || {};
+    guideScreen(name);
     applyInsets();
     const scr = $('screens').querySelector('.screen');
     if (scr) scr.classList.add('enter');
@@ -492,12 +701,16 @@
         if (r.width && r.bottom < H * 0.5 && (sheet || r.left < W * 0.5)) top = Math.max(top, r.bottom);
       });
       ins.top = top + 8;
-      if (sheet) ins.bottom = H - side.top + 8;
+      // The guide card: above the sheet on phones, top left elsewhere. The board makes room for it.
+      const gd = $('guide'), gdOn = gd && !gd.hidden && !gd.classList.contains('tucked');
+      document.body.style.setProperty('--sheet-top', (sheet ? H - side.top + 8 : 0) + 'px');
+      if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? gd.offsetHeight + 8 : 0);
       else {
         if (side) ins.right = W - side.left + 12;
         ins.bottom = bar ? H - bar.top + 10 : 16;
         const eb = rect('.evalbar');
         ins.left = eb ? eb.right + 10 : 10;
+        if (gdOn) ins.top = Math.max(ins.top, gd.getBoundingClientRect().bottom + 8);
       }
     }
     view.setInsets(ins, kind !== 'hud');
@@ -618,6 +831,7 @@
   const dailyDone = () => state.progress.daily.date === PG.today() && state.progress.daily.done;
   const nextEra = () => CAMPAIGN.eras.find((e) => !PG.journeyInfo(state.progress, e.id).done) || null;
   const duoArt = () => '<span class="duo"><img src="' + medal('piece:n', '#a3294f', '#5c1328') + '" alt=""><img src="' + medal('piece:r', '#2f6f6a', '#173b39') + '" alt=""><i>' + icon('users') + '</i></span>';
+  const worldArt = () => '<span class="duo"><img src="' + medal('piece:k', '#2f6f6a', '#173b39') + '" alt=""><img src="' + medal('piece:q', '#b8862b', '#5c3d0c') + '" alt=""><i>' + icon('globe') + '</i></span>';
   function wireLinks() {
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     const ms = $('a-missions'); if (ms) ms.onclick = () => { AU.play('tap'); missionsModal(); };
@@ -642,7 +856,7 @@
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: 'The Journey', text: ne ? 'Next stop: ' + ne.name + ', ' + ne.when + '.' : 'Every era complete. What a traveller!' }) +
       lux({ id: 'h-learn', art: faceImg(COACH), title: 'Learn Chess', text: nl ? 'With Rooky, your coach. Next: ' + nl.title + '.' : 'Every open lesson done. Try the puzzles!' }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
-      lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
+      lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
       '</div>' +
       '<div class="home-foot">' + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
@@ -700,9 +914,10 @@
     mount('<div class="page"><div class="page-in">' +
       pageHead('Play', 'Play Chess', 'Choose an animal friend to play. Each one plays in its own way, from brand new to grandmaster.', '<span class="pill gold">' + icon('star') + ' Your best match: ' + esc(best.full) + '</span>') +
       sec('play', 'Start playing') +
-      '<div class="lux-row three">' +
+      '<div class="lux-row four">' +
       lux({ id: 'p-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: 'Quick Play', text: online ? 'A friendly game online, or ' + best.name + ' if no one is around.' : 'Play ' + best.name + ', picked from your recent games.' }) +
-      lux({ id: 'p-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
+      lux({ id: 'p-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
+      lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: 'A timed game against a player from anywhere, 10 minutes at most.' }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
@@ -712,6 +927,7 @@
     wireLinks();
     $('p-quick').onclick = () => { AU.unlock(); AU.play('tap'); quickPlay(); };
     $('p-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+    $('p-world').onclick = () => { AU.unlock(); AU.play('tap'); worldModal(); };
     $('p-custom').onclick = () => { AU.unlock(); AU.play('tap'); newGameModal(); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp); }; });
     return {};
@@ -746,7 +962,7 @@
   }
 
   // ---------------------------------------------------------------- the Journey Through Time
-  // Eight eras in order. Each has a story, a lesson, a trial and a champion; beating the
+  // Nine eras in order. Each has a story, a lesson, a trial and a champion; beating the
   // champion brings that era's chess set, board, room and portrait home.
   const STAGE = { tale: ['scroll', 'Story'], lesson: ['learn', 'Lesson'], puzzles: ['puzzle', 'Puzzles'], endgame: ['crown', 'Endgame'], champion: ['swords', 'Champion'] };
   const eraRewards = (e) => CATALOG.items.filter((it) => it.unlock.type === 'journey' && it.unlock.era === e.id);
@@ -784,7 +1000,8 @@
   }
   function rewardRow(it) {
     const d = it.data || {};
-    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="dot">' + icon({ pieces: 'pawn', board: 'grid', room: 'home' }[it.category] || 'star') + '</span>';
+    // the item's own picture, the same one its Collection card shows (and shares the cache with)
+    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="thumb">' + itemArt(it) + '</span>';
     return '<li>' + art + '<span><b>' + esc(it.name) + '</b><small>' + esc(catName(it.category)) + '</small></span></li>';
   }
   const catName = (id) => { const c = CATALOG.categories.find((x) => x.id === id); return c ? c.name.replace(/s$/, '').replace(/^Piece set$/, 'Chess set') : id; };
@@ -809,7 +1026,7 @@
       '<div class="era-layout"><div class="stages">' + e.stages.map((s, k) => {
         const done = info.stages[k], locked = k === champ && !ready && !done;
         const next = !done && !locked && (k === champ ? ready : info.next === k);
-        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: lessonTitle(s.lesson), puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
+        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: (s.objectives || []).join('. ') + '.', puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
         return '<button class="stage' + (done ? ' done' : '') + (next ? ' next' : '') + '" data-stage="' + k + '"' + (locked ? ' disabled' : '') + '>' +
           '<span class="badge-ic">' + (s.kind === 'champion' ? '<img src="' + face(co) + '" alt="">' : icon(STAGE[s.kind][0])) + '</span>' +
           '<span><span class="k">Stage ' + (k + 1) + ' · ' + STAGE[s.kind][1] + '</span><h4>' + esc(s.title) + '</h4><small>' + esc(locked ? 'Finish the other stages first, then ' + co.name + ' will play you.' : desc) + '</small></span>' +
@@ -823,25 +1040,20 @@
     hydrate();
     wireLinks();
     document.querySelectorAll('[data-stage]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); runStage(e, +b.dataset.stage); }; });
+    guideSay(eraGuideKey(e));
     return {};
   };
-  const lessonTitle = (id) => { const l = LESSONS.lessons.find((x) => x.id === id); return l ? l.objectives.join('. ') + '.' : ''; };
   function runStage(e, k) {
     const s = e.stages[k];
     const journey = { era: e.id, stage: k };
     if (s.kind === 'tale') return taleModal(e, k);
-    if (s.kind === 'lesson') return go('lesson', { id: s.lesson, journey });
+    if (s.kind === 'lesson') return go('lesson', { journey });
     if (s.kind === 'puzzles') return go('puzzle', { list: stagePuzzles(s), title: s.title, intro: s.intro, journey });
-    if (s.kind === 'endgame') return startDojo(s.endgame, journey);
+    if (s.kind === 'endgame') return startDojo(s.endgame.id, journey);
     if (s.kind === 'champion') return startGame({ mode: 'ai', color: s.color || 'white', level: s.level, tc: 'none', fen: '', rival: eraCoach(e), look: { set: e.set, board: e.board, room: e.room }, journey });
   }
-  function stagePuzzles(s) {
-    const themes = s.theme.split(',');
-    const match = (p) => themes.some((t) => p.themes.includes(t));
-    let pool = PUZZLES.filter((p) => match(p) && (!s.max || p.rating <= s.max));
-    if (pool.length < s.count) pool = PUZZLES.filter(match);
-    return pool.sort((a, b) => a.rating - b.rating).slice(0, s.count);
-  }
+  // Each era names its own puzzles, none of which a Learn lesson or another era uses.
+  const stagePuzzles = (s) => s.puzzles.map((id) => PUZZLES.find((p) => p.id === id)).filter(Boolean);
   // Marks a stage done and shows what it brought. Finishing the champion completes the era.
   function stageDone(journey) {
     const e = eraById(journey.era);
@@ -874,10 +1086,15 @@
   function taleModal(e, k) {
     const s = e.stages[k], co = eraCoach(e);
     let page = 0, solved = !!PG.journeyInfo(state.progress, e.id).stages[k];
-    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(e.name) + ' · ' + esc(e.when) + '</div><h2>' + esc(s.title) + '</h2></div></div>' +
+    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(e.name) + ' · ' + esc(e.when) + '</div><h2>' + esc(s.title) + '</h2></div>' +
+      '<div class="tl-tools"><button class="tl-btn" id="tl-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="tl-btn" id="tl-voice" data-voice="' + esc(co.name) + '"></button></div></div>' +
       '<div id="tl-body"></div><div class="nav"><span class="pdots" id="tl-dots"></span><span class="grow"></span><button class="btn" id="tl-prev">' + icon('prev') + ' Back</button><button class="btn primary" id="tl-next">Next</button></div></div>',
     { cls: 'tale', onClose() { AU.hush(); } });
     const body = m.querySelector('#tl-body'), next = m.querySelector('#tl-next'), prev = m.querySelector('#tl-prev');
+    const line = () => (page < s.pages.length ? s.pages[page] : s.quiz.q);
+    voiceIcon(m.querySelector('#tl-voice'), co.name);
+    m.querySelector('#tl-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) AU.say(line()); };
+    m.querySelector('#tl-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); AU.say(line()); };
     function render() {
       m.querySelector('#tl-dots').innerHTML = s.pages.concat([0]).map((_, j) => '<i' + (j <= page ? ' class="on"' : '') + '></i>').join('');
       prev.disabled = page === 0;
@@ -1005,7 +1222,7 @@
     idleBoard();
     const P = state.progress, set = equippedSet();
     const mastered = Object.values(P.openings).filter((r) => r.mastered).length;
-    const dojoStars = Object.values(P.dojo).reduce((a, r) => a + r.stars, 0);
+    const dojoStars = ENDGAMES.reduce((a, d) => a + (P.dojo[d.id] ? P.dojo[d.id].stars : 0), 0);
     mount('<div class="page"><div class="page-in">' + subnav('training') +
       pageHead('Training', 'Training', 'Learn openings move by move, master the endgames every player needs, and let Rooky review your games.') +
       sec('play', 'Train') +
@@ -1043,8 +1260,10 @@
     document.querySelectorAll('[data-eg]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); startDojo(b.dataset.eg); }; });
     return {};
   };
+  // The dojo's endgames, plus the ones that live only inside an era.
+  const endgameById = (id) => ENDGAMES.find((x) => x.id === id) || CAMPAIGN.eras.flatMap((e) => e.stages).map((s) => s.endgame).find((d) => d && d.id === id);
   function startDojo(id, journey) {
-    const d = ENDGAMES.find((x) => x.id === id);
+    const d = endgameById(id);
     const side = E.positionFrom(d.fen, []).side;
     startGame({ mode: 'ai', color: side === WHITE ? 'white' : 'black', level: 7, tc: 'none', fen: d.fen, dojo: id, journey: journey || null, look: journey ? eraLook(journey.era) : null });
     coachSay(d.tip, [['Got it', 'dismiss']]);
@@ -1052,7 +1271,7 @@
   const eraLook = (id) => { const e = eraById(id); return e ? { set: e.set, board: e.board, room: e.room } : null; };
   // Called after every move of a dojo game. Returns true once the attempt is decided.
   function dojoCheck(G, info) {
-    const d = ENDGAMES.find((x) => x.id === G.setup.dojo);
+    const d = endgameById(G.setup.dojo);
     if (!d || G.dojoDone) return false;
     const g = G.g, me = G.human, o = g.outcome;
     const firstMine = E.positionFrom(g.startFen, []).side === me;
@@ -1334,7 +1553,7 @@
   function seasonSwatch(it) {
     const d = it.data || {};
     if (it.category === 'avatar') return '<img src="' + medal(d.art, d.from, d.to) + '" alt="">';
-    if (it.category === 'pieces') return '<img src="' + medal('piece:k', '#8a5a2a', '#2a1408') + '" alt="">';
+    if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
     if (it.category === 'frame') return '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
     if (it.category === 'capture' || it.category === 'victory') return '<img src="' + ART.fxUri(d.kind, d.colors) + '" alt="">';
@@ -1367,6 +1586,7 @@
         : '<div class="pass-cta"><div><b>Season Pass</b><small>Unlock the gold track: ' + s.items.filter((i) => i.unlock.track === 'pass').length + ' extra rewards, including tiers you have already reached.</small></div><button class="btn gold" id="se-buy">Ask a grown-up</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">Free track</div><div class="eyebrow">Season Pass</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends.</p></div></div>');
+    hydrate(null, true);
     wireLinks();
     const b = $('se-buy'); if (b) b.onclick = () => go('store', 'pass.' + id);
     document.querySelectorAll('[data-item]').forEach((el) => { el.onclick = () => { AU.play('tap'); itemModal(PG.item(el.dataset.item)); }; });
@@ -1458,7 +1678,8 @@
     const vs = AU.voices();
     const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
     return '<div class="label set-h">Voices</div>' +
-      '<label class="toggle">Lesson and story narration <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Voice: the guide, stories and lessons <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Show the guide card <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
       '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
       '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
       '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
@@ -1468,7 +1689,7 @@
     const m = modal('<div class="eyebrow">Settings</div><h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
       '<div class="label set-h">Graphics</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
       '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Capture scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Capture and castling scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
       '<div class="label set-h">Sound</div>' +
       '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
       '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
@@ -1489,7 +1710,8 @@
     on('#s-sfxv', 'input', (e) => { s.sfxVol = +e.target.value; applySettings(); AU.play('move'); save(); });
     on('#s-mus', 'change', (e) => { s.music = e.target.checked; AU.unlock(); applySettings(); save(); renderNav(); });
     on('#s-musv', 'input', (e) => { s.musicVol = +e.target.value; applySettings(); save(); });
-    on('#s-narr', 'change', (e) => { s.narration = e.target.checked; if (!s.narration) AU.hush(); save(); });
+    on('#s-narr', 'change', (e) => { setVoice(e.target.checked, true); });
+    on('#s-guide', 'change', (e) => { s.guide = e.target.checked; save(); guideTuck(); });
     on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-announce', 'change', (e) => { s.announce = e.target.checked; applySettings(); save(); if (s.announce) { AU.unlock(); AU.announce('Nf3'); } });
@@ -1600,6 +1822,8 @@
     save();
     // The opponent says hello across the table.
     if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [['Let\'s play!', 'dismiss']], null, who); }
+    if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: 600 });
+    gameNudge(game);
     if (!g.outcome) maybeComputer();
     preAnalyse();
   }
@@ -1615,7 +1839,7 @@
     setLook(G.setup.look || null);
     const online = G.kind === 'online', local = G.kind === 'local';
     const j = G.setup.journey, era = j && eraById(j.era);
-    const dojo = G.setup.dojo && ENDGAMES.find((x) => x.id === G.setup.dojo);
+    const dojo = G.setup.dojo && endgameById(G.setup.dojo);
     mount(
       '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? era.name : dojo ? 'Endgames' : 'Home') + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
@@ -1634,6 +1858,7 @@
       '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">Flip</span></button>' +
       '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">Top view</span></button>' +
       '<span class="sep"></span>' +
+      (online ? '<button class="btn" id="g-emote" aria-haspopup="true">' + icon('smile') + '<span class="lbl">React</span></button>' : '') +
       (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">Draw</span></button>') +
       '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">Resign</span></button>' +
       '<button class="btn primary" id="g-claim" hidden>Claim draw</button>' +
@@ -1653,6 +1878,7 @@
     $('g-flip').onclick = () => { AU.play('tap'); G.viewSide = G.viewSide === 'white' ? 'black' : 'white'; view.setView(G.viewSide, state.settings.view); renderCards(); renderHud(); };
     $('g-view').onclick = () => { AU.play('tap'); state.settings.view = state.settings.view === 'top' ? 'player' : 'top'; view.setView(G.viewSide, state.settings.view); save(); renderHud(); };
     if ($('g-draw')) $('g-draw').onclick = offerDraw;
+    if ($('g-emote')) $('g-emote').onclick = emotePicker;
     $('g-resign').onclick = resign;
     $('g-claim').onclick = () => { if (G.g.claimDraw()) { G.request++; if (online) ChacklateNet.send({ type: 'claim' }); endGame(); } };
     $('g-review').onclick = () => go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: local ? WHITE : G.human, title: titleFor(G), review: G.review, level: G.kind === 'ai' ? G.setup.level : undefined, rival: G.kind === 'ai' ? rival(G) : null });
@@ -1687,7 +1913,7 @@
     };
   };
   function titleFor(G) {
-    if (G.setup.dojo) { const d = ENDGAMES.find((x) => x.id === G.setup.dojo); return 'Endgame dojo' + (d ? ' · ' + d.name : ''); }
+    if (G.setup.dojo) { const d = endgameById(G.setup.dojo); return (G.setup.journey ? 'Journey' : 'Endgame dojo') + (d ? ' · ' + d.name : ''); }
     if (G.kind === 'ai') return 'vs ' + rival(G).name;
     if (G.kind === 'online') return 'Online · ' + (G.online && G.online.tc || G.setup.tc || '');
     return 'Pass and play';
@@ -1735,7 +1961,7 @@
       let pp, sub;
       if (you) { pp = avatarHtml('sm'); sub = 'Level ' + PG.levelFor(state.progress.xp).level + (G.online && G.online.rating ? ' · Rating ' + G.online.rating : ''); }
       else if (who) { pp = '<img class="portrait" src="' + face(who) + '" alt="">'; sub = G.setup.dojo ? 'Full-strength defence' : who.era ? 'Champion of ' + (eraById(who.era) || {}).name : 'Level ' + (G.setup.level + 1) + ' · ' + LEVELS[G.setup.level].band; }
-      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = 'Rating ' + (opp.rating || '?'); }
+      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || 'Rating ' + (opp.rating || '?'); }
       else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = side === WHITE ? 'Plays the light pieces' : 'Plays the dark pieces'; }
       el.innerHTML = '<div class="pp">' + pp + '</div><div class="who"><div class="name">' + esc(sideName(G, side)) + '</div><div class="sub"><span class="tl">' + esc(sub) + '</span></div>' +
         '<div class="taken"><span class="caps"></span><span class="adv"></span></div></div>' +
@@ -1804,6 +2030,7 @@
     const before = { fen: g.startFen, moves: g.uciMoves(), side: g.pos.side };
     const info = g.play(m);
     if (!info) return;
+    if (byHuman) guideIdle(null);
     if (G.kind === 'online' && byHuman) ChacklateNet.send({ type: 'move', uci: E.uci(m), ply: g.moves.length - 1 });
     if (G.kind !== 'online') pressClock(moverKey);
     G.request++;
@@ -1812,9 +2039,9 @@
     if (G.coachMsg && G.coachMsg.who && !G.coachMsg.cls) G.coachMsg = null;
     G.busy = true;
     const quick = G.clock && G.clock[moverKey] < 10000;   // effects off under 10 s, per the art bible
-    // Captures play a short scene, except online, where the server's clock keeps running.
-    const cinema = !!info.captured && !quick && state.settings.captureScenes && G.kind !== 'online';
-    const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : info.rook ? 'castle' : info.captured && !cinema ? 'capture' : 'move';
+    // Captures and castling play a short scene, except online, where the server's clock keeps running.
+    const cinema = !!(info.captured || info.rook) && !quick && state.settings.captureScenes && G.kind !== 'online';
+    const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : cinema ? 'move' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
     setTimeout(() => AU.play(sound), dropped ? 0 : 140);
     if (!g.outcome) setTimeout(() => AU.announce(info.san).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
@@ -1833,8 +2060,8 @@
       save();
       if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
-      else maybeComputer();
-    }, { quick, cinema, onImpact: () => AU.play('capture') });
+      else { maybeComputer(); gameNudge(G); }
+    }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture') });
     // the clocks wait while a capture scene plays (local games; see clockRunning)
     if (G.cinema && G.clock) G.clock.since = 0;
     refreshHighlights();
@@ -1869,6 +2096,13 @@
   const fmt = (ms) => { const s = Math.max(0, ms) / 1000; if (s < 10) return s.toFixed(1); const m = Math.floor(s / 60), r = Math.floor(s % 60); return m + ':' + String(r).padStart(2, '0'); };
 
   // ----- the computer
+  // The guide helps on the child's turn: a word when their king is in check (the first two times in
+  // a game), and the hint button when they have been thinking a long while.
+  function gameNudge(G) {
+    if (state.game !== G || G.g.outcome || G.kind === 'online' || G.setup.dojo || G.g.pos.side !== G.human && G.kind !== 'local') return;
+    if (G.g.pos.inCheck() && (G.checkTips = (G.checkTips || 0) + 1) <= 2) guideSay('game.check', { force: true, delay: 1100 });
+    if (G.kind === 'ai') guideIdle('game.idle', 40000);
+  }
   function maybeComputer() {
     const G = state.game, g = G.g;
     if (G.kind !== 'ai' || g.outcome || g.pos.side === G.human || G.busy) return;
@@ -1912,7 +2146,9 @@
     if (!show || !e) return;
     const white = e.cp * G.g.pos.side;
     $('evalfill').style.height = Math.round(C.winProb(white) * 100) + '%';
-    bar.title = e.mate ? 'Mate in ' + Math.abs(e.mate) : (white >= 0 ? '+' : '') + (white / 100).toFixed(1);
+    const lead = white > 0 ? 'White' : 'Black';
+    bar.dataset.tip = 'Who is winning|' + (e.mate ? (e.mate * G.g.pos.side > 0 ? 'White' : 'Black') + ' can checkmate in ' + Math.abs(e.mate) + '!'
+      : Math.abs(white) < 30 ? 'It is about even.' : lead + ' is ahead by about ' + (Math.abs(white) / 100).toFixed(1) + ' pawns.') + ' More white in the bar means White is doing better.';
   }
   function liveCoach(before, info) {
     const G = state.game;
@@ -2026,6 +2262,37 @@
       refreshHighlights();
     });
   }
+  // Online reactions: a short preset list, never typed text.
+  const EMOTES = { hello: ['👋', 'Hello!'], luck: ['🍀', 'Good luck!'], nice: ['👍', 'Nice move!'], wow: ['😮', 'Wow!'], think: ['🤔', 'Let me think…'], gg: ['🤝', 'Good game!'] };
+  function emotePicker() {
+    const old = document.querySelector('.emote-pop');
+    if (old) { old.remove(); return; }
+    const pop = document.createElement('div');
+    pop.className = 'emote-pop glass'; pop.setAttribute('role', 'menu');
+    pop.innerHTML = Object.keys(EMOTES).map((k) => '<button class="btn small" role="menuitem" data-emote="' + k + '"><span aria-hidden="true">' + EMOTES[k][0] + '</span> ' + EMOTES[k][1] + '</button>').join('');
+    // Fixed above the action bar, which scrolls sideways on phones and would clip it.
+    const r = $('g-emote').getBoundingClientRect();
+    pop.style.left = Math.min(window.innerWidth - 150, Math.max(150, r.left + r.width / 2)) + 'px';
+    pop.style.bottom = (window.innerHeight - r.top + 10) + 'px';
+    document.body.appendChild(pop);
+    const away = (e) => { if (!pop.contains(e.target) && e.target.closest('#g-emote') === null) { pop.remove(); document.removeEventListener('pointerdown', away, true); } };
+    document.addEventListener('pointerdown', away, true);
+    pop.onclick = (e) => { const b = e.target.closest('[data-emote]'); if (!b) return; pop.remove(); document.removeEventListener('pointerdown', away, true); AU.play('tap'); ChacklateNet.send({ type: 'emote', id: b.dataset.emote }); };
+  }
+  function showEmote(id, mine) {
+    const G = state.game, em = EMOTES[id];
+    if (!G || !em || state.screen !== 'game') return;
+    const side = mine ? G.human : -G.human;
+    const card = document.querySelector('.player-card[data-side="' + side + '"]');
+    if (!card) return;
+    const old = card.querySelector('.emote-bubble'); if (old) old.remove();
+    const b = document.createElement('div');
+    b.className = 'emote-bubble'; b.setAttribute('role', 'status');
+    b.innerHTML = '<span aria-hidden="true">' + em[0] + '</span> ' + esc(em[1]);
+    card.appendChild(b);
+    if (!mine) AU.play('tap');
+    setTimeout(() => b.remove(), 3500);
+  }
   function offerDraw() {
     const G = state.game;
     if (G.g.outcome) return;
@@ -2068,6 +2335,7 @@
     if (G.setup.dojo) { if (!G.dojoDone) dojoCheck(G, null); return; }
     if (G.resultShown) return;
     G.resultShown = true;
+    guideIdle(null);
     const o = g.outcome;
     const winner = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
     const pos = g.pos;
@@ -2127,6 +2395,7 @@
       on('#r-prize', () => { mdl.close(); if (!jr.eraDone) go('era', era.id); });
       celebrate(res);
       if (jr && !jr.eraDone) celebrate(jr, true);
+      if (!era && mdl.querySelector('#r-review')) guideSay('game.over', { delay: 2200 });
     }, state.settings.animations ? 1500 : 200);
   }
   function resultSub(G, o, winner) {
@@ -2283,22 +2552,37 @@
       startGame({ mode: form.mode.value, color: form.color.value || 'white', level: LEVELS[lv].premium && !prem ? 1 : lv, tc: form.tc.value, fen });
     };
   }
+  // Online clocks: every game is timed, with ten minutes a side at most.
+  const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', '5 min'], ['5+3', '5 + 3'], ['10+0', '10 min']];
+  function worldModal() {
+    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">Play the world</div><h2>Find a player</h2>' +
+      '<p class="sub">We pair you with someone waiting for the same clock. Players only see a made-up name, and you can send friendly reactions, never messages.</p></div></div>' +
+      '<div class="field"><div class="label">Clock (10 minutes at most)</div><div class="seg">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="wtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
+      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn primary" id="w-go">' + icon('globe') + ' Find a player</button></div>', { x: true });
+    m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
+  }
+  // Play a friend on another device: create a table and share its code, or join one with a code.
+  // The online part is always offered; ChacklateNet waits for the connection or explains why there is none.
   function friendModal() {
-    const online = netOn();
-    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Two players</h2><p class="sub">' + (online ? 'Make a game and share its code, or join with your friend\'s code.' : 'Take turns on this device. Online codes need the game server, which is not reachable right now.') + '</p></div></div>' +
-      (online ? '<div class="field"><div class="label">Clock</div><div class="seg" id="fr-tc">' + ['3+2', '5+3', '10+5', '15+10'].map((t, i) => '<label><input type="radio" name="frtc" value="' + t + '"' + (i === 1 ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
-        '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="fr-create">' + icon('users') + ' Make a game</button></div>' +
-        '<div class="field" style="margin-top:18px"><label for="fr-code">Join with a code</label><div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123"><button class="btn" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></div>' : '') +
-      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn' + (online ? '' : ' primary') + '" id="fr-local">' + icon('users') + ' Take turns here</button></div>', { x: true });
+    const link = window.ChacklateNet && ChacklateNet.link ? ChacklateNet.link() : 'unavailable';
+    const status = link === 'ready' ? '' : link === 'connecting' ? '<p class="fine">Connecting to online play…</p>' : '<p class="fine">Online play is not reachable on this page right now. Open Chackmate from its claude.ai link to play a friend on another device.</p>';
+    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Play a friend online</h2><p class="sub">Create a table and send your friend its code, or join your friend\'s table with their code.</p></div></div>' +
+      '<div class="friend-pick"><section class="glass"><h3>' + icon('users') + ' Create a table</h3><p class="fine">You get a 6-letter code to send your friend.</p>' +
+      '<div class="label">Clock (every online game is timed, 10 minutes at most)</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="frtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div>' +
+      '<button class="btn primary" id="fr-create">' + icon('users') + ' Create table and get code</button></section>' +
+      '<section class="glass"><h3>' + icon('play') + ' Join a table</h3><label class="fine" for="fr-code">Type the code your friend sent you.</label>' +
+      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></section></div>' +
+      status +
+      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn" id="fr-local">' + icon('users') + ' Take turns on this device</button></div>', { x: true });
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
-    if (online) {
-      m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
-      m.querySelector('#fr-join').onclick = () => {
-        const code = m.querySelector('#fr-code').value.trim().toUpperCase();
-        if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = 'Codes are 6 letters or digits.'; return; }
-        m.close(); ChacklateNet.joinFriend(code);
-      };
-    }
+    m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
+    const join = () => {
+      const code = m.querySelector('#fr-code').value.trim().toUpperCase();
+      if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = 'Codes are 6 letters or digits.'; return; }
+      m.close(); ChacklateNet.joinFriend(code);
+    };
+    m.querySelector('#fr-join').onclick = join;
+    m.querySelector('#fr-code').onkeydown = (e) => { if (e.key === 'Enter') join(); };
   }
 
   // ---------------------------------------------------------------- review
@@ -2404,7 +2688,10 @@
   SCREENS.lesson = function (arg) {
     const id = typeof arg === 'string' ? arg : arg && arg.id;
     const journey = (arg && arg.journey) || null, era = journey && eraById(journey.era);
-    const L = LESSONS.lessons.find((l) => l.id === id);
+    // An era's lesson is written into its stage and is never part of Learn.
+    const own = era && era.stages[journey.stage] && era.stages[journey.stage].steps ? era.stages[journey.stage] : null;
+    const L = own || LESSONS.lessons.find((l) => l.id === id);
+    const guide = own ? eraCoach(era) : COACH;
     if (!L) { setTimeout(() => go('learn'), 0); return {}; }
     view.setAttract(false);
     if (era) setLook(eraLook(era.id));
@@ -2417,23 +2704,28 @@
     }
     const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>Chapter ' + L.chapter + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="ls-voice" aria-label="Narration" aria-pressed="' + !!state.settings.narration + '" title="Narration">' + icon('speaker') + '</button>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
+      '<button class="round" id="ls-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
     const leaveTo = () => (era ? go('era', era.id) : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
-    $('ls-voice').onclick = () => {
-      state.settings.narration = !state.settings.narration; save();
-      $('ls-voice').setAttribute('aria-pressed', String(state.settings.narration));
-      if (state.settings.narration) speak(); else AU.hush();
-      toast('Narration ' + (state.settings.narration ? 'on' : 'off'));
-    };
+    voiceIcon($('ls-voice'), guide.name);
+    $('ls-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) speak(true); };
+    $('ls-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); speak(true); };
     $('ls-prev').onclick = () => { if (S.phase === 'steps' && S.i > 0) { S.i--; renderStep(); } };
     $('ls-next').onclick = () => next();
-    const speak = () => { if (!state.settings.narration) return; const t = S.phase === 'steps' ? L.steps[S.i].say : ex[S.i] && ex[S.i].prompt; if (t) AU.say(t); };
+    // The guide's line comes first (how a lesson works, then how to answer), then the step itself.
+    const guided = {};
+    const speak = (now) => {
+      const t = S.phase === 'steps' ? L.steps[S.i].say : S.phase === 'ex' ? ex[S.i] && ex[S.i].prompt : null;
+      const say = () => { if (t && state.settings.narration) AU.say(t); };
+      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
+      if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
+      if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
+    };
     function setPos(fen, playMoves, cb) {
       const p = new E.Pos(); p.load(fen);
       S.pos = p;
@@ -2599,6 +2891,7 @@
     }
     function answer(firstTry, msg) {
       S.answered = true;
+      guideIdle(null);
       if (S.results[S.i] === undefined) S.results[S.i] = firstTry;
       AU.play('correct');
       fb('ok', msg + (firstTry ? '' : ' (Solved after a retry.)'));
@@ -2619,24 +2912,29 @@
       S.phase = 'done';
       setHooks({});
       const first = S.results.filter((r) => r === true).length;
-      const wasDue = PG.dueReviews(state.progress).includes(L.id);
-      const res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
-      if (wasDue) PG.reviewDone(state.progress, L.id);
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
+      let res;
+      if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
+      else {
+        const wasDue = PG.dueReviews(state.progress).includes(L.id);
+        res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
+        if (wasDue) PG.reviewDone(state.progress, L.id);
+      }
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
-        '<span class="pill gold">+' + res.xp + ' XP</span></div>';
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
       $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
       if (!era && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
       else $('ls-prev').hidden = true;
       AU.play('win');
       AU.event('lesson.passed');
+      guideIdle(null);
+      guideSay('lesson.done', { delay: 2200 });
       view.celebrate('win', -1, null, -1);
       dots();
-      celebrate(res);
-      if (journey) stageDone(journey);
+      if (!own) { celebrate(res); if (journey) stageDone(journey); }
     }
     renderStep();
     return { leave() { AU.hush(); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
@@ -2799,13 +3097,14 @@
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); });
+        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
     function finish(solved) {
       if (S.solved) return;
       S.solved = true;
+      guideIdle(null);
       const res = PG.puzzleFinished(P, S.cur, solved && !S.failed, { daily: arg.daily });
       if (!solved || S.failed) for (const t of S.cur.themes) noteMotif(t.startsWith('mateIn') ? 'mate' : t);
       ratingPill(res.ratingDelta);
@@ -2825,6 +3124,7 @@
       }
       $('pz-next').textContent = 'Next puzzle';
       $('pz-next').hidden = !!arg.daily || (list && last);
+      if (solved && !$('pz-next').hidden) guideSay('puzzle.solved', { delay: 1800 });
     }
     function tryMove(from, to, promo) {
       const g = new E.Game(S.pos.fen());
@@ -2834,7 +3134,7 @@
       const t = new E.Game(S.pos.fen()); t.play(m);
       const ok = E.uci(m) === want || (t.outcome && t.outcome.reason === 'checkmate');
       if (!ok) {
-        S.failed = true; AU.play('wrong'); AU.event('puzzle.wrong'); fb('bad', 'Not quite. That is not the strongest move. Try again.');
+        S.failed = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', 'Not quite. That is not the strongest move. Try again.');
         view.setBoard(piecesOf(S.pos), null);
         return true;
       }
@@ -2869,6 +3169,7 @@
     $('pz-hint').onclick = () => {
       if (!S.cur || S.solved) return;
       S.failed = true; S.hints++;
+      guideIdle(null);
       const u = S.cur.moves[S.step * 2 + 1];
       if (S.hints === 1) { const t = S.cur.themes[0]; fb('hint', { fork: 'Look for a fork.', pin: 'Look for a pin.', skewer: 'Look for a skewer.', discoveredAttack: 'Look for a discovered attack.', hangingPiece: 'Something is not guarded.', promotion: 'A pawn wants to promote.', sacrifice: 'Think about giving something away.' }[t] || (t.startsWith('mateIn') ? 'There is a checkmate to find.' : 'Look for the most forcing move.')); }
       else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', 'Move the piece on ' + u.slice(0, 2) + '.'); }
@@ -2925,6 +3226,7 @@
       if (!G.g.outcome) G.g.finish(result, reason);
       endGame();
     },
+    onlineEmote(id, mine) { showEmote(id, mine); },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
     drawOffered() {
       const G = state.game; if (!G) return;
@@ -2946,6 +3248,8 @@
     } catch (e) { /* decorative only */ }
   })();
   $('splash').insertAdjacentHTML('afterbegin', '<img src="' + ART.crestUri() + '" alt="">');
+  // the tab icon is the crest too, also when the page is opened as a file with no server behind it
+  for (const l of document.querySelectorAll('link[rel="icon"]')) l.href = ART.crestUri();
   applySettings();
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
