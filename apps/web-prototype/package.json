@@ -3,7 +3,7 @@
   "private": true,
   "description": "Single-file browser game: 3D table and era rooms, shared engine and coach, lessons, puzzles, the Journey Through Time, progression and online client",
   "scripts": {
-    "test": "node test/progress.test.js && node test/voice.test.js && node test/guide.test.js && node test/looks.test.js && node test/minigames.test.js",
+    "test": "node test/progress.test.js && node test/voice.test.js && node test/guide.test.js && node test/tips.test.js && node test/looks.test.js && node test/rules.test.js && node test/minigames.test.js",
     "build": "python3 build.py"
   }
 }

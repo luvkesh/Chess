@@ -12,7 +12,6 @@ const M = ChacklateMinis(E, { puzzles, lessons, eras });
 // Exactly the six games asked for, each with art, a how-to card and a time.
 assert.deepStrictEqual(M.GAMES.map((g) => g.id), ['tour', 'spotter', 'pawns', 'queen', 'memory', 'rush']);
 for (const g of M.GAMES) assert(g.title && g.blurb && g.howTo.length >= 3 && g.minutes && g.art && g.colors.length === 2, g.id);
-assert(M.REWARD.capPerDay > 0 && M.REWARD.perRound > 0 && M.REWARD.perRound <= M.REWARD.capPerDay);
 assert(missions.missions.some((m) => m.event === 'mini'));
 
 // Knight's tour: following the hint completes the tour from every corner of every size.

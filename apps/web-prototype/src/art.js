@@ -771,6 +771,85 @@ const ChacklateArt = (() => {
     return svg(p, '0 0 200 160', s);
   }
 
+  // ------------------------------------------------------------ the rule book
+  // The rule-book button: a ruby leather book with gold corners, a clasp and the gold knight
+  // tooled on its cover, on an emerald enamel medal in the gold bezel.
+  function ruleBook() {
+    const p = pic();
+    p.raw('soft', SOFT);
+    p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="87"/></clipPath>');
+    const leather = p.lin([[0, '#c4385c'], [0.45, '#8e1f3a'], [1, '#4a0a1c']], 0.1, 0, 0.9, 1);
+    const spine = p.lin([[0, '#3a0614'], [0.5, '#7a1830'], [1, '#3a0614']], 0, 0, 1, 0);
+    const paper = p.lin([[0, '#fbf1da'], [1, '#d8bf92']], 0, 0, 1, 1);
+    const gold = p.gold();
+    let edge = '';
+    for (let i = 0; i < 6; i++) edge += 'M' + (143.5 + i * 1.3) + ' ' + (58 + i * 0.6) + 'V' + (156 - i * 0.6);
+    for (let i = 0; i < 4; i++) edge += 'M' + (66 + i * 0.8) + ' ' + (157 + i * 1.3) + 'H' + (142 + i * 1.1);
+    const corner = (x, y, sx, sy) => P('M' + x + ' ' + y + 'h' + (16 * sx) + 'l' + (-16 * sx) + ' ' + (16 * sy) + 'Z', gold, ' stroke="#6a3e10" stroke-width=".8"');
+    const book =
+      // the page block behind the cover, its edges showing on the right and at the foot
+      '<rect x="62" y="52" width="90" height="112" rx="6" fill="' + paper + '" stroke="#9a7a4a" stroke-width="1"/>' +
+      '<path d="' + edge + '" stroke="#b49866" stroke-width=".7" fill="none"/>' +
+      // the cover and its spine
+      '<rect x="52" y="44" width="92" height="114" rx="7" fill="' + leather + '" stroke="#d6aa58" stroke-width="1.6"/>' +
+      '<rect x="52" y="44" width="15" height="114" rx="6" fill="' + spine + '"/>' +
+      '<path d="M52 62H67M52 66H67M52 136H67M52 140H67" stroke="' + gold + '" stroke-width="1.6"/>' +
+      // a tooled gold frame, corner pieces and the knight
+      '<rect x="74" y="54" width="60" height="94" rx="4" fill="none" stroke="' + gold + '" stroke-width="1.5"/>' +
+      '<rect x="78" y="58" width="52" height="86" rx="3" fill="none" stroke="#f0cf7e" stroke-opacity=".45" stroke-width=".7"/>' +
+      corner(144, 44, -1, 1) + corner(144, 158, -1, -1) +
+      '<g transform="translate(78 70) scale(.52)">' + P(PIECE.n, gold, ' stroke="#4a2008" stroke-width="2.4" stroke-linejoin="round"') + C(PIECE_EYE.n[0], PIECE_EYE.n[1], PIECE_EYE.n[2] * 1.4, '#4a1a08') + '</g>' +
+      '<path d="M88 132H120" stroke="' + gold + '" stroke-width="1.4"/><circle cx="104" cy="132" r="2.4" fill="' + gold + '"/>' +
+      // the clasp and the ribbon marker
+      '<rect x="136" y="92" width="16" height="20" rx="4" fill="' + gold + '" stroke="#6a3e10" stroke-width="1"/>' + C(146, 102, 2.6, '#6a3e10') +
+      P('M110 158V178L115 172L120 178V158Z', p.lin([[0, '#3f8f86'], [1, '#174a44']], 0, 0, 1, 1), ' stroke="#d6aa58" stroke-width=".8"') +
+      // a soft sheen across the leather
+      P('M56 50Q98 42 140 50V78Q98 66 56 82Z', '#fff', ' opacity=".08"');
+    const out = ring(p, 97) + '<g clip-path="url(#inner)">' + field(p, 87, '#1f6a54', '#06261d') +
+      E(102, 168, 50, 7, 'rgba(0,0,0,.5)', ' filter="url(#soft)"') + '<g filter="url(#lift)" transform="rotate(-8 100 104)">' + book + '</g>' +
+      C(100, 100, 87, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
+    return svg(p, '0 0 200 200', out);
+  }
+
+  // A small board picture for the rule book: part of a board, its pieces (ivory and ebony),
+  // arrows and glowing squares. o: { fen, files: [from, to], ranks: [from, to], arrows: [[a, b]], marks: [sq] }
+  function diagram(o) {
+    const p = pic();
+    const S = 24, f0 = o.files[0], f1 = o.files[1], r0 = o.ranks[0], r1 = o.ranks[1];
+    const W = (f1 - f0 + 1) * S, H = (r1 - r0 + 1) * S, pad = 5;
+    const X = (f) => pad + (f - f0) * S, Y = (r) => pad + (r1 - r) * S;
+    const at = (n) => [n.charCodeAt(0) - 97, n.charCodeAt(1) - 49];
+    let s = '<rect x="0.5" y="0.5" width="' + (W + pad * 2 - 1) + '" height="' + (H + pad * 2 - 1) + '" rx="5" fill="' + p.lin([[0, '#5a3418'], [1, '#2a1408']], 0, 0, 1, 1) + '" stroke="#d6aa58" stroke-width="1"/>';
+    for (let r = r0; r <= r1; r++) for (let f = f0; f <= f1; f++) s += '<rect x="' + X(f) + '" y="' + Y(r) + '" width="' + S + '" height="' + S + '" fill="' + ((f + r) % 2 ? '#ecd6ae' : '#a8743f') + '"/>';
+    for (const m of o.marks || []) { const [f, r] = at(m); s += '<rect x="' + (X(f) + 1.5) + '" y="' + (Y(r) + 1.5) + '" width="' + (S - 3) + '" height="' + (S - 3) + '" rx="3" fill="#ffd36a" fill-opacity=".35" stroke="#ffcf5a" stroke-width="2"/>'; }
+    const rows = o.fen.split(' ')[0].split('/');
+    rows.forEach((row, i) => {
+      let f = 0;
+      for (const ch of row) {
+        if (/\d/.test(ch)) { f += +ch; continue; }
+        const r = 7 - i;
+        if (f >= f0 && f <= f1 && r >= r0 && r <= r1) {
+          const white = ch === ch.toUpperCase(), t = ch.toLowerCase();
+          s += '<g transform="translate(' + (X(f) - S * 0.14) + ' ' + (Y(r) - S * 0.2) + ') scale(' + (S * 1.28 / 100) + ')">' +
+            P(PIECE[t], white ? '#f6ecd9' : '#2b1c14', ' stroke="' + (white ? '#5a4630' : '#d9b46a') + '" stroke-width="4" stroke-linejoin="round"') +
+            (PIECE_EYE[t] ? C(PIECE_EYE[t][0], PIECE_EYE[t][1], PIECE_EYE[t][2] * 1.6, white ? '#5a4630' : '#d9b46a') : '') + '</g>';
+        }
+        f++;
+      }
+    });
+    // an arrow's third value bends it (in squares, up the board), so two arrows on one rank don't overlap
+    for (const [a, b, bend] of o.arrows || []) {
+      const [fa, ra] = at(a), [fb, rb] = at(b);
+      const x1 = X(fa) + S / 2, y1 = Y(ra) + S / 2, x2 = X(fb) + S / 2, y2 = Y(rb) + S / 2;
+      const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2 - (bend || 0) * S * 2;
+      const len = Math.hypot(x2 - cx, y2 - cy), ux = (x2 - cx) / len, uy = (y2 - cy) / len;
+      const ex = x2 - ux * 7, ey = y2 - uy * 7;
+      s += '<path d="M' + x1 + ' ' + y1 + 'Q' + cx + ' ' + cy + ' ' + ex.toFixed(1) + ' ' + ey.toFixed(1) + '" fill="none" stroke="#2fb8e8" stroke-width="4" stroke-linecap="round" opacity=".9"/>' +
+        '<path d="M' + x2 + ' ' + y2 + 'L' + (ex - uy * 6).toFixed(1) + ' ' + (ey + ux * 6).toFixed(1) + 'L' + (ex + uy * 6).toFixed(1) + ' ' + (ey - ux * 6).toFixed(1) + 'Z" fill="#2fb8e8" opacity=".95"/>';
+    }
+    return svg(p, '0 0 ' + (W + pad * 2) + ' ' + (H + pad * 2), s);
+  }
+
   // ------------------------------------------------------------ public API
   const cache = new Map();
   const memo = (key, make) => { if (!cache.has(key)) cache.set(key, uri(make())); return cache.get(key); };
@@ -787,6 +866,8 @@ const ChacklateArt = (() => {
     pieceUri: (type, o) => memo('s' + type + JSON.stringify(o || {}), () => pieceSvg(type, o)),
     fxUri: (kind, colors) => memo('f' + kind + (colors || []).join(), () => fx(kind, colors)),
     clockUri: (d) => memo('c' + JSON.stringify(d || {}), () => clock(d)),
+    ruleBookUri: () => memo('rulebook', () => ruleBook()),
+    diagramUri: (o) => memo('d' + JSON.stringify(o), () => diagram(o)),
     mix, lit, dim,
   };
 })();

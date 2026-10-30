@@ -1,7 +1,7 @@
 // Chackmate mini-games: six short games that each train one real chess skill. This file holds
 // the rules, the boards they are played on and the bot for the pawn race, as pure functions over
 // square numbers (0 = a1, 7 = h1, 63 = h8), so they are tested in Node. app.js draws them on the
-// 3D table and pays for them through progress.js. They never touch a rating.
+// 3D table and pays for them through progress.js (PG.COINS.mini). They never touch a rating.
 function ChacklateMinis(E, content) {
   'use strict';
   content = content || {};
@@ -283,10 +283,6 @@ function ChacklateMinis(E, content) {
   }
   const RUSH_SECONDS = 60;
 
-  // ------------------------------------------------------------ rewards
-  // What a round pays (Chackmate's points; XP until the points exist) and the daily cap per game.
-  const REWARD = { perRound: 10, capPerDay: 50 };
-
   return {
     GAMES, game, rng, name,
     jumps, tourRegion, tourMoves, tourHint, tourCorners, tourScore,
@@ -295,7 +291,6 @@ function ChacklateMinis(E, content) {
     guardAttacks, queenMoves, queenPar, queenBoard, queenBoardScore, QUEEN_BOARDS,
     MEMORY_SIZES, MEMORY_SECONDS, memoryPosition, memoryCheck, memoryPoints,
     mirrorFen, matingMoves, matePool, RUSH_SECONDS,
-    REWARD,
   };
 }
 
