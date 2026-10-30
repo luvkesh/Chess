@@ -64,7 +64,7 @@
    ],
    "steps": [
     {
-     "say": "Welcome to Chacklate Chess. The board has 64 squares in 8 columns and 8 rows. The light square is always in the bottom-right corner.",
+     "say": "Welcome to Chackmate. The board has 64 squares in 8 columns and 8 rows. The light square is always in the bottom-right corner.",
      "fen": "7k/8/8/8/8/8/8/K7 w - - 0 1",
      "marks": [
       "h1"

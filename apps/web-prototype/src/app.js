@@ -422,6 +422,8 @@
   }
   function setLook(o) { lookOverride = o || null; applyLook(); }
   const equippedSet = () => (lookOverride && lookOverride.set) || PG.equipped(state.progress, 'pieces').data.set;
+  // Voices from before the 42-voice set: Mira was Heart and Arthur was George.
+  for (const k of ['voiceCoach', 'voiceCalls']) state.settings[k] = ({ mira: 'heart', arthur: 'george' })[state.settings[k]] || state.settings[k];
   function applySettings() {
     const s = state.settings;
     view.setQuality(s.quality);
@@ -2660,12 +2662,17 @@
   // ---------------------------------------------------------------- settings
   function voiceSection(s) {
     const vs = AU.voices();
-    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(tx('settings.voiceBlurb.' + v.id, v.blurb)) + '</option>';
+    const GROUPS = [['US', 'F', 'American · Female'], ['US', 'M', 'American · Male'], ['UK', 'F', 'British · Female'], ['UK', 'M', 'British · Male']];
+    const blurb = (v) => tx('settings.voiceBlurb.' + v.id, v.blurb.replace(/ (American|British) English, (fe)?male\.$/, ''));
+    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(blurb(v)) + '</option>';
+    const groups = (cur, pick) => GROUPS.map(([a, g, label]) => '<optgroup label="' + esc(tx('settings.voiceGroup.' + a + g, label)) + '">' + vs.filter((v) => v.accent === a && v.gender === g && pick(v)).map((v) => opt(v, cur)).join('') + '</optgroup>').join('');
+    const hindi = (cur) => '<optgroup label="' + esc(tx('settings.voiceGroup.hi', 'Hindi')) + '">' + vs.filter((v) => v.lang === 'hi').map((v) => opt(v, cur)).join('') + '</optgroup>';
+    const tryBtn = (id) => '<button type="button" class="btn small" id="' + id + '" aria-label="' + esc(tx('settings.hearVoice', 'Hear this voice')) + '">▶</button>';
     return '<div class="label set-h">' + t('settings.voices') + '</div>' +
       '<label class="toggle" data-tk="settings.narr">' + t('settings.narration') + TIP_I + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.guide">' + t('settings.guideCard') + TIP_I + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
-      '<label class="toggle" data-tk="settings.vcoach">' + t('settings.coachVoice') + TIP_I + ' <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>' + t('settings.deviceVoice') + '</option></select></label>' +
-      '<label class="toggle" data-tk="settings.vcalls">' + t('settings.calls') + TIP_I + ' <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select></label>' +
+      '<label class="toggle" data-tk="settings.vcoach">' + t('settings.coachVoice') + TIP_I + ' <span class="voice-pick"><select id="s-vcoach">' + groups(s.voiceCoach, (v) => v.lessons) + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>' + t('settings.deviceVoice') + '</option></select>' + tryBtn('s-vcoach-try') + '</span></label>' +
+      '<label class="toggle" data-tk="settings.vcalls">' + t('settings.calls') + TIP_I + ' <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + hindi(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select>' + tryBtn('s-vcalls-try') + '</span></label>' +
       '<label class="toggle" data-tk="settings.announce">' + t('settings.announce') + TIP_I + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
   function settingsModal() {
@@ -2708,6 +2715,8 @@
     on('#s-guide', 'change', (e) => { s.guide = e.target.checked; save(); guideTuck(); });
     on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
+    on('#s-vcoach-try', 'click', (e) => { e.preventDefault(); AU.unlock(); AU.preview(s.voiceCoach); });
+    on('#s-vcalls-try', 'click', (e) => { e.preventDefault(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-announce', 'change', (e) => { s.announce = e.target.checked; applySettings(); save(); if (s.announce) { AU.unlock(); AU.announce('Nf3'); } });
     on('#s-coach', 'change', (e) => { s.coach = e.target.value; save(); });
     on('#s-eval', 'change', (e) => { s.evalBar = e.target.checked; save(); renderEval(); applyInsets(); });
@@ -4467,6 +4476,7 @@
       $('pz-eyebrow').textContent = (list && list.length > 1 ? t('learn.pz.nOf', { n: S.idx + 1, of: list.length }) + ' · ' : arg.daily ? t('learn.dailyPuzzle') + ' · ' : '') + t('learn.pz.rated', { n: pz.rating });
       $('pz-title').textContent = t(solverSide === WHITE ? 'learn.pz.whiteFind' : 'learn.pz.blackFind');
       $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : t('learn.pz.intro')) + '</p><div id="pz-fb"></div>';
+      if (arg.intro && S.idx <= 0 && state.settings.narration) AU.say(arg.intro);
       $('pz-next').hidden = true; $('pz-hint').disabled = false; if ($('pz-sol')) $('pz-sol').disabled = false;
       dots();
       // Animate the opponent's move that sets up the puzzle.

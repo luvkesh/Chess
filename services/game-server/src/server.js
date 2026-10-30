@@ -198,12 +198,22 @@ function createServer(opts) {
       res.writeHead(302, Object.assign({ Location: account.verifyPage(db, url.searchParams.get('token')), 'Cache-Control': 'no-store' }, SECURITY_HEADERS));
       return res.end();
     }
-    // Recorded voices. Clip names are hashes of their text, so a clip never changes and can be cached for good.
-    const vm = url.pathname.match(/^\/voice\/(?:index\.json|([a-z]+)\/([0-9a-f]{8})\.mp3)$/);
+    // Recorded voices: one pack per voice plus the index. The game asks for one clip at a time as a
+    // byte range. Pack URLs carry a hash of their contents (?v=), so a pack can be cached for good.
+    const vm = url.pathname.match(/^\/voice\/(?:index\.json|([a-z]+)\.mp3)$/);
     if (vm && req.method === 'GET') {
-      const vf = vm[1] ? path.join(PUBLIC, 'voice', vm[1], vm[2] + '.mp3') : path.join(PUBLIC, 'voice', 'index.json');
+      const vf = path.join(PUBLIC, 'voice', vm[1] ? vm[1] + '.mp3' : 'index.json');
       if (fs.existsSync(vf)) {
-        res.writeHead(200, Object.assign({ 'Content-Type': vm[1] ? 'audio/mpeg' : 'application/json', 'Cache-Control': vm[1] ? 'public, max-age=31536000, immutable' : 'no-cache' }, SECURITY_HEADERS));
+        const head = Object.assign({ 'Content-Type': vm[1] ? 'audio/mpeg' : 'application/json', 'Cache-Control': vm[1] && url.searchParams.has('v') ? 'public, max-age=31536000, immutable' : 'no-cache' }, SECURITY_HEADERS);
+        const size = fs.statSync(vf).size;
+        const r = vm[1] && /^bytes=(\d+)-(\d*)$/.exec(req.headers.range || '');
+        if (r) {
+          const start = +r[1], end = Math.min(r[2] ? +r[2] : size - 1, size - 1);
+          if (start > end) { res.writeHead(416, Object.assign(head, { 'Content-Range': 'bytes */' + size })); return res.end(); }
+          res.writeHead(206, Object.assign(head, { 'Accept-Ranges': 'bytes', 'Content-Range': 'bytes ' + start + '-' + end + '/' + size, 'Content-Length': end - start + 1 }));
+          return fs.createReadStream(vf, { start, end }).pipe(res);
+        }
+        res.writeHead(200, Object.assign(head, vm[1] ? { 'Accept-Ranges': 'bytes', 'Content-Length': size } : {}));
         return fs.createReadStream(vf).pipe(res);
       }
     }

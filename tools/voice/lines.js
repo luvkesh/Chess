@@ -58,6 +58,20 @@ function lessonLines() {
     for (const n of Object.values(o.notes || {})) out.push(n);
   }
   for (const e of load('endgames.json').endgames) if (e.tip) out.push(e.tip);
+  // The Journey: each era's lesson and its puzzle introduction (its story is read by the era's friend,
+  // see record-tales.py).
+  for (const era of load('campaign.json').eras) {
+    for (const s of era.stages) {
+      if (s.kind === 'lesson') {
+        for (const st of s.steps) if (st.say) out.push(st.say);
+        for (const e of s.exercises) {
+          if (e.prompt) out.push(e.prompt);
+          for (const h of e.hints || []) out.push(h);
+        }
+      }
+      if (s.kind === 'puzzles' && s.intro) out.push(s.intro);
+    }
+  }
   return out;
 }
 

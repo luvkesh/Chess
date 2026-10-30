@@ -29,7 +29,7 @@ The playable Chackmate client: a 3D chess game that runs from one HTML file. thr
 | `public/` | Installable-app files the server hosts: `manifest.webmanifest`, the service worker `sw.js` (offline shell, push notifications) and icons drawn by `tools/make-icons.py`. |
 | `build.py` | Inlines `packages/chess-core` (engine, coach), the vendored files, the files above and `packages/content` JSON into `dist/chackmate.html`. |
 | `test/progress.test.js` | Progression rules. |
-| `test/voice.test.js` | Voice lines and recorded clips, and the packs `tools/voice/pack.js` makes from them. |
+| `test/voice.test.js` | Voice lines and the recorded voice packs. |
 | `test/guide.test.js` | Every screen and era stage has a guide line, and every clip matches its words and voice. |
 | `test/tale.test.js` | Every era story page, question and answer has a clip in the era friend's voice. |
 | `test/minigames.test.js` | Every mini-game board can be won: tours finish from every corner, the bot wins the breakthrough with b6!, every Queen's Path board has a way across, every Mate Rush position is a mate in one. |

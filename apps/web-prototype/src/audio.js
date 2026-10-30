@@ -272,14 +272,18 @@ function ChacklateAudio() {
     }
   }
 
-  // Recorded voices (voice/<id>/<key>.mp3, made by tools/voice). Where voice/packs.json is served, the
-  // clips come instead from a few packs per voice (tools/voice/pack.js), each clip a byte range of one
-  // pack, so a host with a file limit can carry every voice. When the game runs from the single offline
-  // file there are no recordings, and lessons fall back to the device's speech engine.
+  // Recorded voices: one pack per voice (voice/<id>.mp3, made by tools/voice) holding every clip
+  // back to back, and voice/index.json giving each clip's size. A clip is fetched as a byte range;
+  // where the host ignores ranges, the first request brings the whole pack and later clips are cut
+  // from it. A host with a file size limit can split a pack into parts, each a run of whole clips
+  // (index entry parts: [{ url, n, b64 }]), and a host that only serves text gets parts as base64.
+  // When the game runs from the single offline file there are no recordings, and lessons fall back
+  // to the device's speech engine.
   const V = (typeof CHACKLATE_VOICE !== 'undefined') ? CHACKLATE_VOICE : { voices: [], events: {}, moves: {} };
+  const OLD_IDS = { mira: 'heart', arthur: 'george' };
   let coachVoice = 'toby', callVoice = 'toby', announceOn = false, deviceFallback = true;
-  let index = null, indexLoad = null, current = null, queueId = 0, packs = null;
-  const clips = new Map(), packFiles = new Map();
+  let index = null, indexLoad = null, current = null, queueId = 0;
+  const clips = new Map(), packs = new Map();
   function voiceKey(text) {
     let h = 0x811c9dc5;
     for (const ch of String(text).normalize('NFC')) {
@@ -293,33 +297,62 @@ function ChacklateAudio() {
   function loadIndex() {
     if (indexLoad) return indexLoad;
     if (typeof fetch === 'undefined' || location.protocol === 'file:') { index = {}; return (indexLoad = Promise.resolve(index)); }
-    const get = (url) => fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-    indexLoad = get('voice/packs.json').then((p) => {
-      if (p && p.voices) { packs = p.voices; return { voices: Object.fromEntries(Object.entries(packs).map(([id, v]) => [id, Object.keys(v)])) }; }
-      return get('voice/index.json');
-    }).then((j) => {
+    indexLoad = fetch('voice/index.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => {
       index = {};
-      for (const id of Object.keys((j && j.voices) || {})) index[id] = new Set(j.voices[id]);
+      for (const [id, v] of Object.entries(j.voices || {})) {
+        const keys = (j.keys || {})[v.lang] || [];
+        if (keys.length !== v.sizes.length) continue;
+        const parts = (v.parts || [{ url: 'voice/' + id + '.mp3' + (v.v ? '?v=' + v.v : ''), n: keys.length }]).map((p) => ({ url: p.url, b64: !!p.b64, n: p.n }));
+        if (parts.reduce((t, p) => t + p.n, 0) !== keys.length) continue;
+        const at = new Map();
+        let part = 0, left = parts[0].n, start = 0;
+        keys.forEach((k, i) => {
+          if (!left) { part++; left = parts[part].n; start = 0; }
+          const n = parts[part].b64 ? 4 * Math.ceil(v.sizes[i] / 3) : v.sizes[i];
+          at.set(k, [parts[part], start, start + n]);
+          start += n; left--;
+        });
+        index[id] = { at };
+      }
       return index;
     });
     return indexLoad;
   }
-  function packBytes(file) {
-    if (!packFiles.has(file)) {
-      packFiles.set(file, fetch('voice/' + file).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
-        .catch((e) => { packFiles.delete(file); throw e; }));
-    }
-    return packFiles.get(file);
+  function has(id, key) { return !!(index && index[id] && index[id].at.has(key)); }
+  function unbase64(s) {
+    const bin = atob(s), out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out.buffer;
   }
-  function has(id, key) { return !!(index && index[id] && index[id].has(key)); }
+  // A whole pack (or part), fetched once.
+  function whole(p) {
+    if (!packs.has(p.url)) {
+      packs.set(p.url, fetch(p.url).then((r) => { if (!r.ok) throw new Error('missing'); return p.b64 ? r.text() : r.arrayBuffer(); })
+        .catch((e) => { packs.delete(p.url); throw e; }));
+    }
+    return packs.get(p.url);
+  }
+  const cut = (p, data, a, b) => (p.b64 ? unbase64(data.slice(a, b)) : data.slice(a, b));
+  // The bytes of one clip: a range request while the host honours them, else a cut of the whole pack.
+  async function bytes(id, key) {
+    const [p, a, b] = index[id].at.get(key);
+    if (packs.has(p.url) || p.ranges === false) return cut(p, await whole(p), a, b);
+    // Until the first answer shows whether ranges work, other clips wait rather than each
+    // risking a download of the whole pack.
+    if (p.ranges === undefined && p.probe) { await p.probe.catch(() => {}); return bytes(id, key); }
+    const req = fetch(p.url, { headers: { Range: 'bytes=' + a + '-' + (b - 1) } });
+    if (p.ranges === undefined) p.probe = req;
+    const r = await req.catch((e) => { p.probe = null; throw e; });
+    if (!r.ok) { p.probe = null; throw new Error('missing'); }
+    if (r.status === 206) { p.ranges = true; return p.b64 ? unbase64(await r.text()) : r.arrayBuffer(); }
+    p.ranges = false;
+    if (!packs.has(p.url)) packs.set(p.url, p.b64 ? r.text() : r.arrayBuffer());
+    return cut(p, await whole(p), a, b);
+  }
   function clip(id, key) {
     const k = id + '/' + key;
     if (!clips.has(k)) {
-      const at = packs && packs[id] && packs[id][key];   // [pack file, first byte, length]
-      const bytes = at ? packBytes(at[0]).then((b) => b.slice(at[1], at[1] + at[2]))
-        : fetch('voice/' + k + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); });
-      clips.set(k, bytes
-        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { clips.delete(k); throw e; }));
+      clips.set(k, bytes(id, key).then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { clips.delete(k); throw e; }));
     }
     return clips.get(k);
   }
@@ -496,8 +529,8 @@ function ChacklateAudio() {
     onTalk(fn) { talkers.push(fn); },
     voices: () => V.voices.slice(),
     setVoices(o) {
-      if (o.coach) coachVoice = o.coach;
-      if (o.calls) callVoice = o.calls;
+      if (o.coach) coachVoice = OLD_IDS[o.coach] || o.coach;
+      if (o.calls) callVoice = OLD_IDS[o.calls] || o.calls;
       if (o.announce !== undefined) announceOn = !!o.announce;
       if (o.deviceFallback !== undefined) deviceFallback = !!o.deviceFallback;
     },
