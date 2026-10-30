@@ -3119,20 +3119,20 @@
       pool.sort((a, b) => Math.abs(a.rating - r) - Math.abs(b.rating - r));
       return pool[Math.floor(Math.random() * Math.min(5, pool.length))];
     };
-    mount('<div class="hud-top"><button class="backbtn" id="pz-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Puzzles') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + esc(arg.title || 'Puzzles') + '</span></div><span class="spacer"></span>' +
-      '<div class="pill glass" id="pz-rating"></div><button class="round" id="pz-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="pz-eyebrow">Puzzle</div><h3 id="pz-title">Find the best move</h3></div></header><div class="content" id="pz-content"></div>' +
-      '<footer><div class="dots" id="pz-dots"></div><button class="btn" id="pz-hint">' + icon('hint') + ' Hint</button>' + (j ? '' : '<button class="btn" id="pz-sol">' + icon('eye') + ' Solution</button>') +
-      '<div class="grow"></div><button class="btn primary" id="pz-next" hidden>Next puzzle</button></footer></aside>');
+    mount('<div class="hud-top"><button class="backbtn" id="pz-back">' + icon('back') + '<span>' + esc(era ? eraName(era) : t('learn.sub.puzzles')) + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + esc(arg.title || t('learn.sub.puzzles')) + '</span></div><span class="spacer"></span>' +
+      '<div class="pill glass" id="pz-rating"></div><button class="round" id="pz-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="pz-eyebrow">' + t('learn.pz.puzzle') + '</div><h3 id="pz-title">' + t('learn.pz.find') + '</h3></div></header><div class="content" id="pz-content"></div>' +
+      '<footer><div class="dots" id="pz-dots"></div><button class="btn" id="pz-hint">' + icon('hint') + ' ' + t('play.btn.hint') + '</button>' + (j ? '' : '<button class="btn" id="pz-sol">' + icon('eye') + ' ' + t('learn.pz.solution') + '</button>') +
+      '<div class="grow"></div><button class="btn primary" id="pz-next" hidden>' + t('learn.pz.next') + '</button></footer></aside>');
     $('pz-back').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else go('puzzles'); };
     $('pz-set').onclick = () => settingsModal();
-    const ratingPill = (delta) => { $('pz-rating').innerHTML = icon('star') + ' Rating <b>' + P.stats.puzzles.rating + '</b>' + (delta ? ' <span class="' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '') + delta + '</span>' : ''); };
+    const ratingPill = (delta) => { $('pz-rating').innerHTML = icon('star') + ' ' + t('play.rating', { n: '<b>' + P.stats.puzzles.rating + '</b>' }) + (delta ? ' <span class="' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '') + delta + '</span>' : ''); };
     ratingPill();
     const dots = () => { if (list && list.length > 1) $('pz-dots').innerHTML = list.map((_, k) => '<i class="' + (k < S.idx || (k === S.idx && S.solved) ? 'ok' : k === S.idx ? 'on' : '') + '"></i>').join(''); };
     function load() {
       const pz = pickNext();
-      if (!pz) { $('pz-content').innerHTML = '<p class="say">No more puzzles here. Great work!</p>'; $('pz-next').hidden = true; return; }
+      if (!pz) { $('pz-content').innerHTML = '<p class="say">' + t('learn.pz.noMore') + '</p>'; $('pz-next').hidden = true; return; }
       S.cur = pz; S.step = 0; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0;
       const pre = E.positionFrom(pz.fen, []);
       S.pos = pre;
@@ -3140,9 +3140,9 @@
       view.setBoard(piecesOf(pre), null);
       view.setHighlights({}); view.setArrows([]);
       view.setView(solverSide === WHITE ? 'white' : 'black', 'player');
-      $('pz-eyebrow').textContent = (list && list.length > 1 ? 'Puzzle ' + (S.idx + 1) + ' of ' + list.length + ' · ' : arg.daily ? 'Daily puzzle · ' : '') + 'Rated ' + pz.rating;
-      $('pz-title').textContent = (solverSide === WHITE ? 'White' : 'Black') + ' to move: find the best move';
-      $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : 'Your opponent has just moved. Look for checks, captures and threats.') + '</p><div id="pz-fb"></div>';
+      $('pz-eyebrow').textContent = (list && list.length > 1 ? t('learn.pz.nOf', { n: S.idx + 1, of: list.length }) + ' · ' : arg.daily ? t('learn.dailyPuzzle') + ' · ' : '') + t('learn.pz.rated', { n: pz.rating });
+      $('pz-title').textContent = t(solverSide === WHITE ? 'learn.pz.whiteFind' : 'learn.pz.blackFind');
+      $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : t('learn.pz.intro')) + '</p><div id="pz-fb"></div>';
       $('pz-next').hidden = true; $('pz-hint').disabled = false; if ($('pz-sol')) $('pz-sol').disabled = false;
       dots();
       // Animate the opponent's move that sets up the puzzle.
@@ -3166,16 +3166,16 @@
       if (solved && !S.failed) { AU.play('correct'); view.celebrate('win', -1, null, -1); }
       dots();
       const last = list && S.idx >= list.length - 1;
-      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.map((t) => '<span class="pill">' + esc(t) + '</span>').join('') + '</div>' + (arg.daily ? '<p class="say" style="margin-top:10px">Come back tomorrow for a new daily puzzle.</p>' : ''));
+      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.map((th) => '<span class="pill">' + esc(themeName(th)) + '</span>').join('') + '</div>' + (arg.daily ? '<p class="say" style="margin-top:10px">' + t('learn.pz.tomorrow') + '</p>' : ''));
       if (j && last) {
-        fb('ok', 'Trial complete! ' + guide.name + ' is impressed.');
-        $('pz-next').textContent = 'Back to ' + era.name;
+        fb('ok', t('learn.pz.trial', { name: guide.name }));
+        $('pz-next').textContent = t('learn.dj.backTo', { era: eraName(era) });
         $('pz-next').hidden = false;
         $('pz-next').onclick = () => { AU.play('tap'); go('era', era.id); };
         stageDone(j);
         return;
       }
-      $('pz-next').textContent = 'Next puzzle';
+      $('pz-next').textContent = t('learn.pz.next');
       $('pz-next').hidden = !!arg.daily || (list && last);
       if (solved && !$('pz-next').hidden) guideSay('puzzle.solved', { delay: 1800 });
     }
@@ -3187,7 +3187,7 @@
       const t = new E.Game(S.pos.fen()); t.play(m);
       const ok = E.uci(m) === want || (t.outcome && t.outcome.reason === 'checkmate');
       if (!ok) {
-        S.failed = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', 'Not quite. That is not the strongest move. Try again.');
+        S.failed = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', t('learn.pz.wrong'));
         view.setBoard(piecesOf(S.pos), null);
         return true;
       }
@@ -3195,10 +3195,10 @@
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
-        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', S.failed ? 'Solved, after a miss.' : 'Excellent! Puzzle solved.'); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
+        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.cur.moves[S.step * 2 + 2]);
         S.step++;
-        fb('ok', 'Good move. Keep going!');
+        fb('ok', t('learn.pz.keepGoing'));
         setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
       });
       return true;
@@ -3224,9 +3224,9 @@
       S.failed = true; S.hints++;
       guideIdle(null);
       const u = S.cur.moves[S.step * 2 + 1];
-      if (S.hints === 1) { const t = S.cur.themes[0]; fb('hint', { fork: 'Look for a fork.', pin: 'Look for a pin.', skewer: 'Look for a skewer.', discoveredAttack: 'Look for a discovered attack.', hangingPiece: 'Something is not guarded.', promotion: 'A pawn wants to promote.', sacrifice: 'Think about giving something away.' }[t] || (t.startsWith('mateIn') ? 'There is a checkmate to find.' : 'Look for the most forcing move.')); }
-      else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', 'Move the piece on ' + u.slice(0, 2) + '.'); }
-      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', 'Follow the arrow, then keep going.'); }
+      if (S.hints === 1) { const th = S.cur.themes[0]; fb('hint', I18N.has('learn.pzh.' + th) ? t('learn.pzh.' + th) : t(th.startsWith('mateIn') ? 'learn.pzh.mate' : 'learn.pzh.forcing')); }
+      else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', t('learn.pzh.piece', { sq: u.slice(0, 2) })); }
+      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', t('learn.pzh.arrow')); }
       AU.play('coach');
     };
     if ($('pz-sol')) $('pz-sol').onclick = () => {
@@ -3235,7 +3235,7 @@
       const u = S.cur.moves[S.step * 2 + 1];
       view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
-      fb('hint', 'The solution: ' + g.pos.san(m, g.legal) + '. ' + (C.describe(C.facts(g.pos, m)) || ''));
+      fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m)) || ''));
       finish(false);
     };
     $('pz-next').onclick = () => { AU.play('tap'); load(); };
