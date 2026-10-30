@@ -35,5 +35,8 @@
   "missions.done": { "en": "Done" },
   "missions.eyebrow": { "en": "Today" },
   "missions.title": { "en": "Daily missions" },
-  "missions.sub": { "en": "Three little goals each day. Finish them all for a bonus of {n} XP." }
+  "missions.sub": { "en": "Three little goals each day. Finish them all for a bonus of {n} XP." },
+  "levelUp": { "en": "Level up" },
+  "youAreNow": { "en": "You are now {title}." },
+  "seeCollection": { "en": "See collection" }
 }

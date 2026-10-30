@@ -41,5 +41,6 @@
   "tryAgain": { "en": "Try again" },
   "save": { "en": "Save" },
   "confirm": { "en": "Confirm" },
-  "letsPlay": { "en": "Let's play" }
+  "letsPlay": { "en": "Let's play" },
+  "done": { "en": "Done" }
 }

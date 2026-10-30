@@ -1709,34 +1709,38 @@
   // ---------------------------------------------------------------- settings
   function voiceSection(s) {
     const vs = AU.voices();
-    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
-    return '<div class="label set-h">Voices</div>' +
-      '<label class="toggle">Voice: the guide, stories and lessons <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Show the guide card <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
-      '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
-      '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
+    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(tx('settings.voiceBlurb.' + v.id, v.blurb)) + '</option>';
+    return '<div class="label set-h">' + t('settings.voices') + '</div>' +
+      '<label class="toggle">' + t('settings.narration') + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle">' + t('settings.guideCard') + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
+      '<label class="toggle">' + t('settings.coachVoice') + ' <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>' + t('settings.deviceVoice') + '</option></select></label>' +
+      '<label class="toggle">' + t('settings.calls') + ' <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select></label>' +
+      '<label class="toggle">' + t('settings.announce') + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
   function settingsModal() {
     const s = state.settings;
-    const m = modal('<div class="eyebrow">Settings</div><h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
-      '<div class="label set-h">Graphics</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
-      '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Capture and castling scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
-      '<div class="label set-h">Sound</div>' +
-      '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
-      '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
+    const m = modal('<div class="eyebrow">' + t('settings.title') + '</div><h2>' + t('settings.title') + '</h2><p class="sub">' + t('settings.sub') + '</p>' +
+      '<div class="label set-h">' + t('settings.language') + '</div>' +
+      '<label class="toggle">' + t('settings.languageLabel') + ' <select id="s-lang">' + I18N.LANGS.map((l) => '<option value="' + l.id + '" lang="' + l.id + '"' + (s.lang === l.id ? ' selected' : '') + '>' + esc(l.native === l.name ? l.native : l.native + ' · ' + l.name) + '</option>').join('') + '</select></label>' +
+      '<div class="label set-h">' + t('settings.graphics') + '</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>' + t('settings.high') + '</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>' + t('settings.low') + '</span></label></div>' +
+      '<label class="toggle">' + t('settings.anim') + ' <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
+      '<label class="toggle">' + t('settings.cine') + ' <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+      '<div class="label set-h">' + t('settings.sound') + '</div>' +
+      '<label class="toggle">' + t('settings.sfx') + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="' + t('settings.sfxVol') + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="' + t('settings.sfxOn') + '"></label>' +
+      '<label class="toggle">' + t('settings.music') + ' <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="' + t('settings.musicVol') + '"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="' + t('settings.musicOn') + '"></label>' +
       voiceSection(s) +
-      '<div class="label set-h">Coaching</div>' +
-      '<label class="toggle">Rooky\'s comments in games <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
-      '<label class="toggle">Show who is winning (evaluation bar) <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Show where pieces can move <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Turn the board each move (two players) <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
+      '<div class="label set-h">' + t('settings.coaching') + '</div>' +
+      '<label class="toggle">' + t('settings.comments') + ' <select id="s-coach">' + ['off', 'quiet', 'normal', 'chatty'].map((v) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t('settings.coach.' + v) + '</option>').join('') + '</select></label>' +
+      '<label class="toggle">' + t('settings.eval') + ' <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
+      '<label class="toggle">' + t('settings.legal') + ' <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
+      '<label class="toggle">' + t('settings.turn') + ' <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
       appSection() +
-      '<div class="field" style="margin-top:14px"><label for="s-server">Game server (for online play)</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
-      '<div class="row"><button class="btn warn" id="s-reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>', { x: true });
+      '<div class="field" style="margin-top:14px"><label for="s-server">' + t('settings.server') + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>' +
+      '<div class="row"><button class="btn warn" id="s-reset">' + t('settings.reset') + '</button><button class="btn primary" data-close>' + t('common.done') + '</button></div>', { x: true });
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
+    // A new language: Hindi brings Priya for the game calls; the coach voice stays. The menus redraw.
+    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); s.voiceCalls = callsFor(s.lang, s.voiceCalls); applySettings(); save(); m.close(); relocalise(); settingsModal(); });
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
     on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
     on('#s-sfx', 'change', (e) => { s.sfx = e.target.checked; applySettings(); save(); });
@@ -1754,7 +1758,16 @@
     on('#s-turn', 'change', (e) => { s.turnBoard = e.target.checked; save(); });
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
     wireAppSection(m);
-    on('#s-reset', 'click', () => { if (confirm('Reset all progress, unlocks and history on this device?')) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+    on('#s-reset', 'click', () => { if (confirm(t('settings.resetConfirm'))) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+  }
+
+  // Redraw everything a player reads in the new language. A game, lesson or puzzle in progress
+  // keeps going: only its panels are drawn again.
+  function relocalise() {
+    renderNav();
+    if (KIND[state.screen] === 'hud') { if (current && current.refresh) current.refresh(); if (state.game && state.screen === 'game') { renderTitle(); renderCards(); renderHud(); renderCoach(); } }
+    else go(state.screen, state.screenArg);
+    if (guideSt.key) guideShow(guideSt.key);
   }
 
   // ---------------------------------------------------------------- installable app and reminders
@@ -1762,7 +1775,7 @@
   const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; });
-  window.addEventListener('appinstalled', () => { installPrompt = null; toast('Chackmate is installed.'); });
+  window.addEventListener('appinstalled', () => { installPrompt = null; toast(t('settings.installed')); });
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register('/sw.js').then((r) => { swReg = r; }).catch(() => { /* not served by the game server: no offline shell */ });
   }
@@ -1770,13 +1783,13 @@
   function appSection() {
     const s = state.settings, r = s.reminder || { on: false, hour: 19 };
     const hours = Array.from({ length: 24 }, (_, h) => '<option value="' + h + '"' + (r.hour === h ? ' selected' : '') + '>' + String(h).padStart(2, '0') + ':00</option>').join('');
-    return '<div class="label set-h">App</div>' +
-      (standalone() ? '<p class="sub" style="margin:0 0 8px">Running as an installed app.</p>'
-        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chackmate</button>'
-        : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
-        : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') +
-      (safety && !safety.reminders ? '<label class="toggle">Daily reminder <small class="faint">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
-      '<label class="toggle">Daily reminder' + (pushReady() ? '' : ' <small class="faint">(needs the game server and notification support)</small>') +
+    return '<div class="label set-h">' + t('settings.app') + '</div>' +
+      (standalone() ? '<p class="sub" style="margin:0 0 8px">' + t('settings.app.installed') + '</p>'
+        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' ' + t('settings.app.install') + '</button>'
+        : isIOS() ? '<p class="sub" style="margin:0 0 8px">' + t('settings.app.ios') + '</p>'
+        : '<p class="sub" style="margin:0 0 8px">' + t('settings.app.browser') + '</p>') +
+      (safety && !safety.reminders ? '<label class="toggle">' + t('settings.reminder') + ' <small class="faint">' + t('settings.reminder.parent') + '</small><input type="checkbox" disabled></label>' :
+      '<label class="toggle">' + t('settings.reminder') + (pushReady() ? '' : ' <small class="faint">' + t('settings.reminder.needs') + '</small>') +
       ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>');
   }
   function wireAppSection(m) {
@@ -1785,8 +1798,8 @@
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
-      if (want.on && !await parentGate('A parent can turn on reminders.')) { box.checked = false; return; }
-      try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? 'Reminder set for ' + String(want.hour).padStart(2, '0') + ':00 on days you have not played.' : 'Reminder off.'); }
+      if (want.on && !await parentGate(t('settings.reminder.gate'))) { box.checked = false; return; }
+      try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? t('settings.reminder.set', { time: String(want.hour).padStart(2, '0') + ':00' }) : t('settings.reminder.off')); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
     if (box) { box.onchange = apply; hr.onchange = () => { if (box.checked) apply(); }; }
@@ -1797,7 +1810,7 @@
       if (sub) { try { await ChacklateNet.api('/api/push/unsubscribe', { endpoint: sub.endpoint }); } catch (e) { /* removed locally anyway */ } await sub.unsubscribe(); }
       return;
     }
-    if (await Notification.requestPermission() !== 'granted') throw new Error('Notifications are blocked for this site. Allow them in your browser settings.');
+    if (await Notification.requestPermission() !== 'granted') throw new Error(t('settings.reminder.blocked'));
     const { publicKey } = await ChacklateNet.api('/api/push/key');
     const key = Uint8Array.from(atob(publicKey.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
     const s = sub || await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
@@ -1807,9 +1820,9 @@
   function levelUpModal(level, unlocked) {
     AU.play('levelUp');
     const lv = PG.levelFor(state.progress.xp);
-    const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">Level up</span><h2 class="result-title">Level ' + level + '</h2><p class="sub">You are now ' + esc(levelTitle(lv)) + '.</p>' +
-      (unlocked.length ? '<div class="eyebrow">Unlocked</div><div class="unlocks">' + unlocked.map((u) => '<span class="pill gold">' + esc(u.name) + '</span>').join('') + '</div>' : '') +
-      '<div class="row" style="justify-content:center;margin-top:18px">' + (unlocked.length ? '<button class="btn" id="lu-col">See collection</button>' : '') + '<button class="btn primary" data-close>Continue</button></div></div>');
+    const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">' + t('home.levelUp') + '</span><h2 class="result-title">' + t('common.level', { n: level }) + '</h2><p class="sub">' + t('home.youAreNow', { title: esc(levelTitle(lv)) }) + '</p>' +
+      (unlocked.length ? '<div class="eyebrow">' + t('season.unlocked') + '</div><div class="unlocks">' + unlocked.map((u) => '<span class="pill gold">' + esc(u.name) + '</span>').join('') + '</div>' : '') +
+      '<div class="row" style="justify-content:center;margin-top:18px">' + (unlocked.length ? '<button class="btn" id="lu-col">' + t('home.seeCollection') + '</button>' : '') + '<button class="btn primary" data-close>' + t('common.continue') + '</button></div></div>');
     if (KIND[state.screen] === 'hud') view.celebrate('win', -1, null, -1);
     const b = m.querySelector('#lu-col'); if (b) b.onclick = () => { m.close(); go('collection', unlocked[0].category); };
   }
