@@ -93,5 +93,6 @@
   "voice.device": { "en": "Uses the voice already built into this phone, tablet or computer.", "hi": "इस फ़ोन, टैबलेट या कंप्यूटर में पहले से मौजूद आवाज़।", "check": ["hi"] },
   "voice.mira": { "en": "Warm and encouraging, in American English.", "hi": "प्यारी और हौसला बढ़ाने वाली, अमेरिकी अंग्रेज़ी में।", "check": ["hi"] },
   "voice.off": { "en": "No spoken game calls; you will still hear sound effects.", "hi": "कोई बोली गई घोषणा नहीं; साउंड इफ़ेक्ट फिर भी सुनाई देंगे।", "check": ["hi"] },
-  "voice.priya": { "en": "Says game calls and moves in Hindi, in a woman's voice.", "hi": "खेल की घोषणाएँ और चालें हिन्दी में, महिला की आवाज़ में।", "check": ["hi"] }
+  "voice.priya": { "en": "Says game calls and moves in Hindi, in a woman's voice.", "hi": "खेल की घोषणाएँ और चालें हिन्दी में, महिला की आवाज़ में।", "check": ["hi"] },
+  "voice.toby": { "en": "Rooky's own voice: young, soft and calm, in American English.", "hi": "रूकी की अपनी आवाज़: युवा, नरम और शांत, अमेरिकी अंग्रेज़ी में।", "check": ["hi"] }
 }

@@ -119,7 +119,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true, colourToss: true,
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, colourToss: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You', lang: I18N.guess(navigator.languages || [navigator.language]) }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -139,7 +139,13 @@
   }
   setEntitlements(state.account && state.account.ent);
   // Languages: Hindi brings Priya for the game calls (check, results); the coach voice stays as chosen.
-  const CALLS_DEFAULT = 'mira';
+  const CALLS_DEFAULT = 'toby';
+  // Rooky's own voice (Toby) replaced Mira as the default; players still on the old default move over once.
+  if (!state.settings.voiceRev) {
+    if (state.settings.voiceCoach === 'mira') state.settings.voiceCoach = 'toby';
+    if (state.settings.voiceCalls === 'mira') state.settings.voiceCalls = 'toby';
+    state.settings.voiceRev = 1;
+  }
   const callsFor = (lang, cur) => (cur === 'off' ? cur : lang === 'hi' ? 'priya' : AU.voices().some((v) => v.id === cur && v.lang === 'en') ? cur : CALLS_DEFAULT);
   if (!(saved.settings && saved.settings.lang)) state.settings.voiceCalls = callsFor(state.settings.lang, state.settings.voiceCalls);
   I18N.set(state.settings.lang);
