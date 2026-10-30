@@ -438,7 +438,9 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
     if (window.ChacklateScene) {
       var cv = document.createElement('canvas');
       world.appendChild(cv);
-      view = window.ChacklateScene(cv, {});
+      // built straight away in the opening era's look, so no other room is built first
+      var e0 = eraById[HERO];
+      view = window.ChacklateScene(cv, { look: { room: e0.room.id, board: e0.board, set: e0.set.id } });
       if (!view) world.removeChild(cv);
     }
   } catch (err) { view = null; }
@@ -448,7 +450,8 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
     view.setBoard(startPieces(), null);
     var shown = false;
     var reveal = function () { if (!shown) { shown = true; setTimeout(function () { world.classList.add('live'); }, 350); } };
-    requestAnimationFrame(function () { requestAnimationFrame(reveal); });
+    // the poster stays until the table's shaders are compiled and its first frame is drawn
+    if (view.ready) view.ready().then(reveal); else requestAnimationFrame(function () { requestAnimationFrame(reveal); });
   }
   function place(id) {
     var e = eraById[id];

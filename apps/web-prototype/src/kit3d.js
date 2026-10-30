@@ -727,6 +727,18 @@ function ChacklateKit(THREE) {
     }
     ctx.putImageData(img, 0, 0);
   }
+  // A smooth field (fbm a few octaves deep, features many pixels wide) sampled every other
+  // pixel and filled in bilinearly: it looks the same and costs a quarter of the noise, which
+  // is most of the time a room or board takes to build. fn(u, v) as for paint.
+  function coarse(w, h, fn) {
+    const gw = (w >> 1) + 2, gh = (h >> 1) + 2, g = new Float64Array(gw * gh);
+    for (let j = 0; j < gh; j++) for (let i = 0; i < gw; i++) g[i + gw * j] = fn((i * 2) / w, (j * 2) / h);
+    return (u, v) => {
+      const fx = (u * w) / 2, fy = (v * h) / 2, i = Math.min(gw - 2, fx | 0), j = Math.min(gh - 2, fy | 0), tx = fx - i, ty = fy - j, k = i + gw * j;
+      const a = g[k] + (g[k + 1] - g[k]) * tx, b = g[k + gw] + (g[k + gw + 1] - g[k + gw]) * tx;
+      return a + (b - a) * ty;
+    };
+  }
   const TEX = {
     // Marble: base colour with turbulent veins. Tileable.
     marble(base, vein, o) {
@@ -735,14 +747,18 @@ function ChacklateKit(THREE) {
       return canvasTex(key, o.size || 512, o.size || 512, (ctx, w, h) => {
         const B = hex(base), V = hex(vein), V2 = hex(o.vein2 || vein);
         const sc = o.scale || 3, P = 8;
+        // the veins stay sharp: only the smooth noise that bends them is sampled coarsely
+        const N1 = coarse(w, h, (u, v) => fbm(u * sc, v * sc, 5, sc));
+        const N2 = coarse(w, h, (u, v) => fbm(u * sc * 2 + 7, v * sc * 2 + 3, 4, sc * 2));
+        const NC = coarse(w, h, (u, v) => fbm(u * 4 + 11, v * 4, 3, 4));
         paint(ctx, w, h, (u, v) => {
-          const n = fbm(u * sc, v * sc, 5, sc);
+          const n = N1(u, v);
           const t = Math.abs(Math.sin((u * (o.dirX || 1) + v * (o.dirY || 1.6) + n * (o.turb || 2.2)) * Math.PI * (o.freq || 2)));
           const vein1 = Math.pow(1 - t, o.sharp || 9);
-          const n2 = fbm(u * sc * 2 + 7, v * sc * 2 + 3, 4, sc * 2);
+          const n2 = N2(u, v);
           const t2 = Math.abs(Math.sin((u * 2.3 - v * 1.1 + n2 * 3) * Math.PI * 3));
           const vein2 = Math.pow(1 - t2, 18) * 0.5;
-          const cloud = fbm(u * 4 + 11, v * 4, 3, 4) * (o.cloud === undefined ? 0.25 : o.cloud);
+          const cloud = NC(u, v) * (o.cloud === undefined ? 0.25 : o.cloud);
           let c = B.map((x) => x * (1 + cloud));
           c = lerpC(c, V, Math.min(1, vein1 * (o.strength || 0.85)));
           c = lerpC(c, V2, Math.min(1, vein2 * (o.strength2 || 0.6)));
@@ -806,13 +822,16 @@ function ChacklateKit(THREE) {
         const lines = o.lines || 46, contrast = o.contrast === undefined ? 0.6 : o.contrast;
         const figure = o.figure === undefined ? 0.12 : o.figure, wander = o.warp === undefined ? 1.6 : o.warp;
         const curl = o.curl || 0, pores = o.pores === undefined ? 0.16 : o.pores;
+        // the grain's wander and the figure are smooth, so they are sampled coarsely
+        const bend = coarse(w, h, (u, v) => fbm(u * 1.4 + seed, v * 0.45 + seed * 0.3, 4) * wander * 2.2 + fbm(u * 5 + 3, v * 1.2 + seed, 3) * 0.6);
+        const figureAt = coarse(w, h, (u, v) => fbm(u * 1.1 + seed * 2, v * 0.7 + 5, 3) * figure * 2.2 + (curl ? Math.sin((v * 9 + fbm(u * 2, v * 2 + seed, 3) * 2) * TAU) * curl : 0));
         paint(ctx, w, h, (u, v) => {
-          const s = u * lines + fbm(u * 1.4 + seed, v * 0.45 + seed * 0.3, 4) * wander * 2.2 + fbm(u * 5 + 3, v * 1.2 + seed, 3) * 0.6;
+          const s = u * lines + bend(u, v);
           const i = Math.floor(s), f = s - i;
           const late = smooth(0.5, 0.94, f) * (1 - smooth(0.94, 1, f));
           const strength = 0.35 + 0.65 * (0.5 + 0.5 * noise2(i * 0.41 + seed * 7, v * 0.8 + seed));
           const pore = noise2(u * w * 0.45, v * 14 + seed) > 0.42 ? pores : 0;
-          const tone = fbm(u * 1.1 + seed * 2, v * 0.7 + 5, 3) * figure * 2.2 + (curl ? Math.sin((v * 9 + fbm(u * 2, v * 2 + seed, 3) * 2) * TAU) * curl : 0);
+          const tone = figureAt(u, v);
           let c = L.map((x) => clamp(x * (1 + tone), 0, 255));
           c = lerpC(c, D, clamp(late * strength * contrast + pore, 0, 1));
           return c;
