@@ -1126,7 +1126,7 @@
       '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + CLOCKS.map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
       '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.playName', { name: esc(o.name) }) + '</button></div></form>', { x: true });
     const form = m.querySelector('#os');
-    form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); startGame({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: v ? v.start : '', look: v ? variantLook(v) : undefined }); };
+    form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
   }
   // Premium things a child taps are explained, and the store itself sits behind the parent gate.
   function premiumModal(why, who) {
@@ -1155,6 +1155,8 @@
   const variantOfGame = (g) => (g.variant === 'standard' ? null : variantById(g.variant));
   // Chaturanga's old Mantri and Gaja have their own shapes in the era's jade set (pieces3d.js, CHATURANGA).
   const variantLook = (v) => { const l = v.era ? eraLook(v.era) : null; return l && E.VARIANTS[v.id] && E.VARIANTS[v.id].old ? Object.assign(l, { set: 'chaturanga' }) : l; };
+  // Chess960 deals a new back row for every game (number 518 is the usual chess start, so skip it).
+  const variantStart = (v) => { if (!v.shuffle) return { fen: v.start }; let n = Math.floor(Math.random() * 959); if (n >= 518) n++; return { fen: E.chess960Fen(n), n960: n }; };
   const variantArt = (v) => { const e = v.era && eraById(v.era); return e ? ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) : medal('piece:' + ({ koth: 'k', threecheck: 'q', chess960: 'n' }[v.id] || 'r'), '#5b4a8a', '#2c2248'); };
   function variationsTile() {
     const ready = VARIANTS.filter((v) => v.status === 'ready');
@@ -1181,9 +1183,9 @@
   }
   const differs = () => '<span class="differs">' + icon('sparkle') + ' ' + t('play.var.differs') + '</span>';
   function ruleSheet(v) {
-    return '<div class="rulesheet"><section><h3>' + t('play.var.pieces') + '</h3><div class="rs-pieces">' + v.pieces.map((pc) =>
+    return '<div class="rulesheet' + (v.pieces ? '' : ' no-pieces') + '">' + (v.pieces ? '<section><h3>' + t('play.var.pieces') + '</h3><div class="rs-pieces">' + v.pieces.map((pc) =>
       '<div class="rs-piece' + (pc.differs ? ' diff' : '') + '">' + miniBoard(pc.fen, pc.dots, pc.name + ': ' + pc.moves, (E.VARIANTS[v.id] || {}).old) +
-      '<div><h4>' + esc(pc.name) + ' <small>' + esc(pc.en) + '</small></h4>' + (pc.differs ? differs() : '') + '<p>' + esc(pc.moves) + '</p></div></div>').join('') + '</div></section>' +
+      '<div><h4>' + esc(pc.name) + ' <small>' + esc(pc.en) + '</small></h4>' + (pc.differs ? differs() : '') + '<p>' + esc(pc.moves) + '</p></div></div>').join('') + '</div></section>' : '') +
       '<section><h3>' + t('play.var.rules') + '</h3><ul class="rs-rules">' + v.rules.map((r) => '<li' + (r.differs ? ' class="diff"' : '') + '><b>' + esc(r.title) + '</b>' + (r.differs ? differs() : '') + '<p>' + esc(r.text) + '</p></li>').join('') + '</ul>' +
       (v.notes || []).map((n) => '<p class="fine">' + esc(n) + '</p>').join('') + '</section></div>';
   }
@@ -1222,7 +1224,7 @@
       lux({ id: 'v-local', art: duoArt(), title: t('play.ng.local'), text: t('play.var.localText') }) +
       '</div>' +
       '<div id="v-sheet">' + sec('scroll', t('play.var.sheet'), t('play.var.gold')) + '<div class="glass rs-card">' + ruleSheet(v) + '</div></div>' +
-      sec('users', t('play.choose'), t('play.var.oldRules')) +
+      sec('users', t('play.choose'), t((E.VARIANTS[v.id] || {}).old ? 'play.var.oldRules' : 'play.var.knowRules')) +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '<p class="fine">' + t('play.var.deviceOnly', { name: esc(v.name) }) + '</p>' +
       '</div></div>');
@@ -1230,7 +1232,7 @@
     wireLinks();
     $('v-learn').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { variant: v.id }); };
     $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
-    $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: v.start, look: variantLook(v) }); };
+    $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); startGame(Object.assign({ mode: 'local', color: 'white', level: 0, tc: 'none', look: variantLook(v) }, variantStart(v))); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp, v.id); }; });
     // The cards' records and "beaten" badges are for chess; a variation keeps its own record.
     document.querySelectorAll('.personas .rec, .personas .tag.gold').forEach((el) => el.remove());
@@ -1312,7 +1314,7 @@
       '<div class="vign">' + snap(VIGN.trio(e.set, felt, sheen), 320, 200, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
       '<h3>' + esc(set.name) + '</h3><p class="muted">' + esc(set.story) + '</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul></aside></div>' +
-      VARIANTS.filter((v) => v.era === e.id && v.status === 'ready').map((v) => '<button class="tile wide var-tile" data-era-variant="' + v.id + '"><span class="ic face">' + faceImg(co) + '</span><span><span class="eyebrow">Variation · ' + esc(v.when) + '</span><b>Play ' + esc(v.name) + ', the game of this land</b><small>' + esc(v.tagline) + '. Learn the old rules with Rooky, then play.</small></span><span class="go">' + icon('arrow') + '</span></button>').join('') +
+      VARIANTS.filter((v) => v.era === e.id && v.status === 'ready').map((v) => '<button class="tile wide var-tile" data-era-variant="' + v.id + '"><span class="ic face">' + faceImg(co) + '</span><span><span class="eyebrow">Variation · ' + esc(v.when) + '</span><b>Play ' + esc(v.name) + ', the game of this land</b><small>' + esc(v.tagline) + '. Learn the rules with Rooky, then play.</small></span><span class="go">' + icon('arrow') + '</span></button>').join('') +
       '</div></div>');
     hydrate();
     wireLinks();
@@ -2436,6 +2438,8 @@
     return { w: m * 60000, b: m * 60000, inc: s * 1000, since: 0 };
   }
   // The spoken call for a finished game, a key into voice.json events.
+  // Endings only a variation has: the announcer has no call for them, the result card explains them.
+  const VARIANT_END = new Set(['bare-king', 'stalemate-win', 'hill', 'three-check']);
   function resultCall(reason, winner, youWon, youLost) {
     if (!winner) return { stalemate: 'stalemate', threefold: 'draw.repetition', fivefold: 'draw.repetition', fifty: 'draw.fifty', seventyfive: 'draw.fifty',
       insufficient: 'draw.material', 'timeout-insufficient': 'draw.material', agreement: 'draw.agreed' }[reason] || 'draw.agreed';
@@ -2580,7 +2584,7 @@
     const j = G.setup.journey, era = j && eraById(j.era);
     const dojo = G.setup.dojo && endgameById(G.setup.dojo);
     mount(
-      '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? eraName(era) : (dojo ? t('play.hud.endgames') : variantOfGame(G.g) ? variantOfGame(G.g).name : t('common.nav.home'))) + '</span></button>' +
+      '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? eraName(era) : (dojo ? t('play.hud.endgames') : variantOfGame(G.g) ? variantOfGame(G.g).name + (G.setup.n960 >= 0 ? ' · ' + t('play.var.startNo', { n: G.setup.n960 }) : '') : t('common.nav.home'))) + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
       '<button class="round rb" id="g-rules" aria-label="' + t('play.rules.title') + '" aria-expanded="false"><img src="' + ART.ruleBookUri() + '" alt=""></button>' +
       '<button class="round" id="g-music" aria-label="' + t('settings.music') + '" aria-pressed="' + !!state.settings.music + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
@@ -2776,13 +2780,22 @@
       else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || t('play.rating', { n: opp.rating || '?' }); }
       else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = t(side === WHITE ? 'play.lightPieces' : 'play.darkPieces'); }
       el.innerHTML = '<div class="pp">' + pp + '</div><div class="who"><div class="name">' + esc(sideName(G, side)) + '</div><div class="sub"><span class="tl">' + esc(sub) + '</span></div>' +
-        '<div class="taken"><span class="caps"></span><span class="adv"></span></div></div>' +
+        '<div class="taken"><span class="checks" hidden></span><span class="caps"></span><span class="adv"></span></div></div>' +
         '<div class="clock skin-' + (clockSkin ? clockSkin.css : 'classic') + '" data-side="' + side + '"' + (G.clock || G.kind === 'online' ? '' : ' hidden') + '></div>';
       el.dataset.side = side;
     }
     renderClocks();
   }
 
+  // A move's landing squares, split into empty ones and enemy pieces: a Chess960 castle lands on
+  // the player's own rook, which is not a capture.
+  const splitTargets = (pos, ts) => {
+    const foe = (s) => { const p = E.pieceAt(pos, s); return p && Math.sign(p) !== pos.side; };
+    return { targets: ts.filter((s) => !foe(s)), captures: ts.filter(foe) };
+  };
+  // King of the Hill: the four centre squares glow green.
+  const HILL = ['d4', 'e4', 'd5', 'e5'];
+  const hillMarks = (fen) => (E.variantOf(fen) === 'koth' ? HILL.flatMap((n) => [{ sq: sqIndex(n), color: '#5fd39a', alpha: 0.34 }, { sq: sqIndex(n), color: '#8ff0bf', alpha: 0.75, shape: 1 }]) : []);
   function refreshHighlights() {
     const G = state.game;
     if (!G || state.screen !== 'game') return;
@@ -2792,11 +2805,12 @@
     if (g.pos.inCheck()) h.check = kingSquare(g.pos, g.pos.side);
     if (G.selected >= 0 && state.settings.legal) {
       for (const t of g.targets(G.selected)) {
-        const victim = E.pieceAt(g.pos, t);
+        const victim = E.pieceAt(g.pos, t) * g.pos.side < 0;
         const isEp = !victim && Math.abs(E.pieceAt(g.pos, G.selected)) === E.P && (t & 7) !== (G.selected & 7);
         (victim || isEp ? h.captures : h.targets).push(t);
       }
     }
+    h.marks = hillMarks(g.pos.fen());
     if (G.hint && G.hintStep >= 2) h.hintFrom = sqIndex(G.hint.from);
     if (G.hint && G.hintStep >= 3) h.hintTo = sqIndex(G.hint.to);
     view.setHighlights(h);
@@ -3159,7 +3173,7 @@
     const vsSomeone = G.kind !== 'local';
     const youWon = vsSomeone && winner === G.human, youLost = vsSomeone && winner === -G.human;
     AU.play(winner ? (youLost ? 'loss' : 'win') : 'draw');
-    if (o.reason !== 'bare-king' && o.reason !== 'stalemate-win') setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
+    if (!VARIANT_END.has(o.reason)) setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
     // Progress
     let res = null;
     if (G.kind !== 'local' || g.moves.length >= 10) {
@@ -3249,6 +3263,7 @@
     if (o.reason === 'resignation') return mine ? t('play.why.youResigned') : t('play.why.resigned', { name: loser });
     const vr = variantOfGame(g);
     if (o.reason === 'bare-king' || o.reason === 'stalemate-win') return winner ? t('play.why.' + o.reason, { name: sideName(G, o.reason === 'bare-king' ? winner : -winner), variant: vr ? vr.name : '' }) : '';
+    if (o.reason === 'hill' || o.reason === 'three-check') return winner ? t('play.why.' + o.reason, { name: sideName(G, winner) }) : '';
     if (o.reason === 'insufficient' && vr) return t('play.why.insufficientVariant');
     if (o.reason === 'timeout') return mine ? t('play.why.yourClock') : t('play.why.clock', { name: loser });
     return I18N.has('play.why.' + o.reason) ? t('play.why.' + o.reason) : '';
@@ -3273,6 +3288,17 @@
         el.dataset.taken = key;
         el.querySelector('.caps').innerHTML = list.map((k) => capImg(TYPE[k], side === WHITE ? 'b' : 'w', g.pos.ch)).join('');
         el.querySelector('.adv').textContent = adv > 0 ? '+' + adv : '';
+      }
+      // Three-check: three pips per player, one lit for every check they have given.
+      const ck = el.querySelector('.checks');
+      if (g.pos.v.checks) {
+        const n = g.pos.checks[side === WHITE ? 0 : 1];
+        if (ck.dataset.n !== String(n)) {
+          ck.dataset.n = n; ck.hidden = false;
+          ck.setAttribute('aria-label', t('play.checksGiven', { n, of: E.CHECKS_TO_WIN }));
+          ck.title = ck.getAttribute('aria-label');
+          ck.innerHTML = Array.from({ length: E.CHECKS_TO_WIN }, (_, i) => '<i' + (i < n ? ' class="on"' : '') + '></i>').join('');
+        }
       }
       el.classList.toggle('to-move', !g.outcome && g.pos.side === side);
     }
@@ -3635,7 +3661,7 @@
       $('ls-prev').disabled = S.i === 0;
       $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Start the exercises' : 'Next';
       setHooks({});
-      view.setHighlights({ spots: (st.marks || []).map((m) => ({ sq: sqIndex(m) })) });
+      view.setHighlights({ marks: hillMarks(st.fen), spots: (st.marks || []).map((m) => ({ sq: sqIndex(m) })) });
       view.setArrows((st.arrows || []).map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#2fd8ff' })));
       setPos(st.fen, st.play);
       dots(); speak();
@@ -3647,7 +3673,7 @@
       $('ls-prev').disabled = true;
       $('ls-prev').hidden = test;
       $('ls-next').textContent = test ? 'I don\'t know' : 'Skip';
-      view.setArrows([]); view.setHighlights({});
+      view.setArrows([]); view.setHighlights({ marks: hillMarks(x.fen || '') });
       if (x.type === 'choice') {
         $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.prompt) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
         document.querySelectorAll('[data-opt]').forEach((b) => {
@@ -3721,7 +3747,7 @@
       if (p && Math.sign(p) === S.pos.side) {
         S.selected = sq; AU.play('select');
         const t = g.targets(sq);
-        view.setHighlights({ selected: sq, targets: t.filter((s) => !E.pieceAt(S.pos, s)), captures: t.filter((s) => E.pieceAt(S.pos, s)) });
+        view.setHighlights(Object.assign({ selected: sq, marks: hillMarks(S.pos.fen()) }, splitTargets(S.pos, t)));
       }
     }
     function exMove(from, to) {
@@ -3734,7 +3760,7 @@
         let ok = false, msg = '';
         if (x.type === 'anyLegal') { ok = true; msg = 'Good: the king is safe.'; }
         else if (x.type === 'move') { ok = x.answers.includes(u); msg = ok ? 'Well played.' : (x.wrong && x.wrong[u]) || 'Not the move we are looking for. Try again.'; }
-        else if (x.type === 'win') { const t = new E.Game(S.pos.fen()); t.play(m); const won = t.outcome && t.outcome.result === (S.pos.side === WHITE ? '1-0' : '0-1'); ok = !!won; msg = ok ? (t.outcome.reason === 'checkmate' ? 'Checkmate! That wins too.' : 'Black has no move left, so you win!') : 'Black can still move. Try again.'; }
+        else if (x.type === 'win') { const t = new E.Game(S.pos.fen()); t.play(m); const won = t.outcome && t.outcome.result === (S.pos.side === WHITE ? '1-0' : '0-1'); ok = !!won; msg = ok ? (t.outcome.reason === 'checkmate' ? 'Checkmate! That wins too.' : x.yes || 'Black has no move left, so you win!') : x.no || 'Black can still move. Try again.'; }
         else if (x.type === 'mate') { const t = new E.Game(S.pos.fen()); t.play(m); ok = t.outcome && t.outcome.reason === 'checkmate'; msg = ok ? 'Checkmate!' : (x.wrong && x.wrong[u]) || (t.outcome && t.outcome.reason === 'stalemate' ? 'That is stalemate, only a draw.' : 'That is not checkmate. Try again.'); }
         else if (x.type === 'puzzle') {
           const want = x.puzzle.moves[S.pz * 2 + 1];
@@ -3763,7 +3789,7 @@
           view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
           fail(msg.replace(/ ?Try again\.$/, ''));
         } else {
-          S.tries++; AU.play('wrong'); fb('bad', msg); view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
+          S.tries++; AU.play('wrong'); fb('bad', msg); view.setBoard(piecesOf(S.pos), null); view.setHighlights({ marks: hillMarks(x.fen) });
         }
         S.selected = -1;
       };
@@ -3814,7 +3840,7 @@
       }
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : vr ? 'Now you know the old rules. Pick a friend and play ' + esc(vr.name) + '!' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : vr ? 'Now you know the rules. Pick a friend and play ' + esc(vr.name) + '!' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
         (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
       $('ls-next').textContent = toGame ? 'Back to the game' : era ? 'Back to ' + era.name : vr ? 'Play ' + vr.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
@@ -3939,7 +3965,7 @@
         const g = S.g;
         if (S.selected >= 0 && g.targets(S.selected).includes(sq)) { const f = S.selected; S.selected = -1; tryMove(f, sq); return; }
         const p = E.pieceAt(g.pos, sq);
-        if (p && Math.sign(p) === me) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights({ selected: sq, targets: t.filter((x) => !E.pieceAt(g.pos, x)), captures: t.filter((x) => E.pieceAt(g.pos, x)) }); }
+        if (p && Math.sign(p) === me) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights(Object.assign({ selected: sq }, splitTargets(g.pos, t))); }
       },
       canDrag: (sq) => !S.done && !S.busy && S.g.pos.side === me && E.pieceAt(S.g.pos, sq) && Math.sign(E.pieceAt(S.g.pos, sq)) === me,
       onDrop(from, to) { return S.g.targets(from).includes(to) ? tryMove(from, to) : false; },
@@ -4076,7 +4102,7 @@
         const g = new E.Game(S.pos.fen());
         if (S.selected >= 0 && g.targets(S.selected).includes(sq)) { const f = S.selected; S.selected = -1; if (g.needsPromotion(f, sq)) choosePromotion(S.pos.side, (k) => k && tryMove(f, sq, k)); else tryMove(f, sq); return; }
         const p = E.pieceAt(S.pos, sq);
-        if (p && Math.sign(p) === S.pos.side) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights({ selected: sq, targets: t.filter((s) => !E.pieceAt(S.pos, s)), captures: t.filter((s) => E.pieceAt(S.pos, s)) }); }
+        if (p && Math.sign(p) === S.pos.side) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights(Object.assign({ selected: sq, marks: hillMarks(S.pos.fen()) }, splitTargets(S.pos, t))); }
       },
       canDrag: (sq) => S.pos && !S.solved && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
       onDrop(from, to) {

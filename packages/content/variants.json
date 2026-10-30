@@ -52,9 +52,110 @@
         ]
       }
     },
-    { "id": "chess960", "status": "soon", "name": "Chess960", "tagline": "A surprise back row", "when": "Invented in 1996", "blurb": "The pieces on the back row are shuffled before every game, so you have to think from the very first move." },
+    {
+      "id": "chess960",
+      "status": "ready",
+      "name": "Chess960",
+      "tagline": "A surprise back row",
+      "when": "Invented in 1996",
+      "start": "chess960:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w HAha - 0 1",
+      "shuffle": true,
+      "blurb": "The pieces on the back row are shuffled before every game, so you have to think from the very first move.",
+      "rules": [
+        { "title": "A shuffled back row", "text": "Before each game the pieces on the back row are set out in one of 960 orders. Every game can start differently.", "differs": true },
+        { "title": "A mirror image", "text": "Black's pieces copy White's, file by file, so both armies start the same. The pawns stand where they always do." },
+        { "title": "Two rules for the shuffle", "text": "The two bishops always start on squares of different colours, and the king always stands somewhere between the two rooks.", "differs": true },
+        { "title": "Castling", "text": "The king lands on the g-file (king's side) or the c-file (queen's side), and the rook lands right next to it on the f-file or the d-file, wherever they started. To castle, move your king onto the rook.", "differs": true },
+        { "title": "When you may castle", "text": "As in chess: neither piece has moved, the squares they cross are empty, and the king is not in check, does not pass through check and does not land in check." },
+        { "title": "Everything else", "text": "Moves, captures, checkmate and draws are just like chess." }
+      ],
+      "notes": [
+        "Bobby Fischer, a world champion, invented Chess960 so that players would think at the board instead of remembering openings. Each start has a number from 0 to 959; number 518 is the usual chess start."
+      ],
+      "lesson": {
+        "title": "Shuffle the back row",
+        "objectives": ["Know how a Chess960 start is made", "Castle when the king and rook start somewhere new"],
+        "steps": [
+          { "line": "variant.chess960.hello", "fen": "chess960:nrbbqkrn/pppppppp/8/8/8/8/PPPPPPPP/NRBBQKRN w GBgb - 0 1" },
+          { "line": "variant.chess960.mirror", "differs": true, "fen": "chess960:nrbbqkrn/pppppppp/8/8/8/8/PPPPPPPP/NRBBQKRN w GBgb - 0 1", "arrows": [["a1", "a8"], ["e1", "e8"]] },
+          { "line": "variant.chess960.order", "differs": true, "fen": "chess960:nrbbqkrn/pppppppp/8/8/8/8/PPPPPPPP/NRBBQKRN w GBgb - 0 1", "marks": ["b1", "f1", "g1", "c1", "d1"] },
+          { "line": "variant.chess960.castle", "differs": true, "fen": "chess960:4k3/pppppppp/8/8/8/8/PPPPPPPP/1RK4R w HB - 0 1", "arrows": [["c1", "g1"], ["h1", "f1"]] },
+          { "line": "variant.chess960.think", "fen": "chess960:nrbbqkrn/pppppppp/8/8/8/8/PPPPPPPP/NRBBQKRN w GBgb - 0 1" }
+        ],
+        "exercises": [
+          { "type": "move", "line": "variant.chess960.ex.short", "differs": true, "fen": "chess960:4k3/pppppppp/8/8/8/8/PPPPPPPP/1RK4R w HB - 0 1", "answers": ["c1h1"], "hints": ["Pick up your king and put it on the rook on h1.", "The king goes to g1 and the rook to f1."] },
+          { "type": "move", "line": "variant.chess960.ex.long", "differs": true, "fen": "chess960:4k3/pppppppp/8/8/8/8/PPPPPPPP/R4KR1 w GA - 0 1", "answers": ["f1a1"], "hints": ["This time castle towards the a-file: put your king on the rook on a1.", "The king goes to c1 and the rook to d1."] },
+          { "type": "choice", "line": "variant.chess960.ex.land", "differs": true, "fen": "chess960:4k3/pppppppp/8/8/8/8/PPPPPPPP/1RK4R w HB - 0 1", "options": ["On the g-file, with the rook beside it on the f-file", "On the rook's square", "Wherever it likes"], "answer": 0, "explain": "However the back row starts, castling ends just like in chess." },
+          { "type": "choice", "line": "variant.chess960.ex.rule", "differs": true, "fen": "chess960:nrbbqkrn/pppppppp/8/8/8/8/PPPPPPPP/NRBBQKRN w GBgb - 0 1", "options": ["The king stands between the two rooks", "The queen is always on d1", "The knights always start next to the king"], "answer": 0, "explain": "That rule keeps castling possible on both sides." }
+        ]
+      }
+    },
     { "id": "xiangqi", "status": "soon", "name": "Xiangqi", "tagline": "Chinese chess", "when": "About 1,000 years ago", "era": "ming", "blurb": "Chinese chess, played on the lines of the board with a river in the middle, cannons, and generals who never leave their palace." },
-    { "id": "koth", "status": "soon", "name": "King of the Hill", "tagline": "Race your king to the middle", "when": "Quick and fun", "blurb": "Win by checkmate, or by walking your king safely onto one of the four centre squares." },
-    { "id": "threecheck", "status": "soon", "name": "Three-check", "tagline": "Check three times to win", "when": "Quick and fun", "blurb": "Give check three times and you win, even before checkmate." }
+    {
+      "id": "koth",
+      "status": "ready",
+      "name": "King of the Hill",
+      "tagline": "Race your king to the middle",
+      "when": "Quick and fun",
+      "start": "koth:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "hill": true,
+      "blurb": "Win by checkmate, or by walking your king safely onto one of the four centre squares.",
+      "rules": [
+        { "title": "The hill", "text": "The four squares in the middle of the board, d4, e4, d5 and e5, are the hill. They glow on the board." },
+        { "title": "Climb the hill to win", "text": "Move your king onto any hill square and you win at once.", "differs": true },
+        { "title": "Safely", "text": "As always, a king may never step onto a square an enemy piece attacks, so a guarded hill square is closed to it." },
+        { "title": "Checkmate wins too", "text": "Trap the enemy king and you win, just like in chess." },
+        { "title": "No dead draws", "text": "Even a lone king can still walk to the hill, so a game is not drawn just because few pieces are left.", "differs": true },
+        { "title": "Everything else", "text": "The pieces, castling, en passant and the other draws are just like chess." }
+      ],
+      "lesson": {
+        "title": "Race to the hill",
+        "objectives": ["Win by reaching the hill", "Stop the other king getting there first"],
+        "steps": [
+          { "line": "variant.koth.hello", "fen": "koth:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "marks": ["d4", "e4", "d5", "e5"] },
+          { "line": "variant.koth.hill", "differs": true, "fen": "koth:7k/8/8/8/8/4K3/8/8 w - - 0 1", "marks": ["d4", "e4", "d5", "e5"], "arrows": [["e3", "e4"]] },
+          { "line": "variant.koth.safe", "fen": "koth:7k/8/8/8/r7/4K3/8/8 w - - 0 1", "marks": ["d4", "e4"], "arrows": [["a4", "e4"]] },
+          { "line": "variant.koth.block", "differs": true, "fen": "koth:8/8/4k3/8/8/8/8/R3K3 w - - 0 1", "marks": ["d5", "e5"] },
+          { "line": "variant.koth.same", "fen": "koth:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" }
+        ],
+        "exercises": [
+          { "type": "win", "line": "variant.koth.ex.climb", "differs": true, "fen": "koth:7k/8/8/8/8/4K3/8/8 w - - 0 1", "yes": "You are on the hill. You win!", "no": "That square is not on the hill. Try again.", "hints": ["The hill is the four squares in the middle.", "Step up to d4 or e4."] },
+          { "type": "move", "line": "variant.koth.ex.stop", "differs": true, "fen": "koth:8/8/4k3/8/8/8/8/R3K3 w - - 0 1", "answers": ["a1a5"], "hints": ["Black's king wants d5 or e5.", "Guard the whole fifth row with your rook."] },
+          { "type": "win", "line": "variant.koth.ex.guarded", "differs": true, "fen": "koth:7k/8/1b6/8/8/3K4/8/8 w - - 0 1", "yes": "Only e4 was safe. You win!", "no": "That square is not on the hill. Try again.", "hints": ["The bishop on b6 guards d4. Look for another hill square.", "Your king can still step onto e4."] }
+        ]
+      }
+    },
+    {
+      "id": "threecheck",
+      "status": "ready",
+      "name": "Three-check",
+      "tagline": "Check three times to win",
+      "when": "Quick and fun",
+      "start": "threecheck:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0",
+      "checks": true,
+      "blurb": "Give check three times and you win, even before checkmate.",
+      "rules": [
+        { "title": "Count your checks", "text": "Every time you put the enemy king in check, your counter goes up by one. The counters sit beside the players' names." },
+        { "title": "Three checks win", "text": "Give your third check and you win at once, even if the king could escape.", "differs": true },
+        { "title": "Checkmate wins too", "text": "Trap the enemy king and you win, just like in chess." },
+        { "title": "No dead draws", "text": "While a side still has a piece that could give check, the game is not drawn for lack of pieces.", "differs": true },
+        { "title": "Everything else", "text": "The pieces, castling, en passant and the other draws are just like chess." }
+      ],
+      "lesson": {
+        "title": "Three checks win",
+        "objectives": ["Win with a third check", "Keep your own king out of reach"],
+        "steps": [
+          { "line": "variant.threecheck.hello", "fen": "threecheck:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0" },
+          { "line": "variant.threecheck.count", "differs": true, "fen": "threecheck:rnbqkbnr/ppp2ppp/8/1B1pp3/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 3 +1+0", "arrows": [["b5", "e8"]] },
+          { "line": "variant.threecheck.safe", "fen": "threecheck:rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2 +0+0", "marks": ["e1", "e8"] },
+          { "line": "variant.threecheck.same", "fen": "threecheck:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0" }
+        ],
+        "exercises": [
+          { "type": "win", "line": "variant.threecheck.ex.third", "differs": true, "fen": "threecheck:4k3/8/8/8/8/8/8/R3K3 w - - 0 1 +2+0", "yes": "Third check. You win!", "no": "That is not a check. Try again.", "hints": ["You have given two checks already.", "Any check wins now: try the rook."] },
+          { "type": "win", "line": "variant.threecheck.ex.knight", "differs": true, "fen": "threecheck:r3k3/8/8/8/4N3/8/8/4K3 w - - 0 1 +2+1", "yes": "Third check. You win!", "no": "That is not a check. Try again.", "hints": ["Which white piece can reach the king?", "The knight can jump to d6 or f6."] },
+          { "type": "choice", "line": "variant.threecheck.ex.what", "differs": true, "fen": "threecheck:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0", "options": ["I win the game", "Nothing special happens", "I get a new queen"], "answer": 0, "explain": "The third check ends the game, even if the king could escape." }
+        ]
+      }
+    }
   ]
 }
