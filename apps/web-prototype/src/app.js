@@ -86,7 +86,16 @@
   const eraCoach = (e) => Object.assign({}, e.coach, { colors: e.colors, era: e.id });
   // Who sits across the board in a computer game: an opponent, or an era's champion.
   const rival = (G) => (G.setup.rival || persona(G.setup.level));
-  const sayLine = (who, kind) => who[kind] || t('play.say.' + kind);
+  const whoKey = (who) => 'content.' + (who.era ? 'coach.' : 'opp.') + who.id + '.';
+  const sayLine = (who, kind) => (who[kind] ? tx(whoKey(who) + kind, who[kind]) : t('play.say.' + kind));
+  const fullName = (who) => tx(whoKey(who) + 'full', who.full || who.name);
+  const oppFull = fullName;
+  const oppBlurb = (o) => tx(whoKey(o) + 'blurb', o.blurb);
+  const speciesName = (o) => tx(whoKey(o) + 'species', 'the ' + species(o));
+  const bandName = (lv) => (LEVELS[lv].band === 'Strongest' ? t('play.strongest') : LEVELS[lv].band);
+  const eraText = (e, f) => tx('content.era.' + e.id + '.' + f, e[f]);
+  const eraName = (e) => eraText(e, 'name'), eraWhen = (e) => eraText(e, 'when');
+  const stageTitle = (e, k) => tx('content.era.' + e.id + '.stage' + k, e.stages[k].title);
 
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
@@ -116,6 +125,9 @@
   if (!(saved.settings && saved.settings.lang)) state.settings.voiceCalls = callsFor(state.settings.lang, state.settings.voiceCalls);
   I18N.set(state.settings.lang);
   const myName = () => (state.settings.name === 'You' ? t('common.you') : state.settings.name);
+  // Names and lines from the content files (eras, the animal friends, missions) are English there;
+  // i18n/content.json holds the other languages, and the test keeps its English in step.
+  const tx = (key, en) => (I18N.lang !== 'en' && I18N.has(key) ? t(key) : en);
   PG.setSeason(state.progress);
   function save() {
     try {
@@ -970,18 +982,18 @@
   // ---------------------------------------------------------------- the Journey Through Time
   // Nine eras in order. Each has a story, a lesson, a trial and a champion; beating the
   // champion brings that era's chess set, board, room and portrait home.
-  const STAGE = { tale: ['scroll', 'Story'], lesson: ['learn', 'Lesson'], puzzles: ['puzzle', 'Puzzles'], endgame: ['crown', 'Endgame'], champion: ['swords', 'Champion'] };
+  const STAGE = { tale: 'scroll', lesson: 'learn', puzzles: 'puzzle', endgame: 'crown', champion: 'swords' };
   const eraRewards = (e) => CATALOG.items.filter((it) => it.unlock.type === 'journey' && it.unlock.era === e.id);
   function eraCard(e, i) {
     const info = PG.journeyInfo(state.progress, e.id);
     const set = setInfo(e.set);
-    const why = info.open ? '' : info.premium && !state.progress.premium ? 'Premium' : 'Finish ' + CAMPAIGN.eras[i - 1].name + ' first';
+    const why = info.open ? '' : info.premium && !state.progress.premium ? t('common.premium') : t('journey.finishFirst', { era: eraName(CAMPAIGN.eras[i - 1]) });
     return '<button class="era' + (info.open ? '' : ' locked') + (info.done ? ' done' : '') + '" data-era="' + e.id + '">' +
-      '<span class="banner"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""><span class="num">Era ' + ROMAN[i] + '</span><span class="when pill">' + esc(e.when) + '</span></span>' +
+      '<span class="banner"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""><span class="num">' + t('journey.era', { n: ROMAN[i] }) + '</span><span class="when pill">' + esc(eraWhen(e)) + '</span></span>' +
       '<img class="coach portrait" src="' + face(eraCoach(e)) + '" alt="">' +
-      '<span class="body"><h3>' + esc(e.name) + '</h3><span class="t">' + esc(e.coach.full) + ' · ' + esc(e.place) + '</span></span>' +
+      '<span class="body"><h3>' + esc(eraName(e)) + '</h3><span class="t">' + esc(fullName(eraCoach(e))) + ' · ' + esc(eraText(e, 'place')) + '</span></span>' +
       '<span class="foot"><span class="stagedots">' + info.stages.map((d) => '<i' + (d ? ' class="on"' : '') + '></i>').join('') + '</span>' +
-      '<span class="reward">' + (info.done ? icon('check') + ' <b>' + esc(set ? set.name : '') + '</b> is yours' : why ? icon('lock') + ' ' + esc(why) : 'Prize: <b>' + esc(set ? set.name : '') + '</b>') + '</span>' +
+      '<span class="reward">' + (info.done ? icon('check') + ' ' + t('journey.yours', { set: '<b>' + esc(set ? set.name : '') + '</b>' }) : why ? icon('lock') + ' ' + esc(why) : t('journey.prize', { set: '<b>' + esc(set ? set.name : '') + '</b>' })) + '</span>' +
       '<span class="go">' + icon(info.open ? 'arrow' : 'lock') + '</span></span></button>';
   }
   SCREENS.journey = function () {
@@ -989,9 +1001,9 @@
     const P = state.progress;
     const done = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length;
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Journey Through Time', 'Chess through the ages', 'Travel from the pharaohs of Egypt to 1930s New York. In every era a new friend tells you a story, teaches you something new and then challenges you to a game. Win, and their chess set comes home with you.', meter(done, CAMPAIGN.eras.length, 'eras complete')) +
+      pageHead(t('journey.eyebrow'), t('journey.title'), t('journey.sub'), meter(done, CAMPAIGN.eras.length, t('journey.complete'))) +
       '<div class="eras">' + CAMPAIGN.eras.map(eraCard).join('') + '</div>' +
-      '<p class="fine">Eras open one after another. The first four are free; the last four come with Premium.</p>' +
+      '<p class="fine">' + t('journey.fine') + '</p>' +
       '</div></div>');
     wireLinks();
     document.querySelectorAll('[data-era]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); openEra(b.dataset.era); }; });
@@ -1001,8 +1013,8 @@
     const info = PG.journeyInfo(state.progress, id);
     if (info.open) return go('era', id);
     const e = info.era, i = CAMPAIGN.eras.indexOf(e);
-    if (info.premium && !state.progress.premium) return premiumModal('The journey continues to ' + e.name + ' with Premium: four more eras and four more chess sets to win.', eraCoach(e));
-    toast('Finish ' + esc(CAMPAIGN.eras[i - 1].name) + ' to travel on to ' + esc(e.name) + '.');
+    if (info.premium && !state.progress.premium) return premiumModal(t('journey.premium', { era: eraName(e) }), eraCoach(e));
+    toast(t('journey.finishToast', { prev: esc(eraName(CAMPAIGN.eras[i - 1])), era: esc(eraName(e)) }));
   }
   function rewardRow(it) {
     const d = it.data || {};
@@ -1010,7 +1022,7 @@
     const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="thumb">' + itemArt(it) + '</span>';
     return '<li>' + art + '<span><b>' + esc(it.name) + '</b><small>' + esc(catName(it.category)) + '</small></span></li>';
   }
-  const catName = (id) => { const c = CATALOG.categories.find((x) => x.id === id); return c ? c.name.replace(/s$/, '').replace(/^Piece set$/, 'Chess set') : id; };
+  const catName = (id) => t('collection.one.' + id);
   SCREENS.era = function (id) {
     const e = eraById(id) || CAMPAIGN.eras[0];
     const P = state.progress;
@@ -1022,23 +1034,23 @@
     const i = CAMPAIGN.eras.indexOf(e);
     const champ = e.stages.length - 1;
     const ready = e.stages.every((s, k) => k === champ || info.stages[k]);
-    const quote = info.done ? co.win : ready ? co.hello : info.count ? 'Well done so far! Finish every stage, then come and play me.' : 'Welcome to ' + e.name + '! I am ' + co.name + '. Read my story first, then we will learn and play together.';
+    const quote = info.done ? sayLine(co, 'win') : ready ? sayLine(co, 'hello') : info.count ? t('journey.soFar') : t('journey.welcome', { era: eraName(e), name: co.name });
     const [felt, sheen] = eraFelt(e);
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="journey">' + icon('back') + ' All eras</button>' +
+      '<button class="backlink" data-nav="journey">' + icon('back') + ' ' + t('journey.allEras') + '</button>' +
       '<section class="era-hero"><img class="bg" src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt="">' +
-      '<div class="in">' + faceImg(co, 'coach-big') + '<div><div class="eyebrow">Era ' + ROMAN[i] + ' · ' + esc(e.when) + ' · ' + esc(e.place) + '</div><h1>' + esc(e.title) + '</h1>' +
-      '<p class="quote"><b>' + esc(co.full) + '</b>“' + esc(quote) + '”</p></div></div></section>' +
+      '<div class="in">' + faceImg(co, 'coach-big') + '<div><div class="eyebrow">' + t('journey.era', { n: ROMAN[i] }) + ' · ' + esc(eraWhen(e)) + ' · ' + esc(eraText(e, 'place')) + '</div><h1>' + esc(eraText(e, 'title')) + '</h1>' +
+      '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(quote) + '”</p></div></div></section>' +
       '<div class="era-layout"><div class="stages">' + e.stages.map((s, k) => {
         const done = info.stages[k], locked = k === champ && !ready && !done;
         const next = !done && !locked && (k === champ ? ready : info.next === k);
-        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: (s.objectives || []).join('. ') + '.', puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
+        const desc = { tale: t('journey.taleDesc', { name: co.name }), lesson: (s.objectives || []).join('. ') + '.', puzzles: s.intro, endgame: s.intro, champion: t('journey.champDesc', { name: co.name, set: set.name }) }[s.kind];
         return '<button class="stage' + (done ? ' done' : '') + (next ? ' next' : '') + '" data-stage="' + k + '"' + (locked ? ' disabled' : '') + '>' +
-          '<span class="badge-ic">' + (s.kind === 'champion' ? '<img src="' + face(co) + '" alt="">' : icon(STAGE[s.kind][0])) + '</span>' +
-          '<span><span class="k">Stage ' + (k + 1) + ' · ' + STAGE[s.kind][1] + '</span><h4>' + esc(s.title) + '</h4><small>' + esc(locked ? 'Finish the other stages first, then ' + co.name + ' will play you.' : desc) + '</small></span>' +
-          (done ? '<span class="pill ok">' + icon('check') + ' Done</span>' : '<span class="go">' + icon(locked ? 'lock' : 'arrow') + '</span>') + '</button>';
+          '<span class="badge-ic">' + (s.kind === 'champion' ? '<img src="' + face(co) + '" alt="">' : icon(STAGE[s.kind])) + '</span>' +
+          '<span><span class="k">' + t('journey.stageN', { n: k + 1 }) + ' · ' + t('journey.stage.' + s.kind) + '</span><h4>' + esc(stageTitle(e, k)) + '</h4><small>' + esc(locked ? t('journey.lockedDesc', { name: co.name }) : desc) + '</small></span>' +
+          (done ? '<span class="pill ok">' + icon('check') + ' ' + t('home.missions.done') + '</span>' : '<span class="go">' + icon(locked ? 'lock' : 'arrow') + '</span>') + '</button>';
       }).join('') + '</div>' +
-      '<aside class="reward-card glass"><div class="eyebrow">' + (info.done ? 'Yours to keep' : 'The prize') + '</div>' +
+      '<aside class="reward-card glass"><div class="eyebrow">' + t(info.done ? 'journey.keep' : 'journey.thePrize') + '</div>' +
       '<div class="vign">' + snap(VIGN.trio(e.set, felt, sheen), 320, 200, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
       '<h3>' + esc(set.name) + '</h3><p class="muted">' + esc(set.story) + '</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul></aside></div>' +
@@ -1054,7 +1066,7 @@
     const journey = { era: e.id, stage: k };
     if (s.kind === 'tale') return taleModal(e, k);
     if (s.kind === 'lesson') return go('lesson', { journey });
-    if (s.kind === 'puzzles') return go('puzzle', { list: stagePuzzles(s), title: s.title, intro: s.intro, journey });
+    if (s.kind === 'puzzles') return go('puzzle', { list: stagePuzzles(s), title: stageTitle(e, k), intro: s.intro, journey });
     if (s.kind === 'endgame') return startDojo(s.endgame.id, journey);
     if (s.kind === 'champion') return startGame({ mode: 'ai', color: s.color || 'white', level: s.level, tc: 'none', fen: '', rival: eraCoach(e), look: { set: e.set, board: e.board, room: e.room }, journey });
   }
@@ -1076,15 +1088,15 @@
     AU.event('lesson.passed');
     const m = modal('<div class="result-hero">' +
       '<div class="vign">' + snap(VIGN.trio(e.set, felt, sheen), 360, 220, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
-      '<span class="result-badge win">Era ' + ROMAN[CAMPAIGN.eras.indexOf(e)] + ' complete</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
-      '<p class="quote"><b>' + esc(co.full) + '</b>“' + esc(co.win) + '”</p>' +
+      '<span class="result-badge win">' + t('journey.eraDone', { n: ROMAN[CAMPAIGN.eras.indexOf(e)] }) + '</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
+      '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(sayLine(co, 'win')) + '”</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' Journey map</button><button class="btn primary" id="ed-use">' + icon('check') + ' Use my new set</button></div></div>', { cls: 'narrow' });
+      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' ' + t('journey.map') + '</button><button class="btn primary" id="ed-use">' + icon('check') + ' ' + t('journey.useSet') + '</button></div></div>', { cls: 'narrow' });
     hydrate(m);
     m.querySelector('#ed-map').onclick = () => { m.close(); go('journey'); };
     m.querySelector('#ed-use').onclick = () => {
       eraRewards(e).filter((it) => ['pieces', 'board', 'room'].includes(it.category)).forEach((it) => PG.equip(state.progress, it));
-      save(); applyLook(); m.close(); toast('Your table now has the ' + esc(set.name) + ' set.'); go('collection', 'pieces');
+      save(); applyLook(); m.close(); toast(t('journey.setToast', { set: esc(set.name) })); go('collection', 'pieces');
     };
     celebrate(res, true);
   }
@@ -1092,9 +1104,9 @@
   function taleModal(e, k) {
     const s = e.stages[k], co = eraCoach(e);
     let page = 0, solved = !!PG.journeyInfo(state.progress, e.id).stages[k];
-    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(e.name) + ' · ' + esc(e.when) + '</div><h2>' + esc(s.title) + '</h2></div>' +
-      '<div class="tl-tools"><button class="tl-btn" id="tl-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="tl-btn" id="tl-voice" data-voice="' + esc(co.name) + '"></button></div></div>' +
-      '<div id="tl-body"></div><div class="nav"><span class="pdots" id="tl-dots"></span><span class="grow"></span><button class="btn" id="tl-prev">' + icon('prev') + ' Back</button><button class="btn primary" id="tl-next">Next</button></div></div>',
+    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(eraName(e)) + ' · ' + esc(eraWhen(e)) + '</div><h2>' + esc(stageTitle(e, k)) + '</h2></div>' +
+      '<div class="tl-tools"><button class="tl-btn" id="tl-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="tl-btn" id="tl-voice" data-voice="' + esc(co.name) + '"></button></div></div>' +
+      '<div id="tl-body"></div><div class="nav"><span class="pdots" id="tl-dots"></span><span class="grow"></span><button class="btn" id="tl-prev">' + icon('prev') + ' ' + t('common.back') + '</button><button class="btn primary" id="tl-next">' + t('common.next') + '</button></div></div>',
     { cls: 'tale', onClose() { AU.hush(); } });
     const body = m.querySelector('#tl-body'), next = m.querySelector('#tl-next'), prev = m.querySelector('#tl-prev');
     const line = () => (page < s.pages.length ? s.pages[page] : s.quiz.q);
@@ -1107,12 +1119,12 @@
       AU.hush();
       if (page < s.pages.length) {
         body.innerHTML = '<p class="text">' + esc(s.pages[page]) + '</p>';
-        next.hidden = false; next.textContent = page === s.pages.length - 1 ? 'Question' : 'Next';
+        next.hidden = false; next.textContent = t(page === s.pages.length - 1 ? 'journey.question' : 'common.next');
         if (state.settings.narration) AU.say(s.pages[page]);
         return;
       }
       body.innerHTML = '<p class="text q">' + esc(s.quiz.q) + '</p><div class="opts">' + s.quiz.options.map((o, j) => '<button data-o="' + j + '">' + esc(o) + '</button>').join('') + '</div><div id="tl-ex"></div>';
-      next.hidden = !solved; next.textContent = 'Finish';
+      next.hidden = !solved; next.textContent = t('common.finish');
       if (state.settings.narration) AU.say(s.quiz.q);
       body.querySelectorAll('[data-o]').forEach((b) => {
         b.onclick = () => {
@@ -1120,7 +1132,7 @@
           b.classList.add(right ? 'right' : 'wrong');
           b.disabled = true;
           AU.play(right ? 'correct' : 'wrong');
-          body.querySelector('#tl-ex').innerHTML = '<p class="explain">' + (right ? '<b>Yes!</b> ' : '<b>Not quite.</b> ') + esc(right ? s.quiz.explain : 'Have another look and try again.') + '</p>';
+          body.querySelector('#tl-ex').innerHTML = '<p class="explain">' + '<b>' + t(right ? 'journey.yes' : 'journey.notQuite') + '</b> ' + esc(right ? s.quiz.explain : t('journey.tryAgain')) + '</p>';
           if (!right) return;
           body.querySelectorAll('[data-o]').forEach((x) => { x.disabled = true; });
           next.hidden = false;

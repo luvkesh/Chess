@@ -46,5 +46,6 @@
   "color.random": { "en": "Surprise me" },
   "clock": { "en": "Clock" },
   "playName": { "en": "Play {name}" },
-  "quickToast": { "en": "Your opponent: {name}, picked from your recent games." }
+  "quickToast": { "en": "Your opponent: {name}, picked from your recent games." },
+  "strongest": { "en": "Strongest" }
 }

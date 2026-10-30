@@ -34,5 +34,7 @@
   "you": { "en": "You" },
   "letsGo": { "en": "Let's go" },
   "notNow": { "en": "Not now" },
-  "ok": { "en": "OK" }
+  "ok": { "en": "OK" },
+  "next": { "en": "Next" },
+  "finish": { "en": "Finish" }
 }
