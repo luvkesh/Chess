@@ -514,6 +514,13 @@ img.snap.in { animation: snapIn .7s var(--ease) both; }
 .lux-row.three { grid-template-columns: repeat(3, 1fr); }
 .lux-row.four { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 1100px) { .lux-row.four { grid-template-columns: repeat(2, 1fr); } }
+.friend-pick { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 6px 0 10px; }
+.friend-pick section { padding: 14px; border-radius: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; box-sizing: border-box; }
+.friend-pick .text-in.code { flex: 1; max-width: 260px; min-width: 0; font-size: 22px; letter-spacing: .18em; padding-left: 12px; padding-right: 8px; }
+.friend-pick #fr-join { flex: none; }
+.friend-pick h3 { margin: 0; display: flex; align-items: center; gap: 8px; font: 500 20px/1.1 var(--serif); }
+.friend-pick .fine { margin: 0; }
+.friend-pick .seg { flex-wrap: wrap; }
 .emote-pop { position: fixed; transform: translateX(-50%); display: grid; grid-template-columns: repeat(2, auto); gap: 6px; padding: 10px; border-radius: 18px; z-index: 30; }
 .emote-pop .btn { justify-content: flex-start; white-space: nowrap; }
 .emote-bubble { position: absolute; left: 62px; top: -16px; padding: 6px 12px; border-radius: 16px 16px 16px 4px; background: rgba(20, 14, 10, 0.92); border: 1px solid var(--line-2); color: var(--ink); font: 500 15px/1.2 var(--body); white-space: nowrap; z-index: 8; animation: emote-in .25s ease-out; pointer-events: none; }
@@ -17900,6 +17907,8 @@ function ChacklateAudio() {
   const ADJ = ['Brave', 'Clever', 'Happy', 'Swift', 'Quiet', 'Lucky', 'Bright', 'Gentle', 'Bold', 'Merry', 'Sunny', 'Witty', 'Calm', 'Jolly', 'Kind', 'Nimble'];
   const ANIMAL = ['Otter', 'Panda', 'Falcon', 'Koala', 'Tiger', 'Dolphin', 'Fox', 'Owl', 'Rabbit', 'Lynx', 'Turtle', 'Robin', 'Badger', 'Heron', 'Bear', 'Yak'];
 
+  // link: 'connecting' until the page's live room answers, then 'ready', or 'unavailable' for good.
+  let link = 'connecting', linkWaiters = [];
   let lobby = null, ready = false, game = null, seek = null, hosting = null, waitModal = null, ticker = null;
 
   // ---------------------------------------------------------------- the link
@@ -17911,16 +17920,42 @@ function ChacklateAudio() {
       if (g && typeof g.use === 'function') c = g;
       else await new Promise((r) => setTimeout(r, 500));
     }
-    if (!c) return;
+    if (!c) return setLink('unavailable');
     try { lobby = await c.use('room'); } catch (e) { lobby = null; }
-    if (!lobby) return;
+    if (!lobby) return setLink('unavailable');
     lobby.onConnection((on) => {
       const was = ready; ready = on;
-      if (was !== on && A() && ['home', 'play'].includes(A().state.screen) && !serverOn()) A().go(A().state.screen);
-    }, () => { ready = false; });
+      if (on) setLink('ready');
+      if (was !== on && A() && ['home', 'play'].includes(A().state.screen) && !serverOn() && !document.querySelector('.modal')) A().go(A().state.screen);
+    }, () => { ready = false; setLink('unavailable'); });
+    // A room that never says it is connected is as good as none.
+    setTimeout(() => { if (link === 'connecting') setLink('unavailable'); }, 15000);
     lobby.onPeers(() => { if (seek) matchmake(); });
     clearInterval(ticker);
     ticker = setInterval(tick, 250);
+  }
+
+  function setLink(v) {
+    if (link === v || (link === 'ready' && v === 'unavailable' && ready)) return;
+    link = v;
+    const w = linkWaiters; linkWaiters = [];
+    if (v !== 'connecting') for (const f of w) f(v === 'ready');
+  }
+  // Resolves true once the room is connected, false when it cannot be.
+  function whenReady() { return ready ? Promise.resolve(true) : link === 'unavailable' ? Promise.resolve(false) : new Promise((r) => linkWaiters.push(r)); }
+  // Online buttons always work: while the room is still connecting they wait for it, with a note.
+  async function needLink(go) {
+    if (ready) return go();
+    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">Connecting…</h2><p class="sub" style="text-align:center">Getting online play ready. This takes a moment.</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>Cancel</button></div>');
+    const m = waitModal;
+    const ok = await whenReady();
+    if (waitModal !== m) return;   // cancelled
+    closeWait(true);
+    if (ok) return go();
+    A().modal('<h2>Online play is not available here</h2><p class="sub">Codes and world games work in the Chackmate game opened from its claude.ai link, signed in. ' +
+      'Opened as a downloaded file, or before the Chackmate server is live, the page cannot reach other players. You can still take turns on this device.</p>' +
+      '<div class="row"><button class="btn primary" data-close>OK</button></div>');
   }
 
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -17939,7 +17974,7 @@ function ChacklateAudio() {
   // Seekers wait in the lobby with their time control in presence. Every page sorts the
   // seekers the same way and pairs them two by two; a pair meets in a room named after both.
   function quickMatch(tc) {
-    if (!ready) return false;
+    if (!ready) { needLink(() => quickMatch(tc)); return true; }
     tc = TIME_CONTROLS.includes(tc) ? tc : '5+3';
     cancelAll();
     seek = { tc, since: Date.now(), tried: new Set() };
@@ -17970,14 +18005,14 @@ function ChacklateAudio() {
 
   // ---------------------------------------------------------------- friend codes
   function createFriend(tc) {
-    if (!ready) return A().toast('Online play is not connected right now.', 'bad');
+    if (!ready) return needLink(() => createFriend(tc));
     tc = TIME_CONTROLS.includes(tc) ? tc : '5+3';
     cancelAll();
     const code = newCode();
     meet(code, tc, true, null, false);
   }
   function joinFriend(code) {
-    if (!ready) return A().toast('Online play is not connected right now.', 'bad');
+    if (!ready) return needLink(() => joinFriend(code));
     code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
     cancelAll();
     meet(code, null, false, null, false);
@@ -18198,10 +18233,12 @@ function ChacklateAudio() {
     report() { A().toast('Thanks. Reports reach a moderator once the Chackmate game server is live.'); },
   };
   // The server when it is connected, the room when it is not.
-  const pick = () => (serverOn() || !ready ? server : relay);
+  const pick = () => (serverOn() ? server : relay);
   window.ChacklateNet = Object.assign({}, server || {}, {
     available: () => serverOn() || ready,
     mode: () => (serverOn() ? 'server' : ready ? 'room' : 'offline'),
+    // 'ready', 'connecting' or 'unavailable': whether codes and world games can work on this page.
+    link: () => (serverOn() ? 'ready' : link),
     timeControls: TIME_CONTROLS,
     quickMatch(tc) { const p = pick(); return p ? p.quickMatch(tc) : false; },
     createFriend(tc) { const p = pick(); if (p) p.createFriend(tc); },
@@ -18987,7 +19024,7 @@ function ChacklateAudio() {
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: 'The Journey', text: ne ? 'Next stop: ' + ne.name + ', ' + ne.when + '.' : 'Every era complete. What a traveller!' }) +
       lux({ id: 'h-learn', art: faceImg(COACH), title: 'Learn Chess', text: nl ? 'With Rooky, your coach. Next: ' + nl.title + '.' : 'Every open lesson done. Try the puzzles!' }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
-      lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
+      lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
       '</div>' +
       '<div class="home-foot">' + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
@@ -19047,8 +19084,8 @@ function ChacklateAudio() {
       sec('play', 'Start playing') +
       '<div class="lux-row four">' +
       lux({ id: 'p-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: 'Quick Play', text: online ? 'A friendly game online, or ' + best.name + ' if no one is around.' : 'Play ' + best.name + ', picked from your recent games.' }) +
-      lux({ id: 'p-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
-      lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: online ? 'A timed game against a player from anywhere, 10 minutes at most.' : 'Online play is not connected right now.' }) +
+      lux({ id: 'p-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
+      lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: 'A timed game against a player from anywhere, 10 minutes at most.' }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
@@ -20679,29 +20716,34 @@ function ChacklateAudio() {
   // Online clocks: every game is timed, with ten minutes a side at most.
   const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', '5 min'], ['5+3', '5 + 3'], ['10+0', '10 min']];
   function worldModal() {
-    if (!netOn()) { toast('Online play is not connected right now. Try Quick Play for a game with an animal friend.'); return; }
     const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">Play the world</div><h2>Find a player</h2>' +
       '<p class="sub">We pair you with someone waiting for the same clock. Players only see a made-up name, and you can send friendly reactions, never messages.</p></div></div>' +
       '<div class="field"><div class="label">Clock (10 minutes at most)</div><div class="seg">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="wtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
       '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn primary" id="w-go">' + icon('globe') + ' Find a player</button></div>', { x: true });
     m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
   }
+  // Play a friend on another device: create a table and share its code, or join one with a code.
+  // The online part is always offered; ChacklateNet waits for the connection or explains why there is none.
   function friendModal() {
-    const online = netOn();
-    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Two players</h2><p class="sub">' + (online ? 'Make a game and share its code, or join with your friend\'s code.' : 'Take turns on this device. Online codes need a connection, which is not available right now.') + '</p></div></div>' +
-      (online ? '<div class="field"><div class="label">Clock (every online game is timed, 10 minutes at most)</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="frtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
-        '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="fr-create">' + icon('users') + ' Make a game</button></div>' +
-        '<div class="field" style="margin-top:18px"><label for="fr-code">Join with a code</label><div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123"><button class="btn" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></div>' : '') +
-      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn' + (online ? '' : ' primary') + '" id="fr-local">' + icon('users') + ' Take turns here</button></div>', { x: true });
+    const link = window.ChacklateNet && ChacklateNet.link ? ChacklateNet.link() : 'unavailable';
+    const status = link === 'ready' ? '' : link === 'connecting' ? '<p class="fine">Connecting to online play…</p>' : '<p class="fine">Online play is not reachable on this page right now. Open Chackmate from its claude.ai link to play a friend on another device.</p>';
+    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Play a friend online</h2><p class="sub">Create a table and send your friend its code, or join your friend\'s table with their code.</p></div></div>' +
+      '<div class="friend-pick"><section class="glass"><h3>' + icon('users') + ' Create a table</h3><p class="fine">You get a 6-letter code to send your friend.</p>' +
+      '<div class="label">Clock (every online game is timed, 10 minutes at most)</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="frtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div>' +
+      '<button class="btn primary" id="fr-create">' + icon('users') + ' Create table and get code</button></section>' +
+      '<section class="glass"><h3>' + icon('play') + ' Join a table</h3><label class="fine" for="fr-code">Type the code your friend sent you.</label>' +
+      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></section></div>' +
+      status +
+      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn" id="fr-local">' + icon('users') + ' Take turns on this device</button></div>', { x: true });
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
-    if (online) {
-      m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
-      m.querySelector('#fr-join').onclick = () => {
-        const code = m.querySelector('#fr-code').value.trim().toUpperCase();
-        if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = 'Codes are 6 letters or digits.'; return; }
-        m.close(); ChacklateNet.joinFriend(code);
-      };
-    }
+    m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
+    const join = () => {
+      const code = m.querySelector('#fr-code').value.trim().toUpperCase();
+      if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = 'Codes are 6 letters or digits.'; return; }
+      m.close(); ChacklateNet.joinFriend(code);
+    };
+    m.querySelector('#fr-join').onclick = join;
+    m.querySelector('#fr-code').onkeydown = (e) => { if (e.key === 'Enter') join(); };
   }
 
   // ---------------------------------------------------------------- review
