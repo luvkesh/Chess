@@ -65,6 +65,100 @@ function ChacklatePieces(THREE, K) {
     g.translate(0, (dn - up) / 2 * 0, 0);
     return g;
   }
+  // Every set crowns its king with its own cross, centred where the arms meet like crossPattee.
+  //   greek: equal square arms; latin: plain with a long foot; botonny: arms ending in three
+  //   lobes; fleury: arms ending in lilies; orthodox: three bars, the lowest slanted;
+  //   maltese: eight points; stepped: Art Deco setbacks; beaded: glass beads.
+  function crossOf(style, h, depth) {
+    const a = h / 2, t = a * 0.2;
+    const bar = (x0, y0, x1, y1, w) => { const g = new THREE.BoxGeometry(Math.abs(x1 - x0) || w, Math.abs(y1 - y0) || w, depth); g.translate((x0 + x1) / 2, (y0 + y1) / 2, 0); return g; };
+    const lobes = (x, y, r, dirX, dirY) => [sphere(r, x + dirX * r * 0.9, y + dirY * r * 0.9, 0, 14), sphere(r * 0.8, x + dirY * r * 1.2 + dirX * r * 0.1, y + dirX * r * 1.2 + dirY * r * 0.1, 0, 12), sphere(r * 0.8, x - dirY * r * 1.2 + dirX * r * 0.1, y - dirX * r * 1.2 + dirY * r * 0.1, 0, 12)];
+    if (style === 'greek') return extrude(K.mirrorOutline([[0, a * 0.95], [t, a * 0.95], [t, t], [a * 0.95, t], [a * 0.95, -t], [t, -t], [t, -a * 0.95], [0, -a * 0.95]]), depth, depth * 0.3, { bevelSegments: 2 });
+    if (style === 'latin') {
+      const w = t * 0.8;
+      return merge([extrude(K.mirrorOutline([[0, a], [w, a], [w, w], [a * 0.72, w], [a * 0.72, -w], [w, -w], [w, -a * 1.5], [0, -a * 1.5]]), depth, depth * 0.3, { bevelSegments: 2 }),
+        sphere(w * 1.5, 0, a + w * 0.9, 0, 14), sphere(w * 1.3, a * 0.72 + w, 0, 0, 12), sphere(w * 1.3, -a * 0.72 - w, 0, 0, 12)]);
+    }
+    if (style === 'botonny') {
+      const w = t * 0.75, r = w * 1.25;
+      return merge([bar(0, -a * 1.2, 0, a * 0.8, w * 2), bar(-a * 0.75, 0, a * 0.75, 0, w * 2)].concat(lobes(0, a * 0.8, r, 0, 1), lobes(a * 0.75, 0, r, 1, 0), lobes(-a * 0.75, 0, r, -1, 0)));
+    }
+    if (style === 'fleury') {
+      const w = t * 0.7, parts = [bar(0, -a * 1.15, 0, a * 0.62, w * 2), bar(-a * 0.62, 0, a * 0.62, 0, w * 2)];
+      [[0, a * 0.62, 0], [a * 0.62, 0, -Math.PI / 2], [-a * 0.62, 0, Math.PI / 2]].forEach(([x, y, rz]) => { const f = fleur(a * 0.7, depth * 0.9); f.translate(0, a * 0.3, 0); f.rotateZ(rz); f.translate(x, y, 0); parts.push(f); });
+      return merge(parts);
+    }
+    if (style === 'orthodox') {
+      const w = t * 0.6;
+      const slant = bar(-a * 0.5, 0, a * 0.5, 0, w * 1.8); slant.rotateZ(-0.38); slant.translate(0, -a * 0.75, 0);
+      return merge([bar(0, -a * 1.3, 0, a * 1.05, w * 2), bar(-a * 0.36, a * 0.72, a * 0.36, a * 0.72, w * 1.6), bar(-a * 0.82, a * 0.1, a * 0.82, a * 0.1, w * 2), slant]);
+    }
+    if (style === 'maltese') {
+      const arm = [[0, a * 0.12], [a * 0.36, a], [a * 0.12, a * 0.84], [0, a * 0.98], [-a * 0.12, a * 0.84], [-a * 0.36, a], [0, a * 0.12]];
+      const parts = [];
+      for (let i = 0; i < 4; i++) { const g = extrude(arm.slice(0, -1).map(([x, y]) => [x, y]), depth, depth * 0.3, { bevelSegments: 2 }); g.rotateZ((i * Math.PI) / 2); parts.push(g); }
+      return merge(parts);
+    }
+    if (style === 'stepped') {
+      const w = t * 0.6;
+      return extrude(K.mirrorOutline([[0, a * 1.05], [w, a * 1.05], [w, a * 0.7], [w * 1.8, a * 0.7], [w * 1.8, w * 1.8], [a * 0.7, w * 1.8], [a * 0.7, w], [a * 0.95, w], [a * 0.95, -w], [a * 0.7, -w], [a * 0.7, -w * 1.8],
+        [w * 1.8, -w * 1.8], [w * 1.8, -a * 0.9], [w, -a * 0.9], [w, -a * 1.25], [0, -a * 1.25]]), depth, depth * 0.25, { bevelSegments: 2 });
+    }
+    if (style === 'beaded') {
+      const r = a * 0.2, parts = [sphere(r * 1.2, 0, 0, 0, 16)];
+      for (const [dx, dy, n] of [[0, 1, 3], [1, 0, 2], [-1, 0, 2], [0, -1, 3]]) for (let i = 1; i <= n; i++) { const k = 1 - i * 0.12; parts.push(sphere(r * k, dx * i * r * 1.9, dy * i * r * 1.9, 0, 14)); }
+      return merge(parts);
+    }
+    if (style === 'plain') { const w = t * 0.5; return merge([bar(0, -a * 1.3, 0, a, w * 2), bar(-a * 0.62, 0, a * 0.62, 0, w * 2)]); }
+    if (style === 'crosslet') {
+      const w = t * 0.6, parts = [bar(0, -a * 1.2, 0, a, w * 2), bar(-a * 0.8, 0, a * 0.8, 0, w * 2)];
+      parts.push(bar(-a * 0.3, a * 0.68, a * 0.3, a * 0.68, w * 1.8), bar(a * 0.55, -a * 0.3, a * 0.55, a * 0.3, w * 1.8), bar(-a * 0.55, -a * 0.3, -a * 0.55, a * 0.3, w * 1.8));
+      return merge(parts);
+    }
+    if (style === 'celtic') {
+      const w = t * 0.6, torus = new THREE.TorusGeometry(a * 0.5, w * 0.7, 8, 40);
+      return merge([bar(0, -a * 1.3, 0, a, w * 2), bar(-a * 0.85, 0, a * 0.85, 0, w * 2), torus]);
+    }
+    if (style === 'capsule') {
+      const r = t * 0.8, v = new THREE.CapsuleGeometry(r, a * 2.1, 6, 12), hz = new THREE.CapsuleGeometry(r, a * 1.4, 6, 12);
+      v.translate(0, -a * 0.15, 0); hz.rotateZ(Math.PI / 2);
+      return merge([v, hz]);
+    }
+    if (style === 'leaf') {
+      const parts = [];
+      [[0, 1], [Math.PI / 2, 0.85], [-Math.PI / 2, 0.85], [Math.PI, 1.2]].forEach(([rz, k]) => { const g = curl(leaf(a * 0.5 * k, a * k, depth), 1.5); g.rotateZ(rz); parts.push(g); });
+      parts.push(sphere(t * 0.9, 0, 0, 0, 12));
+      return merge(parts);
+    }
+    if (style === 'star4') {
+      const pts = [[0, a], [t * 0.7, t * 0.7], [a * 0.8, 0], [t * 0.7, -t * 0.7], [0, -a * 1.2], [-t * 0.7, -t * 0.7], [-a * 0.8, 0], [-t * 0.7, t * 0.7]];
+      return merge([extrude(pts, depth, depth * 0.35, { bevelSegments: 2 }), sphere(t * 0.8, 0, 0, 0, 12)]);
+    }
+    if (style === 'lozenge') {
+      const parts = [];
+      [[0, a, 1], [a * 0.75, 0, 0.75], [-a * 0.75, 0, 0.75], [0, -a * 1.15, 1.15]].forEach(([x, y, k]) => {
+        const l = a * 0.62 * k, g = extrude([[0, l], [t * 0.9, 0], [0, -l * 0.35], [-t * 0.9, 0]], depth, depth * 0.3, { bevelSegments: 1 });
+        g.rotateZ(Math.atan2(-x, y)); g.translate(x * 0.45, y * 0.45, 0); parts.push(g);
+      });
+      return merge(parts);
+    }
+    if (style === 'rayed') {
+      const parts = [crossOf('greek', h * 0.9, depth)];
+      for (let i = 0; i < 4; i++) { const g = ray(t * 0.7, a * 0.75, depth * 0.6); g.rotateZ(Math.PI / 4 + (i * Math.PI) / 2); parts.push(g); }
+      return merge(parts);
+    }
+    if (style === 'quatrefoil') {
+      const w = t * 0.55, parts = [bar(0, -a * 1.1, 0, a * 0.7, w * 2), bar(-a * 0.7, 0, a * 0.7, 0, w * 2)];
+      for (const [x, y] of [[0, a * 0.75], [a * 0.72, 0], [-a * 0.72, 0], [0, -a * 1.05]]) { const d = new THREE.CylinderGeometry(t * 1.1, t * 1.1, depth, 20); d.rotateX(Math.PI / 2); d.translate(x, y, 0); parts.push(d); }
+      return merge(parts);
+    }
+    if (style === 'scroll') {
+      const w = t * 0.55, parts = [bar(0, -a * 1.2, 0, a * 0.7, w * 2), bar(-a * 0.7, 0, a * 0.7, 0, w * 2)];
+      [[0, a * 0.7, 0], [a * 0.7, 0, -Math.PI / 2], [-a * 0.7, 0, Math.PI / 2]].forEach(([x, y, rz]) => { for (const d of [-1, 1]) { const v = volute(a * 0.22, d); v.translate(d * a * 0.2, a * 0.12, 0); v.rotateZ(rz); v.translate(x, y, 0); parts.push(v); } });
+      return merge(parts);
+    }
+    return crossPattee(h, depth);
+  }
   // Fleur-de-lis (heraldic lily); h is the full height.
   function fleur(h, depth) {
     const half = [[0, 1], [0.1, 0.86], [0.13, 0.66], [0.1, 0.5], [0.2, 0.52], [0.36, 0.62], [0.5, 0.7], [0.56, 0.6], [0.5, 0.44],
@@ -156,7 +250,8 @@ function ChacklatePieces(THREE, K) {
       return a + (b - a) * tv;
     };
   }
-  //   o.mane: 'flow' (loose gold locks), 'carved' (locks in the body), 'roach' (short upright), 'none'
+  //   o.mane: 'flow' (loose gold locks), 'carved' (locks in the body), 'roach' (short upright),
+  //   'braid' (a row of knots), 'none'; o.form: the breed and pose (see horseWarp)
   //   o.base: pedestal top; o.round: edge band of the inflation (bigger is softer)
   function sculptHorse(o) {
     o = Object.assign({ base: 0.3, mane: 'flow', seed: 3, round: 0.088 }, o || {});
@@ -222,11 +317,11 @@ function ChacklatePieces(THREE, K) {
     const Rn = rng(o.seed);
     const locks = [];
     if (o.mane !== 'none') {
-      const flow = o.mane === 'flow', n = flow ? 13 : 12;
+      const flow = o.mane === 'flow', braid = o.mane === 'braid', n = flow ? 13 : braid ? 9 : 12;
       for (let i = 0; i < n; i++) {
         const t = i / (n - 1), [cz, cy] = crest(t), [nz, ny] = crest(Math.min(1, t + 0.08));
         let tz = nz - cz, ty = ny - cy; const tl = Math.hypot(tz, ty) || 1; tz /= tl; ty /= tl;   // down the crest
-        const layers = flow ? [[-1, 1], [1, 1], [0, 0.45]] : [[-1, 1], [1, 1]];
+        const layers = flow ? [[-1, 1], [1, 1], [0, 0.45]] : braid ? [[0, 1]] : [[-1, 1], [1, 1]];
         for (const [side, scale] of layers) {
           const jitter = 0.85 + Rn() * 0.3;
           const len = (flow ? mix(0.25, 0.15, t) * jitter : o.mane === 'roach' ? 0.045 : 0.06) * scale;
@@ -237,7 +332,9 @@ function ChacklatePieces(THREE, K) {
           const p0 = [side * 0.018, cy + (side ? -0.006 : 0.006), cz];
           const amp = (flow ? 0.022 : 0.005) * (0.7 + Rn() * 0.6) * (side < 0 ? -1 : 1), ph = Rn() * 0.5;
           const P = (f, up, sw) => [p0[0] + d[0] * len * f + side * sw, p0[1] + d[1] * len * f + up, p0[2] + d[2] * len * f];
-          const ctrl = o.mane === 'roach'
+          const ctrl = braid
+            ? [[...p0, 0.024], [...P(0.5, 0.012, 0), 0.026], [...P(1, 0.016, 0), 0.012]]
+            : o.mane === 'roach'
             ? [[...p0, r0], [...P(0.5, 0.03, 0), r0 * 0.7], [...P(0.95, 0.05, 0), 0.003]]
             : [[...p0, r0], [...P(0.22, amp * (0.6 + ph), 0.004), r0 * 0.94], [...P(0.5, -amp * 0.8, 0.012), r0 * 0.76], [...P(0.76, amp * 0.5, 0.022), r0 * 0.5],
               [...P(0.93, 0.02, 0.03), r0 * 0.26], [...P(1.0, 0.05, 0.036), 0.002]];
@@ -250,17 +347,54 @@ function ChacklatePieces(THREE, K) {
         }
       }
     }
-    if (o.mane === 'carved' || o.mane === 'roach') {
+    if (o.mane === 'carved' || o.mane === 'roach' || o.mane === 'braid') {
       const fieldM = strandField([].concat(...locks), 0.01, 0.03, 0.016);
-      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, Q.cell);
+      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
     } else {
-      out.body = sdfGeometry(body, bounds, Q.cell);
+      out.body = sdfGeometry(body, bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
       if (locks.length) {
         const fieldM = strandField([].concat(...locks), 0.02, 0.03, 0.016);
         out.mane = sdfGeometry(fieldM, [-0.16, Y(0.36), -0.36, 0.16, Y(1.02), 0.11], Q.mane, { band: 1.3 });
       }
     }
+    if (o.form) {
+      const w = horseWarp(o.form, Y);
+      for (const k of ['body', 'mane']) {
+        let g = out[k];
+        if (!g) continue;
+        const p = g.attributes.position;
+        for (let i = 0; i < p.count; i++) { const q = w(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, q[0], q[1], q[2]); }
+        // a cut-stone horse (Deco, crystal): flat facets instead of a smooth sculpt
+        if (o.form.facet && k === 'body') g = out[k] = g.toNonIndexed();
+        g.computeVertexNormals(); g.computeBoundingSphere();
+      }
+      out.surf = (c, d, off) => w(...surf(c, d, off));
+    }
     return out;
+  }
+  // Each set has its own horse. The sculpt is shared, then bent into a breed and a pose:
+  //   tuck: head bowed (+) or raised (-), in radians; reach: a longer (+) or shorter muzzle;
+  //   nose: a Roman (+) or dished (-) profile; neck: a taller (+) or shorter bust;
+  //   girth: width across; chest: a deeper chest; lean: the whole bust leaning forward;
+  //   ears: longer (+) or shorter (-) ears; jaw: a heavier jowl.
+  function horseWarp(f, Y) {
+    const tuck = f.tuck || 0, reach = f.reach || 0, nose = f.nose || 0, neck = f.neck || 0, girth = f.girth || 1;
+    const chest = f.chest || 0, lean = f.lean || 0, ears = f.ears || 0, jaw = f.jaw || 0, y0 = Y(0.3);
+    return (x, y, z) => {
+      if (ears && y > Y(0.95) && z < 0.08) y = Y(0.95) + (y - Y(0.95)) * (1 + ears);
+      if (nose && z > 0.08) y += nose * Math.exp(-Math.pow((z - 0.2) / 0.075, 2)) * smooth(Y(0.74), Y(0.82), y);
+      if (jaw && z > -0.02 && z < 0.2) y -= jaw * Math.exp(-Math.pow((z - 0.06) / 0.07, 2)) * (1 - smooth(Y(0.72), Y(0.8), y)) * smooth(Y(0.62), Y(0.7), y);
+      if (reach && z > 0.06) z = 0.06 + (z - 0.06) * (1 + reach * smooth(Y(0.62), Y(0.72), y));
+      if (chest && z > 0) z *= 1 + chest * (1 - smooth(Y(0.5), Y(0.7), y)) * smooth(y0 - 0.02, y0 + 0.08, y);
+      if (tuck) {
+        const a = tuck * smooth(Y(0.6), Y(0.86), y), dz = z + 0.02, dy = y - Y(0.74), c = Math.cos(a), s = Math.sin(a);
+        z = -0.02 + dz * c + dy * s; y = Y(0.74) - dz * s + dy * c;
+      }
+      if (lean) z += lean * Math.max(0, y - y0);
+      x *= girth * (1 + (f.headW ? (f.headW - 1) * smooth(Y(0.66), Y(0.8), y) : 0));
+      if (neck) y = y0 + Math.max(0, y - y0) * (1 + neck) + Math.min(0, y - y0);
+      return [x, y, z];
+    };
   }
 
   // The horse is the slowest part to build, and sets share a few variants: cache by options.
@@ -351,6 +485,17 @@ function ChacklatePieces(THREE, K) {
     for (let i = 0; i <= 40; i++) { const a = mix(a0, Math.PI, i / 40); sph.push([Math.sin(a) * rr, cy - Math.cos(a) * rr]); }
     prof.line(sph[0][0], sph[0][1], true);
     prof._push(sph.slice(1), true);
+    return prof;
+  }
+  // An oval head (an egg when ry > rx) on a neck of radius rNeck; tip > 0 draws it up into a bud.
+  function ovalHead(prof, rNeck, cy, rx, ry, tip) {
+    const a0 = Math.asin(clamp(rNeck / rx, -1, 1)), pts = [];
+    for (let i = 0; i <= 40; i++) {
+      const a = mix(a0, Math.PI, i / 40), c = -Math.cos(a);
+      pts.push([Math.sin(a) * rx * (tip ? 1 - tip * 0.35 * Math.max(0, c) ** 2 : 1), cy + c * ry + (tip || 0) * ry * Math.max(0, c) ** 3]);
+    }
+    prof.line(pts[0][0], pts[0][1], true);
+    prof._push(pts.slice(1), true);
     return prof;
   }
   // A volute scroll (Ionic capital) as a tube in the plane facing +z.
@@ -548,7 +693,7 @@ function ChacklatePieces(THREE, K) {
       P.lathe('body', p, { mod: mods([swirl(10, 0.06, 0.044, 0.15)]) });
       P.add('trim', ring(0.214, 0.306, 0.0085));
       P.add('trim', ring(R - 0.002, 0.03, 0.007));
-      const h = horse({ base: 0.31, mane: 'flow', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'flow', seed: 5, form: { tuck: 0.1, neck: 0.03, chest: 0.06 } });
       P.add('body', h.body);
       P.add('trim', h.mane);
       return P;
@@ -725,8 +870,8 @@ function ChacklatePieces(THREE, K) {
         .line(0.112, 0.57)
         .curve([[0.12, 0.6], [0.145, 0.635], [0.168, 0.665]])
         .arc(0.16, 0.676, 0.4).line(0.11, 0.68)
-        .curve([[0.12, 0.74], [0.132, 0.82], [0.124, 0.92], [0.1, 1.0], [0.074, 1.06], [0.062, 1.1]])
-        .curve([[0.072, 1.13], [0.066, 1.17], [0.045, 1.2], [0.0, 1.21]]);
+        .curve([[0.124, 0.73], [0.13, 0.8], [0.118, 0.88], [0.09, 0.96], [0.064, 1.03], [0.054, 1.07]])
+        .curve([[0.076, 1.11], [0.08, 1.16], [0.058, 1.205], [0.0, 1.222]]);
       P.lathe('body', p, { mod: mods([papyrus(0.16, 0.55, 6), MOD.flutes(16, 0.04, 0.6, 0.67, { end: 0.015 }), MOD.slit(Math.PI * 0.25, 0.92, 0.6, 0.016, 0.45)]) });
       for (const y of [0.55, 0.565]) P.add('trim', ring(0.114, y, 0.0058));
       P.add('trim', ring(0.114, 0.69, 0.0095));
@@ -739,7 +884,7 @@ function ChacklatePieces(THREE, K) {
       const R = 0.322, P = new Piece();
       P.lathe('body', knightBase(egyptBase(profile(0, 0), R, 0.2), 0.2));
       P.add('trim', ring(0.214, 0.298, 0.0085));
-      const h = horse({ base: 0.31, mane: 'roach', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'roach', seed: 5, form: { tuck: -0.2, neck: 0.1, girth: 0.82, reach: 0.2, ears: 0.3, headW: 0.9 } });
       P.add('body', h.body);
       const br = bridle(h, {}), pl = plume(h, { count: 5, len: 0.21 });
       P.add('trim', br.straps); P.add('accent', br.studs);
@@ -764,8 +909,8 @@ function ChacklatePieces(THREE, K) {
       const p = egyptBase(profile(0, 0), R, 0.12, 0.85);
       p.curve([[0.124, 0.17], [0.122, 0.25], [0.108, 0.32], [0.098, 0.35]])
         .curve([[0.112, 0.37], [0.14, 0.395]]).arc(0.132, 0.405, 0.4).line(0.07, 0.41);
-      ballHead(p, 0.065, 0.53, 0.118);
-      P.lathe('body', p, { mod: papyrus(0.13, 0.35, 6) });
+      ovalHead(p, 0.065, 0.52, 0.112, 0.118, 0.7);
+      P.lathe('body', p, { mod: mods([papyrus(0.13, 0.35, 6), MOD.lobes(6, 0.14, 0.43, 0.7, { shape: 0.8, end: 0.06 })]) });
       for (const y of [0.33, 0.345]) P.add('trim', ring(0.1, y, 0.0055));
       P.add('trim', beadRing(0.1, 0.428, 16, 0.009));
       P.add('accent', beadRing(0.094, 0.444, 16, 0.0072, { phase: Math.PI / 16 }));
@@ -806,7 +951,7 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', plinthKey(R));
       P.add('trim', wreath(0.183, 1.05, 18, 0.05));
       P.add('trim', ring(0.196, 1.1, 0.007));
-      P.add('trim', placeAt(crossPattee(0.22, 0.046), 0, 0, 1.368));
+      P.add('trim', placeAt(crossOf('greek', 0.22, 0.046), 0, 0, 1.368));
       return P;
     },
     q() {
@@ -837,17 +982,19 @@ function ChacklatePieces(THREE, K) {
         .curve([[0.146, 0.61], [0.16, 0.63]]).line(0.168, 0.635).line(0.168, 0.652).line(0.1, 0.656)
         .curve([[0.11, 0.69], [0.13, 0.75], [0.142, 0.83], [0.138, 0.91], [0.118, 0.99], [0.085, 1.06], [0.045, 1.11]])
         .line(0.03, 1.12).line(0, 1.121);
-      P.lathe('body', p, { mod: mods([ionic(0.2, 0.55, 16), MOD.facets(4, 0.633, 0.654, 0.2), MOD.slit(Math.PI * 0.25, 0.95, 0.6, 0.017, 0.5)]) });
+      P.lathe('body', p, { mod: mods([ionic(0.2, 0.55, 16), MOD.facets(4, 0.633, 0.654, 0.2), MOD.flutes(14, 0.06, 0.72, 1.06, { fillet: 0.3, end: 0.05 }), MOD.slit(Math.PI * 0.25, 0.95, 0.6, 0.017, 0.5)]) });
       P.add('trim', plinthKey(R));
       P.add('trim', keyBand(0.116, 0.668, 0.042, 12, 0.0048, 0.012));
-      P.add('trim', sphere(0.036, 0, 1.15, 0, 20));
+      // an anthemion: a bronze palmette fanning up from the tip
+      P.add('trim', around(2, 0.0, 1.11, () => merge([-2, -1, 0, 1, 2].map((k) => { const f = petal(0.03, 0.09 - Math.abs(k) * 0.012, 0.008); f.rotateZ(k * 0.32); return f; })), { phase: Math.PI / 2 }));
+      P.add('trim', sphere(0.024, 0, 1.118, 0, 16));
       return P;
     },
     n() {
       const R = 0.322, P = new Piece();
       P.lathe('body', knightBase(atticBase(profile(0, 0), R, 0.2), 0.2));
       P.add('trim', plinthKey(R));
-      const h = horse({ base: 0.31, mane: 'roach', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'roach', seed: 5, form: { tuck: 0.48, chest: 0.26, girth: 1.08, neck: -0.06, jaw: 0.016, ears: -0.2 } });
       P.add('body', h.body);
       const br = bridle(h, { stud: 0.014 });
       P.add('trim', br.straps); P.add('trim', br.studs);
@@ -876,6 +1023,7 @@ function ChacklatePieces(THREE, K) {
       P.lathe('body', p, { mod: mods([ionic(0.17, 0.33, 12), MOD.facets(4, 0.384, 0.4, 0.2)]) });
       P.add('trim', plinthKey(R, 0.85));
       P.add('trim', ring(0.108, 0.348, 0.0058));
+      P.add('trim', wreath(0.112, 0.548, 12, 0.042, { tilt: -0.5, band: false }));
       return P;
     },
   };
@@ -902,7 +1050,7 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', ring(0.202, 1.09, 0.0075));
       P.add('trim', sphere(0.05, 0, 1.222, 0, 24));
       P.add('trim', ring(0.051, 1.222, 0.0065));
-      P.add('trim', placeAt(crossPattee(0.21, 0.045), 0, 0, 1.396));
+      P.add('trim', placeAt(crossOf('latin', 0.21, 0.045), 0, 0, 1.396));
       return P;
     },
     q() {
@@ -930,17 +1078,19 @@ function ChacklatePieces(THREE, K) {
         .curve([[0.155, 0.588], [0.168, 0.608]]).line(0.172, 0.61).line(0.172, 0.63).line(0.104, 0.634)
         .curve([[0.112, 0.67], [0.132, 0.74], [0.142, 0.82], [0.136, 0.9], [0.114, 0.98], [0.08, 1.05], [0.04, 1.095]])
         .line(0.03, 1.1).line(0, 1.101);
-      P.lathe('body', p, { mod: mods([trajan(0.2, 0.54, 2), MOD.facets(4, 0.608, 0.632, 0.2), MOD.slit(Math.PI * 0.25, 0.94, 0.6, 0.017, 0.5)]) });
+      P.lathe('body', p, { mod: mods([trajan(0.2, 0.54, 2), MOD.facets(4, 0.608, 0.632, 0.2), MOD.helix(0.09, 1.6, 0.74, 1.04, { width: 0.22 }), MOD.slit(Math.PI * 0.25, 0.94, 0.6, 0.017, 0.5)]) });
       P.add('trim', wreath(R - 0.058, 0.152, 18, 0.032));
       P.add('trim', wreath(0.126, 0.7, 12, 0.042));
-      P.add('trim', sphere(0.036, 0, 1.13, 0, 20));
+      // an eagle-topped finial: a gilt ball under a small spread of wings
+      P.add('trim', sphere(0.03, 0, 1.124, 0, 20));
+      for (const s of [-1, 1]) P.add('trim', placeAt(curl(petal(0.04, 0.08, 0.007).rotateZ(s * 1.0), 1.5), Math.PI / 2, 0, 1.15, {}).translate(s * 0.03, 0, 0));
       return P;
     },
     n() {
       const R = 0.322, P = new Piece();
       P.lathe('body', knightBase(atticBase(profile(0, 0), R, 0.2), 0.2));
       P.add('trim', wreath(R - 0.058, 0.152, 20, 0.034));
-      const h = horse({ base: 0.31, mane: 'carved', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'carved', seed: 5, form: { girth: 1.26, nose: 0.032, chest: 0.2, tuck: 0.16, headW: 1.08, jaw: 0.012 } });
       P.add('body', h.body);
       const br = bridle(h, { stud: 0.02 });
       P.add('trim', br.straps); P.add('trim', br.studs);
@@ -968,6 +1118,8 @@ function ChacklatePieces(THREE, K) {
       ballHead(p, 0.066, 0.525, 0.12);
       P.lathe('body', p, { mod: mods([trajan(0.16, 0.33, 1.4), MOD.facets(4, 0.384, 0.4, 0.2)]) });
       P.add('trim', wreath(R - 0.052, 0.13, 16, 0.028));
+      const crest = []; for (let i = 0; i <= 12; i++) { const a = mix(-1.25, 1.25, i / 12); crest.push([0, 0.525 + Math.cos(a) * 0.128, Math.sin(a) * 0.128]); }
+      P.add('trim', K.tube(crest, 0.016, { segs: 30, radial: 10, radiusAt: (t) => 0.6 + 0.4 * Math.sin(Math.PI * t) }));
       return P;
     },
   };
@@ -1001,7 +1153,7 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', around(10, 0.05, 1.262, () => petal(0.045, 0.07, 0.006), { tilt: 2.3 }));
       P.add('trim', sphere(0.034, 0, 1.316, 0, 20));
       P.add('trim', sphere(0.024, 0, 1.364, 0, 16));
-      P.add('trim', placeAt(crossPattee(0.21, 0.045), 0, 0, 1.512));
+      P.add('trim', placeAt(crossOf('fleury', 0.21, 0.045), 0, 0, 1.512));
       P.add('accent', placeAt(cabochon(0.016, 0.6), 0, 0, 1.512 + 0.02));
       return P;
     },
@@ -1030,15 +1182,16 @@ function ChacklatePieces(THREE, K) {
       p.curve([[0.152, 0.2], [0.164, 0.26], [0.15, 0.33], [0.118, 0.4], [0.098, 0.48], [0.096, 0.53]])
         .line(0.108, 0.54).arc(0.116, 0.556, 0.35)
         .curve([[0.13, 0.58], [0.152, 0.61]]).line(0.158, 0.614).line(0.158, 0.632).line(0.104, 0.636)
-        .curve([[0.118, 0.67], [0.14, 0.74], [0.148, 0.82], [0.14, 0.9], [0.115, 0.98], [0.08, 1.04], [0.04, 1.085]])
-        .line(0.03, 1.09).line(0, 1.091);
-      P.lathe('body', p, { mod: mods([lotusMod(), MOD.lobes(10, 0.16, 0.16, 0.36, { shape: 0.7 }), MOD.flutes(9, 0.07, 0.65, 0.87, { twist: 7, soft: true, end: 0.04 }), MOD.slit(Math.PI * 0.25, 0.95, 0.6, 0.017, 0.5)]) });
+        .curve([[0.14, 0.66], [0.174, 0.71], [0.18, 0.77], [0.164, 0.83], [0.12, 0.862]])
+        .curve([[0.104, 0.9], [0.09, 0.97], [0.062, 1.03], [0.032, 1.08]])
+        .line(0.024, 1.086).line(0, 1.087);
+      P.lathe('body', p, { mod: mods([lotusMod(), MOD.lobes(10, 0.16, 0.16, 0.36, { shape: 0.7 }), MOD.flutes(9, 0.14, 0.645, 0.86, { twist: 9, soft: true, end: 0.03 }), MOD.slit(Math.PI * 0.25, 0.96, 0.6, 0.016, 0.45)]) });
       P.add('trim', beadRing(R - 0.004, 0.04, 40, 0.0055));
       P.add('trim', ring(0.12, 0.66, 0.0085));
       // sarpech: a jewelled turban ornament at the front
-      P.add('trim', placeAt(curl(petal(0.05, 0.12, 0.008), -2), 0, 0.146, 0.75, { tilt: -0.08 }));
-      P.add('accent', placeAt(cabochon(0.016, 0.6), 0, 0.152, 0.756));
-      P.add('accent2', placeAt(sphere(0.011, 0, 0, 0, 12), 0, 0.152, 0.718));
+      P.add('trim', placeAt(curl(petal(0.05, 0.14, 0.008), -2), 0, 0.176, 0.79, { tilt: -0.08 }));
+      P.add('accent', placeAt(cabochon(0.018, 0.6), 0, 0.182, 0.79));
+      P.add('accent2', placeAt(sphere(0.012, 0, 0, 0, 12), 0, 0.176, 0.75));
       P.add('trim', sphere(0.032, 0, 1.12, 0, 20));
       return P;
     },
@@ -1046,7 +1199,7 @@ function ChacklatePieces(THREE, K) {
       const R = 0.322, P = new Piece();
       P.lathe('body', knightBase(lotusBase(profile(0, 0), R, 0.2), 0.2), { mod: lotusMod() });
       P.add('trim', beadRing(R - 0.004, 0.04, 40, 0.0058));
-      const h = horse({ base: 0.31, mane: 'carved', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'carved', seed: 5, form: { nose: -0.03, reach: -0.2, tuck: -0.22, neck: 0.08, headW: 0.86, ears: 0.3 } });
       P.add('body', h.body);
       const br = bridle(h, { stud: 0.015 }), pl = plume(h, { count: 3, len: 0.17, w: 0.05, spread: 0.7, lean: 0.25 });
       P.add('trim', br.straps); P.add('accent', br.studs);
@@ -1076,6 +1229,8 @@ function ChacklatePieces(THREE, K) {
       P.lathe('body', p, { mod: mods([lotusMod(0.85), MOD.lobes(10, 0.16, 0.15, 0.3, { shape: 0.7 })]) });
       P.add('trim', beadRing(R - 0.004, 0.034, 34, 0.005));
       P.add('trim', around(10, 0.104, 0.398, () => petal(0.042, 0.05, 0.005), { tilt: 1.15 }));
+      P.lathe('trim', profile(0, 0.636).line(0.03, 0.638).curve([[0.032, 0.66], [0.016, 0.676]]).line(0.006, 0.69).arc(0.0, 0.706, 0.6), { segs: 24 });
+      P.add('accent', placeAt(cabochon(0.02, 0.6), 0, 0.118, 0.54));
       return P;
     },
   };
@@ -1113,7 +1268,7 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', pagoda(0.075, 0.23, 0.93, 1.1));
       P.add('trim', pagoda(0.05, 0.155, 1.1, 1.24, { up: 0.025 }));
       P.add('trim', sphere(0.03, 0, 1.262, 0, 16));
-      P.add('trim', placeAt(crossPattee(0.22, 0.045), 0, 0, 1.42));
+      P.add('trim', placeAt(crossOf('botonny', 0.22, 0.045), 0, 0, 1.42));
       P.add('accent', sphere(0.018, 0, 1.42, 0.022, 12));
       return P;
     },
@@ -1142,18 +1297,19 @@ function ChacklatePieces(THREE, K) {
         .line(0.094, 0.63)
         .curve([[0.11, 0.67], [0.132, 0.74], [0.142, 0.82], [0.138, 0.9], [0.116, 0.98], [0.082, 1.05], [0.042, 1.1]])
         .line(0.03, 1.106).line(0, 1.107);
-      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.94, 0.6, 0.017, 0.5) });
+      P.lathe('body', p, { mod: mods([MOD.lobes(8, 0.16, 0.7, 1.09, { shape: 1.4, end: 0.08, phase: Math.PI / 8 }), MOD.slit(Math.PI * 0.25, 0.94, 0.6, 0.017, 0.5)]) });
       P.add('trim', ring(R - 0.009, 0.03, 0.006));
       P.add('trim', ring(0.11, 0.668, 0.008));
       P.add('trim', around(8, 0.12, 0.69, () => ruyi(0.05, 0.05, 0.005), { tilt: 0.1 }));
-      P.add('trim', sphere(0.034, 0, 1.138, 0, 20));
+      P.add('trim', ring(0.03, 1.11, 0.006));
+      P.lathe('accent', ovalHead(profile(0, 1.106).line(0.012, 1.106), 0.012, 1.15, 0.03, 0.045, 0.6), { segs: 24 });
       return P;
     },
     n() {
       const R = 0.322, P = new Piece();
       P.lathe('body', knightBase(mingBase(profile(0, 0), R, 0.2), 0.2));
       P.add('trim', ring(R - 0.009, 0.03, 0.0065));
-      const h = horse({ base: 0.31, mane: 'flow', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'braid', seed: 5, form: { tuck: 0.52, girth: 1.16, neck: -0.08, chest: 0.16, ears: -0.3, jaw: 0.02 } });
       P.add('body', h.body); P.add('trim', h.mane);
       const br = bridle(h, { stud: 0.016 });
       P.add('trim', br.straps); P.add('accent', br.studs);
@@ -1175,10 +1331,11 @@ function ChacklatePieces(THREE, K) {
       const R = 0.272, P = new Piece();
       const p = mingBase(profile(0, 0), R, 0.11, 0.85);
       p.curve([[0.104, 0.18], [0.1, 0.24], [0.11, 0.3], [0.118, 0.33], [0.1, 0.36], [0.075, 0.38]]);
-      ballHead(p, 0.068, 0.5, 0.122);
+      ovalHead(p, 0.068, 0.49, 0.13, 0.098);
       P.lathe('body', p);
       P.add('trim', ring(R - 0.009, 0.026, 0.006));
       P.add('trim', ring(0.11, 0.33, 0.0065));
+      P.lathe('trim', profile(0, 0.575).line(0.07, 0.575).arc(0.074, 0.588, 0.4).line(0.03, 0.594).curve([[0.026, 0.61], [0.034, 0.63]]).arc(0, 0.66, 0.5), { segs: 32 });
       return P;
     },
   };
@@ -1211,7 +1368,7 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', ring(0.172, 0.885, 0.006));
       P.add('body', sphere(0.05, 0, 1.22, 0, 24));
       P.add('trim', ring(0.05, 1.22, 0.006));
-      P.add('trim', placeAt(crossPattee(0.23, 0.045), 0, 0, 1.405));
+      P.add('trim', placeAt(crossOf('beaded', 0.23, 0.045), 0, 0, 1.405));
       return P;
     },
     q() {
@@ -1245,7 +1402,7 @@ function ChacklatePieces(THREE, K) {
         .line(0.06, 0.54)
         .curve([[0.1, 0.6], [0.13, 0.68], [0.142, 0.77], [0.138, 0.86], [0.116, 0.95], [0.082, 1.02], [0.042, 1.07]])
         .line(0.03, 1.076).line(0, 1.077);
-      P.lathe('body', p, { mod: mods([twist(0.24, 0.395, 1.4), MOD.slit(Math.PI * 0.25, 0.92, 0.6, 0.018, 0.5)]) });
+      P.lathe('body', p, { mod: mods([twist(0.24, 0.395, 1.4), MOD.flutes(7, 0.13, 0.6, 1.06, { twist: 6, soft: true, end: 0.08 }), MOD.slit(Math.PI * 0.25, 0.92, 0.6, 0.018, 0.5)]) });
       P.add('trim', ring(0.1, 0.19, 0.0055)); P.add('trim', ring(0.112, 0.455, 0.0058));
       P.add('trim', ring(0.1, 0.6, 0.0075));
       P.add('trim', sphere(0.034, 0, 1.108, 0, 20));
@@ -1256,7 +1413,7 @@ function ChacklatePieces(THREE, K) {
       const p = gobletFoot(profile(0, 0), R, 0.2);
       P.lathe('body', knightBase(p, 0.2));
       P.add('trim', ring(0.214, 0.298, 0.008));
-      const h = horse({ base: 0.31, mane: 'flow', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'flow', seed: 5, form: { reach: 0.32, neck: 0.15, girth: 0.78, lean: 0.1, ears: 0.4 } });
       P.add('body', h.body); P.add('trim', h.mane);
       return P;
     },
@@ -1279,7 +1436,8 @@ function ChacklatePieces(THREE, K) {
         .line(0.05, 0.33)
         .curve([[0.08, 0.34], [0.1, 0.36]]).line(0.06, 0.38);
       ballHead(p, 0.056, 0.49, 0.118);
-      P.lathe('body', p, { mod: twist(0.226, 0.325, 1) });
+      P.lathe('body', p, { mod: mods([twist(0.226, 0.325, 1), MOD.lobes(8, 0.16, 0.39, 0.6, { shape: 0.7, end: 0.05 })]) });
+      P.add('trim', sphere(0.018, 0, 0.612, 0, 12));
       P.add('trim', ring(0.094, 0.18, 0.0055));
       P.add('trim', ring(0.098, 0.36, 0.006));
       return P;
@@ -1318,7 +1476,7 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', K.tube(arch, 0.013, { segs: 72, radial: 10 }));
       half.slice(1, -1).forEach(([y, z]) => { for (const sx of [-1, 1]) for (const sz of [-1, 1]) P.add('accent3', sphere(0.0098, sx * 0.016, y + 0.004, sz * (z + 0.002), 10)); });
       P.add('accent2', placeAt(brilliant(0.034), 0, 0, 1.25, { tilt: -Math.PI / 2 }));
-      P.add('trim', placeAt(crossPattee(0.2, 0.04), 0, 0, 1.392));
+      P.add('trim', placeAt(crossOf('orthodox', 0.2, 0.04), 0, 0, 1.392));
       return P;
     },
     q() {
@@ -1349,9 +1507,9 @@ function ChacklatePieces(THREE, K) {
       p.curve([[0.13, 0.2], [0.12, 0.32], [0.108, 0.44], [0.104, 0.54], [0.108, 0.6]])
         .line(0.15, 0.61).arc(0.16, 0.626, 0.3).arc(0.15, 0.642, 0.3).line(0.1, 0.646)
         // onion dome mitre
-        .curve([[0.13, 0.69], [0.152, 0.76], [0.15, 0.84], [0.126, 0.91], [0.09, 0.97], [0.05, 1.03], [0.026, 1.08]])
-        .line(0.02, 1.09).line(0, 1.091);
-      P.lathe('body', p, { mod: mods([gadroons(), MOD.slit(Math.PI * 0.25, 0.88, 0.6, 0.018, 0.5)]) });
+        .curve([[0.15, 0.68], [0.178, 0.75], [0.172, 0.82], [0.13, 0.88], [0.072, 0.94], [0.036, 1.0], [0.018, 1.07]])
+        .line(0.014, 1.09).line(0, 1.091);
+      P.lathe('body', p, { mod: mods([gadroons(), MOD.lobes(8, 0.06, 0.66, 1.0, { shape: 3, end: 0.04 }), MOD.slit(Math.PI * 0.25, 0.8, 0.6, 0.018, 0.5)]) });
       P.add('trim', ring(R - 0.004, 0.03, 0.0068));
       P.add('accent3', pearls(26, R - 0.03, 0.128, 0.008));
       P.add('trim', ring(0.16, 0.626, 0.0072));
@@ -1364,7 +1522,7 @@ function ChacklatePieces(THREE, K) {
       P.lathe('body', knightBase(russiaBase(profile(0, 0), R, 0.2), 0.2), { mod: gadroons() });
       P.add('trim', ring(R - 0.004, 0.03, 0.007));
       P.add('accent3', pearls(28, R - 0.03, 0.128, 0.0082));
-      const h = horse({ base: 0.31, mane: 'flow', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'flow', seed: 5, form: { tuck: -0.4, lean: -0.1, neck: 0.05, chest: 0.18 } });
       P.add('body', h.body); P.add('trim', h.mane);
       const br = bridle(h, { stud: 0.014 });
       P.add('trim', br.straps); P.add('accent', br.studs);
@@ -1388,8 +1546,11 @@ function ChacklatePieces(THREE, K) {
       const p = russiaBase(profile(0, 0), R, 0.11, 0.85);
       p.curve([[0.106, 0.18], [0.096, 0.26], [0.09, 0.32]])
         .line(0.13, 0.33).arc(0.14, 0.346, 0.3).arc(0.13, 0.362, 0.3).line(0.066, 0.368);
-      ballHead(p, 0.062, 0.49, 0.118);
+      ovalHead(p, 0.062, 0.51, 0.1, 0.135);
       P.lathe('body', p, { mod: gadroons(0.85) });
+      P.add('trim', ring(0.101, 0.51, 0.0055));
+      for (const a of [0.55, -0.55]) P.add('trim', ring(0.104, 0, 0.0045, { squash: 1.36 }).rotateX(Math.PI / 2).rotateY(Math.PI / 4).rotateZ(a).translate(0, 0.51, 0));
+      P.add('accent3', sphere(0.018, 0, 0.66, 0, 12));
       P.add('trim', ring(R - 0.004, 0.026, 0.0065));
       P.add('trim', ring(0.14, 0.346, 0.0068));
       P.add('accent3', pearls(18, 0.07, 0.376, 0.0072));
@@ -1430,7 +1591,7 @@ function ChacklatePieces(THREE, K) {
       const c = chryslerCrown(0.94, 0.11, 4);
       P.add('trim', c.geom);
       P.lathe('trim', profile(0, c.top).line(0.02, c.top).line(0.004, c.top + 0.16).line(0, c.top + 0.162), { segs: 24 });
-      P.add('trim', placeAt(crossPattee(0.18, 0.036), 0, 0, c.top + 0.27));
+      P.add('trim', placeAt(crossOf('stepped', 0.18, 0.036), 0, 0, c.top + 0.27));
       return P;
     },
     q() {
@@ -1454,7 +1615,7 @@ function ChacklatePieces(THREE, K) {
       p.line(0.122, 0.54).line(0.148, 0.545).line(0.148, 0.59).line(0.1, 0.596)
         .curve([[0.118, 0.64], [0.136, 0.72], [0.138, 0.81], [0.126, 0.9], [0.1, 0.98], [0.066, 1.04], [0.03, 1.08]])
         .line(0.018, 1.086).line(0, 1.087);
-      P.lathe('body', p, { mod: mods([octo(0, 0.125), ribs(12, 0.13, 0.535), MOD.slit(Math.PI * 0.25, 0.9, 0.6, 0.017, 0.5)]) });
+      P.lathe('body', p, { mod: mods([octo(0, 0.125), ribs(12, 0.13, 0.535), MOD.facets(8, 0.6, 1.1, 0), MOD.slit(Math.PI * 0.25, 0.9, 0.6, 0.017, 0.5)]) });
       P.add('trim', ring(0.149, 0.567, 0.0066));
       for (const [y, r] of [[0.64, 0.12], [0.665, 0.126], [0.69, 0.131]]) P.add('trim', ring(r, y, 0.0048));
       P.add('trim', sphere(0.03, 0, 1.11, 0, 20));
@@ -1466,7 +1627,7 @@ function ChacklatePieces(THREE, K) {
       p.line(0.2, 0.2).line(0.222, 0.205).line(0.222, 0.3).line(0.205, 0.318).line(0, 0.318);
       P.lathe('body', p, { mod: octo(0, 0.32) });
       P.add('trim', ring(0.223, 0.25, 0.006));
-      const h = horse({ base: 0.31, mane: 'roach', seed: 5 });
+      const h = horse({ base: 0.31, mane: 'none', seed: 5, form: { facet: 0.018, lean: 0.18, reach: 0.16, girth: 0.86, ears: 0.35 } });
       P.add('body', h.body);
       const br = bridle(h, { stud: 0.014 });
       P.add('trim', br.straps); P.add('trim', br.studs);
@@ -1486,8 +1647,866 @@ function ChacklatePieces(THREE, K) {
       const p = decoBase(profile(0, 0), R, 0.1, 0.85);
       p.line(0.094, 0.3).line(0.122, 0.305).line(0.122, 0.345).line(0.064, 0.35);
       ballHead(p, 0.06, 0.47, 0.118);
-      P.lathe('body', p, { mod: mods([octo(0, 0.35), ribs(10, 0.115, 0.295)]) });
+      P.lathe('body', p, { mod: mods([octo(0, 0.35), ribs(10, 0.115, 0.295), MOD.facets(8, 0.36, 0.6, 0)]) });
       P.add('trim', ring(0.123, 0.325, 0.0058));
+      P.add('trim', ring(0.122, 0.47, 0.006, { seg: 8 }).rotateY(Math.PI / 8));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ shared by the newer sets
+  // A lathe cut into flat facets like a gemstone: a fixed number of sides at every level of
+  // detail, so a crystal piece looks the same on the table and in a close-up.
+  function cutLathe(P, slot, prof, sides, o) {
+    const keep = DETAIL.around;
+    DETAIL.around = 1;
+    const g = revolve(prof, Object.assign({ segs: sides }, o || {}));
+    DETAIL.around = keep;
+    const f = g.toNonIndexed(); f.computeVertexNormals();
+    return P.add(slot, f);
+  }
+  // A thin tendril winding up a stem whose radius at height y is rAt(y).
+  function tendril(rAt, y0, y1, turns, phase, thick) {
+    const pts = [];
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40, y = mix(y0, y1, t), th = phase + t * turns * TAU, r = rAt(y) + (thick || 0.007) * 0.6 + 0.012 * Math.sin(t * Math.PI * 3);
+      pts.push([Math.sin(th) * r, y, Math.cos(th) * r]);
+    }
+    return K.tube(pts, thick || 0.007, { segs: 90, radial: 8, radiusAt: (t) => mix(1, 0.35, t) });
+  }
+  // A drizzle of icing: a closed wavy line round radius r at height y.
+  function drizzle(r, y, waves, amp, thick) {
+    const pts = [];
+    for (let i = 0; i < 96; i++) { const th = (i / 96) * TAU; pts.push([Math.sin(th) * r, y + Math.sin(th * waves) * amp, Math.cos(th) * r]); }
+    return K.tube(pts, thick || 0.008, { closed: true, segs: 160, radial: 8 });
+  }
+  // A pair of trophy handles, ear-shaped loops from yLow to yHigh on a cup of radius r.
+  function handles(r, yLow, yHigh, reach, thick) {
+    const parts = [];
+    for (const s of [-1, 1]) {
+      const h = yHigh - yLow, pts = [[r - 0.01, yHigh], [r + reach * 0.7, yHigh + h * 0.12], [r + reach, yHigh - h * 0.25], [r + reach * 0.75, yLow + h * 0.25], [r + reach * 0.2, yLow + h * 0.02], [r - 0.012, yLow]];
+      parts.push(K.tube(pts.map(([x, y]) => [s * x, y, 0]), thick || 0.014, { segs: 48, radial: 10 }));
+      for (const [x, y] of [pts[1], pts[4]]) parts.push(sphere((thick || 0.014) * 1.3, s * x, y, 0, 10));
+    }
+    return merge(parts);
+  }
+  // A five-pointed star facing +z, centred on the origin.
+  function star(r, depth, points) {
+    const n = points || 5, pts = [];
+    for (let i = 0; i < n * 2; i++) { const a = (i / (n * 2)) * TAU, rr = i % 2 ? r * 0.45 : r; pts.push([Math.sin(a) * rr, Math.cos(a) * rr]); }
+    return extrude(pts, depth, depth * 0.35, { bevelSegments: 2 });
+  }
+  // A crescent moon, horns up, facing +z.
+  function crescent(r, depth) {
+    const out = [], hole = [];
+    for (let i = 0; i <= 32; i++) { const a = mix(-2.5, 2.5, i / 32); out.push([Math.sin(a) * r, -Math.cos(a) * r]); }
+    for (let i = 32; i >= 0; i--) { const a = mix(-2.2, 2.2, i / 32); hole.push([Math.sin(a) * r * 0.82, -Math.cos(a) * r * 0.78 + r * 0.32]); }
+    return extrude(out.concat(hole), depth, depth * 0.3, { bevelSegments: 2 });
+  }
+  // A small gem set facing outward on a ring: n brilliants round radius r at height y.
+  const gemRing = (n, r, y, size, o) => around(n, r, y, () => brilliant(size), o);
+  // Lines of gems climbing a shaft whose radius at height y is rAt(y): `lines` spirals of `count`.
+  function pave(lines, count, rAt, y0, y1, size, turns) {
+    const parts = [];
+    for (let l = 0; l < lines; l++) for (let i = 0; i < count; i++) {
+      const t = (i + 0.5) / count, y = mix(y0, y1, t);
+      parts.push(placeAt(brilliant(size), (l / lines) * TAU + t * (turns || 0) * TAU, rAt(y) + size * 0.2, y));
+    }
+    return merge(parts);
+  }
+
+  // ------------------------------------------------------------------ Belle Epoque (Paris, 1889)
+  // Art Nouveau: lily cups on whiplash stems, tendrils in gold, Eiffel ironwork on the rook.
+  function nouveauBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R - 0.01, 0).arc(R, 0.012 * k, 0.3)
+      .curve([[R - 0.012, 0.032 * k], [R - 0.06, 0.052 * k], [R - 0.13, 0.074 * k], [top + 0.035, 0.1 * k]])
+      .curve([[top + 0.008, 0.13 * k], [top, 0.165 * k]]);
+  }
+  const petalFoot = (k) => MOD.lobes(5, 0.14, 0, 0.09 * (k || 1), { shape: 0.6, end: 0.01 });
+  const NOUVEAU = {
+    k() {
+      const R = 0.35, P = new Piece();
+      const p = nouveauBase(profile(0, 0), R, 0.078);
+      p.curve([[0.07, 0.3], [0.06, 0.5], [0.064, 0.7], [0.082, 0.8]])
+        .curve([[0.13, 0.86], [0.19, 0.95], [0.214, 1.03]]).arc(0.2, 1.04, 0.5)
+        .curve([[0.17, 1.0], [0.1, 0.975]]).line(0, 0.97);
+      P.lathe('body', p, { mod: petalFoot(), lift: (th, y) => -0.07 * Math.pow(Math.abs(Math.sin((th * 5) / 2)), 0.8) * smooth(0.94, 1.04, y) });
+      P.lathe('body', profile(0, 0.96).line(0.1, 0.96).curve([[0.112, 1.03], [0.096, 1.1], [0.055, 1.16], [0.02, 1.18]]).line(0, 1.182), { mod: MOD.lobes(5, 0.12, 0.98, 1.17, { shape: 1.5 }) });
+      P.add('trim', tendril((y) => mix(0.07, 0.064, (y - 0.17) / 0.6), 0.17, 0.8, 1.5, 0.3));
+      P.add('trim', tendril((y) => mix(0.07, 0.064, (y - 0.17) / 0.6), 0.17, 0.8, 1.5, 0.3 + Math.PI));
+      P.add('trim', ring(0.084, 0.8, 0.008));
+      P.add('trim', sphere(0.03, 0, 1.205, 0, 16));
+      P.add('trim', placeAt(crossOf('scroll', 0.24, 0.04), 0, 0, 1.34));
+      return P;
+    },
+    q() {
+      const R = 0.335, P = new Piece();
+      const p = nouveauBase(profile(0, 0), R, 0.074);
+      p.curve([[0.066, 0.3], [0.056, 0.48], [0.06, 0.64], [0.078, 0.74]])
+        .curve([[0.13, 0.8], [0.2, 0.9], [0.236, 1.0]]).arc(0.222, 1.012, 0.5)
+        .curve([[0.19, 0.97], [0.12, 0.92]]).line(0, 0.915);
+      P.lathe('body', p, { mod: petalFoot(), lift: (th, y) => -0.11 * Math.pow(Math.abs(Math.sin((th * 6) / 2)), 0.6) * smooth(0.86, 1.01, y) });
+      P.add('trim', tendril((y) => mix(0.066, 0.06, (y - 0.17) / 0.55), 0.17, 0.74, 1.3, 1.2));
+      P.add('trim', tendril((y) => mix(0.066, 0.06, (y - 0.17) / 0.55), 0.17, 0.74, 1.3, 1.2 + Math.PI));
+      // the pistil: a gold stalk holding a pearl
+      P.lathe('trim', profile(0, 0.91).line(0.03, 0.91).curve([[0.016, 1.0], [0.014, 1.1]]).line(0, 1.1), { segs: 24 });
+      P.add('body', sphere(0.05, 0, 1.14, 0, 24));
+      for (let i = 0; i < 6; i++) { const th = (i / 6) * TAU; P.add('trim', sphere(0.014, Math.sin(th) * 0.234, 1.014, Math.cos(th) * 0.234, 10)); }
+      return P;
+    },
+    b() {
+      const R = 0.312, P = new Piece();
+      const p = nouveauBase(profile(0, 0), R, 0.07);
+      p.curve([[0.062, 0.28], [0.054, 0.44], [0.06, 0.56], [0.08, 0.62]])
+        .curve([[0.12, 0.68], [0.142, 0.77], [0.138, 0.87], [0.11, 0.97], [0.07, 1.05], [0.024, 1.1]]).line(0, 1.104);
+      P.lathe('body', p, { mod: mods([petalFoot(), MOD.lobes(3, 0.16, 0.64, 1.08, { shape: 1.6, end: 0.08 }), MOD.slit(Math.PI * 0.25, 0.9, 0.6, 0.017, 0.5)]) });
+      P.add('trim', tendril((y) => mix(0.062, 0.056, (y - 0.17) / 0.45), 0.17, 0.62, 1.2, 0.8));
+      P.add('trim', ring(0.082, 0.625, 0.0075));
+      P.add('trim', placeAt(curl(leaf(0.06, 0.1, 0.008), 3), Math.PI, 0.1, 0.66, { tilt: 0.5 }));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(nouveauBase(profile(0, 0), R, 0.2), 0.2), { mod: petalFoot() });
+      const h = horse({ base: 0.31, mane: 'flow', seed: 8, form: { tuck: 0.22, reach: 0.1, neck: 0.12, girth: 0.84, lean: 0.04 } });
+      P.add('body', h.body); P.add('trim', h.mane);
+      P.add('trim', ring(0.214, 0.3, 0.008));
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = nouveauBase(profile(0, 0), R, 0.215);
+      p.curve([[0.214, 0.25], [0.198, 0.42], [0.208, 0.58], [0.236, 0.65]])
+        .line(0.252, 0.66).line(0.252, 0.69).line(0.2, 0.69).line(0.2, 0.67).line(0, 0.67);
+      // Eiffel ironwork: tall pointed arches round the tower
+      P.lathe('body', p, { mod: mods([petalFoot(), MOD.arcade(9, 0.22, 0.6, 0.66, 0.12, { pointed: true, head: 0.14 })]) });
+      P.add('body', battlements(4, 0.2, 0.252, 0.686, 0.82, 0.3, 'round', 0.05));
+      P.add('trim', ring(0.253, 0.668, 0.008));
+      P.add('trim', ring(0.214, 0.22, 0.007));
+      return P;
+    },
+    p() {
+      const R = 0.272, P = new Piece();
+      const p = nouveauBase(profile(0, 0), R, 0.062, 0.85);
+      p.curve([[0.056, 0.24], [0.05, 0.32], [0.058, 0.37]]);
+      ballHead(p, 0.056, 0.48, 0.112);
+      P.lathe('body', p, { mod: petalFoot(0.85) });
+      P.add('trim', around(3, 0.064, 0.4, () => curl(leaf(0.05, 0.09, 0.007), 4), { tilt: 0.75 }));
+      P.add('trim', tendril((y) => 0.054, 0.15, 0.37, 0.8, 0.4, 0.006));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Carrara & Nero (today)
+  // A modern sculptor's set: clean cones, spheres and discs, cut sharp from marble.
+  function modernBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R, 0).line(R, 0.05 * k).line(R - 0.02, 0.07 * k).line(top + 0.01, 0.075 * k).line(top, 0.085 * k);
+  }
+  const MODERN = {
+    k() {
+      const R = 0.34, P = new Piece();
+      P.lathe('body', modernBase(profile(0, 0), R, 0.17).line(0.1, 0.98).line(0.15, 0.985).line(0.15, 1.02).line(0.07, 1.025).line(0.07, 1.1).line(0, 1.1));
+      P.lathe('body', profile(0, 0.6).line(0.142, 0.6).line(0.142, 0.612).line(0, 0.612));
+      P.add('body', placeAt(crossOf('plain', 0.3, 0.05), 0, 0, 1.27));
+      return P;
+    },
+    q() {
+      const R = 0.325, P = new Piece();
+      P.lathe('body', modernBase(profile(0, 0), R, 0.162).line(0.095, 0.92).line(0, 0.92));
+      P.lathe('body', profile(0, 0.92).line(0.19, 0.92).line(0.19, 0.935).line(0, 0.935));
+      for (let i = 0; i < 9; i++) { const th = (i / 9) * TAU; P.add('body', sphere(0.022, Math.sin(th) * 0.19, 0.958, Math.cos(th) * 0.19, 14)); }
+      P.add('body', sphere(0.1, 0, 1.03, 0, 32));
+      P.add('body', sphere(0.032, 0, 1.15, 0, 16));
+      return P;
+    },
+    b() {
+      const R = 0.305, P = new Piece();
+      const p = modernBase(profile(0, 0), R, 0.15).line(0.075, 0.7);
+      ballHead(p, 0.075, 0.84, 0.135);
+      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.9, 0.7, 0.03, 0.75) });
+      P.lathe('body', profile(0, 0.97).line(0.012, 0.97).line(0.004, 1.06).line(0, 1.06), { segs: 16 });
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', modernBase(profile(0, 0), R, 0.2).line(0.2, 0.3).line(0, 0.3));
+      P.add('body', horse({ base: 0.3, mane: 'none', seed: 5, form: { girth: 0.9, tuck: 0.2, neck: 0.03, reach: -0.04, ears: 0.1 } }).body);
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', modernBase(profile(0, 0), R, 0.215).line(0.215, 0.62).line(0.17, 0.62).line(0.17, 0.6).line(0, 0.6));
+      P.add('body', battlements(4, 0.17, 0.215, 0.615, 0.74, 0.28, 'flat'));
+      P.lathe('body', profile(0, 0.36).line(0.222, 0.36).line(0.222, 0.375).line(0, 0.375));
+      return P;
+    },
+    p() {
+      const R = 0.265, P = new Piece();
+      const p = modernBase(profile(0, 0), R, 0.13, 0.8).line(0.06, 0.36);
+      ballHead(p, 0.06, 0.46, 0.108);
+      P.lathe('body', p);
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Cocoa & Gilt (a chocolatier's salon)
+  // Every piece is a confection: pleated paper cups, truffles, piped rosettes and gold drizzle.
+  function cupBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R - 0.024, 0).curve([[R - 0.004, 0.04 * k], [R + 0.006, 0.09 * k]]).line(R - 0.012, 0.096 * k)
+      .curve([[R - 0.06, 0.104 * k], [top + 0.02, 0.112 * k]]).line(top, 0.13 * k);
+  }
+  const pleats = (k) => MOD.flutes(26, 0.07, 0.004, 0.092 * (k || 1), { fillet: 0.1, end: 0.01 });
+  const piped = (y0, y1, n) => MOD.flutes(n || 8, 0.16, y0, y1, { twist: 11, soft: true, end: 0.03 });
+  const PRALINE = {
+    k() {
+      const R = 0.35, P = new Piece();
+      const p = cupBase(profile(0, 0), R, 0.12);
+      p.curve([[0.17, 0.18], [0.182, 0.26], [0.156, 0.33], [0.1, 0.36]])
+        .curve([[0.09, 0.42], [0.092, 0.52], [0.1, 0.6]])
+        .curve([[0.15, 0.64], [0.168, 0.71], [0.142, 0.77], [0.1, 0.79]])
+        .curve([[0.092, 0.82], [0.104, 0.86]])
+        .curve([[0.152, 0.9], [0.172, 0.97], [0.152, 1.04], [0.094, 1.1], [0.04, 1.13]]).line(0, 1.135);
+      P.lathe('body', p, { mod: mods([pleats(), piped(0.86, 1.13)]) });
+      P.add('trim', drizzle(0.17, 0.26, 7, 0.022)); P.add('trim', drizzle(0.162, 0.7, 6, 0.018));
+      P.add('trim', ring(0.1, 0.6, 0.008));
+      P.add('trim', placeAt(crossOf('crosslet', 0.22, 0.044), 0, 0, 1.27));
+      return P;
+    },
+    q() {
+      const R = 0.335, P = new Piece();
+      const p = cupBase(profile(0, 0), R, 0.115);
+      p.curve([[0.162, 0.18], [0.172, 0.25], [0.148, 0.32], [0.096, 0.35]])
+        .curve([[0.086, 0.42], [0.09, 0.52], [0.1, 0.58]])
+        .curve([[0.16, 0.66], [0.2, 0.76], [0.21, 0.86]]).arc(0.196, 0.872, 0.5)
+        .curve([[0.17, 0.85], [0.12, 0.83]]).line(0, 0.825);
+      const N = 8;
+      P.lathe('body', p, { mod: mods([pleats(), piped(0.6, 0.86, 16)]), lift: (th, y) => -0.07 * Math.pow(Math.abs(Math.cos((th * N) / 2)), 0.5) * smooth(0.8, 0.87, y) });
+      P.add('trim', drizzle(0.16, 0.25, 7, 0.02));
+      P.lathe('body', profile(0, 0.82).line(0.11, 0.82).curve([[0.12, 0.9], [0.1, 0.98], [0.05, 1.03]]).line(0, 1.035), { mod: piped(0.82, 1.03, 6) });
+      // a gilt cherry on top
+      P.add('trim', sphere(0.048, 0, 1.08, 0, 24));
+      P.add('trim', K.tube([[0, 1.12, 0], [0.01, 1.16, -0.01], [0.03, 1.19, -0.03]], 0.006, { segs: 12 }));
+      return P;
+    },
+    b() {
+      const R = 0.312, P = new Piece();
+      const p = cupBase(profile(0, 0), R, 0.11);
+      p.curve([[0.152, 0.17], [0.162, 0.24], [0.14, 0.31], [0.09, 0.34]])
+        .curve([[0.08, 0.42], [0.084, 0.5], [0.096, 0.56]])
+        .curve([[0.13, 0.6], [0.142, 0.68], [0.13, 0.8], [0.09, 0.93], [0.04, 1.03]]).line(0, 1.04);
+      P.lathe('body', p, { mod: mods([pleats(), piped(0.58, 1.03, 6), MOD.slit(Math.PI * 0.25, 0.86, 0.6, 0.018, 0.5)]) });
+      P.add('trim', drizzle(0.152, 0.24, 6, 0.018));
+      P.add('trim', ring(0.098, 0.565, 0.008));
+      P.add('trim', sphere(0.028, 0, 1.06, 0, 16));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(cupBase(profile(0, 0), R, 0.2), 0.2), { mod: pleats() });
+      P.add('body', horse({ base: 0.31, mane: 'carved', seed: 11, form: { tuck: 0.06, girth: 1.06, nose: -0.012, neck: -0.02, chest: 0.08 } }).body);
+      P.add('trim', drizzle(0.21, 0.27, 6, 0.014));
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = cupBase(profile(0, 0), R, 0.226);
+      p.line(0.226, 0.3).line(0.236, 0.31).line(0.236, 0.45).line(0.226, 0.46).line(0.226, 0.6).line(0.24, 0.61).line(0.24, 0.66).line(0.2, 0.66).line(0.2, 0.64).line(0, 0.64);
+      P.lathe('body', p, { mod: pleats() });
+      P.add('body', battlements(8, 0.2, 0.24, 0.655, 0.77, 0.42, 'flat'));
+      P.add('trim', drizzle(0.238, 0.38, 8, 0.03)); P.add('trim', drizzle(0.23, 0.54, 8, 0.025));
+      return P;
+    },
+    p() {
+      const R = 0.272, P = new Piece();
+      const p = cupBase(profile(0, 0), R, 0.09, 0.85);
+      p.curve([[0.08, 0.17], [0.07, 0.24], [0.068, 0.3]]);
+      ballHead(p, 0.068, 0.41, 0.13);
+      P.lathe('body', p, { mod: pleats(0.85) });
+      P.add('trim', drizzle(0.12, 0.47, 5, 0.03, 0.007));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Jade & Onyx (stones of legend)
+  // Square-cut like standing stones and obelisks: every piece is carved four-sided.
+  const square = (y0, y1, round) => MOD.facets(4, y0, y1, round === undefined ? 0.3 : round);
+  function monoBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R, 0).line(R, 0.05 * k).curve([[R - 0.03, 0.068 * k], [R - 0.07, 0.088 * k]]).line(top + 0.02, 0.11 * k).line(top, 0.14 * k);
+  }
+  // Lathed with the square turned to face the front.
+  const sqLathe = (P, slot, prof, o) => P.add(slot, revolve(prof, Object.assign({ segs: Q.segs }, o || {})).rotateY(Math.PI / 4));
+  const MONOLITH = {
+    k() {
+      const R = 0.33, P = new Piece();
+      const p = monoBase(profile(0, 0), R, 0.15).line(0.118, 0.9).line(0.15, 0.91).line(0.15, 0.96).line(0.1, 0.97).line(0.035, 1.1).line(0, 1.11);
+      sqLathe(P, 'body', p, { mod: square(-1, 2, 0.2) });
+      sqLathe(P, 'trim', profile(0, 0.5).line(0.136, 0.5).line(0.136, 0.52).line(0, 0.52), { mod: square(-1, 2, 0.2) });
+      P.add('trim', placeAt(crossOf('maltese', 0.24, 0.05), 0, 0, 1.25));
+      return P;
+    },
+    q() {
+      const R = 0.318, P = new Piece();
+      const p = monoBase(profile(0, 0), R, 0.142).line(0.11, 0.8).line(0.15, 0.81).line(0.15, 0.85).line(0.13, 0.86)
+        .curve([[0.16, 0.92], [0.17, 0.98]]).line(0.15, 0.99).curve([[0.12, 0.97], [0.08, 0.96]]).line(0, 0.955);
+      sqLathe(P, 'body', p, { mod: square(-1, 2, 0.2), lift: (th, y) => -0.06 * Math.pow(Math.abs(Math.sin(th * 2)), 0.7) * smooth(0.9, 0.99, y) });
+      sqLathe(P, 'trim', profile(0, 0.46).line(0.13, 0.46).line(0.13, 0.48).line(0, 0.48), { mod: square(-1, 2, 0.2) });
+      P.add('body', sphere(0.075, 0, 1.03, 0, 24));
+      P.add('trim', sphere(0.025, 0, 1.12, 0, 12));
+      return P;
+    },
+    b() {
+      const R = 0.3, P = new Piece();
+      const p = monoBase(profile(0, 0), R, 0.13).line(0.1, 0.56).line(0.14, 0.57).line(0.14, 0.61).line(0.09, 0.62)
+        .curve([[0.13, 0.68], [0.14, 0.78], [0.12, 0.9], [0.07, 0.99], [0.02, 1.03]]).line(0, 1.032);
+      sqLathe(P, 'body', p, { mod: mods([square(-1, 0.63, 0.2), square(0.63, 2, 0.6), MOD.slit(Math.PI / 4, 0.86, 0.6, 0.02, 0.55)]) });
+      sqLathe(P, 'trim', profile(0, 0.42).line(0.12, 0.42).line(0.12, 0.44).line(0, 0.44), { mod: square(-1, 2, 0.2) });
+      return P;
+    },
+    n() {
+      const R = 0.31, P = new Piece();
+      sqLathe(P, 'body', monoBase(profile(0, 0), R, 0.2).line(0.2, 0.3).line(0, 0.3), { mod: square(-1, 2, 0.2) });
+      P.add('body', horse({ base: 0.3, mane: 'carved', seed: 13, form: { tuck: 0.24, neck: -0.03, girth: 1.04, nose: 0.012, ears: 0.1, jaw: 0.01 } }).body);
+      return P;
+    },
+    r() {
+      const R = 0.31, P = new Piece(), top = 0.66, hw = 0.198 * Math.SQRT1_2;
+      sqLathe(P, 'body', monoBase(profile(0, 0), R, 0.2).line(0.198, top).line(0, top), { mod: square(-1, 2, 0.08) });
+      // eight square merlons round the edge of a square tower
+      for (const [x, z] of [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]]) {
+        const b = new THREE.BoxGeometry(0.056, 0.12, 0.056);
+        b.translate(x * (hw - 0.028), top + 0.055, z * (hw - 0.028));
+        P.add('body', b);
+      }
+      sqLathe(P, 'trim', profile(0, 0.5).line(0.2, 0.5).line(0.2, 0.52).line(0, 0.52), { mod: square(-1, 2, 0.08) });
+      return P;
+    },
+    p() {
+      const R = 0.255, P = new Piece();
+      const p = monoBase(profile(0, 0), R, 0.1, 0.85).line(0.085, 0.32).line(0.11, 0.33).line(0.11, 0.36).line(0.066, 0.37);
+      sqLathe(P, 'body', p, { mod: square(-1, 0.365, 0.2) });
+      P.add('body', sphere(0.112, 0, 0.47, 0, 32));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Gold & Platinum (the trophy cabinet)
+  // Every piece is a trophy: stepped socles, knopped stems, cups with handles.
+  function socle(p, R, top, k) {
+    k = k || 1;
+    return p.line(R, 0).line(R, 0.03 * k).line(R - 0.025, 0.035 * k).line(R - 0.025, 0.06 * k)
+      .curve([[R - 0.05, 0.07 * k], [R - 0.09, 0.1 * k], [R - 0.11, 0.13 * k]]).line(top + 0.02, 0.135 * k).line(top, 0.15 * k);
+  }
+  const TROPHY = {
+    k() {
+      const R = 0.34, P = new Piece();
+      const p = socle(profile(0, 0), R, 0.07);
+      p.line(0.06, 0.26).curve([[0.1, 0.28], [0.1, 0.33], [0.06, 0.35]]).line(0.055, 0.46)
+        .curve([[0.13, 0.5], [0.19, 0.58], [0.2, 0.74]]).line(0.212, 0.78).line(0.2, 0.79)
+        .curve([[0.19, 0.84], [0.14, 0.9], [0.08, 0.94]]).line(0.05, 0.97).line(0, 0.97);
+      P.lathe('body', p, { mod: MOD.flutes(16, 0.06, 0.48, 0.66, { fillet: 0.3, end: 0.04 }) });
+      P.add('trim', handles(0.19, 0.55, 0.76, 0.1));
+      P.add('trim', ring(0.212, 0.78, 0.009)); P.add('trim', ring(0.1, 0.31, 0.008));
+      P.add('trim', sphere(0.045, 0, 1.01, 0, 24));
+      P.add('trim', placeAt(crossOf('celtic', 0.24, 0.04), 0, 0, 1.18));
+      return P;
+    },
+    q() {
+      const R = 0.33, P = new Piece();
+      const p = socle(profile(0, 0), R, 0.066);
+      p.line(0.056, 0.25).curve([[0.094, 0.27], [0.094, 0.32], [0.056, 0.34]]).line(0.052, 0.44)
+        .curve([[0.13, 0.48], [0.2, 0.58], [0.226, 0.8]]).arc(0.21, 0.81, 0.5)
+        .curve([[0.19, 0.74], [0.12, 0.7]]).line(0, 0.69);
+      P.lathe('body', p, { mod: MOD.flutes(16, 0.06, 0.46, 0.66, { fillet: 0.3, end: 0.04 }), lift: (th, y) => -0.06 * Math.pow(Math.abs(Math.cos(th * 4)), 0.5) * smooth(0.74, 0.81, y) });
+      P.add('trim', handles(0.19, 0.52, 0.72, 0.1));
+      P.add('trim', ring(0.1, 0.3, 0.008));
+      for (let i = 0; i < 8; i++) { const th = ((i + 0.5) / 8) * TAU; P.add('trim', sphere(0.016, Math.sin(th) * 0.22, 0.818, Math.cos(th) * 0.22, 10)); }
+      P.lathe('body', profile(0, 0.69).line(0.09, 0.69).curve([[0.1, 0.78], [0.08, 0.86], [0.04, 0.9]]).line(0, 0.905));
+      P.add('trim', sphere(0.05, 0, 0.95, 0, 24));
+      return P;
+    },
+    b() {
+      const R = 0.31, P = new Piece();
+      const p = socle(profile(0, 0), R, 0.062);
+      p.line(0.052, 0.24).curve([[0.09, 0.26], [0.09, 0.31], [0.052, 0.33]]).line(0.05, 0.42)
+        .curve([[0.11, 0.45], [0.15, 0.52], [0.15, 0.6]]).line(0.158, 0.62).line(0.14, 0.63)
+        .curve([[0.15, 0.7], [0.14, 0.8], [0.11, 0.9], [0.07, 0.97], [0.03, 1.01]]).line(0, 1.012);
+      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.84, 0.6, 0.018, 0.5) });
+      P.add('trim', ring(0.158, 0.62, 0.008)); P.add('trim', ring(0.09, 0.29, 0.008));
+      P.add('trim', sphere(0.032, 0, 1.04, 0, 16));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(socle(profile(0, 0), R, 0.2), 0.2));
+      const h = horse({ base: 0.31, mane: 'flow', seed: 17, form: { neck: 0.05, tuck: -0.08, chest: 0.1, reach: 0.04 } });
+      P.add('body', h.body); P.add('trim', h.mane);
+      P.add('trim', ring(0.214, 0.3, 0.008));
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = socle(profile(0, 0), R, 0.2);
+      p.curve([[0.2, 0.2], [0.21, 0.4], [0.225, 0.6]]).line(0.24, 0.61).line(0.24, 0.64).line(0.2, 0.64).line(0.2, 0.62).line(0, 0.62);
+      P.lathe('body', p);
+      P.add('body', battlements(6, 0.2, 0.24, 0.635, 0.76, 0.36, 'flat'));
+      P.add('trim', handles(0.212, 0.3, 0.54, 0.08, 0.013));
+      P.add('trim', ring(0.241, 0.61, 0.008));
+      return P;
+    },
+    p() {
+      const R = 0.262, P = new Piece();
+      const p = socle(profile(0, 0), R, 0.05, 0.85);
+      p.line(0.045, 0.2).curve([[0.08, 0.22], [0.08, 0.27], [0.045, 0.29]]).line(0.05, 0.34);
+      ballHead(p, 0.05, 0.44, 0.105);
+      P.lathe('body', p);
+      P.add('trim', ring(0.08, 0.245, 0.007));
+      P.add('trim', ring(0.106, 0.44, 0.006));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Ruby Chocolate (2017)
+  // Fresh from the mould: soft, rounded pieces built from stacked bubbles.
+  function puffBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R - 0.05, 0).curve([[R - 0.005, 0.02 * k], [R + 0.005, 0.06 * k], [R - 0.03, 0.1 * k], [R - 0.08, 0.115 * k]]).line(top, 0.125 * k);
+  }
+  const BUBBLE = {
+    k() {
+      const R = 0.34, P = new Piece();
+      const p = puffBase(profile(0, 0), R, 0.13);
+      p.curve([[0.18, 0.2], [0.17, 0.3], [0.11, 0.34]]).curve([[0.16, 0.42], [0.155, 0.53], [0.1, 0.57]])
+        .curve([[0.145, 0.65], [0.14, 0.75], [0.095, 0.79]]).curve([[0.175, 0.86], [0.18, 0.98], [0.11, 1.05], [0.04, 1.075]]).line(0, 1.08);
+      P.lathe('body', p);
+      P.add('body', placeAt(crossOf('capsule', 0.26, 0.06), 0, 0, 1.2));
+      return P;
+    },
+    q() {
+      const R = 0.328, P = new Piece();
+      const p = puffBase(profile(0, 0), R, 0.125);
+      p.curve([[0.172, 0.2], [0.165, 0.29], [0.105, 0.33]]).curve([[0.15, 0.41], [0.145, 0.51], [0.096, 0.55]])
+        .curve([[0.17, 0.62], [0.18, 0.74], [0.12, 0.8], [0.05, 0.82]]).line(0, 0.822);
+      P.lathe('body', p);
+      for (let i = 0; i < 7; i++) { const th = (i / 7) * TAU; P.add('body', sphere(0.04, Math.sin(th) * 0.13, 0.84, Math.cos(th) * 0.13, 16)); }
+      P.add('body', sphere(0.09, 0, 0.9, 0, 24));
+      P.add('body', sphere(0.04, 0, 1.02, 0, 16));
+      return P;
+    },
+    b() {
+      const R = 0.31, P = new Piece();
+      const p = puffBase(profile(0, 0), R, 0.12);
+      p.curve([[0.165, 0.2], [0.158, 0.29], [0.1, 0.33]]).curve([[0.14, 0.4], [0.135, 0.5], [0.09, 0.54]]);
+      ovalHead(p, 0.09, 0.73, 0.15, 0.2);
+      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.8, 0.6, 0.03, 0.6) });
+      P.add('body', sphere(0.04, 0, 0.95, 0, 16));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(puffBase(profile(0, 0), R, 0.2), 0.2));
+      P.add('body', horse({ base: 0.31, mane: 'none', seed: 5, form: { girth: 1.16, reach: -0.18, ears: -0.25, neck: -0.06, tuck: 0.05, headW: 1.08 } }).body);
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = puffBase(profile(0, 0), R, 0.2);
+      p.curve([[0.25, 0.22], [0.26, 0.4], [0.24, 0.6]]).line(0.25, 0.62).line(0.25, 0.65).line(0.19, 0.65).line(0.19, 0.63).line(0, 0.63);
+      P.lathe('body', p);
+      P.add('body', battlements(5, 0.19, 0.25, 0.645, 0.78, 0.3, 'round', 0.06));
+      return P;
+    },
+    p() {
+      const R = 0.265, P = new Piece();
+      const p = puffBase(profile(0, 0), R, 0.1, 0.85);
+      p.curve([[0.13, 0.17], [0.125, 0.24], [0.075, 0.27]]);
+      ballHead(p, 0.075, 0.38, 0.13);
+      P.lathe('body', p);
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Milk & Dark (the cocoa harvest)
+  // Ribbed cocoa pods on leafy feet: the fruit chocolate comes from.
+  function podBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R - 0.01, 0).arc(R, 0.014 * k, 0.3).line(R - 0.01, 0.04 * k).curve([[R - 0.08, 0.06 * k], [top + 0.02, 0.09 * k]]).line(top, 0.12 * k);
+  }
+  const ribbed = (y0, y1, n) => MOD.lobes(n || 10, 0.12, y0, y1, { shape: 2.4, end: 0.05 });
+  const leafCollar = (n, r, y, w, h, tilt) => around(n, r, y, () => curl(leaf(w, h, 0.01), 2.5), { tilt: tilt || 0.9 });
+  const POD = {
+    k() {
+      const R = 0.34, P = new Piece();
+      const p = podBase(profile(0, 0), R, 0.08);
+      p.line(0.07, 0.22).curve([[0.13, 0.28], [0.17, 0.42], [0.172, 0.6], [0.15, 0.78], [0.1, 0.9], [0.06, 0.94]]).line(0, 0.945);
+      P.lathe('body', p, { mod: ribbed(0.25, 0.94) });
+      P.add('body', leafCollar(6, 0.1, 0.15, 0.11, 0.15, 1.0));
+      P.add('body', leafCollar(5, 0.05, 0.93, 0.08, 0.11, 0.7));
+      P.add('body', placeAt(crossOf('leaf', 0.25, 0.04), 0, 0, 1.15));
+      return P;
+    },
+    q() {
+      const R = 0.33, P = new Piece();
+      const p = podBase(profile(0, 0), R, 0.076);
+      p.line(0.068, 0.2).curve([[0.12, 0.26], [0.16, 0.38], [0.162, 0.54], [0.14, 0.7], [0.1, 0.78]]).line(0, 0.78);
+      P.lathe('body', p, { mod: ribbed(0.22, 0.78) });
+      P.add('body', leafCollar(6, 0.1, 0.15, 0.1, 0.14, 1.0));
+      // the pod opens into a crown of leaves round a cluster of beans
+      P.add('body', around(7, 0.09, 0.77, () => curl(leaf(0.09, 0.2, 0.01), -1.5), { tilt: 0.45 }));
+      for (let i = 0; i < 5; i++) { const th = (i / 5) * TAU, g = sphere(0.04, 0, 0, 0, 16); g.scale(0.8, 1.3, 0.8); g.translate(Math.sin(th) * 0.045, 0.84, Math.cos(th) * 0.045); P.add('body', g); }
+      const g = sphere(0.045, 0, 0, 0, 16); g.scale(0.85, 1.3, 0.85); g.translate(0, 0.92, 0); P.add('body', g);
+      return P;
+    },
+    b() {
+      const R = 0.31, P = new Piece();
+      const p = podBase(profile(0, 0), R, 0.07);
+      p.line(0.065, 0.36).curve([[0.11, 0.42], [0.14, 0.56], [0.138, 0.72], [0.11, 0.86], [0.06, 0.97], [0.02, 1.02]]).line(0, 1.022);
+      P.lathe('body', p, { mod: mods([ribbed(0.4, 1.0, 8), MOD.slit(Math.PI * 0.25, 0.8, 0.6, 0.018, 0.5)]) });
+      P.add('body', leafCollar(5, 0.07, 0.36, 0.09, 0.12, 0.8));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(podBase(profile(0, 0), R, 0.2), 0.2));
+      P.add('body', horse({ base: 0.31, mane: 'carved', seed: 19, form: { tuck: 0.12, reach: 0.06, neck: 0.03, chest: 0.05, ears: 0.15 } }).body);
+      P.add('body', leafCollar(7, 0.2, 0.15, 0.1, 0.12, 1.2));
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = podBase(profile(0, 0), R, 0.215);
+      p.curve([[0.22, 0.3], [0.212, 0.45], [0.22, 0.6]]).line(0.24, 0.61).line(0.24, 0.64).line(0.2, 0.64).line(0.2, 0.62).line(0, 0.62);
+      P.lathe('body', p, { mod: MOD.flutes(13, 0.05, 0.13, 0.6, { twist: 1.5, soft: true, sharp: 2.5 }) });
+      P.add('body', battlements(7, 0.2, 0.24, 0.635, 0.76, 0.34, 'flat'));
+      P.add('body', leafCollar(7, 0.21, 0.13, 0.1, 0.13, 1.25));
+      return P;
+    },
+    p() {
+      const R = 0.262, P = new Piece();
+      const p = podBase(profile(0, 0), R, 0.07, 0.85).line(0.062, 0.3);
+      ovalHead(p, 0.062, 0.43, 0.1, 0.13);
+      P.lathe('body', p, { mod: MOD.lobes(2, 0.1, 0.32, 0.56, { shape: 1, end: 0.04 }) });
+      P.add('body', leafCollar(4, 0.06, 0.26, 0.075, 0.1, 0.9));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Caramel & Cream (the cocoa harvest)
+  // Barley-sugar twists: pulled caramel wound into spirals on every stem and crown.
+  function twistFoot(p, R, top, k) {
+    k = k || 1;
+    return p.line(R - 0.01, 0).arc(R, 0.012 * k, 0.3).curve([[R - 0.01, 0.05 * k], [R - 0.07, 0.09 * k], [R - 0.13, 0.11 * k]]).line(top + 0.01, 0.13 * k).line(top, 0.15 * k);
+  }
+  const barley = (y0, y1, turns) => MOD.rope(2, 0.34, y0, y1, turns);
+  const swirlFoot = (k) => MOD.flutes(12, 0.08, 0.02, 0.11 * (k || 1), { twist: 22, soft: true, end: 0.02 });
+  const BARLEY = {
+    k() {
+      const R = 0.35, P = new Piece();
+      const p = twistFoot(profile(0, 0), R, 0.14);
+      p.line(0.13, 0.78).line(0.17, 0.79).line(0.17, 0.83).line(0.12, 0.84)
+        .curve([[0.17, 0.9], [0.19, 0.98], [0.15, 1.06], [0.08, 1.12], [0.03, 1.18]]).line(0, 1.185);
+      P.lathe('body', p, { mod: mods([swirlFoot(), barley(0.17, 0.77, 3), MOD.flutes(8, 0.12, 0.85, 1.17, { twist: 10, soft: true, end: 0.04 })]) });
+      P.add('trim', ring(0.17, 0.81, 0.008));
+      P.add('trim', placeAt(crossOf('star4', 0.26, 0.04), 0, 0, 1.32));
+      return P;
+    },
+    q() {
+      const R = 0.335, P = new Piece();
+      const p = twistFoot(profile(0, 0), R, 0.13);
+      p.line(0.12, 0.7).line(0.16, 0.71).line(0.16, 0.75).line(0.11, 0.76)
+        .curve([[0.15, 0.82], [0.2, 0.9], [0.214, 0.98]]).arc(0.2, 0.99, 0.5).curve([[0.17, 0.95], [0.1, 0.92]]).line(0, 0.915);
+      const N = 7;
+      P.lathe('body', p, { mod: mods([swirlFoot(), barley(0.16, 0.69, 2.6)]), lift: (th, y) => -0.08 * Math.pow(Math.abs(Math.cos(((th + (y - 0.8) * 4) * N) / 2)), 0.6) * smooth(0.88, 0.99, y) });
+      P.add('trim', ring(0.16, 0.73, 0.008));
+      P.lathe('body', profile(0, 0.91).line(0.09, 0.91).curve([[0.1, 0.98], [0.08, 1.05], [0.04, 1.09]]).line(0, 1.095), { mod: MOD.flutes(6, 0.15, 0.91, 1.09, { twist: 14, soft: true }) });
+      P.add('trim', sphere(0.036, 0, 1.12, 0, 16));
+      return P;
+    },
+    b() {
+      const R = 0.312, P = new Piece();
+      const p = twistFoot(profile(0, 0), R, 0.12);
+      p.line(0.11, 0.56).line(0.15, 0.57).line(0.15, 0.61).line(0.09, 0.62)
+        .curve([[0.12, 0.68], [0.124, 0.78], [0.1, 0.9], [0.06, 1.0], [0.016, 1.07]]).line(0, 1.072);
+      P.lathe('body', p, { mod: mods([swirlFoot(), barley(0.16, 0.55, 2.2), MOD.slit(Math.PI * 0.25, 0.86, 0.6, 0.017, 0.5)]) });
+      P.add('trim', ring(0.15, 0.59, 0.008));
+      P.add('trim', sphere(0.026, 0, 1.08, 0, 14));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(twistFoot(profile(0, 0), R, 0.2), 0.2), { mod: swirlFoot() });
+      const h = horse({ base: 0.31, mane: 'flow', seed: 23, form: { tuck: -0.06, neck: 0.08, lean: 0.05, reach: 0.04, chest: 0.06 } });
+      P.add('body', h.body); P.add('trim', h.mane);
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = twistFoot(profile(0, 0), R, 0.22);
+      p.line(0.22, 0.58).line(0.248, 0.59).line(0.248, 0.64).line(0.2, 0.64).line(0.2, 0.62).line(0, 0.62);
+      P.lathe('body', p, { mod: mods([swirlFoot(), MOD.rope(6, 0.12, 0.16, 0.58, 1.2)]) });
+      P.add('body', battlements(6, 0.2, 0.248, 0.635, 0.76, 0.36, 'flat'));
+      P.add('trim', ring(0.249, 0.6, 0.008));
+      return P;
+    },
+    p() {
+      const R = 0.272, P = new Piece();
+      const p = twistFoot(profile(0, 0), R, 0.09, 0.85).line(0.08, 0.32).line(0.11, 0.33).line(0.11, 0.36).line(0.066, 0.37);
+      ballHead(p, 0.066, 0.48, 0.112);
+      P.lathe('body', p, { mod: mods([swirlFoot(0.85), barley(0.14, 0.32, 1.4)]) });
+      P.add('trim', ring(0.11, 0.345, 0.007));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Crystal Jewels (premium)
+  // Cut crystal, clear against jet, every piece set with its own coloured gems: sapphires for
+  // the king, rubies for the queen, amethysts for the bishop, emeralds for the knight,
+  // golden topaz for the rook and aquamarines for the pawn.
+  const CUT = 10;
+  function crystalBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R, 0).line(R, 0.03 * k).line(R - 0.03, 0.06 * k).line(R - 0.08, 0.08 * k).line(top + 0.03, 0.1 * k).line(top, 0.14 * k);
+  }
+  const CRYSTAL = {
+    k() {
+      const R = 0.34, P = new Piece();
+      cutLathe(P, 'body', crystalBase(profile(0, 0), R, 0.15).line(0.11, 0.78).line(0.16, 0.8).line(0.16, 0.84).line(0.11, 0.86)
+        .line(0.17, 0.95).line(0.17, 1.0).line(0.1, 1.1).line(0, 1.14), CUT);
+      P.add('trim', ring(0.162, 0.82, 0.01).rotateY(Math.PI / CUT));
+      P.add('gemk', gemRing(CUT, 0.166, 0.82, 0.024, { phase: Math.PI / CUT }));
+      P.add('gemk', gemRing(CUT, 0.172, 0.975, 0.022));
+      P.add('gemk', pave(3, 7, (y) => mix(0.15, 0.11, (y - 0.14) / 0.64), 0.18, 0.74, 0.02, 0.5));
+      P.add('gemk', gemRing(5, R - 0.03, 0.04, 0.026));
+      P.add('body', placeAt(crossOf('lozenge', 0.28, 0.05), 0, 0, 1.29));
+      P.add('gemk', placeAt(brilliant(0.034), 0, 0, 1.29).translate(0, 0, 0.026));
+      return P;
+    },
+    q() {
+      const R = 0.33, P = new Piece();
+      cutLathe(P, 'body', crystalBase(profile(0, 0), R, 0.14).line(0.1, 0.68).line(0.15, 0.7).line(0.15, 0.74).line(0.1, 0.76)
+        .line(0.22, 0.98).line(0.205, 1.0).line(0.1, 0.92).line(0, 0.92), CUT, { lift: (th, y) => -0.1 * Math.pow(Math.abs(Math.cos((th * CUT) / 2)), 0.5) * smooth(0.86, 1.0, y) });
+      P.add('trim', ring(0.152, 0.72, 0.009).rotateY(Math.PI / CUT));
+      P.add('gemq', gemRing(CUT, 0.156, 0.72, 0.023, { phase: Math.PI / CUT }));
+      for (let i = 0; i < CUT; i++) { const th = (i / CUT) * TAU; P.add('gemq', placeAt(brilliant(0.024), th, 0.215, 1.0, { tilt: -Math.PI / 2 })); }
+      P.add('gemq', pave(3, 6, (y) => mix(0.14, 0.1, (y - 0.14) / 0.54), 0.18, 0.64, 0.019, -0.5));
+      P.add('gemq', gemRing(5, R - 0.03, 0.04, 0.025));
+      P.add('gemq', placeAt(brilliant(0.06), 0, 0, 1.0, { tilt: -Math.PI / 2 }));
+      return P;
+    },
+    b() {
+      const R = 0.31, P = new Piece();
+      cutLathe(P, 'body', crystalBase(profile(0, 0), R, 0.13).line(0.1, 0.56).line(0.14, 0.58).line(0.14, 0.62).line(0.1, 0.63)
+        .line(0.14, 0.74).line(0.13, 0.86).line(0.08, 0.98).line(0, 1.04), 8, { mod: MOD.slit(Math.PI * 0.25, 0.84, 0.6, 0.02, 0.5) });
+      P.add('trim', ring(0.142, 0.6, 0.008).rotateY(Math.PI / 8));
+      P.add('gemb', gemRing(8, 0.146, 0.6, 0.022, { phase: Math.PI / 8 }));
+      P.add('gemb', pave(2, 6, (y) => mix(0.135, 0.1, (y - 0.14) / 0.42), 0.18, 0.52, 0.019, 0.5));
+      P.add('gemb', placeAt(brilliant(0.026), Math.PI, 0.14, 0.76));
+      P.add('gemb', gemRing(5, R - 0.03, 0.04, 0.024));
+      P.add('gemb', placeAt(brilliant(0.036), 0, 0, 1.065, { tilt: -Math.PI / 2 }));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      cutLathe(P, 'body', knightBase(crystalBase(profile(0, 0), R, 0.2), 0.2), CUT);
+      const h = horse({ base: 0.31, mane: 'roach', seed: 29, form: { facet: 0.02, tuck: 0.06, neck: 0.06, lean: 0.04, girth: 0.92, ears: 0.15 } });
+      P.add('body', h.body);
+      const br = bridle(h, { stud: 0.026, thick: 0.007 });
+      P.add('trim', br.straps); P.add('gemn', br.studs);
+      P.add('gemn', gemRing(5, R - 0.03, 0.04, 0.025));
+      P.add('gemn', gemRing(CUT, 0.214, 0.26, 0.022, { phase: Math.PI / CUT }));
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      cutLathe(P, 'body', crystalBase(profile(0, 0), R, 0.215).line(0.2, 0.58).line(0.24, 0.6).line(0.24, 0.64).line(0.19, 0.64).line(0.19, 0.62).line(0, 0.62), 8);
+      P.add('body', battlements(8, 0.19, 0.24, 0.635, 0.77, 0.36, 'flat'));
+      for (let i = 0; i < 8; i++) P.add('gemr', placeAt(brilliant(0.024), (i / 8) * TAU, 0.244, 0.7));
+      P.add('gemr', gemRing(8, 0.206, 0.48, 0.028, { phase: Math.PI / 8 }));
+      P.add('gemr', gemRing(8, 0.212, 0.3, 0.028));
+      P.add('gemr', gemRing(5, R - 0.03, 0.04, 0.025));
+      return P;
+    },
+    p() {
+      const R = 0.265, P = new Piece();
+      const p = crystalBase(profile(0, 0), R, 0.09, 0.85).line(0.075, 0.3).line(0.11, 0.32).line(0.11, 0.34).line(0.07, 0.35);
+      cutLathe(P, 'body', ovalHead(p, 0.07, 0.46, 0.115, 0.115), CUT);
+      P.add('gemp', gemRing(CUT, 0.112, 0.33, 0.02));
+      P.add('gemp', gemRing(4, R - 0.03, 0.035, 0.022, { phase: Math.PI / 4 }));
+      P.add('gemp', placeAt(brilliant(0.032), 0, 0, 0.585, { tilt: -Math.PI / 2 }));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Celestial Opal (premium)
+  // White and black opal under silver stars: moons, comets and little ringed planets.
+  function orbitBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R - 0.01, 0).arc(R, 0.012 * k, 0.3).line(R, 0.03 * k).arc(R - 0.012, 0.042 * k, 0.3)
+      .curve([[R - 0.05, 0.06 * k], [R - 0.12, 0.09 * k], [top + 0.02, 0.12 * k]]).line(top, 0.15 * k);
+  }
+  const orbit = (r, y, tilt, thick) => ring(r, 0, thick || 0.008).rotateZ(tilt || 0.35).translate(0, y, 0);
+  const CELESTIAL = {
+    k() {
+      const R = 0.35, P = new Piece();
+      const p = orbitBase(profile(0, 0), R, 0.15);
+      p.curve([[0.14, 0.3], [0.12, 0.5], [0.112, 0.7]]).line(0.15, 0.71).line(0.15, 0.74).line(0.1, 0.75).line(0.08, 0.8);
+      ballHead(p, 0.08, 0.93, 0.14);
+      P.lathe('body', p);
+      P.add('trim', orbit(0.2, 0.93, 0.4, 0.011));
+      P.add('accent', around(8, 0.14, 0.4, () => star(0.026, 0.008)));
+      P.add('trim', ring(0.15, 0.725, 0.008));
+      P.add('trim', placeAt(crossOf('rayed', 0.24, 0.04), 0, 0, 1.2));
+      return P;
+    },
+    q() {
+      const R = 0.335, P = new Piece();
+      const p = orbitBase(profile(0, 0), R, 0.142);
+      p.curve([[0.13, 0.3], [0.112, 0.48], [0.104, 0.64]]).line(0.14, 0.65).line(0.14, 0.68).line(0.1, 0.69)
+        .curve([[0.13, 0.75], [0.15, 0.82], [0.13, 0.88], [0.06, 0.9]]).line(0, 0.9);
+      P.lathe('body', p);
+      // a crescent moon cradling a star
+      P.add('trim', placeAt(crescent(0.17, 0.035), 0, 0, 1.03));
+      P.add('accent', placeAt(star(0.06, 0.03), 0, 0, 1.06));
+      P.add('accent', around(8, 0.13, 0.4, () => star(0.024, 0.008)));
+      P.add('trim', ring(0.14, 0.665, 0.008));
+      return P;
+    },
+    b() {
+      const R = 0.312, P = new Piece();
+      const p = orbitBase(profile(0, 0), R, 0.13);
+      p.curve([[0.12, 0.28], [0.104, 0.44], [0.098, 0.56]]).line(0.135, 0.57).line(0.135, 0.6).line(0.09, 0.61)
+        .curve([[0.13, 0.68], [0.14, 0.78], [0.12, 0.88], [0.08, 0.96], [0.03, 1.0]]).line(0, 1.002);
+      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.84, 0.6, 0.018, 0.5) });
+      P.add('trim', orbit(0.155, 0.76, -0.45, 0.008));
+      P.add('trim', ring(0.135, 0.585, 0.008));
+      P.add('accent', placeAt(star(0.045, 0.02), 0, 0, 1.06));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(orbitBase(profile(0, 0), R, 0.2), 0.2));
+      const h = horse({ base: 0.31, mane: 'flow', seed: 31, form: { tuck: -0.12, neck: 0.12, reach: 0.05, ears: 0.2, girth: 0.9 } });
+      P.add('body', h.body); P.add('trim', h.mane);
+      const sp = h.surf([0, h.Y(0.9), 0.08], [0, 0.4, 1], 0.004), s = star(0.03, 0.01); s.rotateX(-0.5); s.translate(sp[0], sp[1], sp[2]); P.add('accent', s);
+      P.add('trim', ring(0.214, 0.3, 0.008));
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = orbitBase(profile(0, 0), R, 0.22);
+      p.curve([[0.226, 0.3], [0.22, 0.45], [0.224, 0.58]]).line(0.244, 0.59).line(0.244, 0.64).line(0.2, 0.64).line(0.2, 0.62).line(0, 0.62);
+      P.lathe('body', p);
+      P.add('body', battlements(6, 0.2, 0.244, 0.635, 0.76, 0.38, 'flat'));
+      // an observatory dome inside the battlements
+      P.lathe('body', profile(0, 0.62).line(0.13, 0.62).curve([[0.13, 0.7], [0.09, 0.77], [0, 0.79]]), { mod: MOD.crenel(1, 0.66, 0.8, 0.12, 0.2) });
+      P.add('accent', around(6, 0.226, 0.42, () => star(0.03, 0.01), { phase: Math.PI / 6 }));
+      P.add('trim', ring(0.245, 0.6, 0.008));
+      return P;
+    },
+    p() {
+      const R = 0.27, P = new Piece();
+      const p = orbitBase(profile(0, 0), R, 0.1, 0.85);
+      p.curve([[0.094, 0.24], [0.086, 0.3], [0.07, 0.36]]);
+      ballHead(p, 0.07, 0.47, 0.105);
+      P.lathe('body', p);
+      P.add('trim', orbit(0.15, 0.47, 0.42, 0.009));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Peacock Court (premium)
+  // Ivory and peacock-blue enamel in gold, with fanned tails, feather eyes and crests.
+  function vaseFoot(p, R, top, k) {
+    k = k || 1;
+    return p.line(R - 0.01, 0).arc(R, 0.014 * k, 0.3).line(R - 0.02, 0.04 * k).curve([[R - 0.06, 0.05 * k], [R - 0.1, 0.08 * k], [top + 0.04, 0.1 * k]]).curve([[top + 0.01, 0.13 * k], [top, 0.16 * k]]);
+  }
+  // A peacock feather: a long gold vane with an enamel eye near the tip, standing up +y.
+  function feather(len, w) {
+    const vane = petal(w, len, 0.008);
+    const eye = cabochon(w * 0.36, 0.5); eye.translate(0, len * 0.72, 0.006);
+    return { vane, eye };
+  }
+  // A peacock's crest: little stalks each ending in a bead.
+  function crest(y, n, len, spread) {
+    const stalks = [], beads = [];
+    for (let i = 0; i < n; i++) {
+      const k = n > 1 ? i / (n - 1) - 0.5 : 0, a = k * spread, x = Math.sin(a) * len, yy = y + Math.cos(a) * len;
+      stalks.push(K.tube([[0, y, 0], [x * 0.5, y + (yy - y) * 0.55, 0], [x, yy, 0]], 0.005, { segs: 8, radial: 6 }));
+      beads.push(sphere(0.016, x, yy + 0.01, 0, 10));
+    }
+    return { stalks: merge(stalks), beads: merge(beads) };
+  }
+  const PEACOCK = {
+    k() {
+      const R = 0.345, P = new Piece();
+      const p = vaseFoot(profile(0, 0), R, 0.12);
+      p.curve([[0.15, 0.24], [0.17, 0.36], [0.15, 0.5], [0.11, 0.62], [0.1, 0.72]]).line(0.15, 0.73).line(0.15, 0.77).line(0.11, 0.78)
+        .curve([[0.15, 0.84], [0.16, 0.92], [0.12, 0.98], [0.05, 1.0]]).line(0, 1.0);
+      P.lathe('body', p);
+      // three feathers fan up behind the crown
+      [-0.5, 0, 0.5].forEach((a) => { const f = feather(0.38, 0.12); for (const g of [f.vane, f.eye]) { g.rotateX(-0.25); g.rotateZ(a); g.translate(0, 0.84, -0.11); } P.add('trim', f.vane); P.add('accent', f.eye); });
+      P.add('trim', ring(0.15, 0.75, 0.009));
+      P.add('accent', around(6, 0.164, 0.36, () => cabochon(0.02, 0.6)));
+      P.add('trim', placeAt(crossOf('quatrefoil', 0.22, 0.04), 0, 0, 1.14));
+      return P;
+    },
+    q() {
+      const R = 0.335, P = new Piece();
+      const p = vaseFoot(profile(0, 0), R, 0.115);
+      p.curve([[0.142, 0.23], [0.16, 0.34], [0.14, 0.47], [0.1, 0.58], [0.094, 0.66]]).line(0.14, 0.67).line(0.14, 0.71).line(0.1, 0.72)
+        .curve([[0.13, 0.78], [0.13, 0.84], [0.08, 0.88]]).line(0, 0.88);
+      P.lathe('body', p);
+      // a full fanned tail all the way round
+      P.add('trim', around(11, 0.06, 0.82, () => feather(0.3, 0.1).vane, { tilt: 0.6 }));
+      P.add('accent', around(11, 0.06, 0.82, () => feather(0.3, 0.1).eye, { tilt: 0.6 }));
+      P.add('trim', ring(0.14, 0.69, 0.009));
+      P.add('trim', sphere(0.045, 0, 0.93, 0, 20));
+      P.add('accent', around(6, 0.154, 0.34, () => cabochon(0.019, 0.6)));
+      return P;
+    },
+    b() {
+      const R = 0.312, P = new Piece();
+      const p = vaseFoot(profile(0, 0), R, 0.11);
+      p.curve([[0.13, 0.22], [0.146, 0.31], [0.126, 0.42], [0.09, 0.52], [0.086, 0.56]]).line(0.13, 0.57).line(0.13, 0.61).line(0.09, 0.62)
+        .curve([[0.13, 0.68], [0.14, 0.78], [0.12, 0.88], [0.08, 0.95], [0.03, 0.99]]).line(0, 0.992);
+      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.83, 0.6, 0.018, 0.5) });
+      const c = crest(0.98, 5, 0.12, 0.9);
+      P.add('trim', c.stalks); P.add('accent', c.beads);
+      P.add('trim', ring(0.13, 0.59, 0.008));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(vaseFoot(profile(0, 0), R, 0.2), 0.2));
+      const h = horse({ base: 0.31, mane: 'carved', seed: 37, form: { tuck: 0.16, neck: 0.04, nose: -0.012, ears: 0.12, chest: 0.06 } });
+      P.add('body', h.body);
+      const pl = plume(h, { count: 3, len: 0.24, w: 0.07, spread: 0.6, lean: 0.3 });
+      P.add('trim', pl.feathers); P.add('accent', pl.holder);
+      P.add('trim', ring(0.214, 0.3, 0.008));
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      const p = vaseFoot(profile(0, 0), R, 0.22);
+      p.curve([[0.226, 0.26], [0.218, 0.45], [0.222, 0.58]]).line(0.244, 0.59).line(0.244, 0.64).line(0.2, 0.64).line(0.2, 0.62).line(0, 0.62);
+      P.lathe('body', p);
+      P.add('body', battlements(10, 0.2, 0.244, 0.635, 0.75, 0.42, 'flat'));
+      P.add('trim', around(8, 0.222, 0.3, () => feather(0.2, 0.06).vane, { phase: Math.PI / 8 }));
+      P.add('accent', around(8, 0.226, 0.3, () => feather(0.2, 0.06).eye, { phase: Math.PI / 8 }));
+      P.add('trim', ring(0.245, 0.6, 0.008));
+      return P;
+    },
+    p() {
+      const R = 0.27, P = new Piece();
+      const p = vaseFoot(profile(0, 0), R, 0.09, 0.85);
+      p.curve([[0.1, 0.22], [0.11, 0.28], [0.08, 0.34], [0.066, 0.37]]);
+      ballHead(p, 0.066, 0.47, 0.105);
+      P.lathe('body', p);
+      const c = crest(0.57, 3, 0.08, 0.7);
+      P.add('trim', c.stalks); P.add('accent', c.beads);
       return P;
     },
   };
@@ -1526,6 +2545,13 @@ function ChacklatePieces(THREE, K) {
     pearl: () => phys('pearl', { color: '#f3eee4', roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.12, sheen: 1, sheenColor: new THREE.Color('#ffe6ee'), sheenRoughness: 0.3, iridescence: 0.5, iridescenceIOR: 1.4 }),
     nickel: () => phys('nickel', { color: '#e2e5ea', metalness: 1, roughness: 0.16, envMapIntensity: 1.25 }),
     cream: () => phys('cream-enamel', { color: '#f0e9dc', roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.04, sheen: 0.2, sheenColor: new THREE.Color('#fff8ec') }),
+    // cut crystal: frosted enough to read on any board, clear at the facets' edges
+    crystalLight: () => phys('crystal-light', { color: '#ffffff', metalness: 0, roughness: 0.03, transmission: 0.72, ior: 1.65, dispersion: 4, thickness: 0.6, attenuationColor: new THREE.Color('#e8eef8'), attenuationDistance: 0.5, specularIntensity: 1, envMapIntensity: 2, clearcoat: 1, clearcoatRoughness: 0.02, iridescence: 0.35 }),
+    crystalJet: () => phys('crystal-jet', { color: '#3a3644', metalness: 0, roughness: 0.03, transmission: 0.4, ior: 1.65, dispersion: 2, thickness: 0.6, attenuationColor: new THREE.Color('#0d0b14'), attenuationDistance: 0.12, specularIntensity: 1, envMapIntensity: 1.8, clearcoat: 1, clearcoatRoughness: 0.02, iridescence: 0.2 }),
+    opalWhite: () => phys('opal-w', { color: '#f4f1ee', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05, iridescence: 1, iridescenceIOR: 1.6, iridescenceThicknessRange: [250, 900], sheen: 0.6, sheenColor: new THREE.Color('#bfe8ff'), sheenRoughness: 0.4 }),
+    opalBlack: () => phys('opal-b', { color: '#161c34', roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.04, iridescence: 1, iridescenceIOR: 1.8, iridescenceThicknessRange: [300, 1000], sheen: 0.5, sheenColor: new THREE.Color('#5fc8ff'), sheenRoughness: 0.4 }),
+    ivoryEnamel: () => phys('ivory-enamel', { color: '#f3ecdc', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.04, sheen: 0.2, sheenColor: new THREE.Color('#fff8ea') }),
+    peacockEnamel: () => phys('peacock-enamel', { color: '#0b5a6a', roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.04, sheen: 0.5, sheenColor: new THREE.Color('#3fe0d0'), sheenRoughness: 0.4 }),
     onyx: () => phys('onyx', { map: TEX.marble('#0b0b0d', '#2e2e34', { strength: 0.3, sharp: 6, cloud: 0.1 }), roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.03 }),
   };
   // Blue-and-white porcelain: a lotus scroll between bands, in cobalt on a cool white glaze.
@@ -1717,43 +2743,84 @@ function ChacklatePieces(THREE, K) {
       pieces: DECO,
       mats: (side) => (side === 'w' ? { body: MATS.cream(), trim: MATS.nickel() } : { body: MATS.onyx(), trim: MAT.gold('#e8b75a') }),
     },
+    crystal: {
+      id: 'crystal', name: 'Crystal Jewels', era: 'The jeweller\'s window', year: 'Today', tint: '#3a2a6a',
+      story: 'Cut like the crystal ornaments in a jeweller\'s window: clear crystal against jet black, every facet catching the light. Each kind of piece wears its own colour of gem, so you can tell them apart at a glance.',
+      lore: {
+        k: 'Blue sapphires ring his crown, and a crystal cross set with a sapphire stands on top.',
+        q: 'Ten crystal points, each tipped with a red ruby, and a great ruby at the centre.',
+        b: 'A cut-crystal mitre with the bishop\'s slit, belted with purple amethysts.',
+        n: 'A horse cut from crystal like a gemstone, with emeralds on its bridle.',
+        r: 'An eight-sided crystal tower with golden topaz set in every battlement.',
+        p: 'A crystal ball over a ring of sea-blue aquamarines.',
+      },
+      pieces: CRYSTAL,
+      mats: (side) => ({ body: side === 'w' ? MATS.crystalLight() : MATS.crystalJet(), trim: MAT.silver(), gemk: MAT.gem('#1f4fe0'), gemq: MAT.gem('#e0123c'), gemb: MAT.gem('#9a3ee8'), gemn: MAT.gem('#10a855'), gemr: MAT.gem('#f2a414'), gemp: MAT.gem('#38d4e8') }),
+    },
+    celestial: {
+      id: 'celestial', name: 'Celestial Opal', era: 'The night sky', year: 'Always', tint: '#1c2450',
+      story: 'White opal and black opal, the stones that hold a rainbow inside, set in silver and scattered with golden stars. Look for the ringed planets, the crescent moon and a comet\'s star on the knight\'s brow.',
+      lore: {
+        k: 'A planet with a silver ring, like Saturn, crowned with a starry cross.',
+        q: 'A silver crescent moon holding a golden star.',
+        b: 'A mitre circled by a silver orbit, with a star on top.',
+        n: 'A horse with a stardust mane and a star on its forehead.',
+        r: 'An observatory tower: a dome for watching the stars inside the battlements.',
+        p: 'A little planet with its own ring.',
+      },
+      pieces: CELESTIAL,
+      mats: (side) => ({ body: side === 'w' ? MATS.opalWhite() : MATS.opalBlack(), trim: MAT.silver(), accent: MAT.gold('#f0c35a') }),
+    },
+    peacock: {
+      id: 'peacock', name: 'Peacock Court', era: 'A palace garden', year: 'Once upon a time', tint: '#0b5a6a',
+      story: 'Peacocks strutted through the gardens of palaces all over the world. Ivory and peacock-blue enamel in gold, with fanned tails, crests and shining feather eyes.',
+      lore: {
+        k: 'Three peacock feathers fan out behind his crown, under a cross of four round lobes.',
+        q: 'A whole peacock\'s tail fans out all the way round her crown.',
+        b: 'A mitre with the bishop\'s slit, topped by a peacock\'s crest of little beads.',
+        n: 'A horse with a plume of peacock feathers.',
+        r: 'A tower with ten battlements and a ring of feather eyes.',
+        p: 'A round head with a tiny peacock crest.',
+      },
+      pieces: PEACOCK,
+      mats: (side) => (side === 'w' ? { body: MATS.ivoryEnamel(), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#1d5fd0') } : { body: MATS.peacockEnamel(), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#18b070') }),
+    },
   };
 
-  // ------------------------------------------------------------------ colourways
-  // The Regency and Staunton shapes in other finishes, earned with levels, achievements, the
-  // season track and Premium. They share geometry with the set whose shape they borrow.
+  // ------------------------------------------------------------------ collection sets
+  // Sets earned with levels, achievements, the season track and Premium. Each has its own
+  // shapes (no two sets share a piece) and a finish for each side.
   const lacquer = (key, color, o) => phys('lq-' + key, Object.assign({ color, roughness: 0.26, clearcoat: 1, clearcoatRoughness: 0.05 }, o || {}));
   // Tempered chocolate: a soft gloss with a warm sheen at grazing angles.
   const choc = (key, color, sheen) => phys('choc-' + key, { color, roughness: 0.3, clearcoat: 0.85, clearcoatRoughness: 0.14, sheen: 0.6, sheenColor: new THREE.Color(sheen || '#ffcf9e'), sheenRoughness: 0.45 });
   const COLOURWAYS = {
-    'ruby-pearl': { tint: '#6a0c22', name: 'Ruby & Pearl', shape: 'regency', era: 'Belle Epoque Paris', year: '1889',
+    'ruby-pearl': { tint: '#6a0c22', name: 'Ruby & Pearl', pieces: NOUVEAU, lore: { k: "A lily cup holding a golden bud, with tendrils winding up his stem and a scrolled cross.", q: "An open lily with six petals and a pearl on a golden stalk.", b: "A closed tulip bud with the bishop's slit and a curling leaf.", n: "A slender horse with a long neck and a golden mane.", r: "A tower of tall pointed arches, like the ironwork of the Eiffel Tower.", p: "A round head cupped in three golden leaves." }, era: 'Belle Epoque Paris', year: '1889',
       story: 'Made for the World\'s Fair in Paris, the year the Eiffel Tower opened. Pearly white faces deep ruby lacquer, and every crown and mane is laid in gold leaf.',
       w: () => ({ body: MATS.pearl(), trim: MAT.goldLeaf() }), b: () => ({ body: lacquer('ruby', '#5e0a1e', { sheen: 0.3, sheenColor: new THREE.Color('#ff8aa4') }), trim: MAT.goldLeaf() }) },
-    marble: { tint: '#45454c', name: 'Carrara & Nero', shape: 'staunton', era: 'Tuscany and Spain', year: 'Today',
+    marble: { tint: '#45454c', name: 'Carrara & Nero', pieces: MODERN, lore: { k: "A tall clean cone under a plain cross: the tallest piece.", q: "A ball resting on a flat disc ringed with nine little beads.", b: "A ball with a deep slanted cut: the bishop's slit.", n: "A smooth horse head with no mane at all, like a modern sculpture.", r: "A plain round tower with four square battlements.", p: "A small ball on a cone." }, era: 'Tuscany and Spain', year: 'Today',
       story: 'White marble from Carrara in Tuscany, the stone Michelangelo used for his statue of David, faces black Nero Marquina from northern Spain.',
       w: () => ({ body: MATS.carrara() }), b: () => ({ body: MATS.nero() }) },
-    'cocoa-gilt': { tint: '#4a2410', name: 'Cocoa & Gilt', shape: 'regency', era: 'A chocolatier\'s salon', year: 'c. 1900',
+    'cocoa-gilt': { tint: '#4a2410', name: 'Cocoa & Gilt', pieces: PRALINE, lore: { k: "Two truffles and a piped rosette, crowned with a gilt cross.", q: "A crown of piped chocolate with a gilt cherry on top.", b: "A swirl of piped chocolate with the bishop's slit.", n: "A horse on a pleated paper cup, ready for the shop window.", r: "A layered chocolate cake with eight chocolate squares on top.", p: "A truffle in a paper cup, drizzled with gold." }, era: 'A chocolatier\'s salon', year: 'c. 1900',
       story: 'A chocolatier kept this set in the shop window: bright gilt against dark cocoa lacquer, polished until it looked good enough to eat. (Please do not try.)',
       w: () => ({ body: MAT.gold('#e2b45c'), trim: lacquer('cocoa-trim', '#2a140c') }), b: () => ({ body: lacquer('cocoa', '#2a140c', { sheen: 0.4, sheenColor: new THREE.Color('#d89060') }), trim: MAT.goldLeaf() }) },
-    'jade-onyx': { tint: '#1e5a46', name: 'Jade & Onyx', shape: 'staunton', era: 'Stones of legend', year: 'Ancient and modern',
+    'jade-onyx': { tint: '#1e5a46', name: 'Jade & Onyx', pieces: MONOLITH, lore: { k: "A square obelisk with a pointed cap and an eight-pointed cross.", q: "A square tower opening into four rounded points round a stone ball.", b: "A square pillar under a rounded mitre with the bishop's slit.", n: "A horse with a bowed head on a square stone.", r: "A square tower with eight square battlements.", p: "A stone ball on a little square pillar." }, era: 'Stones of legend', year: 'Ancient and modern',
       story: 'Pale green jade, treasured in China for thousands of years, against polished black onyx. Earned by beating Shelly the Tortoise.',
       w: () => ({ body: MATS.jade() }), b: () => ({ body: MATS.onyx() }) },
-    'gold-silver': { tint: '#5a4418', name: 'Gold & Platinum', shape: 'regency', era: 'The trophy cabinet', year: 'Champions only',
+    'gold-silver': { tint: '#5a4418', name: 'Gold & Platinum', pieces: TROPHY, lore: { k: "A lidded trophy cup with two handles and a ringed cross.", q: "An open trophy cup whose rim rises into eight points.", b: "A small cup with a mitre lid and the bishop's slit.", n: "A proud horse on a trophy stand.", r: "A loving cup with handles and six battlements.", p: "A ball on a stem, like the top of a trophy." }, era: 'The trophy cabinet', year: 'Champions only',
       story: 'Made for a champion\'s trophy cabinet: polished gold against cool platinum, each trimmed with the other.',
       w: () => ({ body: MATS.nickel(), trim: MAT.gold('#f0c35a') }), b: () => ({ body: MAT.gold('#e0b050'), trim: MATS.nickel() }) },
-    'ruby-chocolate': { tint: '#8a3a4c', name: 'Ruby Chocolate', shape: 'staunton', era: 'The newest chocolate', year: '2017',
+    'ruby-chocolate': { tint: '#8a3a4c', name: 'Ruby Chocolate', pieces: BUBBLE, lore: { k: "A stack of chocolate bubbles under a rounded cross.", q: "Bubbles crowned with a ring of seven little chocolate drops.", b: "A big round mitre with a wide bishop's slit.", n: "A round, cuddly horse with a short nose.", r: "A puffy tower with five round battlements.", p: "One big chocolate bubble." }, era: 'The newest chocolate', year: '2017',
       story: 'Ruby chocolate is real: a pink chocolate made from ruby cocoa beans, first shown to the world in 2017. Here it faces the darkest bittersweet.',
       w: () => ({ body: choc('ruby', '#e7a3ae', '#ffd6de') }), b: () => ({ body: choc('dark', '#2a120a') }) },
-    'milk-dark': { tint: '#5a3418', name: 'Milk & Dark', shape: 'staunton', era: 'Cocoa Harvest', year: 'Season 1',
+    'milk-dark': { tint: '#5a3418', name: 'Milk & Dark', pieces: POD, lore: { k: "A ribbed cocoa pod in a cup of leaves, with a cross of four leaves.", q: "A cocoa pod opening into a crown of leaves round a cluster of beans.", b: "A pointed cocoa pod with the bishop's slit.", n: "A horse rising out of a ring of cocoa leaves.", r: "A cocoa tree trunk with seven battlements.", p: "A cocoa bean among four leaves." }, era: 'Cocoa Harvest', year: 'Season 1',
       story: 'Milk chocolate against dark, as glossy as a freshly tempered bar. The top prize of the Cocoa Harvest season track.',
       w: () => ({ body: choc('milk', '#b9784a') }), b: () => ({ body: choc('dark', '#2a120a') }) },
-    'caramel-cream': { tint: '#7a4a1c', name: 'Caramel & Cream', shape: 'regency', era: 'Cocoa Harvest', year: 'Season 1',
+    'caramel-cream': { tint: '#7a4a1c', name: 'Caramel & Cream', pieces: BARLEY, lore: { k: "A barley-sugar twist under a swirled dome and a four-pointed star cross.", q: "A coronet whose points spiral round like pulled caramel.", b: "A smooth, pointed mitre on a twisted stem.", n: "A horse with a flowing golden mane on a swirled foot.", r: "A rope-twisted tower with six battlements.", p: "A round head on a short barley twist." }, era: 'Cocoa Harvest', year: 'Season 1',
       story: 'Golden caramel and fresh cream, with crowns and manes in gold leaf. A Season Pass reward from the Cocoa Harvest.',
       w: () => ({ body: lacquer('cream', '#f4ead6', { sheen: 0.3, sheenColor: new THREE.Color('#fff6e0') }), trim: MAT.goldLeaf() }), b: () => ({ body: choc('caramel', '#a9601e', '#ffd28a'), trim: MAT.goldLeaf() }) },
   };
   for (const [id, c] of Object.entries(COLOURWAYS)) {
-    const base = SETS[c.shape];
-    SETS[id] = { id, name: c.name, era: c.era, year: c.year, story: c.story, tint: c.tint, lore: base.lore, pieces: base.pieces, shape: c.shape, mats: (side) => (side === 'w' ? c.w() : c.b()) };
+    SETS[id] = { id, name: c.name, era: c.era, year: c.year, story: c.story, tint: c.tint, lore: c.lore, pieces: c.pieces, mats: (side) => (side === 'w' ? c.w() : c.b()) };
   }
 
   // ------------------------------------------------------------------ building and caching
