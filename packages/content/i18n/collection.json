@@ -44,6 +44,8 @@
   "equippedDot": { "en": "Equipped.", "hi": "लगा हुआ है।", "check": ["hi"] },
   "yours": { "en": "This is yours to use.", "hi": "यह आपका है, इस्तेमाल करें।", "check": ["hi"] },
   "toUnlock": { "en": "{how} to unlock.", "hi": "खोलने के लिए: {how}।", "check": ["hi"] },
+  "prevItem": { "en": "Previous item", "hi": "पिछली चीज़", "check": ["hi"] },
+  "nextItem": { "en": "Next item", "hi": "अगली चीज़", "check": ["hi"] },
   "count": { "en": "{n} of {of}", "hi": "{of} में से {n}", "check": ["hi"] },
   "drag": { "en": "Drag to turn · pinch to zoom", "hi": "घुमाने के लिए खींचें · ज़ूम के लिए दो उँगलियों से फैलाएँ", "check": ["hi"] },
   "thePiece": { "en": "The {piece}.", "hi": "{piece}।", "check": ["hi"] },

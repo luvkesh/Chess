@@ -542,6 +542,8 @@
       if (open) open.close();
       else if (peeking) endPeek();
       else if (current && current.escape) current.escape();
+    } else if (peeking && !document.querySelector('.modal') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !/input|textarea|select/i.test((e.target.tagName || ''))) {
+      e.preventDefault(); peekStep(e.key === 'ArrowLeft' ? -1 : 1);
     } else if (!document.querySelector('.modal') && current && current.key && !/input|textarea|select/i.test((e.target.tagName || ''))) current.key(e);
   });
 
@@ -561,7 +563,7 @@
     if (el.dataset.ready) return el;
     el.dataset.ready = '1';
     el.innerHTML = '<button class="narrator" id="gd-show" tabindex="-1" aria-label="' + t('common.guide.show') + '" title="' + t('common.guide.show') + '"><img alt=""></button>' +
-      '<div class="gd-body"><div class="gd-head"><p class="eyebrow" id="gd-who"></p>' +
+      '<div class="gd-body"><div class="gd-head"><p class="gd-who" id="gd-who"></p>' +
       '<button class="gd-btn" id="gd-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button>' +
       '<button class="gd-btn" id="gd-voice"></button>' +
       '<button class="gd-btn" id="gd-hide" aria-label="' + t('common.guide.hide') + '" title="' + t('common.guide.hide') + '">' + icon('down') + '</button></div>' +
@@ -776,13 +778,14 @@
     piecesTall: { pitch: 0.62, zoom: 0.7, lookY: 0.45, lookZ: 1.2 },   // a phone held upright: all eight files still fit
     board: { pitch: 0.95, zoom: 0.72, lookZ: 0.6 },
     move: { pitch: 0.7, zoom: 0.62, lookY: 0.3, lookZ: 0.2 },   // capture effects and trails, close to the move
+    clock: { pitch: 0.78, zoom: 1.08, lookY: 0.3, lookZ: 0.9 },   // pulled back, so the chess clock beside the board is in view
     other: { zoom: 0.8 },
   };
   // Capture effects and trails only show on a move, so the preview plays one again and again:
   // a knight hops in to take a pawn, or the queen sweeps across the board. The next round
   // starts a second after the last one ends, however long its capture scene runs.
   function peekDemo(it) {
-    const capture = it.category === 'capture';
+    const capture = it.category === 'capture' || it.category === 'sound';
     const [from, to, piece] = capture ? ['f3', 'e5', 2] : ['d1', 'h5', 5];
     const live = () => peeking && peeking.it === it;
     const play = () => {
@@ -793,16 +796,20 @@
       peeking.timers.push(setTimeout(() => {
         if (!live()) return;
         view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
-          () => { if (live()) peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false });
+          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move'); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false });
       }, 450));
     };
     play();
     peeking.demo = true;
   }
   let peeking = null;
-  function peek(it) {
+  // list: the items to step through with the bar's arrows (the arrow keys and a swipe on the bar do the
+  // same), so a child can watch one animation after another without leaving the table. By default,
+  // everything in the item's category.
+  function peek(it, list, stepped) {
     if (peeking) endPeek(true);   // one item on the table at a time
-    peeking = { it, timers: [] };
+    list = list && list.includes(it) ? list.filter((x) => x.category === it.category) : CATALOG.items.filter((x) => x.category === it.category);
+    peeking = { it, list, timers: [] };
     preview = it; applyLook();
     document.body.classList.add('peeking');
     view.setPaused(false);
@@ -811,32 +818,80 @@
     view.setFullDetail(true);
     if (it.category === 'room') { view.setAttract(true); view.setFocus({ zoom: 0.8 }); }
     else {
-      const moving = it.category === 'capture' || it.category === 'trail';
+      const moving = it.category === 'capture' || it.category === 'trail' || it.category === 'sound';
       view.setAttract(false); view.setView('white', 'player');
       view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[moving ? 'move' : it.category] || PEEK_FOCUS.other);
     }
-    if (it.category === 'capture' || it.category === 'trail') peekDemo(it);
+    if (it.category === 'capture' || it.category === 'trail' || it.category === 'sound') peekDemo(it);
     if (it.category === 'victory') {
       const win = () => view.celebrate('win', -1, null, sqIndex('e1'));
       peeking.timers.push(setTimeout(win, 500), setInterval(win, 4200));
     }
     if (it.category === 'sound') AU.play('capture');
+    // Clocks, pictures and frames are not on the table, so they show on a player card above the bar,
+    // the way they look in a game; a clock counts down there and on the chess clock by the board.
+    if (['clock', 'avatar', 'frame'].includes(it.category)) peekCard(it);
     const un = PG.isUnlocked(state.progress, it), on = state.progress.equipped[it.category] === it.id;
     const bar = document.createElement('div');
-    bar.className = 'peekbar glass';
-    bar.innerHTML = '<div><small>' + t(un ? 'collection.trying' : 'collection.preview') + '</small><b>' + esc(it.name) + '</b></div>' +
+    bar.className = 'peekbar glass' + (stepped ? ' still' : '');
+    const many = list.length > 1, at = list.indexOf(it);
+    bar.innerHTML = (many ? '<button class="round sm pk-nav" id="pk-prev" aria-label="' + esc(t('collection.prevItem')) + '">' + icon('prev') + '</button>' : '') +
+      '<div class="pk-name"><small>' + t(un ? 'collection.trying' : 'collection.preview') + (many ? ' · ' + t('collection.count', { n: at + 1, of: list.length }) : '') + '</small><b>' + esc(it.name) + '</b></div>' +
+      (many ? '<button class="round sm pk-nav" id="pk-next" aria-label="' + esc(t('collection.nextItem')) + '">' + icon('next') + '</button>' : '') +
       (un ? (on ? '<span class="pill gold">' + icon('check') + ' ' + t('collection.equipped') + '</span>' : '<button class="btn primary small" id="pk-eq">' + t('collection.equip') + '</button>') : '<span class="pill lock">' + icon('lock') + ' ' + esc(unlockText(it)) + '</span>') +
-      '<button class="btn small" id="pk-back">' + icon('back') + ' ' + t('common.back') + '</button>';
+      '<button class="btn small" id="pk-back" aria-label="' + esc(t('common.back')) + '">' + icon('back') + '<span class="bk-t"> ' + t('common.back') + '</span></button>';
     document.body.appendChild(bar);
     peeking.bar = bar;
     bar.querySelector('#pk-back').onclick = () => endPeek();
+    if (many) {
+      bar.querySelector('#pk-prev').onclick = () => peekStep(-1);
+      bar.querySelector('#pk-next').onclick = () => peekStep(1);
+      // a sideways swipe on the bar (not on the board, where a drag turns the camera)
+      let sw = null;
+      bar.addEventListener('pointerdown', (e) => { sw = e.target.closest('button') ? null : { x: e.clientX, y: e.clientY }; });
+      bar.addEventListener('pointerup', (e) => {
+        if (!sw) return;
+        const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) peekStep(dx < 0 ? 1 : -1);
+        sw = null;
+      });
+      bar.addEventListener('pointercancel', () => { sw = null; });
+    }
     const eq = bar.querySelector('#pk-eq');
     if (eq) eq.onclick = () => { PG.equip(state.progress, it); save(); toast(t('collection.equippedToast', { name: esc(it.name) })); endPeek(); };
+  }
+  function peekCard(it) {
+    const P = state.progress, card = document.createElement('div');
+    const avatar = it.category === 'avatar' ? it.id : PG.equipped(P, 'avatar').id;
+    const frame = it.category === 'frame' ? it.id : PG.equipped(P, 'frame').id;
+    const isClock = it.category === 'clock';
+    card.className = 'peekcard glass' + (isClock ? ' timed' : '');
+    card.innerHTML = '<div class="pp">' + avatarHtml(isClock ? 'sm' : 'lg', avatar, frame) + '</div><div class="who"><div class="name">' + esc(t('common.you')) + '</div><div class="sub">' + esc(t('common.level', { n: PG.levelFor(P.xp).level })) + '</div></div>' +
+      (isClock ? '<div class="clock running skin-' + esc(it.data.css) + '" id="pk-clock">5:00</div><div class="clock skin-' + esc(it.data.css) + '">5:00</div>' : '');
+    document.body.appendChild(card);
+    peeking.card = card;
+    if (!isClock) return;
+    let ms = 300000;
+    const tick = () => {
+      const el = card.querySelector('#pk-clock');
+      el.textContent = Math.floor(ms / 60000) + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0');
+      view.setClock({ whiteMs: ms, blackMs: 300000, active: 'w', running: true }, it.data);
+      ms = ms > 1000 ? ms - 1000 : 300000;
+    };
+    tick();
+    peeking.timers.push(setInterval(tick, 1000));
+  }
+  function peekStep(dir) {
+    if (!peeking || peeking.list.length < 2) return;
+    const list = peeking.list, at = list.indexOf(peeking.it);
+    AU.play('tap');
+    peek(list[(at + dir + list.length) % list.length], list, true);
   }
   function endPeek(silent) {
     if (!peeking) return;
     peeking.timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
     peeking.bar.remove();
+    if (peeking.card) { peeking.card.remove(); view.setClock(null); }
     const demo = peeking.demo;
     peeking = null;
     if (demo) idleBoard();
@@ -1796,7 +1851,7 @@
           if (g) g.onclick = () => { m.close(); go(...h.go); };
         };
       }
-      info.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
+      info.querySelector('#mu-try').onclick = () => { m.close(); peek(it, list); };
       const cb = info.querySelector('#mu-coin');
       if (cb) cb.onclick = () => buyWithCoins(it, () => { fill(it, 0); if (after) after(); });
       pitch(it);
