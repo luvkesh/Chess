@@ -5,6 +5,9 @@
 const ChacklateArt = (() => {
   'use strict';
 
+  // Pictures rendered from the 3D game (build.py inlines CHACKLATE_ART); drawn art stands in without them.
+  const ART_IMG = typeof CHACKLATE_ART !== 'undefined' ? CHACKLATE_ART : { piece: {}, view: {} };
+
   // ------------------------------------------------------------ colour helpers
   const rgb = (c) => {
     let h = String(c).replace('#', '');
@@ -50,7 +53,8 @@ const ChacklateArt = (() => {
   const uri = (s) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
 
   // shape shorthands
-  const ol = (c, w) => ' stroke="' + dim(c, 0.55) + '" stroke-opacity=".55" stroke-width="' + (w || 2) + '" stroke-linejoin="round"';
+  // the gold wire (cloison) that edges each field of enamel; c is the enamel it holds
+  const ol = (c, w) => ' stroke="#d6aa58" stroke-width="' + ((w || 2) * 0.8).toFixed(2) + '" stroke-linejoin="round"';
   const E = (cx, cy, rx, ry, fill, x) => '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + fill + '"' + (x || '') + '/>';
   const C = (cx, cy, r, fill, x) => '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + fill + '"' + (x || '') + '/>';
   const P = (d, fill, x) => '<path d="' + d + '" fill="' + fill + '"' + (x || '') + '/>';
@@ -60,23 +64,32 @@ const ChacklateArt = (() => {
   const rot = (a, x, y) => ' transform="rotate(' + a + ' ' + x + ' ' + y + ')"';
 
   // ------------------------------------------------------------ face parts
-  // Big glossy eyes; `iris` gives a coloured ring, `slit` a cat's pupil.
+  // Eyes painted like a storybook portrait: a coloured iris with a dark limbal ring and fine
+  // streaks, a soft shadow from the upper lid and one crisp catchlight. `slit` gives a cat's pupil.
   function eye(p, x, y, r, o) {
     o = o || {};
+    const iris = o.iris || '#6a4024';
     let s = '';
-    if (o.ring) s += C(x, y, r + 1.6, o.ring);
-    if (o.iris) {
-      s += C(x, y, r, p.rad([[0, lit(o.iris, 0.35)], [0.7, o.iris], [1, dim(o.iris, 0.45)]], 0.5, 0.6, 0.6));
-      s += o.slit ? E(x, y, r * 0.3, r * 0.82, '#140a06') : C(x, y + r * 0.05, r * 0.56, '#140a06');
-    } else {
-      s += E(x, y, r * 0.94, r, p.rad([[0, '#4a3226'], [0.6, '#1d120c'], [1, '#080403']], 0.45, 0.65, 0.65));
+    if (o.ring) s += C(x, y, r + 1.6, p.rad([[0.6, o.ring], [1, dim(o.ring, 0.35)]], 0.5, 0.5, 0.5));
+    // the eyeball sits in a soft socket
+    s += C(x, y + r * 0.04, r * 1.06, dim(iris, 0.82), ' opacity=".7"');
+    s += C(x, y, r, p.rad([[0, lit(iris, 0.45)], [0.45, iris], [0.82, dim(iris, 0.35)], [1, dim(iris, 0.75)]], 0.5, 0.62, 0.55));
+    let streaks = '';
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2;
+      streaks += 'M' + (x + Math.cos(a) * r * 0.42).toFixed(2) + ' ' + (y + Math.sin(a) * r * 0.42).toFixed(2) + 'L' + (x + Math.cos(a) * r * 0.86).toFixed(2) + ' ' + (y + Math.sin(a) * r * 0.86).toFixed(2);
     }
-    s += C(x + r * 0.34, y - r * 0.38, r * 0.36, '#fff');
-    s += C(x - r * 0.32, y + r * 0.4, r * 0.15, '#fff', ' opacity=".85"');
-    return s;
+    s += '<path d="' + streaks + '" stroke="' + lit(iris, 0.55) + '" stroke-width="' + (r * 0.07).toFixed(2) + '" stroke-opacity=".35" stroke-linecap="round"/>';
+    s += o.slit ? E(x, y, r * 0.22, r * 0.78, '#0a0504') : C(x, y + r * 0.04, r * 0.44, p.rad([[0, '#1a0e08'], [1, '#050302']], 0.5, 0.5, 0.5));
+    // upper-lid shadow
+    s += P('M' + (x - r) + ' ' + y + ' A' + r + ' ' + r + ' 0 0 1 ' + (x + r) + ' ' + y + ' Q' + x + ' ' + (y - r * 0.45) + ' ' + (x - r) + ' ' + y + 'Z', '#000', ' opacity=".28"');
+    s += C(x + r * 0.32, y - r * 0.34, r * 0.2, '#fff', ' opacity=".95"');
+    s += E(x - r * 0.28, y + r * 0.42, r * 0.22, r * 0.1, '#fff', ' opacity=".28"');
+    return '<g class="eye">' + s + '</g>';
   }
   const eyes = (p, dx, y, r, o) => eye(p, 100 - dx, y, r, o) + eye(p, 100 + dx, y, r, o);
-  const blush = (p, dx, y, rx, c) => { const f = p.rad([[0, c || '#ff7f9a', 0.55], [1, c || '#ff7f9a', 0]], 0.5, 0.5, 0.5); return E(100 - dx, y, rx, rx * 0.62, f) + E(100 + dx, y, rx, rx * 0.62, f); };
+  // cheeks stay in plain enamel: a painted blush is a cartoon touch the medals do without
+  const blush = () => '';
   const smile = (y, w, c, sw) => '<path d="M' + (100 - w) + ' ' + y + ' Q' + (100 - w / 2) + ' ' + (y + w * 0.55) + ' 100 ' + (y + 1) + ' Q' + (100 + w / 2) + ' ' + (y + w * 0.55) + ' ' + (100 + w) + ' ' + y + '" fill="none" stroke="' + c + '" stroke-width="' + (sw || 2.6) + '" stroke-linecap="round"/>';
   const nose = (p, y, w, c) => P('M' + (100 - w) + ' ' + y + ' Q100 ' + (y - w * 0.35) + ' ' + (100 + w) + ' ' + y + ' Q' + (100 + w * 0.6) + ' ' + (y + w * 0.9) + ' 100 ' + (y + w * 1.05) + ' Q' + (100 - w * 0.6) + ' ' + (y + w * 0.9) + ' ' + (100 - w) + ' ' + y + 'Z', p.sh(c || '#2a1810', { hi: 0.4 })) +
     E(100 - w * 0.25, y + w * 0.15, w * 0.32, w * 0.16, '#fff', ' opacity=".55"');
@@ -409,39 +422,75 @@ const ChacklateArt = (() => {
   };
 
   // ------------------------------------------------------------ medallions
-  // The ring: a bevelled gold band with a bead row.
+  // The bezel: a polished gold band lit from the top left, with an engraved inner step.
   function ring(p, r) {
-    let beads = '';
-    for (let i = 0; i < 60; i++) { const a = (i / 60) * Math.PI * 2; beads += C((100 + Math.cos(a) * (r - 5)).toFixed(2), (100 + Math.sin(a) * (r - 5)).toFixed(2), 1.15, '#fff2c0', ' opacity=".75"'); }
-    return C(100, 100, r, p.lin([[0, '#fff2c4'], [0.25, '#e6c070'], [0.5, '#9a6420'], [0.75, '#f0d088'], [1, '#7a4a14']], 0, 0, 1, 1)) +
-      C(100, 100, r - 2, 'none', ' stroke="#fff6d8" stroke-opacity=".5" stroke-width="1"') + beads +
-      C(100, 100, r - 10, p.lin([[0, '#6a4416'], [1, '#f6dc96']], 0, 0, 1, 1));
-  }
-  function field(p, r, from, to, rays) {
-    let s = C(100, 100, r, p.rad([[0, lit(from, 0.18)], [0.55, from], [1, to]], 0.5, 0.42, 0.62));
-    if (rays !== false) {
-      for (let i = 0; i < 24; i++) {
-        const a = (i / 24) * Math.PI * 2, b = a + Math.PI / 48;
-        s += P('M100 100 L' + (100 + Math.cos(a) * r).toFixed(1) + ' ' + (100 + Math.sin(a) * r).toFixed(1) + ' L' + (100 + Math.cos(b) * r).toFixed(1) + ' ' + (100 + Math.sin(b) * r).toFixed(1) + 'Z', '#fff', ' opacity=".045"');
-      }
+    p.raw('bezel', '<filter id="bezel" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">' +
+      '<feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="h"/>' +
+      '<feSpecularLighting in="h" surfaceScale="5" specularConstant="1.15" specularExponent="22" lighting-color="#fff6dc" result="sp"><feDistantLight azimuth="225" elevation="42"/></feSpecularLighting>' +
+      '<feComposite in="sp" in2="SourceAlpha" operator="in" result="spi"/>' +
+      '<feComposite in="SourceGraphic" in2="spi" operator="arithmetic" k2="1" k3=".85"/></filter>');
+    let ticks = '';
+    for (let i = 0; i < 96; i++) {
+      const a = (i / 96) * Math.PI * 2, r0 = r - 7.4, r1 = r - (i % 4 ? 5.2 : 3.6);
+      ticks += 'M' + (100 + Math.cos(a) * r0).toFixed(2) + ' ' + (100 + Math.sin(a) * r0).toFixed(2) + 'L' + (100 + Math.cos(a) * r1).toFixed(2) + ' ' + (100 + Math.sin(a) * r1).toFixed(2);
     }
+    const band = p.lin([[0, '#fff0c0'], [0.22, '#e2b45e'], [0.48, '#8a5a1c'], [0.7, '#e8c278'], [1, '#6a3e10']], 0.15, 0, 0.85, 1);
+    return '<g filter="url(#bezel)">' + C(100, 100, r, band) + C(100, 100, r - 9.5, p.lin([[0, '#5a3610'], [1, '#f4d48a']], 0.2, 0, 0.8, 1)) + '</g>' +
+      '<path d="' + ticks + '" stroke="#5a3410" stroke-opacity=".55" stroke-width=".9"/>' +
+      C(100, 100, r - 0.6, 'none', ' stroke="#2a1404" stroke-opacity=".7" stroke-width="1.2"') +
+      C(100, 100, r - 10.2, 'none', ' stroke="#fff4d0" stroke-opacity=".55" stroke-width=".8"');
+  }
+  // Translucent enamel over an engraved guilloche ground, as on a jeweller's medal.
+  function field(p, r, from, to, rays) {
+    let s = C(100, 100, r, p.rad([[0, lit(from, 0.22)], [0.5, from], [1, dim(to, 0.2)]], 0.5, 0.4, 0.66));
+    if (rays !== false) {
+      let d = '';
+      for (let i = 0; i < 72; i++) {
+        const a = (i / 72) * Math.PI * 2;
+        d += 'M100 100';
+        for (let k = 1; k <= 12; k++) { const rr = r * k / 12, w = a + Math.sin(k * 0.9) * 0.05; d += 'L' + (100 + Math.cos(w) * rr).toFixed(1) + ' ' + (100 + Math.sin(w) * rr).toFixed(1); }
+      }
+      s += '<path d="' + d + '" fill="none" stroke="' + lit(from, 0.6) + '" stroke-opacity=".09" stroke-width=".7"/>';
+      for (let k = 1; k < 7; k++) s += C(100, 100, (r * k / 7).toFixed(1), 'none', ' stroke="' + dim(to, 0.4) + '" stroke-opacity=".12" stroke-width=".6"');
+    }
+    // a pool of light behind the subject and a glassy sheen across the top
+    s += E(100, 84, r * 0.62, r * 0.56, p.rad([[0, lit(from, 0.5), 0.45], [1, from, 0]], 0.5, 0.5, 0.5));
+    s += P('M' + (100 - r * 0.86) + ' 82 Q100 ' + (100 - r * 1.25) + ' ' + (100 + r * 0.86) + ' 82 Q100 ' + (100 - r * 0.7) + ' ' + (100 - r * 0.86) + ' 82Z', '#fff', ' opacity=".07"');
     return s;
   }
   const SOFT = '<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>' +
     '<filter id="lift" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3.2" flood-color="#000" flood-opacity=".38"/></filter>';
+  // Glazes a drawn animal like cloisonne enamel: its gold wires (ol) and the glass between them
+  // catch the light from the top left as one domed, polished surface.
+  const ENAMEL = '<filter id="enamel" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">' +
+    '<feGaussianBlur in="SourceAlpha" stdDeviation="4" result="dome"/>' +
+    '<feSpecularLighting in="dome" surfaceScale="4" specularConstant=".85" specularExponent="26" lighting-color="#ffffff" result="gl"><feDistantLight azimuth="225" elevation="50"/></feSpecularLighting>' +
+    '<feComposite in="gl" in2="SourceAlpha" operator="in" result="gli"/>' +
+    '<feComposite in="SourceGraphic" in2="gli" operator="arithmetic" k2="1" k3=".5"/></filter>';
 
+  // Every field of colour in a portrait gets its gold wire: shapes drawn without an edge get a
+  // fine one, except the eyes, highlights and the smallest beads.
+  function cloisons(body) {
+    return body.split(/(<g class="eye">[\s\S]*?<\/g>)/).map((part) => part.startsWith('<g class="eye">') ? part :
+      part.replace(/<(path|ellipse|circle)\b([^>]*?)\/>/g, (m, tag, attrs) => {
+        if (/ stroke=| opacity=|fill="none"|fill="#fff"/.test(attrs)) return m;
+        const r = +((attrs.match(/ r(?:x)?="([\d.]+)"/) || [])[1] || 99);
+        return r < 4 ? m : '<' + tag + attrs + ' stroke="#d6aa58" stroke-width="1.1" stroke-linejoin="round"/>';
+      })).join('');
+  }
   // portrait(animal, { from, to, ring: true|false, bare: true for no background })
   function portrait(animal, o) {
     o = o || {};
     const draw = ANIMALS[animal] || ANIMALS.bunny;
     const p = pic();
     p.raw('soft', SOFT);
+    p.raw('enamel', ENAMEL);
     const r = o.ring === false ? 100 : 97, inner = o.ring === false ? 100 : 87;
     p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="' + inner + '"/></clipPath><clipPath id="collarclip"><path d="M14 214 C18 168 58 148 100 148 C142 148 182 168 186 214 Z"/></clipPath>');
     const from = o.from || '#b8325a', to = o.to || '#3a0c1a';
     const bg = o.bare ? '' : field(p, inner, from, to);
-    const body = draw(p);
-    const out = (o.ring === false ? '' : ring(p, r)) + '<g clip-path="url(#inner)">' + bg + '<g filter="url(#lift)">' + body + '</g>' +
+    const body = cloisons(draw(p));
+    const out = (o.ring === false ? '' : ring(p, r)) + '<g clip-path="url(#inner)">' + bg + '<g filter="url(#lift)"><g filter="url(#enamel)">' + body + '</g></g>' +
       // soft inner shading at the rim
       C(100, 100, inner, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
     return svg(p, '0 0 200 200', out);
@@ -498,12 +547,16 @@ const ChacklateArt = (() => {
     const r = o.ring === false ? 100 : 97, inner = o.ring === false ? 100 : 87;
     p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="' + inner + '"/></clipPath>');
     let body;
-    if (kind === 'piece') {
+    if (kind === 'piece' && ART_IMG.piece[name]) {
+      // the real gold piece, rendered from the 3D set (tools/shoot-art.js), standing in a pool of light
+      body = E(100, 160, 40, 7, 'rgba(0,0,0,.55)', ' filter="url(#soft)"') +
+        '<image href="' + ART_IMG.piece[name] + '" x="34" y="26" width="132" height="138" preserveAspectRatio="xMidYMax meet"/>';
+    } else if (kind === 'piece') {
       const fill = p.lin([[0, '#fff3c4'], [0.35, '#f0cf7e'], [0.7, '#c08a36'], [1, '#7a4a14']], 0.2, 0, 0.8, 1);
       body = '<g transform="translate(30 26) scale(1.4)">' + P(PIECE[name] || PIECE.n, fill, ' stroke="#6a3e10" stroke-width="1.4" stroke-linejoin="round"') + (PIECE_EYE[name] ? C(PIECE_EYE[name][0], PIECE_EYE[name][1], PIECE_EYE[name][2], '#5a3410') : '') + '</g>';
     } else body = emblemBody(p, name);
     const out = (o.ring === false ? '' : ring(p, r)) + '<g clip-path="url(#inner)">' + field(p, inner, o.from || '#a3294f', o.to || '#4a0c1e') +
-      '<g filter="url(#lift)">' + body + '</g>' + C(100, 100, inner, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
+      (kind === 'piece' && ART_IMG.piece[name] ? body : '<g filter="url(#lift)">' + body + '</g>') + C(100, 100, inner, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
     return svg(p, '0 0 200 200', out);
   }
 
@@ -632,7 +685,8 @@ const ChacklateArt = (() => {
     portraitUri: (animal, o) => memo('p' + animal + JSON.stringify(o || {}), () => portrait(animal, o)),
     medalUri: (art, o) => memo('m' + art + JSON.stringify(o || {}), () => medal(art, o)),
     crestUri: () => memo('crest', () => crest()),
-    bannerUri: (id, o) => memo('b' + id + JSON.stringify(o || {}), () => banner(id, o)),
+    // an era's own painted view (as seen from its room's window) where the build has it
+    bannerUri: (id, o) => ART_IMG.view[id] || memo('b' + id + JSON.stringify(o || {}), () => banner(id, o)),
     pieceUri: (type, o) => memo('s' + type + JSON.stringify(o || {}), () => pieceSvg(type, o)),
     fxUri: (kind, colors) => memo('f' + kind + (colors || []).join(), () => fx(kind, colors)),
     clockUri: (d) => memo('c' + JSON.stringify(d || {}), () => clock(d)),
