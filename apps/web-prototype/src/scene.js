@@ -898,7 +898,7 @@ function ChacklateScene(canvas, options) {
   function showSkip(on) {
     if (on && !skipEl) {
       skipEl = document.createElement('button');
-      skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = 'Tap to skip';
+      skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('play.skip') : 'Tap to skip';   // the website shares this file, in English
       skipEl.addEventListener('click', (e) => { e.stopPropagation(); skipCine(); });
       document.body.appendChild(skipEl);
     }

@@ -1,0 +1,20 @@
+{
+  "connecting": { "en": "Connecting…", "hi": "जुड़ रहे हैं…", "check": ["hi"] },
+  "connectingSub": { "en": "Getting online play ready. This takes a moment.", "hi": "ऑनलाइन खेल तैयार हो रहा है। बस एक पल।", "check": ["hi"] },
+  "na": { "en": "Online play is not available here", "hi": "यहाँ ऑनलाइन खेल उपलब्ध नहीं है", "check": ["hi"] },
+  "naSub": { "en": "Codes and world games work in the Chackmate game opened from its claude.ai link, signed in. Opened as a downloaded file, or before the Chackmate server is live, the page cannot reach other players. You can still take turns on this device.", "hi": "कोड और दुनिया वाले खेल Chackmate को उसके claude.ai लिंक से, साइन इन करके खोलने पर चलते हैं। डाउनलोड की गई फ़ाइल से, या Chackmate सर्वर चालू होने से पहले, यह पेज दूसरे खिलाड़ियों तक नहीं पहुँच सकता। आप फिर भी इसी डिवाइस पर बारी-बारी खेल सकते हैं।", "check": ["hi"] },
+  "world": { "en": "players from around the world", "hi": "दुनिया भर के खिलाड़ी", "check": ["hi"] },
+  "computer": { "en": "Play the computer instead", "hi": "इसके बजाय कंप्यूटर से खेलें", "check": ["hi"] },
+  "roomFail": { "en": "Could not open the game room. Try again.", "hi": "खेल का कमरा नहीं खुल पाया। फिर कोशिश करें।", "check": ["hi"] },
+  "share": { "en": "Share this code", "hi": "यह कोड भेजें", "check": ["hi"] },
+  "shareSub": { "en": "Your friend opens Chackmate, taps Play a Friend and enters the code. {tc}, both players on the clock.", "hi": "आपका दोस्त Chackmate खोले, \"दोस्त के साथ खेलें\" पर टैप करे और कोड डाले। {tc}, दोनों खिलाड़ियों की घड़ी चलेगी।", "check": ["hi"] },
+  "copy": { "en": "Copy", "hi": "कॉपी करें", "check": ["hi"] },
+  "copied": { "en": "Code copied.", "hi": "कोड कॉपी हो गया।", "check": ["hi"] },
+  "joining": { "en": "Joining {code}", "hi": "{code} से जुड़ रहे हैं", "check": ["hi"] },
+  "waiting": { "en": "Waiting for your friend's game…", "hi": "आपके दोस्त के खेल का इंतज़ार…", "check": ["hi"] },
+  "noGame": { "en": "No game is waiting with the code {code}. Check it with your friend.", "hi": "कोड {code} वाला कोई खेल इंतज़ार में नहीं है। अपने दोस्त से कोड जाँच लें।", "check": ["hi"] },
+  "started": { "en": "That game has already started. Ask your friend for a new code.", "hi": "वह खेल शुरू हो चुका है। दोस्त से नया कोड माँगें।", "check": ["hi"] },
+  "worldPlayer": { "en": "Player from around the world", "hi": "दुनिया में कहीं का खिलाड़ी", "check": ["hi"] },
+  "yourFriend": { "en": "Your friend", "hi": "आपका दोस्त", "check": ["hi"] },
+  "reported": { "en": "Thanks. Reports reach a moderator once the Chackmate game server is live.", "hi": "धन्यवाद। Chackmate गेम सर्वर चालू होने पर शिकायतें मॉडरेटर तक पहुँचेंगी।", "check": ["hi"] }
+}

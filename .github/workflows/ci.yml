@@ -49,6 +49,8 @@ jobs:
         run: node apps/web-prototype/test/tips.test.js
       - name: Catalog looks exist in the 3D code
         run: node apps/web-prototype/test/looks.test.js
+      - name: Every UI string in every language
+        run: node apps/web-prototype/test/i18n.test.js
       - name: Club places, leagues and location rules
         run: node apps/web-prototype/test/club.test.js
       - name: Mini-games can be won
