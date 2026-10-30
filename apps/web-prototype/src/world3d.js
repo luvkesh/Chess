@@ -10,9 +10,9 @@ function ChacklateWorld(THREE, K) {
   // ------------------------------------------------------------------ small helpers
   const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h || w; return c; };
   function texFrom(c, o) {
-    const t = new THREE.CanvasTexture(c);
+    const t = new THREE.CanvasTexture(K.fitCanvas(c));
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
-    t.anisotropy = 8;
+    t.anisotropy = K.texAniso();
     if (o && o.repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(o.repeat[0], o.repeat[1]); }
     return t;
   }
@@ -1895,6 +1895,8 @@ function ChacklateWorld(THREE, K) {
     grp.add(candelabrum(-5.9, TOP, -4.6, flames, wallMats.gold));
     grp.add(candelabrum(5.9, TOP, -4.6, flames, wallMats.gold));
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
+    // the chandelier steps aside for the camera and the flames flicker; the rest stands still
+    K.batchStatic(grp, [ch].concat(flames.map((f) => f.m)));
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8,
       fog: o.fog, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),

@@ -259,9 +259,11 @@
       onDrop: (f, t) => ctlHooks.onDrop(f, t),
       onContextLost() { $('nogl').hidden = false; },
       onContextRestored() { $('nogl').hidden = true; },
+      onPerf: (level) => document.body.classList.toggle('lite', level >= 2),
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }
+  else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
   function nullView() {
     const noop = () => {};
@@ -327,8 +329,10 @@
       if (!img.dataset.snap) return;
       const [spec, w, h] = JSON.parse(img.dataset.snap);
       delete img.dataset.snap;
+      // small menu-card art doesn't need the full sculpt (and building it slows the first screen)
+      if (w <= 240 && !spec.detail) spec.detail = 'play';
       const k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
-      view.snapshot(spec, Math.round(w * k), Math.round(h * k)).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
+      view.snapshot(spec, Math.round(w * k), Math.round(h * k), () => img.isConnected).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
     };
     if (!lazy || !('IntersectionObserver' in window)) { imgs.forEach(run); return; }
     if (snapObserver) snapObserver.disconnect();
@@ -520,11 +524,34 @@
     pieces: { pitch: 0.62, zoom: 0.6, lookY: 0.45, lookZ: 1.4 },
     piecesTall: { pitch: 0.62, zoom: 0.7, lookY: 0.45, lookZ: 1.2 },   // a phone held upright: all eight files still fit
     board: { pitch: 0.95, zoom: 0.72, lookZ: 0.6 },
+    move: { pitch: 0.7, zoom: 0.62, lookY: 0.3, lookZ: 0.2 },   // capture effects and trails, close to the move
     other: { zoom: 0.8 },
   };
+  // Capture effects and trails only show on a move, so the preview plays one again and again:
+  // a knight hops in to take a pawn, or the queen sweeps across the board. The next round
+  // starts a second after the last one ends, however long its capture scene runs.
+  function peekDemo(it) {
+    const capture = it.category === 'capture';
+    const [from, to, piece] = capture ? ['f3', 'e5', 2] : ['d1', 'h5', 5];
+    const live = () => peeking && peeking.it === it;
+    const play = () => {
+      if (!live()) return;
+      const start = [[sqIndex('e1'), 6], [sqIndex('e8'), -6], [sqIndex(from), piece]];
+      if (capture) start.push([sqIndex(to), -1]);
+      view.setBoard(start, null);
+      peeking.timers.push(setTimeout(() => {
+        if (!live()) return;
+        view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
+          () => { if (live()) peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false });
+      }, 450));
+    };
+    play();
+    peeking.demo = true;
+  }
   let peeking = null;
   function peek(it) {
-    peeking = { it };
+    if (peeking) endPeek(true);   // one item on the table at a time
+    peeking = { it, timers: [] };
     preview = it; applyLook();
     document.body.classList.add('peeking');
     view.setPaused(false);
@@ -532,8 +559,16 @@
     // full resolution while the item is on show, and a camera that starts close to it
     view.setFullDetail(true);
     if (it.category === 'room') { view.setAttract(true); view.setFocus({ zoom: 0.8 }); }
-    else { view.setAttract(false); view.setView('white', 'player'); view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[it.category] || PEEK_FOCUS.other); }
-    if (it.category === 'capture' || it.category === 'victory') setTimeout(() => view.celebrate('win', -1, null, sqIndex('e1')), 500);
+    else {
+      const moving = it.category === 'capture' || it.category === 'trail';
+      view.setAttract(false); view.setView('white', 'player');
+      view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[moving ? 'move' : it.category] || PEEK_FOCUS.other);
+    }
+    if (it.category === 'capture' || it.category === 'trail') peekDemo(it);
+    if (it.category === 'victory') {
+      const win = () => view.celebrate('win', -1, null, sqIndex('e1'));
+      peeking.timers.push(setTimeout(win, 500), setInterval(win, 4200));
+    }
     if (it.category === 'sound') AU.play('capture');
     const un = PG.isUnlocked(state.progress, it), on = state.progress.equipped[it.category] === it.id;
     const bar = document.createElement('div');
@@ -549,8 +584,11 @@
   }
   function endPeek(silent) {
     if (!peeking) return;
+    peeking.timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
     peeking.bar.remove();
+    const demo = peeking.demo;
     peeking = null;
+    if (demo) idleBoard();
     document.body.classList.remove('peeking');
     view.setFullDetail(false);
     preview = null; applyLook();
@@ -1147,7 +1185,7 @@
         el.onclick = (e) => {
           const it = PG.item(el.dataset.item);
           AU.play('tap');
-          if (e.target.closest('[data-peek]')) peek(it); else itemModal(it, render);
+          if (e.target.closest('[data-peek]')) peek(it); else itemModal(it, render, items);
         };
       });
       $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, 'collected');
@@ -1159,40 +1197,81 @@
     return { refresh: render };
   };
   // The museum card: the story of a set and of each of its pieces, or an item's details.
-  function itemModal(it, after) {
+  // list: the items on show, so the arrows, the arrow keys and a swipe step through them.
+  function itemModal(it, after, list) {
     const P = state.progress;
-    const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
-    const d = it.data || {};
-    const set = it.category === 'pieces' ? setInfo(d.set) : null;
-    const m = modal('<div class="museum"><div class="stagebox" id="mu-stage"' + tintStyle(it) + '>' + itemArt(it, true) + '</div><div>' +
-      '<div class="eyebrow">' + esc(catName(it.category)) + '</div><h2>' + esc(it.name) + '</h2>' +
-      '<div class="facts"><span class="rar ' + it.rarity + '">' + it.rarity + '</span>' + (set ? '<span class="pill gold">' + esc(set.era) + '</span><span class="pill">' + esc(set.year) + '</span>' : '') + '</div>' +
-      '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
-      (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
-        '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
-      '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
-      '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
-      '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div></div></div>', { cls: 'wide', x: true });
-    hydrate(m);
-    // The picture is only a placeholder: the item itself turns on the stage in real 3D.
-    const stageEl = m.querySelector('#mu-stage'), spec = itemSpec(it);
-    const live = spec && view.stage ? view.stage(stageEl, spec, 520 / 360) : null;
-    if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' Drag to turn · pinch to zoom</span>');
-    m.querySelectorAll('[data-pt]').forEach((b) => {
-      b.onclick = () => {
-        const t = b.dataset.pt;
-        AU.play('select');
-        m.querySelectorAll('[data-pt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-        m.querySelector('#mu-lore').innerHTML = '<b>The ' + PIECE_NAME[t] + '.</b> ' + esc(set.lore[t]);
-        const one = { kind: 'piece', set: d.set, type: t, side: t === 'q' || t === 'b' ? 'b' : 'w' };
-        if (live) { live.show(one, 360 / 400); return; }
-        stageEl.innerHTML = snap(one, 360, 400, ART.pieceUri(t), 'fit');
-        hydrate(stageEl);
-      };
-    });
-    const eq = m.querySelector('#mu-eq');
-    if (eq) eq.onclick = () => { PG.equip(P, it); save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); m.close(); renderNav(); if (after) after(); };
-    m.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
+    list = list && list.includes(it) ? list : [it];
+    let at = list.indexOf(it), live = null;
+    const many = list.length > 1;
+    const m = modal('<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
+      (many ? '<button class="round mu-nav prev" aria-label="Previous item">' + icon('prev') + '</button><button class="round mu-nav next" aria-label="Next item">' + icon('next') + '</button><span class="mu-count" id="mu-count"></span>' : '') +
+      '</div><div id="mu-info"></div></div>', { cls: 'wide', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); } });
+    const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info');
+    function fill(it, dir) {
+      const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
+      const d = it.data || {};
+      const set = it.category === 'pieces' ? setInfo(d.set) : null;
+      info.innerHTML = '<div class="eyebrow">' + esc(catName(it.category)) + '</div><h2>' + esc(it.name) + '</h2>' +
+        '<div class="facts"><span class="rar ' + it.rarity + '">' + it.rarity + '</span>' + (set ? '<span class="pill gold">' + esc(set.era) + '</span><span class="pill">' + esc(set.year) + '</span>' : '') + '</div>' +
+        '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
+        (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
+          '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
+        '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
+        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
+        '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
+      if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
+      if (many) m.querySelector('#mu-count').textContent = (at + 1) + ' of ' + list.length;
+      // The picture is only a placeholder: the item itself turns on the stage in real 3D.
+      if (live) { live.stop(); live = null; }
+      stageEl.setAttribute('style', tintStyle(it).replace(/^ style="|"$/g, ''));
+      stageEl.innerHTML = itemArt(it, true);
+      hydrate(m);
+      const spec = itemSpec(it);
+      live = spec && view.stage ? view.stage(stageEl, spec, 520 / 360) : null;
+      if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' Drag to turn · pinch to zoom</span>');
+      info.querySelectorAll('[data-pt]').forEach((b) => {
+        b.onclick = () => {
+          const t = b.dataset.pt;
+          AU.play('select');
+          info.querySelectorAll('[data-pt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          info.querySelector('#mu-lore').innerHTML = '<b>The ' + PIECE_NAME[t] + '.</b> ' + esc(set.lore[t]);
+          const one = { kind: 'piece', set: d.set, type: t, side: t === 'q' || t === 'b' ? 'b' : 'w' };
+          if (live) { live.show(one, 360 / 400); return; }
+          stageEl.innerHTML = snap(one, 360, 400, ART.pieceUri(t), 'fit');
+          hydrate(stageEl);
+        };
+      });
+      const eq = info.querySelector('#mu-eq');
+      if (eq) eq.onclick = () => { PG.equip(P, it); save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); m.close(); renderNav(); if (after) after(); };
+      info.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
+    }
+    function step(dir) {
+      if (!many) return;
+      at = (at + dir + list.length) % list.length;
+      AU.play('tap');
+      fill(list[at], dir);
+    }
+    function keys(e) {
+      if ([...document.querySelectorAll('.modal')].pop() !== m || /input|textarea|select/i.test(e.target.tagName || '')) return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); step(e.key === 'ArrowLeft' ? -1 : 1); }
+    }
+    if (many) {
+      m.querySelector('.mu-nav.prev').onclick = () => step(-1);
+      m.querySelector('.mu-nav.next').onclick = () => step(1);
+      document.addEventListener('keydown', keys, true);
+      // A sideways swipe anywhere but the 3D stage (where a drag turns the model) moves on.
+      let sw = null;
+      const card = m.querySelector('.card');
+      card.addEventListener('pointerdown', (e) => { sw = e.target.closest('canvas, .pieces') ? null : { x: e.clientX, y: e.clientY }; });
+      card.addEventListener('pointerup', (e) => {
+        if (!sw) return;
+        const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+        sw = null;
+      });
+      card.addEventListener('pointercancel', () => { sw = null; });
+    }
+    fill(it, 0);
   }
 
   // ---------------------------------------------------------------- profile
@@ -1674,7 +1753,7 @@
     if (G.hint && G.hintStep >= 3) h.hintTo = sqIndex(G.hint.to);
     view.setHighlights(h);
     const arrows = [];
-    if (G.hint && G.hintStep >= 3) arrows.push({ from: sqIndex(G.hint.from), to: sqIndex(G.hint.to), color: '#3fe0c8' });
+    if (G.hint && G.hintStep >= 3) arrows.push({ from: sqIndex(G.hint.from), to: sqIndex(G.hint.to), color: '#2fd8ff' });
     if (G.threat && G.threat.facts) arrows.push({ from: sqIndex(G.threat.facts.from), to: sqIndex(G.threat.facts.to), color: '#ff5a50' });
     if (G.coachArrow) arrows.push(G.coachArrow);
     view.setArrows(arrows);
@@ -2372,8 +2451,8 @@
       $('ls-prev').disabled = S.i === 0;
       $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Start the exercises' : 'Next';
       setHooks({});
-      view.setHighlights({ marks: (st.marks || []).map((m) => ({ sq: sqIndex(m), color: '#e3b25a', alpha: 0.5, shape: 0 })) });
-      view.setArrows((st.arrows || []).map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#e3b25a' })));
+      view.setHighlights({ spots: (st.marks || []).map((m) => ({ sq: sqIndex(m) })) });
+      view.setArrows((st.arrows || []).map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#2fd8ff' })));
       setPos(st.fen, st.play);
       dots(); speak();
     }
@@ -2407,7 +2486,7 @@
       $('ls-hint').onclick = () => {
         const hints = x.type === 'puzzle' ? ['Look for forcing moves: checks, captures and threats.', 'Look at your ' + C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] + '.'] : x.hints || [];
         if (S.hintN < hints.length) { fb('hint', hints[S.hintN]); S.hintN++; }
-        else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#3fe0c8' }]); S.tries++; }
+        else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); S.tries++; }
         AU.play('coach');
       };
       if (x.type === 'puzzle') {
@@ -2427,7 +2506,7 @@
       const g = new E.Game(S.pos.fen());
       const all = g.targets(sqIndex(x.from));
       const c = $('ls-count'); if (c) c.textContent = S.found.length + ' of ' + all.length + ' found';
-      view.setHighlights({ selected: sqIndex(x.from), marks: S.found.map((s) => ({ sq: s, color: '#7fd6a4', alpha: 0.55, shape: 0 })) });
+      view.setHighlights({ selected: sqIndex(x.from), spots: S.found.map((s) => ({ sq: s, color: '#3ee07a', pulse: false })) });
       return all;
     }
     function fb(kind, text) { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; }
@@ -2436,7 +2515,7 @@
       if (S.answered) return;
       if (x.type === 'square') {
         const ok = x.answers.map(sqIndex).includes(sq);
-        view.setHighlights({ marks: [{ sq, color: ok ? '#7fd6a4' : '#ff5a50', alpha: 0.6, shape: 0 }] });
+        view.setHighlights({ spots: [{ sq, color: ok ? '#3ee07a' : '#ff4a40', pulse: false }] });
         if (ok) answer(S.tries === 0, 'Yes, that is ' + sqName(sq) + '.');
         else { S.tries++; AU.play('wrong'); fb('bad', 'That is ' + sqName(sq) + '. Try again.'); }
         return;
@@ -2528,7 +2607,7 @@
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Praline will bring it back for a quick review in 1, 7 and 30 days.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Praline will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
         '<span class="pill gold">+' + res.xp + ' XP</span></div>';
       $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
@@ -2606,7 +2685,7 @@
         S.misses++;
         AU.play('wrong');
         fb('bad', 'In this line we play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
-        view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#3fe0c8' }]);
+        view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
         show(null);
         return true;
       }
@@ -2633,7 +2712,7 @@
       if (S.done || S.g.pos.side !== me) return;
       S.misses++;
       const want = o.moves[S.i];
-      view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#3fe0c8' }]);
+      view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
       fb('hint', 'Play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
       AU.play('coach');
     };
@@ -2775,14 +2854,14 @@
       const u = S.cur.moves[S.step * 2 + 1];
       if (S.hints === 1) { const t = S.cur.themes[0]; fb('hint', { fork: 'Look for a fork.', pin: 'Look for a pin.', skewer: 'Look for a skewer.', discoveredAttack: 'Look for a discovered attack.', hangingPiece: 'Something is not guarded.', promotion: 'A pawn wants to promote.', sacrifice: 'Think about giving something away.' }[t] || (t.startsWith('mateIn') ? 'There is a checkmate to find.' : 'Look for the most forcing move.')); }
       else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', 'Move the piece on ' + u.slice(0, 2) + '.'); }
-      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#3fe0c8' }]); fb('hint', 'Follow the arrow, then keep going.'); }
+      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', 'Follow the arrow, then keep going.'); }
       AU.play('coach');
     };
     if ($('pz-sol')) $('pz-sol').onclick = () => {
       if (!S.cur || S.solved) return;
       S.failed = true;
       const u = S.cur.moves[S.step * 2 + 1];
-      view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#3fe0c8' }]);
+      view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
       fb('hint', 'The solution: ' + g.pos.san(m, g.legal) + '. ' + (C.describe(C.facts(g.pos, m)) || ''));
       finish(false);
