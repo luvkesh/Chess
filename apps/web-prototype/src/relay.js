@@ -41,7 +41,7 @@
     if (!lobby) return setLink('unavailable');
     lobby.onConnection((on) => {
       const was = ready; ready = on;
-      if (on) setLink('ready');
+      if (on) { setLink('ready'); clubCard(); }
       if (was !== on && A() && ['home', 'play'].includes(A().state.screen) && !serverOn() && !document.querySelector('.modal')) A().go(A().state.screen);
     }, () => { ready = false; setLink('unavailable'); });
     // A room that never says it is connected is as good as none.
@@ -76,6 +76,9 @@
 
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   function myPeer(room) { const p = room.peers().find((x) => x.isMe && x.sameTab); return p ? p.peer : null; }
+  // The Club's card in the lobby (club.js): a made-up name, a country and ratings, never a city.
+  const Club = () => window.ChacklateClub;
+  function clubCard() { if (Club()) { nickname(); Club().publish(); } }
   // A made-up player name, so nobody can tell who a child is from it.
   function nickname() {
     const st = A().state;
@@ -85,6 +88,8 @@
   const clean = (s, n) => String(s == null ? '' : s).replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, n || 24) || 'Player';
   const newCode = () => Array.from({ length: 6 }, () => CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)]).join('');
   const parseTc = (tc) => { const [m, s] = tc.split('+').map(Number); return { base: m * 60000, inc: s * 1000 }; };
+  // The rating pool of a time control, as the server counts it.
+  const poolFor = (tc) => { const { base, inc } = parseTc(tc); const est = base / 1000 + 40 * inc / 1000; return est < 180 ? 'bullet' : est < 480 ? 'blitz' : 'rapid'; };
 
   // ---------------------------------------------------------------- worldwide matchmaking
   // Seekers wait in the lobby with their time control in presence. Every page sorts the
@@ -142,7 +147,8 @@
     const me = myPeer(room) || myPeer(lobby);
     const h = { code, tc, host, expect, world, room, me, since: Date.now(), unsub: null };
     hosting = h;
-    room.presence({ role: host ? 'host' : 'guest', name: nickname(), tc: tc || null }).catch(() => {});
+    const cc = Club() ? Club().card() : {};
+    room.presence({ role: host ? 'host' : 'guest', name: nickname(), tc: tc || null, cid: cc.cid || null, cc: cc.cc || null, r: cc.r || null }).catch(() => {});
     if (!world && host) {
       showWait('<h2>Share this code</h2><p class="sub">Your friend opens Chackmate, taps Play a Friend and enters the code. ' + tc + ', both players on the clock.</p>' +
         '<div class="friend-code">' + code + '</div>' +
@@ -187,9 +193,13 @@
     if (h.unsub) h.unsub();
     const color = start.white === h.me ? 'white' : 'black';
     const { base, inc } = parseTc(start.tc);
+    const op = opp.presence || {};
+    // A friend's code puts each player on the other's friends list; a world game is rated on this device.
+    if (!h.world && Club()) Club().addFriend({ cid: op.cid, name: op.name, cc: op.cc, r: op.r });
     game = {
       id: start.id, room: h.room, me: h.me, opp: opp.peer, color, mine: color === 'white' ? 'w' : 'b', tc: start.tc, inc, world: h.world,
       moves: [], clock: { w: base, b: base }, turnAt: performance.now(), startedAt: performance.now(), seen: {}, oppAway: 0, emoteN: 0, lastEmote: 0, ended: false,
+      oppRating: op.r && typeof op.r === 'object' ? op.r[poolFor(start.tc)] : undefined,
     };
     game.unsub = h.room.onPeers(() => fromOpponent());
     h.room.presence({ game: game.id, moves: '', clock: game.clock, end: null, drawOffer: null, drawAccept: null, emote: null }).catch(() => {});
@@ -298,7 +308,9 @@
     if (!game || game.ended) return;
     game.ended = true;
     if (!fromThem) game.room.presence({ end: { result, reason } }).catch(() => {});
-    A().onlineEnd(result, reason, null);
+    let rating = null;
+    if (game.world && reason !== 'aborted' && Club()) rating = Club().rated(poolFor(game.tc), game.oppRating, result === '1/2-1/2' ? 0.5 : result === (game.mine === 'w' ? '1-0' : '0-1') ? 1 : 0);
+    A().onlineEnd(result, reason, rating);
     const g = game;
     // Stay a little so the other side hears the result, then free the room.
     setTimeout(() => { if (g.unsub) g.unsub(); g.room.leave().catch(() => {}); }, 8000);
