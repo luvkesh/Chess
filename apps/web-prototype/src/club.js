@@ -22,10 +22,12 @@ const ChacklateClub = (function () {
   const START = 1500;
 
   // ---------------------------------------------------------------- places
-  let names = null;
+  // Country names in the player's language, one Intl.DisplayNames per language.
+  const names = {};
   function countryName(cc) {
     if (!cc) return '';
-    try { names = names || new Intl.DisplayNames(['en'], { type: 'region' }); return names.of(cc) || cc; } catch (e) { return cc; }
+    const l = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.lang : 'en';
+    try { names[l] = names[l] || new Intl.DisplayNames([l, 'en'], { type: 'region' }); return names[l].of(cc) || cc; } catch (e) { return cc; }
   }
   const flag = (cc) => (cc && /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map((c) => 127397 + c.charCodeAt(0))) : '');
   const countries = () => [...new Set(PLACES.map((p) => p[1]))].sort((a, b) => countryName(a).localeCompare(countryName(b)));

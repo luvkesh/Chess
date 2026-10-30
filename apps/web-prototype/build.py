@@ -15,6 +15,7 @@ vendor = here / 'vendor'
 SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
+    src / 'i18n.js',
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
     src / 'pieces3d.js',
@@ -71,9 +72,13 @@ for key, line in json.loads((content / 'pitches.json').read_text())['lines'].ite
     else:
         pitch[key] = {'text': line, 'src': 'pitch/%s.mp3' % key}
 parts.append('const CHACKLATE_PITCH = %s;' % json.dumps(pitch, separators=(',', ':'), ensure_ascii=False))
-# Translatable strings, one file per kind in packages/content/i18n, keyed by file name.
-strings = {f.stem: json.loads(f.read_text()) for f in sorted((content / 'i18n').glob('*.json'))}
+# UI strings: one file per area, every language side by side (src/i18n.js reads them).
+# "check" lists the languages still waiting for a native speaker's read; the game doesn't need it.
+strings = {f.stem: {k: {l: v for l, v in e.items() if l != 'check'} for k, e in json.loads(f.read_text()).items()}
+           for f in sorted((content / 'i18n').glob('*.json'))}
 parts.append('const CHACKLATE_STRINGS = %s;' % json.dumps(strings, separators=(',', ':'), ensure_ascii=False))
+# Fonts for non-Latin scripts, added to the page only when such a language is chosen.
+parts.append('const CHACKLATE_SCRIPT_FONTS = %s;' % json.dumps({'deva': (vendor / 'fonts-deva.css').read_text()}))
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
 look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]

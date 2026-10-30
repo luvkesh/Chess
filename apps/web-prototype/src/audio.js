@@ -394,7 +394,7 @@ function ChacklateAudio() {
   function moveWords(san, lang, old) {
     const B = V.moves[lang] || V.moves.en;
     if (!B) return [];
-    const M = old && B.old ? Object.assign({}, B, { piece: B.old.piece, promote: B.old.promote }) : B;
+    const M = old && B.old ? Object.assign({}, B, { piece: B.old.piece, promote: Object.assign({}, B.promote, B.old.promote) }) : B;
     const s = String(san).replace(/[!?]+$/, '');
     const tail = /#$/.test(s) ? [M.mate] : /\+$/.test(s) ? [M.check] : [];
     if (/^O-O-O/.test(s)) return [M.castleQ].concat(tail);

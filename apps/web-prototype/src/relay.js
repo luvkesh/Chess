@@ -10,6 +10,7 @@
 (function () {
   'use strict';
   const A = () => window.ChacklateApp;
+  const t = (k, v) => ChacklateI18n.t(k, v);
   const server = window.ChacklateNet || null;
   const serverOn = () => !!(server && server.available());
 
@@ -62,16 +63,15 @@
   // Online buttons always work: while the room is still connecting they wait for it, with a note.
   async function needLink(go) {
     if (ready) return go();
-    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">Connecting…</h2><p class="sub" style="text-align:center">Getting online play ready. This takes a moment.</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" data-close>Cancel</button></div>');
+    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('online.connecting') + '</h2><p class="sub" style="text-align:center">' + t('online.connectingSub') + '</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.cancel') + '</button></div>');
     const m = waitModal;
     const ok = await whenReady();
     if (waitModal !== m) return;   // cancelled
     closeWait(true);
     if (ok) return go();
-    A().modal('<h2>Online play is not available here</h2><p class="sub">Codes and world games work in the Chackmate game opened from its claude.ai link, signed in. ' +
-      'Opened as a downloaded file, or before the Chackmate server is live, the page cannot reach other players. You can still take turns on this device.</p>' +
-      '<div class="row"><button class="btn primary" data-close>OK</button></div>');
+    A().modal('<h2>' + t('online.na') + '</h2><p class="sub">' + t('online.naSub') + '</p>' +
+      '<div class="row"><button class="btn primary" data-close>' + t('common.ok') + '</button></div>');
   }
 
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -100,9 +100,9 @@
     cancelAll();
     seek = { tc, since: Date.now(), tried: new Set() };
     lobby.presence({ seek: { tc, at: Date.now() }, app: 'chackmate' }).catch(() => {});
-    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">Finding a player</h2>' +
-      '<p class="sub" style="text-align:center">' + tc + ' · players from around the world · <span id="sk-t">0:00</span></p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="sk-ai">Play the computer instead</button><button class="btn" data-close>Cancel</button></div>',
+    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('play.w.title') + '</h2>' +
+      '<p class="sub" style="text-align:center">' + tc + ' · ' + t('online.world') + ' · <span id="sk-t">0:00</span></p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" id="sk-ai">' + t('online.computer') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
     (m) => {
       m.timer = setInterval(() => { const s = Math.floor((Date.now() - seek.since) / 1000), el = m.querySelector('#sk-t'); if (el && seek) el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }, 1000);
       m.querySelector('#sk-ai').onclick = () => { m.close(); A().quickPlayOffline(); };
@@ -143,20 +143,20 @@
   async function meet(code, tc, host, expect, world) {
     let room;
     try { room = await lobby.join('cm-' + code.toLowerCase()); } catch (e) { room = null; }
-    if (!room) { if (world) { if (seek) { seek.tried.add(expect); seek.pairing = null; } return; } return A().toast('Could not open the game room. Try again.', 'bad'); }
+    if (!room) { if (world) { if (seek) { seek.tried.add(expect); seek.pairing = null; } return; } return A().toast(t('online.roomFail'), 'bad'); }
     const me = myPeer(room) || myPeer(lobby);
     const h = { code, tc, host, expect, world, room, me, since: Date.now(), unsub: null };
     hosting = h;
     const cc = Club() ? Club().card() : {};
     room.presence({ role: host ? 'host' : 'guest', name: nickname(), tc: tc || null, cid: cc.cid || null, cc: cc.cc || null, r: cc.r || null }).catch(() => {});
     if (!world && host) {
-      showWait('<h2>Share this code</h2><p class="sub">Your friend opens Chackmate, taps Play a Friend and enters the code. ' + tc + ', both players on the clock.</p>' +
+      showWait('<h2>' + t('online.share') + '</h2><p class="sub">' + t('online.shareSub', { tc }) + '</p>' +
         '<div class="friend-code">' + code + '</div>' +
-        '<div class="row"><button class="btn" id="fc-copy">' + A().icon('copy') + ' Copy</button><button class="btn" data-close>Cancel</button></div>',
-      (m) => { m.querySelector('#fc-copy').onclick = () => { try { navigator.clipboard.writeText(code); A().toast('Code copied.'); } catch (e) { /* clipboard blocked */ } }; });
+        '<div class="row"><button class="btn" id="fc-copy">' + A().icon('copy') + ' ' + t('online.copy') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
+      (m) => { m.querySelector('#fc-copy').onclick = () => { try { navigator.clipboard.writeText(code); A().toast(t('online.copied')); } catch (e) { /* clipboard blocked */ } }; });
     } else if (!world) {
-      showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">Joining ' + code + '</h2><p class="sub" style="text-align:center">Waiting for your friend\'s game…</p>' +
-        '<div class="row" style="justify-content:center"><button class="btn" data-close>Cancel</button></div>');
+      showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('online.joining', { code }) + '</h2><p class="sub" style="text-align:center">' + t('online.waiting') + '</p>' +
+        '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.cancel') + '</button></div>');
     }
     h.unsub = room.onPeers(() => lookAtRoom(h));
     lookAtRoom(h);
@@ -164,7 +164,7 @@
     if (world || !host) setTimeout(() => {
       if (hosting !== h || game) return;
       if (world) { hosting = null; if (h.unsub) h.unsub(); room.leave().catch(() => {}); if (seek) { seek.tried.add(expect); seek.pairing = null; matchmake(); } return; }
-      cancelAll(); A().toast('No game is waiting with the code ' + code + '. Check it with your friend.', 'bad');
+      cancelAll(); A().toast(t('online.noGame', { code }), 'bad');
     }, world ? 8000 : 12000);
   }
 
@@ -183,7 +183,7 @@
     const host = peers.find((p) => p.presence && p.presence.role === 'host');
     const s = host && host.presence.start;
     if (s && typeof s === 'object' && TIME_CONTROLS.includes(s.tc) && (s.white === h.me || s.black === h.me) && typeof s.id === 'string') begin(h, { id: s.id.slice(0, 40), tc: s.tc, white: s.white, black: s.black }, host);
-    else if (host && s && !(s.white === h.me || s.black === h.me)) { cancelAll(); A().toast('That game has already started. Ask your friend for a new code.', 'bad'); }
+    else if (host && s && !(s.white === h.me || s.black === h.me)) { cancelAll(); A().toast(t('online.started'), 'bad'); }
   }
 
   function begin(h, start, opp) {
@@ -203,7 +203,7 @@
     };
     game.unsub = h.room.onPeers(() => fromOpponent());
     h.room.presence({ game: game.id, moves: '', clock: game.clock, end: null, drawOffer: null, drawAccept: null, emote: null }).catch(() => {});
-    A().startOnline({ id: game.id, color, tc: start.tc, friend: !h.world, opponent: { name: clean(opp.presence && opp.presence.name), label: h.world ? 'Player from around the world' : 'Your friend' }, moves: [], clock: clockMsg() });
+    A().startOnline({ id: game.id, color, tc: start.tc, friend: !h.world, opponent: { name: clean(opp.presence && opp.presence.name), label: t(h.world ? 'online.worldPlayer' : 'online.yourFriend') }, moves: [], clock: clockMsg() });
     fromOpponent();
   }
 
@@ -358,7 +358,7 @@
   const relay = {
     available: () => ready,
     quickMatch, createFriend, joinFriend, send,
-    report() { A().toast('Thanks. Reports reach a moderator once the Chackmate game server is live.'); },
+    report() { A().toast(t('online.reported')); },
   };
   // The server when it is connected, the room when it is not.
   const pick = () => (serverOn() ? server : relay);
