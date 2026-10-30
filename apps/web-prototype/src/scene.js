@@ -203,6 +203,7 @@ function ChacklateScene(canvas, options) {
     placeTrays();
     dirtyShadows();
     if (attract) { const a = attractPose(); cam.tPitch = a.pitch; cam.tLookY = a.lookY; }
+    warm();
   }
   function loadBoard(id) {
     if (boardMesh && id === boardId) return;
@@ -211,11 +212,30 @@ function ChacklateScene(canvas, options) {
     boardMesh = W.board(id, labelSide);
     boardGroup.add(boardMesh);
     dirtyShadows();
+    warm();
   }
   function loadSet(id) {
     if (id === setId && sprites.length && sprites[0].obj && sprites[0].obj.userData.set === id) return;
     setId = P.SETS[id] ? id : 'regency';
     for (const s of sprites.concat(graveyard)) rebuildSprite(s);
+    warm();
+  }
+  // New materials have their shaders compiled before they are drawn. Drawing first would
+  // compile them on the page's thread and freeze it for seconds on a phone; compileAsync lets
+  // the GPU driver compile them in the background, and the table keeps its last frame (or
+  // the page its poster) until they are ready. ready() resolves once that first frame is drawn.
+  let compiling = null, warmWanted = false, drawnOnce = false;
+  const readyWaits = [];
+  function warm() { warmWanted = true; }
+  // called by frame(): true while the next frame has to wait for its shaders
+  function compileFirst() {
+    if (compiling) return true;
+    if (!warmWanted || !renderer.compileAsync) return false;
+    warmWanted = false;
+    // never waits more than a few seconds (a lost context can leave it unfinished)
+    const mine = compiling = Promise.race([renderer.compileAsync(scene, camera).catch(() => {}), new Promise((r) => setTimeout(r, 4000))])
+      .then(() => { if (compiling === mine) { compiling = null; requestRender(); } });
+    return true;
   }
 
   // ------------------------------------------------------------------ trays and clock
@@ -1072,10 +1092,11 @@ function ChacklateScene(canvas, options) {
   const ambientMs = () => (lvl() >= 3 ? 66 : lvl() >= 1 ? 50 : 33);
   function frame(now) {
     raf = 0;
-    if (glLost) return;
+    if (glLost || compileFirst()) return;   // asked for again once the shaders are ready
     const t0 = performance.now();
     const busy = step(now);
     render(now);
+    if (!drawnOnce) { drawnOnce = true; readyWaits.splice(0).forEach((r) => r()); }
     govern(t0 - reqAt, performance.now() - t0);
     if (busy) requestRender();
     else if (ambient() && !ambientTimer && !document.hidden) {
@@ -1268,6 +1289,7 @@ function ChacklateScene(canvas, options) {
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
     glLost = true;
+    compiling = null; warm();   // compiled again for the new context
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
     if (ambientTimer) { clearTimeout(ambientTimer); ambientTimer = 0; }
     // let go of what belonged to the old context now, while deleting it is still a no-op
@@ -1422,13 +1444,19 @@ function ChacklateScene(canvas, options) {
       }));
       if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
       else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
-      const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
-      floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
+      // floor: false leaves the pieces standing on nothing (the menu medals, tools/shoot-art.js)
+      if (spec.floor !== false) {
+        const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
+        floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
+      }
+      // gild: every surface in polished gold, for the medals' gold pieces
+      if (spec.gild) { const gold = new THREE.MeshPhysicalMaterial({ color: spec.gild, metalness: 1, roughness: 0.2, clearcoat: 0.5, clearcoatRoughness: 0.12, envMapIntensity: 1.35 }); s2.traverse((m) => { if (m.isMesh) m.material = gold; }); }
       s2.background = null;
     } else if (spec.kind === 'vignette') {
       // A few pieces on a velvet plinth with a gold rim, for menu cards.
       const gold = new THREE.MeshPhysicalMaterial({ color: '#e2b35e', metalness: 1, roughness: 0.24, clearcoat: 0.4 });
-      const felt = new THREE.MeshPhysicalMaterial({ color: spec.felt || '#5c1428', roughness: 0.9, sheen: 1, sheenColor: new THREE.Color(spec.sheen || '#ff9cb8'), sheenRoughness: 0.45 });
+      // deep velvet: the colour is kept dark so the plinth reads as cloth, not painted candy
+      const felt = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(spec.felt || '#5c1428').multiplyScalar(0.55), roughness: 0.92, sheen: 1, sheenColor: new THREE.Color(spec.sheen || '#b86a80').multiplyScalar(0.6), sheenRoughness: 0.6 });
       const R = spec.r || 1.3;
       const top = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 0.12, 72), felt); top.position.y = -0.06;
       const rim = new THREE.Mesh(new THREE.TorusGeometry(R, 0.055, 18, 120), gold); rim.rotation.x = Math.PI / 2;
@@ -1498,16 +1526,24 @@ function ChacklateScene(canvas, options) {
     renderer.setRenderTarget(rt);
     renderer.setClearColor(0x000000, 0); renderer.clear();
     renderer.render(s2, c2);
-    const px = new Uint8Array(w * h * 4);
-    renderer.readRenderTargetPixels(rt, 0, 0, w, h, px);
     renderer.setRenderTarget(null);
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
-    rt.dispose();
     dispose();
+    // The pixels are read back without waiting on the GPU where WebGL 2 allows it: the plain
+    // read stops the page until the picture is drawn, a long freeze on a slow phone.
+    const px = new Uint8Array(w * h * 4);
+    const read = renderer.readRenderTargetPixelsAsync
+      ? renderer.readRenderTargetPixelsAsync(rt, 0, 0, w, h, px)
+      : Promise.resolve().then(() => renderer.readRenderTargetPixels(rt, 0, 0, w, h, px));
+    const done = () => rt.dispose();
+    return read.then(() => { done(); return encodeSnapshot(px, w, h); }, (e) => { done(); throw e; });
+  }
+  function encodeSnapshot(px, w, h) {
     // render targets are linear: tone map and encode in the copy, rows flipped
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-    const g = cv.getContext('2d'), img = g.createImageData(w, h), out = img.data, row = w * 4;
+    // a canvas kept in memory, not on the GPU, so encoding it doesn't wait for the GPU again
+    const g = cv.getContext('2d', { willReadFrequently: true }), img = g.createImageData(w, h), out = img.data, row = w * 4;
     for (let y = 0; y < h; y++) {
       for (let si = (h - 1 - y) * row, di = y * row, end = di + row; di < end; si += 4, di += 4) {
         out[di] = SNAP_LUT[px[si]]; out[di + 1] = SNAP_LUT[px[si + 1]]; out[di + 2] = SNAP_LUT[px[si + 2]]; out[di + 3] = px[si + 3];
@@ -1565,6 +1601,7 @@ function ChacklateScene(canvas, options) {
     }
     function show(sp, asp) {
       if (asp) aspect = asp;
+      if (loop) { cancelAnimationFrame(loop); loop = 0; }
       if (built) built.dispose();
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       built = buildSpec(sp, w, h, (style) => W.environment(r, style));
@@ -1580,7 +1617,9 @@ function ChacklateScene(canvas, options) {
       }
       yaw = 0; zoom = 1; idleAt = 0;
       size();
-      if (!loop) loop = requestAnimationFrame(tick);
+      // the card's picture stays up while the model's shaders compile in the background
+      const mine = built, go = () => { if (built === mine && !stopped && !loop) loop = requestAnimationFrame(tick); };
+      if (r.compileAsync) r.compileAsync(built.scene, built.camera).catch(() => {}).then(go); else go();
     }
     function tick(now) {
       loop = 0;
@@ -1648,8 +1687,11 @@ function ChacklateScene(canvas, options) {
   }
 
   // ------------------------------------------------------------------ boot
-  loadRoom('salon');
-  loadBoard('walnut');
+  // the caller's room, board and set straight away, so nothing is built twice
+  const look0 = opts.look || {};
+  if (look0.set && P.SETS[look0.set]) setId = look0.set;
+  loadRoom(look0.room || 'salon');
+  loadBoard(look0.board || 'walnut');
   shadowQuality();
   resize();
   applyCamera();
@@ -1657,10 +1699,13 @@ function ChacklateScene(canvas, options) {
   // ------------------------------------------------------------------- API
   return {
     three: { renderer, scene, camera },
+    // resolves when the table has drawn its first frame (shaders compiled, nothing frozen)
+    ready: () => new Promise((r) => { if (drawnOnce) r(); else { readyWaits.push(r); requestRender(); } }),
     setBoard(pieces, captured) {
       endCine(false, true);
       sprites.forEach(dropSprite);
       sprites = pieces.map(([sq, piece]) => makeSprite(piece, sq));
+      warm();
       for (const s of sprites) s.selected = s.sq === selectedSq;
       settleGrave(captured);
       dragging = null;

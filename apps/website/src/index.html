@@ -278,8 +278,8 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
 <div id="world" aria-hidden="true"><img class="poster" id="poster" src="@@IMG:mughal-hero@@" alt=""></div>
 
 <header class="top" id="top"><div class="wrap">
-  <a class="logo" href="#main"><span class="crest"><img src="@@IMG:crest@@" alt="" width="36" height="36"></span><span>Chackmate</span></a>
-  <nav aria-label="Sections"><a href="#learn">Learn</a><a href="#wonders">Wonders</a><a href="#collect">Collect</a><a href="#families">Families</a><a href="#pricing">Pricing</a></nav>
+  <a class="logo" href="#main" data-tip="Back to the top"><span class="crest"><img src="@@IMG:crest@@" alt="" width="36" height="36"></span><span>Chackmate</span></a>
+  <nav aria-label="Sections"><a href="#learn" data-tip="How @@COACH@@ teaches chess, one small step at a time">Learn</a><a href="#wonders" data-tip="The famous places where you play">Wonders</a><a href="#collect" data-tip="The chess sets you can win and collect">Collect</a><a href="#families" data-tip="Safety and privacy, for grown-ups">Families</a><a href="#pricing" data-tip="What is free and what Premium adds">Pricing</a></nav>
   <a class="btn gold small" href="@@PLAY@@" target="_top">Play now</a>
 </div></header>
 
@@ -411,12 +411,16 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
 /*SCENE*/
 </script>
 <script>
+/*TIPS*/
+</script>
+<script>
 (function () {
   'use strict';
   var D = window.SITE, IMG = D.img, ART = D.art;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
   var $ = function (id) { return document.getElementById(id); };
+  ChacklateTips.init();
   var lock = '<svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-label="Premium"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   var eraById = {}; D.eras.forEach(function (e) { eraById[e.id] = e; });
   var ICON = {
@@ -441,7 +445,9 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
     if (window.ChacklateScene) {
       var cv = document.createElement('canvas');
       world.appendChild(cv);
-      view = window.ChacklateScene(cv, {});
+      // built straight away in the opening era's look, so no other room is built first
+      var e0 = eraById[HERO];
+      view = window.ChacklateScene(cv, { look: { room: e0.room.id, board: e0.board, set: e0.set.id } });
       if (!view) world.removeChild(cv);
     }
   } catch (err) { view = null; }
@@ -451,7 +457,8 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
     view.setBoard(startPieces(), null);
     var shown = false;
     var reveal = function () { if (!shown) { shown = true; setTimeout(function () { world.classList.add('live'); }, 350); } };
-    requestAnimationFrame(function () { requestAnimationFrame(reveal); });
+    // the poster stays until the table's shaders are compiled and its first frame is drawn
+    if (view.ready) view.ready().then(reveal); else requestAnimationFrame(function () { requestAnimationFrame(reveal); });
   }
   function place(id) {
     var e = eraById[id];
@@ -547,6 +554,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   D.eras.forEach(function (e, i) {
     var b = document.createElement('button');
     b.type = 'button';
+    b.setAttribute('data-tip', e.name + '|' + (e.access === 'free' ? 'Free to play.' : 'Comes with Premium.') + ' Your table looks out on ' + e.landmark.replace(/^The /, 'the ') + '.');
     b.innerHTML = (e.access === 'free' ? '' : lock) + '<i>' + ROMAN[i] + '</i><b>' + e.name + '</b><span>' + e.landmark + '</span>';
     b.onclick = function () { choose(e.id, true); };
     places.appendChild(b);
@@ -566,7 +574,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   var stage = $('stage'), live = null, chips = $('chips');
   D.eras.forEach(function (e) {
     var b = document.createElement('button');
-    b.type = 'button'; b.title = e.set.name; b.setAttribute('aria-label', e.set.name);
+    b.type = 'button'; b.setAttribute('data-tip', e.set.name + '|' + e.set.desc); b.setAttribute('aria-label', e.set.name);
     b.style.setProperty('--c', e.set.tint);
     b.innerHTML = '<img src="' + IMG['set-' + e.id] + '" alt="">';
     b.onclick = function () { showSet(e.id); pitch(e.id); };

@@ -23,6 +23,8 @@
   const ADJ = ['Brave', 'Clever', 'Happy', 'Swift', 'Quiet', 'Lucky', 'Bright', 'Gentle', 'Bold', 'Merry', 'Sunny', 'Witty', 'Calm', 'Jolly', 'Kind', 'Nimble'];
   const ANIMAL = ['Otter', 'Panda', 'Falcon', 'Koala', 'Tiger', 'Dolphin', 'Fox', 'Owl', 'Rabbit', 'Lynx', 'Turtle', 'Robin', 'Badger', 'Heron', 'Bear', 'Yak'];
 
+  // link: 'connecting' until the page's live room answers, then 'ready', or 'unavailable' for good.
+  let link = 'connecting', linkWaiters = [];
   let lobby = null, ready = false, game = null, seek = null, hosting = null, waitModal = null, ticker = null;
 
   // ---------------------------------------------------------------- the link
@@ -34,16 +36,42 @@
       if (g && typeof g.use === 'function') c = g;
       else await new Promise((r) => setTimeout(r, 500));
     }
-    if (!c) return;
+    if (!c) return setLink('unavailable');
     try { lobby = await c.use('room'); } catch (e) { lobby = null; }
-    if (!lobby) return;
+    if (!lobby) return setLink('unavailable');
     lobby.onConnection((on) => {
       const was = ready; ready = on;
-      if (was !== on && A() && ['home', 'play'].includes(A().state.screen) && !serverOn()) A().go(A().state.screen);
-    }, () => { ready = false; });
+      if (on) setLink('ready');
+      if (was !== on && A() && ['home', 'play'].includes(A().state.screen) && !serverOn() && !document.querySelector('.modal')) A().go(A().state.screen);
+    }, () => { ready = false; setLink('unavailable'); });
+    // A room that never says it is connected is as good as none.
+    setTimeout(() => { if (link === 'connecting') setLink('unavailable'); }, 15000);
     lobby.onPeers(() => { if (seek) matchmake(); });
     clearInterval(ticker);
     ticker = setInterval(tick, 250);
+  }
+
+  function setLink(v) {
+    if (link === v || (link === 'ready' && v === 'unavailable' && ready)) return;
+    link = v;
+    const w = linkWaiters; linkWaiters = [];
+    if (v !== 'connecting') for (const f of w) f(v === 'ready');
+  }
+  // Resolves true once the room is connected, false when it cannot be.
+  function whenReady() { return ready ? Promise.resolve(true) : link === 'unavailable' ? Promise.resolve(false) : new Promise((r) => linkWaiters.push(r)); }
+  // Online buttons always work: while the room is still connecting they wait for it, with a note.
+  async function needLink(go) {
+    if (ready) return go();
+    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">Connecting…</h2><p class="sub" style="text-align:center">Getting online play ready. This takes a moment.</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>Cancel</button></div>');
+    const m = waitModal;
+    const ok = await whenReady();
+    if (waitModal !== m) return;   // cancelled
+    closeWait(true);
+    if (ok) return go();
+    A().modal('<h2>Online play is not available here</h2><p class="sub">Codes and world games work in the Chackmate game opened from its claude.ai link, signed in. ' +
+      'Opened as a downloaded file, or before the Chackmate server is live, the page cannot reach other players. You can still take turns on this device.</p>' +
+      '<div class="row"><button class="btn primary" data-close>OK</button></div>');
   }
 
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -62,7 +90,7 @@
   // Seekers wait in the lobby with their time control in presence. Every page sorts the
   // seekers the same way and pairs them two by two; a pair meets in a room named after both.
   function quickMatch(tc) {
-    if (!ready) return false;
+    if (!ready) { needLink(() => quickMatch(tc)); return true; }
     tc = TIME_CONTROLS.includes(tc) ? tc : '5+3';
     cancelAll();
     seek = { tc, since: Date.now(), tried: new Set() };
@@ -93,14 +121,14 @@
 
   // ---------------------------------------------------------------- friend codes
   function createFriend(tc) {
-    if (!ready) return A().toast('Online play is not connected right now.', 'bad');
+    if (!ready) return needLink(() => createFriend(tc));
     tc = TIME_CONTROLS.includes(tc) ? tc : '5+3';
     cancelAll();
     const code = newCode();
     meet(code, tc, true, null, false);
   }
   function joinFriend(code) {
-    if (!ready) return A().toast('Online play is not connected right now.', 'bad');
+    if (!ready) return needLink(() => joinFriend(code));
     code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
     cancelAll();
     meet(code, null, false, null, false);
@@ -321,10 +349,12 @@
     report() { A().toast('Thanks. Reports reach a moderator once the Chackmate game server is live.'); },
   };
   // The server when it is connected, the room when it is not.
-  const pick = () => (serverOn() || !ready ? server : relay);
+  const pick = () => (serverOn() ? server : relay);
   window.ChacklateNet = Object.assign({}, server || {}, {
     available: () => serverOn() || ready,
     mode: () => (serverOn() ? 'server' : ready ? 'room' : 'offline'),
+    // 'ready', 'connecting' or 'unavailable': whether codes and world games can work on this page.
+    link: () => (serverOn() ? 'ready' : link),
     timeControls: TIME_CONTROLS,
     quickMatch(tc) { const p = pick(); return p ? p.quickMatch(tc) : false; },
     createFriend(tc) { const p = pick(); if (p) p.createFriend(tc); },

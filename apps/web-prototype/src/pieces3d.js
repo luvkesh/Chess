@@ -253,13 +253,42 @@ function ChacklatePieces(THREE, K) {
   //   o.mane: 'flow' (loose gold locks), 'carved' (locks in the body), 'roach' (short upright),
   //   'braid' (a row of knots), 'none'; o.form: the breed and pose (see horseWarp)
   //   o.base: pedestal top; o.round: edge band of the inflation (bigger is softer)
+  // Most sets bend the same sculpt (see horseWarp), so the sculpt before bending is kept and
+  // only copied and bent for each set; so are the outline fields it is carved from.
+  const sculptCache = new Map(), outlineCache = new Map();
   function sculptHorse(o) {
     o = Object.assign({ base: 0.3, mane: 'flow', seed: 3, round: 0.088 }, o || {});
+    const facet = (o.form && o.form.facet) || 0;
+    const key = JSON.stringify(Object.assign({}, o, { form: facet })) + Q.cell + Q.mane + JSON.stringify(DETAIL);
+    if (!sculptCache.has(key)) sculptCache.set(key, sculptPlain(o, facet));
+    const plain = sculptCache.get(key);
+    if (!o.form) return plain;
+    const out = { body: plain.body && plain.body.clone(), mane: plain.mane && plain.mane.clone(), surf: plain.surf, Y: plain.Y };
+    const w = horseWarp(o.form, out.Y);
+    for (const k of ['body', 'mane']) {
+      let g = out[k];
+      if (!g) continue;
+      const p = g.attributes.position;
+      for (let i = 0; i < p.count; i++) { const q = w(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, q[0], q[1], q[2]); }
+      // a cut-stone horse (Deco, crystal): flat facets instead of a smooth sculpt
+      if (facet && k === 'body') g = out[k] = g.toNonIndexed();
+      g.computeVertexNormals(); g.computeBoundingSphere();
+    }
+    out.surf = (c, d, off) => w(...plain.surf(c, d, off));
+    return out;
+  }
+  function sculptPlain(o, facet) {
     const dy = o.base - 0.3, Y = (y) => y + dy;
     const box = [-0.24, Y(0.22), 0.38, Y(1.02)];
-    const sil = K.closedCurve((o.sil || HORSE_SIL).map(([z, y]) => [z, Y(y)]), 6);
-    const d2 = K.field2(sil, box, 0.0025);
-    const hwF = bake2(K.blendMap((o.widths || HORSE_W).map(([z, y, w]) => [z, Y(y), w]), 0.07), box, 0.005);
+    const okey = JSON.stringify([o.base, o.sil || 0, o.widths || 0]);
+    if (!outlineCache.has(okey)) {
+      const sil = K.closedCurve((o.sil || HORSE_SIL).map(([z, y]) => [z, Y(y)]), 6);
+      outlineCache.set(okey, {
+        d2: K.field2(sil, box, 0.0025),
+        hwF: bake2(K.blendMap((o.widths || HORSE_W).map(([z, y, w]) => [z, Y(y), w]), 0.07), box, 0.005),
+      });
+    }
+    const { d2, hwF } = outlineCache.get(okey);
     const R = o.round;
     const eyeZ = 0.128, eyeY = Y(0.884), eyeX = hwF(eyeZ, eyeY) - 0.003;
     const ears = [-1, 1].map((s) => strand(spline([[s * 0.026, Y(0.962), -0.01, 0.022], [s * 0.034, Y(1.01), 0.0, 0.017], [s * 0.042, Y(1.065), 0.022, 0.003]], 4)));
@@ -349,26 +378,13 @@ function ChacklatePieces(THREE, K) {
     }
     if (o.mane === 'carved' || o.mane === 'roach' || o.mane === 'braid') {
       const fieldM = strandField([].concat(...locks), 0.01, 0.03, 0.016);
-      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
+      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, facet ? Math.max(Q.cell, facet) : Q.cell);
     } else {
-      out.body = sdfGeometry(body, bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
+      out.body = sdfGeometry(body, bounds, facet ? Math.max(Q.cell, facet) : Q.cell);
       if (locks.length) {
         const fieldM = strandField([].concat(...locks), 0.02, 0.03, 0.016);
         out.mane = sdfGeometry(fieldM, [-0.16, Y(0.36), -0.36, 0.16, Y(1.02), 0.11], Q.mane, { band: 1.3 });
       }
-    }
-    if (o.form) {
-      const w = horseWarp(o.form, Y);
-      for (const k of ['body', 'mane']) {
-        let g = out[k];
-        if (!g) continue;
-        const p = g.attributes.position;
-        for (let i = 0; i < p.count; i++) { const q = w(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, q[0], q[1], q[2]); }
-        // a cut-stone horse (Deco, crystal): flat facets instead of a smooth sculpt
-        if (o.form.facet && k === 'body') g = out[k] = g.toNonIndexed();
-        g.computeVertexNormals(); g.computeBoundingSphere();
-      }
-      out.surf = (c, d, off) => w(...surf(c, d, off));
     }
     return out;
   }
