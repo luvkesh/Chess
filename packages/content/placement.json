@@ -1,0 +1,40 @@
+{
+  "note": "The placement test new players can take after Rooky's welcome, and again from Learn. Ten board questions, easiest first, one try each. The score picks the chapter the learning path starts at (earlier chapters stay open), suggests an animal friend and gives a badge; Rooky says the result. Every position is new: none is a Learn or era position, and the two puzzles are not used by any lesson or era (content.test.js checks). Each question's prompt is also a recorded guide line, placement.<id>, in guide.json.",
+  "minutes": 3,
+  "questions": [
+    { "id": "q01", "skill": "How the rook moves", "type": "targets", "fen": "7k/8/3P4/8/1p1R2n1/8/8/K7 w - - 0 1", "from": "d4",
+      "prompt": "Tap every square the rook can reach. Remember, it can take a black piece, but not jump over one." },
+    { "id": "q02", "skill": "How the knight moves", "type": "targets", "fen": "8/8/8/2p5/8/1N6/8/K6k w - - 0 1", "from": "b3",
+      "prompt": "Now the knight. Tap every square it can jump to." },
+    { "id": "q03", "skill": "A safe capture", "type": "move", "fen": "4k3/8/p7/1b6/4r3/2N5/8/6K1 w - - 0 1", "answers": ["c3e4"], "check": "engine",
+      "wrong": { "c3b5": "The pawn guards that bishop, so you would lose your knight." },
+      "prompt": "Your knight can take a piece. Take the one that nobody guards." },
+    { "id": "q04", "skill": "Giving check", "type": "move", "fen": "r3k3/8/8/8/8/8/8/3QK3 w - - 0 1", "answers": ["d1e2", "d1h5"],
+      "wrong": { "d1a4": "That is check, but the rook can take your queen.", "d1d7": "That is check, but the king can take your queen.", "d1d8": "That is check, but your queen can be taken." },
+      "prompt": "Give check with your queen, on a square where she cannot be taken." },
+    { "id": "q05", "skill": "Mate in one", "type": "mate", "fen": "7k/8/6K1/8/8/8/Q7/8 w - - 0 1",
+      "prompt": "Find checkmate in one move." },
+    { "id": "q06", "skill": "Back-rank mate", "type": "mate", "fen": "6k1/5ppp/8/8/8/1Q6/5PPP/6K1 w - - 0 1",
+      "wrong": { "b3f7": "Check, but the king simply takes your queen." },
+      "prompt": "The black king is stuck behind his pawns. Find checkmate in one move." },
+    { "id": "q07", "skill": "A knight fork", "type": "move", "fen": "r3k3/8/8/3N4/8/8/7P/4K3 w - - 0 1", "answers": ["d5c7"], "check": "engine",
+      "wrong": { "d5f6": "Check, but the knight attacks nothing else from there." },
+      "prompt": "Find a knight move that attacks the king and the rook at once." },
+    { "id": "q08", "skill": "A simple endgame", "type": "choice", "fen": "8/8/3k4/P7/8/8/8/7K w - - 0 1",
+      "options": ["Yes, the king catches it", "No, the pawn becomes a queen"], "answer": 0,
+      "explain": "The king is inside the pawn's square: after a6 Kc7, a7 Kb7, it takes the new queen.",
+      "prompt": "White moves first. Can the black king catch the pawn before it becomes a queen?" },
+    { "id": "q09", "skill": "A fork puzzle", "type": "puzzle", "puzzle": "puzzle.b61456ce12",
+      "prompt": "Your opponent has just moved. Find the best move, then keep going." },
+    { "id": "q10", "skill": "A harder puzzle", "type": "puzzle", "puzzle": "puzzle.d63ae7f063",
+      "prompt": "Last one, and the hardest. Find the best move, then keep going." }
+  ],
+  "bands": [
+    { "min": 0, "chapter": 1, "badge": { "id": "placed-1", "name": "Pawn Explorer", "desc": "Took the placement test. Start: how the pieces move." }, "say": "placement.r1" },
+    { "min": 3, "chapter": 2, "badge": { "id": "placed-2", "name": "Knight Rider", "desc": "Placed in chapter 2: check and checkmate." }, "say": "placement.r2" },
+    { "min": 5, "chapter": 3, "badge": { "id": "placed-3", "name": "Bishop Scout", "desc": "Placed in chapter 3: opening principles." }, "say": "placement.r3" },
+    { "min": 7, "chapter": 4, "badge": { "id": "placed-4", "name": "Rook Guard", "desc": "Placed in chapter 4: tactics." }, "say": "placement.r4" },
+    { "min": 9, "chapter": 5, "badge": { "id": "placed-5", "name": "Queen's Eye", "desc": "Placed in chapter 5: defence and king safety." }, "say": "placement.r5" }
+  ],
+  "friends": { "byScore": [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5], "perfect": [[60, 7], [120, 6]] }
+}

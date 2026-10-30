@@ -53,6 +53,8 @@ parts = [
     data('CHACKLATE_VOICE', 'voice.json'),
     data('CHACKLATE_CAMPAIGN', 'campaign.json'),
     data('CHACKLATE_GUIDE', 'guide.json'),
+    data('CHACKLATE_VARIANTS', 'variants.json'),
+    data('CHACKLATE_PLACEMENT', 'placement.json'),
 ]
 # What Rooky says about each Collection item. A chess set from an era plays the website's recording of
 # its pitch (pitch/site/<key>.mp3, served from apps/website/audio), so each pitch is recorded once.

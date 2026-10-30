@@ -111,7 +111,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .hero .crest.big { margin: 0 auto 22px; }
 .wordmark { font: 700 15px/1 var(--caps); letter-spacing: 0.6em; color: var(--gold-2); text-transform: uppercase; margin: 0 0 18px; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9); padding-left: 0.6em; }
 .hero h1 { font: 500 clamp(52px, 8.4vw, 118px)/0.98 var(--serif); letter-spacing: -0.01em; margin: 0 0 22px; text-shadow: 0 4px 40px rgba(0, 0, 0, 0.7); }
-.hero h1 em { font-style: italic; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 0.05em; }
+.hero h1 em { font-style: italic; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 0.05em 0.16em 0; }
 .hero .lede { font-size: clamp(18px, 1.6vw, 21px); color: #f1e4d6; max-width: 640px; margin: 0 auto 34px; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95); }
 .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 .place { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 9px 16px; font: 500 12px/1.2 var(--caps); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
@@ -131,7 +131,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 /* ---------- numbers ---------- */
 .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 54px; }
 .nums .lux { padding: 28px 24px; }
-.nums b { display: block; font: 600 52px/1 var(--caps); font-variant-numeric: lining-nums tabular-nums; font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 14px; }
+.nums b { display: block; font: 600 52px/1 var(--caps); font-variant-numeric: lining-nums tabular-nums; font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.12em; margin-bottom: 8px; }
 .nums p { margin: 8px 0 0; color: var(--muted); font-size: 15.5px; }
 
 /* ---------- wonders ---------- */
@@ -12247,6 +12247,10 @@ function ChacklateWorld(THREE, K) {
     K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
+      // where a free camera may go: inside the walls, clear of what stands against them, and
+      // under the ceiling; outdoors, over the terrace and not far above it
+      bounds: outdoor ? { r: def.terrace.r - 1.2, y0: FLOOR + 0.6, y1: FLOOR + 13, tableR: 7.9, tableY: TOP }
+        : { r: RAD * Math.cos(Math.PI / NF) - 3.2, y0: FLOOR + 0.6, y1: FLOOR + H - 0.9, tableR: 7.9, tableY: TOP },
       fog: vista ? vista.fog.color : o.fog, fogDensity: vista ? vista.fog.density : 0.022, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
       chandelierLight: new THREE.Vector3(0, 7.2, 0),
       update(t) {
@@ -12340,7 +12344,7 @@ function ChacklateScene(canvas, options) {
   'use strict';
   const THREE = window.THREE;
   if (!THREE) return null;
-  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {}, onPerf() {} }, options);
+  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {}, onPerf() {}, onExplore() {} }, options);
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
@@ -13295,7 +13299,13 @@ function ChacklateScene(canvas, options) {
     fitCache.set(k, f);
     return f;
   }
+  let viewOx = 0, viewOy = 0;   // the view offset last set, in px, so a glide can blend it
   function applyCamera() {
+    if (fly.on) flyCamera(); else orbitCamera();
+    if (fly.glide) blendGlide();
+    placeChandelier();
+  }
+  function orbitCamera() {
     const W = canvas.clientWidth || 1, H = canvas.clientHeight || 1;
     const f = fitView(cam.pitch, cam.lookY, cam.ins, W, H);
     const d = f.dist * cam.zoom, cp = Math.cos(cam.pitch);
@@ -13307,13 +13317,18 @@ function ChacklateScene(canvas, options) {
     // the board is normally shifted into the space the menus leave; the opening shot of a
     // landmark looks straight out instead (cam.free 1), easing back as it sweeps in
     const fit = 1 - cam.free;
-    camera.setViewOffset(W, H, (f.ox * W) / 2 * fit, (-f.oy * H) / 2 * fit, W, H);
+    viewOx = (f.ox * W) / 2 * fit; viewOy = (-f.oy * H) / 2 * fit;
+    camera.setViewOffset(W, H, viewOx, viewOy, W, H);
     camera.updateProjectionMatrix();
-    // the chandelier steps aside when it would hang between the camera and the board
+  }
+  function placeChandelier() {
+    // the chandelier steps aside when it would hang between the camera and the board, and
+    // when the free camera comes up close to it
     if (room && room.chandelier) {
       const c = camera.position, cy = room.chandelierY;
       let hide = false;
-      if (cam.free > 0.15) hide = true;   // out of the way of the opening view
+      if (fly.on || fly.glide) hide = Math.hypot(c.x, c.z) < 3.6 && c.y > cy - 3.2;
+      else if (cam.free > 0.15) hide = true;   // out of the way of the opening view
       else if (c.y > cy - 1.2) {
         for (const [x, z] of [[0, 0], [4, 4], [-4, 4], [4, -4], [-4, -4], [0, 6.6], [0, -6.6], [2.7, 6.6], [-2.7, -6.6]]) {
           for (const h of [cy - 0.9, cy + 1]) {
@@ -13329,12 +13344,158 @@ function ChacklateScene(canvas, options) {
   }
   const portraitNow = () => (canvas.clientWidth || 1) / (canvas.clientHeight || 1) < 0.8;
 
+  // ------------------------------------------------------------------ free camera
+  // After a game the player can leave the seat and look around the room. The camera circles a
+  // point (fly.at) it looks at: dragging turns around it, the wheel or a pinch comes closer,
+  // WASD or the arrows walk the point across the room, Q and E turn on the spot. The point
+  // stays inside the room's bounds; the camera is pulled in along its line of sight wherever
+  // it would pass a wall, the ceiling, the floor or the table top. Going in and out of it,
+  // the view glides between the two poses unless motion is reduced.
+  const fly = { on: false, yaw: 0, pitch: 0.5, dist: 10, at: new THREE.Vector3(), tYaw: 0, tPitch: 0.5, tDist: 10, tAt: new THREE.Vector3(), fov: 50, keys: new Set(), fast: false, glide: null };
+  const FLY_PITCH = [-0.3, 1.45], FLY_DIST = [1.2, 26];
+  if (window.__SHOT) window.__fly = fly;
+  const flyV = new THREE.Vector3(), flyW = new THREE.Vector3();
+  const reducedMotion = () => !animations || !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const roomBounds = () => (room && room.bounds) || { r: 14, y0: -4, y1: 12, tableR: 7.9, tableY: -0.46 };
+  // the lowest the camera may be at a place: the floor, the table top, or a little above the
+  // board's raised frame, so it never looks out from inside the wood
+  function floorAt(x, z, b) {
+    if (Math.abs(x) < 5.4 && Math.abs(z) < 5.4) return 0.45;
+    return Math.hypot(x, z) < b.tableR ? b.tableY + 0.6 : b.y0;
+  }
+  function clearAt(p) {
+    const b = roomBounds();
+    return Math.hypot(p.x, p.z) <= b.r && p.y >= floorAt(p.x, p.z, b) && p.y <= b.y1;
+  }
+  function keepInside(p) {
+    const b = roomBounds(), h = Math.hypot(p.x, p.z);
+    if (h > b.r) { p.x *= b.r / h; p.z *= b.r / h; }
+    p.y = Math.min(b.y1, Math.max(floorAt(p.x, p.z, b), p.y));
+    return p;
+  }
+  // the camera's place for a pose: back from the point along yaw and pitch, as far as is clear
+  function flyEye(at, yaw, pitch, dist, out) {
+    const cp = Math.cos(pitch), dx = Math.sin(yaw) * cp, dy = Math.sin(pitch), dz = Math.cos(yaw) * cp;
+    if (!clearAt(at)) return keepInside(out.set(at.x + dx * dist, at.y + dy * dist, at.z + dz * dist));
+    let d = 0;
+    for (let i = 1, n = Math.ceil(dist / 0.25); i <= n; i++) {
+      const k = (dist * i) / n;
+      if (!clearAt(out.set(at.x + dx * k, at.y + dy * k, at.z + dz * k))) break;
+      d = k;
+    }
+    return out.set(at.x + dx * d, at.y + dy * d, at.z + dz * d);
+  }
+  function flyCamera() {
+    const W = canvas.clientWidth || 1, H = canvas.clientHeight || 1;
+    camera.position.copy(flyEye(fly.at, fly.yaw, fly.pitch, fly.dist, flyV));
+    // right at the point, look along the heading rather than at it
+    if (camera.position.distanceToSquared(fly.at) < 0.01) camera.lookAt(fly.at.x - Math.sin(fly.yaw), fly.at.y - Math.sin(fly.pitch), fly.at.z - Math.cos(fly.yaw));
+    else camera.lookAt(fly.at);
+    camera.fov = fly.fov; camera.aspect = W / H;
+    viewOx = 0; viewOy = 0;
+    camera.setViewOffset(W, H, 0, 0, W, H);
+    camera.updateProjectionMatrix();
+  }
+  function startGlide(dur) {
+    applyCamera();
+    fly.glide = reducedMotion() ? null : { start: performance.now(), dur, pos: camera.position.clone(), quat: camera.quaternion.clone(), fov: camera.fov, ox: viewOx, oy: viewOy };
+  }
+  function blendGlide() {
+    const g = fly.glide, t = clamp01((performance.now() - g.start) / g.dur), e = easeInOut(t);
+    if (t >= 1) { fly.glide = null; return; }
+    const W = canvas.clientWidth || 1, H = canvas.clientHeight || 1;
+    camera.position.lerpVectors(g.pos, camera.position, e);
+    camera.quaternion.slerpQuaternions(g.quat, camera.quaternion, e);
+    camera.fov = g.fov + (camera.fov - g.fov) * e;
+    viewOx = g.ox + (viewOx - g.ox) * e; viewOy = g.oy + (viewOy - g.oy) * e;
+    camera.setViewOffset(W, H, viewOx, viewOy, W, H);
+    camera.updateProjectionMatrix();
+  }
+  function stepFly(dt) {
+    const k = fly.keys;
+    const fwd = (k.has('f') ? 1 : 0) - (k.has('b') ? 1 : 0), side = (k.has('r') ? 1 : 0) - (k.has('l') ? 1 : 0), turn = (k.has('tl') ? 1 : 0) - (k.has('tr') ? 1 : 0);
+    if (turn) {
+      // turn on the spot: the camera stays where it is and the point swings round in front
+      const eye = flyEye(fly.tAt, fly.tYaw, fly.tPitch, fly.tDist, flyW), d = eye.distanceTo(fly.tAt);
+      fly.tYaw += turn * 1.4 * dt;
+      const cp = Math.cos(fly.tPitch);
+      fly.tAt.set(eye.x - Math.sin(fly.tYaw) * cp * d, fly.tAt.y, eye.z - Math.cos(fly.tYaw) * cp * d);
+    }
+    if (fwd || side) {
+      const sp = (fly.fast ? 11 : 5.5) * dt, sy = Math.sin(fly.tYaw), cy = Math.cos(fly.tYaw);
+      fly.tAt.x += (-sy * fwd + cy * side) * sp; fly.tAt.z += (-cy * fwd - sy * side) * sp;
+    }
+    const b = roomBounds(), h = Math.hypot(fly.tAt.x, fly.tAt.z);
+    if (h > b.r - 0.5) { fly.tAt.x *= (b.r - 0.5) / h; fly.tAt.z *= (b.r - 0.5) / h; }
+    const f = 1 - Math.exp(-dt * 10);
+    let busy = !!(fwd || side || turn) || !!fly.glide;
+    for (const [a, t] of [['yaw', 'tYaw'], ['pitch', 'tPitch'], ['dist', 'tDist']]) {
+      const d = fly[t] - fly[a];
+      if (Math.abs(d) > 0.0005) { fly[a] += d * f; busy = true; } else fly[a] = fly[t];
+    }
+    if (fly.at.distanceToSquared(fly.tAt) > 1e-6) { fly.at.lerp(fly.tAt, f); busy = true; } else fly.at.copy(fly.tAt);
+    return busy;
+  }
+  function flyDrag(dx, dy) {
+    fly.tYaw -= dx * 0.008;
+    fly.tPitch = Math.min(FLY_PITCH[1], Math.max(FLY_PITCH[0], fly.tPitch + dy * 0.006));
+    requestRender();
+  }
+  function flyZoom(k) { fly.tDist = Math.min(FLY_DIST[1], Math.max(FLY_DIST[0], fly.tDist * k)); requestRender(); }
+  // a two-finger slide on a touch screen walks the point, as the keys do
+  function flyPan(dx, dy) {
+    const sp = Math.max(0.006, fly.dist * 0.0022), sy = Math.sin(fly.tYaw), cy = Math.cos(fly.tYaw);
+    fly.tAt.x += (-cy * dx + -sy * dy) * sp; fly.tAt.z += (sy * dx + -cy * dy) * sp;
+    requestRender();
+  }
+  function startFly() {
+    if (fly.on || !room) return false;
+    if (cine) endCine(true);
+    if (dragging) cancelDrag();
+    attract = false; cam.intro = null; cam.free = 0;
+    startGlide(700);
+    // start where the seat is, turning about a point just above the middle of the board
+    const tx = Math.sin(cam.yaw) * cam.lookZ + cam.panX, tz = Math.cos(cam.yaw) * cam.lookZ + cam.panZ;
+    fly.at.set(tx, 0.6, tz); fly.tAt.copy(fly.at);
+    flyV.copy(fly.glide ? fly.glide.pos : camera.position).sub(fly.at);
+    fly.dist = fly.tDist = Math.min(FLY_DIST[1], Math.max(FLY_DIST[0], flyV.length()));
+    fly.yaw = fly.tYaw = Math.atan2(flyV.x, flyV.z);
+    fly.pitch = fly.tPitch = Math.min(FLY_PITCH[1], Math.max(FLY_PITCH[0], Math.asin(Math.max(-1, Math.min(1, flyV.y / (flyV.length() || 1))))));
+    // a wider lens than the seat's for looking round a room
+    fly.fov = Math.max(50, camera.fov);
+    fly.on = true; fly.keys.clear();
+    canvas.style.cursor = 'grab';
+    opts.onExplore(true, room.def.name);
+    requestRender();
+    return true;
+  }
+  function stopFly(instant) {
+    if (!fly.on) { if (instant) fly.glide = null; return; }
+    if (instant) { fly.on = false; fly.glide = null; } else { startGlide(1000); fly.on = false; }
+    fly.keys.clear(); drag = null; pinch = 0;
+    canvas.style.cursor = '';
+    opts.onExplore(false);
+    requestRender();
+  }
+  const FLY_KEYS = { KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b', KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r', KeyQ: 'tl', KeyE: 'tr' };
+  window.addEventListener('keydown', (e) => {
+    if (!fly.on || e.ctrlKey || e.metaKey || e.altKey || /input|textarea|select/i.test((e.target && e.target.tagName) || '')) return;
+    const k = FLY_KEYS[e.code];
+    fly.fast = e.shiftKey;
+    if (!k) return;
+    e.preventDefault();
+    fly.keys.add(k); requestRender();
+  });
+  window.addEventListener('keyup', (e) => { fly.fast = e.shiftKey; const k = FLY_KEYS[e.code]; if (k) fly.keys.delete(k); });
+  window.addEventListener('blur', () => fly.keys.clear());
+
   // ------------------------------------------------------------------ animation loop
   let raf = 0, lastFrame = 0, ambientTimer = 0, paused = false, glLost = false, shadowAt = 0;
   function step(now) {
     const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
     lastFrame = now;
     let busy = false;
+    if (fly.on || fly.glide) busy = stepFly(dt);
     if (cam.intro) {
       const t = clamp01((now - cam.intro.start) / cam.intro.dur), hold = cam.intro.hold || 0, e = easeInOut(clamp01((t - hold) / (1 - hold)));
       cam.yaw = cam.intro.fYaw + (cam.tYaw - cam.intro.fYaw) * e;
@@ -13530,6 +13691,14 @@ function ChacklateScene(canvas, options) {
     requestRender();
   }
   canvas.addEventListener('pointerdown', (e) => {
+    if (fly.on) {
+      canvas.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pointers.size === 1) { drag = { x: e.clientX, y: e.clientY, moved: false }; canvas.style.cursor = 'grabbing'; }
+      if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); drag = { x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2, moved: true }; }
+      return;
+    }
+    if (fly.glide) return;
     if (cine) { skipCine(); return; }
     canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, [e.clientX, e.clientY]);
@@ -13545,10 +13714,19 @@ function ChacklateScene(canvas, options) {
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!pointers.has(e.pointerId)) {
-      if (e.pointerType === 'mouse') setHover(pick(e.clientX, e.clientY));
+      if (e.pointerType === 'mouse' && !fly.on && !fly.glide) setHover(pick(e.clientX, e.clientY));
       return;
     }
     pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (fly.on) {
+      if (pointers.size === 2) {
+        const [a, b] = [...pointers.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+        if (pinch) flyZoom(pinch / d);
+        if (drag) flyPan(mx - drag.x, my - drag.y);
+        pinch = d; drag = { x: mx, y: my, moved: true };
+      } else if (drag && pointers.size === 1) { flyDrag(e.clientX - drag.x, e.clientY - drag.y); drag.x = e.clientX; drag.y = e.clientY; }
+      return;
+    }
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -13590,6 +13768,11 @@ function ChacklateScene(canvas, options) {
   }
   const end = (e) => {
     pointers.delete(e.pointerId);
+    if (fly.on) {
+      if (pointers.size === 1) { const [a] = [...pointers.values()]; drag = { x: a[0], y: a[1], moved: true }; pinch = 0; }
+      if (pointers.size === 0) { drag = null; pinch = 0; canvas.style.cursor = 'grab'; }
+      return;
+    }
     if (dragging && pointers.size === 0) {
       const d = dragging;
       if (d.moved) {
@@ -13613,6 +13796,7 @@ function ChacklateScene(canvas, options) {
     // Trackpads (and their pinch, which arrives as ctrl+wheel) send many small steps, a mouse
     // wheel a few big ones: zoom by how far it scrolled, not by how many events came.
     const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1) * (e.ctrlKey ? 4 : 1);
+    if (fly.on) { flyZoom(Math.exp(Math.max(-120, Math.min(120, px)) * 0.0016)); return; }
     cam.tZoom = Math.min(1.6, Math.max(ZOOM_MIN, cam.tZoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0012)));
     requestRender();
   }, { passive: false });
@@ -14082,8 +14266,14 @@ function ChacklateScene(canvas, options) {
     setPerf,
     setFullDetail,
     setAnimations(on) { animations = on; if (!on) particles = []; requestRender(); },
+    // The free camera after a game: true leaves the seat (returns the room's name, or null
+    // when it can't), false glides back to it (or jumps, when instant). onExplore(on) reports every change, including
+    // the ones the table makes itself (a new game, the home screen).
+    explore(on, instant) { if (on) return startFly() ? room.def.name : null; stopFly(!!instant); return null; },
+    exploring: () => fly.on,
     // Home-screen showcase: a low, slowly circling view across the board.
     setAttract(on, instant) {
+      stopFly(true);
       attract = on;
       if (on) { const a = attractPose(); cam.tPitch = a.pitch; cam.tLookY = a.lookY; cam.tZoom = 1; }
       else cam.tLookY = 0;
@@ -14099,6 +14289,7 @@ function ChacklateScene(canvas, options) {
     },
     // side: 'white' | 'black'; preset: 'player' | 'top' | 'low'
     setView(side, preset, instant) {
+      stopFly(true);
       if (side !== labelSide) { labelSide = side; if (boardMesh) boardMesh.userData.relabel(side); placeClock(); placeLights(side); }
       attract = false; cam.tLookY = 0; cam.tLookZ = 0; cam.tZoom = 1;
       let yaw = side === 'black' ? Math.PI : 0;
@@ -14122,6 +14313,7 @@ function ChacklateScene(canvas, options) {
     },
     // Sweeping camera move into the player's seat at the start of a game.
     intro() {
+      stopFly(true);
       if (!animations) return;
       if (room && room.vista) {
         // where the table stands before a landmark, the game opens looking out at it (white's
