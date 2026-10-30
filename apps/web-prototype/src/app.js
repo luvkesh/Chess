@@ -11,12 +11,15 @@
   const PG = ChacklateProgress(CATALOG, { seasons: CHACKLATE_SEASONS, missions: CHACKLATE_MISSIONS, campaign: CAMPAIGN });
   const AU = ChacklateAudio();
   const ART = ChacklateArt;
+  const RULES = ChacklateRules(E);
   const { WHITE, BLACK, LEVELS } = E;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   // A plain end date rather than a countdown: no ticking clocks aimed at children.
   const seasonEnd = (s) => new Date(s.ends + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   const STORE_KEY = 'chacklate-chess:v2';
+  const APP_VERSION = '0.9 beta';
+  const BUILD = typeof CHACKLATE_BUILD !== 'undefined' ? CHACKLATE_BUILD : 'dev';
   const VALUE = [0, 1, 3, 3, 5, 9, 0];
   const TYPE = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 5: 'q', 6: 'k' };
   const PIECE_NAME = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
@@ -267,6 +270,7 @@
     'g-resign': 'Resign|Give up this game. Your opponent wins.',
     'g-emote': 'React|Send a friendly picture to the other player. There is no chat.',
     'g-claim': 'Claim a draw|The rules say this game can end as a tie right now. Tap to end it.',
+    'g-rules': 'Rule book|The special rules that matter in this game right now: castling, en passant, promotion and draws. In a game against a person the clock keeps running.',
     'g-copy': 'PGN|Copy every move of this game as text, to save it or share it with a grown-up.',
     'g-review': 'Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes.',
     'rv-turn': 'Turning point|Jump to the move where the game changed the most.',
@@ -351,6 +355,7 @@
   if (!view) { $('nogl').hidden = false; view = nullView(); }
   else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
+  if (state.settings.dev && state.settings.devFps) setTimeout(() => fpsMeter(true), 0);
   function nullView() {
     const noop = () => {};
     let sets = null;
@@ -1701,7 +1706,9 @@
       '<label class="toggle">Turn the board each move (two players) <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
       appSection() +
       '<div class="field" style="margin-top:14px"><label for="s-server">Game server (for online play)</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
-      '<div class="row"><button class="btn warn" id="s-reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>', { x: true });
+      (s.dev ? devSection() : '') +
+      '<div class="row"><button class="btn warn" id="s-reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>' +
+      '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · build ' + BUILD + (s.dev ? ' · developer mode' : '') + '</button>', { x: true });
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
@@ -1721,7 +1728,78 @@
     on('#s-turn', 'change', (e) => { s.turnBoard = e.target.checked; save(); });
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
     wireAppSection(m);
+    on('#s-ver', 'click', () => versionTap(m));
+    if (s.dev) wireDevSection(m);
     on('#s-reset', 'click', () => { if (confirm('Reset all progress, unlocks and history on this device?')) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+  }
+
+  // ---------------------------------------------------------------- developer mode
+  // Seven taps on the version line in Settings show the developer tools; seven more hide them.
+  // Players never see them otherwise. Everything here stays on this device.
+  let verTaps = 0, verAt = 0;
+  function versionTap(m) {
+    const now = Date.now();
+    verTaps = now - verAt > 1500 ? 1 : verTaps + 1;
+    verAt = now;
+    const on = !!state.settings.dev;
+    if (verTaps >= 7) {
+      verTaps = 0;
+      state.settings.dev = !on; save();
+      fpsMeter(!on && state.settings.devFps);
+      m.close(); settingsModal();
+      toast(on ? 'Developer mode is off.' : 'Developer mode is on.');
+    } else if (verTaps >= 4) toast((7 - verTaps) + (7 - verTaps === 1 ? ' more tap' : ' more taps') + (on ? ' to turn developer mode off.' : ' to turn on developer mode.'));
+  }
+  function devSection() {
+    const G = state.game, P = state.progress;
+    const fen = G && state.screen === 'game' ? G.g.pos.fen() : E.START_FEN;
+    const cats = [...new Set(CATALOG.items.map((i) => i.category))];
+    const locked = CATALOG.items.filter((i) => !PG.isUnlocked(P, i));
+    const opts = cats.map((c) => { const list = locked.filter((i) => i.category === c); return list.length ? '<optgroup label="' + esc(c) + '">' + list.map((i) => '<option value="' + esc(i.id) + '">' + esc(i.name) + '</option>').join('') + '</optgroup>' : ''; }).join('');
+    return '<div class="label set-h">Developer tools</div>' +
+      '<div class="field"><label for="d-fen">Set any position (FEN)</label><div class="dev-row"><input class="text-in" id="d-fen" spellcheck="false" autocapitalize="off" value="' + esc(fen) + '"><button class="btn small" id="d-fen-go" type="button">Play it</button></div></div>' +
+      '<div class="field"><label for="d-item">Grant items</label><div class="dev-row">' + (opts ? '<select id="d-item">' + opts + '</select><button class="btn small" id="d-grant" type="button">Grant</button><button class="btn small" id="d-grant-all" type="button">Grant all</button>' : '<span class="faint">Every item is already unlocked.</span>') + '</div></div>' +
+      '<div class="field"><label>Streak</label><div class="dev-row"><span class="grow">' + P.streak.count + (P.streak.count === 1 ? ' day' : ' days') + '</span><button class="btn small" id="d-streak" type="button">Reset streak</button></div></div>' +
+      '<label class="toggle">Show frame rate <input type="checkbox" id="d-fps"' + (state.settings.devFps ? ' checked' : '') + '></label>' +
+      '<p class="sub faint" style="margin:8px 0 0">Tap the version line seven times to hide these tools.</p>';
+  }
+  function wireDevSection(m) {
+    const q = (sel) => m.querySelector(sel);
+    q('#d-fen-go').onclick = () => {
+      const fen = q('#d-fen').value.trim(), err = new E.Pos().load(fen);
+      if (err) { toast('That FEN does not load: ' + esc(err), 'bad'); return; }
+      m.close();
+      const mode = state.setup.mode === 'online' ? 'ai' : state.setup.mode;
+      startGame(Object.assign({}, state.setup, { mode, fen, dev: true, color: fen.split(' ')[1] === 'b' ? 'black' : 'white' }));
+    };
+    const grant = (items) => {
+      items.forEach((i) => { state.progress.granted[i.id] = true; });
+      save();
+      toast('Granted ' + (items.length === 1 ? esc(items[0].name) : items.length + ' items') + '.');
+      m.close(); settingsModal();
+    };
+    if (q('#d-grant')) q('#d-grant').onclick = () => grant(CATALOG.items.filter((i) => i.id === q('#d-item').value));
+    if (q('#d-grant-all')) q('#d-grant-all').onclick = () => grant(CATALOG.items.filter((i) => !PG.isUnlocked(state.progress, i)));
+    q('#d-streak').onclick = () => { state.progress.streak = { count: 0, last: '' }; save(); renderNav(); toast('Streak reset.'); m.close(); settingsModal(); };
+    q('#d-fps').onchange = (e) => { state.settings.devFps = e.target.checked; save(); fpsMeter(e.target.checked); };
+  }
+  // The frame-rate readout: frames the table drew in the last second (it draws only when
+  // something moves, so a still table reads low), the average time per frame and the detail level.
+  let fpsTimer = 0;
+  function fpsMeter(on) {
+    clearInterval(fpsTimer); fpsTimer = 0;
+    let el = $('fps');
+    if (!on) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('div'); el.id = 'fps'; el.className = 'fps'; el.setAttribute('aria-hidden', 'true'); document.body.appendChild(el); }
+    let last = view.stats ? view.stats() : null, at = performance.now();
+    el.textContent = 'measuring…';
+    fpsTimer = setInterval(() => {
+      const now = performance.now(), cur = view.stats ? view.stats() : null;
+      if (!cur || !last) { el.textContent = 'no 3D table'; return; }
+      const n = cur.frames - last.frames, secs = (now - at) / 1000;
+      el.textContent = Math.round(n / secs) + ' fps · ' + (n ? ((cur.drawMs - last.drawMs) / n).toFixed(1) : '0.0') + ' ms a frame · detail ' + cur.perf;
+      last = cur; at = now;
+    }, 1000);
   }
 
   // ---------------------------------------------------------------- installable app and reminders
@@ -1801,7 +1879,7 @@
   function startGame(setup, restore) {
     // Only ordinary games become the defaults for the next one; dojo, journey and online
     // games keep their own setup.
-    if (!setup.dojo && !setup.journey && setup.mode !== 'online') state.setup = Object.assign({}, setup);
+    if (!setup.dojo && !setup.journey && !setup.dev && setup.mode !== 'online') state.setup = Object.assign({}, setup);
     const kind = setup.mode;
     let g;
     try { g = new E.Game(setup.fen || E.START_FEN); } catch (e) { g = new E.Game(); }
@@ -1827,6 +1905,11 @@
     if (!g.outcome) maybeComputer();
     preAnalyse();
   }
+  function backToGame() {
+    const G = state.game;
+    go('game', G);
+    view.setView(G.viewSide, state.settings.view, true);
+  }
   function resumeSaved() {
     const s = saved.game;
     saved.game = null;
@@ -1843,6 +1926,7 @@
     mount(
       '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? era.name : dojo ? 'Endgames' : 'Home') + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
+      '<button class="round rb" id="g-rules" aria-label="Rule book" aria-expanded="false"><img src="' + ART.ruleBookUri() + '" alt=""></button>' +
       '<button class="round" id="g-music" aria-label="Music" aria-pressed="' + !!state.settings.music + '" title="Music">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
       '<button class="round" id="g-settings" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
       '<div class="player-card glass top" id="p-top"></div><div class="player-card glass bottom" id="p-bottom"></div>' +
@@ -1871,6 +1955,7 @@
       $('g-music').innerHTML = icon(state.settings.music ? 'music' : 'musicOff'); $('g-music').setAttribute('aria-pressed', String(!!state.settings.music));
     };
     $('g-settings').onclick = () => settingsModal();
+    $('g-rules').onclick = () => { AU.play('tap'); ruleBook(!G.rulebook); };
     $('g-copy').onclick = () => copy(pgn(), 'PGN');
     if ($('g-undo')) $('g-undo').onclick = undo;
     if ($('g-hint')) $('g-hint').onclick = hint;
@@ -1902,13 +1987,15 @@
       },
     });
     view.setBoard(piecesOf(G.g.pos), capturedFor(G.g));
+    G.rulebook = false;
+    pauseClock(G, false);
     renderTitle();
     renderCards();
     refreshHighlights();
     renderHud();
     return {
       leave() { view.setClock(null); save(); },
-      escape() { if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
+      escape() { if (G.rulebook) ruleBook(false); else if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
       key(e) { if (e.key === 'f') $('g-flip').click(); },
     };
   };
@@ -1924,6 +2011,65 @@
     const who = G.kind === 'ai' && !G.setup.dojo ? rival(G) : null;
     const art = who ? face(who) : G.setup.dojo ? medal('piece:k', '#5b4a8a', '#2c2248') : G.kind === 'online' ? medal('emblem:crown', '#2f6f6a', '#173b39') : medal('piece:n', '#a3294f', '#5c1328');
     el.innerHTML = '<img class="portrait" src="' + art + '" alt=""><span>' + esc(titleFor(G)) + (G.setup.tc && G.setup.tc !== 'none' && G.kind !== 'online' ? ' · ' + esc(G.setup.tc) : '') + '</span>';
+  }
+
+  // ----- the rule book
+  // A sheet over the moves panel with the special rules that matter in this game right now, each
+  // with a small board picture and its lesson. The board stays playable underneath. Against a bot
+  // the clocks wait while it is open; a game against a person is never paused.
+  const againstPerson = (G) => G.kind === 'online' || G.kind === 'local';
+  function pauseClock(G, on) {
+    if (!G.clock || (on && againstPerson(G))) return;
+    G.paused = on;
+    G.clock.since = 0;   // the next tick starts counting again from then
+  }
+  function ruleBook(open) {
+    const G = state.game;
+    if (!G || state.screen !== 'game') return;
+    G.rulebook = open;
+    pauseClock(G, open);
+    $('g-rules').setAttribute('aria-expanded', String(open));
+    $('g-rules').classList.toggle('on', open);
+    let el = $('rulebook');
+    if (!open) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('aside');
+      el.id = 'rulebook';
+      el.className = 'side glass rulebook';
+      el.setAttribute('aria-label', 'Rule book');
+      $('side').after(el);
+    }
+    renderRuleBook();
+    const first = el.querySelector('.x'); if (first) first.focus({ preventScroll: true });
+  }
+  function renderRuleBook() {
+    const G = state.game, el = $('rulebook');
+    if (!G || !el) return;
+    const local = G.kind === 'local';
+    const side = local ? G.g.pos.side : G.human;
+    const list = RULES.forGame(G.g, side, !local);
+    const timedPerson = againstPerson(G) && (G.clock || G.kind === 'online');
+    const note = timedPerson ? 'The clock keeps running while you read: this is a game against a person.'
+      : G.clock ? 'The clocks wait while the rule book is open.' : '';
+    const link = (id, title) => '<button class="btn small ghost rb-link" data-rule-lesson="' + esc(id) + '">' + icon('learn') + '<span>Lesson: ' + esc(title) + '</span>' + icon('next') + '</button>';
+    const lessonTitle = (id) => (LESSONS.lessons.find((l) => l.id === id) || {}).title || 'Learn';
+    el.innerHTML = '<header><img class="rb-ico" src="' + ART.ruleBookUri() + '" alt=""><b>Rule book</b><button class="round sm x" id="rb-close" aria-label="Close the rule book">' + icon('x') + '</button></header>' +
+      '<div class="rb-body">' + (note ? '<p class="rb-note">' + icon('clock') + '<span>' + esc(note) + '</span></p>' : '') +
+      list.map((r) => '<article class="rule' + (r.now ? ' now' : '') + '"><img class="rb-pic" src="' + ART.diagramUri(r.pic) + '" alt="">' +
+        '<div><h3>' + esc(r.title) + (r.now ? ' <span class="pill gold">Right now</span>' : '') + '</h3>' +
+        '<p class="rb-line">' + esc(r.line) + '</p><p class="rb-text">' + esc(r.text) + '</p>' +
+        link(r.lesson, lessonTitle(r.lesson)) + (r.also ? link(r.also.id, lessonTitle(r.also.id)) : '') + '</div></article>').join('') + '</div>';
+    $('rb-close').onclick = () => { AU.play('tap'); ruleBook(false); };
+    el.querySelectorAll('[data-rule-lesson]').forEach((b) => { b.onclick = () => ruleLesson(b.dataset.ruleLesson); });
+  }
+  // A game against a person keeps going, so its lessons wait for the end of the game; a bot waits
+  // for the player, so the lesson opens now and its back button returns to the table.
+  function ruleLesson(id) {
+    const G = state.game;
+    AU.play('tap');
+    if (againstPerson(G) && (G.clock || G.kind === 'online') && !G.g.outcome) { toast('Your clock is running, so this lesson waits in Learn until after the game.'); return; }
+    if (!G.g.outcome) pauseClock(G, true);
+    go('lesson', { id, back: 'game' });
   }
 
   function capturedFor(g) {
@@ -2070,7 +2216,7 @@
   }
 
   // ----- clocks (local games; online clocks come from the server)
-  function clockRunning(G) { return G.clock && !G.g.outcome && G.g.moves.length > 0 && G.kind !== 'online' && !(G.cinema && view.capturePlaying()); }
+  function clockRunning(G) { return G.clock && !G.g.outcome && G.g.moves.length > 0 && G.kind !== 'online' && !G.paused && !(G.cinema && view.capturePlaying()); }
   function pressClock(moverKey) {
     const G = state.game, c = G.clock;
     if (!c) return;
@@ -2468,6 +2614,7 @@
     renderClocks();
     renderEval();
     renderCoach();
+    if (G.rulebook) renderRuleBook();
   }
   function renderClocks() {
     const G = state.game;
@@ -2703,13 +2850,15 @@
       } else ex.push(x);
     }
     const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
-    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
+    // a lesson opened from the rule book goes back to the game it came from
+    const toGame = arg && arg.back === 'game' && state.game ? state.game : null;
+    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? 'Back to the game' : era ? era.name : 'Learn') + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
-    const leaveTo = () => (era ? go('era', era.id) : go('learn'));
+    const leaveTo = () => (toGame && state.game === toGame ? backToGame() : era ? go('era', era.id) : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
     voiceIcon($('ls-voice'), guide.name);
@@ -2924,9 +3073,9 @@
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
         '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
         (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
-      $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
+      $('ls-next').textContent = toGame ? 'Back to the game' : era ? 'Back to ' + era.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
-      if (!era && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
+      if (!era && !toGame && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
       else $('ls-prev').hidden = true;
       AU.play('win');
       AU.event('lesson.passed');

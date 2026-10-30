@@ -196,4 +196,14 @@ for (const e of campaign.eras) for (let i = 0; i < e.stages.length; i++) PJ.jour
 assert(s.achievements['era-4'] && s.achievements['era-all']);
 assert(catalog.items.filter((i) => i.unlock.type === 'journey').every((i) => PJ.isUnlocked(s, i)));
 
+// Developer mode can grant any item on this device; grants survive a save and reload.
+{
+  const g = PG.fresh();
+  const item = catalog.items.find((i) => i.unlock.type === 'premium');
+  assert(!PG.isUnlocked(g, item));
+  g.granted[item.id] = true;
+  assert(PG.isUnlocked(g, item));
+  assert(PG.isUnlocked(PG.migrate(JSON.parse(JSON.stringify(g))), item));
+  assert.deepStrictEqual(PG.migrate({ v: 1 }).granted, {});
+}
 console.log('progress ok');

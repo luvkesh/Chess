@@ -61,6 +61,7 @@ function ChacklateProgress(catalog, extras) {
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
+      granted: {},   // items handed out by developer mode, on this device only
     };
   }
   function migrate(s) {
@@ -72,6 +73,7 @@ function ChacklateProgress(catalog, extras) {
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
     out.missions = Object.assign(f.missions, s.missions || {});
     out.journey = Object.assign({}, s.journey || {});
+    out.granted = Object.assign({}, s.granted || {});
     return out;
   }
 
@@ -350,7 +352,7 @@ function ChacklateProgress(catalog, extras) {
 
   function isUnlocked(state, item) {
     const u = item.unlock;
-    if (u.type === 'free') return true;
+    if (u.type === 'free' || (state.granted && state.granted[item.id])) return true;
     if (u.type === 'level') return levelFor(state.xp).level >= u.level;
     if (u.type === 'achievement') return !!state.achievements[u.achievement];
     if (u.type === 'premium') return !!state.premium;

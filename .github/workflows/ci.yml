@@ -43,6 +43,8 @@ jobs:
         run: node apps/web-prototype/test/guide.test.js
       - name: Catalog looks exist in the 3D code
         run: node apps/web-prototype/test/looks.test.js
+      - name: Rule book follows the position
+        run: node apps/web-prototype/test/rules.test.js
       - name: Build single-file game
         run: python3 apps/web-prototype/build.py
       - name: Check committed build is up to date
