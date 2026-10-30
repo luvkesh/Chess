@@ -1,4 +1,5 @@
 """Inline the shared packages, three.js, the fonts, the web client and the content JSON into one HTML file."""
+import base64
 import hashlib
 import json
 import pathlib
@@ -49,6 +50,8 @@ parts = [
 # change to the 3D code or the catalog draws them again.
 look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
 parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
+# The crest (the rendered gold knight, shared with the website), inlined so the game stays one file.
+parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
 for path in SCRIPTS:
     parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
 code = '\n'.join(parts)
