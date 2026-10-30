@@ -451,7 +451,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .mu-rooky .gd-btn { background: rgba(14, 9, 6, 0.7); }
 .museum-card #mu-info > .eyebrow, .museum-card #mu-info > h2 { padding-right: 112px; }
 /* Rooky is in the pop-over, so his corner card steps aside while it is open */
-body:has(.museum-card) .guide { display: none; }
+body:has(.museum-card) .guide, body.peeking .guide { display: none; }
 .museum .mu-quote { margin: -4px 0 14px; padding: 10px 14px; border-left: 2px solid var(--gold-3); background: rgba(232, 194, 122, 0.05); border-radius: 0 12px 12px 0; color: #e9dcc8; font-size: 14.5px; line-height: 1.5; font-style: italic; }
 .museum .mu-quote b { font-style: normal; font-weight: 600; color: var(--gold-2); }
 .museum .mu-how { margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 14px; background: rgba(232, 194, 122, 0.05); }
@@ -605,8 +605,26 @@ body.peeking #screens * { pointer-events: none !important; }
 body.peeking #stage canvas { filter: none; transform: none; pointer-events: auto; }
 body.peeking .shade { background: radial-gradient(ellipse 85% 75% at 50% 42%, transparent 50%, rgba(6, 3, 2, 0.62) 100%); }
 .peekbar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px); bottom: calc(var(--safe-b) + 24px); z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 22px; border-radius: 999px; animation: rise .5s var(--ease) both; }
+.peekbar.still { animation: none; }
+.peekcard { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px); bottom: calc(var(--safe-b) + 100px); z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 18px 10px 10px; border-radius: 999px 26px 26px 999px; }
+.peekcard .who .name { font: 500 20px/1.1 var(--serif); }
+.peekcard .who .sub { color: var(--muted); font-size: 13px; }
+.peekcard.timed { gap: 12px; }
+.peekcard .clock { font-size: 26px; }
+/* on a phone the bar keeps the name readable: the lock note steps aside (the label already says Preview) and Back is just its arrow */
+@media (max-width: 520px) {
+  .peekbar .pill.lock { display: none; }
+  .peekbar #pk-back .bk-t { display: none; }
+  .peekbar { gap: 8px; }
+  .peekcard .clock { font-size: 20px; min-width: 3.6em; }
+}
+.peekbar:has(.pk-nav) { padding-left: 10px; gap: 10px; }
 .peekbar small { display: block; font: 600 10px/1.2 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
 .peekbar b { font: 500 21px/1.15 var(--serif); }
+.peekbar .pk-nav { width: 40px; height: 40px; touch-action: none; }
+.peekbar .pk-nav .ico { width: 20px; height: 20px; }
+.peekbar .pk-name { min-width: 0; touch-action: pan-y; }
+.peekbar .pk-name b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* the free camera after a game: the HUD steps aside, a bar at the bottom leads back to the seat */
 body.exploring #screens, body.exploring .tabbar, body.exploring .guide { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .35s var(--ease), visibility 0s linear .35s; }
 body.exploring #screens * { pointer-events: none !important; }
@@ -1276,8 +1294,9 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .guide .narrator img { width: 100%; height: 100%; border-radius: 50%; display: block; }
 .guide.speaking .narrator { animation: gd-talk 1.1s ease-in-out infinite; }
 @keyframes gd-talk { 50% { transform: scale(1.06); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 0 7px rgba(232, 192, 112, 0.18); } }
-.gd-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.gd-head .eyebrow { margin: 0; flex: 1; min-width: 0; font-size: 10.5px; letter-spacing: 0.2em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gd-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; min-height: 32px; }
+/* the speaker's name: a short heading in their own words, not shouted in tracked capitals */
+.gd-who { margin: 0 6px 0 0; flex: 1; min-width: 0; font: 600 16.5px/1.15 var(--serif); letter-spacing: 0.01em; color: var(--gold); overflow-wrap: anywhere; text-wrap: balance; }
 .gd-btn { width: 32px; height: 32px; display: grid; place-items: center; padding: 0; color: var(--gold-2); border: 1px solid var(--line-2); border-radius: 50%; flex: none; }
 .gd-btn:hover { border-color: var(--gold); }
 .gd-btn[aria-pressed="false"] { color: var(--muted); }
@@ -1312,7 +1331,9 @@ body.ingame .guide .gd-text { font-size: 15.5px; }
   body.ingame .guide { left: 10px; right: 10px; width: auto; top: auto; bottom: var(--sheet-top, 200px); padding: 7px 8px 8px 8px; grid-template-columns: 32px 1fr; }
   body.ingame .guide .narrator { width: 32px; height: 32px; }
   body.ingame .gd-head { margin-bottom: 2px; }
+  body.ingame .gd-head { min-height: 28px; }
   body.ingame .gd-btn { width: 28px; height: 28px; }
+  body.ingame .gd-who { font-size: 15px; }
   body.ingame .guide.tucked { left: auto; }
   body.ingame .guide .gd-text { font-size: 14px; }
   body.paged .page, body.heroic .hero { padding-bottom: calc(190px + var(--safe-b)); }
