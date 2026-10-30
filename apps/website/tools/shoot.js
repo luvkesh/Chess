@@ -25,7 +25,9 @@ const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], ro
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   await page.addInitScript(() => { window.__SHOT = true; });
-  await page.goto('file://' + path.join(root, 'apps/web-prototype/dist/chacklate-chess.html'), { waitUntil: 'commit', timeout: 0 });
+  // the built game (named chacklate-chess.html before the game was renamed Chackmate)
+  const built = ['chackmate.html', 'chacklate-chess.html'].map((n) => path.join(root, 'apps/web-prototype/dist', n)).find((f) => fs.existsSync(f));
+  await page.goto('file://' + built, { waitUntil: 'commit', timeout: 0 });
   await page.waitForFunction(() => window.__view && window.__cam, null, { timeout: 300000 });
   await page.waitForTimeout(2500);
   await page.addStyleTag({ content: 'body > *:not(canvas) { visibility: hidden !important; } canvas { visibility: visible !important; }' });
