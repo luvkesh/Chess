@@ -80,7 +80,7 @@
       "dojo.won": "Endgame won. Nicely converted.",
       "tournament.start": "The tournament has started. Good luck.",
       "tournament.end": "The tournament is over. Let's see the standings.",
-      "welcome": "Welcome back to Chacklate Chess."
+      "welcome": "Welcome back to Chackmate."
     },
     "hi": {
       "start.white": "शुभकामनाएँ। आप सफ़ेद मोहरों से खेल रहे हैं।",
@@ -114,7 +114,7 @@
       "dojo.won": "एंडगेम जीत लिया। बढ़िया।",
       "tournament.start": "टूर्नामेंट शुरू हो गया है। शुभकामनाएँ।",
       "tournament.end": "टूर्नामेंट खत्म। अब तालिका देखते हैं।",
-      "welcome": "चॉकलेट चेस में फिर से स्वागत है।"
+      "welcome": "चैकमेट में फिर से स्वागत है।"
     }
   },
   "moves": {
