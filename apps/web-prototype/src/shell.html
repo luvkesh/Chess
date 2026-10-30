@@ -43,7 +43,7 @@
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); overflow: hidden; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); font-feature-settings: 'lnum' 1; overflow: hidden; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; }
 img { display: block; }
@@ -617,7 +617,7 @@ body.peeking .shade { background: radial-gradient(ellipse 85% 75% at 50% 42%, tr
 .lesson header { padding: 16px 20px 14px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; background: linear-gradient(110deg, rgba(232, 194, 122, 0.1), transparent 70%); }
 .lesson header img { width: 58px; height: 58px; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5)); }
 .lesson header h3 { margin: 7px 0 0; font: 500 25px/1.1 var(--serif); }
-.lesson .content { flex: 1; overflow: auto; padding: 18px 20px; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
+.lesson .content { flex: 1; overflow: auto; overflow-wrap: break-word; padding: 18px 20px; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
 .lesson .say { font: 500 19px/1.55 var(--serif); margin: 0 0 12px; }
 .lesson .prompt { font: 500 22px/1.35 var(--serif); margin: 0 0 12px; }
 .lesson footer { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); align-items: center; flex-wrap: wrap; }
