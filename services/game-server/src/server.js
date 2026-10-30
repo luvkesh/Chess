@@ -1,5 +1,5 @@
 'use strict';
-// Chacklate game server: static site, JSON API, WebSocket play and the admin API in one process.
+// Chackmate game server: static site, JSON API, WebSocket play and the admin API in one process.
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -20,7 +20,7 @@ const ROOT = path.resolve(__dirname, '../../..');
 const PUBLIC = path.join(ROOT, 'apps/web-prototype/public');
 const STATIC = {
   '/': path.join(ROOT, 'apps/website/index.html'),
-  '/play': path.join(ROOT, 'apps/web-prototype/dist/chacklate-chess.html'),
+  '/play': path.join(ROOT, 'apps/web-prototype/dist/chackmate.html'),
   '/admin': path.join(ROOT, 'apps/admin/index.html'),
   '/parent': path.join(ROOT, 'apps/parent/index.html'),
   '/privacy': path.join(ROOT, 'apps/website/privacy.html'),
@@ -236,7 +236,7 @@ if (require.main === module) {
     lobby: { log: (...a) => console.log(new Date().toISOString(), ...a) },
   });
   const port = Number(process.env.PORT) || 8080;
-  app.listen(port, process.env.HOST || '0.0.0.0').then((p) => console.log('Chacklate server on http://localhost:' + p));
+  app.listen(port, process.env.HOST || '0.0.0.0').then((p) => console.log('Chackmate server on http://localhost:' + p));
   const stop = () => app.close().then(() => process.exit(0));
   process.on('SIGINT', stop);
   process.on('SIGTERM', stop);

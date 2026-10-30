@@ -1,6 +1,6 @@
 {
-  "name": "Chacklate Chess",
-  "short_name": "Chacklate",
+  "name": "Chackmate",
+  "short_name": "Chackmate",
   "description": "Beautiful 3D chess with a coach that explains every move.",
   "id": "/play",
   "start_url": "/play",

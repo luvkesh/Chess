@@ -1,4 +1,4 @@
-// Chacklate world: boards, rooms and their reflection environments, all built in code.
+// Chackmate world: boards, rooms and their reflection environments, all built in code.
 // Boards are inlaid fields (wood, marble, stone, lacquer, glass) set in carved frames with
 // gold lines and coordinates. Rooms are lit interiors around a round table: panelled walls,
 // windows onto a night sky, a fireplace, shelves of books, a chandelier, candles and a rug.

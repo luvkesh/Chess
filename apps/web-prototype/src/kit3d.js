@@ -1,4 +1,4 @@
-// Chacklate 3D kit: the procedural modelling shared by piece sets, boards and rooms.
+// Chackmate 3D kit: the procedural modelling shared by piece sets, boards and rooms.
 // Nothing is loaded from files. Shapes come from revolved profiles (with flutes,
 // twists and facets), signed-distance sculpting meshed with surface nets, and a
 // few ornament builders; surfaces come from canvas-painted textures (woods,

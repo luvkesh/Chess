@@ -1,4 +1,4 @@
-// Chacklate Chess app: the menus, the Journey Through Time, games against the animal
+// Chackmate app: the menus, the Journey Through Time, games against the animal
 // opponents, the coach, lessons, puzzles, training, the collection and progression, wired to
 // the 3D table, the engine workers and (when a server is reachable) online play.
 (function () {
@@ -433,7 +433,7 @@
   function renderNav() {
     const secId = SECTION[state.screen] || state.screen;
     const lv = PG.levelFor(state.progress.xp);
-    $('topnav').innerHTML = '<button class="brand" data-nav="home" aria-label="Chacklate Chess home"><img src="' + ART.crestUri() + '" alt=""><span>Chacklate</span></button>' +
+    $('topnav').innerHTML = '<button class="brand" data-nav="home" aria-label="Chackmate home"><img src="' + ART.crestUri() + '" alt=""><span>Chackmate</span></button>' +
       '<nav class="links" aria-label="Main">' + NAV.map(([k, t]) => '<button data-nav="' + k + '"' + (k === secId ? ' aria-current="page"' : '') + '>' + t + '</button>').join('') + '</nav>' +
       '<div class="tools">' + (state.progress.premium ? '' : '<button class="prem-btn" data-nav="store" aria-label="Premium">' + icon('crown') + '<span>Premium</span></button>') +
       '<button class="round" id="nv-music" aria-pressed="' + !!state.settings.music + '" aria-label="Music" title="Music">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
@@ -630,7 +630,7 @@
     const set = equippedSet();
     mount('<section class="hero" aria-label="Home">' +
       '<img class="crest" src="' + ART.crestUri() + '" alt="">' +
-      '<h1 class="wordmark">Chacklate</h1>' +
+      '<h1 class="wordmark">Chackmate</h1>' +
       '<p class="tagline">Chess Through the Ages</p>' +
       '<p class="motto">Learn. Play. Collect.</p>' +
       '<div class="lux-row">' +
@@ -1392,7 +1392,7 @@
         '<div class="products">' + products.map((p) => '<div class="product' + (p.id === focus ? ' focus' : '') + '">' + (p.badge ? '<span class="pbadge">' + esc(p.badge) + '</span>' : '') +
           '<span class="eyebrow plain">' + esc(p.kind === 'subscription' ? 'Every ' + p.period : 'One payment') + '</span><b>' + esc(p.name) + '</b><div class="price">' + money(p.price) + '</div>' +
           (owned(p) ? '<span class="pill gold">Owned</span>' : '<button class="btn ' + (p.id === 'premium.yearly' || p.id === focus ? 'gold' : '') + '" data-buy="' + p.id + '"' + (p.onSale ? '' : ' disabled') + '>' + (p.onSale ? 'Buy' : 'Opens at launch') + '</button>') + '</div>').join('') + '</div>' +
-        '<p class="fine">' + (!online ? 'Purchases go through your Chacklate account on the game server, which is not connected.' : remote && remote.mode === 'dev' ? 'Test store: purchases complete without payment. Nothing is charged.' : remote && remote.mode === 'off' ? 'The store opens at launch.' : 'Payments are handled by our payment provider. Subscriptions renew until cancelled.') +
+        '<p class="fine">' + (!online ? 'Purchases go through your Chackmate account on the game server, which is not connected.' : remote && remote.mode === 'dev' ? 'Test store: purchases complete without payment. Nothing is charged.' : remote && remote.mode === 'off' ? 'The store opens at launch.' : 'Payments are handled by our payment provider. Subscriptions renew until cancelled.') +
         ' Purchases are tied to your account and restore on any device.</p>' +
         '<div class="row" style="justify-content:flex-start"><button class="btn small" id="st-restore">' + icon('refresh') + ' Restore purchases</button></div>';
       document.querySelectorAll('[data-buy]').forEach((b) => { b.onclick = () => buy(b.dataset.buy); });
@@ -1437,7 +1437,7 @@
         '<p class="sub">' + (pass ? 'Every gold-track reward you have reached is now yours.' : 'Every animal friend, chapter, opening, endgame and era is open, and the season pass is included.') + '</p>' +
         '<div class="row" style="justify-content:center"><button class="btn primary" data-close>Let\'s play</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
-    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chacklate Premium', 'The whole journey, every animal friend and the finest sets in the house.') +
+    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.') +
       '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
     render();
@@ -1497,7 +1497,7 @@
   const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; });
-  window.addEventListener('appinstalled', () => { installPrompt = null; toast('Chacklate Chess is installed.'); });
+  window.addEventListener('appinstalled', () => { installPrompt = null; toast('Chackmate is installed.'); });
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register('/sw.js').then((r) => { swReg = r; }).catch(() => { /* not served by the game server: no offline shell */ });
   }
@@ -1507,7 +1507,7 @@
     const hours = Array.from({ length: 24 }, (_, h) => '<option value="' + h + '"' + (r.hour === h ? ' selected' : '') + '>' + String(h).padStart(2, '0') + ':00</option>').join('');
     return '<div class="label set-h">App</div>' +
       (standalone() ? '<p class="sub" style="margin:0 0 8px">Running as an installed app.</p>'
-        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chacklate Chess</button>'
+        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chackmate</button>'
         : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
         : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') +
       (safety && !safety.reminders ? '<label class="toggle">Daily reminder <small class="faint">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
@@ -2222,7 +2222,7 @@
     const G = state.game; if (!G) return '';
     const d = new Date();
     const date = d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
-    const name = (side) => sideName(G, side) + (G.kind === 'ai' && side !== G.human ? ' (Chacklate)' : '');
+    const name = (side) => sideName(G, side) + (G.kind === 'ai' && side !== G.human ? ' (Chackmate)' : '');
     return G.g.pgn({ Date: date, White: name(WHITE), Black: name(BLACK), Event: G.kind === 'online' ? 'Online game' : G.setup.journey ? 'Journey Through Time' : 'Casual game',
       TimeControl: !G.setup.tc || G.setup.tc === 'none' ? '-' : G.setup.tc.split('+').map((x, i) => (i ? x : x * 60)).join('+') });
   }

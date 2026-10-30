@@ -4,12 +4,12 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 26
-  companyName: Chacklate
-  productName: Chacklate Chess
+  companyName: Chackmate
+  productName: Chackmate
   applicationIdentifier:
-    Android: com.chacklate.chess
-    Standalone: com.chacklate.chess
-    iPhone: com.chacklate.chess
+    Android: com.chackmate.chess
+    Standalone: com.chackmate.chess
+    iPhone: com.chackmate.chess
   cloudProjectId: b6fd69f8-9193-4b5b-9026-204352ecf4d4
   projectName: Chess
   organizationId:

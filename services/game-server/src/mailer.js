@@ -6,7 +6,7 @@
 function create(opts) {
   opts = opts || {};
   const mode = opts.mode || 'log';
-  const from = opts.from || 'Chacklate Chess <no-reply@chacklate.example>';
+  const from = opts.from || 'Chackmate <no-reply@chackmate.example>';
   const outbox = [];
   const log = opts.log || console.log;
 
