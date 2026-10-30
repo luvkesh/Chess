@@ -183,6 +183,75 @@ test('friend codes pair two players in an unrated game; draws by agreement', asy
   } finally { await app.close(); }
 });
 
+test('club: rankings by country and city, friends from codes, under-18s never shown to others', async () => {
+  const { app, port } = await boot();
+  const year = new Date().getUTCFullYear();
+  try {
+    // Two guests play a rated game, then both make adult accounts (keeping their ratings).
+    const g = await pair(port, '3+0');
+    g.white.send({ type: 'move', uci: 'e2e4', ply: 0 }); await g.black.next('move');
+    g.black.send({ type: 'move', uci: 'e7e5', ply: 1 }); await g.white.next('move');
+    g.black.send({ type: 'resign' }); await g.white.next('end');
+    const tw = (g.white === g.a ? g.wa : g.wb).token, tb = (g.black === g.a ? g.wa : g.wb).token;
+    const A = (await call(port, 'POST', '/api/register', { name: 'Truffle', password: 'long enough pw', birthYear: 1990, birthMonth: 6 }, tw)).body;
+    const B = (await call(port, 'POST', '/api/register', { name: 'Ember', password: 'long enough pw', birthYear: 1988, birthMonth: 2 }, tb)).body;
+    g.a.close(); g.b.close();
+
+    // Location: a country code, a city for adults, and where it came from.
+    assert.strictEqual((await call(port, 'POST', '/api/account/location', { country: 'India' }, A.token)).status, 400);
+    assert.strictEqual((await call(port, 'POST', '/api/account/location', { country: 'IN', city: 'http://x' }, A.token)).status, 400);
+    const la = await call(port, 'POST', '/api/account/location', { country: 'IN', city: 'Mumbai', source: 'tz' }, A.token);
+    assert.deepStrictEqual(la.body, { country: 'IN', city: 'Mumbai', source: 'tz' });
+    await call(port, 'POST', '/api/account/location', { country: 'IN', city: 'Delhi', source: 'manual' }, B.token);
+
+    const club = async (scope, token) => (await call(port, 'GET', '/api/club?pool=blitz&scope=' + scope, null, token)).body;
+    const all = await club('global', A.token);
+    assert.deepStrictEqual(all.rows.map((r) => [r.name, r.country, r.city]), [['Truffle', 'IN', 'Mumbai'], ['Ember', 'IN', 'Delhi']]);
+    assert.strictEqual(all.rows[0].me, true);
+    assert.deepStrictEqual(all.rows.map((r) => r.league), all.rows.map((r) => require('../src/club').leagueOf(r.rating)));
+    assert.deepStrictEqual([all.me.rank, all.me.listed], [1, true]);
+    assert.strictEqual((await club('country', A.token)).rows.length, 2);
+    assert.deepStrictEqual((await club('city', A.token)).rows.map((r) => r.name), ['Truffle']);
+    const none = await club('following', A.token);
+    assert.deepStrictEqual([none.rows.length, none.me.rank], [0, 1]);
+    assert.strictEqual((await club('global')).me, null, 'signed out sees the board, no "you" row');
+
+    // A game from a friend code makes friends, both ways; either can remove the friendship.
+    const a = await client(port, A.token), b = await client(port, B.token);
+    await a.next('welcome'); const wb = await b.next('welcome');
+    assert.deepStrictEqual(wb.account.location, { country: 'IN', city: 'Delhi', source: 'manual' });
+    a.send({ type: 'friend-create', tc: '5+3' });
+    b.send({ type: 'friend-join', code: (await a.next('friend-code')).code });
+    await a.next('start'); await b.next('start');
+    a.send({ type: 'resign' }); await a.next('end');
+    assert.deepStrictEqual((await club('following', A.token)).rows.map((r) => r.name), ['Ember']);
+    const fr = (await call(port, 'GET', '/api/friends', null, B.token)).body.friends;
+    assert.deepStrictEqual([fr[0].name, fr[0].online, fr[0].country], ['Truffle', true, 'IN']);
+    assert.ok((await club('global', A.token)).now.online >= 2);
+    await call(port, 'POST', '/api/friends/remove', { id: fr[0].id }, B.token);
+    assert.strictEqual((await call(port, 'GET', '/api/friends', null, A.token)).body.friends.length, 0);
+    assert.strictEqual((await call(port, 'GET', '/api/friends')).status, 401);
+
+    // Under-18s keep a city too, but never appear on public boards or in "In the club now".
+    const name = (await call(port, 'GET', '/api/names')).body.names[0];
+    const kid = (await call(port, 'POST', '/api/register', { name, password: 'a long password', birthYear: year - 10, birthMonth: 1, parentEmail: 'mum@example.com' })).body;
+    const lk = await call(port, 'POST', '/api/account/location', { country: 'IN', city: 'Mumbai', source: 'gps' }, kid.token);
+    assert.deepStrictEqual(lk.body, { country: 'IN', city: 'Mumbai', source: 'gps' });
+    const k = await client(port, kid.token); await k.next('welcome');
+    const kc = await club('city', kid.token);
+    assert.deepStrictEqual([kc.rows.map((r) => r.name), kc.me.rank], [['Truffle'], 2]);
+    const kv = await club('country', kid.token);
+    assert.deepStrictEqual(kv.rows.map((r) => r.name), ['Truffle', 'Ember']);
+    assert.deepStrictEqual([kv.me.rank, kv.me.listed], [2, false]);
+    const seen = await club('global', A.token);
+    assert.ok(!seen.rows.some((r) => r.name === name));
+    assert.ok(!seen.now.people.some((p) => p.name === name));
+    const exp = await call(port, 'GET', '/api/account/export', null, A.token);
+    assert.deepStrictEqual(exp.body.location, { country: 'IN', city: 'Mumbai', source: 'tz' });
+    for (const c of [a, b, k]) c.close();
+  } finally { await app.close(); }
+});
+
 test('online games are timed, 10 minutes at most; players send preset reactions only', async () => {
   const { app, port } = await boot();
   try {

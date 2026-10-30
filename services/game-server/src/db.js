@@ -126,6 +126,14 @@ CREATE TABLE IF NOT EXISTS parent_sessions (
   created INTEGER NOT NULL,
   seen INTEGER NOT NULL
 );
+-- The Club's friends list: two players become friends by playing a game from a friend code.
+-- One row each way; removing the friendship removes both.
+CREATE TABLE IF NOT EXISTS friends (
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  friend_id INTEGER NOT NULL REFERENCES users(id),
+  since INTEGER NOT NULL,
+  PRIMARY KEY (user_id, friend_id)
+);
 CREATE TABLE IF NOT EXISTS config (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -150,7 +158,9 @@ function open(file) {
   const have = new Set(db.prepare('PRAGMA table_info(users)').all().map((c) => c.name));
   for (const [col, def] of [['email', 'TEXT'], ['email_key', 'TEXT'], ['email_verified', 'INTEGER NOT NULL DEFAULT 0'], ['deleted', 'INTEGER'],
     // Children's safety (src/family.js): birth month 'YYYY-MM', band child|teen|adult, consent time, parent controls.
-    ['birth_ym', 'TEXT'], ['age_band', 'TEXT'], ['parent_id', 'INTEGER'], ['consent', 'INTEGER'], ['controls', 'TEXT']]) {
+    ['birth_ym', 'TEXT'], ['age_band', 'TEXT'], ['parent_id', 'INTEGER'], ['consent', 'INTEGER'], ['controls', 'TEXT'],
+    // The Club's local rankings (src/club.js): a country code, a city for adults only, and where they came from (tz|manual|gps).
+    ['country', 'TEXT'], ['city', 'TEXT'], ['loc_src', 'TEXT']]) {
     if (!have.has(col)) db.exec('ALTER TABLE users ADD COLUMN ' + col + ' ' + def);
   }
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_email ON users(email_key)');
