@@ -238,6 +238,32 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .plan .btn { margin-top: auto; }
 .fine { margin-top: 18px; color: var(--faint); font-size: 14px; text-align: center; }
 
+/* ---------- about: plain text, a hairline between story and contact (as on JongClub) */
+.house { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: start; margin-top: 44px; }
+.house-story { display: flex; flex-direction: column; gap: 16px; max-width: 62ch; }
+.house-story p { margin: 0; font-size: 17px; line-height: 1.75; color: var(--muted); }
+.house-story .house-lede { font: 600 clamp(24px, 2.2vw, 30px)/1.35 var(--serif); color: var(--ink); margin-bottom: 8px; }
+.studio-logo { width: min(100%, 220px); height: auto; margin-top: 18px; opacity: 0.92; }
+.house-contact { padding-left: clamp(24px, 3vw, 48px); border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px; }
+.house-contact h3 { margin: 0; font: italic 600 clamp(34px, 3.2vw, 46px)/1 var(--serif); letter-spacing: 0; text-transform: none; color: var(--gold-2); }
+.house-contact ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.house-contact li { display: flex; align-items: flex-start; gap: 12px; }
+.house-contact li svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--gold); }
+.house-contact li span { display: flex; flex-direction: column; gap: 6px; }
+.house-contact a { color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+.house-contact a:hover, .house-contact a:focus-visible { color: var(--gold-2); text-decoration: underline; text-underline-offset: 4px; }
+.house-contact .fine { text-align: left; margin-top: 4px; font-size: 13px; }
+@media (max-width: 760px) {
+  .house { grid-template-columns: 1fr; gap: 36px; }
+  .house-contact { padding: 28px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+}
+.gate { border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); color: var(--ink); padding: 26px; width: min(380px, calc(100vw - 32px)); }
+.gate::backdrop { background: rgba(8, 5, 4, 0.72); }
+.gate h3 { margin: 0 0 10px; font: 600 28px/1.1 var(--serif); letter-spacing: 0; text-transform: none; color: var(--gold-2); }
+.gate p { margin: 0 0 14px; color: var(--muted); }
+.gate input { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: 500 18px var(--sans); }
+.gate .gate-no { margin: 10px 0 0; color: #f0a890; }
+.gate-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
 /* ---------- close + footer ---------- */
 .closing { min-height: 80vh; display: grid; place-items: center; text-align: center; }
 footer { background: var(--bg); border-top: 1px solid var(--line-2); padding: 34px 0 44px; color: var(--faint); font-size: 14px; }
@@ -399,7 +425,7 @@ html.nonlatin body { line-height: 1.75; }
 
 <header class="top" id="top"><div class="wrap">
   <a class="logo" href="#main" data-tip="Back to the top"><span class="crest"><img src="@@IMG:crest@@" alt="" width="36" height="36"></span><span>Chackmate</span></a>
-  <nav aria-label="Sections" id="nav"><a href="#learn" data-tip="How @@COACH@@ teaches chess, one small step at a time">Learn</a><a href="#wonders" data-tip="The famous places where you play">Wonders</a><a href="#collect" data-tip="The chess sets you can win and collect">Collect</a><a href="#families" data-tip="Safety and privacy, for grown-ups">Families</a><a href="#pricing" data-tip="What is free and what Premium adds">Pricing</a></nav>
+  <nav aria-label="Sections" id="nav"><a href="#learn" data-tip="How @@COACH@@ teaches chess, one small step at a time">Learn</a><a href="#wonders" data-tip="The famous places where you play">Wonders</a><a href="#collect" data-tip="The chess sets you can win and collect">Collect</a><a href="#families" data-tip="Safety and privacy, for grown-ups">Families</a><a href="#pricing" data-tip="What is free and what Premium adds">Pricing</a><a href="#about" data-tip="Who makes Chackmate, and how to reach us">About</a></nav>
   <div class="htools">
     <button type="button" class="menu-btn" id="menu-btn" aria-controls="nav" aria-expanded="false" aria-label="Sections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
     <div class="lang" data-no-i18n><button type="button" class="lang-btn" id="lang-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Language / भाषा" data-tip="Language / भाषा"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg></button><div class="lang-menu" id="lang-menu" role="menu" aria-label="Language" hidden></div></div>
@@ -555,7 +581,39 @@ html.nonlatin body { line-height: 1.75; }
   <h2>Your first move <em>is waiting.</em></h2>
   <div class="cta" style="margin-top:30px"><a class="btn gold" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a></div>
 </div></section>
+<section class="solid" id="about"><div class="wrap">
+  <div class="reveal">
+    <div class="eyebrow">The studio</div>
+    <h2>The House</h2>
+    <p class="sub">Chackmate is made by Chacklate Experiences.</p>
+  </div>
+  <div class="house reveal">
+    <div class="house-story">
+      <p class="house-lede">Chacklate Experiences makes games the way a good chocolatier makes chocolate: with patience, care, and the finest ingredients.</p>
+      <p>Chackmate began with a simple wish: to give every child a real chess table, with the click of the pieces, a coach who teaches, and friends who play fair.</p>
+      <p>So we built a premium club. From the Pyramids and the Taj Mahal to Times Square, we set every game in a wonder of the world, created @@COACH@@, a coach who guides you along the way, and made every piece and board beautiful, because a game you love should feel precious.</p>
+      <img class="studio-logo" src="@@IMG:chacklate-logo@@" alt="Chacklate Experiences" width="965" height="240">
+    </div>
+    <aside class="house-contact" id="contact" aria-labelledby="contact-h">
+      <h3 id="contact-h">Contact</h3>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg><a href="mailto:bite@chacklate.com" data-out data-no-i18n>bite@chacklate.com</a></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg><span data-no-i18n><a href="https://www.instagram.com/chacklate/" data-out>@chacklate</a><a href="https://www.instagram.com/chackmate/" data-out>@Chackmate</a></span></li>
+      </ul>
+      <p class="fine">Links open outside this site, after a quick grown-up check.</p>
+    </aside>
+  </div>
+</div></section>
 </main>
+<dialog class="gate" id="gate" aria-labelledby="gate-h">
+  <form method="dialog">
+    <h3 id="gate-h">For grown-ups</h3>
+    <p>This link leaves the site. To carry on, answer: <b id="gate-q" data-no-i18n></b></p>
+    <input id="gate-a" inputmode="numeric" autocomplete="off" aria-labelledby="gate-q">
+    <p class="gate-no" id="gate-no" hidden>Not quite. Ask a grown-up.</p>
+    <div class="gate-btns"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn small gold" id="gate-ok" value="ok">Continue</button></div>
+  </form>
+</dialog>
 <aside class="r-invite" id="r-invite" hidden aria-label="Guided tour">
   <div class="r-pill">
     <b>Let @@COACH@@ show you around.</b>
@@ -578,7 +636,7 @@ html.nonlatin body { line-height: 1.75; }
 <footer><div class="wrap">
   <a class="logo" href="#main"><span class="crest"><img src="@@IMG:crest@@" alt="" width="26" height="26"></span><span>Chackmate</span></a>
   <span class="grow"></span>
-  <a href="@@PLAY@@" target="_top">Play</a><a href="#families">Families</a><a href="#pricing">Pricing</a><a href="@@PRIVACY@@" target="_top">Privacy</a><a href="@@TERMS@@" target="_top">Terms</a>
+  <a href="@@PLAY@@" target="_top">Play</a><a href="#families">Families</a><a href="#pricing">Pricing</a><a href="#about">About</a><a href="@@PRIVACY@@" target="_top">Privacy</a><a href="@@TERMS@@" target="_top">Terms</a>
   <span class="quiet">© Chackmate · Made in India · No cookies, no trackers, no ads.</span>
 </div></footer>
 
@@ -1206,6 +1264,29 @@ html.nonlatin body { line-height: 1.75; }
     var guess = (navigator.language || 'en').slice(0, 2).toLowerCase();
     set(saved || (D.i18n[guess] ? guess : 'en'), false);
     if (window.__SHOT) window.__lang = { set: set, missing: missing };
+  })();
+
+  // Links that leave the site (email, Instagram) wait behind a small grown-ups check, as in the game.
+  (function () {
+    var gate = document.getElementById('gate'), q = document.getElementById('gate-q'), a = document.getElementById('gate-a'), no = document.getElementById('gate-no');
+    if (!gate || !gate.showModal) return;
+    var want = 0, href = '';
+    document.querySelectorAll('[data-out]').forEach(function (l) {
+      l.addEventListener('click', function (e) {
+        e.preventDefault();
+        var x = 6 + Math.floor(Math.random() * 4), y = 6 + Math.floor(Math.random() * 4);
+        want = x * y; href = l.href;
+        q.textContent = x + ' \u00d7 ' + y + ' = ?';
+        a.value = ''; no.hidden = true;
+        gate.showModal(); a.focus();
+      });
+    });
+    gate.addEventListener('close', function () {
+      if (gate.returnValue !== 'ok') return;
+      if (parseInt(a.value, 10) !== want) { no.hidden = false; gate.showModal(); a.select(); return; }
+      if (href.indexOf('mailto:') === 0) location.href = href;
+      else window.open(href, '_blank', 'noopener');
+    });
   })();
 })();
 </script>
