@@ -15,4 +15,16 @@ for (const e of C.eras) {
 }
 for (const o of C.opponents) out['opp-' + o.id] = face(o);
 for (const t of ['k', 'n']) out['piece-' + t] = ART.pieceUri(t);
+// One showpiece per kind of extra, drawn exactly as the game's Collection draws it.
+const CAT = require(path.join(root, 'packages/content/catalog.json'));
+const item = (id) => CAT.items.find((i) => i.id === id).data;
+out['detail-capture'] = ART.fxUri(item('capture.gold-sparks.v1').kind, item('capture.gold-sparks.v1').colors);
+out['detail-victory'] = ART.fxUri(item('victory.fireworks.v1').kind, item('victory.fireworks.v1').colors);
+out['detail-trail'] = ART.fxUri('trail', item('trail.ruby.v1').colors);
+out['detail-clock'] = ART.clockUri(item('clock.gold.v1'));
+const king = item('avatar.king.v1');
+out['detail-avatar'] = ART.medalUri(king.art, { from: king.from, to: king.to });
+const knight = item('avatar.knight.v1');
+out['detail-frame'] = ART.medalUri(knight.art, { from: knight.from, to: knight.to });
+out['detail-frame-ring'] = item('frame.gold.v1').ring;
 process.stdout.write(JSON.stringify(out));
