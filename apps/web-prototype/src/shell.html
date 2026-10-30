@@ -406,6 +406,13 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .museum { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; }
 .museum .stagebox { border-radius: 20px; overflow: hidden; background: radial-gradient(100% 90% at 50% 30%, var(--tint, rgba(80, 52, 36, 0.55)), rgba(10, 6, 4, 0.95)); border: 1px solid var(--line); display: grid; place-items: center; min-height: 300px; position: relative; }
 .museum .stagebox img { max-width: 100%; max-height: 340px; }
+.museum .stagebox canvas.live3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .35s var(--ease); touch-action: none; cursor: grab; }
+.museum .stagebox canvas.live3d:active { cursor: grabbing; }
+.museum .stagebox.live canvas.live3d { opacity: 1; }
+.museum .stagebox.live > img { visibility: hidden; }
+.museum .stagebox .hint3d { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: rgba(10, 6, 4, 0.55); color: var(--muted, #cdb9a3); font: 500 12px/1.2 var(--body); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease); }
+.museum .stagebox.live .hint3d { opacity: 1; }
+.museum .stagebox .hint3d .ico { width: 14px; height: 14px; }
 .museum .lore { font: 500 19px/1.55 var(--serif); color: var(--ink); margin: 6px 0 14px; }
 .museum .facts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
 .museum .pieces { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 16px; }
@@ -750,11 +757,17 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .perks { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 8px; }
 .perks li { display: flex; gap: 10px; align-items: center; color: var(--ink); font-size: 14.5px; }
 .perks .ico { width: 16px; height: 16px; color: var(--gold); flex: none; }
-.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.products { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .product { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 20px 16px 16px; border-radius: 18px; border: 1px solid var(--line); background: rgba(24, 15, 11, 0.6); }
 .product.focus { border-color: var(--gold); box-shadow: var(--glow); }
-.product b { font: 500 20px/1.15 var(--serif); } .product .price { font: 500 30px/1.1 var(--serif); color: var(--gold-2); margin-bottom: 6px; }
+.product b { font: 500 20px/1.15 var(--serif); }
+/* Amounts use the sans in lining, tabular figures: the serif's old-style numerals read soft at this size. */
+.product .price, .amount { font: 600 30px/1.1 var(--body); font-variant-numeric: lining-nums tabular-nums; letter-spacing: 0; color: var(--gold-2); margin-bottom: 6px; }
 .product .btn, .product .pill { margin-top: auto; align-self: stretch; justify-content: center; }
+/* The featured card's gold button keeps the same words and size as its neighbours, and wraps rather than clips. */
+.product .btn.gold { font: 600 14px/1.2 var(--body); letter-spacing: 0.02em; text-transform: none; }
+.product .btn { white-space: normal; text-align: center; min-width: 0; padding-left: 12px; padding-right: 12px; }
+.product .btn.gold:disabled { opacity: 0.6; }
 .pbadge { position: absolute; top: -10px; right: 12px; font: 600 9.5px/1 var(--caps); letter-spacing: .14em; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; background: linear-gradient(180deg, #fbe6ad, #c38f3f); color: #2a1606; }
 
 /* ------------------------------------------------------------ responsive */

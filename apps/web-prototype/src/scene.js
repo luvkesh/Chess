@@ -75,8 +75,14 @@ function ChacklateScene(canvas, options) {
   })();
   if (window.__SHOT) perf = 0;   // screenshots always show full detail
   if (perf >= 1) K.setTextureBudget(1024, perf >= 3 ? 2 : 4);
-  const reflectOn = () => quality === 'high' && perf < 3;
-  const bloomOn = () => quality === 'high' && perf < 4;
+  // While a collection item is being shown off on the table ("Try it on the table") the
+  // table draws at full detail and up to 2x resolution, whatever level it has fallen to:
+  // the view is mostly still, and a soft, blocky preview sells the item short.
+  let fullDetail = false;
+  const lvl = () => (fullDetail ? 0 : perf);
+  const hq = () => fullDetail || quality === 'high';
+  const reflectOn = () => hq() && lvl() < 3;
+  const bloomOn = () => hq() && lvl() < 4;
 
   // ------------------------------------------------------------------ post-processing
   let composer = null, bloom = null, quality = 'high', animations = true;
@@ -91,7 +97,7 @@ function ChacklateScene(canvas, options) {
     if (!bloomOn()) return;
     // The scene is drawn into the composer's second target (its read buffer), so only that
     // one needs MSAA; the first only ever holds the graded copy.
-    const rt = new THREE.WebGLRenderTarget(1, 1, { samples: perf >= 2 ? 2 : 4, type: THREE.HalfFloatType });
+    const rt = new THREE.WebGLRenderTarget(1, 1, { samples: lvl() >= 2 ? 2 : 4, type: THREE.HalfFloatType });
     composer = new THREE.EffectComposer(renderer, rt);
     composer.renderTarget1.samples = 0;
     composer.addPass(new THREE.RenderPass(scene, camera));
@@ -331,7 +337,8 @@ function ChacklateScene(canvas, options) {
   }
   function rebuildSprite(s) {
     if (s.obj) pieceGroup.remove(s.obj);
-    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b', 'play');
+    // table pieces use the lighter build, except while an item is shown off close up
+    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b', fullDetail ? 'show' : 'play');
     obj.traverse((m) => { m.layers.enable(REFLECT); });
     s.obj = obj;
     pieceGroup.add(obj);
@@ -509,14 +516,14 @@ function ChacklateScene(canvas, options) {
     fill(A, particles.filter((p) => p.add));
     fill(N, particles.filter((p) => !p.add));
   }
-  const motesOn = () => quality === 'high' && perf < 4 && animations && !window.__SHOT;
+  const motesOn = () => hq() && lvl() < 4 && animations && !window.__SHOT;
 
   // ------------------------------------------------------------------ camera
   // The camera orbits the table. Its distance is fitted so the board, and the tallest pieces
   // on the far rank, fill the free part of the screen (what the HUD leaves, as insets in CSS
   // px), and the view is offset so the board sits in the middle of that space. On tall phone
   // screens the lens widens rather than backing the camera out of the room.
-  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, intro: null,
+  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, lookZ: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, tLookZ: 0, intro: null,
     ins: { top: 0, right: 0, bottom: 0, left: 0 }, tIns: { top: 0, right: 0, bottom: 0, left: 0 } };
   if (window.__SHOT) { window.__cam = cam; window.__scene = scene; }   // screenshot tooling reads the camera and scene
   const FIT = [], FIT_TALL = [];
@@ -568,8 +575,10 @@ function ChacklateScene(canvas, options) {
     const W = canvas.clientWidth || 1, H = canvas.clientHeight || 1;
     const f = fitView(cam.pitch, cam.lookY, cam.ins, W, H);
     const d = f.dist * cam.zoom, cp = Math.cos(cam.pitch);
-    camera.position.set(Math.sin(cam.yaw) * cp * d, Math.sin(cam.pitch) * d + cam.lookY, Math.cos(cam.yaw) * cp * d);
-    camera.lookAt(0, cam.lookY, 0);
+    // lookZ slides the point the camera turns around toward the near side of the table
+    const tx = Math.sin(cam.yaw) * cam.lookZ, tz = Math.cos(cam.yaw) * cam.lookZ;
+    camera.position.set(tx + Math.sin(cam.yaw) * cp * d, Math.sin(cam.pitch) * d + cam.lookY, tz + Math.cos(cam.yaw) * cp * d);
+    camera.lookAt(tx, cam.lookY, tz);
     camera.fov = f.fov; camera.aspect = W / H;
     camera.setViewOffset(W, H, (f.ox * W) / 2, (-f.oy * H) / 2, W, H);
     camera.updateProjectionMatrix();
@@ -608,7 +617,7 @@ function ChacklateScene(canvas, options) {
     } else {
       // the idle orbit turns the camera directly, so it runs on the calm ambient timer
       if (attract && !window.__SHOT && !paused) { cam.tYaw += dt * 0.06; cam.yaw += dt * 0.06; }
-      for (const k of ['yaw', 'pitch', 'zoom', 'lookY']) {
+      for (const k of ['yaw', 'pitch', 'zoom', 'lookY', 'lookZ']) {
         const t = 't' + k[0].toUpperCase() + k.slice(1);
         const d = cam[t] - cam[k];
         if (Math.abs(d) > 0.0005) { cam[k] += d * Math.min(1, dt * 7); busy = true; } else cam[k] = cam[t];
@@ -672,7 +681,7 @@ function ChacklateScene(canvas, options) {
   }
   // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
   // bottom levels (candle flicker and the slow orbit don't need more)
-  const ambientMs = () => (perf >= 3 ? 66 : perf >= 1 ? 50 : 33);
+  const ambientMs = () => (lvl() >= 3 ? 66 : lvl() >= 1 ? 50 : 33);
   function frame(now) {
     raf = 0;
     if (glLost) return;
@@ -695,13 +704,13 @@ function ChacklateScene(canvas, options) {
   // alone, and the level never steps back down in a session, so the view doesn't flicker.
   let govLate = 0, govN = 0;
   function govern(waitMs, drawMs) {
-    if (window.__SHOT || document.hidden || perf >= MAX_PERF) { govN = 0; return; }
+    if (window.__SHOT || fullDetail || document.hidden || perf >= MAX_PERF) { govN = 0; return; }
     const late = Math.min(80, Math.max(0, waitMs + drawMs - 17));
     govLate = govN ? govLate * 0.94 + late * 0.06 : late;
     if (++govN >= 40 && govLate > 22) { setPerf(perf + 1); govN = 0; }
   }
   function shadowQuality() {
-    const full = quality === 'high' && perf < 3;
+    const full = hq() && lvl() < 3;
     renderer.shadowMap.type = full ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     const size = full ? 2048 : 1024;
     if (key.shadow.mapSize.x !== size) {
@@ -713,9 +722,22 @@ function ChacklateScene(canvas, options) {
   function setPerf(level) {
     level = Math.max(0, Math.min(MAX_PERF, level));
     if (level === perf) return;
-    const hadBloom = bloomOn();
+    const hadBloom = bloomOn(), hadLvl = lvl();
     perf = level;
-    if (bloomOn() !== hadBloom || (composer && perf === 2)) buildComposer();
+    detailChanged(hadBloom, hadLvl);
+  }
+  function setFullDetail(on) {
+    on = !!on;
+    if (on === fullDetail) return;
+    const hadBloom = bloomOn(), hadLvl = lvl();
+    fullDetail = on;
+    govN = 0;
+    for (const sp of sprites.concat(graveyard)) if (sp.obj) rebuildSprite(sp);
+    detailChanged(hadBloom, hadLvl);
+  }
+  function detailChanged(hadBloom, hadLvl) {
+    // MSAA changes between levels 1 and 2, and the composer's target has to be rebuilt for it
+    if (bloomOn() !== hadBloom || (composer && (hadLvl >= 2) !== (lvl() >= 2))) buildComposer();
     if (!motesOn()) particles = particles.filter((p) => p.kind !== 'mote');
     shadowQuality();
     lastW = 0; resize();
@@ -727,6 +749,7 @@ function ChacklateScene(canvas, options) {
   const raycaster = new THREE.Raycaster();
   const pointers = new Map();
   let drag = null, pinch = 0;
+  const ZOOM_MIN = 0.42;   // close enough to look a piece in the eye, still outside it
   function ndc(clientX, clientY) {
     const r = canvas.getBoundingClientRect();
     return new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, 1 - ((clientY - r.top) / r.height) * 2);
@@ -783,7 +806,7 @@ function ChacklateScene(canvas, options) {
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      if (pinch) cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * (pinch / d)));
+      if (pinch) cam.tZoom = Math.min(1.6, Math.max(ZOOM_MIN, cam.tZoom * (pinch / d)));
       pinch = d; requestRender();
       return;
     }
@@ -844,7 +867,7 @@ function ChacklateScene(canvas, options) {
     // Trackpads (and their pinch, which arrives as ctrl+wheel) send many small steps, a mouse
     // wheel a few big ones: zoom by how far it scrolled, not by how many events came.
     const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1) * (e.ctrlKey ? 4 : 1);
-    cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0012)));
+    cam.tZoom = Math.min(1.6, Math.max(ZOOM_MIN, cam.tZoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0012)));
     requestRender();
   }, { passive: false });
   // Safari's own pinch gesture would zoom the page under the table.
@@ -859,7 +882,7 @@ function ChacklateScene(canvas, options) {
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
     if (ambientTimer) { clearTimeout(ambientTimer); ambientTimer = 0; }
     // let go of what belonged to the old context now, while deleting it is still a no-op
-    W.resetEnvironments();
+    W.resetEnvironments(renderer);
     if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; }
     disposeComposer();
     if (reflRT) { reflRT.dispose(); reflRT = null; }
@@ -881,7 +904,7 @@ function ChacklateScene(canvas, options) {
   // ------------------------------------------------------------------ sizing
   let lastW = 0, lastH = 0;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, PERF_DPR[quality][perf]);
+    const dpr = Math.min(window.devicePixelRatio || 1, fullDetail ? 2 : PERF_DPR[quality][perf]);
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
     if (w !== lastW || h !== lastH || renderer.getPixelRatio() !== dpr) {
       lastW = w; lastH = h;
@@ -932,15 +955,17 @@ function ChacklateScene(canvas, options) {
     })));
     return snapQueue;
   }
-  function renderSnapshot(spec, w, h) {
+  // Builds the little scene for a set, a piece, a board or a room. envFor(style) gives the
+  // reflection map for the renderer that will draw it (each GPU context needs its own).
+  function buildSpec(spec, w, h, envFor) {
     const s2 = new THREE.Scene();
-    s2.environment = W.environment(renderer, (W.ROOMS[roomId] || W.ROOMS.salon).env);
+    s2.environment = envFor((W.ROOMS[roomId] || W.ROOMS.salon).env);
     s2.environmentIntensity = 0.95;
     const c2 = new THREE.PerspectiveCamera(spec.fov || 24, w / h, 0.05, 100);
     const l = new THREE.DirectionalLight('#fff0dd', 2.2); l.position.set(-3, 6, 5); s2.add(l);
     const r2 = new THREE.DirectionalLight('#ffd9a8', 1.1); r2.position.set(4, 3, -5); s2.add(r2);
     s2.add(new THREE.HemisphereLight('#ffe8d0', '#20120a', 0.4));
-    let disposeList = [];
+    const disposeList = [], look = new THREE.Vector3();
     if (spec.kind === 'pieces' || spec.kind === 'piece') {
       const types = spec.kind === 'piece' ? [spec.type || 'k'] : ['r', 'n', 'b', 'q', 'k', 'p'];
       const sides = spec.kind === 'piece' ? [spec.side || 'w'] : ['w', 'b'];
@@ -950,8 +975,8 @@ function ChacklateScene(canvas, options) {
         g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
       }));
-      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); c2.lookAt(0, ht * 0.48, 0); }
-      else { c2.position.set(0, 1.9, 6.0); c2.lookAt(0, 0.55, -0.3); }
+      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
+      else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
       const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
       floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
       s2.background = null;
@@ -975,13 +1000,13 @@ function ChacklateScene(canvas, options) {
       const tall = Math.max(0.8, ...(spec.items || []).map((it) => (P.HEIGHT[it.type || 'k'] || 1) * (it.scale || 1)));
       c2.fov = spec.fov || 23;
       c2.position.set(0, 1.3 + tall * 0.55, 6.8);
-      c2.lookAt(0, tall * 0.45 - 0.1, 0);
+      look.set(0, tall * 0.45 - 0.1, 0);
       s2.background = null;
     } else if (spec.kind === 'room') {
       // The room from a seat at the table, with the board set up, for the collection.
       const rm = W.room(spec.room);
       s2.add(rm.group); disposeList.push({ userData: { dispose: rm.dispose } });
-      s2.environment = W.environment(renderer, rm.env);
+      s2.environment = envFor(rm.env);
       s2.background = new THREE.Color(rm.fog);
       s2.fog = new THREE.FogExp2(rm.fog, 0.018);
       const cl = new THREE.PointLight(rm.lights.color, rm.lights.chand, 40, 2); cl.position.set(0, 7.2, 0); s2.add(cl);
@@ -992,15 +1017,28 @@ function ChacklateScene(canvas, options) {
       });
       c2.fov = spec.fov || 46;
       c2.position.set(5.5, 5.2, 12.5);
-      c2.lookAt(0, 1.6, -2);
+      look.set(0, 1.6, -2);
     } else if (spec.kind === 'board') {
       const b = W.board(spec.board, 'white'); s2.add(b); disposeList.push(b);
       const g = P.make(setId, 'k', 'w', 'play'); g.position.set(-0.5, 0, 0.5); s2.add(g);
       const g2 = P.make(setId, 'n', 'b', 'play'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
       // back far enough that both pieces fit, with the frame and its letters in front
-      c2.position.set(3.0, 5.6, 11.2); c2.lookAt(0, 0.35, 1.6);
+      c2.position.set(3.0, 5.6, 11.2); look.set(0, 0.35, 1.6);
     }
+    c2.lookAt(look);
     c2.aspect = w / h; c2.updateProjectionMatrix();
+    // everything but the lights turns together on the live stage
+    const spin = new THREE.Group();
+    s2.children.filter((o) => !o.isLight).forEach((o) => spin.add(o));
+    s2.add(spin);
+    const dispose = () => disposeList.forEach((o) => {
+      if (o.userData && o.userData.dispose) o.userData.dispose();
+      else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
+    });
+    return { scene: s2, camera: c2, look, spin, dispose };
+  }
+  function renderSnapshot(spec, w, h) {
+    const { scene: s2, camera: c2, dispose } = buildSpec(spec, w, h, (style) => W.environment(renderer, style));
     const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
     const prevT = renderer.toneMapping;
     renderer.setRenderTarget(rt);
@@ -1012,10 +1050,7 @@ function ChacklateScene(canvas, options) {
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
     rt.dispose();
-    disposeList.forEach((o) => {
-      if (o.userData && o.userData.dispose) o.userData.dispose();
-      else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
-    });
+    dispose();
     // render targets are linear: tone map and encode in the copy
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
     const g = cv.getContext('2d'), img = g.createImageData(w, h);
@@ -1027,6 +1062,135 @@ function ChacklateScene(canvas, options) {
     }
     g.putImageData(img, 0, 0);
     return cv.toDataURL('image/png');
+  }
+
+  // ------------------------------------------------------------------ live stage
+  // The museum card's model: the same little scene as the card picture, drawn live by a
+  // second, small renderer at up to 2x resolution and turning slowly. Dragging turns it, a
+  // pinch or the wheel brings it closer. One renderer is kept and moved from card to card: a
+  // new GPU context for every card would leave the old ones' state on the shared piece meshes.
+  let stageR = null, stageOn = null;
+  function stageRenderer() {
+    if (stageR) return stageR;
+    let r;
+    try {
+      r = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
+    } catch (e) { return null; }
+    if (!r.getContext()) return null;
+    r.toneMapping = THREE.ACESFilmicToneMapping;
+    r.toneMappingExposure = 1.1;   // the card pictures are graded 10% brighter too
+    r.shadowMap.enabled = true;
+    r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.setClearColor(0x000000, 0);
+    r.domElement.className = 'live3d';
+    r.domElement.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      if (stageOn) stageOn.stop();
+      W.resetEnvironments(r);
+      if (stageR === r) stageR = null;   // the next card makes a fresh one
+    });
+    stageR = r;
+    return r;
+  }
+  // host: the element to fill; spec: as for snapshot; aspect: the width/height the spec's
+  // camera was framed for, so a narrower stage backs off instead of cropping the sides.
+  function stage(host, spec, aspect) {
+    const r = stageRenderer();
+    if (!r) return null;
+    if (stageOn) stageOn.stop();
+    const cv = r.domElement;
+    host.appendChild(cv);
+    let built = null, base = null, fitK = 1, yaw = 0, zoom = 1, idleAt = 0, last = 0, loop = 0, pinchD = 0, drag = null, shown = false;
+    const pts = new Map();
+    function size() {
+      const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+      r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      r.setSize(w, h, false);
+      fitK = Math.max(1, (aspect || w / h) / (w / h));
+      if (built) { built.camera.aspect = w / h; built.camera.updateProjectionMatrix(); }
+    }
+    function show(sp, asp) {
+      if (asp) aspect = asp;
+      if (built) built.dispose();
+      const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+      built = buildSpec(sp, w, h, (style) => W.environment(r, style));
+      base = built.camera.position.clone();
+      // a soft contact shadow under the pieces; rooms are lit by their own lamps
+      const keyL = built.scene.children.find((o) => o.isDirectionalLight);
+      if (keyL && sp.kind !== 'room') {
+        keyL.castShadow = true;
+        keyL.shadow.mapSize.set(1024, 1024);
+        Object.assign(keyL.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 0.5, far: 20 });
+        keyL.shadow.bias = -0.0004; keyL.shadow.normalBias = 0.02; keyL.shadow.radius = 4;
+        built.spin.traverse((m) => { if (m.isMesh) m.receiveShadow = true; });
+      }
+      yaw = 0; zoom = 1; idleAt = 0;
+      size();
+      if (!loop) loop = requestAnimationFrame(tick);
+    }
+    function tick(now) {
+      loop = 0;
+      if (!cv.isConnected || stageR !== r) { stop(); return; }
+      const dt = Math.min(0.05, (now - (last || now)) / 1000);
+      last = now;
+      if (!drag && pts.size === 0 && now > idleAt && animations && !window.__SHOT) yaw += dt * 0.35;
+      built.spin.rotation.y = yaw;
+      built.camera.position.copy(built.look).addScaledVector(base.clone().sub(built.look), zoom * fitK);
+      built.camera.lookAt(built.look);
+      r.render(built.scene, built.camera);
+      if (!shown) { shown = true; host.classList.add('live'); }
+      loop = requestAnimationFrame(tick);
+    }
+    const hold = () => { idleAt = performance.now() + 3500; };   // auto-turn waits after a touch
+    const down = (e) => {
+      pts.set(e.pointerId, [e.clientX, e.clientY]);
+      cv.setPointerCapture(e.pointerId);
+      if (pts.size === 2) { const [a, b] = [...pts.values()]; pinchD = Math.hypot(a[0] - b[0], a[1] - b[1]); drag = null; } else drag = { x: e.clientX };
+      hold();
+    };
+    const move = (e) => {
+      if (!pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pts.size === 2 && pinchD) {
+        const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        zoom = Math.min(1.5, Math.max(0.5, zoom * (pinchD / d))); pinchD = d;
+      } else if (drag) { yaw += (e.clientX - drag.x) * 0.012; drag.x = e.clientX; }
+      hold();
+    };
+    const up = (e) => { pts.delete(e.pointerId); if (pts.size < 2) pinchD = 0; if (!pts.size) drag = null; hold(); };
+    const wheel = (e) => {
+      e.preventDefault();
+      const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1) * (e.ctrlKey ? 4 : 1);
+      zoom = Math.min(1.5, Math.max(0.5, zoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0015)));
+      hold();
+    };
+    cv.addEventListener('pointerdown', down);
+    cv.addEventListener('pointermove', move);
+    cv.addEventListener('pointerup', up);
+    cv.addEventListener('pointercancel', up);
+    cv.addEventListener('wheel', wheel, { passive: false });
+    const ro = new ResizeObserver(size); ro.observe(host);
+    let stopped = false;
+    function stop() {
+      if (stopped) return;
+      stopped = true;
+      if (loop) cancelAnimationFrame(loop);
+      loop = 0;
+      ro.disconnect();
+      cv.removeEventListener('pointerdown', down);
+      cv.removeEventListener('pointermove', move);
+      cv.removeEventListener('pointerup', up);
+      cv.removeEventListener('pointercancel', up);
+      cv.removeEventListener('wheel', wheel);
+      if (built) { built.dispose(); built = null; }
+      if (cv.parentNode === host) host.removeChild(cv);
+      host.classList.remove('live');
+      if (stageOn === api) stageOn = null;
+    }
+    const api = { show, stop };
+    stageOn = api;
+    show(spec);
+    return api;
   }
 
   // ------------------------------------------------------------------ boot
@@ -1075,13 +1239,15 @@ function ChacklateScene(canvas, options) {
     // 0 (full detail) to 5; the table also changes it by itself when frames run late
     perf: () => perf,
     setPerf,
+    setFullDetail,
     setAnimations(on) { animations = on; if (!on) particles = []; requestRender(); },
     // Home-screen showcase: a low, slowly circling view across the board.
     setAttract(on, instant) {
       attract = on;
       if (on) { cam.tPitch = 0.36; cam.tLookY = 0.9; cam.tZoom = 1; }
       else cam.tLookY = 0;
-      if (instant || !animations) { cam.pitch = cam.tPitch; cam.lookY = cam.tLookY; cam.zoom = cam.tZoom; }
+      cam.tLookZ = 0;
+      if (instant || !animations) { cam.pitch = cam.tPitch; cam.lookY = cam.tLookY; cam.lookZ = 0; cam.zoom = cam.tZoom; }
       requestRender();
     },
     // Screen space the HUD covers, in CSS px; the board is fitted into what is left.
@@ -1093,13 +1259,24 @@ function ChacklateScene(canvas, options) {
     // side: 'white' | 'black'; preset: 'player' | 'top' | 'low'
     setView(side, preset, instant) {
       if (side !== labelSide) { labelSide = side; if (boardMesh) boardMesh.userData.relabel(side); placeClock(); placeLights(side); }
-      attract = false; cam.tLookY = 0; cam.tZoom = 1;
+      attract = false; cam.tLookY = 0; cam.tLookZ = 0; cam.tZoom = 1;
       let yaw = side === 'black' ? Math.PI : 0;
       while (yaw - cam.yaw > Math.PI) yaw -= TAU;
       while (cam.yaw - yaw > Math.PI) yaw += TAU;
       cam.tYaw = yaw;
       cam.tPitch = preset === 'top' ? 1.5 : preset === 'low' ? 0.58 : portraitNow() ? 1.08 : 0.8;
-      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.zoom = 1; cam.lookY = 0; cam.intro = null; }
+      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.zoom = 1; cam.lookY = 0; cam.lookZ = 0; cam.intro = null; }
+      requestRender();
+    },
+    // A closer camera for showing an item off: { pitch, zoom, lookY, lookZ }, each optional.
+    // Pitch, zoom and height are what the player can still change by dragging and pinching.
+    setFocus(f, instant) {
+      f = f || {};
+      if (f.pitch !== undefined) cam.tPitch = f.pitch;
+      if (f.zoom !== undefined) cam.tZoom = Math.max(ZOOM_MIN, f.zoom);
+      if (f.lookY !== undefined) cam.tLookY = f.lookY;
+      if (f.lookZ !== undefined) cam.tLookZ = f.lookZ;
+      if (instant || !animations) { cam.pitch = cam.tPitch; cam.zoom = cam.tZoom; cam.lookY = cam.tLookY; cam.lookZ = cam.tLookZ; }
       requestRender();
     },
     // Sweeping camera move into the player's seat at the start of a game.
@@ -1187,6 +1364,7 @@ function ChacklateScene(canvas, options) {
     // Menu pages blur the room behind them; nothing there needs to move, so the idle frames stop.
     setPaused(on) { paused = !!on; if (!paused) requestRender(); },
     snapshot,
+    stage,
     sets: P.list,
     boards: () => W.BOARDS,
     rooms: () => W.ROOMS,

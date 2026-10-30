@@ -1955,9 +1955,12 @@ function ChacklateWorld(THREE, K) {
     });
     return scene;
   }
-  const envCache = new Map();
+  // Cached per renderer: a map made on one GPU context can't be used on another.
+  const envCaches = new Map();
   function environment(renderer, style) {
     const key = JSON.stringify(style || {});
+    if (!envCaches.has(renderer)) envCaches.set(renderer, new Map());
+    const envCache = envCaches.get(renderer);
     if (envCache.has(key)) return envCache.get(key);
     const pm = new THREE.PMREMGenerator(renderer);
     const scene = envScene(style);
@@ -1968,11 +1971,14 @@ function ChacklateWorld(THREE, K) {
     return rt.texture;
   }
   // After a lost GPU context the cached maps are empty and have to be rendered again.
-  function resetEnvironments() {
-    envCache.forEach((t) => t.dispose());
-    envCache.clear();
+  // With no renderer given, every renderer's maps go.
+  function resetEnvironments(renderer) {
+    for (const [r, envCache] of envCaches) {
+      if (renderer && r !== renderer) continue;
+      envCache.forEach((t) => t.dispose());
+      envCaches.delete(r);
+    }
   }
-
   return { BOARDS, ROOMS, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateWorld;

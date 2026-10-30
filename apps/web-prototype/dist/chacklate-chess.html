@@ -73,6 +73,11 @@ img { display: block; }
 #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; transition: filter .7s var(--ease), transform .9s var(--ease); }
 body.paged #stage canvas { filter: blur(9px) brightness(0.42) saturate(1.12); transform: scale(1.04); pointer-events: none; }
 body.paged.lowfx #stage canvas { filter: brightness(0.3); transform: none; }
+/* Slow devices (the table sets .lite when it has to give up detail): frosted glass over a
+   live 3D canvas is re-blurred on every frame, so panels go solid instead. */
+body.lite *, body.lite *::before, body.lite *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+body.lite .glass, body.lite .lux, body.lite .hud-top .round, body.lite .hud-top .title, body.lite .backbtn, body.lite .tabbar { background-color: rgba(16, 10, 7, 0.9); }
+body.lite.paged #stage canvas { filter: brightness(0.32); transform: none; }
 .shade { position: fixed; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse 85% 75% at 50% 42%, transparent 50%, rgba(6, 3, 2, 0.62) 100%); transition: background .7s; }
 body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba(13, 8, 6, 0.1), rgba(6, 3, 2, 0.7) 100%), linear-gradient(180deg, rgba(10, 6, 4, 0.35), rgba(10, 6, 4, 0.65)); }
 .grain { position: fixed; inset: 0; pointer-events: none; z-index: 2; opacity: 0.05; mix-blend-mode: overlay; background-size: 180px; }
@@ -417,6 +422,13 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .museum { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; }
 .museum .stagebox { border-radius: 20px; overflow: hidden; background: radial-gradient(100% 90% at 50% 30%, var(--tint, rgba(80, 52, 36, 0.55)), rgba(10, 6, 4, 0.95)); border: 1px solid var(--line); display: grid; place-items: center; min-height: 300px; position: relative; }
 .museum .stagebox img { max-width: 100%; max-height: 340px; }
+.museum .stagebox canvas.live3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .35s var(--ease); touch-action: none; cursor: grab; }
+.museum .stagebox canvas.live3d:active { cursor: grabbing; }
+.museum .stagebox.live canvas.live3d { opacity: 1; }
+.museum .stagebox.live > img { visibility: hidden; }
+.museum .stagebox .hint3d { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: rgba(10, 6, 4, 0.55); color: var(--muted, #cdb9a3); font: 500 12px/1.2 var(--body); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease); }
+.museum .stagebox.live .hint3d { opacity: 1; }
+.museum .stagebox .hint3d .ico { width: 14px; height: 14px; }
 .museum .lore { font: 500 19px/1.55 var(--serif); color: var(--ink); margin: 6px 0 14px; }
 .museum .facts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
 .museum .pieces { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 16px; }
@@ -761,11 +773,17 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .perks { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 8px; }
 .perks li { display: flex; gap: 10px; align-items: center; color: var(--ink); font-size: 14.5px; }
 .perks .ico { width: 16px; height: 16px; color: var(--gold); flex: none; }
-.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.products { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .product { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 20px 16px 16px; border-radius: 18px; border: 1px solid var(--line); background: rgba(24, 15, 11, 0.6); }
 .product.focus { border-color: var(--gold); box-shadow: var(--glow); }
-.product b { font: 500 20px/1.15 var(--serif); } .product .price { font: 500 30px/1.1 var(--serif); color: var(--gold-2); margin-bottom: 6px; }
+.product b { font: 500 20px/1.15 var(--serif); }
+/* Amounts use the sans in lining, tabular figures: the serif's old-style numerals read soft at this size. */
+.product .price, .amount { font: 600 30px/1.1 var(--body); font-variant-numeric: lining-nums tabular-nums; letter-spacing: 0; color: var(--gold-2); margin-bottom: 6px; }
 .product .btn, .product .pill { margin-top: auto; align-self: stretch; justify-content: center; }
+/* The featured card's gold button keeps the same words and size as its neighbours, and wraps rather than clips. */
+.product .btn.gold { font: 600 14px/1.2 var(--body); letter-spacing: 0.02em; text-transform: none; }
+.product .btn { white-space: normal; text-align: center; min-width: 0; padding-left: 12px; padding-right: 12px; }
+.product .btn.gold:disabled { opacity: 0.6; }
 .pbadge { position: absolute; top: -10px; right: 12px; font: 600 9.5px/1 var(--caps); letter-spacing: .14em; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; background: linear-gradient(180deg, #fbe6ad, #c38f3f); color: #2a1606; }
 
 /* ------------------------------------------------------------ responsive */
@@ -6371,7 +6389,11 @@ function ChacklateKit(THREE) {
     this.at = pts[pts.length - 1];
     return this;
   };
-  const stepsFor = (len, density) => Math.max(2, Math.min(64, Math.ceil(len / (density || 0.006))));
+  // How finely shapes are tessellated. 1 is the full detail used for close-ups (menu art
+  // and the collection); pieces on the table are built coarser (see ChacklatePieces), since
+  // 32 of them are drawn three times a frame (view, shadows, reflections).
+  const DETAIL = { around: 1, along: 1, tube: 1 };
+  const stepsFor = (len, density) => Math.max(2, Math.round(Math.min(64, Math.ceil(len / (density || 0.006))) * DETAIL.along));
   Profile.prototype.line = function (r, y, smoothJoin) {
     const [r0, y0] = this.at, n = stepsFor(Math.hypot(r - r0, y - y0), 0.05);
     const pts = []; for (let i = 0; i <= n; i++) pts.push([mix(r0, r, i / n), mix(y0, y, i / n)]);
@@ -6595,7 +6617,8 @@ function ChacklateKit(THREE) {
   function revolve(prof, opts) {
     const o = opts || {};
     const rings = prof instanceof Profile ? prof.rings(o.creaseDeg) : prof;
-    const segs = o.segs || 64, phi0 = o.phi0 || 0, phiLen = o.phiLen || TAU;
+    const segs0 = o.segs || 64, segs = Math.max(Math.min(segs0, 8), Math.round(segs0 * DETAIL.around));
+    const phi0 = o.phi0 || 0, phiLen = o.phiLen || TAU;
     const mod = o.mod || null, lift = o.lift || null;
     const nR = rings.length, nC = segs + 1;
     const pos = new Float32Array(nR * nC * 3), nor = new Float32Array(nR * nC * 3), uv = new Float32Array(nR * nC * 2);
@@ -6920,7 +6943,8 @@ function ChacklateKit(THREE) {
   // A ring of beads (pearls, gold dots) at height y and radius r.
   function beadRing(r, y, count, size, o) {
     o = o || {};
-    const base = new THREE.SphereGeometry(size, o.seg || 10, Math.max(6, (o.seg || 10) - 2));
+    const seg = Math.max(6, Math.round((o.seg || 10) * Math.sqrt(DETAIL.around)));
+    const base = new THREE.SphereGeometry(size, seg, Math.max(4, seg - 2));
     const parts = [];
     for (let i = 0; i < count; i++) {
       const th = (i / count) * TAU + (o.phase || 0);
@@ -6934,7 +6958,7 @@ function ChacklateKit(THREE) {
   // A torus-section band lying on a radius (gold rings around collars).
   function ring(r, y, thick, o) {
     o = o || {};
-    const g = new THREE.TorusGeometry(r, thick, o.tube || 10, o.seg || 72);
+    const g = new THREE.TorusGeometry(r, thick, Math.max(5, Math.round((o.tube || 10) * Math.sqrt(DETAIL.around))), Math.max(16, Math.round((o.seg || 72) * DETAIL.around)));
     g.rotateX(Math.PI / 2);
     if (o.squash) g.scale(1, o.squash, 1);
     g.translate(0, y, 0);
@@ -6945,7 +6969,7 @@ function ChacklateKit(THREE) {
     o = o || {};
     const shape = new THREE.Shape(outline.map(([x, y]) => new THREE.Vector2(x, y)));
     (o.holes || []).forEach((h) => shape.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x, y)))));
-    const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * (o.bevelSize || 0.9), bevelSegments: o.bevelSegments || 4, curveSegments: o.curveSegments || 24 });
+    const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * (o.bevelSize || 0.9), bevelSegments: Math.max(2, Math.round((o.bevelSegments || 4) * DETAIL.along * 1.5)), curveSegments: Math.max(6, Math.round((o.curveSegments || 24) * DETAIL.around)) });
     g.translate(0, 0, -depth / 2);
     g.computeVertexNormals();
     return g;
@@ -6973,11 +6997,13 @@ function ChacklateKit(THREE) {
   function tube(points, radius, o) {
     o = o || {};
     const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2])), !!o.closed, 'centripetal');
-    const g = new THREE.TubeGeometry(curve, o.segs || Math.max(8, points.length * 6), radius, o.radial || 8, !!o.closed);
+    const segs = Math.max(4, Math.round((o.segs || Math.max(8, points.length * 6)) * DETAIL.tube));
+    const radialN = Math.max(5, Math.round((o.radial || 8) * Math.sqrt(DETAIL.tube)));
+    const g = new THREE.TubeGeometry(curve, segs, radius, radialN, !!o.closed);
     if (o.taper || o.radiusAt) {
       // shrink toward the ends, or follow radiusAt(t) (a multiple of radius, t from 0 to 1)
       const p = g.attributes.position, n = g.attributes.normal;
-      const rings = (o.segs || Math.max(8, points.length * 6)) + 1, radial = (o.radial || 8) + 1;
+      const rings = segs + 1, radial = radialN + 1;
       for (let i = 0; i < rings; i++) {
         const t = i / (rings - 1), s = o.radiusAt ? o.radiusAt(t) : Math.max(0.15, Math.sin(Math.PI * Math.min(1, t * (o.taperIn || 1.2))) ** 0.35);
         const c = curve.getPointAt(Math.min(1, t));
@@ -7007,15 +7033,28 @@ function ChacklateKit(THREE) {
 
   // ------------------------------------------------------------------ canvas textures
   const texCache = new Map();
+  // Phones get textures of at most 1024 px and less anisotropic filtering (setTextureBudget):
+  // four 2048 px room textures alone are ~90 MB of GPU memory with their mipmaps.
+  const TEXB = { max: 2048, aniso: 8 };
+  function setTextureBudget(max, aniso) { TEXB.max = max; TEXB.aniso = aniso; }
+  // The canvas itself if it fits the budget, otherwise a scaled-down copy for the GPU.
+  function fitCanvas(c) {
+    const k = TEXB.max / Math.max(c.width, c.height);
+    if (k >= 1) return c;
+    const d = document.createElement('canvas'); d.width = Math.max(1, Math.round(c.width * k)); d.height = Math.max(1, Math.round(c.height * k));
+    const dc = d.getContext('2d'); dc.imageSmoothingQuality = 'high'; dc.drawImage(c, 0, 0, d.width, d.height);
+    return d;
+  }
+  const texAniso = () => TEXB.aniso;
   function canvasTex(key, w, h, draw, o) {
     if (texCache.has(key)) return texCache.get(key);
     const c = document.createElement('canvas'); c.width = w; c.height = h || w;
     const ctx = c.getContext('2d');
     draw(ctx, c.width, c.height);
-    const t = new THREE.CanvasTexture(c);
+    const t = new THREE.CanvasTexture(fitCanvas(c));
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.anisotropy = 8;
+    t.anisotropy = TEXB.aniso;
     if (o && o.repeat) t.repeat.set(o.repeat[0], o.repeat[1]);
     texCache.set(key, t);
     return t;
@@ -7201,7 +7240,54 @@ function ChacklateKit(THREE) {
     return THREE.mergeGeometries(ready);
   }
 
-  return { TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
+  // Rooms are built from hundreds of small meshes (mouldings, books, candles, frames), and
+  // every one is a draw call. Once a room is built, meshes that never move and look the same
+  // (same material, shadow flags, layers and draw order) are merged into one mesh each, in
+  // the group's own space. `keep` lists objects that animate or toggle; they and everything
+  // under them stay as they are, as do transparent and multi-material meshes.
+  function batchStatic(group, keep) {
+    const skip = new Set();
+    (keep || []).forEach((o) => o && o.traverse((c) => skip.add(c)));
+    group.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(group.matrixWorld).invert();
+    const bins = new Map();
+    group.traverse((m) => {
+      if (!m.isMesh || m.isInstancedMesh || skip.has(m) || !m.visible || Array.isArray(m.material) || m.material.transparent) return;
+      for (let p = m.parent; p && p !== group; p = p.parent) if (!p.visible) return;
+      const g = m.geometry;
+      if (!g || !g.attributes.position || Object.keys(g.morphAttributes).length) return;
+      const key = [m.material.uuid, Object.keys(g.attributes).sort().join(), g.index ? 1 : 0, m.castShadow, m.receiveShadow, m.layers.mask, m.renderOrder].join('|');
+      if (!bins.has(key)) bins.set(key, []);
+      bins.get(key).push(m);
+    });
+    const mat = new THREE.Matrix4();
+    let merged = 0;
+    for (const list of bins.values()) {
+      if (list.length < 2) continue;
+      const geos = list.map((m) => {
+        mat.multiplyMatrices(inv, m.matrixWorld);
+        const g = m.geometry.clone();
+        g.clearGroups();
+        g.applyMatrix4(mat);
+        // a mirrored part keeps facing out: three flips the winding for it at draw time
+        if (mat.determinant() < 0 && g.index) { const a = g.index.array; for (let i = 0; i < a.length; i += 3) { const t = a[i]; a[i] = a[i + 2]; a[i + 2] = t; } }
+        else if (mat.determinant() < 0) return null;
+        return g;
+      });
+      if (geos.some((g) => !g)) continue;
+      const one = THREE.mergeGeometries(geos);
+      if (!one) continue;
+      const first = list[0], mesh = new THREE.Mesh(one, first.material);
+      mesh.castShadow = first.castShadow; mesh.receiveShadow = first.receiveShadow;
+      mesh.layers.mask = first.layers.mask; mesh.renderOrder = first.renderOrder;
+      list.forEach((m) => m.parent.remove(m));
+      group.add(mesh);
+      merged += list.length - 1;
+    }
+    return merged;
+  }
+
+  return { DETAIL, batchStatic, setTextureBudget, fitCanvas, texAniso, TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
     beadRing, ring, extrude, closedCurve, mirrorOutline, tube, scroll, wrap, canvasTex, paint, hex, lerpC, TEX, MAT, material, merge };
 }
 
@@ -7213,7 +7299,7 @@ function ChacklateKit(THREE) {
 // the knight a horse head, the rook battlements, the pawn a round head.
 function ChacklatePieces(THREE, K) {
   'use strict';
-  const { TAU, clamp, mix, smooth, profile, revolve, MOD, mods, SD, spline, strand, strandField, sdfGeometry, beadRing, ring, extrude, merge, MAT, TEX, alongProfile, rng } = K;
+  const { DETAIL, TAU, clamp, mix, smooth, profile, revolve, MOD, mods, SD, spline, strand, strandField, sdfGeometry, beadRing, ring, extrude, merge, MAT, TEX, alongProfile, rng } = K;
   const Q = { segs: 96, cell: 0.0052, mane: 0.0042 };
 
   // ------------------------------------------------------------------ assembly
@@ -7474,7 +7560,7 @@ function ChacklatePieces(THREE, K) {
   // The horse is the slowest part to build, and sets share a few variants: cache by options.
   const horseCache = new Map();
   function horse(o) {
-    const key = JSON.stringify(o || {}) + Q.cell + Q.mane;
+    const key = JSON.stringify(o || {}) + Q.cell + Q.mane + JSON.stringify(DETAIL);
     if (!horseCache.has(key)) horseCache.set(key, sculptHorse(o));
     return horseCache.get(key);
   }
@@ -8965,22 +9051,34 @@ function ChacklatePieces(THREE, K) {
   }
 
   // ------------------------------------------------------------------ building and caching
+  // Two levels of detail. 'show' is the full sculpt for close-ups: menu art, the collection
+  // and the museum. 'play' is what stands on the table, where a piece is a few hundred
+  // pixels tall at most and all 32 are drawn for the view, the shadows and the
+  // reflection: about a sixth of the triangles, and quicker to build when a game loads.
+  const LOD = {
+    show: { around: 1, along: 1, tube: 1, cell: 0.0052, mane: 0.0042 },
+    play: { around: 0.4, along: 0.34, tube: 0.45, cell: 0.012, mane: 0.0095 },
+  };
   const geomCache = new Map();
-  function geometry(setId, type) {
+  function geometry(setId, type, detail) {
     const set = SETS[setId] || SETS.regency;
     const shape = set.shape || set.id;
-    const key = shape + type + Q.segs;
+    const lod = LOD[detail] ? detail : 'show';
+    const key = shape + type + lod;
     if (!geomCache.has(key)) {
       const t0 = performance.now();
-      geomCache.set(key, SETS[shape].pieces[type]({ Q }).geoms());
-      if (typeof window !== 'undefined' && window.__PIECE_TIMES) window.__PIECE_TIMES.push([shape, type, Math.round(performance.now() - t0)]);
+      const L = LOD[lod], keep = { around: DETAIL.around, along: DETAIL.along, tube: DETAIL.tube, cell: Q.cell, mane: Q.mane };
+      Object.assign(DETAIL, { around: L.around, along: L.along, tube: L.tube }); Q.cell = L.cell; Q.mane = L.mane;
+      try { geomCache.set(key, SETS[shape].pieces[type]({ Q }).geoms()); }
+      finally { Object.assign(DETAIL, { around: keep.around, along: keep.along, tube: keep.tube }); Q.cell = keep.cell; Q.mane = keep.mane; }
+      if (typeof window !== 'undefined' && window.__PIECE_TIMES) window.__PIECE_TIMES.push([shape, type, lod, Math.round(performance.now() - t0)]);
     }
     return geomCache.get(key);
   }
   // A ready-to-place group for one piece: meshes share geometry and materials.
-  function make(setId, type, side) {
+  function make(setId, type, side, detail) {
     const set = SETS[setId] || SETS.regency;
-    const g = geometry(set.id, type);
+    const g = geometry(set.id, type, detail);
     const mats = set.mats(side);
     const grp = new THREE.Group();
     for (const slot of Object.keys(g)) {
@@ -8992,11 +9090,8 @@ function ChacklatePieces(THREE, K) {
     grp.userData = { set: set.id, type, side };
     return grp;
   }
-  function setDetail(level) {
-    if (level === 'low') { Q.segs = 48; Q.cell = 0.0075; Q.mane = 0.0055; } else { Q.segs = 96; Q.cell = 0.0052; Q.mane = 0.0042; }
-  }
   const HEIGHT = { k: 1.62, q: 1.43, b: 1.24, n: 1.06, r: 0.97, p: 0.72 };
-  return { SETS, make, geometry, setDetail, HEIGHT, list: () => Object.keys(SETS).map((k) => SETS[k]) };
+  return { SETS, make, geometry, HEIGHT, list: () => Object.keys(SETS).map((k) => SETS[k]) };
 }
 
 // ---- world3d.js ----
@@ -9012,9 +9107,9 @@ function ChacklateWorld(THREE, K) {
   // ------------------------------------------------------------------ small helpers
   const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h || w; return c; };
   function texFrom(c, o) {
-    const t = new THREE.CanvasTexture(c);
+    const t = new THREE.CanvasTexture(K.fitCanvas(c));
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
-    t.anisotropy = 8;
+    t.anisotropy = K.texAniso();
     if (o && o.repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(o.repeat[0], o.repeat[1]); }
     return t;
   }
@@ -10897,6 +10992,8 @@ function ChacklateWorld(THREE, K) {
     grp.add(candelabrum(-5.9, TOP, -4.6, flames, wallMats.gold));
     grp.add(candelabrum(5.9, TOP, -4.6, flames, wallMats.gold));
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
+    // the chandelier steps aside for the camera and the flames flicker; the rest stands still
+    K.batchStatic(grp, [ch].concat(flames.map((f) => f.m)));
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8,
       fog: o.fog, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
@@ -10955,9 +11052,12 @@ function ChacklateWorld(THREE, K) {
     });
     return scene;
   }
-  const envCache = new Map();
+  // Cached per renderer: a map made on one GPU context can't be used on another.
+  const envCaches = new Map();
   function environment(renderer, style) {
     const key = JSON.stringify(style || {});
+    if (!envCaches.has(renderer)) envCaches.set(renderer, new Map());
+    const envCache = envCaches.get(renderer);
     if (envCache.has(key)) return envCache.get(key);
     const pm = new THREE.PMREMGenerator(renderer);
     const scene = envScene(style);
@@ -10968,11 +11068,14 @@ function ChacklateWorld(THREE, K) {
     return rt.texture;
   }
   // After a lost GPU context the cached maps are empty and have to be rendered again.
-  function resetEnvironments() {
-    envCache.forEach((t) => t.dispose());
-    envCache.clear();
+  // With no renderer given, every renderer's maps go.
+  function resetEnvironments(renderer) {
+    for (const [r, envCache] of envCaches) {
+      if (renderer && r !== renderer) continue;
+      envCache.forEach((t) => t.dispose());
+      envCaches.delete(r);
+    }
   }
-
   return { BOARDS, ROOMS, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 
@@ -10986,7 +11089,7 @@ function ChacklateScene(canvas, options) {
   'use strict';
   const THREE = window.THREE;
   if (!THREE) return null;
-  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {} }, options);
+  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {}, onPerf() {} }, options);
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
@@ -11053,8 +11156,15 @@ function ChacklateScene(canvas, options) {
     return 0;
   })();
   if (window.__SHOT) perf = 0;   // screenshots always show full detail
-  const reflectOn = () => quality === 'high' && perf < 3;
-  const bloomOn = () => quality === 'high' && perf < 4;
+  if (perf >= 1) K.setTextureBudget(1024, perf >= 3 ? 2 : 4);
+  // While a collection item is being shown off on the table ("Try it on the table") the
+  // table draws at full detail and up to 2x resolution, whatever level it has fallen to:
+  // the view is mostly still, and a soft, blocky preview sells the item short.
+  let fullDetail = false;
+  const lvl = () => (fullDetail ? 0 : perf);
+  const hq = () => fullDetail || quality === 'high';
+  const reflectOn = () => hq() && lvl() < 3;
+  const bloomOn = () => hq() && lvl() < 4;
 
   // ------------------------------------------------------------------ post-processing
   let composer = null, bloom = null, quality = 'high', animations = true;
@@ -11069,7 +11179,7 @@ function ChacklateScene(canvas, options) {
     if (!bloomOn()) return;
     // The scene is drawn into the composer's second target (its read buffer), so only that
     // one needs MSAA; the first only ever holds the graded copy.
-    const rt = new THREE.WebGLRenderTarget(1, 1, { samples: perf >= 2 ? 2 : 4, type: THREE.HalfFloatType });
+    const rt = new THREE.WebGLRenderTarget(1, 1, { samples: lvl() >= 2 ? 2 : 4, type: THREE.HalfFloatType });
     composer = new THREE.EffectComposer(renderer, rt);
     composer.renderTarget1.samples = 0;
     composer.addPass(new THREE.RenderPass(scene, camera));
@@ -11309,7 +11419,8 @@ function ChacklateScene(canvas, options) {
   }
   function rebuildSprite(s) {
     if (s.obj) pieceGroup.remove(s.obj);
-    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b');
+    // table pieces use the lighter build, except while an item is shown off close up
+    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b', fullDetail ? 'show' : 'play');
     obj.traverse((m) => { m.layers.enable(REFLECT); });
     s.obj = obj;
     pieceGroup.add(obj);
@@ -11487,14 +11598,14 @@ function ChacklateScene(canvas, options) {
     fill(A, particles.filter((p) => p.add));
     fill(N, particles.filter((p) => !p.add));
   }
-  const motesOn = () => quality === 'high' && perf < 4 && animations && !window.__SHOT;
+  const motesOn = () => hq() && lvl() < 4 && animations && !window.__SHOT;
 
   // ------------------------------------------------------------------ camera
   // The camera orbits the table. Its distance is fitted so the board, and the tallest pieces
   // on the far rank, fill the free part of the screen (what the HUD leaves, as insets in CSS
   // px), and the view is offset so the board sits in the middle of that space. On tall phone
   // screens the lens widens rather than backing the camera out of the room.
-  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, intro: null,
+  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, lookZ: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, tLookZ: 0, intro: null,
     ins: { top: 0, right: 0, bottom: 0, left: 0 }, tIns: { top: 0, right: 0, bottom: 0, left: 0 } };
   if (window.__SHOT) { window.__cam = cam; window.__scene = scene; }   // screenshot tooling reads the camera and scene
   const FIT = [], FIT_TALL = [];
@@ -11546,8 +11657,10 @@ function ChacklateScene(canvas, options) {
     const W = canvas.clientWidth || 1, H = canvas.clientHeight || 1;
     const f = fitView(cam.pitch, cam.lookY, cam.ins, W, H);
     const d = f.dist * cam.zoom, cp = Math.cos(cam.pitch);
-    camera.position.set(Math.sin(cam.yaw) * cp * d, Math.sin(cam.pitch) * d + cam.lookY, Math.cos(cam.yaw) * cp * d);
-    camera.lookAt(0, cam.lookY, 0);
+    // lookZ slides the point the camera turns around toward the near side of the table
+    const tx = Math.sin(cam.yaw) * cam.lookZ, tz = Math.cos(cam.yaw) * cam.lookZ;
+    camera.position.set(tx + Math.sin(cam.yaw) * cp * d, Math.sin(cam.pitch) * d + cam.lookY, tz + Math.cos(cam.yaw) * cp * d);
+    camera.lookAt(tx, cam.lookY, tz);
     camera.fov = f.fov; camera.aspect = W / H;
     camera.setViewOffset(W, H, (f.ox * W) / 2, (-f.oy * H) / 2, W, H);
     camera.updateProjectionMatrix();
@@ -11586,7 +11699,7 @@ function ChacklateScene(canvas, options) {
     } else {
       // the idle orbit turns the camera directly, so it runs on the calm ambient timer
       if (attract && !window.__SHOT && !paused) { cam.tYaw += dt * 0.06; cam.yaw += dt * 0.06; }
-      for (const k of ['yaw', 'pitch', 'zoom', 'lookY']) {
+      for (const k of ['yaw', 'pitch', 'zoom', 'lookY', 'lookZ']) {
         const t = 't' + k[0].toUpperCase() + k.slice(1);
         const d = cam[t] - cam[k];
         if (Math.abs(d) > 0.0005) { cam[k] += d * Math.min(1, dt * 7); busy = true; } else cam[k] = cam[t];
@@ -11648,8 +11761,9 @@ function ChacklateScene(canvas, options) {
     if (shadowDirty) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
     if (composer) composer.render(); else renderer.render(scene, camera);
   }
-  // the idle frame gap: 30 fps, or 20 fps once the table has had to give up detail
-  const ambientMs = () => (perf >= 3 ? 50 : 33);
+  // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
+  // bottom levels (candle flicker and the slow orbit don't need more)
+  const ambientMs = () => (lvl() >= 3 ? 66 : lvl() >= 1 ? 50 : 33);
   function frame(now) {
     raf = 0;
     if (glLost) return;
@@ -11672,13 +11786,13 @@ function ChacklateScene(canvas, options) {
   // alone, and the level never steps back down in a session, so the view doesn't flicker.
   let govLate = 0, govN = 0;
   function govern(waitMs, drawMs) {
-    if (window.__SHOT || document.hidden || perf >= MAX_PERF) { govN = 0; return; }
+    if (window.__SHOT || fullDetail || document.hidden || perf >= MAX_PERF) { govN = 0; return; }
     const late = Math.min(80, Math.max(0, waitMs + drawMs - 17));
     govLate = govN ? govLate * 0.94 + late * 0.06 : late;
     if (++govN >= 40 && govLate > 22) { setPerf(perf + 1); govN = 0; }
   }
   function shadowQuality() {
-    const full = quality === 'high' && perf < 3;
+    const full = hq() && lvl() < 3;
     renderer.shadowMap.type = full ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     const size = full ? 2048 : 1024;
     if (key.shadow.mapSize.x !== size) {
@@ -11690,12 +11804,26 @@ function ChacklateScene(canvas, options) {
   function setPerf(level) {
     level = Math.max(0, Math.min(MAX_PERF, level));
     if (level === perf) return;
-    const hadBloom = bloomOn();
+    const hadBloom = bloomOn(), hadLvl = lvl();
     perf = level;
-    if (bloomOn() !== hadBloom || (composer && perf === 2)) buildComposer();
+    detailChanged(hadBloom, hadLvl);
+  }
+  function setFullDetail(on) {
+    on = !!on;
+    if (on === fullDetail) return;
+    const hadBloom = bloomOn(), hadLvl = lvl();
+    fullDetail = on;
+    govN = 0;
+    for (const sp of sprites.concat(graveyard)) if (sp.obj) rebuildSprite(sp);
+    detailChanged(hadBloom, hadLvl);
+  }
+  function detailChanged(hadBloom, hadLvl) {
+    // MSAA changes between levels 1 and 2, and the composer's target has to be rebuilt for it
+    if (bloomOn() !== hadBloom || (composer && (hadLvl >= 2) !== (lvl() >= 2))) buildComposer();
     if (!motesOn()) particles = particles.filter((p) => p.kind !== 'mote');
     shadowQuality();
     lastW = 0; resize();
+    opts.onPerf(perf);
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) requestRender(); });
 
@@ -11703,6 +11831,7 @@ function ChacklateScene(canvas, options) {
   const raycaster = new THREE.Raycaster();
   const pointers = new Map();
   let drag = null, pinch = 0;
+  const ZOOM_MIN = 0.42;   // close enough to look a piece in the eye, still outside it
   function ndc(clientX, clientY) {
     const r = canvas.getBoundingClientRect();
     return new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, 1 - ((clientY - r.top) / r.height) * 2);
@@ -11759,7 +11888,7 @@ function ChacklateScene(canvas, options) {
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      if (pinch) cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * (pinch / d)));
+      if (pinch) cam.tZoom = Math.min(1.6, Math.max(ZOOM_MIN, cam.tZoom * (pinch / d)));
       pinch = d; requestRender();
       return;
     }
@@ -11820,7 +11949,7 @@ function ChacklateScene(canvas, options) {
     // Trackpads (and their pinch, which arrives as ctrl+wheel) send many small steps, a mouse
     // wheel a few big ones: zoom by how far it scrolled, not by how many events came.
     const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1) * (e.ctrlKey ? 4 : 1);
-    cam.tZoom = Math.min(1.6, Math.max(0.7, cam.tZoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0012)));
+    cam.tZoom = Math.min(1.6, Math.max(ZOOM_MIN, cam.tZoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0012)));
     requestRender();
   }, { passive: false });
   // Safari's own pinch gesture would zoom the page under the table.
@@ -11835,7 +11964,7 @@ function ChacklateScene(canvas, options) {
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
     if (ambientTimer) { clearTimeout(ambientTimer); ambientTimer = 0; }
     // let go of what belonged to the old context now, while deleting it is still a no-op
-    W.resetEnvironments();
+    W.resetEnvironments(renderer);
     if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; }
     disposeComposer();
     if (reflRT) { reflRT.dispose(); reflRT = null; }
@@ -11850,13 +11979,14 @@ function ChacklateScene(canvas, options) {
     shadowQuality();
     lastW = 0; resize();
     opts.onContextRestored();
+    opts.onPerf(perf);
     requestRender();
   });
 
   // ------------------------------------------------------------------ sizing
   let lastW = 0, lastH = 0;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, PERF_DPR[quality][perf]);
+    const dpr = Math.min(window.devicePixelRatio || 1, fullDetail ? 2 : PERF_DPR[quality][perf]);
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
     if (w !== lastW || h !== lastH || renderer.getPixelRatio() !== dpr) {
       lastW = w; lastH = h;
@@ -11907,26 +12037,28 @@ function ChacklateScene(canvas, options) {
     })));
     return snapQueue;
   }
-  function renderSnapshot(spec, w, h) {
+  // Builds the little scene for a set, a piece, a board or a room. envFor(style) gives the
+  // reflection map for the renderer that will draw it (each GPU context needs its own).
+  function buildSpec(spec, w, h, envFor) {
     const s2 = new THREE.Scene();
-    s2.environment = W.environment(renderer, (W.ROOMS[roomId] || W.ROOMS.salon).env);
+    s2.environment = envFor((W.ROOMS[roomId] || W.ROOMS.salon).env);
     s2.environmentIntensity = 0.95;
     const c2 = new THREE.PerspectiveCamera(spec.fov || 24, w / h, 0.05, 100);
     const l = new THREE.DirectionalLight('#fff0dd', 2.2); l.position.set(-3, 6, 5); s2.add(l);
     const r2 = new THREE.DirectionalLight('#ffd9a8', 1.1); r2.position.set(4, 3, -5); s2.add(r2);
     s2.add(new THREE.HemisphereLight('#ffe8d0', '#20120a', 0.4));
-    let disposeList = [];
+    const disposeList = [], look = new THREE.Vector3();
     if (spec.kind === 'pieces' || spec.kind === 'piece') {
       const types = spec.kind === 'piece' ? [spec.type || 'k'] : ['r', 'n', 'b', 'q', 'k', 'p'];
       const sides = spec.kind === 'piece' ? [spec.side || 'w'] : ['w', 'b'];
       sides.forEach((side, row) => types.forEach((t, i) => {
-        const g = P.make(spec.set, t, side);
+        const g = P.make(spec.set, t, side, spec.detail);
         g.position.set((i - (types.length - 1) / 2) * 0.78, 0, row ? -0.85 : 0.2);
         g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
       }));
-      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); c2.lookAt(0, ht * 0.48, 0); }
-      else { c2.position.set(0, 1.9, 6.0); c2.lookAt(0, 0.55, -0.3); }
+      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
+      else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
       const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
       floor.rotation.x = -Math.PI / 2; s2.add(floor); disposeList.push(floor);
       s2.background = null;
@@ -11941,7 +12073,7 @@ function ChacklateScene(canvas, options) {
       const foot = new THREE.Mesh(new THREE.TorusGeometry(R * 0.86, 0.04, 14, 96), gold); foot.rotation.x = Math.PI / 2; foot.position.y = -0.34;
       for (const m of [top, rim, base, foot]) { s2.add(m); disposeList.push(m); }
       (spec.items || []).forEach((it) => {
-        const g = P.make(it.set || setId, it.type || 'k', it.side || 'w');
+        const g = P.make(it.set || setId, it.type || 'k', it.side || 'w', spec.detail);
         g.position.set(it.x || 0, it.y || 0, it.z || 0);
         g.rotation.set(0, it.rot || 0, it.tilt || 0, 'YXZ');
         if (it.scale) g.scale.setScalar(it.scale);
@@ -11950,32 +12082,45 @@ function ChacklateScene(canvas, options) {
       const tall = Math.max(0.8, ...(spec.items || []).map((it) => (P.HEIGHT[it.type || 'k'] || 1) * (it.scale || 1)));
       c2.fov = spec.fov || 23;
       c2.position.set(0, 1.3 + tall * 0.55, 6.8);
-      c2.lookAt(0, tall * 0.45 - 0.1, 0);
+      look.set(0, tall * 0.45 - 0.1, 0);
       s2.background = null;
     } else if (spec.kind === 'room') {
       // The room from a seat at the table, with the board set up, for the collection.
       const rm = W.room(spec.room);
       s2.add(rm.group); disposeList.push({ userData: { dispose: rm.dispose } });
-      s2.environment = W.environment(renderer, rm.env);
+      s2.environment = envFor(rm.env);
       s2.background = new THREE.Color(rm.fog);
       s2.fog = new THREE.FogExp2(rm.fog, 0.018);
       const cl = new THREE.PointLight(rm.lights.color, rm.lights.chand, 40, 2); cl.position.set(0, 7.2, 0); s2.add(cl);
       s2.add(new THREE.HemisphereLight(rm.hemi[0], rm.hemi[1], Math.max(0, rm.lights.hemi - 0.4)));
       const b = W.board(spec.board || boardId, 'white'); s2.add(b); disposeList.push(b);
       [['r', 'w', -3.5, 3.5], ['k', 'w', 0.5, 3.5], ['q', 'w', -0.5, 3.5], ['n', 'w', 1.5, 1.5], ['k', 'b', 0.5, -3.5], ['q', 'b', -0.5, -3.5], ['r', 'b', 3.5, -3.5], ['b', 'b', -1.5, -2.5]].forEach(([t, side, x, z]) => {
-        const g = P.make(setId, t, side); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
+        const g = P.make(setId, t, side, 'play'); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
       });
       c2.fov = spec.fov || 46;
       c2.position.set(5.5, 5.2, 12.5);
-      c2.lookAt(0, 1.6, -2);
+      look.set(0, 1.6, -2);
     } else if (spec.kind === 'board') {
       const b = W.board(spec.board, 'white'); s2.add(b); disposeList.push(b);
-      const g = P.make(setId, 'k', 'w'); g.position.set(-0.5, 0, 0.5); s2.add(g);
-      const g2 = P.make(setId, 'n', 'b'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
+      const g = P.make(setId, 'k', 'w', 'play'); g.position.set(-0.5, 0, 0.5); s2.add(g);
+      const g2 = P.make(setId, 'n', 'b', 'play'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
       // back far enough that both pieces fit, with the frame and its letters in front
-      c2.position.set(3.0, 5.6, 11.2); c2.lookAt(0, 0.35, 1.6);
+      c2.position.set(3.0, 5.6, 11.2); look.set(0, 0.35, 1.6);
     }
+    c2.lookAt(look);
     c2.aspect = w / h; c2.updateProjectionMatrix();
+    // everything but the lights turns together on the live stage
+    const spin = new THREE.Group();
+    s2.children.filter((o) => !o.isLight).forEach((o) => spin.add(o));
+    s2.add(spin);
+    const dispose = () => disposeList.forEach((o) => {
+      if (o.userData && o.userData.dispose) o.userData.dispose();
+      else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
+    });
+    return { scene: s2, camera: c2, look, spin, dispose };
+  }
+  function renderSnapshot(spec, w, h) {
+    const { scene: s2, camera: c2, dispose } = buildSpec(spec, w, h, (style) => W.environment(renderer, style));
     const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
     const prevT = renderer.toneMapping;
     renderer.setRenderTarget(rt);
@@ -11987,10 +12132,7 @@ function ChacklateScene(canvas, options) {
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
     rt.dispose();
-    disposeList.forEach((o) => {
-      if (o.userData && o.userData.dispose) o.userData.dispose();
-      else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
-    });
+    dispose();
     // render targets are linear: tone map and encode in the copy
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
     const g = cv.getContext('2d'), img = g.createImageData(w, h);
@@ -12002,6 +12144,135 @@ function ChacklateScene(canvas, options) {
     }
     g.putImageData(img, 0, 0);
     return cv.toDataURL('image/png');
+  }
+
+  // ------------------------------------------------------------------ live stage
+  // The museum card's model: the same little scene as the card picture, drawn live by a
+  // second, small renderer at up to 2x resolution and turning slowly. Dragging turns it, a
+  // pinch or the wheel brings it closer. One renderer is kept and moved from card to card: a
+  // new GPU context for every card would leave the old ones' state on the shared piece meshes.
+  let stageR = null, stageOn = null;
+  function stageRenderer() {
+    if (stageR) return stageR;
+    let r;
+    try {
+      r = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
+    } catch (e) { return null; }
+    if (!r.getContext()) return null;
+    r.toneMapping = THREE.ACESFilmicToneMapping;
+    r.toneMappingExposure = 1.1;   // the card pictures are graded 10% brighter too
+    r.shadowMap.enabled = true;
+    r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.setClearColor(0x000000, 0);
+    r.domElement.className = 'live3d';
+    r.domElement.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      if (stageOn) stageOn.stop();
+      W.resetEnvironments(r);
+      if (stageR === r) stageR = null;   // the next card makes a fresh one
+    });
+    stageR = r;
+    return r;
+  }
+  // host: the element to fill; spec: as for snapshot; aspect: the width/height the spec's
+  // camera was framed for, so a narrower stage backs off instead of cropping the sides.
+  function stage(host, spec, aspect) {
+    const r = stageRenderer();
+    if (!r) return null;
+    if (stageOn) stageOn.stop();
+    const cv = r.domElement;
+    host.appendChild(cv);
+    let built = null, base = null, fitK = 1, yaw = 0, zoom = 1, idleAt = 0, last = 0, loop = 0, pinchD = 0, drag = null, shown = false;
+    const pts = new Map();
+    function size() {
+      const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+      r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      r.setSize(w, h, false);
+      fitK = Math.max(1, (aspect || w / h) / (w / h));
+      if (built) { built.camera.aspect = w / h; built.camera.updateProjectionMatrix(); }
+    }
+    function show(sp, asp) {
+      if (asp) aspect = asp;
+      if (built) built.dispose();
+      const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+      built = buildSpec(sp, w, h, (style) => W.environment(r, style));
+      base = built.camera.position.clone();
+      // a soft contact shadow under the pieces; rooms are lit by their own lamps
+      const keyL = built.scene.children.find((o) => o.isDirectionalLight);
+      if (keyL && sp.kind !== 'room') {
+        keyL.castShadow = true;
+        keyL.shadow.mapSize.set(1024, 1024);
+        Object.assign(keyL.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 0.5, far: 20 });
+        keyL.shadow.bias = -0.0004; keyL.shadow.normalBias = 0.02; keyL.shadow.radius = 4;
+        built.spin.traverse((m) => { if (m.isMesh) m.receiveShadow = true; });
+      }
+      yaw = 0; zoom = 1; idleAt = 0;
+      size();
+      if (!loop) loop = requestAnimationFrame(tick);
+    }
+    function tick(now) {
+      loop = 0;
+      if (!cv.isConnected || stageR !== r) { stop(); return; }
+      const dt = Math.min(0.05, (now - (last || now)) / 1000);
+      last = now;
+      if (!drag && pts.size === 0 && now > idleAt && animations && !window.__SHOT) yaw += dt * 0.35;
+      built.spin.rotation.y = yaw;
+      built.camera.position.copy(built.look).addScaledVector(base.clone().sub(built.look), zoom * fitK);
+      built.camera.lookAt(built.look);
+      r.render(built.scene, built.camera);
+      if (!shown) { shown = true; host.classList.add('live'); }
+      loop = requestAnimationFrame(tick);
+    }
+    const hold = () => { idleAt = performance.now() + 3500; };   // auto-turn waits after a touch
+    const down = (e) => {
+      pts.set(e.pointerId, [e.clientX, e.clientY]);
+      cv.setPointerCapture(e.pointerId);
+      if (pts.size === 2) { const [a, b] = [...pts.values()]; pinchD = Math.hypot(a[0] - b[0], a[1] - b[1]); drag = null; } else drag = { x: e.clientX };
+      hold();
+    };
+    const move = (e) => {
+      if (!pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pts.size === 2 && pinchD) {
+        const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        zoom = Math.min(1.5, Math.max(0.5, zoom * (pinchD / d))); pinchD = d;
+      } else if (drag) { yaw += (e.clientX - drag.x) * 0.012; drag.x = e.clientX; }
+      hold();
+    };
+    const up = (e) => { pts.delete(e.pointerId); if (pts.size < 2) pinchD = 0; if (!pts.size) drag = null; hold(); };
+    const wheel = (e) => {
+      e.preventDefault();
+      const px = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1) * (e.ctrlKey ? 4 : 1);
+      zoom = Math.min(1.5, Math.max(0.5, zoom * Math.exp(Math.max(-120, Math.min(120, px)) * 0.0015)));
+      hold();
+    };
+    cv.addEventListener('pointerdown', down);
+    cv.addEventListener('pointermove', move);
+    cv.addEventListener('pointerup', up);
+    cv.addEventListener('pointercancel', up);
+    cv.addEventListener('wheel', wheel, { passive: false });
+    const ro = new ResizeObserver(size); ro.observe(host);
+    let stopped = false;
+    function stop() {
+      if (stopped) return;
+      stopped = true;
+      if (loop) cancelAnimationFrame(loop);
+      loop = 0;
+      ro.disconnect();
+      cv.removeEventListener('pointerdown', down);
+      cv.removeEventListener('pointermove', move);
+      cv.removeEventListener('pointerup', up);
+      cv.removeEventListener('pointercancel', up);
+      cv.removeEventListener('wheel', wheel);
+      if (built) { built.dispose(); built = null; }
+      if (cv.parentNode === host) host.removeChild(cv);
+      host.classList.remove('live');
+      if (stageOn === api) stageOn = null;
+    }
+    const api = { show, stop };
+    stageOn = api;
+    show(spec);
+    return api;
   }
 
   // ------------------------------------------------------------------ boot
@@ -12050,13 +12321,15 @@ function ChacklateScene(canvas, options) {
     // 0 (full detail) to 5; the table also changes it by itself when frames run late
     perf: () => perf,
     setPerf,
+    setFullDetail,
     setAnimations(on) { animations = on; if (!on) particles = []; requestRender(); },
     // Home-screen showcase: a low, slowly circling view across the board.
     setAttract(on, instant) {
       attract = on;
       if (on) { cam.tPitch = 0.36; cam.tLookY = 0.9; cam.tZoom = 1; }
       else cam.tLookY = 0;
-      if (instant || !animations) { cam.pitch = cam.tPitch; cam.lookY = cam.tLookY; cam.zoom = cam.tZoom; }
+      cam.tLookZ = 0;
+      if (instant || !animations) { cam.pitch = cam.tPitch; cam.lookY = cam.tLookY; cam.lookZ = 0; cam.zoom = cam.tZoom; }
       requestRender();
     },
     // Screen space the HUD covers, in CSS px; the board is fitted into what is left.
@@ -12068,13 +12341,24 @@ function ChacklateScene(canvas, options) {
     // side: 'white' | 'black'; preset: 'player' | 'top' | 'low'
     setView(side, preset, instant) {
       if (side !== labelSide) { labelSide = side; if (boardMesh) boardMesh.userData.relabel(side); placeClock(); placeLights(side); }
-      attract = false; cam.tLookY = 0; cam.tZoom = 1;
+      attract = false; cam.tLookY = 0; cam.tLookZ = 0; cam.tZoom = 1;
       let yaw = side === 'black' ? Math.PI : 0;
       while (yaw - cam.yaw > Math.PI) yaw -= TAU;
       while (cam.yaw - yaw > Math.PI) yaw += TAU;
       cam.tYaw = yaw;
       cam.tPitch = preset === 'top' ? 1.5 : preset === 'low' ? 0.58 : portraitNow() ? 1.08 : 0.8;
-      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.zoom = 1; cam.lookY = 0; cam.intro = null; }
+      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.zoom = 1; cam.lookY = 0; cam.lookZ = 0; cam.intro = null; }
+      requestRender();
+    },
+    // A closer camera for showing an item off: { pitch, zoom, lookY, lookZ }, each optional.
+    // Pitch, zoom and height are what the player can still change by dragging and pinching.
+    setFocus(f, instant) {
+      f = f || {};
+      if (f.pitch !== undefined) cam.tPitch = f.pitch;
+      if (f.zoom !== undefined) cam.tZoom = Math.max(ZOOM_MIN, f.zoom);
+      if (f.lookY !== undefined) cam.tLookY = f.lookY;
+      if (f.lookZ !== undefined) cam.tLookZ = f.lookZ;
+      if (instant || !animations) { cam.pitch = cam.tPitch; cam.zoom = cam.tZoom; cam.lookY = cam.tLookY; cam.lookZ = cam.tLookZ; }
       requestRender();
     },
     // Sweeping camera move into the player's seat at the start of a game.
@@ -12162,6 +12446,7 @@ function ChacklateScene(canvas, options) {
     // Menu pages blur the room behind them; nothing there needs to move, so the idle frames stop.
     setPaused(on) { paused = !!on; if (!paused) requestRender(); },
     snapshot,
+    stage,
     sets: P.list,
     boards: () => W.BOARDS,
     rooms: () => W.ROOMS,
@@ -14077,6 +14362,7 @@ function ChacklateAudio() {
     chart: '<path d="M4 20V11M10 20V5M16 20v-6M2 20h20"/>',
     medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 3l2.5 6.2M15.5 3L13 9.2"/><path d="M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/>',
     swords: '<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/>',
+    rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
   const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
@@ -14267,15 +14553,17 @@ function ChacklateAudio() {
       onDrop: (f, t) => ctlHooks.onDrop(f, t),
       onContextLost() { $('nogl').hidden = false; },
       onContextRestored() { $('nogl').hidden = true; },
+      onPerf: (level) => document.body.classList.toggle('lite', level >= 2),
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }
+  else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
   function nullView() {
     const noop = () => {};
     let sets = null;
     return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setQuality: noop, setAnimations: noop,
-      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro: noop, celebrate: noop, setClock: noop, showcase: noop, cancelDrag: noop, requestRender: noop, resize: noop,
+      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
       animateMove(info, done) { done(); }, snapshot: () => Promise.resolve(null), boards: () => ({}), rooms: () => ({}),
       sets() { if (!sets) { try { sets = ChacklatePieces(window.THREE, ChacklateKit(window.THREE)).list(); } catch (e) { sets = []; } } return sets; } };
   }
@@ -14335,6 +14623,8 @@ function ChacklateAudio() {
       if (!img.dataset.snap) return;
       const [spec, w, h] = JSON.parse(img.dataset.snap);
       delete img.dataset.snap;
+      // small menu-card art doesn't need the full sculpt (and building it slows the first screen)
+      if (w <= 240 && !spec.detail) spec.detail = 'play';
       const k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
       view.snapshot(spec, Math.round(w * k), Math.round(h * k)).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
     };
@@ -14522,6 +14812,14 @@ function ChacklateAudio() {
   }
 
   // "Try it on the table": the menus step aside and the room shows the item for real.
+  // A set is seen from just above its own back rank, a board from a little closer than in
+  // play, and the rest (clocks, effects, sounds) from the player's seat, a step nearer.
+  const PEEK_FOCUS = {
+    pieces: { pitch: 0.62, zoom: 0.6, lookY: 0.45, lookZ: 1.4 },
+    piecesTall: { pitch: 0.62, zoom: 0.7, lookY: 0.45, lookZ: 1.2 },   // a phone held upright: all eight files still fit
+    board: { pitch: 0.95, zoom: 0.72, lookZ: 0.6 },
+    other: { zoom: 0.8 },
+  };
   let peeking = null;
   function peek(it) {
     peeking = { it };
@@ -14529,8 +14827,10 @@ function ChacklateAudio() {
     document.body.classList.add('peeking');
     view.setPaused(false);
     view.setInsets({ top: $('topnav').getBoundingClientRect().bottom, bottom: 110 }, true);
-    if (it.category === 'room') view.setAttract(true);
-    else { view.setAttract(false); view.setView('white', 'player'); }
+    // full resolution while the item is on show, and a camera that starts close to it
+    view.setFullDetail(true);
+    if (it.category === 'room') { view.setAttract(true); view.setFocus({ zoom: 0.8 }); }
+    else { view.setAttract(false); view.setView('white', 'player'); view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[it.category] || PEEK_FOCUS.other); }
     if (it.category === 'capture' || it.category === 'victory') setTimeout(() => view.celebrate('win', -1, null, sqIndex('e1')), 500);
     if (it.category === 'sound') AU.play('capture');
     const un = PG.isUnlocked(state.progress, it), on = state.progress.equipped[it.category] === it.id;
@@ -14550,6 +14850,7 @@ function ChacklateAudio() {
     peeking.bar.remove();
     peeking = null;
     document.body.classList.remove('peeking');
+    view.setFullDetail(false);
     preview = null; applyLook();
     if (silent) return;
     view.setAttract(true);
@@ -15087,15 +15388,23 @@ function ChacklateAudio() {
   const setTint = (id) => { const s = setInfo(id); return (s && s.tint) || '#50341f'; };
   const tintStyle = (it) => (it.category === 'pieces' ? ' style="--tint:' + ART.lit(setTint(it.data.set), 0.1) + '"' : '');
   // The picture for an item: real renders for sets, boards and rooms, drawn art for the rest.
+  // The 3D scene for a set, board or room: the card picture, and the live model on its card.
+  function itemSpec(it) {
+    const d = it.data || {};
+    if (it.category === 'pieces') { const t = setTint(d.set); return Object.assign(VIGN.trio(d.set, ART.dim(t, 0.3), ART.lit(t, 0.55)), { r: 1.32 }); }
+    if (it.category === 'board') return { kind: 'board', board: d.board };
+    if (it.category === 'room' && view.rooms()[d.room]) return { kind: 'room', room: d.room };
+    return null;
+  }
   function itemArt(it, big) {
     const d = it.data || {};
     const W = big ? 520 : 260, H = big ? 360 : 180;
-    if (it.category === 'pieces') { const t = setTint(d.set); return snap(Object.assign(VIGN.trio(d.set, ART.dim(t, 0.3), ART.lit(t, 0.55)), { r: 1.32 }), W, H, medal('piece:k', '#8a5a2a', '#2a1408'), 'fit'); }
-    if (it.category === 'board') return snap({ kind: 'board', board: d.board }, W, H, medal('emblem:crown', '#5c3a1e', '#1e120a'), 'cover');
+    if (it.category === 'pieces') return snap(itemSpec(it), W, H, medal('piece:k', '#8a5a2a', '#2a1408'), 'fit');
+    if (it.category === 'board') return snap(itemSpec(it), W, H, medal('emblem:crown', '#5c3a1e', '#1e120a'), 'cover');
     if (it.category === 'room') {
       const e = eraOfRoom(d.room);
       const fallback = e ? ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) : BLANK;
-      return view.rooms()[d.room] ? snap({ kind: 'room', room: d.room }, W, H, fallback, 'cover') : '<img class="cover" src="' + fallback + '" alt="">';
+      return itemSpec(it) ? snap(itemSpec(it), W, H, fallback, 'cover') : '<img class="cover" src="' + fallback + '" alt="">';
     }
     if (it.category === 'avatar') return '<img class="port" src="' + medal(d.art, d.from, d.to) + '" alt="">';
     if (it.category === 'frame') return avatarHtml(big ? 'xl' : 'lg', PG.equipped(state.progress, 'avatar').id, it.id);
@@ -15163,14 +15472,20 @@ function ChacklateAudio() {
       '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
       '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div></div></div>', { cls: 'wide', x: true });
     hydrate(m);
+    // The picture is only a placeholder: the item itself turns on the stage in real 3D.
+    const stageEl = m.querySelector('#mu-stage'), spec = itemSpec(it);
+    const live = spec && view.stage ? view.stage(stageEl, spec, 520 / 360) : null;
+    if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' Drag to turn · pinch to zoom</span>');
     m.querySelectorAll('[data-pt]').forEach((b) => {
       b.onclick = () => {
         const t = b.dataset.pt;
         AU.play('select');
         m.querySelectorAll('[data-pt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
         m.querySelector('#mu-lore').innerHTML = '<b>The ' + PIECE_NAME[t] + '.</b> ' + esc(set.lore[t]);
-        m.querySelector('#mu-stage').innerHTML = snap({ kind: 'piece', set: d.set, type: t, side: t === 'q' || t === 'b' ? 'b' : 'w' }, 360, 400, ART.pieceUri(t), 'fit');
-        hydrate(m.querySelector('#mu-stage'));
+        const one = { kind: 'piece', set: d.set, type: t, side: t === 'q' || t === 'b' ? 'b' : 'w' };
+        if (live) { live.show(one, 360 / 400); return; }
+        stageEl.innerHTML = snap(one, 360, 400, ART.pieceUri(t), 'fit');
+        hydrate(stageEl);
       };
     });
     const eq = m.querySelector('#mu-eq');
