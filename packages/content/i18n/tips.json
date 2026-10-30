@@ -74,6 +74,9 @@
   "control.g-review": {
     "en": "Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes."
   },
+  "control.g-rules": {
+    "en": "Rule book|The special rules that matter in this game right now: castling, en passant, promotion and draws. In a game against a person the clock keeps running."
+  },
   "control.g-settings": {
     "en": "Settings|Sound, music, graphics, voices and coaching."
   },
@@ -163,6 +166,9 @@
   },
   "settings.cine": {
     "en": "Short movie scenes when a piece is captured or a king castles. Tap the board to skip one."
+  },
+  "settings.toss": {
+    "en": "Before a Surprise me game, tap one of two paws to find out your colour."
   },
   "settings.coach": {
     "en": "Rooky's comments|How often Rooky talks about your moves during a game."

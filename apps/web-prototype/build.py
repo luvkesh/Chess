@@ -29,6 +29,8 @@ SCRIPTS = [
     src / 'places.js',
     src / 'club.js',
     src / 'tips.js',
+    src / 'minigames.js',
+    src / 'rules.js',
     src / 'app.js',
 ]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
@@ -72,6 +74,8 @@ for f in sorted((src / 'art').glob('*.webp')):
 parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')))
 for path in SCRIPTS:
     parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
+# The build id on the version line in Settings: a hash of everything inlined above.
+parts.insert(0, "const CHACKLATE_BUILD = '%s';" % hashlib.sha1('\n'.join(parts).encode()).hexdigest()[:7])
 code = '\n'.join(parts)
 assert '</script' not in code.lower()
 

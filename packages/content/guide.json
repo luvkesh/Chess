@@ -80,6 +80,14 @@
       "who": "rooky",
       "text": "Let's practise! Pick a skill, and we'll work on it together."
     },
+    "minis": {
+      "who": "rooky",
+      "text": "Mini-games are quick! Pick one, and beat your best score."
+    },
+    "mini": {
+      "who": "rooky",
+      "text": "Tap the scroll if you need the rules. Have fun!"
+    },
     "openings": {
       "who": "rooky",
       "text": "Openings are the first moves of a game. Pick one, and try it on the board."
