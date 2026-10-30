@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Chacklate Chess</title>
+<title>Chackmate</title>
 <meta name="description" content="Premium 3D chess for young players: travel through time with eight animal coaches, collect sculpted chess sets from every era, and learn with a coach that explains every move.">
 <meta name="theme-color" content="#0d0806">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -10,10 +10,10 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Chacklate">
+<meta name="apple-mobile-web-app-title" content="Chackmate">
 <style>/*FONTS*/</style>
 <style>
-/* Chacklate: a chocolatier's grand salon at night. The 3D room is always
+/* Chackmate: a chocolatier's grand salon at night. The 3D room is always
    behind; menus float over it as dark glass with gold hairlines. */
 :root {
   color-scheme: dark;
@@ -42,6 +42,9 @@
   --safe-l: env(safe-area-inset-left, 0px); --safe-r: env(safe-area-inset-right, 0px);
 }
 * { box-sizing: border-box; }
+/* Cormorant's old-style 1 looks like a dotless i ("g1" read as "gı"), so every element uses lining
+   figures. Set per element and !important because each `font:` shorthand would otherwise reset it. */
+* { font-feature-settings: 'lnum' 1 !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); overflow: hidden; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -403,8 +406,17 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .item .ib .st span.lk { color: var(--faint); font: 500 12px/1.3 var(--body); letter-spacing: 0; text-transform: none; }
 .item.locked .sw img { filter: saturate(0.85) brightness(0.84); }   /* in colour, so every set can be admired; the lock row says how to earn it */
 .item .eye { width: 34px; height: 34px; }
-.museum { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; }
+.museum { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; touch-action: pan-y; }
 .museum .stagebox { border-radius: 20px; overflow: hidden; background: radial-gradient(100% 90% at 50% 30%, var(--tint, rgba(80, 52, 36, 0.55)), rgba(10, 6, 4, 0.95)); border: 1px solid var(--line); display: grid; place-items: center; min-height: 300px; position: relative; }
+.museum .stagecol { position: relative; display: grid; }
+.museum .mu-nav { position: absolute; top: 50%; z-index: 2; width: 46px; height: 46px; transform: translateY(-50%); background: rgba(10, 6, 4, 0.62); border-color: var(--line-2); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.museum .mu-nav.prev { left: 10px; } .museum .mu-nav.next { right: 10px; }
+.museum .mu-nav:hover { border-color: var(--gold); box-shadow: var(--glow); }
+.museum .mu-nav .ico { width: 22px; height: 22px; }
+.museum .mu-count { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 4px 11px; border-radius: 999px; background: rgba(10, 6, 4, 0.55); color: var(--muted, #cdb9a3); font: 500 12px/1.2 var(--body); pointer-events: none; }
+#mu-info.in-r { animation: muR .32s var(--ease) both; } #mu-info.in-l { animation: muL .32s var(--ease) both; }
+@keyframes muR { from { opacity: 0; transform: translateX(18px); } }
+@keyframes muL { from { opacity: 0; transform: translateX(-18px); } }
 .museum .stagebox img { max-width: 100%; max-height: 340px; }
 .museum .stagebox canvas.live3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .35s var(--ease); touch-action: none; cursor: grab; }
 .museum .stagebox canvas.live3d:active { cursor: grabbing; }
@@ -522,7 +534,9 @@ img.snap.in { animation: snapIn .7s var(--ease) both; }
 .search input::placeholder { color: var(--faint); }
 .search:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232, 194, 122, 0.12); }
 /* "Try it on the table": the menus step aside */
-body.peeking #screens, body.peeking .tabbar { opacity: 0; pointer-events: none; transition: opacity .45s var(--ease); }
+/* hidden, not just see-through: the cards under the table must not take clicks (.screen > * turns them back on) */
+body.peeking #screens, body.peeking .tabbar { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .45s var(--ease), visibility 0s linear .45s; }
+body.peeking #screens * { pointer-events: none !important; }
 body.peeking #stage canvas { filter: none; transform: none; pointer-events: auto; }
 body.peeking .shade { background: radial-gradient(ellipse 85% 75% at 50% 42%, transparent 50%, rgba(6, 3, 2, 0.62) 100%); }
 .peekbar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px); bottom: calc(var(--safe-b) + 24px); z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 22px; border-radius: 999px; animation: rise .5s var(--ease) both; }
@@ -625,7 +639,7 @@ body.peeking .shade { background: radial-gradient(ellipse 85% 75% at 50% 42%, tr
 .lesson header { padding: 16px 20px 14px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; background: linear-gradient(110deg, rgba(232, 194, 122, 0.1), transparent 70%); }
 .lesson header img { width: 58px; height: 58px; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5)); }
 .lesson header h3 { margin: 7px 0 0; font: 500 25px/1.1 var(--serif); }
-.lesson .content { flex: 1; overflow: auto; padding: 18px 20px; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
+.lesson .content { flex: 1; overflow: auto; overflow-wrap: break-word; padding: 18px 20px; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
 .lesson .say { font: 500 19px/1.55 var(--serif); margin: 0 0 12px; }
 .lesson .prompt { font: 500 22px/1.35 var(--serif); margin: 0 0 12px; }
 .lesson footer { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); align-items: center; flex-wrap: wrap; }

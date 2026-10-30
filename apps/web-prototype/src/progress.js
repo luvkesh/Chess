@@ -1,4 +1,4 @@
-// Chacklate progression: XP, levels, achievements, streaks, stats and
+// Chackmate progression: XP, levels, achievements, streaks, stats and
 // cosmetic unlocks, daily missions, the season track and the Journey Through Time
 // campaign. Pure functions over a plain state object, so the page can save it
 // locally and the platform API can store the same shape per account.

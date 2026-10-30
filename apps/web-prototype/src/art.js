@@ -1,4 +1,4 @@
-// Chacklate Chess art: hand-drawn SVG for the crest, the animal portraits
+// Chackmate art: hand-drawn SVG for the crest, the animal portraits
 // (opponents and Journey coaches), piece silhouettes, emblems and the era
 // landmarks. Every picture is a self-contained SVG string, so it can be used
 // as an <img> data URI (no id clashes) or drawn into a canvas texture.
@@ -507,7 +507,7 @@ const ChacklateArt = (() => {
     return svg(p, '0 0 200 200', out);
   }
 
-  // The Chacklate crest: a gold knight on ruby enamel inside a laurel.
+  // The Chackmate crest: a gold knight on ruby enamel inside a laurel.
   function crest(o) {
     o = o || {};
     const p = pic();

@@ -1,4 +1,4 @@
-# Chacklate Chess for Unity (starter)
+# Chackmate for Unity (starter)
 
 The native apps (iOS, Android, desktop) are planned in Unity. This folder is the starting point, not a finished client.
 

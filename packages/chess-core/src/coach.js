@@ -1,4 +1,4 @@
-// Chacklate coach: engine-grounded move review and explanations.
+// Chackmate coach: engine-grounded move review and explanations.
 // Every claim comes from the engine or a deterministic detector here; the
 // sentences are templates filled from a verified "fact sheet". Pure functions,
 // so the same source runs in Node tests, on the page and inside a Web Worker.
