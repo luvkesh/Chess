@@ -1,5 +1,5 @@
 {
-  "note": "Rooky's guide on the website, built like JongClub's guided tour: one line per section, said once as the reader reaches it, and a sales pitch for every chess set, said when that set is picked in Collect (keys set-<era id>). {coach} is the coach's name from packages/content/campaign.json. The voice is \"Toby\" (am_puck,am_michael), the same voice Rooky has in the game. Record with tools/record-guide.py.",
+  "note": "Rooky's guide on the website, built like JongClub's guided tour: one line per section, said once as the reader reaches it, and a sales pitch for every chess set, said when that set is picked in Collect (keys item-sets-<set id>, item-boards-<board id>, item-places-<room id>, kept stable because the game reuses the clips). {coach} is the coach's name from packages/content/campaign.json. The voice is \"Toby\" (am_puck,am_michael), the same voice Rooky has in the game. Record with tools/record-guide.py.",
   "voice": "am_puck,am_michael",
   "speed": 1.0,
   "lines": {
@@ -11,14 +11,14 @@
     "ages": "Pick a friend to play. Truffle the bunny is gentle with beginners. Ember the dragon plays at full strength. You'll get better with every game.",
     "families": "Grown-ups, this part is for you. There's no chat with strangers, no ads and no tracking. Parents decide about online play and buying things.",
     "close": "Your first move is waiting. Let's play!",
-    "set-egypt": "Look at this one shine! Pharaoh's Treasure is carved from smooth white alabaster and dark basalt, with collars of gold, blue lapis and red carnelian, just like a real pharaoh's jewels. Beat the champion in Ancient Egypt, and it's yours.",
-    "set-greece": "Olympian Marble looks like it came straight from a temple in Athens. Bright white marble, bronze laurel leaves, and the Greek key pattern running all the way round. Every piece stands like a little statue of a hero.",
-    "set-rome": "This set is fit for an emperor! Imperial Rome is white Carrara marble and deep purple porphyry, the stone only emperors could use, with golden laurels on top. Win in Rome, and you can rule the board with it.",
-    "set-mughal": "Maharaja's Jade is one of my favourites. White and green jade, polished until it glows, and set with tiny rubies and emeralds, like the treasures of the Taj Mahal. It's a set made for a king.",
-    "set-ming": "Blue and white, like a precious Ming vase. Ming Porcelain is painted by hand in deep cobalt blue, and stands on red cinnabar lacquer carved with patterns. It feels like playing chess in the Forbidden City.",
-    "set-venice": "Hold this one up to the light! Murano Glass is milky white and cobalt blue glass, with twisted stems and touches of gold, made the way Venice's glassmakers have worked for hundreds of years. Every move looks like magic.",
-    "set-paris": "Ruby and Pearl is pure Paris, from the year the Eiffel Tower was built. Lilies and tulips in shining pearl and deep ruby red, wrapped in golden tendrils. It's the most romantic set in the whole collection.",
-    "set-russia": "This one is the crown jewel. The Tsarina's set is shimmering enamel and green malachite, with pearls, sparkling diamonds and rose gold, like the jewelled eggs made for Russia's royal family. Every piece is a treasure.",
-    "set-deco": "Manhattan Deco is as tall and stylish as New York itself. Cream enamel and shiny black onyx, stepped like skyscrapers, with the bold lines of the jazz age. Win in New York, and you'll have the coolest set on the block."
+    "item-sets-pharaoh": "Look at this one shine! Pharaoh's Treasure is carved from smooth white alabaster and dark basalt, with collars of gold, blue lapis and red carnelian, just like a real pharaoh's jewels. Beat the champion in Ancient Egypt, and it's yours.",
+    "item-sets-olympian": "Olympian Marble looks like it came straight from a temple in Athens. Bright white marble, bronze laurel leaves, and the Greek key pattern running all the way round. Every piece stands like a little statue of a hero.",
+    "item-sets-imperial": "This set is fit for an emperor! Imperial Rome is white Carrara marble and deep purple porphyry, the stone only emperors could use, with golden laurels on top. Win in Rome, and you can rule the board with it.",
+    "item-sets-maharaja": "Maharaja's Jade is one of my favourites. White and green jade, polished until it glows, and set with tiny rubies and emeralds, like the treasures of the Taj Mahal. It's a set made for a king.",
+    "item-sets-dynasty": "Blue and white, like a precious Ming vase. Ming Porcelain is painted by hand in deep cobalt blue, and stands on red cinnabar lacquer carved with patterns. It feels like playing chess in the Forbidden City.",
+    "item-sets-murano": "Hold this one up to the light! Murano Glass is milky white and cobalt blue glass, with twisted stems and touches of gold, made the way Venice's glassmakers have worked for hundreds of years. Every move looks like magic.",
+    "item-sets-ruby-pearl": "Ruby and Pearl is pure Paris, from the year the Eiffel Tower was built. Lilies and tulips in shining pearl and deep ruby red, wrapped in golden tendrils. It's the most romantic set in the whole collection.",
+    "item-sets-tsarina": "This one is the crown jewel. The Tsarina's set is shimmering enamel and green malachite, with pearls, sparkling diamonds and rose gold, like the jewelled eggs made for Russia's royal family. Every piece is a treasure.",
+    "item-sets-manhattan": "Manhattan Deco is as tall and stylish as New York itself. Cream enamel and shiny black onyx, stepped like skyscrapers, with the bold lines of the jazz age. Win in New York, and you'll have the coolest set on the block."
   }
 }
