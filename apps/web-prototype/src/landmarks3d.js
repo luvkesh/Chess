@@ -676,13 +676,15 @@ function ChacklateLandmarks(THREE, K, H) {
         G.water = WL;
         // palaces down both banks, pink, ochre and white, with Gothic windows lit for the night
         const tints = ['#d89a8a', '#e0b878', '#efe2cc', '#c86a52', '#e8c8b0', '#d8a868'];
-        const roofM = k.mat({ color: '#6a3a2a', roughness: 0.9 });
+        const roofM = k.mat({ color: '#6a3a2a', roughness: 0.9 }), faces = {};
         const R = rng(13);
         for (const s of [-1, 1]) {
           let z = -30;
           while (z > -150) {
             const w = 10 + R() * 8, h = 12 + R() * 12, d = 14, base = tints[Math.floor(R() * tints.length)];
-            const faceM = k.mat({ map: facadeTex(k, { base, rows: Math.round(h / 4.5), cols: Math.round(w / 3), kind: R() < 0.6 ? 'pointed' : 'arch', lit: 0.45, frame: '#f4ecdc', balcony: 0.4, seed: Math.floor(R() * 99), win: '#1a1a2a', light: '#ffcf80' }), roughness: 0.9, emissive: '#100810', emissiveIntensity: 0.4 });
+            const kind = R() < 0.6 ? 'pointed' : 'arch', seed = Math.floor(R() * 99);
+            // one facade per colour, shared by every palazzo painted that colour (fewer draw calls)
+            const faceM = faces[base] || (faces[base] = k.mat({ map: facadeTex(k, { base, rows: 4, cols: 5, kind, lit: 0.45, frame: '#f4ecdc', balcony: 0.4, seed, win: '#1a1a2a', light: '#ffcf80' }), roughness: 0.9, emissive: '#100810', emissiveIntensity: 0.4 }));
             block(P, faceM, roofM, s * (19 + d / 2), WL, z - w / 2, w, h, d, s * Math.PI / 2);
             z -= w + 0.3;
           }
