@@ -1,4 +1,4 @@
-// Chacklate table scene (three.js). Same API as the old hand-written renderer, so the game
+// Chackmate table scene (three.js). Same API as the old hand-written renderer, so the game
 // logic drives it unchanged: setBoard, setHighlights, setArrows, animateMove, celebrate,
 // setView, setShift, setClock and friends. The scene is a lit room around a round table:
 // an inlaid board, sculpted pieces with real reflections and shadows, velvet trays for

@@ -1,4 +1,4 @@
-# Chacklate game server: website, web game, admin console, API and WebSocket play in one process.
+# Chackmate game server: website, web game, admin console, API and WebSocket play in one process.
 # Build from the repository root:  docker build -t chacklate .
 FROM node:22-slim
 

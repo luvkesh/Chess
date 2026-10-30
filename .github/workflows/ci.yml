@@ -44,15 +44,15 @@ jobs:
       - name: Build single-file game
         run: python3 apps/web-prototype/build.py
       - name: Check committed build is up to date
-        run: git diff --exit-code -- apps/web-prototype/dist/chacklate-chess.html
+        run: git diff --exit-code -- apps/web-prototype/dist/chackmate.html
       - name: Build website
         run: python3 apps/website/build.py
       - name: Check committed website is up to date
         run: git diff --exit-code -- apps/website/index.html
       - uses: actions/upload-artifact@v4
         with:
-          name: chacklate-chess-html
-          path: apps/web-prototype/dist/chacklate-chess.html
+          name: chackmate-html
+          path: apps/web-prototype/dist/chackmate.html
 
   server:
     name: Game server

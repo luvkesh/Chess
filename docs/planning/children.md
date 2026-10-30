@@ -1,6 +1,6 @@
 # Children first: safety, privacy and store readiness
 
-Chacklate Chess is directed to children as its main audience (Unity Cloud project "Chess" is set to
+Chackmate is directed to children as its main audience (Unity Cloud project "Chess" is set to
 "directed to children" for COPPA). This page records what that means for the product, what is built,
 and what is left before launch. There is no outside lawyer: the owner reviews the privacy policy and terms using the
 self-review checklist (linked below), which maps every line to the rule behind it.

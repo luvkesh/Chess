@@ -1,4 +1,4 @@
-// Chacklate service worker: lets the installed app open offline and shows daily reminders.
+// Chackmate service worker: lets the installed app open offline and shows daily reminders.
 // The game is one HTML file, so caching it (plus the icons) is enough to play offline.
 // Pages load network-first, so a new release shows up on the next launch with a connection.
 const CACHE = 'chacklate-v1';
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (e) => {
 self.addEventListener('push', (e) => {
   let m = {};
   try { m = e.data ? e.data.json() : {}; } catch (err) { m = { body: e.data && e.data.text() }; }
-  e.waitUntil(self.registration.showNotification(m.title || 'Chacklate Chess', {
+  e.waitUntil(self.registration.showNotification(m.title || 'Chackmate', {
     body: m.body || '', tag: m.tag || 'chacklate', icon: '/icons/icon-192.png', badge: '/icons/icon-192.png', data: { url: m.url || '/play' },
   }));
 });

@@ -1,4 +1,4 @@
-// Chacklate sound: every effect and the ambient score are synthesised with the
+// Chackmate sound: every effect and the ambient score are synthesised with the
 // Web Audio API. Four sound packs change the material (wood, marble, glass, soft)
 // of the piece sounds. The only audio files are the recorded voices.
 function ChacklateAudio() {

@@ -1,4 +1,4 @@
-// Chacklate piece sets. Every set is modelled here in code: lathe profiles with flutes,
+// Chackmate piece sets. Every set is modelled here in code: lathe profiles with flutes,
 // swirls and lobes, cast ornaments (crosses, leaves, pearls), and sculpted horse heads
 // with flowing manes. Sets keep the Staunton cues so a piece is never mistaken: the king
 // is tallest and wears a cross, the queen a pointed coronet, the bishop a slit mitre,

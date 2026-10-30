@@ -32,7 +32,7 @@ function create(db, lobby, opts) {
   async function sendVerify(u, email) {
     const t = issue(u.id, 'verify', 7 * 24 * HOUR);
     const link = publicUrl + '/account/verify?token=' + t;
-    await mail.send({ to: email, subject: 'Confirm your email for Chacklate Chess',
+    await mail.send({ to: email, subject: 'Confirm your email for Chackmate',
       text: 'Hi ' + u.name + ',\n\nConfirm this address so you can reset your password if you ever forget it:\n' + link + '\n\nThe link works for 7 days. If you did not ask for this, ignore this email.',
       html: '<p>Hi ' + u.name + ',</p><p>Confirm this address so you can reset your password if you ever forget it.</p><p><a href="' + link + '">Confirm my email</a></p><p>The link works for 7 days. If you did not ask for this, ignore this email.</p>' });
   }
@@ -74,7 +74,7 @@ function create(db, lobby, opts) {
       if (u) {
         const t = issue(u.id, 'reset', HOUR);
         const link = publicUrl + '/play#reset=' + t;
-        await mail.send({ to: u.email, subject: 'Reset your Chacklate Chess password',
+        await mail.send({ to: u.email, subject: 'Reset your Chackmate password',
           text: 'Hi ' + u.name + ',\n\nChoose a new password here:\n' + link + '\n\nThe link works for one hour. If you did not ask for this, ignore this email; your password has not changed.',
           html: '<p>Hi ' + u.name + ',</p><p><a href="' + link + '">Choose a new password</a></p><p>The link works for one hour. If you did not ask for this, ignore this email; your password has not changed.</p>' });
       }
