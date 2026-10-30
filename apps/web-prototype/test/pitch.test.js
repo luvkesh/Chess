@@ -21,7 +21,7 @@ assert.deepStrictEqual(Object.keys(P.lines).sort(), ids.slice().sort(), 'pitches
 for (const e of campaign.eras) {
   const it = C.items.find((i) => i.category === 'pieces' && i.data.set === e.set);
   assert(it, e.id + ' has a set in the catalog');
-  assert.deepStrictEqual(P.lines[it.id], { site: 'set-' + e.id }, it.id + ' uses the website pitch set-' + e.id);
+  assert.deepStrictEqual(P.lines[it.id], { site: 'item-sets-' + e.set }, it.id + ' uses the website pitch item-sets-' + e.set);
 }
 for (const [k, l] of Object.entries(P.lines)) {
   if (typeof l !== 'string') {

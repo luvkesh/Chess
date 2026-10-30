@@ -1096,6 +1096,7 @@ function ChacklateScene(canvas, options) {
     const t0 = performance.now();
     const busy = step(now);
     render(now);
+    stats.frames++; stats.drawMs += performance.now() - t0;
     if (!drawnOnce) { drawnOnce = true; readyWaits.splice(0).forEach((r) => r()); }
     govern(t0 - reqAt, performance.now() - t0);
     if (busy) requestRender();
@@ -1105,6 +1106,8 @@ function ChacklateScene(canvas, options) {
     }
   }
   let reqAt = 0;
+  // frames drawn and the time spent drawing them, for the frame-rate readout in developer mode
+  const stats = { frames: 0, drawMs: 0 };
   function requestRender() { if (!raf && !glLost) { reqAt = performance.now(); raf = requestAnimationFrame(frame); } }
   // Watches what each frame costs: how long the browser held it back after it was asked for
   // (that grows when the GPU falls behind) plus the time spent drawing it. When the average
@@ -1602,7 +1605,7 @@ function ChacklateScene(canvas, options) {
     function show(sp, asp) {
       if (asp) aspect = asp;
       if (loop) { cancelAnimationFrame(loop); loop = 0; }
-      if (built) built.dispose();
+      if (built) drop(built);
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       built = buildSpec(sp, w, h, (style) => W.environment(r, style));
       base = built.camera.position.clone();
@@ -1619,8 +1622,12 @@ function ChacklateScene(canvas, options) {
       size();
       // the card's picture stays up while the model's shaders compile in the background
       const mine = built, go = () => { if (built === mine && !stopped && !loop) loop = requestAnimationFrame(tick); };
-      if (r.compileAsync) r.compileAsync(built.scene, built.camera).catch(() => {}).then(go); else go();
+      if (r.compileAsync) mine.compiling = r.compileAsync(built.scene, built.camera).catch(() => {}).then(() => { mine.compiling = null; go(); });
+      else go();
     }
+    // A scene still compiling is freed only once three.js has finished with it; freeing it
+    // mid-compile throws inside three when the visitor flips quickly between items.
+    function drop(b) { if (b.compiling) b.compiling.then(() => b.dispose()); else b.dispose(); }
     function tick(now) {
       loop = 0;
       if (!cv.isConnected || stageR !== r) { stop(); return; }
@@ -1675,7 +1682,7 @@ function ChacklateScene(canvas, options) {
       cv.removeEventListener('pointerup', up);
       cv.removeEventListener('pointercancel', up);
       cv.removeEventListener('wheel', wheel);
-      if (built) { built.dispose(); built = null; }
+      if (built) { drop(built); built = null; }
       if (cv.parentNode === host) host.removeChild(cv);
       host.classList.remove('live');
       if (stageOn === api) stageOn = null;
@@ -1738,6 +1745,7 @@ function ChacklateScene(canvas, options) {
     },
     // 0 (full detail) to 5; the table also changes it by itself when frames run late
     perf: () => perf,
+    stats: () => ({ frames: stats.frames, drawMs: stats.drawMs, perf }),
     setPerf,
     setFullDetail,
     setAnimations(on) { animations = on; if (!on) particles = []; requestRender(); },

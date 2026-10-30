@@ -91,7 +91,44 @@ def site_data():
         'openings': len(load('openings.json')['openings']), 'endgames': len(load('endgames.json')['endgames']),
         'items': len(catalog['items']), 'sets': cats['pieces'], 'boards': cats['board'], 'rooms': cats['room'],
     }
-    return eras, opponents, counts, campaign['coach']
+    return eras, opponents, counts, campaign['coach'], showroom(campaign, catalog)
+
+
+ACHIEVEMENTS = {'beat-wall': 'Beat Shelly the Tortoise', 'streak-7': 'Play seven days in a row'}
+
+
+def showroom(campaign, catalog):
+    """Every set, board and place for the Collect showroom: name, era line, material note, how you get it."""
+    eras = {e['id']: e for e in campaign['eras']}
+    season = {x['id']: x['name'] for x in load('seasons.json')['seasons']}
+    tints = set_tints()
+    out = {'sets': [], 'boards': [], 'places': []}
+    for it in catalog['items']:
+        cat = {'pieces': 'sets', 'board': 'boards', 'room': 'places'}.get(it['category'])
+        if not cat:
+            continue
+        u, line, how, icon = it['unlock'], 'A Chackmate classic', '', 'gift'
+        if u['type'] == 'free':
+            how = 'Yours from the start'
+        elif u['type'] == 'level':
+            how, icon = 'Reach level %d' % u['level'], 'star'
+        elif u['type'] == 'journey':
+            e = eras[u['era']]
+            line, icon = '%s · %s' % (e['name'], e['when']), 'trophy'
+            how = 'Beat %s in %s' % (e['coach']['full'], e['place'].split(',')[0]) + (' · Premium' if e['access'] == 'premium' else '')
+        elif u['type'] == 'premium':
+            line, how, icon = 'The Premium collection', 'Premium', 'crown'
+        elif u['type'] == 'season':
+            line, icon = '%s season' % season[u['season']], 'leaf'
+            how = '%s season, free track' % season[u['season']] if u['track'] == 'free' else '%s season pass' % season[u['season']]
+        elif u['type'] == 'achievement':
+            how, icon = ACHIEVEMENTS[u['achievement']], 'trophy' if u['achievement'].startswith('beat') else 'flame'
+        d = it['data']
+        tint = tints.get(d.get('set') or '', '#6a4a2c') if cat == 'sets' else {'boards': '#5a3c22', 'places': '#2c3a52'}[cat]
+        felt = FELT.get(u.get('era'), ('#3a2414', '#c8a47a')) if cat == 'sets' else None
+        out[cat].append({'tint': mix(tint, '#000000', 0.35), 'glow': mix(tint, '#ffffff', 0.18), 'felt': felt, 'key': 'item-%s-%s' % (cat, it['id'].split('.')[1]), 'name': it['name'], 'desc': it['desc'], 'line': line, 'how': how, 'icon': icon,
+                         'set': d.get('set'), 'board': d.get('board'), 'room': d.get('room'), 'era': u.get('era')})
+    return out
 
 
 def data_uri(path):
@@ -104,7 +141,7 @@ def guide(coach, eras):
     lines = json.loads((here / 'guide.json').read_text())['lines']
     recorded = json.loads((here / 'audio' / 'index.json').read_text())['lines']
     for e in eras:
-        assert 'set-' + e['id'] in lines, 'guide.json has no pitch for the %s set (set-%s)' % (e['id'], e['id'])
+        assert 'item-sets-' + e['set']['id'] in lines, 'guide.json has no pitch for item-sets-' + e['set']['id']
     out = {}
     for key, line in lines.items():
         text = line.replace('{coach}', coach)
@@ -115,7 +152,7 @@ def guide(coach, eras):
 
 
 def build(target):
-    eras, opponents, counts, coach = site_data()
+    eras, opponents, counts, coach, collection = site_data()
     art = json.loads(subprocess.run(['node', str(here / 'tools' / 'render-art.js')], check=True, capture_output=True, text=True).stdout)
     # art.js hands out URI-encoded SVG; base64 is about half the size
     prefix = 'data:image/svg+xml;charset=utf-8,'
@@ -129,8 +166,11 @@ def build(target):
     page = (here / 'src' / 'index.html').read_text()
     fonts = (game / 'vendor' / 'fonts.css').read_text()
     assert '</style' not in fonts.lower()
-    shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-')}
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': guide(coach['name'], eras), 'coach': coach['name']},
+    for items in collection.values():
+        for it in items:
+            assert it['key'] in img, 'missing img/%s; run tools/shoot.js items and tools/to-webp.py' % it['key']
+    shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-') or k.startswith('item-')}
+    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': guide(coach['name'], eras), 'coach': coach['name'], 'collection': collection},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
