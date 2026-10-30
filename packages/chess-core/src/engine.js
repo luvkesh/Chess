@@ -24,10 +24,18 @@ function ChacklateEngine() {
   // pieces they grew into: the Gaja (elephant, B) jumps exactly two squares diagonally, the Mantri
   // (counsellor, Q) steps one square diagonally, pawns step one square and become a Mantri, there is
   // no castling, stalemate wins for the side that gives it, and a bare king loses.
+  // Chess960 shuffles the back rank (fr: Fischer random castling, see genCastles960). King of the
+  // Hill also wins with the king on d4, e4, d5 or e5 (hill). Three-check also wins with a third
+  // check (checks: the count travels as a last FEN field, "+1+0" for one check given by White).
   const VARIANTS = {
     standard: { id: 'standard', name: 'Chess', start: START_FEN },
     chaturanga: { id: 'chaturanga', name: 'Chaturanga', start: 'chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1', old: true },
+    chess960: { id: 'chess960', name: 'Chess960', start: 'chess960:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w HAha - 0 1', fr: true },
+    koth: { id: 'koth', name: 'King of the Hill', start: 'koth:' + START_FEN, hill: true },
+    threecheck: { id: 'threecheck', name: 'Three-check', start: 'threecheck:' + START_FEN + ' +0+0', checks: true },
   };
+  const HILL = new Uint8Array(128); HILL[0x33] = HILL[0x34] = HILL[0x43] = HILL[0x44] = 1;
+  const CHECKS_TO_WIN = 3;
   const VARIANT_IDS = Object.keys(VARIANTS);
 
   // Castling rights bits: 1 = white O-O, 2 = white O-O-O, 4 = black O-O, 8 = black O-O-O.
@@ -53,6 +61,9 @@ function ChacklateEngine() {
   const ZSL = rand32(), ZSH = rand32();
   // Each variation hashes differently, so the shared search table never mixes their scores.
   const ZVL = VARIANT_IDS.map((id, i) => (i ? rand32() : 0)), ZVH = VARIANT_IDS.map((id, i) => (i ? rand32() : 0));
+  // Three-check: one key per side and number of checks given.
+  const ZKL = new Int32Array(8), ZKH = new Int32Array(8);
+  for (let i = 0; i < 8; i++) { ZKL[i] = rand32(); ZKH[i] = rand32(); }
 
   const mv = (from, to, promo, flags) => from | (to << 7) | (promo << 14) | (flags << 17);
   const mFrom = (m) => m & 127;
@@ -73,6 +84,9 @@ function ChacklateEngine() {
   function Pos() {
     this.v = VARIANTS.standard;
     this.ch = false;   // ancient (chaturanga) piece moves and endings
+    this.checks = [0, 0];   // three-check: checks given by White and by Black
+    this.crf = [7, 0, 7, 0];   // castling rook files: White O-O, White O-O-O, Black O-O, Black O-O-O
+    this.cmask = CASTLE_MASK;
     this.b = new Int8Array(128);
     this.side = WHITE;
     this.castle = 0;
@@ -84,7 +98,7 @@ function ChacklateEngine() {
     this.sp = 0;
     this.uMove = new Int32Array(STACK); this.uCap = new Int8Array(STACK);
     this.uCastle = new Uint8Array(STACK); this.uEp = new Int16Array(STACK);
-    this.uHalf = new Int32Array(STACK);
+    this.uHalf = new Int32Array(STACK); this.uChecks = new Uint8Array(STACK);
     this.uHl = new Int32Array(STACK); this.uHh = new Int32Array(STACK);
   }
 
@@ -100,6 +114,8 @@ function ChacklateEngine() {
     }
     const old = !!variant.old;
     const f = text.split(/\s+/);
+    let checks = [0, 0];
+    if (variant.checks && /^\+[0-3]\+[0-3]$/.test(f[f.length - 1])) { const c = f.pop().split('+'); checks = [+c[1], +c[2]]; }
     if (f.length !== 4 && f.length !== 6) return 'A FEN needs 6 fields.';
     const b = new Int8Array(128);
     const ranks = f[0].split('/');
@@ -131,15 +147,37 @@ function ChacklateEngine() {
     if (old && f[2] !== '-') return 'There is no castling in ' + variant.name + '.';
     if (old && f[3] !== '-') return 'There is no en passant in ' + variant.name + '.';
     let castle = 0;
-    if (f[2] !== '-') {
+    const crf = [7, 0, 7, 0];
+    if (variant.fr) {
+      // Shredder letters (the castling rook's file, upper case for White) or KQkq for the outermost rooks.
+      if (f[2] !== '-') {
+        for (const c of f[2]) {
+          const white = c === c.toUpperCase(), rank = white ? 0 : 0x70, color = white ? WHITE : BLACK;
+          const ksq = (() => { for (let x = 0; x < 8; x++) if (b[rank + x] === K * color) return x; return -1; })();
+          if (ksq < 0) return 'Castling needs the king on its first rank.';
+          let file = -1, kside;
+          const l = c.toLowerCase();
+          if (l === 'k' || l === 'q') {
+            kside = l === 'k';
+            for (let x = kside ? 7 : 0; kside ? x > ksq : x < ksq; x += kside ? -1 : 1) if (b[rank + x] === R * color) { file = x; break; }
+          } else if (/^[a-h]$/.test(l)) { file = l.charCodeAt(0) - 97; kside = file > ksq; }
+          if (file < 0 || file === ksq || b[rank + file] !== R * color) return 'Castling rights do not match the board.';
+          const bit = (kside ? 1 : 2) << (white ? 0 : 2);
+          if (castle & bit) return 'Invalid castling field.';
+          castle |= bit; crf[(white ? 0 : 2) + (kside ? 0 : 1)] = file;
+        }
+      }
+    } else if (f[2] !== '-') {
       for (const c of f[2]) {
         const bit = { K: 1, Q: 2, k: 4, q: 8 }[c];
         if (!bit || castle & bit) return 'Invalid castling field.';
         castle |= bit;
       }
     }
-    if ((castle & 3 && b[4] !== K) || (castle & 1 && b[7] !== R) || (castle & 2 && b[0] !== R)) return 'White castling rights do not match the board.';
-    if ((castle & 12 && b[0x74] !== -K) || (castle & 4 && b[0x77] !== -R) || (castle & 8 && b[0x70] !== -R)) return 'Black castling rights do not match the board.';
+    if (!variant.fr) {
+      if ((castle & 3 && b[4] !== K) || (castle & 1 && b[7] !== R) || (castle & 2 && b[0] !== R)) return 'White castling rights do not match the board.';
+      if ((castle & 12 && b[0x74] !== -K) || (castle & 4 && b[0x77] !== -R) || (castle & 8 && b[0x70] !== -R)) return 'Black castling rights do not match the board.';
+    }
     let ep = -1;
     if (f[3] !== '-') {
       ep = parseSq(f[3]);
@@ -153,7 +191,7 @@ function ChacklateEngine() {
       half = parseInt(f[4], 10); full = parseInt(f[5], 10);
       if (!(half >= 0) || !(full >= 1)) return 'Invalid move counters.';
     }
-    this.v = variant; this.ch = old;
+    this.v = variant; this.ch = old; this.checks = checks; this.crf = crf;
     this.b = b; this.side = f[1] === 'w' ? WHITE : BLACK; this.castle = castle; this.ep = ep;
     this.half = half; this.full = full; this.sp = 0;
     for (let sq = 0; sq < 128; sq++) {
@@ -161,6 +199,15 @@ function ChacklateEngine() {
       if (b[sq] === -K) this.kings[1] = sq;
     }
     if (this.attacked(this.kings[kIdx(-this.side)], this.side)) return 'The side not to move is in check.';
+    if (variant.fr) {
+      // Moving the king, or moving or losing a castling rook, ends that castling right.
+      const m = new Uint8Array(128).fill(15);
+      for (const [ci, rank, k] of [[0, 0, this.kings[0]], [2, 0x70, this.kings[1]]]) {
+        if (k >> 4 === rank >> 4) m[k] &= ~(3 << ci);
+        m[rank + crf[ci]] &= ~(1 << ci); m[rank + crf[ci + 1]] &= ~(2 << ci);
+      }
+      this.cmask = m;
+    } else this.cmask = CASTLE_MASK;
     this.rehash();
     return null;
   };
@@ -177,6 +224,7 @@ function ChacklateEngine() {
     if (this.side === BLACK) { hl ^= ZSL; hh ^= ZSH; }
     const vi = VARIANT_IDS.indexOf(this.v.id);
     hl ^= ZVL[vi]; hh ^= ZVH[vi];
+    if (this.v.checks) { hl ^= ZKL[this.checks[0]] ^ ZKL[4 + this.checks[1]]; hh ^= ZKH[this.checks[0]] ^ ZKH[4 + this.checks[1]]; }
     this.hl = hl; this.hh = hh;
   };
 
@@ -195,12 +243,20 @@ function ChacklateEngine() {
       if (rank) s += '/';
     }
     let c = '';
-    if (this.castle & 1) c += 'K';
-    if (this.castle & 2) c += 'Q';
-    if (this.castle & 4) c += 'k';
-    if (this.castle & 8) c += 'q';
+    if (this.v.fr) {
+      const fl = (i, up) => { const l = 'abcdefgh'[this.crf[i]]; return up ? l.toUpperCase() : l; };
+      if (this.castle & 1) c += fl(0, true);
+      if (this.castle & 2) c += fl(1, true);
+      if (this.castle & 4) c += fl(2, false);
+      if (this.castle & 8) c += fl(3, false);
+    } else {
+      if (this.castle & 1) c += 'K';
+      if (this.castle & 2) c += 'Q';
+      if (this.castle & 4) c += 'k';
+      if (this.castle & 8) c += 'q';
+    }
     return (this.v.id === 'standard' ? '' : this.v.id + ':') + s + ' ' + (this.side === WHITE ? 'w' : 'b') + ' ' + (c || '-') + ' ' +
-      (this.ep >= 0 ? sqName(this.ep) : '-') + ' ' + this.half + ' ' + this.full;
+      (this.ep >= 0 ? sqName(this.ep) : '-') + ' ' + this.half + ' ' + this.full + (this.v.checks ? ' +' + this.checks[0] + '+' + this.checks[1] : '');
   };
 
   // Is `sq` attacked by side `by`?
@@ -291,7 +347,7 @@ function ChacklateEngine() {
           if (!c) { if (!capturesOnly) list.push(mv(sq, t, 0, 0)); }
           else if ((c > 0) !== (us > 0)) list.push(mv(sq, t, 0, F_CAP));
         }
-        if (kind === K && !capturesOnly && !old) this.genCastles(sq, list);
+        if (kind === K && !capturesOnly && !old) { if (this.v.fr) this.genCastles960(sq, list); else this.genCastles(sq, list); }
       } else {
         const dirs = kind === B ? BISHOP_DIRS : kind === R ? ROOK_DIRS : KING_DIRS;
         for (let i = 0; i < dirs.length; i++) {
@@ -322,15 +378,43 @@ function ChacklateEngine() {
         !this.attacked(home - 1, them) && !this.attacked(home - 2, them)) list.push(mv(home, home - 2, 0, F_CASTLE));
   };
 
+  // Chess960 castling: the king ends on g1 (O-O) or c1 (O-O-O) and the rook on f1 or d1, wherever
+  // they started. Every square either piece crosses or lands on must be empty (apart from the two
+  // of them), and the king may not start on, cross or land on an attacked square. The move is
+  // written king-takes-own-rook (to = the rook's square), as in UCI for Chess960.
+  Pos.prototype.genCastles960 = function (sq, list) {
+    const b = this.b, us = this.side, them = -us, rank = us === WHITE ? 0 : 0x70, ci = us === WHITE ? 0 : 2;
+    if ((sq & 0x70) !== rank || !(this.castle & (3 << ci)) || this.attacked(sq, them)) return;
+    for (const kside of [true, false]) {
+      if (!(this.castle & ((kside ? 1 : 2) << ci))) continue;
+      const rs = rank + this.crf[ci + (kside ? 0 : 1)], kd = rank + (kside ? 6 : 2), rd = rank + (kside ? 5 : 3);
+      if (b[rs] !== R * us) continue;
+      const lo = Math.min(sq, rs, kd, rd), hi = Math.max(sq, rs, kd, rd);
+      let ok = true;
+      for (let t = lo; t <= hi && ok; t++) if (t !== sq && t !== rs && b[t]) ok = false;
+      for (let t = Math.min(sq, kd); t <= Math.max(sq, kd) && ok; t++) if (t !== sq && this.attacked(t, them)) ok = false;
+      if (ok) list.push(mv(sq, rs, 0, F_CASTLE));
+    }
+  };
+  // Where a castling move leaves the king and the rook: [king from, king to, rook from, rook to].
+  Pos.prototype.castleSquares = function (m) {
+    const from = mFrom(m), to = mTo(m);
+    if (this.v.fr) { const rank = from & 0x70, ks = to > from; return [from, rank + (ks ? 6 : 2), to, rank + (ks ? 5 : 3)]; }
+    return to > from ? [from, to, from + 3, from + 1] : [from, to, from - 4, from - 1];
+  };
+
   // Plays a pseudo-legal move. Returns false (and undoes it) if it leaves the king in check.
   Pos.prototype.make = function (m) {
     const b = this.b, us = this.side;
     const from = mFrom(m), to = mTo(m), flags = mFlags(m), promo = mPromo(m);
-    const piece = b[from], cap = b[to];
+    const fr960 = flags & F_CASTLE && this.v.fr;
+    const piece = b[from], cap = fr960 ? 0 : b[to];
     const sp = this.sp++;
     this.uMove[sp] = m; this.uCap[sp] = cap; this.uCastle[sp] = this.castle; this.uEp[sp] = this.ep;
     this.uHalf[sp] = this.half; this.uHl[sp] = this.hl; this.uHh[sp] = this.hh;
+    this.uChecks[sp] = this.checks[0] | (this.checks[1] << 2);
     let hl = this.hl, hh = this.hh;
+    if (fr960) return this.make960(m, piece, us, hl, hh);
 
     hl ^= ZPL[(piece + 6) * 128 + from]; hh ^= ZPH[(piece + 6) * 128 + from];
     if (cap) { hl ^= ZPL[(cap + 6) * 128 + to]; hh ^= ZPH[(cap + 6) * 128 + to]; }
@@ -351,7 +435,7 @@ function ChacklateEngine() {
     }
     if (piece * us === K) this.kings[kIdx(us)] = to;
     hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
-    this.castle &= CASTLE_MASK[from] & CASTLE_MASK[to];
+    this.castle &= this.cmask[from] & this.cmask[to];
     hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
     if (this.ep >= 0) { hl ^= ZEL[this.ep & 7]; hh ^= ZEH[this.ep & 7]; }
     this.ep = flags & F_DBL ? from + 16 * us : -1;
@@ -362,6 +446,36 @@ function ChacklateEngine() {
     hl ^= ZSL; hh ^= ZSH;
     this.hl = hl; this.hh = hh;
     if (this.attacked(this.kings[kIdx(us)], -us)) { this.unmake(); return false; }
+    if (this.v.checks) this.countCheck(us);
+    return true;
+  };
+  // Three-check: a move that gives check adds one to the mover's count.
+  Pos.prototype.countCheck = function (us) {
+    if (!this.attacked(this.kings[kIdx(-us)], us)) return;
+    const i = us === WHITE ? 0 : 4, n = this.checks[kIdx(us)];
+    if (n >= CHECKS_TO_WIN) return;
+    this.hl ^= ZKL[i + n] ^ ZKL[i + n + 1]; this.hh ^= ZKH[i + n] ^ ZKH[i + n + 1];
+    this.checks[kIdx(us)] = n + 1;
+  };
+  // Chess960 castling (see genCastles960): lift king and rook, then set both down.
+  Pos.prototype.make960 = function (m, king, us, hl, hh) {
+    const b = this.b, [kf, kt, rf, rt] = this.castleSquares(m), rook = b[rf];
+    b[kf] = 0; b[rf] = 0; b[kt] = king; b[rt] = rook;
+    hl ^= ZPL[(king + 6) * 128 + kf] ^ ZPL[(king + 6) * 128 + kt] ^ ZPL[(rook + 6) * 128 + rf] ^ ZPL[(rook + 6) * 128 + rt];
+    hh ^= ZPH[(king + 6) * 128 + kf] ^ ZPH[(king + 6) * 128 + kt] ^ ZPH[(rook + 6) * 128 + rf] ^ ZPH[(rook + 6) * 128 + rt];
+    this.kings[kIdx(us)] = kt;
+    hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
+    this.castle &= this.cmask[kf] & this.cmask[rf];
+    hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
+    if (this.ep >= 0) { hl ^= ZEL[this.ep & 7]; hh ^= ZEH[this.ep & 7]; }
+    this.ep = -1;
+    this.half++;
+    if (us === BLACK) this.full++;
+    this.side = -us;
+    hl ^= ZSL; hh ^= ZSH;
+    this.hl = hl; this.hh = hh;
+    if (this.attacked(kt, -us)) { this.unmake(); return false; }
+    if (this.v.checks) this.countCheck(us);
     return true;
   };
 
@@ -370,6 +484,17 @@ function ChacklateEngine() {
     const m = this.uMove[sp], b = this.b;
     const us = -this.side;
     const from = mFrom(m), to = mTo(m), flags = mFlags(m), promo = mPromo(m);
+    const ck = this.uChecks[sp]; this.checks[0] = ck & 3; this.checks[1] = ck >> 2;
+    if (flags & F_CASTLE && this.v.fr) {
+      const [kf, kt, rf, rt] = this.castleSquares(m), king = b[kt], rook = b[rt];
+      b[kt] = 0; b[rt] = 0; b[kf] = king; b[rf] = rook;
+      this.kings[kIdx(us)] = kf;
+      this.castle = this.uCastle[sp]; this.ep = this.uEp[sp]; this.half = this.uHalf[sp];
+      this.hl = this.uHl[sp]; this.hh = this.uHh[sp];
+      if (us === BLACK) this.full--;
+      this.side = us;
+      return;
+    }
     const piece = promo ? P * us : b[to];
     b[from] = piece; b[to] = this.uCap[sp];
     if (flags & F_EP) b[to - 16 * us] = -P * us;
@@ -388,6 +513,7 @@ function ChacklateEngine() {
     const sp = this.sp++;
     this.uMove[sp] = 0; this.uCastle[sp] = this.castle; this.uEp[sp] = this.ep;
     this.uHalf[sp] = this.half; this.uHl[sp] = this.hl; this.uHh[sp] = this.hh;
+    this.uChecks[sp] = this.checks[0] | (this.checks[1] << 2);
     if (this.ep >= 0) { this.hl ^= ZEL[this.ep & 7]; this.hh ^= ZEH[this.ep & 7]; }
     this.ep = -1; this.half++;
     this.side = -this.side; this.hl ^= ZSL; this.hh ^= ZSH;
@@ -419,6 +545,8 @@ function ChacklateEngine() {
 
   // Dead positions found automatically: K v K, K+minor v K, and bishops all on one square colour.
   Pos.prototype.insufficient = function () {
+    if (this.v.hill) return false;   // a lone king can still walk to the hill
+    if (this.v.checks && (this.count(WHITE) || this.count(BLACK))) return false;   // any piece can still give check
     if (this.ch) return this.count(WHITE) === 0 && this.count(BLACK) === 0;
     const others = [];
     for (let sq = 0; sq < 128; sq++) {
@@ -437,7 +565,8 @@ function ChacklateEngine() {
   // Could `side` still checkmate? Used when the opponent's flag falls (FIDE 6.9).
   // Conservative: a bare king, or a lone minor against a bare king, cannot.
   Pos.prototype.canMate = function (side) {
-    if (this.ch) return this.count(side) > 0;
+    if (this.ch || this.v.checks) return this.count(side) > 0;
+    if (this.v.hill) return true;
     if (this.insufficient()) return false;
     const own = [];
     let opponentBare = true;
@@ -450,6 +579,15 @@ function ChacklateEngine() {
     if (own.length === 0) return false;
     if (own.length === 1 && (own[0] === N || own[0] === B)) return !opponentBare;
     return true;
+  };
+
+  // King of the Hill and Three-check: the side that has just moved may already have won.
+  // Returns the winning side, or 0.
+  Pos.prototype.variantWinner = function () {
+    const v = this.v;
+    if (v.hill) { if (HILL[this.kings[0]]) return WHITE; if (HILL[this.kings[1]]) return BLACK; }
+    if (v.checks) { if (this.checks[0] >= CHECKS_TO_WIN) return WHITE; if (this.checks[1] >= CHECKS_TO_WIN) return BLACK; }
+    return 0;
   };
 
   // How many pieces other than the king `side` has.
@@ -488,7 +626,7 @@ function ChacklateEngine() {
     const from = mFrom(m), to = mTo(m), flags = mFlags(m), promo = mPromo(m);
     const piece = this.b[from], kind = Math.abs(piece);
     let s;
-    if (flags & F_CASTLE) s = to > from ? 'O-O' : 'O-O-O';
+    if (flags & F_CASTLE) s = to > from ? 'O-O' : 'O-O-O';   // in Chess960 too: `to` is the rook's square
     else {
       s = '';
       if (kind === P) {
@@ -656,8 +794,19 @@ function ChacklateEngine() {
         }
       }
     }
+    // King of the Hill: a king near the centre is close to winning. Three-check: each check given
+    // counts for more than a piece, the second for nearly a rook more.
+    if (pos.v.hill) {
+      for (const [k, color] of [[pos.kings[0], 1], [pos.kings[1], -1]]) {
+        const f = k & 7, r = k >> 4, d = Math.max(Math.max(0, 3 - f, f - 4), Math.max(0, 3 - r, r - 4));
+        score += color * HILL_BONUS[d];
+      }
+    }
+    if (pos.v.checks) score += CHECK_BONUS[pos.checks[0]] - CHECK_BONUS[pos.checks[1]];
     return score | 0;
   }
+  const HILL_BONUS = [0, 90, 35, 10];
+  const CHECK_BONUS = [0, 160, 420, 0];
 
   // ------------------------------------------------------------------ Search
 
@@ -738,9 +887,11 @@ function ChacklateEngine() {
       return list[i];
     }
 
+    const race = !!(pos.v.hill || pos.v.checks);
     function qsearch(alpha, beta, ply) {
       tick();
       if (stopped) return 0;
+      if (race && pos.variantWinner()) return -MATE + ply;   // only the side that just moved can have won
       const stand = evalSide();
       if (stand >= beta) return beta;
       if (stand > alpha) alpha = stand;
@@ -765,6 +916,7 @@ function ChacklateEngine() {
       if (ply > 0) {
         if (pos.half >= 100 || isRepetition() || pos.insufficient()) return 0;
         if (pos.ch) { const w = pos.bareWinner(); if (w) return w === pos.side ? MATE - ply : -MATE + ply; }
+        if (race && pos.variantWinner()) return -MATE + ply;
       }
       const inCheck = pos.inCheck();
       if (inCheck) depth++;
@@ -893,6 +1045,8 @@ function ChacklateEngine() {
   Game.prototype.boardOutcome = function () {
     const p = this.pos;
     const lost = p.side === WHITE ? '0-1' : '1-0';
+    const vw = p.variantWinner();
+    if (vw) return { result: vw === WHITE ? '1-0' : '0-1', reason: p.v.hill ? 'hill' : 'three-check' };
     if (!this.legal.length) {
       if (p.inCheck()) return { result: lost, reason: 'checkmate' };
       if (p.ch) return { result: lost, reason: 'stalemate-win' };
@@ -912,14 +1066,23 @@ function ChacklateEngine() {
     return null;
   };
 
+  // In Chess960 a castling move can be picked on the rook's square or on the king's landing square
+  // (unless an ordinary king move already goes there).
   Game.prototype.find = function (from64, to64, promo) {
     const from = to88(from64), to = to88(to64);
-    return this.legal.find((m) => mFrom(m) === from && mTo(m) === to && mPromo(m) === (promo || 0)) ?? null;
+    const hit = this.legal.find((m) => mFrom(m) === from && mTo(m) === to && mPromo(m) === (promo || 0));
+    if (hit !== undefined || !this.pos.v.fr) return hit ?? null;
+    return this.legal.find((m) => mFlags(m) & F_CASTLE && mFrom(m) === from && this.pos.castleSquares(m)[1] === to) ?? null;
   };
 
   Game.prototype.targets = function (from64) {
-    const from = to88(from64);
-    return this.legal.filter((m) => mFrom(m) === from).map((m) => to64(mTo(m)));
+    const from = to88(from64), out = [];
+    for (const m of this.legal) {
+      if (mFrom(m) !== from) continue;
+      out.push(to64(mTo(m)));
+      if (this.pos.v.fr && mFlags(m) & F_CASTLE) { const kt = to64(this.pos.castleSquares(m)[1]); if (kt !== from64) out.push(kt); }
+    }
+    return out.filter((t, i) => out.indexOf(t) === i);
   };
 
   Game.prototype.needsPromotion = function (from64, to64) {
@@ -942,10 +1105,10 @@ function ChacklateEngine() {
     this.captured.push(capturedPiece);
     this.keys.push(p.repKey());
     this.refresh();
-    let rook = null;
-    if (flags & F_CASTLE) rook = to > from ? [to64(from + 3), to64(from + 1)] : [to64(from - 4), to64(from - 1)];
+    let rook = null, kingTo = to;
+    if (flags & F_CASTLE) { const c = p.castleSquares(m); rook = [to64(c[2]), to64(c[3])]; kingTo = c[1]; }
     return {
-      move: m, san, from: to64(from), to: to64(to), mover, promo: mPromo(m) * (mover > 0 ? 1 : -1),
+      move: m, san, from: to64(from), to: to64(kingTo), mover, promo: mPromo(m) * (mover > 0 ? 1 : -1),
       captured: capturedPiece, capturedSq: capturedPiece ? to64(capSq) : -1, rook, check: p.inCheck(),
     };
   };
@@ -987,7 +1150,7 @@ function ChacklateEngine() {
     const t = Object.assign({ Event: 'Casual game', Site: 'Chackmate', Date: '????.??.??', Round: '-', White: '?', Black: '?' }, tags || {});
     t.Result = result;
     if (this.variant !== 'standard') t.Variant = VARIANTS[this.variant].name;
-    if (this.startFen !== START_FEN) { t.SetUp = '1'; t.FEN = this.startFen.replace(/^[a-z0-9]+:/, ''); }
+    if (this.startFen !== START_FEN && this.startFen !== VARIANTS[this.variant].start) { t.SetUp = '1'; t.FEN = this.startFen.replace(/^[a-z0-9]+:/, ''); }
     const order = ['Event', 'Site', 'Date', 'Round', 'White', 'Black', 'Result', 'Variant'].filter((k) => k in t);
     const keys = order.concat(Object.keys(t).filter((k) => !order.includes(k)));
     let out = keys.map((k) => '[' + k + ' "' + String(t[k]).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"]').join('\n') + '\n\n';
@@ -1008,6 +1171,24 @@ function ChacklateEngine() {
     }
     return out + line + '\n';
   };
+
+  // Chess960 start position number n (0-959; 518 is the usual chess start), in the standard
+  // numbering: bishops, then the queen, then the knights, and the rooks and king in what is left.
+  function chess960Fen(n) {
+    n = ((n | 0) % 960 + 960) % 960;
+    const row = new Array(8).fill(null);
+    let k = n;
+    row[(k % 4) * 2 + 1] = 'b'; k = (k / 4) | 0;
+    row[(k % 4) * 2] = 'b'; k = (k / 4) | 0;
+    const free = () => row.map((x, i) => (x ? -1 : i)).filter((i) => i >= 0);
+    row[free()[k % 6]] = 'q'; k = (k / 6) | 0;
+    const KN = [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]][k];
+    const f1 = free(); row[f1[KN[0]]] = 'n'; row[f1[KN[1]]] = 'n';
+    const f2 = free(); row[f2[0]] = 'r'; row[f2[1]] = 'k'; row[f2[2]] = 'r';
+    const back = row.join(''), files = 'abcdefgh';
+    const c = files[f2[2]].toUpperCase() + files[f2[0]].toUpperCase() + files[f2[2]] + files[f2[0]];
+    return 'chess960:' + back + '/pppppppp/8/8/8/8/PPPPPPPP/' + back.toUpperCase() + ' w ' + c + ' - 0 1';
+  }
 
   // Rebuilds a position from a start FEN and UCI moves (used by the worker).
   function positionFrom(fen, ucis) {
@@ -1039,7 +1220,8 @@ function ChacklateEngine() {
   }
 
   return {
-    START_FEN, WHITE, BLACK, P, N, B, R, Q, K, LEVELS, MATE, VALUE, VARIANTS,
+    START_FEN, WHITE, BLACK, P, N, B, R, Q, K, LEVELS, MATE, VALUE, VARIANTS, chess960Fen, CHECKS_TO_WIN,
+    onHill: (sq64) => !!HILL[to88(sq64)],
     F_CAP, F_DBL, F_EP, F_CASTLE, F_PROMO, mFlags, parseSq,
     KNIGHT_DIRS, KING_DIRS, BISHOP_DIRS, ROOK_DIRS, ALFIL_DIRS,
     variantOf(fen) { const m = String(fen || '').match(/^([a-z0-9]+):/); return m && VARIANTS[m[1]] ? m[1] : 'standard'; },

@@ -471,6 +471,102 @@
     "variant.chaturanga.ex.stuck": {
       "who": "rooky",
       "text": "Find a move that leaves Black with no move at all. In chaturanga, that wins!"
+    },
+    "variant.chess960.hello": {
+      "who": "rooky",
+      "text": "A world champion called Bobby Fischer had a fun idea: shuffle the back row before every game! It is called Chess960."
+    },
+    "variant.chess960.mirror": {
+      "who": "rooky",
+      "text": "Look closely. Black's pieces copy White's, file by file, like a mirror. The pawns stay right where they always are."
+    },
+    "variant.chess960.order": {
+      "who": "rooky",
+      "text": "There are only two rules for the shuffle. The bishops stand on different colours, and the king stands between the rooks."
+    },
+    "variant.chess960.castle": {
+      "who": "rooky",
+      "text": "Castling ends just like in chess: the king on the g-file or the c-file, the rook right beside it. To castle, move your king onto your rook."
+    },
+    "variant.chess960.think": {
+      "who": "rooky",
+      "text": "Nobody knows the openings here, so think from your very first move. Bring out your pieces and keep your king safe."
+    },
+    "variant.chess960.ex.short": {
+      "who": "rooky",
+      "text": "Castle on the king's side. Put your king on the rook on h1."
+    },
+    "variant.chess960.ex.long": {
+      "who": "rooky",
+      "text": "Now castle on the queen's side, towards the a-file."
+    },
+    "variant.chess960.ex.land": {
+      "who": "rooky",
+      "text": "If White castles on the king's side here, where does the king land?"
+    },
+    "variant.chess960.ex.rule": {
+      "who": "rooky",
+      "text": "Which rule is always true in Chess960?"
+    },
+    "variant.koth.hello": {
+      "who": "rooky",
+      "text": "Welcome to King of the Hill! The four squares in the middle are the hill. Get your king up there and you win."
+    },
+    "variant.koth.hill": {
+      "who": "rooky",
+      "text": "See the glowing squares? d4, e4, d5 and e5. One step onto any of them wins the game at once."
+    },
+    "variant.koth.safe": {
+      "who": "rooky",
+      "text": "But a king can never step onto a square an enemy guards. This rook guards the fourth row, so those hill squares are closed."
+    },
+    "variant.koth.block": {
+      "who": "rooky",
+      "text": "So watch the enemy king too! If it gets close to the hill, guard the hill squares before it climbs."
+    },
+    "variant.koth.same": {
+      "who": "rooky",
+      "text": "Checkmate still wins, and every piece moves just like in chess. Now, let's climb!"
+    },
+    "variant.koth.ex.climb": {
+      "who": "rooky",
+      "text": "Walk your king onto the hill."
+    },
+    "variant.koth.ex.stop": {
+      "who": "rooky",
+      "text": "Black's king wants the hill. Stop it with one rook move."
+    },
+    "variant.koth.ex.guarded": {
+      "who": "rooky",
+      "text": "The bishop guards one hill square. Find the safe one and climb."
+    },
+    "variant.threecheck.hello": {
+      "who": "rooky",
+      "text": "In Three-check, every check counts! Give check three times and you win, even without checkmate."
+    },
+    "variant.threecheck.count": {
+      "who": "rooky",
+      "text": "White's bishop just gave check, so White's counter shows one. The counters sit beside the players' names."
+    },
+    "variant.threecheck.safe": {
+      "who": "rooky",
+      "text": "So keep your king tucked away. Don't open lines toward it too early, or the checks pile up fast."
+    },
+    "variant.threecheck.same": {
+      "who": "rooky",
+      "text": "Checkmate still wins, and every piece moves just like in chess. Let's practise!"
+    },
+    "variant.threecheck.ex.third": {
+      "who": "rooky",
+      "text": "You have given two checks. Give the third and win."
+    },
+    "variant.threecheck.ex.knight": {
+      "who": "rooky",
+      "text": "Two checks done. Can your knight give the third?"
+    },
+    "variant.threecheck.ex.what": {
+      "who": "rooky",
+      "text": "What happens when you give your third check?"
     }
   }
 }

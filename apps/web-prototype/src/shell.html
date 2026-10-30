@@ -698,6 +698,10 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .player-card .name { font: 500 21px/1.05 var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player-card .sub { font: 600 9.5px/1.2 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
 .player-card .taken { display: flex; align-items: center; min-height: 18px; margin-top: 3px; }
+.player-card .checks { display: inline-flex; gap: 4px; margin-right: 8px; }
+.player-card .checks[hidden] { display: none; }
+.player-card .checks i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid rgba(232, 194, 122, 0.7); box-sizing: border-box; }
+.player-card .checks i.on { background: radial-gradient(circle at 35% 35%, #ffd98a, #c8892c); border-color: #ffd98a; box-shadow: 0 0 6px rgba(255, 200, 110, 0.55); }
 .player-card .caps { display: flex; }
 .player-card .caps img { width: 17px; height: 17px; margin-right: -5px; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)); }
 .player-card .adv { font: 600 11px/1 var(--mono); color: var(--ok); margin-left: 9px; }
@@ -1054,6 +1058,8 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .var-actions .ic-big .ico { width: 30px; height: 30px; }
 .rs-card { padding: 22px 24px; border-radius: 22px; }
 .rulesheet { display: grid; grid-template-columns: 1.4fr 1fr; gap: 26px; }
+.rulesheet.no-pieces { grid-template-columns: 1fr; }
+.rulesheet.no-pieces .rs-rules { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .rulesheet h3 { font: 600 11px/1 var(--caps); letter-spacing: 0.22em; color: var(--gold); text-transform: uppercase; margin: 0 0 14px; }
 .rs-pieces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .rs-piece { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; padding: 12px; border-radius: 16px; border: 1px solid var(--line); background: rgba(20, 12, 8, 0.45); }
@@ -1238,7 +1244,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   body.ingame .toasts { top: calc(var(--safe-t) + 124px); }
   .player-card { border-radius: 999px; padding-right: 6px; }
   .player-card .taken { min-height: 0; margin-top: 2px; }
-  .player-card .taken:not(:has(img)) { display: none; }
+  .player-card .taken:not(:has(img, .checks:not([hidden]))) { display: none; }
 }
 @media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
   :root { --nav-h: 52px; }

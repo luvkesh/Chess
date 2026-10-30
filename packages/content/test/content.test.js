@@ -247,8 +247,8 @@ for (const v of variants) {
   assert.ok(E.VARIANTS[v.id], v.id + ' has rules in the engine');
   assert.strictEqual(v.start, E.VARIANTS[v.id].start, v.id + ' start');
   assert.strictEqual(E.variantOf(load(v.start, v.id).fen()), v.id);
-  assert.ok(v.pieces.length === 6 && v.rules.length && v.rules.some((r) => r.differs), v.id + ' rule sheet');
-  for (const pc of v.pieces) {
+  assert.ok((!v.pieces || v.pieces.length === 6) && v.rules.length && v.rules.some((r) => r.differs), v.id + ' rule sheet');
+  for (const pc of v.pieces || []) {
     assert.ok('kqbnrp'.includes(pc.kind) && pc.name && pc.en && pc.moves, v.id + ' piece ' + pc.kind);
     assert.strictEqual(pc.fen.split('/').length, 8, v.id + ' ' + pc.name + ' picture');
     assert.ok(pc.dots.every((d) => sq(d) >= 0), v.id + ' ' + pc.name + ' dots');

@@ -1997,6 +1997,8 @@ function ChacklateScene(canvas, options) {
       const quick = o && o.quick;
       const mover = sprites.find((s) => s.sq === info.from && !s.dead);
       const victim = info.capturedSq >= 0 ? sprites.find((s) => s.sq === info.capturedSq && s !== mover && !s.dead) : null;
+      // Found before anything moves: in Chess960 the king can land on the rook's own square.
+      const castleRook = info.rook ? sprites.find((s) => s.sq === info.rook[0] && s !== mover && !s.dead) : null;
       const finish = () => { if (done) done(); };
       const capturer = info.mover > 0 ? 1 : -1;
       const graveIdx = graveyard.filter((g) => g.cap === capturer).length;
@@ -2010,12 +2012,12 @@ function ChacklateScene(canvas, options) {
       if (!animations || !mover) {
         if (victim) toGrave(victim);
         if (mover) { mover.sq = info.to; mover.x = sqX(info.to); mover.z = sqZ(info.to); mover.y = 0; if (info.promo) { mover.piece = info.promo; rebuildSprite(mover); } placeSprite(mover); }
-        if (info.rook) { const r = sprites.find((s) => s.sq === info.rook[0] && !s.dead); if (r) { r.sq = info.rook[1]; r.x = sqX(r.sq); r.z = sqZ(r.sq); placeSprite(r); } }
+        if (castleRook) { const r = castleRook; r.sq = info.rook[1]; r.x = sqX(r.sq); r.z = sqZ(r.sq); placeSprite(r); }
         requestRender(); finish();
         return;
       }
       const cinema = !quick && captureFxOn && !(o && o.cinema === false);
-      const rook = info.rook && cinema ? sprites.find((s) => s.sq === info.rook[0] && !s.dead) : null;
+      const rook = cinema ? castleRook : null;
       if (rook) {
         mover.sq = info.to; rook.sq = info.rook[1];
         startCastle(info, mover, rook, finish, o);
@@ -2045,9 +2047,9 @@ function ChacklateScene(canvas, options) {
         }
         victim.anim = { type: 'grave', start: impact, dur: quick ? 220 : 560, fx: vx, fz: vz, tx: gx, tz: gz, fyaw: victim.yaw, done: () => toGrave(victim) };
       }
-      if (info.rook) {
-        const r = sprites.find((s) => s.sq === info.rook[0] && !s.dead);
-        if (r) { r.anim = { type: 'move', start: now + 80, dur, fx: r.x, fz: r.z, fy: 0, tx: sqX(info.rook[1]), tz: sqZ(info.rook[1]), arc: 0.34 }; r.sq = info.rook[1]; }
+      if (castleRook) {
+        const r = castleRook;
+        r.anim = { type: 'move', start: now + 80, dur, fx: r.x, fz: r.z, fy: 0, tx: sqX(info.rook[1]), tz: sqZ(info.rook[1]), arc: 0.34 }; r.sq = info.rook[1];
       }
       requestRender();
       return false;
