@@ -37,6 +37,14 @@ const asked = new Set([...app.matchAll(/guide(?:Say|Idle|Fresh)\('([a-z.]+)'/g)]
 for (const k of asked) assert(G.lines[k], 'guide.json has ' + k);
 // keys chosen in code, such as 'lesson.ex' or 'game.black'
 for (const k of Object.keys(G.lines)) if (app.includes("'" + k + "'")) asked.add(k);
+// The placement test: Rooky reads every question word for word, and says the result of each band.
+const PL = require('../../../packages/content/placement.json');
+for (const q of PL.questions) {
+  const line = G.lines['placement.' + q.id];
+  assert(line && line.who === 'rooky' && line.text === q.prompt, 'placement.' + q.id + ' is Rooky reading the question');
+  asked.add('placement.' + q.id);
+}
+for (const b of PL.bands) { assert(G.lines[b.say] && G.lines[b.say].who === 'rooky', b.say); asked.add(b.say); }
 const menus = [...app.matchAll(/SCREENS\.([a-z]+) = function/g)].map((m) => m[1]).filter((n) => !['era', 'lesson', 'puzzle', 'game', 'drill', 'home'].includes(n));
 for (const n of menus) assert(G.lines[n], 'the ' + n + ' screen has a line');
 for (const k of Object.keys(G.lines)) {

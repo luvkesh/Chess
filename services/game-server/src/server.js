@@ -13,6 +13,7 @@ const push = require('./push');
 const fairplay = require('./fairplay');
 const account = require('./account');
 const family = require('./family');
+const club = require('./club');
 const mailer = require('./mailer');
 const { Lobby } = require('./lobby');
 
@@ -59,6 +60,7 @@ function createServer(opts) {
   const mail = opts.mailer || mailer.create(Object.assign({ log: opts.log }, opts.mail));
   const accountApi = account.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
   const familyApi = family.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
+  const clubApi = club.create(db, lobby, family.policy);
   const purgeTimer = setInterval(() => { try { familyApi.purgeInactive(); } catch (e) { (opts.log || console.log)('purge failed', e.message); } }, 24 * 3600e3);
   purgeTimer.unref();
   const accountLimit = auth.limiter(20, 60000);
@@ -122,6 +124,10 @@ function createServer(opts) {
     }
     if (p === '/api/names' || p.startsWith('/api/parent/') || p === '/api/account/age' || p === '/api/account/consent/resend') {
       const out = await familyApi.handle(req, p, body, ip, lobby.userForToken(bearer(req)));
+      if (out) return out;
+    }
+    if (p === '/api/club' || p.startsWith('/api/friends') || p === '/api/account/location') {
+      const out = await clubApi.handle(req, p, body, url, lobby.userForToken(bearer(req)));
       if (out) return out;
     }
     if (p.startsWith('/api/account/')) {
@@ -208,6 +214,24 @@ function createServer(opts) {
       if (fs.existsSync(gf)) {
         res.writeHead(200, Object.assign({ 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
         return fs.createReadStream(gf).pipe(res);
+      }
+    }
+    // Rooky's word on each Collection item. A chess set from an era uses the website's recording of its pitch.
+    const pm = url.pathname.match(/^\/pitch\/(site\/)?([a-z0-9.-]+)\.mp3$/);
+    if (pm && req.method === 'GET') {
+      const pf = pm[1] ? path.join(ROOT, 'apps/website/audio', pm[2] + '.mp3') : path.join(PUBLIC, 'pitch', pm[2] + '.mp3');
+      if (fs.existsSync(pf)) {
+        res.writeHead(200, Object.assign({ 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
+        return fs.createReadStream(pf).pipe(res);
+      }
+    }
+    // Lessons with their own speakers: words/<who>/<hash of the text>.mp3, recorded again when a voice changes.
+    const wm = url.pathname.match(/^\/words\/([a-z]+)\/([0-9a-f]{8})\.mp3$/);
+    if (wm && req.method === 'GET') {
+      const wf = path.join(PUBLIC, 'words', wm[1], wm[2] + '.mp3');
+      if (fs.existsSync(wf)) {
+        res.writeHead(200, Object.assign({ 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
+        return fs.createReadStream(wf).pipe(res);
       }
     }
     const file = STATIC[url.pathname.replace(/\/+$/, '') || '/'];
