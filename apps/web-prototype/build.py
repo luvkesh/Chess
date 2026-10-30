@@ -21,6 +21,7 @@ SCRIPTS = [
     src / 'pieces3d.js',
     src / 'landmarks3d.js',
     src / 'world3d.js',
+    src / 'elements3d.js',
     src / 'scene.js',
     src / 'art.js',
     src / 'progress.js',

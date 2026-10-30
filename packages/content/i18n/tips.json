@@ -64,6 +64,7 @@
   "settings.anim": { "en": "Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game.", "hi": "मोहरे सरकते, चमकते और जश्न मनाते हैं। शांत और तेज़ खेल के लिए इसे बंद करें।", "check": ["hi"] },
   "settings.announce": { "en": "Hear every move said out loud, like “Knight to f3”.", "hi": "हर चाल ज़ोर से सुनें, जैसे “घोड़ा f3 पर”।", "check": ["hi"] },
   "settings.cine": { "en": "Short movie scenes when a piece is captured or a king castles. Tap the board to skip one.", "hi": "जब कोई मोहरा मारा जाए या राजा किलाबंदी करे, तो छोटे फ़िल्मी दृश्य। छोड़ने के लिए बिसात पर टैप करें।", "check": ["hi"] },
+  "settings.elements": { "en": "Each room's own fire, lightning or stone burst on captures, and a storm when you win.", "hi": "हर कमरे की अपनी आग, बिजली या पत्थरों की बौछार मोहरा मारने पर, और जीतने पर एक तूफ़ान।", "check": ["hi"] },
   "settings.coach": { "en": "Rooky's comments|How often Rooky talks about your moves during a game.", "hi": "Rooky की बातें|खेल के दौरान Rooky आपकी चालों पर कितनी बार बोलता है।", "check": ["hi"] },
   "settings.coach.chatty": { "en": "Rooky says something about every move. Great for learning.", "hi": "Rooky हर चाल पर कुछ कहता है। सीखने के लिए बढ़िया।", "check": ["hi"] },
   "settings.coach.normal": { "en": "Rooky points out mistakes and cheers your great moves.", "hi": "Rooky ग़लतियाँ बताता है और आपकी शानदार चालों पर ख़ुश होता है।", "check": ["hi"] },
