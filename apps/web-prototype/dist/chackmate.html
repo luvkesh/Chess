@@ -127,6 +127,13 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 .pill.ok { color: #d6f5e3; border-color: rgba(143, 214, 168, 0.45); background: rgba(143, 214, 168, 0.12); }
 .pill.lock { color: var(--faint); }
 .pill .ico { width: 13px; height: 13px; }
+.pill.coins { font-size: 14px; padding: 6px 14px; }
+.pill.coins b { font-weight: 600; color: var(--gold); }
+.pill.coins .ico { width: 17px; height: 17px; color: var(--gold); }
+.toast.ach i.coin-i .ico { width: 22px; height: 22px; color: #3a1e06; }
+.btn[aria-disabled="true"] { opacity: 0.6; }
+#st-coins .items { margin-top: 14px; }
+#st-coins .item .st .btn .ico { width: 15px; height: 15px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; }
 .chip { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.05); color: var(--ink); font-size: 14px; }
 .chip.on { border-color: var(--gold); background: rgba(232, 194, 122, 0.16); color: var(--gold-2); }
@@ -797,6 +804,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .mission b { font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px; }
 .mission small { text-align: right; color: var(--muted); font-size: 11.5px; line-height: 1.25; font-variant-numeric: tabular-nums; }
 .mission small span { color: var(--gold-2); }
+.mission small span .ico { width: 11px; height: 11px; vertical-align: -1px; }
 .mission.done > i { background: radial-gradient(circle at 35% 30%, #fff0c4, #d9a54e 60%, #8a5a1e); color: #3a1e06; border-color: #fbe7b4; }
 .mission.done b { color: var(--muted); }
 .pass-cta { display: flex; gap: 16px; align-items: center; padding: 16px 18px; border-radius: 18px; margin: 0 0 16px; border: 1px solid rgba(232, 194, 122, 0.5); background: linear-gradient(110deg, rgba(232, 194, 122, 0.16), rgba(194, 57, 95, 0.08)); }
@@ -16770,6 +16778,20 @@ function ChacklateProgress(catalog, extras) {
   const SEASONS = (extras && extras.seasons) || { tierXp: 300, seasons: [] };
   const MISSIONS = (extras && extras.missions) || { perDay: 3, allDoneXp: 0, missions: [] };
   const CAMPAIGN = (extras && extras.campaign) || { eras: [] };
+  // Choco Coins: the soft currency. Earned only by playing, never bought with money, and only
+  // spent on looks, so nothing bought changes gameplay or rating.
+  const COIN_NAME = 'Choco Coins', COIN_ONE = 'Choco Coin';
+  const COINS = {
+    daily: { amount: 20, times: 1 },          // first visit of the day
+    game: { amount: 10, win: 20, times: 10 }, // a finished game of 6+ plies
+    lesson: { amount: 25 },                   // a lesson passed for the first time
+    'daily-puzzle': { amount: 30, times: 1 },
+    mission: { amount: 15, all: 25 },
+    mini: { amount: 10, cap: 50 },            // per mini-game per day (see earn)
+  };
+  // Level items can be bought with coins once the player is within this many levels of them.
+  const COIN_REACH = 2;
+  const COIN_PRICE = { common: 200, rare: 400, epic: 900, legendary: 1500 };
   const TITLES = [[1, 'Cocoa Bean'], [5, 'Apprentice'], [10, 'Chocolatier'], [15, 'Maître'], [20, 'Grand Maître']];
   const ACHIEVEMENTS = [
     { id: 'first-game', name: 'First move', desc: 'Finish your first game.', xp: 20 },
@@ -16824,6 +16846,7 @@ function ChacklateProgress(catalog, extras) {
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
+      coins: 0, earned: { date: '', by: {}, n: {} }, bought: [],
     };
   }
   function migrate(s) {
@@ -16835,6 +16858,9 @@ function ChacklateProgress(catalog, extras) {
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
     out.missions = Object.assign(f.missions, s.missions || {});
     out.journey = Object.assign({}, s.journey || {});
+    out.coins = Math.max(0, Math.floor(+s.coins || 0));
+    out.earned = Object.assign(f.earned, s.earned || {});
+    out.bought = Array.isArray(s.bought) ? s.bought.slice() : [];
     return out;
   }
 
@@ -16859,6 +16885,47 @@ function ChacklateProgress(catalog, extras) {
         out.unlocked.push(...seasonItems(sid).filter((i) => i.unlock.tier > t0 && i.unlock.tier <= t1 && (i.unlock.track === 'free' || hasPass(state, sid))));
       }
     }
+  }
+
+  // ------------------------------------------------------------ choco coins
+  // The one way coins are earned. source names what paid (e.g. 'game', 'mini:knight-tour');
+  // opts.cap limits the coins from that source per local day, opts.times the number of grants.
+  // Returns the coins actually granted, which is 0 once a limit is reached.
+  function earn(state, source, amount, opts, out) {
+    opts = opts || {};
+    const d = today(opts.now ? new Date(opts.now) : undefined);
+    if (state.earned.date !== d) state.earned = { date: d, by: {}, n: {} };
+    const e = state.earned, had = e.by[source] || 0, n = e.n[source] || 0;
+    let give = Math.max(0, Math.floor(amount));
+    if (opts.times && n >= opts.times) give = 0;
+    if (opts.cap) give = Math.max(0, Math.min(give, opts.cap - had));
+    if (!give) return 0;
+    e.by[source] = had + give; e.n[source] = n + 1;
+    state.coins = (state.coins || 0) + give;
+    if (out) out.coins = (out.coins || 0) + give;
+    return give;
+  }
+  // Daily bonus on the first visit of the day.
+  function dailyBonus(state, now) {
+    const out = result();
+    earn(state, 'daily', COINS.daily.amount, { times: 1, now }, out);
+    return out;
+  }
+  const coinPrice = (item) => item && item.unlock.type === 'level' ? (COIN_PRICE[item.rarity] || COIN_PRICE.rare) : null;
+  // Whether an item can be bought with coins now: { ok, price, reason }.
+  function coinOffer(state, item) {
+    const price = coinPrice(item);
+    if (price === null || isUnlocked(state, item)) return { ok: false, price, reason: price === null ? 'not-for-coins' : 'owned' };
+    if (levelFor(state.xp).level < item.unlock.level - COIN_REACH) return { ok: false, price, reason: 'too-far' };
+    if ((state.coins || 0) < price) return { ok: false, price, reason: 'short', short: price - (state.coins || 0) };
+    return { ok: true, price };
+  }
+  function buyWithCoins(state, item) {
+    const o = coinOffer(state, item);
+    if (!o.ok) return false;
+    state.coins -= o.price;
+    state.bought.push(item.id);
+    return true;
   }
 
   // ------------------------------------------------------------ seasons
@@ -16914,9 +16981,9 @@ function ChacklateProgress(catalog, extras) {
       const def = missionDef(rec.id);
       if (!def || rec.done || def.event !== event) continue;
       rec.n = Math.min(def.goal, rec.n + n);
-      if (rec.n >= def.goal) { rec.done = true; out.missions.push(def); grant(state, def.xp, out); }
+      if (rec.n >= def.goal) { rec.done = true; out.missions.push(def); grant(state, def.xp, out); earn(state, 'mission', COINS.mission.amount, { now }, out); }
     }
-    if (!ms.bonus && ms.list.length && ms.list.every((r) => r.done)) { ms.bonus = true; out.missionsAll = true; grant(state, MISSIONS.allDoneXp, out); }
+    if (!ms.bonus && ms.list.length && ms.list.every((r) => r.done)) { ms.bonus = true; out.missionsAll = true; grant(state, MISSIONS.allDoneXp, out); earn(state, 'missions-all', COINS.mission.all, { times: 1, now }, out); }
   }
   function missionList(state, now, opts) {
     return ensureMissions(state, now, opts).list.map((r) => Object.assign({}, missionDef(r.id), r));
@@ -16944,7 +17011,7 @@ function ChacklateProgress(catalog, extras) {
   function unlocksBetween(state, from, to) {
     return catalog.items.filter((i) => i.unlock.type === 'level' && i.unlock.level > from && i.unlock.level <= to);
   }
-  const result = () => ({ xp: 0, levelUp: 0, achievements: [], unlocked: [], missions: [], seasonTier: 0 });
+  const result = () => ({ xp: 0, coins: 0, levelUp: 0, achievements: [], unlocked: [], missions: [], seasonTier: 0 });
 
   // A finished game. g = { mode, level, won, drawn, lost, reason, moves (plies), sans, startFen, accuracy, online }
   function gameFinished(state, g, now) {
@@ -16963,6 +17030,7 @@ function ChacklateProgress(catalog, extras) {
     if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); achieve(state, LEVEL_ACH[lv], out); }
     if (g.online) achieve(state, 'online-first', out);
     if (g.plies >= 6) {
+      earn(state, 'game', g.won ? COINS.game.win : COINS.game.amount, { times: COINS.game.times, now }, out);
       track(state, 'game', 1, now, out);
       if (g.won) track(state, 'win', 1, now, out);
       if (g.online) track(state, 'online', 1, now, out);
@@ -16996,7 +17064,7 @@ function ChacklateProgress(catalog, extras) {
     if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
-    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
+    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
     if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
@@ -17012,7 +17080,7 @@ function ChacklateProgress(catalog, extras) {
     const rec = { stars: Math.max(stars, prev ? prev.stars : 0), attempts: (prev ? prev.attempts : 0) + 1, mastered: pct >= 0.8 || !!(prev && prev.mastered),
       completed: today(new Date(t)), reviews: prev && prev.reviews ? prev.reviews : [1, 7, 30].map((d) => today(new Date(t + d * 86400000))) };
     state.lessons[lesson.id] = rec;
-    if (!prev) grant(state, 30, out);
+    if (!prev) { grant(state, 30, out); earn(state, 'lesson', COINS.lesson.amount, { now: t }, out); }
     if (rec.mastered && !(prev && prev.mastered)) grant(state, 40, out);
     if (!prev && stars === 3) grant(state, 10, out);
     out.stars = stars;
@@ -17114,7 +17182,7 @@ function ChacklateProgress(catalog, extras) {
   function isUnlocked(state, item) {
     const u = item.unlock;
     if (u.type === 'free') return true;
-    if (u.type === 'level') return levelFor(state.xp).level >= u.level;
+    if (u.type === 'level') return levelFor(state.xp).level >= u.level || (state.bought || []).includes(item.id);
     if (u.type === 'achievement') return !!state.achievements[u.achievement];
     if (u.type === 'premium') return !!state.premium;
     if (u.type === 'season') return tierOf(state, u.season) >= u.tier && (u.track === 'free' || hasPass(state, u.season));
@@ -17162,7 +17230,8 @@ function ChacklateProgress(catalog, extras) {
     return Math.min(best, maxLevel);
   }
 
-  return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
+  return { COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
     setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage };
 }
 
@@ -18590,6 +18659,7 @@ const ChacklateTips = (function () {
     medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 3l2.5 6.2M15.5 3L13 9.2"/><path d="M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/>',
     swords: '<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/>',
     rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    coin: '<circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="3.6" ry="5.4" transform="rotate(30 12 12)"/><path d="M10.2 7.8c1.4 1.6 1.4 6.8 3.6 8.4"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
   const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
@@ -18987,6 +19057,7 @@ const ChacklateTips = (function () {
   // Show XP, level-ups, achievements and unlocks from a progress result.
   function celebrate(res, quiet) {
     if (!res) return;
+    if (res.coins) setTimeout(() => { AU.play('select'); toast('<i class="coin-i">' + icon('coin') + '</i><div><small>' + esc(PG.COIN_NAME) + '</small><b>+' + res.coins + '</b> · ' + coinCount(state.progress.coins) + ' in all</div>', 'ach'); }, 300);
     res.achievements.forEach((a, i) => setTimeout(() => {
       AU.play('achievement');
       toast('<i>★</i><div><small>Achievement</small><b>' + esc(a.name) + '</b> · +' + a.xp + ' XP</div>', 'ach');
@@ -19355,6 +19426,7 @@ const ChacklateTips = (function () {
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     const ms = $('a-missions'); if (ms) ms.onclick = () => { AU.play('tap'); missionsModal(); };
     const ss = $('a-season'); if (ss) ss.onclick = () => { AU.play('tap'); go('season'); };
+    const cs = $('a-coins'); if (cs) cs.onclick = () => { AU.play('tap'); go('store', 'coins'); };
   }
   SCREENS.home = function () {
     idleBoard();
@@ -19377,7 +19449,7 @@ const ChacklateTips = (function () {
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
       lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
       '</div>' +
-      '<div class="home-foot">' + missionsStrip() + seasonStrip() + '</div>' +
+      '<div class="home-foot">' + coinsStrip() + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
     hydrate();
     wireLinks();
@@ -19388,6 +19460,64 @@ const ChacklateTips = (function () {
     $('h-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
     return { leave() { view.setAttract(false); } };
   };
+
+  // ---------------------------------------------------------------- choco coins
+  // Coins are earned by playing and spent on looks. They are never sold, so spending them needs no
+  // parent gate; every real-money step stays in the gated part of the store.
+  const coinCount = (n) => n.toLocaleString('en-IN') + ' ' + (n === 1 ? PG.COIN_ONE : PG.COIN_NAME);
+  const coinsPill = () => '<span class="pill gold coins" title="' + esc(PG.COIN_NAME) + ': earned by playing, never bought">' + icon('coin') + '<b>' + state.progress.coins.toLocaleString('en-IN') + '</b> ' + esc(PG.COIN_NAME) + '</span>';
+  // Level items the player can buy now or soon, nearest first.
+  function coinShelf() {
+    const P = state.progress;
+    return CATALOG.items.filter((i) => PG.coinPrice(i) !== null && !PG.isUnlocked(P, i))
+      .sort((a, b) => a.unlock.level - b.unlock.level || PG.coinPrice(a) - PG.coinPrice(b));
+  }
+  function coinsStrip() {
+    const P = state.progress, shelf = coinShelf(), reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
+    const next = reach.find((i) => PG.coinOffer(P, i).ok) || reach[0];
+    const line = !next ? 'Keep playing to fill your purse' : PG.coinOffer(P, next).ok ? 'You can buy ' + next.name + ' now' : 'Next: ' + next.name + ' for ' + PG.coinPrice(next).toLocaleString('en-IN');
+    return '<button class="strip glass" id="a-coins"><span class="sg gold">' + icon('coin') + '</span><span style="flex:1"><small>' + esc(PG.COIN_NAME) + ' · ' + P.coins.toLocaleString('en-IN') + '</small><b>' + esc(line) + '</b>' +
+      (next ? '<span class="bar"><i style="width:' + Math.min(100, Math.round(P.coins / PG.coinPrice(next) * 100)) + '%"></i></span>' : '') + '</span><span class="go">' + icon('arrow') + '</span></button>';
+  }
+  // Ask once before spending; returns true when bought.
+  function buyWithCoins(it, after) {
+    const P = state.progress, o = PG.coinOffer(P, it);
+    if (!o.ok) { toast(o.reason === 'short' ? 'You need ' + coinCount(o.short) + ' more.' : o.reason === 'too-far' ? 'Get within ' + PG.COIN_REACH + ' levels of level ' + it.unlock.level + ' to buy this.' : 'This one cannot be bought with coins.', 'bad'); return; }
+    const m = modal('<div class="eyebrow">' + esc(PG.COIN_NAME) + '</div><h2>Buy ' + esc(it.name) + '?</h2><p class="sub">It costs ' + coinCount(o.price) + '. You have ' + coinCount(P.coins) + '. It is yours to keep, and it only changes how things look.</p>' +
+      '<div class="row"><button class="btn" data-close>Not now</button><button class="btn gold" id="cb-ok">' + icon('coin') + ' Buy for ' + o.price.toLocaleString('en-IN') + '</button></div>');
+    m.querySelector('#cb-ok').onclick = () => {
+      m.close();
+      if (!PG.buyWithCoins(P, it)) return;
+      AU.play('achievement');
+      toast('<i>★</i><div><small>Yours to keep</small><b>' + esc(it.name) + '</b></div>', 'ach');
+      save(); renderNav();
+      if (after) after();
+    };
+  }
+  function coinShopHtml() {
+    const P = state.progress, shelf = coinShelf();
+    const reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
+    const later = shelf.find((i) => PG.coinOffer(P, i).reason === 'too-far');
+    const lv = PG.levelFor(P.xp).level;
+    return '<p class="sub">Earn ' + esc(PG.COIN_NAME) + ' by playing games, passing lessons, solving the daily puzzle and finishing missions. Once you are within ' + PG.COIN_REACH + ' levels of a level reward, you can buy it early. ' + esc(PG.COIN_NAME) + ' are never sold for money, and nothing bought changes how the game plays.</p>' +
+      (reach.length ? '<div class="items">' + reach.map((it) => {
+        const o = PG.coinOffer(P, it);
+        return '<div class="item locked" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button><span class="rar ' + it.rarity + '">' + it.rarity + '</span>' +
+          '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(catName(it.category)) + ' · level ' + it.unlock.level + ' reward</span><span class="st">' +
+          '<button class="btn small ' + (o.ok ? 'gold' : '') + '" data-coinbuy="' + it.id + '"' + (o.ok ? '' : ' aria-disabled="true"') + '>' + icon('coin') + ' ' + o.price.toLocaleString('en-IN') + '</button>' +
+          (o.ok ? '' : '<span class="lk">' + o.short.toLocaleString('en-IN') + ' more</span>') + '</span></div></div>';
+      }).join('') + '</div>' : '<p class="muted">' + (later ? 'Nothing in reach yet. ' + esc(later.name) + ' opens to coins at level ' + Math.max(1, later.unlock.level - PG.COIN_REACH) + ' (you are level ' + lv + ').' : 'You own every level reward. Splendid!') + '</p>');
+  }
+  function wireCoinShop(root, after) {
+    root.querySelectorAll('.item').forEach((el) => {
+      el.onclick = (e) => {
+        const it = PG.item(el.dataset.item);
+        AU.play('tap');
+        if (e.target.closest('[data-coinbuy]')) buyWithCoins(it, after); else itemModal(it, after);
+      };
+    });
+    hydrate(root, true);
+  }
 
   // ---------------------------------------------------------------- missions and season
   function missionsStrip() {
@@ -19406,7 +19536,7 @@ const ChacklateTips = (function () {
   function missionsCard() {
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
     if (!list.length) return '<p class="sub">New missions arrive every day.</p>';
-    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(m.text) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? 'Done' : m.n + '/' + m.goal) + '<br><span>+' + m.xp + ' XP</span></small></div>').join('') + '</div>';
+    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(m.text) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? 'Done' : m.n + '/' + m.goal) + '<br><span>+' + m.xp + ' XP · +' + PG.COINS.mission.amount + ' ' + icon('coin') + '</span></small></div>').join('') + '</div>';
   }
   function missionsModal() {
     modal('<div class="eyebrow">Today</div><h2>Daily missions</h2><p class="sub">Three little goals each day. Finish them all for a bonus of ' + CHACKLATE_MISSIONS.allDoneXp + ' XP.</p>' + missionsCard() +
@@ -19955,6 +20085,7 @@ const ChacklateTips = (function () {
     const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info');
     function fill(it, dir) {
       const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
+      const offer = un ? null : PG.coinOffer(P, it);
       const d = it.data || {};
       const set = it.category === 'pieces' ? setInfo(d.set) : null;
       info.innerHTML = '<div class="eyebrow">' + esc(catName(it.category)) + '</div><h2>' + esc(it.name) + '</h2>' +
@@ -19963,7 +20094,9 @@ const ChacklateTips = (function () {
         (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
           '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
         '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
+        (offer && offer.price !== null ? '<p class="fine">' + icon('coin') + ' ' + (offer.reason === 'too-far' ? 'Can be bought for ' + coinCount(offer.price) + ' from level ' + Math.max(1, it.unlock.level - PG.COIN_REACH) + '.' : offer.ok ? 'Or buy it now for ' + coinCount(offer.price) + '.' : 'Or buy it for ' + coinCount(offer.price) + ' (' + offer.short.toLocaleString('en-IN') + ' more to go).') + '</p>' : '') +
         '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
+        (offer && offer.ok ? '<button class="btn gold" id="mu-coin">' + icon('coin') + ' Buy for ' + offer.price.toLocaleString('en-IN') + '</button>' : '') +
         '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
       if (many) m.querySelector('#mu-count').textContent = (at + 1) + ' of ' + list.length;
@@ -19990,6 +20123,8 @@ const ChacklateTips = (function () {
       const eq = info.querySelector('#mu-eq');
       if (eq) eq.onclick = () => { PG.equip(P, it); save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); m.close(); renderNav(); if (after) after(); };
       info.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
+      const cb = info.querySelector('#mu-coin');
+      if (cb) cb.onclick = () => buyWithCoins(it, () => { fill(it, 0); if (after) after(); });
     }
     function step(dir) {
       if (!many) return;
@@ -20184,10 +20319,18 @@ const ChacklateTips = (function () {
         '<p class="sub">' + (pass ? 'Every gold-track reward you have reached is now yours.' : 'Every animal friend, chapter, opening, endgame and era is open, and the season pass is included.') + '</p>' +
         '<div class="row" style="justify-content:center"><button class="btn primary" data-close>Let\'s play</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
-    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.') +
-      '<div class="panel glass" id="st-body"></div></div></div>');
+    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.', '<span id="st-purse">' + coinsPill() + '</span>') +
+      sec('coin', 'Coin shop', 'for players') + '<div class="panel glass" id="st-coins"></div>' +
+      sec('crown', 'Premium', 'for grown-ups') + '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
+    function renderCoins() {
+      $('st-coins').innerHTML = coinShopHtml();
+      $('st-purse').innerHTML = coinsPill();
+      wireCoinShop($('st-coins'), renderCoins);
+    }
+    renderCoins();
     render();
+    if (focus === 'coins') $('st-coins').scrollIntoView({ block: 'start' });
     if (netOn()) ChacklateNet.api('/api/store').then((r) => { remote = r; if (state.screen === 'store') render(); }).catch(() => {});
     return {};
   };
@@ -21773,7 +21916,9 @@ const ChacklateTips = (function () {
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
   if (window.__SHOT) window.__go = go;
+  const bonus = PG.dailyBonus(state.progress);
   go('home');
+  if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => applyInsets());
   // App shortcuts from the installed icon's menu, and links from emails.
