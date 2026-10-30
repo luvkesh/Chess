@@ -35,6 +35,10 @@ for png in sorted((here / 'out').glob('*.png')):
         crest(im)
         print('crest')
         continue
+    if png.stem.startswith('item-'):
+        # Collect showroom thumbnails: small, the rest of each piece is on the live 3D stage
+        im.resize((240, 180), Image.LANCZOS).save(img / (png.stem + '.webp'), quality=72, method=6)
+        continue
     if png.stem.startswith('set-'):
         im = im.crop((70, 50, 570, 480))                     # the pedestal, without the empty margins
         im.save(img / (png.stem + '.webp'), quality=82, method=6)
