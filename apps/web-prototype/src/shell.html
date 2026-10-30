@@ -111,6 +111,13 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 .pill.ok { color: #d6f5e3; border-color: rgba(143, 214, 168, 0.45); background: rgba(143, 214, 168, 0.12); }
 .pill.lock { color: var(--faint); }
 .pill .ico { width: 13px; height: 13px; }
+.pill.coins { font-size: 14px; padding: 6px 14px; }
+.pill.coins b { font-weight: 600; color: var(--gold); }
+.pill.coins .ico { width: 17px; height: 17px; color: var(--gold); }
+.toast.ach i.coin-i .ico { width: 22px; height: 22px; color: #3a1e06; }
+.btn[aria-disabled="true"] { opacity: 0.6; }
+#st-coins .items { margin-top: 14px; }
+#st-coins .item .st .btn .ico { width: 15px; height: 15px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; }
 .chip { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.05); color: var(--ink); font-size: 14px; }
 .chip.on { border-color: var(--gold); background: rgba(232, 194, 122, 0.16); color: var(--gold-2); }
@@ -788,6 +795,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .mission b { font-size: 14px; font-weight: 500; display: block; margin-bottom: 5px; }
 .mission small { text-align: right; color: var(--muted); font-size: 11.5px; line-height: 1.25; font-variant-numeric: tabular-nums; }
 .mission small span { color: var(--gold-2); }
+.mission small span .ico { width: 11px; height: 11px; vertical-align: -1px; }
 .mission.done > i { background: radial-gradient(circle at 35% 30%, #fff0c4, #d9a54e 60%, #8a5a1e); color: #3a1e06; border-color: #fbe7b4; }
 .mission.done b { color: var(--muted); }
 .pass-cta { display: flex; gap: 16px; align-items: center; padding: 16px 18px; border-radius: 18px; margin: 0 0 16px; border: 1px solid rgba(232, 194, 122, 0.5); background: linear-gradient(110deg, rgba(232, 194, 122, 0.16), rgba(194, 57, 95, 0.08)); }
