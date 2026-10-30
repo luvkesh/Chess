@@ -119,7 +119,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, colourToss: true,
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, elements: true, colourToss: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You', lang: I18N.guess(navigator.languages || [navigator.language]) }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -386,7 +386,7 @@
   function nullView() {
     const noop = () => {};
     let sets = null;
-    return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setQuality: noop, setAnimations: noop,
+    return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setElements: noop, playElement: noop, storming: () => false, setQuality: noop, setAnimations: noop,
       setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, setAlt: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
       animateMove(info, done) { done(); }, snapshot: () => Promise.resolve(null), boards: () => ({}), rooms: () => ({}),
       sets() { if (!sets) { try { sets = ChacklatePieces(window.THREE, ChacklateKit(window.THREE)).list(); } catch (e) { sets = []; } } return sets; } };
@@ -428,6 +428,7 @@
     const s = state.settings;
     view.setQuality(s.quality);
     view.setAnimations(s.animations && !window.__SHOT);
+    view.setElements(s.elements !== false);
     document.body.classList.toggle('lowfx', s.quality === 'low');
     AU.setSfx(s.sfx, s.sfxVol);
     AU.setMusic(s.music, s.musicVol);
@@ -798,7 +799,7 @@
       peeking.timers.push(setTimeout(() => {
         if (!live()) return;
         view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
-          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move'); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false });
+          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move'); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false, elements: false });
       }, 450));
     };
     play();
@@ -2682,6 +2683,7 @@
       '<div class="label set-h" data-tk="settings.quality" data-radio="q">' + t('settings.graphics') + TIP_I + '</div><div class="seg"><label data-tk="settings.quality.high"><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>' + t('settings.high') + '</span></label><label data-tk="settings.quality.low"><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>' + t('settings.low') + '</span></label></div>' +
       '<label class="toggle" data-tk="settings.anim">' + t('settings.anim') + TIP_I + ' <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.cine">' + t('settings.cine') + TIP_I + ' <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.elements">' + t('settings.elements') + TIP_I + ' <input type="checkbox" id="s-elements"' + (s.elements !== false ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.toss">' + t('settings.toss') + TIP_I + ' <input type="checkbox" id="s-toss"' + (s.colourToss !== false ? ' checked' : '') + '></label>' +
       '<div class="label set-h">' + t('settings.sound') + '</div>' +
       '<label class="toggle" data-tk="settings.sfx">' + t('settings.sfx') + TIP_I + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="' + t('settings.sfxVol') + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="' + t('settings.sfxOn') + '"></label>' +
@@ -2703,6 +2705,7 @@
     on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); applySettings(); save(); m.close(); relocalise(); settingsModal(); });
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
     on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
+    on('#s-elements', 'change', (e) => { s.elements = e.target.checked; applySettings(); save(); });
     on('#s-toss', 'change', (e) => { s.colourToss = e.target.checked; save(); });
     on('#s-sfx', 'change', (e) => { s.sfx = e.target.checked; applySettings(); save(); });
     on('#s-sfxv', 'input', (e) => { s.sfxVol = +e.target.value; applySettings(); AU.play('move'); save(); });
@@ -3600,10 +3603,11 @@
     const o = g.outcome;
     const winner = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
     const pos = g.pos;
-    if (winner) view.celebrate('win', kingSquare(pos, -winner), null, kingSquare(pos, winner));
-    else view.celebrate('draw', -1, [kingSquare(pos, WHITE), kingSquare(pos, BLACK)]);
     const vsSomeone = G.kind !== 'local';
     const youWon = vsSomeone && winner === G.human, youLost = vsSomeone && winner === -G.human;
+    // the room's storm is for the player's own wins (and either side's in a game at one table)
+    if (winner) view.celebrate('win', kingSquare(pos, -winner), null, kingSquare(pos, winner), { storm: youWon || G.kind === 'local' });
+    else view.celebrate('draw', -1, [kingSquare(pos, WHITE), kingSquare(pos, BLACK)]);
     AU.play(winner ? (youLost ? 'loss' : 'win') : 'draw');
     if (!VARIANT_END.has(o.reason)) setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
     // Progress
@@ -3643,8 +3647,11 @@
       (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? t('play.end.prize') : t('learn.dj.backTo', { era: esc(eraName(era)) })) + '</button>'
         : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' ' + t('play.btn.review') + '</button>' : '') + '</div></div>';
     let prizeShown = false;
-    setTimeout(() => {
+    // the result card waits for a win storm to finish (a tap calms it sooner)
+    const shown = performance.now();
+    const showResult = () => {
       if (state.game !== G || state.screen !== 'game') return;
+      if (view.storming() && performance.now() - shown < 10500) { setTimeout(showResult, 250); return; }
       if (exploring) view.explore(false);
       const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr), 250); } } });
       setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
@@ -3658,7 +3665,8 @@
       celebrate(res);
       if (jr && !jr.eraDone) celebrate(jr, true);
       if (!era && mdl.querySelector('#r-review')) guideSay('game.over', { delay: 2200 });
-    }, state.settings.animations ? 1500 : 200);
+    };
+    setTimeout(showResult, state.settings.animations ? 1500 : 200);
   }
   // ----- looking round the room after a game
   // Like Jong Club's free camera. Once a game is over, Explore hides the HUD and the table

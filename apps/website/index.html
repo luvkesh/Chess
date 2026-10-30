@@ -13054,6 +13054,22 @@ function ChacklateScene(canvas, options) {
   }
   const motesOn = () => hq() && lvl() < 4 && animations && !window.__SHOT;
 
+  // ------------------------------------------------------------------ element effects
+  // The room's element (elements3d.js): fire, lightning or a stone shatter when a piece is
+  // taken, a petal, fire or lightning storm when a game is won. The website has no elements.
+  const EL = typeof ChacklateElements !== 'undefined' ? ChacklateElements(THREE, {
+    scene, camera, level: lvl, rich: hq, wake: () => requestRender(),
+    // where things land: the board, or the table around it
+    floorY: (x, z) => (Math.abs(x) < 4.6 && Math.abs(z) < 4.6 ? 0 : TABLE_Y),
+  }) : null;
+  let elementsOn = true, stormHint = false;
+  const element = () => (EL && ChacklateElements.ROOMS[roomId]) || (EL && ChacklateElements.ROOMS.salon);
+  function strikeAt(x, z) {
+    if (!EL || !elementsOn || !animations) return;
+    const el = element();
+    EL.strike(el.strike, x, z, { dust: el.dust, stone: el.stone });
+  }
+
   // ------------------------------------------------------------------ capture scenes
   // A capture plays as a short scene between the two pieces (3.5 to 4.5 s): a bow, a friendly
   // duel, a waltz, a magic trick, a frosty slide, leapfrog or a sparkler send-off. Every one is
@@ -13303,7 +13319,7 @@ function ChacklateScene(canvas, options) {
       mYaw: m.yaw, vYaw: v.yaw, fM: Math.atan2(dx, dz), fV: Math.atan2(-dx, -dz),
       endYaw: baseYaw(info.promo || m.piece, info.to), knight: kindOf(m.piece) === 2, far: L > 1.6,
       kind: fx.capture.kind === 'nibs' ? 'dust' : fx.capture.kind === 'rocket' ? 'sparks' : fx.capture.kind, colors: fx.capture.colors,
-      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, arrive: 650,
+      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, elements: !(o && o.elements === false), arrive: 650,
       saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
     leanIn((vx + cine.px) / 2, (vz + cine.pz) / 2);
     clearTimeout(skipTimer);
@@ -13344,6 +13360,7 @@ function ChacklateScene(canvas, options) {
     c.S.run(c, t);
     flourish(c, t);
     if (c.onImpact) once(c, 'impact', c.S.impact, t, c.onImpact);
+    if (!c.castle && c.elements) once(c, 'strike', c.S.impact, t, () => strikeAt(c.vx, c.vz));
     // pull back out once the taken piece heads for the tray
     once(c, 'pullback', c.S.back || c.S.dur - 1300, t, restoreCam);
     if (t >= c.S.dur) endCine(false);
@@ -13365,6 +13382,7 @@ function ChacklateScene(canvas, options) {
     clearTimeout(skipTimer); showSkip(false);
     if (dropped) return;
     if (skipped && c.onImpact && !c.fired.has('impact')) c.onImpact();
+    if (skipped && !c.castle && c.elements && !c.fired.has('strike')) strikeAt(c.vx, c.vz);
     const m = c.m, v = c.v;
     if (c.castle) {
       Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, yaw: c.endYaw });
@@ -13389,13 +13407,14 @@ function ChacklateScene(canvas, options) {
     if (on && !skipEl) {
       skipEl = document.createElement('button');
       skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('play.skip') : 'Tap to skip';   // the website shares this file, in English
-      skipEl.addEventListener('click', (e) => { e.stopPropagation(); skipCine(); });
+      skipEl.addEventListener('click', (e) => { e.stopPropagation(); if (cine) skipCine(); else if (EL) EL.calm(); showSkip(false); });
       document.body.appendChild(skipEl);
     }
-    if (skipEl) skipEl.classList.toggle('on', !!on && !!cine);
+    if (skipEl) skipEl.classList.toggle('on', !!on && (!!cine || !!(EL && EL.storming())));
   }
   document.addEventListener('keydown', (e) => {
     if (cine && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopImmediatePropagation(); skipCine(); }
+    else if (e.key === 'Escape' && EL && EL.storming()) EL.calm();
   }, true);
 
   // ------------------------------------------------------------------ camera
@@ -13456,6 +13475,7 @@ function ChacklateScene(canvas, options) {
   function applyCamera() {
     if (fly.on) flyCamera(); else orbitCamera();
     if (fly.glide) blendGlide();
+    if (EL && !fly.on) { const k = EL.shake(); camera.position.x += k.x; camera.position.y += k.y; camera.position.z += k.z; }
     placeChandelier();
   }
   function orbitCamera() {
@@ -13706,6 +13726,10 @@ function ChacklateScene(canvas, options) {
       }
       placeSprite(s);
     }
+    if (EL && EL.active()) {
+      busy = EL.step(now, dt) || busy;
+      if (stormHint && !EL.storming()) { stormHint = false; if (!cine) showSkip(false); }
+    }
     if (particles.length || motesOn()) { stepParticles(now, dt); busy = busy || particles.some((p) => p.kind !== 'mote'); }
     if (clockState && clockState.running) busy = true;
     if (alt && alt.step && alt.step(now)) { busy = true; dirtyShadows(); }
@@ -13728,12 +13752,35 @@ function ChacklateScene(canvas, options) {
     }
     drawClock();
     uploadParticles(now);
+    const lent = EL && EL.active() ? lendLights() : null;
     renderReflection();
     // set after the reflection pass: that one only sees the pieces' layer, and a shadow map
     // drawn there would be missing the board and the clock
     // during a capture scene slow devices refresh the shadows at about 12 fps
     if (shadowDirty && (!cine || lvl() < 3 || now - shadowAt > 80)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; shadowAt = now; }
     if (composer) composer.render(); else renderer.render(scene, camera);
+    if (lent) lent();
+  }
+  // An element effect borrows the table's lights for one frame (a flash, the glow of a fire,
+  // a storm's darkness) and hands them back after drawing, whatever the room has set.
+  function lendLights() {
+    EL.draw(pAdd.material.uniforms.scale.value, (canvas.clientWidth || 1) / (canvas.clientHeight || 1));
+    const l = EL.light();
+    if (!l) return null;
+    const was = { expo: renderer.toneMappingExposure, key: key.intensity, rim: rim.intensity, hemi: hemi.intensity, hemiC: hemi.color.clone(), keyC: key.color.clone(),
+      ch: chandLight.intensity, chC: chandLight.color.clone(), chP: chandLight.position.clone(), chD: chandLight.distance };
+    renderer.toneMappingExposure = was.expo * l.expo;
+    key.intensity *= l.key; rim.intensity *= l.key;
+    if (l.tintK > 0) { key.color.lerp(l.tint, l.tintK * 0.6); hemi.color.lerp(l.tint, l.tintK); }
+    if (l.point) {
+      chandLight.position.set(l.point.x, l.point.y, l.point.z); chandLight.color.copy(l.point.color);
+      chandLight.intensity = l.point.power; chandLight.distance = 9;
+    }
+    return () => {
+      renderer.toneMappingExposure = was.expo; key.intensity = was.key; rim.intensity = was.rim; hemi.intensity = was.hemi;
+      hemi.color.copy(was.hemiC); key.color.copy(was.keyC);
+      chandLight.intensity = was.ch; chandLight.color.copy(was.chC); chandLight.position.copy(was.chP); chandLight.distance = was.chD;
+    };
   }
   // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
   // bottom levels (candle flicker and the slow orbit don't need more)
@@ -13764,7 +13811,7 @@ function ChacklateScene(canvas, options) {
   // alone, and the level never steps back down in a session, so the view doesn't flicker.
   let govLate = 0, govN = 0;
   function govern(waitMs, drawMs) {
-    if (window.__SHOT || fullDetail || document.hidden || perf >= MAX_PERF) { govN = 0; return; }
+    if (window.__SHOT || fullDetail || document.hidden || perf >= MAX_PERF || (EL && EL.active())) { govN = 0; return; }
     const late = Math.min(80, Math.max(0, waitMs + drawMs - 17));
     govLate = govN ? govLate * 0.94 + late * 0.06 : late;
     if (++govN >= 40 && govLate > 22) { setPerf(perf + 1); govN = 0; }
@@ -13855,6 +13902,7 @@ function ChacklateScene(canvas, options) {
     }
     if (fly.glide) return;
     if (cine) { skipCine(); return; }
+    if (EL && EL.storming()) { EL.calm(); return; }
     canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, [e.clientX, e.clientY]);
     if (pointers.size === 1) {
@@ -14408,9 +14456,17 @@ function ChacklateScene(canvas, options) {
       if (pieces) loadSet(pieces.set || 'regency');
       requestRender();
     },
-    setRoom(r) { if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },
+    setRoom(r) { if (r && EL && (r.room || 'salon') !== roomId) EL.clear(); if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },
     setFx(f) { fx = Object.assign({}, fx, f); },
     setCaptureEffects(on) { captureFxOn = on; },
+    // the room's element effects (Settings, Dramatic effects)
+    setElements(on) { elementsOn = !!on; if (!on && EL) EL.clear(); },
+    // plays one now, for developer mode and screenshots: ('strike', 'fire', sq) or ('storm', 'petals', sq)
+    playElement(type, kind, sq) {
+      if (!EL) return;
+      const x = sq >= 0 ? sqX(sq) : 0, z = sq >= 0 ? sqZ(sq) : 0, el = element();
+      if (type === 'storm') EL.storm(kind, x, z, { petals: el.petals }); else EL.strike(kind, x, z, { dust: el.dust, stone: el.stone });
+    },
     setQuality(q) {
       q = q === 'low' ? 'low' : 'high';
       if (q === quality && (composer || !bloomOn())) return;   // settings are re-applied on every change
@@ -14473,6 +14529,7 @@ function ChacklateScene(canvas, options) {
     // Sweeping camera move into the player's seat at the start of a game.
     intro() {
       stopFly(true);
+      if (EL) EL.clear();
       if (!animations) return;
       if (room && room.vista) {
         // where the table stands before a landmark, the game opens looking out at it (white's
@@ -14541,6 +14598,7 @@ function ChacklateScene(canvas, options) {
         if (!quick && captureFxOn && fx.capture && fx.capture.kind !== 'none') {
           setTimeout(() => spawn(fx.capture.kind, vx, 0.4, vz, fx.capture.colors, fx.capture.kind === 'sparks' ? 46 : 30), Math.max(0, impact - performance.now()));
         }
+        if (!quick && !(o && o.elements === false)) setTimeout(() => strikeAt(vx, vz), Math.max(0, impact - performance.now()));
         victim.anim = { type: 'grave', start: impact, dur: quick ? 220 : 560, fx: vx, fz: vz, tx: gx, tz: gz, fyaw: victim.yaw, done: () => toGrave(victim) };
       }
       if (castleRook) {
@@ -14552,8 +14610,18 @@ function ChacklateScene(canvas, options) {
     },
     skipCapture: skipCine,
     capturePlaying: () => !!cine,
-    celebrate(kind, loserSq, kingSqs, winnerSq) {
+    // true while a win storm plays (the result card waits for it)
+    storming: () => !!(EL && EL.storming()),
+    // o.storm: a real game won, so the room's storm plays too (10 s; a tap calms it)
+    celebrate(kind, loserSq, kingSqs, winnerSq, o) {
       const now = performance.now();
+      if (kind === 'win' && o && o.storm && EL && elementsOn && animations) {
+        const el = element(), w = winnerSq >= 0 ? sprites.find((s) => s.sq === winnerSq && !s.dead) : null;
+        EL.storm(el.storm, w ? w.x : 0, w ? w.z : 0, { petals: el.petals,
+          onCrown: () => { if (w && !w.dead) { w.anim = { type: 'glow', start: performance.now(), dur: 1800 }; requestRender(); } } });
+        stormHint = true;
+        clearTimeout(skipTimer); skipTimer = setTimeout(() => showSkip(true), 1200);
+      }
       if (kind === 'win') {
         const k = loserSq >= 0 ? sprites.find((s) => s.sq === loserSq && !s.dead) : null;
         if (k) k.anim = { type: 'topple', start: now + 150, dur: animations ? 1100 : 1, to: 1.45 };
@@ -14581,7 +14649,7 @@ function ChacklateScene(canvas, options) {
       clockKey = '';
       requestRender();
     },
-    showcase(on) { attract = !!on; requestRender(); },
+    showcase(on) { attract = !!on; if (on && EL) EL.clear(); requestRender(); },
     // Menu pages blur the room behind them; nothing there needs to move, so the idle frames stop.
     setPaused(on) { paused = !!on; if (!paused) requestRender(); },
     snapshot,
@@ -15043,37 +15111,55 @@ const ChacklateTips = (function () {
     function sectionOf(key) { return key.indexOf('item-') === 0 ? 'collect' : key; }
     // the caption bubble shows for a moment on a tap, hold, hover or focus, and while Rooky talks
     function peek(ms) { live.classList.add('show'); clearTimeout(peekT); if (ms) peekT = setTimeout(function () { if (!live.matches(':hover') && !live.contains(document.activeElement)) live.classList.remove('show'); }, ms); }
-    var actx = null, voice = null, hush = null;
+    var actx = null, voice = null, hush = null, tag = null;
+    // Sound plays through one Web Audio context, as on JongClub's site, with an <audio> element as
+    // the fallback whenever the context is not running or a clip will not decode. Both are started
+    // inside the visitor's tap, which is the only moment iPhone Safari lets a page begin sound.
     // On an iPhone, Web Audio counts as 'ambient' sound, so the ring/silent switch mutes Rooky
     // even with the volume up. Safari 17 lets the page ask for 'playback' instead; older iPhones
-    // get the same effect from a silent looping <audio>, started by the visitor's tap.
+    // get the same effect from a silent looping <audio>, started by the tap.
+    var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    function silentWav() {
+      var n = 4000, w = new DataView(new ArrayBuffer(44 + n)), put = function (o, t) { for (var i = 0; i < t.length; i++) w.setUint8(o + i, t.charCodeAt(i)); };
+      put(0, 'RIFF'); w.setUint32(4, 36 + n, true); put(8, 'WAVEfmt '); w.setUint32(16, 16, true); w.setUint16(20, 1, true); w.setUint16(22, 1, true);
+      w.setUint32(24, 8000, true); w.setUint32(28, 8000, true); w.setUint16(32, 1, true); w.setUint16(34, 8, true); put(36, 'data'); w.setUint32(40, n, true);
+      for (var i = 0; i < n; i++) w.setUint8(44 + i, 128);
+      var bin = ''; for (var j = 0; j < w.byteLength; j++) bin += String.fromCharCode(w.getUint8(j));
+      return 'data:audio/wav;base64,' + btoa(bin);
+    }
+    function element() { var el = document.createElement('audio'); el.setAttribute('playsinline', ''); el.setAttribute('x-webkit-airplay', 'deny'); el.preload = 'auto'; return el; }
     function playback() {
       try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; return; } } catch (e) {}
-      if (!/iP(hone|ad|od)/.test(navigator.userAgent) && !(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return;
-      if (!hush) {
-        var n = 4000, w = new DataView(new ArrayBuffer(44 + n)), put = function (o, t) { for (var i = 0; i < t.length; i++) w.setUint8(o + i, t.charCodeAt(i)); };
-        put(0, 'RIFF'); w.setUint32(4, 36 + n, true); put(8, 'WAVEfmt '); w.setUint32(16, 16, true); w.setUint16(20, 1, true); w.setUint16(22, 1, true);
-        w.setUint32(24, 8000, true); w.setUint32(28, 8000, true); w.setUint16(32, 1, true); w.setUint16(34, 8, true); put(36, 'data'); w.setUint32(40, n, true);
-        for (var i = 0; i < n; i++) w.setUint8(44 + i, 128);
-        hush = document.createElement('audio'); hush.loop = true; hush.setAttribute('playsinline', ''); hush.setAttribute('x-webkit-airplay', 'deny');
-        hush.src = URL.createObjectURL(new Blob([w.buffer], { type: 'audio/wav' }));
-      }
+      if (!IOS) return;
+      if (!hush) { hush = element(); hush.loop = true; hush.src = silentWav(); }
       var p = hush.play(); if (p && p.catch) p.catch(function () {});
     }
     function unlock() {
-      if (!actx) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return; actx = new C(); voice = actx.createGain(); voice.connect(actx.destination); }
       playback();
-      // iOS can leave the context 'suspended' or 'interrupted' (after a call, a lock or a tab switch); a tap brings it back
-      if (actx.state !== 'running' && !paused) { var r = actx.resume(); if (r && r.catch) r.catch(function () {}); }
-      var b = actx.createBuffer(1, 1, 22050), s0 = actx.createBufferSource(); s0.buffer = b; s0.connect(actx.destination); try { s0.start(0); } catch (e) {}
+      if (!actx) { var C = window.AudioContext || window.webkitAudioContext; if (C) { try { actx = new C(); voice = actx.createGain(); voice.connect(actx.destination); } catch (e) { actx = null; } } }
+      if (actx) {
+        // iOS can leave the context 'suspended' or 'interrupted' (after a call, a lock or a tab switch); a tap brings it back
+        if (actx.state !== 'running' && !paused) { var r = actx.resume(); if (r && r.catch) r.catch(function () {}); }
+        var b = actx.createBuffer(1, 1, 22050), s0 = actx.createBufferSource(); s0.buffer = b; s0.connect(actx.destination); try { s0.start(0); } catch (e) {}
+      }
+      // the fallback element is blessed by this same tap, so it may play later from a scroll timer
+      if (!tag) { tag = element(); tag.src = silentWav(); var q = tag.play(); if (q && q.then) q.then(function () { if (!audio || audio.el !== tag) tag.pause(); }, function () {}); }
     }
-    function quiet() { if (hush) hush.pause(); }
+    function quiet() { if (hush) hush.pause(); if (tag && !(audio && audio.el)) tag.pause(); }
     // any tap while the tour is on wakes sound that iOS put to sleep
     ['touchend', 'click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (on && !paused && actx && actx.state !== 'running') unlock(); }, true); });
+    // An inlined clip is decoded from its base64 text: the page's sandbox may refuse fetch() of a data: URL.
+    function bytes(src) {
+      if (src.indexOf('data:') === 0) {
+        try { var bin = atob(src.slice(src.indexOf(',') + 1)), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return Promise.resolve(u.buffer); }
+        catch (e) { return Promise.reject(e); }
+      }
+      return fetch(src).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); });
+    }
     var buffers = {};
     function load(key) {
-      if (!buffers[key]) buffers[key] = fetch(G[key].src).then(function (r) { return r.arrayBuffer(); })
-        .then(function (ab) { return new Promise(function (res, rej) { actx.decodeAudioData(ab, res, rej); }); })
+      if (!buffers[key]) buffers[key] = bytes(G[key].src)
+        .then(function (ab) { return new Promise(function (res, rej) { var r = actx.decodeAudioData(ab, res, function (e) { rej(e || new Error('decode')); }); if (r && r.catch) r.catch(function () {}); }); })
         .catch(function (e) { delete buffers[key]; throw e; });
       return buffers[key];
     }
@@ -15099,35 +15185,53 @@ const ChacklateTips = (function () {
     function fadeOut() {
       if (!audio) return;
       var a = audio; audio = null; live.classList.remove('talking'); clearInterval(capTimer);
+      if (a.el) { a.el.onended = a.el.onerror = null; a.el.pause(); }
       if (a.src) { var now = actx.currentTime; a.gain.gain.cancelScheduledValues(now); a.gain.gain.setValueAtTime(a.gain.gain.value, now); a.gain.gain.linearRampToValueAtTime(0, now + 0.35); try { a.src.stop(now + 0.4); } catch (e) {} }
     }
     function label(key) {
       if (key.indexOf('item-') === 0) return 'Collect · ' + (itemName[key] || '');
       return LABEL[key] + ' · ' + (keys.indexOf(key) + 1) + ' of ' + keys.length;
     }
+    // When sound cannot start, the caption says why, so a visitor (and we) can tell what went wrong.
+    function failed(a, why) { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); cap.textContent = 'No sound from ' + D.coach + ' (' + why + '). Check the volume, then tap replay.'; peek(6000); }
     function speak(key) {
-      var L = G[key]; if (!L || !actx) return;
+      var L = G[key]; if (!L) return;
       fadeOut(); hideCue();
-      var a = { key: key, sec: sectionOf(key), src: null, gain: actx.createGain() }; audio = a; lastKey = key;
+      var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null }; audio = a; lastKey = key;
       if (key.indexOf('item-') !== 0) lastSection = key;
-      a.gain.connect(voice);
       cap.textContent = L.cues[0].text; where.textContent = label(key);
-      load(key).then(function (buf) {
-        if (audio !== a) return;
-        var src = actx.createBufferSource(); src.buffer = buf; src.connect(a.gain); a.src = src; var t0 = actx.currentTime;
-        src.onended = function () { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (key.indexOf('item-') !== 0) showCue(key); };
-        src.start();
+      function ended() { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (key.indexOf('item-') !== 0) showCue(key); }
+      // the caption is the last cue whose time has passed
+      function follow(now) {
         if (!paused) live.classList.add('talking');
-        // the caption is the last cue whose time has passed
         clearInterval(capTimer);
         capTimer = setInterval(function () {
-          var el = actx.currentTime - t0, c = L.cues[0];
+          var el = now(), c = L.cues[0];
           L.cues.forEach(function (x) { if (el + 0.05 >= x.t) c = x; });
           if (cap.textContent !== c.text) cap.textContent = c.text;
         }, 150);
+      }
+      function viaElement(why) {
+        if (audio !== a) return;
+        if (!tag) return failed(a, why || 'no audio');
+        a.el = tag; tag.loop = false; tag.onended = ended; tag.onerror = function () { failed(a, 'clip would not load'); };
+        tag.src = L.src; try { tag.currentTime = 0; } catch (e) {}
+        var p = tag.play();
+        if (p && p.then) p.then(function () { if (audio === a) follow(function () { return tag.currentTime; }); }, function (e) { failed(a, (e && e.name) || 'blocked'); });
+        else follow(function () { return tag.currentTime; });
+      }
+      if (!actx || actx.state !== 'running') { if (actx && !paused) { var r = actx.resume(); if (r && r.catch) r.catch(function () {}); } return viaElement('sound is asleep'); }
+      a.gain = actx.createGain(); a.gain.connect(voice);
+      load(key).then(function (buf) {
+        if (audio !== a) return;
+        if (actx.state !== 'running') return viaElement('sound is asleep');
+        var src = actx.createBufferSource(); src.buffer = buf; src.connect(a.gain); a.src = src; var t0 = actx.currentTime;
+        src.onended = ended;
+        src.start();
+        follow(function () { return actx.currentTime - t0; });
         // fetch the neighbouring sections so the next one starts at once
         var i = keys.indexOf(a.sec); [keys[i + 1], keys[i - 1]].forEach(function (k) { if (k) load(k).catch(function () {}); });
-      }).catch(function () { if (audio === a) audio = null; });
+      }).catch(function (e) { viaElement((e && e.message) || 'decode'); });
     }
     function onScroll() {
       if (nextTo && Math.abs(scrollY - cueAt) > 24) hideCue();
@@ -15140,8 +15244,8 @@ const ChacklateTips = (function () {
     function setPaused(v) {
       paused = v; live.classList.toggle('paused', v);
       orb.setAttribute('aria-label', v ? D.coach + ' is paused. Tap to carry on.' : D.coach + ' is guiding you. Tap to pause.');
-      if (v) { clearTimeout(settle); if (actx) actx.suspend().catch(function () {}); quiet(); live.classList.remove('talking'); }
-      else { unlock(); if (audio) live.classList.add('talking'); else onScroll(); }
+      if (v) { clearTimeout(settle); if (actx) actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); quiet(); live.classList.remove('talking'); }
+      else { unlock(); if (audio && audio.el) audio.el.play().catch(function () {}); if (audio) live.classList.add('talking'); else onScroll(); }
     }
     function setOn(v) {
       on = v; store.set(KEY, v ? '1' : '0'); btn.setAttribute('aria-pressed', String(v)); invite.hidden = true; live.hidden = !v; paused = false; live.classList.remove('paused', 'show');
@@ -15197,7 +15301,7 @@ const ChacklateTips = (function () {
     live.addEventListener('mouseenter', function () { peek(0); }); live.addEventListener('mouseleave', function () { peek(1200); });
     orb.addEventListener('focus', function () { peek(0); }); orb.addEventListener('blur', function () { peek(1200); });
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) setOn(false); });
-    document.addEventListener('visibilitychange', function () { if (!actx || paused || !on) return; if (document.hidden) { actx.suspend().catch(function () {}); quiet(); } else { actx.resume().catch(function () {}); if (hush) hush.play().catch(function () {}); } });
+    document.addEventListener('visibilitychange', function () { if (!actx || paused || !on) return; if (document.hidden) { actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); quiet(); } else { actx.resume().catch(function () {}); if (hush) hush.play().catch(function () {}); if (audio && audio.el) audio.el.play().catch(function () {}); } });
     var saved = store.get(KEY);
     if (saved === '1') {
       // sound needs a tap first, so a returning visitor's tour carries on at their first tap or key
