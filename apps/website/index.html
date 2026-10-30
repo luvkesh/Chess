@@ -5144,6 +5144,18 @@ function ChacklateKit(THREE) {
     }
     ctx.putImageData(img, 0, 0);
   }
+  // A smooth field (fbm a few octaves deep, features many pixels wide) sampled every other
+  // pixel and filled in bilinearly: it looks the same and costs a quarter of the noise, which
+  // is most of the time a room or board takes to build. fn(u, v) as for paint.
+  function coarse(w, h, fn) {
+    const gw = (w >> 1) + 2, gh = (h >> 1) + 2, g = new Float64Array(gw * gh);
+    for (let j = 0; j < gh; j++) for (let i = 0; i < gw; i++) g[i + gw * j] = fn((i * 2) / w, (j * 2) / h);
+    return (u, v) => {
+      const fx = (u * w) / 2, fy = (v * h) / 2, i = Math.min(gw - 2, fx | 0), j = Math.min(gh - 2, fy | 0), tx = fx - i, ty = fy - j, k = i + gw * j;
+      const a = g[k] + (g[k + 1] - g[k]) * tx, b = g[k + gw] + (g[k + gw + 1] - g[k + gw]) * tx;
+      return a + (b - a) * ty;
+    };
+  }
   const TEX = {
     // Marble: base colour with turbulent veins. Tileable.
     marble(base, vein, o) {
@@ -5152,14 +5164,18 @@ function ChacklateKit(THREE) {
       return canvasTex(key, o.size || 512, o.size || 512, (ctx, w, h) => {
         const B = hex(base), V = hex(vein), V2 = hex(o.vein2 || vein);
         const sc = o.scale || 3, P = 8;
+        // the veins stay sharp: only the smooth noise that bends them is sampled coarsely
+        const N1 = coarse(w, h, (u, v) => fbm(u * sc, v * sc, 5, sc));
+        const N2 = coarse(w, h, (u, v) => fbm(u * sc * 2 + 7, v * sc * 2 + 3, 4, sc * 2));
+        const NC = coarse(w, h, (u, v) => fbm(u * 4 + 11, v * 4, 3, 4));
         paint(ctx, w, h, (u, v) => {
-          const n = fbm(u * sc, v * sc, 5, sc);
+          const n = N1(u, v);
           const t = Math.abs(Math.sin((u * (o.dirX || 1) + v * (o.dirY || 1.6) + n * (o.turb || 2.2)) * Math.PI * (o.freq || 2)));
           const vein1 = Math.pow(1 - t, o.sharp || 9);
-          const n2 = fbm(u * sc * 2 + 7, v * sc * 2 + 3, 4, sc * 2);
+          const n2 = N2(u, v);
           const t2 = Math.abs(Math.sin((u * 2.3 - v * 1.1 + n2 * 3) * Math.PI * 3));
           const vein2 = Math.pow(1 - t2, 18) * 0.5;
-          const cloud = fbm(u * 4 + 11, v * 4, 3, 4) * (o.cloud === undefined ? 0.25 : o.cloud);
+          const cloud = NC(u, v) * (o.cloud === undefined ? 0.25 : o.cloud);
           let c = B.map((x) => x * (1 + cloud));
           c = lerpC(c, V, Math.min(1, vein1 * (o.strength || 0.85)));
           c = lerpC(c, V2, Math.min(1, vein2 * (o.strength2 || 0.6)));
@@ -5223,13 +5239,16 @@ function ChacklateKit(THREE) {
         const lines = o.lines || 46, contrast = o.contrast === undefined ? 0.6 : o.contrast;
         const figure = o.figure === undefined ? 0.12 : o.figure, wander = o.warp === undefined ? 1.6 : o.warp;
         const curl = o.curl || 0, pores = o.pores === undefined ? 0.16 : o.pores;
+        // the grain's wander and the figure are smooth, so they are sampled coarsely
+        const bend = coarse(w, h, (u, v) => fbm(u * 1.4 + seed, v * 0.45 + seed * 0.3, 4) * wander * 2.2 + fbm(u * 5 + 3, v * 1.2 + seed, 3) * 0.6);
+        const figureAt = coarse(w, h, (u, v) => fbm(u * 1.1 + seed * 2, v * 0.7 + 5, 3) * figure * 2.2 + (curl ? Math.sin((v * 9 + fbm(u * 2, v * 2 + seed, 3) * 2) * TAU) * curl : 0));
         paint(ctx, w, h, (u, v) => {
-          const s = u * lines + fbm(u * 1.4 + seed, v * 0.45 + seed * 0.3, 4) * wander * 2.2 + fbm(u * 5 + 3, v * 1.2 + seed, 3) * 0.6;
+          const s = u * lines + bend(u, v);
           const i = Math.floor(s), f = s - i;
           const late = smooth(0.5, 0.94, f) * (1 - smooth(0.94, 1, f));
           const strength = 0.35 + 0.65 * (0.5 + 0.5 * noise2(i * 0.41 + seed * 7, v * 0.8 + seed));
           const pore = noise2(u * w * 0.45, v * 14 + seed) > 0.42 ? pores : 0;
-          const tone = fbm(u * 1.1 + seed * 2, v * 0.7 + 5, 3) * figure * 2.2 + (curl ? Math.sin((v * 9 + fbm(u * 2, v * 2 + seed, 3) * 2) * TAU) * curl : 0);
+          const tone = figureAt(u, v);
           let c = L.map((x) => clamp(x * (1 + tone), 0, 255));
           c = lerpC(c, D, clamp(late * strength * contrast + pore, 0, 1));
           return c;
@@ -5620,13 +5639,42 @@ function ChacklatePieces(THREE, K) {
   //   o.mane: 'flow' (loose gold locks), 'carved' (locks in the body), 'roach' (short upright),
   //   'braid' (a row of knots), 'none'; o.form: the breed and pose (see horseWarp)
   //   o.base: pedestal top; o.round: edge band of the inflation (bigger is softer)
+  // Most sets bend the same sculpt (see horseWarp), so the sculpt before bending is kept and
+  // only copied and bent for each set; so are the outline fields it is carved from.
+  const sculptCache = new Map(), outlineCache = new Map();
   function sculptHorse(o) {
     o = Object.assign({ base: 0.3, mane: 'flow', seed: 3, round: 0.088 }, o || {});
+    const facet = (o.form && o.form.facet) || 0;
+    const key = JSON.stringify(Object.assign({}, o, { form: facet })) + Q.cell + Q.mane + JSON.stringify(DETAIL);
+    if (!sculptCache.has(key)) sculptCache.set(key, sculptPlain(o, facet));
+    const plain = sculptCache.get(key);
+    if (!o.form) return plain;
+    const out = { body: plain.body && plain.body.clone(), mane: plain.mane && plain.mane.clone(), surf: plain.surf, Y: plain.Y };
+    const w = horseWarp(o.form, out.Y);
+    for (const k of ['body', 'mane']) {
+      let g = out[k];
+      if (!g) continue;
+      const p = g.attributes.position;
+      for (let i = 0; i < p.count; i++) { const q = w(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, q[0], q[1], q[2]); }
+      // a cut-stone horse (Deco, crystal): flat facets instead of a smooth sculpt
+      if (facet && k === 'body') g = out[k] = g.toNonIndexed();
+      g.computeVertexNormals(); g.computeBoundingSphere();
+    }
+    out.surf = (c, d, off) => w(...plain.surf(c, d, off));
+    return out;
+  }
+  function sculptPlain(o, facet) {
     const dy = o.base - 0.3, Y = (y) => y + dy;
     const box = [-0.24, Y(0.22), 0.38, Y(1.02)];
-    const sil = K.closedCurve((o.sil || HORSE_SIL).map(([z, y]) => [z, Y(y)]), 6);
-    const d2 = K.field2(sil, box, 0.0025);
-    const hwF = bake2(K.blendMap((o.widths || HORSE_W).map(([z, y, w]) => [z, Y(y), w]), 0.07), box, 0.005);
+    const okey = JSON.stringify([o.base, o.sil || 0, o.widths || 0]);
+    if (!outlineCache.has(okey)) {
+      const sil = K.closedCurve((o.sil || HORSE_SIL).map(([z, y]) => [z, Y(y)]), 6);
+      outlineCache.set(okey, {
+        d2: K.field2(sil, box, 0.0025),
+        hwF: bake2(K.blendMap((o.widths || HORSE_W).map(([z, y, w]) => [z, Y(y), w]), 0.07), box, 0.005),
+      });
+    }
+    const { d2, hwF } = outlineCache.get(okey);
     const R = o.round;
     const eyeZ = 0.128, eyeY = Y(0.884), eyeX = hwF(eyeZ, eyeY) - 0.003;
     const ears = [-1, 1].map((s) => strand(spline([[s * 0.026, Y(0.962), -0.01, 0.022], [s * 0.034, Y(1.01), 0.0, 0.017], [s * 0.042, Y(1.065), 0.022, 0.003]], 4)));
@@ -5716,26 +5764,13 @@ function ChacklatePieces(THREE, K) {
     }
     if (o.mane === 'carved' || o.mane === 'roach' || o.mane === 'braid') {
       const fieldM = strandField([].concat(...locks), 0.01, 0.03, 0.016);
-      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
+      out.body = sdfGeometry((x, y, z) => SD.smin(body(x, y, z), fieldM(x, y, z), 0.008), bounds, facet ? Math.max(Q.cell, facet) : Q.cell);
     } else {
-      out.body = sdfGeometry(body, bounds, o.form && o.form.facet ? Math.max(Q.cell, o.form.facet) : Q.cell);
+      out.body = sdfGeometry(body, bounds, facet ? Math.max(Q.cell, facet) : Q.cell);
       if (locks.length) {
         const fieldM = strandField([].concat(...locks), 0.02, 0.03, 0.016);
         out.mane = sdfGeometry(fieldM, [-0.16, Y(0.36), -0.36, 0.16, Y(1.02), 0.11], Q.mane, { band: 1.3 });
       }
-    }
-    if (o.form) {
-      const w = horseWarp(o.form, Y);
-      for (const k of ['body', 'mane']) {
-        let g = out[k];
-        if (!g) continue;
-        const p = g.attributes.position;
-        for (let i = 0; i < p.count; i++) { const q = w(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, q[0], q[1], q[2]); }
-        // a cut-stone horse (Deco, crystal): flat facets instead of a smooth sculpt
-        if (o.form.facet && k === 'body') g = out[k] = g.toNonIndexed();
-        g.computeVertexNormals(); g.computeBoundingSphere();
-      }
-      out.surf = (c, d, off) => w(...surf(c, d, off));
     }
     return out;
   }
@@ -11182,6 +11217,7 @@ function ChacklateScene(canvas, options) {
     room.flames.forEach((f) => { f.m.layers.enable(REFLECT); f.halo.layers.enable(REFLECT); });
     placeTrays();
     dirtyShadows();
+    warm();
   }
   function loadBoard(id) {
     if (boardMesh && id === boardId) return;
@@ -11190,11 +11226,30 @@ function ChacklateScene(canvas, options) {
     boardMesh = W.board(id, labelSide);
     boardGroup.add(boardMesh);
     dirtyShadows();
+    warm();
   }
   function loadSet(id) {
     if (id === setId && sprites.length && sprites[0].obj && sprites[0].obj.userData.set === id) return;
     setId = P.SETS[id] ? id : 'regency';
     for (const s of sprites.concat(graveyard)) rebuildSprite(s);
+    warm();
+  }
+  // New materials have their shaders compiled before they are drawn. Drawing first would
+  // compile them on the page's thread and freeze it for seconds on a phone; compileAsync lets
+  // the GPU driver compile them in the background, and the table keeps its last frame (or
+  // the page its poster) until they are ready. ready() resolves once that first frame is drawn.
+  let compiling = null, warmWanted = false, drawnOnce = false;
+  const readyWaits = [];
+  function warm() { warmWanted = true; }
+  // called by frame(): true while the next frame has to wait for its shaders
+  function compileFirst() {
+    if (compiling) return true;
+    if (!warmWanted || !renderer.compileAsync) return false;
+    warmWanted = false;
+    // never waits more than a few seconds (a lost context can leave it unfinished)
+    const mine = compiling = Promise.race([renderer.compileAsync(scene, camera).catch(() => {}), new Promise((r) => setTimeout(r, 4000))])
+      .then(() => { if (compiling === mine) { compiling = null; requestRender(); } });
+    return true;
   }
 
   // ------------------------------------------------------------------ trays and clock
@@ -11954,10 +12009,11 @@ function ChacklateScene(canvas, options) {
   const ambientMs = () => (lvl() >= 3 ? 66 : lvl() >= 1 ? 50 : 33);
   function frame(now) {
     raf = 0;
-    if (glLost) return;
+    if (glLost || compileFirst()) return;   // asked for again once the shaders are ready
     const t0 = performance.now();
     const busy = step(now);
     render(now);
+    if (!drawnOnce) { drawnOnce = true; readyWaits.splice(0).forEach((r) => r()); }
     govern(t0 - reqAt, performance.now() - t0);
     if (busy) requestRender();
     else if (ambient() && !ambientTimer && !document.hidden) {
@@ -12150,6 +12206,7 @@ function ChacklateScene(canvas, options) {
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
     glLost = true;
+    compiling = null; warm();   // compiled again for the new context
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
     if (ambientTimer) { clearTimeout(ambientTimer); ambientTimer = 0; }
     // let go of what belonged to the old context now, while deleting it is still a no-op
@@ -12371,16 +12428,24 @@ function ChacklateScene(canvas, options) {
     renderer.setRenderTarget(rt);
     renderer.setClearColor(0x000000, 0); renderer.clear();
     renderer.render(s2, c2);
-    const px = new Uint8Array(w * h * 4);
-    renderer.readRenderTargetPixels(rt, 0, 0, w, h, px);
     renderer.setRenderTarget(null);
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
-    rt.dispose();
     dispose();
+    // The pixels are read back without waiting on the GPU where WebGL 2 allows it: the plain
+    // read stops the page until the picture is drawn, a long freeze on a slow phone.
+    const px = new Uint8Array(w * h * 4);
+    const read = renderer.readRenderTargetPixelsAsync
+      ? renderer.readRenderTargetPixelsAsync(rt, 0, 0, w, h, px)
+      : Promise.resolve().then(() => renderer.readRenderTargetPixels(rt, 0, 0, w, h, px));
+    const done = () => rt.dispose();
+    return read.then(() => { done(); return encodeSnapshot(px, w, h); }, (e) => { done(); throw e; });
+  }
+  function encodeSnapshot(px, w, h) {
     // render targets are linear: tone map and encode in the copy, rows flipped
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-    const g = cv.getContext('2d'), img = g.createImageData(w, h), out = img.data, row = w * 4;
+    // a canvas kept in memory, not on the GPU, so encoding it doesn't wait for the GPU again
+    const g = cv.getContext('2d', { willReadFrequently: true }), img = g.createImageData(w, h), out = img.data, row = w * 4;
     for (let y = 0; y < h; y++) {
       for (let si = (h - 1 - y) * row, di = y * row, end = di + row; di < end; si += 4, di += 4) {
         out[di] = SNAP_LUT[px[si]]; out[di + 1] = SNAP_LUT[px[si + 1]]; out[di + 2] = SNAP_LUT[px[si + 2]]; out[di + 3] = px[si + 3];
@@ -12438,6 +12503,7 @@ function ChacklateScene(canvas, options) {
     }
     function show(sp, asp) {
       if (asp) aspect = asp;
+      if (loop) { cancelAnimationFrame(loop); loop = 0; }
       if (built) built.dispose();
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       built = buildSpec(sp, w, h, (style) => W.environment(r, style));
@@ -12453,7 +12519,9 @@ function ChacklateScene(canvas, options) {
       }
       yaw = 0; zoom = 1; idleAt = 0;
       size();
-      if (!loop) loop = requestAnimationFrame(tick);
+      // the card's picture stays up while the model's shaders compile in the background
+      const mine = built, go = () => { if (built === mine && !stopped && !loop) loop = requestAnimationFrame(tick); };
+      if (r.compileAsync) r.compileAsync(built.scene, built.camera).catch(() => {}).then(go); else go();
     }
     function tick(now) {
       loop = 0;
@@ -12521,8 +12589,11 @@ function ChacklateScene(canvas, options) {
   }
 
   // ------------------------------------------------------------------ boot
-  loadRoom('salon');
-  loadBoard('walnut');
+  // the caller's room, board and set straight away, so nothing is built twice
+  const look0 = opts.look || {};
+  if (look0.set && P.SETS[look0.set]) setId = look0.set;
+  loadRoom(look0.room || 'salon');
+  loadBoard(look0.board || 'walnut');
   shadowQuality();
   resize();
   applyCamera();
@@ -12530,10 +12601,13 @@ function ChacklateScene(canvas, options) {
   // ------------------------------------------------------------------- API
   return {
     three: { renderer, scene, camera },
+    // resolves when the table has drawn its first frame (shaders compiled, nothing frozen)
+    ready: () => new Promise((r) => { if (drawnOnce) r(); else { readyWaits.push(r); requestRender(); } }),
     setBoard(pieces, captured) {
       endCine(false, true);
       sprites.forEach(dropSprite);
       sprites = pieces.map(([sq, piece]) => makeSprite(piece, sq));
+      warm();
       for (const s of sprites) s.selected = s.sq === selectedSq;
       settleGrave(captured);
       dragging = null;
@@ -12741,7 +12815,9 @@ function ChacklateScene(canvas, options) {
     if (window.ChacklateScene) {
       var cv = document.createElement('canvas');
       world.appendChild(cv);
-      view = window.ChacklateScene(cv, {});
+      // built straight away in the opening era's look, so no other room is built first
+      var e0 = eraById[HERO];
+      view = window.ChacklateScene(cv, { look: { room: e0.room.id, board: e0.board, set: e0.set.id } });
       if (!view) world.removeChild(cv);
     }
   } catch (err) { view = null; }
@@ -12751,7 +12827,8 @@ function ChacklateScene(canvas, options) {
     view.setBoard(startPieces(), null);
     var shown = false;
     var reveal = function () { if (!shown) { shown = true; setTimeout(function () { world.classList.add('live'); }, 350); } };
-    requestAnimationFrame(function () { requestAnimationFrame(reveal); });
+    // the poster stays until the table's shaders are compiled and its first frame is drawn
+    if (view.ready) view.ready().then(reveal); else requestAnimationFrame(function () { requestAnimationFrame(reveal); });
   }
   function place(id) {
     var e = eraById[id];

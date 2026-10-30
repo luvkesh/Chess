@@ -260,6 +260,8 @@
       onContextLost() { $('nogl').hidden = false; },
       onContextRestored() { $('nogl').hidden = true; },
       onPerf: (level) => document.body.classList.toggle('lite', level >= 2),
+      // the equipped look is built first, not the default one and then this one
+      look: { room: PG.equipped(state.progress, 'room').data.room, board: PG.equipped(state.progress, 'board').data.board, set: PG.equipped(state.progress, 'pieces').data.set },
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }
@@ -319,8 +321,9 @@
   // 3D renders of real pieces for cards and the collection, drawn by the scene into images.
   // Each starts as a drawn medal and swaps to the render once it is ready.
   const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-  function snap(spec, w, h, fallback, cls) {
-    return '<img class="snap' + (cls ? ' ' + cls : '') + '" alt="" width="' + w + '" height="' + h + '" src="' + (fallback || BLANK) + '" data-snap="' + esc(JSON.stringify([spec, w, h])) + '">';
+  // shown: [width, height] to show it at, when that differs from the size it is drawn at
+  function snap(spec, w, h, fallback, cls, shown) {
+    return '<img class="snap' + (cls ? ' ' + cls : '') + '" alt="" width="' + (shown ? shown[0] : w) + '" height="' + (shown ? shown[1] : h) + '" src="' + (fallback || BLANK) + '" data-snap="' + esc(JSON.stringify([spec, w, h])) + '">';
   }
   let snapObserver = null;
   function hydrate(root, lazy) {
@@ -1136,15 +1139,20 @@
     if (it.category === 'room' && view.rooms()[d.room]) return { kind: 'room', room: d.room };
     return null;
   }
-  function itemArt(it, big) {
+  // The grid's pictures use the pieces' table detail: at card size it looks the same, and the
+  // full sculpt took several times as long to build and draw. big: the museum card's picture;
+  // cardPic: show the grid card's picture there (already drawn, while the live model loads).
+  function itemArt(it, big, cardPic) {
     const d = it.data || {};
-    const W = big ? 520 : 260, H = big ? 360 : 180;
-    if (it.category === 'pieces') return snap(itemSpec(it), W, H, medal('piece:k', '#8a5a2a', '#2a1408'), 'fit');
-    if (it.category === 'board') return snap(itemSpec(it), W, H, medal('emblem:crown', '#5c3a1e', '#1e120a'), 'cover');
+    const W = big && !cardPic ? 520 : 260, H = big && !cardPic ? 360 : 180, shown = big && cardPic ? [520, 360] : null;
+    const spec = itemSpec(it);
+    if (spec && !(big && !cardPic)) spec.detail = 'play';
+    if (it.category === 'pieces') return snap(spec, W, H, medal('piece:k', '#8a5a2a', '#2a1408'), 'fit', shown);
+    if (it.category === 'board') return snap(spec, W, H, medal('emblem:crown', '#5c3a1e', '#1e120a'), 'cover', shown);
     if (it.category === 'room') {
       const e = eraOfRoom(d.room);
       const fallback = e ? ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) : BLANK;
-      return itemSpec(it) ? snap(itemSpec(it), W, H, fallback, 'cover') : '<img class="cover" src="' + fallback + '" alt="">';
+      return spec ? snap(spec, W, H, fallback, 'cover', shown) : '<img class="cover" src="' + fallback + '" alt="">';
     }
     if (it.category === 'avatar') return '<img class="port" src="' + medal(d.art, d.from, d.to) + '" alt="">';
     if (it.category === 'frame') return avatarHtml(big ? 'xl' : 'lg', PG.equipped(state.progress, 'avatar').id, it.id);
@@ -1224,9 +1232,9 @@
       // The picture is only a placeholder: the item itself turns on the stage in real 3D.
       if (live) { live.stop(); live = null; }
       stageEl.setAttribute('style', tintStyle(it).replace(/^ style="|"$/g, ''));
-      stageEl.innerHTML = itemArt(it, true);
+      const spec = itemSpec(it), staged = !!(spec && view.stage);
+      stageEl.innerHTML = itemArt(it, true, staged);
       hydrate(m);
-      const spec = itemSpec(it);
       live = spec && view.stage ? view.stage(stageEl, spec, 520 / 360) : null;
       if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' Drag to turn · pinch to zoom</span>');
       info.querySelectorAll('[data-pt]').forEach((b) => {
