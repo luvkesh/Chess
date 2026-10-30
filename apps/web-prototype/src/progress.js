@@ -61,6 +61,7 @@ function ChacklateProgress(catalog, extras) {
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
+      mini: { best: {}, plays: {}, day: { date: '', best: {}, earned: {} }, seen: [] },
     };
   }
   function migrate(s) {
@@ -72,6 +73,7 @@ function ChacklateProgress(catalog, extras) {
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
     out.missions = Object.assign(f.missions, s.missions || {});
     out.journey = Object.assign({}, s.journey || {});
+    out.mini = Object.assign(f.mini, s.mini || {});
     return out;
   }
 
@@ -348,6 +350,39 @@ function ChacklateProgress(catalog, extras) {
   }
   const PG_today = (now) => today(now ? new Date(now) : undefined);
 
+  // ------------------------------------------------------------ mini-games
+  // A finished round of a mini-game: its best score, today's best and the reward. Mini-games pay
+  // Chackmate's points when the game has them (earn), XP until then, at most `cap` a day from each
+  // game. They never change a rating, and count toward the mini-game missions.
+  function miniPay(state, id, amount, cap, now, out) {
+    if (typeof earn === 'function') return earn(state, 'mini:' + id, amount, { cap, now }, out);
+    const day = state.mini.day;
+    const paid = Math.max(0, Math.min(amount, cap - (day.earned[id] || 0)));
+    day.earned[id] = (day.earned[id] || 0) + paid;
+    if (paid) grant(state, paid, out);
+    return paid;
+  }
+  function miniFinished(state, id, score, reward, now) {
+    const out = result();
+    const m = state.mini, d = PG_today(now);
+    if (m.day.date !== d) m.day = { date: d, best: {}, earned: {} };
+    out.newBest = score > (m.best[id] || 0) && (m.plays[id] || 0) > 0;
+    out.newDailyBest = score > (m.day.best[id] || 0) && m.day.best[id] !== undefined;
+    m.best[id] = Math.max(m.best[id] || 0, score);
+    m.day.best[id] = Math.max(m.day.best[id] || 0, score);
+    m.plays[id] = (m.plays[id] || 0) + 1;
+    out.paid = score > 0 ? miniPay(state, id, reward.perRound, reward.capPerDay, now, out) : 0;
+    out.capped = score > 0 && !out.paid;
+    track(state, 'mini', 1, now, out);
+    touchStreak(state, now ? new Date(now) : undefined, out);
+    return out;
+  }
+  // Today's best and what a game has paid today.
+  function miniToday(state, id, now) {
+    const day = state.mini.day, fresh = day.date === PG_today(now);
+    return { best: fresh ? day.best[id] : undefined, earned: fresh ? day.earned[id] || 0 : 0 };
+  }
+
   function isUnlocked(state, item) {
     const u = item.unlock;
     if (u.type === 'free') return true;
@@ -400,7 +435,7 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
-    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage };
+    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateProgress;

@@ -71,6 +71,7 @@
     medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 3l2.5 6.2M15.5 3L13 9.2"/><path d="M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/>',
     swords: '<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/>',
     rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    shield: '<path d="M12 3L5 6v5.5c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z"/><path d="M9 12l2 2 4-4"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
   const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
@@ -635,9 +636,9 @@
   const NAV = [['home', 'Home', 'home'], ['play', 'Play', 'play'], ['journey', 'Journey', 'journey'], ['learn', 'Learn', 'learn'],
     ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['profile', 'Profile', 'profile']];
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
-  const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training' };
-  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn' };
-  const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud' };
+  const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play' };
+  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play' };
+  const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
   function renderNav() {
@@ -831,6 +832,8 @@
   const dailyDone = () => state.progress.daily.date === PG.today() && state.progress.daily.done;
   const nextEra = () => CAMPAIGN.eras.find((e) => !PG.journeyInfo(state.progress, e.id).done) || null;
   const duoArt = () => '<span class="duo"><img src="' + medal('piece:n', '#a3294f', '#5c1328') + '" alt=""><img src="' + medal('piece:r', '#2f6f6a', '#173b39') + '" alt=""><i>' + icon('users') + '</i></span>';
+  // three of the mini-game medals, fanned out
+  const miniHomeArt = () => '<span class="minifan">' + ['tour', 'rush', 'queen'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span>';
   const worldArt = () => '<span class="duo"><img src="' + medal('piece:k', '#2f6f6a', '#173b39') + '" alt=""><img src="' + medal('piece:q', '#b8862b', '#5c3d0c') + '" alt=""><i>' + icon('globe') + '</i></span>';
   function wireLinks() {
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
@@ -857,6 +860,7 @@
       lux({ id: 'h-learn', art: faceImg(COACH), title: 'Learn Chess', text: nl ? 'With Rooky, your coach. Next: ' + nl.title + '.' : 'Every open lesson done. Try the puzzles!' }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
       lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
+      lux({ id: 'h-minis', art: miniHomeArt(), title: 'Mini-games', text: 'Six quick games that sharpen your chess. One to three minutes each.' }) +
       '</div>' +
       '<div class="home-foot">' + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
@@ -867,6 +871,7 @@
     $('h-learn').onclick = () => { AU.unlock(); AU.play('tap'); if (nl) go('lesson', nl.id); else go('learn'); };
     $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: 'Daily puzzle' }); else go('puzzles'); };
     $('h-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+    $('h-minis').onclick = () => { AU.unlock(); AU.play('tap'); go('minis'); };
     return { leave() { view.setAttract(false); } };
   };
 
@@ -920,6 +925,7 @@
       lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: 'A timed game against a player from anywhere, 10 minutes at most.' }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
+      '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>Mini-games</small><b>Six quick games that train one skill each</b></span><span class="go">' + icon('arrow') + '</span></button>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
@@ -3188,6 +3194,461 @@
     $('pz-next').onclick = () => { AU.play('tap'); load(); };
     load();
     return {};
+  };
+
+  // ---------------------------------------------------------------- mini-games
+  // Six short games on the table, each training one skill (minigames.js has their rules). They pay
+  // Chackmate's points (XP until the points exist), up to a daily cap from each game, keep a best and
+  // a best for today, and never change a rating. The how-to card opens by itself the first time.
+  const MINI = ChacklateMinis(E, { puzzles: PUZZLES, lessons: LESSONS.lessons, eras: CAMPAIGN.eras });
+  const miniUnit = () => PG.COIN_NAME || 'XP';
+  const miniArt = (g) => ART.miniUri(g.art, { from: g.colors[0], to: g.colors[1] });
+  const miniLevel = (g) => { const l = (state.settings.miniLevels || {})[g.id]; return g.levels.some((x) => x[0] === l) ? l : g.levels.length ? g.levels[0][0] : ''; };
+  const howToList = (g) => '<ol class="mini-howto">' + g.howTo.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ol>';
+  SCREENS.minis = function () {
+    idleBoard();
+    const P = state.progress, R = MINI.REWARD;
+    const today = MINI.GAMES.map((g) => PG.miniToday(P, g.id));
+    const earned = today.reduce((a, t) => a + t.earned, 0), plays = Object.values(P.mini.plays).reduce((a, n) => a + n, 0);
+    const cell = (ic, k, v) => '<div class="mini-cell"><span class="sg">' + icon(ic) + '</span><span><small>' + esc(k) + '</small><b>' + v + '</b></span></div>';
+    mount('<div class="page"><div class="page-in">' +
+      pageHead('Mini-games', 'Quick games at the table', 'Six short games, each one training a real chess skill. They earn ' + esc(miniUnit()) + ' and never change your rating.') +
+      '<div class="mini-summary glass">' + cell('sparkle', 'Earned today', earned + ' ' + esc(miniUnit())) + cell('target', 'Rounds played', plays) + cell('shield', 'Each game pays', 'up to ' + R.capPerDay + ' a day') + '</div>' +
+      sec('play', 'Games', MINI.GAMES.length + ' games') +
+      '<div class="lux-row three mini-cards">' + MINI.GAMES.map((g, i) => {
+        const best = P.mini.best[g.id], t = today[i], full = t.earned >= R.capPerDay;
+        return '<button class="lux h mini-card" data-mini="' + g.id + '"><span class="tag pill">' + esc(g.skill) + '</span><div class="art"><img src="' + miniArt(g) + '" alt=""></div><h3>' + esc(g.title) + '</h3><p>' + esc(g.blurb) + '</p>' +
+          '<span class="mini-foot"><span>' + icon('clock') + esc(g.minutes) + '</span>' + (best ? '<span>' + icon('trophy') + 'Best ' + best + '</span>' : '') + (t.best !== undefined ? '<span>' + icon('sun') + 'Today ' + t.best + '</span>' : '') +
+          '<span class="mini-earn' + (full ? ' full' : '') + '">' + icon('sparkle') + t.earned + ' / ' + R.capPerDay + ' ' + esc(miniUnit()) + '</span></span><span class="go">' + icon('arrow') + '</span></button>';
+      }).join('') + '</div>' +
+      '<p class="muted mini-cap">' + icon('shield') + ' Each game pays ' + R.perRound + ' ' + esc(miniUnit()) + ' a round you score in, up to ' + R.capPerDay + ' a day. Play as much as you like after that, just for fun.</p>' +
+      '</div></div>');
+    wireLinks();
+    document.querySelectorAll('[data-mini]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); miniStart(MINI.game(b.dataset.mini)); }; });
+    return {};
+  };
+  // The start card: the level, the how-to (open the first time) and today's scores.
+  function miniStart(g) {
+    const P = state.progress, first = !P.mini.seen.includes(g.id), lv = miniLevel(g), t = PG.miniToday(P, g.id);
+    const m = modal('<div class="setup-hero mini-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><div><div class="eyebrow">' + esc(g.skill) + ' · ' + esc(g.minutes) + '</div><h2>' + esc(g.title) + '</h2><p class="sub">' + esc(g.blurb) + '</p></div></div>' +
+      '<form id="mn-f">' + (g.levels.length ? '<div class="field"><div class="label">Level</div><div class="seg">' + g.levels.map(([v, n]) => '<label><input type="radio" name="lv" value="' + v + '"' + (v === lv ? ' checked' : '') + '><span>' + esc(n) + '</span></label>').join('') + '</div></div>' : '') +
+      (first ? '<div class="eyebrow">How to play</div>' + howToList(g) : '<details class="mini-more"><summary>How to play</summary>' + howToList(g) + '</details>') +
+      '<p class="mini-scores">' + (P.mini.best[g.id] ? icon('trophy') + ' Best <b>' + P.mini.best[g.id] + '</b>' : 'No score yet. Have a go!') + (t.best !== undefined ? ' · Today <b>' + t.best + '</b>' : '') + '</p>' +
+      '<div class="row"><button type="button" class="btn" data-close>Not now</button><button class="btn primary">' + icon('play') + ' Play</button></div></form>', { x: true, cls: 'mini-sheet' });
+    m.querySelector('#mn-f').onsubmit = (e) => {
+      e.preventDefault();
+      const f = e.target, level = f.lv ? f.lv.value : '';
+      state.settings.miniLevels = Object.assign({}, state.settings.miniLevels, { [g.id]: level });
+      if (first) P.mini.seen.push(g.id);
+      save(); m.close(); AU.unlock(); go('mini', { id: g.id, level });
+    };
+  }
+
+  // The table for one mini-game. Each game is a small controller with the same hooks:
+  // begin, tick(seconds), onSquare, canDrag, onDrop, hint, undo.
+  SCREENS.mini = function (arg) {
+    const g = MINI.game(arg && arg.id);
+    if (!g) { setTimeout(() => go('minis'), 0); return {}; }
+    const level = (arg && arg.level) || miniLevel(g);
+    view.setAttract(false);
+    view.setArrows([]);
+    mount('<div class="hud-top"><button class="backbtn" id="mn-back">' + icon('back') + '<span>Mini-games</span></button>' +
+      '<div class="title"><img class="portrait" src="' + miniArt(g) + '" alt=""><span>' + esc(g.title) + '</span></div><span class="spacer"></span>' +
+      '<div class="pill glass mini-stats" id="mn-stats" aria-live="polite"></div>' +
+      '<button class="round" id="mn-help" aria-label="How to play" title="How to play">' + icon('scroll') + '</button>' +
+      '<button class="round" id="mn-again" aria-label="Start again" title="Start again">' + icon('refresh') + '</button>' +
+      '<button class="round" id="mn-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass mini-panel"><header><img src="' + miniArt(g) + '" alt=""><div><div class="eyebrow" id="mn-eyebrow"></div><h3 id="mn-title"></h3></div></header>' +
+      '<div class="content"><div id="mn-body"></div><div class="mini-timer" id="mn-timer" hidden><i></i></div><div id="mn-fb"></div></div>' +
+      '<footer><span id="mn-tools"></span><div class="grow"></div><button class="btn primary" id="mn-main" hidden></button></footer></aside>');
+    const S = { over: false, used: { hints: 0, undos: 0 }, timers: [] };
+    const H = {
+      eyebrow(t) { $('mn-eyebrow').textContent = t; },
+      title(t) { $('mn-title').textContent = t; },
+      body(html) { $('mn-body').innerHTML = html; },
+      stats(list) { $('mn-stats').innerHTML = list.map(([k, v]) => '<span><small>' + esc(k) + '</small> <b>' + v + '</b></span>').join(''); },
+      fb(kind, text) { $('mn-fb').innerHTML = text ? '<div class="feedback ' + kind + '">' + esc(text) + '</div>' : ''; },
+      // left: the share of the time still to go (0 to 1), or null to hide the bar
+      timer(left) { const el = $('mn-timer'); el.hidden = left === null; if (left !== null) { el.firstChild.style.width = (Math.max(0, left) * 100).toFixed(1) + '%'; el.classList.toggle('low', left < 0.25); } },
+      tools(list) {
+        $('mn-tools').innerHTML = list.map(([id, ic, label]) => '<button class="btn small" id="mn-t-' + id + '">' + icon(ic) + ' ' + esc(label) + '</button>').join(' ');
+        list.forEach(([id, , , fn]) => { $('mn-t-' + id).onclick = () => { if (!S.over) { AU.play('tap'); fn(); } }; });
+      },
+      main(label, fn) { const b = $('mn-main'); b.hidden = !label; if (label) { b.textContent = label; b.onclick = () => { AU.play('tap'); fn(); }; } },
+      later(fn, ms) { const id = setTimeout(() => { if (state.screen === 'mini' && current === ctl) fn(); }, ms); S.timers.push(id); },
+      side(side) { view.setView(side, state.settings.view === 'top' ? 'top' : 'player'); },
+      finish: (score, o) => miniDone(g, level, score, o || {}, S),
+    };
+    let game = null;
+    const begin = () => {
+      S.timers.forEach(clearTimeout); S.timers = [];
+      S.over = false; S.used = { hints: 0, undos: 0 };
+      H.fb('', ''); H.timer(null); H.main(null); H.tools([]);
+      view.setArrows([]); view.setHighlights({});
+      game = MINI_PLAY[g.id](H, level, S, Math.floor(Math.random() * 1e9));
+      setHooks({
+        onSquare: (sq) => { if (!S.over && game.onSquare) game.onSquare(sq); },
+        canDrag: (sq) => !S.over && !!game.canDrag && game.canDrag(sq),
+        onDrop: (f, t) => !S.over && !!game.onDrop && game.onDrop(f, t),
+      });
+      applyInsets();
+    };
+    const help = () => { const m = modal('<div class="eyebrow">How to play</div><h2>' + esc(g.title) + '</h2>' + howToList(g) + '<div class="row"><button class="btn primary" data-close>' + icon('play') + ' Play</button></div>', { cls: 'mini-sheet' }); return m; };
+    $('mn-back').onclick = () => { AU.play('tap'); go('minis'); };
+    $('mn-help').onclick = () => { AU.play('tap'); help(); };
+    $('mn-again').onclick = () => { AU.play('tap'); begin(); };
+    $('mn-set').onclick = () => settingsModal();
+    // time only runs while nothing covers the board
+    let last = performance.now();
+    const clock = setInterval(() => {
+      const now = performance.now(), dt = Math.min(0.5, (now - last) / 1000);
+      last = now;
+      if (!S.over && game && game.tick && !document.querySelector('.modal') && !document.hidden) game.tick(dt);
+    }, 100);
+    const ctl = {
+      leave() { clearInterval(clock); S.timers.forEach(clearTimeout); S.over = true; view.setArrows([]); view.setHighlights({}); },
+      key(e) { if (e.key === 'Enter' && !$('mn-main').hidden) $('mn-main').click(); },
+    };
+    begin();
+    return ctl;
+  };
+  // A finished round: record it, pay for it and show the result card.
+  function miniDone(g, level, score, o, S) {
+    if (S.over) return;
+    S.over = true;
+    setHooks({});
+    score = Math.max(0, Math.round(score));
+    const res = PG.miniFinished(state.progress, g.id, score, MINI.REWARD);
+    if (res.paid && typeof showCoins === 'function') showCoins(res.paid);
+    celebrate(res, true);
+    const t = PG.miniToday(state.progress, g.id), cap = MINI.REWARD.capPerDay, unit = esc(miniUnit());
+    if (o.won !== false && score > 0) { AU.play('win'); view.celebrate('win', -1, null, -1); } else AU.play('draw');
+    setTimeout(() => {
+      if (state.screen !== 'mini') return;
+      const stat = (k, v) => '<div class="mini-stat"><small>' + esc(k) + '</small><b>' + v + '</b></div>';
+      const m = modal('<div class="result-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><span class="result-badge">' + esc(g.title) + '</span>' +
+        '<h2 class="result-title">' + esc(o.title || (score ? 'Well played!' : 'Round over')) + '</h2>' + (o.line ? '<p class="sub">' + esc(o.line) + '</p>' : '') +
+        '<div class="mini-result">' + stat('Score', score) + stat('Best', state.progress.mini.best[g.id] || 0) + stat('Today', t.best || 0) + '</div>' +
+        (res.newBest ? '<p class="mini-new">' + icon('trophy') + ' New best score!</p>' : res.newDailyBest ? '<p class="mini-new">' + icon('sun') + ' Your best today!</p>' : '') +
+        '<div class="mini-pay"><b>+' + res.paid + '</b> ' + unit + '<small>' + (res.capped ? 'That is all ' + cap + ' ' + unit + ' from this game today. More tomorrow!' : score ? t.earned + ' of ' + cap + ' ' + unit + ' from this game today.' : 'Score in a round to earn ' + unit + '.') + '</small></div>' +
+        '<div class="row" style="justify-content:center"><button class="btn" id="mr-hub">Mini-games</button><button class="btn primary" id="mr-again">' + icon('refresh') + ' Play again</button></div></div>', { cls: 'mini-sheet' });
+      m.querySelector('#mr-hub').onclick = () => { m.close(); go('minis'); };
+      m.querySelector('#mr-again').onclick = () => { m.close(); go('mini', { id: g.id, level }); };
+    }, score ? 1300 : 600);
+  }
+
+  const MINI_PLAY = {};
+  // Knight's tour: visited squares turn gold, squares off the board for this size go dark.
+  MINI_PLAY.tour = function (H, level, S, seed) {
+    const size = +level || 5, all = size * size;
+    const start = MINI.rng(seed).pick(MINI.tourCorners(size));
+    const T = { path: [start], hint: -1, busy: false };
+    const cur = () => T.path[T.path.length - 1];
+    const moves = () => MINI.tourMoves(cur(), T.path, size);
+    H.eyebrow('Knight\'s Tour · ' + size + ' × ' + size); H.title('Visit every square once');
+    H.body('<p class="say">Tap a glowing square to jump. Plan ahead: squares near the edge are the hardest to reach later.</p>');
+    H.side('white');
+    function draw() {
+      const marks = [];
+      for (let sq = 0; sq < 64; sq++) if ((sq & 7) >= size || (sq >> 3) >= size) marks.push({ sq, color: '#0b0603', alpha: 0.9 });
+      T.path.slice(0, -1).forEach((sq) => marks.push({ sq, color: '#f2c462', alpha: 0.55 }));
+      view.setBoard([[cur(), 2]], null);
+      view.setHighlights({ marks, selected: cur(), targets: moves(), spots: T.hint >= 0 ? [{ sq: T.hint }] : [] });
+      H.stats([['Squares', T.path.length + ' / ' + all], ['Score', MINI.tourScore(T.path.length, size, S.used)]]);
+    }
+    function jump(sq, animate) {
+      if (T.busy || !moves().includes(sq)) return false;
+      const from = cur();
+      T.path.push(sq); T.hint = -1;
+      const after = () => {
+        T.busy = false; draw();
+        AU.play('move');
+        if (T.path.length === all) { H.fb('ok', 'The whole board! A perfect tour.'); H.finish(MINI.tourScore(all, size, S.used), { title: 'Tour complete!', line: 'Your knight visited all ' + all + ' squares.' }); }
+        else if (!moves().length) { H.fb('bad', 'No more jumps from here. You visited ' + T.path.length + ' squares.'); H.finish(MINI.tourScore(T.path.length, size, S.used), { won: T.path.length > all / 2, title: T.path.length + ' squares', line: 'Stuck! Next time, try the square with the fewest ways out.' }); }
+        else H.fb('', '');
+      };
+      if (animate) { T.busy = true; quickMove({ from, to: sq, capturedSq: -1, mover: 2 }, after); } else after();
+      return true;
+    }
+    H.tools([['hint', 'hint', 'Hint', () => { S.used.hints++; T.hint = MINI.tourHint(cur(), T.path, size); H.fb('hint', 'Try the square with the fewest ways out after it.'); draw(); AU.play('coach'); }],
+      ['undo', 'undo', 'Undo', () => { if (T.path.length > 1 && !T.busy) { T.path.pop(); S.used.undos++; T.hint = -1; draw(); } }]]);
+    draw();
+    return {
+      onSquare(sq) { if (!jump(sq, true) && sq !== cur()) { AU.play('illegal'); H.fb('bad', 'A knight cannot jump there. Try a glowing square.'); } },
+      canDrag: (sq) => sq === cur() && !T.busy,
+      onDrop: (f, t) => jump(t, false),
+    };
+  };
+  // Square spotter: a name, a tap, and the board turns round every round.
+  MINI_PLAY.spotter = function (H, level, S, seed) {
+    const rounds = MINI.spotterRounds(seed);
+    const T = { i: -1, lives: MINI.SPOT_LIVES, score: 0, left: 0, limit: 1, live: false };
+    H.eyebrow('Square Spotter'); H.title('Find the square');
+    view.setBoard([], null);
+    const stats = () => H.stats([['Round', Math.min(T.i + 1, MINI.SPOT_ROUNDS) + ' / ' + MINI.SPOT_ROUNDS], ['Lives', '♥'.repeat(T.lives) + '<span class="off">' + '♥'.repeat(MINI.SPOT_LIVES - T.lives) + '</span>'], ['Score', T.score]]);
+    function next() {
+      T.i++;
+      if (T.i >= MINI.SPOT_ROUNDS || T.lives <= 0) {
+        H.finish(T.score, { won: T.lives > 0, title: T.lives > 0 ? 'All ' + MINI.SPOT_ROUNDS + ' squares!' : T.score + ' points', line: T.lives > 0 ? 'You know your way around the board.' : 'Out of lives. The board names get easier every time you play.' });
+        return;
+      }
+      const side = T.i % 2 ? 'black' : 'white';
+      H.side(side);
+      view.setHighlights({});
+      H.body('<p class="say">Playing as ' + side + '. Tap:</p><p class="mini-call">' + MINI.name(rounds[T.i]) + '</p>');
+      H.timer(1); H.fb('', '');
+      T.limit = MINI.spotTime(level, T.i); T.left = T.limit; T.live = false;
+      stats();
+      // the clock starts once the board has turned
+      H.later(() => { T.live = true; }, 700);
+    }
+    function miss(text, tapped) {
+      T.live = false; T.lives--;
+      AU.play('wrong'); H.fb('bad', text);
+      view.setHighlights({ spots: [{ sq: rounds[T.i], color: '#2fd8ff' }].concat(tapped >= 0 ? [{ sq: tapped, color: '#ff4a40', pulse: false }] : []) });
+      stats(); H.later(next, 1300);
+    }
+    H.body('<p class="say">Get ready…</p>');
+    H.later(next, 400);
+    return {
+      tick(dt) {
+        if (!T.live) return;
+        T.left -= dt; H.timer(T.left / T.limit);
+        if (T.left <= 0) miss('Time! ' + MINI.name(rounds[T.i]) + ' is the glowing square.', -1);
+      },
+      onSquare(sq) {
+        if (!T.live) return;
+        if (sq === rounds[T.i]) {
+          T.live = false; T.score += MINI.spotPoints(T.left, T.limit);
+          AU.play('correct'); H.fb('ok', 'Yes! That is ' + MINI.name(sq) + '.');
+          view.setHighlights({ spots: [{ sq, color: '#3ee07a', pulse: false }] });
+          stats(); H.later(next, 650);
+        } else miss('That is ' + MINI.name(sq) + '. ' + MINI.name(rounds[T.i]) + ' is the glowing one.', sq);
+      },
+    };
+  };
+  // Pawn race: you have White; the bot defends the breakthrough perfectly and plays the war a little softer.
+  MINI_PLAY.pawns = function (H, level, S) {
+    const lv = MINI.PAWN_START[level] ? level : 'break';
+    const T = { st: MINI.PAWN_START[lv](), sel: -1, busy: false, mine: 0, last: null };
+    H.eyebrow(lv === 'break' ? 'Pawn Race · Breakthrough' : 'Pawn Race · Pawn war'); H.title('First to the far side wins');
+    H.body('<p class="say">' + (lv === 'break' ? 'Three pawns each. Black looks safe, but there is a way through. Can you find it?' : 'All sixteen pawns. Make a pawn that nobody can stop.') + '</p>');
+    H.side('white');
+    const pieces = () => T.st.w.map((s) => [s, 1]).concat(T.st.b.map((s) => [s, -1]));
+    function draw() {
+      view.setBoard(pieces(), null);
+      const tg = T.sel >= 0 ? MINI.pawnMoves(T.st).filter((m) => m.from === T.sel) : [];
+      view.setHighlights({ lastFrom: T.last ? T.last.from : -1, lastTo: T.last ? T.last.to : -1, selected: T.sel, targets: tg.filter((m) => m.cap === undefined).map((m) => m.to), captures: tg.filter((m) => m.cap !== undefined).map((m) => m.to) });
+      H.stats([['Your moves', T.mine], ['Pawns', T.st.w.length + ' v ' + T.st.b.length]]);
+    }
+    function over() {
+      const r = MINI.pawnResult(T.st);
+      if (r === null) return false;
+      const score = Math.max(0, MINI.pawnScore(r, T.mine) - S.used.hints * 10);
+      H.fb(r === 1 ? 'ok' : 'bad', r === 1 ? 'Your pawn made it! A new queen.' : r === -1 ? 'Black got there first.' : 'Nobody can move: a draw.');
+      H.finish(score, { won: r === 1, title: r === 1 ? 'You broke through!' : r === 0 ? 'A draw' : 'Black won the race', line: r === 1 ? 'Won in ' + T.mine + ' moves.' : lv === 'break' ? 'Tip: a pawn sacrifice in the middle opens the way.' : 'Tip: count who reaches the far side first before you race.' });
+      return true;
+    }
+    function play(m, animate, then) {
+      const mover = T.st.side;
+      const after = () => { T.st = MINI.pawnPlay(T.st, m); T.last = m; T.busy = false; draw(); AU.play(m.cap !== undefined ? 'capture' : 'move'); if (!over() && then) then(); };
+      T.sel = -1;
+      if (animate) { T.busy = true; quickMove({ from: m.from, to: m.to, capturedSq: m.cap === undefined ? -1 : m.cap, mover }, after); } else after();
+    }
+    function mine(from, to, animate) {
+      const m = MINI.pawnMoves(T.st).find((x) => x.from === from && x.to === to);
+      if (!m || T.busy || T.st.side !== 1) return false;
+      T.mine++; view.setArrows([]); H.fb('', '');
+      play(m, animate, () => { T.busy = true; H.later(() => { T.busy = false; play(MINI.pawnBest(T.st, lv === 'war' ? 3 : undefined), true); }, 450); });
+      return true;
+    }
+    H.tools([['hint', 'hint', 'Hint', () => { if (T.busy || T.st.side !== 1) return; S.used.hints++; const b = MINI.pawnBest(T.st); view.setArrows([{ from: b.from, to: b.to, color: '#2fd8ff' }]); H.fb('hint', 'Rooky would play ' + MINI.name(b.from) + ' to ' + MINI.name(b.to) + '.'); AU.play('coach'); }]]);
+    draw();
+    return {
+      onSquare(sq) {
+        if (T.busy || T.st.side !== 1) return;
+        if (T.sel >= 0 && mine(T.sel, sq, true)) return;
+        T.sel = T.st.w.includes(sq) ? sq : -1;
+        if (T.sel >= 0) AU.play('select');
+        draw();
+      },
+      canDrag: (sq) => !T.busy && T.st.side === 1 && T.st.w.includes(sq),
+      onDrop: (f, t) => mine(f, t, false),
+    };
+  };
+  // Queen's path: five boards; a guarded square refuses the queen and shows who guards it.
+  MINI_PLAY.queen = function (H, level, S, seed) {
+    const T = { k: -1, b: null, q: 0, moves: 0, bumps: 0, total: 0, busy: false, peek: false };
+    H.eyebrow('Queen\'s Path'); H.title('Cross without stopping on a guarded square');
+    H.side('white');
+    function draw() {
+      const goal = [56, 57, 58, 59, 60, 61, 62, 63].map((sq) => ({ sq, color: '#f2c462', alpha: 0.32 }));
+      const att = MINI.guardAttacks(T.b.guards);
+      const peek = T.peek ? [...att.keys()].map((sq) => ({ sq, color: '#ff4a40', alpha: 0.42 })) : [];
+      view.setBoard([[T.q, 5]].concat(T.b.guards.map(([sq, p]) => [sq, -p])), null);
+      view.setHighlights({ marks: goal.concat(peek), selected: T.q, targets: T.busy ? [] : MINI.queenMoves(T.q, T.b.guards) });
+      H.stats([['Board', (T.k + 1) + ' / ' + MINI.QUEEN_BOARDS], ['Moves', T.moves + ' (best ' + T.b.par + ')'], ['Score', T.total]]);
+    }
+    function nextBoard() {
+      T.k++;
+      if (T.k >= MINI.QUEEN_BOARDS) { H.finish(T.total, { title: 'Safe across five times!', line: T.total + ' points. Fewer moves and no bumps score the most.' }); return; }
+      T.b = MINI.queenBoard(seed + T.k * 7919, level); T.q = T.b.queen; T.moves = 0; T.bumps = 0; T.peek = false;
+      H.body('<p class="say">Reach any gold square on the far row. You can do it in ' + T.b.par + ' moves.</p>');
+      H.fb('', ''); view.setArrows([]);
+      draw();
+    }
+    function go2(to, animate) {
+      if (T.busy || !MINI.queenMoves(T.q, T.b.guards).includes(to)) return false;
+      const by = MINI.guardAttacks(T.b.guards).get(to);
+      if (by) {
+        T.bumps++; AU.play('wrong');
+        const names = { 1: 'pawn', 2: 'knight', 3: 'bishop', 4: 'rook', 6: 'king' };
+        const g0 = T.b.guards.find(([sq]) => sq === by[0]);
+        H.fb('bad', MINI.name(to) + ' is guarded by the ' + names[g0[1]] + ' on ' + MINI.name(by[0]) + '. Pick another square.');
+        view.setArrows(by.map((f) => ({ from: f, to, color: '#ff4a40' })));
+        view.setHighlights({ spots: [{ sq: to, color: '#ff4a40', pulse: false }], selected: T.q, targets: MINI.queenMoves(T.q, T.b.guards) });
+        H.later(() => { view.setArrows([]); draw(); }, 1800);
+        return false;
+      }
+      const from = T.q;
+      T.moves++; view.setArrows([]); H.fb('', '');
+      const after = () => {
+        T.q = to; T.busy = false; AU.play('move'); draw();
+        if ((to >> 3) === 7) {
+          const pts = MINI.queenBoardScore(T.moves, T.b.par, T.bumps + (T.hinted ? 1 : 0));
+          T.total += pts; T.hinted = false;
+          AU.play('correct'); H.fb('ok', (T.moves <= T.b.par ? 'Perfect, in ' + T.moves + '!' : 'Across in ' + T.moves + ' moves.') + ' +' + pts);
+          T.busy = true; H.later(() => { T.busy = false; nextBoard(); }, 1100);
+        }
+      };
+      if (animate) { T.busy = true; quickMove({ from, to, capturedSq: -1, mover: 5 }, after); } else after();
+      return true;
+    }
+    H.tools([['hint', 'eye', 'Show guards', () => { T.peek = true; T.hinted = true; S.used.hints++; draw(); H.later(() => { T.peek = false; draw(); }, 2500); }]]);
+    nextBoard();
+    return {
+      onSquare(sq) { if (sq !== T.q) go2(sq, true); },
+      canDrag: (sq) => sq === T.q && !T.busy,
+      onDrop: (f, t) => go2(t, false),
+    };
+  };
+  // Memory board: five seconds to look, then rebuild it from the tray.
+  MINI_PLAY.memory = function (H, level, S, seed) {
+    const sizes = MINI.MEMORY_SIZES[level] || MINI.MEMORY_SIZES.easy;
+    const T = { k: -1, want: [], placed: new Map(), pick: 0, phase: 'look', left: 0, total: 0 };
+    const KINDS = [6, 5, 4, 3, 2, 1];
+    const ink = (p) => p > 0 ? { fill: '#f4ead6', stroke: '#7a5a3a' } : { fill: '#2a1d18', stroke: '#d8b56a', ink: '#d8b56a' };
+    H.eyebrow('Memory Board'); H.title('Remember the position');
+    H.side('white');
+    const stats = () => H.stats([['Position', (T.k + 1) + ' / ' + sizes.length], ['Pieces', sizes[T.k]], ['Score', T.total]]);
+    const placedList = () => [...T.placed.entries()];
+    function tray() {
+      H.body('<p class="say">Pick a piece, then tap its square. Tap a piece on the board to take it off.</p><div class="mini-tray">' +
+        [1, -1].map((c) => KINDS.map((k) => '<button class="' + (T.pick === k * c ? 'on' : '') + '" data-pc="' + k * c + '" aria-label="' + (c > 0 ? 'White ' : 'Black ') + PIECE_NAME[TYPE[k]].toLowerCase() + '"><img src="' + ART.pieceUri(TYPE[k], ink(c)) + '" alt=""></button>').join('')).join('') + '</div>');
+      document.querySelectorAll('[data-pc]').forEach((b) => { b.onclick = () => { T.pick = +b.dataset.pc; AU.play('select'); tray(); }; });
+    }
+    function next() {
+      T.k++;
+      if (T.k >= sizes.length) { H.finish(T.total, { title: 'What a memory!', line: T.total + ' points from ' + sizes.length + ' positions.' }); return; }
+      T.want = MINI.memoryPosition(seed + T.k * 104729, sizes[T.k]); T.placed = new Map(); T.pick = 0;
+      T.phase = 'look'; T.left = MINI.MEMORY_SECONDS;
+      view.setBoard(T.want, null); view.setHighlights({});
+      H.body('<p class="say">Look closely! Remember where every piece stands.</p>'); H.fb('', ''); H.timer(1); H.main(null);
+      stats();
+    }
+    function build() {
+      T.phase = 'build'; H.timer(null);
+      view.setBoard([], null);
+      AU.play('tick');
+      tray();
+      H.main('Check', check);
+    }
+    function check() {
+      T.phase = 'checked';
+      const got = placedList(), c = MINI.memoryCheck(T.want, got), pts = MINI.memoryPoints(c);
+      T.total += pts;
+      const right = new Set(T.want.map((x) => x[0] + ':' + x[1]));
+      view.setBoard(T.want, null);
+      view.setHighlights({ marks: got.map(([sq, p]) => ({ sq, color: right.has(sq + ':' + p) ? '#3ee07a' : '#ff4a40', alpha: 0.5 })),
+        spots: T.want.filter((x) => !got.some((y) => y[0] === x[0] && y[1] === x[1])).map(([sq]) => ({ sq, color: '#2fd8ff', pulse: false })) });
+      AU.play(c.perfect ? 'correct' : 'tap');
+      H.body('<p class="say">' + (c.perfect ? 'Perfect! Every piece in its place.' : c.right + ' of ' + T.want.length + ' right. Green is right, red was wrong, and blue shows a piece you missed.') + '</p>');
+      H.fb(c.perfect ? 'ok' : 'hint', '+' + pts + ' points');
+      stats();
+      H.main(T.k + 1 >= sizes.length ? 'Finish' : 'Next position', next);
+    }
+    next();
+    return {
+      tick(dt) { if (T.phase !== 'look') return; T.left -= dt; H.timer(T.left / MINI.MEMORY_SECONDS); if (T.left <= 0) build(); },
+      onSquare(sq) {
+        if (T.phase !== 'build') return;
+        if (T.placed.has(sq)) T.placed.delete(sq);
+        else if (T.pick) T.placed.set(sq, T.pick);
+        else { H.fb('hint', 'First pick a piece from the tray.'); return; }
+        H.fb('', ''); AU.play('move');
+        view.setBoard(placedList(), null);
+      },
+    };
+  };
+  // Mate rush: sixty seconds of checkmates in one, in a fresh order every time.
+  MINI_PLAY.rush = function (H, level, S, seed) {
+    const list = MINI.rng(seed).shuffle(MINI.matePool());
+    const T = { i: -1, left: MINI.RUSH_SECONDS, mates: 0, pos: null, sel: -1, live: false };
+    H.eyebrow('Mate Rush'); H.title('Checkmate in one');
+    const stats = () => H.stats([['Mates', T.mates], ['Time', Math.ceil(Math.max(0, T.left)) + 's']]);
+    function next() {
+      T.i++;
+      const fen = list[T.i % list.length];
+      T.pos = E.positionFrom(fen, []); T.sel = -1; T.live = true;
+      H.side(T.pos.side === WHITE ? 'white' : 'black');
+      view.setBoard(piecesOf(T.pos), null); view.setHighlights({ check: -1 }); view.setArrows([]);
+      H.body('<p class="say">' + (T.pos.side === WHITE ? 'White' : 'Black') + ' to move. Find the checkmate!</p>');
+      stats();
+    }
+    function tryMove(from, to, promo) {
+      const g = new E.Game(T.pos.fen()), m = g.find(from, to, promo || 0);
+      if (m === null || !T.live) return false;
+      T.live = false;
+      const t = new E.Game(T.pos.fen()); t.play(m);
+      const info = g.play(m);
+      if (t.outcome && t.outcome.reason === 'checkmate') {
+        T.mates++; AU.play('check');
+        quickMove(info, () => { view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: kingSquare(g.pos, g.pos.side) }); AU.play('correct'); H.fb('ok', 'Checkmate!'); stats(); H.later(next, 550); });
+      } else {
+        AU.play('wrong');
+        view.setBoard(piecesOf(T.pos), null);
+        const u = MINI.matingMoves(T.pos.fen())[0];
+        view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
+        H.fb('bad', 'Not mate. Follow the arrow to see it.');
+        T.paused = true; H.later(() => { T.paused = false; H.fb('', ''); next(); }, 1400);
+      }
+      return true;
+    }
+    function move(from, to) {
+      const g = new E.Game(T.pos.fen());
+      if (!g.targets(from).includes(to)) return false;
+      if (g.needsPromotion(from, to)) { choosePromotion(T.pos.side, (k) => { if (k) tryMove(from, to, k); else view.setBoard(piecesOf(T.pos), null); }); return true; }
+      return tryMove(from, to);
+    }
+    H.tools([['skip', 'next', 'Skip', () => { if (T.live) { T.live = false; H.fb('', ''); next(); } }]]);
+    H.timer(1);
+    next();
+    return {
+      tick(dt) {
+        if (T.paused) return;
+        T.left -= dt; H.timer(T.left / MINI.RUSH_SECONDS); stats();
+        if (T.left <= 0) { T.live = false; H.finish(T.mates * 10, { won: T.mates > 0, title: T.mates + (T.mates === 1 ? ' checkmate' : ' checkmates'), line: T.mates ? 'Every one a checkmate in one move. Score: ' + T.mates * 10 + '.' : 'Look for checks first: one of them is the mate.' }); }
+      },
+      onSquare(sq) {
+        if (!T.live) return;
+        const g = new E.Game(T.pos.fen());
+        if (T.sel >= 0 && g.targets(T.sel).includes(sq)) { const f = T.sel; T.sel = -1; move(f, sq); return; }
+        const p = E.pieceAt(T.pos, sq);
+        if (p && Math.sign(p) === T.pos.side) { T.sel = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights({ selected: sq, targets: t.filter((s) => !E.pieceAt(T.pos, s)), captures: t.filter((s) => E.pieceAt(T.pos, s)) }); }
+      },
+      canDrag: (sq) => T.live && E.pieceAt(T.pos, sq) && Math.sign(E.pieceAt(T.pos, sq)) === T.pos.side,
+      onDrop: (f, t) => move(f, t),
+    };
   };
 
   // ---------------------------------------------------------------- shared API for the online client
