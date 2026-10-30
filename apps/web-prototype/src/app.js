@@ -2610,7 +2610,7 @@
   function worldModal() {
     const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">' + t('play.world') + '</div><h2>' + t('play.w.title') + '</h2>' +
       '<p class="sub">' + t('play.w.sub') + '</p></div></div>' +
-      '<div class="field"><div class="label">' + t('play.w.clock') + '</div><div class="seg">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="wtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
+      '<div class="field"><div class="label">' + t('play.w.clock') + '</div><div class="seg">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="wtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
       '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary" id="w-go">' + icon('globe') + ' ' + t('play.w.title') + '</button></div>', { x: true });
     m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
   }
@@ -2621,7 +2621,7 @@
     const status = link === 'ready' ? '' : '<p class="fine">' + t(link === 'connecting' ? 'play.fr.connecting' : 'play.fr.unreachable') + '</p>';
     const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">' + t('play.friend') + '</div><h2>' + t('play.fr.title') + '</h2><p class="sub">' + t('play.fr.sub') + '</p></div></div>' +
       '<div class="friend-pick"><section class="glass"><h3>' + icon('users') + ' ' + t('play.fr.create') + '</h3><p class="fine">' + t('play.fr.createSub') + '</p>' +
-      '<div class="label">' + t('play.fr.clock') + '</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="frtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div>' +
+      '<div class="label">' + t('play.fr.clock') + '</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="frtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div>' +
       '<button class="btn primary" id="fr-create">' + icon('users') + ' ' + t('play.fr.createBtn') + '</button></section>' +
       '<section class="glass"><h3>' + icon('play') + ' ' + t('play.fr.join') + '</h3><label class="fine" for="fr-code">' + t('play.fr.joinSub') + '</label>' +
       '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
@@ -2647,19 +2647,19 @@
     { const p = E.positionFrom(start, []); for (const u of ucis) { const m = p.parseMove(u); sans.push(p.san(m, p.legalMoves())); p.make(m); } }
     const fromGame = state.game && state.game.g.outcome && state.game.g.startFen === start && state.game.g.moves.length === ucis.length;
     if (fromGame) setLook(state.game.setup.look || null);
-    mount('<div class="hud-top"><button class="backbtn" id="rv-back">' + icon('back') + '<span>' + (fromGame ? 'Back to the game' : 'Back') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>Game review · ' + esc(arg.title || '') + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="rv-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="side glass wide" id="side"><header><b>Rooky\'s review</b><span class="pill" id="rv-depth"></span></header>' +
-      '<div id="rv-body" class="rv-body"><div class="progress-ring">' + faceImg(COACH) + '<div>Rooky is looking through your game…</div><div class="bar" style="width:180px"><i id="rv-prog" style="width:0%"></i></div></div></div></aside>' +
-      '<div class="actionbar glass"><button class="btn" id="rv-first" aria-label="First move">' + icon('first') + '</button><button class="btn" id="rv-prev" aria-label="Previous move">' + icon('prev') + '</button>' +
-      '<button class="btn" id="rv-next" aria-label="Next move">' + icon('next') + '</button><button class="btn" id="rv-last" aria-label="Last move">' + icon('last') + '</button><span class="sep"></span>' +
-      '<button class="btn" id="rv-turn">' + icon('star') + '<span class="lbl">Turning point</span></button><button class="btn" id="rv-best">' + icon('hint') + '<span class="lbl">Best line</span></button>' +
-      '<button class="btn primary" id="rv-practice">' + icon('play') + '<span class="lbl">Play from here</span></button></div>');
+    mount('<div class="hud-top"><button class="backbtn" id="rv-back">' + icon('back') + '<span>' + t(fromGame ? 'learn.rv.backGame' : 'common.back') + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + t('learn.rv.title', { name: esc(arg.title || '') }) + '</span></div><span class="spacer"></span>' +
+      '<button class="round" id="rv-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="side glass wide" id="side"><header><b>' + t('learn.rv.head') + '</b><span class="pill" id="rv-depth"></span></header>' +
+      '<div id="rv-body" class="rv-body"><div class="progress-ring">' + faceImg(COACH) + '<div>' + t('learn.rv.looking') + '</div><div class="bar" style="width:180px"><i id="rv-prog" style="width:0%"></i></div></div></div></aside>' +
+      '<div class="actionbar glass"><button class="btn" id="rv-first" aria-label="' + t('learn.rv.first') + '">' + icon('first') + '</button><button class="btn" id="rv-prev" aria-label="' + t('learn.rv.prev') + '">' + icon('prev') + '</button>' +
+      '<button class="btn" id="rv-next" aria-label="' + t('learn.rv.next') + '">' + icon('next') + '</button><button class="btn" id="rv-last" aria-label="' + t('learn.rv.last') + '">' + icon('last') + '</button><span class="sep"></span>' +
+      '<button class="btn" id="rv-turn">' + icon('star') + '<span class="lbl">' + t('learn.rv.turning') + '</span></button><button class="btn" id="rv-best">' + icon('hint') + '<span class="lbl">' + t('learn.rv.bestLine') + '</span></button>' +
+      '<button class="btn primary" id="rv-practice">' + icon('play') + '<span class="lbl">' + t('learn.rv.fromHere') + '</span></button></div>');
     $('rv-back').onclick = () => { AU.play('tap'); if (fromGame) go('game'); else go('training'); };
     $('rv-set').onclick = () => settingsModal();
     const deep = state.progress.premium;
-    $('rv-depth').textContent = deep ? 'Deep review' : 'Standard review';
+    $('rv-depth').textContent = t(deep ? 'learn.rv.deep' : 'learn.rv.standard');
     const show = () => {
       const p = E.positionFrom(start, ucis.slice(0, R.ply + 1));
       const cap = { byWhite: [], byBlack: [] };
@@ -2697,12 +2697,12 @@
       const badges = d.plies.map((p) => p.cls === 'good' ? '' : '<span class="cls ' + p.cls + '" title="' + C.LABEL[p.cls] + '">' + (C.SYMBOL[p.cls] || '') + '</span>');
       const pl = R.ply >= 0 ? d.plies[R.ply] : null;
       const cnt = (o, k) => (o[k] || 0);
-      const acc = (side, label) => { const c = s.counts[side]; return '<div class="acc' + (side === R.side ? ' me' : '') + '"><small>' + label + '</small><b>' + (s.accuracy[side] === null ? '–' : s.accuracy[side] + '%') + '</b><span>' + cnt(c, 'blunder') + ' blunders · ' + cnt(c, 'mistake') + ' mistakes</span></div>'; };
-      $('rv-body').innerHTML = '<svg class="graph" id="rv-graph" viewBox="0 0 300 110" preserveAspectRatio="none" aria-label="Who was winning, move by move"></svg>' +
-        '<div class="sum">' + acc(WHITE, 'White accuracy') + acc(BLACK, 'Black accuracy') + '</div>' +
+      const acc = (side, label) => { const c = s.counts[side]; return '<div class="acc' + (side === R.side ? ' me' : '') + '"><small>' + label + '</small><b>' + (s.accuracy[side] === null ? '–' : s.accuracy[side] + '%') + '</b><span>' + t('learn.rv.counts', { b: cnt(c, 'blunder'), m: cnt(c, 'mistake') }) + '</span></div>'; };
+      $('rv-body').innerHTML = '<svg class="graph" id="rv-graph" viewBox="0 0 300 110" preserveAspectRatio="none" aria-label="' + t('learn.rv.graph') + '"></svg>' +
+        '<div class="sum">' + acc(WHITE, t('learn.rv.whiteAcc')) + acc(BLACK, t('learn.rv.blackAcc')) + '</div>' +
         '<div class="comment" aria-live="polite">' + (pl ? '<div class="tagline2"><b>' + esc((pl.side === WHITE ? Math.floor(R.ply / 2) + 1 + '. ' : Math.floor(R.ply / 2) + 1 + '… ') + pl.san) + '</b><span class="cls ' + pl.cls + '">' + C.LABEL[pl.cls] + '</span>' +
-          (s.turning === R.ply ? '<span class="pill ruby">Turning point</span>' : '') + '</div>' + esc(pl.text) : '<span class="muted">Step through the game with the arrows. Green arrows show a better move; red ones show the reply that was missed.</span>') +
-        (R.line ? '<div class="bestline">Best line: ' + esc(R.line.join(' ')) + '</div>' : '') + '</div>' +
+          (s.turning === R.ply ? '<span class="pill ruby">' + t('learn.rv.turning') + '</span>' : '') + '</div>' + esc(pl.text) : '<span class="muted">' + t('learn.rv.step') + '</span>') +
+        (R.line ? '<div class="bestline">' + t('learn.rv.bestLineIs', { line: esc(R.line.join(' ')) }) + '</div>' : '') + '</div>' +
         '<div class="moves-wrap" id="rv-moves"><ol class="moves">' + moveRows(start, sans, R.ply, badges) + '</ol></div>';
       // the graph of who was winning
       const ev = d.evals.map((e) => C.winProb(e.cp));
@@ -2722,7 +2722,7 @@
     if (!R.data) {
       job('analysis', { type: 'review', fen: start, moves: ucis, timeMs: deep ? 450 : 160 }, (r) => {
         if (state.screen !== 'review') return;
-        if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>Rooky could not review this game on this device.</div></div>'; return; }
+        if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>' + t('learn.rv.failed') + '</div></div>'; return; }
         R.data = r.review;
         if (fromGame) state.game.review = r.review;
         const res = PG.reviewFinished(state.progress, r.review, R.side, ucis.length, Date.now());
