@@ -1,13 +1,294 @@
 {
   "voice": "am_puck,am_michael",
   "lines": {
-    "hero": "Hi! I'm Rooky, your chess coach. Welcome to Chackmate, chess for every age! Scroll down, and I'll show you around.",
-    "learn": "This is me, teaching on a real board. Every time you move, I tell you why, in one simple sentence. No long words, I promise.",
-    "lessons": "Start with how the pieces move, then try puzzles, famous openings and endgames. A new puzzle is waiting for you every day.",
-    "wonders": "Every game happens somewhere amazing! Some places are grand rooms, and some are out in the open, right in front of a wonder of the world. Beat each champion to unlock the next place.",
-    "collect": "Every chess set has its own story. Win them, collect them, and try them on your table! Nothing is random, and nobody can buy a stronger army.",
-    "ages": "Pick a friend to play. Truffle the bunny is gentle with beginners. Ember the dragon plays at full strength. You'll get better with every game.",
-    "families": "Grown-ups, this part is for you. There's no chat with strangers, no ads and no tracking. Parents decide about online play and buying things.",
-    "close": "Your first move is waiting. Let's play!"
+    "hero": {
+      "text": "Hi! I'm Rooky, your chess coach. Welcome to Chackmate, chess for every age! Scroll down, and I'll show you around.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hi!"
+        },
+        {
+          "t": 0.61,
+          "text": "I'm Rooky, your chess coach."
+        },
+        {
+          "t": 3.13,
+          "text": "Welcome to Chackmate, chess for every age!"
+        },
+        {
+          "t": 6.27,
+          "text": "Scroll down, and I'll show you around."
+        }
+      ]
+    },
+    "learn": {
+      "text": "This is me, teaching on a real board. Every time you move, I tell you why, in one simple sentence. No long words, I promise.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This is me, teaching on a real board."
+        },
+        {
+          "t": 2.89,
+          "text": "Every time you move, I tell you why, in one simple sentence."
+        },
+        {
+          "t": 7.78,
+          "text": "No long words, I promise."
+        }
+      ]
+    },
+    "lessons": {
+      "text": "Start with how the pieces move, then try puzzles, famous openings and endgames. A new puzzle is waiting for you every day.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Start with how the pieces move, then try puzzles, famous openings and endgames."
+        },
+        {
+          "t": 6.14,
+          "text": "A new puzzle is waiting for you every day."
+        }
+      ]
+    },
+    "wonders": {
+      "text": "Every game happens somewhere amazing! Some places are grand rooms, and some are out in the open, right in front of a wonder of the world. Beat each champion to unlock the next place.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every game happens somewhere amazing!"
+        },
+        {
+          "t": 2.9,
+          "text": "Some places are grand rooms, and some are out in the open, right in front of a wonder of the world."
+        },
+        {
+          "t": 9.87,
+          "text": "Beat each champion to unlock the next place."
+        }
+      ]
+    },
+    "collect": {
+      "text": "Every chess set has its own story. Win them, collect them, and try them on your table! Nothing is random, and nobody can buy a stronger army.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every chess set has its own story."
+        },
+        {
+          "t": 2.73,
+          "text": "Win them, collect them, and try them on your table!"
+        },
+        {
+          "t": 6.8,
+          "text": "Nothing is random, and nobody can buy a stronger army."
+        }
+      ]
+    },
+    "ages": {
+      "text": "Pick a friend to play. Truffle the bunny is gentle with beginners. Ember the dragon plays at full strength. You'll get better with every game.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Pick a friend to play."
+        },
+        {
+          "t": 1.44,
+          "text": "Truffle the bunny is gentle with beginners."
+        },
+        {
+          "t": 4.64,
+          "text": "Ember the dragon plays at full strength."
+        },
+        {
+          "t": 7.44,
+          "text": "You'll get better with every game."
+        }
+      ]
+    },
+    "families": {
+      "text": "Grown-ups, this part is for you. There's no chat with strangers, no ads and no tracking. Parents decide about online play and buying things.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Grown-ups, this part is for you."
+        },
+        {
+          "t": 2.45,
+          "text": "There's no chat with strangers, no ads and no tracking."
+        },
+        {
+          "t": 6.68,
+          "text": "Parents decide about online play and buying things."
+        }
+      ]
+    },
+    "close": {
+      "text": "Your first move is waiting. Let's play!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Your first move is waiting."
+        },
+        {
+          "t": 1.55,
+          "text": "Let's play!"
+        }
+      ]
+    },
+    "set-egypt": {
+      "text": "Look at this one shine! Pharaoh's Treasure is carved from smooth white alabaster and dark basalt, with collars of gold, blue lapis and red carnelian, just like a real pharaoh's jewels. Beat the champion in Ancient Egypt, and it's yours.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Look at this one shine!"
+        },
+        {
+          "t": 1.88,
+          "text": "Pharaoh's Treasure is carved from smooth white alabaster and dark basalt, with collars of gold, blue lapis and red carnelian, just like a real pharaoh's jewels."
+        },
+        {
+          "t": 13.31,
+          "text": "Beat the champion in Ancient Egypt, and it's yours."
+        }
+      ]
+    },
+    "set-greece": {
+      "text": "Olympian Marble looks like it came straight from a temple in Athens. Bright white marble, bronze laurel leaves, and the Greek key pattern running all the way round. Every piece stands like a little statue of a hero.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Olympian Marble looks like it came straight from a temple in Athens."
+        },
+        {
+          "t": 4.16,
+          "text": "Bright white marble, bronze laurel leaves, and the Greek key pattern running all the way round."
+        },
+        {
+          "t": 11.26,
+          "text": "Every piece stands like a little statue of a hero."
+        }
+      ]
+    },
+    "set-rome": {
+      "text": "This set is fit for an emperor! Imperial Rome is white Carrara marble and deep purple porphyry, the stone only emperors could use, with golden laurels on top. Win in Rome, and you can rule the board with it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This set is fit for an emperor!"
+        },
+        {
+          "t": 2.24,
+          "text": "Imperial Rome is white Carrara marble and deep purple porphyry, the stone only emperors could use, with golden laurels on top."
+        },
+        {
+          "t": 11.69,
+          "text": "Win in Rome, and you can rule the board with it."
+        }
+      ]
+    },
+    "set-mughal": {
+      "text": "Maharaja's Jade is one of my favourites. White and green jade, polished until it glows, and set with tiny rubies and emeralds, like the treasures of the Taj Mahal. It's a set made for a king.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Maharaja's Jade is one of my favourites."
+        },
+        {
+          "t": 3.1,
+          "text": "White and green jade, polished until it glows, and set with tiny rubies and emeralds, like the treasures of the Taj Mahal."
+        },
+        {
+          "t": 12.01,
+          "text": "It's a set made for a king."
+        }
+      ]
+    },
+    "set-ming": {
+      "text": "Blue and white, like a precious Ming vase. Ming Porcelain is painted by hand in deep cobalt blue, and stands on red cinnabar lacquer carved with patterns. It feels like playing chess in the Forbidden City.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Blue and white, like a precious Ming vase."
+        },
+        {
+          "t": 3.52,
+          "text": "Ming Porcelain is painted by hand in deep cobalt blue, and stands on red cinnabar lacquer carved with patterns."
+        },
+        {
+          "t": 11.57,
+          "text": "It feels like playing chess in the Forbidden City."
+        }
+      ]
+    },
+    "set-venice": {
+      "text": "Hold this one up to the light! Murano Glass is milky white and cobalt blue glass, with twisted stems and touches of gold, made the way Venice's glassmakers have worked for hundreds of years. Every move looks like magic.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hold this one up to the light!"
+        },
+        {
+          "t": 2.21,
+          "text": "Murano Glass is milky white and cobalt blue glass, with twisted stems and touches of gold, made the way Venice's glassmakers have worked for hundreds of years."
+        },
+        {
+          "t": 13.41,
+          "text": "Every move looks like magic."
+        }
+      ]
+    },
+    "set-paris": {
+      "text": "Ruby and Pearl is pure Paris, from the year the Eiffel Tower was built. Lilies and tulips in shining pearl and deep ruby red, wrapped in golden tendrils. It's the most romantic set in the whole collection.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Ruby and Pearl is pure Paris, from the year the Eiffel Tower was built."
+        },
+        {
+          "t": 5.32,
+          "text": "Lilies and tulips in shining pearl and deep ruby red, wrapped in golden tendrils."
+        },
+        {
+          "t": 11.69,
+          "text": "It's the most romantic set in the whole collection."
+        }
+      ]
+    },
+    "set-russia": {
+      "text": "This one is the crown jewel. The Tsarina's set is shimmering enamel and green malachite, with pearls, sparkling diamonds and rose gold, like the jewelled eggs made for Russia's royal family. Every piece is a treasure.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This one is the crown jewel."
+        },
+        {
+          "t": 2.41,
+          "text": "The Tsarina's set is shimmering enamel and green malachite, with pearls, sparkling diamonds and rose gold, like the jewelled eggs made for Russia's royal family."
+        },
+        {
+          "t": 13.88,
+          "text": "Every piece is a treasure."
+        }
+      ]
+    },
+    "set-deco": {
+      "text": "Manhattan Deco is as tall and stylish as New York itself. Cream enamel and shiny black onyx, stepped like skyscrapers, with the bold lines of the jazz age. Win in New York, and you'll have the coolest set on the block.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Manhattan Deco is as tall and stylish as New York itself."
+        },
+        {
+          "t": 4.32,
+          "text": "Cream enamel and shiny black onyx, stepped like skyscrapers, with the bold lines of the jazz age."
+        },
+        {
+          "t": 11.92,
+          "text": "Win in New York, and you'll have the coolest set on the block."
+        }
+      ]
+    }
   }
 }

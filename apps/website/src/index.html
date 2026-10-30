@@ -207,6 +207,11 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
 .coach-text { margin: 0; font: 500 17px/1.42 var(--serif); color: #f6ead8; text-wrap: pretty; }
 .coach-extra { margin: 4px 0 0; font-size: 12.5px; color: var(--gold-2); }
 .coach-extra:empty { display: none; }
+/* Subtitles are optional, as on JongClub's site: the CC button hides the words and leaves the controls. */
+.coach-btn[aria-pressed="true"]#coachcc { color: #f6ead8; border-color: var(--gold-3); }
+.coach.nocap { align-items: center; }
+.coach.nocap .coach-text, .coach.nocap .coach-extra { display: none; }
+.coach.nocap .coach-head { margin-bottom: 0; }
 .coach.tucked { width: auto; padding: 0; background: none; border: 0; box-shadow: none; display: block; }
 .coach.tucked .coach-body { display: none; }
 .coach.tucked .narrator { width: 58px; height: 58px; cursor: pointer; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(232, 192, 112, 0.3); }
@@ -386,7 +391,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
 <aside class="coach" id="coach" aria-live="polite" aria-label="@@COACH@@'s guide">
   <button class="narrator" type="button" id="coachshow" tabindex="-1" title="Show @@COACH@@'s guide" aria-label="Show @@COACH@@'s guide"><img src="@@ART:coach@@" alt=""></button>
   <div class="coach-body">
-    <div class="coach-head"><p class="eyebrow">Guided tour · @@COACH@@</p><button class="coach-btn" type="button" id="coachagain" title="Hear that again" aria-label="Hear that again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="coach-btn" type="button" id="coachvoice" title="Turn @@COACH@@'s voice on or off" aria-label="@@COACH@@'s voice" aria-pressed="false"></button><button class="coach-btn" type="button" id="coachhide" title="Hide @@COACH@@'s guide" aria-label="Hide @@COACH@@'s guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>
+    <div class="coach-head"><p class="eyebrow">Guided tour · @@COACH@@</p><button class="coach-btn" type="button" id="coachagain" title="Hear that again" aria-label="Hear that again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="coach-btn" type="button" id="coachcc" title="Hide subtitles" aria-label="Subtitles" aria-pressed="true"></button><button class="coach-btn" type="button" id="coachvoice" title="Turn @@COACH@@'s voice on or off" aria-label="@@COACH@@'s voice" aria-pressed="false"></button><button class="coach-btn" type="button" id="coachhide" title="Hide @@COACH@@'s guide" aria-label="Hide @@COACH@@'s guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>
     <p class="coach-text" id="coachtext"></p>
     <p class="coach-extra" id="coachextra"></p>
   </div>
@@ -420,6 +425,8 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   var eraById = {}; D.eras.forEach(function (e) { eraById[e.id] = e; });
   var ICON = {
     speaker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+    cc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6"/></svg>',
+    ccOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6M3 3l18 18"/></svg>',
     speakerOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
   };
   var HERO = 'mughal';
@@ -570,7 +577,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
     b.type = 'button'; b.setAttribute('data-tip', e.set.name + '|' + e.set.desc); b.setAttribute('aria-label', e.set.name);
     b.style.setProperty('--c', e.set.tint);
     b.innerHTML = '<img src="' + IMG['set-' + e.id] + '" alt="">';
-    b.onclick = function () { showSet(e.id); };
+    b.onclick = function () { showSet(e.id); pitch(e.id); };
     chips.appendChild(b);
   });
   function spec(e) {
@@ -610,34 +617,59 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   }).join('');
 
   // ---------------------------------------------------------------- Rooky's guide
-  // Built like JongClub's guided game: a coach card that says each line once, as you reach the part
+  // Built like JongClub's guided tour: a coach card that says each line once, as you reach the part
   // it is about. A line lets the one before it finish (two at most wait their turn). The voice starts
   // off, because browsers only play sound after a tap: tapping the speaker turns it on and reads the
-  // line on screen. The clips are recorded, never generated.
-  var G = D.guide, parts = [], said = {}, queue = [], current = null, speakingNow = false, run = 0, sound = null, voiceOn = false;
+  // line on screen. In Collect, every chess set picked gets its own pitch, half a second after it is
+  // picked. While Rooky speaks the subtitles follow him a sentence at a time, and the CC button hides
+  // them (remembered on this device). The clips are recorded, never generated.
+  var G = D.guide, parts = [], said = {}, queue = [], current = null, speakingNow = false, run = 0, sound = null, voiceOn = false, inView = 'hero', pitchT = 0, capT = 0;
   [].forEach.call(document.querySelectorAll('[data-guide]'), function (sec) { if (G[sec.dataset.guide]) parts.push(sec); });
-  var coach = $('coach'), ctext = $('coachtext'), cextra = $('coachextra'), cvoice = $('coachvoice');
+  var coach = $('coach'), ctext = $('coachtext'), cextra = $('coachextra'), cvoice = $('coachvoice'), ccBtn = $('coachcc');
   var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', wonders: 'Wonders', collect: 'Collect', ages: 'Every age', families: 'For families', close: 'Play' };
+  var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  var CC_KEY = 'chackmate.site.subtitles';
   function voiceIcon() {
     cvoice.innerHTML = voiceOn ? ICON.speaker : ICON.speakerOff;
     cvoice.setAttribute('aria-pressed', String(voiceOn));
   }
+  function setSubtitles(on) {
+    coach.classList.toggle('nocap', !on);
+    ccBtn.innerHTML = on ? ICON.cc : ICON.ccOff;
+    ccBtn.setAttribute('aria-pressed', String(on));
+    ccBtn.title = on ? 'Hide subtitles' : 'Show subtitles';
+  }
+  ccBtn.onclick = function () { var on = coach.classList.contains('nocap'); store.set(CC_KEY, on ? '1' : '0'); setSubtitles(on); };
+  setSubtitles(store.get(CC_KEY) !== '0');
   function show(key) {
     current = key;
     ctext.textContent = G[key].text;
-    var i = parts.findIndex(function (p) { return p.dataset.guide === key; });
-    cextra.textContent = LABEL[key] + ' · ' + (i + 1) + ' of ' + parts.length + (voiceOn ? '' : ' · tap the speaker to hear ' + D.coach);
+    if (key.indexOf('set-') === 0) cextra.textContent = 'Collect · ' + eraById[key.slice(4)].set.name;
+    else {
+      var i = parts.findIndex(function (p) { return p.dataset.guide === key; });
+      cextra.textContent = LABEL[key] + ' · ' + (i + 1) + ' of ' + parts.length;
+    }
+    if (!voiceOn) cextra.textContent += ' · tap the speaker to hear ' + D.coach;
     coach.classList.remove('pop'); void coach.offsetWidth; coach.classList.add('pop');
   }
-  function stopSound() { run++; if (sound) { sound.onended = null; sound.pause(); sound = null; } speakingNow = false; coach.classList.remove('speaking'); }
+  function stopSound() { run++; clearInterval(capT); if (sound) { sound.onended = null; sound.pause(); sound = null; } speakingNow = false; coach.classList.remove('speaking'); }
   function speak(key) {
     stopSound();
-    var mine = run;
+    var mine = run, cues = G[key].cues;
     show(key);
+    ctext.textContent = cues[0].text;
     speakingNow = true; coach.classList.add('speaking');
     sound = new Audio(G[key].src);
+    // the subtitle is the sentence being spoken
+    capT = setInterval(function () {
+      if (mine !== run || !sound) return;
+      var c = cues[0];
+      cues.forEach(function (x) { if (sound.currentTime + 0.05 >= x.t) c = x; });
+      if (ctext.textContent !== c.text) ctext.textContent = c.text;
+    }, 150);
     var done = function () {
       if (mine !== run) return;
+      clearInterval(capT);
       speakingNow = false; coach.classList.remove('speaking');
       var next = queue.shift();
       if (next && voiceOn) speak(next);
@@ -652,6 +684,12 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
     if (!voiceOn) { show(key); return; }
     if (speakingNow) { queue.push(key); if (queue.length > 2) queue.shift(); return; }
     speak(key);
+  }
+  // a chess set picked in Collect gets its own pitch, in place of whatever Rooky was saying
+  function pitch(id) {
+    clearTimeout(pitchT);
+    if (inView !== 'collect' || !G['set-' + id]) return;
+    pitchT = setTimeout(function () { queue = []; if (voiceOn) speak('set-' + id); else { stopSound(); show('set-' + id); } }, 500);
   }
   cvoice.onclick = function () {
     voiceOn = !voiceOn;
@@ -671,7 +709,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
       es.forEach(function (en) { vis.set(en.target, en.isIntersecting ? en.intersectionRect.height / window.innerHeight : 0); });
       var best = null, bestR = 0.5;
       parts.forEach(function (p) { var r = vis.get(p) || 0; if (r > bestR) { bestR = r; best = p; } });
-      if (best) say(best.dataset.guide);
+      if (best) { inView = best.dataset.guide; say(inView); }
     }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1] });
     parts.forEach(function (p) { iog.observe(p); });
   }

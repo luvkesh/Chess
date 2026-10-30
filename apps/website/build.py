@@ -99,15 +99,18 @@ def data_uri(path):
     return 'data:%s;base64,%s' % (kind, base64.b64encode(path.read_bytes()).decode())
 
 
-def guide(coach):
-    """The coach's recorded guide, one clip per section, checked against guide.json and the coach's name."""
+def guide(coach, eras):
+    """The coach's recorded guide (a clip per section and a pitch per chess set), checked against guide.json and the coach's name."""
     lines = json.loads((here / 'guide.json').read_text())['lines']
     recorded = json.loads((here / 'audio' / 'index.json').read_text())['lines']
+    for e in eras:
+        assert 'set-' + e['id'] in lines, 'guide.json has no pitch for the %s set (set-%s)' % (e['id'], e['id'])
     out = {}
     for key, line in lines.items():
         text = line.replace('{coach}', coach)
-        assert recorded.get(key) == text, 'audio/%s.mp3 says something else; run tools/record-guide.py' % key
-        out[key] = {'text': text, 'src': 'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode()}
+        assert recorded.get(key, {}).get('text') == text, 'audio/%s.mp3 says something else; run tools/record-guide.py' % key
+        out[key] = {'text': text, 'cues': recorded[key]['cues'],
+                    'src': 'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode()}
     return out
 
 
@@ -127,7 +130,7 @@ def build(target):
     fonts = (game / 'vendor' / 'fonts.css').read_text()
     assert '</style' not in fonts.lower()
     shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-')}
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': guide(coach['name']), 'coach': coach['name']},
+    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': guide(coach['name'], eras), 'coach': coach['name']},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
