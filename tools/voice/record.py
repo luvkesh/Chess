@@ -15,6 +15,35 @@ import numpy as np
 import soundfile as sf
 from kokoro import KPipeline
 
+SR = 24000
+# Kokoro reads straight through commas and full stops, so the pauses are put in by hand: each line is
+# spoken whole (for a natural tone), then cut at the punctuation's timestamps and silence added there.
+PAUSE = {',': 0.3, ';': 0.35, ':': 0.35, '—': 0.35, '.': 0.4, '!': 0.4, '?': 0.4, '।': 0.4}
+
+
+def quietest(audio, at, reach=0.06):
+    """The quietest 10 ms near `at` seconds, so a cut never clips a word."""
+    lo, hi = max(0, int((at - reach) * SR)), min(len(audio), int((at + reach) * SR))
+    step = SR // 100
+    frames = [(float(np.sqrt(np.mean(audio[i:i + step] ** 2))), i + step // 2) for i in range(lo, max(lo + 1, hi - step), step // 4)]
+    return min(frames)[1] if frames else int(at * SR)
+
+
+def spoken(pipe, j):
+    parts = []
+    for r in pipe(j['spoken'], voice=j['engine'], speed=j['speed'], split_pattern=r'\n+'):
+        audio, start = np.asarray(r.audio), 0
+        stops = [(t.end_ts, PAUSE[t.text]) for t in (r.tokens or []) if t.text in PAUSE and t.end_ts is not None]
+        if stops and stops[-1][0] >= len(audio) / SR - 0.3:
+            stops = stops[:-1]   # the line's own last full stop needs no pause after it
+        for at, gap in stops:
+            cut = quietest(audio, at)
+            parts += [audio[start:cut], np.zeros(int(gap * SR), dtype=audio.dtype)]
+            start = cut
+        parts += [audio[start:], np.zeros(int(PAUSE['.'] * SR), dtype=audio.dtype)]   # between Kokoro's chunks too
+    return np.concatenate(parts[:-1]) if parts else None
+
+
 jobs = json.load(open(sys.argv[1]))
 out = sys.argv[2]
 shard = int(sys.argv[3]) if len(sys.argv) > 3 else 0
@@ -30,12 +59,12 @@ for i, j in enumerate(jobs):
     lang = j['engine'][0]  # a: American English, b: British English, h: Hindi
     if lang not in pipes:
         pipes[lang] = KPipeline(lang_code=lang, repo_id='hexgrad/Kokoro-82M')
-    chunks = [np.asarray(r.audio) for r in pipes[lang](j['spoken'], voice=j['engine'], speed=j['speed'], split_pattern=r'\n+')]
-    if not chunks:
+    audio = spoken(pipes[lang], j)
+    if audio is None:
         print('empty', j['voice'], j['key'], j['text'], flush=True)
         continue
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    sf.write(path + '.tmp.wav', np.concatenate(chunks), 24000)
+    sf.write(path + '.tmp.wav', audio, SR)
     os.replace(path + '.tmp.wav', path)
     done += 1
     if done % 25 == 0:
