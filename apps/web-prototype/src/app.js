@@ -332,7 +332,13 @@
       // small menu-card art doesn't need the full sculpt (and building it slows the first screen)
       if (w <= 240 && !spec.detail) spec.detail = 'play';
       const k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
-      view.snapshot(spec, Math.round(w * k), Math.round(h * k), () => img.isConnected).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
+      view.snapshot(spec, Math.round(w * k), Math.round(h * k), () => img.isConnected).then((url) => {
+        if (!url || !img.isConnected) return;
+        // if the browser cannot show the picture, keep the drawn medal rather than a broken image
+        const before = img.src;
+        img.onerror = () => { img.onerror = null; img.src = before; };
+        img.src = url; img.classList.add('in');
+      });
     };
     if (!lazy || !('IntersectionObserver' in window)) { imgs.forEach(run); return; }
     if (snapObserver) snapObserver.disconnect();
@@ -2938,6 +2944,8 @@
     } catch (e) { /* decorative only */ }
   })();
   $('splash').insertAdjacentHTML('afterbegin', '<img src="' + ART.crestUri() + '" alt="">');
+  // the tab icon is the crest too, also when the page is opened as a file with no server behind it
+  for (const l of document.querySelectorAll('link[rel="icon"]')) l.href = ART.crestUri();
   applySettings();
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
