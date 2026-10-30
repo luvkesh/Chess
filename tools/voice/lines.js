@@ -37,6 +37,7 @@ function spokenEn(text, M) {
 // The fixed pieces a move announcement is put together from, e.g. "Knight", "takes", "ee five", "check".
 function fragments(M) {
   const out = Object.values(M.piece).concat([M.takes, M.castleK, M.castleQ, M.check, M.mate], Object.values(M.promote));
+  if (M.old) out.push(...Object.values(M.old.piece), ...Object.values(M.old.promote));   // Chaturanga's pieces
   for (const f of Object.keys(M.file)) for (const r of Object.keys(M.rank)) out.push(M.file[f] + ' ' + M.rank[r]);
   return out;
 }
@@ -89,7 +90,7 @@ function jobs() {
       out.push({ voice: v.id, engine: v.engine, lang: v.lang, speed: v.speed, key, text, spoken: spoken || text });
     };
     for (const t of Object.values(V.events[v.lang])) add(t);
-    for (const t of fragments(M)) add(t);
+    for (const t of fragments(M)) add(t, M.old && M.old.say && M.old.say[t]);   // say: how the speech engine should hear an old name
     if (v.lessons) for (const t of lessonLines()) add(t, v.lang === 'en' ? spokenEn(t, M) : t);
   }
   return out;

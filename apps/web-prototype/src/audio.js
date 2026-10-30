@@ -390,9 +390,11 @@ function ChacklateAudio() {
     return deviceFallback ? device(text, 1, lang) : false;
   }
   // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
-  function moveWords(san, lang) {
-    const M = V.moves[lang] || V.moves.en;
-    if (!M) return [];
+  // old: an old variation (Chaturanga), whose pieces keep their old names (Mantri, Gaja...).
+  function moveWords(san, lang, old) {
+    const B = V.moves[lang] || V.moves.en;
+    if (!B) return [];
+    const M = old && B.old ? Object.assign({}, B, { piece: B.old.piece, promote: B.old.promote }) : B;
     const s = String(san).replace(/[!?]+$/, '');
     const tail = /#$/.test(s) ? [M.mate] : /\+$/.test(s) ? [M.check] : [];
     if (/^O-O-O/.test(s)) return [M.castleQ].concat(tail);
@@ -405,11 +407,11 @@ function ChacklateAudio() {
     if (m[7]) words.push(M.promote[m[7]]);
     return words.concat(tail);
   }
-  async function announce(san) {
+  async function announce(san, old) {
     if (!announceOn || callVoice === 'off') return false;
     const v = voiceInfo(callVoice);
     const lang = v ? v.lang : 'en';
-    const words = moveWords(san, lang).filter(Boolean);
+    const words = moveWords(san, lang, old).filter(Boolean);
     if (!words.length) return false;
     stopSpeech();
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;

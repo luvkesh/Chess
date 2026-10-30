@@ -24,8 +24,12 @@
   const APP_VERSION = '0.9 beta';
   const BUILD = typeof CHACKLATE_BUILD !== 'undefined' ? CHACKLATE_BUILD : 'dev';
   const VALUE = [0, 1, 3, 3, 5, 9, 0];
+  const VALUE_OLD = [0, 1, 3, 1, 5, 2, 0];   // Chaturanga: the Gaja and the Mantri are short-range pieces
+  // Chaturanga's drawn pieces: the Mantri sits on the Q code, the Gaja on the B code (art.js PIECE).
+  const pieceArt = (t, old) => (old && { q: 'mantri', b: 'gaja' }[t]) || t;
   const TYPE = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 5: 'q', 6: 'k' };
   const PIECE_NAME = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
+  const OLD_NAME = { p: 'Padati', n: 'Ashva', b: 'Gaja', r: 'Ratha', q: 'Mantri', k: 'Raja' };
   const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
   const REASON_TEXT = {
     checkmate: 'Checkmate', resignation: 'Resignation', timeout: 'Time ran out', 'timeout-insufficient': 'Time ran out, but no mate was possible',
@@ -1043,7 +1047,8 @@
   // There is no online play or rating for a variation yet.
   const variantById = (id) => VARIANTS.find((v) => v.id === id) || null;
   const variantOfGame = (g) => (g.variant === 'standard' ? null : variantById(g.variant));
-  const variantLook = (v) => (v.era ? eraLook(v.era) : null);
+  // Chaturanga's old Mantri and Gaja have their own shapes in the era's jade set (pieces3d.js, CHATURANGA).
+  const variantLook = (v) => { const l = v.era ? eraLook(v.era) : null; return l && E.VARIANTS[v.id] && E.VARIANTS[v.id].old ? Object.assign(l, { set: 'chaturanga' }) : l; };
   const variantArt = (v) => { const e = v.era && eraById(v.era); return e ? ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) : medal('piece:' + ({ koth: 'k', threecheck: 'q', chess960: 'n' }[v.id] || 'r'), '#5b4a8a', '#2c2248'); };
   function variationsTile() {
     const ready = VARIANTS.filter((v) => v.status === 'ready');
@@ -1052,7 +1057,7 @@
   }
   // A small flat board for the rule sheet: pieces from the FEN's board field and dots on the
   // squares they reach, cropped to the squares that matter (at least 5 by 5).
-  function miniBoard(fen, dots, label) {
+  function miniBoard(fen, dots, label, old) {
     const at = {};
     String(fen).replace(/^[a-z0-9]+:/, '').split(' ')[0].split('/').forEach((row, i) => { let f = 0; for (const c of row) { if (/\d/.test(c)) f += +c; else { at[f + ',' + (7 - i)] = c; f++; } } });
     const spots = (dots || []).map((d) => [d.charCodeAt(0) - 97, +d[1] - 1]);
@@ -1063,7 +1068,7 @@
     for (let r = r1; r >= r0; r--) {
       for (let f = f0; f <= f1; f++) {
         const c = at[f + ',' + r], dot = spots.some((d) => d[0] === f && d[1] === r);
-        html += '<i class="' + ((f + r) % 2 ? 'l' : 'd') + (dot ? (c ? ' hit' : ' dot') : '') + '">' + (c ? '<img src="' + ART.pieceUri(c.toLowerCase(), CAP_INK[c === c.toUpperCase() ? 'w' : 'b']) + '" alt="">' : '') + '</i>';
+        html += '<i class="' + ((f + r) % 2 ? 'l' : 'd') + (dot ? (c ? ' hit' : ' dot') : '') + '">' + (c ? '<img src="' + ART.pieceUri(pieceArt(c.toLowerCase(), old), CAP_INK[c === c.toUpperCase() ? 'w' : 'b']) + '" alt="">' : '') + '</i>';
       }
     }
     return html + '</div>';
@@ -1071,7 +1076,7 @@
   const differs = () => '<span class="differs">' + icon('sparkle') + ' Not like chess</span>';
   function ruleSheet(v) {
     return '<div class="rulesheet"><section><h3>The pieces</h3><div class="rs-pieces">' + v.pieces.map((pc) =>
-      '<div class="rs-piece' + (pc.differs ? ' diff' : '') + '">' + miniBoard(pc.fen, pc.dots, pc.name + ': ' + pc.moves) +
+      '<div class="rs-piece' + (pc.differs ? ' diff' : '') + '">' + miniBoard(pc.fen, pc.dots, pc.name + ': ' + pc.moves, (E.VARIANTS[v.id] || {}).old) +
       '<div><h4>' + esc(pc.name) + ' <small>' + esc(pc.en) + '</small></h4>' + (pc.differs ? differs() : '') + '<p>' + esc(pc.moves) + '</p></div></div>').join('') + '</div></section>' +
       '<section><h3>The rules</h3><ul class="rs-rules">' + v.rules.map((r) => '<li' + (r.differs ? ' class="diff"' : '') + '><b>' + esc(r.title) + '</b>' + (r.differs ? differs() : '') + '<p>' + esc(r.text) + '</p></li>').join('') + '</ul>' +
       (v.notes || []).map((n) => '<p class="fine">' + esc(n) + '</p>').join('') + '</section></div>';
@@ -2632,7 +2637,7 @@
   }
   // Little drawn pieces for the captured row: ivory for White's, ebony with gold for Black's.
   const CAP_INK = { w: { fill: '#f6ecd9', stroke: '#8a7458', ink: '#5a4630' }, b: { fill: '#2b1c14', stroke: '#d9b46a', ink: '#d9b46a' } };
-  const capImg = (t, color) => '<img src="' + ART.pieceUri(t, CAP_INK[color]) + '" alt="' + (color === 'w' ? 'White ' : 'Black ') + PIECE_NAME[t].toLowerCase() + '">';
+  const capImg = (t, color, old) => '<img src="' + ART.pieceUri(pieceArt(t, old), CAP_INK[color]) + '" alt="' + (color === 'w' ? 'White ' : 'Black ') + (old ? OLD_NAME[t] : PIECE_NAME[t].toLowerCase()) + '">';
 
   // The two players' cards: portrait, name, who they are, the pieces they have taken and
   // their clock. The parts that change each move are filled in by renderHud.
@@ -2733,7 +2738,7 @@
     const cinema = !!(info.captured || info.rook) && !quick && state.settings.captureScenes && G.kind !== 'online';
     const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : cinema ? 'move' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
     setTimeout(() => AU.play(sound), dropped ? 0 : 140);
-    if (!g.outcome) setTimeout(() => AU.announce(info.san).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
+    if (!g.outcome) setTimeout(() => AU.announce(info.san, !!g.pos.ch).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
     G.cinema = view.animateMove(info, () => {
       G.busy = false;
@@ -3141,16 +3146,17 @@
     const g = G.g;
     const taken = { [WHITE]: [], [BLACK]: [] };
     g.captured.forEach((p) => { if (p) taken[-Math.sign(p)].push(Math.abs(p)); });
+    const VAL = g.pos.ch ? VALUE_OLD : VALUE;
     let diff = 0;
-    for (let sq = 0; sq < 64; sq++) { const p = E.pieceAt(g.pos, sq); if (p) diff += Math.sign(p) * VALUE[Math.abs(p)]; }
+    for (let sq = 0; sq < 64; sq++) { const p = E.pieceAt(g.pos, sq); if (p) diff += Math.sign(p) * VAL[Math.abs(p)]; }
     for (const id of ['p-bottom', 'p-top']) {
       const el = $(id), side = +el.dataset.side;
-      const list = taken[side].slice().sort((a, b) => VALUE[b] - VALUE[a] || b - a);
+      const list = taken[side].slice().sort((a, b) => VAL[b] - VAL[a] || b - a);
       const adv = diff * side;
       const key = list.join('') + '|' + adv;
       if (el.dataset.taken !== key) {
         el.dataset.taken = key;
-        el.querySelector('.caps').innerHTML = list.map((k) => capImg(TYPE[k], side === WHITE ? 'b' : 'w')).join('');
+        el.querySelector('.caps').innerHTML = list.map((k) => capImg(TYPE[k], side === WHITE ? 'b' : 'w', g.pos.ch)).join('');
         el.querySelector('.adv').textContent = adv > 0 ? '+' + adv : '';
       }
       el.classList.toggle('to-move', !g.outcome && g.pos.side === side);
@@ -3218,7 +3224,9 @@
     let num = start.full, white = start.side === WHITE;
     const rows = [];
     let row = null;
-    const cell = (i) => i < 0 ? '' : '<span class="m' + (i === cur ? ' cur' : '') + '" data-ply="' + i + '">' + esc(sans[i]) + (badges && badges[i] ? badges[i] : '') + '</span>';
+    // Chaturanga writes its own letters: M for the Mantri (Q code), G for the Gaja (B code).
+    const text = start.ch ? (x) => x.replace(/^Q/, 'M').replace(/^B/, 'G').replace(/=Q/, '=M') : (x) => x;
+    const cell = (i) => i < 0 ? '' : '<span class="m' + (i === cur ? ' cur' : '') + '" data-ply="' + i + '">' + esc(text(sans[i])) + (badges && badges[i] ? badges[i] : '') + '</span>';
     sans.forEach((san, i) => {
       if (white || !row) { row = { n: num, w: white ? i : -1, b: -1 }; rows.push(row); if (!white) { row.b = i; num++; } }
       else { row.b = i; num++; }
