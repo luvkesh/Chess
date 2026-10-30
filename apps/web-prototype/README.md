@@ -15,6 +15,7 @@ The playable Chackmate client: a 3D chess game that runs from one HTML file. thr
 | `src/app.js` | The app: home, play, the Journey Through Time, lessons, puzzles, training, review, collection, season, store and profile screens; the AI and coach run in Web Workers. |
 | `src/progress.js` | XP, levels, streaks, achievements, puzzle rating, daily missions, season tiers, journey stages and cosmetic unlocks. Pure functions, tested in Node. |
 | `src/audio.js` | Synthesised sound effects and music (Web Audio) plus recorded and spoken narration. Each room has its own music mood: a scale, chords and an instrument (harp, lyre, horn, sitar, guzheng, harpsichord, celesta or electric piano). |
+| Audio guide | A card in the corner (top right on the home screen, top left in games and lessons, above the bottom panel on phones) where Rooky, or the era's friend on an era page, says what to do next on every screen, with Hear that again, a voice switch and hide. The lines are in `packages/content/guide.json`; `tools/voice/record-guide.py` records them into `public/guide/` with a pause after every comma and full stop. The voice switch also mutes stories and lessons, which have their own replay and voice buttons. |
 | `src/net.js` | Online client: matchmaking, friend codes, account, leaderboards. Talks to `services/game-server`. |
 | `src/relay.js` | Online play with no game server: friend codes and worldwide matchmaking over the published page's live room (the artifact `room` capability, as in Jong Club). Used only while no server is connected, so the backend swaps to the server at launch. Every online game is timed (10 minutes a side at most); players see made-up names and send preset reactions only. |
 | `src/shell.html` | Page template and styles. |
@@ -22,6 +23,7 @@ The playable Chackmate client: a 3D chess game that runs from one HTML file. thr
 | `build.py` | Inlines `packages/chess-core` (engine, coach), the vendored files, the files above and `packages/content` JSON into `dist/chackmate.html`. |
 | `test/progress.test.js` | Progression rules. |
 | `test/voice.test.js` | Voice lines and recorded clips. |
+| `test/guide.test.js` | Every screen and era stage has a guide line, and every clip matches its words and voice. |
 | `test/looks.test.js` | Every set, board and room the catalog and the Journey hand out exists in the 3D code. |
 | `test/online.e2e.js` | Two pages play each other through a stand-in room (`test/fake-room.js`): a friend code game to checkmate with a reaction, worldwide pairing, a resignation and a loss on time. Needs Playwright: `node test/online.e2e.js` after a build. |
 | `tools/button-contrast.js` | Every button style, in every panel that restyles buttons, keeps text at 4.5:1 contrast at rest and on hover, focus and press. Needs Playwright: `node tools/button-contrast.js` after a build. |
