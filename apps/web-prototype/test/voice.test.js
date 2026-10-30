@@ -73,4 +73,21 @@ for (const x of wlines) {
 }
 const shipped = fs.readdirSync(wdir).filter((d) => !d.includes('.')).flatMap((d) => fs.readdirSync(path.join(wdir, d)).map((f) => d + '/' + f.replace(/\.mp3$/, ''))).sort();
 assert.deepStrictEqual(shipped, wlines.map((x) => x.who + '/' + x.key).sort(), 'one words clip per line, nothing extra');
+// Packs for hosts with a file limit: every clip comes back byte for byte from its pack.
+const os = require('os');
+const { execFileSync } = require('child_process');
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'packs-'));
+execFileSync('node', [path.join(__dirname, '../../../tools/voice/pack.js'), tmp]);
+const packs = JSON.parse(fs.readFileSync(path.join(tmp, 'voice/packs.json'), 'utf8')).voices;
+const packBuf = {};
+for (const v of V.voices) {
+  assert.deepStrictEqual(Object.keys(packs[v.id]).sort(), want[v.id].slice().sort(), v.id + ' is packed whole');
+  for (const [key, [file, at, len]] of Object.entries(packs[v.id])) {
+    const b = packBuf[file] = packBuf[file] || fs.readFileSync(path.join(tmp, 'voice', file));
+    assert(b.subarray(at, at + len).equals(fs.readFileSync(path.join(dir, v.id, key + '.mp3'))), v.id + '/' + key + ' packs whole');
+  }
+}
+fs.rmSync(tmp, { recursive: true, force: true });
+// Rooky's own voice is the default coach.
+assert(/voiceCoach: 'toby'/.test(fs.readFileSync(path.join(__dirname, '../src/app.js'), 'utf8')), 'Toby is the default coach voice');
 console.log('voice tests passed:', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');

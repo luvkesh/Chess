@@ -2,6 +2,7 @@
   "version": 1,
   "note": "Recorded with Kokoro-82M (Apache-2.0) by tools/voice/record.py. 'lessons' voices also read every lesson, opening and endgame line; the others read game calls and moves.",
   "voices": [
+    { "id": "toby", "name": "Toby", "lang": "en", "engine": "am_puck,am_michael", "speed": 0.95, "blurb": "Rooky's own voice: young, soft and calm. American English.", "lessons": true },
     { "id": "mira", "name": "Mira", "lang": "en", "engine": "af_heart", "speed": 1.0, "blurb": "Warm and encouraging. American English.", "lessons": true },
     { "id": "arthur", "name": "Arthur", "lang": "en", "engine": "bm_george", "speed": 0.95, "blurb": "Calm club captain. British English.", "lessons": true },
     { "id": "priya", "name": "Priya", "lang": "hi", "engine": "hf_alpha", "speed": 1.0, "blurb": "Game calls and moves in Hindi.", "lessons": false },
