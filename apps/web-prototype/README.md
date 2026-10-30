@@ -9,7 +9,7 @@ The playable Chackmate client: a 3D chess game that runs from one HTML file. thr
 | `src/kit3d.js` | Modelling kit: lathe profiles, flutes and carving, signed-distance sculpting, procedural marble, wood, malachite and lapis, shared materials. |
 | `src/pieces3d.js` | The chess sets: the era sets, each with its own shapes, materials, backstory and a note on every piece, plus the colourways. |
 | `src/world3d.js` | Boards (inlaid fields in carved frames) and rooms. Each era room has its own walls, columns, windows, lights and furniture, and a painted landmark outside the windows. |
-| `src/scene.js` | The live table: camera framing around the menus, lighting, shadows, reflections, picking and dragging, move and capture animations, celebrations, and the renders used on menu cards. |
+| `src/scene.js` | The live table: camera framing around the menus, lighting, shadows, reflections, picking and dragging, move animations, the capture scenes (a 3.5 to 4.5 s scene for each capture effect: a bow, a friendly duel, a waltz, a magic trick, a frosty slide, leapfrog, a sparkler send-off; tap to skip), celebrations, and the renders used on menu cards. |
 | `src/art.js` | Flat art for the menus: animal portraits, crests, era banners and piece icons. |
 | `src/app.js` | The app: home, play, the Journey Through Time, lessons, puzzles, training, review, collection, season, store and profile screens; the AI and coach run in Web Workers. |
 | `src/progress.js` | XP, levels, streaks, achievements, puzzle rating, daily missions, season tiers, journey stages and cosmetic unlocks. Pure functions, tested in Node. |
