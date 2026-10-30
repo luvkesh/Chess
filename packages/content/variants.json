@@ -32,7 +32,7 @@
         "Move lists write the Mantri as Q and the Gaja as B, after the pieces they became."
       ],
       "lesson": {
-        "title": "Chaturanga: chess as it began",
+        "title": "Chess as it began",
         "objectives": ["Move the Mantri and the Gaja", "Win the old ways: bare king and no moves"],
         "steps": [
           { "line": "variant.chaturanga.hello", "fen": "chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1" },
