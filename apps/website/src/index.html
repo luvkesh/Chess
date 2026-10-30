@@ -942,12 +942,33 @@ html.nonlatin body { line-height: 1.75; }
     function sectionOf(key) { return key.indexOf('item-') === 0 ? 'collect' : key; }
     // the caption bubble shows for a moment on a tap, hold, hover or focus, and while Rooky talks
     function peek(ms) { live.classList.add('show'); clearTimeout(peekT); if (ms) peekT = setTimeout(function () { if (!live.matches(':hover') && !live.contains(document.activeElement)) live.classList.remove('show'); }, ms); }
-    var actx = null, voice = null;
+    var actx = null, voice = null, hush = null;
+    // On an iPhone, Web Audio counts as 'ambient' sound, so the ring/silent switch mutes Rooky
+    // even with the volume up. Safari 17 lets the page ask for 'playback' instead; older iPhones
+    // get the same effect from a silent looping <audio>, started by the visitor's tap.
+    function playback() {
+      try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; return; } } catch (e) {}
+      if (!/iP(hone|ad|od)/.test(navigator.userAgent) && !(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return;
+      if (!hush) {
+        var n = 4000, w = new DataView(new ArrayBuffer(44 + n)), put = function (o, t) { for (var i = 0; i < t.length; i++) w.setUint8(o + i, t.charCodeAt(i)); };
+        put(0, 'RIFF'); w.setUint32(4, 36 + n, true); put(8, 'WAVEfmt '); w.setUint32(16, 16, true); w.setUint16(20, 1, true); w.setUint16(22, 1, true);
+        w.setUint32(24, 8000, true); w.setUint32(28, 8000, true); w.setUint16(32, 1, true); w.setUint16(34, 8, true); put(36, 'data'); w.setUint32(40, n, true);
+        for (var i = 0; i < n; i++) w.setUint8(44 + i, 128);
+        hush = document.createElement('audio'); hush.loop = true; hush.setAttribute('playsinline', ''); hush.setAttribute('x-webkit-airplay', 'deny');
+        hush.src = URL.createObjectURL(new Blob([w.buffer], { type: 'audio/wav' }));
+      }
+      var p = hush.play(); if (p && p.catch) p.catch(function () {});
+    }
     function unlock() {
       if (!actx) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return; actx = new C(); voice = actx.createGain(); voice.connect(actx.destination); }
-      if (actx.state !== 'running' && !paused) actx.resume().catch(function () {});
+      playback();
+      // iOS can leave the context 'suspended' or 'interrupted' (after a call, a lock or a tab switch); a tap brings it back
+      if (actx.state !== 'running' && !paused) { var r = actx.resume(); if (r && r.catch) r.catch(function () {}); }
       var b = actx.createBuffer(1, 1, 22050), s0 = actx.createBufferSource(); s0.buffer = b; s0.connect(actx.destination); try { s0.start(0); } catch (e) {}
     }
+    function quiet() { if (hush) hush.pause(); }
+    // any tap while the tour is on wakes sound that iOS put to sleep
+    ['touchend', 'click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (on && !paused && actx && actx.state !== 'running') unlock(); }, true); });
     var buffers = {};
     function load(key) {
       if (!buffers[key]) buffers[key] = fetch(G[key].src).then(function (r) { return r.arrayBuffer(); })
@@ -1018,12 +1039,12 @@ html.nonlatin body { line-height: 1.75; }
     function setPaused(v) {
       paused = v; live.classList.toggle('paused', v);
       orb.setAttribute('aria-label', v ? D.coach + ' is paused. Tap to carry on.' : D.coach + ' is guiding you. Tap to pause.');
-      if (v) { clearTimeout(settle); if (actx) actx.suspend().catch(function () {}); live.classList.remove('talking'); }
+      if (v) { clearTimeout(settle); if (actx) actx.suspend().catch(function () {}); quiet(); live.classList.remove('talking'); }
       else { unlock(); if (audio) live.classList.add('talking'); else onScroll(); }
     }
     function setOn(v) {
       on = v; store.set(KEY, v ? '1' : '0'); btn.setAttribute('aria-pressed', String(v)); invite.hidden = true; live.hidden = !v; paused = false; live.classList.remove('paused', 'show');
-      if (v) { unlock(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); clearTimeout(itemT); fadeOut(); hideCue(); }
+      if (v) { unlock(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); clearTimeout(itemT); fadeOut(); hideCue(); quiet(); }
     }
     addEventListener('scroll', onScroll, { passive: true });
     // a piece on show in Collect gets its own pitch once it has been there half a second
@@ -1075,7 +1096,7 @@ html.nonlatin body { line-height: 1.75; }
     live.addEventListener('mouseenter', function () { peek(0); }); live.addEventListener('mouseleave', function () { peek(1200); });
     orb.addEventListener('focus', function () { peek(0); }); orb.addEventListener('blur', function () { peek(1200); });
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) setOn(false); });
-    document.addEventListener('visibilitychange', function () { if (!actx || paused || !on) return; if (document.hidden) actx.suspend().catch(function () {}); else actx.resume().catch(function () {}); });
+    document.addEventListener('visibilitychange', function () { if (!actx || paused || !on) return; if (document.hidden) { actx.suspend().catch(function () {}); quiet(); } else { actx.resume().catch(function () {}); if (hush) hush.play().catch(function () {}); } });
     var saved = store.get(KEY);
     if (saved === '1') {
       // sound needs a tap first, so a returning visitor's tour carries on at their first tap or key
