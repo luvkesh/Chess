@@ -8,7 +8,9 @@
   const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES;
   const OPENINGS = CHACKLATE_OPENINGS.openings, ENDGAMES = CHACKLATE_ENDGAMES.endgames;
   const STORE = CHACKLATE_STORE, CAMPAIGN = CHACKLATE_CAMPAIGN;
-  const PG = ChacklateProgress(CATALOG, { seasons: CHACKLATE_SEASONS, missions: CHACKLATE_MISSIONS, campaign: CAMPAIGN });
+  const PG = ChacklateProgress(CATALOG, { seasons: CHACKLATE_SEASONS, missions: CHACKLATE_MISSIONS, campaign: CAMPAIGN, placement: CHACKLATE_PLACEMENT });
+  const PLACEMENT = CHACKLATE_PLACEMENT;
+  const PLACE_ART = ['piece:p', 'piece:n', 'piece:b', 'piece:r', 'piece:q'];   // the badge of each placement band
   const AU = ChacklateAudio();
   const ART = ChacklateArt;
   const { WHITE, BLACK, LEVELS } = E;
@@ -817,8 +819,13 @@
   }
 
   // ---------------------------------------------------------------- home
+  // The next lesson on the path. After the placement test the path starts at the chapter it chose:
+  // the first open lesson from there on, else the nearest open chapter before it. Earlier chapters
+  // stay open to anyone who wants them.
   function nextLesson() {
-    return LESSONS.lessons.find((l) => !state.progress.lessons[l.id] && lessonOpen(l)) || null;
+    const todo = LESSONS.lessons.filter((l) => !state.progress.lessons[l.id] && lessonOpen(l));
+    const from = state.progress.placement ? state.progress.placement.chapter : 1;
+    return todo.find((l) => l.chapter >= from) || todo.filter((l) => l.chapter < from).sort((a, b) => b.chapter - a.chapter)[0] || null;
   }
   const lessonOpen = (l) => LESSONS.chapters.find((c) => c.n === l.chapter).access === 'free' || state.progress.premium;
   function dailyPuzzle() {
@@ -867,8 +874,29 @@
     $('h-learn').onclick = () => { AU.unlock(); AU.play('tap'); if (nl) go('lesson', nl.id); else go('learn'); };
     $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: 'Daily puzzle' }); else go('puzzles'); };
     $('h-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+    const P = state.progress;
+    if (!P.placement && !P.xp && !P.seen.placementOffer) setTimeout(() => { if (state.screen === 'home' && !document.querySelector('.modal')) placementOffer('home'); }, window.__SHOT ? 0 : 1600);
     return { leave() { view.setAttract(false); } };
   };
+
+  // A new player is asked once, after Rooky's welcome: take the short placement test, or skip it.
+  // Learn offers it again at any time.
+  function placementOffer(from) {
+    const P = state.progress;
+    P.seen.placementOffer = true; save();
+    const retake = !!P.placement;
+    const m = modal('<div class="result-hero">' + faceImg(COACH) + '<span class="result-badge">' + PLACEMENT.questions.length + ' questions · about ' + PLACEMENT.minutes + ' minutes</span>' +
+      '<h2 class="result-title">' + (retake ? 'Take the test again?' : 'Played chess before?') + '</h2>' +
+      '<p class="sub">' + esc(GUIDE.lines['placement.offer'].text) + '</p>' +
+      '<div class="offer-tools"><button class="round sm" id="po-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round sm" id="po-voice" data-voice="' + esc(COACH.name) + '"></button></div></div>' +
+      '<div class="row"><button class="btn" data-close>' + (retake ? 'Not now' : 'Skip, start at the beginning') + '</button><button class="btn primary" id="po-go" autofocus>Take the test</button></div>', { onClose() { AU.hush(); } });
+    const voice = m.querySelector('#po-voice');
+    voiceIcon(voice, COACH.name);
+    voice.onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) guideSay('placement.offer', { force: true }); };
+    m.querySelector('#po-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); guideSay('placement.offer', { force: true }); };
+    m.querySelector('#po-go').onclick = () => { AU.unlock(); AU.play('tap'); guideSt.pending = null; m.close(); go('lesson', { placement: true, from }); };
+    guideSay('placement.offer', { force: true });
+  }
 
   // ---------------------------------------------------------------- missions and season
   function missionsStrip() {
@@ -1146,6 +1174,7 @@
       pageHead('Chess Academy', 'Learning path', 'Short lessons with Rooky, your coach, each followed by little exercises. ' + done + ' of ' + total + ' completed.',
         due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + due.length + ' review' + (due.length > 1 ? 's' : '') + ' due</button>' : '') +
       '<div class="bar path-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></div>' +
+      placementTile() +
       (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">Now learning · Chapter ' + nl.chapter + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') +
       '<div class="chapters">' + LESSONS.chapters.map((ch) => {
         const ls = LESSONS.lessons.filter((l) => l.chapter === ch.n);
@@ -1163,9 +1192,18 @@
     document.querySelectorAll('[data-lesson]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', b.dataset.lesson); }; });
     if ($('l-next')) $('l-next').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', nl.id); };
     if ($('l-review')) $('l-review').onclick = () => { AU.unlock(); go('lesson', due[0]); };
+    $('l-place').onclick = () => { AU.unlock(); AU.play('tap'); if (P.placement) placementOffer('learn'); else go('lesson', { placement: true, from: 'learn' }); };
     return {};
   };
 
+  function placementTile() {
+    const r = state.progress.placement;
+    const ch = r && LESSONS.chapters.find((c) => c.n === r.chapter);
+    return '<button class="tile wide" id="l-place"><span class="ic"><img src="' + medal(PLACE_ART[r ? r.chapter - 1 : 0], '#ffd27a', '#b8862b') + '" alt=""></span><span><span class="eyebrow">Placement test</span>' +
+      (r ? '<b>' + r.score + ' of ' + r.total + ' · ready for Chapter ' + ch.n + '</b><small>' + esc(ch.title) + '. Take the test again any time.</small>'
+        : '<b>Played chess before?</b><small>' + PLACEMENT.questions.length + ' questions, about ' + PLACEMENT.minutes + ' minutes. Rooky picks where you start.</small>') +
+      '</span><span class="go">' + icon(r ? 'refresh' : 'arrow') + '</span></button>';
+  }
   const THEMES = [['fork', 'Forks', 'piece:n', 'One piece attacks two at once.'], ['pin', 'Pins', 'piece:b', 'A piece that cannot move without trouble.'], ['skewer', 'Skewers', 'piece:r', 'Attack through one piece to the one behind.'],
     ['discoveredAttack', 'Discovered attacks', 'piece:q', 'Move one piece to unleash another.'], ['hangingPiece', 'Free pieces', 'piece:p', 'Spot a piece nobody is guarding.'], ['mate', 'Checkmates', 'piece:k', 'Find the move that ends the game.']];
   const themePuzzles = (t) => PUZZLES.filter((p) => t === 'mate' ? p.themes.some((x) => x.startsWith('mateIn')) : p.themes.includes(t));
@@ -2690,26 +2728,29 @@
     const journey = (arg && arg.journey) || null, era = journey && eraById(journey.era);
     // An era's lesson is written into its stage and is never part of Learn.
     const own = era && era.stages[journey.stage] && era.stages[journey.stage].steps ? era.stages[journey.stage] : null;
-    const L = own || LESSONS.lessons.find((l) => l.id === id);
+    // The placement test runs here too: no steps, one try per question, Rooky reads each question.
+    const test = !!(arg && arg.placement);
+    const L = test ? { id: 'placement', title: 'Placement test', steps: [], exercises: PLACEMENT.questions, objectives: [] } : own || LESSONS.lessons.find((l) => l.id === id);
     const guide = own ? eraCoach(era) : COACH;
     if (!L) { setTimeout(() => go('learn'), 0); return {}; }
     view.setAttract(false);
     if (era) setLook(eraLook(era.id));
     const ex = [];
     for (const x of L.exercises) {
-      if (x.type === 'puzzles') {
+      if (test && x.type === 'puzzle') ex.push(Object.assign({}, x, { puzzle: PUZZLES.find((p) => p.id === x.puzzle) }));
+      else if (x.type === 'puzzles') {
         const pool = PUZZLES.filter((p) => x.theme === 'mate' ? p.themes.some((t) => t.startsWith('mateIn')) : p.themes.includes(x.theme)).sort((a, b) => a.rating - b.rating).slice(0, x.count);
         pool.forEach((p) => ex.push({ type: 'puzzle', prompt: x.prompt, puzzle: p }));
       } else ex.push(x);
     }
-    const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
+    const S = { phase: test ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, t0: Date.now() };
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (test ? 'Learn' : own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
-    const leaveTo = () => (era ? go('era', era.id) : go('learn'));
+    const leaveTo = () => (era ? go('era', era.id) : test && arg.from === 'home' ? go('home') : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
     voiceIcon($('ls-voice'), guide.name);
@@ -2720,6 +2761,7 @@
     // The guide's line comes first (how a lesson works, then how to answer), then the step itself.
     const guided = {};
     const speak = (now) => {
+      if (test) { const key = S.phase === 'ex' && ex[S.i] ? 'placement.' + ex[S.i].id : null; if (key) guideSay(key, { force: true }); return; }
       const t = S.phase === 'steps' ? L.steps[S.i].say : S.phase === 'ex' ? ex[S.i] && ex[S.i].prompt : null;
       const say = () => { if (t && state.settings.narration) AU.say(t); };
       const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
@@ -2769,9 +2811,10 @@
     function renderEx() {
       const x = ex[S.i];
       S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false;
-      $('ls-phase').textContent = 'Exercise · ' + (S.i + 1) + ' of ' + ex.length;
+      $('ls-phase').textContent = (test ? 'Question · ' : 'Exercise · ') + (S.i + 1) + ' of ' + ex.length;
       $('ls-prev').disabled = true;
-      $('ls-next').textContent = 'Skip';
+      $('ls-prev').hidden = test;
+      $('ls-next').textContent = test ? 'I don\'t know' : 'Skip';
       view.setArrows([]); view.setHighlights({});
       if (x.type === 'choice') {
         $('ls-content').innerHTML = '<p class="prompt">' + esc(x.prompt) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
@@ -2781,6 +2824,7 @@
             const ok = +b.dataset.opt === x.answer, why = x.explain ? ' ' + x.explain : '';
             if (ok) answer(true, 'Correct.' + why);
             else { S.answered = true; if (S.results[S.i] === undefined) S.results[S.i] = false; AU.play('wrong'); fb('bad', 'Not quite. The answer is: ' + x.options[x.answer] + '.' + why); $('ls-next').textContent = S.i === ex.length - 1 ? 'Finish' : 'Next'; dots(); }
+            if (test) $('ls-next').textContent = S.i === ex.length - 1 ? 'See my result' : 'Next';
             b.classList.add(ok ? 'right' : 'wrong');
           };
         });
@@ -2792,8 +2836,8 @@
       const fen = x.type === 'puzzle' ? x.puzzle.fen : x.fen;
       const prompt = x.type === 'puzzle' ? x.prompt + ' (' + (E.positionFrom(fen, [x.puzzle.moves[0]]).side === WHITE ? 'White' : 'Black') + ' to move)' : x.prompt;
       $('ls-content').innerHTML = '<p class="prompt">' + esc(prompt) + '</p>' + (x.type === 'targets' ? '<div class="pill" id="ls-count"></div>' : '') +
-        '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' Hint</button></div><div id="ls-fb"></div>';
-      $('ls-hint').onclick = () => {
+        (test ? '' : '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' Hint</button></div>') + '<div id="ls-fb"></div>';
+      if (!test) $('ls-hint').onclick = () => {
         const hints = x.type === 'puzzle' ? ['Look for forcing moves: checks, captures and threats.', 'Look at your ' + C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] + '.'] : x.hints || [];
         if (S.hintN < hints.length) { fb('hint', hints[S.hintN]); S.hintN++; }
         else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); S.tries++; }
@@ -2833,7 +2877,7 @@
       if (x.type === 'targets') {
         const all = updateCount();
         if (all.includes(sq)) { if (!S.found.includes(sq)) { S.found.push(sq); AU.play('select'); } }
-        else if (sq !== sqIndex(x.from)) { S.tries++; AU.play('wrong'); fb('bad', sqName(sq) + ' cannot be reached from ' + x.from + '.'); }
+        else if (sq !== sqIndex(x.from)) { if (test) { fail(sqName(sq) + ' cannot be reached from ' + x.from + '.'); updateCount(); return; } S.tries++; AU.play('wrong'); fb('bad', sqName(sq) + ' cannot be reached from ' + x.from + '.'); }
         const left = updateCount();
         if (S.found.length === left.length) answer(S.tries === 0, 'All ' + left.length + ' squares found.');
         return;
@@ -2882,6 +2926,9 @@
           AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
           quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); });
           answer(S.tries === 0, msg);
+        } else if (test) {
+          view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
+          fail(msg.replace(/ ?Try again\.$/, ''));
         } else {
           S.tries++; AU.play('wrong'); fb('bad', msg); view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
         }
@@ -2895,7 +2942,16 @@
       if (S.results[S.i] === undefined) S.results[S.i] = firstTry;
       AU.play('correct');
       fb('ok', msg + (firstTry ? '' : ' (Solved after a retry.)'));
-      $('ls-next').textContent = S.i === ex.length - 1 ? 'Finish' : 'Next';
+      $('ls-next').textContent = S.i === ex.length - 1 ? (test ? 'See my result' : 'Finish') : 'Next';
+      dots();
+    }
+    // In the placement test a wrong answer ends the question: no second try, no hint.
+    function fail(msg) {
+      S.answered = true;
+      S.results[S.i] = false;
+      AU.play('wrong');
+      fb('bad', (msg || 'Not this one.') + ' On to the next one.');
+      $('ls-next').textContent = S.i === ex.length - 1 ? 'See my result' : 'Next';
       dots();
     }
     function next() {
@@ -2911,6 +2967,7 @@
     function finish() {
       S.phase = 'done';
       setHooks({});
+      if (test) return placed();
       const first = S.results.filter((r) => r === true).length;
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       let res;
@@ -2936,7 +2993,35 @@
       dots();
       if (!own) { celebrate(res); if (journey) stageDone(journey); }
     }
-    renderStep();
+    // The placement result: the chapter the path now starts at, a friend to play and a badge.
+    function placed() {
+      const P = state.progress;
+      const score = S.results.filter((r) => r === true).length;
+      const res = PG.placementFinished(P, score, (Date.now() - S.t0) / 1000, P.premium ? 7 : 3);
+      save();
+      const ch = LESSONS.chapters.find((c) => c.n === res.chapter), o = persona(res.level), nl = nextLesson();
+      const chLocked = ch.access !== 'free' && !P.premium;
+      $('ls-phase').textContent = 'Your result';
+      $('ls-content').innerHTML = '<div class="done-card placed"><img class="medal" src="' + medal(PLACE_ART[res.chapter - 1], '#ffd27a', '#b8862b') + '" alt="">' +
+        '<p class="prompt">' + esc(res.band.badge.name) + '</p><p class="say">' + score + ' of ' + ex.length + ' right. ' +
+        (chLocked ? 'You are ready for Chapter ' + ch.n + ', ' + esc(ch.title) + ', which is part of Premium. Until then, your path carries on with the lessons just before it.'
+          : 'Your path now starts at Chapter ' + ch.n + ', ' + esc(ch.title) + '. Earlier chapters stay open whenever you want them.') + '</p>' +
+        '<div class="placed-friend">' + faceImg(o) + '<span><small>A good friend to play</small><b>' + esc(o.full) + '</b>' +
+        (res.capped ? '<small>' + esc(persona(res.wanted).name) + ' and the stronger friends are part of Premium.</small>' : '') + '</span></div>' +
+        (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') +
+        '<div class="row placed-go">' + (nl ? '<button class="btn primary" id="pl-learn">' + icon('learn') + ' Start: ' + esc(nl.title) + '</button>' : '') +
+        '<button class="btn" id="pl-play">' + icon('play') + ' Play ' + esc(o.name) + '</button></div></div>';
+      $('ls-next').textContent = arg.from === 'home' ? 'Home' : 'Back to Learn';
+      $('ls-prev').hidden = true;
+      if ($('pl-learn')) $('pl-learn').onclick = () => { AU.play('tap'); go('lesson', nl.id); };
+      $('pl-play').onclick = () => { AU.play('tap'); startGame({ mode: 'ai', color: 'random', level: res.level, tc: 'none', fen: '' }); };
+      AU.play('win');
+      guideSay(res.band.say, { force: true, delay: 1200 });
+      view.celebrate('win', -1, null, -1);
+      dots();
+      celebrate(res);
+    }
+    if (test) renderEx(); else renderStep();
     return { leave() { AU.hush(); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
   };
 
@@ -3253,7 +3338,7 @@
   applySettings();
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
-  if (window.__SHOT) window.__go = go;
+  if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; }   // tooling answers board questions through the hooks
   go('home');
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => applyInsets());

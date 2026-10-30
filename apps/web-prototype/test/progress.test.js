@@ -196,4 +196,34 @@ for (const e of campaign.eras) for (let i = 0; i < e.stages.length; i++) PJ.jour
 assert(s.achievements['era-4'] && s.achievements['era-all']);
 assert(catalog.items.filter((i) => i.unlock.type === 'journey').every((i) => PJ.isUnlocked(s, i)));
 
+// The placement test: the score picks the band (chapter and badge) and a friend; only a perfect,
+// quick test suggests Onyx or Ember; free players are offered free friends; a retake replaces the
+// result and adds that band's badge; until a game is played Quick Play follows the suggestion.
+{
+  const placement = require('../../../packages/content/placement.json');
+  const PP = ChacklateProgress(catalog, { placement });
+  const n = placement.questions.length;
+  assert.strictEqual(PP.placementResult(0, 200, 7).chapter, 1);
+  assert.strictEqual(PP.placementResult(0, 200, 7).level, 0);
+  let last = 0;
+  for (let k = 0; k <= n; k++) { const r = PP.placementResult(k, 500, 7); assert(r.chapter >= last && r.band.badge); last = r.chapter; }
+  assert.strictEqual(PP.placementResult(n, 500, 7).level, 5, 'a slow perfect score suggests Ivy');
+  assert.strictEqual(PP.placementResult(n, 100, 7).level, 6);
+  assert.strictEqual(PP.placementResult(n, 50, 7).level, 7, 'a fast perfect score suggests Ember');
+  assert.strictEqual(PP.placementResult(n - 1, 50, 7).level, 4);
+  const free = PP.placementResult(n, 50, 3);
+  assert(free.level === 3 && free.capped && free.wanted === 7, 'free players are offered free friends');
+  const t = PP.fresh();
+  assert.strictEqual(t.placement, null);
+  const pr = PP.placementFinished(t, 7, 150, 3, day(9));
+  assert(t.placement.chapter === 4 && t.placement.level === 3 && t.placement.score === 7 && t.placement.total === n);
+  assert(pr.achievements.some((a) => a.id === 'placed-4') && pr.xp >= 50);
+  assert.strictEqual(PP.personalLevel(t, 3), 3, 'Quick Play follows the placement before any game');
+  const again = PP.placementFinished(t, 2, 150, 3, day(9));
+  assert(t.placement.chapter === 1 && t.achievements['placed-4'] && t.achievements['placed-1'], 'a retake keeps earlier badges');
+  assert.strictEqual(again.xp, 20, 'the first-test XP is paid once');
+  PP.gameFinished(t, Object.assign({}, win, { won: false, plies: 40 }), day(9));
+  assert.strictEqual(PP.personalLevel(t, 3), 0, 'real games take over from the placement');
+}
+
 console.log('progress ok');

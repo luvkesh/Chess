@@ -7,6 +7,7 @@ function ChacklateProgress(catalog, extras) {
   const SEASONS = (extras && extras.seasons) || { tierXp: 300, seasons: [] };
   const MISSIONS = (extras && extras.missions) || { perDay: 3, allDoneXp: 0, missions: [] };
   const CAMPAIGN = (extras && extras.campaign) || { eras: [] };
+  const PLACEMENT = (extras && extras.placement) || null;
   const TITLES = [[1, 'Cocoa Bean'], [5, 'Apprentice'], [10, 'Chocolatier'], [15, 'Maître'], [20, 'Grand Maître']];
   const ACHIEVEMENTS = [
     { id: 'first-game', name: 'First move', desc: 'Finish your first game.', xp: 20 },
@@ -43,6 +44,8 @@ function ChacklateProgress(catalog, extras) {
     { id: 'era-4', name: 'Ancient wonders', desc: 'Complete four eras of the Journey.', xp: 120 },
     { id: 'era-all', name: 'Through the ages', desc: 'Complete every era of the Journey.', xp: 400 },
   ];
+  // One badge for each placement result (packages/content/placement.json).
+  if (PLACEMENT) for (const b of PLACEMENT.bands) ACHIEVEMENTS.push(Object.assign({ xp: 20 }, b.badge));
   const BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));
   const LEVEL_ACH = ['beat-truffle', 'beat-builder', 'beat-rusher', 'beat-wall', 'beat-trickster', 'beat-strategist', 'beat-tactician', 'beat-gm'];
 
@@ -60,7 +63,7 @@ function ChacklateProgress(catalog, extras) {
       v: 1, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
-      equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
+      equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {}, placement: null,
     };
   }
   function migrate(s) {
@@ -264,6 +267,28 @@ function ChacklateProgress(catalog, extras) {
     return out;
   }
 
+  // The placement test: the score (one try per question) picks a band, which sets the chapter the
+  // learning path starts at and a badge; the score and speed suggest an animal friend. Free players
+  // are offered free friends only. Earlier chapters always stay open; a retake replaces the result.
+  function placementResult(score, seconds, maxLevel) {
+    const bands = PLACEMENT.bands, f = PLACEMENT.friends;
+    const band = bands.filter((b) => score >= b.min).pop();
+    let level = f.byScore[Math.min(score, f.byScore.length - 1)];
+    if (score >= PLACEMENT.questions.length) for (const [s, lv] of f.perfect) if (seconds <= s) { level = Math.max(level, lv); break; }
+    const capped = level > maxLevel;
+    return { band, chapter: band.chapter, level: Math.min(level, maxLevel), wanted: level, capped };
+  }
+  function placementFinished(state, score, seconds, maxLevel, now) {
+    const out = result();
+    const r = placementResult(score, seconds, maxLevel);
+    const first = !state.placement;
+    state.placement = { date: today(now ? new Date(now) : undefined), score, total: PLACEMENT.questions.length, seconds: Math.round(seconds), chapter: r.chapter, level: r.level };
+    if (first) grant(state, 30, out);
+    achieve(state, r.band.badge.id, out);
+    touchStreak(state, now ? new Date(now) : new Date(), out);
+    return Object.assign(out, r);
+  }
+
   // Opening drill: a clean run has no wrong moves; three clean runs master the line.
   function openingFinished(state, id, clean, now) {
     const out = result();
@@ -389,6 +414,8 @@ function ChacklateProgress(catalog, extras) {
   }
   // "Personal" opponent: picks a level from your recent results against the computer.
   function personalLevel(state, maxLevel) {
+    // Before any game, the placement test's suggestion is the best guess.
+    if (!Object.keys(state.stats.byLevel).length && state.placement) return Math.min(state.placement.level, maxLevel);
     let best = 0;
     for (let lv = 0; lv <= maxLevel; lv++) {
       const b = state.stats.byLevel[lv];
@@ -399,7 +426,7 @@ function ChacklateProgress(catalog, extras) {
     return Math.min(best, maxLevel);
   }
 
-  return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
+  return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished,
     setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage };
 }
 
