@@ -196,4 +196,56 @@ for (const e of campaign.eras) for (let i = 0; i < e.stages.length; i++) PJ.jour
 assert(s.achievements['era-4'] && s.achievements['era-all']);
 assert(catalog.items.filter((i) => i.unlock.type === 'journey').every((i) => PJ.isUnlocked(s, i)));
 
+// Choco Coins: earned by play in fixed amounts with daily limits, spent only on level looks in reach.
+s = PG.fresh();
+assert.strictEqual(s.coins, 0);
+assert.strictEqual(PG.dailyBonus(s, day(10)).coins, 20);
+assert.strictEqual(PG.dailyBonus(s, day(10)).coins, 0, 'one daily bonus a day');
+assert.strictEqual(PG.dailyBonus(s, day(11)).coins, 20, 'a new day, a new bonus');
+s = PG.fresh();
+assert.strictEqual(PG.gameFinished(s, Object.assign({}, win, { plies: 40 }), day(10)).coins, 20, 'a win pays 20');
+assert.strictEqual(PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 40, sans: [] }, day(10)).coins, 10, 'any finished game pays 10');
+assert.strictEqual(PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 2, sans: [] }, day(10)).coins, 0, 'instant resignations pay nothing');
+for (let i = 0; i < 12; i++) PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 40, sans: [] }, day(10));
+assert.strictEqual(s.earned.n.game, 10, 'ten paid games a day');
+assert.strictEqual(PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 40, sans: [] }, day(11)).coins, 10, 'the limit resets the next day');
+// lessons pay once, the daily puzzle once a day
+s = PG.fresh();
+assert(PG.lessonFinished(s, lessons[0], 3, 3, lessons, day(10)).coins >= 25);
+assert.strictEqual(s.earned.by.lesson, 25);
+PG.lessonFinished(s, lessons[0], 3, 3, lessons, day(10));
+assert.strictEqual(s.earned.by.lesson, 25, 'a replayed lesson does not pay again');
+const pz = { id: 'pz-coin', rating: 900 };
+assert(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins >= 30);
+assert.strictEqual(s.earned.by['daily-puzzle'], 30);
+// the generic earn API with a per-source daily cap (mini-games use this)
+s = PG.fresh();
+const got = [1, 2, 3, 4, 5, 6].map(() => PG.earn(s, 'mini:test', 10, { cap: 50, now: day(10) }));
+assert.deepStrictEqual(got, [10, 10, 10, 10, 10, 0]);
+assert.strictEqual(PG.earn(s, 'mini:other', 10, { cap: 50, now: day(10) }), 10, 'caps are per source');
+assert.strictEqual(s.coins, 60);
+// spending: level items only, within two levels, never journey, season, achievement or premium items
+const lvItems = catalog.items.filter((i) => i.unlock.type === 'level').sort((a, b) => a.unlock.level - b.unlock.level);
+for (const t of ['journey', 'season', 'achievement', 'premium', 'free']) for (const it of catalog.items.filter((i) => i.unlock.type === t)) assert.strictEqual(PG.coinPrice(it), null, it.id);
+s = PG.fresh(); s.coins = 100000;
+const far = lvItems.find((i) => i.unlock.level >= 6);
+assert.strictEqual(PG.coinOffer(s, far).reason, 'too-far');
+assert(!PG.buyWithCoins(s, far) && s.coins === 100000);
+const near = lvItems.find((i) => i.unlock.level <= 3);
+assert(!PG.isUnlocked(s, near));
+assert(PG.coinOffer(s, near).ok);
+assert(PG.buyWithCoins(s, near));
+assert(PG.isUnlocked(s, near) && s.coins === 100000 - PG.coinPrice(near));
+assert.strictEqual(PG.coinOffer(s, near).reason, 'owned');
+assert(!PG.buyWithCoins(s, near), 'cannot buy twice');
+s.coins = 10;
+const near2 = lvItems.find((i) => i.unlock.level <= 3 && i !== near);
+assert.strictEqual(PG.coinOffer(s, near2).reason, 'short');
+// old saves gain an empty purse; bought items survive a save
+const back = PG.migrate(JSON.parse(JSON.stringify(s)));
+assert(back.bought.includes(near.id) && back.coins === 10);
+const old = PG.fresh(); delete old.coins; delete old.earned; delete old.bought;
+const mig = PG.migrate(old);
+assert(mig.coins === 0 && Array.isArray(mig.bought) && mig.earned.by);
+
 console.log('progress ok');
