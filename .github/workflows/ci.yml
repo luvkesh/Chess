@@ -41,10 +41,14 @@ jobs:
         run: node apps/web-prototype/test/voice.test.js
       - name: Audio guide lines and clips
         run: node apps/web-prototype/test/guide.test.js
+      - name: Rooky's Collection pitches and clips
+        run: node apps/web-prototype/test/pitch.test.js
       - name: Every tooltip has its text
         run: node apps/web-prototype/test/tips.test.js
       - name: Catalog looks exist in the 3D code
         run: node apps/web-prototype/test/looks.test.js
+      - name: Club places, leagues and location rules
+        run: node apps/web-prototype/test/club.test.js
       - name: Mini-games can be won
         run: node apps/web-prototype/test/minigames.test.js
       - name: Rule book follows the position

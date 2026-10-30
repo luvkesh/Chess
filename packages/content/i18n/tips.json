@@ -26,6 +26,27 @@
   "clock.plain": {
     "en": "{m} minutes|Each player gets {m} minutes for the whole game. No bonus time is added, so keep an eye on your clock! If your time runs out, you usually lose."
   },
+  "collection.coins": {
+    "en": "Acquire|Get it for {n} {coins}."
+  },
+  "collection.equip": {
+    "en": "Equip|Use it from now on."
+  },
+  "collection.pass": {
+    "en": "Acquire|A grown-up can get this with the Season Pass."
+  },
+  "collection.rooky": {
+    "en": "{coach}|Tap to hear what {coach} thinks of it."
+  },
+  "collection.rooky.stop": {
+    "en": "Stop|Tap to stop {coach}."
+  },
+  "collection.store": {
+    "en": "Acquire|A grown-up can get this in the store."
+  },
+  "collection.view": {
+    "en": "View|See it up close and hear {coach} tell you about it."
+  },
   "control.br-more": {
     "en": "Only for grown-ups|Allow 15 more minutes of play today."
   },

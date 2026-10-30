@@ -63,5 +63,23 @@ const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], ro
     fs.writeFileSync(path.join(out, `set-${e.id}.png`), Buffer.from(url.split(',')[1], 'base64'));
     console.log(e.id, 'done');
   }
+  if (!only || only.includes('items')) {
+    // A thumbnail of every set, board and place for the Collect showroom: sets on the era's
+    // velvet (a warm brown for the rest), boards and places as the game's Collection shows them.
+    const catalog = require(path.join(root, 'packages/content/catalog.json'));
+    const eraOf = {}; C.eras.forEach((e) => { eraOf[e.set] = e.id; });
+    const CAT = { pieces: 'sets', board: 'boards', room: 'places' };
+    for (const it of catalog.items) {
+      const cat = CAT[it.category]; if (!cat) continue;
+      const d = it.data, [felt, sheen] = FELT[eraOf[d.set]] || ['#3a2414', '#c8a47a'];
+      const spec = cat === 'sets' ? { kind: 'vignette', felt, sheen, items: [
+        { set: d.set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set: d.set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set: d.set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }
+        : cat === 'boards' ? { kind: 'board', board: d.board } : { kind: 'room', room: d.room };
+      const url = await page.evaluate(([spec]) => window.__view.snapshot(spec, 480, 360), [spec]);
+      if (!url) { console.log('no picture for', it.id); continue; }
+      fs.writeFileSync(path.join(out, `item-${cat}-${it.id.split('.')[1]}.png`), Buffer.from(url.split(',')[1], 'base64'));
+      console.log(it.id, 'done');
+    }
+  }
   await browser.close();
 })();

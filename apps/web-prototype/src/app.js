@@ -43,8 +43,12 @@
     undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
     hint: '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
     flag: '<path d="M4 22V4M4 4h13l-2 4 2 4H4"/>',
+    pin: '<path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+    city: '<path d="M3 21h18M5 21V8l6-3v16M11 21V3l8 4v14"/><path d="M14 9h2M14 13h2M14 17h2M7.5 11h1M7.5 15h1"/>',
+    locate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
     draw: '<path d="M7 12h10M7 8h10M7 16h10"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+    bag: '<path d="M4.5 8h15l-1.3 12.2a2 2 0 0 1-2 1.8H7.8a2 2 0 0 1-2-1.8z"/><path d="M8.5 10.5V7a3.5 3.5 0 0 1 7 0v3.5"/>',
     flip: '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
     cam: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
@@ -511,7 +515,7 @@
     $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
     $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
     $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
-    AU.onTalk((on) => el.classList.toggle('speaking', on));
+    AU.onTalk((on, what) => el.classList.toggle('speaking', on && what !== 'pitch'));
     return el;
   }
   function guideTuck() {
@@ -607,10 +611,10 @@
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
   const NAV = [['home', 'Home', 'home'], ['play', 'Play', 'play'], ['journey', 'Journey', 'journey'], ['learn', 'Learn', 'learn'],
-    ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['profile', 'Profile', 'profile']];
+    ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['club', 'Club', 'users'], ['profile', 'Profile', 'profile']];
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
   const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play' };
-  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play' };
+  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
   const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
@@ -984,6 +988,7 @@
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
       '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>Mini-games</small><b>Six quick games that train one skill each</b></span><span class="go">' + icon('arrow') + '</span></button>' +
+      '<button class="strip glass mini-strip" data-nav="club"><span class="sg gold">' + icon('trophy') + '</span><span style="flex:1"><small>The Club</small><b>Rankings, leagues and your friends</b></span><span class="go">' + icon('arrow') + '</span></button>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
@@ -1414,6 +1419,46 @@
   const CAT_ORDER = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock', 'sound'];
   const CAT_ICON = { pieces: 'pawn', board: 'grid', room: 'home', avatar: 'profile', frame: 'frame', capture: 'sparkle', victory: 'trophy', trail: 'wave', clock: 'clock', sound: 'speaker' };
   const eraOfRoom = (r) => CAMPAIGN.eras.find((e) => e.room === r) || null;
+  // Acquire: things a grown-up can get in the store (Premium, and the Season Pass track). Everything
+  // else is earned, and the pop-over says how instead.
+  const canAcquire = (it) => it.unlock.type === 'premium' || (it.unlock.type === 'season' && it.unlock.track === 'pass');
+  const coinsNow = (it) => PG.coinOffer(state.progress, it).ok;   // a level reward in reach of the player's Choco Coins
+  function acquire(it, after) {
+    if (coinsNow(it)) buyWithCoins(it, after); else if (it.unlock.type === 'season') go('season'); else go('store');
+  }
+  // How to get an earned item, in a child's words, and where to go to do it.
+  function howToGet(it) {
+    const u = it.unlock, P = state.progress;
+    if (u.type === 'level') return { text: 'Reach level ' + u.level + '. You are level ' + PG.levelFor(P.xp).level + ' now, and every game, lesson and puzzle helps.', go: ['play'], label: 'Play a game' };
+    if (u.type === 'achievement') {
+      const a = PG.ACHIEVEMENTS.find((x) => x.id === u.achievement);
+      return { text: a ? 'Earn the ' + a.name + ' badge: ' + a.desc : PG.unlockText(it) + '.', go: ['play'], label: 'Play a game' };
+    }
+    if (u.type === 'journey') {
+      const e = eraById(u.era);
+      return { text: e ? 'Beat ' + eraCoach(e).name + ', the champion of ' + e.name + ', on The Journey.' : PG.unlockText(it) + '.', go: e ? ['era', e.id] : ['journey'], label: 'Go there' };
+    }
+    if (u.type === 'season') return { text: 'Reach tier ' + u.tier + ' of the season' + (u.track === 'pass' ? ' with the Season Pass' : '') + '. Missions and games move you up.', go: ['season'], label: 'See the season' };
+    if (u.type === 'premium') return { text: 'This comes with Premium. Ask a grown-up to have a look.', go: ['store'], label: 'Ask a grown-up' };
+    return { text: 'It is yours already.', go: null };
+  }
+  function equipItem(it) {
+    if (!PG.equip(state.progress, it)) return false;
+    save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); renderNav();
+    return true;
+  }
+  // The round drawn buttons on a card: View always, then Equip or Acquire when they apply.
+  function cardActs(it, un, on) {
+    const b = (act, ic, label, tip) => '<button class="round sm" data-act="' + act + '" aria-label="' + esc(label) + '" title="' + esc(tip) + '">' + icon(ic) + '</button>';
+    return b('view', 'eye', 'View ' + it.name, tip('collection.view', { coach: COACH.name })) +
+      (un && !on ? b('equip', 'check', 'Equip ' + it.name, tip('collection.equip')) : '') +
+      (!un && coinsNow(it) ? b('get', 'bag', 'Acquire ' + it.name, tip('collection.coins', { n: PG.coinPrice(it).toLocaleString('en-IN'), coins: PG.COIN_NAME })) :
+        !un && canAcquire(it) ? b('get', 'bag', 'Acquire ' + it.name, tip(it.unlock.type === 'season' ? 'collection.pass' : 'collection.store')) : '');
+  }
+  // What Rooky says about each item (packages/content/pitches.json): the clip and its words.
+  const PITCH = typeof CHACKLATE_PITCH !== 'undefined' ? CHACKLATE_PITCH : {};
+  let pitchTalk = null;   // the open pop-over hears when Rooky stops, or someone else starts talking
+  AU.onTalk((on, what) => { if (pitchTalk) pitchTalk(on, what); });
   function soundArt(pack) {
     const h = { wood: [5, 9, 6, 11, 7, 4, 8, 10, 6, 4], soft: [3, 5, 4, 6, 5, 3, 4, 5, 3, 2], marble: [8, 12, 7, 13, 9, 6, 11, 12, 8, 5], glass: [6, 10, 13, 8, 12, 9, 13, 7, 10, 6] }[pack] || [5, 8, 6, 9, 7, 5, 8, 9, 6, 4];
     const bars = h.map((v, i) => '<rect x="' + (38 + i * 13) + '" y="' + (80 - v * 3.6) + '" width="7" height="' + (v * 7.2) + '" rx="3.5" fill="url(#g)"/>').join('');
@@ -1475,18 +1520,19 @@
         (filter === 'all' || (filter === 'owned') === PG.isUnlocked(P, i)));
       $('items').innerHTML = items.length ? items.map((it) => {
         const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
-        return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
+        return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="View ' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
           '<span class="rar ' + it.rarity + '">' + it.rarity + '</span>' +
           '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(it.desc) + '</span><span class="st">' +
           (un ? '<span>' + (on ? icon('check') + ' Equipped' : 'Owned') + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
-          '<button class="round sm eye" data-peek="' + it.id + '" aria-label="Try ' + esc(it.name) + ' on the table" title="Try it on the table">' + icon('eye') + '</button></span></div></div>';
+          '<span class="acts">' + cardActs(it, un, on) + '</span></span></div></div>';
       }).join('') : '<p class="muted">Nothing here yet. Try another search.</p>';
       hydrate($('items'), true);
+      // JongClub's cards: round drawn buttons (View, Acquire, Equip), and the whole card opens View.
       $('items').querySelectorAll('.item').forEach((el) => {
         el.onclick = (e) => {
-          const it = PG.item(el.dataset.item);
-          AU.play('tap');
-          if (e.target.closest('[data-peek]')) peek(it); else itemModal(it, render, items);
+          const it = PG.item(el.dataset.item), act = e.target.closest('[data-act]');
+          AU.play('tap'); AU.unlock();
+          if (act && act.dataset.act === 'equip') { equipItem(it); render(); } else if (act && act.dataset.act === 'get') acquire(it, render); else itemModal(it, render, items);
         };
       });
       $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, 'collected');
@@ -1504,10 +1550,40 @@
     list = list && list.includes(it) ? list : [it];
     let at = list.indexOf(it), live = null;
     const many = list.length > 1;
-    const m = modal('<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
+    // Rooky's round face sits by the close button, like JongClub's narrator: he says his piece about
+    // each item as it opens (if the voice is on), his face pulses while he talks, and a tap on it
+    // says it again or stops him. The speaker beside it is the game's one voice switch.
+    const m = modal('<div class="mu-rooky"><button class="narrator" id="mu-say"><img src="' + face(COACH) + '" alt=""></button>' +
+      '<button class="gd-btn" id="mu-voice" data-voice="' + esc(COACH.name) + '"></button></div>' +
+      '<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
       (many ? '<button class="round mu-nav prev" aria-label="Previous item">' + icon('prev') + '</button><button class="round mu-nav next" aria-label="Next item">' + icon('next') + '</button><span class="mu-count" id="mu-count"></span>' : '') +
-      '</div><div id="mu-info"></div></div>', { cls: 'wide', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); } });
-    const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info');
+      '</div><div id="mu-info"></div></div>', { cls: 'wide museum-card', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); quiet(); pitchTalk = null; } });
+    const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info'), sayBtn = m.querySelector('#mu-say');
+    let talk = 0, talkingNow = false;
+    function talkState(on) {
+      talkingNow = on;
+      m.querySelector('.mu-rooky').classList.toggle('speaking', on);
+      sayBtn.setAttribute('aria-label', on ? 'Stop ' + COACH.name : 'Hear ' + COACH.name + ' again');
+      sayBtn.title = tip(on ? 'collection.rooky.stop' : 'collection.rooky', { coach: COACH.name });
+    }
+    pitchTalk = (on, what) => { if ((!on || what !== 'pitch') && talkingNow) talkState(false); };
+    function pitch(it) {
+      const p = PITCH[it.id];
+      const my = ++talk;
+      if (!p || !state.settings.narration || !AU.canTalk()) { talkState(false); return; }
+      talkState(true);
+      AU.pitch(p.src, p.text).then(() => { if (my === talk) talkState(false); });
+    }
+    function quiet() { talk++; if (talkingNow) { AU.hush(); talkState(false); } }
+    sayBtn.onclick = () => {
+      AU.unlock();
+      if (talkingNow) { quiet(); return; }
+      if (!state.settings.narration) setVoice(true, true);
+      pitch(list[at]);
+    };
+    m.querySelector('#mu-voice').onclick = () => { AU.unlock(); talk++; setVoice(!state.settings.narration, true); if (state.settings.narration) pitch(list[at]); else talkState(false); };
+    voiceIcon(m.querySelector('#mu-voice'), COACH.name);
+    talkState(false);
     function fill(it, dir) {
       const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
       const offer = un ? null : PG.coinOffer(P, it);
@@ -1518,10 +1594,14 @@
         '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
         (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
           '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
+        (PITCH[it.id] ? '<p class="mu-quote"><b>' + esc(COACH.name) + ':</b> “' + esc(PITCH[it.id].text) + '”</p>' : '') +
         '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
         (offer && offer.price !== null ? '<p class="fine">' + icon('coin') + ' ' + (offer.reason === 'too-far' ? 'Can be bought for ' + coinCount(offer.price) + ' from level ' + Math.max(1, it.unlock.level - PG.COIN_REACH) + '.' : offer.ok ? 'Or buy it now for ' + coinCount(offer.price) + '.' : 'Or buy it for ' + coinCount(offer.price) + ' (' + offer.short.toLocaleString('en-IN') + ' more to go).') + '</p>' : '') +
-        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
-        (offer && offer.ok ? '<button class="btn gold" id="mu-coin">' + icon('coin') + ' Buy for ' + offer.price.toLocaleString('en-IN') + '</button>' : '') +
+        '<div class="mu-how" id="mu-how" hidden></div>' +
+        '<div class="row" style="justify-content:flex-start">' +
+        (un ? (on ? '' : '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>') :
+          offer && offer.ok ? '<button class="btn gold" id="mu-coin">' + icon('coin') + ' Acquire for ' + offer.price.toLocaleString('en-IN') + '</button>' :
+          canAcquire(it) ? '<button class="btn primary" id="mu-get">' + icon('bag') + ' Acquire</button>' : '<button class="btn primary" id="mu-howbtn" aria-expanded="false">' + icon('hint') + ' How to get it</button>') +
         '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
       if (many) m.querySelector('#mu-count').textContent = (at + 1) + ' of ' + list.length;
@@ -1546,10 +1626,25 @@
         };
       });
       const eq = info.querySelector('#mu-eq');
-      if (eq) eq.onclick = () => { PG.equip(P, it); save(); applyLook(); AU.play('select'); toast('Equipped ' + esc(it.name)); m.close(); renderNav(); if (after) after(); };
+      if (eq) eq.onclick = () => { equipItem(it); m.close(); if (after) after(); };
+      const get = info.querySelector('#mu-get');
+      if (get) get.onclick = () => { m.close(); acquire(it); };
+      const how = info.querySelector('#mu-howbtn');
+      if (how) {
+        how.onclick = () => {
+          const h = howToGet(it), box = info.querySelector('#mu-how');
+          AU.play('tap');
+          if (!box.hidden) { box.hidden = true; how.setAttribute('aria-expanded', 'false'); return; }
+          box.innerHTML = '<p>' + esc(h.text) + '</p>' + (h.go ? '<button class="btn small" id="mu-go">' + esc(h.label) + ' ' + icon('arrow') + '</button>' : '');
+          box.hidden = false; how.setAttribute('aria-expanded', 'true');
+          const g = box.querySelector('#mu-go');
+          if (g) g.onclick = () => { m.close(); go(...h.go); };
+        };
+      }
       info.querySelector('#mu-try').onclick = () => { m.close(); peek(it); };
       const cb = info.querySelector('#mu-coin');
       if (cb) cb.onclick = () => buyWithCoins(it, () => { fill(it, 0); if (after) after(); });
+      pitch(it);
     }
     function step(dir) {
       if (!many) return;
@@ -1627,6 +1722,171 @@
     const what = e.premium ? (e.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(e.premiumUntil).toLocaleDateString()) : (e.passes || []).length ? 'Free plan with a Season Pass' : 'Free plan';
     return '<div class="acct-row"><span class="sg gold">' + icon('crown') + '</span><span style="flex:1"><b>' + esc(what) + '</b><br><small class="muted">Purchases belong to your online account.</small></span><button class="btn small gold" id="pf-store">Store</button></div>';
   }
+
+
+  // ---------------------------------------------------------------- the Club
+  // Rankings, leagues, friends and who is here now, like Jong Club's Club (src/club.js has the data).
+  const LEAGUE_HUE = { Beginner: ['#b9bec9', '#5d6270'], Bronze: ['#e6a26a', '#7a3f16'], Silver: ['#eef1f6', '#7d8494'], Gold: ['#ffe08a', '#a8761c'],
+    Platinum: ['#c9f2ec', '#3f8c86'], Diamond: ['#cfe2ff', '#3a64b8'], Master: ['#ffb3c8', '#8a1f45'] };
+  // A small enamel medal for a league: a ringed disc in the league's metal with a star.
+  function leagueBadge(name, size) {
+    const [a, b] = LEAGUE_HUE[name] || LEAGUE_HUE.Beginner, id = 'lg' + name;
+    return '<svg class="lg-badge" width="' + size + '" height="' + size + '" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient></defs>' +
+      '<circle cx="20" cy="20" r="18" fill="url(#' + id + ')" stroke="rgba(255,240,200,.55)" stroke-width="1.5"/><circle cx="20" cy="20" r="13" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>' +
+      '<path d="M20 10.5l2.8 6.1 6.6.6-5 4.4 1.5 6.5L20 24.7l-5.9 3.4 1.5-6.5-5-4.4 6.6-.6z" fill="rgba(255,255,255,.85)" stroke="rgba(0,0,0,.25)" stroke-width=".8"/></svg>';
+  }
+  const rankMedal = (n) => n <= 3 ? '<span class="cl-rk medal m' + n + '" aria-label="' + n + '">' + n + '</span>' : '<span class="cl-rk">' + n + '</span>';
+  const initial = (name) => '<span class="cl-av init" aria-hidden="true">' + esc(String(name || '?').trim().charAt(0).toUpperCase() || '?') + '</span>';
+  function clubAvatar(r) {
+    if (r.me) return avatarHtml('sm');
+    if (r.ai && r.member) return '<img class="cl-av" src="' + medal('piece:' + r.member.piece, r.member.from, r.member.to) + '" alt="">';
+    return initial(r.name);
+  }
+  const placeText = (country, city) => (country ? ChacklateClub.flag(country) + ' ' : '') + esc(city || (country ? ChacklateClub.countryName(country) : ''));
+  const clubView = { pool: 'blitz', scope: 'global' };
+  SCREENS.club = function () {
+    idleBoard();
+    const C = ChacklateClub;
+    C.autoLocate();
+    const SCOPES = [['global', 'Global', 'globe'], ['country', 'Country', 'pin'], ['city', 'City', 'city'], ['following', 'Following', 'users']];
+    mount('<div class="page"><div class="page-in club">' +
+      pageHead('Club', 'Friends, rankings and leagues', 'Climb the leagues in bullet, blitz and rapid, see who plays near you, and keep the friends you make with a code.', '<button class="pill gold" id="cl-where">' + icon('pin') + ' <span id="cl-where-t"></span></button>') +
+      '<section class="cl-now glass"><div class="cl-head"><h3>In the club now</h3><p id="cl-now-note" class="muted"></p></div><div class="cl-people" id="cl-people"></div></section>' +
+      '<div class="cl-split">' +
+      '<section class="cl-panel glass cl-rankings"><div class="cl-head"><h3>Rankings</h3></div>' +
+      '<div class="seg cl-pools" role="radiogroup" aria-label="Pool">' + C.POOLS.map((p) => '<label><input type="radio" name="clp" value="' + p + '"' + (p === clubView.pool ? ' checked' : '') + '><span>' + p.charAt(0).toUpperCase() + p.slice(1) + '</span></label>').join('') + '</div>' +
+      '<div class="cl-filters" role="radiogroup" aria-label="Who" id="cl-filters"></div>' +
+      '<div class="cl-board" role="table" aria-label="Rankings" id="cl-board"></div><p class="cl-note" id="cl-note"></p></section>' +
+      '<div class="cl-side">' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>Leagues</h3><small class="muted" id="cl-lg-pool"></small></div><ol class="cl-tiers" id="cl-tiers"></ol><div id="cl-next"></div></section>' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>Friends</h3><span class="pill" id="cl-fr-n" hidden></span></div><div id="cl-friends"><p class="muted">Loading…</p></div></section>' +
+      '<section class="cl-panel glass" id="cl-loc-panel"><div class="cl-head"><h3>Your place</h3></div><div id="cl-loc"></div></section>' +
+      '</div></div></div></div>');
+    wireLinks();
+    let alive = true, seq = 0;
+
+    function renderWhere() {
+      const p = C.place();
+      $('cl-where-t').innerHTML = p.country ? placeText(p.country, p.city) : 'Set your place';
+    }
+    function renderFilters() {
+      const p = C.place();
+      const label = { country: p.country ? ChacklateClub.flag(p.country) + ' ' + esc(C.countryName(p.country)) : 'Country', city: esc(p.city || 'City') };
+      $('cl-filters').innerHTML = SCOPES.map(([k, t, ic]) => '<button role="radio" aria-checked="' + (k === clubView.scope) + '" class="' + (k === clubView.scope ? 'on' : '') + '" data-scope="' + k + '">' +
+        icon(ic) + '<span>' + (label[k] || t) + '</span></button>').join('');
+      $('cl-filters').querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { AU.play('tap'); clubView.scope = b.dataset.scope; renderFilters(); loadBoard(); }; });
+    }
+    function renderPeople(now) {
+      const people = now.people;
+      const live = people.filter((x) => x.live).length;
+      $('cl-now-note').innerHTML = (live ? live + (live === 1 ? ' player' : ' players') + ' here with you, and AI players dropping by. ' : 'AI players dropping by right now. ') +
+        '<span class="pill">' + icon('sparkle') + ' AI players are labelled</span>';
+      $('cl-people').innerHTML = people.map((x) => {
+        const f = x.ai && C.following(x.id);
+        return '<div class="cl-person' + (x.live ? ' live' : '') + '">' + clubAvatar(x) +
+          '<div class="cl-pmain"><div class="cl-pname">' + esc(x.name) + (x.live ? '<span class="cl-tag live">' + (x.friend ? 'Friend' : 'Live') + '</span>' : '<span class="cl-tag ai">AI player</span>') + '</div>' +
+          '<div class="cl-pmeta">' + placeText(x.country, x.ai ? x.city : null) + ' · ' + esc(x.league) + (x.playing ? ' · at a table' : '') + '</div></div>' +
+          (x.ai ? '<button class="cl-follow' + (f ? ' on' : '') + '" aria-pressed="' + f + '" data-follow="' + esc(x.id) + '">' + icon(f ? 'check' : 'users') + '<span>' + (f ? 'Following' : 'Follow') + '</span></button>' : '') + '</div>';
+      }).join('');
+      $('cl-people').querySelectorAll('[data-follow]').forEach((b) => {
+        b.onclick = () => {
+          AU.play('tap');
+          const on = C.toggleFollow(b.dataset.follow);
+          b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+          b.innerHTML = icon(on ? 'check' : 'users') + '<span>' + (on ? 'Following' : 'Follow') + '</span>';
+          if (clubView.scope === 'following') loadBoard();
+        };
+      });
+    }
+    function renderLeagues(me) {
+      const rating = me ? me.rating : C.myRating(clubView.pool), mine = C.leagueOf(rating);
+      $('cl-lg-pool').textContent = clubView.pool.charAt(0).toUpperCase() + clubView.pool.slice(1);
+      $('cl-tiers').innerHTML = C.LEAGUES.map(([n, min]) => '<li class="' + (n === mine ? 'on' : '') + '">' + leagueBadge(n, 30) + '<b>' + n + '</b><small>' + (n === mine ? 'You · ' + rating : min ? min + '+' : '') + '</small></li>').join('');
+      const i = C.LEAGUES.findIndex(([n]) => n === mine);
+      if (i <= 0) { $('cl-next').innerHTML = '<p class="cl-next-done">' + icon('crown') + ' The top league. Well played!</p>'; return; }
+      const [next, at] = C.LEAGUES[i - 1], from = C.LEAGUES[i][1];
+      const pct = Math.max(2, Math.min(100, Math.round((rating - from) / Math.max(1, at - from) * 100)));
+      $('cl-next').innerHTML = '<div class="cl-next">' + leagueBadge(next, 40) + '<div><p>Next league: <b>' + next + '</b> at ' + at + '</p><div class="bar"><i style="width:' + pct + '%"></i></div><small class="muted">' + (at - rating) + ' rating to go, in timed world games</small></div></div>';
+    }
+    function boardNote(res) {
+      const n = res.needs;
+      if (n === 'country') return 'Choose your country under Your place to see players near you.';
+      if (n === 'city') return 'Choose your city under Your place to see players near you.';
+      if (n === 'account') return 'Sign in under Profile to see your friends here.';
+      const me = res.me;
+      let t = me && me.rank ? 'You are ' + ordinal(me.rank) + ' of ' + res.total + '. ' : '';
+      if (clubView.scope === 'following' && res.rows.filter((r) => !r.me).length === 0) t = 'Play a friend with a code and they appear here. You can follow AI players too. ';
+      t += 'Ratings move only in timed world games.';
+      if (!res.live) t += ' Until the Chackmate server opens, the club is filled with AI players, and your rating is kept on this device.';
+      return t;
+    }
+    async function loadBoard() {
+      const my = ++seq;
+      $('cl-board').innerHTML = '<p class="muted cl-loading">Loading…</p>';
+      let res;
+      try { res = await C.board(clubView.pool, clubView.scope); } catch (e) { if (alive && my === seq) { $('cl-board').innerHTML = ''; $('cl-note').textContent = e.message; } return; }
+      if (!alive || my !== seq) return;
+      renderPeople(res.now);
+      renderLeagues(res.me);
+      $('cl-board').innerHTML = res.needs ? '' :
+        '<div class="cl-row head" role="row">' + ['#', 'Player', 'Place', 'League', 'Rating'].map((h, i) => '<span role="columnheader"' + (['', '', ' class="cl-loc"', ' class="cl-lg"', ' class="num"'][i]) + '>' + h + '</span>').join('') + '</div>' +
+        res.rows.map((r, i) => (i && r.rank > res.rows[i - 1].rank + 1 ? '<div class="cl-gap" aria-hidden="true">⋯</div>' : '') + '<div class="cl-row' + (r.me ? ' me' : '') + '" role="row">' + rankMedal(r.rank) +
+          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm">' + esc(r.name) + (r.me && r.name !== 'You' ? ' <em>(you)</em>' : '') + (r.ai ? '<span class="cl-tag ai">AI</span>' : r.friend ? '<span class="cl-tag live">Friend</span>' : '') + '</span></span>' +
+          '<span class="cl-loc">' + placeText(r.country, r.city) + '</span>' +
+          '<span class="cl-lg">' + leagueBadge(r.league, 20) + '<span>' + esc(r.league) + '</span></span>' +
+          '<span class="num">' + r.rating + (r.provisional ? '?' : '') + '</span></div>').join('');
+      $('cl-note').innerHTML = boardNote(res);
+    }
+    async function loadFriends() {
+      const list = await C.friends();
+      if (!alive) return;
+      const n = $('cl-fr-n');
+      n.hidden = !list.length; n.textContent = list.length + (list.length === 1 ? ' friend' : ' friends');
+      $('cl-friends').innerHTML = list.length ? '<div class="cl-friend-list">' + list.map((f) => '<div class="cl-friend">' + initial(f.name) +
+        '<div class="cl-pmain"><div class="cl-pname">' + esc(f.name) + (f.online ? '<span class="cl-tag live">Online</span>' : '') + '</div><div class="cl-pmeta">' + (f.country ? placeText(f.country) + ' · ' : '') +
+        'Played together · ' + new Date(f.since).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + '</div></div>' +
+        '<button class="round sm" data-unfriend="' + esc(String(f.id)) + '" aria-label="Remove ' + esc(f.name) + '" title="Remove">' + icon('x') + '</button></div>').join('') + '</div>' +
+        '<button class="btn small" id="cl-play-friend">' + icon('users') + ' Play a friend</button>'
+        : '<div class="cl-empty">' + icon('users') + '<p>Friends you play with a code appear here. Codes are shared in person, so only people you know can be your friends.</p><button class="btn small primary" id="cl-play-friend">' + icon('users') + ' Play a friend</button></div>';
+      $('cl-play-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+      $('cl-friends').querySelectorAll('[data-unfriend]').forEach((b) => {
+        b.onclick = () => {
+          const f = list.find((x) => String(x.id) === b.dataset.unfriend);
+          const m = modal('<h2>Remove ' + esc(f.name) + '?</h2><p class="sub">You can be friends again by playing with a new code.</p><div class="row"><button class="btn" data-close>Keep</button><button class="btn warn" id="uf-go">Remove</button></div>');
+          m.querySelector('#uf-go').onclick = async () => { m.close(); await C.removeFriend(f.id); loadFriends(); if (clubView.scope === 'following') loadBoard(); };
+        };
+      });
+    }
+    function renderLoc(busy, msg) {
+      const p = C.place();
+      const NOTE = { tz: 'A guess from your time zone.', manual: 'Chosen by you.', gps: 'From your device\'s location, matched to the nearest city. Your exact position is never kept.' };
+      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="Country">' + (p.country ? '' : '<option value="">Choose your country</option>') +
+        C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + C.flag(cc) + ' ' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
+        (p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="City">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
+        ('<button class="round" id="cl-gps" aria-label="Use my location" title="Use my location"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
+        '<p class="fine">' + (busy ? 'Finding you…' : msg || (p.source ? NOTE[p.source] : 'Choose your country for the local rankings.')) +
+        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">Guess from my time zone</button>' : '') + '</p>';
+      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
+      const city = $('cl-city'); if (city) city.onchange = (e) => { C.setPlace({ country: p.country, city: e.target.value, source: 'manual' }); renderAll(); };
+      const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your time zone did not tell us a place, so we kept your choice.'); };
+      const gp = $('cl-gps');
+      if (gp) gp.onclick = async () => {
+        renderLoc(true);
+        const g = await C.gps();
+        if (!alive) return;
+        if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your device did not share its location, so we kept ' + esc(p.city || 'your choice') + '.');
+      };
+    }
+    function renderAll() { renderWhere(); renderFilters(); renderLoc(); loadBoard(); }
+    $('cl-where').onclick = () => { $('cl-loc-panel').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    document.querySelectorAll('input[name=clp]').forEach((r) => { r.onchange = () => { AU.play('tap'); clubView.pool = r.value; loadBoard(); }; });
+    renderAll();
+    loadFriends();
+    // Who is here changes: refresh "In the club now" and the board every 20 seconds.
+    const timer = setInterval(() => { if (!document.querySelector('.modal')) loadBoard(); }, 20000);
+    return { leave() { alive = false; clearInterval(timer); } };
+  };
+  const ordinal = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
 
   // ---------------------------------------------------------------- season
   function seasonSwatch(it) {
@@ -3024,7 +3284,7 @@
         pool.forEach((p) => ex.push({ type: 'puzzle', prompt: x.prompt, puzzle: p }));
       } else ex.push(x);
     }
-    const S = { phase: test ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, t0: Date.now() };
+    const S = { phase: test ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, talk: 0, t0: Date.now() };
     // a lesson opened from the rule book goes back to the game it came from
     const toGame = arg && arg.back === 'game' && state.game ? state.game : null;
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? 'Back to the game' : era ? era.name : 'Learn') + '</span></button>' +
@@ -3046,7 +3306,13 @@
     const speak = (now) => {
       if (test) { const key = S.phase === 'ex' && ex[S.i] ? 'placement.' + ex[S.i].id : null; if (key) guideSay(key, { force: true }); return; }
       const t = S.phase === 'steps' ? L.steps[S.i].say : S.phase === 'ex' ? ex[S.i] && ex[S.i].prompt : null;
-      const say = () => { if (t && state.settings.narration) AU.say(t); };
+      const w = S.phase === 'steps' && L.steps[S.i].word, run = ++S.talk;
+      // A lesson with its own speakers: Rooky says the line, then Priya says the word in Hindi.
+      const say = () => {
+        if (!t || !state.settings.narration) return;
+        if (!L.voice) { AU.say(t); return; }
+        AU.words(L.voice, t).then(() => { if (w && run === S.talk && state.screen === 'lesson' && state.settings.narration) AU.words('priya', w.hi); });
+      };
       const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
       if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
       if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
@@ -3068,6 +3334,12 @@
         setTimeout(stepPlay, 700);
       } else if (cb) cb();
     }
+    // A word at the table: the English that Rooky says beside the Hindi that Priya says. Tap either to hear it.
+    function tableWord(w) {
+      return '<div class="tw">' +
+        '<button class="tw-en" data-word="' + esc(L.voice) + '" data-text="' + esc(w.en) + '" aria-label="Hear ' + esc(w.en) + '">' + icon('speaker') + '<b>' + esc(w.en) + '</b>' + (w.note ? '<small>' + esc(w.note) + '</small>' : '') + '</button>' +
+        '<button class="tw-hi" data-word="priya" data-text="' + esc(w.hi) + '" aria-label="Hear it in Hindi: ' + esc(w.latin) + '">' + icon('speaker') + '<b lang="hi">' + esc(w.hi) + '</b><small>' + esc(w.latin) + '</small></button></div>';
+    }
     function dots() {
       const total = L.steps.length + ex.length;
       let html = '';
@@ -3082,7 +3354,12 @@
     function renderStep() {
       const st = L.steps[S.i];
       $('ls-phase').textContent = 'Lesson · ' + (S.i + 1) + ' of ' + L.steps.length;
-      $('ls-content').innerHTML = '<p class="say">' + esc(st.say) + '</p>' + (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
+      $('ls-content').innerHTML = '<p class="say">' + esc(st.say) + '</p>' + (st.word ? tableWord(st.word) : '') +
+        (st.glossary ? '<div class="tw-list">' + L.steps.filter((x) => x.word).map((x) => tableWord(x.word)).join('') + '</div>' : '') +
+        (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
+      document.querySelectorAll('#ls-content [data-word]').forEach((b) => {
+        b.onclick = () => { AU.unlock(); S.talk++; AU.words(b.dataset.word, b.dataset.text); };
+      });
       $('ls-prev').disabled = S.i === 0;
       $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Start the exercises' : 'Next';
       setHooks({});

@@ -14,6 +14,7 @@ import pathlib
 import re
 import subprocess
 import urllib.parse
+from html.parser import HTMLParser
 
 here = pathlib.Path(__file__).parent
 root = here.parent.parent
@@ -25,6 +26,17 @@ MUSIC = {'nile': 'Harp', 'athens': 'Lyre', 'roma': 'Horns', 'mughal': 'Sitar', '
          'venice': 'Harpsichord', 'paris': 'Harp', 'winter': 'Celesta', 'deco': 'Electric piano'}
 # Strength of each animal friend, matching the engine's levels.
 RANGES = ['250–500', '500–800', '800–1100', '1100–1400', '1400–1700', '1700–2000', '2000–2300', 'Full strength']
+# One short line on how each friend plays, from their blurb in campaign.json.
+PLAYS = {
+    'truffle': 'Brand new, and leaves pieces where you can take them.',
+    'bramble': 'Builds calmly, one piece at a time, and avoids tricks.',
+    'zippy': 'Races into attack, sometimes a little too fast.',
+    'shelly': 'Defends well and loves a long, patient endgame.',
+    'rocco': 'Sets sneaky traps. Look twice before you grab a piece!',
+    'ivy': 'Sees far across the board and makes patient plans.',
+    'onyx': 'Calculates deeply and loves a surprise sacrifice.',
+    'ember': 'Thinks the longest and plays the very best moves.',
+}
 STAGES = {'tale': 'Story', 'lesson': 'Lesson', 'puzzles': 'Puzzles', 'endgame': 'Endgame', 'champion': 'Champion'}
 # The world wonder each era's table looks out on.
 LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome': 'The Colosseum', 'mughal': 'The Taj Mahal',
@@ -82,7 +94,7 @@ def site_data():
             'music': MUSIC[e['room']],
         })
     opponents = [{'id': o['id'], 'name': o['name'], 'animal': o['animal'].replace('redpanda', 'red panda').capitalize(),
-                  'range': RANGES[o['level']], 'blurb': o['blurb']} for o in campaign['opponents']]
+                  'range': RANGES[o['level']], 'blurb': o['blurb'], 'plays': PLAYS[o['id']]} for o in campaign['opponents']]
     cats = {}
     for i in catalog['items']:
         cats[i['category']] = cats.get(i['category'], 0) + 1
@@ -90,8 +102,46 @@ def site_data():
         'eras': len(eras), 'lessons': len(load('lessons.json')['lessons']), 'puzzles': len(load('puzzles.json')),
         'openings': len(load('openings.json')['openings']), 'endgames': len(load('endgames.json')['endgames']),
         'items': len(catalog['items']), 'sets': cats['pieces'], 'boards': cats['board'], 'rooms': cats['room'],
+        'tiers': load('seasons.json')['seasons'][0]['tiers'],
     }
-    return eras, opponents, counts, campaign['coach']
+    return eras, opponents, counts, campaign['coach'], showroom(campaign, catalog)
+
+
+ACHIEVEMENTS = {'beat-wall': 'Beat Shelly the Tortoise', 'streak-7': 'Play seven days in a row'}
+
+
+def showroom(campaign, catalog):
+    """Every set, board and place for the Collect showroom: name, era line, material note, how you get it."""
+    eras = {e['id']: e for e in campaign['eras']}
+    season = {x['id']: x['name'] for x in load('seasons.json')['seasons']}
+    tints = set_tints()
+    out = {'sets': [], 'boards': [], 'places': []}
+    for it in catalog['items']:
+        cat = {'pieces': 'sets', 'board': 'boards', 'room': 'places'}.get(it['category'])
+        if not cat:
+            continue
+        u, line, how, icon = it['unlock'], 'A Chackmate classic', '', 'gift'
+        if u['type'] == 'free':
+            how = 'Yours from the start'
+        elif u['type'] == 'level':
+            how, icon = 'Reach level %d' % u['level'], 'star'
+        elif u['type'] == 'journey':
+            e = eras[u['era']]
+            line, icon = '%s · %s' % (e['name'], e['when']), 'trophy'
+            how = 'Beat %s in %s' % (e['coach']['full'], e['place'].split(',')[0]) + (' · Premium' if e['access'] == 'premium' else '')
+        elif u['type'] == 'premium':
+            line, how, icon = 'The Premium collection', 'Premium', 'crown'
+        elif u['type'] == 'season':
+            line, icon = '%s season' % season[u['season']], 'leaf'
+            how = '%s season, free track' % season[u['season']] if u['track'] == 'free' else '%s season pass' % season[u['season']]
+        elif u['type'] == 'achievement':
+            how, icon = ACHIEVEMENTS[u['achievement']], 'trophy' if u['achievement'].startswith('beat') else 'flame'
+        d = it['data']
+        tint = tints.get(d.get('set') or '', '#6a4a2c') if cat == 'sets' else {'boards': '#5a3c22', 'places': '#2c3a52'}[cat]
+        felt = FELT.get(u.get('era'), ('#3a2414', '#c8a47a')) if cat == 'sets' else None
+        out[cat].append({'tint': mix(tint, '#000000', 0.35), 'glow': mix(tint, '#ffffff', 0.18), 'felt': felt, 'key': 'item-%s-%s' % (cat, it['id'].split('.')[1]), 'name': it['name'], 'desc': it['desc'], 'line': line, 'how': how, 'icon': icon,
+                         'set': d.get('set'), 'board': d.get('board'), 'room': d.get('room'), 'era': u.get('era')})
+    return out
 
 
 def data_uri(path):
@@ -104,7 +154,7 @@ def guide(coach, eras):
     lines = json.loads((here / 'guide.json').read_text())['lines']
     recorded = json.loads((here / 'audio' / 'index.json').read_text())['lines']
     for e in eras:
-        assert 'set-' + e['id'] in lines, 'guide.json has no pitch for the %s set (set-%s)' % (e['id'], e['id'])
+        assert 'item-sets-' + e['set']['id'] in lines, 'guide.json has no pitch for item-sets-' + e['set']['id']
     out = {}
     for key, line in lines.items():
         text = line.replace('{coach}', coach)
@@ -114,12 +164,76 @@ def guide(coach, eras):
     return out
 
 
+# The site's languages. English text is the key; i18n/<code>.json maps it to the translation.
+LANGS = [('en', 'English'), ('hi', 'हिन्दी')]
+SEP = re.compile(r' · |, |: ')
+
+
+class Texts(HTMLParser):
+    """Every piece of text the visitor can read in the built page: text nodes and the labels a screen reader or tooltip shows."""
+    ATTRS = ('aria-label', 'alt', 'title', 'data-tip', 'placeholder')
+
+    def __init__(self):
+        super().__init__()
+        self.out, self.skip = set(), []
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag in ('script', 'style') or 'data-no-i18n' in a:
+            self.skip.append(tag)
+        elif not self.skip:
+            for k in self.ATTRS:
+                for part in (a.get(k) or '').split('|'):
+                    self.add(part)
+
+    def handle_endtag(self, tag):
+        if self.skip and self.skip[-1] == tag:
+            self.skip.pop()
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.add(data)
+
+    def add(self, text):
+        text = ' '.join(text.split())
+        if re.search('[A-Za-z]', text):
+            self.out.add(text)
+
+
+def i18n(page, eras, opponents, collection, guide_lines, keep):
+    """Each translation, with a report of the English the build found and the file does not cover."""
+    t = Texts()
+    t.feed(page)
+    wanted = set(t.out)
+    for e in eras:
+        wanted |= {e['name'], e['landmark'], e['place'], e['when'], e['coach']['full'], e['coach']['hello']}
+    for o in opponents:
+        wanted |= {o['animal'], o['plays'], o['range']}
+    for items in collection.values():
+        for it in items:
+            wanted |= {it['desc'], it['line'], it['how']}
+    for line in guide_lines.values():
+        wanted |= {c['text'] for c in line['cues']}
+    out = {}
+    for code, name in LANGS[1:]:
+        table = json.loads((here / 'i18n' / (code + '.json')).read_text())
+        meta = table.pop('_meta')
+        found = lambda x: x in table or x in keep or not re.search('[A-Za-z]', x) or all(found(p) for p in SEP.split(x) if p != x) and bool(SEP.search(x))
+        missing = sorted(x for x in wanted if not found(x.strip('“”').rstrip(' ·')))
+        if missing:
+            print('i18n/%s.json is missing %d strings; the site shows them in English:' % (code, len(missing)))
+            for x in missing:
+                print('  ' + json.dumps(x, ensure_ascii=False))
+        out[code] = {'name': name, 'meta': meta, 'table': table}
+    return out
+
+
 def build(target):
-    eras, opponents, counts, coach = site_data()
+    eras, opponents, counts, coach, collection = site_data()
     art = json.loads(subprocess.run(['node', str(here / 'tools' / 'render-art.js')], check=True, capture_output=True, text=True).stdout)
     # art.js hands out URI-encoded SVG; base64 is about half the size
     prefix = 'data:image/svg+xml;charset=utf-8,'
-    art = {k: 'data:image/svg+xml;base64,' + base64.b64encode(urllib.parse.unquote(v[len(prefix):]).encode()).decode() for k, v in art.items()}
+    art = {k: 'data:image/svg+xml;base64,' + base64.b64encode(urllib.parse.unquote(v[len(prefix):]).encode()).decode() if v.startswith(prefix) else v for k, v in art.items()}
     img = {p.stem: data_uri(p) for p in sorted((here / 'img').iterdir()) if p.suffix in ('.webp', '.jpg', '.png')}
     for e in eras:
         # stills: shown before the 3D table is ready, and instead of it where WebGL is missing
@@ -129,8 +243,17 @@ def build(target):
     page = (here / 'src' / 'index.html').read_text()
     fonts = (game / 'vendor' / 'fonts.css').read_text()
     assert '</style' not in fonts.lower()
-    shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-')}
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': guide(coach['name'], eras), 'coach': coach['name']},
+    for items in collection.values():
+        for it in items:
+            assert it['key'] in img, 'missing img/%s; run tools/shoot.js items and tools/to-webp.py' % it['key']
+    shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-') or k.startswith('item-')}
+    lines = guide(coach['name'], eras)
+    keep = {coach['name'], coach['full'], 'Chackmate'} | {o['name'] for o in opponents} | {it['name'] for items in collection.values() for it in items}
+    page = page.replace('/*FONTS*/', fonts + (here / 'vendor' / 'devanagari.css').read_text())
+    filled = fill(page, img, art, counts, coach, target)
+    langs = i18n(filled, eras, opponents, collection, lines, keep)
+    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': lines, 'coach': coach['name'], 'collection': collection,
+                                             'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep)},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
@@ -138,7 +261,10 @@ def build(target):
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
     tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
     assert '</script' not in tips.lower()
-    page = page.replace('/*FONTS*/', fonts).replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips)
+    return fill(page.replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips), img, art, counts, coach, target)
+
+
+def fill(page, img, art, counts, coach, target):
     page = re.sub(r'@@IMG:([\w-]+)@@', lambda m: img[m.group(1)], page)
     page = re.sub(r'@@ART:([\w-]+)@@', lambda m: art[m.group(1)], page)
     page = re.sub(r'@@N:(\w+)@@', lambda m: str(counts[m.group(1)]), page)
