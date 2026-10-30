@@ -90,7 +90,58 @@
         ]
       }
     },
-    { "id": "xiangqi", "status": "soon", "name": "Xiangqi", "tagline": "Chinese chess", "when": "About 1,000 years ago", "era": "ming", "blurb": "Chinese chess, played on the lines of the board with a river in the middle, cannons, and generals who never leave their palace." },
+    {
+      "id": "xiangqi",
+      "status": "ready",
+      "name": "Xiangqi",
+      "tagline": "Chinese chess",
+      "when": "About 1,000 years ago",
+      "era": "ming",
+      "start": "xiangqi:rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
+      "blurb": "Chinese chess, played on the lines of the board with a river in the middle, cannons that jump to capture, and generals who never leave their palace.",
+      "pieces": [
+        { "kind": "k", "name": "General", "en": "the king", "differs": true, "moves": "One step along a line, and never out of his palace. The two generals may never face each other on an open line.", "fen": "4k4/4a4/9/9/9/9/9/9/4K4/9", "dots": ["d1", "f1", "e0", "e2"] },
+        { "kind": "a", "name": "Advisor", "en": "guards the general", "differs": true, "moves": "One step on a slant, inside the palace only.", "fen": "3k5/9/9/9/9/9/9/9/4A4/4K4", "dots": ["d0", "f0", "d2", "f2"] },
+        { "kind": "b", "name": "Elephant", "en": "a little like the bishop", "differs": true, "moves": "Exactly two points on a slant, and never across the river. A piece on the point in between blocks it.", "fen": "3k5/9/9/9/9/9/9/4B4/9/4K4", "dots": ["c0", "g0", "c4", "g4"] },
+        { "kind": "n", "name": "Horse", "en": "like the knight", "differs": true, "moves": "One step along a line, then one on a slant. A piece right next to it, on the first step, blocks that way.", "fen": "3k5/9/9/9/9/9/9/4N4/4P4/5K3", "dots": ["d4", "f4", "g3", "g1", "c3", "c1"] },
+        { "kind": "r", "name": "Chariot", "en": "just like the rook", "moves": "As far as it likes along a line.", "fen": "3k5/9/9/9/9/9/9/4R4/9/5K3", "dots": ["e3", "e4", "e5", "e6", "d2", "c2", "f2", "g2", "e1", "e0"] },
+        { "kind": "c", "name": "Cannon", "en": "a new piece", "differs": true, "moves": "Moves like the chariot. To capture it must jump over exactly one piece, the screen.", "fen": "3k5/9/9/4r4/9/4p4/9/4C4/9/5K3", "dots": ["e3", "e6", "d2", "c2", "f2", "g2"] },
+        { "kind": "p", "name": "Soldier", "en": "like a pawn", "differs": true, "moves": "One step forward. Once across the river it may also step sideways. It never moves back and never changes into anything else.", "fen": "3k5/9/9/9/2P1P4/9/9/9/9/5K3", "dots": ["e6", "d5", "f5", "c6"] }
+      ],
+      "rules": [
+        { "title": "On the points", "text": "The pieces stand where the lines cross, not in the squares. Red moves first." },
+        { "title": "The river", "text": "The empty band across the middle is the river. Elephants and advisors stay on their own side; soldiers grow stronger once they cross it.", "differs": true },
+        { "title": "The palace", "text": "The nine points with the cross are the palace. The general and his advisors never leave it.", "differs": true },
+        { "title": "Generals face to face", "text": "The two generals may never stand on the same line with nothing between them. Your general can help trap the other one this way.", "differs": true },
+        { "title": "Winning", "text": "Checkmate wins. A side with no legal move at all loses too, even when it is not in check.", "differs": true },
+        { "title": "Draws", "text": "The same position three times is a draw, unless one side gave check with every move, which loses. Sixty moves each with no capture is a draw." }
+      ],
+      "notes": [
+        "Xiangqi has been played in China for about a thousand years. The names on the pieces are carved in Chinese: Red and Black use different characters for some of the same pieces."
+      ],
+      "lesson": {
+        "title": "The game of the Ming court",
+        "objectives": ["The board, the river and the palace", "How the horse, elephant and cannon move", "Winning with the generals face to face"],
+        "steps": [
+          { "line": "variant.xiangqi.hello", "fen": "xiangqi:rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1" },
+          { "line": "variant.xiangqi.points", "differs": true, "fen": "xiangqi:rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1", "marks": ["a3", "c3", "e3", "g3", "i3"] },
+          { "line": "variant.xiangqi.palace", "differs": true, "fen": "xiangqi:3k5/9/9/9/9/9/9/9/4A4/4K4 w - - 0 1", "marks": ["d0", "e0", "f0", "d1", "e1", "f1", "d2", "e2", "f2"] },
+          { "line": "variant.xiangqi.horse", "differs": true, "fen": "xiangqi:3k5/9/9/9/9/9/9/4N4/4P4/5K3 w - - 0 1", "marks": ["d4", "f4", "g3", "g1", "c3", "c1"] },
+          { "line": "variant.xiangqi.elephant", "differs": true, "fen": "xiangqi:3k5/9/9/9/9/9/9/4B4/9/4K4 w - - 0 1", "marks": ["c0", "g0", "c4", "g4"] },
+          { "line": "variant.xiangqi.cannon", "differs": true, "fen": "xiangqi:3k5/9/9/4r4/9/4p4/9/4C4/9/5K3 w - - 0 1", "marks": ["e4", "e6"] },
+          { "line": "variant.xiangqi.soldier", "differs": true, "fen": "xiangqi:3k5/9/9/9/2P1P4/9/9/9/9/5K3 w - - 0 1", "marks": ["e6", "d5", "f5"] },
+          { "line": "variant.xiangqi.generals", "differs": true, "fen": "xiangqi:3k5/9/9/9/9/9/9/9/9/4K4 w - - 0 1", "marks": ["e9"] },
+          { "line": "variant.xiangqi.win", "differs": true, "fen": "xiangqi:rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1" }
+        ],
+        "exercises": [
+          { "type": "targets", "line": "variant.xiangqi.ex.horse", "differs": true, "fen": "xiangqi:3k5/9/9/9/4p4/4N4/9/9/9/5K3 w - - 0 1", "from": "e4", "hints": ["The soldier on e5 blocks the horse's first step up.", "Look down and to the sides."] },
+          { "type": "targets", "line": "variant.xiangqi.ex.elephant", "differs": true, "fen": "xiangqi:3k5/9/9/9/9/9/9/2B6/3p5/5K3 w - - 0 1", "from": "c2", "hints": ["Two points on a slant, and only on your side of the river.", "The soldier on d1 blocks the way to e0."] },
+          { "type": "move", "line": "variant.xiangqi.ex.cannon", "differs": true, "fen": "xiangqi:3k5/4r4/9/9/4p4/9/9/4C4/9/5K3 w - - 0 1", "answers": ["e2e8"], "hints": ["The soldier on e5 can be the screen.", "Jump over it and take the chariot on e8."] },
+          { "type": "win", "line": "variant.xiangqi.ex.mate", "differs": true, "fen": "xiangqi:3k5/9/9/9/9/9/9/9/9/R3K4 w - - 0 1", "yes": "Checkmate! Your general guards the e-file.", "no": "Black's general can still move. Try again.", "hints": ["Your general on e0 already guards the whole e-file.", "Bring the chariot to the d-file."] },
+          { "type": "choice", "line": "variant.xiangqi.ex.river", "differs": true, "fen": "xiangqi:rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1", "options": ["The soldier", "The elephant", "The advisor"], "answer": 0, "explain": "Elephants and advisors stay home. Soldiers cross and can then step sideways." }
+        ]
+      }
+    },
     {
       "id": "koth",
       "status": "ready",

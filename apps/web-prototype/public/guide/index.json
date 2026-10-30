@@ -648,5 +648,75 @@
   "who": "rooky",
   "voice": "am_puck,am_michael",
   "text": "What happens when you give your third check?"
+ },
+ "variant.xiangqi.hello": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Welcome to the Ming court! This is xiangqi, Chinese chess. Red moves first, and every piece has its name carved on top."
+ },
+ "variant.xiangqi.points": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Look closely: the pieces stand on the points where the lines cross, not in the squares. The band across the middle is the river."
+ },
+ "variant.xiangqi.palace": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "These nine points with the cross are the palace. The general and his two advisors never leave it. The general steps along the lines, the advisors on the slant."
+ },
+ "variant.xiangqi.horse": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The horse moves like a knight: one step along a line, then one on a slant. But a piece right next to it blocks that way. See how the soldier below stops two moves?"
+ },
+ "variant.xiangqi.elephant": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The elephant jumps exactly two points on a slant. It is a home guard: it can never cross the river."
+ },
+ "variant.xiangqi.cannon": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Here is a piece chess doesn't have: the cannon! It moves like a chariot, but to capture it must jump over exactly one piece, called the screen."
+ },
+ "variant.xiangqi.soldier": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Soldiers march one step forward. Once they cross the river, they may also step sideways. They never move back."
+ },
+ "variant.xiangqi.generals": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "A special rule: the two generals may never face each other on an open line. So your general guards his whole line, all the way up the board!"
+ },
+ "variant.xiangqi.win": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate wins. And a side with no legal move at all loses too. Let's practise!"
+ },
+ "variant.xiangqi.ex.horse": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap every point this horse can reach."
+ },
+ "variant.xiangqi.ex.elephant": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap every point this elephant can reach."
+ },
+ "variant.xiangqi.ex.cannon": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Use the cannon to capture Black's chariot."
+ },
+ "variant.xiangqi.ex.mate": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate in one move. Your general can help!"
+ },
+ "variant.xiangqi.ex.river": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Which piece can cross the river?"
  }
 }

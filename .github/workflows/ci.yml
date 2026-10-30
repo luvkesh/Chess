@@ -19,6 +19,8 @@ jobs:
           node-version: 22
       - name: Engine tests
         run: node packages/chess-core/test/engine.test.js
+      - name: Xiangqi tests
+        run: node packages/chess-core/test/xiangqi.test.js
       - name: Coach tests
         run: node packages/chess-core/test/coach.test.js
       - name: Content tests (lessons, puzzles, catalog)

@@ -387,7 +387,7 @@
     const noop = () => {};
     let sets = null;
     return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setQuality: noop, setAnimations: noop,
-      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
+      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, setAlt: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
       animateMove(info, done) { done(); }, snapshot: () => Promise.resolve(null), boards: () => ({}), rooms: () => ({}),
       sets() { if (!sets) { try { sets = ChacklatePieces(window.THREE, ChacklateKit(window.THREE)).list(); } catch (e) { sets = []; } } return sets; } };
   }
@@ -674,9 +674,9 @@
     ['puzzles', 'puzzle'], ['training', 'improve'], ['collection', 'collection'], ['club', 'users'], ['profile', 'profile']];
   const navName = (k) => t('common.nav.' + k);
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
-  const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play', variants: 'play', variant: 'play' };
+  const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play' };
   const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
-  const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud' };
+  const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud', xiangqi: 'hud', xqlesson: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
   function renderNav() {
@@ -1122,13 +1122,14 @@
   function opponentModal(level, variant) {
     const o = persona(level), lv = LEVELS[level], v = variant ? variantById(variant) : null;
     if (lv.premium && !state.progress.premium) { premiumModal(t('play.premiumOpp', { name: oppFull(o) }), o); return; }
-    const s = state.setup;
+    const s = state.setup, xq = v && v.id === 'xiangqi';
+    const colors = xq ? [['white', 'play.xq.red'], ['black', 'play.xq.black'], ['random', 'play.color.random']] : ['white', 'black', 'random'].map((c) => [c, 'play.color.' + c]);
     const m = modal('<div class="setup-hero">' + faceImg(o, 'big') + '<div><div class="eyebrow">' + (v ? esc(v.name) + ' · ' : '') + t('common.level', { n: level + 1 }) + ' · ' + esc(bandName(level)) + '</div><h2>' + esc(oppFull(o)) + '</h2><p class="quote">“' + esc(sayLine(o, 'hello')) + '”</p></div></div>' +
-      '<form id="os"><div class="field"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + ['white', 'black', 'random'].map((v) => '<label><input type="radio" name="color" value="' + v + '"' + ((s.color || 'white') === v ? ' checked' : '') + '><span>' + t('play.color.' + v) + '</span></label>').join('') + '</div></div>' +
-      '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + CLOCKS.map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
+      '<form id="os"><div class="field"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + colors.map(([c, l]) => '<label><input type="radio" name="color" value="' + c + '"' + ((s.color || 'white') === c ? ' checked' : '') + '><span>' + t(l) + '</span></label>').join('') + '</div></div>' +
+      (xq ? '' : '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + CLOCKS.map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>') +
       '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.playName', { name: esc(o.name) }) + '</button></div></form>', { x: true });
     const form = m.querySelector('#os');
-    form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
+    form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); if (xq) { startXq({ mode: 'ai', color: form.color.value, level }); return; } startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
   }
   // Premium things a child taps are explained, and the store itself sits behind the parent gate.
   function premiumModal(why, who) {
@@ -1185,9 +1186,9 @@
   }
   const differs = () => '<span class="differs">' + icon('sparkle') + ' ' + t('play.var.differs') + '</span>';
   function ruleSheet(v) {
-    return '<div class="rulesheet' + (v.pieces ? '' : ' no-pieces') + '">' + (v.pieces ? '<section><h3>' + t('play.var.pieces') + '</h3><div class="rs-pieces">' + v.pieces.map((pc) =>
+    return '<div class="rulesheet' + (v.pieces ? '' : ' no-pieces') + '">' + (v.pieces ? '<section><h3>' + t('play.var.pieces') + '</h3><div class="rs-pieces">' + (v.id === 'xiangqi' ? xqPieces(v) : v.pieces.map((pc) =>
       '<div class="rs-piece' + (pc.differs ? ' diff' : '') + '">' + miniBoard(pc.fen, pc.dots, pc.name + ': ' + pc.moves, (E.VARIANTS[v.id] || {}).old) +
-      '<div><h4>' + esc(pc.name) + ' <small>' + esc(pc.en) + '</small></h4>' + (pc.differs ? differs() : '') + '<p>' + esc(pc.moves) + '</p></div></div>').join('') + '</div></section>' : '') +
+      '<div><h4>' + esc(pc.name) + ' <small>' + esc(pc.en) + '</small></h4>' + (pc.differs ? differs() : '') + '<p>' + esc(pc.moves) + '</p></div></div>').join('')) + '</div></section>' : '') +
       '<section><h3>' + t('play.var.rules') + '</h3><ul class="rs-rules">' + v.rules.map((r) => '<li' + (r.differs ? ' class="diff"' : '') + '><b>' + esc(r.title) + '</b>' + (r.differs ? differs() : '') + '<p>' + esc(r.text) + '</p></li>').join('') + '</ul>' +
       (v.notes || []).map((n) => '<p class="fine">' + esc(n) + '</p>').join('') + '</section></div>';
   }
@@ -1232,13 +1233,435 @@
       '</div></div>');
     hydrate();
     wireLinks();
-    $('v-learn').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { variant: v.id }); };
+    $('v-learn').onclick = () => { AU.unlock(); AU.play('tap'); go(v.id === 'xiangqi' ? 'xqlesson' : 'lesson', { variant: v.id }); };
     $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
-    $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); startGame(Object.assign({ mode: 'local', color: 'white', level: 0, tc: 'none', look: variantLook(v) }, variantStart(v))); };
+    $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); if (v.id === 'xiangqi') { startXq({ mode: 'local' }); return; } startGame(Object.assign({ mode: 'local', color: 'white', level: 0, tc: 'none', look: variantLook(v) }, variantStart(v))); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp, v.id); }; });
     // The cards' records and "beaten" badges are for chess; a variation keeps its own record.
     document.querySelectorAll('.personas .rec, .personas .tag.gold').forEach((el) => el.remove());
     return {};
+  };
+
+  // ---------------------------------------------------------------- Xiangqi
+  // Chinese chess has its own rules (xiangqi.js), its own table in the Ming room (xiangqi3d.js,
+  // put in place of the chessboard), and its own game screen and lesson below. Red moves first;
+  // the player is Red unless they pick Black.
+  const X = ChacklateXiangqi();
+  const XQ_NAME = { 1: 'General', 2: 'Advisor', 3: 'Elephant', 4: 'Horse', 5: 'Chariot', 6: 'Cannon', 7: 'Soldier' };
+  const XQ_LETTER = ' GAEHRCS';
+  const XQ_CHAR = { 1: ['帥', '將'], 2: ['仕', '士'], 3: ['相', '象'], 4: ['傌', '馬'], 5: ['俥', '車'], 6: ['炮', '砲'], 7: ['兵', '卒'] };
+  let XQ = null, xqFontAsked = false;
+  // The carved names need their font (a small Noto Serif SC cut, inlined by build.py).
+  function xqFont() {
+    if (xqFontAsked || typeof CHACKLATE_XQ_FONT === 'undefined' || typeof FontFace === 'undefined') return;
+    xqFontAsked = true;
+    new FontFace('XQ Han', 'url(' + CHACKLATE_XQ_FONT + ')', { weight: '900' }).load().then((f) => document.fonts.add(f), () => {});
+  }
+  function xqTable(on) {
+    if (!on) { view.setAlt(null); return null; }
+    xqFont();
+    if (!XQ && typeof ChacklateXiangqiTable !== 'undefined' && view.three) { XQ = ChacklateXiangqiTable(THREE); XQ.bindRender(view.requestRender); }
+    if (!XQ) return null;
+    XQ.setAnimations(state.settings.animations && !REDUCED());
+    view.setAlt(XQ);
+    if (window.__SHOT) window.__xq = XQ;
+    view.setClock(null); view.setBoard([], null); view.setHighlights({});
+    return XQ;
+  }
+  const REDUCED = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // A small flat picture of a few points for the rule sheet, like miniBoard for chess. The black
+  // general and advisor that only keep a picture legal are left out of the crop.
+  function xqMini(board, dots, label) {
+    const at = {};
+    board.split('/').forEach((row, i) => { let f = 0; for (const c of row) { if (/\d/.test(c)) f += +c; else { at[f + ',' + (9 - i)] = c; f++; } } });
+    const spots = (dots || []).map((d) => [d.charCodeAt(0) - 97, +d.slice(1)]);
+    const cells = Object.keys(at).map((k) => k.split(',').map(Number)).filter(([f, r]) => !'ka'.includes(at[f + ',' + r])).concat(spots);
+    const span = (i, max) => { let lo = Math.min(...cells.map((c) => c[i])), hi = Math.max(...cells.map((c) => c[i])); while (hi - lo < 4) { if (lo > 0) lo--; if (hi - lo < 4 && hi < max) hi++; } return [lo, hi]; };
+    const [f0, f1] = span(0, 8), [r0, r1] = span(1, 9);
+    const U = 40, P = 26, W = (f1 - f0) * U + P * 2, H = (r1 - r0) * U + P * 2;
+    const X0 = (f) => P + (f - f0) * U, Y0 = (r) => P + (r1 - r) * U;
+    let s = '<svg class="xq-mini" width="' + Math.round(W * 0.62) + '" height="' + Math.round(H * 0.62) + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(label || '') + '"><rect width="' + W + '" height="' + H + '" rx="10" fill="#d9b072"/>';
+    s += '<g stroke="#4a2c14" stroke-width="1.6">';
+    for (let r = r0; r <= r1; r++) s += '<line x1="' + X0(f0) + '" y1="' + Y0(r) + '" x2="' + X0(f1) + '" y2="' + Y0(r) + '"/>';
+    for (let f = f0; f <= f1; f++) for (let r = r0; r < r1; r++) if (!(r === 4 && f > 0 && f < 8)) s += '<line x1="' + X0(f) + '" y1="' + Y0(r) + '" x2="' + X0(f) + '" y2="' + Y0(r + 1) + '"/>';
+    for (const [ra, rb] of [[0, 2], [7, 9]]) for (const [fa, fb2] of [[3, 5], [5, 3]]) if (ra >= r0 && rb <= r1 && f0 <= 3 && f1 >= 5) s += '<line x1="' + X0(fa) + '" y1="' + Y0(ra) + '" x2="' + X0(fb2) + '" y2="' + Y0(rb) + '"/>';
+    s += '</g>';
+    for (const [f, r] of spots) if (f >= f0 && f <= f1 && r >= r0 && r <= r1) s += '<circle cx="' + X0(f) + '" cy="' + Y0(r) + '" r="' + (at[f + ',' + r] ? 17 : 7) + '" fill="' + (at[f + ',' + r] ? 'none' : '#2a5a3a') + '" stroke="#2a8a50" stroke-width="' + (at[f + ',' + r] ? 3 : 0) + '"/>';
+    for (const k of Object.keys(at)) {
+      const [f, r] = k.split(',').map(Number); if (f < f0 || f > f1 || r < r0 || r > r1) continue;
+      const c = at[k], red = c === c.toUpperCase(), t = ' kabnrcp'.indexOf(c.toLowerCase());
+      s += '<g transform="translate(' + X0(f) + ' ' + Y0(r) + ')"><circle r="16" fill="#f0d7a6" stroke="' + (red ? '#9e1d16' : '#1a1410') + '" stroke-width="3"/>' +
+        '<text y="6.5" text-anchor="middle" font-size="18" font-weight="900" font-family="\'XQ Han\', serif" fill="' + (red ? '#a3201a' : '#18110c') + '">' + XQ_CHAR[t][red ? 0 : 1] + '</text></g>';
+    }
+    return s + '</svg>';
+  }
+  function xqPieces(v) {
+    xqFont();
+    return v.pieces.map((pc) => '<div class="rs-piece' + (pc.differs ? ' diff' : '') + '">' + xqMini(pc.fen, pc.dots, pc.name + ': ' + pc.moves) +
+      '<div><h4>' + esc(pc.name) + ' <small>' + esc(pc.en) + '</small></h4>' + (pc.differs ? differs() : '') + '<p>' + esc(pc.moves) + '</p></div></div>').join('');
+  }
+  // The computer player runs in a worker of its own, like the chess one.
+  let xqWorker = null, xqReq = 0;
+  const xqPending = new Map();
+  function xqSearch(fen, moves, opts, done) {
+    const id = ++xqReq;
+    if (!xqWorker) {
+      try {
+        const src = 'const X=(' + ChacklateXiangqi.toString() + ')();onmessage=function(e){var d=e.data;try{var r=X.search(X.positionFrom(d.fen,d.moves),d.opts);postMessage({id:d.id,uci:r.move!==null?X.uci(r.move):null});}catch(err){postMessage({id:d.id,error:String(err)});}};';
+        xqWorker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+        xqWorker.onmessage = (e) => { const cb = xqPending.get(e.data.id); if (cb) { xqPending.delete(e.data.id); cb(e.data); } };
+      } catch (e) { xqWorker = false; }
+    }
+    if (xqWorker) { xqPending.set(id, done); xqWorker.postMessage({ id, fen, moves, opts }); }
+    else setTimeout(() => { try { const r = X.search(X.positionFrom(fen, moves), opts); done({ uci: r.move !== null ? X.uci(r.move) : null }); } catch (err) { done({ error: String(err) }); } }, 30);
+  }
+  const xqSide = (side) => t(side === X.RED ? 'play.xq.red' : 'play.xq.black');
+  function startXq(setup) {
+    const g = new X.Game();
+    const human = setup.mode === 'local' ? 0 : setup.color === 'black' ? X.BLACK : setup.color === 'random' ? (Math.random() < 0.5 ? X.RED : X.BLACK) : X.RED;
+    state.xq = { setup, g, human, kind: setup.mode, level: setup.level || 0, selected: -1, busy: false, thinking: false, request: 0, resultShown: false, viewSide: human === X.BLACK ? 'black' : 'white' };
+    go('xiangqi');
+  }
+  SCREENS.xiangqi = function () {
+    const Q = state.xq, v = variantById('xiangqi');
+    if (!Q) { setTimeout(() => go('variant', 'xiangqi'), 0); return {}; }
+    view.setAttract(false);
+    setLook(variantLook(v));
+    const T = xqTable(true);
+    const ai = Q.kind === 'ai', who = ai ? persona(Q.level) : null;
+    mount('<div class="hud-top"><button class="backbtn" id="x-back">' + icon('back') + '<span>' + esc(v.name) + '</span></button>' +
+      '<div class="status-chip glass" id="x-chip" role="status"></div><span class="spacer"></span>' +
+      '<button class="round rb" id="x-rules" aria-label="' + t('play.rules.variant', { name: esc(v.name) }) + '"><img src="' + ART.ruleBookUri() + '" alt=""></button>' +
+      '<button class="round" id="x-settings" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<div class="player-card glass top" id="x-top"></div><div class="player-card glass bottom" id="x-bottom"></div>' +
+      '<aside class="side glass" id="side"><header><b>' + t('play.hud.moves') + '</b></header><div class="moves-wrap" id="moves-wrap"><ol class="moves" id="x-moves" aria-label="' + t('play.hud.played') + '"></ol></div></aside>' +
+      '<div class="actionbar glass" id="actionbar">' +
+      '<button class="btn" id="x-undo">' + icon('undo') + '<span class="lbl">' + t('play.btn.undo') + '</span></button>' +
+      '<span class="sep"></span>' +
+      '<button class="btn" id="x-flip">' + icon('flip') + '<span class="lbl">' + t('play.btn.flip') + '</span></button>' +
+      '<button class="btn" id="x-view">' + icon('cam') + '<span class="lbl">' + t(state.settings.view === 'top' ? 'play.btn.playerView' : 'play.btn.topView') + '</span></button>' +
+      '<span class="sep"></span>' +
+      '<button class="btn" id="x-resign">' + icon('flag') + '<span class="lbl">' + t('play.btn.resign') + '</span></button>' +
+      '<button class="btn" id="x-new" hidden>' + icon('play') + '<span>' + t('play.btn.new') + '</span></button>' +
+      '</div>');
+    const cards = () => {
+      const bottom = Q.viewSide === 'black' ? X.BLACK : X.RED;
+      for (const [id, side] of [['x-bottom', bottom], ['x-top', -bottom]]) {
+        const you = Q.kind !== 'local' && side === Q.human;
+        const pp = you ? avatarHtml('sm') : who && side !== Q.human ? '<img class="portrait" src="' + face(who) + '" alt="">' : '<svg class="xq-chip" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#f0d7a6" stroke="' + (side === X.RED ? '#9e1d16' : '#1a1410') + '" stroke-width="3"/><text x="20" y="27" text-anchor="middle" font-size="20" font-weight="900" font-family="\'XQ Han\', serif" fill="' + (side === X.RED ? '#a3201a' : '#18110c') + '">' + XQ_CHAR[1][side === X.RED ? 0 : 1] + '</text></svg>';
+        const name = you ? myName() : who && side !== Q.human ? who.name : xqSide(side);
+        const sub = you ? xqSide(side) : who && side !== Q.human ? t('common.level', { n: Q.level + 1 }) + ' · ' + xqSide(side) : t(side === X.RED ? 'play.xq.redPieces' : 'play.xq.blackPieces');
+        const el = $(id);
+        el.innerHTML = '<div class="pp">' + pp + '</div><div class="who"><div class="name">' + esc(name) + '</div><div class="sub"><span class="tl">' + esc(sub) + '</span></div></div>';
+        el.dataset.side = side;
+      }
+    };
+    const humanTurn = () => !Q.g.outcome && !Q.busy && (Q.kind === 'local' || Q.g.pos.side === Q.human);
+    const kingAt = () => (Q.g.pos.inCheck() ? Q.g.pos.kingSq(Q.g.pos.side) : -1);
+    function marks() {
+      if (!T) return;
+      const g = Q.g, last = g.moves.length ? g.moves[g.moves.length - 1] : -1;
+      const h = { selected: Q.selected, lastFrom: last >= 0 ? X.mFrom(last) : -1, lastTo: last >= 0 ? X.mTo(last) : -1, check: kingAt(), targets: [], captures: [] };
+      if (Q.selected >= 0 && state.settings.legal) for (const s of g.targets(Q.selected)) (g.pos.b[s] ? h.captures : h.targets).push(s);
+      T.setMarks(h);
+    }
+    const moveText = (m, piece, cap) => XQ_LETTER[Math.abs(piece)] + ' ' + X.sqName(X.mFrom(m)) + (cap ? '×' : '–') + X.sqName(X.mTo(m));
+    function hud() {
+      const g = Q.g;
+      const ol = $('x-moves'); if (!ol) return;
+      let html = '';
+      const replay = new X.Game();
+      g.moves.forEach((m, i) => {
+        const piece = replay.pos.b[X.mFrom(m)], cap = replay.pos.b[X.mTo(m)];
+        replay.play(m);
+        if (i % 2 === 0) html += '<li><span class="n">' + (i / 2 + 1) + '.</span>';
+        html += '<span class="mv' + (i === g.moves.length - 1 ? ' cur' : '') + '">' + esc(moveText(m, piece, cap)) + '</span>';
+        if (i % 2 === 1) html += '</li>';
+      });
+      ol.innerHTML = html;
+      const wrap = $('moves-wrap'); if (wrap) wrap.scrollTop = wrap.scrollHeight;
+      const chip = $('x-chip'); chip.className = 'status-chip glass';
+      let text;
+      if (g.outcome) text = t(g.outcome.result === '1/2-1/2' ? 'play.chip.draw' : g.outcome.result === '1-0' ? 'play.xq.redWins' : 'play.xq.blackWins');
+      else if (Q.thinking) { text = t('play.chip.thinking', { name: who.name }); chip.classList.add('thinking'); }
+      else {
+        text = Q.kind === 'local' ? t(g.pos.side === X.RED ? 'play.xq.redToMove' : 'play.xq.blackToMove') : t('play.chip.yourMove');
+        if (g.pos.inCheck()) { text = t('play.chip.check') + ' ' + text; chip.classList.add('check'); }
+      }
+      chip.textContent = text;
+      $('x-undo').disabled = !g.moves.length || !!g.outcome || Q.busy;
+      $('x-resign').hidden = !!g.outcome; $('x-new').hidden = !g.outcome;
+      for (const id of ['x-top', 'x-bottom']) { const el = $(id); if (el) el.classList.toggle('to-move', !g.outcome && g.pos.side === +el.dataset.side); }
+    }
+    function after(info) {
+      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+      Q.selected = -1; marks(); hud();
+      if (Q.g.outcome) { end(); return; }
+      if (Q.kind === 'ai' && Q.g.pos.side !== Q.human) think();
+    }
+    function play(m) {
+      const info = Q.g.play(m);
+      if (!info) return;
+      Q.busy = true; Q.selected = -1; marks();
+      const req = ++Q.request;
+      if (T) T.move(info, () => { if (req !== Q.request || state.screen !== 'xiangqi') return; Q.busy = false; after(info); });
+      else { Q.busy = false; after(info); }
+    }
+    function think() {
+      Q.thinking = true; hud();
+      const req = Q.request, t0 = Date.now(), lv = X.LEVELS[Q.level] || X.LEVELS[0];
+      xqSearch(Q.g.startFen, Q.g.moves.map(X.uci), lv, (r) => {
+        if (req !== Q.request || state.screen !== 'xiangqi' || Q.g.outcome) return;
+        const wait = Math.max(0, 450 - (Date.now() - t0));
+        setTimeout(() => {
+          if (req !== Q.request || state.screen !== 'xiangqi') return;
+          Q.thinking = false;
+          const m = r.uci ? Q.g.find(X.parseSq(r.uci.slice(0, 2)), X.parseSq(r.uci.slice(2, 4))) : null;
+          if (m === null) { hud(); return; }
+          play(m);
+        }, wait);
+      });
+    }
+    function onPoint(s) {
+      if (!humanTurn()) return;
+      const g = Q.g, p = g.pos.b[s];
+      if (Q.selected >= 0 && g.targets(Q.selected).includes(s)) { play(g.find(Q.selected, s)); return; }
+      if (p && Math.sign(p) === g.pos.side) { if (Q.selected !== s) AU.play('select'); Q.selected = s; if (!g.targets(s).length) toast(t('play.noMoves')); }
+      else { if (Q.selected >= 0 && !p) AU.play('illegal'); Q.selected = -1; }
+      marks();
+    }
+    function why(o, winner) {
+      const loserSide = winner ? -winner : 0;
+      const nameOf = (side) => (Q.kind === 'local' ? xqSide(side) : side === Q.human ? myName() : who.name);
+      if (o.reason === 'checkmate') return t('play.xq.why.checkmate', { name: nameOf(winner) });
+      if (o.reason === 'stalemate-loss') return t('play.xq.why.stalemate', { name: nameOf(loserSide) });
+      if (o.reason === 'perpetual-check') return t('play.xq.why.perpetual', { name: nameOf(loserSide) });
+      if (o.reason === 'resignation') return Q.kind !== 'local' && loserSide === Q.human ? t('play.why.youResigned') : t('play.why.resigned', { name: nameOf(loserSide) });
+      if (o.reason === 'sixty') return t('play.xq.why.sixty');
+      if (o.reason === 'insufficient') return t('play.xq.why.insufficient');
+      return I18N.has('play.why.' + o.reason) ? t('play.why.' + o.reason) : '';
+    }
+    function end() {
+      if (Q.resultShown) return;
+      Q.resultShown = true;
+      const g = Q.g, o = g.outcome;
+      const winner = o.result === '1-0' ? X.RED : o.result === '0-1' ? X.BLACK : 0;
+      const youWon = Q.kind !== 'local' && winner === Q.human, youLost = Q.kind !== 'local' && winner === -Q.human;
+      AU.play(winner ? (youLost ? 'loss' : 'win') : 'draw');
+      if (T) T.setMarks({ check: winner ? g.pos.kingSq(-winner) : -1 });
+      hud();
+      let res = null;
+      if (Q.kind !== 'local' || g.moves.length >= 10) {
+        res = PG.gameFinished(state.progress, { mode: Q.kind, level: Q.level, won: youWon, drawn: !winner, lost: youLost, reason: o.reason, plies: g.moves.length, sans: [], firstIsMine: Q.human !== X.BLACK, startFen: g.startFen, ucis: [], pgn: '', color: Q.human === X.BLACK ? BLACK : WHITE, variant: 'xiangqi' });
+      }
+      save();
+      const title = !winner ? t('play.end.draw') : who ? (youWon ? t('play.end.youBeat', { name: who.name }) : t('play.end.wins', { name: who.name })) : t(winner === X.RED ? 'play.xq.redWins' : 'play.xq.blackWins');
+      const lv = PG.levelFor(state.progress.xp);
+      const art = who ? '<img class="portrait big" src="' + face(who) + '" alt="">' : '<img class="portrait big" src="' + ART.crestUri() + '" alt="">';
+      const html = '<div class="result-hero">' + art + '<span class="result-badge' + (youWon ? ' win' : youLost ? ' loss' : '') + '">' + esc(REASON_TEXT[o.reason] || t('play.end.over')) + '</span>' +
+        '<h2 class="result-title">' + esc(title) + '</h2>' +
+        (who ? '<p class="quote"><b>' + esc(fullName(who)) + '</b>“' + esc(sayLine(who, youWon ? 'win' : youLost ? 'lose' : 'draw')) + '”</p>' : '') +
+        '<p class="sub">' + esc(why(o, winner)) + '</p>' +
+        (res ? '<div class="xpline"><div class="top"><span>' + t('common.level', { n: lv.level }) + ' · ' + esc(levelTitle(lv)) + '</span><b>+' + t('common.xp', { n: res.xp }) + '</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
+        '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('play.end.look') + '</button><button class="btn" id="xr-home">' + icon('back') + ' ' + esc(v.name) + '</button>' +
+        '<button class="btn primary" id="xr-again">' + icon('refresh') + ' ' + t('play.end.rematch') + '</button></div></div>';
+      setTimeout(() => {
+        if (state.xq !== Q || state.screen !== 'xiangqi') return;
+        const mdl = modal(html, { cls: 'narrow' });
+        setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
+        mdl.querySelector('#xr-home').onclick = () => { mdl.close(); go('variant', 'xiangqi'); };
+        mdl.querySelector('#xr-again').onclick = () => { mdl.close(); const s = Object.assign({}, Q.setup); if (s.mode === 'ai' && s.color !== 'random') s.color = s.color === 'black' ? 'red' : 'black'; startXq(s); };
+        celebrate(res);
+      }, state.settings.animations ? 1200 : 200);
+    }
+    $('x-back').onclick = () => { AU.play('tap'); go('variant', 'xiangqi'); };
+    $('x-settings').onclick = () => settingsModal();
+    $('x-rules').onclick = () => {
+      AU.play('tap');
+      const m = modal('<div class="rulebook xq-rules"><header><img class="rb-ico" src="' + ART.ruleBookUri() + '" alt=""><b>' + t('play.rules.variant', { name: esc(v.name) }) + '</b></header>' + ruleSheet(v) +
+        '<button class="btn small ghost rb-link" id="xr-lesson">' + icon('learn') + '<span>' + t('play.rules.lesson', { title: esc(v.lesson.title) }) + '</span>' + icon('next') + '</button></div>', { x: true, cls: 'wide' });
+      m.querySelector('#xr-lesson').onclick = () => { m.close(); go('xqlesson'); };
+    };
+    $('x-undo').onclick = () => {
+      if (Q.busy || Q.g.outcome || !Q.g.moves.length) return;
+      AU.play('tap'); Q.request++; Q.thinking = false;
+      Q.g.undo();
+      if (Q.kind === 'ai' && Q.g.pos.side !== Q.human && Q.g.moves.length) Q.g.undo();
+      if (T) T.setPosition(Q.g.pos.b);
+      Q.selected = -1; marks(); hud();
+      if (Q.kind === 'ai' && Q.g.pos.side !== Q.human) think();
+    };
+    const setCam = () => { view.setView(Q.viewSide, state.settings.view === 'top' ? 'top' : 'player'); if (T) T.setSide(Q.viewSide === 'black' ? 'black' : 'red'); };
+    $('x-flip').onclick = () => { AU.play('tap'); Q.viewSide = Q.viewSide === 'black' ? 'white' : 'black'; setCam(); cards(); hud(); applyInsets(); };
+    $('x-view').onclick = () => {
+      AU.play('tap'); state.settings.view = state.settings.view === 'top' ? 'player' : 'top'; save(); setCam();
+      $('x-view').querySelector('.lbl').textContent = t(state.settings.view === 'top' ? 'play.btn.playerView' : 'play.btn.topView');
+    };
+    $('x-resign').onclick = () => {
+      if (Q.g.outcome) return;
+      const m = modal('<h2>' + t('play.resign.title') + '</h2><p class="sub">' + t('play.resign.sub') + '</p><div class="row"><button class="btn" data-close>' + t('play.resign.keep') + '</button><button class="btn primary" id="xr-yes">' + icon('flag') + ' ' + t('play.btn.resign') + '</button></div>', { cls: 'narrow' });
+      m.querySelector('#xr-yes').onclick = () => { m.close(); Q.request++; Q.thinking = false; Q.busy = false; Q.g.resign(Q.kind === 'local' ? Q.g.pos.side : Q.human); end(); };
+    };
+    $('x-new').onclick = () => { AU.play('tap'); go('variant', 'xiangqi'); };
+    if (T) { T.setPosition(Q.g.pos.b); T.onPoint(onPoint); }
+    setCam(); cards(); marks(); hud();
+    if (!Q.g.moves.length) guideSay(Q.kind === 'local' || Q.human === X.RED ? 'game.white' : 'game.black', { delay: 600 });
+    if (Q.g.outcome) end();
+    else if (Q.kind === 'ai' && Q.g.pos.side !== Q.human) setTimeout(() => { if (state.xq === Q && state.screen === 'xiangqi') think(); }, 900);
+    return { leave() { Q.request++; Q.thinking = false; Q.busy = false; if (T) T.onPoint(null); xqTable(false); } };
+  };
+
+  // The Xiangqi lesson: Rooky's recorded lines on the Xiangqi table, then a few exercises.
+  SCREENS.xqlesson = function () {
+    const v = variantById('xiangqi'), L = v.lesson;
+    const said = (x) => Object.assign({}, x, { say: GUIDE.lines[x.line].text });
+    const steps = L.steps.map(said), ex = L.exercises.map(said);
+    view.setAttract(false);
+    setLook(variantLook(v));
+    const T = xqTable(true);
+    const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, selected: -1, answered: false, talk: 0 };
+    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(v.name) + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + esc(v.name) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
+      '<button class="round" id="ls-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(COACH.name) + '"></button>' +
+      '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
+      '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
+    $('ls-back').onclick = () => { AU.play('tap'); go('variant', 'xiangqi'); };
+    $('ls-set').onclick = () => settingsModal();
+    voiceIcon($('ls-voice'), COACH.name);
+    $('ls-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) speak(true); };
+    $('ls-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); speak(true); };
+    $('ls-prev').onclick = () => { if (S.phase === 'steps' && S.i > 0) { S.i--; renderStep(); } };
+    $('ls-next').onclick = () => next();
+    const guided = {};
+    function speak(now) {
+      const cur = S.phase === 'steps' ? steps[S.i] : S.phase === 'ex' ? ex[S.i] : null;
+      const say = () => { if (cur && state.settings.narration) AU.guide(cur.line, cur.say); };
+      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
+      if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
+      if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
+    }
+    const setPos = (fen) => { S.pos = new X.Game(fen); if (T) T.setPosition(S.pos.pos.b); view.setView('white', state.settings.view === 'top' ? 'top' : 'player'); if (T) T.setSide('red'); };
+    const pt = (n) => X.parseSq(n);
+    const fb = (kind, text) => { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; };
+    function dots() {
+      let html = '';
+      for (let k = 0; k < steps.length + ex.length; k++) {
+        const isEx = k >= steps.length, r = isEx ? S.results[k - steps.length] : null;
+        const cur = (S.phase === 'steps' && k === S.i) || (S.phase === 'ex' && isEx && k - steps.length === S.i);
+        html += '<i class="' + (r === true ? 'ok' : r === false ? 'bad' : cur || (S.phase !== 'steps' && !isEx) ? 'on' : '') + '"></i>';
+      }
+      $('ls-dots').innerHTML = html;
+    }
+    function renderStep() {
+      const st = steps[S.i];
+      $('ls-phase').textContent = 'Lesson · ' + (S.i + 1) + ' of ' + steps.length;
+      $('ls-content').innerHTML = (st.differs ? differs() : '') + '<p class="say">' + esc(st.say) + '</p>' +
+        (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
+      $('ls-prev').disabled = S.i === 0;
+      $('ls-next').textContent = S.i === steps.length - 1 ? 'Start the exercises' : 'Next';
+      setPos(st.fen);
+      if (T) { T.onPoint(null); T.setMarks({ spots: (st.marks || []).map((m) => ({ sq: pt(m), pulse: true })) }); }
+      dots(); speak();
+    }
+    function renderEx() {
+      const x = ex[S.i];
+      S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false;
+      $('ls-phase').textContent = 'Exercise · ' + (S.i + 1) + ' of ' + ex.length;
+      $('ls-prev').disabled = true;
+      $('ls-next').textContent = 'Skip';
+      setPos(x.fen);
+      if (T) T.setMarks({});
+      if (x.type === 'choice') {
+        $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.say) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
+        document.querySelectorAll('[data-opt]').forEach((b) => {
+          b.onclick = () => {
+            if (S.answered) return;
+            const ok = +b.dataset.opt === x.answer, why = x.explain ? ' ' + x.explain : '';
+            if (ok) answer(true, 'Correct.' + why);
+            else { S.answered = true; if (S.results[S.i] === undefined) S.results[S.i] = false; AU.play('wrong'); fb('bad', 'Not quite. The answer is: ' + x.options[x.answer] + '.' + why); $('ls-next').textContent = S.i === ex.length - 1 ? 'Finish' : 'Next'; dots(); }
+            b.classList.add(ok ? 'right' : 'wrong');
+          };
+        });
+        if (T) T.onPoint(null);
+        dots(); speak();
+        return;
+      }
+      $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.say) + '</p>' + (x.type === 'targets' ? '<div class="pill" id="ls-count"></div>' : '') +
+        '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' Hint</button></div><div id="ls-fb"></div>';
+      $('ls-hint').onclick = () => { if (S.hintN < (x.hints || []).length) { fb('hint', x.hints[S.hintN]); S.hintN++; } AU.play('coach'); };
+      if (x.type === 'targets') count();
+      if (T) T.onPoint(exPoint);
+      dots(); speak();
+    }
+    function count() {
+      const x = ex[S.i], all = S.pos.targets(pt(x.from));
+      const c = $('ls-count'); if (c) c.textContent = S.found.length + ' of ' + all.length + ' found';
+      if (T) T.setMarks({ selected: pt(x.from), spots: S.found.map((s) => ({ sq: s, color: '#3ee07a' })) });
+      return all;
+    }
+    function exPoint(s) {
+      const x = ex[S.i];
+      if (S.answered) return;
+      if (x.type === 'targets') {
+        const all = count();
+        if (all.includes(s)) { if (!S.found.includes(s)) { S.found.push(s); AU.play('select'); } }
+        else if (s !== pt(x.from)) { S.tries++; AU.play('wrong'); fb('bad', X.sqName(s) + ' cannot be reached from ' + x.from + '.'); }
+        const left = count();
+        if (S.found.length === left.length) answer(S.tries === 0, 'All ' + left.length + ' points found.');
+        return;
+      }
+      const g = S.pos, p = g.pos.b[s];
+      if (S.selected >= 0 && g.targets(S.selected).includes(s)) { exMove(S.selected, s); return; }
+      if (p && Math.sign(p) === g.pos.side) {
+        S.selected = s; AU.play('select');
+        const ts = g.targets(s);
+        if (T) T.setMarks({ selected: s, targets: ts.filter((q) => !g.pos.b[q]), captures: ts.filter((q) => g.pos.b[q]) });
+      }
+    }
+    function exMove(from, to) {
+      const x = ex[S.i], g = S.pos, m = g.find(from, to);
+      S.selected = -1;
+      if (m === null) return;
+      let ok = false, msg = '';
+      if (x.type === 'move') { ok = x.answers.includes(X.uci(m)); msg = ok ? 'Well played.' : 'Not the move we are looking for. Try again.'; }
+      else if (x.type === 'win') { const tg = new X.Game(x.fen); tg.play(m); ok = !!(tg.outcome && tg.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1')); msg = ok ? x.yes : x.no; }
+      if (ok) {
+        const info = g.play(m);
+        AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+        if (T) T.move(info, () => T.setMarks({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? g.pos.kingSq(g.pos.side) : -1 }));
+        answer(S.tries === 0, msg);
+      } else { S.tries++; AU.play('wrong'); fb('bad', msg); if (T) T.setMarks({}); }
+    }
+    function answer(firstTry, msg) {
+      S.answered = true; guideIdle(null);
+      if (S.results[S.i] === undefined) S.results[S.i] = firstTry;
+      AU.play('correct'); fb('ok', msg + (firstTry ? '' : ' (Solved after a retry.)'));
+      $('ls-next').textContent = S.i === ex.length - 1 ? 'Finish' : 'Next';
+      dots();
+    }
+    function next() {
+      AU.play('tap');
+      if (S.phase === 'steps') { if (S.i < steps.length - 1) { S.i++; renderStep(); } else { S.phase = 'ex'; S.i = 0; renderEx(); } return; }
+      if (S.phase === 'ex') { if (S.results[S.i] === undefined) S.results[S.i] = false; if (S.i < ex.length - 1) { S.i++; renderEx(); } else finish(); return; }
+      go('variant', 'xiangqi');
+    }
+    function finish() {
+      S.phase = 'done';
+      if (T) T.onPoint(null);
+      const first = S.results.filter((r) => r === true).length, pct = Math.round((first / ex.length) * 100);
+      const res = PG.variantLessonFinished(state.progress, v.id, first, ex.length);
+      save();
+      $('ls-phase').textContent = 'Lesson complete';
+      $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p><p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p>' +
+        '<p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). Now you know the rules. Pick a friend and play ' + esc(v.name) + '!</p>' + (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
+      $('ls-next').textContent = 'Play ' + v.name;
+      $('ls-prev').hidden = true;
+      AU.play('win'); AU.event('lesson.passed'); guideIdle(null); guideSay('lesson.done', { delay: 2200 });
+      dots(); celebrate(res);
+    }
+    renderStep();
+    return { leave() { if (T) T.onPoint(null); xqTable(false); } };
   };
 
   // ---------------------------------------------------------------- the Journey Through Time

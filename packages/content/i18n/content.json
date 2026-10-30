@@ -322,7 +322,7 @@
   "var.chess960.blurb": { "en": "The pieces on the back row are shuffled before every game, so you have to think from the very first move.", "hi": "हर खेल से पहले पीछे की पंक्ति के मोहरे मिला दिए जाते हैं, तो आपको पहली चाल से ही सोचना पड़ता है।", "check": ["hi"] },
   "var.xiangqi.tagline": { "en": "Chinese chess", "hi": "चीनी शतरंज", "check": ["hi"] },
   "var.xiangqi.when": { "en": "About 1,000 years ago", "hi": "लगभग 1,000 साल पहले", "check": ["hi"] },
-  "var.xiangqi.blurb": { "en": "Chinese chess, played on the lines of the board with a river in the middle, cannons, and generals who never leave their palace.", "hi": "चीनी शतरंज, जो बोर्ड की लकीरों पर खेली जाती है, बीच में एक नदी, तोपें, और ऐसे सेनापति जो अपना महल कभी नहीं छोड़ते।", "check": ["hi"] },
+  "var.xiangqi.blurb": { "en": "Chinese chess, played on the lines of the board with a river in the middle, cannons that jump to capture, and generals who never leave their palace.", "hi": "चीनी शतरंज, जो बोर्ड की लकीरों पर खेली जाती है, बीच में एक नदी, मार करने के लिए कूदने वाली तोपें, और ऐसे सेनापति जो अपना महल कभी नहीं छोड़ते।", "check": ["hi"] },
   "var.koth.tagline": { "en": "Race your king to the middle", "hi": "अपने राजा को बीच तक दौड़ाएँ", "check": ["hi"] },
   "var.koth.when": { "en": "Quick and fun", "hi": "झटपट और मज़ेदार", "check": ["hi"] },
   "var.koth.blurb": { "en": "Win by checkmate, or by walking your king safely onto one of the four centre squares.", "hi": "शह-मात से जीतें, या अपने राजा को सुरक्षित बीच के चार खानों में से किसी एक पर पहुँचाकर।", "check": ["hi"] },
