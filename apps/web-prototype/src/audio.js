@@ -342,16 +342,28 @@ function ChacklateAudio() {
     if (lang === 'hi') return vs.find((v) => /^hi/i.test(v.lang)) || null;
     return vs.find((v) => /en-(IN|GB)/i.test(v.lang) && /female|natural|neural|samantha|serena|veena/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
   }
-  function device(text, rate, lang) {
+  // Sentences and clauses are spoken one at a time with a breath between them (longer after a full
+  // stop than after a comma), because device voices tend to run a whole paragraph together.
+  function phrases(text) {
+    return (String(text).match(/[^,;:.!?]+(?:[,;:]|[.!?]+["”’)]*|$)/g) || []).map((p) => p.trim()).filter(Boolean);
+  }
+  function device(text, rate, lang, onEnd) {
     if (!('speechSynthesis' in window)) return false;
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
     const v = lang === 'hi' ? pickVoice('hi') : (deviceVoice = deviceVoice || pickVoice('en'));
-    if (v) u.voice = v;
-    if (lang === 'hi') u.lang = 'hi-IN';
-    u.rate = rate || 1; u.pitch = 1;
-    if (music) { duck(true); u.onend = () => duck(false); }
-    speechSynthesis.speak(u);
+    const parts = phrases(text), my = queueId;
+    if (music) duck(true);
+    const next = (i) => {
+      if (my !== queueId) return;
+      if (i >= parts.length) { duck(false); if (onEnd) onEnd(); return; }
+      const u = new SpeechSynthesisUtterance(parts[i]);
+      if (v) u.voice = v;
+      if (lang === 'hi') u.lang = 'hi-IN';
+      u.rate = rate || 1; u.pitch = 1;
+      u.onend = () => setTimeout(() => next(i + 1), /[,;:]$/.test(parts[i]) ? PAUSE.comma : PAUSE.stop);
+      speechSynthesis.speak(u);
+    };
+    next(0);
     return true;
   }
   const voiceInfo = (id) => V.voices.find((v) => v.id === id) || null;
@@ -399,7 +411,44 @@ function ChacklateAudio() {
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
     return deviceFallback ? device(words.join(' '), 1.1, lang) : false;
   }
-  function hush() { stopSpeech(); duck(false); }
+  // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
+  // says the line). onTalk(true/false) tells the guide card when to show that someone is talking.
+  const PAUSE = { comma: 280, stop: 550 };
+  const guideClips = new Map();
+  let onTalk = null;
+  function talking(on) { if (onTalk) onTalk(on); }
+  function guideClip(key) {
+    if (!guideClips.has(key)) {
+      guideClips.set(key, fetch('guide/' + key + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { guideClips.delete(key); throw e; }));
+    }
+    return guideClips.get(key);
+  }
+  // Says one guide line; falls back to the device's voice where the recording can't be fetched
+  // (the single offline file). Resolves when the line has finished, or at once if nothing was said.
+  function guide(key, text) {
+    stopSpeech();
+    const my = queueId;
+    return new Promise((done) => {
+      const end = () => { if (my === queueId) talking(false); done(); };
+      if (!canTalk() || !ready()) return done();
+      talking(true);
+      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, 'en', end))) end(); };
+      if (typeof fetch === 'undefined' || location.protocol === 'file:') return viaDevice();
+      guideClip(key).then((b) => {
+        if (my !== queueId) return done();
+        const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(master);
+        const s = ctx.createBufferSource(); s.buffer = b; s.connect(bus); s.start(ctx.currentTime + 0.03);
+        current = s;
+        duck(true);
+        s.onended = () => { if (current === s) { current = null; duck(false); } end(); };
+      }, viaDevice);
+    });
+  }
+  // True once the browser lets the game make sound (from the first tap on).
+  let tapped = false;
+  const canTalk = () => tapped || !!(ctx && ctx.state === 'running');
+  function hush() { stopSpeech(); duck(false); talking(false); }
 
   return {
     play,
@@ -412,8 +461,9 @@ function ChacklateAudio() {
       if (on) { if (music) musicBus.gain.setTargetAtTime(musicVol * 0.5, ctx.currentTime, 0.4); else startMusic(); } else stopMusic();
     },
     // Browsers only allow sound after a user gesture; call this from one.
-    unlock() { if (ready() && musicOn && !music) startMusic(); },
-    say, hush, event, announce, voiceKey, moveWords,
+    unlock() { if (ready()) { tapped = true; if (musicOn && !music) startMusic(); } },
+    say, hush, event, announce, voiceKey, moveWords, guide, canTalk, phrases,
+    onTalk(fn) { onTalk = fn; },
     voices: () => V.voices.slice(),
     setVoices(o) {
       if (o.coach) coachVoice = o.coach;

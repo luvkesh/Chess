@@ -1,0 +1,342 @@
+{
+ "home.first": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Hi, I'm Rooky! Tap The Journey to travel through time with me, or tap Quick Play for a game with an animal friend."
+ },
+ "home": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Welcome back! Tap The Journey to carry on your adventure, or tap Quick Play for a fun game."
+ },
+ "home.resume": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Your game is waiting for you! Tap Resume Game, and carry on where you left off."
+ },
+ "play": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Pick an animal friend to play with. If you're new, start with Truffle the bunny. Each friend is a little stronger than the last."
+ },
+ "journey": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Every era is a new adventure! Tap an open era, and meet the friend who lives there."
+ },
+ "learn": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Pick a lesson, and I'll teach you, step by step. Start at the top, and work your way down."
+ },
+ "puzzles": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Puzzles are little treasure hunts. Pick one, then find the best move."
+ },
+ "training": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Let's practise! Pick a skill, and we'll work on it together."
+ },
+ "openings": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Openings are the first moves of a game. Pick one, and try it on the board."
+ },
+ "dojo": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Endgames are the end of a game, when only a few pieces are left. Pick one, and win it, step by step."
+ },
+ "collection": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "This is your collection! Tap anything to see it up close. Then tap Use, to put it on your table."
+ },
+ "profile": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "This is you! Here you can see your level, your games, and your badges."
+ },
+ "season": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Play games, learn, and solve puzzles to climb the season. Every tier has a prize!"
+ },
+ "store": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "This part is for grown-ups. Please ask a grown-up before you buy anything."
+ },
+ "review": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Let's look back at your game. Tap the arrows, and step through it, one move at a time."
+ },
+ "game.white": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "You go first! Tap one of your pieces, then tap the square where you want it to go."
+ },
+ "game.black": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Your friend moves first. Watch their move, and then it's your turn!"
+ },
+ "game.check": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Uh oh, your king is in check! Move it to safety, block the attack, or take the attacker."
+ },
+ "game.idle": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Take your time. If you're stuck, tap Hint, and I'll show you a good idea."
+ },
+ "game.over": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Good game! Tap Review with Rooky to see your best moves, or play again."
+ },
+ "lesson.steps": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Let's learn! Listen, and watch the board. Then tap Next, when you're ready."
+ },
+ "lesson.ex": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Now it's your turn! Move a piece on the board, to answer."
+ },
+ "lesson.idle": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Need some help? Tap Hint, and I'll give you a clue."
+ },
+ "lesson.done": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Well done, you finished the lesson! Tap the gold button to carry on."
+ },
+ "puzzle.start": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Find the best move! Look for checks, captures, and threats."
+ },
+ "puzzle.wrong": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Good try! Have another look, or tap Hint for a clue."
+ },
+ "puzzle.idle": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Stuck? Tap Hint, and I'll give you a clue."
+ },
+ "puzzle.solved": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "You did it! Tap Next puzzle, to keep going."
+ },
+ "era.egypt.tale": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Welcome to Ancient Egypt! I'm Miu. Tap the first stage, Games of the pharaohs, and I'll tell you a story."
+ },
+ "era.egypt.lesson": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Great listening! Now tap the lesson, The knight's jump, and learn something new."
+ },
+ "era.egypt.puzzles": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Well done! Next, tap Tomb treasure, and solve my puzzles."
+ },
+ "era.egypt.champion": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "You're ready! Tap Miu's challenge, and play me. Win, and the Pharaoh's Treasure set is yours!"
+ },
+ "era.egypt.done": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "You beat me! The Pharaoh's Treasure set is yours. Tap All eras, and travel on to Ancient Greece."
+ },
+ "era.greece.tale": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "Welcome to Ancient Greece! I'm Sophie. Tap the first stage, Thinkers and their games, and I'll tell you a story."
+ },
+ "era.greece.lesson": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "Great listening! Now tap the lesson, Counting captures, and learn something new."
+ },
+ "era.greece.puzzles": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "Well done! Next, tap The owl's eyes, and solve my puzzles."
+ },
+ "era.greece.champion": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "You're ready! Tap Sophie's challenge, and play me. Win, and the Olympian Marble set is yours!"
+ },
+ "era.greece.done": {
+  "who": "sophie",
+  "voice": "bf_isabella",
+  "text": "You beat me! The Olympian Marble set is yours. Tap All eras, and travel on to Ancient Rome."
+ },
+ "era.rome.tale": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "Welcome to Ancient Rome! I'm Marcus. Tap the first stage, The game of little soldiers, and I'll tell you a story."
+ },
+ "era.rome.lesson": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "Great listening! Now tap the lesson, Checkmate, and learn something new."
+ },
+ "era.rome.puzzles": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "Well done! Next, tap Trap the general, and solve my puzzles."
+ },
+ "era.rome.champion": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "You're ready! Tap Marcus's challenge, and play me. Win, and the Imperial Rome set is yours!"
+ },
+ "era.rome.done": {
+  "who": "marcus",
+  "voice": "am_michael,am_fenrir",
+  "text": "You beat me! The Imperial Rome set is yours. Tap All eras, and travel on to Mughal India."
+ },
+ "era.mughal.tale": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "Welcome to Mughal India! I'm Moti. Tap the first stage, Chaturanga, and I'll tell you a story."
+ },
+ "era.mughal.lesson": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "Great listening! Now tap the lesson, Fight for the centre, and learn something new."
+ },
+ "era.mughal.puzzles": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "Well done! Next, tap The elephant's fork, and solve my puzzles."
+ },
+ "era.mughal.champion": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "You're ready! Tap Moti's challenge, and play me. Win, and the Maharaja's Jade set is yours!"
+ },
+ "era.mughal.done": {
+  "who": "moti",
+  "voice": "bm_fable,bm_lewis",
+  "text": "You beat me! The Maharaja's Jade set is yours. Tap All eras, and travel on to Ming China."
+ },
+ "era.ming.tale": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "Welcome to Ming China! I'm Bao. Tap the first stage, Elephants, cannons and a river, and I'll tell you a story."
+ },
+ "era.ming.lesson": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "Great listening! Now tap the lesson, Skewers, and learn something new."
+ },
+ "era.ming.puzzles": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "Well done! Next, tap The panda's skewer, and solve my puzzles."
+ },
+ "era.ming.champion": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "You're ready! Tap Bao's challenge, and play me. Win, and the Ming Porcelain set is yours!"
+ },
+ "era.ming.done": {
+  "who": "bao",
+  "voice": "af_sky",
+  "text": "You beat me! The Ming Porcelain set is yours. Tap All eras, and travel on to Venice."
+ },
+ "era.venice.tale": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "Welcome to Venice! I'm Marco. Tap the first stage, The queen gets her power, and I'll tell you a story."
+ },
+ "era.venice.lesson": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "Great listening! Now tap the lesson, The queen comes out, and learn something new."
+ },
+ "era.venice.endgame": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "Well done! Next, tap The queen's power, and win the endgame."
+ },
+ "era.venice.champion": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "You're ready! Tap Marco's challenge, and play me. Win, and the Murano Glass set is yours!"
+ },
+ "era.venice.done": {
+  "who": "marco",
+  "voice": "bm_george,bm_fable",
+  "text": "You beat me! The Murano Glass set is yours. Tap All eras, and travel on to Imperial Russia."
+ },
+ "era.russia.tale": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "Welcome to Imperial Russia! I'm Mishka. Tap the first stage, The endgame school, and I'll tell you a story."
+ },
+ "era.russia.lesson": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "Great listening! Now tap the lesson, The opposition, and learn something new."
+ },
+ "era.russia.endgame": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "Well done! Next, tap March of the pawn, and win the endgame."
+ },
+ "era.russia.champion": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "You're ready! Tap Mishka's challenge, and play me. Win, and the Tsarina's Faberge set is yours!"
+ },
+ "era.russia.done": {
+  "who": "mishka",
+  "voice": "am_fenrir",
+  "text": "You beat me! The Tsarina's Faberge set is yours. Tap All eras, and travel on to New York."
+ },
+ "era.deco.tale": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "Welcome to New York! I'm Skye. Tap the first stage, The city of chess clubs, and I'll tell you a story."
+ },
+ "era.deco.lesson": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "Great listening! Now tap the lesson, Mating patterns, and learn something new."
+ },
+ "era.deco.puzzles": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "Well done! Next, tap Skyline finish, and solve my puzzles."
+ },
+ "era.deco.champion": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "You're ready! Tap Skye's challenge, and play me. Win, and the Manhattan Deco set is yours!"
+ },
+ "era.deco.done": {
+  "who": "skye",
+  "voice": "af_nova",
+  "text": "You beat me! The Manhattan Deco set is yours. What a journey, all the way through chess history!"
+ }
+}

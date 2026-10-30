@@ -45,6 +45,7 @@ parts = [
     data('CHACKLATE_STORE', 'store.json'),
     data('CHACKLATE_VOICE', 'voice.json'),
     data('CHACKLATE_CAMPAIGN', 'campaign.json'),
+    data('CHACKLATE_GUIDE', 'guide.json'),
 ]
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.

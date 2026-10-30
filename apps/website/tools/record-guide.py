@@ -13,11 +13,14 @@ import subprocess
 import tempfile
 
 os.environ['HF_HUB_OFFLINE'] = '1'
-import numpy as np
+import sys
+
 import soundfile as sf
 from kokoro import KPipeline
 
 here = pathlib.Path(__file__).parent.parent
+sys.path.insert(0, str(here.parent.parent / 'tools' / 'voice'))
+from pauses import speak   # a breath after each comma and full stop, as in the game's guide
 guide = json.loads((here / 'guide.json').read_text())
 coach = json.loads((here.parent.parent / 'packages' / 'content' / 'campaign.json').read_text())['coach']['name']
 out = here / 'audio'
@@ -26,7 +29,7 @@ pipe = KPipeline(lang_code='a', repo_id='hexgrad/Kokoro-82M')   # American Engli
 index = {'voice': guide['voice'], 'lines': {}}
 for key, line in guide['lines'].items():
     text = line.replace('{coach}', coach)
-    audio = np.concatenate([np.asarray(r.audio) for r in pipe(text, voice=guide['voice'], speed=guide['speed'])])
+    audio = speak(pipe, text, guide['voice'], guide['speed'])
     with tempfile.NamedTemporaryFile(suffix='.wav') as wav:
         sf.write(wav.name, audio, 24000)
         # the same treatment as the game's clips: trimmed, even loudness, mono 24 kHz at 40 kb/s

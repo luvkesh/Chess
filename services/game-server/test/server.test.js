@@ -624,6 +624,11 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     assert.match(locked.body.error, /Too many/);
     // The parent page, the privacy policy and the terms are served.
     for (const page of ['/parent', '/privacy', '/terms']) assert.strictEqual((await fetch('http://127.0.0.1:' + port + page)).status, 200, page);
+    // The audio guide's recorded lines are served; nothing outside the guide folder is.
+    const line = await fetch('http://127.0.0.1:' + port + '/guide/home.first.mp3');
+    assert.strictEqual(line.status, 200);
+    assert.strictEqual(line.headers.get('content-type'), 'audio/mpeg');
+    assert.strictEqual((await fetch('http://127.0.0.1:' + port + '/guide/..%2Fsw.js')).status, 404);
     const me = await P('/api/parent/me', {}, PT);
     assert.strictEqual(me.body.children.length, 1);
     assert.strictEqual(me.body.children[0].activity.onlineGames, 1);
