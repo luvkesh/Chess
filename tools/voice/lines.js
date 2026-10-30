@@ -44,6 +44,7 @@ function fragments(M) {
 function lessonLines() {
   const out = [];
   for (const l of load('lessons.json').lessons) {
+    if (l.voice) continue;   // said by its own speakers, see wordLines()
     for (const s of l.steps) if (s.say) out.push(s.say);
     for (const e of l.exercises) {
       if (e.prompt) out.push(e.prompt);
@@ -56,6 +57,21 @@ function lessonLines() {
     for (const n of Object.values(o.notes || {})) out.push(n);
   }
   for (const e of load('endgames.json').endgames) if (e.tip) out.push(e.tip);
+  return out;
+}
+
+// Lessons with their own speakers ("voice": "rooky", such as Words at the table): Rooky says every
+// English line and word, and Priya says each word in Hindi. Recorded by tools/voice/record-words.py.
+function wordLines() {
+  const M = load('voice.json').moves.en, out = [];
+  // read out the way a child should hear it: notation as words, j'adoube as the French says it
+  const spoken = (who, text) => (who === 'priya' ? text.replace(/-/g, ' ') : spokenEn(text, M).replace(/j'adoube/gi, (w) => (w[0] === 'J' ? 'Zha' : 'zha') + ' doob').replace(/Shah-maat/g, 'Shah maat'));
+  const add = (who, text) => { if (text && !out.some((o) => o.who === who && o.text === text)) out.push({ who, text, key: voiceKey(text), spoken: spoken(who, text) }); };
+  for (const l of load('lessons.json').lessons) {
+    if (!l.voice) continue;
+    for (const s of l.steps) { add(l.voice, s.say); if (s.word) { add(l.voice, s.word.en); add('priya', s.word.hi); } }
+    for (const e of l.exercises) { add(l.voice, e.prompt); for (const h of e.hints || []) add(l.voice, h); }
+  }
   return out;
 }
 
@@ -79,5 +95,5 @@ function jobs() {
   return out;
 }
 
-if (require.main === module) process.stdout.write(JSON.stringify(jobs()));
-module.exports = { voiceKey, spokenEn, fragments, jobs };
+if (require.main === module) process.stdout.write(JSON.stringify(process.argv[2] === 'words' ? wordLines() : jobs()));
+module.exports = { voiceKey, spokenEn, fragments, jobs, wordLines };

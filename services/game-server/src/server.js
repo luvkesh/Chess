@@ -210,6 +210,15 @@ function createServer(opts) {
         return fs.createReadStream(gf).pipe(res);
       }
     }
+    // Lessons with their own speakers: words/<who>/<hash of the text>.mp3, recorded again when a voice changes.
+    const wm = url.pathname.match(/^\/words\/([a-z]+)\/([0-9a-f]{8})\.mp3$/);
+    if (wm && req.method === 'GET') {
+      const wf = path.join(PUBLIC, 'words', wm[1], wm[2] + '.mp3');
+      if (fs.existsSync(wf)) {
+        res.writeHead(200, Object.assign({ 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
+        return fs.createReadStream(wf).pipe(res);
+      }
+    }
     const file = STATIC[url.pathname.replace(/\/+$/, '') || '/'];
     if (file && fs.existsSync(file)) {
       const ext = path.extname(file);

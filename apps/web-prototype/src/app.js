@@ -2702,7 +2702,7 @@
         pool.forEach((p) => ex.push({ type: 'puzzle', prompt: x.prompt, puzzle: p }));
       } else ex.push(x);
     }
-    const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
+    const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, talk: 0 };
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
@@ -2721,7 +2721,13 @@
     const guided = {};
     const speak = (now) => {
       const t = S.phase === 'steps' ? L.steps[S.i].say : S.phase === 'ex' ? ex[S.i] && ex[S.i].prompt : null;
-      const say = () => { if (t && state.settings.narration) AU.say(t); };
+      const w = S.phase === 'steps' && L.steps[S.i].word, run = ++S.talk;
+      // A lesson with its own speakers: Rooky says the line, then Priya says the word in Hindi.
+      const say = () => {
+        if (!t || !state.settings.narration) return;
+        if (!L.voice) { AU.say(t); return; }
+        AU.words(L.voice, t).then(() => { if (w && run === S.talk && state.screen === 'lesson' && state.settings.narration) AU.words('priya', w.hi); });
+      };
       const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
       if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
       if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
@@ -2743,6 +2749,12 @@
         setTimeout(stepPlay, 700);
       } else if (cb) cb();
     }
+    // A word at the table: the English that Rooky says beside the Hindi that Priya says. Tap either to hear it.
+    function tableWord(w) {
+      return '<div class="tw">' +
+        '<button class="tw-en" data-word="' + esc(L.voice) + '" data-text="' + esc(w.en) + '" aria-label="Hear ' + esc(w.en) + '">' + icon('speaker') + '<b>' + esc(w.en) + '</b>' + (w.note ? '<small>' + esc(w.note) + '</small>' : '') + '</button>' +
+        '<button class="tw-hi" data-word="priya" data-text="' + esc(w.hi) + '" aria-label="Hear it in Hindi: ' + esc(w.latin) + '">' + icon('speaker') + '<b lang="hi">' + esc(w.hi) + '</b><small>' + esc(w.latin) + '</small></button></div>';
+    }
     function dots() {
       const total = L.steps.length + ex.length;
       let html = '';
@@ -2757,7 +2769,12 @@
     function renderStep() {
       const st = L.steps[S.i];
       $('ls-phase').textContent = 'Lesson · ' + (S.i + 1) + ' of ' + L.steps.length;
-      $('ls-content').innerHTML = '<p class="say">' + esc(st.say) + '</p>' + (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
+      $('ls-content').innerHTML = '<p class="say">' + esc(st.say) + '</p>' + (st.word ? tableWord(st.word) : '') +
+        (st.glossary ? '<div class="tw-list">' + L.steps.filter((x) => x.word).map((x) => tableWord(x.word)).join('') + '</div>' : '') +
+        (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
+      document.querySelectorAll('#ls-content [data-word]').forEach((b) => {
+        b.onclick = () => { AU.unlock(); S.talk++; AU.words(b.dataset.word, b.dataset.text); };
+      });
       $('ls-prev').disabled = S.i === 0;
       $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Start the exercises' : 'Next';
       setHooks({});
