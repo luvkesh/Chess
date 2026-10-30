@@ -23,5 +23,7 @@
   "nameSaved": { "en": "Name saved." },
   "previewOn": { "en": "Premium preview on." },
   "previewOff": { "en": "Premium preview off." },
-  "noOnline": { "en": "Online play is not available in this build." }
+  "noOnline": { "en": "Online play is not available in this build." },
+  "emailOk": { "en": "Email confirmed. Thank you." },
+  "emailBad": { "en": "That confirmation link has expired or was already used." }
 }

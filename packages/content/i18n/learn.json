@@ -136,5 +136,17 @@
   "pzh.forcing": { "en": "Look for the most forcing move." },
   "pzh.piece": { "en": "Move the piece on {sq}." },
   "pzh.arrow": { "en": "Follow the arrow, then keep going." },
-  "pz.theSolution": { "en": "The solution: {san}." }
+  "pz.theSolution": { "en": "The solution: {san}." },
+  "dr.white": { "en": "Playing White" },
+  "dr.black": { "en": "Playing Black" },
+  "dr.restart": { "en": "Restart" },
+  "dr.yourMove": { "en": "Your move." },
+  "dr.theyPlay": { "en": "They play {san}: {note}" },
+  "dr.slip": { "en": "Line complete with {n} slip. Run it again cleanly." },
+  "dr.slips": { "en": "Line complete with {n} slips. Run it again cleanly." },
+  "dr.clean": { "en": "Clean run!" },
+  "dr.mastered": { "en": "Opening mastered." },
+  "dr.runs": { "en": "{n} of 3 clean runs." },
+  "dr.inLine": { "en": "In this line we play {san}." },
+  "dr.play": { "en": "Play {san}." }
 }

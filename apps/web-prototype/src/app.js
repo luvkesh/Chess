@@ -3001,12 +3001,12 @@
     const me = o.side === 'white' ? WHITE : BLACK;
     const S = { g: new E.Game(), i: 0, misses: 0, selected: -1, done: false, busy: false };
     view.setAttract(false);
-    mount('<div class="hud-top"><button class="backbtn" id="dr-back">' + icon('back') + '<span>Opening lab</span></button>' +
+    mount('<div class="hud-top"><button class="backbtn" id="dr-back">' + icon('back') + '<span>' + t('learn.labTitle') + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + esc(o.eco) + ' · ' + esc(o.name) + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="dr-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow">Playing ' + (o.side === 'white' ? 'White' : 'Black') + '</div><h3>' + esc(o.name) + '</h3></div></header><div class="content">' +
-      '<p class="say">' + esc(o.summary) + '</p><ul class="ideas">' + o.ideas.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul><div class="drill-moves" id="dr-moves"></div><div id="dr-fb"></div></div>' +
-      '<footer><button class="btn" id="dr-hint">' + icon('hint') + ' Hint</button><button class="btn" id="dr-reset">' + icon('refresh') + ' Restart</button><div class="grow"></div><button class="btn primary" id="dr-play" hidden>' + icon('play') + ' Play from here</button></footer></aside>');
+      '<button class="round" id="dr-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow">' + t(o.side === 'white' ? 'learn.dr.white' : 'learn.dr.black') + '</div><h3>' + esc(o.name) + '</h3></div></header><div class="content">' +
+      '<p class="say">' + esc(o.summary) + '</p><ul class="ideas">' + o.ideas.map((idea) => '<li>' + esc(idea) + '</li>').join('') + '</ul><div class="drill-moves" id="dr-moves"></div><div id="dr-fb"></div></div>' +
+      '<footer><button class="btn" id="dr-hint">' + icon('hint') + ' ' + t('play.btn.hint') + '</button><button class="btn" id="dr-reset">' + icon('refresh') + ' ' + t('learn.dr.restart') + '</button><div class="grow"></div><button class="btn primary" id="dr-play" hidden>' + icon('play') + ' ' + t('learn.rv.fromHere') + '</button></footer></aside>');
     $('dr-back').onclick = () => { AU.play('tap'); go('openings', o.side); };
     $('dr-set').onclick = () => settingsModal();
     const fb = (kind, t) => { $('dr-fb').innerHTML = t ? '<div class="feedback ' + kind + '">' + esc(t) + '</div>' : ''; };
@@ -3014,7 +3014,7 @@
     function moveList() {
       let h = '';
       S.g.sans.forEach((x, k) => { if (k % 2 === 0) h += '<span class="n">' + (k / 2 + 1) + '.</span>'; h += '<span class="m' + (k === S.g.sans.length - 1 ? ' last' : '') + '">' + esc(x) + '</span>'; });
-      $('dr-moves').innerHTML = h || '<span class="n">Your move.</span>';
+      $('dr-moves').innerHTML = h || '<span class="n">' + t('learn.dr.yourMove') + '</span>';
     }
     function show(info) {
       view.setBoard(piecesOf(S.g.pos), null);
@@ -3030,7 +3030,7 @@
         const info = S.g.playText(o.moves[S.i]);
         const note = o.notes[S.i];
         S.i++;
-        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', 'They play ' + info.san + ': ' + note); advance(); });
+        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', t('learn.dr.theyPlay', { san: info.san, note })); advance(); });
       }, 450);
     }
     function finish() {
@@ -3039,7 +3039,7 @@
       const res = PG.openingFinished(state.progress, o.id, S.misses === 0);
       save();
       const rec = state.progress.openings[o.id];
-      fb('ok', (S.misses ? 'Line complete with ' + S.misses + ' slip' + (S.misses > 1 ? 's' : '') + '. Run it again cleanly.' : 'Clean run! ') + (rec.mastered ? (res.mastered ? ' Opening mastered.' : '') : ' ' + rec.clean + ' of 3 clean runs.'));
+      fb('ok', (S.misses ? t(S.misses > 1 ? 'learn.dr.slips' : 'learn.dr.slip', { n: S.misses }) : t('learn.dr.clean')) + (rec.mastered ? (res.mastered ? ' ' + t('learn.dr.mastered') : '') : ' ' + t('learn.dr.runs', { n: rec.clean })));
       AU.play('correct');
       if (res.mastered) view.celebrate('win', -1, null, -1);
       $('dr-play').hidden = false;
@@ -3053,7 +3053,7 @@
       if (E.uci(m) !== want) {
         S.misses++;
         AU.play('wrong');
-        fb('bad', 'In this line we play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
+        fb('bad', t('learn.dr.inLine', { san: san(S.i + 1) }) + (o.notes[S.i] ? ' ' + o.notes[S.i] : ''));
         view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
         show(null);
         return true;
@@ -3082,7 +3082,7 @@
       S.misses++;
       const want = o.moves[S.i];
       view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
-      fb('hint', 'Play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
+      fb('hint', t('learn.dr.play', { san: san(S.i + 1) }) + (o.notes[S.i] ? ' ' + o.notes[S.i] : ''));
       AU.play('coach');
     };
     $('dr-reset').onclick = () => { AU.play('tap'); go('drill', id); };
@@ -3284,7 +3284,7 @@
     drawOffered() {
       const G = state.game; if (!G) return;
       AU.event('draw.offer');
-      coachSay('Your opponent offers a draw.', [['Accept', 'accept-draw'], ['Decline', 'dismiss']]);
+      coachSay(t('play.offer'), [[t('play.accept'), 'accept-draw'], [t('play.decline'), 'dismiss']]);
       const b = document.querySelector('[data-coach="accept-draw"]');
       if (b) b.onclick = () => { ChacklateNet.send({ type: 'draw-accept' }); G.coachMsg = null; renderCoach(); };
     },
@@ -3313,8 +3313,8 @@
   // App shortcuts from the installed icon's menu, and links from emails.
   if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
   else if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
-  else if (location.hash === '#email-verified') toast('Email confirmed. Thank you.');
-  else if (location.hash === '#email-invalid') toast('That confirmation link has expired or was already used.', 'bad');
+  else if (location.hash === '#email-verified') toast(t('profile.emailOk'));
+  else if (location.hash === '#email-invalid') toast(t('profile.emailBad'), 'bad');
   else if (location.hash === '#daily' && dailyPuzzle()) go('puzzle', { list: [dailyPuzzle()], daily: true, title: t('learn.dailyPuzzle') });
   else if (location.hash === '#journey') go('journey');
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);

@@ -184,5 +184,8 @@
   "fr.joinSub": { "en": "Type the code your friend sent you." },
   "fr.joinBtn": { "en": "Join" },
   "fr.local": { "en": "Take turns on this device" },
-  "fr.badCode": { "en": "Codes are 6 letters or digits." }
+  "fr.badCode": { "en": "Codes are 6 letters or digits." },
+  "offer": { "en": "Your opponent offers a draw." },
+  "accept": { "en": "Accept" },
+  "decline": { "en": "Decline" }
 }
