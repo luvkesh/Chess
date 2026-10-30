@@ -49,3 +49,15 @@ assert.strictEqual(ladder.piece, 'rook on a1');
 assert.strictEqual(ladder.san, 'Ra8#');
 
 console.log('coach ok');
+
+// Chaturanga: the coach knows the old moves and names. A Mantri (counsellor) on d4 attacks only
+// its four diagonal neighbours, a Gaja (elephant) jumps two squares, and nothing slides diagonally.
+{
+  const p = E.positionFrom('chaturanga:4k3/8/8/8/3q4/8/8/B3K3 w - - 0 1', []);
+  assert.deepStrictEqual(C.attacksFrom(p, E.parseSq('d4')).map((s) => E.sqName(s)).sort(), ['c3', 'c5', 'e3', 'e5']);
+  assert.deepStrictEqual(C.attacksFrom(p, E.parseSq('a1')).map((s) => E.sqName(s)).sort(), ['c3']);
+  assert.deepStrictEqual(C.attackers(p, E.parseSq('e5'), -1).map((a) => a.kind), [E.Q]);
+  const h = C.hintLadder(E.positionFrom('chaturanga:4k3/8/8/8/8/8/3r4/K2R4 w - - 0 1', []), E.positionFrom('chaturanga:4k3/8/8/8/8/8/3r4/K2R4 w - - 0 1', []).parseMove('Rxd2'));
+  assert.ok(/chariot/.test(h.piece) && /chariot/.test(h.text), h.text);
+}
+console.log('coach chaturanga ok');

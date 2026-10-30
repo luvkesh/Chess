@@ -3,7 +3,7 @@
   "piece.n": { "en": "Knight", "hi": "घोड़ा", "check": ["hi"] },
   "piece.b": { "en": "Bishop", "hi": "ऊँट", "check": ["hi"] },
   "piece.r": { "en": "Rook", "hi": "हाथी", "check": ["hi"] },
-  "piece.q": { "en": "Queen", "hi": "रानी", "check": ["hi"] },
+  "piece.q": { "en": "Queen", "hi": "वज़ीर", "check": ["hi"] },
   "piece.k": { "en": "King", "hi": "राजा", "check": ["hi"] },
   "cancel": { "en": "Cancel", "hi": "रद्द करें", "check": ["hi"] },
   "continue": { "en": "Continue", "hi": "आगे बढ़ें", "check": ["hi"] },

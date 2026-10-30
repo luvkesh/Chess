@@ -7,7 +7,7 @@
   "piece.2": { "en": "knight", "hi": "घोड़ा", "check": ["hi"] },
   "piece.3": { "en": "bishop", "hi": "ऊँट", "check": ["hi"] },
   "piece.4": { "en": "rook", "hi": "हाथी", "check": ["hi"] },
-  "piece.5": { "en": "queen", "hi": "रानी", "check": ["hi"] },
+  "piece.5": { "en": "queen", "hi": "वज़ीर", "check": ["hi"] },
   "piece.6": { "en": "king", "hi": "राजा", "check": ["hi"] },
   "d.mate": { "en": "{san} is checkmate.", "hi": "{san} शह-मात है।", "check": ["hi"] },
   "d.stalemate": { "en": "{san} stalemates: the game is drawn.", "hi": "{san} से ज़िच हो जाती है: खेल ड्रॉ है।", "check": ["hi"] },
@@ -63,5 +63,12 @@
   "h.capture": { "en": "Something can be captured safely.", "hi": "कुछ सुरक्षित तरीक़े से मारा जा सकता है।", "check": ["hi"] },
   "h.promote": { "en": "A pawn is ready to promote.", "hi": "एक प्यादा तरक्की के लिए तैयार है।", "check": ["hi"] },
   "h.castle": { "en": "Think about king safety.", "hi": "राजा की सुरक्षा के बारे में सोचें।", "check": ["hi"] },
-  "h.attacked": { "en": "One of your pieces is under attack. Look at your {piece} on {sq}.", "hi": "आपके एक मोहरे पर हमला है। {sq} वाले अपने {piece} को देखें।", "check": ["hi"] }
+  "h.attacked": { "en": "One of your pieces is under attack. Look at your {piece} on {sq}.", "hi": "आपके एक मोहरे पर हमला है। {sq} वाले अपने {piece} को देखें।", "check": ["hi"] },
+  "old.1": { "en": "soldier", "hi": "सैनिक", "check": ["hi"] },
+  "old.2": { "en": "horse", "hi": "घोड़ा", "check": ["hi"] },
+  "old.3": { "en": "elephant", "hi": "गज", "check": ["hi"] },
+  "old.4": { "en": "chariot", "hi": "रथ", "check": ["hi"] },
+  "old.5": { "en": "counsellor", "hi": "मंत्री", "check": ["hi"] },
+  "old.6": { "en": "king", "hi": "राजा", "check": ["hi"] },
+  "d.stalemateOld": { "en": "{san} leaves the king with no move: in chaturanga that wins.", "hi": "{san} के बाद राजा के पास कोई चाल नहीं बचती: चतुरंग में इससे जीत होती है।", "check": ["hi"] }
 }

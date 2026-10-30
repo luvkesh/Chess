@@ -1,5 +1,5 @@
 // The English of every content string the menus show: the animal friends, the era names and
-// their friends' lines, missions, the season, achievements, level titles and the mini-games. The content files
+// their friends' lines, missions, the season, achievements, level titles, the mini-games and the variations. The content files
 // stay the source of the English; packages/content/i18n/content.json holds the other languages
 // under these keys, and test/i18n.test.js checks the two agree. Story pages, lessons, openings
 // and endgames are narrated and stay in English for now.
@@ -31,6 +31,7 @@ function expected() {
     g.howTo.forEach((s, i) => put('mini.' + g.id + '.how' + i, s));
     for (const [v, n] of g.levels) put('mini.' + g.id + '.lv.' + v, n);
   }
+  for (const v of content('variants.json').variants) for (const f of ['tagline', 'when', 'blurb']) put('var.' + v.id + '.' + f, v[f]);
   return out;
 }
 module.exports = { expected, slug };

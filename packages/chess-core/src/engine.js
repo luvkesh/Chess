@@ -15,7 +15,20 @@ function ChacklateEngine() {
   const KING_DIRS = [1, -1, 16, -16, 15, 17, -15, -17];
   const BISHOP_DIRS = [15, 17, -15, -17];
   const ROOK_DIRS = [1, -1, 16, -16];
+  const ALFIL_DIRS = [30, 34, -30, -34];
   const STACK = 2048;
+
+  // Variations. A position's variation travels inside its FEN as a prefix ("chaturanga:rnbq..."),
+  // so start positions, saved games, worker jobs and reviews keep their rules without extra plumbing.
+  // Plain chess has no prefix. Chaturanga, the ancient Indian game, reuses the piece codes of the
+  // pieces they grew into: the Gaja (elephant, B) jumps exactly two squares diagonally, the Mantri
+  // (counsellor, Q) steps one square diagonally, pawns step one square and become a Mantri, there is
+  // no castling, stalemate wins for the side that gives it, and a bare king loses.
+  const VARIANTS = {
+    standard: { id: 'standard', name: 'Chess', start: START_FEN },
+    chaturanga: { id: 'chaturanga', name: 'Chaturanga', start: 'chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1', old: true },
+  };
+  const VARIANT_IDS = Object.keys(VARIANTS);
 
   // Castling rights bits: 1 = white O-O, 2 = white O-O-O, 4 = black O-O, 8 = black O-O-O.
   // Moving from or to these squares clears the matching rights.
@@ -38,6 +51,8 @@ function ChacklateEngine() {
   const ZEL = new Int32Array(8), ZEH = new Int32Array(8);
   for (let i = 0; i < 8; i++) { ZEL[i] = rand32(); ZEH[i] = rand32(); }
   const ZSL = rand32(), ZSH = rand32();
+  // Each variation hashes differently, so the shared search table never mixes their scores.
+  const ZVL = VARIANT_IDS.map((id, i) => (i ? rand32() : 0)), ZVH = VARIANT_IDS.map((id, i) => (i ? rand32() : 0));
 
   const mv = (from, to, promo, flags) => from | (to << 7) | (promo << 14) | (flags << 17);
   const mFrom = (m) => m & 127;
@@ -56,6 +71,8 @@ function ChacklateEngine() {
   // ---------------------------------------------------------------- Position
 
   function Pos() {
+    this.v = VARIANTS.standard;
+    this.ch = false;   // ancient (chaturanga) piece moves and endings
     this.b = new Int8Array(128);
     this.side = WHITE;
     this.castle = 0;
@@ -74,7 +91,15 @@ function ChacklateEngine() {
   const kIdx = (side) => (side === WHITE ? 0 : 1);
 
   Pos.prototype.load = function (fen) {
-    const f = String(fen).trim().split(/\s+/);
+    let text = String(fen).trim(), variant = VARIANTS.standard;
+    const pre = text.match(/^([a-z0-9]+):/);
+    if (pre) {
+      variant = VARIANTS[pre[1]];
+      if (!variant || variant.id === 'standard') return 'Unknown variation "' + pre[1] + '".';
+      text = text.slice(pre[0].length);
+    }
+    const old = !!variant.old;
+    const f = text.split(/\s+/);
     if (f.length !== 4 && f.length !== 6) return 'A FEN needs 6 fields.';
     const b = new Int8Array(128);
     const ranks = f[0].split('/');
@@ -103,6 +128,8 @@ function ChacklateEngine() {
       if (c.reduce((a, x) => a + x, 0) > 16) return 'A side cannot have more than 16 pieces.';
     }
     if (f[1] !== 'w' && f[1] !== 'b') return 'Side to move must be w or b.';
+    if (old && f[2] !== '-') return 'There is no castling in ' + variant.name + '.';
+    if (old && f[3] !== '-') return 'There is no en passant in ' + variant.name + '.';
     let castle = 0;
     if (f[2] !== '-') {
       for (const c of f[2]) {
@@ -126,6 +153,7 @@ function ChacklateEngine() {
       half = parseInt(f[4], 10); full = parseInt(f[5], 10);
       if (!(half >= 0) || !(full >= 1)) return 'Invalid move counters.';
     }
+    this.v = variant; this.ch = old;
     this.b = b; this.side = f[1] === 'w' ? WHITE : BLACK; this.castle = castle; this.ep = ep;
     this.half = half; this.full = full; this.sp = 0;
     for (let sq = 0; sq < 128; sq++) {
@@ -147,6 +175,8 @@ function ChacklateEngine() {
     hl ^= ZCL[this.castle]; hh ^= ZCH[this.castle];
     if (this.ep >= 0) { hl ^= ZEL[this.ep & 7]; hh ^= ZEH[this.ep & 7]; }
     if (this.side === BLACK) { hl ^= ZSL; hh ^= ZSH; }
+    const vi = VARIANT_IDS.indexOf(this.v.id);
+    hl ^= ZVL[vi]; hh ^= ZVH[vi];
     this.hl = hl; this.hh = hh;
   };
 
@@ -169,7 +199,7 @@ function ChacklateEngine() {
     if (this.castle & 2) c += 'Q';
     if (this.castle & 4) c += 'k';
     if (this.castle & 8) c += 'q';
-    return s + ' ' + (this.side === WHITE ? 'w' : 'b') + ' ' + (c || '-') + ' ' +
+    return (this.v.id === 'standard' ? '' : this.v.id + ':') + s + ' ' + (this.side === WHITE ? 'w' : 'b') + ' ' + (c || '-') + ' ' +
       (this.ep >= 0 ? sqName(this.ep) : '-') + ' ' + this.half + ' ' + this.full;
   };
 
@@ -185,6 +215,20 @@ function ChacklateEngine() {
       s = sq + 17; if (!(s & 0x88) && b[s] === -P) return true;
     }
     const n = N * by, k = K * by, bi = B * by, r = R * by, q = Q * by;
+    if (this.ch) {
+      for (let i = 0; i < 8; i++) {
+        s = sq + KNIGHT_DIRS[i]; if (!(s & 0x88) && b[s] === n) return true;
+        s = sq + KING_DIRS[i]; if (!(s & 0x88) && b[s] === k) return true;
+      }
+      for (let i = 0; i < 4; i++) {
+        s = sq + ALFIL_DIRS[i]; if (!(s & 0x88) && b[s] === bi) return true;
+        s = sq + BISHOP_DIRS[i]; if (!(s & 0x88) && b[s] === q) return true;
+        const d = ROOK_DIRS[i];
+        s = sq + d;
+        while (!(s & 0x88)) { const p = b[s]; if (p) { if (p === r) return true; break; } s += d; }
+      }
+      return false;
+    }
     for (let i = 0; i < 8; i++) {
       s = sq + KNIGHT_DIRS[i]; if (!(s & 0x88) && b[s] === n) return true;
       s = sq + KING_DIRS[i]; if (!(s & 0x88) && b[s] === k) return true;
@@ -207,7 +251,7 @@ function ChacklateEngine() {
 
   // Pseudo-legal moves. With capturesOnly, also includes queen promotions.
   Pos.prototype.gen = function (list, capturesOnly) {
-    const b = this.b, us = this.side;
+    const b = this.b, us = this.side, old = this.ch;
     for (let sq = 0; sq < 128; sq++) {
       if (sq & 0x88) { sq += 7; continue; }
       const p = b[sq];
@@ -220,11 +264,11 @@ function ChacklateEngine() {
         if (!(one & 0x88) && !b[one]) {
           if ((one >> 4) === promoRank) {
             list.push(mv(sq, one, Q, F_PROMO));
-            if (!capturesOnly) { list.push(mv(sq, one, R, F_PROMO)); list.push(mv(sq, one, B, F_PROMO)); list.push(mv(sq, one, N, F_PROMO)); }
+            if (!capturesOnly && !old) { list.push(mv(sq, one, R, F_PROMO)); list.push(mv(sq, one, B, F_PROMO)); list.push(mv(sq, one, N, F_PROMO)); }
           } else if (!capturesOnly) {
             list.push(mv(sq, one, 0, 0));
             const two = one + fwd;
-            if ((sq >> 4) === (us === WHITE ? 1 : 6) && !b[two]) list.push(mv(sq, two, 0, F_DBL));
+            if (!old && (sq >> 4) === (us === WHITE ? 1 : 6) && !b[two]) list.push(mv(sq, two, 0, F_DBL));
           }
         }
         for (const d of [fwd - 1, fwd + 1]) {
@@ -234,20 +278,20 @@ function ChacklateEngine() {
           if (c && (c > 0) !== (us > 0)) {
             if ((t >> 4) === promoRank) {
               list.push(mv(sq, t, Q, F_CAP | F_PROMO));
-              if (!capturesOnly) { list.push(mv(sq, t, R, F_CAP | F_PROMO)); list.push(mv(sq, t, B, F_CAP | F_PROMO)); list.push(mv(sq, t, N, F_CAP | F_PROMO)); }
+              if (!capturesOnly && !old) { list.push(mv(sq, t, R, F_CAP | F_PROMO)); list.push(mv(sq, t, B, F_CAP | F_PROMO)); list.push(mv(sq, t, N, F_CAP | F_PROMO)); }
             } else list.push(mv(sq, t, 0, F_CAP));
           } else if (t === this.ep) list.push(mv(sq, t, 0, F_CAP | F_EP));
         }
-      } else if (kind === N || kind === K) {
-        const dirs = kind === N ? KNIGHT_DIRS : KING_DIRS;
-        for (let i = 0; i < 8; i++) {
+      } else if (kind === N || kind === K || (old && (kind === B || kind === Q))) {
+        const dirs = kind === N ? KNIGHT_DIRS : kind === K ? KING_DIRS : kind === B ? ALFIL_DIRS : BISHOP_DIRS;
+        for (let i = 0; i < dirs.length; i++) {
           const t = sq + dirs[i];
           if (t & 0x88) continue;
           const c = b[t];
           if (!c) { if (!capturesOnly) list.push(mv(sq, t, 0, 0)); }
           else if ((c > 0) !== (us > 0)) list.push(mv(sq, t, 0, F_CAP));
         }
-        if (kind === K && !capturesOnly) this.genCastles(sq, list);
+        if (kind === K && !capturesOnly && !old) this.genCastles(sq, list);
       } else {
         const dirs = kind === B ? BISHOP_DIRS : kind === R ? ROOK_DIRS : KING_DIRS;
         for (let i = 0; i < dirs.length; i++) {
@@ -375,6 +419,7 @@ function ChacklateEngine() {
 
   // Dead positions found automatically: K v K, K+minor v K, and bishops all on one square colour.
   Pos.prototype.insufficient = function () {
+    if (this.ch) return this.count(WHITE) === 0 && this.count(BLACK) === 0;
     const others = [];
     for (let sq = 0; sq < 128; sq++) {
       if (sq & 0x88) { sq += 7; continue; }
@@ -392,6 +437,7 @@ function ChacklateEngine() {
   // Could `side` still checkmate? Used when the opponent's flag falls (FIDE 6.9).
   // Conservative: a bare king, or a lone minor against a bare king, cannot.
   Pos.prototype.canMate = function (side) {
+    if (this.ch) return this.count(side) > 0;
     if (this.insufficient()) return false;
     const own = [];
     let opponentBare = true;
@@ -404,6 +450,28 @@ function ChacklateEngine() {
     if (own.length === 0) return false;
     if (own.length === 1 && (own[0] === N || own[0] === B)) return !opponentBare;
     return true;
+  };
+
+  // How many pieces other than the king `side` has.
+  Pos.prototype.count = function (side) {
+    let n = 0;
+    for (let sq = 0; sq < 128; sq++) {
+      if (sq & 0x88) { sq += 7; continue; }
+      const k = this.b[sq] * side;
+      if (k > 0 && k !== K) n++;
+    }
+    return n;
+  };
+
+  // Chaturanga's bare king: a side left with only its king loses, unless it can take the
+  // other side's last piece at once (then both kings are bare and the game is drawn).
+  // Returns the winning side, or 0 while the game goes on.
+  Pos.prototype.bareWinner = function () {
+    const us = this.side, ours = this.count(us), theirs = this.count(-us);
+    if ((ours && theirs) || (!ours && !theirs)) return 0;
+    if (ours) return us;   // they were bared on their move and could not bare us back
+    if (theirs === 1 && this.legalMoves().some((m) => mFlags(m) & F_CAP)) return 0;
+    return -us;
   };
 
   Pos.prototype.hasNonPawn = function (side) {
@@ -500,12 +568,18 @@ function ChacklateEngine() {
     -30, -10, 30, 40, 40, 30, -10, -30, -30, -10, 30, 40, 40, 30, -10, -30, -30, -10, 20, 30, 30, 20, -10, -30,
     -30, -30, 0, 0, 0, 0, -30, -30, -50, -30, -30, -30, -30, -30, -30, -50];
   const PASSED = [0, 5, 10, 20, 35, 60, 100, 0];
+  // Chaturanga: the Mantri and the Gaja are short-range pieces, worth a little more than a pawn.
+  const VALUE_OLD = [0, 100, 300, 140, 500, 180, 20000];
+  const PST_OLD = PST.slice();
+  PST_OLD[B] = [-10, -10, -10, -10, -10, -10, -10, -10, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 10, 0, 0, 10, 0, -10, -10, 0, 0, 10, 10, 0, 0, -10,
+    -10, 0, 0, 10, 10, 0, 0, -10, -10, 0, 10, 0, 0, 10, 0, -10, -10, 0, 0, 0, 0, 0, 0, -10, -10, -10, -10, -10, -10, -10, -10, -10];
+  PST_OLD[Q] = PST[N].map((x) => x >> 1);
 
   // Static evaluation in centipawns from White's point of view.
   // `style` tilts the personality: aggression rewards pieces near the enemy king,
   // caution rewards pawns sheltering one's own king.
   function evaluate(pos, style) {
-    const b = pos.b;
+    const b = pos.b, old = pos.ch, VAL = old ? VALUE_OLD : VALUE, TAB = old ? PST_OLD : PST;
     let mg = 0, eg = 0, phase = 0;
     const pawnFiles = [new Int8Array(8), new Int8Array(8)];
     const pawns = [];
@@ -519,7 +593,7 @@ function ChacklateEngine() {
       const f = sq & 7, r = sq >> 4;
       const idx = color === 1 ? (7 - r) * 8 + f : r * 8 + f;
       if (kind === K) { mg += color * KING_MG[idx]; eg += color * KING_EG[idx]; continue; }
-      const v = VALUE[kind], t = PST[kind][idx];
+      const v = VAL[kind], t = TAB[kind][idx];
       mg += color * (v + t);
       eg += color * (v + (kind === P ? 0 : t));
       phase += PHASE[kind];
@@ -551,8 +625,8 @@ function ChacklateEngine() {
         eg += color * PASSED[adv];
       }
     }
-    if (bishops[0] >= 2) { mg += 30; eg += 40; }
-    if (bishops[1] >= 2) { mg -= 30; eg -= 40; }
+    if (bishops[0] >= 2 && !old) { mg += 30; eg += 40; }
+    if (bishops[1] >= 2 && !old) { mg -= 30; eg -= 40; }
     if (style && style.caution) {
       for (const color of [1, -1]) {
         const k = pos.kings[color === 1 ? 0 : 1];
@@ -570,7 +644,7 @@ function ChacklateEngine() {
     // Mop-up: with a clear material lead and no enemy pawns, drive the enemy king to the edge.
     if (phase <= 8) {
       const lead = material[0] - material[1];
-      if (Math.abs(lead) >= 300) {
+      if (Math.abs(lead) >= (old ? 140 : 300)) {
         const winner = lead > 0 ? 0 : 1, loser = 1 - winner;
         const hasLoserPawns = pawns.some((x, i) => i % 2 === 1 && (x === 1 ? 0 : 1) === loser);
         if (!hasLoserPawns) {
@@ -690,6 +764,7 @@ function ChacklateEngine() {
     function negamax(depth, alpha, beta, ply, allowNull) {
       if (ply > 0) {
         if (pos.half >= 100 || isRepetition() || pos.insufficient()) return 0;
+        if (pos.ch) { const w = pos.bareWinner(); if (w) return w === pos.side ? MATE - ply : -MATE + ply; }
       }
       const inCheck = pos.inCheck();
       if (inCheck) depth++;
@@ -747,7 +822,8 @@ function ChacklateEngine() {
           }
         }
       }
-      if (!legal) return inCheck ? -MATE + ply : 0;
+      // In chaturanga the stalemated side loses too.
+      if (!legal) return inCheck || pos.ch ? -MATE + ply : 0;
       ttH[idx] = pos.hh; ttM[idx] = bestMove; ttS[idx] = toTT(best, ply); ttD[idx] = depth;
       ttF[idx] = best <= origAlpha ? UPPER : best >= beta ? LOWER : EXACT;
       return best;
@@ -792,6 +868,7 @@ function ChacklateEngine() {
   function Game(fen) {
     this.pos = new Pos();
     const err = this.pos.load(fen || START_FEN);
+    this.variant = this.pos.v.id;
     if (err) throw new Error(err);
     this.startFen = this.pos.fen();
     this.moves = [];
@@ -815,11 +892,14 @@ function ChacklateEngine() {
   // Automatic endings. Checkmate takes precedence over the 75-move and fivefold rules.
   Game.prototype.boardOutcome = function () {
     const p = this.pos;
+    const lost = p.side === WHITE ? '0-1' : '1-0';
     if (!this.legal.length) {
-      if (p.inCheck()) return { result: p.side === WHITE ? '0-1' : '1-0', reason: 'checkmate' };
+      if (p.inCheck()) return { result: lost, reason: 'checkmate' };
+      if (p.ch) return { result: lost, reason: 'stalemate-win' };
       return { result: '1/2-1/2', reason: 'stalemate' };
     }
     if (p.insufficient()) return { result: '1/2-1/2', reason: 'insufficient' };
+    if (p.ch) { const w = p.bareWinner(); if (w) return { result: w === WHITE ? '1-0' : '0-1', reason: 'bare-king' }; }
     if (this.repetitions() >= 5) return { result: '1/2-1/2', reason: 'fivefold' };
     if (p.half >= 150) return { result: '1/2-1/2', reason: 'seventyfive' };
     return null;
@@ -906,8 +986,9 @@ function ChacklateEngine() {
     const result = this.outcome ? this.outcome.result : '*';
     const t = Object.assign({ Event: 'Casual game', Site: 'Chackmate', Date: '????.??.??', Round: '-', White: '?', Black: '?' }, tags || {});
     t.Result = result;
-    if (this.startFen !== START_FEN) { t.SetUp = '1'; t.FEN = this.startFen; }
-    const order = ['Event', 'Site', 'Date', 'Round', 'White', 'Black', 'Result'];
+    if (this.variant !== 'standard') t.Variant = VARIANTS[this.variant].name;
+    if (this.startFen !== START_FEN) { t.SetUp = '1'; t.FEN = this.startFen.replace(/^[a-z0-9]+:/, ''); }
+    const order = ['Event', 'Site', 'Date', 'Round', 'White', 'Black', 'Result', 'Variant'].filter((k) => k in t);
     const keys = order.concat(Object.keys(t).filter((k) => !order.includes(k)));
     let out = keys.map((k) => '[' + k + ' "' + String(t[k]).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"]').join('\n') + '\n\n';
     const startPos = new Pos(); startPos.load(this.startFen);
@@ -958,9 +1039,10 @@ function ChacklateEngine() {
   }
 
   return {
-    START_FEN, WHITE, BLACK, P, N, B, R, Q, K, LEVELS, MATE, VALUE,
+    START_FEN, WHITE, BLACK, P, N, B, R, Q, K, LEVELS, MATE, VALUE, VARIANTS,
     F_CAP, F_DBL, F_EP, F_CASTLE, F_PROMO, mFlags, parseSq,
-    KNIGHT_DIRS, KING_DIRS, BISHOP_DIRS, ROOK_DIRS,
+    KNIGHT_DIRS, KING_DIRS, BISHOP_DIRS, ROOK_DIRS, ALFIL_DIRS,
+    variantOf(fen) { const m = String(fen || '').match(/^([a-z0-9]+):/); return m && VARIANTS[m[1]] ? m[1] : 'standard'; },
     Pos, Game, search, evaluate, perft, positionFrom, uci,
     to64, to88, sqName, mFrom: (m) => to64(mFrom(m)), mTo: (m) => to64(mTo(m)), mPromo,
     pieceAt(pos, sq64) { return pos.b[to88(sq64)]; },
