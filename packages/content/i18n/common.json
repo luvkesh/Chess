@@ -36,5 +36,7 @@
   "notNow": { "en": "Not now" },
   "ok": { "en": "OK" },
   "next": { "en": "Next" },
-  "finish": { "en": "Finish" }
+  "finish": { "en": "Finish" },
+  "gotIt": { "en": "Got it" },
+  "tryAgain": { "en": "Try again" }
 }

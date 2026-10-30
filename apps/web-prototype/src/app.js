@@ -1151,8 +1151,8 @@
   }
 
   // ---------------------------------------------------------------- learn, puzzles, training
-  const subnav = (cur) => '<nav class="subnav" aria-label="Learning">' + [['learn', 'Lessons'], ['puzzles', 'Puzzles'], ['training', 'Training']].map(([k, t]) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t + '</button>').join('') + '</nav>';
-  const stars = (n) => '<span class="stars" aria-label="' + n + ' of 3 stars">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
+  const subnav = (cur) => '<nav class="subnav" aria-label="' + t('learn.nav') + '">' + ['learn', 'puzzles', 'training'].map((k) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t('learn.sub.' + k) + '</button>').join('') + '</nav>';
+  const stars = (n) => '<span class="stars" aria-label="' + t('learn.stars', { n }) + '">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
   const locked = (item) => item.access === 'premium' && !state.progress.premium;
   SCREENS.learn = function () {
     idleBoard();
@@ -1161,20 +1161,20 @@
     const due = PG.dueReviews(P);
     const total = LESSONS.lessons.length, done = LESSONS.lessons.filter((l) => P.lessons[l.id]).length;
     mount('<div class="page"><div class="page-in">' + subnav('learn') +
-      pageHead('Chess Academy', 'Learning path', 'Short lessons with Rooky, your coach, each followed by little exercises. ' + done + ' of ' + total + ' completed.',
-        due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + due.length + ' review' + (due.length > 1 ? 's' : '') + ' due</button>' : '') +
+      pageHead(t('learn.eyebrow'), t('learn.title'), t('learn.sub', { n: done, of: total }),
+        due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + t(due.length > 1 ? 'learn.reviewsDue' : 'learn.reviewDue', { n: due.length }) + '</button>' : '') +
       '<div class="bar path-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></div>' +
-      (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">Now learning · Chapter ' + nl.chapter + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') +
+      (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">' + t('learn.now', { n: nl.chapter }) + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') +
       '<div class="chapters">' + LESSONS.chapters.map((ch) => {
         const ls = LESSONS.lessons.filter((l) => l.chapter === ch.n);
         const n = ls.filter((l) => P.lessons[l.id]).length;
         const lock = ch.access !== 'free' && !P.premium;
-        return '<section class="chapter glass"><header><span class="cn">' + ch.n + '</span><div><h3>' + esc(ch.title) + (lock ? ' <span class="pill lock">' + icon('lock') + ' Premium</span>' : '') + '</h3><div class="meta">' + n + ' of ' + ls.length + ' complete</div></div>' +
+        return '<section class="chapter glass"><header><span class="cn">' + ch.n + '</span><div><h3>' + esc(ch.title) + (lock ? ' <span class="pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : '') + '</h3><div class="meta">' + t('learn.chapterDone', { n, of: ls.length }) + '</div></div>' +
           '<div class="bar"><i style="width:' + Math.round(n / ls.length * 100) + '%"></i></div></header><div class="lessons">' +
           ls.map((l) => {
             const r = P.lessons[l.id];
             return '<button class="node' + (r ? ' done' : '') + (nl && nl.id === l.id ? ' next' : '') + '" data-lesson="' + l.id + '"' + (lock ? ' disabled' : '') + '><span><b>' + esc(l.title) + '</b><small>' + esc(l.objectives[0]) + '</small></span>' +
-              (r ? stars(r.stars) : '<small>' + l.minutes + ' min</small>') + '</button>';
+              (r ? stars(r.stars) : '<small>' + t('learn.min', { n: l.minutes }) + '</small>') + '</button>';
           }).join('') + '</div></section>';
       }).join('') + '</div></div></div>');
     wireLinks();
@@ -1184,30 +1184,30 @@
     return {};
   };
 
-  const THEMES = [['fork', 'Forks', 'piece:n', 'One piece attacks two at once.'], ['pin', 'Pins', 'piece:b', 'A piece that cannot move without trouble.'], ['skewer', 'Skewers', 'piece:r', 'Attack through one piece to the one behind.'],
-    ['discoveredAttack', 'Discovered attacks', 'piece:q', 'Move one piece to unleash another.'], ['hangingPiece', 'Free pieces', 'piece:p', 'Spot a piece nobody is guarding.'], ['mate', 'Checkmates', 'piece:k', 'Find the move that ends the game.']];
-  const themePuzzles = (t) => PUZZLES.filter((p) => t === 'mate' ? p.themes.some((x) => x.startsWith('mateIn')) : p.themes.includes(t));
+  const THEMES = [['fork', 'piece:n'], ['pin', 'piece:b'], ['skewer', 'piece:r'], ['discoveredAttack', 'piece:q'], ['hangingPiece', 'piece:p'], ['mate', 'piece:k']];
+  const themeName = (th) => (I18N.has('learn.theme.' + th) ? t('learn.theme.' + th) : th);
+  const themePuzzles = (th) => PUZZLES.filter((p) => th === 'mate' ? p.themes.some((x) => x.startsWith('mateIn')) : p.themes.includes(th));
   SCREENS.puzzles = function () {
     idleBoard();
     const P = state.progress, set = equippedSet();
     const daily = dailyPuzzle();
     const plan = trainingPlan();
     mount('<div class="page"><div class="page-in">' + subnav('puzzles') +
-      pageHead('Puzzles', 'Puzzles', 'Find the best move! Every puzzle comes from a real game and has been checked by the engine.', '<div class="meter">' + icon('star') + '<b>Puzzle rating <em>' + P.stats.puzzles.rating + '</em></b><span class="faint">' + P.stats.puzzles.solved + ' solved</span></div>') +
-      sec('play', 'Start solving') +
+      pageHead(t('learn.sub.puzzles'), t('learn.sub.puzzles'), t('learn.puzzlesSub'), '<div class="meter">' + icon('star') + '<b>' + t('learn.rating', { n: '<em>' + P.stats.puzzles.rating + '</em>' }) + '</b><span class="faint">' + t('learn.solved', { n: P.stats.puzzles.solved }) + '</span></div>') +
+      sec('play', t('learn.startSolving')) +
       '<div class="lux-row three">' +
-      lux({ id: 'z-daily', feature: !dailyDone(), art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'Today\'s puzzle, rated ' + daily.rating + '.' }) +
-      lux({ id: 'z-rated', art: snap(VIGN.duo(set), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Puzzle Trainer', text: 'Puzzles that match your rating, from ' + PUZZLES.length + ' to choose from.' }) +
-      lux({ id: 'z-plan', art: faceImg(COACH), title: 'Your Plan', text: plan.summary }) +
+      lux({ id: 'z-daily', feature: !dailyDone(), art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('learn.dailyText', { n: daily.rating }) }) +
+      lux({ id: 'z-rated', art: snap(VIGN.duo(set), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: t('learn.trainer'), text: t('learn.trainerText', { n: PUZZLES.length }) }) +
+      lux({ id: 'z-plan', art: faceImg(COACH), title: t('learn.plan'), text: plan.summary }) +
       '</div>' +
-      sec('puzzle', 'Themes') +
-      '<div class="cards">' + THEMES.map(([t, n, art, d]) => { const c = themePuzzles(t).length; return '<button class="tile" data-theme="' + t + '"' + (c ? '' : ' disabled') + '><span class="ic"><img src="' + medal(art, '#a3294f', '#4a0c1e', { ring: false }) + '" alt=""></span><b>' + n + '</b><small>' + esc(d) + ' ' + c + ' puzzles.</small><span class="go">' + icon('arrow') + '</span></button>'; }).join('') + '</div>' +
+      sec('puzzle', t('learn.themes')) +
+      '<div class="cards">' + THEMES.map(([th, art]) => { const c = themePuzzles(th).length; return '<button class="tile" data-theme="' + th + '"' + (c ? '' : ' disabled') + '><span class="ic"><img src="' + medal(art, '#a3294f', '#4a0c1e', { ring: false }) + '" alt=""></span><b>' + themeName(th) + '</b><small>' + esc(t('learn.themeText.' + th)) + ' ' + t('learn.nPuzzles', { n: c }) + '</small><span class="go">' + icon('arrow') + '</span></button>'; }).join('') + '</div>' +
       '</div></div>');
     hydrate();
     wireLinks();
     $('z-daily').onclick = () => { AU.unlock(); if (daily) go('puzzle', { list: [daily], daily: true, title: t('learn.dailyPuzzle') }); };
-    $('z-rated').onclick = () => { AU.unlock(); go('puzzle', { rated: true, title: 'Puzzle trainer' }); };
-    $('z-plan').onclick = () => { AU.unlock(); go('puzzle', { theme: plan.theme, rated: true, title: 'Your plan: ' + plan.name }); };
+    $('z-rated').onclick = () => { AU.unlock(); go('puzzle', { rated: true, title: t('learn.trainerTitle') }); };
+    $('z-plan').onclick = () => { AU.unlock(); go('puzzle', { theme: plan.theme, rated: true, title: t('learn.planTitle', { name: plan.name }) }); };
     document.querySelectorAll('[data-theme]').forEach((b) => { b.onclick = () => { AU.unlock(); go('puzzle', { theme: b.dataset.theme, rated: true, title: b.querySelector('b').textContent }); }; });
     return {};
   };
@@ -1215,24 +1215,23 @@
   function trainingPlan() {
     const counts = state.progress.seen.motifs || {};
     const order = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    const names = { fork: 'Forks', pin: 'Pins', skewer: 'Skewers', hangingPiece: 'Free pieces', mate: 'Checkmates', discoveredAttack: 'Discovered attacks' };
-    if (!order.length) return { theme: null, name: 'A mix', summary: 'Rooky picks puzzles from the patterns you miss most. Play a few to get started.' };
-    const [t] = order[0];
-    return { theme: t, name: names[t] || t, summary: 'Rooky suggests ' + (names[t] || t).toLowerCase() + ', the pattern you miss most often.' };
+    if (!order.length) return { theme: null, name: t('learn.mix'), summary: t('learn.planNone') };
+    const [th] = order[0];
+    return { theme: th, name: themeName(th), summary: t('learn.planText', { theme: themeName(th).toLowerCase() }) };
   }
   function noteMotif(theme) { const m = state.progress.seen.motifs || (state.progress.seen.motifs = {}); m[theme] = (m[theme] || 0) + 1; }
 
   function gameRow(h, i) {
     const who = h.mode === 'ai' ? persona(h.level) : null;
-    return '<button class="row-item" data-game="' + i + '"><span class="res ' + h.result + '">' + h.result.toUpperCase() + '</span>' +
-      '<span class="gr">' + (who ? '<img class="portrait mini" src="' + face(who) + '" alt="">' : '') + '<span><b>' + (who ? 'vs ' + esc(who.full) : h.mode === 'online' ? 'Online game' : 'Pass and play') + '</b><small>' +
-      esc(REASON_TEXT[h.reason] || h.reason || '') + ' · ' + Math.ceil(h.plies / 2) + ' moves · ' + esc(new Date(h.date).toLocaleDateString()) + '</small></span></span><span class="pill">' + icon('eye') + ' Review</span></button>';
+    return '<button class="row-item" data-game="' + i + '"><span class="res ' + h.result + '">' + t('learn.result.' + h.result) + '</span>' +
+      '<span class="gr">' + (who ? '<img class="portrait mini" src="' + face(who) + '" alt="">' : '') + '<span><b>' + (who ? t('learn.vs', { name: esc(oppFull(who)) }) : t(h.mode === 'online' ? 'learn.online' : 'learn.local')) + '</b><small>' +
+      esc(REASON_TEXT[h.reason] || h.reason || '') + ' · ' + t('learn.moves', { n: Math.ceil(h.plies / 2) }) + ' · ' + esc(I18N.date(new Date(h.date))) + '</small></span></span><span class="pill">' + icon('eye') + ' ' + t('learn.review') + '</span></button>';
   }
   function wireGames(list) {
     document.querySelectorAll('[data-game]').forEach((b) => {
       b.onclick = () => {
         const h = list[+b.dataset.game];
-        if (h.ucis && h.ucis.length) go('review', { start: h.start || E.START_FEN, ucis: h.ucis, side: h.color || WHITE, title: h.mode === 'ai' ? 'vs ' + persona(h.level).name : h.mode === 'online' ? 'Online game' : 'Pass and play', level: h.level });
+        if (h.ucis && h.ucis.length) go('review', { start: h.start || E.START_FEN, ucis: h.ucis, side: h.color || WHITE, title: h.mode === 'ai' ? t('learn.vs', { name: persona(h.level).name }) : t(h.mode === 'online' ? 'learn.online' : 'learn.local'), level: h.level });
       };
     });
   }
@@ -1242,15 +1241,15 @@
     const mastered = Object.values(P.openings).filter((r) => r.mastered).length;
     const dojoStars = ENDGAMES.reduce((a, d) => a + (P.dojo[d.id] ? P.dojo[d.id].stars : 0), 0);
     mount('<div class="page"><div class="page-in">' + subnav('training') +
-      pageHead('Training', 'Training', 'Learn openings move by move, master the endgames every player needs, and let Rooky review your games.') +
-      sec('play', 'Train') +
+      pageHead(t('learn.sub.training'), t('learn.sub.training'), t('learn.trainingSub')) +
+      sec('play', t('learn.train')) +
       '<div class="lux-row three">' +
-      lux({ id: 't-open', art: snap(VIGN.opening(set), 240, 150, medal('piece:b', '#2f4f8a', '#14243e')), title: 'Opening Lab', text: OPENINGS.length + ' openings to learn. ' + mastered + ' mastered.' }) +
-      lux({ id: 't-dojo', art: snap(VIGN.endgame(set), 240, 150, medal('piece:k', '#5b4a8a', '#2c2248')), title: 'Endgame Dojo', text: ENDGAMES.length + ' endgames. ' + dojoStars + ' of ' + ENDGAMES.length * 3 + ' stars.' }) +
-      lux({ id: 't-review', art: snap(VIGN.review(set), 240, 150, medal('piece:q', '#8a5a2a', '#3a1e0e')), title: 'Game Reviews', text: P.history.length ? 'Look back at your games with Rooky.' : 'Play a game, then review it here.' }) +
+      lux({ id: 't-open', art: snap(VIGN.opening(set), 240, 150, medal('piece:b', '#2f4f8a', '#14243e')), title: t('learn.lab'), text: t('learn.labText', { n: OPENINGS.length, m: mastered }) }) +
+      lux({ id: 't-dojo', art: snap(VIGN.endgame(set), 240, 150, medal('piece:k', '#5b4a8a', '#2c2248')), title: t('learn.dojo'), text: t('learn.dojoText', { n: ENDGAMES.length, s: dojoStars, of: ENDGAMES.length * 3 }) }) +
+      lux({ id: 't-review', art: snap(VIGN.review(set), 240, 150, medal('piece:q', '#8a5a2a', '#3a1e0e')), title: t('learn.reviews'), text: t(P.history.length ? 'learn.reviewsText' : 'learn.reviewsNone') }) +
       '</div>' +
-      sec('refresh', 'Recent games') +
-      '<div class="list">' + (P.history.length ? P.history.slice(0, 6).map(gameRow).join('') : '<p class="muted">Your games will appear here. Rooky can review any of them.</p>') + '</div>' +
+      sec('refresh', t('learn.recent')) +
+      '<div class="list">' + (P.history.length ? P.history.slice(0, 6).map(gameRow).join('') : '<p class="muted">' + t('learn.recentNone') + '</p>') + '</div>' +
       '</div></div>');
     hydrate();
     wireLinks();
@@ -1265,14 +1264,14 @@
   SCREENS.dojo = function () {
     idleBoard();
     const P = state.progress;
-    const goalText = { mate: 'Checkmate', promote: 'Promote safely', draw: 'Hold the draw' };
+    const goalText = (g) => t('learn.goal.' + g);
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="training">' + icon('back') + ' Training</button>' +
-      pageHead('Training', 'Endgame dojo', 'The endgames every player needs, against the strongest defence. Reach the goal within par for three stars.') +
+      '<button class="backlink" data-nav="training">' + icon('back') + ' ' + t('learn.sub.training') + '</button>' +
+      pageHead(t('learn.sub.training'), t('learn.dojoTitle'), t('learn.dojoSub')) +
       '<div class="list">' + ENDGAMES.map((d) => {
         const r = P.dojo[d.id];
-        return '<button class="row-item" data-eg="' + d.id + '"' + (locked(d) ? ' disabled' : '') + '><span class="sg">' + icon(d.goal === 'draw' ? 'draw' : d.goal === 'promote' ? 'pawn' : 'crown') + '</span><span><b>' + esc(d.name) + '</b><br><small>' + esc(d.level) + ' · ' + goalText[d.goal] + (d.goal === 'draw' ? ' for ' + d.par + ' moves' : ' · par ' + d.par) + (r && r.best ? ' · best ' + r.best : '') + '</small></span>' +
-          (locked(d) ? '<span class="pill lock">' + icon('lock') + ' Premium</span>' : stars(r ? r.stars : 0)) + '</button>';
+        return '<button class="row-item" data-eg="' + d.id + '"' + (locked(d) ? ' disabled' : '') + '><span class="sg">' + icon(d.goal === 'draw' ? 'draw' : d.goal === 'promote' ? 'pawn' : 'crown') + '</span><span><b>' + esc(d.name) + '</b><br><small>' + esc(d.level) + ' · ' + goalText(d.goal) + (d.goal === 'draw' ? ' ' + t('learn.forMoves', { n: d.par }) : ' · ' + t('learn.par', { n: d.par })) + (r && r.best ? ' · ' + t('learn.best', { n: r.best }) : '') + '</small></span>' +
+          (locked(d) ? '<span class="pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : stars(r ? r.stars : 0)) + '</button>';
       }).join('') + '</div></div></div>');
     wireLinks();
     document.querySelectorAll('[data-eg]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); startDojo(b.dataset.eg); }; });
@@ -1284,7 +1283,7 @@
     const d = endgameById(id);
     const side = E.positionFrom(d.fen, []).side;
     startGame({ mode: 'ai', color: side === WHITE ? 'white' : 'black', level: 7, tc: 'none', fen: d.fen, dojo: id, journey: journey || null, look: journey ? eraLook(journey.era) : null });
-    coachSay(d.tip, [['Got it', 'dismiss']]);
+    coachSay(d.tip, [[t('common.gotIt'), 'dismiss']]);
   }
   const eraLook = (id) => { const e = eraById(id); return e ? { set: e.set, board: e.board, room: e.room } : null; };
   // Called after every move of a dojo game. Returns true once the attempt is decided.
@@ -1298,13 +1297,13 @@
     if (o) {
       const w = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
       ok = w === me || (!w && d.goal === 'draw');
-      why = ok ? (w ? 'Checkmate.' : 'The game is drawn.') : w ? 'You were checkmated.' : (REASON_TEXT[o.reason] || 'Draw') + ': that lets the win slip.';
-    } else if (info && info.captured && Math.sign(info.captured) === me && Math.abs(info.captured) === E.P && d.goal === 'promote') { ok = false; why = 'Your pawn was captured.'; }
+      why = ok ? t(w ? 'learn.dj.mate' : 'learn.dj.drawn') : w ? t('learn.dj.mated') : t('learn.dj.slip', { reason: REASON_TEXT[o.reason] || t('learn.dj.draw') });
+    } else if (info && info.captured && Math.sign(info.captured) === me && Math.abs(info.captured) === E.P && d.goal === 'promote') { ok = false; why = t('learn.dj.pawnLost'); }
     else if (info && info.promo && Math.sign(info.mover) === me && d.goal === 'promote') {
       ok = !C.isHanging(g.pos, E.to88(info.to));
-      why = ok ? 'Promoted, and the new queen is safe.' : 'The new queen can be captured.';
-    } else if (info && info.promo && Math.sign(info.mover) === -me) { ok = false; why = 'Your opponent promoted.'; }
-    else if (d.goal === 'draw' && mine >= d.par && g.pos.side === me) { ok = true; why = 'You held for ' + d.par + ' moves.'; }
+      why = t(ok ? 'learn.dj.promoted' : 'learn.dj.queenHangs');
+    } else if (info && info.promo && Math.sign(info.mover) === -me) { ok = false; why = t('learn.dj.theyPromoted'); }
+    else if (d.goal === 'draw' && mine >= d.par && g.pos.side === me) { ok = true; why = t('learn.dj.held', { n: d.par }); }
     if (ok === null) return false;
     G.dojoDone = true;
     if (!o) g.finish(ok === (me === WHITE) ? '1-0' : '0-1', 'dojo');
@@ -1314,11 +1313,11 @@
     if (ok) { view.celebrate('win', -1, null, -1); AU.event('dojo.won'); }
     const j = G.setup.journey, e = j && eraById(j.era);
     const next = ENDGAMES[ENDGAMES.indexOf(d) + 1];
-    const m = modal('<div class="result-hero">' + faceImg(e ? eraCoach(e) : COACH) + '<span class="result-badge' + (ok ? ' win' : ' loss') + '">' + (e ? esc(e.name) : 'Endgame dojo') + '</span><h2 class="result-title">' + (ok ? 'Goal reached' : 'Not this time') + '</h2>' +
-      '<p class="sub">' + esc(why) + ' ' + (ok && d.goal !== 'draw' ? mine + ' moves, par ' + d.par + '.' : '') + '</p>' + (ok ? '<p class="big-stars">' + stars(res.stars) + '</p>' : '<p class="sub">' + esc(d.tip) + '</p>') +
-      '<div class="row" style="justify-content:center">' + (e ? '<button class="btn" id="dj-era">' + icon('journey') + ' Back to ' + esc(e.name) + '</button>' : '<button class="btn" id="dj-list">All endgames</button>') +
-      '<button class="btn' + (ok ? '' : ' primary') + '" id="dj-again">Try again</button>' +
-      (!e && ok && next && !locked(next) ? '<button class="btn primary" id="dj-next">Next: ' + esc(next.name) + '</button>' : '') + '</div></div>');
+    const m = modal('<div class="result-hero">' + faceImg(e ? eraCoach(e) : COACH) + '<span class="result-badge' + (ok ? ' win' : ' loss') + '">' + (e ? esc(eraName(e)) : t('learn.dojoTitle')) + '</span><h2 class="result-title">' + t(ok ? 'learn.dj.goal' : 'learn.dj.notThisTime') + '</h2>' +
+      '<p class="sub">' + esc(why) + ' ' + (ok && d.goal !== 'draw' ? t('learn.dj.score', { n: mine, par: d.par }) : '') + '</p>' + (ok ? '<p class="big-stars">' + stars(res.stars) + '</p>' : '<p class="sub">' + esc(d.tip) + '</p>') +
+      '<div class="row" style="justify-content:center">' + (e ? '<button class="btn" id="dj-era">' + icon('journey') + ' ' + t('learn.dj.backTo', { era: esc(eraName(e)) }) + '</button>' : '<button class="btn" id="dj-list">' + t('learn.dj.all') + '</button>') +
+      '<button class="btn' + (ok ? '' : ' primary') + '" id="dj-again">' + t('common.tryAgain') + '</button>' +
+      (!e && ok && next && !locked(next) ? '<button class="btn primary" id="dj-next">' + t('learn.dj.next', { name: esc(next.name) }) + '</button>' : '') + '</div></div>');
     const on = (id, fn) => { const b = m.querySelector(id); if (b) b.onclick = () => { m.close(); fn(); }; };
     on('#dj-list', () => go('dojo'));
     on('#dj-era', () => go('era', e.id));
@@ -1335,9 +1334,9 @@
     const P = state.progress;
     let side = tab || 'white';
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="training">' + icon('back') + ' Training</button>' +
-      pageHead('Training', 'Opening lab', 'Play through each opening with the coach. Three clean runs and it is mastered; then try it against an animal friend.') +
-      '<div class="tabs" role="tablist"><button role="tab" data-side="white">' + icon('pawn') + ' As White</button><button role="tab" data-side="black">' + icon('pawn') + ' As Black</button></div>' +
+      '<button class="backlink" data-nav="training">' + icon('back') + ' ' + t('learn.sub.training') + '</button>' +
+      pageHead(t('learn.sub.training'), t('learn.labTitle'), t('learn.labSub')) +
+      '<div class="tabs" role="tablist"><button role="tab" data-side="white">' + icon('pawn') + ' ' + t('learn.asWhite') + '</button><button role="tab" data-side="black">' + icon('pawn') + ' ' + t('learn.asBlack') + '</button></div>' +
       '<div class="list" id="ol"></div></div></div>');
     wireLinks();
     const draw = () => {
@@ -1345,7 +1344,7 @@
       $('ol').innerHTML = OPENINGS.filter((o) => o.side === side).map((o) => {
         const r = P.openings[o.id];
         return '<button class="row-item" data-op="' + o.id + '"' + (locked(o) ? ' disabled' : '') + '><span class="pill">' + esc(o.eco) + '</span><span><b>' + esc(o.name) + '</b><br><small>' + esc(o.summary) + '</small></span>' +
-          (locked(o) ? '<span class="pill lock">' + icon('lock') + ' Premium</span>' : r && r.mastered ? '<span class="pill gold">' + icon('check') + ' Mastered</span>' : '<small>' + (r ? r.clean + '/3 clean' : (o.moves.length / 2 | 0) + ' moves') + '</small>') + '</button>';
+          (locked(o) ? '<span class="pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : r && r.mastered ? '<span class="pill gold">' + icon('check') + ' ' + t('learn.mastered') + '</span>' : '<small>' + (r ? t('learn.clean', { n: r.clean }) : t('learn.moves', { n: o.moves.length / 2 | 0 })) + '</small>') + '</button>';
       }).join('');
       document.querySelectorAll('[data-op]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('drill', b.dataset.op); }; });
     };
