@@ -44,6 +44,7 @@
     cam: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>',
     smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
@@ -93,7 +94,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true,
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -426,6 +427,123 @@
     } else if (!document.querySelector('.modal') && current && current.key && !/input|textarea|select/i.test((e.target.tagName || ''))) current.key(e);
   });
 
+  // ------------------------------------------------------------------ the audio guide
+  // Built like the website's guided tour: one card in the corner. On every screen it says, in one or
+  // two short sentences, what to do next. On an era page the era's friend says it; everywhere else
+  // Rooky does. The card has Hear that again, the voice on or off, and hide (it tucks into the
+  // portrait). The voice switch is the same one as story and lesson narration, so one tap quiets
+  // every spoken line. Lines are recorded (packages/content/guide.json, public/guide/).
+  const GUIDE = CHACKLATE_GUIDE;
+  const GUIDE_WHO = { rooky: COACH };
+  for (const e of CAMPAIGN.eras) GUIDE_WHO[e.coach.id] = eraCoach(e);
+  const GUIDE_AGAIN = 120000;   // a screen's line is said again only after two minutes
+  const guideSt = { key: null, said: {}, idle: null, run: 0 };
+  function guideCard() {
+    let el = $('guide');
+    if (el.dataset.ready) return el;
+    el.dataset.ready = '1';
+    el.innerHTML = '<button class="narrator" id="gd-show" tabindex="-1" aria-label="Show the guide" title="Show the guide"><img alt=""></button>' +
+      '<div class="gd-body"><div class="gd-head"><p class="eyebrow" id="gd-who"></p>' +
+      '<button class="gd-btn" id="gd-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button>' +
+      '<button class="gd-btn" id="gd-voice"></button>' +
+      '<button class="gd-btn" id="gd-hide" aria-label="Hide the guide" title="Hide the guide">' + icon('down') + '</button></div>' +
+      '<p class="gd-text" id="gd-text"></p><p class="gd-extra" id="gd-extra"></p></div>';
+    $('gd-again').onclick = () => { AU.unlock(); if (guideSt.key) { if (!state.settings.narration) setVoice(true, true); guideSay(guideSt.key, { force: true }); } };
+    $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
+    $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
+    $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
+    AU.onTalk((on) => el.classList.toggle('speaking', on));
+    return el;
+  }
+  function guideTuck() {
+    const el = guideCard();
+    el.classList.toggle('tucked', !state.settings.guide);
+    $('gd-show').tabIndex = state.settings.guide ? -1 : 0;
+    applyInsets();
+  }
+  function voiceIcon(btn, who) {
+    const on = !!state.settings.narration;
+    btn.innerHTML = icon(on ? 'speaker' : 'speakerOff');
+    btn.setAttribute('aria-pressed', String(on));
+    btn.setAttribute('aria-label', on ? 'Turn the voice off' : 'Turn the voice on');
+    btn.title = on ? 'Voice on. Tap to mute' : 'Voice off. Tap to hear ' + who;
+  }
+  // The one voice switch: the guide, stories and lessons. Every button that shows it follows along.
+  function setVoice(on, quiet) {
+    state.settings.narration = !!on; save();
+    if (!on) AU.hush();
+    document.querySelectorAll('[data-voice]').forEach((b) => voiceIcon(b, b.dataset.voice));
+    const el = guideCard();
+    voiceIcon($('gd-voice'), (GUIDE_WHO[(GUIDE.lines[guideSt.key] || {}).who] || COACH).name);
+    if (guideSt.key) guideShow(guideSt.key);
+    if (on && !quiet && guideSt.key && !document.querySelector('.modal')) guideSay(guideSt.key, { force: true });
+    return el;
+  }
+  function guideShow(key) {
+    const line = GUIDE.lines[key], who = GUIDE_WHO[line.who] || COACH;
+    const el = guideCard();
+    el.hidden = false;
+    $('gd-who').textContent = who.full || who.name;
+    const img = el.querySelector('#gd-show img'); const src = face(who);
+    if (img.getAttribute('src') !== src) img.src = src;
+    $('gd-text').textContent = line.text;
+    $('gd-extra').textContent = !state.settings.narration ? 'Tap the speaker to hear ' + who.name + '.' : AU.canTalk() ? '' : 'Tap anywhere to hear ' + who.name + '.';
+    voiceIcon($('gd-voice'), who.name);
+    if (guideSt.key !== key) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    guideSt.key = key;
+    if (KIND[state.screen] === 'hud' && el.offsetHeight !== guideSt.h) { guideSt.h = el.offsetHeight; applyInsets(); }
+  }
+  // Show a line and say it. opts.force says it even if it was said a moment ago; opts.delay waits
+  // first (to let a sound or a game call finish); opts.then runs once it has been said.
+  function guideSay(key, opts) {
+    opts = opts || {};
+    if (!GUIDE.lines[key]) { if (opts.then) opts.then(); return; }
+    const run = ++guideSt.run, screen = state.screen;
+    const go = () => {
+      if (run !== guideSt.run || state.screen !== screen) return;
+      guideShow(key);
+      const fresh = opts.force || !guideSt.said[key] || Date.now() - guideSt.said[key] > GUIDE_AGAIN;
+      if (state.settings.narration && fresh && !AU.canTalk()) guideSt.pending = key;
+      if (!state.settings.narration || !fresh || !AU.canTalk()) { if (opts.then) opts.then(); return; }
+      guideSt.pending = null;
+      guideSt.said[key] = Date.now();
+      AU.guide(key, GUIDE.lines[key].text).then(() => { if (run === guideSt.run && opts.then) opts.then(); });
+    };
+    if (opts.delay) setTimeout(go, opts.delay); else go();
+  }
+  const guideFresh = (key) => !!state.settings.narration && (!guideSt.said[key] || Date.now() - guideSt.said[key] > GUIDE_AGAIN);
+  // Browsers keep quiet until the first tap, so a line shown before then is said after it, unless
+  // that tap moved on to another screen with its own line.
+  document.addEventListener('click', (e) => {
+    const key = guideSt.pending;
+    if (!key) return;
+    AU.unlock();
+    // the first tap on the speaker means "let me hear it", not "be quiet"
+    if (e.target.closest && e.target.closest('#gd-voice')) e.stopPropagation();
+    setTimeout(() => { if (guideSt.pending === key && guideSt.key === key) guideSay(key, { force: true }); guideSt.pending = null; }, 0);
+  }, true);
+  // A nudge when nothing happens for a while: once for each wait, cleared by the next move or screen.
+  function guideIdle(key, ms) {
+    clearTimeout(guideSt.idle);
+    if (key) guideSt.idle = setTimeout(() => { if (!document.querySelector('.modal')) guideSay(key, { force: true }); }, ms || 30000);
+  }
+  // The line for a menu screen. Era, lesson, puzzle and game screens choose their own as things change.
+  function guideScreen(name) {
+    if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
+    let key = name;
+    if (name === 'home') {
+      const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+      key = resume ? 'home.resume' : state.progress.xp ? 'home' : 'home.first';
+    }
+    if (GUIDE.lines[key]) guideSay(key);
+  }
+  function eraGuideKey(e) {
+    const info = PG.journeyInfo(state.progress, e.id), champ = e.stages.length - 1;
+    if (info.done) return 'era.' + e.id + '.done';
+    if (e.stages.every((s, k) => k === champ || info.stages[k])) return 'era.' + e.id + '.champion';
+    return 'era.' + e.id + '.' + e.stages[info.next].kind;
+  }
+
   // ------------------------------------------------------------------ navigation
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
@@ -462,6 +580,7 @@
     if (peeking) endPeek(true);
     if (current && current.leave) current.leave();
     AU.hush();
+    guideIdle(null);
     view.setArrows([]);
     setHooks({});
     preview = null; lookOverride = null; applyLook();
@@ -473,6 +592,7 @@
     view.setPaused(kind === 'page');
     renderNav();
     current = SCREENS[name](arg) || {};
+    guideScreen(name);
     applyInsets();
     const scr = $('screens').querySelector('.screen');
     if (scr) scr.classList.add('enter');
@@ -496,12 +616,16 @@
         if (r.width && r.bottom < H * 0.5 && (sheet || r.left < W * 0.5)) top = Math.max(top, r.bottom);
       });
       ins.top = top + 8;
-      if (sheet) ins.bottom = H - side.top + 8;
+      // The guide card: above the sheet on phones, top left elsewhere. The board makes room for it.
+      const gd = $('guide'), gdOn = gd && !gd.hidden && !gd.classList.contains('tucked');
+      document.body.style.setProperty('--sheet-top', (sheet ? H - side.top + 8 : 0) + 'px');
+      if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? gd.offsetHeight + 8 : 0);
       else {
         if (side) ins.right = W - side.left + 12;
         ins.bottom = bar ? H - bar.top + 10 : 16;
         const eb = rect('.evalbar');
         ins.left = eb ? eb.right + 10 : 10;
+        if (gdOn) ins.top = Math.max(ins.top, gd.getBoundingClientRect().bottom + 8);
       }
     }
     view.setInsets(ins, kind !== 'hud');
@@ -831,6 +955,7 @@
     hydrate();
     wireLinks();
     document.querySelectorAll('[data-stage]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); runStage(e, +b.dataset.stage); }; });
+    guideSay(eraGuideKey(e));
     return {};
   };
   function runStage(e, k) {
@@ -876,10 +1001,15 @@
   function taleModal(e, k) {
     const s = e.stages[k], co = eraCoach(e);
     let page = 0, solved = !!PG.journeyInfo(state.progress, e.id).stages[k];
-    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(e.name) + ' · ' + esc(e.when) + '</div><h2>' + esc(s.title) + '</h2></div></div>' +
+    const m = modal('<div class="parch"><div class="head"><img src="' + face(co) + '" alt=""><div><div class="k">' + esc(e.name) + ' · ' + esc(e.when) + '</div><h2>' + esc(s.title) + '</h2></div>' +
+      '<div class="tl-tools"><button class="tl-btn" id="tl-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="tl-btn" id="tl-voice" data-voice="' + esc(co.name) + '"></button></div></div>' +
       '<div id="tl-body"></div><div class="nav"><span class="pdots" id="tl-dots"></span><span class="grow"></span><button class="btn" id="tl-prev">' + icon('prev') + ' Back</button><button class="btn primary" id="tl-next">Next</button></div></div>',
     { cls: 'tale', onClose() { AU.hush(); } });
     const body = m.querySelector('#tl-body'), next = m.querySelector('#tl-next'), prev = m.querySelector('#tl-prev');
+    const line = () => (page < s.pages.length ? s.pages[page] : s.quiz.q);
+    voiceIcon(m.querySelector('#tl-voice'), co.name);
+    m.querySelector('#tl-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) AU.say(line()); };
+    m.querySelector('#tl-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); AU.say(line()); };
     function render() {
       m.querySelector('#tl-dots').innerHTML = s.pages.concat([0]).map((_, j) => '<i' + (j <= page ? ' class="on"' : '') + '></i>').join('');
       prev.disabled = page === 0;
@@ -1458,7 +1588,8 @@
     const vs = AU.voices();
     const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
     return '<div class="label set-h">Voices</div>' +
-      '<label class="toggle">Lesson and story narration <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Voice: the guide, stories and lessons <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Show the guide card <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
       '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
       '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
       '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
@@ -1489,7 +1620,8 @@
     on('#s-sfxv', 'input', (e) => { s.sfxVol = +e.target.value; applySettings(); AU.play('move'); save(); });
     on('#s-mus', 'change', (e) => { s.music = e.target.checked; AU.unlock(); applySettings(); save(); renderNav(); });
     on('#s-musv', 'input', (e) => { s.musicVol = +e.target.value; applySettings(); save(); });
-    on('#s-narr', 'change', (e) => { s.narration = e.target.checked; if (!s.narration) AU.hush(); save(); });
+    on('#s-narr', 'change', (e) => { setVoice(e.target.checked, true); });
+    on('#s-guide', 'change', (e) => { s.guide = e.target.checked; save(); guideTuck(); });
     on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-announce', 'change', (e) => { s.announce = e.target.checked; applySettings(); save(); if (s.announce) { AU.unlock(); AU.announce('Nf3'); } });
@@ -1600,6 +1732,8 @@
     save();
     // The opponent says hello across the table.
     if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [['Let\'s play!', 'dismiss']], null, who); }
+    if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: 600 });
+    gameNudge(game);
     if (!g.outcome) maybeComputer();
     preAnalyse();
   }
@@ -1806,6 +1940,7 @@
     const before = { fen: g.startFen, moves: g.uciMoves(), side: g.pos.side };
     const info = g.play(m);
     if (!info) return;
+    if (byHuman) guideIdle(null);
     if (G.kind === 'online' && byHuman) ChacklateNet.send({ type: 'move', uci: E.uci(m), ply: g.moves.length - 1 });
     if (G.kind !== 'online') pressClock(moverKey);
     G.request++;
@@ -1835,7 +1970,7 @@
       save();
       if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
-      else maybeComputer();
+      else { maybeComputer(); gameNudge(G); }
     }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture') });
     // the clocks wait while a capture scene plays (local games; see clockRunning)
     if (G.cinema && G.clock) G.clock.since = 0;
@@ -1871,6 +2006,13 @@
   const fmt = (ms) => { const s = Math.max(0, ms) / 1000; if (s < 10) return s.toFixed(1); const m = Math.floor(s / 60), r = Math.floor(s % 60); return m + ':' + String(r).padStart(2, '0'); };
 
   // ----- the computer
+  // The guide helps on the child's turn: a word when their king is in check (the first two times in
+  // a game), and the hint button when they have been thinking a long while.
+  function gameNudge(G) {
+    if (state.game !== G || G.g.outcome || G.kind === 'online' || G.setup.dojo || G.g.pos.side !== G.human && G.kind !== 'local') return;
+    if (G.g.pos.inCheck() && (G.checkTips = (G.checkTips || 0) + 1) <= 2) guideSay('game.check', { force: true, delay: 1100 });
+    if (G.kind === 'ai') guideIdle('game.idle', 40000);
+  }
   function maybeComputer() {
     const G = state.game, g = G.g;
     if (G.kind !== 'ai' || g.outcome || g.pos.side === G.human || G.busy) return;
@@ -2101,6 +2243,7 @@
     if (G.setup.dojo) { if (!G.dojoDone) dojoCheck(G, null); return; }
     if (G.resultShown) return;
     G.resultShown = true;
+    guideIdle(null);
     const o = g.outcome;
     const winner = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
     const pos = g.pos;
@@ -2160,6 +2303,7 @@
       on('#r-prize', () => { mdl.close(); if (!jr.eraDone) go('era', era.id); });
       celebrate(res);
       if (jr && !jr.eraDone) celebrate(jr, true);
+      if (!era && mdl.querySelector('#r-review')) guideSay('game.over', { delay: 2200 });
     }, state.settings.animations ? 1500 : 200);
   }
   function resultSub(G, o, winner) {
@@ -2464,22 +2608,27 @@
     const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="ls-voice" aria-label="Narration" aria-pressed="' + !!state.settings.narration + '" title="Narration">' + icon('speaker') + '</button>' +
+      '<button class="round" id="ls-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
     const leaveTo = () => (era ? go('era', era.id) : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
-    $('ls-voice').onclick = () => {
-      state.settings.narration = !state.settings.narration; save();
-      $('ls-voice').setAttribute('aria-pressed', String(state.settings.narration));
-      if (state.settings.narration) speak(); else AU.hush();
-      toast('Narration ' + (state.settings.narration ? 'on' : 'off'));
-    };
+    voiceIcon($('ls-voice'), guide.name);
+    $('ls-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) speak(true); };
+    $('ls-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); speak(true); };
     $('ls-prev').onclick = () => { if (S.phase === 'steps' && S.i > 0) { S.i--; renderStep(); } };
     $('ls-next').onclick = () => next();
-    const speak = () => { if (!state.settings.narration) return; const t = S.phase === 'steps' ? L.steps[S.i].say : ex[S.i] && ex[S.i].prompt; if (t) AU.say(t); };
+    // The guide's line comes first (how a lesson works, then how to answer), then the step itself.
+    const guided = {};
+    const speak = (now) => {
+      const t = S.phase === 'steps' ? L.steps[S.i].say : S.phase === 'ex' ? ex[S.i] && ex[S.i].prompt : null;
+      const say = () => { if (t && state.settings.narration) AU.say(t); };
+      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
+      if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
+      if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
+    };
     function setPos(fen, playMoves, cb) {
       const p = new E.Pos(); p.load(fen);
       S.pos = p;
@@ -2645,6 +2794,7 @@
     }
     function answer(firstTry, msg) {
       S.answered = true;
+      guideIdle(null);
       if (S.results[S.i] === undefined) S.results[S.i] = firstTry;
       AU.play('correct');
       fb('ok', msg + (firstTry ? '' : ' (Solved after a retry.)'));
@@ -2683,6 +2833,8 @@
       else $('ls-prev').hidden = true;
       AU.play('win');
       AU.event('lesson.passed');
+      guideIdle(null);
+      guideSay('lesson.done', { delay: 2200 });
       view.celebrate('win', -1, null, -1);
       dots();
       if (!own) { celebrate(res); if (journey) stageDone(journey); }
@@ -2848,13 +3000,14 @@
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); });
+        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
     function finish(solved) {
       if (S.solved) return;
       S.solved = true;
+      guideIdle(null);
       const res = PG.puzzleFinished(P, S.cur, solved && !S.failed, { daily: arg.daily });
       if (!solved || S.failed) for (const t of S.cur.themes) noteMotif(t.startsWith('mateIn') ? 'mate' : t);
       ratingPill(res.ratingDelta);
@@ -2874,6 +3027,7 @@
       }
       $('pz-next').textContent = 'Next puzzle';
       $('pz-next').hidden = !!arg.daily || (list && last);
+      if (solved && !$('pz-next').hidden) guideSay('puzzle.solved', { delay: 1800 });
     }
     function tryMove(from, to, promo) {
       const g = new E.Game(S.pos.fen());
@@ -2883,7 +3037,7 @@
       const t = new E.Game(S.pos.fen()); t.play(m);
       const ok = E.uci(m) === want || (t.outcome && t.outcome.reason === 'checkmate');
       if (!ok) {
-        S.failed = true; AU.play('wrong'); AU.event('puzzle.wrong'); fb('bad', 'Not quite. That is not the strongest move. Try again.');
+        S.failed = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', 'Not quite. That is not the strongest move. Try again.');
         view.setBoard(piecesOf(S.pos), null);
         return true;
       }
@@ -2918,6 +3072,7 @@
     $('pz-hint').onclick = () => {
       if (!S.cur || S.solved) return;
       S.failed = true; S.hints++;
+      guideIdle(null);
       const u = S.cur.moves[S.step * 2 + 1];
       if (S.hints === 1) { const t = S.cur.themes[0]; fb('hint', { fork: 'Look for a fork.', pin: 'Look for a pin.', skewer: 'Look for a skewer.', discoveredAttack: 'Look for a discovered attack.', hangingPiece: 'Something is not guarded.', promotion: 'A pawn wants to promote.', sacrifice: 'Think about giving something away.' }[t] || (t.startsWith('mateIn') ? 'There is a checkmate to find.' : 'Look for the most forcing move.')); }
       else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', 'Move the piece on ' + u.slice(0, 2) + '.'); }

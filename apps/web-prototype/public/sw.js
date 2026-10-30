@@ -21,7 +21,8 @@ self.addEventListener('fetch', (e) => {
     }))));
     return;
   }
-  if (!SHELL.includes(url.pathname) && url.pathname !== '/voice/index.json') return;
+  // Guide lines can be recorded again, so like the pages they load from the network first.
+  if (!SHELL.includes(url.pathname) && url.pathname !== '/voice/index.json' && !/^\/guide\/[a-z0-9.-]+\.mp3$/.test(url.pathname)) return;
   e.respondWith(fetch(e.request).then((res) => {
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(url.pathname, copy)); }
     return res;

@@ -201,6 +201,15 @@ function createServer(opts) {
         return fs.createReadStream(vf).pipe(res);
       }
     }
+    // The audio guide's lines, named by what they are for. A line can be recorded again, so they are checked each time.
+    const gm = url.pathname.match(/^\/guide\/([a-z0-9.-]+)\.mp3$/);
+    if (gm && req.method === 'GET') {
+      const gf = path.join(PUBLIC, 'guide', gm[1] + '.mp3');
+      if (fs.existsSync(gf)) {
+        res.writeHead(200, Object.assign({ 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
+        return fs.createReadStream(gf).pipe(res);
+      }
+    }
     const file = STATIC[url.pathname.replace(/\/+$/, '') || '/'];
     if (file && fs.existsSync(file)) {
       const ext = path.extname(file);
