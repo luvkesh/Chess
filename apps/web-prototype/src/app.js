@@ -3534,24 +3534,27 @@
   const MINI_PAY = PG.COINS.mini;
   const miniArt = (g) => ART.miniUri(g.art, { from: g.colors[0], to: g.colors[1] });
   const miniLevel = (g) => { const l = (state.settings.miniLevels || {})[g.id]; return g.levels.some((x) => x[0] === l) ? l : g.levels.length ? g.levels[0][0] : ''; };
-  const howToList = (g) => '<ol class="mini-howto">' + g.howTo.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ol>';
+  // The games' own words (title, blurb, how-to, levels) live in minigames.js in English.
+  const mg = (g, f) => tx('content.mini.' + g.id + '.' + f, g[f]);
+  const mgLevel = (g, v, n) => tx('content.mini.' + g.id + '.lv.' + v, n);
+  const howToList = (g) => '<ol class="mini-howto">' + g.howTo.map((s, i) => '<li>' + esc(tx('content.mini.' + g.id + '.how' + i, s)) + '</li>').join('') + '</ol>';
   SCREENS.minis = function () {
     idleBoard();
     const P = state.progress, R = { perRound: MINI_PAY.amount, capPerDay: MINI_PAY.cap };
     const today = MINI.GAMES.map((g) => PG.miniToday(P, g.id));
-    const earned = today.reduce((a, t) => a + t.earned, 0), plays = Object.values(P.mini.plays).reduce((a, n) => a + n, 0);
+    const earned = today.reduce((a, tq) => a + tq.earned, 0), plays = Object.values(P.mini.plays).reduce((a, n) => a + n, 0);
     const cell = (ic, k, v) => '<div class="mini-cell"><span class="sg">' + icon(ic) + '</span><span><small>' + esc(k) + '</small><b>' + v + '</b></span></div>';
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Mini-games', 'Quick games at the table', 'Six short games, each one training a real chess skill. They earn ' + esc(miniUnit()) + ' and never change your rating.') +
-      '<div class="mini-summary glass">' + cell('coin', 'Earned today', earned + ' ' + esc(miniUnit())) + cell('target', 'Rounds played', plays) + cell('shield', 'Each game pays', 'up to ' + R.capPerDay + ' a day') + '</div>' +
-      sec('play', 'Games', MINI.GAMES.length + ' games') +
+      pageHead(t('minis.hub.title'), t('minis.hub.head'), t('minis.hub.sub', { coins: esc(miniUnit()) })) +
+      '<div class="mini-summary glass">' + cell('coin', t('minis.hub.earned'), earned + ' ' + esc(miniUnit())) + cell('target', t('minis.hub.rounds'), plays) + cell('shield', t('minis.hub.pays'), t('minis.hub.upTo', { n: R.capPerDay })) + '</div>' +
+      sec('play', t('minis.hub.games'), t('minis.hub.count', { n: MINI.GAMES.length })) +
       '<div class="lux-row three mini-cards">' + MINI.GAMES.map((g, i) => {
-        const best = P.mini.best[g.id], t = today[i], full = t.earned >= R.capPerDay;
-        return '<button class="lux h mini-card" data-mini="' + g.id + '"><span class="tag pill">' + esc(g.skill) + '</span><div class="art"><img src="' + miniArt(g) + '" alt=""></div><h3>' + esc(g.title) + '</h3><p>' + esc(g.blurb) + '</p>' +
-          '<span class="mini-foot"><span>' + icon('clock') + esc(g.minutes) + '</span>' + (best ? '<span>' + icon('trophy') + 'Best ' + best + '</span>' : '') + (t.best !== undefined ? '<span>' + icon('sun') + 'Today ' + t.best + '</span>' : '') +
-          '<span class="mini-earn' + (full ? ' full' : '') + '">' + icon('coin') + t.earned + ' / ' + R.capPerDay + ' ' + esc(miniUnit()) + '</span></span><span class="go">' + icon('arrow') + '</span></button>';
+        const best = P.mini.best[g.id], tq = today[i], full = tq.earned >= R.capPerDay;
+        return '<button class="lux h mini-card" data-mini="' + g.id + '"><span class="tag pill">' + esc(mg(g, 'skill')) + '</span><div class="art"><img src="' + miniArt(g) + '" alt=""></div><h3>' + esc(mg(g, 'title')) + '</h3><p>' + esc(mg(g, 'blurb')) + '</p>' +
+          '<span class="mini-foot"><span>' + icon('clock') + esc(mg(g, 'minutes')) + '</span>' + (best ? '<span>' + icon('trophy') + t('minis.best', { n: best }) + '</span>' : '') + (tq.best !== undefined ? '<span>' + icon('sun') + t('minis.today', { n: tq.best }) + '</span>' : '') +
+          '<span class="mini-earn' + (full ? ' full' : '') + '">' + icon('coin') + tq.earned + ' / ' + R.capPerDay + ' ' + esc(miniUnit()) + '</span></span><span class="go">' + icon('arrow') + '</span></button>';
       }).join('') + '</div>' +
-      '<p class="muted mini-cap">' + icon('shield') + ' Each game pays ' + R.perRound + ' ' + esc(miniUnit()) + ' a round you score in, up to ' + R.capPerDay + ' a day. Play as much as you like after that, just for fun.</p>' +
+      '<p class="muted mini-cap">' + icon('shield') + ' ' + t('minis.hub.cap', { n: R.perRound, coins: esc(miniUnit()), cap: R.capPerDay }) + '</p>' +
       '</div></div>');
     wireLinks();
     document.querySelectorAll('[data-mini]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); miniStart(MINI.game(b.dataset.mini)); }; });
@@ -3559,12 +3562,12 @@
   };
   // The start card: the level, the how-to (open the first time) and today's scores.
   function miniStart(g) {
-    const P = state.progress, first = !P.mini.seen.includes(g.id), lv = miniLevel(g), t = PG.miniToday(P, g.id);
-    const m = modal('<div class="setup-hero mini-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><div><div class="eyebrow">' + esc(g.skill) + ' · ' + esc(g.minutes) + '</div><h2>' + esc(g.title) + '</h2><p class="sub">' + esc(g.blurb) + '</p></div></div>' +
-      '<form id="mn-f">' + (g.levels.length ? '<div class="field"><div class="label">Level</div><div class="seg">' + g.levels.map(([v, n]) => '<label><input type="radio" name="lv" value="' + v + '"' + (v === lv ? ' checked' : '') + '><span>' + esc(n) + '</span></label>').join('') + '</div></div>' : '') +
-      (first ? '<div class="eyebrow">How to play</div>' + howToList(g) : '<details class="mini-more"><summary>How to play</summary>' + howToList(g) + '</details>') +
-      '<p class="mini-scores">' + (P.mini.best[g.id] ? icon('trophy') + ' Best <b>' + P.mini.best[g.id] + '</b>' : 'No score yet. Have a go!') + (t.best !== undefined ? ' · Today <b>' + t.best + '</b>' : '') + '</p>' +
-      '<div class="row"><button type="button" class="btn" data-close>Not now</button><button class="btn primary">' + icon('play') + ' Play</button></div></form>', { x: true, cls: 'mini-sheet' });
+    const P = state.progress, first = !P.mini.seen.includes(g.id), lv = miniLevel(g), tq = PG.miniToday(P, g.id);
+    const m = modal('<div class="setup-hero mini-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><div><div class="eyebrow">' + esc(mg(g, 'skill')) + ' · ' + esc(mg(g, 'minutes')) + '</div><h2>' + esc(mg(g, 'title')) + '</h2><p class="sub">' + esc(mg(g, 'blurb')) + '</p></div></div>' +
+      '<form id="mn-f">' + (g.levels.length ? '<div class="field"><div class="label">' + t('minis.level') + '</div><div class="seg">' + g.levels.map(([v, n]) => '<label><input type="radio" name="lv" value="' + v + '"' + (v === lv ? ' checked' : '') + '><span>' + esc(mgLevel(g, v, n)) + '</span></label>').join('') + '</div></div>' : '') +
+      (first ? '<div class="eyebrow">' + t('minis.howTo') + '</div>' + howToList(g) : '<details class="mini-more"><summary>' + t('minis.howTo') + '</summary>' + howToList(g) + '</details>') +
+      '<p class="mini-scores">' + (P.mini.best[g.id] ? icon('trophy') + ' ' + t('minis.bestB', { n: P.mini.best[g.id] }) : t('minis.noScore')) + (tq.best !== undefined ? ' · ' + t('minis.todayB', { n: tq.best }) : '') + '</p>' +
+      '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('minis.play') + '</button></div></form>', { x: true, cls: 'mini-sheet' });
     m.querySelector('#mn-f').onsubmit = (e) => {
       e.preventDefault();
       const f = e.target, level = f.lv ? f.lv.value : '';
@@ -3582,19 +3585,19 @@
     const level = (arg && arg.level) || miniLevel(g);
     view.setAttract(false);
     view.setArrows([]);
-    mount('<div class="hud-top"><button class="backbtn" id="mn-back">' + icon('back') + '<span>Mini-games</span></button>' +
-      '<div class="title"><img class="portrait" src="' + miniArt(g) + '" alt=""><span>' + esc(g.title) + '</span></div><span class="spacer"></span>' +
+    mount('<div class="hud-top"><button class="backbtn" id="mn-back">' + icon('back') + '<span>' + t('minis.hub.title') + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + miniArt(g) + '" alt=""><span>' + esc(mg(g, 'title')) + '</span></div><span class="spacer"></span>' +
       '<div class="pill glass mini-stats" id="mn-stats" aria-live="polite"></div>' +
-      '<button class="round" id="mn-help" aria-label="How to play" title="How to play">' + icon('scroll') + '</button>' +
-      '<button class="round" id="mn-again" aria-label="Start again" title="Start again">' + icon('refresh') + '</button>' +
-      '<button class="round" id="mn-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
+      '<button class="round" id="mn-help" aria-label="' + t('minis.howTo') + '" title="' + t('minis.howTo') + '">' + icon('scroll') + '</button>' +
+      '<button class="round" id="mn-again" aria-label="' + t('minis.again') + '" title="' + t('minis.again') + '">' + icon('refresh') + '</button>' +
+      '<button class="round" id="mn-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass mini-panel"><header><img src="' + miniArt(g) + '" alt=""><div><div class="eyebrow" id="mn-eyebrow"></div><h3 id="mn-title"></h3></div></header>' +
       '<div class="content"><div id="mn-body"></div><div class="mini-timer" id="mn-timer" hidden><i></i></div><div id="mn-fb"></div></div>' +
       '<footer><span id="mn-tools"></span><div class="grow"></div><button class="btn primary" id="mn-main" hidden></button></footer></aside>');
     const S = { over: false, used: { hints: 0, undos: 0 }, timers: [] };
     const H = {
-      eyebrow(t) { $('mn-eyebrow').textContent = t; },
-      title(t) { $('mn-title').textContent = t; },
+      eyebrow(tq) { $('mn-eyebrow').textContent = tq; },
+      title(tq) { $('mn-title').textContent = tq; },
       body(html) { $('mn-body').innerHTML = html; },
       stats(list) { $('mn-stats').innerHTML = list.map(([k, v]) => '<span><small>' + esc(k) + '</small> <b>' + v + '</b></span>').join(''); },
       fb(kind, text) { $('mn-fb').innerHTML = text ? '<div class="feedback ' + kind + '">' + esc(text) + '</div>' : ''; },
@@ -3619,11 +3622,11 @@
       setHooks({
         onSquare: (sq) => { if (!S.over && game.onSquare) game.onSquare(sq); },
         canDrag: (sq) => !S.over && !!game.canDrag && game.canDrag(sq),
-        onDrop: (f, t) => !S.over && !!game.onDrop && game.onDrop(f, t),
+        onDrop: (f, tq) => !S.over && !!game.onDrop && game.onDrop(f, tq),
       });
       applyInsets();
     };
-    const help = () => { const m = modal('<div class="eyebrow">How to play</div><h2>' + esc(g.title) + '</h2>' + howToList(g) + '<div class="row"><button class="btn primary" data-close>' + icon('play') + ' Play</button></div>', { cls: 'mini-sheet' }); return m; };
+    const help = () => { const m = modal('<div class="eyebrow">' + t('minis.howTo') + '</div><h2>' + esc(mg(g, 'title')) + '</h2>' + howToList(g) + '<div class="row"><button class="btn primary" data-close>' + icon('play') + ' ' + t('minis.play') + '</button></div>', { cls: 'mini-sheet' }); return m; };
     $('mn-back').onclick = () => { AU.play('tap'); go('minis'); };
     $('mn-help').onclick = () => { AU.play('tap'); help(); };
     $('mn-again').onclick = () => { AU.play('tap'); begin(); };
@@ -3650,17 +3653,17 @@
     score = Math.max(0, Math.round(score));
     const res = PG.miniFinished(state.progress, g.id, score);
     celebrate(res, true);
-    const t = PG.miniToday(state.progress, g.id), cap = MINI_PAY.cap, unit = esc(miniUnit());
+    const tq = PG.miniToday(state.progress, g.id), cap = MINI_PAY.cap, unit = esc(miniUnit());
     if (o.won !== false && score > 0) { AU.play('win'); view.celebrate('win', -1, null, -1); } else AU.play('draw');
     setTimeout(() => {
       if (state.screen !== 'mini') return;
       const stat = (k, v) => '<div class="mini-stat"><small>' + esc(k) + '</small><b>' + v + '</b></div>';
-      const m = modal('<div class="result-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><span class="result-badge">' + esc(g.title) + '</span>' +
-        '<h2 class="result-title">' + esc(o.title || (score ? 'Well played!' : 'Round over')) + '</h2>' + (o.line ? '<p class="sub">' + esc(o.line) + '</p>' : '') +
-        '<div class="mini-result">' + stat('Score', score) + stat('Best', state.progress.mini.best[g.id] || 0) + stat('Today', t.best || 0) + '</div>' +
-        (res.newBest ? '<p class="mini-new">' + icon('trophy') + ' New best score!</p>' : res.newDailyBest ? '<p class="mini-new">' + icon('sun') + ' Your best today!</p>' : '') +
-        '<div class="mini-pay"><b>+' + res.paid + '</b> ' + unit + '<small>' + (res.capped ? 'That is all ' + cap + ' ' + unit + ' from this game today. More tomorrow!' : score ? t.earned + ' of ' + cap + ' ' + unit + ' from this game today.' : 'Score in a round to earn ' + unit + '.') + '</small></div>' +
-        '<div class="row" style="justify-content:center"><button class="btn" id="mr-hub">Mini-games</button><button class="btn primary" id="mr-again">' + icon('refresh') + ' Play again</button></div></div>', { cls: 'mini-sheet' });
+      const m = modal('<div class="result-hero"><img class="mini-medal" src="' + miniArt(g) + '" alt=""><span class="result-badge">' + esc(mg(g, 'title')) + '</span>' +
+        '<h2 class="result-title">' + esc(o.title || (score ? t('minis.res.well') : t('minis.res.over'))) + '</h2>' + (o.line ? '<p class="sub">' + esc(o.line) + '</p>' : '') +
+        '<div class="mini-result">' + stat(t('minis.res.score'), score) + stat(t('minis.res.best'), state.progress.mini.best[g.id] || 0) + stat(t('minis.res.today'), tq.best || 0) + '</div>' +
+        (res.newBest ? '<p class="mini-new">' + icon('trophy') + ' ' + t('minis.res.newBest') + '</p>' : res.newDailyBest ? '<p class="mini-new">' + icon('sun') + ' ' + t('minis.res.dayBest') + '</p>' : '') +
+        '<div class="mini-pay"><b>+' + res.paid + '</b> ' + unit + '<small>' + (res.capped ? t('minis.res.capped', { cap, coins: unit }) : score ? t('minis.res.earned', { n: tq.earned, cap, coins: unit }) : t('minis.res.scoreToEarn', { coins: unit })) + '</small></div>' +
+        '<div class="row" style="justify-content:center"><button class="btn" id="mr-hub">' + t('minis.hub.title') + '</button><button class="btn primary" id="mr-again">' + icon('refresh') + ' ' + t('minis.res.again') + '</button></div></div>', { cls: 'mini-sheet' });
       m.querySelector('#mr-hub').onclick = () => { m.close(); go('minis'); };
       m.querySelector('#mr-again').onclick = () => { m.close(); go('mini', { id: g.id, level }); };
     }, score ? 1300 : 600);
@@ -3705,7 +3708,7 @@
     return {
       onSquare(sq) { if (!jump(sq, true) && sq !== cur()) { AU.play('illegal'); H.fb('bad', 'A knight cannot jump there. Try a glowing square.'); } },
       canDrag: (sq) => sq === cur() && !T.busy,
-      onDrop: (f, t) => jump(t, false),
+      onDrop: (f, tq) => jump(tq, false),
     };
   };
   // Square spotter: a name, a tap, and the board turns round every round.
@@ -3802,7 +3805,7 @@
         draw();
       },
       canDrag: (sq) => !T.busy && T.st.side === 1 && T.st.w.includes(sq),
-      onDrop: (f, t) => mine(f, t, false),
+      onDrop: (f, tq) => mine(f, tq, false),
     };
   };
   // Queen's path: five boards; a guarded square refuses the queen and shows who guards it.
@@ -3858,7 +3861,7 @@
     return {
       onSquare(sq) { if (sq !== T.q) go2(sq, true); },
       canDrag: (sq) => sq === T.q && !T.busy,
-      onDrop: (f, t) => go2(t, false),
+      onDrop: (f, tq) => go2(tq, false),
     };
   };
   // Memory board: five seconds to look, then rebuild it from the tray.
@@ -3938,9 +3941,9 @@
       const g = new E.Game(T.pos.fen()), m = g.find(from, to, promo || 0);
       if (m === null || !T.live) return false;
       T.live = false;
-      const t = new E.Game(T.pos.fen()); t.play(m);
+      const tq = new E.Game(T.pos.fen()); tq.play(m);
       const info = g.play(m);
-      if (t.outcome && t.outcome.reason === 'checkmate') {
+      if (tq.outcome && tq.outcome.reason === 'checkmate') {
         T.mates++; AU.play('check');
         quickMove(info, () => { view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: kingSquare(g.pos, g.pos.side) }); AU.play('correct'); H.fb('ok', 'Checkmate!'); stats(); H.later(next, 550); });
       } else {
@@ -3973,10 +3976,10 @@
         const g = new E.Game(T.pos.fen());
         if (T.sel >= 0 && g.targets(T.sel).includes(sq)) { const f = T.sel; T.sel = -1; move(f, sq); return; }
         const p = E.pieceAt(T.pos, sq);
-        if (p && Math.sign(p) === T.pos.side) { T.sel = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights({ selected: sq, targets: t.filter((s) => !E.pieceAt(T.pos, s)), captures: t.filter((s) => E.pieceAt(T.pos, s)) }); }
+        if (p && Math.sign(p) === T.pos.side) { T.sel = sq; AU.play('select'); const tq = g.targets(sq); view.setHighlights({ selected: sq, targets: tq.filter((s) => !E.pieceAt(T.pos, s)), captures: tq.filter((s) => E.pieceAt(T.pos, s)) }); }
       },
       canDrag: (sq) => T.live && E.pieceAt(T.pos, sq) && Math.sign(E.pieceAt(T.pos, sq)) === T.pos.side,
-      onDrop: (f, t) => move(f, t),
+      onDrop: (f, tq) => move(f, tq),
     };
   };
 
