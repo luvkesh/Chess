@@ -188,5 +188,6 @@
   "offer": { "en": "Your opponent offers a draw." },
   "accept": { "en": "Accept" },
   "decline": { "en": "Decline" },
-  "skip": { "en": "Tap to skip" }
+  "skip": { "en": "Tap to skip" },
+  "minis": { "en": "Six quick games that train one skill each" }
 }

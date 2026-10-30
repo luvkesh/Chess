@@ -38,5 +38,12 @@
   "missions.sub": { "en": "Three little goals each day. Finish them all for a bonus of {n} XP." },
   "levelUp": { "en": "Level up" },
   "youAreNow": { "en": "You are now {title}." },
-  "seeCollection": { "en": "See collection" }
+  "seeCollection": { "en": "See collection" },
+  "coins.inAll": { "en": "{n} in all" },
+  "coins.pillTip": { "en": "{coins}: earned by playing, never bought" },
+  "minis": { "en": "Mini-games" },
+  "minisText": { "en": "Six quick games that sharpen your chess. One to three minutes each." },
+  "coins.keep": { "en": "Keep playing to fill your purse" },
+  "coins.canBuy": { "en": "You can buy {name} now" },
+  "coins.next": { "en": "Next: {name} for {n}" }
 }

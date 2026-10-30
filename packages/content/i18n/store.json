@@ -81,5 +81,20 @@
   "passText": { "en": "Every gold-track reward you have reached is now yours." },
   "welcomeText": { "en": "Every animal friend, chapter, opening, endgame and era is open, and the season pass is included." },
   "title": { "en": "Chackmate Premium" },
-  "sub": { "en": "The whole journey, every animal friend and the finest sets in the house." }
+  "sub": { "en": "The whole journey, every animal friend and the finest sets in the house." },
+  "coin.short": { "en": "You need {n} more." },
+  "coin.far": { "en": "Get within {reach} levels of level {level} to buy this." },
+  "coin.never": { "en": "This one cannot be bought with coins." },
+  "coin.ask": { "en": "Buy {name}?" },
+  "coin.costs": { "en": "It costs {price}. You have {have}. It is yours to keep, and it only changes how things look." },
+  "coin.buyFor": { "en": "Buy for {n}" },
+  "coin.yours": { "en": "Yours to keep" },
+  "coin.how": { "en": "Earn {coins} by playing games, passing lessons, solving the daily puzzle and finishing missions. Once you are within {reach} levels of a level reward, you can buy it early. {coins} are never sold for money, and nothing bought changes how the game plays." },
+  "coin.levelReward": { "en": "level {n} reward" },
+  "coin.more": { "en": "{n} more" },
+  "coin.later": { "en": "Nothing in reach yet. {name} opens to coins at level {at} (you are level {lv})." },
+  "coin.all": { "en": "You own every level reward. Splendid!" },
+  "coinShop": { "en": "Coin shop" },
+  "forPlayers": { "en": "for players" },
+  "forGrownups": { "en": "for grown-ups" }
 }

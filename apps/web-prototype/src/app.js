@@ -481,7 +481,7 @@
   // Show XP, level-ups, achievements and unlocks from a progress result.
   function celebrate(res, quiet) {
     if (!res) return;
-    if (res.coins) setTimeout(() => { AU.play('select'); toast('<i class="coin-i">' + icon('coin') + '</i><div><small>' + esc(PG.COIN_NAME) + '</small><b>+' + res.coins + '</b> · ' + coinCount(state.progress.coins) + ' in all</div>', 'ach'); }, 300);
+    if (res.coins) setTimeout(() => { AU.play('select'); toast('<i class="coin-i">' + icon('coin') + '</i><div><small>' + t('common.coins') + '</small><b>+' + res.coins + '</b> · ' + t('home.coins.inAll', { n: coinCount(state.progress.coins) }) + '</div>', 'ach'); }, 300);
     res.achievements.forEach((a, i) => setTimeout(() => {
       AU.play('achievement');
       toast('<i>★</i><div><small>' + t('home.toast.achievement') + '</small><b>' + esc(achName(a)) + '</b> · +' + t('common.xp', { n: a.xp }) + '</div>', 'ach');
@@ -870,13 +870,13 @@
       '<p class="tagline">' + t('home.tagline') + '</p>' +
       '<p class="motto">' + t('home.motto') + '</p>' +
       '<div class="lux-row">' +
-      lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: resume ? 'Resume Game' : 'Quick Play',
-        text: resume ? saved.game.moves.length + ' moves in. Pick up where you left off.' : online ? 'A friendly game online, or an animal friend if no one is around.' : 'A game against the animal friend that suits you best.' }) +
-      lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: 'The Journey', text: ne ? 'Next stop: ' + ne.name + ', ' + ne.when + '.' : 'Every era complete. What a traveller!' }) +
-      lux({ id: 'h-learn', art: faceImg(COACH), title: 'Learn Chess', text: nl ? 'With Rooky, your coach. Next: ' + nl.title + '.' : 'Every open lesson done. Try the puzzles!' }) +
-      lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
-      lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: 'Create a table and send your friend the code, or join theirs.' }) +
-      lux({ id: 'h-minis', art: miniHomeArt(), title: 'Mini-games', text: 'Six quick games that sharpen your chess. One to three minutes each.' }) +
+      lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
+        text: resume ? t('home.resumeText', { n: saved.game.moves.length }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
+      lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
+      lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
+      lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
+      lux({ id: 'h-friend', art: duoArt(), title: t('play.friend'), text: t('play.friendText') }) +
+      lux({ id: 'h-minis', art: miniHomeArt(), title: t('home.minis'), text: t('home.minisText') }) +
       '</div>' +
       '<div class="home-foot">' + coinsStrip() + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
@@ -894,8 +894,8 @@
   // ---------------------------------------------------------------- choco coins
   // Coins are earned by playing and spent on looks. They are never sold, so spending them needs no
   // parent gate; every real-money step stays in the gated part of the store.
-  const coinCount = (n) => n.toLocaleString('en-IN') + ' ' + (n === 1 ? PG.COIN_ONE : PG.COIN_NAME);
-  const coinsPill = () => '<span class="pill gold coins" title="' + esc(PG.COIN_NAME) + ': earned by playing, never bought">' + icon('coin') + '<b>' + state.progress.coins.toLocaleString('en-IN') + '</b> ' + esc(PG.COIN_NAME) + '</span>';
+  const coinCount = (n) => I18N.num(n) + ' ' + t(n === 1 ? 'common.coin' : 'common.coins');
+  const coinsPill = () => '<span class="pill gold coins" title="' + t('home.coins.pillTip', { coins: t('common.coins') }) + '">' + icon('coin') + '<b>' + state.progress.coins.toLocaleString('en-IN') + '</b> ' + t('common.coins') + '</span>';
   // Level items the player can buy now or soon, nearest first.
   function coinShelf() {
     const P = state.progress;
@@ -905,21 +905,21 @@
   function coinsStrip() {
     const P = state.progress, shelf = coinShelf(), reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
     const next = reach.find((i) => PG.coinOffer(P, i).ok) || reach[0];
-    const line = !next ? 'Keep playing to fill your purse' : PG.coinOffer(P, next).ok ? 'You can buy ' + next.name + ' now' : 'Next: ' + next.name + ' for ' + PG.coinPrice(next).toLocaleString('en-IN');
-    return '<button class="strip glass" id="a-coins"><span class="sg gold">' + icon('coin') + '</span><span style="flex:1"><small>' + esc(PG.COIN_NAME) + ' · ' + P.coins.toLocaleString('en-IN') + '</small><b>' + esc(line) + '</b>' +
+    const line = !next ? t('home.coins.keep') : PG.coinOffer(P, next).ok ? t('home.coins.canBuy', { name: next.name }) : t('home.coins.next', { name: next.name, n: I18N.num(PG.coinPrice(next)) });
+    return '<button class="strip glass" id="a-coins"><span class="sg gold">' + icon('coin') + '</span><span style="flex:1"><small>' + t('common.coins') + ' · ' + I18N.num(P.coins) + '</small><b>' + esc(line) + '</b>' +
       (next ? '<span class="bar"><i style="width:' + Math.min(100, Math.round(P.coins / PG.coinPrice(next) * 100)) + '%"></i></span>' : '') + '</span><span class="go">' + icon('arrow') + '</span></button>';
   }
   // Ask once before spending; returns true when bought.
   function buyWithCoins(it, after) {
     const P = state.progress, o = PG.coinOffer(P, it);
-    if (!o.ok) { toast(o.reason === 'short' ? 'You need ' + coinCount(o.short) + ' more.' : o.reason === 'too-far' ? 'Get within ' + PG.COIN_REACH + ' levels of level ' + it.unlock.level + ' to buy this.' : 'This one cannot be bought with coins.', 'bad'); return; }
-    const m = modal('<div class="eyebrow">' + esc(PG.COIN_NAME) + '</div><h2>Buy ' + esc(it.name) + '?</h2><p class="sub">It costs ' + coinCount(o.price) + '. You have ' + coinCount(P.coins) + '. It is yours to keep, and it only changes how things look.</p>' +
-      '<div class="row"><button class="btn" data-close>Not now</button><button class="btn gold" id="cb-ok">' + icon('coin') + ' Buy for ' + o.price.toLocaleString('en-IN') + '</button></div>');
+    if (!o.ok) { toast(o.reason === 'short' ? t('store.coin.short', { n: coinCount(o.short) }) : o.reason === 'too-far' ? t('store.coin.far', { reach: PG.COIN_REACH, level: it.unlock.level }) : t('store.coin.never'), 'bad'); return; }
+    const m = modal('<div class="eyebrow">' + t('common.coins') + '</div><h2>' + t('store.coin.ask', { name: esc(it.name) }) + '</h2><p class="sub">' + t('store.coin.costs', { price: coinCount(o.price), have: coinCount(P.coins) }) + '</p>' +
+      '<div class="row"><button class="btn" data-close>' + t('common.notNow') + '</button><button class="btn gold" id="cb-ok">' + icon('coin') + ' ' + t('store.coin.buyFor', { n: I18N.num(o.price) }) + '</button></div>');
     m.querySelector('#cb-ok').onclick = () => {
       m.close();
       if (!PG.buyWithCoins(P, it)) return;
       AU.play('achievement');
-      toast('<i>★</i><div><small>Yours to keep</small><b>' + esc(it.name) + '</b></div>', 'ach');
+      toast('<i>★</i><div><small>' + t('store.coin.yours') + '</small><b>' + esc(it.name) + '</b></div>', 'ach');
       save(); renderNav();
       if (after) after();
     };
@@ -929,14 +929,14 @@
     const reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
     const later = shelf.find((i) => PG.coinOffer(P, i).reason === 'too-far');
     const lv = PG.levelFor(P.xp).level;
-    return '<p class="sub">Earn ' + esc(PG.COIN_NAME) + ' by playing games, passing lessons, solving the daily puzzle and finishing missions. Once you are within ' + PG.COIN_REACH + ' levels of a level reward, you can buy it early. ' + esc(PG.COIN_NAME) + ' are never sold for money, and nothing bought changes how the game plays.</p>' +
+    return '<p class="sub">' + t('store.coin.how', { coins: t('common.coins'), reach: PG.COIN_REACH }) + '</p>' +
       (reach.length ? '<div class="items">' + reach.map((it) => {
         const o = PG.coinOffer(P, it);
-        return '<div class="item locked" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button><span class="rar ' + it.rarity + '">' + it.rarity + '</span>' +
-          '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(catName(it.category)) + ' · level ' + it.unlock.level + ' reward</span><span class="st">' +
-          '<button class="btn small ' + (o.ok ? 'gold' : '') + '" data-coinbuy="' + it.id + '"' + (o.ok ? '' : ' aria-disabled="true"') + '>' + icon('coin') + ' ' + o.price.toLocaleString('en-IN') + '</button>' +
-          (o.ok ? '' : '<span class="lk">' + o.short.toLocaleString('en-IN') + ' more</span>') + '</span></div></div>';
-      }).join('') + '</div>' : '<p class="muted">' + (later ? 'Nothing in reach yet. ' + esc(later.name) + ' opens to coins at level ' + Math.max(1, later.unlock.level - PG.COIN_REACH) + ' (you are level ' + lv + ').' : 'You own every level reward. Splendid!') + '</p>');
+        return '<div class="item locked" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button><span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' +
+          '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(catName(it.category)) + ' · ' + t('store.coin.levelReward', { n: it.unlock.level }) + '</span><span class="st">' +
+          '<button class="btn small ' + (o.ok ? 'gold' : '') + '" data-coinbuy="' + it.id + '"' + (o.ok ? '' : ' aria-disabled="true"') + '>' + icon('coin') + ' ' + I18N.num(o.price) + '</button>' +
+          (o.ok ? '' : '<span class="lk">' + t('store.coin.more', { n: I18N.num(o.short) }) + '</span>') + '</span></div></div>';
+      }).join('') + '</div>' : '<p class="muted">' + (later ? t('store.coin.later', { name: esc(later.name), at: Math.max(1, later.unlock.level - PG.COIN_REACH), lv }) : t('store.coin.all')) + '</p>');
   }
   function wireCoinShop(root, after) {
     root.querySelectorAll('.item').forEach((el) => {
@@ -999,8 +999,8 @@
       lux({ id: 'p-world', art: worldArt(), title: t('play.world'), text: t('play.worldText') }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: t('play.custom'), text: t('play.customText') }) +
       '</div>' +
-      '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>Mini-games</small><b>Six quick games that train one skill each</b></span><span class="go">' + icon('arrow') + '</span></button>' +
-      sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
+      '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>' + t('home.minis') + '</small><b>' + t('play.minis') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
+      sec('users', t('play.choose'), t('play.friends', { n: OPP.length })) +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
     hydrate();
@@ -1523,13 +1523,13 @@
       info.innerHTML = '<div class="eyebrow">' + esc(catName(it.category)) + '</div><h2>' + esc(it.name) + '</h2>' +
         '<div class="facts"><span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' + (set ? '<span class="pill gold">' + esc(set.era) + '</span><span class="pill">' + esc(set.year) + '</span>' : '') + '</div>' +
         '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
-        (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
-          '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
-        '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
-        (offer && offer.price !== null ? '<p class="fine">' + icon('coin') + ' ' + (offer.reason === 'too-far' ? 'Can be bought for ' + coinCount(offer.price) + ' from level ' + Math.max(1, it.unlock.level - PG.COIN_REACH) + '.' : offer.ok ? 'Or buy it now for ' + coinCount(offer.price) + '.' : 'Or buy it for ' + coinCount(offer.price) + ' (' + offer.short.toLocaleString('en-IN') + ' more to go).') + '</p>' : '') +
-        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
-        (offer && offer.ok ? '<button class="btn gold" id="mu-coin">' + icon('coin') + ' Buy for ' + offer.price.toLocaleString('en-IN') + '</button>' : '') +
-        '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
+        (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((pt) => '<button data-pt="' + pt + '" aria-pressed="false" title="' + PIECE_NAME[pt] + '">' + snap({ kind: 'piece', set: d.set, type: pt, side: 'w' }, 84, 104, ART.pieceUri(pt)) + '</button>').join('') + '</div>' +
+          '<p class="plore" id="mu-lore">' + t('collection.tapPiece') + '</p>' : '') +
+        '<p class="fine">' + (un ? (on ? icon('check') + ' ' + t('collection.equippedDot') : t('collection.yours')) : icon('lock') + ' ' + t('collection.toUnlock', { how: esc(unlockText(it)) })) + '</p>' +
+        (offer && offer.price !== null ? '<p class="fine">' + icon('coin') + ' ' + (offer.reason === 'too-far' ? t('collection.coin.far', { price: coinCount(offer.price), n: Math.max(1, it.unlock.level - PG.COIN_REACH) }) : offer.ok ? t('collection.coin.now', { price: coinCount(offer.price) }) : t('collection.coin.short', { price: coinCount(offer.price), n: I18N.num(offer.short) })) + '</p>' : '') +
+        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' ' + t('collection.equip') + '</button>' : '') +
+        (offer && offer.ok ? '<button class="btn gold" id="mu-coin">' + icon('coin') + ' ' + t('store.coin.buyFor', { n: I18N.num(offer.price) }) + '</button>' : '') +
+        '<button class="btn outline" id="mu-try">' + icon('eye') + ' ' + t('collection.try') + '</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
       if (many) m.querySelector('#mu-count').textContent = t('collection.count', { n: at + 1, of: list.length });
       // The picture is only a placeholder: the item itself turns on the stage in real 3D.
@@ -1751,9 +1751,9 @@
         '<p class="sub">' + t(pass ? 'store.passText' : 'store.welcomeText') + '</p>' +
         '<div class="row" style="justify-content:center"><button class="btn primary" data-close>' + t('common.letsPlay') + '</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
-    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.', '<span id="st-purse">' + coinsPill() + '</span>') +
-      sec('coin', 'Coin shop', 'for players') + '<div class="panel glass" id="st-coins"></div>' +
-      sec('crown', 'Premium', 'for grown-ups') + '<div class="panel glass" id="st-body"></div></div></div>');
+    mount('<div class="page"><div class="page-in">' + pageHead(t('store.store'), t('store.title'), t('store.sub'), '<span id="st-purse">' + coinsPill() + '</span>') +
+      sec('coin', t('store.coinShop'), t('store.forPlayers')) + '<div class="panel glass" id="st-coins"></div>' +
+      sec('crown', t('common.premium'), t('store.forGrownups')) + '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
     function renderCoins() {
       $('st-coins').innerHTML = coinShopHtml();
@@ -3531,7 +3531,7 @@
   // coins (PG.COINS.mini), up to a daily cap from each game, keep a best and
   // a best for today, and never change a rating. The how-to card opens by itself the first time.
   const MINI = ChacklateMinis(E, { puzzles: PUZZLES, lessons: LESSONS.lessons, eras: CAMPAIGN.eras });
-  const miniUnit = () => PG.COIN_NAME;
+  const miniUnit = () => t('common.coins');
   const MINI_PAY = PG.COINS.mini;
   const miniArt = (g) => ART.miniUri(g.art, { from: g.colors[0], to: g.colors[1] });
   const miniLevel = (g) => { const l = (state.settings.miniLevels || {})[g.id]; return g.levels.some((x) => x[0] === l) ? l : g.levels.length ? g.levels[0][0] : ''; };

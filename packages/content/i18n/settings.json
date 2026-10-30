@@ -52,5 +52,7 @@
   "voiceBlurb.mira": { "en": "Warm and encouraging. American English." },
   "voiceBlurb.arthur": { "en": "Calm club captain. British English." },
   "voiceBlurb.priya": { "en": "Game calls and moves in Hindi." },
-  "voiceBlurb.dev": { "en": "Game calls and moves in Hindi." }
+  "voiceBlurb.dev": { "en": "Game calls and moves in Hindi." },
+  "toss": { "en": "Pick a hand for your colour (when you choose Surprise me)" },
+  "build": { "en": "build" }
 }

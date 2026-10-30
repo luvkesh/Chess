@@ -51,5 +51,8 @@
   "unlock.achievement": { "en": "Achievement: {name}" },
   "unlock.season": { "en": "{name} tier {n}" },
   "unlock.journey": { "en": "Journey: {era}" },
-  "unlock.free": { "en": "Free" }
+  "unlock.free": { "en": "Free" },
+  "coin.far": { "en": "Can be bought for {price} from level {n}." },
+  "coin.now": { "en": "Or buy it now for {price}." },
+  "coin.short": { "en": "Or buy it for {price} ({n} more to go)." }
 }
