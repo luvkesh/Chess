@@ -27,4 +27,14 @@ out['detail-avatar'] = ART.medalUri(king.art, { from: king.from, to: king.to });
 const knight = item('avatar.knight.v1');
 out['detail-frame'] = ART.medalUri(knight.art, { from: knight.from, to: knight.to });
 out['detail-frame-ring'] = item('frame.gold.v1').ring;
+// Passport stamps: each place's landmark, as the game draws it, inked inside a double ring.
+for (const e of C.eras) {
+  const ink = '#d8a447';
+  out['stamp-' + e.id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">' +
+    '<circle cx="100" cy="100" r="92" fill="none" stroke="' + ink + '" stroke-width="5"/>' +
+    '<circle cx="100" cy="100" r="81" fill="none" stroke="' + ink + '" stroke-width="1.6" stroke-dasharray="3 4"/>' +
+    '<g transform="translate(24 62) scale(0.38)"><path d="' + ART.LANDMARKS[e.landmark] + '" fill="' + ink + '" fill-rule="evenodd"/></g>' +
+    '<path d="M44 138h112" stroke="' + ink + '" stroke-width="2.4"/></svg>');
+}
 process.stdout.write(JSON.stringify(out));
