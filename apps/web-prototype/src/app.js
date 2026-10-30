@@ -51,6 +51,7 @@
     bag: '<path d="M4.5 8h15l-1.3 12.2a2 2 0 0 1-2 1.8H7.8a2 2 0 0 1-2-1.8z"/><path d="M8.5 10.5V7a3.5 3.5 0 0 1 7 0v3.5"/>',
     flip: '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
     cam: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
     speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>',
@@ -320,6 +321,7 @@
       onContextLost() { $('nogl').hidden = false; },
       onContextRestored() { $('nogl').hidden = true; },
       onPerf: (level) => document.body.classList.toggle('lite', level >= 2),
+      onExplore: (on, name) => exploreChanged(on, name),
       // the equipped look is built first, not the default one and then this one
       look: { room: PG.equipped(state.progress, 'room').data.room, board: PG.equipped(state.progress, 'board').data.board, set: PG.equipped(state.progress, 'pieces').data.set },
     });
@@ -2380,6 +2382,7 @@
       '<button class="btn primary" id="g-claim" hidden>Claim draw</button>' +
       '<button class="btn primary" id="g-review" hidden>' + icon('star') + '<span>Review with Rooky</span></button>' +
       '<button class="btn" id="g-new" hidden>' + icon('play') + '<span>New game</span></button>' +
+      '<button class="btn" id="g-explore" hidden>' + icon('compass') + '<span class="lbl">Explore</span></button>' +
       '</div>');
     $('g-home').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else if (dojo) go('dojo'); else go('home'); };
     $('g-music').onclick = () => {
@@ -2400,6 +2403,7 @@
     $('g-claim').onclick = () => { if (G.g.claimDraw()) { G.request++; if (online) ChacklateNet.send({ type: 'claim' }); endGame(); } };
     $('g-review').onclick = () => go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: local ? WHITE : G.human, title: titleFor(G), review: G.review, level: G.kind === 'ai' ? G.setup.level : undefined, rival: G.kind === 'ai' ? rival(G) : null });
     $('g-new').onclick = () => newGameModal();
+    $('g-explore').onclick = () => { if (view.explore && view.explore(true)) AU.play('tap'); };
     $('move-form').onsubmit = (e) => {
       e.preventDefault();
       const input = $('move-input'), text = input.value.trim();
@@ -2426,9 +2430,12 @@
     refreshHighlights();
     renderHud();
     return {
-      leave() { view.setClock(null); document.body.classList.remove('tossing'); save(); },
-      escape() { if (G.toss) G.toss.skip(); else if (G.rulebook) ruleBook(false); else if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
-      key(e) { if (e.key === 'f') $('g-flip').click(); },
+      leave() { if (exploring) view.explore(false, true); view.setClock(null); document.body.classList.remove('tossing'); save(); },
+      escape() { if (exploring) view.explore(false); else if (G.toss) G.toss.skip(); else if (G.rulebook) ruleBook(false); else if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
+      key(e) {
+        if (exploring) { if (e.key === 'r' || e.key === 'R') view.explore(false); return; }
+        if (e.key === 'f') $('g-flip').click();
+      },
     };
   };
   function titleFor(G) {
@@ -2962,6 +2969,7 @@
     let prizeShown = false;
     setTimeout(() => {
       if (state.game !== G || state.screen !== 'game') return;
+      if (exploring) view.explore(false);
       const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr), 250); } } });
       setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
       const on = (id, fn) => { const b = mdl.querySelector(id); if (b) b.onclick = fn; };
@@ -2975,6 +2983,32 @@
       if (jr && !jr.eraDone) celebrate(jr, true);
       if (!era && mdl.querySelector('#r-review')) guideSay('game.over', { delay: 2200 });
     }, state.settings.animations ? 1500 : 200);
+  }
+  // ----- looking round the room after a game
+  // Like Jong Club's free camera. Once a game is over, Explore hides the HUD and the table
+  // (scene.js) lets the player walk round the room; R, Escape or Back return to the seat. The
+  // controls are shown on a small card the first time only.
+  let exploring = null;
+  function exploreChanged(on, name) {
+    document.body.classList.toggle('exploring', on);
+    if (exploring) { exploring.remove(); exploring = null; }
+    if (!on) { const b = $('g-explore'); if (b) b.focus({ preventScroll: true }); return; }
+    const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const el = document.createElement('div');
+    el.className = 'explore';
+    const hint = state.settings.exploreHint ? '' : '<div class="explorehint glass" role="note"><small>Look around</small><ul>' +
+      (touch ? '<li>Drag to look around</li><li>Pinch to come closer</li><li>Slide two fingers to walk</li><li>Tap <b>Back</b> to return to the table</li>'
+        : '<li>Drag to look around</li><li>Scroll to come closer</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or the arrow keys to walk</li><li><kbd>Q</kbd> and <kbd>E</kbd> to turn</li><li><kbd>R</kbd> or <kbd>Esc</kbd> to return to the table</li>') +
+      '</ul><button class="btn small primary" id="ex-ok">Got it</button></div>';
+    el.innerHTML = hint + '<div class="explorebar glass"><div><small>Exploring</small><b>' + esc(name || 'The room') + '</b></div>' +
+      '<button class="btn small" id="ex-back">' + icon('back') + ' Back' + (touch ? '' : ' <kbd>R</kbd>') + '</button></div>';
+    document.body.appendChild(el);
+    exploring = el;
+    el.querySelector('#ex-back').onclick = () => { AU.play('tap'); view.explore(false); };
+    const ok = el.querySelector('#ex-ok');
+    if (ok) ok.onclick = () => { state.settings.exploreHint = true; save(); ok.parentElement.remove(); };
+    // the hint has been seen once it is up; it never comes back
+    if (ok) { state.settings.exploreHint = true; save(); }
   }
   function resultSub(G, o, winner) {
     const g = G.g;
@@ -3040,6 +3074,7 @@
     if (claim) $('g-claim').textContent = claim === 'threefold' ? 'Claim draw (threefold)' : 'Claim draw (50 moves)';
     $('g-review').hidden = !done || g.moves.length < 4;
     $('g-new').hidden = !done || G.kind === 'online' || !!G.setup.journey || !!G.setup.dojo;
+    $('g-explore').hidden = !done || !view.explore;
     $('g-view-lbl').textContent = state.settings.view === 'top' ? '3D view' : 'Top view';
     $('move-input').disabled = !humanTurn();
     renderMoves();
