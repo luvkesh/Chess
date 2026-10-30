@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Chackmate</title>
-<meta name="description" content="Chess for every age. Learn with Praline, your AI chess coach, play in front of the world's wonders, and collect every piece and board.">
+<meta name="description" content="Chess for every age. Learn with @@COACH@@, your AI chess coach, play in front of the world's wonders, and collect every piece and board.">
 <meta name="theme-color" content="#120c0a">
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="no-referrer">
@@ -96,7 +96,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .place { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 9px 16px; font: 500 12px/1.2 var(--caps); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .place b { color: var(--gold-2); font-weight: 600; }
 
-/* ---------- learn with Praline ---------- */
+/* ---------- learn with @@COACH@@ ---------- */
 #learn { min-height: 100vh; display: flex; align-items: center; }
 .learn { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; }
 .coach-card { margin-top: 30px; padding: 18px 20px; display: flex; gap: 16px; align-items: center; max-width: 500px; min-height: 108px; }
@@ -190,6 +190,21 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
 .reveal.in { opacity: 1; transform: none; }
 
+/* ---------- the coach's audio guide ---------- */
+.hear { display: flex; width: fit-content; align-items: center; gap: 10px; margin: 0 0 18px; padding: 5px 16px 5px 5px; border-radius: 999px; border: 1px solid var(--line); background: rgba(20, 12, 9, 0.8); color: var(--ink); font: 600 12px/1 var(--caps); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: border-color .2s, transform .2s; }
+.hear:hover { border-color: var(--gold); transform: translateY(-1px); }
+.hear img { width: 34px; height: 34px; border-radius: 50%; }
+.hear i { display: inline-flex; align-items: flex-end; gap: 2px; width: 14px; height: 14px; }
+.hear i b { flex: 1; background: var(--gold); height: 35%; border-radius: 1px; }
+.hear i b:nth-child(2) { height: 75%; } .hear i b:nth-child(3) { height: 50%; }
+.hear[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 8px 26px rgba(232, 192, 112, 0.25); }
+.hear[aria-pressed="true"] i b { animation: eq .9s ease-in-out infinite alternate; }
+.hear[aria-pressed="true"] i b:nth-child(2) { animation-delay: -.3s; } .hear[aria-pressed="true"] i b:nth-child(3) { animation-delay: -.6s; }
+@keyframes eq { from { height: 20%; } to { height: 100%; } }
+.said { max-width: 560px; margin: -6px 0 20px; font: italic 500 18px/1.45 var(--serif); color: #f3e6d4; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9); }
+.center .said, .hero .said, .closing .said, .center .hear, .hero .hear, .closing .hear { margin-left: auto; margin-right: auto; }
+.said[hidden] { display: none; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 1100px) {
   header nav { display: none; }
@@ -251,7 +266,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
 </div></header>
 
 <main id="main">
-<section class="hero see" data-mode="hero">
+<section class="hero see" data-mode="hero" data-guide="hero">
   <div class="inner">
     <span class="crest big"><img src="@@IMG:crest@@" alt="" width="122" height="122"></span>
     <p class="wordmark">Chackmate</p>
@@ -265,18 +280,18 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   <div class="place glass" aria-live="polite"><span id="heroplace">Mughal India · <b>The Taj Mahal</b></span></div>
 </section>
 
-<section id="learn" class="see" data-mode="learn"><div class="wrap learn">
+<section id="learn" class="see" data-mode="learn" data-guide="learn"><div class="wrap learn">
   <div>
     <div class="eyebrow">Learn</div>
-    <h2>Meet Praline, <em>your AI chess coach.</em></h2>
-    <p class="sub">Praline watches every move and explains it in one plain sentence, out loud.</p>
-    <div class="coach-card glass"><img src="@@ART:praline@@" alt="Praline the Red Panda" width="72" height="72"><div><b>Praline <span id="cmove">1. e4</span></b><p id="cline">Pawn to e4 grabs the centre and opens a road for your queen and bishop.</p></div></div>
+    <h2>Meet @@COACH@@, <em>your AI chess coach.</em></h2>
+    <p class="sub">@@COACH@@ watches every move and explains it in one plain sentence, out loud.</p>
+    <div class="coach-card glass"><img src="@@ART:coach@@" alt="@@COACHFULL@@" width="72" height="72"><div><b>@@COACH@@ <span id="cmove">1. e4</span></b><p id="cline">Pawn to e4 grabs the centre and opens a road for your queen and bishop.</p></div></div>
     <ul class="ticks"><li>Explains every move</li><li>Speaks every lesson</li><li>Works offline</li></ul>
   </div>
   <div></div>
 </div></section>
 
-<section class="solid" id="lessons"><div class="wrap">
+<section class="solid" id="lessons" data-guide="lessons"><div class="wrap">
   <div class="center reveal">
     <div class="eyebrow">Learn like never before</div>
     <h2>From your first move <em>to your first tournament.</em></h2>
@@ -289,7 +304,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   </div>
 </div></section>
 
-<section id="wonders" class="see" data-mode="wonders">
+<section id="wonders" class="see" data-mode="wonders" data-guide="wonders">
   <div class="wrap">
     <div class="eyebrow">Play</div>
     <h2>Play in front of <em>the world's wonders.</em></h2>
@@ -301,7 +316,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   </div>
 </section>
 
-<section class="solid" id="collect"><div class="wrap collect">
+<section class="solid" id="collect" data-guide="collect"><div class="wrap collect">
   <div class="stage reveal" id="stage"><img id="stageimg" src="" alt=""><span class="hint">Drag to turn</span></div>
   <div class="reveal">
     <div class="eyebrow">Collect</div>
@@ -312,7 +327,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   </div>
 </div></section>
 
-<section class="solid" id="ages"><div class="wrap">
+<section class="solid" id="ages" data-guide="ages"><div class="wrap">
   <div class="center reveal">
     <div class="eyebrow">For every age</div>
     <h2>From first move <em>to full strength.</em></h2>
@@ -322,7 +337,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   <div class="ladder reveal" aria-hidden="true"><span>Beginner</span><span>Grandmaster</span></div>
 </div></section>
 
-<section class="solid" id="families"><div class="wrap">
+<section class="solid" id="families" data-guide="families"><div class="wrap">
   <div class="center reveal">
     <div class="eyebrow">For families</div>
     <h2>Safe for children, <em>by design.</em></h2>
@@ -350,7 +365,7 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   <p class="fine reveal">Beta prices. Every purchase needs a parent's PIN.</p>
 </div></section>
 
-<section class="closing see" data-mode="close"><div class="wrap reveal">
+<section class="closing see" data-mode="close" data-guide="close"><div class="wrap reveal">
   <h2>Your first move <em>is waiting.</em></h2>
   <div class="cta" style="margin-top:30px"><a class="btn gold" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a></div>
 </div></section>
@@ -560,6 +575,34 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
   $('friends').innerHTML = D.opponents.map(function (o) {
     return '<div class="friend"><img src="' + ART['opp-' + o.id] + '" alt="' + o.name + ' the ' + o.animal + '" width="104" height="104"><b>' + o.name + '</b><small>' + o.range + '</small></div>';
   }).join('');
+
+  // ---------------------------------------------------------------- the coach's audio guide
+  // Recorded clips, one per section; they only ever play when someone taps. The words show too.
+  var G = D.guide, sound = null, playing = null;
+  function stopGuide() {
+    if (sound) { sound.pause(); sound = null; }
+    if (playing) { playing.btn.setAttribute('aria-pressed', 'false'); playing.said.hidden = true; playing = null; }
+  }
+  [].forEach.call(document.querySelectorAll('[data-guide]'), function (sec) {
+    var g = G[sec.dataset.guide], head = sec.querySelector('h1, h2');
+    if (!g || !head) return;
+    var btn = document.createElement('button'), said = document.createElement('p');
+    btn.type = 'button'; btn.className = 'hear'; btn.setAttribute('aria-pressed', 'false');
+    btn.innerHTML = '<img src="' + ART.coach + '" alt=""><i aria-hidden="true"><b></b><b></b><b></b></i>Hear ' + D.coach;
+    said.className = 'said'; said.hidden = true; said.textContent = g.text; said.setAttribute('aria-live', 'polite');
+    btn.onclick = function () {
+      var mine = playing && playing.btn === btn;
+      stopGuide();
+      if (mine) return;
+      sound = new Audio(g.src);
+      sound.onended = stopGuide;
+      playing = { btn: btn, said: said };
+      btn.setAttribute('aria-pressed', 'true'); said.hidden = false;
+      sound.play().catch(stopGuide);
+    };
+    head.parentNode.insertBefore(btn, head);
+    head.parentNode.insertBefore(said, head);
+  });
 
   // ---------------------------------------------------------------- chrome
   var top = $('top');

@@ -8,6 +8,7 @@ The audience is children and their parents, so the page is built to be safe as w
 | --- | --- |
 | `src/index.html` | Page template: the story, layout, styles and the script that drives the live 3D table behind the page (the coach's lesson, the world-wonder picker and the turning sets). |
 | `img/` | Pictures as WebP: `crest` (the logo, the game's 3D knight), `<era>-hero` (the era room from the home-screen camera) and `set-<era>` (the era set on a pedestal). The page shows these stills until the live 3D is ready, and instead of it where WebGL is missing. |
+| `guide.json`, `audio/` | The coach's spoken guide: one line per section (`{coach}` is the coach's name from `packages/content/campaign.json`) and the recorded MP3s. It plays only when someone taps ▶, and the words show on screen too. |
 | `tools/render-art.js` | Draws the crest, animal portraits and era banners with the game's own `art.js`. |
 | `build.py` | Inlines the game's fonts, its 3D renderer (three.js, `kit3d`, `pieces3d`, `world3d`, `scene`), `img/`, the art and the facts from `packages/content` (eras, coaches, sets, rooms, counts) into `index.html`. |
 | `index.html` | The built page, committed. CI fails if it is stale. |
@@ -33,3 +34,14 @@ python3 apps/website/build.py
 ```
 
 `shoot.js` sets `window.__SHOT`, hides the menus and uses the table directly: the home-screen camera with the board pushed down (`hero`), `__view.snapshot` for the set on its pedestal, and the black gold-and-silver knight alone for the crest (`to-webp.py` puts it on the ruby disc). Keep each picture under about 140 KB; the whole page is about 3.7 MB, of which the 3D renderer is about 1.1 MB.
+
+## The coach's audio guide
+
+The clips are recorded offline with Kokoro-82M in the game's American English voice (`af_heart`), using the same setup as `tools/voice/record.py`:
+
+```sh
+HF_HOME=... python3.12 apps/website/tools/record-guide.py   # audio/<section>.mp3 and audio/index.json
+python3 apps/website/build.py
+```
+
+`build.py` stops if a clip no longer matches its line in `guide.json` or the coach's name, so after renaming the coach or changing a line, record again.

@@ -89,7 +89,7 @@ def site_data():
         'openings': len(load('openings.json')['openings']), 'endgames': len(load('endgames.json')['endgames']),
         'items': len(catalog['items']), 'sets': cats['pieces'], 'boards': cats['board'], 'rooms': cats['room'],
     }
-    return eras, opponents, counts, campaign['coach']['blurb']
+    return eras, opponents, counts, campaign['coach']
 
 
 def data_uri(path):
@@ -97,8 +97,20 @@ def data_uri(path):
     return 'data:%s;base64,%s' % (kind, base64.b64encode(path.read_bytes()).decode())
 
 
+def guide(coach):
+    """The coach's recorded guide, one clip per section, checked against guide.json and the coach's name."""
+    lines = json.loads((here / 'guide.json').read_text())['lines']
+    recorded = json.loads((here / 'audio' / 'index.json').read_text())['lines']
+    out = {}
+    for key, line in lines.items():
+        text = line.replace('{coach}', coach)
+        assert recorded.get(key) == text, 'audio/%s.mp3 says something else; run tools/record-guide.py' % key
+        out[key] = {'text': text, 'src': 'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode()}
+    return out
+
+
 def build(target):
-    eras, opponents, counts, praline = site_data()
+    eras, opponents, counts, coach = site_data()
     art = json.loads(subprocess.run(['node', str(here / 'tools' / 'render-art.js')], check=True, capture_output=True, text=True).stdout)
     # art.js hands out URI-encoded SVG; base64 is about half the size
     prefix = 'data:image/svg+xml;charset=utf-8,'
@@ -113,7 +125,7 @@ def build(target):
     fonts = (game / 'vendor' / 'fonts.css').read_text()
     assert '</style' not in fonts.lower()
     shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-')}
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown},
+    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': guide(coach['name']), 'coach': coach['name']},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
@@ -122,7 +134,7 @@ def build(target):
     page = re.sub(r'@@IMG:([\w-]+)@@', lambda m: img[m.group(1)], page)
     page = re.sub(r'@@ART:([\w-]+)@@', lambda m: art[m.group(1)], page)
     page = re.sub(r'@@N:(\w+)@@', lambda m: str(counts[m.group(1)]), page)
-    page = page.replace('@@PRALINE@@', praline)
+    page = page.replace('@@COACHFULL@@', coach['full']).replace('@@COACH@@', coach['name'])
     for k, v in LINKS[target].items():
         page = page.replace('@@%s@@' % k, v)
     left = re.findall(r'@@\w+(?::[\w-]+)?@@', page)
