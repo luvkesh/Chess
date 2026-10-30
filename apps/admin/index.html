@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Chacklate Admin</title>
+<title>Chackmate Admin</title>
 <style>
 :root {
   color-scheme: dark;
@@ -85,7 +85,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
   const can = (p) => me && me.permissions.includes(p);
 
   function login() {
-    $('#app').innerHTML = '<form class="login" id="lf"><h1>Chacklate</h1><p>Staff console. Every action is recorded.</p>' +
+    $('#app').innerHTML = '<form class="login" id="lf"><h1>Chackmate</h1><p>Staff console. Every action is recorded.</p>' +
       '<label for="em">Email</label><input id="em" type="email" autocomplete="username" required>' +
       '<label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>' +
       '<p class="err" id="le"></p><button class="btn primary" style="width:100%">Sign in</button></form>';
@@ -102,7 +102,7 @@ tr.click { cursor: pointer; } tr.click:hover td { background: rgba(255,255,255,.
     if (!token) return login();
     try { me = await api('/me'); } catch (e) { return; }
     const tabs = [['overview', 'Overview', 'stats.read'], ['reports', 'Reports', 'reports.read'], ['fairplay', 'Fair play', 'reports.read'], ['users', 'Players', 'users.read'], ['games', 'Games', 'games.read'], ['orders', 'Orders', 'orders.read'], ['audit', 'Audit log', 'audit.read'], ['staff', 'Staff', 'staff.manage']].filter((t) => can(t[2]));
-    $('#app').innerHTML = '<div class="shell"><nav><div class="brand">Chacklate<small>Admin</small></div>' +
+    $('#app').innerHTML = '<div class="shell"><nav><div class="brand">Chackmate<small>Admin</small></div>' +
       tabs.map((t) => '<button data-tab="' + t[0] + '">' + t[1] + (t[0] === 'reports' ? '<span class="count" id="rc" hidden></span>' : '') + '</button>').join('') +
       '<div class="who">' + esc(me.email) + '<br>' + esc(me.role) + ' · <a href="#" id="out">Sign out</a></div></nav><main id="main"></main></div>';
     document.querySelectorAll('[data-tab]').forEach((b) => { b.onclick = () => show(b.dataset.tab); });

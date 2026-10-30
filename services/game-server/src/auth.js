@@ -20,7 +20,7 @@ function checkPassword(pw, stored) {
 const token = () => crypto.randomBytes(24).toString('base64url');
 
 // Display names: 3-20 letters, digits, '_' or '-'. A short block list keeps out the obvious.
-const BLOCKED = ['admin', 'moderator', 'support', 'chacklate', 'official', 'staff'];
+const BLOCKED = ['admin', 'moderator', 'support', 'chackmate', 'chacklate', 'official', 'staff'];
 function validName(name) {
   if (typeof name !== 'string' || !/^[A-Za-z0-9_-]{3,20}$/.test(name)) return 'Names are 3 to 20 letters, digits, _ or -.';
   const k = name.toLowerCase();

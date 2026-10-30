@@ -1,4 +1,4 @@
-# Deploying Chacklate Chess
+# Deploying Chackmate
 
 One container runs everything players and staff touch: the website (`/`), the game (`/play`, installable as an app), the admin console (`/admin`), the JSON API and WebSocket play (`/ws`). Caddy in front provides HTTPS with automatic certificates.
 

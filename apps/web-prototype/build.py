@@ -1,4 +1,6 @@
 """Inline the shared packages, three.js, the fonts, the web client and the content JSON into one HTML file."""
+import base64
+import hashlib
 import json
 import pathlib
 import re
@@ -16,12 +18,14 @@ SCRIPTS = [
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
     src / 'pieces3d.js',
+    src / 'landmarks3d.js',
     src / 'world3d.js',
     src / 'scene.js',
     src / 'art.js',
     src / 'progress.js',
     src / 'audio.js',
     src / 'net.js',
+    src / 'relay.js',
     src / 'app.js',
 ]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
@@ -44,6 +48,12 @@ parts = [
     data('CHACKLATE_VOICE', 'voice.json'),
     data('CHACKLATE_CAMPAIGN', 'campaign.json'),
 ]
+# Card pictures of sets, boards and rooms are cached in the browser under this id, so any
+# change to the 3D code or the catalog draws them again.
+look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
+parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
+# The crest (the rendered gold knight, shared with the website), inlined so the game stays one file.
+parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
 for path in SCRIPTS:
     parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
 code = '\n'.join(parts)
@@ -53,7 +63,7 @@ fonts = (vendor / 'fonts.css').read_text()
 assert '</style' not in fonts.lower()
 
 html = (src / 'shell.html').read_text().replace('/*FONTS*/', fonts).replace('/*SCRIPTS*/', code)
-out = here / 'dist' / 'chacklate-chess.html'
+out = here / 'dist' / 'chackmate.html'
 out.parent.mkdir(exist_ok=True)
 out.write_text(html)
 print(out, len(html))

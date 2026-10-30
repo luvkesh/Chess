@@ -1,4 +1,4 @@
-// Chacklate progression: XP, levels, achievements, streaks, stats and
+// Chackmate progression: XP, levels, achievements, streaks, stats and
 // cosmetic unlocks, daily missions, the season track and the Journey Through Time
 // campaign. Pure functions over a plain state object, so the page can save it
 // locally and the platform API can store the same shape per account.
@@ -41,7 +41,7 @@ function ChacklateProgress(catalog, extras) {
     { id: 'online-first', name: 'Out into the world', desc: 'Finish an online game.', xp: 30 },
     { id: 'era-1', name: 'Time traveller', desc: 'Complete an era of the Journey Through Time.', xp: 50 },
     { id: 'era-4', name: 'Ancient wonders', desc: 'Complete four eras of the Journey.', xp: 120 },
-    { id: 'era-all', name: 'Through the ages', desc: 'Complete all eight eras of the Journey.', xp: 400 },
+    { id: 'era-all', name: 'Through the ages', desc: 'Complete every era of the Journey.', xp: 400 },
   ];
   const BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));
   const LEVEL_ACH = ['beat-truffle', 'beat-builder', 'beat-rusher', 'beat-wall', 'beat-trickster', 'beat-strategist', 'beat-tactician', 'beat-gm'];
@@ -304,8 +304,9 @@ function ChacklateProgress(catalog, extras) {
   }
 
   // ------------------------------------------------------------ journey through time
-  // Eight eras, each a short run of stages (a tale, a lesson, a trial and a champion game).
-  // Eras open in order; the last four need Premium. Finishing an era unlocks its piece set,
+  // Nine eras, each a short run of stages (a tale, a lesson, a trial and a champion game).
+  // Eras open in order; the last five need Premium. An era already started stays open, so
+  // adding a new era in the middle never locks a player out of one they reached. Finishing an era unlocks its piece set,
   // board, room and coach avatar.
   const eraById = (id) => CAMPAIGN.eras.find((e) => e.id === id) || null;
   const eraRec = (state, id) => (state.journey && state.journey[id]) || { stages: [], done: false };
@@ -313,7 +314,8 @@ function ChacklateProgress(catalog, extras) {
     const e = eraById(id); if (!e) return false;
     if (e.access === 'premium' && !state.premium) return false;
     const prev = CAMPAIGN.eras[CAMPAIGN.eras.indexOf(e) - 1];
-    return !prev || eraRec(state, prev.id).done;
+    const own = eraRec(state, id);
+    return !prev || eraRec(state, prev.id).done || own.done || own.stages.some(Boolean);
   }
   function journeyInfo(state, id) {
     const e = eraById(id); if (!e) return null;

@@ -1,4 +1,4 @@
-// Chacklate 3D kit: the procedural modelling shared by piece sets, boards and rooms.
+// Chackmate 3D kit: the procedural modelling shared by piece sets, boards and rooms.
 // Nothing is loaded from files. Shapes come from revolved profiles (with flutes,
 // twists and facets), signed-distance sculpting meshed with surface nets, and a
 // few ornament builders; surfaces come from canvas-painted textures (woods,
@@ -47,7 +47,11 @@ function ChacklateKit(THREE) {
     this.at = pts[pts.length - 1];
     return this;
   };
-  const stepsFor = (len, density) => Math.max(2, Math.min(64, Math.ceil(len / (density || 0.006))));
+  // How finely shapes are tessellated. 1 is the full detail used for close-ups (menu art
+  // and the collection); pieces on the table are built coarser (see ChacklatePieces), since
+  // 32 of them are drawn three times a frame (view, shadows, reflections).
+  const DETAIL = { around: 1, along: 1, tube: 1 };
+  const stepsFor = (len, density) => Math.max(2, Math.round(Math.min(64, Math.ceil(len / (density || 0.006))) * DETAIL.along));
   Profile.prototype.line = function (r, y, smoothJoin) {
     const [r0, y0] = this.at, n = stepsFor(Math.hypot(r - r0, y - y0), 0.05);
     const pts = []; for (let i = 0; i <= n; i++) pts.push([mix(r0, r, i / n), mix(y0, y, i / n)]);
@@ -271,7 +275,8 @@ function ChacklateKit(THREE) {
   function revolve(prof, opts) {
     const o = opts || {};
     const rings = prof instanceof Profile ? prof.rings(o.creaseDeg) : prof;
-    const segs = o.segs || 64, phi0 = o.phi0 || 0, phiLen = o.phiLen || TAU;
+    const segs0 = o.segs || 64, segs = Math.max(Math.min(segs0, 8), Math.round(segs0 * DETAIL.around));
+    const phi0 = o.phi0 || 0, phiLen = o.phiLen || TAU;
     const mod = o.mod || null, lift = o.lift || null;
     const nR = rings.length, nC = segs + 1;
     const pos = new Float32Array(nR * nC * 3), nor = new Float32Array(nR * nC * 3), uv = new Float32Array(nR * nC * 2);
@@ -537,14 +542,13 @@ function ChacklateKit(THREE) {
     }
     const idx = [];
     const C = (i, j, k) => cellVert[i + cx * (j + cy * k)];
+    // The winding follows from the edge's axis and which end is inside: the cells run
+    // (y, z) round an x edge, (x, z) round a y edge and (x, y) round a z edge, so their
+    // natural normal is +x, -y and +z. (Deciding from the triangle's own normal fails where
+    // a thin part folds a quad, which then faces inward and shows as a pinhole.)
     const quad = (a, b, c, d, axis, outward) => {
       if (a < 0 || b < 0 || c < 0 || d < 0) return;
-      // orient so the face normal points from inside to outside along the edge axis
-      const P = (q) => [pos[q * 3], pos[q * 3 + 1], pos[q * 3 + 2]];
-      const pa = P(a), pb = P(b), pc = P(c);
-      const e1 = [pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]], e2 = [pc[0] - pa[0], pc[1] - pa[1], pc[2] - pa[2]];
-      const nrm = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
-      const flip = nrm[axis] * outward < 0;
+      const flip = (axis === 1 ? -outward : outward) < 0;
       if (flip) idx.push(a, c, b, a, d, c); else idx.push(a, b, c, a, c, d);
     };
     for (let k = 1; k < cz; k++) for (let j = 1; j < cy; j++) for (let i = 0; i < cx; i++) {
@@ -596,7 +600,8 @@ function ChacklateKit(THREE) {
   // A ring of beads (pearls, gold dots) at height y and radius r.
   function beadRing(r, y, count, size, o) {
     o = o || {};
-    const base = new THREE.SphereGeometry(size, o.seg || 10, Math.max(6, (o.seg || 10) - 2));
+    const seg = Math.max(6, Math.round((o.seg || 10) * Math.sqrt(DETAIL.around)));
+    const base = new THREE.SphereGeometry(size, seg, Math.max(4, seg - 2));
     const parts = [];
     for (let i = 0; i < count; i++) {
       const th = (i / count) * TAU + (o.phase || 0);
@@ -610,7 +615,7 @@ function ChacklateKit(THREE) {
   // A torus-section band lying on a radius (gold rings around collars).
   function ring(r, y, thick, o) {
     o = o || {};
-    const g = new THREE.TorusGeometry(r, thick, o.tube || 10, o.seg || 72);
+    const g = new THREE.TorusGeometry(r, thick, Math.max(5, Math.round((o.tube || 10) * Math.sqrt(DETAIL.around))), Math.max(16, Math.round((o.seg || 72) * DETAIL.around)));
     g.rotateX(Math.PI / 2);
     if (o.squash) g.scale(1, o.squash, 1);
     g.translate(0, y, 0);
@@ -621,7 +626,7 @@ function ChacklateKit(THREE) {
     o = o || {};
     const shape = new THREE.Shape(outline.map(([x, y]) => new THREE.Vector2(x, y)));
     (o.holes || []).forEach((h) => shape.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x, y)))));
-    const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * (o.bevelSize || 0.9), bevelSegments: o.bevelSegments || 4, curveSegments: o.curveSegments || 24 });
+    const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * (o.bevelSize || 0.9), bevelSegments: Math.max(2, Math.round((o.bevelSegments || 4) * DETAIL.along * 1.5)), curveSegments: Math.max(6, Math.round((o.curveSegments || 24) * DETAIL.around)) });
     g.translate(0, 0, -depth / 2);
     g.computeVertexNormals();
     return g;
@@ -649,11 +654,13 @@ function ChacklateKit(THREE) {
   function tube(points, radius, o) {
     o = o || {};
     const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2])), !!o.closed, 'centripetal');
-    const g = new THREE.TubeGeometry(curve, o.segs || Math.max(8, points.length * 6), radius, o.radial || 8, !!o.closed);
+    const segs = Math.max(4, Math.round((o.segs || Math.max(8, points.length * 6)) * DETAIL.tube));
+    const radialN = Math.max(5, Math.round((o.radial || 8) * Math.sqrt(DETAIL.tube)));
+    const g = new THREE.TubeGeometry(curve, segs, radius, radialN, !!o.closed);
     if (o.taper || o.radiusAt) {
       // shrink toward the ends, or follow radiusAt(t) (a multiple of radius, t from 0 to 1)
       const p = g.attributes.position, n = g.attributes.normal;
-      const rings = (o.segs || Math.max(8, points.length * 6)) + 1, radial = (o.radial || 8) + 1;
+      const rings = segs + 1, radial = radialN + 1;
       for (let i = 0; i < rings; i++) {
         const t = i / (rings - 1), s = o.radiusAt ? o.radiusAt(t) : Math.max(0.15, Math.sin(Math.PI * Math.min(1, t * (o.taperIn || 1.2))) ** 0.35);
         const c = curve.getPointAt(Math.min(1, t));
@@ -683,15 +690,28 @@ function ChacklateKit(THREE) {
 
   // ------------------------------------------------------------------ canvas textures
   const texCache = new Map();
+  // Phones get textures of at most 1024 px and less anisotropic filtering (setTextureBudget):
+  // four 2048 px room textures alone are ~90 MB of GPU memory with their mipmaps.
+  const TEXB = { max: 2048, aniso: 8 };
+  function setTextureBudget(max, aniso) { TEXB.max = max; TEXB.aniso = aniso; }
+  // The canvas itself if it fits the budget, otherwise a scaled-down copy for the GPU.
+  function fitCanvas(c) {
+    const k = TEXB.max / Math.max(c.width, c.height);
+    if (k >= 1) return c;
+    const d = document.createElement('canvas'); d.width = Math.max(1, Math.round(c.width * k)); d.height = Math.max(1, Math.round(c.height * k));
+    const dc = d.getContext('2d'); dc.imageSmoothingQuality = 'high'; dc.drawImage(c, 0, 0, d.width, d.height);
+    return d;
+  }
+  const texAniso = () => TEXB.aniso;
   function canvasTex(key, w, h, draw, o) {
     if (texCache.has(key)) return texCache.get(key);
     const c = document.createElement('canvas'); c.width = w; c.height = h || w;
     const ctx = c.getContext('2d');
     draw(ctx, c.width, c.height);
-    const t = new THREE.CanvasTexture(c);
+    const t = new THREE.CanvasTexture(fitCanvas(c));
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.anisotropy = 8;
+    t.anisotropy = TEXB.aniso;
     if (o && o.repeat) t.repeat.set(o.repeat[0], o.repeat[1]);
     texCache.set(key, t);
     return t;
@@ -877,7 +897,54 @@ function ChacklateKit(THREE) {
     return THREE.mergeGeometries(ready);
   }
 
-  return { TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
+  // Rooms are built from hundreds of small meshes (mouldings, books, candles, frames), and
+  // every one is a draw call. Once a room is built, meshes that never move and look the same
+  // (same material, shadow flags, layers and draw order) are merged into one mesh each, in
+  // the group's own space. `keep` lists objects that animate or toggle; they and everything
+  // under them stay as they are, as do transparent and multi-material meshes.
+  function batchStatic(group, keep) {
+    const skip = new Set();
+    (keep || []).forEach((o) => o && o.traverse((c) => skip.add(c)));
+    group.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(group.matrixWorld).invert();
+    const bins = new Map();
+    group.traverse((m) => {
+      if (!m.isMesh || m.isInstancedMesh || skip.has(m) || !m.visible || Array.isArray(m.material) || m.material.transparent) return;
+      for (let p = m.parent; p && p !== group; p = p.parent) if (!p.visible) return;
+      const g = m.geometry;
+      if (!g || !g.attributes.position || Object.keys(g.morphAttributes).length) return;
+      const key = [m.material.uuid, Object.keys(g.attributes).sort().join(), g.index ? 1 : 0, m.castShadow, m.receiveShadow, m.layers.mask, m.renderOrder].join('|');
+      if (!bins.has(key)) bins.set(key, []);
+      bins.get(key).push(m);
+    });
+    const mat = new THREE.Matrix4();
+    let merged = 0;
+    for (const list of bins.values()) {
+      if (list.length < 2) continue;
+      const geos = list.map((m) => {
+        mat.multiplyMatrices(inv, m.matrixWorld);
+        const g = m.geometry.clone();
+        g.clearGroups();
+        g.applyMatrix4(mat);
+        // a mirrored part keeps facing out: three flips the winding for it at draw time
+        if (mat.determinant() < 0 && g.index) { const a = g.index.array; for (let i = 0; i < a.length; i += 3) { const t = a[i]; a[i] = a[i + 2]; a[i + 2] = t; } }
+        else if (mat.determinant() < 0) return null;
+        return g;
+      });
+      if (geos.some((g) => !g)) continue;
+      const one = THREE.mergeGeometries(geos);
+      if (!one) continue;
+      const first = list[0], mesh = new THREE.Mesh(one, first.material);
+      mesh.castShadow = first.castShadow; mesh.receiveShadow = first.receiveShadow;
+      mesh.layers.mask = first.layers.mask; mesh.renderOrder = first.renderOrder;
+      list.forEach((m) => m.parent.remove(m));
+      group.add(mesh);
+      merged += list.length - 1;
+    }
+    return merged;
+  }
+
+  return { DETAIL, batchStatic, setTextureBudget, fitCanvas, texAniso, TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
     beadRing, ring, extrude, closedCurve, mirrorOutline, tube, scroll, wrap, canvasTex, paint, hex, lerpC, TEX, MAT, material, merge };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateKit;

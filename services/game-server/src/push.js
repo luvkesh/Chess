@@ -58,7 +58,7 @@ const localHour = (t, tz) => new Date(t + tz * 60000).getUTCHours();
 function create(db, opts) {
   opts = opts || {};
   const now = opts.now || Date.now;
-  const subject = opts.subject || 'mailto:support@chacklate.example';
+  const subject = opts.subject || 'mailto:support@chackmate.example';
   let vapid = opts.vapid && opts.vapid.publicKey ? opts.vapid : null;
   if (!vapid) {
     // Generated once and kept in the database, so subscriptions survive restarts.
