@@ -277,7 +277,7 @@ function ChacklateAudio() {
   // to the device's speech engine.
   const V = (typeof CHACKLATE_VOICE !== 'undefined') ? CHACKLATE_VOICE : { voices: [], events: {}, moves: {} };
   const OLD_IDS = { mira: 'heart', arthur: 'george' };
-  let coachVoice = 'heart', callVoice = 'heart', announceOn = false, deviceFallback = true;
+  let coachVoice = 'toby', callVoice = 'toby', announceOn = false, deviceFallback = true;
   let index = null, indexLoad = null, current = null, queueId = 0;
   const clips = new Map(), packs = new Map();
   function voiceKey(text) {

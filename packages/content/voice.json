@@ -20,7 +20,7 @@
     { "id": "fenrir", "name": "Fenrir", "lang": "en", "engine": "am_fenrir", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Deeper and confident. American English, male.", "lessons": true },
     { "id": "puck", "name": "Puck", "lang": "en", "engine": "am_puck", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Playful and energetic. American English, male.", "lessons": true },
     { "id": "marcus", "name": "Marcus", "lang": "en", "engine": "am_michael,am_fenrir", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Warm with a fuller, deeper tone. American English, male.", "lessons": true },
-    { "id": "toby", "name": "Toby", "lang": "en", "engine": "am_puck,am_michael", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Friendly with a playful lift. American English, male.", "lessons": true },
+    { "id": "toby", "name": "Toby", "lang": "en", "engine": "am_puck,am_michael", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Young, soft and calm, with a playful lift. The voice of Rooky. American English, male.", "lessons": true },
     { "id": "jake", "name": "Jake", "lang": "en", "engine": "am_fenrir,am_liam", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Confident and youthful. American English, male.", "lessons": true },
     { "id": "echo", "name": "Echo", "lang": "en", "engine": "am_echo", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Calm and even. American English, male.", "lessons": true },
     { "id": "eric", "name": "Eric", "lang": "en", "engine": "am_eric", "speed": 1.0, "accent": "US", "gender": "M", "blurb": "Plain and businesslike. American English, male.", "lessons": true },
