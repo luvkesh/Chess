@@ -46,4 +46,8 @@ for key, line in guide['lines'].items():
     index[key] = want
     print(key, round(len(audio) / RATE, 1), 's', flush=True)
 index = {k: index[k] for k in guide['lines'] if k in index}
+# clips of lines that are no longer in guide.json are deleted
+for f in out.glob('*.mp3'):
+    if f.stem not in guide['lines']:
+        f.unlink()
 index_path.write_text(json.dumps(index, indent=1, ensure_ascii=False) + '\n')

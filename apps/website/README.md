@@ -44,6 +44,4 @@ HF_HOME=... python3.12 apps/website/tools/record-guide.py   # audio/<section>.mp
 python3 apps/website/build.py
 ```
 
-Each line is spoken in one go, then opened up at its punctuation by `tools/voice/pauses.py`: about 0.3 s after a comma and 0.65 s after a full stop, so it never runs together.
-
 `build.py` stops if a clip no longer matches its line in `guide.json` or the coach's name, so after renaming the coach or changing a line, record again.

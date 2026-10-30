@@ -165,6 +165,9 @@ function ChacklateAudio() {
     // E minor, a ballet in the snow
     winter: { chords: [[40, 52, 55, 59, 64], [36, 48, 52, 55, 64], [33, 45, 52, 57, 60], [35, 47, 51, 54, 57]],
       scale: [64, 66, 67, 69, 71, 72, 75, 76, 78, 79], voice: 'celesta', every: 8000 },
+    // a musette waltz in G, as on the Champ de Mars in 1889
+    paris: { chords: [[31, 43, 47, 50, 55], [36, 43, 48, 52, 57], [38, 45, 50, 54, 60], [31, 43, 47, 50, 59]],
+      scale: [67, 69, 71, 72, 74, 76, 78, 79, 81, 83], voice: 'harp', every: 7500 },
     // ninth chords and a blue note, late at night
     deco: { chords: [[36, 47, 52, 55, 62], [33, 43, 48, 52, 59], [38, 48, 53, 57, 64], [31, 41, 47, 52, 57]],
       scale: [60, 62, 63, 64, 67, 69, 72, 74, 75, 76], voice: 'ep', every: 7000 },

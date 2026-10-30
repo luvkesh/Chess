@@ -147,7 +147,7 @@
  "era.egypt.lesson": {
   "who": "miu",
   "voice": "af_bella",
-  "text": "Great listening! Now tap the lesson, The knight's jump, and learn something new."
+  "text": "Great listening! Now tap the lesson, The chariot race, and learn something new."
  },
  "era.egypt.puzzles": {
   "who": "miu",
@@ -172,7 +172,7 @@
  "era.greece.lesson": {
   "who": "sophie",
   "voice": "bf_isabella",
-  "text": "Great listening! Now tap the lesson, Counting captures, and learn something new."
+  "text": "Great listening! Now tap the lesson, The agora market, and learn something new."
  },
  "era.greece.puzzles": {
   "who": "sophie",
@@ -197,7 +197,7 @@
  "era.rome.lesson": {
   "who": "marcus",
   "voice": "am_michael,am_fenrir",
-  "text": "Great listening! Now tap the lesson, Checkmate, and learn something new."
+  "text": "Great listening! Now tap the lesson, The legion's wall, and learn something new."
  },
  "era.rome.puzzles": {
   "who": "marcus",
@@ -222,7 +222,7 @@
  "era.mughal.lesson": {
   "who": "moti",
   "voice": "bm_fable,bm_lewis",
-  "text": "Great listening! Now tap the lesson, Fight for the centre, and learn something new."
+  "text": "Great listening! Now tap the lesson, Elephants to the middle, and learn something new."
  },
  "era.mughal.puzzles": {
   "who": "moti",
@@ -247,7 +247,7 @@
  "era.ming.lesson": {
   "who": "bao",
   "voice": "af_sky",
-  "text": "Great listening! Now tap the lesson, Skewers, and learn something new."
+  "text": "Great listening! Now tap the lesson, Bao's bamboo spear, and learn something new."
  },
  "era.ming.puzzles": {
   "who": "bao",
@@ -272,12 +272,12 @@
  "era.venice.lesson": {
   "who": "marco",
   "voice": "bm_george,bm_fable",
-  "text": "Great listening! Now tap the lesson, The queen comes out, and learn something new."
+  "text": "Great listening! Now tap the lesson, The doge's warning, and learn something new."
  },
  "era.venice.endgame": {
   "who": "marco",
   "voice": "bm_george,bm_fable",
-  "text": "Well done! Next, tap The queen's power, and win the endgame."
+  "text": "Well done! Next, tap Crown a new queen, and win the endgame."
  },
  "era.venice.champion": {
   "who": "marco",
@@ -287,7 +287,32 @@
  "era.venice.done": {
   "who": "marco",
   "voice": "bm_george,bm_fable",
-  "text": "You beat me! The Murano Glass set is yours. Tap All eras, and travel on to Imperial Russia."
+  "text": "You beat me! The Murano Glass set is yours. Tap All eras, and travel on to Paris."
+ },
+ "era.paris.tale": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "Welcome to Paris! I'm Gaston. Tap the first stage, The soul of chess, and I'll tell you a story."
+ },
+ "era.paris.lesson": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "Great listening! Now tap the lesson, Pawns on the march, and learn something new."
+ },
+ "era.paris.puzzles": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "Well done! Next, tap Café puzzles, and solve my puzzles."
+ },
+ "era.paris.champion": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "You're ready! Tap Gaston's challenge, and play me. Win, and the Ruby and Pearl set is yours!"
+ },
+ "era.paris.done": {
+  "who": "gaston",
+  "voice": "am_puck",
+  "text": "You beat me! The Ruby and Pearl set is yours. Tap All eras, and travel on to Imperial Russia."
  },
  "era.russia.tale": {
   "who": "mishka",
@@ -297,7 +322,7 @@
  "era.russia.lesson": {
   "who": "mishka",
   "voice": "am_fenrir",
-  "text": "Great listening! Now tap the lesson, The opposition, and learn something new."
+  "text": "Great listening! Now tap the lesson, Kings in the snow, and learn something new."
  },
  "era.russia.endgame": {
   "who": "mishka",
@@ -322,7 +347,7 @@
  "era.deco.lesson": {
   "who": "skye",
   "voice": "af_nova",
-  "text": "Great listening! Now tap the lesson, Mating patterns, and learn something new."
+  "text": "Great listening! Now tap the lesson, Rooftop mates, and learn something new."
  },
  "era.deco.puzzles": {
   "who": "skye",

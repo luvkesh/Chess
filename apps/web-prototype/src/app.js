@@ -45,6 +45,7 @@
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
     speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>',
+    smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
     star: '<path d="M12 2l3 7h7l-5.5 4.5 2 7.5L12 17l-6.5 4 2-7.5L2 9h7z"/>', trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H3a4 4 0 0 0 4 4M17 6h4a4 4 0 0 1-4 4"/>',
@@ -745,6 +746,7 @@
   const dailyDone = () => state.progress.daily.date === PG.today() && state.progress.daily.done;
   const nextEra = () => CAMPAIGN.eras.find((e) => !PG.journeyInfo(state.progress, e.id).done) || null;
   const duoArt = () => '<span class="duo"><img src="' + medal('piece:n', '#a3294f', '#5c1328') + '" alt=""><img src="' + medal('piece:r', '#2f6f6a', '#173b39') + '" alt=""><i>' + icon('users') + '</i></span>';
+  const worldArt = () => '<span class="duo"><img src="' + medal('piece:k', '#2f6f6a', '#173b39') + '" alt=""><img src="' + medal('piece:q', '#b8862b', '#5c3d0c') + '" alt=""><i>' + icon('globe') + '</i></span>';
   function wireLinks() {
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     const ms = $('a-missions'); if (ms) ms.onclick = () => { AU.play('tap'); missionsModal(); };
@@ -827,9 +829,10 @@
     mount('<div class="page"><div class="page-in">' +
       pageHead('Play', 'Play Chess', 'Choose an animal friend to play. Each one plays in its own way, from brand new to grandmaster.', '<span class="pill gold">' + icon('star') + ' Your best match: ' + esc(best.full) + '</span>') +
       sec('play', 'Start playing') +
-      '<div class="lux-row three">' +
+      '<div class="lux-row four">' +
       lux({ id: 'p-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: 'Quick Play', text: online ? 'A friendly game online, or ' + best.name + ' if no one is around.' : 'Play ' + best.name + ', picked from your recent games.' }) +
       lux({ id: 'p-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
+      lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: online ? 'A timed game against a player from anywhere, 10 minutes at most.' : 'Online play is not connected right now.' }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
@@ -839,6 +842,7 @@
     wireLinks();
     $('p-quick').onclick = () => { AU.unlock(); AU.play('tap'); quickPlay(); };
     $('p-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+    $('p-world').onclick = () => { AU.unlock(); AU.play('tap'); worldModal(); };
     $('p-custom').onclick = () => { AU.unlock(); AU.play('tap'); newGameModal(); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp); }; });
     return {};
@@ -873,7 +877,7 @@
   }
 
   // ---------------------------------------------------------------- the Journey Through Time
-  // Eight eras in order. Each has a story, a lesson, a trial and a champion; beating the
+  // Nine eras in order. Each has a story, a lesson, a trial and a champion; beating the
   // champion brings that era's chess set, board, room and portrait home.
   const STAGE = { tale: ['scroll', 'Story'], lesson: ['learn', 'Lesson'], puzzles: ['puzzle', 'Puzzles'], endgame: ['crown', 'Endgame'], champion: ['swords', 'Champion'] };
   const eraRewards = (e) => CATALOG.items.filter((it) => it.unlock.type === 'journey' && it.unlock.era === e.id);
@@ -911,7 +915,8 @@
   }
   function rewardRow(it) {
     const d = it.data || {};
-    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="dot">' + icon({ pieces: 'pawn', board: 'grid', room: 'home' }[it.category] || 'star') + '</span>';
+    // the item's own picture, the same one its Collection card shows (and shares the cache with)
+    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="thumb">' + itemArt(it) + '</span>';
     return '<li>' + art + '<span><b>' + esc(it.name) + '</b><small>' + esc(catName(it.category)) + '</small></span></li>';
   }
   const catName = (id) => { const c = CATALOG.categories.find((x) => x.id === id); return c ? c.name.replace(/s$/, '').replace(/^Piece set$/, 'Chess set') : id; };
@@ -936,7 +941,7 @@
       '<div class="era-layout"><div class="stages">' + e.stages.map((s, k) => {
         const done = info.stages[k], locked = k === champ && !ready && !done;
         const next = !done && !locked && (k === champ ? ready : info.next === k);
-        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: lessonTitle(s.lesson), puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
+        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: (s.objectives || []).join('. ') + '.', puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
         return '<button class="stage' + (done ? ' done' : '') + (next ? ' next' : '') + '" data-stage="' + k + '"' + (locked ? ' disabled' : '') + '>' +
           '<span class="badge-ic">' + (s.kind === 'champion' ? '<img src="' + face(co) + '" alt="">' : icon(STAGE[s.kind][0])) + '</span>' +
           '<span><span class="k">Stage ' + (k + 1) + ' · ' + STAGE[s.kind][1] + '</span><h4>' + esc(s.title) + '</h4><small>' + esc(locked ? 'Finish the other stages first, then ' + co.name + ' will play you.' : desc) + '</small></span>' +
@@ -953,23 +958,17 @@
     guideSay(eraGuideKey(e));
     return {};
   };
-  const lessonTitle = (id) => { const l = LESSONS.lessons.find((x) => x.id === id); return l ? l.objectives.join('. ') + '.' : ''; };
   function runStage(e, k) {
     const s = e.stages[k];
     const journey = { era: e.id, stage: k };
     if (s.kind === 'tale') return taleModal(e, k);
-    if (s.kind === 'lesson') return go('lesson', { id: s.lesson, journey });
+    if (s.kind === 'lesson') return go('lesson', { journey });
     if (s.kind === 'puzzles') return go('puzzle', { list: stagePuzzles(s), title: s.title, intro: s.intro, journey });
-    if (s.kind === 'endgame') return startDojo(s.endgame, journey);
+    if (s.kind === 'endgame') return startDojo(s.endgame.id, journey);
     if (s.kind === 'champion') return startGame({ mode: 'ai', color: s.color || 'white', level: s.level, tc: 'none', fen: '', rival: eraCoach(e), look: { set: e.set, board: e.board, room: e.room }, journey });
   }
-  function stagePuzzles(s) {
-    const themes = s.theme.split(',');
-    const match = (p) => themes.some((t) => p.themes.includes(t));
-    let pool = PUZZLES.filter((p) => match(p) && (!s.max || p.rating <= s.max));
-    if (pool.length < s.count) pool = PUZZLES.filter(match);
-    return pool.sort((a, b) => a.rating - b.rating).slice(0, s.count);
-  }
+  // Each era names its own puzzles, none of which a Learn lesson or another era uses.
+  const stagePuzzles = (s) => s.puzzles.map((id) => PUZZLES.find((p) => p.id === id)).filter(Boolean);
   // Marks a stage done and shows what it brought. Finishing the champion completes the era.
   function stageDone(journey) {
     const e = eraById(journey.era);
@@ -1138,7 +1137,7 @@
     idleBoard();
     const P = state.progress, set = equippedSet();
     const mastered = Object.values(P.openings).filter((r) => r.mastered).length;
-    const dojoStars = Object.values(P.dojo).reduce((a, r) => a + r.stars, 0);
+    const dojoStars = ENDGAMES.reduce((a, d) => a + (P.dojo[d.id] ? P.dojo[d.id].stars : 0), 0);
     mount('<div class="page"><div class="page-in">' + subnav('training') +
       pageHead('Training', 'Training', 'Learn openings move by move, master the endgames every player needs, and let Rooky review your games.') +
       sec('play', 'Train') +
@@ -1176,8 +1175,10 @@
     document.querySelectorAll('[data-eg]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); startDojo(b.dataset.eg); }; });
     return {};
   };
+  // The dojo's endgames, plus the ones that live only inside an era.
+  const endgameById = (id) => ENDGAMES.find((x) => x.id === id) || CAMPAIGN.eras.flatMap((e) => e.stages).map((s) => s.endgame).find((d) => d && d.id === id);
   function startDojo(id, journey) {
-    const d = ENDGAMES.find((x) => x.id === id);
+    const d = endgameById(id);
     const side = E.positionFrom(d.fen, []).side;
     startGame({ mode: 'ai', color: side === WHITE ? 'white' : 'black', level: 7, tc: 'none', fen: d.fen, dojo: id, journey: journey || null, look: journey ? eraLook(journey.era) : null });
     coachSay(d.tip, [['Got it', 'dismiss']]);
@@ -1185,7 +1186,7 @@
   const eraLook = (id) => { const e = eraById(id); return e ? { set: e.set, board: e.board, room: e.room } : null; };
   // Called after every move of a dojo game. Returns true once the attempt is decided.
   function dojoCheck(G, info) {
-    const d = ENDGAMES.find((x) => x.id === G.setup.dojo);
+    const d = endgameById(G.setup.dojo);
     if (!d || G.dojoDone) return false;
     const g = G.g, me = G.human, o = g.outcome;
     const firstMine = E.positionFrom(g.startFen, []).side === me;
@@ -1462,7 +1463,7 @@
   function seasonSwatch(it) {
     const d = it.data || {};
     if (it.category === 'avatar') return '<img src="' + medal(d.art, d.from, d.to) + '" alt="">';
-    if (it.category === 'pieces') return '<img src="' + medal('piece:k', '#8a5a2a', '#2a1408') + '" alt="">';
+    if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
     if (it.category === 'frame') return '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
     if (it.category === 'capture' || it.category === 'victory') return '<img src="' + ART.fxUri(d.kind, d.colors) + '" alt="">';
@@ -1495,6 +1496,7 @@
         : '<div class="pass-cta"><div><b>Season Pass</b><small>Unlock the gold track: ' + s.items.filter((i) => i.unlock.track === 'pass').length + ' extra rewards, including tiers you have already reached.</small></div><button class="btn gold" id="se-buy">Ask a grown-up</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">Free track</div><div class="eyebrow">Season Pass</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends.</p></div></div>');
+    hydrate(null, true);
     wireLinks();
     const b = $('se-buy'); if (b) b.onclick = () => go('store', 'pass.' + id);
     document.querySelectorAll('[data-item]').forEach((el) => { el.onclick = () => { AU.play('tap'); itemModal(PG.item(el.dataset.item)); }; });
@@ -1747,7 +1749,7 @@
     setLook(G.setup.look || null);
     const online = G.kind === 'online', local = G.kind === 'local';
     const j = G.setup.journey, era = j && eraById(j.era);
-    const dojo = G.setup.dojo && ENDGAMES.find((x) => x.id === G.setup.dojo);
+    const dojo = G.setup.dojo && endgameById(G.setup.dojo);
     mount(
       '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? era.name : dojo ? 'Endgames' : 'Home') + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
@@ -1766,6 +1768,7 @@
       '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">Flip</span></button>' +
       '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">Top view</span></button>' +
       '<span class="sep"></span>' +
+      (online ? '<button class="btn" id="g-emote" aria-haspopup="true">' + icon('smile') + '<span class="lbl">React</span></button>' : '') +
       (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">Draw</span></button>') +
       '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">Resign</span></button>' +
       '<button class="btn primary" id="g-claim" hidden>Claim draw</button>' +
@@ -1785,6 +1788,7 @@
     $('g-flip').onclick = () => { AU.play('tap'); G.viewSide = G.viewSide === 'white' ? 'black' : 'white'; view.setView(G.viewSide, state.settings.view); renderCards(); renderHud(); };
     $('g-view').onclick = () => { AU.play('tap'); state.settings.view = state.settings.view === 'top' ? 'player' : 'top'; view.setView(G.viewSide, state.settings.view); save(); renderHud(); };
     if ($('g-draw')) $('g-draw').onclick = offerDraw;
+    if ($('g-emote')) $('g-emote').onclick = emotePicker;
     $('g-resign').onclick = resign;
     $('g-claim').onclick = () => { if (G.g.claimDraw()) { G.request++; if (online) ChacklateNet.send({ type: 'claim' }); endGame(); } };
     $('g-review').onclick = () => go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: local ? WHITE : G.human, title: titleFor(G), review: G.review, level: G.kind === 'ai' ? G.setup.level : undefined, rival: G.kind === 'ai' ? rival(G) : null });
@@ -1819,7 +1823,7 @@
     };
   };
   function titleFor(G) {
-    if (G.setup.dojo) { const d = ENDGAMES.find((x) => x.id === G.setup.dojo); return 'Endgame dojo' + (d ? ' · ' + d.name : ''); }
+    if (G.setup.dojo) { const d = endgameById(G.setup.dojo); return (G.setup.journey ? 'Journey' : 'Endgame dojo') + (d ? ' · ' + d.name : ''); }
     if (G.kind === 'ai') return 'vs ' + rival(G).name;
     if (G.kind === 'online') return 'Online · ' + (G.online && G.online.tc || G.setup.tc || '');
     return 'Pass and play';
@@ -1867,7 +1871,7 @@
       let pp, sub;
       if (you) { pp = avatarHtml('sm'); sub = 'Level ' + PG.levelFor(state.progress.xp).level + (G.online && G.online.rating ? ' · Rating ' + G.online.rating : ''); }
       else if (who) { pp = '<img class="portrait" src="' + face(who) + '" alt="">'; sub = G.setup.dojo ? 'Full-strength defence' : who.era ? 'Champion of ' + (eraById(who.era) || {}).name : 'Level ' + (G.setup.level + 1) + ' · ' + LEVELS[G.setup.level].band; }
-      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = 'Rating ' + (opp.rating || '?'); }
+      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || 'Rating ' + (opp.rating || '?'); }
       else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = side === WHITE ? 'Plays the light pieces' : 'Plays the dark pieces'; }
       el.innerHTML = '<div class="pp">' + pp + '</div><div class="who"><div class="name">' + esc(sideName(G, side)) + '</div><div class="sub"><span class="tl">' + esc(sub) + '</span></div>' +
         '<div class="taken"><span class="caps"></span><span class="adv"></span></div></div>' +
@@ -2166,6 +2170,37 @@
       refreshHighlights();
     });
   }
+  // Online reactions: a short preset list, never typed text.
+  const EMOTES = { hello: ['👋', 'Hello!'], luck: ['🍀', 'Good luck!'], nice: ['👍', 'Nice move!'], wow: ['😮', 'Wow!'], think: ['🤔', 'Let me think…'], gg: ['🤝', 'Good game!'] };
+  function emotePicker() {
+    const old = document.querySelector('.emote-pop');
+    if (old) { old.remove(); return; }
+    const pop = document.createElement('div');
+    pop.className = 'emote-pop glass'; pop.setAttribute('role', 'menu');
+    pop.innerHTML = Object.keys(EMOTES).map((k) => '<button class="btn small" role="menuitem" data-emote="' + k + '"><span aria-hidden="true">' + EMOTES[k][0] + '</span> ' + EMOTES[k][1] + '</button>').join('');
+    // Fixed above the action bar, which scrolls sideways on phones and would clip it.
+    const r = $('g-emote').getBoundingClientRect();
+    pop.style.left = Math.min(window.innerWidth - 150, Math.max(150, r.left + r.width / 2)) + 'px';
+    pop.style.bottom = (window.innerHeight - r.top + 10) + 'px';
+    document.body.appendChild(pop);
+    const away = (e) => { if (!pop.contains(e.target) && e.target.closest('#g-emote') === null) { pop.remove(); document.removeEventListener('pointerdown', away, true); } };
+    document.addEventListener('pointerdown', away, true);
+    pop.onclick = (e) => { const b = e.target.closest('[data-emote]'); if (!b) return; pop.remove(); document.removeEventListener('pointerdown', away, true); AU.play('tap'); ChacklateNet.send({ type: 'emote', id: b.dataset.emote }); };
+  }
+  function showEmote(id, mine) {
+    const G = state.game, em = EMOTES[id];
+    if (!G || !em || state.screen !== 'game') return;
+    const side = mine ? G.human : -G.human;
+    const card = document.querySelector('.player-card[data-side="' + side + '"]');
+    if (!card) return;
+    const old = card.querySelector('.emote-bubble'); if (old) old.remove();
+    const b = document.createElement('div');
+    b.className = 'emote-bubble'; b.setAttribute('role', 'status');
+    b.innerHTML = '<span aria-hidden="true">' + em[0] + '</span> ' + esc(em[1]);
+    card.appendChild(b);
+    if (!mine) AU.play('tap');
+    setTimeout(() => b.remove(), 3500);
+  }
   function offerDraw() {
     const G = state.game;
     if (G.g.outcome) return;
@@ -2425,10 +2460,20 @@
       startGame({ mode: form.mode.value, color: form.color.value || 'white', level: LEVELS[lv].premium && !prem ? 1 : lv, tc: form.tc.value, fen });
     };
   }
+  // Online clocks: every game is timed, with ten minutes a side at most.
+  const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', '5 min'], ['5+3', '5 + 3'], ['10+0', '10 min']];
+  function worldModal() {
+    if (!netOn()) { toast('Online play is not connected right now. Try Quick Play for a game with an animal friend.'); return; }
+    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">Play the world</div><h2>Find a player</h2>' +
+      '<p class="sub">We pair you with someone waiting for the same clock. Players only see a made-up name, and you can send friendly reactions, never messages.</p></div></div>' +
+      '<div class="field"><div class="label">Clock (10 minutes at most)</div><div class="seg">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="wtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
+      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn primary" id="w-go">' + icon('globe') + ' Find a player</button></div>', { x: true });
+    m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
+  }
   function friendModal() {
     const online = netOn();
-    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Two players</h2><p class="sub">' + (online ? 'Make a game and share its code, or join with your friend\'s code.' : 'Take turns on this device. Online codes need the game server, which is not reachable right now.') + '</p></div></div>' +
-      (online ? '<div class="field"><div class="label">Clock</div><div class="seg" id="fr-tc">' + ['3+2', '5+3', '10+5', '15+10'].map((t, i) => '<label><input type="radio" name="frtc" value="' + t + '"' + (i === 1 ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
+    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Two players</h2><p class="sub">' + (online ? 'Make a game and share its code, or join with your friend\'s code.' : 'Take turns on this device. Online codes need a connection, which is not available right now.') + '</p></div></div>' +
+      (online ? '<div class="field"><div class="label">Clock (every online game is timed, 10 minutes at most)</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="frtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
         '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="fr-create">' + icon('users') + ' Make a game</button></div>' +
         '<div class="field" style="margin-top:18px"><label for="fr-code">Join with a code</label><div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123"><button class="btn" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></div>' : '') +
       '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn' + (online ? '' : ' primary') + '" id="fr-local">' + icon('users') + ' Take turns here</button></div>', { x: true });
@@ -2546,7 +2591,10 @@
   SCREENS.lesson = function (arg) {
     const id = typeof arg === 'string' ? arg : arg && arg.id;
     const journey = (arg && arg.journey) || null, era = journey && eraById(journey.era);
-    const L = LESSONS.lessons.find((l) => l.id === id);
+    // An era's lesson is written into its stage and is never part of Learn.
+    const own = era && era.stages[journey.stage] && era.stages[journey.stage].steps ? era.stages[journey.stage] : null;
+    const L = own || LESSONS.lessons.find((l) => l.id === id);
+    const guide = own ? eraCoach(era) : COACH;
     if (!L) { setTimeout(() => go('learn'), 0); return {}; }
     view.setAttract(false);
     if (era) setLook(eraLook(era.id));
@@ -2559,15 +2607,15 @@
     }
     const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>Chapter ' + L.chapter + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
-      '<button class="round" id="ls-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="Rooky"></button>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
+      '<button class="round" id="ls-again" aria-label="Hear that again" title="Hear that again">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
     const leaveTo = () => (era ? go('era', era.id) : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
-    voiceIcon($('ls-voice'), 'Rooky');
+    voiceIcon($('ls-voice'), guide.name);
     $('ls-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) speak(true); };
     $('ls-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); speak(true); };
     $('ls-prev').onclick = () => { if (S.phase === 'steps' && S.i > 0) { S.i--; renderStep(); } };
@@ -2767,14 +2815,18 @@
       S.phase = 'done';
       setHooks({});
       const first = S.results.filter((r) => r === true).length;
-      const wasDue = PG.dueReviews(state.progress).includes(L.id);
-      const res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
-      if (wasDue) PG.reviewDone(state.progress, L.id);
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
+      let res;
+      if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
+      else {
+        const wasDue = PG.dueReviews(state.progress).includes(L.id);
+        res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
+        if (wasDue) PG.reviewDone(state.progress, L.id);
+      }
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
-        '<span class="pill gold">+' + res.xp + ' XP</span></div>';
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
       $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
       if (!era && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
@@ -2785,8 +2837,7 @@
       guideSay('lesson.done', { delay: 2200 });
       view.celebrate('win', -1, null, -1);
       dots();
-      celebrate(res);
-      if (journey) stageDone(journey);
+      if (!own) { celebrate(res); if (journey) stageDone(journey); }
     }
     renderStep();
     return { leave() { AU.hush(); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
@@ -3078,6 +3129,7 @@
       if (!G.g.outcome) G.g.finish(result, reason);
       endGame();
     },
+    onlineEmote(id, mine) { showEmote(id, mine); },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
     drawOffered() {
       const G = state.game; if (!G) return;

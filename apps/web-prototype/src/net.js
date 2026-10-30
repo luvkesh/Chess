@@ -67,6 +67,7 @@
       case 'sync': return app.onlineSync(m.moves, m.clock);
       case 'status': return app.onlineStatus({ opponentAway: m.opponentAway, offline: false });
       case 'draw-offer': return app.drawOffered();
+      case 'emote': return app.onlineEmote(m.id, false);
       case 'end':
         if (m.rating) { const g = app.state.game; const pool = poolFor(g && g.online ? g.online.tc : '5+3'); if (ratings && ratings[pool]) { ratings[pool].rating = m.rating.after; ratings[pool].games++; } }
         return app.onlineEnd(m.result, m.reason, m.rating);
