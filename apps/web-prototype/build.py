@@ -65,6 +65,9 @@ for key, line in json.loads((content / 'pitches.json').read_text())['lines'].ite
     else:
         pitch[key] = {'text': line, 'src': 'pitch/%s.mp3' % key}
 parts.append('const CHACKLATE_PITCH = %s;' % json.dumps(pitch, separators=(',', ':'), ensure_ascii=False))
+# Translatable strings, one file per kind in packages/content/i18n, keyed by file name.
+strings = {f.stem: json.loads(f.read_text()) for f in sorted((content / 'i18n').glob('*.json'))}
+parts.append('const CHACKLATE_STRINGS = %s;' % json.dumps(strings, separators=(',', ':'), ensure_ascii=False))
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
 look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]

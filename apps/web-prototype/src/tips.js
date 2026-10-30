@@ -3,7 +3,9 @@
 // and on a long press on touch screens (the press then does not count as a tap). A title
 // attribute is moved to data-tip, so the browser's plain tooltip never shows as well. Icon-only
 // buttons fall back to their aria-label, and `resolve(el)` can supply text for any element (it
-// wins over a title). Text written "Heading|details" shows the heading in small gold caps.
+// wins over a title and is asked again each time, so a tip can follow a setting's current value).
+// Text written "Heading|details" shows the heading in small gold caps. `icon` is a small drawn
+// (i) button for touch screens: a tap on it opens the tip of the row it sits in.
 const ChacklateTips = (function () {
   const HOVER_MS = 260, PRESS_MS = 480, PRESS_SHOW_MS = 3200, SLOP = 10;
   const CSS =
@@ -17,16 +19,17 @@ const ChacklateTips = (function () {
     '.ck-tip::before{content:"";position:absolute;inset:3px;border:1px solid rgba(232,194,122,.28);clip-path:inherit;pointer-events:none}' +
     '.ck-tip b{display:block;font:600 11px/1.3 var(--caps,var(--body,sans-serif));letter-spacing:.16em;text-transform:uppercase;color:#e8c27a;margin-bottom:3px}' +
     '[data-tip]{-webkit-touch-callout:none}' +
+    '.ck-i{display:inline-grid;place-items:center;width:30px;height:30px;margin:-6px -4px -6px 2px;padding:0;border:0;background:none;color:#e8c27a;opacity:.8;vertical-align:middle;cursor:pointer;flex:none}' +
+    '.ck-i svg{width:17px;height:17px}' +
+    '.toggle>.ck-i{margin-right:auto}' +
+    '@media (hover:hover) and (pointer:fine){.ck-i{display:none}}' +
     '@media (prefers-reduced-motion:reduce){.ck-tip{transition:none}}';
-  let bubble = null, cur = null, timer = 0, press = null, swallow = false, byFocus = false, resolve = null, touched = -1e9;
+  let bubble = null, cur = null, timer = 0, press = null, swallow = false, byFocus = false, downOpen = null, resolve = null, touched = -1e9;
   // Browsers send mouse events after a touch too; those must not open or close a tip.
   const mouse = (e) => e.pointerType !== 'touch' && !press && performance.now() - touched > 1000;
 
   function node() {
     if (bubble) return bubble;
-    const st = document.createElement('style');
-    st.textContent = CSS;
-    document.head.appendChild(st);
     bubble = document.createElement('div');
     bubble.className = 'ck-tip';
     bubble.setAttribute('role', 'tooltip');
@@ -38,12 +41,10 @@ const ChacklateTips = (function () {
   function find(t) {
     for (let a = t && t.nodeType === 1 ? t : t && t.parentElement; a && a !== document.body; a = a.parentElement) {
       if (a.hasAttribute('data-no-tips')) return null;
-      let tip = a.getAttribute('data-tip');
-      if (tip === null) {
-        tip = (resolve && resolve(a)) || a.getAttribute('title') ||
-          (a.tagName === 'BUTTON' && !a.textContent.trim() ? a.getAttribute('aria-label') : null);
-        if (tip) a.setAttribute('data-tip', tip);
-      }
+      if (a.classList.contains('ck-i')) continue;
+      let tip = (resolve && resolve(a)) || a.getAttribute('data-tip');
+      if (tip === null) tip = a.getAttribute('title') || (a.tagName === 'BUTTON' && !a.textContent.trim() ? a.getAttribute('aria-label') : null);
+      if (tip) a.setAttribute('data-tip', tip);
       a.removeAttribute('title');
       if (tip) return a;
     }
@@ -80,6 +81,9 @@ const ChacklateTips = (function () {
 
   function init(opts) {
     resolve = opts && opts.resolve || null;
+    const st = document.createElement('style');
+    st.textContent = CSS;
+    document.head.appendChild(st);
     document.addEventListener('pointerover', (e) => {
       if (!mouse(e)) return;
       const el = find(e.target);
@@ -92,6 +96,7 @@ const ChacklateTips = (function () {
     });
     // Touch: hold a control to read its tip; letting go after that does not press it.
     document.addEventListener('pointerdown', (e) => {
+      downOpen = bubble && !bubble.hidden ? cur : null;
       hide();
       swallow = false;
       if (e.pointerType !== 'touch') return;
@@ -113,7 +118,16 @@ const ChacklateTips = (function () {
     };
     document.addEventListener('pointerup', release, true);
     document.addEventListener('pointercancel', release, true);
-    document.addEventListener('click', (e) => { if (swallow) { swallow = false; e.preventDefault(); e.stopPropagation(); } }, true);
+    document.addEventListener('click', (e) => {
+      if (swallow) { swallow = false; e.preventDefault(); e.stopPropagation(); return; }
+      const i = e.target.closest && e.target.closest('.ck-i');
+      if (!i) return;
+      // The (i) only opens or closes its row's tip; it never ticks the row's box.
+      e.preventDefault(); e.stopPropagation();
+      const el = find(i.parentElement), open = el && (downOpen === el || (cur === el && !bubble.hidden));
+      hide();
+      if (el && !open) { cur = el; show(el); timer = setTimeout(() => cur === el && hide(), PRESS_SHOW_MS + 1800); }
+    }, true);
     document.addEventListener('contextmenu', (e) => { if (press || swallow) e.preventDefault(); }, true);
     document.addEventListener('focusin', (e) => {
       const el = find(e.target);
@@ -124,7 +138,8 @@ const ChacklateTips = (function () {
     // Scrolling moves the control away from its bubble; a tip still waiting to open stays.
     window.addEventListener('scroll', () => { if (bubble && !bubble.hidden) hide(); }, true);
   }
-  return { init, hide };
+  const icon = '<button type="button" class="ck-i" aria-label="What does this do?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.01"/></svg></button>';
+  return { init, hide, icon };
 })();
 
 if (typeof module !== 'undefined') module.exports = ChacklateTips;
