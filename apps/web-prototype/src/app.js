@@ -2420,26 +2420,26 @@
     save();
     const who = G.kind === 'ai' ? rival(G) : null;
     const opp = G.kind === 'online' && G.online && G.online.opponent;
-    const badge = jr ? 'Champion beaten' : REASON_TEXT[o.reason] || 'Game over';
+    const badge = jr ? t('play.end.champion') : REASON_TEXT[o.reason] || t('play.end.over');
     let title;
-    if (!winner) title = 'It\'s a draw';
-    else if (who) title = youWon ? 'You beat ' + who.name + '!' : who.name + ' wins';
-    else if (G.kind === 'online') title = youWon ? 'Victory!' : 'Defeat';
-    else title = (winner === WHITE ? 'White' : 'Black') + ' wins!';
+    if (!winner) title = t('play.end.draw');
+    else if (who) title = youWon ? t('play.end.youBeat', { name: who.name }) : t('play.end.wins', { name: who.name });
+    else if (G.kind === 'online') title = t(youWon ? 'play.end.victory' : 'play.end.defeat');
+    else title = t(winner === WHITE ? 'play.end.whiteWins' : 'play.end.blackWins');
     const art = who ? '<img class="portrait big" src="' + face(who) + '" alt="">' : opp ? avatarHtml('xl', opp.avatar, opp.frame) : vsSomeone ? avatarHtml('xl') : '<img class="portrait big" src="' + ART.crestUri() + '" alt="">';
     const lv = PG.levelFor(state.progress.xp);
     const html = '<div class="result-hero">' + art +
       '<span class="result-badge' + (youWon ? ' win' : youLost ? ' loss' : '') + '">' + esc(badge) + '</span>' +
       '<h2 class="result-title">' + esc(title) + '</h2>' +
-      (who ? '<p class="quote"><b>' + esc(who.full) + '</b>“' + esc(sayLine(who, youWon ? 'win' : youLost ? 'lose' : 'draw')) + '”</p>' : '') +
+      (who ? '<p class="quote"><b>' + esc(fullName(who)) + '</b>“' + esc(sayLine(who, youWon ? 'win' : youLost ? 'lose' : 'draw')) + '”</p>' : '') +
       '<p class="sub">' + esc(resultSub(G, o, winner)) + '</p>' +
-      (res ? '<div class="xpline"><div class="top"><span>Level ' + lv.level + ' · ' + esc(levelTitle(lv)) + '</span><b>+' + res.xp + ' XP</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
-      (G.online && G.online.ratingDelta !== undefined ? '<p class="sub">Rating: <b>' + G.online.rating + '</b> (' + (G.online.ratingDelta >= 0 ? '+' : '') + G.online.ratingDelta + ')</p>' : '') +
-      '<div class="row" style="justify-content:center"><button class="btn" data-close>Look at the board</button>' +
-      (era ? '<button class="btn" id="r-era">' + icon('journey') + ' ' + esc(era.name) + '</button>' : '<button class="btn" id="r-home">' + icon('home') + ' Home</button>') +
-      (G.kind === 'online' ? '<button class="btn" id="r-report">Report a problem</button>' : jr ? '' : '<button class="btn' + (era ? ' primary' : '') + '" id="r-rematch">' + icon('refresh') + ' ' + (era ? 'Try again' : 'Rematch') + '</button>') +
-      (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? 'Claim your prize' : 'Back to ' + esc(era.name)) + '</button>'
-        : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' Review with Rooky</button>' : '') + '</div></div>';
+      (res ? '<div class="xpline"><div class="top"><span>' + t('common.level', { n: lv.level }) + ' · ' + esc(levelTitle(lv)) + '</span><b>+' + t('common.xp', { n: res.xp }) + '</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
+      (G.online && G.online.ratingDelta !== undefined ? '<p class="sub">' + t('play.end.rating', { n: '<b>' + G.online.rating + '</b>', delta: (G.online.ratingDelta >= 0 ? '+' : '') + G.online.ratingDelta }) + '</p>' : '') +
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('play.end.look') + '</button>' +
+      (era ? '<button class="btn" id="r-era">' + icon('journey') + ' ' + esc(eraName(era)) + '</button>' : '<button class="btn" id="r-home">' + icon('home') + ' ' + t('common.nav.home') + '</button>') +
+      (G.kind === 'online' ? '<button class="btn" id="r-report">' + t('play.end.report') + '</button>' : jr ? '' : '<button class="btn' + (era ? ' primary' : '') + '" id="r-rematch">' + icon('refresh') + ' ' + t(era ? 'common.tryAgain' : 'play.end.rematch') + '</button>') +
+      (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? t('play.end.prize') : t('learn.dj.backTo', { era: esc(eraName(era)) })) + '</button>'
+        : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' ' + t('play.btn.review') + '</button>' : '') + '</div></div>';
     let prizeShown = false;
     setTimeout(() => {
       if (state.game !== G || state.screen !== 'game') return;
@@ -2460,18 +2460,12 @@
   function resultSub(G, o, winner) {
     const g = G.g;
     const loser = winner ? sideName(G, -winner) : '';
-    const you = state.settings.name;
-    return ({
-      checkmate: (winner ? sideName(G, winner) + ' delivered checkmate' : '') + ' in ' + Math.ceil(g.moves.length / 2) + ' moves.',
-      resignation: (loser === you ? 'You' : loser) + ' resigned.',
-      timeout: (loser === you ? 'Your' : loser + '\'s') + ' clock ran out.',
-      'timeout-insufficient': 'A clock ran out, but the other side could not checkmate, so it is a draw.',
-      stalemate: 'The side to move has no legal moves and is not in check.',
-      insufficient: 'Neither side has enough pieces left to checkmate.',
-      threefold: 'The same position appeared three times.', fivefold: 'The same position appeared five times.',
-      fifty: 'Fifty moves passed with no capture or pawn move.', seventyfive: 'Seventy-five moves passed with no capture or pawn move.',
-      agreement: 'Both sides agreed to a draw.', abandoned: 'Your opponent left the game.', aborted: 'No first move was made in time.',
-    }[o.reason] || '').trim();
+    const mine = G.kind !== 'local' && loser === myName();
+    const n = Math.ceil(g.moves.length / 2);
+    if (o.reason === 'checkmate') return winner ? t('play.why.checkmate', { name: sideName(G, winner), n }) : '';
+    if (o.reason === 'resignation') return mine ? t('play.why.youResigned') : t('play.why.resigned', { name: loser });
+    if (o.reason === 'timeout') return mine ? t('play.why.yourClock') : t('play.why.clock', { name: loser });
+    return I18N.has('play.why.' + o.reason) ? t('play.why.' + o.reason) : '';
   }
 
   // ----- the HUD
@@ -2499,12 +2493,12 @@
     const chip = $('g-chip');
     chip.className = 'status-chip glass';
     let text;
-    if (g.outcome) { const o = g.outcome; text = (o.result === '1/2-1/2' ? 'Draw' : (o.result === '1-0' ? 'White' : 'Black') + ' wins') + ' · ' + (REASON_TEXT[o.reason] || ''); }
-    else if (G.thinking) { text = rival(G).name + ' is thinking'; chip.classList.add('thinking'); }
-    else if (G.kind === 'online' && g.pos.side !== G.human) text = (G.online && G.online.opponentAway ? 'Opponent reconnecting…' : 'Opponent to move');
+    if (g.outcome) { const o = g.outcome; text = t(o.result === '1/2-1/2' ? 'play.chip.draw' : o.result === '1-0' ? 'play.chip.whiteWins' : 'play.chip.blackWins') + ' · ' + (REASON_TEXT[o.reason] || ''); }
+    else if (G.thinking) { text = t('play.chip.thinking', { name: rival(G).name }); chip.classList.add('thinking'); }
+    else if (G.kind === 'online' && g.pos.side !== G.human) text = t(G.online && G.online.opponentAway ? 'play.chip.reconnecting' : 'play.chip.theirMove');
     else {
-      text = G.kind === 'local' ? (g.pos.side === WHITE ? 'White' : 'Black') + ' to move' : 'Your move';
-      if (g.pos.inCheck()) { text = 'Check! ' + text; chip.classList.add('check'); }
+      text = G.kind === 'local' ? t(g.pos.side === WHITE ? 'play.chip.whiteToMove' : 'play.chip.blackToMove') : t('play.chip.yourMove');
+      if (g.pos.inCheck()) { text = t('play.chip.check') + ' ' + text; chip.classList.add('check'); }
     }
     chip.textContent = text;
     // buttons
@@ -2518,10 +2512,10 @@
     if ($('g-draw')) $('g-draw').hidden = done;
     const claim = !done && g.claimable();
     $('g-claim').hidden = !claim || !humanTurn();
-    if (claim) $('g-claim').textContent = claim === 'threefold' ? 'Claim draw (threefold)' : 'Claim draw (50 moves)';
+    if (claim) $('g-claim').textContent = t(claim === 'threefold' ? 'play.btn.claim3' : 'play.btn.claim50');
     $('g-review').hidden = !done || g.moves.length < 4;
     $('g-new').hidden = !done || G.kind === 'online' || !!G.setup.journey || !!G.setup.dojo;
-    $('g-view-lbl').textContent = state.settings.view === 'top' ? '3D view' : 'Top view';
+    $('g-view-lbl').textContent = t(state.settings.view === 'top' ? 'play.btn.3dView' : 'play.btn.topView');
     $('move-input').disabled = !humanTurn();
     renderMoves();
     renderClocks();
@@ -2547,7 +2541,7 @@
   function renderMoves() {
     const G = state.game, g = G.g;
     const ol = $('moves');
-    if (!g.sans.length) { ol.innerHTML = '<li><span class="empty">No moves yet. Drag a piece, or tap it and then tap a square.</span></li>'; return; }
+    if (!g.sans.length) { ol.innerHTML = '<li><span class="empty">' + t('play.noMovesYet') + '</span></li>'; return; }
     ol.innerHTML = moveRows(g.startFen, g.sans, g.sans.length - 1);
     const wrap = $('moves-wrap'); wrap.scrollTop = wrap.scrollHeight;
   }
@@ -2573,16 +2567,16 @@
       TimeControl: !G.setup.tc || G.setup.tc === 'none' ? '-' : G.setup.tc.split('+').map((x, i) => (i ? x : x * 60)).join('+') });
   }
   function copy(text, label) {
-    const fallback = () => { const m = modal('<h2>Copy ' + esc(label) + '</h2><p class="sub">Select the text and copy it.</p><textarea class="share" readonly>' + esc(text) + '</textarea><div class="row"><button class="btn primary" data-close>Done</button></div>'); setTimeout(() => m.querySelector('textarea').select(), 40); };
-    try { navigator.clipboard.writeText(text).then(() => toast(esc(label) + ' copied.'), fallback); } catch (e) { fallback(); }
+    const fallback = () => { const m = modal('<h2>' + t('play.copy.title', { what: esc(label) }) + '</h2><p class="sub">' + t('play.copy.sub') + '</p><textarea class="share" readonly>' + esc(text) + '</textarea><div class="row"><button class="btn primary" data-close>' + t('common.done') + '</button></div>'); setTimeout(() => m.querySelector('textarea').select(), 40); };
+    try { navigator.clipboard.writeText(text).then(() => toast(t('play.copy.done', { what: esc(label) })), fallback); } catch (e) { fallback(); }
   }
 
   function choosePromotion(side, cb) {
-    const names = { 5: 'Queen', 4: 'Rook', 3: 'Bishop', 2: 'Knight' };
+    const names = { 5: PIECE_NAME.q, 4: PIECE_NAME.r, 3: PIECE_NAME.b, 2: PIECE_NAME.n };
     const ink = side === WHITE ? ['#f6ead2', '#a68a62'] : ['#4a2c1d', '#140b07'];
     let picked = false;
-    const m = modal('<div class="eyebrow">Promotion</div><h2>Your pawn reached the end!</h2><p class="sub">Choose what it becomes. Most players choose the queen.</p><div class="promo">' +
-      [5, 4, 3, 2].map((k) => '<button data-k="' + k + '"><img src="' + medal('piece:' + TYPE[k], ink[0], ink[1]) + '" alt=""><span>' + names[k] + '</span></button>').join('') + '</div><div class="row"><button class="btn" data-close>Cancel</button></div>',
+    const m = modal('<div class="eyebrow">' + t('play.promo.eyebrow') + '</div><h2>' + t('play.promo.title') + '</h2><p class="sub">' + t('play.promo.sub') + '</p><div class="promo">' +
+      [5, 4, 3, 2].map((k) => '<button data-k="' + k + '"><img src="' + medal('piece:' + TYPE[k], ink[0], ink[1]) + '" alt=""><span>' + names[k] + '</span></button>').join('') + '</div><div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
     { onClose() { if (!picked) cb(0); } });
     m.querySelectorAll('[data-k]').forEach((b) => { b.onclick = () => { picked = true; m.close(); AU.play('promote'); cb(+b.dataset.k); }; });
   }
@@ -2591,13 +2585,13 @@
   function newGameModal() {
     const s = state.setup;
     const prem = state.progress.premium;
-    const m = modal('<form id="ng"><div class="eyebrow">Custom game</div><h2>Set up a game</h2><p class="sub">Everything runs on this device. The animal friends never change how strongly they play during a game.</p>' +
-      '<div class="field"><div class="label">Opponent</div><div class="seg"><label><input type="radio" name="mode" value="ai"' + (s.mode !== 'local' ? ' checked' : '') + '><span>An animal friend</span></label><label><input type="radio" name="mode" value="local"' + (s.mode === 'local' ? ' checked' : '') + '><span>Two players, one device</span></label></div></div>' +
-      '<div class="field" id="f-color"><div class="label">Play as</div><div class="seg">' + [['white', 'White'], ['black', 'Black'], ['random', 'Surprise me']].map(([c, t]) => '<label><input type="radio" name="color" value="' + c + '"' + (s.color === c ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
-      '<div class="field" id="f-level"><div class="label">Who would you like to play?</div><div class="levels">' + LEVELS.map((lv, i) => { const o = persona(i); return '<label><input type="radio" name="level" value="' + i + '"' + (s.level === i ? ' checked' : '') + (lv.premium && !prem ? ' disabled' : '') + '><span class="lv"><img class="portrait" src="' + face(o) + '" alt=""><span><i>' + esc(lv.band) + (lv.premium && !prem ? ' · Premium' : '') + '</i><b>' + esc(o.name) + '</b><small>the ' + esc(species(o)) + '</small></span></span></label>'; }).join('') + '</div></div>' +
-      '<div class="field"><div class="label">Clock</div><div class="seg">' + [['none', 'No clock'], ['1+0', '1 min'], ['3+2', '3 + 2'], ['5+0', '5 min'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', '30 min']].map(([v, t]) => '<label><input type="radio" name="tc" value="' + v + '"' + (s.tc === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
-      '<div class="field"><label for="ng-fen">Start from a position (optional, as FEN)</label><input class="text-in" id="ng-fen" placeholder="Leave empty for the usual start" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div>' +
-      '<div class="row"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary">' + icon('play') + ' Start game</button></div></form>', { cls: 'wide', x: true });
+    const m = modal('<form id="ng"><div class="eyebrow">' + t('play.ng.eyebrow') + '</div><h2>' + t('play.ng.title') + '</h2><p class="sub">' + t('play.ng.sub') + '</p>' +
+      '<div class="field"><div class="label">' + t('play.opponent') + '</div><div class="seg"><label><input type="radio" name="mode" value="ai"' + (s.mode !== 'local' ? ' checked' : '') + '><span>' + t('play.ng.ai') + '</span></label><label><input type="radio" name="mode" value="local"' + (s.mode === 'local' ? ' checked' : '') + '><span>' + t('play.ng.local') + '</span></label></div></div>' +
+      '<div class="field" id="f-color"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + ['white', 'black', 'random'].map((c) => '<label><input type="radio" name="color" value="' + c + '"' + (s.color === c ? ' checked' : '') + '><span>' + t('play.color.' + c) + '</span></label>').join('') + '</div></div>' +
+      '<div class="field" id="f-level"><div class="label">' + t('play.ng.who') + '</div><div class="levels">' + LEVELS.map((lv, i) => { const o = persona(i); return '<label><input type="radio" name="level" value="' + i + '"' + (s.level === i ? ' checked' : '') + (lv.premium && !prem ? ' disabled' : '') + '><span class="lv"><img class="portrait" src="' + face(o) + '" alt=""><span><i>' + esc(bandName(i)) + (lv.premium && !prem ? ' · ' + t('common.premium') : '') + '</i><b>' + esc(o.name) + '</b><small>' + esc(speciesName(o)) + '</small></span></span></label>'; }).join('') + '</div></div>' +
+      '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + [['none', 'play.clock.none'], ['1+0', 'play.clock.1'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']].map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + (s.tc === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
+      '<div class="field"><label for="ng-fen">' + t('play.ng.fen') + '</label><input class="text-in" id="ng-fen" placeholder="' + t('play.ng.fenHint') + '" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div>' +
+      '<div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.ng.start') + '</button></div></form>', { cls: 'wide', x: true });
     const form = m.querySelector('#ng');
     const sync = () => { const ai = form.mode.value === 'ai'; m.querySelector('#f-color').hidden = !ai; m.querySelector('#f-level').hidden = !ai; };
     form.onchange = sync; sync();
@@ -2612,32 +2606,32 @@
     };
   }
   // Online clocks: every game is timed, with ten minutes a side at most.
-  const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', '5 min'], ['5+3', '5 + 3'], ['10+0', '10 min']];
+  const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['5+3', '5 + 3'], ['10+0', 'play.clock.10']];
   function worldModal() {
-    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">Play the world</div><h2>Find a player</h2>' +
-      '<p class="sub">We pair you with someone waiting for the same clock. Players only see a made-up name, and you can send friendly reactions, never messages.</p></div></div>' +
-      '<div class="field"><div class="label">Clock (10 minutes at most)</div><div class="seg">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="wtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
-      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn primary" id="w-go">' + icon('globe') + ' Find a player</button></div>', { x: true });
+    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">' + t('play.world') + '</div><h2>' + t('play.w.title') + '</h2>' +
+      '<p class="sub">' + t('play.w.sub') + '</p></div></div>' +
+      '<div class="field"><div class="label">' + t('play.w.clock') + '</div><div class="seg">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="wtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
+      '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary" id="w-go">' + icon('globe') + ' ' + t('play.w.title') + '</button></div>', { x: true });
     m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
   }
   // Play a friend on another device: create a table and share its code, or join one with a code.
   // The online part is always offered; ChacklateNet waits for the connection or explains why there is none.
   function friendModal() {
     const link = window.ChacklateNet && ChacklateNet.link ? ChacklateNet.link() : 'unavailable';
-    const status = link === 'ready' ? '' : link === 'connecting' ? '<p class="fine">Connecting to online play…</p>' : '<p class="fine">Online play is not reachable on this page right now. Open Chackmate from its claude.ai link to play a friend on another device.</p>';
-    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Play a friend online</h2><p class="sub">Create a table and send your friend its code, or join your friend\'s table with their code.</p></div></div>' +
-      '<div class="friend-pick"><section class="glass"><h3>' + icon('users') + ' Create a table</h3><p class="fine">You get a 6-letter code to send your friend.</p>' +
-      '<div class="label">Clock (every online game is timed, 10 minutes at most)</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="frtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div>' +
-      '<button class="btn primary" id="fr-create">' + icon('users') + ' Create table and get code</button></section>' +
-      '<section class="glass"><h3>' + icon('play') + ' Join a table</h3><label class="fine" for="fr-code">Type the code your friend sent you.</label>' +
-      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></section></div>' +
+    const status = link === 'ready' ? '' : '<p class="fine">' + t(link === 'connecting' ? 'play.fr.connecting' : 'play.fr.unreachable') + '</p>';
+    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">' + t('play.friend') + '</div><h2>' + t('play.fr.title') + '</h2><p class="sub">' + t('play.fr.sub') + '</p></div></div>' +
+      '<div class="friend-pick"><section class="glass"><h3>' + icon('users') + ' ' + t('play.fr.create') + '</h3><p class="fine">' + t('play.fr.createSub') + '</p>' +
+      '<div class="label">' + t('play.fr.clock') + '</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="frtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div>' +
+      '<button class="btn primary" id="fr-create">' + icon('users') + ' ' + t('play.fr.createBtn') + '</button></section>' +
+      '<section class="glass"><h3>' + icon('play') + ' ' + t('play.fr.join') + '</h3><label class="fine" for="fr-code">' + t('play.fr.joinSub') + '</label>' +
+      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
       status +
-      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn" id="fr-local">' + icon('users') + ' Take turns on this device</button></div>', { x: true });
+      '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn" id="fr-local">' + icon('users') + ' ' + t('play.fr.local') + '</button></div>', { x: true });
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
     m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
     const join = () => {
       const code = m.querySelector('#fr-code').value.trim().toUpperCase();
-      if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = 'Codes are 6 letters or digits.'; return; }
+      if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = t('play.fr.badCode'); return; }
       m.close(); ChacklateNet.joinFriend(code);
     };
     m.querySelector('#fr-join').onclick = join;
