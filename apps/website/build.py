@@ -145,7 +145,7 @@ def showroom(campaign, catalog):
 
 
 def data_uri(path):
-    kind = {'.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png'}[path.suffix]
+    kind = {'.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml'}[path.suffix]
     return 'data:%s;base64,%s' % (kind, base64.b64encode(path.read_bytes()).decode())
 
 
@@ -238,7 +238,7 @@ def build(target):
     # art.js hands out URI-encoded SVG; base64 is about half the size
     prefix = 'data:image/svg+xml;charset=utf-8,'
     art = {k: 'data:image/svg+xml;base64,' + base64.b64encode(urllib.parse.unquote(v[len(prefix):]).encode()).decode() if v.startswith(prefix) else v for k, v in art.items()}
-    img = {p.stem: data_uri(p) for p in sorted((here / 'img').iterdir()) if p.suffix in ('.webp', '.jpg', '.png')}
+    img = {p.stem: data_uri(p) for p in sorted((here / 'img').iterdir()) if p.suffix in ('.webp', '.jpg', '.png', '.svg')}
     for e in eras:
         # stills: shown before the 3D table is ready, and instead of it where WebGL is missing
         assert e['id'] + '-hero' in img, 'missing img/%s-hero' % e['id']
