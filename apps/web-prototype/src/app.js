@@ -1678,7 +1678,7 @@
     if (G.hint && G.hintStep >= 3) h.hintTo = sqIndex(G.hint.to);
     view.setHighlights(h);
     const arrows = [];
-    if (G.hint && G.hintStep >= 3) arrows.push({ from: sqIndex(G.hint.from), to: sqIndex(G.hint.to), color: '#3fe0c8' });
+    if (G.hint && G.hintStep >= 3) arrows.push({ from: sqIndex(G.hint.from), to: sqIndex(G.hint.to), color: '#2fd8ff' });
     if (G.threat && G.threat.facts) arrows.push({ from: sqIndex(G.threat.facts.from), to: sqIndex(G.threat.facts.to), color: '#ff5a50' });
     if (G.coachArrow) arrows.push(G.coachArrow);
     view.setArrows(arrows);
@@ -2376,8 +2376,8 @@
       $('ls-prev').disabled = S.i === 0;
       $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Start the exercises' : 'Next';
       setHooks({});
-      view.setHighlights({ marks: (st.marks || []).map((m) => ({ sq: sqIndex(m), color: '#e3b25a', alpha: 0.5, shape: 0 })) });
-      view.setArrows((st.arrows || []).map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#e3b25a' })));
+      view.setHighlights({ spots: (st.marks || []).map((m) => ({ sq: sqIndex(m) })) });
+      view.setArrows((st.arrows || []).map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#2fd8ff' })));
       setPos(st.fen, st.play);
       dots(); speak();
     }
@@ -2411,7 +2411,7 @@
       $('ls-hint').onclick = () => {
         const hints = x.type === 'puzzle' ? ['Look for forcing moves: checks, captures and threats.', 'Look at your ' + C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] + '.'] : x.hints || [];
         if (S.hintN < hints.length) { fb('hint', hints[S.hintN]); S.hintN++; }
-        else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#3fe0c8' }]); S.tries++; }
+        else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); S.tries++; }
         AU.play('coach');
       };
       if (x.type === 'puzzle') {
@@ -2431,7 +2431,7 @@
       const g = new E.Game(S.pos.fen());
       const all = g.targets(sqIndex(x.from));
       const c = $('ls-count'); if (c) c.textContent = S.found.length + ' of ' + all.length + ' found';
-      view.setHighlights({ selected: sqIndex(x.from), marks: S.found.map((s) => ({ sq: s, color: '#7fd6a4', alpha: 0.55, shape: 0 })) });
+      view.setHighlights({ selected: sqIndex(x.from), spots: S.found.map((s) => ({ sq: s, color: '#3ee07a', pulse: false })) });
       return all;
     }
     function fb(kind, text) { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; }
@@ -2440,7 +2440,7 @@
       if (S.answered) return;
       if (x.type === 'square') {
         const ok = x.answers.map(sqIndex).includes(sq);
-        view.setHighlights({ marks: [{ sq, color: ok ? '#7fd6a4' : '#ff5a50', alpha: 0.6, shape: 0 }] });
+        view.setHighlights({ spots: [{ sq, color: ok ? '#3ee07a' : '#ff4a40', pulse: false }] });
         if (ok) answer(S.tries === 0, 'Yes, that is ' + sqName(sq) + '.');
         else { S.tries++; AU.play('wrong'); fb('bad', 'That is ' + sqName(sq) + '. Try again.'); }
         return;
@@ -2532,7 +2532,7 @@
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Praline will bring it back for a quick review in 1, 7 and 30 days.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Praline will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
         '<span class="pill gold">+' + res.xp + ' XP</span></div>';
       $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
@@ -2610,7 +2610,7 @@
         S.misses++;
         AU.play('wrong');
         fb('bad', 'In this line we play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
-        view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#3fe0c8' }]);
+        view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
         show(null);
         return true;
       }
@@ -2637,7 +2637,7 @@
       if (S.done || S.g.pos.side !== me) return;
       S.misses++;
       const want = o.moves[S.i];
-      view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#3fe0c8' }]);
+      view.setArrows([{ from: sqIndex(want.slice(0, 2)), to: sqIndex(want.slice(2, 4)), color: '#2fd8ff' }]);
       fb('hint', 'Play ' + san(S.i + 1) + (o.notes[S.i] ? ': ' + o.notes[S.i] : '.'));
       AU.play('coach');
     };
@@ -2779,14 +2779,14 @@
       const u = S.cur.moves[S.step * 2 + 1];
       if (S.hints === 1) { const t = S.cur.themes[0]; fb('hint', { fork: 'Look for a fork.', pin: 'Look for a pin.', skewer: 'Look for a skewer.', discoveredAttack: 'Look for a discovered attack.', hangingPiece: 'Something is not guarded.', promotion: 'A pawn wants to promote.', sacrifice: 'Think about giving something away.' }[t] || (t.startsWith('mateIn') ? 'There is a checkmate to find.' : 'Look for the most forcing move.')); }
       else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', 'Move the piece on ' + u.slice(0, 2) + '.'); }
-      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#3fe0c8' }]); fb('hint', 'Follow the arrow, then keep going.'); }
+      else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', 'Follow the arrow, then keep going.'); }
       AU.play('coach');
     };
     if ($('pz-sol')) $('pz-sol').onclick = () => {
       if (!S.cur || S.solved) return;
       S.failed = true;
       const u = S.cur.moves[S.step * 2 + 1];
-      view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#3fe0c8' }]);
+      view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
       fb('hint', 'The solution: ' + g.pos.san(m, g.legal) + '. ' + (C.describe(C.facts(g.pos, m)) || ''));
       finish(false);

@@ -369,13 +369,14 @@ function ChacklateScene(canvas, options) {
   }
 
   // ------------------------------------------------------------------ highlights and arrows
-  const SHAPES = ['fill', 'frame', 'dot', 'ring', 'glow'].map((name) => K.canvasTex('hl-' + name, 256, 256, (g, w) => {
+  const SHAPES = ['fill', 'frame', 'dot', 'ring', 'glow', 'rim'].map((name) => K.canvasTex('hl-' + name, 256, 256, (g, w) => {
     g.clearRect(0, 0, w, w);
     if (name === 'fill') { g.fillStyle = '#fff'; W.roundRect(g, 10, 10, w - 20, w - 20, 26); g.fill(); }
     if (name === 'frame') { g.strokeStyle = '#fff'; g.lineWidth = 14; W.roundRect(g, 14, 14, w - 28, w - 28, 24); g.stroke(); }
     if (name === 'dot') { const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w * 0.17); grd.addColorStop(0, '#fff'); grd.addColorStop(0.7, 'rgba(255,255,255,0.9)'); grd.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = grd; g.fillRect(0, 0, w, w); }
     if (name === 'ring') { g.strokeStyle = '#fff'; g.lineWidth = 16; g.beginPath(); g.arc(w / 2, w / 2, w * 0.4, 0, TAU); g.stroke(); }
     if (name === 'glow') { const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.5, 'rgba(255,255,255,0.5)'); grd.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = grd; g.fillRect(0, 0, w, w); }
+    if (name === 'rim') { g.strokeStyle = '#fff'; g.lineWidth = 34; W.roundRect(g, 22, 22, w - 44, w - 44, 30); g.stroke(); }
   }));
   const hlGeo = new THREE.PlaneGeometry(1, 1); hlGeo.rotateX(-Math.PI / 2);
   const hlPool = [];
@@ -391,16 +392,33 @@ function ChacklateScene(canvas, options) {
     m.material.blending = glowy ? THREE.AdditiveBlending : THREE.NormalBlending;
     m.scale.set(scale || 1, 1, scale || 1);
     m.position.set(sqX(sq), 0.004 + hlUsed * 0.0002, sqZ(sq));
-    m.userData.pulse = shape === 4;
+    m.userData.pulse = shape === 4 ? { base: 0.65, amp: 0.3 } : null;
+    m.userData.ripple = null;
+    return m;
+  }
+  // A square the coach points at ("this glowing square is e4"). Light and dark squares on
+  // every era board need it to read at a glance, so it never relies on adding light alone
+  // (additive gold on a cream square just turns white): a dark rim, a saturated tint and a
+  // solid bright frame carry it on light squares, the halo carries it on dark ones, and a
+  // ripple keeps drawing the eye while animations are on.
+  function spot(sq, color, pulse) {
+    hl(sq, '#0b0603', 0.7, 5, 1.04);
+    hl(sq, color, 0.62, 0, 0.9);
+    const frame = hl(sq, color, 1, 5, 0.94);
+    if (!pulse) return;
+    hl(sq, color, 0.55, 4, 1.9, true).userData.pulse = { base: 0.45, amp: 0.25 };
+    frame.userData.pulse = { base: 0.85, amp: 0.15 };
+    hl(sq, color, 0.9, 3, 1, true).userData.ripple = true;
   }
   function drawHighlights() {
     hlUsed = 0;
     const h = highlights;
     if (h.lastFrom >= 0) hl(h.lastFrom, '#f0c26a', 0.22, 0);
     if (h.lastTo >= 0) { hl(h.lastTo, '#f0c26a', 0.28, 0); hl(h.lastTo, '#f6d58a', 0.7, 1); }
-    if (h.hintFrom >= 0) hl(h.hintFrom, '#3fe0c8', 0.85, 1, 1, true);
-    if (h.hintTo >= 0) { hl(h.hintTo, '#3fe0c8', 0.3, 0); hl(h.hintTo, '#3fe0c8', 0.9, 1, 1, true); }
+    if (h.hintFrom >= 0) spot(h.hintFrom, '#2fd8ff', true);
+    if (h.hintTo >= 0) spot(h.hintTo, '#2fd8ff', h.hintFrom < 0 || h.hintFrom === undefined);
     for (const s of h.marks || []) hl(s.sq, s.color || '#3fe0c8', s.alpha || 0.45, s.shape === undefined ? 0 : s.shape);
+    for (const s of h.spots || []) spot(s.sq, s.color || '#2fd8ff', s.pulse !== false);
     if (h.check >= 0) hl(h.check, '#ff3b30', 0.95, 4, 1.35, true);
     if (h.selected >= 0) { hl(h.selected, '#e9b65c', 0.32, 0); hl(h.selected, '#ffd27a', 0.9, 1, 1, true); }
     const cursor = dragging && dragging.moved ? dragging.over : hoverSq;
@@ -418,23 +436,27 @@ function ChacklateScene(canvas, options) {
       const x0 = sqX(a.from), z0 = sqZ(a.from), x1 = sqX(a.to), z1 = sqZ(a.to);
       const knight = Math.abs((a.from & 7) - (a.to & 7)) * Math.abs((a.from >> 3) - (a.to >> 3)) === 2;
       const pts = knight ? [[x0, z0], Math.abs(x1 - x0) > Math.abs(z1 - z0) ? [x1, z0] : [x0, z1], [x1, z1]] : [[x0, z0], [x1, z1]];
-      const w = 0.085 * (a.width || 1), hw = 0.24 * (a.width || 1), hlen = 0.36;
-      const pos = [];
-      const tri = (ax, az, bx, bz, cx, cz) => pos.push(ax, 0, az, bx, 0, bz, cx, 0, cz);
-      for (let i = 0; i < pts.length - 1; i++) {
-        let [ax, az] = pts[i]; let [bx, bz] = pts[i + 1];
-        const dx = bx - ax, dz = bz - az, l = Math.hypot(dx, dz), ux = dx / l, uz = dz / l, nx = -uz, nz = ux;
-        if (i === 0) { ax += ux * 0.25; az += uz * 0.25; }
-        const last = i === pts.length - 2;
-        if (last) { bx -= ux * hlen; bz -= uz * hlen; } else { bx += ux * w; bz += uz * w; }
-        tri(ax + nx * w, az + nz * w, ax - nx * w, az - nz * w, bx - nx * w, bz - nz * w);
-        tri(ax + nx * w, az + nz * w, bx - nx * w, bz - nz * w, bx + nx * w, bz + nz * w);
-        if (last) tri(bx + nx * hw, bz + nz * hw, bx - nx * hw, bz - nz * hw, bx + ux * hlen, bz + uz * hlen);
+      // drawn twice: a wider dark outline first, so a bright arrow still reads on cream squares
+      for (const [k, col, op] of [[1.9, '#0b0603', 0.55], [1, null, a.alpha || 0.92]]) {
+        const w = 0.085 * k * (a.width || 1), hw = 0.24 * (1 + (k - 1) * 0.35) * (a.width || 1), hlen = 0.36 + (k - 1) * 0.06;
+        const pos = [];
+        const tri = (ax, az, bx, bz, cx, cz) => pos.push(ax, 0, az, bx, 0, bz, cx, 0, cz);
+        for (let i = 0; i < pts.length - 1; i++) {
+          let [ax, az] = pts[i]; let [bx, bz] = pts[i + 1];
+          const dx = bx - ax, dz = bz - az, l = Math.hypot(dx, dz), ux = dx / l, uz = dz / l, nx = -uz, nz = ux;
+          if (i === 0) { ax += ux * (0.25 - (k - 1) * 0.04); az += uz * (0.25 - (k - 1) * 0.04); }
+          const last = i === pts.length - 2;
+          if (last) { bx -= ux * 0.36; bz -= uz * 0.36; } else { bx += ux * w; bz += uz * w; }
+          tri(ax + nx * w, az + nz * w, ax - nx * w, az - nz * w, bx - nx * w, bz - nz * w);
+          tri(ax + nx * w, az + nz * w, bx - nx * w, bz - nz * w, bx + nx * w, bz + nz * w);
+          if (last) tri(bx + nx * hw, bz + nz * hw, bx - nx * hw, bz - nz * hw, bx + ux * hlen, bz + uz * hlen);
+        }
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        const color = col ? new THREE.Color(col) : new THREE.Color(a.color || '#2fd8ff').multiplyScalar(1.15);
+        const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+        m.position.y = col ? 0.011 : 0.012; m.renderOrder = col ? 3.5 : 4;
+        fxGroup.add(m); arrowMeshes.push(m);
       }
-      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: new THREE.Color(a.color || '#3fe0c8').multiplyScalar(1.3), transparent: true, opacity: a.alpha || 0.82, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
-      m.position.y = 0.012; m.renderOrder = 4;
-      fxGroup.add(m); arrowMeshes.push(m);
     }
   }
 
@@ -666,11 +688,21 @@ function ChacklateScene(canvas, options) {
     if (clockState && clockState.running) busy = true;
     return busy;
   }
-  const ambient = () => !paused && !window.__SHOT && (attract || motesOn() || particles.length > 0 || (highlights.check >= 0 && animations) || (room && room.flames.length && animations && quality === 'high'));
+  const pulsing = () => (highlights.spots && highlights.spots.some((s) => s.pulse !== false)) || highlights.hintFrom >= 0 || highlights.hintTo >= 0;
+  const ambient = () => !paused && !window.__SHOT && (attract || motesOn() || particles.length > 0 || ((highlights.check >= 0 || pulsing()) && animations) || (room && room.flames.length && animations && quality === 'high'));
   function render(now) {
     applyCamera();
     if (room && animations) room.update(now / 1000);
-    hlPool.forEach((m) => { if (m.visible && m.userData.pulse) m.material.opacity = 0.65 + 0.3 * Math.sin(now / 160); });
+    for (const m of hlPool) {
+      if (!m.visible) continue;
+      const p = m.userData.pulse;
+      if (p) m.material.opacity = p.base + p.amp * Math.sin(now / 160);
+      if (m.userData.ripple) {
+        // one ring every 1.4 s, growing from inside the square out past its edge as it fades
+        const t = animations ? (now % 1400) / 1400 : 0.35;
+        m.scale.set(0.7 + t * 0.9, 1, 0.7 + t * 0.9); m.material.opacity = 0.95 * (1 - t);
+      }
+    }
     drawClock();
     uploadParticles(now);
     renderReflection();
