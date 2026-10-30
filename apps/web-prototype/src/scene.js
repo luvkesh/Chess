@@ -182,6 +182,9 @@ function ChacklateScene(canvas, options) {
   // ------------------------------------------------------------------ themes
   let boardId = 'walnut', setId = 'regency', roomId = 'salon', labelSide = 'white';
   let room = null, boardMesh = null;
+  // The home screen's slow orbit: low across the board, and lower still where a landmark
+  // stands beyond it, so the horizon (and the landmark) rises into view above the menus.
+  const attractPose = () => (room && room.vista ? { pitch: 0.17, lookY: 2.4 } : { pitch: 0.36, lookY: 0.9 });
   function loadRoom(id) {
     if (room && room.def && id === roomId && roomGroup.children.length) return;
     roomId = id;
@@ -189,7 +192,7 @@ function ChacklateScene(canvas, options) {
     if (room && room.dispose) room.dispose();
     room = W.room(id);
     roomGroup.add(room.group);
-    scene.fog = new THREE.FogExp2(room.fog, 0.022);
+    scene.fog = new THREE.FogExp2(room.fog, room.fogDensity);
     scene.background = new THREE.Color(room.fog);
     hemi.color.set(room.hemi[0]); hemi.groundColor.set(room.hemi[1]); hemi.intensity = room.lights.hemi;
     chandLight.intensity = room.lights.chand; chandLight.color.set(room.lights.color);
@@ -199,6 +202,7 @@ function ChacklateScene(canvas, options) {
     room.flames.forEach((f) => { f.m.layers.enable(REFLECT); f.halo.layers.enable(REFLECT); });
     placeTrays();
     dirtyShadows();
+    if (attract) { const a = attractPose(); cam.tPitch = a.pitch; cam.tLookY = a.lookY; }
   }
   function loadBoard(id) {
     if (boardMesh && id === boardId) return;
@@ -890,7 +894,7 @@ function ChacklateScene(canvas, options) {
   // px), and the view is offset so the board sits in the middle of that space. On tall phone
   // screens the lens widens rather than backing the camera out of the room.
   // panX/panZ slide the whole view across the table; only capture scenes use them.
-  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, lookZ: 0, panX: 0, panZ: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, tLookZ: 0, tPanX: 0, tPanZ: 0, intro: null,
+  const cam = { yaw: 0, pitch: 0.8, zoom: 1, lookY: 0, lookZ: 0, panX: 0, panZ: 0, tYaw: 0, tPitch: 0.8, tZoom: 1, tLookY: 0, tLookZ: 0, tPanX: 0, tPanZ: 0, intro: null, free: 0,
     ins: { top: 0, right: 0, bottom: 0, left: 0 }, tIns: { top: 0, right: 0, bottom: 0, left: 0 } };
   if (window.__SHOT) { window.__cam = cam; window.__scene = scene; }   // screenshot tooling reads the camera and scene
   const FIT = [], FIT_TALL = [];
@@ -947,13 +951,17 @@ function ChacklateScene(canvas, options) {
     camera.position.set(tx + Math.sin(cam.yaw) * cp * d, Math.sin(cam.pitch) * d + cam.lookY, tz + Math.cos(cam.yaw) * cp * d);
     camera.lookAt(tx, cam.lookY, tz);
     camera.fov = f.fov; camera.aspect = W / H;
-    camera.setViewOffset(W, H, (f.ox * W) / 2, (-f.oy * H) / 2, W, H);
+    // the board is normally shifted into the space the menus leave; the opening shot of a
+    // landmark looks straight out instead (cam.free 1), easing back as it sweeps in
+    const fit = 1 - cam.free;
+    camera.setViewOffset(W, H, (f.ox * W) / 2 * fit, (-f.oy * H) / 2 * fit, W, H);
     camera.updateProjectionMatrix();
     // the chandelier steps aside when it would hang between the camera and the board
     if (room && room.chandelier) {
       const c = camera.position, cy = room.chandelierY;
       let hide = false;
-      if (c.y > cy - 1.2) {
+      if (cam.free > 0.15) hide = true;   // out of the way of the opening view
+      else if (c.y > cy - 1.2) {
         for (const [x, z] of [[0, 0], [4, 4], [-4, 4], [4, -4], [-4, -4], [0, 6.6], [0, -6.6], [2.7, 6.6], [-2.7, -6.6]]) {
           for (const h of [cy - 0.9, cy + 1]) {
             if (c.y <= h) continue;
@@ -975,11 +983,12 @@ function ChacklateScene(canvas, options) {
     lastFrame = now;
     let busy = false;
     if (cam.intro) {
-      const t = clamp01((now - cam.intro.start) / cam.intro.dur), e = easeInOut(t);
+      const t = clamp01((now - cam.intro.start) / cam.intro.dur), hold = cam.intro.hold || 0, e = easeInOut(clamp01((t - hold) / (1 - hold)));
       cam.yaw = cam.intro.fYaw + (cam.tYaw - cam.intro.fYaw) * e;
       cam.pitch = cam.intro.fPitch + (cam.tPitch - cam.intro.fPitch) * e;
       cam.zoom = cam.intro.fZoom + (cam.tZoom - cam.intro.fZoom) * e;
-      if (t >= 1) cam.intro = null;
+      if (cam.intro.fLookY !== undefined) { cam.lookY = cam.intro.fLookY + (cam.tLookY - cam.intro.fLookY) * e; cam.free = 1 - e; }
+      if (t >= 1) { cam.intro = null; cam.free = 0; }
       busy = true;
     } else {
       // the idle orbit turns the camera directly, so it runs on the calm ambient timer
@@ -1208,7 +1217,7 @@ function ChacklateScene(canvas, options) {
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) < 7) return;
     drag.moved = true;
-    cam.intro = null;
+    cam.intro = null; cam.free = 0;
     cam.tYaw -= dx * 0.008; cam.tPitch = Math.min(1.54, Math.max(0.3, cam.tPitch + dy * 0.006));
     cam.yaw = cam.tYaw; cam.pitch = cam.tPitch;
     drag.x = e.clientX; drag.y = e.clientY;
@@ -1450,7 +1459,7 @@ function ChacklateScene(canvas, options) {
       s2.add(rm.group); disposeList.push({ userData: { dispose: rm.dispose } });
       s2.environment = envFor(rm.env);
       s2.background = new THREE.Color(rm.fog);
-      s2.fog = new THREE.FogExp2(rm.fog, 0.018);
+      s2.fog = new THREE.FogExp2(rm.fog, rm.vista ? rm.fogDensity : 0.018);
       const cl = new THREE.PointLight(rm.lights.color, rm.lights.chand, 40, 2); cl.position.set(0, 7.2, 0); s2.add(cl);
       s2.add(new THREE.HemisphereLight(rm.hemi[0], rm.hemi[1], Math.max(0, rm.lights.hemi - 0.4)));
       const b = W.board(spec.board || boardId, 'white'); s2.add(b); disposeList.push(b);
@@ -1696,7 +1705,7 @@ function ChacklateScene(canvas, options) {
     // Home-screen showcase: a low, slowly circling view across the board.
     setAttract(on, instant) {
       attract = on;
-      if (on) { cam.tPitch = 0.36; cam.tLookY = 0.9; cam.tZoom = 1; }
+      if (on) { const a = attractPose(); cam.tPitch = a.pitch; cam.tLookY = a.lookY; cam.tZoom = 1; }
       else cam.tLookY = 0;
       cam.tLookZ = 0;
       if (instant || !animations) { cam.pitch = cam.tPitch; cam.lookY = cam.tLookY; cam.lookZ = 0; cam.zoom = cam.tZoom; }
@@ -1717,7 +1726,7 @@ function ChacklateScene(canvas, options) {
       while (cam.yaw - yaw > Math.PI) yaw += TAU;
       cam.tYaw = yaw;
       cam.tPitch = preset === 'top' ? 1.5 : preset === 'low' ? 0.58 : portraitNow() ? 1.08 : 0.8;
-      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.zoom = 1; cam.lookY = 0; cam.lookZ = 0; cam.intro = null; }
+      if (instant || !animations) { cam.yaw = cam.tYaw; cam.pitch = cam.tPitch; cam.zoom = 1; cam.lookY = 0; cam.lookZ = 0; cam.intro = null; cam.free = 0; }
       requestRender();
     },
     // A closer camera for showing an item off: { pitch, zoom, lookY, lookZ }, each optional.
@@ -1734,7 +1743,14 @@ function ChacklateScene(canvas, options) {
     // Sweeping camera move into the player's seat at the start of a game.
     intro() {
       if (!animations) return;
-      cam.intro = { start: performance.now(), dur: 1700, fYaw: cam.tYaw + 0.9, fPitch: 0.42, fZoom: 1.25 };
+      if (room && room.vista) {
+        // where the table stands before a landmark, the game opens looking out at it (white's
+        // way, whichever side the player takes), holds a moment, then sweeps into the seat
+        let fYaw = 0.1;
+        while (fYaw - cam.tYaw > Math.PI) fYaw -= TAU;
+        while (cam.tYaw - fYaw > Math.PI) fYaw += TAU;
+        cam.intro = { start: performance.now(), dur: 2800, hold: 0.22, fYaw, fPitch: 0.02, fZoom: room.outdoor ? 1.3 : 1.0, fLookY: 7 };
+      } else cam.intro = { start: performance.now(), dur: 1700, fYaw: cam.tYaw + 0.9, fPitch: 0.42, fZoom: 1.25 };
       requestRender();
     },
     // o.quick: a bare move (low clock); o.cinema === false: no capture scene (lessons, puzzles,

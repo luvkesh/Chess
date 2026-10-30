@@ -753,7 +753,7 @@
   }
 
   // ---------------------------------------------------------------- the Journey Through Time
-  // Eight eras in order. Each has a story, a lesson, a trial and a champion; beating the
+  // Nine eras in order. Each has a story, a lesson, a trial and a champion; beating the
   // champion brings that era's chess set, board, room and portrait home.
   const STAGE = { tale: ['scroll', 'Story'], lesson: ['learn', 'Lesson'], puzzles: ['puzzle', 'Puzzles'], endgame: ['crown', 'Endgame'], champion: ['swords', 'Champion'] };
   const eraRewards = (e) => CATALOG.items.filter((it) => it.unlock.type === 'journey' && it.unlock.era === e.id);
@@ -791,7 +791,8 @@
   }
   function rewardRow(it) {
     const d = it.data || {};
-    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="dot">' + icon({ pieces: 'pawn', board: 'grid', room: 'home' }[it.category] || 'star') + '</span>';
+    // the item's own picture, the same one its Collection card shows (and shares the cache with)
+    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="thumb">' + itemArt(it) + '</span>';
     return '<li>' + art + '<span><b>' + esc(it.name) + '</b><small>' + esc(catName(it.category)) + '</small></span></li>';
   }
   const catName = (id) => { const c = CATALOG.categories.find((x) => x.id === id); return c ? c.name.replace(/s$/, '').replace(/^Piece set$/, 'Chess set') : id; };
@@ -816,7 +817,7 @@
       '<div class="era-layout"><div class="stages">' + e.stages.map((s, k) => {
         const done = info.stages[k], locked = k === champ && !ready && !done;
         const next = !done && !locked && (k === champ ? ready : info.next === k);
-        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: lessonTitle(s.lesson), puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
+        const desc = { tale: 'Read ' + co.name + '\'s story, then answer a question about it.', lesson: (s.objectives || []).join('. ') + '.', puzzles: s.intro, endgame: s.intro, champion: 'Beat ' + co.name + ' to win the ' + set.name + ' set.' }[s.kind];
         return '<button class="stage' + (done ? ' done' : '') + (next ? ' next' : '') + '" data-stage="' + k + '"' + (locked ? ' disabled' : '') + '>' +
           '<span class="badge-ic">' + (s.kind === 'champion' ? '<img src="' + face(co) + '" alt="">' : icon(STAGE[s.kind][0])) + '</span>' +
           '<span><span class="k">Stage ' + (k + 1) + ' · ' + STAGE[s.kind][1] + '</span><h4>' + esc(s.title) + '</h4><small>' + esc(locked ? 'Finish the other stages first, then ' + co.name + ' will play you.' : desc) + '</small></span>' +
@@ -832,23 +833,17 @@
     document.querySelectorAll('[data-stage]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); runStage(e, +b.dataset.stage); }; });
     return {};
   };
-  const lessonTitle = (id) => { const l = LESSONS.lessons.find((x) => x.id === id); return l ? l.objectives.join('. ') + '.' : ''; };
   function runStage(e, k) {
     const s = e.stages[k];
     const journey = { era: e.id, stage: k };
     if (s.kind === 'tale') return taleModal(e, k);
-    if (s.kind === 'lesson') return go('lesson', { id: s.lesson, journey });
+    if (s.kind === 'lesson') return go('lesson', { journey });
     if (s.kind === 'puzzles') return go('puzzle', { list: stagePuzzles(s), title: s.title, intro: s.intro, journey });
-    if (s.kind === 'endgame') return startDojo(s.endgame, journey);
+    if (s.kind === 'endgame') return startDojo(s.endgame.id, journey);
     if (s.kind === 'champion') return startGame({ mode: 'ai', color: s.color || 'white', level: s.level, tc: 'none', fen: '', rival: eraCoach(e), look: { set: e.set, board: e.board, room: e.room }, journey });
   }
-  function stagePuzzles(s) {
-    const themes = s.theme.split(',');
-    const match = (p) => themes.some((t) => p.themes.includes(t));
-    let pool = PUZZLES.filter((p) => match(p) && (!s.max || p.rating <= s.max));
-    if (pool.length < s.count) pool = PUZZLES.filter(match);
-    return pool.sort((a, b) => a.rating - b.rating).slice(0, s.count);
-  }
+  // Each era names its own puzzles, none of which a Learn lesson or another era uses.
+  const stagePuzzles = (s) => s.puzzles.map((id) => PUZZLES.find((p) => p.id === id)).filter(Boolean);
   // Marks a stage done and shows what it brought. Finishing the champion completes the era.
   function stageDone(journey) {
     const e = eraById(journey.era);
@@ -1012,7 +1007,7 @@
     idleBoard();
     const P = state.progress, set = equippedSet();
     const mastered = Object.values(P.openings).filter((r) => r.mastered).length;
-    const dojoStars = Object.values(P.dojo).reduce((a, r) => a + r.stars, 0);
+    const dojoStars = ENDGAMES.reduce((a, d) => a + (P.dojo[d.id] ? P.dojo[d.id].stars : 0), 0);
     mount('<div class="page"><div class="page-in">' + subnav('training') +
       pageHead('Training', 'Training', 'Learn openings move by move, master the endgames every player needs, and let Rooky review your games.') +
       sec('play', 'Train') +
@@ -1050,8 +1045,10 @@
     document.querySelectorAll('[data-eg]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); startDojo(b.dataset.eg); }; });
     return {};
   };
+  // The dojo's endgames, plus the ones that live only inside an era.
+  const endgameById = (id) => ENDGAMES.find((x) => x.id === id) || CAMPAIGN.eras.flatMap((e) => e.stages).map((s) => s.endgame).find((d) => d && d.id === id);
   function startDojo(id, journey) {
-    const d = ENDGAMES.find((x) => x.id === id);
+    const d = endgameById(id);
     const side = E.positionFrom(d.fen, []).side;
     startGame({ mode: 'ai', color: side === WHITE ? 'white' : 'black', level: 7, tc: 'none', fen: d.fen, dojo: id, journey: journey || null, look: journey ? eraLook(journey.era) : null });
     coachSay(d.tip, [['Got it', 'dismiss']]);
@@ -1059,7 +1056,7 @@
   const eraLook = (id) => { const e = eraById(id); return e ? { set: e.set, board: e.board, room: e.room } : null; };
   // Called after every move of a dojo game. Returns true once the attempt is decided.
   function dojoCheck(G, info) {
-    const d = ENDGAMES.find((x) => x.id === G.setup.dojo);
+    const d = endgameById(G.setup.dojo);
     if (!d || G.dojoDone) return false;
     const g = G.g, me = G.human, o = g.outcome;
     const firstMine = E.positionFrom(g.startFen, []).side === me;
@@ -1336,7 +1333,7 @@
   function seasonSwatch(it) {
     const d = it.data || {};
     if (it.category === 'avatar') return '<img src="' + medal(d.art, d.from, d.to) + '" alt="">';
-    if (it.category === 'pieces') return '<img src="' + medal('piece:k', '#8a5a2a', '#2a1408') + '" alt="">';
+    if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
     if (it.category === 'frame') return '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
     if (it.category === 'capture' || it.category === 'victory') return '<img src="' + ART.fxUri(d.kind, d.colors) + '" alt="">';
@@ -1369,6 +1366,7 @@
         : '<div class="pass-cta"><div><b>Season Pass</b><small>Unlock the gold track: ' + s.items.filter((i) => i.unlock.track === 'pass').length + ' extra rewards, including tiers you have already reached.</small></div><button class="btn gold" id="se-buy">Ask a grown-up</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">Free track</div><div class="eyebrow">Season Pass</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends.</p></div></div>');
+    hydrate(null, true);
     wireLinks();
     const b = $('se-buy'); if (b) b.onclick = () => go('store', 'pass.' + id);
     document.querySelectorAll('[data-item]').forEach((el) => { el.onclick = () => { AU.play('tap'); itemModal(PG.item(el.dataset.item)); }; });
@@ -1617,7 +1615,7 @@
     setLook(G.setup.look || null);
     const online = G.kind === 'online', local = G.kind === 'local';
     const j = G.setup.journey, era = j && eraById(j.era);
-    const dojo = G.setup.dojo && ENDGAMES.find((x) => x.id === G.setup.dojo);
+    const dojo = G.setup.dojo && endgameById(G.setup.dojo);
     mount(
       '<div class="hud-top"><button class="backbtn" id="g-home">' + icon('back') + '<span>' + esc(era ? era.name : dojo ? 'Endgames' : 'Home') + '</span></button>' +
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
@@ -1691,7 +1689,7 @@
     };
   };
   function titleFor(G) {
-    if (G.setup.dojo) { const d = ENDGAMES.find((x) => x.id === G.setup.dojo); return 'Endgame dojo' + (d ? ' · ' + d.name : ''); }
+    if (G.setup.dojo) { const d = endgameById(G.setup.dojo); return (G.setup.journey ? 'Journey' : 'Endgame dojo') + (d ? ' · ' + d.name : ''); }
     if (G.kind === 'ai') return 'vs ' + rival(G).name;
     if (G.kind === 'online') return 'Online · ' + (G.online && G.online.tc || G.setup.tc || '');
     return 'Pass and play';
@@ -2449,7 +2447,10 @@
   SCREENS.lesson = function (arg) {
     const id = typeof arg === 'string' ? arg : arg && arg.id;
     const journey = (arg && arg.journey) || null, era = journey && eraById(journey.era);
-    const L = LESSONS.lessons.find((l) => l.id === id);
+    // An era's lesson is written into its stage and is never part of Learn.
+    const own = era && era.stages[journey.stage] && era.stages[journey.stage].steps ? era.stages[journey.stage] : null;
+    const L = own || LESSONS.lessons.find((l) => l.id === id);
+    const guide = own ? eraCoach(era) : COACH;
     if (!L) { setTimeout(() => go('learn'), 0); return {}; }
     view.setAttract(false);
     if (era) setLook(eraLook(era.id));
@@ -2462,10 +2463,10 @@
     }
     const S = { phase: 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false };
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(era ? era.name : 'Learn') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>Chapter ' + L.chapter + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (own ? esc(era.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-voice" aria-label="Narration" aria-pressed="' + !!state.settings.narration + '" title="Narration">' + icon('speaker') + '</button>' +
       '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
     const leaveTo = () => (era ? go('era', era.id) : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
@@ -2664,14 +2665,18 @@
       S.phase = 'done';
       setHooks({});
       const first = S.results.filter((r) => r === true).length;
-      const wasDue = PG.dueReviews(state.progress).includes(L.id);
-      const res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
-      if (wasDue) PG.reviewDone(state.progress, L.id);
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
+      let res;
+      if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
+      else {
+        const wasDue = PG.dueReviews(state.progress).includes(L.id);
+        res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
+        if (wasDue) PG.reviewDone(state.progress, L.id);
+      }
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
-        '<span class="pill gold">+' + res.xp + ' XP</span></div>';
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
       $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
       if (!era && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
@@ -2680,8 +2685,7 @@
       AU.event('lesson.passed');
       view.celebrate('win', -1, null, -1);
       dots();
-      celebrate(res);
-      if (journey) stageDone(journey);
+      if (!own) { celebrate(res); if (journey) stageDone(journey); }
     }
     renderStep();
     return { leave() { AU.hush(); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
