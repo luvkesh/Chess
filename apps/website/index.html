@@ -13054,6 +13054,22 @@ function ChacklateScene(canvas, options) {
   }
   const motesOn = () => hq() && lvl() < 4 && animations && !window.__SHOT;
 
+  // ------------------------------------------------------------------ element effects
+  // The room's element (elements3d.js): fire, lightning or a stone shatter when a piece is
+  // taken, a petal, fire or lightning storm when a game is won. The website has no elements.
+  const EL = typeof ChacklateElements !== 'undefined' ? ChacklateElements(THREE, {
+    scene, camera, level: lvl, rich: hq, wake: () => requestRender(),
+    // where things land: the board, or the table around it
+    floorY: (x, z) => (Math.abs(x) < 4.6 && Math.abs(z) < 4.6 ? 0 : TABLE_Y),
+  }) : null;
+  let elementsOn = true, stormHint = false;
+  const element = () => (EL && ChacklateElements.ROOMS[roomId]) || (EL && ChacklateElements.ROOMS.salon);
+  function strikeAt(x, z) {
+    if (!EL || !elementsOn || !animations) return;
+    const el = element();
+    EL.strike(el.strike, x, z, { dust: el.dust, stone: el.stone });
+  }
+
   // ------------------------------------------------------------------ capture scenes
   // A capture plays as a short scene between the two pieces (3.5 to 4.5 s): a bow, a friendly
   // duel, a waltz, a magic trick, a frosty slide, leapfrog or a sparkler send-off. Every one is
@@ -13303,7 +13319,7 @@ function ChacklateScene(canvas, options) {
       mYaw: m.yaw, vYaw: v.yaw, fM: Math.atan2(dx, dz), fV: Math.atan2(-dx, -dz),
       endYaw: baseYaw(info.promo || m.piece, info.to), knight: kindOf(m.piece) === 2, far: L > 1.6,
       kind: fx.capture.kind === 'nibs' ? 'dust' : fx.capture.kind === 'rocket' ? 'sparks' : fx.capture.kind, colors: fx.capture.colors,
-      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, arrive: 650,
+      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, elements: !(o && o.elements === false), arrive: 650,
       saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
     leanIn((vx + cine.px) / 2, (vz + cine.pz) / 2);
     clearTimeout(skipTimer);
@@ -13344,6 +13360,7 @@ function ChacklateScene(canvas, options) {
     c.S.run(c, t);
     flourish(c, t);
     if (c.onImpact) once(c, 'impact', c.S.impact, t, c.onImpact);
+    if (!c.castle && c.elements) once(c, 'strike', c.S.impact, t, () => strikeAt(c.vx, c.vz));
     // pull back out once the taken piece heads for the tray
     once(c, 'pullback', c.S.back || c.S.dur - 1300, t, restoreCam);
     if (t >= c.S.dur) endCine(false);
@@ -13365,6 +13382,7 @@ function ChacklateScene(canvas, options) {
     clearTimeout(skipTimer); showSkip(false);
     if (dropped) return;
     if (skipped && c.onImpact && !c.fired.has('impact')) c.onImpact();
+    if (skipped && !c.castle && c.elements && !c.fired.has('strike')) strikeAt(c.vx, c.vz);
     const m = c.m, v = c.v;
     if (c.castle) {
       Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, yaw: c.endYaw });
@@ -13389,13 +13407,14 @@ function ChacklateScene(canvas, options) {
     if (on && !skipEl) {
       skipEl = document.createElement('button');
       skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('play.skip') : 'Tap to skip';   // the website shares this file, in English
-      skipEl.addEventListener('click', (e) => { e.stopPropagation(); skipCine(); });
+      skipEl.addEventListener('click', (e) => { e.stopPropagation(); if (cine) skipCine(); else if (EL) EL.calm(); showSkip(false); });
       document.body.appendChild(skipEl);
     }
-    if (skipEl) skipEl.classList.toggle('on', !!on && !!cine);
+    if (skipEl) skipEl.classList.toggle('on', !!on && (!!cine || !!(EL && EL.storming())));
   }
   document.addEventListener('keydown', (e) => {
     if (cine && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopImmediatePropagation(); skipCine(); }
+    else if (e.key === 'Escape' && EL && EL.storming()) EL.calm();
   }, true);
 
   // ------------------------------------------------------------------ camera
@@ -13456,6 +13475,7 @@ function ChacklateScene(canvas, options) {
   function applyCamera() {
     if (fly.on) flyCamera(); else orbitCamera();
     if (fly.glide) blendGlide();
+    if (EL && !fly.on) { const k = EL.shake(); camera.position.x += k.x; camera.position.y += k.y; camera.position.z += k.z; }
     placeChandelier();
   }
   function orbitCamera() {
@@ -13706,6 +13726,10 @@ function ChacklateScene(canvas, options) {
       }
       placeSprite(s);
     }
+    if (EL && EL.active()) {
+      busy = EL.step(now, dt) || busy;
+      if (stormHint && !EL.storming()) { stormHint = false; if (!cine) showSkip(false); }
+    }
     if (particles.length || motesOn()) { stepParticles(now, dt); busy = busy || particles.some((p) => p.kind !== 'mote'); }
     if (clockState && clockState.running) busy = true;
     if (alt && alt.step && alt.step(now)) { busy = true; dirtyShadows(); }
@@ -13728,12 +13752,35 @@ function ChacklateScene(canvas, options) {
     }
     drawClock();
     uploadParticles(now);
+    const lent = EL && EL.active() ? lendLights() : null;
     renderReflection();
     // set after the reflection pass: that one only sees the pieces' layer, and a shadow map
     // drawn there would be missing the board and the clock
     // during a capture scene slow devices refresh the shadows at about 12 fps
     if (shadowDirty && (!cine || lvl() < 3 || now - shadowAt > 80)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; shadowAt = now; }
     if (composer) composer.render(); else renderer.render(scene, camera);
+    if (lent) lent();
+  }
+  // An element effect borrows the table's lights for one frame (a flash, the glow of a fire,
+  // a storm's darkness) and hands them back after drawing, whatever the room has set.
+  function lendLights() {
+    EL.draw(pAdd.material.uniforms.scale.value, (canvas.clientWidth || 1) / (canvas.clientHeight || 1));
+    const l = EL.light();
+    if (!l) return null;
+    const was = { expo: renderer.toneMappingExposure, key: key.intensity, rim: rim.intensity, hemi: hemi.intensity, hemiC: hemi.color.clone(), keyC: key.color.clone(),
+      ch: chandLight.intensity, chC: chandLight.color.clone(), chP: chandLight.position.clone(), chD: chandLight.distance };
+    renderer.toneMappingExposure = was.expo * l.expo;
+    key.intensity *= l.key; rim.intensity *= l.key;
+    if (l.tintK > 0) { key.color.lerp(l.tint, l.tintK * 0.6); hemi.color.lerp(l.tint, l.tintK); }
+    if (l.point) {
+      chandLight.position.set(l.point.x, l.point.y, l.point.z); chandLight.color.copy(l.point.color);
+      chandLight.intensity = l.point.power; chandLight.distance = 9;
+    }
+    return () => {
+      renderer.toneMappingExposure = was.expo; key.intensity = was.key; rim.intensity = was.rim; hemi.intensity = was.hemi;
+      hemi.color.copy(was.hemiC); key.color.copy(was.keyC);
+      chandLight.intensity = was.ch; chandLight.color.copy(was.chC); chandLight.position.copy(was.chP); chandLight.distance = was.chD;
+    };
   }
   // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
   // bottom levels (candle flicker and the slow orbit don't need more)
@@ -13764,7 +13811,7 @@ function ChacklateScene(canvas, options) {
   // alone, and the level never steps back down in a session, so the view doesn't flicker.
   let govLate = 0, govN = 0;
   function govern(waitMs, drawMs) {
-    if (window.__SHOT || fullDetail || document.hidden || perf >= MAX_PERF) { govN = 0; return; }
+    if (window.__SHOT || fullDetail || document.hidden || perf >= MAX_PERF || (EL && EL.active())) { govN = 0; return; }
     const late = Math.min(80, Math.max(0, waitMs + drawMs - 17));
     govLate = govN ? govLate * 0.94 + late * 0.06 : late;
     if (++govN >= 40 && govLate > 22) { setPerf(perf + 1); govN = 0; }
@@ -13855,6 +13902,7 @@ function ChacklateScene(canvas, options) {
     }
     if (fly.glide) return;
     if (cine) { skipCine(); return; }
+    if (EL && EL.storming()) { EL.calm(); return; }
     canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, [e.clientX, e.clientY]);
     if (pointers.size === 1) {
@@ -14408,9 +14456,17 @@ function ChacklateScene(canvas, options) {
       if (pieces) loadSet(pieces.set || 'regency');
       requestRender();
     },
-    setRoom(r) { if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },
+    setRoom(r) { if (r && EL && (r.room || 'salon') !== roomId) EL.clear(); if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },
     setFx(f) { fx = Object.assign({}, fx, f); },
     setCaptureEffects(on) { captureFxOn = on; },
+    // the room's element effects (Settings, Dramatic effects)
+    setElements(on) { elementsOn = !!on; if (!on && EL) EL.clear(); },
+    // plays one now, for developer mode and screenshots: ('strike', 'fire', sq) or ('storm', 'petals', sq)
+    playElement(type, kind, sq) {
+      if (!EL) return;
+      const x = sq >= 0 ? sqX(sq) : 0, z = sq >= 0 ? sqZ(sq) : 0, el = element();
+      if (type === 'storm') EL.storm(kind, x, z, { petals: el.petals }); else EL.strike(kind, x, z, { dust: el.dust, stone: el.stone });
+    },
     setQuality(q) {
       q = q === 'low' ? 'low' : 'high';
       if (q === quality && (composer || !bloomOn())) return;   // settings are re-applied on every change
@@ -14473,6 +14529,7 @@ function ChacklateScene(canvas, options) {
     // Sweeping camera move into the player's seat at the start of a game.
     intro() {
       stopFly(true);
+      if (EL) EL.clear();
       if (!animations) return;
       if (room && room.vista) {
         // where the table stands before a landmark, the game opens looking out at it (white's
@@ -14541,6 +14598,7 @@ function ChacklateScene(canvas, options) {
         if (!quick && captureFxOn && fx.capture && fx.capture.kind !== 'none') {
           setTimeout(() => spawn(fx.capture.kind, vx, 0.4, vz, fx.capture.colors, fx.capture.kind === 'sparks' ? 46 : 30), Math.max(0, impact - performance.now()));
         }
+        if (!quick && !(o && o.elements === false)) setTimeout(() => strikeAt(vx, vz), Math.max(0, impact - performance.now()));
         victim.anim = { type: 'grave', start: impact, dur: quick ? 220 : 560, fx: vx, fz: vz, tx: gx, tz: gz, fyaw: victim.yaw, done: () => toGrave(victim) };
       }
       if (castleRook) {
@@ -14552,8 +14610,18 @@ function ChacklateScene(canvas, options) {
     },
     skipCapture: skipCine,
     capturePlaying: () => !!cine,
-    celebrate(kind, loserSq, kingSqs, winnerSq) {
+    // true while a win storm plays (the result card waits for it)
+    storming: () => !!(EL && EL.storming()),
+    // o.storm: a real game won, so the room's storm plays too (10 s; a tap calms it)
+    celebrate(kind, loserSq, kingSqs, winnerSq, o) {
       const now = performance.now();
+      if (kind === 'win' && o && o.storm && EL && elementsOn && animations) {
+        const el = element(), w = winnerSq >= 0 ? sprites.find((s) => s.sq === winnerSq && !s.dead) : null;
+        EL.storm(el.storm, w ? w.x : 0, w ? w.z : 0, { petals: el.petals,
+          onCrown: () => { if (w && !w.dead) { w.anim = { type: 'glow', start: performance.now(), dur: 1800 }; requestRender(); } } });
+        stormHint = true;
+        clearTimeout(skipTimer); skipTimer = setTimeout(() => showSkip(true), 1200);
+      }
       if (kind === 'win') {
         const k = loserSq >= 0 ? sprites.find((s) => s.sq === loserSq && !s.dead) : null;
         if (k) k.anim = { type: 'topple', start: now + 150, dur: animations ? 1100 : 1, to: 1.45 };
@@ -14581,7 +14649,7 @@ function ChacklateScene(canvas, options) {
       clockKey = '';
       requestRender();
     },
-    showcase(on) { attract = !!on; requestRender(); },
+    showcase(on) { attract = !!on; if (on && EL) EL.clear(); requestRender(); },
     // Menu pages blur the room behind them; nothing there needs to move, so the idle frames stop.
     setPaused(on) { paused = !!on; if (!paused) requestRender(); },
     snapshot,

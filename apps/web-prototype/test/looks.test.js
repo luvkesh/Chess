@@ -56,4 +56,20 @@ for (const m of world.matchAll(/landmark: '([a-z]+)'/g)) assert.ok(painters.has(
 // Room floors are parquet (the default), marble octagons, stone flags or planks. A chequered
 // floor around the table would read as a second chessboard.
 for (const m of world.matchAll(/\bfloor: '([a-z]+)'/g)) assert.ok(['parquet', 'octagon', 'stone', 'planks'].includes(m[1]), 'unknown or chequered floor: ' + m[1]);
+// Every room has its element: a capture strike and a win storm that elements3d.js can play,
+// a strike of about 3 s and a storm of about 10 s.
+const EL = require('../src/elements3d.js'), elements = src('elements3d.js');
+for (const id of ROOMS) {
+  const e = EL.ROOMS[id];
+  assert.ok(e, 'room ' + id + ' has no element');
+  assert.ok(['fire', 'lightning', 'stone'].includes(e.strike), id + ': unknown capture strike ' + e.strike);
+  assert.ok(['petals', 'fire', 'lightning'].includes(e.storm), id + ': unknown win storm ' + e.storm);
+}
+for (const k of Object.keys(EL.ROOMS)) assert.ok(ROOMS.has(k), 'element for a room that does not exist: ' + k);
+for (const [name, ms] of [['STRIKES', 3000], ['STORMS', 10000]]) {
+  const body = elements.slice(elements.indexOf('const ' + name + ' = {'));
+  const durs = [...body.slice(0, body.indexOf('\n  };')).matchAll(/^ {4}([a-z]+): \{ dur: (\d+)/gm)];
+  assert.strictEqual(durs.length, 3, name + ' has three effects');
+  for (const m of durs) assert.strictEqual(+m[2], ms, name + ' ' + m[1] + ' lasts ' + m[2] + ' ms');
+}
 console.log('looks ok:', n, 'catalog looks,', SETS.size, 'sets,', BOARDS.size, 'boards,', ROOMS.size, 'rooms');
