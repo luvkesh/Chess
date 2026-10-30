@@ -6,10 +6,10 @@ The audience is children and their parents, so the page is built to be safe as w
 
 | Path | What it is |
 | --- | --- |
-| `src/index.html` | Page template: layout, styles and the small script for the hero slideshow, the era explorer and the cards. |
-| `img/` | Pictures as WebP: `<era>-hero` and `<era>-room` (the era room from the home-screen camera, wide and close), `<era>-game` (the era board and set from the player's seat), `set-<era>` (the era set on a pedestal), `museum` and `phone` (game screens). |
+| `src/index.html` | Page template: the story, layout, styles and the script that drives the live 3D table behind the page (the coach's lesson, the world-wonder picker and the turning sets). |
+| `img/` | Pictures as WebP: `crest` (the logo, the game's 3D knight), `<era>-hero` (the era room from the home-screen camera) and `set-<era>` (the era set on a pedestal). The page shows these stills until the live 3D is ready, and instead of it where WebGL is missing. |
 | `tools/render-art.js` | Draws the crest, animal portraits and era banners with the game's own `art.js`. |
-| `build.py` | Inlines the game's fonts, `img/`, the art and the facts from `packages/content` (eras, coaches, sets, rooms, counts) into `index.html`. |
+| `build.py` | Inlines the game's fonts, its 3D renderer (three.js, `kit3d`, `pieces3d`, `world3d`, `scene`), `img/`, the art and the facts from `packages/content` (eras, coaches, sets, rooms, counts) into `index.html`. |
 | `index.html` | The built page, committed. CI fails if it is stale. |
 | `privacy.html`, `terms.html` | Written by hand, not built. |
 
@@ -27,9 +27,9 @@ python3 apps/website/build.py --preview /tmp/site  # stand-alone copy (index, pr
 The era pictures are rendered from the game itself, so they always match it. After changing a set, board or room, rebuild the game and run:
 
 ```sh
-node apps/website/tools/shoot.js [egypt,venice,...]   # PNGs in tools/out (Playwright, SwiftShader: about 3 minutes for all eras)
+node apps/website/tools/shoot.js [crest,egypt,venice,...]   # PNGs in tools/out (Playwright, SwiftShader: about 3 minutes for all)
 python3 apps/website/tools/to-webp.py                 # into img/
 python3 apps/website/build.py
 ```
 
-`shoot.js` sets `window.__SHOT`, hides the menus and uses the table directly: the home-screen camera with the board pushed down (`hero`, `room`), the low player view (`game`), and `__view.snapshot` for the set on its pedestal. Keep each picture under about 140 KB; the whole page is about 3.5 MB.
+`shoot.js` sets `window.__SHOT`, hides the menus and uses the table directly: the home-screen camera with the board pushed down (`hero`), `__view.snapshot` for the set on its pedestal, and the black gold-and-silver knight alone for the crest (`to-webp.py` puts it on the ruby disc). Keep each picture under about 140 KB; the whole page is about 3.7 MB, of which the 3D renderer is about 1.1 MB.

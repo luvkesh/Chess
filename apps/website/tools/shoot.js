@@ -12,10 +12,9 @@ const C = require(path.join(root, 'packages/content/campaign.json'));
 const out = path.join(__dirname, 'out');
 const only = process.argv[2] ? process.argv[2].split(',') : null;
 // The home-screen camera with the board pushed down, so the room and its window fill the picture.
+// The page shows these stills until its live 3D table is ready, or instead of it without WebGL.
 const VIEWS = [
   { name: 'hero', attract: true, ins: { top: 560, left: 200, right: 200 } },
-  { name: 'room', attract: true, ins: { top: 430 } },
-  { name: 'game', view: 'low', ins: {} },
 ];
 // Pedestal velvet (the set's tint) and its sheen.
 const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], rome: ['#4a1840', '#ff9cd8'], mughal: ['#0e5a52', '#9fe0cc'],
@@ -30,6 +29,16 @@ const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], ro
   await page.waitForFunction(() => window.__view && window.__cam, null, { timeout: 300000 });
   await page.waitForTimeout(2500);
   await page.addStyleTag({ content: 'body > *:not(canvas) { visibility: hidden !important; } canvas { visibility: visible !important; }' });
+  if (!only || only.includes('crest')) {
+    // The logo: the black gold-and-silver knight, alone. Dropping CircleGeometry leaves out the floor disc.
+    const url = await page.evaluate(() => {
+      const T = window.THREE, Circle = T.CircleGeometry;
+      T.CircleGeometry = class extends T.BufferGeometry {};
+      try { return window.__view.snapshot({ kind: 'piece', set: 'gold-silver', type: 'n', side: 'b' }, 1000, 1200); } finally { T.CircleGeometry = Circle; }
+    });
+    fs.writeFileSync(path.join(out, 'knight.png'), Buffer.from(url.split(',')[1], 'base64'));
+    console.log('crest done');
+  }
   for (const e of C.eras) {
     if (only && !only.includes(e.id)) continue;
     for (const v of VIEWS) {

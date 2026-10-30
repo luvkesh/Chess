@@ -26,6 +26,16 @@ MUSIC = {'nile': 'Harp', 'athens': 'Lyre', 'roma': 'Horns', 'mughal': 'Sitar', '
 # Strength of each animal friend, matching the engine's levels.
 RANGES = ['250–500', '500–800', '800–1100', '1100–1400', '1400–1700', '1700–2000', '2000–2300', 'Full strength']
 STAGES = {'tale': 'Story', 'lesson': 'Lesson', 'puzzles': 'Puzzles', 'endgame': 'Endgame', 'champion': 'Champion'}
+# The world wonder each era's table looks out on.
+LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome': 'The Colosseum', 'mughal': 'The Taj Mahal',
+             'ming': 'The Forbidden City', 'venice': "St Mark's and the Grand Canal", 'russia': "Saint Petersburg's onion domes",
+             'deco': 'The New York skyline'}
+# Pedestal velvet and sheen for each era set, as in tools/shoot.js.
+FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome': ('#4a1840', '#ff9cd8'), 'mughal': ('#0e5a52', '#9fe0cc'),
+        'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
+# The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
+SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'world3d.js', 'scene.js')]
+EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 
 LINKS = {
     'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms'},
@@ -63,8 +73,10 @@ def site_data():
             'coach': {'full': e['coach']['full'], 'hello': e['coach']['hello']},
             'tale': e['stages'][0]['pages'][0],
             'stages': [{'kind': STAGES[st['kind']], 'title': st['title']} for st in e['stages']],
-            'set': {'name': s['name'], 'desc': s['desc'], 'tint': mix(tint, '#000000', 0.35), 'glow': mix(tint, '#ffffff', 0.18)},
-            'room': {'name': r['name'], 'desc': r['desc']},
+            'board': e['board'], 'landmark': LANDMARKS[e['id']],
+            'set': {'id': e['set'], 'name': s['name'], 'desc': s['desc'], 'tint': mix(tint, '#000000', 0.35), 'glow': mix(tint, '#ffffff', 0.18),
+                    'felt': FELT[e['id']][0], 'sheen': FELT[e['id']][1]},
+            'room': {'id': e['room'], 'name': r['name'], 'desc': r['desc']},
             'music': MUSIC[e['room']],
         })
     opponents = [{'id': o['id'], 'name': o['name'], 'animal': o['animal'].replace('redpanda', 'red panda').capitalize(),
@@ -93,19 +105,20 @@ def build(target):
     art = {k: 'data:image/svg+xml;base64,' + base64.b64encode(urllib.parse.unquote(v[len(prefix):]).encode()).decode() for k, v in art.items()}
     img = {p.stem: data_uri(p) for p in sorted((here / 'img').iterdir()) if p.suffix in ('.webp', '.jpg', '.png')}
     for e in eras:
-        for k in ('hero', 'room', 'game'):
-            assert '%s-%s' % (e['id'], k) in img, 'missing img/%s-%s' % (e['id'], k)
+        # stills: shown before the 3D table is ready, and instead of it where WebGL is missing
+        assert e['id'] + '-hero' in img, 'missing img/%s-hero' % e['id']
         assert 'set-' + e['id'] in img, 'missing img/set-%s' % e['id']
 
     page = (here / 'src' / 'index.html').read_text()
     fonts = (game / 'vendor' / 'fonts.css').read_text()
     assert '</style' not in fonts.lower()
-    used = set(re.findall(r'@@IMG:([\w-]+)@@', page))
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art,
-                                             'img': {k: v for k, v in img.items() if k not in used}},
+    shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-')}
+    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
-    page = page.replace('/*FONTS*/', fonts).replace('/*DATA*/', data)
+    scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
+    assert '</script' not in scene.lower()
+    page = page.replace('/*FONTS*/', fonts).replace('/*DATA*/', data).replace('/*SCENE*/', scene)
     page = re.sub(r'@@IMG:([\w-]+)@@', lambda m: img[m.group(1)], page)
     page = re.sub(r'@@ART:([\w-]+)@@', lambda m: art[m.group(1)], page)
     page = re.sub(r'@@N:(\w+)@@', lambda m: str(counts[m.group(1)]), page)
