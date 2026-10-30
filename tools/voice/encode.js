@@ -40,7 +40,9 @@ for (const v of V.voices) {
       if (!fs.existsSync(wav)) { missing.push(v.id + '/' + key); continue; }
       fs.mkdirSync(path.dirname(mp3), { recursive: true });
       // Trim leading silence, even out loudness, mono 24 kHz at 40 kb/s: clear speech, small files.
-      execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', wav, '-af', 'silenceremove=start_periods=1:start_threshold=-50dB,loudnorm=I=-18:TP=-2:LRA=7', '-ar', '24000', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '40k', '-map_metadata', '-1', '-write_xing', '0', '-id3v2_version', '0', mp3]);
+      // A few clips hang ffmpeg with the trim before the loudness filter; the other order works for them.
+      const enc = (af) => execFileSync('ffmpeg', ['-nostdin', '-v', 'error', '-y', '-i', wav, '-af', af, '-ar', '24000', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '40k', '-map_metadata', '-1', '-write_xing', '0', '-id3v2_version', '0', mp3], { timeout: 60000 });
+      try { enc('silenceremove=start_periods=1:start_threshold=-50dB,loudnorm=I=-18:TP=-2:LRA=7'); } catch (e) { enc('loudnorm=I=-18:TP=-2:LRA=7,silenceremove=start_periods=1:start_threshold=-50dB'); }
       made++;
     }
     parts.push(fs.readFileSync(mp3));
