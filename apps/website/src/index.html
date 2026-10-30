@@ -250,6 +250,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .house-contact li { display: flex; align-items: flex-start; gap: 12px; }
 .house-contact li svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--gold); }
 .house-contact li span { display: flex; flex-direction: column; gap: 6px; }
+.house-contact li small { margin: -4px 0 4px; font-size: 13px; color: var(--faint); }
 .house-contact a { color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
 .house-contact a:hover, .house-contact a:focus-visible { color: var(--gold-2); text-decoration: underline; text-underline-offset: 4px; }
 .house-contact .fine { text-align: left; margin-top: 4px; font-size: 13px; }
@@ -597,7 +598,7 @@ html.nonlatin body { line-height: 1.75; }
     <aside class="house-contact" id="contact" aria-labelledby="contact-h">
       <h3 id="contact-h">Contact</h3>
       <ul>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg><a href="mailto:bite@chacklate.com" data-out data-no-i18n>bite@chacklate.com</a></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg><span><a href="mailto:bite@chacklate.com" data-out data-no-i18n>bite@chacklate.com</a><small>General questions</small><a href="mailto:support@chacklate.com" data-out data-no-i18n>support@chacklate.com</a><small>Help with the game</small></span></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg><span data-no-i18n><a href="https://www.instagram.com/chacklate/" data-out>@chacklate</a><a href="https://www.instagram.com/chackmate/" data-out>@Chackmate</a></span></li>
       </ul>
       <p class="fine">Links open outside this site, after a quick grown-up check.</p>
