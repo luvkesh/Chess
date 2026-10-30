@@ -69,6 +69,11 @@
   "voice": "am_puck,am_michael",
   "text": "This is you! Here you can see your level, your games, and your badges."
  },
+ "club": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Welcome to the Club! See how you rank, climb the leagues, and find the friends you play with a code."
+ },
  "season": {
   "who": "rooky",
   "voice": "am_puck,am_michael",

@@ -105,7 +105,7 @@ class Lobby {
     if (!p) { p = { user, sockets: new Set(), gameId: null }; this.players.set(user.id, p); }
     p.user = user;
     p.sockets.add(socket);
-    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), account: { email: user.email || null, emailVerified: !!user.email_verified }, safety: this.policy.info(user), timeControls: TIME_CONTROLS });
+    socket.send({ type: 'welcome', token, user: this.publicUser(user), ratings: this.ratings(user.id), progress: user.progress ? JSON.parse(user.progress) : null, entitlements: this.entitlements(user.id), account: { email: user.email || null, emailVerified: !!user.email_verified, location: { country: user.country || null, city: user.city || null, source: user.loc_src || null } }, safety: this.policy.info(user), timeControls: TIME_CONTROLS });
     // Back into a live game after a reconnect.
     const room = p.gameId && this.games.get(p.gameId);
     if (room) {
@@ -178,6 +178,8 @@ class Lobby {
         if (c.pool !== this.policy.pool(p.user)) return socket.send({ type: 'error', message: 'That code is for a different group of players. Ask your friend for a new one.' });
         this.codes.delete(code);
         const flip = crypto.randomInt(2) === 0;
+        // A game from a code is how friends are made: it puts each player on the other's Club list.
+        this.befriend(c.userId, uid);
         return this.createGame(flip ? c.userId : uid, flip ? uid : c.userId, c.tc, false);
       }
       case 'progress': {
@@ -370,6 +372,11 @@ class Lobby {
   clearTimers(room) {
     clearTimeout(room.timer);
     clearTimeout(room.away.w); clearTimeout(room.away.b);
+  }
+
+  befriend(a, b) {
+    const t = this.now();
+    for (const [x, y] of [[a, b], [b, a]]) this.db.run('INSERT OR IGNORE INTO friends (user_id, friend_id, since) VALUES (?, ?, ?)', x, y, t);
   }
 
   // ------------------------------------------------------------------ queries

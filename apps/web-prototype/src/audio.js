@@ -431,14 +431,14 @@ function ChacklateAudio() {
   }
   // Says one recorded line; falls back to the device's voice where the recording can't be fetched
   // (the single offline file). Resolves when the line has finished or was cut short, or at once if nothing was said.
-  function line(url, text, what) {
+  function line(url, text, what, lang) {
     stopSpeech();
     const my = queueId;
     return new Promise((done) => {
       const end = () => { if (my === queueId) talking(false, what); done(); };
       if (!canTalk() || !ready()) return done();
       talking(true, what);
-      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, 'en', end))) end(); };
+      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, lang || 'en', end))) end(); };
       if (typeof fetch === 'undefined' || location.protocol === 'file:' || !url) return viaDevice();
       lineClip(url).then((b) => {
         if (my !== queueId) return done();
@@ -450,8 +450,11 @@ function ChacklateAudio() {
       }, viaDevice);
     });
   }
-  const guide = (key, text) => line('guide/' + key + '.mp3', text, 'guide');
-  const pitch = (url, text) => line(url, text, 'pitch');
+  const guide = (key, text) => line('guide/' + key + '.mp3', text, 'guide', 'en');
+  const pitch = (url, text) => line(url, text, 'pitch', 'en');
+  // Lessons with their own speakers (words/<who>/<key>.mp3, recorded by tools/voice/record-words.py):
+  // Rooky in English, Priya in Hindi.
+  const words = (who, text) => line('words/' + who + '/' + voiceKey(text) + '.mp3', text, 'words', who === 'priya' ? 'hi' : 'en');
   // True once the browser lets the game make sound (from the first tap on).
   let tapped = false;
   const canTalk = () => tapped || !!(ctx && ctx.state === 'running');
@@ -469,7 +472,7 @@ function ChacklateAudio() {
     },
     // Browsers only allow sound after a user gesture; call this from one.
     unlock() { if (ready()) { tapped = true; if (musicOn && !music) startMusic(); } },
-    say, hush, event, announce, voiceKey, moveWords, guide, pitch, canTalk, phrases,
+    say, hush, event, announce, voiceKey, moveWords, guide, pitch, words, canTalk, phrases,
     onTalk(fn) { talkers.push(fn); },
     voices: () => V.voices.slice(),
     setVoices(o) {
