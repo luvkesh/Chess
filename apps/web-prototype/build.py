@@ -26,6 +26,8 @@ SCRIPTS = [
     src / 'audio.js',
     src / 'net.js',
     src / 'relay.js',
+    src / 'places.js',
+    src / 'club.js',
     src / 'tips.js',
     src / 'app.js',
 ]

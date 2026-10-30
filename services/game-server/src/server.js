@@ -13,6 +13,7 @@ const push = require('./push');
 const fairplay = require('./fairplay');
 const account = require('./account');
 const family = require('./family');
+const club = require('./club');
 const mailer = require('./mailer');
 const { Lobby } = require('./lobby');
 
@@ -59,6 +60,7 @@ function createServer(opts) {
   const mail = opts.mailer || mailer.create(Object.assign({ log: opts.log }, opts.mail));
   const accountApi = account.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
   const familyApi = family.create(db, lobby, { mailer: mail, publicUrl: opts.publicUrl });
+  const clubApi = club.create(db, lobby, family.policy);
   const purgeTimer = setInterval(() => { try { familyApi.purgeInactive(); } catch (e) { (opts.log || console.log)('purge failed', e.message); } }, 24 * 3600e3);
   purgeTimer.unref();
   const accountLimit = auth.limiter(20, 60000);
@@ -122,6 +124,10 @@ function createServer(opts) {
     }
     if (p === '/api/names' || p.startsWith('/api/parent/') || p === '/api/account/age' || p === '/api/account/consent/resend') {
       const out = await familyApi.handle(req, p, body, ip, lobby.userForToken(bearer(req)));
+      if (out) return out;
+    }
+    if (p === '/api/club' || p.startsWith('/api/friends') || p === '/api/account/location') {
+      const out = await clubApi.handle(req, p, body, url, lobby.userForToken(bearer(req)));
       if (out) return out;
     }
     if (p.startsWith('/api/account/')) {

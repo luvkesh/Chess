@@ -777,16 +777,94 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .seek-orb i:nth-child(2) { animation-delay: .8s; } .seek-orb i:nth-child(3) { animation-delay: 1.6s; }
 @keyframes seek { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(1.2); opacity: 0; } }
 .friend-code { font: 600 40px/1 var(--mono); letter-spacing: .28em; text-align: center; padding: 18px 0 18px .28em; margin: 8px 0 16px; border-radius: 16px; background: rgba(232, 194, 122, 0.06); border: 1px solid var(--line-2); color: var(--gold-2); }
-.leaderboard { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; }
-.leaderboard li { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 11px; background: rgba(232, 194, 122, 0.04); }
-.leaderboard li.me { background: rgba(232, 194, 122, 0.14); }
-.leaderboard .rk { width: 28px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.leaderboard li:nth-child(-n+3) .rk { color: var(--gold); font-weight: 700; }
-.leaderboard .nm { flex: 1; font-weight: 500; }
-.leaderboard .rt { font-variant-numeric: tabular-nums; }
 .today { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .today .mini { padding: 12px 14px; border-radius: 14px; }
 .today .mini b { display: block; font: 500 24px/1.1 var(--serif); margin-top: 4px; }
+
+/* ------------------------------------------------------------ the Club (club.js) */
+.club-strip { display: flex; align-items: center; gap: 14px; width: 100%; margin: 18px 0 0; padding: 14px 18px; border-radius: 16px; text-align: left; color: var(--ink); }
+.club-strip > .ico { color: var(--gold); width: 22px; height: 22px; flex: none; }
+.club-strip span { flex: 1; } .club-strip small { display: block; color: var(--muted); font-size: 13px; }
+.club-strip:hover { border-color: var(--line-3); }
+.club .cl-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 12px; }
+.club .cl-head h3 { font: 500 24px/1.15 var(--serif); margin: 0; }
+.club .cl-head p { margin: 0; font-size: 14px; }
+.cl-now { padding: 20px 22px; margin-bottom: 18px; }
+.cl-people { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.cl-person, .cl-friend { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(232, 194, 122, 0.04); border: 1px solid var(--line); min-width: 0; }
+.cl-person.live { border-color: rgba(143, 214, 168, 0.4); }
+.cl-pmain { flex: 1; min-width: 0; }
+.cl-pname { font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cl-pmeta { color: var(--muted); font-size: 12.5px; line-height: 1.4; overflow-wrap: anywhere; }
+.cl-av { width: 36px; height: 36px; border-radius: 50%; flex: none; object-fit: cover; }
+.cl-av.init { display: inline-grid; place-items: center; background: linear-gradient(160deg, #5c3d22, #2a1a10); border: 1px solid var(--line-2); color: var(--gold-2); font: 600 15px/1 var(--body); }
+.cl-row .cl-av, .cl-row .avatar { width: 28px; height: 28px; font-size: 12px; }
+.cl-tag { display: inline-block; padding: 1px 7px; border-radius: 999px; font: 500 10.5px/1.6 var(--body); letter-spacing: .04em; text-transform: uppercase; vertical-align: middle; }
+.cl-tag.ai { color: #cfe2ff; background: rgba(90, 130, 200, 0.18); border: 1px solid rgba(140, 180, 255, 0.35); }
+.cl-tag.live { color: #d6f5e3; background: rgba(143, 214, 168, 0.14); border: 1px solid rgba(143, 214, 168, 0.4); }
+.cl-follow { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--gold-2); font-size: 12.5px; flex: none; }
+.cl-follow .ico { width: 14px; height: 14px; }
+.cl-follow.on { background: rgba(232, 194, 122, 0.16); border-color: var(--gold); }
+.cl-split { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.cl-side { display: grid; gap: 18px; min-width: 0; }
+.cl-panel { padding: 20px 22px; min-width: 0; }
+.cl-pools { margin-bottom: 10px; }
+.cl-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.cl-filters button { display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.04); color: var(--muted); font-size: 13.5px; max-width: 100%; }
+.cl-filters button span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-filters button .ico { width: 15px; height: 15px; flex: none; }
+.cl-filters button.on { border-color: var(--gold); background: rgba(232, 194, 122, 0.16); color: var(--gold-2); }
+.cl-board { display: grid; gap: 3px; }
+.cl-row { display: grid; grid-template-columns: 34px minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, .9fr) 56px; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 11px; background: rgba(232, 194, 122, 0.035); font-size: 14px; }
+.cl-row.head { background: none; color: var(--faint); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; padding-top: 0; padding-bottom: 4px; }
+.cl-row.me { background: rgba(232, 194, 122, 0.15); box-shadow: inset 0 0 0 1px rgba(232, 194, 122, 0.35); }
+.cl-row .num { text-align: right; font: 600 14px/1 var(--body); font-variant-numeric: lining-nums tabular-nums; }
+.cl-rk { color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; }
+.cl-rk.medal { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font: 700 12px/1 var(--body); color: #2a1a0c; justify-self: center; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 2px 6px rgba(0, 0, 0, .4); }
+.cl-rk.m1 { background: linear-gradient(160deg, #fff0b8, #d9a54e 60%, #8a5a1e); }
+.cl-rk.m2 { background: linear-gradient(160deg, #ffffff, #b9c0cc 60%, #6d7482); }
+.cl-rk.m3 { background: linear-gradient(160deg, #ffd2a8, #c47a3a 60%, #6a3410); }
+.cl-player { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.cl-nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.cl-nm em { color: var(--gold-2); font-style: normal; font-weight: 400; }
+.cl-nm .cl-tag { margin-left: 6px; }
+.cl-loc { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.cl-lg { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; min-width: 0; }
+.cl-lg span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lg-badge { flex: none; }
+.cl-gap { text-align: center; color: var(--faint); line-height: 1; padding: 2px 0; }
+.cl-note { color: var(--faint); font-size: 13px; margin: 12px 0 0; line-height: 1.5; }
+.cl-loading { padding: 18px 4px; }
+.linkish { background: none; border: 0; padding: 0; color: var(--gold-2); text-decoration: underline; text-underline-offset: 3px; font: inherit; cursor: pointer; }
+.cl-tiers { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.cl-tiers li { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 10px; padding: 5px 10px; border-radius: 11px; }
+.cl-tiers li b { font-weight: 500; } .cl-tiers li small { color: var(--faint); font-variant-numeric: tabular-nums; }
+.cl-tiers li.on { background: rgba(232, 194, 122, 0.15); box-shadow: inset 0 0 0 1px rgba(232, 194, 122, 0.35); }
+.cl-tiers li.on small { color: var(--gold-2); }
+.cl-next { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.cl-next > div { flex: 1; } .cl-next p { margin: 0 0 6px; font-size: 14px; } .cl-next small { display: block; margin-top: 6px; font-size: 12px; }
+.cl-next-done { display: flex; align-items: center; gap: 8px; color: var(--gold-2); margin: 14px 0 0; }
+.cl-friend-list { display: grid; gap: 8px; margin-bottom: 12px; }
+.cl-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 6px 4px; }
+.cl-empty > .ico { width: 30px; height: 30px; color: var(--gold); }
+.cl-empty p { margin: 8px 0 12px; }
+.cl-loc-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cl-select { position: relative; flex: 1 1 150px; min-width: 0; display: flex; align-items: center; }
+.cl-select .ico { position: absolute; left: 12px; width: 16px; height: 16px; color: var(--gold); pointer-events: none; }
+.cl-select select { width: 100%; min-height: 42px; padding: 8px 12px 8px 36px; border-radius: 12px; background: var(--sunk); border: 1px solid var(--line-2); color: var(--ink); font: inherit; font-size: 14px; }
+.cl-select select:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 3px rgba(232, 194, 122, 0.15); }
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  .cl-split { grid-template-columns: 1fr; }
+  .cl-people { grid-template-columns: 1fr; }
+  .cl-people > :nth-child(n+5) { display: none; }
+  .cl-row { grid-template-columns: 28px minmax(0, 1fr) minmax(0, .9fr) 48px; gap: 8px; }
+  .cl-row .cl-loc { display: none; }
+  .cl-now, .cl-panel { padding: 16px 14px; }
+}
+@media (max-width: 420px) {
+  .cl-row { grid-template-columns: 26px minmax(0, 1fr) 30px 46px; }
+  .cl-row .cl-lg span, .cl-row.head .cl-lg { visibility: hidden; }
+}
 
 /* ------------------------------------------------------------ missions, season, store */
 .missions { padding: 16px 18px; border-radius: 20px; display: grid; gap: 10px; }
@@ -17700,6 +17778,7 @@ function ChacklateAudio() {
       case 'welcome': {
         ready = true; me = m.user; ratings = m.ratings; acct = m.account || null; safety = m.safety || null;
         app.setSafety(safety);
+        if (window.ChacklateClub) ChacklateClub.fromServer(acct && acct.location);
         setAccount({ token: m.token, name: me.name, guest: me.guest, id: me.id });
         // Adopt the server copy of progress when it is further along (a second device, a cleared browser).
         if (m.progress && m.progress.xp > app.state.progress.xp) { app.state.progress = app.PG.migrate(m.progress); app.save(); if (app.state.screen !== 'game') app.go(app.state.screen); }
@@ -17781,7 +17860,7 @@ function ChacklateAudio() {
     return out;
   }
 
-  let panel = null, board = 'blitz';
+  let panel = null;
   function refreshPanel() { if (panel && document.body.contains(panel)) renderAccount(panel); }
 
   function renderAccount(el) {
@@ -17799,8 +17878,7 @@ function ChacklateAudio() {
         '<div class="acct-form"><p style="color:var(--muted);margin:0 0 8px">Make an account to keep your rating and play on any device. Players under 18 need a parent to say yes before playing online.</p>' +
         '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg" type="button">Create account</button><button class="btn" id="ac-login" type="button">I have an account</button><button class="btn ghost small" id="ac-forgot" type="button">Forgot password?</button></div></div>'
         : safetyPanel() + accountTools()) +
-      '<h3 class="section-title">Leaderboard</h3><div class="seg" id="lb-pool">' + ['bullet', 'blitz', 'rapid'].map((p) => '<label><input type="radio" name="lbp" value="' + p + '"' + (p === board ? ' checked' : '') + '><span>' + p + '</span></label>').join('') + '</div>' +
-      '<ol class="leaderboard" id="lb"><li style="color:var(--muted)">Loading…</li></ol>';
+      '<div class="row" style="justify-content:flex-start;margin-top:12px"><button class="btn" data-nav="club" type="button">' + app.icon('users') + ' Rankings and friends in the Club</button></div>';
     const out = el.querySelector('#ac-out');
     if (out) out.onclick = async () => { try { await api('/api/logout', {}); } catch (e) { /* signed out locally either way */ } setAccount({ token: '', guest: true }); app.setEntitlements(null); app.save(); connect(); };
     const reg = el.querySelector('#ac-reg');
@@ -17810,8 +17888,7 @@ function ChacklateAudio() {
     const resend = el.querySelector('#ac-resend');
     if (resend) resend.onclick = () => parentEmailModal();
     wireAccountTools(el);
-    el.querySelector('#lb-pool').onchange = (e) => { board = e.target.value; loadBoard(el); };
-    loadBoard(el);
+    el.querySelector('[data-nav="club"]').onclick = () => app.go('club');
   }
 
   // ---------------------------------------------------------------- account self-service
@@ -17984,17 +18061,6 @@ function ChacklateAudio() {
     };
   }
 
-  async function loadBoard(el) {
-    const list = el.querySelector('#lb');
-    try {
-      const res = await api('/api/leaderboard?pool=' + board);
-      const esc = A().esc;
-      list.innerHTML = res.rows.length
-        ? res.rows.map((r) => '<li' + (me && r.name === me.name ? ' class="me"' : '') + '><span class="rk">' + r.rank + '</span><span class="nm">' + esc(r.name) + '</span><span class="rt">' + r.rating + '</span></li>').join('')
-        : '<li style="color:var(--muted)">No ranked players yet. Five rated games puts you on the board.</li>';
-    } catch (e) { list.innerHTML = '<li style="color:var(--muted)">' + A().esc(e.message) + '</li>'; }
-  }
-
   function syncProgress() {
     clearTimeout(progressTimer);
     progressTimer = setTimeout(() => { if (A()) send({ type: 'progress', data: A().state.progress }); }, 1500);
@@ -18060,7 +18126,7 @@ function ChacklateAudio() {
     if (!lobby) return setLink('unavailable');
     lobby.onConnection((on) => {
       const was = ready; ready = on;
-      if (on) setLink('ready');
+      if (on) { setLink('ready'); clubCard(); }
       if (was !== on && A() && ['home', 'play'].includes(A().state.screen) && !serverOn() && !document.querySelector('.modal')) A().go(A().state.screen);
     }, () => { ready = false; setLink('unavailable'); });
     // A room that never says it is connected is as good as none.
@@ -18095,6 +18161,9 @@ function ChacklateAudio() {
 
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   function myPeer(room) { const p = room.peers().find((x) => x.isMe && x.sameTab); return p ? p.peer : null; }
+  // The Club's card in the lobby (club.js): a made-up name, a country and ratings, never a city.
+  const Club = () => window.ChacklateClub;
+  function clubCard() { if (Club()) { nickname(); Club().publish(); } }
   // A made-up player name, so nobody can tell who a child is from it.
   function nickname() {
     const st = A().state;
@@ -18104,6 +18173,8 @@ function ChacklateAudio() {
   const clean = (s, n) => String(s == null ? '' : s).replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, n || 24) || 'Player';
   const newCode = () => Array.from({ length: 6 }, () => CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)]).join('');
   const parseTc = (tc) => { const [m, s] = tc.split('+').map(Number); return { base: m * 60000, inc: s * 1000 }; };
+  // The rating pool of a time control, as the server counts it.
+  const poolFor = (tc) => { const { base, inc } = parseTc(tc); const est = base / 1000 + 40 * inc / 1000; return est < 180 ? 'bullet' : est < 480 ? 'blitz' : 'rapid'; };
 
   // ---------------------------------------------------------------- worldwide matchmaking
   // Seekers wait in the lobby with their time control in presence. Every page sorts the
@@ -18161,7 +18232,8 @@ function ChacklateAudio() {
     const me = myPeer(room) || myPeer(lobby);
     const h = { code, tc, host, expect, world, room, me, since: Date.now(), unsub: null };
     hosting = h;
-    room.presence({ role: host ? 'host' : 'guest', name: nickname(), tc: tc || null }).catch(() => {});
+    const cc = Club() ? Club().card() : {};
+    room.presence({ role: host ? 'host' : 'guest', name: nickname(), tc: tc || null, cid: cc.cid || null, cc: cc.cc || null, r: cc.r || null }).catch(() => {});
     if (!world && host) {
       showWait('<h2>Share this code</h2><p class="sub">Your friend opens Chackmate, taps Play a Friend and enters the code. ' + tc + ', both players on the clock.</p>' +
         '<div class="friend-code">' + code + '</div>' +
@@ -18206,9 +18278,13 @@ function ChacklateAudio() {
     if (h.unsub) h.unsub();
     const color = start.white === h.me ? 'white' : 'black';
     const { base, inc } = parseTc(start.tc);
+    const op = opp.presence || {};
+    // A friend's code puts each player on the other's friends list; a world game is rated on this device.
+    if (!h.world && Club()) Club().addFriend({ cid: op.cid, name: op.name, cc: op.cc, r: op.r });
     game = {
       id: start.id, room: h.room, me: h.me, opp: opp.peer, color, mine: color === 'white' ? 'w' : 'b', tc: start.tc, inc, world: h.world,
       moves: [], clock: { w: base, b: base }, turnAt: performance.now(), startedAt: performance.now(), seen: {}, oppAway: 0, emoteN: 0, lastEmote: 0, ended: false,
+      oppRating: op.r && typeof op.r === 'object' ? op.r[poolFor(start.tc)] : undefined,
     };
     game.unsub = h.room.onPeers(() => fromOpponent());
     h.room.presence({ game: game.id, moves: '', clock: game.clock, end: null, drawOffer: null, drawAccept: null, emote: null }).catch(() => {});
@@ -18317,7 +18393,9 @@ function ChacklateAudio() {
     if (!game || game.ended) return;
     game.ended = true;
     if (!fromThem) game.room.presence({ end: { result, reason } }).catch(() => {});
-    A().onlineEnd(result, reason, null);
+    let rating = null;
+    if (game.world && reason !== 'aborted' && Club()) rating = Club().rated(poolFor(game.tc), game.oppRating, result === '1/2-1/2' ? 0.5 : result === (game.mine === 'w' ? '1-0' : '0-1') ? 1 : 0);
+    A().onlineEnd(result, reason, rating);
     const g = game;
     // Stay a little so the other side hears the result, then free the room.
     setTimeout(() => { if (g.unsub) g.unsub(); g.room.leave().catch(() => {}); }, 8000);
@@ -18384,6 +18462,467 @@ function ChacklateAudio() {
   });
   Object.defineProperty(window.ChacklateNet, '_relay', { value: { state: () => ({ ready, game, seek, hosting }), lobbyRef: () => lobby } });
 })();
+
+// ---- places.js ----
+// Cities for the Club's local rankings: [city, country code, latitude, longitude, time zones].
+// The first city of a country with a time zone is the guess for that zone. A player's
+// coordinates are only ever compared with this list on the device; they are never sent or kept.
+const CHACKMATE_PLACES = [
+  ["Tokyo", "JP", 35.68, 139.69, ["Asia/Tokyo"]],
+  ["Osaka", "JP", 34.69, 135.5],
+  ["Kyoto", "JP", 35.01, 135.77],
+  ["Nagoya", "JP", 35.18, 136.91],
+  ["Fukuoka", "JP", 33.59, 130.4],
+  ["Sapporo", "JP", 43.06, 141.35],
+  ["Seoul", "KR", 37.57, 126.98, ["Asia/Seoul"]],
+  ["Busan", "KR", 35.18, 129.08],
+  ["Taipei", "TW", 25.03, 121.57, ["Asia/Taipei"]],
+  ["Kaohsiung", "TW", 22.63, 120.3],
+  ["Taichung", "TW", 24.15, 120.67],
+  ["Hong Kong", "HK", 22.32, 114.17, ["Asia/Hong_Kong"]],
+  ["Macau", "MO", 22.2, 113.55, ["Asia/Macau"]],
+  ["Shanghai", "CN", 31.23, 121.47, ["Asia/Shanghai"]],
+  ["Beijing", "CN", 39.9, 116.4],
+  ["Guangzhou", "CN", 23.13, 113.26],
+  ["Shenzhen", "CN", 22.54, 114.06],
+  ["Chengdu", "CN", 30.57, 104.07],
+  ["Wuhan", "CN", 30.59, 114.31],
+  ["Xiamen", "CN", 24.48, 118.09],
+  ["Harbin", "CN", 45.8, 126.53, ["Asia/Harbin"]],
+  ["Hangzhou", "CN", 30.27, 120.16],
+  ["Chongqing", "CN", 29.56, 106.55, ["Asia/Chongqing"]],
+  ["Ulaanbaatar", "MN", 47.89, 106.91, ["Asia/Ulaanbaatar"]],
+  ["Singapore", "SG", 1.35, 103.82, ["Asia/Singapore"]],
+  ["Kuala Lumpur", "MY", 3.14, 101.69, ["Asia/Kuala_Lumpur"]],
+  ["Penang", "MY", 5.41, 100.33],
+  ["Johor Bahru", "MY", 1.49, 103.74],
+  ["Kuching", "MY", 1.55, 110.36, ["Asia/Kuching"]],
+  ["Bangkok", "TH", 13.76, 100.5, ["Asia/Bangkok"]],
+  ["Chiang Mai", "TH", 18.79, 98.98],
+  ["Manila", "PH", 14.6, 120.98, ["Asia/Manila"]],
+  ["Cebu", "PH", 10.32, 123.89],
+  ["Jakarta", "ID", -6.21, 106.85, ["Asia/Jakarta"]],
+  ["Surabaya", "ID", -7.25, 112.75],
+  ["Bali", "ID", -8.65, 115.22, ["Asia/Makassar"]],
+  ["Medan", "ID", 3.6, 98.67],
+  ["Ho Chi Minh City", "VN", 10.82, 106.63, ["Asia/Ho_Chi_Minh", "Asia/Saigon"]],
+  ["Hanoi", "VN", 21.03, 105.85],
+  ["Phnom Penh", "KH", 11.56, 104.92, ["Asia/Phnom_Penh"]],
+  ["Yangon", "MM", 16.87, 96.2, ["Asia/Yangon", "Asia/Rangoon"]],
+  ["Vientiane", "LA", 17.98, 102.63, ["Asia/Vientiane"]],
+  ["Brunei", "BN", 4.9, 114.94, ["Asia/Brunei"]],
+  ["Dubai", "AE", 25.2, 55.27, ["Asia/Dubai"]],
+  ["Abu Dhabi", "AE", 24.45, 54.38],
+  ["Sharjah", "AE", 25.35, 55.42],
+  ["Doha", "QA", 25.29, 51.53, ["Asia/Qatar"]],
+  ["Muscat", "OM", 23.59, 58.41, ["Asia/Muscat"]],
+  ["Manama", "BH", 26.23, 50.59, ["Asia/Bahrain"]],
+  ["Kuwait City", "KW", 29.38, 47.99, ["Asia/Kuwait"]],
+  ["Riyadh", "SA", 24.71, 46.68, ["Asia/Riyadh"]],
+  ["Jeddah", "SA", 21.49, 39.19],
+  ["Beirut", "LB", 33.89, 35.5, ["Asia/Beirut"]],
+  ["Amman", "JO", 31.95, 35.93, ["Asia/Amman"]],
+  ["Tel Aviv", "IL", 32.09, 34.78, ["Asia/Jerusalem"]],
+  ["Cairo", "EG", 30.04, 31.24, ["Africa/Cairo"]],
+  ["Tehran", "IR", 35.69, 51.39, ["Asia/Tehran"]],
+  ["Baghdad", "IQ", 33.31, 44.36, ["Asia/Baghdad"]],
+  ["Mumbai", "IN", 19.08, 72.88, ["Asia/Kolkata", "Asia/Calcutta"]],
+  ["Delhi", "IN", 28.61, 77.21],
+  ["Bengaluru", "IN", 12.97, 77.59],
+  ["Kolkata", "IN", 22.57, 88.36],
+  ["Chennai", "IN", 13.08, 80.27],
+  ["Hyderabad", "IN", 17.39, 78.49],
+  ["Pune", "IN", 18.52, 73.86],
+  ["Ahmedabad", "IN", 23.02, 72.57],
+  ["Darjeeling", "IN", 27.04, 88.26],
+  ["Goa", "IN", 15.5, 73.83],
+  ["Jaipur", "IN", 26.91, 75.79],
+  ["Lucknow", "IN", 26.85, 80.95],
+  ["Kochi", "IN", 9.93, 76.27],
+  ["Chandigarh", "IN", 30.73, 76.78],
+  ["Indore", "IN", 22.72, 75.86],
+  ["Nagpur", "IN", 21.15, 79.09],
+  ["Bhopal", "IN", 23.26, 77.41],
+  ["Guwahati", "IN", 26.14, 91.74],
+  ["Colombo", "LK", 6.93, 79.86, ["Asia/Colombo"]],
+  ["Karachi", "PK", 24.86, 67.0, ["Asia/Karachi"]],
+  ["Lahore", "PK", 31.55, 74.34],
+  ["Dhaka", "BD", 23.81, 90.41, ["Asia/Dhaka"]],
+  ["Kathmandu", "NP", 27.72, 85.32, ["Asia/Kathmandu", "Asia/Katmandu"]],
+  ["Malé", "MV", 4.18, 73.51, ["Indian/Maldives"]],
+  ["London", "GB", 51.51, -0.13, ["Europe/London"]],
+  ["Manchester", "GB", 53.48, -2.24],
+  ["Edinburgh", "GB", 55.95, -3.19],
+  ["Dublin", "IE", 53.35, -6.26, ["Europe/Dublin"]],
+  ["Paris", "FR", 48.86, 2.35, ["Europe/Paris"]],
+  ["Lyon", "FR", 45.76, 4.84],
+  ["Berlin", "DE", 52.52, 13.4, ["Europe/Berlin"]],
+  ["Munich", "DE", 48.14, 11.58],
+  ["Hamburg", "DE", 53.55, 9.99],
+  ["Frankfurt", "DE", 50.11, 8.68],
+  ["Amsterdam", "NL", 52.37, 4.9, ["Europe/Amsterdam"]],
+  ["Brussels", "BE", 50.85, 4.35, ["Europe/Brussels"]],
+  ["Luxembourg", "LU", 49.61, 6.13, ["Europe/Luxembourg"]],
+  ["Zurich", "CH", 47.38, 8.54, ["Europe/Zurich"]],
+  ["Geneva", "CH", 46.2, 6.14],
+  ["Vienna", "AT", 48.21, 16.37, ["Europe/Vienna"]],
+  ["Milan", "IT", 45.46, 9.19],
+  ["Rome", "IT", 41.9, 12.5, ["Europe/Rome"]],
+  ["Madrid", "ES", 40.42, -3.7, ["Europe/Madrid"]],
+  ["Barcelona", "ES", 41.39, 2.17],
+  ["Lisbon", "PT", 38.72, -9.14, ["Europe/Lisbon"]],
+  ["Porto", "PT", 41.15, -8.61],
+  ["Stockholm", "SE", 59.33, 18.07, ["Europe/Stockholm"]],
+  ["Copenhagen", "DK", 55.68, 12.57, ["Europe/Copenhagen"]],
+  ["Oslo", "NO", 59.91, 10.75, ["Europe/Oslo"]],
+  ["Helsinki", "FI", 60.17, 24.94, ["Europe/Helsinki"]],
+  ["Warsaw", "PL", 52.23, 21.01, ["Europe/Warsaw"]],
+  ["Prague", "CZ", 50.08, 14.44, ["Europe/Prague"]],
+  ["Budapest", "HU", 47.5, 19.04, ["Europe/Budapest"]],
+  ["Athens", "GR", 37.98, 23.73, ["Europe/Athens"]],
+  ["Bucharest", "RO", 44.43, 26.1, ["Europe/Bucharest"]],
+  ["Kyiv", "UA", 50.45, 30.52, ["Europe/Kyiv", "Europe/Kiev"]],
+  ["Istanbul", "TR", 41.01, 28.98, ["Europe/Istanbul"]],
+  ["Moscow", "RU", 55.76, 37.62, ["Europe/Moscow"]],
+  ["New York", "US", 40.71, -74.01, ["America/New_York"]],
+  ["Boca Raton", "US", 26.37, -80.13],
+  ["Miami", "US", 25.76, -80.19],
+  ["Boston", "US", 42.36, -71.06],
+  ["Washington", "US", 38.91, -77.04],
+  ["Philadelphia", "US", 39.95, -75.17],
+  ["Atlanta", "US", 33.75, -84.39],
+  ["Chicago", "US", 41.88, -87.63, ["America/Chicago"]],
+  ["Houston", "US", 29.76, -95.37],
+  ["Dallas", "US", 32.78, -96.8],
+  ["Denver", "US", 39.74, -104.99, ["America/Denver"]],
+  ["Phoenix", "US", 33.45, -112.07, ["America/Phoenix"]],
+  ["Las Vegas", "US", 36.17, -115.14],
+  ["Los Angeles", "US", 34.05, -118.24, ["America/Los_Angeles"]],
+  ["San Francisco", "US", 37.77, -122.42],
+  ["Seattle", "US", 47.61, -122.33],
+  ["Honolulu", "US", 21.31, -157.86, ["Pacific/Honolulu"]],
+  ["Toronto", "CA", 43.65, -79.38, ["America/Toronto"]],
+  ["Vancouver", "CA", 49.28, -123.12, ["America/Vancouver"]],
+  ["Montreal", "CA", 45.5, -73.57],
+  ["Calgary", "CA", 51.05, -114.07, ["America/Edmonton"]],
+  ["Mexico City", "MX", 19.43, -99.13, ["America/Mexico_City"]],
+  ["São Paulo", "BR", -23.55, -46.63, ["America/Sao_Paulo"]],
+  ["Rio de Janeiro", "BR", -22.91, -43.17],
+  ["Buenos Aires", "AR", -34.6, -58.38, ["America/Argentina/Buenos_Aires", "America/Buenos_Aires"]],
+  ["Lima", "PE", -12.05, -77.04, ["America/Lima"]],
+  ["Bogotá", "CO", 4.71, -74.07, ["America/Bogota"]],
+  ["Santiago", "CL", -33.45, -70.67, ["America/Santiago"]],
+  ["Sydney", "AU", -33.87, 151.21, ["Australia/Sydney"]],
+  ["Melbourne", "AU", -37.81, 144.96, ["Australia/Melbourne"]],
+  ["Brisbane", "AU", -27.47, 153.03, ["Australia/Brisbane"]],
+  ["Perth", "AU", -31.95, 115.86, ["Australia/Perth"]],
+  ["Adelaide", "AU", -34.93, 138.6, ["Australia/Adelaide"]],
+  ["Auckland", "NZ", -36.85, 174.76, ["Pacific/Auckland"]],
+  ["Wellington", "NZ", -41.29, 174.78],
+  ["Johannesburg", "ZA", -26.2, 28.05, ["Africa/Johannesburg"]],
+  ["Cape Town", "ZA", -33.92, 18.42],
+  ["Lagos", "NG", 6.52, 3.38, ["Africa/Lagos"]],
+  ["Nairobi", "KE", -1.29, 36.82, ["Africa/Nairobi"]],
+  ["Casablanca", "MA", 33.57, -7.59, ["Africa/Casablanca"]]
+];
+
+// ---- club.js ----
+// The Club, in the manner of Jong Club's: rankings in the bullet, blitz and rapid pools with
+// Global, Country, City and Following filters, leagues with medal tiers, a friends list made
+// from friend-code games, and who is in the club now.
+//
+// With the Chackmate game server connected, everything comes from it (services/game-server/src/club.js).
+// Without it, the club is filled with AI players, always labelled as such, plus the real
+// players in the page's live room, and ratings move on this device after world games.
+//
+// Children's safety: the place starts as a guess from the time zone (nothing is looked up
+// online), then a pick that sticks. A city, and the location button, are for grown-ups only:
+// an adult account on the server, or a grown-up who passes the parent gate on this device.
+// Everyone else keeps a country. Coordinates are matched to the nearest city here and dropped;
+// only a country is ever shared with other players in the live room.
+const ChacklateClub = (function () {
+  'use strict';
+  const A = () => window.ChacklateApp;
+  const NET = () => window.ChacklateNet;
+  const PLACES = CHACKMATE_PLACES;
+  const POOLS = ['bullet', 'blitz', 'rapid'];
+  // Rating where each league starts. Everyone starts at 1500, in Bronze. Same as the server.
+  const LEAGUES = [['Master', 2200], ['Diamond', 2050], ['Platinum', 1900], ['Gold', 1750], ['Silver', 1600], ['Bronze', 1400], ['Beginner', 0]];
+  const leagueOf = (r) => (LEAGUES.find(([, min]) => r >= min) || LEAGUES[LEAGUES.length - 1])[0];
+  const START = 1500;
+
+  // ---------------------------------------------------------------- places
+  let names = null;
+  function countryName(cc) {
+    if (!cc) return '';
+    try { names = names || new Intl.DisplayNames(['en'], { type: 'region' }); return names.of(cc) || cc; } catch (e) { return cc; }
+  }
+  const flag = (cc) => (cc && /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map((c) => 127397 + c.charCodeAt(0))) : '');
+  const countries = () => [...new Set(PLACES.map((p) => p[1]))].sort((a, b) => countryName(a).localeCompare(countryName(b)));
+  const citiesOf = (cc) => PLACES.filter((p) => p[1] === cc).map((p) => p[0]);
+  const countryOfCity = (city) => { const p = PLACES.find((x) => x[0] === city); return p ? p[1] : null; };
+
+  // The time zone names a city (Asia/Kolkata is Mumbai), or failing that the browser's language
+  // names a country (en-IN). Nothing leaves the device.
+  function guess() {
+    let tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { tz = ''; }
+    const p = tz && PLACES.find((x) => x[4] && x[4].includes(tz));
+    if (p) return { country: p[1], city: p[0], source: 'tz' };
+    const lang = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    const m = lang.match(/-([A-Z]{2})\b/i);
+    const cc = m && m[1].toUpperCase();
+    if (cc && citiesOf(cc).length) return { country: cc, city: citiesOf(cc)[0], source: 'tz' };
+    return null;
+  }
+  function nearest(lat, lon) {
+    let best = PLACES[0], d = Infinity;
+    const r = Math.PI / 180;
+    for (const p of PLACES) {
+      const x = (p[3] - lon) * r * Math.cos((lat + p[2]) / 2 * r), y = (p[2] - lat) * r;
+      const k = Math.hypot(x, y);
+      if (k < d) { d = k; best = p; }
+    }
+    return { country: best[1], city: best[0], source: 'gps' };
+  }
+  // Only when the player taps the location button. The browser asks them first.
+  function gps() {
+    return new Promise((resolve) => {
+      if (!('geolocation' in navigator)) return resolve(null);
+      try { navigator.geolocation.getCurrentPosition((pos) => resolve(nearest(pos.coords.latitude, pos.coords.longitude)), () => resolve(null), { enableHighAccuracy: false, timeout: 10000, maximumAge: 3600e3 }); } catch (e) { resolve(null); }
+    });
+  }
+
+  // ---------------------------------------------------------------- the player's club data
+  function data() {
+    const s = A().state.settings;
+    if (!s.club || typeof s.club !== 'object') s.club = {};
+    const c = s.club;
+    if (!c.ratings) c.ratings = {};
+    for (const p of POOLS) if (!c.ratings[p]) c.ratings[p] = { r: START, g: 0 };
+    if (!Array.isArray(c.friends)) c.friends = [];
+    if (!Array.isArray(c.follow)) c.follow = [];
+    if (!c.cid) c.cid = Math.random().toString(36).slice(2, 12);
+    return c;
+  }
+  const server = () => !!(NET() && NET().mode && NET().mode() === 'server');
+  const safety = () => (NET() && NET().safety ? NET().safety() : null);
+  // May this player keep a city? An adult account says yes; an under-18 or a guest account says
+  // no. Without the server, a grown-up can say so behind the parent gate.
+  function grownUp() {
+    const s = safety();
+    if (server() && s) return s.kind === 'adult';
+    return !!data().grownUp;
+  }
+  function place() {
+    const c = data();
+    return { country: c.country || null, city: grownUp() ? c.city || null : null, source: c.src || null };
+  }
+  function setPlace(p) {
+    const c = data();
+    c.country = p.country || null;
+    c.city = p.country && grownUp() ? p.city || null : null;
+    c.src = c.country ? p.source || 'manual' : null;
+    A().save();
+    if (server()) NET().api('/api/account/location', { country: c.country, city: c.city, source: c.src }).catch(() => {});
+    publish();
+    return place();
+  }
+  // The first visit takes the time-zone guess; a pick by the player sticks after that.
+  function autoLocate() {
+    const c = data();
+    if (c.src) return;
+    const g = guess();
+    if (g) setPlace(g);
+  }
+  // The server's copy wins when it has one (a second device), unless this device has a pick.
+  function fromServer(loc) {
+    if (!loc || !loc.country) { if (data().country && server()) setPlace(place()); return; }
+    const c = data();
+    if (c.src === 'manual' && loc.source !== 'manual' && c.country) return;
+    c.country = loc.country; c.city = loc.city || (grownUp() ? c.city : null); c.src = loc.source || 'manual';
+    A().save();
+  }
+  function setGrownUp(on) {
+    const c = data();
+    c.grownUp = !!on;
+    if (!on) c.city = null;
+    else if (!c.city && c.country) c.city = c.src === 'tz' ? (guess() || {}).city || citiesOf(c.country)[0] : citiesOf(c.country)[0];
+    A().save();
+  }
+
+  // ---------------------------------------------------------------- AI players
+  // Made-up members, the same for everyone, so the boards and leagues are never empty before
+  // the server opens. Their names are unlike players' made-up names, and they are always
+  // shown with an "AI player" tag.
+  const AI_ADJ = ['Amber', 'Saffron', 'Cobalt', 'Jade', 'Coral', 'Indigo', 'Ivory', 'Ruby', 'Topaz', 'Pearl', 'Onyx', 'Opal', 'Copper', 'Velvet', 'Marble', 'Cocoa'];
+  const AI_NOUN = ['Knight', 'Rook', 'Bishop', 'Castle', 'Gambit', 'Crown', 'Tempo', 'Pawn', 'Queen', 'Fork', 'Mate', 'Tower'];
+  const PIECES = ['k', 'q', 'r', 'b', 'n', 'p'];
+  const HUES = [['#a3294f', '#4a0c1e'], ['#2f6f6a', '#173b39'], ['#2f4f8a', '#14243e'], ['#8a5a2a', '#3a1e0e'], ['#5b4a8a', '#2c2248'], ['#b8862b', '#5c3d0c']];
+  function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  let aiCache = null;
+  function members() {
+    if (aiCache) return aiCache;
+    const R = rng(20261030), out = [], used = new Set();
+    const india = PLACES.filter((p) => p[1] === 'IN');
+    for (let i = 0; out.length < 72 && i < 500; i++) {
+      const name = AI_ADJ[Math.floor(R() * AI_ADJ.length)] + ' ' + AI_NOUN[Math.floor(R() * AI_NOUN.length)];
+      if (used.has(name)) continue;
+      used.add(name);
+      // Many members near home: Chackmate is made in Mumbai.
+      const p = R() < 0.4 ? india[Math.floor(R() * india.length)] : PLACES[Math.floor(R() * PLACES.length)];
+      // A bell-ish spread around 1550, from about 900 to 2350.
+      const base = Math.round(1550 + (R() + R() + R() - 1.5) * 560);
+      const ratings = {};
+      for (const pool of POOLS) ratings[pool] = Math.max(850, Math.min(2400, base + Math.round((R() - 0.5) * 160)));
+      const hue = HUES[Math.floor(R() * HUES.length)];
+      out.push({ id: 'ai' + out.length, ai: true, name, country: p[1], city: p[0], ratings, games: 20 + Math.floor(R() * 400), piece: PIECES[Math.floor(R() * PIECES.length)], from: hue[0], to: hue[1] });
+    }
+    aiCache = out;
+    return out;
+  }
+  // AI members who drop by change every ten minutes.
+  function droppingBy(n) {
+    const R = rng(Math.floor(Date.now() / 600000)), list = members().slice();
+    const out = [];
+    while (out.length < n && list.length) out.push(list.splice(Math.floor(R() * list.length), 1)[0]);
+    return out;
+  }
+  const following = (id) => data().follow.includes(id);
+  function toggleFollow(id) {
+    const c = data();
+    c.follow = c.follow.includes(id) ? c.follow.filter((x) => x !== id) : c.follow.concat(id);
+    A().save();
+    return c.follow.includes(id);
+  }
+
+  // ---------------------------------------------------------------- the live room
+  const lobby = () => (NET() && NET()._relay ? NET()._relay.lobbyRef() : null);
+  // What other pages in the room see of this player: a made-up name, a country, ratings.
+  function card() {
+    const c = data(), s = A().state.settings;
+    return { cid: c.cid, name: s.netName || null, cc: c.country || null, r: { bullet: c.ratings.bullet.r, blitz: c.ratings.blitz.r, rapid: c.ratings.rapid.r } };
+  }
+  function publish() {
+    const l = lobby();
+    if (l && !server()) l.presence({ app: 'chackmate', club: card() }).catch(() => {});
+  }
+  const cleanName = (s) => String(s == null ? '' : s).replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, 24) || 'Player';
+  const cleanCc = (cc) => (typeof cc === 'string' && /^[A-Z]{2}$/.test(cc) ? cc : null);
+  const cleanR = (r) => (Number.isFinite(r) ? Math.max(400, Math.min(3000, Math.round(r))) : START);
+  function livePeers() {
+    const l = lobby();
+    if (!l) return [];
+    let peers = [];
+    try { peers = l.peers(); } catch (e) { return []; }
+    const out = [], seen = new Set([data().cid]);
+    for (const p of peers) {
+      const c = p.presence && p.presence.club;
+      if (p.isMe || !c || typeof c !== 'object' || typeof c.cid !== 'string' || seen.has(c.cid)) continue;
+      seen.add(c.cid);
+      const r = c.r && typeof c.r === 'object' ? c.r : {};
+      out.push({ id: c.cid.slice(0, 16), name: cleanName(c.name), country: cleanCc(c.cc), ratings: { bullet: cleanR(r.bullet), blitz: cleanR(r.blitz), rapid: cleanR(r.rapid) }, seeking: !!(p.presence.seek) });
+    }
+    return out;
+  }
+
+  // ---------------------------------------------------------------- friends
+  // A friend-code game in the live room: each side keeps the other on its list.
+  function addFriend(p) {
+    if (!p || typeof p.cid !== 'string') return;
+    const c = data(), id = p.cid.slice(0, 16);
+    const f = c.friends.find((x) => x.id === id);
+    const r = p.r && typeof p.r === 'object' ? { bullet: cleanR(p.r.bullet), blitz: cleanR(p.r.blitz), rapid: cleanR(p.r.rapid) } : null;
+    if (f) { f.name = cleanName(p.name); f.country = cleanCc(p.cc); if (r) f.ratings = r; f.last = Date.now(); }
+    else c.friends.unshift({ id, name: cleanName(p.name), country: cleanCc(p.cc), ratings: r || { bullet: START, blitz: START, rapid: START }, since: Date.now(), last: Date.now() });
+    c.friends = c.friends.slice(0, 100);
+    A().save();
+  }
+  async function friends() {
+    if (server()) {
+      try { return (await NET().api('/api/friends')).friends.map((f) => Object.assign({}, f, { since: f.since })); } catch (e) { return []; }
+    }
+    const live = new Set(livePeers().map((p) => p.id));
+    return data().friends.map((f) => Object.assign({}, f, { online: live.has(f.id), rating: f.ratings.blitz, league: leagueOf(f.ratings.blitz) }));
+  }
+  async function removeFriend(id) {
+    if (server()) { try { await NET().api('/api/friends/remove', { id }); } catch (e) { /* stays on the list */ } return; }
+    const c = data();
+    c.friends = c.friends.filter((f) => f.id !== id);
+    A().save();
+  }
+
+  // ---------------------------------------------------------------- ratings without the server
+  // World games in the live room move the rating on this device, by Elo against the rating the
+  // opponent's page reports. Friend-code games are unrated, as on the server.
+  function rated(pool, opp, score) {
+    if (!POOLS.includes(pool)) return null;
+    const c = data(), me = c.ratings[pool];
+    const exp = 1 / (1 + Math.pow(10, (cleanR(opp) - me.r) / 400));
+    const k = me.g < 10 ? 40 : 24;
+    const before = me.r;
+    me.r = Math.max(400, Math.round(me.r + k * (score - exp)));
+    me.g++;
+    A().save();
+    publish();
+    return { before, after: me.r };
+  }
+
+  // ---------------------------------------------------------------- rankings
+  // Resolves { rows, me, needs, now, total }. Rows: { rank, name, country, city, rating, league, me, ai, id }.
+  async function board(pool, scope) {
+    pool = POOLS.includes(pool) ? pool : 'blitz';
+    if (server()) {
+      const res = await NET().api('/api/club?pool=' + pool + '&scope=' + scope + '&limit=10');
+      if (res.location) fromServer(res.location);
+      const rows = res.rows.map((r) => Object.assign({}, r));
+      if (res.me && !res.me.listed) rows.push({ rank: res.me.rank, name: A().state.account && A().state.account.name || A().state.settings.name, country: place().country, city: place().city, rating: res.me.rating, league: res.me.league, me: true, provisional: res.me.provisional });
+      return { rows, me: res.me, needs: res.needs, now: { online: res.now.online, people: res.now.people.map((p) => Object.assign({ live: true }, p)) }, total: res.total, live: true };
+    }
+    const here = place(), c = data();
+    let needs = null, people = [];
+    const live = livePeers();
+    const ai = members().map((m) => ({ id: m.id, name: m.name, country: m.country, city: m.city, rating: m.ratings[pool], ai: true, member: m }));
+    const real = live.map((p) => ({ id: p.id, name: p.name, country: p.country, city: null, rating: p.ratings[pool] }));
+    if (scope === 'country') {
+      if (!here.country) needs = 'country';
+      else people = ai.concat(real).filter((r) => r.country === here.country);
+    } else if (scope === 'city') {
+      if (!grownUp()) needs = 'adult';
+      else if (!here.city) needs = 'city';
+      else people = ai.filter((r) => r.city === here.city);
+    } else if (scope === 'following') {
+      const liveIds = new Set(real.map((r) => r.id));
+      people = ai.filter((r) => c.follow.includes(r.id))
+        .concat(c.friends.filter((f) => !liveIds.has(f.id)).map((f) => ({ id: f.id, name: f.name, country: f.country, city: null, rating: f.ratings[pool], friend: true })))
+        .concat(real.filter((r) => c.friends.some((f) => f.id === r.id)).map((r) => Object.assign(r, { friend: true })));
+    } else people = ai.concat(real);
+    const mine = c.ratings[pool];
+    const rows = needs ? [] : people.concat([{ id: 'me', name: A().state.settings.name, country: here.country, city: here.city, rating: mine.r, me: true, provisional: mine.g < 5 }]);
+    rows.sort((a, b) => b.rating - a.rating || (a.me ? -1 : 0));
+    rows.forEach((r, i) => { r.rank = i + 1; r.league = leagueOf(r.rating); });
+    const meRow = rows.find((r) => r.me);
+    // The top ten, and the player with a neighbour on each side when they are further down.
+    const at = meRow ? meRow.rank - 1 : -1;
+    const shown = rows.filter((r, i) => i < 10 || (at >= 10 && Math.abs(i - at) <= 1));
+    const nowList = live.map((p) => ({ id: p.id, name: p.name, country: p.country, league: leagueOf(p.ratings.blitz), live: true, friend: c.friends.some((f) => f.id === p.id) }))
+      .concat(droppingBy(Math.max(3, 8 - live.length)).map((m) => ({ id: m.id, name: m.name, country: m.country, city: m.city, league: leagueOf(m.ratings.blitz), ai: true, member: m })));
+    return { rows: shown, me: meRow ? { rank: meRow.rank, rating: meRow.rating, league: meRow.league, provisional: meRow.provisional } : { rank: 0, rating: mine.r, league: leagueOf(mine.r) }, needs,
+      now: { online: live.length + 1, people: nowList }, total: rows.length, live: false };
+  }
+  // The player's rating in a pool, for the leagues panel. Server ratings come with the board.
+  const myRating = (pool) => data().ratings[POOLS.includes(pool) ? pool : 'blitz'].r;
+
+  return {
+    POOLS, LEAGUES, leagueOf, START,
+    countryName, flag, countries, citiesOf, countryOfCity, guess, nearest, gps,
+    data, grownUp, place, setPlace, autoLocate, fromServer, setGrownUp,
+    members, droppingBy, following, toggleFollow,
+    card, publish, livePeers, addFriend, friends, removeFriend, rated, board, myRating,
+    server,
+  };
+})();
+if (typeof window !== 'undefined') window.ChacklateClub = ChacklateClub;
 
 // ---- tips.js ----
 // Tooltips in the Jong Club style, shared by the game and the website.
@@ -18557,6 +19096,9 @@ const ChacklateTips = (function () {
     undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
     hint: '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
     flag: '<path d="M4 22V4M4 4h13l-2 4 2 4H4"/>',
+    pin: '<path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+    city: '<path d="M3 21h18M5 21V8l6-3v16M11 21V3l8 4v14"/><path d="M14 9h2M14 13h2M14 17h2M7.5 11h1M7.5 15h1"/>',
+    locate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
     draw: '<path d="M7 12h10M7 8h10M7 16h10"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
     flip: '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
@@ -19152,10 +19694,10 @@ const ChacklateTips = (function () {
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
   const NAV = [['home', 'Home', 'home'], ['play', 'Play', 'play'], ['journey', 'Journey', 'journey'], ['learn', 'Learn', 'learn'],
-    ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['profile', 'Profile', 'profile']];
+    ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['club', 'Club', 'users'], ['profile', 'Profile', 'profile']];
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
   const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training' };
-  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn' };
+  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', club: 'play' };
   const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
@@ -19439,6 +19981,7 @@ const ChacklateTips = (function () {
       lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: 'A timed game against a player from anywhere, 10 minutes at most.' }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
+      '<button class="club-strip glass" data-nav="club">' + icon('trophy') + '<span><b>The Club</b><small>Rankings, leagues and your friends</small></span>' + icon('arrow') + '</button>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
@@ -20067,6 +20610,176 @@ const ChacklateTips = (function () {
     const what = e.premium ? (e.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(e.premiumUntil).toLocaleDateString()) : (e.passes || []).length ? 'Free plan with a Season Pass' : 'Free plan';
     return '<div class="acct-row"><span class="sg gold">' + icon('crown') + '</span><span style="flex:1"><b>' + esc(what) + '</b><br><small class="muted">Purchases belong to your online account.</small></span><button class="btn small gold" id="pf-store">Store</button></div>';
   }
+
+
+  // ---------------------------------------------------------------- the Club
+  // Rankings, leagues, friends and who is here now, like Jong Club's Club (src/club.js has the data).
+  const LEAGUE_HUE = { Beginner: ['#b9bec9', '#5d6270'], Bronze: ['#e6a26a', '#7a3f16'], Silver: ['#eef1f6', '#7d8494'], Gold: ['#ffe08a', '#a8761c'],
+    Platinum: ['#c9f2ec', '#3f8c86'], Diamond: ['#cfe2ff', '#3a64b8'], Master: ['#ffb3c8', '#8a1f45'] };
+  // A small enamel medal for a league: a ringed disc in the league's metal with a star.
+  function leagueBadge(name, size) {
+    const [a, b] = LEAGUE_HUE[name] || LEAGUE_HUE.Beginner, id = 'lg' + name;
+    return '<svg class="lg-badge" width="' + size + '" height="' + size + '" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient></defs>' +
+      '<circle cx="20" cy="20" r="18" fill="url(#' + id + ')" stroke="rgba(255,240,200,.55)" stroke-width="1.5"/><circle cx="20" cy="20" r="13" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>' +
+      '<path d="M20 10.5l2.8 6.1 6.6.6-5 4.4 1.5 6.5L20 24.7l-5.9 3.4 1.5-6.5-5-4.4 6.6-.6z" fill="rgba(255,255,255,.85)" stroke="rgba(0,0,0,.25)" stroke-width=".8"/></svg>';
+  }
+  const rankMedal = (n) => n <= 3 ? '<span class="cl-rk medal m' + n + '" aria-label="' + n + '">' + n + '</span>' : '<span class="cl-rk">' + n + '</span>';
+  const initial = (name) => '<span class="cl-av init" aria-hidden="true">' + esc(String(name || '?').trim().charAt(0).toUpperCase() || '?') + '</span>';
+  function clubAvatar(r) {
+    if (r.me) return avatarHtml('sm');
+    if (r.ai && r.member) return '<img class="cl-av" src="' + medal('piece:' + r.member.piece, r.member.from, r.member.to) + '" alt="">';
+    return initial(r.name);
+  }
+  const placeText = (country, city) => (country ? ChacklateClub.flag(country) + ' ' : '') + esc(city || (country ? ChacklateClub.countryName(country) : ''));
+  const clubView = { pool: 'blitz', scope: 'global' };
+  SCREENS.club = function () {
+    idleBoard();
+    const C = ChacklateClub;
+    C.autoLocate();
+    const SCOPES = [['global', 'Global', 'globe'], ['country', 'Country', 'pin'], ['city', 'City', 'city'], ['following', 'Following', 'users']];
+    mount('<div class="page"><div class="page-in club">' +
+      pageHead('Club', 'Friends, rankings and leagues', 'Climb the leagues in bullet, blitz and rapid, see who plays near you, and keep the friends you make with a code.', '<button class="pill gold" id="cl-where">' + icon('pin') + ' <span id="cl-where-t"></span></button>') +
+      '<section class="cl-now glass"><div class="cl-head"><h3>In the club now</h3><p id="cl-now-note" class="muted"></p></div><div class="cl-people" id="cl-people"></div></section>' +
+      '<div class="cl-split">' +
+      '<section class="cl-panel glass cl-rankings"><div class="cl-head"><h3>Rankings</h3></div>' +
+      '<div class="seg cl-pools" role="radiogroup" aria-label="Pool">' + C.POOLS.map((p) => '<label><input type="radio" name="clp" value="' + p + '"' + (p === clubView.pool ? ' checked' : '') + '><span>' + p.charAt(0).toUpperCase() + p.slice(1) + '</span></label>').join('') + '</div>' +
+      '<div class="cl-filters" role="radiogroup" aria-label="Who" id="cl-filters"></div>' +
+      '<div class="cl-board" role="table" aria-label="Rankings" id="cl-board"></div><p class="cl-note" id="cl-note"></p></section>' +
+      '<div class="cl-side">' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>Leagues</h3><small class="muted" id="cl-lg-pool"></small></div><ol class="cl-tiers" id="cl-tiers"></ol><div id="cl-next"></div></section>' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>Friends</h3><span class="pill" id="cl-fr-n" hidden></span></div><div id="cl-friends"><p class="muted">Loading…</p></div></section>' +
+      '<section class="cl-panel glass" id="cl-loc-panel"><div class="cl-head"><h3>Your place</h3></div><div id="cl-loc"></div></section>' +
+      '</div></div></div></div>');
+    wireLinks();
+    let alive = true, seq = 0;
+
+    function renderWhere() {
+      const p = C.place();
+      $('cl-where-t').innerHTML = p.country ? placeText(p.country, p.city) : 'Set your place';
+    }
+    function renderFilters() {
+      const p = C.place();
+      const label = { country: p.country ? ChacklateClub.flag(p.country) + ' ' + esc(C.countryName(p.country)) : 'Country', city: C.grownUp() ? esc(p.city || 'City') : 'City' };
+      $('cl-filters').innerHTML = SCOPES.map(([k, t, ic]) => '<button role="radio" aria-checked="' + (k === clubView.scope) + '" class="' + (k === clubView.scope ? 'on' : '') + '" data-scope="' + k + '">' +
+        (k === 'city' && !C.grownUp() ? icon('lock') : icon(ic)) + '<span>' + (label[k] || t) + '</span></button>').join('');
+      $('cl-filters').querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { AU.play('tap'); clubView.scope = b.dataset.scope; renderFilters(); loadBoard(); }; });
+    }
+    function renderPeople(now) {
+      const people = now.people;
+      const live = people.filter((x) => x.live).length;
+      $('cl-now-note').innerHTML = (live ? live + (live === 1 ? ' player' : ' players') + ' here with you, and AI players dropping by. ' : 'AI players dropping by right now. ') +
+        '<span class="pill">' + icon('sparkle') + ' AI players are labelled</span>';
+      $('cl-people').innerHTML = people.map((x) => {
+        const f = x.ai && C.following(x.id);
+        return '<div class="cl-person' + (x.live ? ' live' : '') + '">' + clubAvatar(x) +
+          '<div class="cl-pmain"><div class="cl-pname">' + esc(x.name) + (x.live ? '<span class="cl-tag live">' + (x.friend ? 'Friend' : 'Live') + '</span>' : '<span class="cl-tag ai">AI player</span>') + '</div>' +
+          '<div class="cl-pmeta">' + placeText(x.country, x.ai ? x.city : null) + ' · ' + esc(x.league) + (x.playing ? ' · at a table' : '') + '</div></div>' +
+          (x.ai ? '<button class="cl-follow' + (f ? ' on' : '') + '" aria-pressed="' + f + '" data-follow="' + esc(x.id) + '">' + icon(f ? 'check' : 'users') + '<span>' + (f ? 'Following' : 'Follow') + '</span></button>' : '') + '</div>';
+      }).join('');
+      $('cl-people').querySelectorAll('[data-follow]').forEach((b) => {
+        b.onclick = () => {
+          AU.play('tap');
+          const on = C.toggleFollow(b.dataset.follow);
+          b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+          b.innerHTML = icon(on ? 'check' : 'users') + '<span>' + (on ? 'Following' : 'Follow') + '</span>';
+          if (clubView.scope === 'following') loadBoard();
+        };
+      });
+    }
+    function renderLeagues(me) {
+      const rating = me ? me.rating : C.myRating(clubView.pool), mine = C.leagueOf(rating);
+      $('cl-lg-pool').textContent = clubView.pool.charAt(0).toUpperCase() + clubView.pool.slice(1);
+      $('cl-tiers').innerHTML = C.LEAGUES.map(([n, min]) => '<li class="' + (n === mine ? 'on' : '') + '">' + leagueBadge(n, 30) + '<b>' + n + '</b><small>' + (n === mine ? 'You · ' + rating : min ? min + '+' : '') + '</small></li>').join('');
+      const i = C.LEAGUES.findIndex(([n]) => n === mine);
+      if (i <= 0) { $('cl-next').innerHTML = '<p class="cl-next-done">' + icon('crown') + ' The top league. Well played!</p>'; return; }
+      const [next, at] = C.LEAGUES[i - 1], from = C.LEAGUES[i][1];
+      const pct = Math.max(2, Math.min(100, Math.round((rating - from) / Math.max(1, at - from) * 100)));
+      $('cl-next').innerHTML = '<div class="cl-next">' + leagueBadge(next, 40) + '<div><p>Next league: <b>' + next + '</b> at ' + at + '</p><div class="bar"><i style="width:' + pct + '%"></i></div><small class="muted">' + (at - rating) + ' rating to go, in timed world games</small></div></div>';
+    }
+    function boardNote(res) {
+      const n = res.needs;
+      if (n === 'country') return 'Choose your country under Your place to see players near you.';
+      if (n === 'city') return 'Choose your city under Your place to see players near you.';
+      if (n === 'account') return 'Sign in under Profile to see your friends here.';
+      if (n === 'adult') return 'City rankings are for grown-ups. Players under 18 show their country only.' + (C.server() ? '' : ' <button class="linkish" id="cl-grown">I\'m a grown-up</button>');
+      const me = res.me;
+      let t = me && me.rank ? 'You are ' + ordinal(me.rank) + ' of ' + res.total + '. ' : '';
+      if (clubView.scope === 'following' && res.rows.filter((r) => !r.me).length === 0) t = 'Play a friend with a code and they appear here. You can follow AI players too. ';
+      t += 'Ratings move only in timed world games.';
+      if (!res.live) t += ' Until the Chackmate server opens, the club is filled with AI players, and your rating is kept on this device.';
+      return t;
+    }
+    async function loadBoard() {
+      const my = ++seq;
+      $('cl-board').innerHTML = '<p class="muted cl-loading">Loading…</p>';
+      let res;
+      try { res = await C.board(clubView.pool, clubView.scope); } catch (e) { if (alive && my === seq) { $('cl-board').innerHTML = ''; $('cl-note').textContent = e.message; } return; }
+      if (!alive || my !== seq) return;
+      renderPeople(res.now);
+      renderLeagues(res.me);
+      $('cl-board').innerHTML = res.needs ? '' :
+        '<div class="cl-row head" role="row">' + ['#', 'Player', 'Place', 'League', 'Rating'].map((h, i) => '<span role="columnheader"' + (['', '', ' class="cl-loc"', ' class="cl-lg"', ' class="num"'][i]) + '>' + h + '</span>').join('') + '</div>' +
+        res.rows.map((r, i) => (i && r.rank > res.rows[i - 1].rank + 1 ? '<div class="cl-gap" aria-hidden="true">⋯</div>' : '') + '<div class="cl-row' + (r.me ? ' me' : '') + '" role="row">' + rankMedal(r.rank) +
+          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm">' + esc(r.name) + (r.me && r.name !== 'You' ? ' <em>(you)</em>' : '') + (r.ai ? '<span class="cl-tag ai">AI</span>' : r.friend ? '<span class="cl-tag live">Friend</span>' : '') + '</span></span>' +
+          '<span class="cl-loc">' + placeText(r.country, r.city) + '</span>' +
+          '<span class="cl-lg">' + leagueBadge(r.league, 20) + '<span>' + esc(r.league) + '</span></span>' +
+          '<span class="num">' + r.rating + (r.provisional ? '?' : '') + '</span></div>').join('');
+      $('cl-note').innerHTML = boardNote(res);
+      const g = $('cl-grown');
+      if (g) g.onclick = async () => { if (await parentGate('add a city to the Club')) { C.setGrownUp(true); renderAll(); } };
+    }
+    async function loadFriends() {
+      const list = await C.friends();
+      if (!alive) return;
+      const n = $('cl-fr-n');
+      n.hidden = !list.length; n.textContent = list.length + (list.length === 1 ? ' friend' : ' friends');
+      $('cl-friends').innerHTML = list.length ? '<div class="cl-friend-list">' + list.map((f) => '<div class="cl-friend">' + initial(f.name) +
+        '<div class="cl-pmain"><div class="cl-pname">' + esc(f.name) + (f.online ? '<span class="cl-tag live">Online</span>' : '') + '</div><div class="cl-pmeta">' + (f.country ? placeText(f.country) + ' · ' : '') +
+        'Played together · ' + new Date(f.since).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + '</div></div>' +
+        '<button class="round sm" data-unfriend="' + esc(String(f.id)) + '" aria-label="Remove ' + esc(f.name) + '" title="Remove">' + icon('x') + '</button></div>').join('') + '</div>' +
+        '<button class="btn small" id="cl-play-friend">' + icon('users') + ' Play a friend</button>'
+        : '<div class="cl-empty">' + icon('users') + '<p>Friends you play with a code appear here. Codes are shared in person, so only people you know can be your friends.</p><button class="btn small primary" id="cl-play-friend">' + icon('users') + ' Play a friend</button></div>';
+      $('cl-play-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+      $('cl-friends').querySelectorAll('[data-unfriend]').forEach((b) => {
+        b.onclick = () => {
+          const f = list.find((x) => String(x.id) === b.dataset.unfriend);
+          const m = modal('<h2>Remove ' + esc(f.name) + '?</h2><p class="sub">You can be friends again by playing with a new code.</p><div class="row"><button class="btn" data-close>Keep</button><button class="btn warn" id="uf-go">Remove</button></div>');
+          m.querySelector('#uf-go').onclick = async () => { m.close(); await C.removeFriend(f.id); loadFriends(); if (clubView.scope === 'following') loadBoard(); };
+        };
+      });
+    }
+    function renderLoc(busy, msg) {
+      const p = C.place(), grown = C.grownUp();
+      const NOTE = { tz: 'A guess from your time zone.', manual: 'Chosen by you.', gps: 'From your device\'s location, matched to the nearest city. Your exact position is never kept.' };
+      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="Country">' + (p.country ? '' : '<option value="">Choose your country</option>') +
+        C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + C.flag(cc) + ' ' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
+        (grown && p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="City">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
+        (grown ? '<button class="round" id="cl-gps" aria-label="Use my location" title="Use my location"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>' : '') + '</div>' +
+        '<p class="fine">' + (busy ? 'Finding you…' : msg || (p.source ? NOTE[p.source] : 'Choose your country for the local rankings.')) +
+        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">Guess from my time zone</button>' : '') + '</p>' +
+        (grown ? '' : '<p class="fine">Players under 18 show their country only, never a city.' + (C.server() ? '' : ' <button class="linkish" id="cl-grown2">I\'m a grown-up</button>') + '</p>');
+      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
+      const city = $('cl-city'); if (city) city.onchange = (e) => { C.setPlace({ country: p.country, city: e.target.value, source: 'manual' }); renderAll(); };
+      const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your time zone did not tell us a place, so we kept your choice.'); };
+      const gp = $('cl-gps');
+      if (gp) gp.onclick = async () => {
+        renderLoc(true);
+        const g = await C.gps();
+        if (!alive) return;
+        if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your device did not share its location, so we kept ' + esc(p.city || 'your choice') + '.');
+      };
+      const g2 = $('cl-grown2'); if (g2) g2.onclick = async () => { if (await parentGate('add a city to the Club')) { C.setGrownUp(true); renderAll(); } };
+    }
+    function renderAll() { renderWhere(); renderFilters(); renderLoc(); loadBoard(); }
+    $('cl-where').onclick = () => { $('cl-loc-panel').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    document.querySelectorAll('input[name=clp]').forEach((r) => { r.onchange = () => { AU.play('tap'); clubView.pool = r.value; loadBoard(); }; });
+    renderAll();
+    loadFriends();
+    // Who is here changes: refresh "In the club now" and the board every 20 seconds.
+    const timer = setInterval(() => { if (!document.querySelector('.modal')) loadBoard(); }, 20000);
+    return { leave() { alive = false; clearInterval(timer); } };
+  };
+  const ordinal = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
 
   // ---------------------------------------------------------------- season
   function seasonSwatch(it) {

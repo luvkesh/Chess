@@ -38,6 +38,9 @@
     undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
     hint: '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
     flag: '<path d="M4 22V4M4 4h13l-2 4 2 4H4"/>',
+    pin: '<path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+    city: '<path d="M3 21h18M5 21V8l6-3v16M11 21V3l8 4v14"/><path d="M14 9h2M14 13h2M14 17h2M7.5 11h1M7.5 15h1"/>',
+    locate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
     draw: '<path d="M7 12h10M7 8h10M7 16h10"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
     flip: '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
@@ -633,10 +636,10 @@
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
   const NAV = [['home', 'Home', 'home'], ['play', 'Play', 'play'], ['journey', 'Journey', 'journey'], ['learn', 'Learn', 'learn'],
-    ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['profile', 'Profile', 'profile']];
+    ['puzzles', 'Puzzles', 'puzzle'], ['training', 'Training', 'improve'], ['collection', 'Collection', 'collection'], ['club', 'Club', 'users'], ['profile', 'Profile', 'profile']];
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
   const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training' };
-  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn' };
+  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', club: 'play' };
   const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
@@ -920,6 +923,7 @@
       lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: 'A timed game against a player from anywhere, 10 minutes at most.' }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
+      '<button class="club-strip glass" data-nav="club">' + icon('trophy') + '<span><b>The Club</b><small>Rankings, leagues and your friends</small></span>' + icon('arrow') + '</button>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
@@ -1548,6 +1552,176 @@
     const what = e.premium ? (e.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(e.premiumUntil).toLocaleDateString()) : (e.passes || []).length ? 'Free plan with a Season Pass' : 'Free plan';
     return '<div class="acct-row"><span class="sg gold">' + icon('crown') + '</span><span style="flex:1"><b>' + esc(what) + '</b><br><small class="muted">Purchases belong to your online account.</small></span><button class="btn small gold" id="pf-store">Store</button></div>';
   }
+
+
+  // ---------------------------------------------------------------- the Club
+  // Rankings, leagues, friends and who is here now, like Jong Club's Club (src/club.js has the data).
+  const LEAGUE_HUE = { Beginner: ['#b9bec9', '#5d6270'], Bronze: ['#e6a26a', '#7a3f16'], Silver: ['#eef1f6', '#7d8494'], Gold: ['#ffe08a', '#a8761c'],
+    Platinum: ['#c9f2ec', '#3f8c86'], Diamond: ['#cfe2ff', '#3a64b8'], Master: ['#ffb3c8', '#8a1f45'] };
+  // A small enamel medal for a league: a ringed disc in the league's metal with a star.
+  function leagueBadge(name, size) {
+    const [a, b] = LEAGUE_HUE[name] || LEAGUE_HUE.Beginner, id = 'lg' + name;
+    return '<svg class="lg-badge" width="' + size + '" height="' + size + '" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient></defs>' +
+      '<circle cx="20" cy="20" r="18" fill="url(#' + id + ')" stroke="rgba(255,240,200,.55)" stroke-width="1.5"/><circle cx="20" cy="20" r="13" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>' +
+      '<path d="M20 10.5l2.8 6.1 6.6.6-5 4.4 1.5 6.5L20 24.7l-5.9 3.4 1.5-6.5-5-4.4 6.6-.6z" fill="rgba(255,255,255,.85)" stroke="rgba(0,0,0,.25)" stroke-width=".8"/></svg>';
+  }
+  const rankMedal = (n) => n <= 3 ? '<span class="cl-rk medal m' + n + '" aria-label="' + n + '">' + n + '</span>' : '<span class="cl-rk">' + n + '</span>';
+  const initial = (name) => '<span class="cl-av init" aria-hidden="true">' + esc(String(name || '?').trim().charAt(0).toUpperCase() || '?') + '</span>';
+  function clubAvatar(r) {
+    if (r.me) return avatarHtml('sm');
+    if (r.ai && r.member) return '<img class="cl-av" src="' + medal('piece:' + r.member.piece, r.member.from, r.member.to) + '" alt="">';
+    return initial(r.name);
+  }
+  const placeText = (country, city) => (country ? ChacklateClub.flag(country) + ' ' : '') + esc(city || (country ? ChacklateClub.countryName(country) : ''));
+  const clubView = { pool: 'blitz', scope: 'global' };
+  SCREENS.club = function () {
+    idleBoard();
+    const C = ChacklateClub;
+    C.autoLocate();
+    const SCOPES = [['global', 'Global', 'globe'], ['country', 'Country', 'pin'], ['city', 'City', 'city'], ['following', 'Following', 'users']];
+    mount('<div class="page"><div class="page-in club">' +
+      pageHead('Club', 'Friends, rankings and leagues', 'Climb the leagues in bullet, blitz and rapid, see who plays near you, and keep the friends you make with a code.', '<button class="pill gold" id="cl-where">' + icon('pin') + ' <span id="cl-where-t"></span></button>') +
+      '<section class="cl-now glass"><div class="cl-head"><h3>In the club now</h3><p id="cl-now-note" class="muted"></p></div><div class="cl-people" id="cl-people"></div></section>' +
+      '<div class="cl-split">' +
+      '<section class="cl-panel glass cl-rankings"><div class="cl-head"><h3>Rankings</h3></div>' +
+      '<div class="seg cl-pools" role="radiogroup" aria-label="Pool">' + C.POOLS.map((p) => '<label><input type="radio" name="clp" value="' + p + '"' + (p === clubView.pool ? ' checked' : '') + '><span>' + p.charAt(0).toUpperCase() + p.slice(1) + '</span></label>').join('') + '</div>' +
+      '<div class="cl-filters" role="radiogroup" aria-label="Who" id="cl-filters"></div>' +
+      '<div class="cl-board" role="table" aria-label="Rankings" id="cl-board"></div><p class="cl-note" id="cl-note"></p></section>' +
+      '<div class="cl-side">' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>Leagues</h3><small class="muted" id="cl-lg-pool"></small></div><ol class="cl-tiers" id="cl-tiers"></ol><div id="cl-next"></div></section>' +
+      '<section class="cl-panel glass"><div class="cl-head"><h3>Friends</h3><span class="pill" id="cl-fr-n" hidden></span></div><div id="cl-friends"><p class="muted">Loading…</p></div></section>' +
+      '<section class="cl-panel glass" id="cl-loc-panel"><div class="cl-head"><h3>Your place</h3></div><div id="cl-loc"></div></section>' +
+      '</div></div></div></div>');
+    wireLinks();
+    let alive = true, seq = 0;
+
+    function renderWhere() {
+      const p = C.place();
+      $('cl-where-t').innerHTML = p.country ? placeText(p.country, p.city) : 'Set your place';
+    }
+    function renderFilters() {
+      const p = C.place();
+      const label = { country: p.country ? ChacklateClub.flag(p.country) + ' ' + esc(C.countryName(p.country)) : 'Country', city: C.grownUp() ? esc(p.city || 'City') : 'City' };
+      $('cl-filters').innerHTML = SCOPES.map(([k, t, ic]) => '<button role="radio" aria-checked="' + (k === clubView.scope) + '" class="' + (k === clubView.scope ? 'on' : '') + '" data-scope="' + k + '">' +
+        (k === 'city' && !C.grownUp() ? icon('lock') : icon(ic)) + '<span>' + (label[k] || t) + '</span></button>').join('');
+      $('cl-filters').querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { AU.play('tap'); clubView.scope = b.dataset.scope; renderFilters(); loadBoard(); }; });
+    }
+    function renderPeople(now) {
+      const people = now.people;
+      const live = people.filter((x) => x.live).length;
+      $('cl-now-note').innerHTML = (live ? live + (live === 1 ? ' player' : ' players') + ' here with you, and AI players dropping by. ' : 'AI players dropping by right now. ') +
+        '<span class="pill">' + icon('sparkle') + ' AI players are labelled</span>';
+      $('cl-people').innerHTML = people.map((x) => {
+        const f = x.ai && C.following(x.id);
+        return '<div class="cl-person' + (x.live ? ' live' : '') + '">' + clubAvatar(x) +
+          '<div class="cl-pmain"><div class="cl-pname">' + esc(x.name) + (x.live ? '<span class="cl-tag live">' + (x.friend ? 'Friend' : 'Live') + '</span>' : '<span class="cl-tag ai">AI player</span>') + '</div>' +
+          '<div class="cl-pmeta">' + placeText(x.country, x.ai ? x.city : null) + ' · ' + esc(x.league) + (x.playing ? ' · at a table' : '') + '</div></div>' +
+          (x.ai ? '<button class="cl-follow' + (f ? ' on' : '') + '" aria-pressed="' + f + '" data-follow="' + esc(x.id) + '">' + icon(f ? 'check' : 'users') + '<span>' + (f ? 'Following' : 'Follow') + '</span></button>' : '') + '</div>';
+      }).join('');
+      $('cl-people').querySelectorAll('[data-follow]').forEach((b) => {
+        b.onclick = () => {
+          AU.play('tap');
+          const on = C.toggleFollow(b.dataset.follow);
+          b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+          b.innerHTML = icon(on ? 'check' : 'users') + '<span>' + (on ? 'Following' : 'Follow') + '</span>';
+          if (clubView.scope === 'following') loadBoard();
+        };
+      });
+    }
+    function renderLeagues(me) {
+      const rating = me ? me.rating : C.myRating(clubView.pool), mine = C.leagueOf(rating);
+      $('cl-lg-pool').textContent = clubView.pool.charAt(0).toUpperCase() + clubView.pool.slice(1);
+      $('cl-tiers').innerHTML = C.LEAGUES.map(([n, min]) => '<li class="' + (n === mine ? 'on' : '') + '">' + leagueBadge(n, 30) + '<b>' + n + '</b><small>' + (n === mine ? 'You · ' + rating : min ? min + '+' : '') + '</small></li>').join('');
+      const i = C.LEAGUES.findIndex(([n]) => n === mine);
+      if (i <= 0) { $('cl-next').innerHTML = '<p class="cl-next-done">' + icon('crown') + ' The top league. Well played!</p>'; return; }
+      const [next, at] = C.LEAGUES[i - 1], from = C.LEAGUES[i][1];
+      const pct = Math.max(2, Math.min(100, Math.round((rating - from) / Math.max(1, at - from) * 100)));
+      $('cl-next').innerHTML = '<div class="cl-next">' + leagueBadge(next, 40) + '<div><p>Next league: <b>' + next + '</b> at ' + at + '</p><div class="bar"><i style="width:' + pct + '%"></i></div><small class="muted">' + (at - rating) + ' rating to go, in timed world games</small></div></div>';
+    }
+    function boardNote(res) {
+      const n = res.needs;
+      if (n === 'country') return 'Choose your country under Your place to see players near you.';
+      if (n === 'city') return 'Choose your city under Your place to see players near you.';
+      if (n === 'account') return 'Sign in under Profile to see your friends here.';
+      if (n === 'adult') return 'City rankings are for grown-ups. Players under 18 show their country only.' + (C.server() ? '' : ' <button class="linkish" id="cl-grown">I\'m a grown-up</button>');
+      const me = res.me;
+      let t = me && me.rank ? 'You are ' + ordinal(me.rank) + ' of ' + res.total + '. ' : '';
+      if (clubView.scope === 'following' && res.rows.filter((r) => !r.me).length === 0) t = 'Play a friend with a code and they appear here. You can follow AI players too. ';
+      t += 'Ratings move only in timed world games.';
+      if (!res.live) t += ' Until the Chackmate server opens, the club is filled with AI players, and your rating is kept on this device.';
+      return t;
+    }
+    async function loadBoard() {
+      const my = ++seq;
+      $('cl-board').innerHTML = '<p class="muted cl-loading">Loading…</p>';
+      let res;
+      try { res = await C.board(clubView.pool, clubView.scope); } catch (e) { if (alive && my === seq) { $('cl-board').innerHTML = ''; $('cl-note').textContent = e.message; } return; }
+      if (!alive || my !== seq) return;
+      renderPeople(res.now);
+      renderLeagues(res.me);
+      $('cl-board').innerHTML = res.needs ? '' :
+        '<div class="cl-row head" role="row">' + ['#', 'Player', 'Place', 'League', 'Rating'].map((h, i) => '<span role="columnheader"' + (['', '', ' class="cl-loc"', ' class="cl-lg"', ' class="num"'][i]) + '>' + h + '</span>').join('') + '</div>' +
+        res.rows.map((r, i) => (i && r.rank > res.rows[i - 1].rank + 1 ? '<div class="cl-gap" aria-hidden="true">⋯</div>' : '') + '<div class="cl-row' + (r.me ? ' me' : '') + '" role="row">' + rankMedal(r.rank) +
+          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm">' + esc(r.name) + (r.me && r.name !== 'You' ? ' <em>(you)</em>' : '') + (r.ai ? '<span class="cl-tag ai">AI</span>' : r.friend ? '<span class="cl-tag live">Friend</span>' : '') + '</span></span>' +
+          '<span class="cl-loc">' + placeText(r.country, r.city) + '</span>' +
+          '<span class="cl-lg">' + leagueBadge(r.league, 20) + '<span>' + esc(r.league) + '</span></span>' +
+          '<span class="num">' + r.rating + (r.provisional ? '?' : '') + '</span></div>').join('');
+      $('cl-note').innerHTML = boardNote(res);
+      const g = $('cl-grown');
+      if (g) g.onclick = async () => { if (await parentGate('add a city to the Club')) { C.setGrownUp(true); renderAll(); } };
+    }
+    async function loadFriends() {
+      const list = await C.friends();
+      if (!alive) return;
+      const n = $('cl-fr-n');
+      n.hidden = !list.length; n.textContent = list.length + (list.length === 1 ? ' friend' : ' friends');
+      $('cl-friends').innerHTML = list.length ? '<div class="cl-friend-list">' + list.map((f) => '<div class="cl-friend">' + initial(f.name) +
+        '<div class="cl-pmain"><div class="cl-pname">' + esc(f.name) + (f.online ? '<span class="cl-tag live">Online</span>' : '') + '</div><div class="cl-pmeta">' + (f.country ? placeText(f.country) + ' · ' : '') +
+        'Played together · ' + new Date(f.since).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + '</div></div>' +
+        '<button class="round sm" data-unfriend="' + esc(String(f.id)) + '" aria-label="Remove ' + esc(f.name) + '" title="Remove">' + icon('x') + '</button></div>').join('') + '</div>' +
+        '<button class="btn small" id="cl-play-friend">' + icon('users') + ' Play a friend</button>'
+        : '<div class="cl-empty">' + icon('users') + '<p>Friends you play with a code appear here. Codes are shared in person, so only people you know can be your friends.</p><button class="btn small primary" id="cl-play-friend">' + icon('users') + ' Play a friend</button></div>';
+      $('cl-play-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+      $('cl-friends').querySelectorAll('[data-unfriend]').forEach((b) => {
+        b.onclick = () => {
+          const f = list.find((x) => String(x.id) === b.dataset.unfriend);
+          const m = modal('<h2>Remove ' + esc(f.name) + '?</h2><p class="sub">You can be friends again by playing with a new code.</p><div class="row"><button class="btn" data-close>Keep</button><button class="btn warn" id="uf-go">Remove</button></div>');
+          m.querySelector('#uf-go').onclick = async () => { m.close(); await C.removeFriend(f.id); loadFriends(); if (clubView.scope === 'following') loadBoard(); };
+        };
+      });
+    }
+    function renderLoc(busy, msg) {
+      const p = C.place(), grown = C.grownUp();
+      const NOTE = { tz: 'A guess from your time zone.', manual: 'Chosen by you.', gps: 'From your device\'s location, matched to the nearest city. Your exact position is never kept.' };
+      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="Country">' + (p.country ? '' : '<option value="">Choose your country</option>') +
+        C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + C.flag(cc) + ' ' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
+        (grown && p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="City">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
+        (grown ? '<button class="round" id="cl-gps" aria-label="Use my location" title="Use my location"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>' : '') + '</div>' +
+        '<p class="fine">' + (busy ? 'Finding you…' : msg || (p.source ? NOTE[p.source] : 'Choose your country for the local rankings.')) +
+        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">Guess from my time zone</button>' : '') + '</p>' +
+        (grown ? '' : '<p class="fine">Players under 18 show their country only, never a city.' + (C.server() ? '' : ' <button class="linkish" id="cl-grown2">I\'m a grown-up</button>') + '</p>');
+      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
+      const city = $('cl-city'); if (city) city.onchange = (e) => { C.setPlace({ country: p.country, city: e.target.value, source: 'manual' }); renderAll(); };
+      const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your time zone did not tell us a place, so we kept your choice.'); };
+      const gp = $('cl-gps');
+      if (gp) gp.onclick = async () => {
+        renderLoc(true);
+        const g = await C.gps();
+        if (!alive) return;
+        if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, 'Your device did not share its location, so we kept ' + esc(p.city || 'your choice') + '.');
+      };
+      const g2 = $('cl-grown2'); if (g2) g2.onclick = async () => { if (await parentGate('add a city to the Club')) { C.setGrownUp(true); renderAll(); } };
+    }
+    function renderAll() { renderWhere(); renderFilters(); renderLoc(); loadBoard(); }
+    $('cl-where').onclick = () => { $('cl-loc-panel').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    document.querySelectorAll('input[name=clp]').forEach((r) => { r.onchange = () => { AU.play('tap'); clubView.pool = r.value; loadBoard(); }; });
+    renderAll();
+    loadFriends();
+    // Who is here changes: refresh "In the club now" and the board every 20 seconds.
+    const timer = setInterval(() => { if (!document.querySelector('.modal')) loadBoard(); }, 20000);
+    return { leave() { alive = false; clearInterval(timer); } };
+  };
+  const ordinal = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
 
   // ---------------------------------------------------------------- season
   function seasonSwatch(it) {

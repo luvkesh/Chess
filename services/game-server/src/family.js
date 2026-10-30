@@ -177,8 +177,9 @@ function create(db, lobby, opts) {
   function deleteChild(u, actor) {
     const label = 'Deleted player ' + u.id;
     db.tx(() => {
-      db.run('UPDATE users SET name = ?, name_key = NULL, pass = NULL, email = NULL, email_key = NULL, email_verified = 0, progress = NULL, guest = 1, deleted = ?, parent_id = NULL, birth_ym = NULL, controls = NULL, consent = NULL WHERE id = ?', label, now(), u.id);
+      db.run('UPDATE users SET name = ?, name_key = NULL, pass = NULL, email = NULL, email_key = NULL, email_verified = 0, progress = NULL, guest = 1, deleted = ?, parent_id = NULL, birth_ym = NULL, controls = NULL, consent = NULL, country = NULL, city = NULL, loc_src = NULL WHERE id = ?', label, now(), u.id);
       for (const t of ['sessions', 'push_subs', 'account_tokens', 'fairplay', 'ratings']) db.run('DELETE FROM ' + t + ' WHERE user_id = ?', u.id);
+      db.run('DELETE FROM friends WHERE user_id = ? OR friend_id = ?', u.id, u.id);
     });
     lobby.kick(u.id, 'This account was deleted.', 'deleted');
     audit.append(db, actor, 'account.deleted', u.id, null);
@@ -216,6 +217,7 @@ function create(db, lobby, opts) {
         db.run('UPDATE users SET name = ?, name_key = ? WHERE id = ?', nn, nn.toLowerCase(), user.id);
       }
       db.run('UPDATE users SET birth_ym = ?, age_band = ? WHERE id = ?', b.year + '-' + String(b.month).padStart(2, '0'), band, user.id);
+      if (band !== 'adult') db.run('UPDATE users SET city = NULL WHERE id = ?', user.id);   // under-18s keep a country only
       if (band !== 'adult') {
         const pe = String(body.parentEmail || '').trim();
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(pe)) return [400, { error: 'Ask a parent for their email address.' }];
@@ -305,6 +307,8 @@ function create(db, lobby, opts) {
         progress: u.progress ? JSON.parse(u.progress) : null,
         orders: db.all('SELECT id, product, amount, currency, status, created FROM orders WHERE user_id = ?', u.id),
         notifications: db.all('SELECT hour, tz, created FROM push_subs WHERE user_id = ?', u.id),
+        country: u.country || null,
+        friends: db.all('SELECT u.name, f.since FROM friends f JOIN users u ON u.id = f.friend_id WHERE f.user_id = ?', u.id),
       })];
     }
     if (p === '/api/parent/delete' && req.method === 'POST') {
