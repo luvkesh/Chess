@@ -252,81 +252,46 @@
 
   // ------------------------------------------------------------------ tooltips
   // Hover (or hold on a touch screen) to read what a control does, in words a child knows.
-  // Icon-only buttons fall back to their aria-label; everything else unclear is written here.
-  const SETTINGS_TIP = 'Settings|Sound, music, graphics, voices and coaching.';
-  const TIPS = {
-    'nv-set': SETTINGS_TIP, 'g-settings': SETTINGS_TIP, 'rv-set': SETTINGS_TIP, 'ls-set': SETTINGS_TIP, 'dr-set': SETTINGS_TIP, 'pz-set': SETTINGS_TIP,
-    'nv-music': 'Music|Turn the background music on or off.', 'g-music': 'Music|Turn the background music on or off.',
-    'ls-voice': 'Narration|Hear Rooky read the lesson out loud.',
-    'g-undo': 'Undo|Take back your last move and try a different one.',
-    'g-hint': 'Hint|Rooky shows you a good move to think about.',
-    'g-threat': 'Threat|See what your opponent would love to do next, so you can stop it.',
-    'g-flip': 'Flip|Turn the board around to see it from the other side.',
-    'g-view': 'Camera|Switch between looking down from above and sitting at the table.',
-    'g-draw': 'Draw|Ask to end the game as a tie, with no winner.',
-    'g-resign': 'Resign|Give up this game. Your opponent wins.',
-    'g-emote': 'React|Send a friendly picture to the other player. There is no chat.',
-    'g-claim': 'Claim a draw|The rules say this game can end as a tie right now. Tap to end it.',
-    'g-copy': 'PGN|Copy every move of this game as text, to save it or share it with a grown-up.',
-    'g-review': 'Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes.',
-    'rv-turn': 'Turning point|Jump to the move where the game changed the most.',
-    'rv-best': 'Best line|Show the moves Rooky would have played here.',
-    'rv-practice': 'Play from here|Start a new game from this exact position.',
-    'pz-hint': 'Hint|Get a little clue.', 'ls-hint': 'Hint|Get a little clue.', 'dr-hint': 'Hint|See the next move of this opening.',
-    'pz-sol': 'Solution|Show the answer to this puzzle.',
-    'dr-reset': 'Restart|Go back to the start of this opening.',
-    'l-review': 'Reviews|Quick refreshers of lessons you learned a while ago, so you never forget them.',
-    'fr-create': 'Make a game|Get a 6-letter code. Your friend types it in to join you.',
-    'fr-join': 'Join|Type the code your friend gave you, then join their game.',
-    'fr-local': 'Take turns here|Play on this one device and pass it back and forth.',
-    'w-go': 'Find a player|We look for someone, anywhere in the world, who picked the same clock.',
-    'mu-eq': 'Equip|Use this in your games from now on.', 'pk-eq': 'Equip|Use this in your games from now on.',
-    'st-restore': 'Restore purchases|Bring back things a grown-up already bought, for example on a new device.',
-    's-reset': 'Reset progress|Start again from the beginning. Your stars, levels and rewards on this device are cleared.',
-    'br-more': 'Only for grown-ups|Allow 15 more minutes of play today.',
-    // settings switches (the tip sits on the whole row)
-    's-anim': 'Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game.',
-    's-cine': 'Short movie scenes when a piece is captured or a king castles.',
-    's-sfxv': 'Slide to make sound effects louder or quieter. The switch turns them off.',
-    's-musv': 'Slide to make the music louder or quieter. The switch turns it off.',
-    's-narr': 'Rooky reads the stories and lessons out loud.',
-    's-vcoach': 'The voice that reads lessons and stories.',
-    's-vcalls': 'The voice that says “check”, game results and puzzle results.',
-    's-announce': 'Hear every move said out loud, like “Knight to f3”.',
-    's-coach': 'How often Rooky talks to you during a game.',
-    's-eval': 'A bar beside the board that shows who is ahead. More white means White is doing better.',
-    's-legal': 'Dots show every square the piece you picked can move to.',
-    's-turn': 'When two players share a device, the board turns so each player sees it from their side.',
-  };
-  // The choice chips in the game setup windows, by radio name and value.
-  const CHIP_TIPS = {
-    'color:white': 'White|You make the first move.',
-    'color:black': 'Black|Your opponent makes the first move.',
-    'color:random': 'Surprise me|We pick White or Black for you.',
-    'mode:ai': 'Play one of the animal friends on this device.',
-    'mode:local': 'Two players share this device and take turns.',
-    'q:high': 'The most beautiful tables. Uses more battery.',
-    'q:low': 'Simpler pictures that run faster on older phones and tablets.',
-  };
+  // Every tip lives in packages/content/i18n/tips.json, so it is translated with the rest.
+  // Icon-only buttons fall back to their aria-label.
+  const TIP_STRINGS = (typeof CHACKLATE_STRINGS !== 'undefined' && CHACKLATE_STRINGS.tips) || {};
+  const TIP_I = ChacklateTips.icon;   // the drawn (i) that opens a tip with a tap on touch screens
+  function tip(key, vars) {
+    let s = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('tips.' + key, vars) : null;
+    if (!s || s === 'tips.' + key) {
+      const e = TIP_STRINGS[key];
+      if (!e) return null;
+      s = e.en.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m));
+    }
+    return s;
+  }
   // "3+2" means 3 minutes each, plus 2 seconds back on your clock after every move you make.
   function clockTip(tc) {
-    if (!tc || tc === 'none') return 'No clock|Take as long as you like to think about every move.';
+    if (!tc || tc === 'none') return tip('clock.none');
     const [m, inc] = tc.split('+').map(Number);
-    const mins = m + (m === 1 ? ' minute' : ' minutes');
-    return mins + (inc ? ' + ' + inc + ' seconds' : '') + '|Each player gets ' + mins + ' for the whole game. ' +
-      (inc ? 'Every time you make a move, ' + inc + ' bonus seconds are added to your clock.' : 'No bonus time is added, so keep an eye on your clock!') +
-      ' If your time runs out, you usually lose.';
+    return inc ? tip('clock.bonus', { m, s: inc }) : m === 1 ? tip('clock.one') : tip('clock.plain', { m });
+  }
+  // A settings row: what it does, then what the chosen option means. A row of chips
+  // (data-radio) lists every option, each named as on its chip.
+  function settingTip(key, el) {
+    const head = tip(key);
+    if (!head) return null;
+    const line = (v, label) => { const t = tip(key + '.' + v) || tip('voice.' + v); return t && label ? label + ': ' + t : t; };
+    const sel = el.querySelector('select');
+    const more = sel ? [line(sel.value, sel.selectedOptions[0] && sel.selectedOptions[0].textContent.split(' · ')[0])]
+      : el.dataset.radio ? [...el.parentElement.querySelectorAll('input[name=' + el.dataset.radio + ']')].map((r) => line(r.value, r.nextElementSibling.textContent.split(':')[0])) : [];
+    return [head].concat(more.filter(Boolean)).join('\n\n');
   }
   function tipFor(el) {
-    if (el.id && TIPS[el.id]) return TIPS[el.id];
+    if (el.dataset.tk) return settingTip(el.dataset.tk, el);
+    if (el.id) { const t = tip('control.' + el.id); if (t) return t; }
     if (el.tagName === 'LABEL') {
       const r = el.querySelector('input[type=radio]');
-      if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : CHIP_TIPS[r.name + ':' + r.value] || null;
-      if (el.classList.contains('toggle')) { const c = el.querySelector('input, select'); return c && TIPS[c.id] || null; }
+      if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : tip('chip.' + r.name + '.' + r.value);
     }
     if (el.classList.contains('clock') && el.dataset.side) {
       const inc = state.game ? +(String(state.game.setup.tc || '').split('+')[1] || 0) : 0;
-      return 'Clock|Time left for this player. It only counts down on their turn.' + (inc ? ' They get ' + inc + ' bonus seconds after each move.' : '');
+      return tip('game.clock') + (inc ? ' ' + tip('game.clock.bonus', { s: inc }) : '');
     }
     return null;
   }
@@ -1678,30 +1643,30 @@
     const vs = AU.voices();
     const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
     return '<div class="label set-h">Voices</div>' +
-      '<label class="toggle">Voice: the guide, stories and lessons <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Show the guide card <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
-      '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
-      '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
+      '<label class="toggle" data-tk="settings.narr">Voice: the guide, stories and lessons' + TIP_I + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.guide">Show the guide card' + TIP_I + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.vcoach">Coach voice' + TIP_I + ' <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
+      '<label class="toggle" data-tk="settings.vcalls">Game calls (check, results, puzzles)' + TIP_I + ' <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
+      '<label class="toggle" data-tk="settings.announce">Read every move aloud' + TIP_I + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
   function settingsModal() {
     const s = state.settings;
     const m = modal('<div class="eyebrow">Settings</div><h2>Settings</h2><p class="sub">Looks, sound and coaching. Nothing here changes the rules.</p>' +
-      '<div class="label set-h">Graphics</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
-      '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Capture and castling scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+      '<div class="label set-h" data-tk="settings.quality" data-radio="q">Graphics' + TIP_I + '</div><div class="seg"><label data-tk="settings.quality.high"><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label data-tk="settings.quality.low"><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
+      '<label class="toggle" data-tk="settings.anim">Animations and effects' + TIP_I + ' <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.cine">Capture and castling scenes (a few seconds, tap to skip)' + TIP_I + ' <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
       '<div class="label set-h">Sound</div>' +
-      '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
-      '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
+      '<label class="toggle" data-tk="settings.sfx">Sound effects' + TIP_I + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
+      '<label class="toggle" data-tk="settings.music">Music' + TIP_I + ' <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
       voiceSection(s) +
       '<div class="label set-h">Coaching</div>' +
-      '<label class="toggle">Rooky\'s comments in games <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
-      '<label class="toggle">Show who is winning (evaluation bar) <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Show where pieces can move <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Turn the board each move (two players) <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.coach">Rooky\'s comments in games' + TIP_I + ' <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
+      '<label class="toggle" data-tk="settings.eval">Show who is winning (evaluation bar)' + TIP_I + ' <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.legal">Show where pieces can move' + TIP_I + ' <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.turn">Turn the board each move (two players)' + TIP_I + ' <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
       appSection() +
-      '<div class="field" style="margin-top:14px"><label for="s-server">Game server (for online play)</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
-      '<div class="row"><button class="btn warn" id="s-reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>', { x: true });
+      '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">Game server (for online play)' + TIP_I + '</label><input class="text-in" id="s-server" placeholder="Same address as this page" value="' + esc(s.server) + '"></div>' +
+      '<div class="row"><button class="btn warn" id="s-reset" data-tk="settings.reset">Reset progress</button><button class="btn primary" data-close>Done</button></div>', { x: true });
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
@@ -1739,11 +1704,11 @@
     const hours = Array.from({ length: 24 }, (_, h) => '<option value="' + h + '"' + (r.hour === h ? ' selected' : '') + '>' + String(h).padStart(2, '0') + ':00</option>').join('');
     return '<div class="label set-h">App</div>' +
       (standalone() ? '<p class="sub" style="margin:0 0 8px">Running as an installed app.</p>'
-        : installPrompt ? '<button class="btn" id="s-install" type="button">' + icon('play') + ' Install Chackmate</button>'
+        : installPrompt ? '<button class="btn" id="s-install" type="button" data-tk="settings.install">' + icon('play') + ' Install Chackmate</button>'
         : isIOS() ? '<p class="sub" style="margin:0 0 8px">To install on iPhone or iPad: tap Share, then Add to Home Screen.</p>'
         : '<p class="sub" style="margin:0 0 8px">Your browser can install this page as an app from its menu when it is opened from the game server.</p>') +
-      (safety && !safety.reminders ? '<label class="toggle">Daily reminder <small class="faint">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
-      '<label class="toggle">Daily reminder' + (pushReady() ? '' : ' <small class="faint">(needs the game server and notification support)</small>') +
+      (safety && !safety.reminders ? '<label class="toggle" data-tk="settings.reminder">Daily reminder' + TIP_I + ' <small class="faint">(a parent can allow reminders on the parent page)</small><input type="checkbox" disabled></label>' :
+      '<label class="toggle" data-tk="settings.reminder">Daily reminder' + TIP_I + (pushReady() ? '' : ' <small class="faint">(needs the game server and notification support)</small>') +
       ' <select id="s-rem-h"' + (pushReady() ? '' : ' disabled') + '>' + hours + '</select><input type="checkbox" id="s-rem"' + (r.on ? ' checked' : '') + (pushReady() ? '' : ' disabled') + '></label>');
   }
   function wireAppSection(m) {
