@@ -58,6 +58,9 @@ const ChacklateI18n = (function () {
       h.dir = lang.dir;
       h.dataset.script = lang.script;
       loadFonts(lang.script);
+      // The page's own markup: data-t sets the text, data-t-aria the aria-label.
+      document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
+      document.querySelectorAll('[data-t-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.tAria)); });
     }
     listeners.forEach((f) => f(lang.id));
     return lang.id;

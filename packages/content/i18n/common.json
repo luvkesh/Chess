@@ -43,5 +43,9 @@
   "confirm": { "en": "Confirm" },
   "letsPlay": { "en": "Let's play" },
   "done": { "en": "Done" },
-  "loading": { "en": "Loading…" }
+  "loading": { "en": "Loading…" },
+  "boardLabel": { "en": "3D chess board" },
+  "nogl": { "en": "This device could not start 3D graphics. Lessons and menus still work, and you can type moves in games." },
+  "mainNav": { "en": "Main" },
+  "guideLabel": { "en": "Guide" }
 }

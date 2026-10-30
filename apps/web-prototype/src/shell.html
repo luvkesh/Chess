@@ -1046,15 +1046,15 @@ body.ingame .guide .gd-text { font-size: 15.5px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 </style>
 
-<div id="stage"><canvas id="board" aria-label="3D chess board"></canvas></div>
+<div id="stage"><canvas id="board" aria-label="3D chess board" data-t-aria="common.boardLabel"></canvas></div>
 <div class="shade"></div>
 <div class="grain" id="grain"></div>
-<div id="nogl" class="nogl" hidden><p>This device could not start 3D graphics. Lessons and menus still work, and you can type moves in games.</p></div>
+<div id="nogl" class="nogl" hidden><p data-t="common.nogl">This device could not start 3D graphics. Lessons and menus still work, and you can type moves in games.</p></div>
 <header class="topnav" id="topnav"></header>
 <div id="screens"></div>
-<nav class="tabbar" id="tabbar" aria-label="Main"></nav>
+<nav class="tabbar" id="tabbar" aria-label="Main" data-t-aria="common.mainNav"></nav>
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<aside class="guide" id="guide" hidden aria-live="polite" aria-label="Guide"></aside>
+<aside class="guide" id="guide" hidden aria-live="polite" aria-label="Guide" data-t-aria="common.guideLabel"></aside>
 <div id="modals"></div>
 <div class="splash" id="splash"><div class="wordmark">CHACKLATE</div></div>
 

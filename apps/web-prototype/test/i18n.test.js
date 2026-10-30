@@ -2,7 +2,7 @@
 // area, each key holding all languages side by side. This fails when:
 // - any language misses a key, or has an empty string;
 // - a translation drops or adds a {placeholder} the English has;
-// - the code asks t() for a key that no file has.
+// - the code asks t() (or a data-t attribute in shell.html) for a key that no file has.
 // It also counts the lines still marked for a native speaker's check ("check": ["hi"]).
 const assert = require('assert');
 const fs = require('fs');
@@ -55,6 +55,10 @@ for (const f of code) {
     used++;
     if (m[2] === '+') { if (!area || !Object.keys(area).some((k) => k.startsWith(key.slice(i + 1)))) problems.push(path.basename(f) + ': no keys start with ' + key); }
     else if (!area || !area[key.slice(i + 1)]) problems.push(path.basename(f) + ': t(\'' + key + '\') has no string');
+  }
+  for (const m of text.matchAll(/data-t(?:-aria)?="([a-z][\w-]*)\.([\w.-]+)"/g)) {
+    used++;
+    if (!(strings[m[1]] || {})[m[2]]) problems.push(path.basename(f) + ': data-t="' + m[1] + '.' + m[2] + '" has no string');
   }
 }
 // Content strings: their English must match the content files they translate.
