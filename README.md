@@ -1,4 +1,4 @@
-# Chacklate Chess
+# Chackmate
 
 A premium, AI-backed 3D chess game for iOS, Android, PC/Mac and the web, made for children first: parental consent, no chat, no ads, no tracking. See `docs/planning/children.md`.
 
@@ -31,7 +31,7 @@ Needs Node 22.5+ and Python 3. Nothing to install.
 
 ```sh
 python3 apps/web-prototype/build.py                  # builds the single-file game
-open apps/web-prototype/dist/chacklate-chess.html    # play offline
+open apps/web-prototype/dist/chackmate.html    # play offline
 
 cd services/game-server
 CHACKLATE_ADMIN_EMAIL=you@example.com CHACKLATE_ADMIN_PASSWORD='a long password' node src/server.js

@@ -58,7 +58,7 @@ fonts = (vendor / 'fonts.css').read_text()
 assert '</style' not in fonts.lower()
 
 html = (src / 'shell.html').read_text().replace('/*FONTS*/', fonts).replace('/*SCRIPTS*/', code)
-out = here / 'dist' / 'chacklate-chess.html'
+out = here / 'dist' / 'chackmate.html'
 out.parent.mkdir(exist_ok=True)
 out.write_text(html)
 print(out, len(html))

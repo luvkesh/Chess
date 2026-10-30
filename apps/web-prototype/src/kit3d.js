@@ -1,4 +1,4 @@
-// Chacklate 3D kit: the procedural modelling shared by piece sets, boards and rooms.
+// Chackmate 3D kit: the procedural modelling shared by piece sets, boards and rooms.
 // Nothing is loaded from files. Shapes come from revolved profiles (with flutes,
 // twists and facets), signed-distance sculpting meshed with surface nets, and a
 // few ornament builders; surfaces come from canvas-painted textures (woods,
@@ -542,14 +542,13 @@ function ChacklateKit(THREE) {
     }
     const idx = [];
     const C = (i, j, k) => cellVert[i + cx * (j + cy * k)];
+    // The winding follows from the edge's axis and which end is inside: the cells run
+    // (y, z) round an x edge, (x, z) round a y edge and (x, y) round a z edge, so their
+    // natural normal is +x, -y and +z. (Deciding from the triangle's own normal fails where
+    // a thin part folds a quad, which then faces inward and shows as a pinhole.)
     const quad = (a, b, c, d, axis, outward) => {
       if (a < 0 || b < 0 || c < 0 || d < 0) return;
-      // orient so the face normal points from inside to outside along the edge axis
-      const P = (q) => [pos[q * 3], pos[q * 3 + 1], pos[q * 3 + 2]];
-      const pa = P(a), pb = P(b), pc = P(c);
-      const e1 = [pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]], e2 = [pc[0] - pa[0], pc[1] - pa[1], pc[2] - pa[2]];
-      const nrm = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
-      const flip = nrm[axis] * outward < 0;
+      const flip = (axis === 1 ? -outward : outward) < 0;
       if (flip) idx.push(a, c, b, a, d, c); else idx.push(a, b, c, a, c, d);
     };
     for (let k = 1; k < cz; k++) for (let j = 1; j < cy; j++) for (let i = 0; i < cx; i++) {

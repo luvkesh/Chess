@@ -1,4 +1,4 @@
-<title>Chacklate Chess Launch Plan</title>
+<title>Chackmate Launch Plan</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,7 +131,7 @@ html{scroll-behavior:smooth}
 <main>
 <header class="hero">
   <div class="eyebrow">Phase 0 · Planning &amp; feasibility package · v0.1</div>
-  <h1>Chacklate Chess</h1>
+  <h1>Chackmate</h1>
   <p class="lede">A premium full-3D chess game with a voice-guided campaign, an offline engine-grounded coach, online multiplayer at launch, and a freemium model. This package covers the game, the marketing website and the admin/operations application, and ends with the decisions that need approval before any implementation starts.</p>
   <div class="meta"><span>Prepared 24 Oct 2026</span><span>v0.2: decisions recorded 24 Oct 2026</span><span>Phase 0 + 1 approved</span><span>No implementation code written</span></div>
 </header>
@@ -186,7 +186,7 @@ html{scroll-behavior:smooth}
 <!-- 02 -->
 <section class="doc" id="audit">
   <div class="sec-head"><span class="sec-num">02</span><h2>Repository audit</h2><span class="sec-sub">What was actually checked on 24 Oct 2026</span></div>
-  <div class="callout"><p><strong>No Chacklate or chess repository is available.</strong> This plan is written as a greenfield project. Nothing was assumed to exist.</p></div>
+  <div class="callout"><p><strong>No Chackmate or chess repository is available.</strong> This plan is written as a greenfield project. Nothing was assumed to exist.</p></div>
   <div class="tbl"><table>
     <thead><tr><th>Source checked</th><th>Result</th></tr></thead>
     <tbody>
@@ -313,7 +313,7 @@ html{scroll-behavior:smooth}
 <section class="doc" id="art">
   <div class="sec-head"><span class="sec-num">05</span><h2>Visual direction &amp; 3D art bible</h2><span class="sec-sub">Proposed direction for approval, plus the technical rules every asset follows</span></div>
   <h3>Proposed direction: "Tempered"</h3>
-  <p>The name Chacklate suggests the craft of a chocolatier: tempered gloss, cocoa woods, cream stone, gold foil and ruby accents. The proposal is to borrow those <em>materials and the atelier mood</em> while keeping the game unmistakably chess: classical Staunton-derived silhouettes for the default set, calm rooms, and a signature ruby-chocolate accent used sparingly for selection and highlights. It must never look like a confectionery or casual game. The brand identity (logo, wordmark, app icon) is a separate commission and depends on trademark clearance (section 18).</p>
+  <p>The look borrows from the craft of a chocolatier: tempered gloss, cocoa woods, cream stone, gold foil and ruby accents. The proposal is to borrow those <em>materials and the atelier mood</em> while keeping the game unmistakably chess: classical Staunton-derived silhouettes for the default set, calm rooms, and a signature ruby-chocolate accent used sparingly for selection and highlights. It must never look like a confectionery or casual game. The brand identity (logo, wordmark, app icon) is a separate commission and depends on trademark clearance (section 18).</p>
   <h3>Readability rules (non-negotiable for every board and piece set)</h3>
   <ul>
     <li>Light and dark squares keep a minimum luminance contrast that is checked automatically in the asset pipeline; pieces must remain distinguishable from both square colours under every lighting preset.</li>
@@ -535,7 +535,7 @@ flowchart LR
   GS --> RD[(Redis)]
   GS --> PG
   API --> S3[(Object storage + CDN<br/>assets, narration)]
-  Admin[Admin console<br/>Chacklate Ops] -->|SSO + approvals| AAPI[Admin API]
+  Admin[Admin console<br/>Chackmate Ops] -->|SSO + approvals| AAPI[Admin API]
   AAPI --> PG
   Site[Marketing website] --> CMS[(Headless CMS)]
   Stores[App Store / Play / Razorpay / Stripe] -->|server notifications| API
@@ -660,7 +660,7 @@ gantt
   <h3>Matchmaking</h3>
   <p>Pools per time control and rated/casual. The search starts at ±100 rating and widens over time, preferring players in the same region. At launch, liquidity is a real risk: if no match is found within 45 s, offer a rated-pool widening or a casual game against an AI clearly labelled as a computer. Bots are never presented as humans.</p>
   <h3>Ratings</h3>
-  <p>Glicko-2, separate pools for bullet, blitz, rapid, classical, puzzles, and each future variant. New players start at 1500 with high rating deviation and a provisional marker for their first 20 games. Shown as "Chacklate rating", never compared to FIDE. Rating updates happen only on the server, idempotently per game id.</p>
+  <p>Glicko-2, separate pools for bullet, blitz, rapid, classical, puzzles, and each future variant. New players start at 1500 with high rating deviation and a provisional marker for their first 20 games. Shown as "Chackmate rating", never compared to FIDE. Rating updates happen only on the server, idempotently per game id.</p>
   <h3>Leaderboards and seasons</h3>
   <ul>
     <li>Global, country, city, friends and seasonal boards per pool, plus puzzle and tournament boards. Minimum 20 rated games and recent activity to appear.</li>
@@ -688,7 +688,7 @@ gantt
     <tbody>
       <tr><td>Free</td><td>All standard play including online rated and casual, 4 AI personalities, campaign chapters 1–3, daily puzzle, basic post-game review (key moments and top 3 mistakes), starter cosmetics, ads</td></tr>
       <tr><td>Premium (monthly / annual)</td><td>Chapters 4–10 and all future core campaign lessons, no ads anywhere, all 8 AI personalities, deep review and narrated coach replay, personalised training plans, opening lab and endgame dojo, Premium cosmetic collection, seasonal Premium track</td></tr>
-      <tr><td>Lifetime</td><td>Everything in Premium as described above, permanently, including future core campaign lessons and the seasonal Premium track. Excludes separately sold cosmetic collections. Online services are provided for as long as Chacklate operates them, with at least 90 days' notice before any shutdown; offline play and downloaded content keep working.</td></tr>
+      <tr><td>Lifetime</td><td>Everything in Premium as described above, permanently, including future core campaign lessons and the seasonal Premium track. Excludes separately sold cosmetic collections. Online services are provided for as long as Chackmate operates them, with at least 90 days' notice before any shutdown; offline play and downloaded content keep working.</td></tr>
       <tr><td>Cosmetics</td><td>Individual items and collections, previewed in 3D before purchase, restored across platforms where store rules allow</td></tr>
     </tbody>
   </table></div>
@@ -763,9 +763,9 @@ gantt
   <div class="tbl"><table>
     <thead><tr><th>Deliverable</th><th>Working identity</th><th>Entry point</th><th>Favicon concept</th><th>Deployment</th></tr></thead>
     <tbody>
-      <tr><td>A. Game</td><td>Chacklate Chess</td><td>App stores, desktop installers, <code>play.</code> subdomain</td><td>Full-colour knight mark on ruby</td><td>Stores, CDN for web build</td></tr>
-      <tr><td>B. Website</td><td>Chacklate</td><td>Apex domain</td><td>Wordmark initial "C" in cocoa</td><td>Static hosting + CDN</td></tr>
-      <tr><td>C. Admin</td><td>Chacklate Ops</td><td><code>ops.</code> subdomain behind zero-trust access</td><td>Monochrome knight with a gear notch, distinct colour</td><td>Separate AWS account, private network</td></tr>
+      <tr><td>A. Game</td><td>Chackmate</td><td>App stores, desktop installers, <code>play.</code> subdomain</td><td>Full-colour knight mark on ruby</td><td>Stores, CDN for web build</td></tr>
+      <tr><td>B. Website</td><td>Chackmate</td><td>Apex domain</td><td>Wordmark initial "C" in cocoa</td><td>Static hosting + CDN</td></tr>
+      <tr><td>C. Admin</td><td>Chackmate Ops</td><td><code>ops.</code> subdomain behind zero-trust access</td><td>Monochrome knight with a gear notch, distinct colour</td><td>Separate AWS account, private network</td></tr>
     </tbody>
   </table></div>
   <p>Domain names are placeholders until a domain is confirmed (section 18).</p>
@@ -905,7 +905,7 @@ gantt
       <tr><td>R9</td><td>Content production volume (74 lessons, narration, catalogue)</td><td>Possible</td><td>High</td><td>Data-driven lesson tooling, vendor art, early educator hire</td><td>Lesson throughput per week in Phase 3</td></tr>
       <tr><td>R10</td><td>Hiring rendering and engine specialists</td><td>Possible</td><td>High</td><td>Start hiring in Phase 0; contractors for PoCs; Unity fallback widens talent pool</td><td>Key hires signed before Phase 2</td></tr>
       <tr><td>R11</td><td>Cross-platform entitlement rules (Apple, Google, Steam) differ</td><td>Possible</td><td>High</td><td>Entitlement ledger, store-specific flows, policy review</td><td>PoC 5</td></tr>
-      <tr><td>R12</td><td>Brand "Chacklate" cannot be registered or confuses with confectionery</td><td>Possible</td><td>High</td><td>Trademark search in India (classes 9, 28, 41) and key markets before identity work</td><td>Phase 0 trademark opinion</td></tr>
+      <tr><td>R12</td><td>Brand "Chackmate" cannot be registered or is confused with an existing mark</td><td>Possible</td><td>High</td><td>Trademark search in India (classes 9, 28, 41) and key markets before identity work</td><td>Phase 0 trademark opinion</td></tr>
       <tr><td>R13</td><td>Web download size hurts conversion</td><td>Possible</td><td>Medium</td><td>Streaming assets, lightweight first scene, cached builds</td><td>PoC 2 web TTI</td></tr>
       <tr><td>R14</td><td>Ad SDKs conflict with privacy commitments</td><td>Possible</td><td>Medium</td><td>Vetted SDK list, non-personalised by default where required, data-flow audit</td><td>Pre-launch SDK audit</td></tr>
       <tr><td>R15</td><td>Curriculum quality challenged by experienced players</td><td>Unlikely</td><td>Medium</td><td>Qualified educator review, beta feedback, no unsupported improvement claims</td><td>Educator sign-off; lesson ratings</td></tr>
@@ -948,13 +948,13 @@ gantt
     <li><div><strong>Approve the backend stack and hosting</strong>Rust game service, TypeScript platform and admin APIs, AWS with Mumbai as the primary region.</div></li>
     <li><div><strong>Approve launch catalogue counts</strong>10/10/6/10/10/10/12 at launch with 20+ per category as the 12-month target, instead of 20 per category at launch.</div></li>
     <li><div><strong>Approve the lifetime purchase definition</strong>Includes all core campaign and seasonal Premium tracks, excludes separately sold cosmetics, online services as long as they operate with 90 days' notice.</div></li>
-    <li><div><strong>Approve legal and brand work in Phase 0</strong>Trademark search for "Chacklate", domain acquisition, DPDP/COPPA review, store account setup.</div></li>
+    <li><div><strong>Approve legal and brand work in Phase 0</strong>Trademark search for "Chackmate", domain acquisition, DPDP/COPPA review, store account setup.</div></li>
     <li><div><strong>Create the project repository</strong>A new GitHub repository needs to be created by you; I then attach it and set up the monorepo skeleton, docs and CI as the first Phase 1 task.</div></li>
   </ol>
   <div class="callout"><p><strong>Status (v0.2):</strong> all nine items were answered on 24 Oct 2026. Section 00 lists your choices, which override the v0.1 recommendations above. Phase 0 is under way. No implementation code has been written. Prototype code starts once the repository is attached, and full production still needs approval at the Phase 1 gate.</p></div>
 </section>
 
-<footer>Chacklate Chess · Planning &amp; feasibility package v0.1 · 24 October 2026 · All costs and targets are estimates to be validated in Phase 0–1. Store fees, regulations and third-party licences must be re-verified before commitments are made.</footer>
+<footer>Chackmate · Planning &amp; feasibility package v0.1 · 24 October 2026 · All costs and targets are estimates to be validated in Phase 0–1. Store fees, regulations and third-party licences must be re-verified before commitments are made.</footer>
 </main>
 </div>
 

@@ -30,4 +30,4 @@ These are the beta prices in `packages/content/store.json`. They can change afte
 
 ## Children
 
-Chacklate's main audience is children, so every price is shown behind a parent gate. There are no loot boxes, no premium currency, no countdown timers and no "only X left" messages. The parent sees the full price and the renewal terms before paying.
+Chackmate's main audience is children, so every price is shown behind a parent gate. There are no loot boxes, no premium currency, no countdown timers and no "only X left" messages. The parent sees the full price and the renewal terms before paying.

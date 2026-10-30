@@ -1,4 +1,4 @@
-// Online client: connects to the Chacklate game server over WebSocket. The server is the referee
+// Online client: connects to the Chackmate game server over WebSocket. The server is the referee
 // (move legality, clocks, results, ratings); this file only relays and draws the account panel.
 // When no server is reachable everything else in the app keeps working offline.
 (function () {
@@ -103,7 +103,7 @@
 
   function showCode(code, tc) {
     const app = A();
-    friendModal = app.modal('<h2>Share this code</h2><p class="sub">Your friend opens Chacklate Chess, taps Play a Friend and enters the code. ' + app.esc(tc) + ', unrated. The code lasts 10 minutes.</p>' +
+    friendModal = app.modal('<h2>Share this code</h2><p class="sub">Your friend opens Chackmate, taps Play a Friend and enters the code. ' + app.esc(tc) + ', unrated. The code lasts 10 minutes.</p>' +
       '<div class="friend-code">' + app.esc(code) + '</div>' +
       '<div class="row"><button class="btn" id="fc-copy">' + app.icon('copy') + ' Copy</button><button class="btn" data-close>Cancel</button></div>',
     { sticky: true, onClose() { friendModal = null; } });

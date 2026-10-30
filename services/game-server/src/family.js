@@ -1,6 +1,6 @@
 'use strict';
 // Children's safety: age bands, safe player names, parental consent, parent accounts and the
-// controls a parent sets. Chacklate is made for children, so the safe choice is the default:
+// controls a parent sets. Chackmate is made for children, so the safe choice is the default:
 //   - anyone under 18 (a child under India's DPDP Act; under 13 is a child under COPPA) needs a
 //     parent's consent before the account can play online, sync progress or get reminders;
 //   - under-18s pick a generated name (BraveOtter42) and cannot type one, so names never carry
@@ -138,11 +138,11 @@ function create(db, lobby, opts) {
     const t = issue(u.id, 'consent', 7 * 24 * HOUR);
     const link = publicUrl + '/parent#consent=' + t;
     const who = u.age_band === 'child' ? 'Your child' : 'Your teenager';
-    await mail.send({ to: parentEmail, subject: who + ' would like to play Chacklate Chess online',
-      text: 'Hello,\n\n' + who + ' made a Chacklate Chess account called ' + u.name + ' and gave this email address for a parent or guardian.\n\n' +
+    await mail.send({ to: parentEmail, subject: who + ' would like to play Chackmate online',
+      text: 'Hello,\n\n' + who + ' made a Chackmate account called ' + u.name + ' and gave this email address for a parent or guardian.\n\n' +
         'Before they can play online, we need your permission. The link below tells you exactly what we keep (very little: the player name, a password, the birth month and year, and game history) and lets you choose what they can do.\n\n' +
         link + '\n\nThe link works for 7 days. If you do not know what this is about, ignore this email and the account stays offline-only. Nothing else is sent to you unless you sign up as their parent.',
-      html: '<p>Hello,</p><p>' + who + ' made a Chacklate Chess account called <b>' + u.name + '</b> and gave this email address for a parent or guardian.</p>' +
+      html: '<p>Hello,</p><p>' + who + ' made a Chackmate account called <b>' + u.name + '</b> and gave this email address for a parent or guardian.</p>' +
         '<p>Before they can play online, we need your permission. The page tells you exactly what we keep (very little: the player name, a password, the birth month and year, and game history) and lets you choose what they can do.</p>' +
         '<p><a href="' + link + '">Review and give permission</a></p><p>The link works for 7 days. If you do not know what this is about, ignore this email and the account stays offline-only.</p>' });
   }

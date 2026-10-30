@@ -1,4 +1,4 @@
-// Chacklate Chess engine: rules, notation and the computer opponent.
+// Chackmate engine: rules, notation and the computer opponent.
 // Self-contained so the same source runs on the page and inside a Web Worker
 // (the worker is built from ChacklateEngine.toString()).
 function ChacklateEngine() {
@@ -904,7 +904,7 @@ function ChacklateEngine() {
 
   Game.prototype.pgn = function (tags) {
     const result = this.outcome ? this.outcome.result : '*';
-    const t = Object.assign({ Event: 'Casual game', Site: 'Chacklate Chess', Date: '????.??.??', Round: '-', White: '?', Black: '?' }, tags || {});
+    const t = Object.assign({ Event: 'Casual game', Site: 'Chackmate', Date: '????.??.??', Round: '-', White: '?', Black: '?' }, tags || {});
     t.Result = result;
     if (this.startFen !== START_FEN) { t.SetUp = '1'; t.FEN = this.startFen; }
     const order = ['Event', 'Site', 'Date', 'Round', 'White', 'Black', 'Result'];
