@@ -11544,6 +11544,7 @@ function ChacklateScene(canvas, options) {
   const worldY = (s) => (s.grave ? TRAY_Y : 0) + s.y;
   // the attacker walks (a knight leaps) up to the piece it takes and turns to face it
   function approach(c, t, t0, t1) {
+    c.arrive = t1;
     const k = seg(t, t0, t1), e = easeInOut(k), m = c.m;
     m.x = lerp(c.sx, c.px, e); m.z = lerp(c.sz, c.pz, e);
     m.y = Math.sin(Math.PI * k) * (c.knight ? 0.6 : c.far ? 0.14 : 0.06);
@@ -11694,6 +11695,67 @@ function ChacklateScene(canvas, options) {
     } },
   };
 
+  // Every piece also moves in its own way, whatever the scene: a pawn marches, a knight
+  // gallops and rears, a bishop glides, a rook rumbles in and stamps, the queen sweeps in with a
+  // twirl and the king strides. The piece being taken answers in character as the attacker
+  // arrives: a pawn jumps, a knight rears, a bishop leans back, a rook trembles, the queen
+  // gasps and the king gives a dignified nod. Added on top of the scene, frame by frame.
+  function flourish(c, t) {
+    if (c.castle) return;
+    const m = c.m, v = c.v, a = c.arrive, k = seg(t, 0, a), on = t < a;
+    switch (kindOf(m.piece)) {
+      case 1: if (on) m.y += Math.abs(Math.sin(k * Math.PI * 4)) * 0.09; break;
+      case 2: m.bow -= 0.38 * bell(t, a - 180, a + 260); break;
+      case 3: if (on) m.tilt += 0.07 * Math.sin(k * Math.PI * 2); break;
+      case 4:
+        if (on) m.yaw += 0.05 * Math.sin(t / 28) * Math.sin(Math.PI * k);
+        once(c, 'stamp', a, t, () => { puff(c, 'dust', m.x, 0.05, m.z, 14); });
+        m.y += 0.12 * bell(t, a - 220, a);
+        break;
+      case 5: if (on) { m.yaw += TAU * easeInOut(k); m.y += 0.14 * Math.sin(Math.PI * k); } break;
+      case 6: if (on) m.y += Math.abs(Math.sin(k * Math.PI * 3)) * 0.04; m.bow += 0.16 * bell(t, a, a + 380); break;
+    }
+    const r = bell(t, a, a + 420);
+    if (!r) return;
+    switch (kindOf(v.piece)) {
+      case 1: v.y += 0.17 * r; break;
+      case 2: v.bow -= 0.32 * r; break;
+      case 3: v.bow -= 0.2 * r; break;
+      case 4: v.tilt += 0.07 * Math.sin(t / 22) * r; break;
+      case 5: v.y += 0.08 * r; v.bow -= 0.12 * r; break;
+      case 6: v.bow += 0.2 * r; break;
+    }
+  }
+  // Castling: the king and the rook turn and bow to each other, the king strides two squares,
+  // the rook hops over it into place, and both turn back to face the game with a gold shimmer.
+  const CASTLE = { dur: 3000, impact: 2300, back: 2350, run(c, t) {
+    const K = c.m, R = c.v;
+    const toK = Math.atan2(K.x - R.x, K.z - R.z);
+    if (t < 900) {
+      K.yaw = lerpA(c.mYaw, c.fM, easeInOut(seg(t, 0, 450)));
+      R.yaw = lerpA(c.vYaw, c.fV, easeInOut(seg(t, 0, 450)));
+      K.bow = 0.3 * bell(t, 450, 900); R.bow = 0.3 * bell(t, 500, 900);
+    }
+    if (t >= 900 && t < 2400) {
+      const k = seg(t, 900, 1650);
+      K.x = lerp(c.sx, c.tx, easeInOut(k)); K.z = lerp(c.sz, c.tz, easeInOut(k));
+      K.y = Math.abs(Math.sin(k * Math.PI * 3)) * 0.05;
+      K.yaw = c.fM;
+      const j = seg(t, 1550, 2300);
+      R.x = lerp(c.vx, c.qx, easeInOut(j)); R.z = lerp(c.vz, c.qz, easeInOut(j));
+      R.y = Math.sin(Math.PI * j) * 1.25;
+      R.bow = j > 0 && j < 1 ? -0.25 * Math.sin(Math.PI * j) : 0;
+      R.yaw = j < 0.5 ? c.fV : toK;
+    }
+    once(c, 'land', 2300, t, () => { puff(c, 'dust', c.qx, 0.05, c.qz, 12); puff(c, 'sparks', (c.tx + c.qx) / 2, 0.9, (c.tz + c.qz) / 2, 30); });
+    if (t >= 2300) {
+      const e = easeInOut(seg(t, 2350, 2850));
+      K.x = c.tx; K.z = c.tz; R.x = c.qx; R.z = c.qz;
+      K.yaw = lerpA(c.fM, c.endYaw, e); R.yaw = lerpA(Math.atan2(c.tx - c.qx, c.tz - c.qz), c.rookYaw, e);
+      K.y = R.y = 0.16 * bell(t, 2500, 2850);
+    }
+  } };
+
   function sceneFor(f) {
     if (!f || f.kind === 'none') return null;
     const name = f.scene || SCENE_FOR[f.kind];
@@ -11710,11 +11772,16 @@ function ChacklateScene(canvas, options) {
       mYaw: m.yaw, vYaw: v.yaw, fM: Math.atan2(dx, dz), fV: Math.atan2(-dx, -dz),
       endYaw: baseYaw(info.promo || m.piece, info.to), knight: kindOf(m.piece) === 2, far: L > 1.6,
       kind: fx.capture.kind === 'nibs' ? 'dust' : fx.capture.kind === 'rocket' ? 'sparks' : fx.capture.kind, colors: fx.capture.colors,
-      fired: new Set(), toGrave, done, onImpact: o && o.onImpact,
+      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, arrive: 650,
       saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
-    // lean in toward the two pieces, turned a little for depth
+    leanIn((vx + cine.px) / 2, (vz + cine.pz) / 2);
+    clearTimeout(skipTimer);
+    if (!o || o.skipHint !== false) skipTimer = setTimeout(() => showSkip(true), 500);
+    requestRender();
+  }
+  // lean in toward the two pieces, turned a little for depth
+  function leanIn(midX, midZ) {
     if (!attract) {
-      const midX = (vx + cine.px) / 2, midZ = (vz + cine.pz) / 2;
       // aim a little past the pair: the fitted view sits the board's middle high on the screen
       cam.tPanX = midX - Math.sin(cam.tYaw) * 1.1; cam.tPanZ = midZ - Math.cos(cam.tYaw) * 1.1;
       cam.tZoom = Math.max(ZOOM_MIN, cam.tZoom * 0.5);
@@ -11722,13 +11789,29 @@ function ChacklateScene(canvas, options) {
       cam.tLookY = 0.45; cam.tLookZ = 0;
       cam.tYaw += midX * Math.cos(cam.yaw) >= 0 ? -0.2 : 0.2;
     }
+  }
+  function startCastle(info, K, R, done, o) {
+    const qx = sqX(info.rook[1]), qz = sqZ(info.rook[1]), tx = sqX(info.to), tz = sqZ(info.to);
+    K.anim = null; R.anim = null; K.selected = false;
+    const dir = Math.sign(R.x - K.x) || 1;
+    cine = { name: 'castle', S: CASTLE, castle: true, start: performance.now(), info, m: K, v: R,
+      sx: K.x, sz: K.z, vx: R.x, vz: R.z, tx, tz, qx, qz, arrive: 900,
+      mYaw: K.yaw, vYaw: R.yaw, fM: Math.atan2(dir, 0), fV: Math.atan2(-dir, 0),
+      endYaw: baseYaw(K.piece, info.to), rookYaw: baseYaw(R.piece, info.rook[1]), colors: ['#ffe6a8', '#f6c25a', '#ffffff'],
+      fired: new Set(), done, onImpact: o && o.onImpact,
+      saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
+    leanIn((tx + qx) / 2, tz);
     clearTimeout(skipTimer);
     if (!o || o.skipHint !== false) skipTimer = setTimeout(() => showSkip(true), 500);
     requestRender();
   }
   function stepCine(now) {
     const c = cine, t = now - c.start;
+    // the scene sets what it needs each frame; leaning and hopping start from upright
+    c.m.bow = c.m.tilt = c.v.bow = c.v.tilt = 0;
+    if (!c.castle) c.v.y = 0;
     c.S.run(c, t);
+    flourish(c, t);
     if (c.onImpact) once(c, 'impact', c.S.impact, t, c.onImpact);
     // pull back out once the taken piece heads for the tray
     once(c, 'pullback', c.S.back || c.S.dur - 1300, t, restoreCam);
@@ -11752,6 +11835,15 @@ function ChacklateScene(canvas, options) {
     if (dropped) return;
     if (skipped && c.onImpact && !c.fired.has('impact')) c.onImpact();
     const m = c.m, v = c.v;
+    if (c.castle) {
+      Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, yaw: c.endYaw });
+      Object.assign(v, { x: c.qx, z: c.qz, y: 0, bow: 0, tilt: 0, yaw: c.rookYaw });
+      placeSprite(m); placeSprite(v);
+      if (skipped) particles = particles.filter((p) => p.kind === 'mote');
+      requestRender();
+      if (c.done) c.done();
+      return;
+    }
     Object.assign(v, { bow: 0, tilt: 0 });
     c.toGrave(v);
     Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, scale: 1, yaw: c.endYaw });
@@ -12639,7 +12731,14 @@ function ChacklateScene(canvas, options) {
         requestRender(); finish();
         return;
       }
-      const scene = victim && !quick && captureFxOn && !(o && o.cinema === false) && sceneFor(fx.capture);
+      const cinema = !quick && captureFxOn && !(o && o.cinema === false);
+      const rook = info.rook && cinema ? sprites.find((s) => s.sq === info.rook[0] && !s.dead) : null;
+      if (rook) {
+        mover.sq = info.to; rook.sq = info.rook[1];
+        startCastle(info, mover, rook, finish, o);
+        return true;
+      }
+      const scene = victim && cinema && sceneFor(fx.capture);
       if (scene) {
         mover.sq = info.to;
         startCine(scene, info, mover, victim, gravePos(capturer, graveIdx), graveYaw(capturer), toGrave, finish, o);
