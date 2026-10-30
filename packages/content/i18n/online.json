@@ -1,0 +1,20 @@
+{
+  "connecting": { "en": "Connecting…" },
+  "connectingSub": { "en": "Getting online play ready. This takes a moment." },
+  "na": { "en": "Online play is not available here" },
+  "naSub": { "en": "Codes and world games work in the Chackmate game opened from its claude.ai link, signed in. Opened as a downloaded file, or before the Chackmate server is live, the page cannot reach other players. You can still take turns on this device." },
+  "world": { "en": "players from around the world" },
+  "computer": { "en": "Play the computer instead" },
+  "roomFail": { "en": "Could not open the game room. Try again." },
+  "share": { "en": "Share this code" },
+  "shareSub": { "en": "Your friend opens Chackmate, taps Play a Friend and enters the code. {tc}, both players on the clock." },
+  "copy": { "en": "Copy" },
+  "copied": { "en": "Code copied." },
+  "joining": { "en": "Joining {code}" },
+  "waiting": { "en": "Waiting for your friend's game…" },
+  "noGame": { "en": "No game is waiting with the code {code}. Check it with your friend." },
+  "started": { "en": "That game has already started. Ask your friend for a new code." },
+  "worldPlayer": { "en": "Player from around the world" },
+  "yourFriend": { "en": "Your friend" },
+  "reported": { "en": "Thanks. Reports reach a moderator once the Chackmate game server is live." }
+}

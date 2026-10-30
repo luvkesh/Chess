@@ -187,5 +187,6 @@
   "fr.badCode": { "en": "Codes are 6 letters or digits." },
   "offer": { "en": "Your opponent offers a draw." },
   "accept": { "en": "Accept" },
-  "decline": { "en": "Decline" }
+  "decline": { "en": "Decline" },
+  "skip": { "en": "Tap to skip" }
 }

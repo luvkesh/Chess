@@ -15,6 +15,7 @@ vendor = here / 'vendor'
 SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
+    src / 'i18n.js',
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
     src / 'pieces3d.js',
@@ -26,7 +27,6 @@ SCRIPTS = [
     src / 'audio.js',
     src / 'net.js',
     src / 'relay.js',
-    src / 'i18n.js',
     src / 'tips.js',
     src / 'app.js',
 ]

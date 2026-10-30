@@ -2,7 +2,7 @@
 // The strings live in packages/content/i18n/, one file per area (home, play, store, settings,
 // tips...), each key holding every language side by side so a gap is easy to spot;
 // test/i18n.test.js fails when any language misses a key. The file name is the key's first part:
-// t('home.play') reads "play" from home.json. {name} in a string is filled from vars.
+// t("home.play") reads "play" from home.json. {name} in a string is filled from vars.
 // Lessons and the narrator stay in English for now.
 const ChacklateI18n = (function () {
   'use strict';
