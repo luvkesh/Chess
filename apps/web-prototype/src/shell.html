@@ -11,7 +11,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Chackmate">
-<style>/*FONTS*/</style>
+<style>/*FONTS*/
+/* Languages (src/i18n.js sets lang, dir and data-script on <html>). The Latin fonts have no
+   Devanagari, so each stack falls through to Hind (body) or Martel (titles), loaded only when
+   Hindi is picked. Non-Latin scripts have no capitals and their letters join up, so tracking and
+   all caps go; their vowel marks sit above and below the line, so tight line-heights open up.
+   The wordmark stays Latin. Right-to-left languages get dir="rtl" and the flex rows follow. */
+html[data-script]:not([data-script="latin"]) *:not(.wordmark):not(.wordmark *) { letter-spacing: 0 !important; text-transform: none !important; }
+html[data-script="deva"] body { line-height: 1.55; }
+html[data-script="deva"] h1, html[data-script="deva"] h2, html[data-script="deva"] h3 { line-height: 1.35; }
+</style>
 <style>
 /* Chackmate: a chocolatier's grand salon at night. The 3D room is always
    behind; menus float over it as dark glass with gold hairlines. */
@@ -26,10 +35,10 @@
   --glass: linear-gradient(180deg, rgba(42, 26, 18, 0.84), rgba(19, 11, 8, 0.9));
   --glass-flat: rgba(24, 15, 11, 0.86);
   --sunk: rgba(6, 3, 2, 0.5);
-  --serif: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
-  --caps: 'Cinzel', 'Trajan Pro', Georgia, serif;
-  --deco: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
-  --body: 'Jost', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --serif: 'Cormorant Garamond', 'Martel', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --caps: 'Cinzel', 'Martel', 'Trajan Pro', Georgia, serif;
+  --deco: 'Cinzel Decorative', 'Cinzel', 'Martel', Georgia, serif;
+  --body: 'Jost', 'Hind', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
   --display: var(--serif);
   --r: 18px;
