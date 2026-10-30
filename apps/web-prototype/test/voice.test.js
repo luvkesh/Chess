@@ -21,9 +21,13 @@ assert.deepStrictEqual([...AU.moveWords('Nxe5+', 'en')], ['Knight', 'takes', 'ee
 assert.deepStrictEqual([...AU.moveWords('e8=Q#', 'en')], ['Pawn', 'ee eight', 'promotes to a queen', 'checkmate']);
 assert.deepStrictEqual([...AU.moveWords('O-O-O', 'en')], ['Castles queenside']);
 assert.deepStrictEqual([...AU.moveWords('Rad1', 'hi')], ['हाथी', 'डी एक']);
+// Chaturanga keeps the old names: the Q code is the Mantri, the B code the Gaja.
+assert.deepStrictEqual([...AU.moveWords('Qxe5+', 'en', true)], ['Mantri', 'takes', 'ee five', 'check']);
+assert.deepStrictEqual([...AU.moveWords('e8=Q', 'en', true)], ['Padati', 'ee eight', 'becomes a Mantri']);
+assert.deepStrictEqual([...AU.moveWords('Bd4', 'hi', true)], ['गज', 'डी चार']);
 const frag = { en: new Set(lines.fragments(V.moves.en)), hi: new Set(lines.fragments(V.moves.hi)) };
 for (const san of ['Nf3', 'exd5', 'Qxh7#', 'O-O', 'a8=N+', 'Kxg2', 'Bb5+']) {
-  for (const lang of ['en', 'hi']) for (const w of AU.moveWords(san, lang)) assert(frag[lang].has(w), lang + ' ' + san + ': ' + w);
+  for (const lang of ['en', 'hi']) for (const old of [false, true]) for (const w of AU.moveWords(san, lang, old)) assert(frag[lang].has(w), lang + ' ' + san + ': ' + w);
 }
 
 // Every voice says every game call, in both languages.

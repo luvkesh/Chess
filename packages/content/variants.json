@@ -29,7 +29,7 @@
       ],
       "notes": [
         "Rules changed from place to place over the centuries. Chackmate plays one common version, close to shatranj, the Persian game that came from it.",
-        "Move lists write the Mantri as Q and the Gaja as B, after the pieces they became."
+        "Move lists write the Mantri as M and the Gaja as G. Saved games (PGN) use Q and B, the pieces they grew into."
       ],
       "lesson": {
         "title": "Chess as it began",
