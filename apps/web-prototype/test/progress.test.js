@@ -248,4 +248,14 @@ const old = PG.fresh(); delete old.coins; delete old.earned; delete old.bought;
 const mig = PG.migrate(old);
 assert(mig.coins === 0 && Array.isArray(mig.bought) && mig.earned.by);
 
+// Developer mode can grant any item on this device; grants survive a save and reload.
+{
+  const g = PG.fresh();
+  const item = catalog.items.find((i) => i.unlock.type === 'premium');
+  assert(!PG.isUnlocked(g, item));
+  g.granted[item.id] = true;
+  assert(PG.isUnlocked(g, item));
+  assert(PG.isUnlocked(PG.migrate(JSON.parse(JSON.stringify(g))), item));
+  assert.deepStrictEqual(PG.migrate({ v: 1 }).granted, {});
+}
 console.log('progress ok');
