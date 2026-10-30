@@ -2204,9 +2204,9 @@
     if (!show || !e) return;
     const white = e.cp * G.g.pos.side;
     $('evalfill').style.height = Math.round(C.winProb(white) * 100) + '%';
-    const lead = white > 0 ? 'White' : 'Black';
-    bar.dataset.tip = 'Who is winning|' + (e.mate ? (e.mate * G.g.pos.side > 0 ? 'White' : 'Black') + ' can checkmate in ' + Math.abs(e.mate) + '!'
-      : Math.abs(white) < 30 ? 'It is about even.' : lead + ' is ahead by about ' + (Math.abs(white) / 100).toFixed(1) + ' pawns.') + ' More white in the bar means White is doing better.';
+    const sideWord = (w) => t(w ? 'play.color.white' : 'play.color.black');
+    bar.dataset.tip = t('play.eval.title') + '|' + (e.mate ? t('play.eval.mate', { side: sideWord(e.mate * G.g.pos.side > 0), n: Math.abs(e.mate) })
+      : Math.abs(white) < 30 ? t('play.eval.even') : t('play.eval.ahead', { side: sideWord(white > 0), n: (Math.abs(white) / 100).toFixed(1) })) + ' ' + t('play.eval.more');
   }
   function liveCoach(before, info) {
     const G = state.game;
@@ -2236,14 +2236,14 @@
           pos.unmake();
           const bestM = pre.best ? pos.parseMove(pre.best) : null;
           const ex = C.explain({ cls, side: before.side, san: info.san, facts: f, refutation: refut, bestSan: pre.bestSan || (bestM ? pos.san(bestM, pos.legalMoves()) : ''), bestFacts: bestM ? C.facts(pos, bestM) : null, mateAgainst: post.mate > 0 ? post.mate : 0, missedMate: 0 });
-          text = (cls === 'blunder' ? 'Careful! ' : 'Hmm. ') + ex;
+          text = t(cls === 'blunder' ? 'play.coach.careful' : 'play.coach.hmm') + ' ' + ex;
           // The computer may have answered already, and then the reply is on the board.
           const replied = G.g.moves.length > ply + 1;
-          actions = replied ? [['Take it back', 'takeback'], ['Play on', 'dismiss']] : [['Take it back', 'takeback'], ['Show the reply', 'reply'], ['Play on', 'dismiss']];
+          actions = replied ? [[t('play.coach.takeBack'), 'takeback'], [t('play.coach.playOn'), 'dismiss']] : [[t('play.coach.takeBack'), 'takeback'], [t('play.coach.showReply'), 'reply'], [t('play.coach.playOn'), 'dismiss']];
           if (refut && !replied) G.coachArrow = { from: sqIndex(refut.from), to: sqIndex(refut.to), color: '#ff5a50' };
-        } else if (cls === 'brilliant' && lvl !== 'quiet') { text = 'Brilliant! ' + (C.describe(f) || 'A bold sacrifice that the engine likes.'); actions = [['Thanks', 'dismiss']]; }
-        else if (lvl === 'chatty' && (cls === 'best' || cls === 'excellent')) { const d = C.describe(f); text = (cls === 'best' ? 'Top move. ' : 'Nice. ') + (d || ''); actions = [['Thanks', 'dismiss']]; }
-        else if (lvl === 'chatty' && cls === 'inaccuracy') { text = 'Playable, but ' + (pre.bestSan || 'another move') + ' was a little more precise.'; actions = [['OK', 'dismiss']]; }
+        } else if (cls === 'brilliant' && lvl !== 'quiet') { text = t('play.coach.brilliant') + ' ' + (C.describe(f) || t('play.coach.bold')); actions = [[t('play.coach.thanks'), 'dismiss']]; }
+        else if (lvl === 'chatty' && (cls === 'best' || cls === 'excellent')) { const d = C.describe(f); text = t(cls === 'best' ? 'play.coach.top' : 'play.coach.nice') + ' ' + (d || ''); actions = [[t('play.coach.thanks'), 'dismiss']]; }
+        else if (lvl === 'chatty' && cls === 'inaccuracy') { text = pre.bestSan ? t('play.coach.playable', { san: pre.bestSan }) : t('play.coach.playableOther'); actions = [[t('common.ok'), 'dismiss']]; }
         if (!text) return;
         G.coachArrow = G.coachArrow && cls !== 'blunder' && cls !== 'mistake' ? null : G.coachArrow;
         coachSay(text, actions, cls);
@@ -2263,8 +2263,8 @@
     if (!slot || !G) return;
     if (!G.coachMsg) { slot.innerHTML = ''; applyInsets(); return; }
     const m = G.coachMsg, who = m.who || COACH;
-    slot.innerHTML = '<div class="coach' + (m.who ? ' rival' : '') + '"><div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div><b>' + esc(m.who ? who.full : 'Rooky, your coach') + (m.cls ? ' · <span class="cls ' + m.cls + '">' + C.LABEL[m.cls] + '</span>' : '') + '</b><p>' + esc(m.text) + '</p>' +
-      '<div class="row">' + (m.actions || []).map(([t, a]) => '<button class="btn small' + (a === 'takeback' ? ' primary' : '') + '" data-coach="' + a + '">' + esc(t) + '</button>').join('') + '</div></div></div>';
+    slot.innerHTML = '<div class="coach' + (m.who ? ' rival' : '') + '"><div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div><b>' + esc(m.who ? fullName(who) : t('play.coach.rooky')) + (m.cls ? ' · <span class="cls ' + m.cls + '">' + C.LABEL[m.cls] + '</span>' : '') + '</b><p>' + esc(m.text) + '</p>' +
+      '<div class="row">' + (m.actions || []).map(([label, a]) => '<button class="btn small' + (a === 'takeback' ? ' primary' : '') + '" data-coach="' + a + '">' + esc(label) + '</button>').join('') + '</div></div></div>';
     slot.querySelectorAll('[data-coach]').forEach((b) => {
       b.onclick = () => {
         const a = b.dataset.coach;
@@ -2303,8 +2303,8 @@
   }
   function showHintStep() {
     const G = state.game, h = G.hint;
-    const text = G.hintStep === 1 ? h.theme : G.hintStep === 2 ? 'Look at your ' + h.piece + '.' : 'Try ' + h.san + '. ' + (h.text || '');
-    coachSay(text, G.hintStep < 3 ? [['Another hint', 'more'], ['Got it', 'dismiss']] : [['Got it', 'dismiss']]);
+    const text = G.hintStep === 1 ? h.theme : G.hintStep === 2 ? t('play.coach.lookAt', { piece: h.piece }) : t('play.coach.try', { san: h.san }) + ' ' + (h.text || '');
+    coachSay(text, G.hintStep < 3 ? [[t('play.coach.anotherHint'), 'more'], [t('common.gotIt'), 'dismiss']] : [[t('common.gotIt'), 'dismiss']]);
     const slot = $('coach-slot'), more = slot && slot.querySelector('[data-coach="more"]');
     if (more) more.onclick = () => { G.hintStep++; showHintStep(); };
     refreshHighlights();
@@ -2312,22 +2312,23 @@
   function showThreat() {
     const G = state.game;
     if (!humanTurn()) return;
-    if (G.g.pos.inCheck()) { coachSay('You are in check: that is the threat! Move the king, block, or capture the checking piece.', [['OK', 'dismiss']]); return; }
+    if (G.g.pos.inCheck()) { coachSay(t('play.coach.inCheck'), [[t('common.ok'), 'dismiss']]); return; }
     job('analysis', { type: 'threat', fen: G.g.startFen, moves: G.g.uciMoves(), timeMs: 300 }, (r) => {
       if (state.game !== G || !r.threat) return;
       G.threat = r.threat.serious ? r.threat : null;
-      coachSay(r.threat.serious ? r.threat.text : 'No immediate danger. ' + r.threat.text, [['OK', 'dismiss']]);
+      coachSay(r.threat.serious ? r.threat.text : t('play.coach.noDanger') + ' ' + r.threat.text, [[t('common.ok'), 'dismiss']]);
       refreshHighlights();
     });
   }
   // Online reactions: a short preset list, never typed text.
-  const EMOTES = { hello: ['👋', 'Hello!'], luck: ['🍀', 'Good luck!'], nice: ['👍', 'Nice move!'], wow: ['😮', 'Wow!'], think: ['🤔', 'Let me think…'], gg: ['🤝', 'Good game!'] };
+  const EMOTES = { hello: '👋', luck: '🍀', nice: '👍', wow: '😮', think: '🤔', gg: '🤝' };
+  const emoteText = (k) => t('play.emote.' + k);
   function emotePicker() {
     const old = document.querySelector('.emote-pop');
     if (old) { old.remove(); return; }
     const pop = document.createElement('div');
     pop.className = 'emote-pop glass'; pop.setAttribute('role', 'menu');
-    pop.innerHTML = Object.keys(EMOTES).map((k) => '<button class="btn small" role="menuitem" data-emote="' + k + '"><span aria-hidden="true">' + EMOTES[k][0] + '</span> ' + EMOTES[k][1] + '</button>').join('');
+    pop.innerHTML = Object.keys(EMOTES).map((k) => '<button class="btn small" role="menuitem" data-emote="' + k + '"><span aria-hidden="true">' + EMOTES[k] + '</span> ' + emoteText(k) + '</button>').join('');
     // Fixed above the action bar, which scrolls sideways on phones and would clip it.
     const r = $('g-emote').getBoundingClientRect();
     pop.style.left = Math.min(window.innerWidth - 150, Math.max(150, r.left + r.width / 2)) + 'px';
@@ -2346,7 +2347,7 @@
     const old = card.querySelector('.emote-bubble'); if (old) old.remove();
     const b = document.createElement('div');
     b.className = 'emote-bubble'; b.setAttribute('role', 'status');
-    b.innerHTML = '<span aria-hidden="true">' + em[0] + '</span> ' + esc(em[1]);
+    b.innerHTML = '<span aria-hidden="true">' + em + '</span> ' + esc(emoteText(id));
     card.appendChild(b);
     if (!mine) AU.play('tap');
     setTimeout(() => b.remove(), 3500);
@@ -2354,12 +2355,12 @@
   function offerDraw() {
     const G = state.game;
     if (G.g.outcome) return;
-    if (G.kind === 'online') { ChacklateNet.send({ type: 'draw-offer' }); toast('Draw offered.'); return; }
+    if (G.kind === 'online') { ChacklateNet.send({ type: 'draw-offer' }); toast(t('play.drawOffered')); return; }
     // The computer accepts only when it is clearly not better.
     const e = G.evals[G.g.moves.length];
     const aiView = e ? e.cp * (G.g.pos.side === G.human ? -1 : 1) : 0;
     if (G.g.moves.length >= 20 && aiView <= 30) { G.g.agreeDraw(); G.request++; endGame(); }
-    else { const who = rival(G); coachSay(G.g.moves.length < 20 ? 'Not yet! We have only just started. Let\'s play on.' : 'No thank you, I would like to keep playing.', [['OK', 'dismiss']], null, who); AU.play('illegal'); }
+    else { const who = rival(G); coachSay(t(G.g.moves.length < 20 ? 'play.drawEarly' : 'play.drawNo'), [[t('common.ok'), 'dismiss']], null, who); AU.play('illegal'); }
   }
   let resignArmed = 0;
   function resign() {
@@ -2368,8 +2369,8 @@
     const btn = $('g-resign');
     if (Date.now() - resignArmed > 3000) {
       resignArmed = Date.now();
-      btn.classList.add('warn'); btn.querySelector('.lbl').textContent = 'Sure?';
-      setTimeout(() => { if (Date.now() - resignArmed >= 3000 && btn.isConnected) { btn.classList.remove('warn'); btn.querySelector('.lbl').textContent = 'Resign'; } }, 3100);
+      btn.classList.add('warn'); btn.querySelector('.lbl').textContent = t('play.sure');
+      setTimeout(() => { if (Date.now() - resignArmed >= 3000 && btn.isConnected) { btn.classList.remove('warn'); btn.querySelector('.lbl').textContent = t('play.btn.resign'); } }, 3100);
       return;
     }
     resignArmed = 0;
