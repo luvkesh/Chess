@@ -249,6 +249,88 @@
     return id;
   }
 
+  // ------------------------------------------------------------------ tooltips
+  // Hover (or hold on a touch screen) to read what a control does, in words a child knows.
+  // Icon-only buttons fall back to their aria-label; everything else unclear is written here.
+  const SETTINGS_TIP = 'Settings|Sound, music, graphics, voices and coaching.';
+  const TIPS = {
+    'nv-set': SETTINGS_TIP, 'g-settings': SETTINGS_TIP, 'rv-set': SETTINGS_TIP, 'ls-set': SETTINGS_TIP, 'dr-set': SETTINGS_TIP, 'pz-set': SETTINGS_TIP,
+    'nv-music': 'Music|Turn the background music on or off.', 'g-music': 'Music|Turn the background music on or off.',
+    'ls-voice': 'Narration|Hear Rooky read the lesson out loud.',
+    'g-undo': 'Undo|Take back your last move and try a different one.',
+    'g-hint': 'Hint|Rooky shows you a good move to think about.',
+    'g-threat': 'Threat|See what your opponent would love to do next, so you can stop it.',
+    'g-flip': 'Flip|Turn the board around to see it from the other side.',
+    'g-view': 'Camera|Switch between looking down from above and sitting at the table.',
+    'g-draw': 'Draw|Ask to end the game as a tie, with no winner.',
+    'g-resign': 'Resign|Give up this game. Your opponent wins.',
+    'g-emote': 'React|Send a friendly picture to the other player. There is no chat.',
+    'g-claim': 'Claim a draw|The rules say this game can end as a tie right now. Tap to end it.',
+    'g-copy': 'PGN|Copy every move of this game as text, to save it or share it with a grown-up.',
+    'g-review': 'Review with Rooky|Rooky goes through your game and shows your best moves and your mistakes.',
+    'rv-turn': 'Turning point|Jump to the move where the game changed the most.',
+    'rv-best': 'Best line|Show the moves Rooky would have played here.',
+    'rv-practice': 'Play from here|Start a new game from this exact position.',
+    'pz-hint': 'Hint|Get a little clue.', 'ls-hint': 'Hint|Get a little clue.', 'dr-hint': 'Hint|See the next move of this opening.',
+    'pz-sol': 'Solution|Show the answer to this puzzle.',
+    'dr-reset': 'Restart|Go back to the start of this opening.',
+    'l-review': 'Reviews|Quick refreshers of lessons you learned a while ago, so you never forget them.',
+    'fr-create': 'Make a game|Get a 6-letter code. Your friend types it in to join you.',
+    'fr-join': 'Join|Type the code your friend gave you, then join their game.',
+    'fr-local': 'Take turns here|Play on this one device and pass it back and forth.',
+    'w-go': 'Find a player|We look for someone, anywhere in the world, who picked the same clock.',
+    'mu-eq': 'Equip|Use this in your games from now on.', 'pk-eq': 'Equip|Use this in your games from now on.',
+    'st-restore': 'Restore purchases|Bring back things a grown-up already bought, for example on a new device.',
+    's-reset': 'Reset progress|Start again from the beginning. Your stars, levels and rewards on this device are cleared.',
+    'br-more': 'Only for grown-ups|Allow 15 more minutes of play today.',
+    // settings switches (the tip sits on the whole row)
+    's-anim': 'Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game.',
+    's-cine': 'Short movie scenes when a piece is captured or a king castles.',
+    's-sfxv': 'Slide to make sound effects louder or quieter. The switch turns them off.',
+    's-musv': 'Slide to make the music louder or quieter. The switch turns it off.',
+    's-narr': 'Rooky reads the stories and lessons out loud.',
+    's-vcoach': 'The voice that reads lessons and stories.',
+    's-vcalls': 'The voice that says “check”, game results and puzzle results.',
+    's-announce': 'Hear every move said out loud, like “Knight to f3”.',
+    's-coach': 'How often Rooky talks to you during a game.',
+    's-eval': 'A bar beside the board that shows who is ahead. More white means White is doing better.',
+    's-legal': 'Dots show every square the piece you picked can move to.',
+    's-turn': 'When two players share a device, the board turns so each player sees it from their side.',
+  };
+  // The choice chips in the game setup windows, by radio name and value.
+  const CHIP_TIPS = {
+    'color:white': 'White|You make the first move.',
+    'color:black': 'Black|Your opponent makes the first move.',
+    'color:random': 'Surprise me|We pick White or Black for you.',
+    'mode:ai': 'Play one of the animal friends on this device.',
+    'mode:local': 'Two players share this device and take turns.',
+    'q:high': 'The most beautiful tables. Uses more battery.',
+    'q:low': 'Simpler pictures that run faster on older phones and tablets.',
+  };
+  // "3+2" means 3 minutes each, plus 2 seconds back on your clock after every move you make.
+  function clockTip(tc) {
+    if (!tc || tc === 'none') return 'No clock|Take as long as you like to think about every move.';
+    const [m, inc] = tc.split('+').map(Number);
+    const mins = m + (m === 1 ? ' minute' : ' minutes');
+    return mins + (inc ? ' + ' + inc + ' seconds' : '') + '|Each player gets ' + mins + ' for the whole game. ' +
+      (inc ? 'Every time you make a move, ' + inc + ' bonus seconds are added to your clock.' : 'No bonus time is added, so keep an eye on your clock!') +
+      ' If your time runs out, you usually lose.';
+  }
+  function tipFor(el) {
+    if (el.id && TIPS[el.id]) return TIPS[el.id];
+    if (el.tagName === 'LABEL') {
+      const r = el.querySelector('input[type=radio]');
+      if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : CHIP_TIPS[r.name + ':' + r.value] || null;
+      if (el.classList.contains('toggle')) { const c = el.querySelector('input, select'); return c && TIPS[c.id] || null; }
+    }
+    if (el.classList.contains('clock') && el.dataset.side) {
+      const inc = state.game ? +(String(state.game.setup.tc || '').split('+')[1] || 0) : 0;
+      return 'Clock|Time left for this player. It only counts down on their turn.' + (inc ? ' They get ' + inc + ' bonus seconds after each move.' : '');
+    }
+    return null;
+  }
+  ChacklateTips.init({ resolve: tipFor });
+
   // ------------------------------------------------------------------ the 3D table
   const canvas = $('board');
   let view = null;
@@ -1914,7 +1996,9 @@
     if (!show || !e) return;
     const white = e.cp * G.g.pos.side;
     $('evalfill').style.height = Math.round(C.winProb(white) * 100) + '%';
-    bar.title = e.mate ? 'Mate in ' + Math.abs(e.mate) : (white >= 0 ? '+' : '') + (white / 100).toFixed(1);
+    const lead = white > 0 ? 'White' : 'Black';
+    bar.dataset.tip = 'Who is winning|' + (e.mate ? (e.mate * G.g.pos.side > 0 ? 'White' : 'Black') + ' can checkmate in ' + Math.abs(e.mate) + '!'
+      : Math.abs(white) < 30 ? 'It is about even.' : lead + ' is ahead by about ' + (Math.abs(white) / 100).toFixed(1) + ' pawns.') + ' More white in the bar means White is doing better.';
   }
   function liveCoach(before, info) {
     const G = state.game;
