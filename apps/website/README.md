@@ -1,6 +1,6 @@
 # Website
 
-The public site for Chacklate Chess, served by `services/game-server` at `/`, with the families privacy policy at `/privacy` and the terms at `/terms`.
+The public site for Chackmate, served by `services/game-server` at `/`, with the families privacy policy at `/privacy` and the terms at `/terms`.
 
 The audience is children and their parents, so the page is built to be safe as well as pretty: it sets no cookies, stores nothing on the device and makes no requests to other companies. Fonts, pictures and art are all inside the one HTML file.
 
