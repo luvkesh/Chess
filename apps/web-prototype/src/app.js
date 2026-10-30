@@ -76,7 +76,7 @@
   const netOn = () => !!(window.ChacklateNet && ChacklateNet.available());
 
   // ------------------------------------------------------------ characters
-  // Eight animal opponents (one per engine level), Praline the coach, and a champion in
+  // Eight animal opponents (one per engine level), Rooky the coach, and a champion in
   // every era of the journey. Portraits are drawn by art.js.
   const OPP = CAMPAIGN.opponents, COACH = CAMPAIGN.coach;
   const persona = (lv) => OPP[lv] || OPP[0];
@@ -637,7 +637,7 @@
       lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: resume ? 'Resume Game' : 'Quick Play',
         text: resume ? saved.game.moves.length + ' moves in. Pick up where you left off.' : online ? 'A friendly game online, or an animal friend if no one is around.' : 'A game against the animal friend that suits you best.' }) +
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: 'The Journey', text: ne ? 'Next stop: ' + ne.name + ', ' + ne.when + '.' : 'Every era complete. What a traveller!' }) +
-      lux({ id: 'h-learn', art: faceImg(COACH), title: 'Learn Chess', text: nl ? 'With Praline, your coach. Next: ' + nl.title + '.' : 'Every open lesson done. Try the puzzles!' }) +
+      lux({ id: 'h-learn', art: faceImg(COACH), title: 'Learn Chess', text: nl ? 'With Rooky, your coach. Next: ' + nl.title + '.' : 'Every open lesson done. Try the puzzles!' }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: 'Daily Puzzle', text: !daily ? 'Puzzles are on their way.' : dailyDone() ? 'Solved! A new one arrives tomorrow.' : 'A fresh puzzle for today, rated ' + daily.rating + '.' }) +
       lux({ id: 'h-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
       '</div>' +
@@ -923,7 +923,7 @@
     const due = PG.dueReviews(P);
     const total = LESSONS.lessons.length, done = LESSONS.lessons.filter((l) => P.lessons[l.id]).length;
     mount('<div class="page"><div class="page-in">' + subnav('learn') +
-      pageHead('Chess Academy', 'Learning path', 'Short lessons with Praline, your coach, each followed by little exercises. ' + done + ' of ' + total + ' completed.',
+      pageHead('Chess Academy', 'Learning path', 'Short lessons with Rooky, your coach, each followed by little exercises. ' + done + ' of ' + total + ' completed.',
         due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + due.length + ' review' + (due.length > 1 ? 's' : '') + ' due</button>' : '') +
       '<div class="bar path-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></div>' +
       (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">Now learning · Chapter ' + nl.chapter + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') +
@@ -978,9 +978,9 @@
     const counts = state.progress.seen.motifs || {};
     const order = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const names = { fork: 'Forks', pin: 'Pins', skewer: 'Skewers', hangingPiece: 'Free pieces', mate: 'Checkmates', discoveredAttack: 'Discovered attacks' };
-    if (!order.length) return { theme: null, name: 'A mix', summary: 'Praline picks puzzles from the patterns you miss most. Play a few to get started.' };
+    if (!order.length) return { theme: null, name: 'A mix', summary: 'Rooky picks puzzles from the patterns you miss most. Play a few to get started.' };
     const [t] = order[0];
-    return { theme: t, name: names[t] || t, summary: 'Praline suggests ' + (names[t] || t).toLowerCase() + ', the pattern you miss most often.' };
+    return { theme: t, name: names[t] || t, summary: 'Rooky suggests ' + (names[t] || t).toLowerCase() + ', the pattern you miss most often.' };
   }
   function noteMotif(theme) { const m = state.progress.seen.motifs || (state.progress.seen.motifs = {}); m[theme] = (m[theme] || 0) + 1; }
 
@@ -1004,15 +1004,15 @@
     const mastered = Object.values(P.openings).filter((r) => r.mastered).length;
     const dojoStars = Object.values(P.dojo).reduce((a, r) => a + r.stars, 0);
     mount('<div class="page"><div class="page-in">' + subnav('training') +
-      pageHead('Training', 'Training', 'Learn openings move by move, master the endgames every player needs, and let Praline review your games.') +
+      pageHead('Training', 'Training', 'Learn openings move by move, master the endgames every player needs, and let Rooky review your games.') +
       sec('play', 'Train') +
       '<div class="lux-row three">' +
       lux({ id: 't-open', art: snap(VIGN.opening(set), 240, 150, medal('piece:b', '#2f4f8a', '#14243e')), title: 'Opening Lab', text: OPENINGS.length + ' openings to learn. ' + mastered + ' mastered.' }) +
       lux({ id: 't-dojo', art: snap(VIGN.endgame(set), 240, 150, medal('piece:k', '#5b4a8a', '#2c2248')), title: 'Endgame Dojo', text: ENDGAMES.length + ' endgames. ' + dojoStars + ' of ' + ENDGAMES.length * 3 + ' stars.' }) +
-      lux({ id: 't-review', art: snap(VIGN.review(set), 240, 150, medal('piece:q', '#8a5a2a', '#3a1e0e')), title: 'Game Reviews', text: P.history.length ? 'Look back at your games with Praline.' : 'Play a game, then review it here.' }) +
+      lux({ id: 't-review', art: snap(VIGN.review(set), 240, 150, medal('piece:q', '#8a5a2a', '#3a1e0e')), title: 'Game Reviews', text: P.history.length ? 'Look back at your games with Rooky.' : 'Play a game, then review it here.' }) +
       '</div>' +
       sec('refresh', 'Recent games') +
-      '<div class="list">' + (P.history.length ? P.history.slice(0, 6).map(gameRow).join('') : '<p class="muted">Your games will appear here. Praline can review any of them.</p>') + '</div>' +
+      '<div class="list">' + (P.history.length ? P.history.slice(0, 6).map(gameRow).join('') : '<p class="muted">Your games will appear here. Rooky can review any of them.</p>') + '</div>' +
       '</div></div>');
     hydrate();
     wireLinks();
@@ -1296,7 +1296,7 @@
       sec('medal', 'Achievements', got + ' of ' + PG.ACHIEVEMENTS.length) +
       '<div class="ach">' + PG.ACHIEVEMENTS.map((a) => '<div class="badge' + (P.achievements[a.id] ? ' got' : '') + '"><i>' + (P.achievements[a.id] ? '★' : '☆') + '</i><div><b>' + esc(a.name) + '</b><small>' + esc(a.desc) + '</small></div></div>').join('') + '</div>' +
       '<h2 class="sec" id="games">' + icon('refresh') + '<span>Recent games</span></h2>' +
-      '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">No games yet. Your games appear here for Praline to review.</p>') + '</div>' +
+      '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">No games yet. Your games appear here for Rooky to review.</p>') + '</div>' +
       '<h2 class="sec" id="acct">' + icon('globe') + '<span>Online account</span></h2><div class="panel glass" id="pf-account"></div>' +
       sec('crown', 'Premium') + '<div class="panel glass">' + premiumLine() +
       '<label class="toggle">Preview Premium on this device, for testing without a server. It does not change your account. <input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></label></div>' +
@@ -1466,7 +1466,7 @@
       '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
       voiceSection(s) +
       '<div class="label set-h">Coaching</div>' +
-      '<label class="toggle">Praline\'s comments in games <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
+      '<label class="toggle">Rooky\'s comments in games <select id="s-coach">' + [['off', 'Off'], ['quiet', 'Big mistakes only'], ['normal', 'Mistakes and great moves'], ['chatty', 'Every move']].map(([v, t]) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
       '<label class="toggle">Show who is winning (evaluation bar) <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
       '<label class="toggle">Show where pieces can move <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
       '<label class="toggle">Turn the board each move (two players) <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
@@ -1629,7 +1629,7 @@
       (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">Draw</span></button>') +
       '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">Resign</span></button>' +
       '<button class="btn primary" id="g-claim" hidden>Claim draw</button>' +
-      '<button class="btn primary" id="g-review" hidden>' + icon('star') + '<span>Review with Praline</span></button>' +
+      '<button class="btn primary" id="g-review" hidden>' + icon('star') + '<span>Review with Rooky</span></button>' +
       '<button class="btn" id="g-new" hidden>' + icon('play') + '<span>New game</span></button>' +
       '</div>');
     $('g-home').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else if (dojo) go('dojo'); else go('home'); };
@@ -1949,7 +1949,7 @@
       });
     }, 20);
   }
-  // A message in the side panel from Praline, or from whoever is across the table.
+  // A message in the side panel from Rooky, or from whoever is across the table.
   function coachSay(text, actions, cls, who) {
     const G = state.game;
     G.coachMsg = { text, actions, cls, who: who || null };
@@ -1961,7 +1961,7 @@
     if (!slot || !G) return;
     if (!G.coachMsg) { slot.innerHTML = ''; applyInsets(); return; }
     const m = G.coachMsg, who = m.who || COACH;
-    slot.innerHTML = '<div class="coach' + (m.who ? ' rival' : '') + '"><div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div><b>' + esc(m.who ? who.full : 'Praline, your coach') + (m.cls ? ' · <span class="cls ' + m.cls + '">' + C.LABEL[m.cls] + '</span>' : '') + '</b><p>' + esc(m.text) + '</p>' +
+    slot.innerHTML = '<div class="coach' + (m.who ? ' rival' : '') + '"><div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div><b>' + esc(m.who ? who.full : 'Rooky, your coach') + (m.cls ? ' · <span class="cls ' + m.cls + '">' + C.LABEL[m.cls] + '</span>' : '') + '</b><p>' + esc(m.text) + '</p>' +
       '<div class="row">' + (m.actions || []).map(([t, a]) => '<button class="btn small' + (a === 'takeback' ? ' primary' : '') + '" data-coach="' + a + '">' + esc(t) + '</button>').join('') + '</div></div></div>';
     slot.querySelectorAll('[data-coach]').forEach((b) => {
       b.onclick = () => {
@@ -2104,7 +2104,7 @@
       (era ? '<button class="btn" id="r-era">' + icon('journey') + ' ' + esc(era.name) + '</button>' : '<button class="btn" id="r-home">' + icon('home') + ' Home</button>') +
       (G.kind === 'online' ? '<button class="btn" id="r-report">Report a problem</button>' : jr ? '' : '<button class="btn' + (era ? ' primary' : '') + '" id="r-rematch">' + icon('refresh') + ' ' + (era ? 'Try again' : 'Rematch') + '</button>') +
       (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? 'Claim your prize' : 'Back to ' + esc(era.name)) + '</button>'
-        : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' Review with Praline</button>' : '') + '</div></div>';
+        : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' Review with Rooky</button>' : '') + '</div></div>';
     let prizeShown = false;
     setTimeout(() => {
       if (state.game !== G || state.screen !== 'game') return;
@@ -2305,8 +2305,8 @@
     mount('<div class="hud-top"><button class="backbtn" id="rv-back">' + icon('back') + '<span>' + (fromGame ? 'Back to the game' : 'Back') + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>Game review · ' + esc(arg.title || '') + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="rv-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
-      '<aside class="side glass wide" id="side"><header><b>Praline\'s review</b><span class="pill" id="rv-depth"></span></header>' +
-      '<div id="rv-body" class="rv-body"><div class="progress-ring">' + faceImg(COACH) + '<div>Praline is looking through your game…</div><div class="bar" style="width:180px"><i id="rv-prog" style="width:0%"></i></div></div></div></aside>' +
+      '<aside class="side glass wide" id="side"><header><b>Rooky\'s review</b><span class="pill" id="rv-depth"></span></header>' +
+      '<div id="rv-body" class="rv-body"><div class="progress-ring">' + faceImg(COACH) + '<div>Rooky is looking through your game…</div><div class="bar" style="width:180px"><i id="rv-prog" style="width:0%"></i></div></div></div></aside>' +
       '<div class="actionbar glass"><button class="btn" id="rv-first" aria-label="First move">' + icon('first') + '</button><button class="btn" id="rv-prev" aria-label="Previous move">' + icon('prev') + '</button>' +
       '<button class="btn" id="rv-next" aria-label="Next move">' + icon('next') + '</button><button class="btn" id="rv-last" aria-label="Last move">' + icon('last') + '</button><span class="sep"></span>' +
       '<button class="btn" id="rv-turn">' + icon('star') + '<span class="lbl">Turning point</span></button><button class="btn" id="rv-best">' + icon('hint') + '<span class="lbl">Best line</span></button>' +
@@ -2377,7 +2377,7 @@
     if (!R.data) {
       job('analysis', { type: 'review', fen: start, moves: ucis, timeMs: deep ? 450 : 160 }, (r) => {
         if (state.screen !== 'review') return;
-        if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>Praline could not review this game on this device.</div></div>'; return; }
+        if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>Rooky could not review this game on this device.</div></div>'; return; }
         R.data = r.review;
         if (fromGame) state.game.review = r.review;
         const res = PG.reviewFinished(state.progress, r.review, R.side, ucis.length, Date.now());
@@ -2391,7 +2391,7 @@
   };
 
   // ---------------------------------------------------------------- lessons
-  // The lesson player: Praline's narrated steps, then exercises checked by the chess core.
+  // The lesson player: Rooky's narrated steps, then exercises checked by the chess core.
   // Opened from the learning path (an id) or from an era of the journey ({ id, journey }).
   SCREENS.lesson = function (arg) {
     const id = typeof arg === 'string' ? arg : arg && arg.id;
@@ -2617,7 +2617,7 @@
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       $('ls-phase').textContent = 'Lesson complete';
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
-        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Praline will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
+        '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
         '<span class="pill gold">+' + res.xp + ' XP</span></div>';
       $('ls-next').textContent = era ? 'Back to ' + era.name : 'Back to Learn';
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
