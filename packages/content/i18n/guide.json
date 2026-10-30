@@ -71,5 +71,7 @@
   "era.deco.lesson": { "en": "Great listening! Now tap the lesson, Rooftop mates, and learn something new.", "hi": "बहुत ध्यान से सुना! अब पाठ \"छत पर मात\" पर टैप करें, और कुछ नया सीखें।", "check": ["hi"] },
   "era.deco.puzzles": { "en": "Well done! Next, tap Skyline finish, and solve my puzzles.", "hi": "बहुत अच्छे! अब \"आसमान छूती जीत\" पर टैप करें, और मेरी पहेलियाँ हल करें।", "check": ["hi"] },
   "era.deco.champion": { "en": "You're ready! Tap Skye's challenge, and play me. Win, and the Manhattan Deco set is yours!", "hi": "आप तैयार हैं! \"Skye की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Manhattan Deco सेट आपका!", "check": ["hi"] },
-  "era.deco.done": { "en": "You beat me! The Manhattan Deco set is yours. What a journey, all the way through chess history!", "hi": "आपने मुझे हरा दिया! Manhattan Deco सेट आपका है। क्या सफ़र रहा, शतरंज के पूरे इतिहास से होकर!", "check": ["hi"] }
+  "era.deco.done": { "en": "You beat me! The Manhattan Deco set is yours. What a journey, all the way through chess history!", "hi": "आपने मुझे हरा दिया! Manhattan Deco सेट आपका है। क्या सफ़र रहा, शतरंज के पूरे इतिहास से होकर!", "check": ["hi"] },
+  "minis": { "en": "Mini-games are quick! Pick one, and beat your best score.", "hi": "मिनी-गेम झटपट होते हैं! एक चुनें, और अपना सबसे अच्छा स्कोर तोड़ें।", "check": ["hi"] },
+  "mini": { "en": "Tap the scroll if you need the rules. Have fun!", "hi": "नियम चाहिए तो स्क्रॉल पर टैप करें। मज़े करें!", "check": ["hi"] }
 }

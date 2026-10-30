@@ -582,7 +582,7 @@
     const line = GUIDE.lines[key], who = GUIDE_WHO[line.who] || COACH;
     const el = guideCard();
     el.hidden = false;
-    $('gd-who').textContent = who.full || who.name;
+    $('gd-who').textContent = fullName(who);
     const img = el.querySelector('#gd-show img'); const src = face(who);
     if (img.getAttribute('src') !== src) img.src = src;
     // the caption is in the player's language; the recorded voice stays English for now
@@ -1333,7 +1333,7 @@
       pageHead(t('learn.sub.training'), t('learn.dojoTitle'), t('learn.dojoSub')) +
       '<div class="list">' + ENDGAMES.map((d) => {
         const r = P.dojo[d.id];
-        return '<button class="row-item" data-eg="' + d.id + '"' + (locked(d) ? ' disabled' : '') + '><span class="sg">' + icon(d.goal === 'draw' ? 'draw' : d.goal === 'promote' ? 'pawn' : 'crown') + '</span><span><b>' + esc(d.name) + '</b><br><small>' + esc(d.level) + ' · ' + goalText(d.goal) + (d.goal === 'draw' ? ' ' + t('learn.forMoves', { n: d.par }) : ' · ' + t('learn.par', { n: d.par })) + (r && r.best ? ' · ' + t('learn.best', { n: r.best }) : '') + '</small></span>' +
+        return '<button class="row-item" data-eg="' + d.id + '"' + (locked(d) ? ' disabled' : '') + '><span class="sg">' + icon(d.goal === 'draw' ? 'draw' : d.goal === 'promote' ? 'pawn' : 'crown') + '</span><span><b>' + esc(d.name) + '</b><br><small>' + esc(tx('learn.level.' + String(d.level).toLowerCase(), d.level)) + ' · ' + goalText(d.goal) + (d.goal === 'draw' ? ' ' + t('learn.forMoves', { n: d.par }) : ' · ' + t('learn.par', { n: d.par })) + (r && r.best ? ' · ' + t('learn.best', { n: r.best }) : '') + '</small></span>' +
           (locked(d) ? '<span class="pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : stars(r ? r.stars : 0)) + '</button>';
       }).join('') + '</div></div></div>');
     wireLinks();

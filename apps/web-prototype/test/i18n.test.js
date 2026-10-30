@@ -69,6 +69,13 @@ for (const [k, en] of Object.entries(want)) {
   else if (have[k].en !== en) problems.push('content.' + k + ': English changed to "' + en + '", update the translations');
 }
 for (const k of Object.keys(have)) if (!(k in want)) problems.push('content.' + k + ': no longer in the content files');
+// Rooky's captions: guide.json keeps the spoken English, i18n/guide.json the captions.
+const guideLines = require('../../../packages/content/guide.json').lines;
+for (const [k, l] of Object.entries(guideLines)) {
+  if (!(strings.guide || {})[k]) problems.push('guide.' + k + ': missing (English: ' + l.text + ')');
+  else if (strings.guide[k].en !== l.text) problems.push('guide.' + k + ': English in guide.json changed to "' + l.text + '", update the translations');
+}
+for (const k of Object.keys(strings.guide || {})) if (!(k in guideLines)) problems.push('guide.' + k + ': no longer in guide.json');
 // The coach's sentences: coach.js keeps the English (it also runs in Node and in workers).
 const E = require('../../../packages/chess-core/src/engine.js');
 const coachEN = require('../../../packages/chess-core/src/coach.js')(typeof E === 'function' ? E() : E).EN;

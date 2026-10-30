@@ -148,5 +148,8 @@
   "dr.mastered": { "en": "Opening mastered.", "hi": "ओपनिंग पक्की हो गई।", "check": ["hi"] },
   "dr.runs": { "en": "{n} of 3 clean runs.", "hi": "3 में से {n} बार बिना ग़लती।", "check": ["hi"] },
   "dr.inLine": { "en": "In this line we play {san}.", "hi": "इस लाइन में हम {san} चलते हैं।", "check": ["hi"] },
-  "dr.play": { "en": "Play {san}.", "hi": "{san} चलें।", "check": ["hi"] }
+  "dr.play": { "en": "Play {san}.", "hi": "{san} चलें।", "check": ["hi"] },
+  "level.basic": { "en": "Basic", "hi": "शुरुआती", "check": ["hi"] },
+  "level.advanced": { "en": "Advanced", "hi": "आगे का", "check": ["hi"] },
+  "level.master": { "en": "Master", "hi": "उस्ताद", "check": ["hi"] }
 }
