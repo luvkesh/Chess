@@ -216,6 +216,15 @@ function createServer(opts) {
         return fs.createReadStream(gf).pipe(res);
       }
     }
+    // Rooky's word on each Collection item. A chess set from an era uses the website's recording of its pitch.
+    const pm = url.pathname.match(/^\/pitch\/(site\/)?([a-z0-9.-]+)\.mp3$/);
+    if (pm && req.method === 'GET') {
+      const pf = pm[1] ? path.join(ROOT, 'apps/website/audio', pm[2] + '.mp3') : path.join(PUBLIC, 'pitch', pm[2] + '.mp3');
+      if (fs.existsSync(pf)) {
+        res.writeHead(200, Object.assign({ 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
+        return fs.createReadStream(pf).pipe(res);
+      }
+    }
     // Lessons with their own speakers: words/<who>/<hash of the text>.mp3, recorded again when a voice changes.
     const wm = url.pathname.match(/^\/words\/([a-z]+)\/([0-9a-f]{8})\.mp3$/);
     if (wm && req.method === 'GET') {

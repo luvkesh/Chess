@@ -424,7 +424,26 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .item .ib .st span { font: 600 10.5px/1.3 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-2); }
 .item .ib .st span.lk { color: var(--faint); font: 500 12px/1.3 var(--body); letter-spacing: 0; text-transform: none; }
 .item.locked .sw img { filter: saturate(0.85) brightness(0.84); }   /* in colour, so every set can be admired; the lock row says how to earn it */
-.item .eye { width: 34px; height: 34px; }
+.item .ib .st { flex-wrap: wrap; }
+.item .ib .st .acts { margin-left: auto; display: inline-flex; gap: 6px; flex: none; }
+.item .acts .round { width: 34px; height: 34px; }
+.item .acts .round .ico { width: 17px; height: 17px; }
+.item .acts [data-act="equip"] { color: #bfe7b0; }
+.item .acts [data-act="get"] { color: #ffd98a; border-color: var(--gold-3); }
+/* Rooky by the close button of the item pop-over (JongClub's narrator): his face pulses while he talks */
+.mu-rooky { position: absolute; top: 13px; right: 66px; z-index: 3; display: flex; align-items: center; gap: 8px; }
+.mu-rooky .narrator { width: 48px; height: 48px; padding: 2px; border-radius: 50%; background: linear-gradient(180deg, #fbe6ad, #c9963e); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(232, 192, 112, 0.22); order: 2; }
+.mu-rooky .narrator img { width: 100%; height: 100%; border-radius: 50%; display: block; }
+.mu-rooky.speaking .narrator { animation: gd-talk 1.1s ease-in-out infinite; }
+.mu-rooky .gd-btn { background: rgba(14, 9, 6, 0.7); }
+.museum-card #mu-info > .eyebrow, .museum-card #mu-info > h2 { padding-right: 112px; }
+/* Rooky is in the pop-over, so his corner card steps aside while it is open */
+body:has(.museum-card) .guide { display: none; }
+.museum .mu-quote { margin: -4px 0 14px; padding: 10px 14px; border-left: 2px solid var(--gold-3); background: rgba(232, 194, 122, 0.05); border-radius: 0 12px 12px 0; color: #e9dcc8; font-size: 14.5px; line-height: 1.5; font-style: italic; }
+.museum .mu-quote b { font-style: normal; font-weight: 600; color: var(--gold-2); }
+.museum .mu-how { margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 14px; background: rgba(232, 194, 122, 0.05); }
+.museum .mu-how p { margin: 0 0 10px; font-size: 15px; line-height: 1.5; }
+.museum .mu-how[hidden] { display: none; }
 .museum { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; touch-action: pan-y; }
 .museum .stagebox { border-radius: 20px; overflow: hidden; background: radial-gradient(100% 90% at 50% 30%, var(--tint, rgba(80, 52, 36, 0.55)), rgba(10, 6, 4, 0.95)); border: 1px solid var(--line); display: grid; place-items: center; min-height: 300px; position: relative; }
 .museum .stagecol { position: relative; display: grid; }
@@ -1119,6 +1138,9 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .tcell b { display: block; font-size: 14px; line-height: 1.2; } .tcell small { display: block; font-size: 11.5px; line-height: 1.3; }
   .card { padding: 20px 16px; }
   .card .x { top: 12px; right: 12px; z-index: 3; background: rgba(14, 9, 6, 0.85); }
+  .card.museum-card { padding-top: 70px; }
+  .mu-rooky { top: 9px; right: 60px; }
+  .museum-card #mu-info > .eyebrow, .museum-card #mu-info > h2 { padding-right: 0; }
   .setup-hero { flex-direction: column; align-items: flex-start; gap: 12px; padding-right: 44px; margin-bottom: 14px; }
   .setup-hero > img.portrait { width: 92px; height: 92px; }
   .setup-hero .quote { font-size: 17px; }
@@ -1283,7 +1305,7 @@ body.ingame .guide .gd-text { font-size: 15.5px; }
   .mini-tray button { aspect-ratio: auto; height: 44px; border-radius: 10px; }
   .mini-call { font-size: 56px; }
 }
-@media (prefers-reduced-motion: reduce) { .guide.pop, .guide.speaking .narrator { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .guide.pop, .guide.speaking .narrator, .mu-rooky.speaking .narrator { animation: none; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 </style>
 
