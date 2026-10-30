@@ -13247,6 +13247,7 @@ function ChacklateScene(canvas, options) {
     const t0 = performance.now();
     const busy = step(now);
     render(now);
+    stats.frames++; stats.drawMs += performance.now() - t0;
     if (!drawnOnce) { drawnOnce = true; readyWaits.splice(0).forEach((r) => r()); }
     govern(t0 - reqAt, performance.now() - t0);
     if (busy) requestRender();
@@ -13256,6 +13257,8 @@ function ChacklateScene(canvas, options) {
     }
   }
   let reqAt = 0;
+  // frames drawn and the time spent drawing them, for the frame-rate readout in developer mode
+  const stats = { frames: 0, drawMs: 0 };
   function requestRender() { if (!raf && !glLost) { reqAt = performance.now(); raf = requestAnimationFrame(frame); } }
   // Watches what each frame costs: how long the browser held it back after it was asked for
   // (that grows when the GPU falls behind) plus the time spent drawing it. When the average
@@ -13889,6 +13892,7 @@ function ChacklateScene(canvas, options) {
     },
     // 0 (full detail) to 5; the table also changes it by itself when frames run late
     perf: () => perf,
+    stats: () => ({ frames: stats.frames, drawMs: stats.drawMs, perf }),
     setPerf,
     setFullDetail,
     setAnimations(on) { animations = on; if (!on) particles = []; requestRender(); },
