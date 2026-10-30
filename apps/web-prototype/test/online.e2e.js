@@ -22,6 +22,8 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
     p.on('pageerror', (e) => console.error('page error:', e.message));
     await p.goto(url);
     await p.waitForFunction(() => window.ChacklateNet && ChacklateNet.available() && ChacklateNet.mode() === 'room', null, { timeout: 20000 });
+    // Pages here share one browser's storage; give each its own Club id, as separate devices have.
+    await p.evaluate(() => { ChacklateClub.data().cid = Math.random().toString(36).slice(2, 12); ChacklateApp.state.settings.netName = 'Player ' + Math.random().toString(36).slice(2, 6); ChacklateClub.publish(); });
     return p;
   };
   const inGame = (p) => p.waitForFunction(() => { const G = ChacklateApp.state.game; return G && G.kind === 'online' && G.online; }, null, { timeout: 20000 });
@@ -56,6 +58,11 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
   assert.deepStrictEqual([ow.result, ow.reason], ['1-0', 'checkmate']);
   assert.deepStrictEqual([ok.result, ok.reason], ['1-0', 'checkmate']);
   console.log('ok friend code game to checkmate, with a reaction');
+  // The code made them friends in the Club, on both devices.
+  const fw = await w.evaluate(() => ChacklateClub.data().friends.map((f) => f.name));
+  assert.deepStrictEqual(fw, [await k.evaluate(() => ChacklateApp.state.settings.netName)]);
+  assert.strictEqual((await k.evaluate(() => ChacklateClub.data().friends.length)), 1);
+  console.log('ok friends from a code');
 
   // 2. A wrong code tells the player nobody is waiting.
   await b.evaluate(() => { document.querySelectorAll('.modal [data-close]').forEach((x) => x.click()); ChacklateNet.joinFriend('ZZZZZZ'); });
@@ -76,6 +83,11 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
   assert.strictEqual(rc.reason, 'resignation'); assert.strictEqual(rd.reason, 'resignation');
   assert.strictEqual(rc.result, cw ? '1-0' : '0-1');
   console.log('ok worldwide pairing and resignation');
+  // A world game moves the Club rating on this device; the winner goes up, the loser down.
+  const rr = async (p) => p.evaluate(() => ChacklateClub.data().ratings.blitz);
+  const [wr, lr] = cw ? [await rr(c), await rr(d)] : [await rr(d), await rr(c)];
+  assert.ok(wr.r > 1500 && lr.r < 1500 && wr.g === 1, JSON.stringify([wr, lr]));
+  console.log('ok world game rated in the Club');
 
   // 4. The clock: a player who runs out of time loses on both devices.
   const e = await open(), f = await open();

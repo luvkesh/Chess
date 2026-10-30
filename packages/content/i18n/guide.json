@@ -9,7 +9,7 @@
   "training": { "en": "Let's practise! Pick a skill, and we'll work on it together.", "hi": "चलिए अभ्यास करें! एक हुनर चुनें, और हम साथ मिलकर उस पर काम करेंगे।", "check": ["hi"] },
   "openings": { "en": "Openings are the first moves of a game. Pick one, and try it on the board.", "hi": "ओपनिंग खेल की पहली चालें होती हैं। एक चुनें, और उसे बिसात पर आज़माएँ।", "check": ["hi"] },
   "dojo": { "en": "Endgames are the end of a game, when only a few pieces are left. Pick one, and win it, step by step.", "hi": "अंतिम खेल यानी खेल का आख़िरी हिस्सा, जब कुछ ही मोहरे बचते हैं। एक चुनें, और क़दम-दर-क़दम उसे जीतें।", "check": ["hi"] },
-  "collection": { "en": "This is your collection! Tap anything to see it up close. Then tap Use, to put it on your table.", "hi": "यह आपका संग्रह है! किसी भी चीज़ को पास से देखने के लिए टैप करें। फिर उसे अपनी मेज़ पर रखने के लिए \"लगाएँ\" पर टैप करें।", "check": ["hi"] },
+  "collection": { "en": "This is your collection! Tap anything to see it up close, and I will tell you all about it. Then tap Equip, to put it on your table.", "hi": "यह आपका संग्रह है! किसी भी चीज़ को पास से देखने के लिए टैप करें, और मैं आपको उसके बारे में सब बताऊँगा। फिर उसे अपनी मेज़ पर लगाने के लिए \"लगाएँ\" पर टैप करें।", "check": ["hi"] },
   "profile": { "en": "This is you! Here you can see your level, your games, and your badges.", "hi": "यह आप हैं! यहाँ आप अपना लेवल, अपने खेल और अपने बैज देख सकते हैं।", "check": ["hi"] },
   "season": { "en": "Play games, learn, and solve puzzles to climb the season. Every tier has a prize!", "hi": "सीज़न में ऊपर चढ़ने के लिए खेलें, सीखें और पहेलियाँ हल करें। हर टियर पर एक इनाम है!", "check": ["hi"] },
   "store": { "en": "This part is for grown-ups. Please ask a grown-up before you buy anything.", "hi": "यह हिस्सा बड़ों के लिए है। कुछ भी ख़रीदने से पहले किसी बड़े से ज़रूर पूछें।", "check": ["hi"] },
@@ -73,5 +73,6 @@
   "era.deco.champion": { "en": "You're ready! Tap Skye's challenge, and play me. Win, and the Manhattan Deco set is yours!", "hi": "आप तैयार हैं! \"Skye की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Manhattan Deco सेट आपका!", "check": ["hi"] },
   "era.deco.done": { "en": "You beat me! The Manhattan Deco set is yours. What a journey, all the way through chess history!", "hi": "आपने मुझे हरा दिया! Manhattan Deco सेट आपका है। क्या सफ़र रहा, शतरंज के पूरे इतिहास से होकर!", "check": ["hi"] },
   "minis": { "en": "Mini-games are quick! Pick one, and beat your best score.", "hi": "मिनी-गेम झटपट होते हैं! एक चुनें, और अपना सबसे अच्छा स्कोर तोड़ें।", "check": ["hi"] },
-  "mini": { "en": "Tap the scroll if you need the rules. Have fun!", "hi": "नियम चाहिए तो स्क्रॉल पर टैप करें। मज़े करें!", "check": ["hi"] }
+  "mini": { "en": "Tap the scroll if you need the rules. Have fun!", "hi": "नियम चाहिए तो स्क्रॉल पर टैप करें। मज़े करें!", "check": ["hi"] },
+  "club": { "en": "Welcome to the Club! See how you rank, climb the leagues, and find the friends you play with a code.", "hi": "क्लब में आपका स्वागत है! देखें कि आपकी रैंक क्या है, लीग में ऊपर चढ़ें, और उन दोस्तों को ढूँढें जिनके साथ आप कोड से खेलते हैं।", "check": ["hi"] }
 }

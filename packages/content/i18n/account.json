@@ -92,5 +92,6 @@
   "reset.new": { "en": "Choose a new password", "hi": "नया पासवर्ड चुनें", "check": ["hi"] },
   "reset.go": { "en": "Save and sign in", "hi": "सेव करें और साइन इन करें", "check": ["hi"] },
   "reset.done": { "en": "Password changed. Welcome back, {name}.", "hi": "पासवर्ड बदल गया। फिर से स्वागत है, {name}।", "check": ["hi"] },
-  "board.empty": { "en": "No ranked players yet. Five rated games puts you on the board.", "hi": "अभी कोई रैंक वाला खिलाड़ी नहीं। पाँच रेटिंग वाले खेल खेलें और बोर्ड पर आएँ।", "check": ["hi"] }
+  "board.empty": { "en": "No ranked players yet. Five rated games puts you on the board.", "hi": "अभी कोई रैंक वाला खिलाड़ी नहीं। पाँच रेटिंग वाले खेल खेलें और बोर्ड पर आएँ।", "check": ["hi"] },
+  "club": { "en": "Rankings and friends in the Club", "hi": "क्लब में रैंकिंग और दोस्त", "check": ["hi"] }
 }

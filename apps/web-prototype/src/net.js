@@ -43,6 +43,7 @@
       case 'welcome': {
         ready = true; me = m.user; ratings = m.ratings; acct = m.account || null; safety = m.safety || null;
         app.setSafety(safety);
+        if (window.ChacklateClub) ChacklateClub.fromServer(acct && acct.location);
         setAccount({ token: m.token, name: me.name, guest: me.guest, id: me.id });
         // Adopt the server copy of progress when it is further along (a second device, a cleared browser).
         if (m.progress && m.progress.xp > app.state.progress.xp) { app.state.progress = app.PG.migrate(m.progress); app.save(); if (app.state.screen !== 'game') app.go(app.state.screen); }
@@ -124,7 +125,7 @@
     return out;
   }
 
-  let panel = null, board = 'blitz';
+  let panel = null;
   function refreshPanel() { if (panel && document.body.contains(panel)) renderAccount(panel); }
 
   function renderAccount(el) {
@@ -142,8 +143,7 @@
         '<div class="acct-form"><p style="color:var(--muted);margin:0 0 8px">' + t('account.why') + '</p>' +
         '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="ac-reg" type="button">' + t('account.create') + '</button><button class="btn" id="ac-login" type="button">' + t('account.haveOne') + '</button><button class="btn ghost small" id="ac-forgot" type="button">' + t('account.forgot') + '</button></div></div>'
         : safetyPanel() + accountTools()) +
-      '<h3 class="section-title">' + t('account.leaderboard') + '</h3><div class="seg" id="lb-pool">' + ['bullet', 'blitz', 'rapid'].map((p) => '<label><input type="radio" name="lbp" value="' + p + '"' + (p === board ? ' checked' : '') + '><span>' + t('account.pool.' + p) + '</span></label>').join('') + '</div>' +
-      '<ol class="leaderboard" id="lb"><li style="color:var(--muted)">' + t('common.loading') + '</li></ol>';
+      '<div class="row" style="justify-content:flex-start;margin-top:12px"><button class="btn" data-nav="club" type="button">' + app.icon('users') + ' ' + t('account.club') + '</button></div>';
     const out = el.querySelector('#ac-out');
     if (out) out.onclick = async () => { try { await api('/api/logout', {}); } catch (e) { /* signed out locally either way */ } setAccount({ token: '', guest: true }); app.setEntitlements(null); app.save(); connect(); };
     const reg = el.querySelector('#ac-reg');
@@ -153,8 +153,7 @@
     const resend = el.querySelector('#ac-resend');
     if (resend) resend.onclick = () => parentEmailModal();
     wireAccountTools(el);
-    el.querySelector('#lb-pool').onchange = (e) => { board = e.target.value; loadBoard(el); };
-    loadBoard(el);
+    el.querySelector('[data-nav="club"]').onclick = () => app.go('club');
   }
 
   // ---------------------------------------------------------------- account self-service
@@ -325,17 +324,6 @@
         m.close(); app.toast(t('account.reset.done', { name: app.esc(res.user.name) })); connect();
       } catch (err) { m.querySelector('#rp-err').textContent = err.message; }
     };
-  }
-
-  async function loadBoard(el) {
-    const list = el.querySelector('#lb');
-    try {
-      const res = await api('/api/leaderboard?pool=' + board);
-      const esc = A().esc;
-      list.innerHTML = res.rows.length
-        ? res.rows.map((r) => '<li' + (me && r.name === me.name ? ' class="me"' : '') + '><span class="rk">' + r.rank + '</span><span class="nm">' + esc(r.name) + '</span><span class="rt">' + r.rating + '</span></li>').join('')
-        : '<li style="color:var(--muted)">' + t('account.board.empty') + '</li>';
-    } catch (e) { list.innerHTML = '<li style="color:var(--muted)">' + A().esc(e.message) + '</li>'; }
   }
 
   function syncProgress() {

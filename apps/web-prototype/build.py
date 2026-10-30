@@ -27,6 +27,8 @@ SCRIPTS = [
     src / 'audio.js',
     src / 'net.js',
     src / 'relay.js',
+    src / 'places.js',
+    src / 'club.js',
     src / 'tips.js',
     src / 'minigames.js',
     src / 'rules.js',
@@ -53,6 +55,21 @@ parts = [
     data('CHACKLATE_CAMPAIGN', 'campaign.json'),
     data('CHACKLATE_GUIDE', 'guide.json'),
 ]
+# What Rooky says about each Collection item. A chess set from an era plays the website's recording of
+# its pitch (pitch/site/<key>.mp3, served from apps/website/audio), so each pitch is recorded once.
+site = here.parent / 'website'
+coach = json.loads((content / 'campaign.json').read_text())['coach']['name']
+site_lines = json.loads((site / 'guide.json').read_text())['lines']
+site_said = json.loads((site / 'audio' / 'index.json').read_text())['lines']
+pitch = {}
+for key, line in json.loads((content / 'pitches.json').read_text())['lines'].items():
+    if isinstance(line, dict):
+        text = site_lines[line['site']].replace('{coach}', coach)
+        assert site_said[line['site']]['text'] == text, 'the website clip %s says something else' % line['site']
+        pitch[key] = {'text': text, 'src': 'pitch/site/%s.mp3' % line['site']}
+    else:
+        pitch[key] = {'text': line, 'src': 'pitch/%s.mp3' % key}
+parts.append('const CHACKLATE_PITCH = %s;' % json.dumps(pitch, separators=(',', ':'), ensure_ascii=False))
 # UI strings: one file per area, every language side by side (src/i18n.js reads them).
 # "check" lists the languages still waiting for a native speaker's read; the game doesn't need it.
 strings = {f.stem: {k: {l: v for l, v in e.items() if l != 'check'} for k, e in json.loads(f.read_text()).items()}

@@ -45,4 +45,28 @@ for (const v of V.voices) {
   const files = fs.readdirSync(path.join(dir, v.id)).map((f) => f.replace(/\.mp3$/, '')).sort();
   assert.deepStrictEqual(files, want[v.id].slice().sort(), v.id + ' clips match the script');
 }
+// Lessons with their own speakers (Words at the table): Rooky says every English line, Priya every
+// Hindi word, each recorded with today's words and voice, and nothing extra is shipped.
+const G = require('../../../packages/content/guide.json');
+const L = require('../../../packages/content/lessons.json');
+const engine = { rooky: G.speakers.rooky.engine, priya: V.voices.find((v) => v.id === 'priya').engine };
+const wdir = path.join(__dirname, '../public/words');
+const windex = JSON.parse(fs.readFileSync(path.join(wdir, 'index.json'), 'utf8'));
+const wlines = lines.wordLines();
+const own = L.lessons.filter((l) => l.voice);
+assert(own.length, 'a lesson has its own speakers');
+for (const l of own) {
+  assert.strictEqual(l.voice, 'rooky', l.id + ' is said by Rooky');
+  const words = l.steps.filter((s) => s.word);
+  assert(words.length && l.steps[l.steps.length - 1].glossary, l.id + ' ends with a page listing every word');
+  for (const s of words) assert(s.word.en && s.word.hi && s.word.latin && /[\u0900-\u097f]/.test(s.word.hi), l.id + ': ' + s.word.en + ' has its Hindi');
+  for (const s of l.steps) assert(wlines.some((x) => x.text === s.say && x.who === 'rooky'), l.id + ': ' + s.say);
+}
+for (const x of wlines) {
+  const name = x.who + '/' + x.key;
+  assert.deepStrictEqual(windex[name], { voice: engine[x.who], text: x.text }, name + ' "' + x.text + '" was recorded with other words or another voice: run tools/voice/record-words.py');
+  assert(fs.existsSync(path.join(wdir, name + '.mp3')), name + '.mp3');
+}
+const shipped = fs.readdirSync(wdir).filter((d) => !d.includes('.')).flatMap((d) => fs.readdirSync(path.join(wdir, d)).map((f) => d + '/' + f.replace(/\.mp3$/, ''))).sort();
+assert.deepStrictEqual(shipped, wlines.map((x) => x.who + '/' + x.key).sort(), 'one words clip per line, nothing extra');
 console.log('voice tests passed:', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');

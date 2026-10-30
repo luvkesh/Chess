@@ -898,7 +898,7 @@ function ChacklateScene(canvas, options) {
   function showSkip(on) {
     if (on && !skipEl) {
       skipEl = document.createElement('button');
-      skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = ChacklateI18n.t('play.skip');
+      skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('play.skip') : 'Tap to skip';   // the website shares this file, in English
       skipEl.addEventListener('click', (e) => { e.stopPropagation(); skipCine(); });
       document.body.appendChild(skipEl);
     }
@@ -1605,7 +1605,7 @@ function ChacklateScene(canvas, options) {
     function show(sp, asp) {
       if (asp) aspect = asp;
       if (loop) { cancelAnimationFrame(loop); loop = 0; }
-      if (built) built.dispose();
+      if (built) drop(built);
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       built = buildSpec(sp, w, h, (style) => W.environment(r, style));
       base = built.camera.position.clone();
@@ -1622,8 +1622,12 @@ function ChacklateScene(canvas, options) {
       size();
       // the card's picture stays up while the model's shaders compile in the background
       const mine = built, go = () => { if (built === mine && !stopped && !loop) loop = requestAnimationFrame(tick); };
-      if (r.compileAsync) r.compileAsync(built.scene, built.camera).catch(() => {}).then(go); else go();
+      if (r.compileAsync) mine.compiling = r.compileAsync(built.scene, built.camera).catch(() => {}).then(() => { mine.compiling = null; go(); });
+      else go();
     }
+    // A scene still compiling is freed only once three.js has finished with it; freeing it
+    // mid-compile throws inside three when the visitor flips quickly between items.
+    function drop(b) { if (b.compiling) b.compiling.then(() => b.dispose()); else b.dispose(); }
     function tick(now) {
       loop = 0;
       if (!cv.isConnected || stageR !== r) { stop(); return; }
@@ -1678,7 +1682,7 @@ function ChacklateScene(canvas, options) {
       cv.removeEventListener('pointerup', up);
       cv.removeEventListener('pointercancel', up);
       cv.removeEventListener('wheel', wheel);
-      if (built) { built.dispose(); built = null; }
+      if (built) { drop(built); built = null; }
       if (cv.parentNode === host) host.removeChild(cv);
       host.classList.remove('live');
       if (stageOn === api) stageOn = null;

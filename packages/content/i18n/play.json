@@ -207,5 +207,7 @@
   "rules.lesson": { "en": "Lesson: {title}", "hi": "पाठ: {title}", "check": ["hi"] },
   "rules.running": { "en": "The clock keeps running while you read: this is a game against a person.", "hi": "पढ़ते समय घड़ी चलती रहती है: यह किसी इंसान के साथ खेल है।", "check": ["hi"] },
   "rules.wait": { "en": "The clocks wait while the rule book is open.", "hi": "नियम-पुस्तिका खुली होने पर घड़ियाँ रुकी रहती हैं।", "check": ["hi"] },
-  "rules.clockWaits": { "en": "Your clock is running, so this lesson waits in Learn until after the game.", "hi": "आपकी घड़ी चल रही है, इसलिए यह पाठ खेल के बाद तक 'सीखें' में इंतज़ार करेगा।", "check": ["hi"] }
+  "rules.clockWaits": { "en": "Your clock is running, so this lesson waits in Learn until after the game.", "hi": "आपकी घड़ी चल रही है, इसलिए यह पाठ खेल के बाद तक 'सीखें' में इंतज़ार करेगा।", "check": ["hi"] },
+  "club": { "en": "The Club", "hi": "क्लब", "check": ["hi"] },
+  "clubText": { "en": "Rankings, leagues and your friends", "hi": "रैंकिंग, लीग और आपके दोस्त", "check": ["hi"] }
 }

@@ -49,5 +49,6 @@
   "mainNav": { "en": "Main", "hi": "मुख्य", "check": ["hi"] },
   "guideLabel": { "en": "Guide", "hi": "गाइड", "check": ["hi"] },
   "coins": { "en": "Choco Coins", "hi": "चॉको सिक्के", "check": ["hi"] },
-  "coin": { "en": "Choco Coin", "hi": "चॉको सिक्का", "check": ["hi"] }
+  "coin": { "en": "Choco Coin", "hi": "चॉको सिक्का", "check": ["hi"] },
+  "nav.club": { "en": "Club", "hi": "क्लब", "check": ["hi"] }
 }
