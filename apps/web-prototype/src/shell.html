@@ -594,6 +594,21 @@ body.peeking .shade { background: radial-gradient(ellipse 85% 75% at 50% 42%, tr
 .peekbar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px); bottom: calc(var(--safe-b) + 24px); z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 22px; border-radius: 999px; animation: rise .5s var(--ease) both; }
 .peekbar small { display: block; font: 600 10px/1.2 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
 .peekbar b { font: 500 21px/1.15 var(--serif); }
+/* the free camera after a game: the HUD steps aside, a bar at the bottom leads back to the seat */
+body.exploring #screens, body.exploring .tabbar, body.exploring .guide { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .35s var(--ease), visibility 0s linear .35s; }
+body.exploring #screens * { pointer-events: none !important; }
+body.exploring #stage canvas { touch-action: none; }
+body.exploring .shade { background: radial-gradient(ellipse 95% 85% at 50% 50%, transparent 62%, rgba(6, 3, 2, 0.5) 100%); }
+body.exploring.lowfx .shade, body.exploring.lowfx .grain { display: none; }   /* low quality: nothing drawn over the moving view */
+.explore kbd { display: inline-block; min-width: 1.7em; padding: 1px 5px; margin: 0 2px; border: 1px solid rgba(232, 194, 122, 0.5); border-radius: 5px; font: 600 11px/1.5 var(--body); text-align: center; color: var(--gold); background: rgba(0, 0, 0, 0.25); }
+.explorebar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px); bottom: calc(var(--safe-b) + 24px); z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 22px; border-radius: 999px; animation: rise .5s var(--ease) both; }
+.explorebar small, .explorehint small { display: block; font: 600 10px/1.2 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+.explorebar b { font: 500 21px/1.15 var(--serif); }
+.explorehint { position: fixed; left: 0; right: 0; margin: 0 auto; top: calc(var(--safe-t) + 18px); z-index: 30; width: min(340px, calc(100% - 32px)); padding: 16px 18px 14px; border-radius: 18px; animation: rise .5s var(--ease) both; }
+.explorehint ul { list-style: none; margin: 8px 0 12px; padding: 0; display: grid; gap: 6px; font-size: 14px; line-height: 1.45; }
+.explorehint li::before { content: "\25C6"; color: var(--gold); font-size: 8px; margin-right: 8px; vertical-align: 2px; }
+body.lowfx .explorebar, body.lowfx .explorehint { animation: none; }
+@media (max-width: 520px) { .explorebar { padding-left: 16px; gap: 10px; } .explorebar b { font-size: 17px; } }
 /* capture scenes: a quiet pill under the top bar; a tap anywhere on the table skips too */
 .cine-skip { position: fixed; left: 50%; top: calc(var(--safe-t) + 78px); z-index: 30; transform: translate(-50%, -6px); opacity: 0; pointer-events: none; padding: 8px 16px; border-radius: 999px; background: rgba(14, 9, 6, 0.72); border: 1px solid var(--line-2); color: var(--gold-2); font: 600 10.5px/1 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; transition: opacity .35s var(--ease), transform .35s var(--ease); }
 .cine-skip.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
