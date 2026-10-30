@@ -331,7 +331,10 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .reward-list { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; text-align: left; }
 .reward-list li { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.04); font-size: 14px; }
 .reward-list li .dot { width: 30px; height: 30px; border-radius: 8px; flex: none; background-size: cover; background-position: center; border: 1px solid var(--line-2); }
-.reward-list li img { width: 30px; height: 30px; }
+.reward-list li > img { width: 44px; height: 44px; margin: 0 10px; }
+.reward-list li .thumb { position: relative; width: 64px; height: 46px; flex: none; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; overflow: hidden; border-radius: 9px; border: 1px solid var(--line-2); background: radial-gradient(90% 90% at 50% 30%, rgba(80, 52, 36, 0.6), rgba(14, 9, 6, 0.95)); }
+.reward-list li .thumb img { width: 100%; height: 100%; object-fit: cover; }
+.reward-list li .thumb img.fit { object-fit: contain; transform: scale(1.25); }
 .reward-list li small { display: block; color: var(--faint); font-size: 11.5px; }
 /* The tale reader: parchment pages */
 .modal .card.tale { width: min(680px, 100%); padding: 0; background: none; border: 0; box-shadow: none; overflow: visible; }
@@ -802,7 +805,9 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .tcell.got { border-color: var(--gold); }
 .tcell:not(.got):not(.empty) { opacity: .8; }
 .tcell .sw { width: 44px; height: 44px; border-radius: 12px; flex: none; display: grid; place-items: center; overflow: hidden; background: rgba(14, 9, 6, 0.7); }
+.tcell .sw { grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
 .tcell .sw img { width: 100%; height: 100%; object-fit: cover; }
+.tcell .sw img.fit { object-fit: contain; transform: scale(1.3); }
 .tcell b { font-size: 13.5px; font-weight: 500; display: block; } .tcell small { font-size: 11.5px; color: var(--muted); }
 .perks { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 8px; }
 .perks li { display: flex; gap: 10px; align-items: center; color: var(--ink); font-size: 14.5px; }
@@ -17764,7 +17769,8 @@ function ChacklateAudio() {
   }
   function rewardRow(it) {
     const d = it.data || {};
-    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="dot">' + icon({ pieces: 'pawn', board: 'grid', room: 'home' }[it.category] || 'star') + '</span>';
+    // the item's own picture, the same one its Collection card shows (and shares the cache with)
+    const art = it.category === 'avatar' ? '<img src="' + medal(d.art, d.from, d.to) + '" alt="">' : '<span class="thumb">' + itemArt(it) + '</span>';
     return '<li>' + art + '<span><b>' + esc(it.name) + '</b><small>' + esc(catName(it.category)) + '</small></span></li>';
   }
   const catName = (id) => { const c = CATALOG.categories.find((x) => x.id === id); return c ? c.name.replace(/s$/, '').replace(/^Piece set$/, 'Chess set') : id; };
@@ -18309,7 +18315,7 @@ function ChacklateAudio() {
   function seasonSwatch(it) {
     const d = it.data || {};
     if (it.category === 'avatar') return '<img src="' + medal(d.art, d.from, d.to) + '" alt="">';
-    if (it.category === 'pieces') return '<img src="' + medal('piece:k', '#8a5a2a', '#2a1408') + '" alt="">';
+    if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
     if (it.category === 'frame') return '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
     if (it.category === 'capture' || it.category === 'victory') return '<img src="' + ART.fxUri(d.kind, d.colors) + '" alt="">';
@@ -18342,6 +18348,7 @@ function ChacklateAudio() {
         : '<div class="pass-cta"><div><b>Season Pass</b><small>Unlock the gold track: ' + s.items.filter((i) => i.unlock.track === 'pass').length + ' extra rewards, including tiers you have already reached.</small></div><button class="btn gold" id="se-buy">Ask a grown-up</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">Free track</div><div class="eyebrow">Season Pass</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends.</p></div></div>');
+    hydrate(null, true);
     wireLinks();
     const b = $('se-buy'); if (b) b.onclick = () => go('store', 'pass.' + id);
     document.querySelectorAll('[data-item]').forEach((el) => { el.onclick = () => { AU.play('tap'); itemModal(PG.item(el.dataset.item)); }; });
