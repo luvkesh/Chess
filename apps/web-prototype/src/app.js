@@ -94,7 +94,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true,
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal', captureScenes: true, colourToss: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -1690,6 +1690,7 @@
       '<div class="label set-h">Graphics</div><div class="seg"><label><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>High: shadows, reflections, candlelight</span></label><label><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>Low: faster, saves battery</span></label></div>' +
       '<label class="toggle">Animations and effects <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
       '<label class="toggle">Capture and castling scenes (a few seconds, tap to skip) <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+      '<label class="toggle">Pick a hand for your colour (when you choose Surprise me) <input type="checkbox" id="s-toss"' + (s.colourToss !== false ? ' checked' : '') + '></label>' +
       '<div class="label set-h">Sound</div>' +
       '<label class="toggle">Sound effects <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="Sound effects volume"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="Sound effects on"></label>' +
       '<label class="toggle">Music <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="Music volume"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="Music on"></label>' +
@@ -1706,6 +1707,7 @@
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
     on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
+    on('#s-toss', 'change', (e) => { s.colourToss = e.target.checked; save(); });
     on('#s-sfx', 'change', (e) => { s.sfx = e.target.checked; applySettings(); save(); });
     on('#s-sfxv', 'input', (e) => { s.sfxVol = +e.target.value; applySettings(); AU.play('move'); save(); });
     on('#s-mus', 'change', (e) => { s.music = e.target.checked; AU.unlock(); applySettings(); save(); renderNav(); });
@@ -1815,17 +1817,105 @@
       if (restore.clock && game.clock) Object.assign(game.clock, restore.clock, { since: 0 });
       if (kind === 'local' && state.settings.turnBoard) game.viewSide = g.pos.side === WHITE ? 'white' : 'black';
     }
+    // "Surprise me": the opponent hides a white and a black pawn in two paws and the player picks
+    // one. The table waits (no moves, the camera on White's side) until the pawn is shown.
+    // A table with a friend online draws the colours itself, so there the paws only show them.
+    const toss = !g.moves.length && state.settings.colourToss !== false && (!window.__SHOT || window.__TOSS) &&
+      (kind === 'ai' ? setup.color === 'random' && !setup.dojo && !setup.journey && !restore : kind === 'online' && !!setup.tossBy);
+    if (toss) { game.tossing = true; game.viewSide = 'white'; }
     state.game = game;
     go('game', game);
     view.setView(game.viewSide, state.settings.view, true);
-    if (!g.moves.length) view.intro();
+    if (!g.moves.length && !toss) view.intro();
     save();
     // The opponent says hello across the table.
     if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [['Let\'s play!', 'dismiss']], null, who); }
-    if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: 600 });
-    gameNudge(game);
-    if (!g.outcome) maybeComputer();
+    const begin = () => {
+      if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: toss ? 2600 : 600 });
+      gameNudge(game);
+      if (!g.outcome) maybeComputer();
+    };
+    if (toss) colourToss(game, begin); else begin();
     preAnalyse();
+  }
+  // About three seconds: two closed paws, a tap, the paws open, the pawn in the tapped one is
+  // the player's colour. Skip (or Escape) goes straight to the game. The colour was drawn at
+  // random when the game was made, so the tapped paw simply holds it.
+  // a closed paw seen from the front: four knuckles on top, the thumb tucked along the side
+  const PAW_CLOSED = '<svg viewBox="0 0 120 120" aria-hidden="true"><path class="cuff" d="M38 96h44l-4 20H42z"/>' +
+    '<path class="fill" d="M16 44c0-10 6-16 14-16 4-8 12-12 20-8 6-6 14-6 20 0 8-4 16 0 20 8 8 0 14 6 14 16v28c0 18-16 30-44 30S16 90 16 72z"/>' +
+    '<path class="line" d="M38 30v18M60 22v24M82 30v18"/>' +
+    '<path class="fill thumb" d="M10 58c0-8 8-12 14-8l10 10c4 6 2 16-6 18-10 2-18-8-18-20z"/>' +
+    '<ellipse class="shine" cx="70" cy="44" rx="18" ry="7" transform="rotate(-12 70 44)"/></svg>';
+  const PAW_OPEN = '<svg viewBox="0 0 120 120" aria-hidden="true"><path class="cuff" d="M38 96h44l-4 20H42z"/>' +
+    '<ellipse class="fill" cx="60" cy="76" rx="46" ry="26"/>' +
+    [[22, 50], [43, 40], [77, 40], [98, 50]].map(([x, y]) => '<ellipse class="fill" cx="' + x + '" cy="' + y + '" rx="10" ry="12"/><ellipse class="pad" cx="' + x + '" cy="' + (y + 2) + '" rx="5.5" ry="6.5"/>').join('') +
+    '<path class="pad" d="M38 80c0-12 44-12 44 0 0 10-44 10-44 0z"/></svg>';
+  function colourToss(G, then) {
+    const host = document.querySelector('#screens .screen');
+    const who = G.kind === 'ai' ? rival(G) : null;
+    const name = who ? who.name : G.setup.tossBy || 'Your friend';
+    const tint = who ? who.colors : ['#2f6f6a', '#173b39'];
+    const set = equippedSet(), quick = !state.settings.animations;
+    const pawn = (side) => snap({ kind: 'piece', set, type: 'p', side, floor: false }, 96, 128,
+      side === 'w' ? medal('piece:p', '#f4e6cc', '#a08a6a') : medal('piece:p', '#4a2c1d', '#140b07'), 'toss-pawn');
+    const mine = G.human === WHITE ? 'w' : 'b', other = mine === 'w' ? 'b' : 'w';
+    const el = document.createElement('div');
+    el.className = 'toss' + (quick ? ' still' : '');
+    el.setAttribute('data-no-tips', '');
+    el.style.setProperty('--paw', tint[0]); el.style.setProperty('--paw-2', tint[1]);
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Pick a hand to choose your colour');
+    el.innerHTML = '<div class="toss-in">' + (who ? faceImg(who, 'toss-face') : '') +
+      '<div class="eyebrow">Who goes first?</div><h2 id="toss-h">Pick a hand!</h2>' +
+      '<p class="sub" id="toss-p">' + esc(name) + ' is hiding a white pawn and a black pawn.</p>' +
+      '<div class="toss-hands">' + ['left', 'right'].map((h) => '<button class="toss-hand ' + h + '" data-hand="' + h + '" aria-label="The ' + h + ' paw">' +
+        '<span class="paw closed">' + PAW_CLOSED + '</span><span class="paw open">' + PAW_OPEN + '</span><span class="toss-slot"></span></button>').join('') + '</div>' +
+      '<button class="btn small" id="toss-skip">Skip</button></div>';
+    host.appendChild(el);
+    document.body.classList.add('tossing');
+    let done = false, picked = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      G.toss = null;
+      el.classList.add('out');
+      setTimeout(() => el.remove(), quick ? 0 : 320);
+      document.body.classList.remove('tossing');
+      if (state.game !== G) return;
+      G.tossing = false;
+      G.viewSide = G.kind === 'local' || G.human === WHITE ? 'white' : 'black';
+      view.setView(G.viewSide, state.settings.view, true);
+      view.intro();
+      renderCards(); refreshHighlights(); renderHud();
+      AU.event(G.human === WHITE ? 'start.white' : 'start.black');
+      save();
+      then();
+    };
+    const pick = (hand) => {
+      if (picked) return;
+      picked = true;
+      AU.unlock(); AU.play('tap');
+      el.querySelectorAll('.toss-hand').forEach((b) => {
+        const yours = b.dataset.hand === hand;
+        b.querySelector('.toss-slot').appendChild(el.querySelector('.toss-pawn.' + (yours ? mine : other)));
+        b.classList.add(yours ? 'yours' : 'theirs');
+        b.disabled = true;
+      });
+      el.classList.add('opened');
+      $('toss-h').textContent = mine === 'w' ? 'White! You go first.' : 'Black! ' + name + ' goes first.';
+      $('toss-p').textContent = 'You have the ' + (mine === 'w' ? 'white' : 'black') + ' pieces.';
+      AU.play('move');
+      setTimeout(finish, quick ? 1400 : 1900);
+    };
+    // the pawns wait out of sight until a paw opens
+    const stash = document.createElement('div');
+    stash.className = 'toss-stash'; stash.innerHTML = pawn('w') + pawn('b');
+    stash.querySelectorAll('img').forEach((img, i) => img.classList.add(i ? 'b' : 'w'));
+    el.appendChild(stash);
+    hydrate(stash);
+    el.querySelectorAll('.toss-hand').forEach((b) => { b.onclick = () => pick(b.dataset.hand); });
+    $('toss-skip').onclick = () => { AU.play('tap'); finish(); };
+    G.toss = { skip: finish };
   }
   function resumeSaved() {
     const s = saved.game;
@@ -1907,8 +1997,8 @@
     refreshHighlights();
     renderHud();
     return {
-      leave() { view.setClock(null); save(); },
-      escape() { if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
+      leave() { view.setClock(null); document.body.classList.remove('tossing'); save(); },
+      escape() { if (G.toss) G.toss.skip(); else if (G.selected >= 0) { G.selected = -1; refreshHighlights(); } },
       key(e) { if (e.key === 'f') $('g-flip').click(); },
     };
   };
@@ -1933,7 +2023,7 @@
   }
   function humanTurn() {
     const G = state.game;
-    if (!G || G.g.outcome || G.busy || G.thinking) return false;
+    if (!G || G.g.outcome || G.busy || G.thinking || G.tossing) return false;
     if (G.kind === 'local') return true;
     return G.g.pos.side === G.human;
   }
@@ -3196,8 +3286,8 @@
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
-      // info: { id, color: 'white'|'black', tc, opponent, moves, clock, rating }
-      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
+      // info: { id, color: 'white'|'black', tc, opponent, moves, clock, rating, friend }; friend: a table made with a code
+      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null, tossBy: info.friend ? (info.opponent && info.opponent.name) || 'Your friend' : '' }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
       const G = state.game;
       G.online = { id: info.id, tc: info.tc, opponent: info.opponent, rating: info.rating, clock: info.clock || { w: 0, b: 0, at: performance.now() },
         clockNow() { const c = this.clock; if (!c) return null; const out = { w: c.w, b: c.b }; if (!G.g.outcome && G.g.moves.length >= 2) { const k = G.g.pos.side === WHITE ? 'w' : 'b'; out[k] = Math.max(0, c[k] - (performance.now() - c.at)); } return out; } };
