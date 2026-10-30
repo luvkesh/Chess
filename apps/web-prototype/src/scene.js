@@ -23,6 +23,9 @@ function ChacklateScene(canvas, options) {
   // shadow map is redrawn on demand (dirtyShadows) instead of on every frame.
   renderer.shadowMap.autoUpdate = false;
   let shadowDirty = true;
+  // Another game's table (Xiangqi) set in this room in place of the chessboard: it brings its own
+  // group, answers taps through click(raycaster) and animates through step(now).
+  let alt = null;
   const dirtyShadows = () => { shadowDirty = true; };
   renderer.setClearColor('#120a07');
 
@@ -1218,6 +1221,7 @@ function ChacklateScene(canvas, options) {
     }
     if (particles.length || motesOn()) { stepParticles(now, dt); busy = busy || particles.some((p) => p.kind !== 'mote'); }
     if (clockState && clockState.running) busy = true;
+    if (alt && alt.step && alt.step(now)) { busy = true; dirtyShadows(); }
     return busy;
   }
   const pulsing = () => (highlights.spots && highlights.spots.some((s) => s.pulse !== false)) || highlights.hintFrom >= 0 || highlights.hintTo >= 0;
@@ -1346,6 +1350,7 @@ function ChacklateScene(canvas, options) {
     return g ? sqAt(g[0], g[1]) : -1;
   }
   function setHover(sq) {
+    if (alt) sq = -1;
     if (sq === hoverSq) return;
     hoverSq = sq;
     for (const s of sprites) s.hover = s.sq === sq && opts.canDrag(sq);
@@ -1444,6 +1449,10 @@ function ChacklateScene(canvas, options) {
         if (!(to >= 0 && to !== d.sq && opts.onDrop(d.sq, to))) { dragging = d; cancelDrag(); }
       } else dragging = null;
       canvas.style.cursor = '';
+    } else if (drag && !drag.moved && pointers.size === 0 && alt) {
+      applyCamera(); camera.updateMatrixWorld();
+      raycaster.setFromCamera(ndc(e.clientX, e.clientY), camera);
+      alt.click(raycaster);
     } else if (drag && !drag.moved && pointers.size === 0) {
       const sq = pick(e.clientX, e.clientY);
       if (sq >= 0) opts.onSquare(sq, 'click');
@@ -2095,6 +2104,14 @@ function ChacklateScene(canvas, options) {
     rooms: () => W.ROOMS,
     cancelDrag,
     requestRender,
+    // Puts another game's table in place of the chessboard (null brings the chessboard back).
+    setAlt(a) {
+      if (alt && alt.group) scene.remove(alt.group);
+      alt = a || null;
+      if (alt && alt.group) scene.add(alt.group);
+      boardGroup.visible = pieceGroup.visible = !alt;
+      setHover(-1); dirtyShadows(); requestRender();
+    },
     resize,
   };
 }

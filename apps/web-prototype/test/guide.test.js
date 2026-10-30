@@ -45,7 +45,7 @@ for (const q of PL.questions) {
   asked.add('placement.' + q.id);
 }
 for (const b of PL.bands) { assert(G.lines[b.say] && G.lines[b.say].who === 'rooky', b.say); asked.add(b.say); }
-const menus = [...app.matchAll(/SCREENS\.([a-z]+) = function/g)].map((m) => m[1]).filter((n) => !['era', 'lesson', 'puzzle', 'game', 'drill', 'home'].includes(n));
+const menus = [...app.matchAll(/SCREENS\.([a-z]+) = function/g)].map((m) => m[1]).filter((n) => !['era', 'lesson', 'puzzle', 'game', 'drill', 'home', 'xiangqi', 'xqlesson'].includes(n));
 for (const n of menus) assert(G.lines[n], 'the ' + n + ' screen has a line');
 for (const k of Object.keys(G.lines)) {
   const used = asked.has(k) || k.startsWith('era.') || variantLines.has(k) || menus.includes(k) || k === 'home';
