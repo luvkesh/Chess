@@ -489,6 +489,13 @@ img.snap.in { animation: snapIn .7s var(--ease) both; }
   background: radial-gradient(circle at 35% 30%, #fff0c4, #d9a54e 60%, #8a5a1e); color: #3a1e06; border: 1px solid #fbe7b4; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5); }
 .duo i .ico { width: 20px; height: 20px; }
 .lux-row.three { grid-template-columns: repeat(3, 1fr); }
+.lux-row.four { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1100px) { .lux-row.four { grid-template-columns: repeat(2, 1fr); } }
+.emote-pop { position: fixed; transform: translateX(-50%); display: grid; grid-template-columns: repeat(2, auto); gap: 6px; padding: 10px; border-radius: 18px; z-index: 30; }
+.emote-pop .btn { justify-content: flex-start; white-space: nowrap; }
+.emote-bubble { position: absolute; left: 62px; top: -16px; padding: 6px 12px; border-radius: 16px 16px 16px 4px; background: rgba(20, 14, 10, 0.92); border: 1px solid var(--line-2); color: var(--ink); font: 500 15px/1.2 var(--body); white-space: nowrap; z-index: 8; animation: emote-in .25s ease-out; pointer-events: none; }
+.player-card.top .emote-bubble { top: auto; bottom: -18px; }
+@keyframes emote-in { from { opacity: 0; transform: translateY(6px) scale(.9); } to { opacity: 1; transform: none; } }
 .backlink { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px; padding: 6px 0; font: 600 11.5px/1 var(--caps); letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); transition: color .2s, gap .3s var(--ease); }
 .backlink:hover { color: var(--gold-2); gap: 12px; }
 .path-bar { height: 6px; margin: 18px 0 20px; }
@@ -914,7 +921,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 /* Phone menus: every card row becomes one column of wide cards, rows that held a label
    beside a control stack them, and nothing runs off the right edge. */
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
-  .lux-row, .lux-row.three { grid-template-columns: 1fr; gap: 12px; }
+  .lux-row, .lux-row.three, .lux-row.four { grid-template-columns: 1fr; gap: 12px; }
   .lux.h .art .duo { width: 84px; height: 72px; }
   .lux.h .art .duo img { top: 4px; width: 54px; height: 54px; }
   .lux.h .art .duo i { width: 28px; height: 28px; } .lux.h .art .duo i .ico { width: 14px; height: 14px; }

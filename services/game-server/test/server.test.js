@@ -183,6 +183,32 @@ test('friend codes pair two players in an unrated game; draws by agreement', asy
   } finally { await app.close(); }
 });
 
+test('online games are timed, 10 minutes at most; players send preset reactions only', async () => {
+  const { app, port } = await boot();
+  try {
+    const a = await client(port), b = await client(port);
+    const wa = await a.next('welcome'); await b.next('welcome');
+    assert.ok(wa.timeControls.every((tc) => +tc.split('+')[0] <= 10));
+    a.send({ type: 'friend-create', tc: '30+0' });
+    assert.strictEqual((await a.next('friend-code')).tc, '10+0');
+    a.send({ type: 'friend-create', tc: '5+3' });
+    const { code, tc } = await a.next('friend-code');
+    assert.strictEqual(tc, '5+3');
+    b.send({ type: 'friend-join', code });
+    await a.next('start'); await b.next('start');
+    a.send({ type: 'emote', id: 'gg' });
+    assert.strictEqual((await b.next('emote')).id, 'gg');
+    a.send({ type: 'emote', id: 'nice' });            // too soon after the last one
+    a.send({ type: 'emote', id: 'Hi, what is your name?' });
+    b.send({ type: 'emote', id: 'hello' });
+    assert.strictEqual((await a.next('emote')).id, 'hello');
+    await assert.rejects(b.next('emote', 300));
+    a.send({ type: 'resign' });
+    await a.next('end'); await b.next('end');
+    a.close(); b.close();
+  } finally { await app.close(); }
+});
+
 test('reconnecting resumes the game; a player who stays away forfeits', async () => {
   const { app, port } = await boot({ reconnectMs: 300 });
   try {

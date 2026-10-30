@@ -44,6 +44,7 @@
     cam: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+    smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
     star: '<path d="M12 2l3 7h7l-5.5 4.5 2 7.5L12 17l-6.5 4 2-7.5L2 9h7z"/>', trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H3a4 4 0 0 0 4 4M17 6h4a4 4 0 0 1-4 4"/>',
@@ -621,6 +622,7 @@
   const dailyDone = () => state.progress.daily.date === PG.today() && state.progress.daily.done;
   const nextEra = () => CAMPAIGN.eras.find((e) => !PG.journeyInfo(state.progress, e.id).done) || null;
   const duoArt = () => '<span class="duo"><img src="' + medal('piece:n', '#a3294f', '#5c1328') + '" alt=""><img src="' + medal('piece:r', '#2f6f6a', '#173b39') + '" alt=""><i>' + icon('users') + '</i></span>';
+  const worldArt = () => '<span class="duo"><img src="' + medal('piece:k', '#2f6f6a', '#173b39') + '" alt=""><img src="' + medal('piece:q', '#b8862b', '#5c3d0c') + '" alt=""><i>' + icon('globe') + '</i></span>';
   function wireLinks() {
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     const ms = $('a-missions'); if (ms) ms.onclick = () => { AU.play('tap'); missionsModal(); };
@@ -703,9 +705,10 @@
     mount('<div class="page"><div class="page-in">' +
       pageHead('Play', 'Play Chess', 'Choose an animal friend to play. Each one plays in its own way, from brand new to grandmaster.', '<span class="pill gold">' + icon('star') + ' Your best match: ' + esc(best.full) + '</span>') +
       sec('play', 'Start playing') +
-      '<div class="lux-row three">' +
+      '<div class="lux-row four">' +
       lux({ id: 'p-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: 'Quick Play', text: online ? 'A friendly game online, or ' + best.name + ' if no one is around.' : 'Play ' + best.name + ', picked from your recent games.' }) +
       lux({ id: 'p-friend', art: duoArt(), title: 'Play a Friend', text: online ? 'Share a code, or take turns on this device.' : 'Take turns on this device, side by side.' }) +
+      lux({ id: 'p-world', art: worldArt(), title: 'Play the World', text: online ? 'A timed game against a player from anywhere, 10 minutes at most.' : 'Online play is not connected right now.' }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: 'Custom Game', text: 'Pick your colour, a clock or a starting position.' }) +
       '</div>' +
       sec('users', 'Choose your opponent', OPP.length + ' animal friends') +
@@ -715,6 +718,7 @@
     wireLinks();
     $('p-quick').onclick = () => { AU.unlock(); AU.play('tap'); quickPlay(); };
     $('p-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
+    $('p-world').onclick = () => { AU.unlock(); AU.play('tap'); worldModal(); };
     $('p-custom').onclick = () => { AU.unlock(); AU.play('tap'); newGameModal(); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp); }; });
     return {};
@@ -1632,6 +1636,7 @@
       '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">Flip</span></button>' +
       '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">Top view</span></button>' +
       '<span class="sep"></span>' +
+      (online ? '<button class="btn" id="g-emote" aria-haspopup="true">' + icon('smile') + '<span class="lbl">React</span></button>' : '') +
       (local || dojo ? '' : '<button class="btn" id="g-draw">' + icon('draw') + '<span class="lbl">Draw</span></button>') +
       '<button class="btn" id="g-resign">' + icon('flag') + '<span class="lbl">Resign</span></button>' +
       '<button class="btn primary" id="g-claim" hidden>Claim draw</button>' +
@@ -1651,6 +1656,7 @@
     $('g-flip').onclick = () => { AU.play('tap'); G.viewSide = G.viewSide === 'white' ? 'black' : 'white'; view.setView(G.viewSide, state.settings.view); renderCards(); renderHud(); };
     $('g-view').onclick = () => { AU.play('tap'); state.settings.view = state.settings.view === 'top' ? 'player' : 'top'; view.setView(G.viewSide, state.settings.view); save(); renderHud(); };
     if ($('g-draw')) $('g-draw').onclick = offerDraw;
+    if ($('g-emote')) $('g-emote').onclick = emotePicker;
     $('g-resign').onclick = resign;
     $('g-claim').onclick = () => { if (G.g.claimDraw()) { G.request++; if (online) ChacklateNet.send({ type: 'claim' }); endGame(); } };
     $('g-review').onclick = () => go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: local ? WHITE : G.human, title: titleFor(G), review: G.review, level: G.kind === 'ai' ? G.setup.level : undefined, rival: G.kind === 'ai' ? rival(G) : null });
@@ -1733,7 +1739,7 @@
       let pp, sub;
       if (you) { pp = avatarHtml('sm'); sub = 'Level ' + PG.levelFor(state.progress.xp).level + (G.online && G.online.rating ? ' · Rating ' + G.online.rating : ''); }
       else if (who) { pp = '<img class="portrait" src="' + face(who) + '" alt="">'; sub = G.setup.dojo ? 'Full-strength defence' : who.era ? 'Champion of ' + (eraById(who.era) || {}).name : 'Level ' + (G.setup.level + 1) + ' · ' + LEVELS[G.setup.level].band; }
-      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = 'Rating ' + (opp.rating || '?'); }
+      else if (opp) { pp = avatarHtml('sm', opp.avatar, opp.frame); sub = opp.label || 'Rating ' + (opp.rating || '?'); }
       else { pp = '<img src="' + (side === WHITE ? medal('piece:k', '#f4e6cc', '#a08a6a') : medal('piece:k', '#4a2c1d', '#140b07')) + '" alt="">'; sub = side === WHITE ? 'Plays the light pieces' : 'Plays the dark pieces'; }
       el.innerHTML = '<div class="pp">' + pp + '</div><div class="who"><div class="name">' + esc(sideName(G, side)) + '</div><div class="sub"><span class="tl">' + esc(sub) + '</span></div>' +
         '<div class="taken"><span class="caps"></span><span class="adv"></span></div></div>' +
@@ -2024,6 +2030,37 @@
       refreshHighlights();
     });
   }
+  // Online reactions: a short preset list, never typed text.
+  const EMOTES = { hello: ['👋', 'Hello!'], luck: ['🍀', 'Good luck!'], nice: ['👍', 'Nice move!'], wow: ['😮', 'Wow!'], think: ['🤔', 'Let me think…'], gg: ['🤝', 'Good game!'] };
+  function emotePicker() {
+    const old = document.querySelector('.emote-pop');
+    if (old) { old.remove(); return; }
+    const pop = document.createElement('div');
+    pop.className = 'emote-pop glass'; pop.setAttribute('role', 'menu');
+    pop.innerHTML = Object.keys(EMOTES).map((k) => '<button class="btn small" role="menuitem" data-emote="' + k + '"><span aria-hidden="true">' + EMOTES[k][0] + '</span> ' + EMOTES[k][1] + '</button>').join('');
+    // Fixed above the action bar, which scrolls sideways on phones and would clip it.
+    const r = $('g-emote').getBoundingClientRect();
+    pop.style.left = Math.min(window.innerWidth - 150, Math.max(150, r.left + r.width / 2)) + 'px';
+    pop.style.bottom = (window.innerHeight - r.top + 10) + 'px';
+    document.body.appendChild(pop);
+    const away = (e) => { if (!pop.contains(e.target) && e.target.closest('#g-emote') === null) { pop.remove(); document.removeEventListener('pointerdown', away, true); } };
+    document.addEventListener('pointerdown', away, true);
+    pop.onclick = (e) => { const b = e.target.closest('[data-emote]'); if (!b) return; pop.remove(); document.removeEventListener('pointerdown', away, true); AU.play('tap'); ChacklateNet.send({ type: 'emote', id: b.dataset.emote }); };
+  }
+  function showEmote(id, mine) {
+    const G = state.game, em = EMOTES[id];
+    if (!G || !em || state.screen !== 'game') return;
+    const side = mine ? G.human : -G.human;
+    const card = document.querySelector('.player-card[data-side="' + side + '"]');
+    if (!card) return;
+    const old = card.querySelector('.emote-bubble'); if (old) old.remove();
+    const b = document.createElement('div');
+    b.className = 'emote-bubble'; b.setAttribute('role', 'status');
+    b.innerHTML = '<span aria-hidden="true">' + em[0] + '</span> ' + esc(em[1]);
+    card.appendChild(b);
+    if (!mine) AU.play('tap');
+    setTimeout(() => b.remove(), 3500);
+  }
   function offerDraw() {
     const G = state.game;
     if (G.g.outcome) return;
@@ -2281,10 +2318,20 @@
       startGame({ mode: form.mode.value, color: form.color.value || 'white', level: LEVELS[lv].premium && !prem ? 1 : lv, tc: form.tc.value, fen });
     };
   }
+  // Online clocks: every game is timed, with ten minutes a side at most.
+  const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', '5 min'], ['5+3', '5 + 3'], ['10+0', '10 min']];
+  function worldModal() {
+    if (!netOn()) { toast('Online play is not connected right now. Try Quick Play for a game with an animal friend.'); return; }
+    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">Play the world</div><h2>Find a player</h2>' +
+      '<p class="sub">We pair you with someone waiting for the same clock. Players only see a made-up name, and you can send friendly reactions, never messages.</p></div></div>' +
+      '<div class="field"><div class="label">Clock (10 minutes at most)</div><div class="seg">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="wtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
+      '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn primary" id="w-go">' + icon('globe') + ' Find a player</button></div>', { x: true });
+    m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
+  }
   function friendModal() {
     const online = netOn();
-    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Two players</h2><p class="sub">' + (online ? 'Make a game and share its code, or join with your friend\'s code.' : 'Take turns on this device. Online codes need the game server, which is not reachable right now.') + '</p></div></div>' +
-      (online ? '<div class="field"><div class="label">Clock</div><div class="seg" id="fr-tc">' + ['3+2', '5+3', '10+5', '15+10'].map((t, i) => '<label><input type="radio" name="frtc" value="' + t + '"' + (i === 1 ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
+    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">Play a friend</div><h2>Two players</h2><p class="sub">' + (online ? 'Make a game and share its code, or join with your friend\'s code.' : 'Take turns on this device. Online codes need a connection, which is not available right now.') + '</p></div></div>' +
+      (online ? '<div class="field"><div class="label">Clock (every online game is timed, 10 minutes at most)</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([t, l]) => '<label><input type="radio" name="frtc" value="' + t + '"' + (t === '5+3' ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div></div>' +
         '<div class="row" style="justify-content:flex-start"><button class="btn primary" id="fr-create">' + icon('users') + ' Make a game</button></div>' +
         '<div class="field" style="margin-top:18px"><label for="fr-code">Join with a code</label><div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123"><button class="btn" id="fr-join">Join</button></div><p class="err" id="fr-err"></p></div>' : '') +
       '<div class="row"><button class="btn" data-close>Cancel</button><button class="btn' + (online ? '' : ' primary') + '" id="fr-local">' + icon('users') + ' Take turns here</button></div>', { x: true });
@@ -2923,6 +2970,7 @@
       if (!G.g.outcome) G.g.finish(result, reason);
       endGame();
     },
+    onlineEmote(id, mine) { showEmote(id, mine); },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
     drawOffered() {
       const G = state.game; if (!G) return;
