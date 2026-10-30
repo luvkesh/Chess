@@ -58,9 +58,9 @@ function ChacklateProgress(catalog, extras) {
   function fresh() {
     return {
       v: 1, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
-      stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
+      stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, variants: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
-      equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {},
+      equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {}, variantLessons: {},
     };
   }
   function migrate(s) {
@@ -72,6 +72,8 @@ function ChacklateProgress(catalog, extras) {
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
     out.missions = Object.assign(f.missions, s.missions || {});
     out.journey = Object.assign({}, s.journey || {});
+    out.stats.variants = Object.assign({}, (s.stats || {}).variants || {});
+    out.variantLessons = Object.assign({}, s.variantLessons || {});
     return out;
   }
 
@@ -188,7 +190,14 @@ function ChacklateProgress(catalog, extras) {
     const out = result();
     state.stats.games++;
     if (g.won) state.stats.wins++; else if (g.drawn) state.stats.draws++; else if (g.lost) state.stats.losses++;
-    if (g.mode === 'ai') {
+    // A variation (chaturanga, say) keeps its own record; the records against each friend, the
+    // friend achievements and the chess-move achievements are for chess.
+    const variant = g.variant && g.variant !== 'standard' ? g.variant : null;
+    if (variant) {
+      const v = state.stats.variants[variant] || (state.stats.variants[variant] = { w: 0, d: 0, l: 0 });
+      if (g.won) v.w++; else if (g.drawn) v.d++; else if (g.lost) v.l++;
+    }
+    if (g.mode === 'ai' && !variant) {
       const b = state.stats.byLevel[g.level] || (state.stats.byLevel[g.level] = { w: 0, d: 0, l: 0 });
       if (g.won) b.w++; else if (g.drawn) b.d++; else if (g.lost) b.l++;
     }
@@ -197,23 +206,23 @@ function ChacklateProgress(catalog, extras) {
     if (g.plies < 6) xp = Math.min(xp, 5);   // no farming XP from instant resignations
     grant(state, xp, out);
     achieve(state, 'first-game', out);
-    if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); achieve(state, LEVEL_ACH[lv], out); }
+    if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); if (!variant) achieve(state, LEVEL_ACH[lv], out); }
     if (g.online) achieve(state, 'online-first', out);
     if (g.plies >= 6) {
       track(state, 'game', 1, now, out);
       if (g.won) track(state, 'win', 1, now, out);
       if (g.online) track(state, 'online', 1, now, out);
     }
-    const mine = (g.sans || []).filter((_, i) => (i % 2 === 0) === g.firstIsMine);
+    const mine = variant ? [] : (g.sans || []).filter((_, i) => (i % 2 === 0) === g.firstIsMine);
     if (mine.includes('O-O-O') || mine.some((s) => s.startsWith('O-O-O'))) achieve(state, 'long-castle', out);
     if (mine.some((s) => s.includes('='))) achieve(state, 'promote', out);
     if (g.enPassant) achieve(state, 'en-passant', out);
-    if (g.won && g.reason === 'checkmate') {
+    if (g.won && g.reason === 'checkmate' && !variant) {
       const last = (g.sans || [])[g.sans.length - 1] || '';
       if (last.startsWith('N')) achieve(state, 'knight-mate', out);
       if (g.plies < 50) achieve(state, 'quick-mate', out);
     }
-    state.history.unshift({ date: new Date(now || Date.now()).toISOString(), mode: g.mode, level: g.level, result: g.won ? 'win' : g.drawn ? 'draw' : g.lost ? 'loss' : '-', reason: g.reason, plies: g.plies, pgn: g.pgn || '', start: g.startFen, ucis: g.ucis || [], color: g.color });
+    state.history.unshift({ date: new Date(now || Date.now()).toISOString(), mode: g.mode, level: g.level, result: g.won ? 'win' : g.drawn ? 'draw' : g.lost ? 'loss' : '-', reason: g.reason, plies: g.plies, pgn: g.pgn || '', start: g.startFen, ucis: g.ucis || [], color: g.color, variant: variant || undefined });
     state.history = state.history.slice(0, 30);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
@@ -261,6 +270,20 @@ function ChacklateProgress(catalog, extras) {
     if (allLessons.every((l) => state.lessons[l.id])) achieve(state, 'graduate', out);
     track(state, 'lesson', 1, t, out);
     touchStreak(state, new Date(t), out);
+    return out;
+  }
+
+  // A variation's lesson: stars and XP like a lesson, but no spaced reviews and no chapter.
+  function variantLessonFinished(state, id, firstTry, total, now) {
+    const out = result();
+    const pct = total ? firstTry / total : 1;
+    const stars = pct >= 0.999 ? 3 : pct >= 0.8 ? 2 : 1;
+    const prev = state.variantLessons[id];
+    state.variantLessons[id] = { stars: Math.max(stars, prev ? prev.stars : 0), attempts: (prev ? prev.attempts : 0) + 1 };
+    if (!prev) grant(state, 30, out);
+    out.stars = stars;
+    track(state, 'lesson', 1, now || Date.now(), out);
+    touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
   }
 
@@ -399,7 +422,7 @@ function ChacklateProgress(catalog, extras) {
     return Math.min(best, maxLevel);
   }
 
-  return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
+  return { ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today,
     setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage };
 }
 

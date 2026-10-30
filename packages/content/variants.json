@@ -1,0 +1,60 @@
+{
+  "note": "The Variations menu. Each variation has its rules in the engine (packages/chess-core/src/engine.js, chosen by the FEN prefix in `start`), a one-page rule sheet, a short lesson with Rooky and the animal friends as bots. `differs` marks a rule that is not like chess, in the sheet and in the lesson. Lesson and exercise lines are spoken from guide.json (`line`), recorded by tools/voice/record-guide.py. Variations with status `soon` are shown but cannot be played yet.",
+  "variants": [
+    {
+      "id": "chaturanga",
+      "status": "ready",
+      "name": "Chaturanga",
+      "tagline": "The very first chess, from India",
+      "when": "About 1,500 years ago",
+      "era": "mughal",
+      "start": "chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
+      "blurb": "The ancient Indian game that every kind of chess grew from. Its name means the four parts of an army: foot soldiers, horses, elephants and chariots. The pieces start where you know them, but the counsellor and the elephant move in the old, short way.",
+      "pieces": [
+        { "kind": "k", "name": "Raja", "en": "King", "moves": "One square in any direction, like the king today.", "fen": "8/8/8/8/3K4/8/8/8", "dots": ["c3", "c4", "c5", "d3", "d5", "e3", "e4", "e5"] },
+        { "kind": "q", "name": "Mantri", "en": "Counsellor", "moves": "One square on a slant, and no further. He stands where the queen stands and grew into her.", "differs": true, "fen": "8/8/8/8/3Q4/8/8/8", "dots": ["c3", "c5", "e3", "e5"] },
+        { "kind": "b", "name": "Gaja", "en": "War elephant", "moves": "Jumps exactly two squares on a slant, over anything in between. It stands where the bishop stands and grew into it.", "differs": true, "fen": "8/8/8/2p5/3B4/8/8/8", "dots": ["b2", "b6", "f2", "f6"] },
+        { "kind": "n", "name": "Ashva", "en": "Horse", "moves": "Jumps in an L, just like the knight.", "fen": "8/8/8/8/3N4/8/8/8", "dots": ["b3", "b5", "c2", "c6", "e2", "e6", "f3", "f5"] },
+        { "kind": "r", "name": "Ratha", "en": "Chariot", "moves": "Slides along rows and columns, just like the rook.", "fen": "8/8/8/8/3R4/8/8/8", "dots": ["d1", "d2", "d3", "d5", "d6", "d7", "d8", "a4", "b4", "c4", "e4", "f4", "g4", "h4"] },
+        { "kind": "p", "name": "Padati", "en": "Foot soldier", "moves": "One square forward, even on the first move, and captures one square forward on a slant. On the far side he becomes a Mantri.", "differs": true, "fen": "8/8/8/8/8/2p5/3P4/8", "dots": ["d3", "c3"] }
+      ],
+      "rules": [
+        { "title": "The same start", "text": "Every piece starts on the square of the piece it grew into: the Mantri on the queen's square, the Gaja on the bishops' squares." },
+        { "title": "No castling", "text": "The king walks to safety one step at a time.", "differs": true },
+        { "title": "No en passant", "text": "Soldiers never move two squares, so there is nothing to take in passing.", "differs": true },
+        { "title": "Checkmate wins", "text": "Trap the enemy king so it cannot escape, just like in chess." },
+        { "title": "A bare king loses", "text": "Capture every enemy piece except the king and you win. If they can capture your last piece straight back, it is a draw instead.", "differs": true },
+        { "title": "No move at all loses", "text": "If a player is not in check but has no legal move, the player who trapped them wins. In chess this is stalemate, a draw.", "differs": true },
+        { "title": "Draws", "text": "Repeating the same position, or fifty moves with no capture and no soldier move, can end the game as a draw, as in chess." }
+      ],
+      "notes": [
+        "Rules changed from place to place over the centuries. Chackmate plays one common version, close to shatranj, the Persian game that came from it.",
+        "Move lists write the Mantri as Q and the Gaja as B, after the pieces they became."
+      ],
+      "lesson": {
+        "title": "Chaturanga: chess as it began",
+        "objectives": ["Move the Mantri and the Gaja", "Win the old ways: bare king and no moves"],
+        "steps": [
+          { "line": "variant.chaturanga.hello", "fen": "chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1" },
+          { "line": "variant.chaturanga.same", "fen": "chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1", "marks": ["e1", "b1", "g1", "a1", "h1"] },
+          { "line": "variant.chaturanga.mantri", "differs": true, "fen": "chaturanga:4k3/8/8/8/3Q4/8/8/4K3 w - - 0 1", "arrows": [["d4", "c5"], ["d4", "e5"], ["d4", "c3"], ["d4", "e3"]] },
+          { "line": "variant.chaturanga.gaja", "differs": true, "fen": "chaturanga:4k3/8/8/8/8/8/3P4/2B1K3 w - - 0 1", "arrows": [["c1", "a3"], ["c1", "e3"]] },
+          { "line": "variant.chaturanga.soldier", "differs": true, "fen": "chaturanga:4k3/1P6/8/8/8/8/4P3/4K3 w - - 0 1", "arrows": [["e2", "e3"], ["b7", "b8"]] },
+          { "line": "variant.chaturanga.castle", "differs": true, "fen": "chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1", "marks": ["e1"] },
+          { "line": "variant.chaturanga.win", "differs": true, "fen": "chaturanga:8/8/3k4/8/8/2R5/8/4K3 w - - 0 1", "marks": ["d6"] }
+        ],
+        "exercises": [
+          { "type": "targets", "line": "variant.chaturanga.ex.mantri", "differs": true, "fen": "chaturanga:4k3/8/8/8/4Q3/8/8/4K3 w - - 0 1", "from": "e4", "hints": ["One small step, on a slant."] },
+          { "type": "targets", "line": "variant.chaturanga.ex.gaja", "differs": true, "fen": "chaturanga:4k3/8/1p3P2/2p5/3B4/8/8/4K3 w - - 0 1", "from": "d4", "hints": ["Exactly two squares on a slant.", "The Gaja jumps over the pawn on c5, and can capture on b6."] },
+          { "type": "move", "line": "variant.chaturanga.ex.bare", "differs": true, "fen": "chaturanga:7k/8/n7/8/8/8/8/R3K3 w - - 0 1", "answers": ["a1a6"], "hints": ["Your chariot can reach Black's last piece."] },
+          { "type": "choice", "line": "variant.chaturanga.ex.promote", "differs": true, "fen": "chaturanga:7k/3P4/8/8/8/8/8/4K3 w - - 0 1", "options": ["A Mantri", "A queen", "Any piece I like"], "answer": 0, "explain": "In chaturanga a soldier always becomes a Mantri, the counsellor." },
+          { "type": "win", "line": "variant.chaturanga.ex.stuck", "differs": true, "fen": "chaturanga:k7/7p/K6P/8/8/8/8/2R5 w - - 0 1", "hints": ["Black's pawn is stuck. Can the king move anywhere?", "Use the chariot to guard the b-file."] }
+        ]
+      }
+    },
+    { "id": "chess960", "status": "soon", "name": "Chess960", "tagline": "A surprise back row", "when": "Invented in 1996", "blurb": "The pieces on the back row are shuffled before every game, so you have to think from the very first move." },
+    { "id": "xiangqi", "status": "soon", "name": "Xiangqi", "tagline": "Chinese chess", "when": "About 1,000 years ago", "era": "ming", "blurb": "Chinese chess, played on the lines of the board with a river in the middle, cannons, and generals who never leave their palace." },
+    { "id": "koth", "status": "soon", "name": "King of the Hill", "tagline": "Race your king to the middle", "when": "Quick and fun", "blurb": "Win by checkmate, or by walking your king safely onto one of the four centre squares." },
+    { "id": "threecheck", "status": "soon", "name": "Three-check", "tagline": "Check three times to win", "when": "Quick and fun", "blurb": "Give check three times and you win, even before checkmate." }
+  ]
+}

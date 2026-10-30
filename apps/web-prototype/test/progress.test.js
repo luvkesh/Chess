@@ -196,4 +196,19 @@ for (const e of campaign.eras) for (let i = 0; i < e.stages.length; i++) PJ.jour
 assert(s.achievements['era-4'] && s.achievements['era-all']);
 assert(catalog.items.filter((i) => i.unlock.type === 'journey').every((i) => PJ.isUnlocked(s, i)));
 
+
+// A variation keeps its own record: no friend records or friend achievements, and its lesson has no reviews.
+{
+  const t = PG.fresh();
+  const vg = { mode: 'ai', level: 2, won: true, drawn: false, lost: false, reason: 'bare-king', plies: 60, sans: [], firstIsMine: true, startFen: 'chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1', variant: 'chaturanga' };
+  const r = PG.gameFinished(t, vg, day(1));
+  assert(r.xp > 0 && t.stats.games === 1 && t.stats.wins === 1);
+  assert.deepStrictEqual(t.stats.variants.chaturanga, { w: 1, d: 0, l: 0 });
+  assert(!t.stats.byLevel[2] && !t.achievements['beat-rusher'], 'friend records are for chess');
+  assert.strictEqual(t.history[0].variant, 'chaturanga');
+  const l1 = PG.variantLessonFinished(t, 'chaturanga', 5, 5, day(1));
+  assert(l1.xp === 30 && l1.stars === 3 && PG.variantLessonFinished(t, 'chaturanga', 3, 5, day(2)).xp === 0);
+  assert.deepStrictEqual(PG.dueReviews(t, day(40)), [], 'no reviews for a variation lesson');
+  assert.deepStrictEqual(PG.migrate(JSON.parse(JSON.stringify(t))).stats.variants, t.stats.variants);
+}
 console.log('progress ok');

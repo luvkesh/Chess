@@ -232,3 +232,39 @@ campaign.eras.forEach((e, k) => {
   }
 });
 console.log('campaign ok:', campaign.eras.length, 'eras,', ANIMALS.size, 'portraits');
+
+// Variations: a playable one has its rules in the engine, a rule sheet, and a lesson whose boards,
+// targets and answers work under its own rules. Every other one is marked as coming soon.
+const variants = require('../variants.json').variants;
+const campaignEras = new Set(require('../campaign.json').eras.map((e) => e.id));
+assert.strictEqual(new Set(variants.map((v) => v.id)).size, variants.length, 'variation ids are unique');
+for (const v of variants) {
+  assert.ok(['ready', 'soon'].includes(v.status) && v.name && v.tagline && v.blurb, v.id);
+  if (v.era) assert.ok(campaignEras.has(v.era), v.id + ' era ' + v.era);
+  if (v.status !== 'ready') continue;
+  assert.ok(E.VARIANTS[v.id], v.id + ' has rules in the engine');
+  assert.strictEqual(v.start, E.VARIANTS[v.id].start, v.id + ' start');
+  assert.strictEqual(E.variantOf(load(v.start, v.id).fen()), v.id);
+  assert.ok(v.pieces.length === 6 && v.rules.length && v.rules.some((r) => r.differs), v.id + ' rule sheet');
+  for (const pc of v.pieces) {
+    assert.ok('kqbnrp'.includes(pc.kind) && pc.name && pc.en && pc.moves, v.id + ' piece ' + pc.kind);
+    assert.strictEqual(pc.fen.split('/').length, 8, v.id + ' ' + pc.name + ' picture');
+    assert.ok(pc.dots.every((d) => sq(d) >= 0), v.id + ' ' + pc.name + ' dots');
+  }
+  const L = v.lesson;
+  assert.ok(L.title && L.objectives.length && L.steps.length && L.exercises.length, v.id + ' lesson');
+  assert.ok(L.steps.concat(L.exercises).some((x) => x.differs), v.id + ' lesson marks what differs');
+  L.steps.forEach((s, i) => { assert.strictEqual(E.variantOf(s.fen), v.id, v.id + ' step ' + i); load(s.fen, v.id + ' step ' + i); assert.ok(s.line, v.id + ' step ' + i + ' line'); checked++; });
+  L.exercises.forEach((x, i) => {
+    const where = v.id + ' exercise ' + i;
+    assert.strictEqual(E.variantOf(x.fen), v.id, where);
+    const g = new E.Game(x.fen);
+    if (x.type === 'targets') assert.ok(g.targets(E.to64(sq(x.from))).length >= 2, where + ' targets');
+    else if (x.type === 'move') for (const u of x.answers) assert.ok(g.legal.some((m) => E.uci(m) === u), where + ' answer ' + u);
+    else if (x.type === 'choice') assert.ok(x.options[x.answer], where + ' answer');
+    else if (x.type === 'win') assert.ok(g.legal.some((m) => { const t = new E.Game(x.fen); t.play(m); return t.outcome && t.outcome.result === (g.pos.side === E.WHITE ? '1-0' : '0-1'); }), where + ' has a winning move');
+    else assert.fail(where + ' type ' + x.type);
+    checked++;
+  });
+}
+console.log('variations ok:', variants.filter((v) => v.status === 'ready').length, 'playable of', variants.length);
