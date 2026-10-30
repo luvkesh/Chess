@@ -167,6 +167,9 @@
   "settings.cine": {
     "en": "Short movie scenes when a piece is captured or a king castles. Tap the board to skip one."
   },
+  "settings.toss": {
+    "en": "Before a Surprise me game, tap one of two paws to find out your colour."
+  },
   "settings.coach": {
     "en": "Rooky's comments|How often Rooky talks about your moves during a game."
   },
