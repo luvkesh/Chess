@@ -18,7 +18,7 @@ const VIEWS = [
 ];
 // Pedestal velvet (the set's tint) and its sheen.
 const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], rome: ['#4a1840', '#ff9cd8'], mughal: ['#0e5a52', '#9fe0cc'],
-  ming: ['#8a1e16', '#ffb09c'], venice: ['#14506a', '#9cdcff'], russia: ['#13563a', '#9fe0bc'], deco: ['#2a2a36', '#c8c8e0'] };
+  ming: ['#8a1e16', '#ffb09c'], venice: ['#14506a', '#9cdcff'], paris: ['#4a1426', '#ffb0c4'], russia: ['#13563a', '#9fe0bc'], deco: ['#2a2a36', '#c8c8e0'] };
 
 (async () => {
   fs.mkdirSync(out, { recursive: true });

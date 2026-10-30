@@ -121,7 +121,25 @@
       ]
     },
     {
-      "id": "russia", "n": 7, "name": "Imperial Russia", "title": "Jewels in the Snow", "when": "c. 1900", "place": "Saint Petersburg", "access": "premium",
+      "id": "paris", "n": 7, "name": "Paris", "title": "The Tower of Iron", "when": "1889", "place": "Paris", "access": "premium",
+      "set": "ruby-pearl", "board": "belle", "room": "paris", "landmark": "eiffel", "colors": ["#f0d090", "#6a0c22"],
+      "coach": { "id": "gaston", "name": "Gaston", "full": "Gaston the Rooster", "animal": "rooster",
+        "hello": "Bonjour! In Paris every pawn dreams of becoming a queen. Win, and the Ruby & Pearl set is yours.",
+        "win": "Magnifique! The Ruby & Pearl set is yours.",
+        "lose": "Courage, my friend! Even the Eiffel Tower was built one piece at a time. Try again!" },
+      "stages": [
+        { "kind": "tale", "title": "The soul of chess", "pages": [
+          "Welcome to Paris in 1889! For the World's Fair, the city has built the tallest tower on Earth, made of iron lace. It is called the Eiffel Tower.",
+          "Not far away is the Café de la Régence, where people played chess for more than a hundred years. The great player Philidor learned the game there.",
+          "I am Gaston. The rooster is a symbol of France. Philidor said that pawns are the soul of chess. A pawn that nobody can stop may march all the way and become a queen!"],
+          "quiz": { "q": "What did Philidor call the pawns?", "options": ["The soul of chess", "The feet of chess", "The cheapest pieces"], "answer": 0, "explain": "Pawns decide the shape of the game, and a pawn that reaches the far side becomes a queen." } },
+        { "kind": "lesson", "title": "Pawns on the march", "lesson": "lesson.c06.l03.passed" },
+        { "kind": "puzzles", "title": "Café puzzles", "intro": "The players at the café love a clever trick. Find the move that wins something.", "theme": ["fork", "pin", "discoveredAttack"], "count": 3 },
+        { "kind": "champion", "title": "Gaston's challenge", "level": 5, "color": "white" }
+      ]
+    },
+    {
+      "id": "russia", "n": 8, "name": "Imperial Russia", "title": "Jewels in the Snow", "when": "c. 1900", "place": "Saint Petersburg", "access": "premium",
       "set": "tsarina", "board": "winter", "room": "winter", "landmark": "domes", "colors": ["#f0e4d0", "#13563a"],
       "coach": { "id": "mishka", "name": "Mishka", "full": "Mishka the Bear", "animal": "bear",
         "hello": "Privet! Can you win an endgame against a bear? Win, and the Tsarina's Faberge set is yours.",
@@ -139,7 +157,7 @@
       ]
     },
     {
-      "id": "deco", "n": 8, "name": "New York", "title": "Chess in the Sky", "when": "1930", "place": "Manhattan", "access": "premium",
+      "id": "deco", "n": 9, "name": "New York", "title": "Chess in the Sky", "when": "1930", "place": "Manhattan", "access": "premium",
       "set": "manhattan", "board": "deco", "room": "deco", "landmark": "skyline", "colors": ["#e8c87a", "#1a1c34"],
       "coach": { "id": "skye", "name": "Skye", "full": "Skye the Eagle", "animal": "eagle",
         "hello": "Welcome to the top of the world! This is the final challenge. Win, and the Manhattan Deco set is yours.",
