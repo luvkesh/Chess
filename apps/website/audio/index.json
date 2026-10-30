@@ -1,0 +1,13 @@
+{
+  "voice": "am_puck,am_michael",
+  "lines": {
+    "hero": "Hi! I'm Rooky, your chess coach. Welcome to Chackmate, chess for every age! Scroll down, and I'll show you around.",
+    "learn": "This is me, teaching on a real board. Every time you move, I tell you why, in one simple sentence. No long words, I promise.",
+    "lessons": "Start with how the pieces move, then try puzzles, famous openings and endgames. A new puzzle is waiting for you every day.",
+    "wonders": "Every game happens somewhere amazing! Some places are grand rooms, and some are out in the open, right in front of a wonder of the world. Beat each champion to unlock the next place.",
+    "collect": "Every chess set has its own story. Win them, collect them, and try them on your table! Nothing is random, and nobody can buy a stronger army.",
+    "ages": "Pick a friend to play. Truffle the bunny is gentle with beginners. Ember the dragon plays at full strength. You'll get better with every game.",
+    "families": "Grown-ups, this part is for you. There's no chat with strangers, no ads and no tracking. Parents decide about online play and buying things.",
+    "close": "Your first move is waiting. Let's play!"
+  }
+}

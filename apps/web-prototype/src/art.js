@@ -511,6 +511,14 @@ const ChacklateArt = (() => {
   function crest(o) {
     o = o || {};
     const p = pic();
+    // The game's crest: the rendered gold knight (src/crest.webp, the same picture as the website)
+    // in the gold ring. The drawn knight below stays for builds without it (Node tests).
+    if (typeof CHACKLATE_CREST !== 'undefined') {
+      p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="86"/></clipPath>');
+      const out = ring(p, 96) + '<image href="' + CHACKLATE_CREST + '" x="13" y="13" width="174" height="174" clip-path="url(#inner)"/>' +
+        C(100, 100, 86, 'none', ' stroke="#3a1a06" stroke-opacity=".6" stroke-width="1.2"');
+      return svg(p, '0 0 200 200', out, o.size ? ' width="' + o.size + '" height="' + o.size + '"' : '');
+    }
     p.raw('soft', SOFT);
     p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="80"/></clipPath>');
     const fill = p.lin([[0, '#fff6d0'], [0.3, '#f3d38a'], [0.65, '#c8923e'], [1, '#7a4a14']], 0.2, 0, 0.8, 1);

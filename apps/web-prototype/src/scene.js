@@ -1336,13 +1336,22 @@ function ChacklateScene(canvas, options) {
     const keyS = JSON.stringify([spec, w, h]);
     if (snapCache.has(keyS)) return Promise.resolve(snapCache.get(keyS));
     if (snapPending.has(keyS)) return snapPending.get(keyS);
-    const keep = (blob) => { const url = URL.createObjectURL(blob); snapCache.set(keyS, url); return url; };
+    // Data URLs, not blob: URLs. Safari will not show a blob: URL inside a sandboxed frame
+    // (the artifact viewer), and the card is left with a broken-image box.
+    const keep = (blob) => new Promise((res) => {
+      try {
+        const fr = new FileReader();
+        fr.onload = () => { snapCache.set(keyS, fr.result); res(fr.result); };
+        fr.onerror = () => res(null);
+        fr.readAsDataURL(blob);
+      } catch (e) { res(null); }
+    });
     const p = snapGet(keyS).then((blob) => {
       if (blob) return keep(blob);
       const turn = snapQueue.then(() => (wanted && !wanted() ? null : new Promise((res) => {
         let made;
         try { made = renderSnapshot(spec, w, h); } catch (e) { made = Promise.resolve(null); }
-        made.then((b) => { if (b) snapPut(keyS, b); res(b ? keep(b) : null); }, () => res(null));
+        made.then((b) => { if (b) snapPut(keyS, b); if (b) keep(b).then(res); else res(null); }, () => res(null));
       })));
       snapQueue = turn.then(breath, breath);
       return turn;
