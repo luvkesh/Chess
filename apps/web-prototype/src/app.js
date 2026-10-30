@@ -92,7 +92,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'mira', voiceCalls: 'mira', announce: false, coach: 'normal',
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, voiceCoach: 'heart', voiceCalls: 'heart', announce: false, coach: 'normal',
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You' }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -302,6 +302,8 @@
   }
   function setLook(o) { lookOverride = o || null; applyLook(); }
   const equippedSet = () => (lookOverride && lookOverride.set) || PG.equipped(state.progress, 'pieces').data.set;
+  // Voices from before the 42-voice set: Mira was Heart and Arthur was George.
+  for (const k of ['voiceCoach', 'voiceCalls']) state.settings[k] = ({ mira: 'heart', arthur: 'george' })[state.settings[k]] || state.settings[k];
   function applySettings() {
     const s = state.settings;
     view.setQuality(s.quality);
@@ -1369,11 +1371,14 @@
   // ---------------------------------------------------------------- settings
   function voiceSection(s) {
     const vs = AU.voices();
-    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb) + '</option>';
+    const GROUPS = [['US', 'F', 'American · Female'], ['US', 'M', 'American · Male'], ['UK', 'F', 'British · Female'], ['UK', 'M', 'British · Male']];
+    const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(v.name) + ' · ' + esc(v.blurb.replace(/ (American|British) English, (fe)?male\.$/, '')) + '</option>';
+    const groups = (cur, pick) => GROUPS.map(([a, g, t]) => '<optgroup label="' + t + '">' + vs.filter((v) => v.accent === a && v.gender === g && pick(v)).map((v) => opt(v, cur)).join('') + '</optgroup>').join('');
+    const hindi = (cur) => '<optgroup label="Hindi">' + vs.filter((v) => v.lang === 'hi').map((v) => opt(v, cur)).join('') + '</optgroup>';
     return '<div class="label set-h">Voices</div>' +
       '<label class="toggle">Lesson and story narration <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
-      '<label class="toggle">Coach voice <select id="s-vcoach">' + vs.filter((v) => v.lessons).map((v) => opt(v, s.voiceCoach)).join('') + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select></label>' +
-      '<label class="toggle">Game calls (check, results, puzzles) <select id="s-vcalls">' + vs.map((v) => opt(v, s.voiceCalls)).join('') + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select></label>' +
+      '<label class="toggle">Coach voice <span class="voice-pick"><select id="s-vcoach">' + groups(s.voiceCoach, (v) => v.lessons) + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>Device voice</option></select><button type="button" class="btn small" id="s-vcoach-try" aria-label="Hear the coach voice">▶</button></span></label>' +
+      '<label class="toggle">Game calls (check, results, puzzles) <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + hindi(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>Off</option></select><button type="button" class="btn small" id="s-vcalls-try" aria-label="Hear the game call voice">▶</button></span></label>' +
       '<label class="toggle">Read every move aloud <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
   function settingsModal() {
@@ -1403,6 +1408,8 @@
     on('#s-narr', 'change', (e) => { s.narration = e.target.checked; if (!s.narration) AU.hush(); save(); });
     on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
+    on('#s-vcoach-try', 'click', (e) => { e.preventDefault(); AU.unlock(); AU.preview(s.voiceCoach); });
+    on('#s-vcalls-try', 'click', (e) => { e.preventDefault(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-announce', 'change', (e) => { s.announce = e.target.checked; applySettings(); save(); if (s.announce) { AU.unlock(); AU.announce('Nf3'); } });
     on('#s-coach', 'change', (e) => { s.coach = e.target.value; save(); });
     on('#s-eval', 'change', (e) => { s.evalBar = e.target.checked; save(); renderEval(); applyInsets(); });

@@ -129,6 +129,7 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 .toggle input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--gold-3); flex: none; }
 .toggle input[type=range] { width: 140px; accent-color: var(--gold-3); }
 .toggle select { background: var(--sunk); border: 1px solid var(--line-2); border-radius: 9px; padding: 7px 9px; max-width: 220px; }
+.voice-pick { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .portrait { border-radius: 50%; flex: none; }
 
 /* ------------------------------------------------------------ top navigation */
@@ -905,6 +906,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .setup-hero .quote { font-size: 17px; }
   .toggle:has(select) { flex-wrap: wrap; row-gap: 8px; }
   .toggle select { flex: 1 1 200px; min-width: 0; width: 100%; max-width: none; min-height: 40px; }
+  .voice-pick { flex: 1 1 200px; }
   .row .btn { flex: 1 1 auto; }
   body.paged .nogl p, body.heroic .nogl p { display: none; }
 }

@@ -269,12 +269,17 @@ function ChacklateAudio() {
     }
   }
 
-  // Recorded voices (voice/<id>/<key>.mp3, made by tools/voice). When the game runs from the
-  // single offline file there are no recordings, and lessons fall back to the device's speech engine.
+  // Recorded voices: one pack per voice (voice/<id>.mp3, made by tools/voice) holding every clip
+  // back to back, and voice/index.json giving each clip's size. A clip is fetched as a byte range;
+  // where the host ignores ranges, the first request brings the whole pack and later clips are cut
+  // from it. Hosts that only serve text get the pack as base64 (index entry { url, b64: true }).
+  // When the game runs from the single offline file there are no recordings, and lessons fall back
+  // to the device's speech engine.
   const V = (typeof CHACKLATE_VOICE !== 'undefined') ? CHACKLATE_VOICE : { voices: [], events: {}, moves: {} };
-  let coachVoice = 'mira', callVoice = 'mira', announceOn = false, deviceFallback = true;
+  const OLD_IDS = { mira: 'heart', arthur: 'george' };
+  let coachVoice = 'heart', callVoice = 'heart', announceOn = false, deviceFallback = true;
   let index = null, indexLoad = null, current = null, queueId = 0;
-  const clips = new Map();
+  const clips = new Map(), packs = new Map();
   function voiceKey(text) {
     let h = 0x811c9dc5;
     for (const ch of String(text).normalize('NFC')) {
@@ -290,17 +295,58 @@ function ChacklateAudio() {
     if (typeof fetch === 'undefined' || location.protocol === 'file:') { index = {}; return (indexLoad = Promise.resolve(index)); }
     indexLoad = fetch('voice/index.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => {
       index = {};
-      for (const id of Object.keys(j.voices || {})) index[id] = new Set(j.voices[id]);
+      for (const [id, v] of Object.entries(j.voices || {})) {
+        const keys = (j.keys || {})[v.lang] || [];
+        if (keys.length !== v.sizes.length) continue;
+        const at = new Map();
+        let start = 0, start64 = 0;
+        keys.forEach((k, i) => {
+          const n = v.sizes[i];
+          at.set(k, v.b64 ? [start64, start64 + 4 * Math.ceil(n / 3)] : [start, start + n]);
+          start += n; start64 += 4 * Math.ceil(n / 3);
+        });
+        index[id] = { url: v.url || 'voice/' + id + '.mp3' + (v.v ? '?v=' + v.v : ''), b64: !!v.b64, at };
+      }
       return index;
     });
     return indexLoad;
   }
-  function has(id, key) { return !!(index && index[id] && index[id].has(key)); }
+  function has(id, key) { return !!(index && index[id] && index[id].at.has(key)); }
+  function unbase64(s) {
+    const bin = atob(s), out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out.buffer;
+  }
+  // The whole pack, fetched once.
+  function whole(id) {
+    const v = index[id];
+    if (!packs.has(id)) {
+      packs.set(id, fetch(v.url).then((r) => { if (!r.ok) throw new Error('missing'); return v.b64 ? r.text() : r.arrayBuffer(); })
+        .catch((e) => { packs.delete(id); throw e; }));
+    }
+    return packs.get(id);
+  }
+  const cut = (v, data, a, b) => (v.b64 ? unbase64(data.slice(a, b)) : data.slice(a, b));
+  // The bytes of one clip: a range request while the host honours them, else a cut of the whole pack.
+  async function bytes(id, key) {
+    const v = index[id], [a, b] = v.at.get(key);
+    if (packs.has(id) || v.ranges === false) return cut(v, await whole(id), a, b);
+    // Until the first answer shows whether ranges work, other clips wait rather than each
+    // risking a download of the whole pack.
+    if (v.ranges === undefined && v.probe) { await v.probe.catch(() => {}); return bytes(id, key); }
+    const req = fetch(v.url, { headers: { Range: 'bytes=' + a + '-' + (b - 1) } });
+    if (v.ranges === undefined) v.probe = req;
+    const r = await req.catch((e) => { v.probe = null; throw e; });
+    if (!r.ok) { v.probe = null; throw new Error('missing'); }
+    if (r.status === 206) { v.ranges = true; return v.b64 ? unbase64(await r.text()) : r.arrayBuffer(); }
+    v.ranges = false;
+    if (!packs.has(id)) packs.set(id, v.b64 ? r.text() : r.arrayBuffer());
+    return cut(v, await whole(id), a, b);
+  }
   function clip(id, key) {
     const k = id + '/' + key;
     if (!clips.has(k)) {
-      clips.set(k, fetch('voice/' + k + '.mp3').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
-        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { clips.delete(k); throw e; }));
+      clips.set(k, bytes(id, key).then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { clips.delete(k); throw e; }));
     }
     return clips.get(k);
   }
@@ -416,8 +462,8 @@ function ChacklateAudio() {
     say, hush, event, announce, voiceKey, moveWords,
     voices: () => V.voices.slice(),
     setVoices(o) {
-      if (o.coach) coachVoice = o.coach;
-      if (o.calls) callVoice = o.calls;
+      if (o.coach) coachVoice = OLD_IDS[o.coach] || o.coach;
+      if (o.calls) callVoice = OLD_IDS[o.calls] || o.calls;
       if (o.announce !== undefined) announceOn = !!o.announce;
       if (o.deviceFallback !== undefined) deviceFallback = !!o.deviceFallback;
     },

@@ -35,14 +35,29 @@ for (const v of V.voices) assert(V.events[v.lang] && V.moves[v.lang], v.id);
 assert.strictEqual(lines.spokenEn('Play Nf3, then Qxf7#.', V.moves.en), 'Play Knight eff three, then Queen takes eff seven checkmate.');
 assert.strictEqual(lines.spokenEn('The e-file and h8.', V.moves.en), 'The ee file and aitch eight.');
 
-// The shipped clips match the script: one MP3 per line per voice, nothing missing, nothing extra.
+// The shipped packs match the script: one pack per voice holding every line it says, nothing missing,
+// nothing extra, and the clip sizes add up to the pack.
 const dir = path.join(__dirname, '../public/voice');
 const index = JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8'));
 const want = {};
 for (const j of lines.jobs()) (want[j.voice] = want[j.voice] || []).push(j.key);
 for (const v of V.voices) {
-  assert.deepStrictEqual(index.voices[v.id].slice().sort(), want[v.id].slice().sort(), v.id + ' index matches the script');
-  const files = fs.readdirSync(path.join(dir, v.id)).map((f) => f.replace(/\.mp3$/, '')).sort();
-  assert.deepStrictEqual(files, want[v.id].slice().sort(), v.id + ' clips match the script');
+  const entry = index.voices[v.id];
+  assert(entry, v.id + ' has a pack');
+  assert.deepStrictEqual(index.keys[v.lang], want[v.id].slice().sort(), v.id + ' index matches the script');
+  assert.strictEqual(entry.sizes.length, index.keys[v.lang].length, v.id + ' has a size for every clip');
+  assert(entry.sizes.every((n) => n > 0), v.id + ' has no empty clips');
+  const size = fs.statSync(path.join(dir, v.id + '.mp3')).size;
+  assert.strictEqual(entry.sizes.reduce((a, n) => a + n, 0), size, v.id + ' clip sizes add up to the pack');
 }
-console.log('voice tests passed:', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');
+assert.deepStrictEqual(Object.keys(index.voices).sort(), V.voices.map((v) => v.id).sort(), 'no packs for voices that are gone');
+assert.deepStrictEqual(fs.readdirSync(dir).sort(), ['index.json'].concat(V.voices.map((v) => v.id + '.mp3')).sort(), 'nothing else in the voice folder');
+
+// Voices in the settings list carry what the picker groups them by, and mixed voices have names of their own.
+const names = new Set();
+for (const v of V.voices) {
+  assert(!names.has(v.name), 'voice names are unique: ' + v.name);
+  names.add(v.name);
+  if (v.lang === 'en') assert(['US', 'UK'].includes(v.accent) && ['F', 'M'].includes(v.gender), v.id + ' has an accent and gender');
+}
+console.log('voice tests passed:', V.voices.length, 'voices,', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');

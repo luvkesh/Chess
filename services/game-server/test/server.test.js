@@ -664,3 +664,26 @@ test('retention: accounts unused for two years are deleted, unless a purchase is
     assert.ok(!row(fresh.body.user.id).deleted, 'recent account kept');
   } finally { await app.close(); }
 });
+
+test('voice packs are served whole or one clip at a time as a byte range', async () => {
+  const { app, port } = await boot();
+  try {
+    const base = 'http://127.0.0.1:' + port + '/voice/';
+    const index = await (await fetch(base + 'index.json')).json();
+    const id = Object.keys(index.voices)[0], v = index.voices[id];
+    const all = await fetch(base + id + '.mp3?v=' + v.v);
+    assert.strictEqual(all.status, 200);
+    assert.match(all.headers.get('cache-control'), /immutable/);
+    const bytes = Buffer.from(await all.arrayBuffer());
+    assert.strictEqual(bytes.length, v.sizes.reduce((a, n) => a + n, 0));
+    const start = v.sizes[0], end = start + v.sizes[1] - 1;
+    const one = await fetch(base + id + '.mp3', { headers: { Range: 'bytes=' + start + '-' + end } });
+    assert.strictEqual(one.status, 206);
+    assert.strictEqual(one.headers.get('content-range'), 'bytes ' + start + '-' + end + '/' + bytes.length);
+    assert.deepStrictEqual(Buffer.from(await one.arrayBuffer()), bytes.subarray(start, end + 1));
+    assert.strictEqual((await fetch(base + id + '.mp3', { headers: { Range: 'bytes=' + bytes.length + '-' } })).status, 416);
+    assert.strictEqual((await fetch(base + 'nobody.mp3')).status, 404);
+  } finally {
+    await app.close();
+  }
+});

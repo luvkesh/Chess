@@ -2,7 +2,7 @@
 // The game is one HTML file, so caching it (plus the icons) is enough to play offline.
 // Pages load network-first, so a new release shows up on the next launch with a connection.
 const CACHE = 'chacklate-v1';
-const VOICE = 'chacklate-voice-v1';   // recorded voice clips, kept once heard so lessons talk offline too
+const VOICE = 'chacklate-voice-v2';   // the chosen voice's pack, kept once it is used so lessons talk offline too
 const SHELL = ['/play', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -14,11 +14,8 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/') || url.pathname === '/ws') return;
-  if (/^\/voice\/[a-z]+\/[0-9a-f]{8}\.mp3$/.test(url.pathname)) {
-    e.respondWith(caches.open(VOICE).then((c) => c.match(url.pathname).then((hit) => hit || fetch(e.request).then((res) => {
-      if (res.ok) c.put(url.pathname, res.clone());
-      return res;
-    }))));
+  if (/^\/voice\/[a-z]+\.mp3$/.test(url.pathname)) {
+    e.respondWith(voice(e.request, url));
     return;
   }
   if (!SHELL.includes(url.pathname) && url.pathname !== '/voice/index.json') return;
@@ -27,6 +24,22 @@ self.addEventListener('fetch', (e) => {
     return res;
   }).catch(() => caches.match(url.pathname)));
 });
+
+// A voice pack (/voice/<id>.mp3?v=<hash>) is asked for one clip at a time as a byte range. Each clip
+// is kept once heard (under its range), so lessons a child has heard talk offline too.
+async function voice(req, url) {
+  const range = /^bytes=(\d+)-(\d+)$/.exec(req.headers.get('range') || '');
+  if (!range) return fetch(req);
+  const c = await caches.open(VOICE), key = url.href + '&r=' + range[1] + '-' + range[2];
+  const hit = await c.match(key);
+  if (hit) return new Response(await hit.arrayBuffer(), { status: 206, headers: { 'Content-Type': 'audio/mpeg', 'Content-Range': hit.headers.get('X-Range') } });
+  const res = await fetch(req);
+  if (res.status === 206) {
+    const buf = await res.clone().arrayBuffer();
+    c.put(key, new Response(buf, { headers: { 'Content-Type': 'audio/mpeg', 'X-Range': res.headers.get('Content-Range') || '' } }));
+  }
+  return res;
+}
 
 self.addEventListener('push', (e) => {
   let m = {};
