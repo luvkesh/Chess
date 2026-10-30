@@ -1,0 +1,13 @@
+{
+  "eyebrow": { "en": "Season" },
+  "title": { "en": "Seasons" },
+  "soon": { "en": "The next season starts soon." },
+  "unlocked": { "en": "Unlocked" },
+  "needsPass": { "en": "Needs the pass" },
+  "passIncluded": { "en": "Season Pass included with Premium" },
+  "passOwned": { "en": "Season Pass owned" },
+  "pass": { "en": "Season Pass" },
+  "passText": { "en": "Unlock the gold track: {n} extra rewards, including tiers you have already reached." },
+  "free": { "en": "Free track" },
+  "fine": { "en": "Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends." }
+}

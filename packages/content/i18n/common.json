@@ -38,5 +38,8 @@
   "next": { "en": "Next" },
   "finish": { "en": "Finish" },
   "gotIt": { "en": "Got it" },
-  "tryAgain": { "en": "Try again" }
+  "tryAgain": { "en": "Try again" },
+  "save": { "en": "Save" },
+  "confirm": { "en": "Confirm" },
+  "letsPlay": { "en": "Let's play" }
 }

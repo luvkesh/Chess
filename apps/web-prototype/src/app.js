@@ -1223,7 +1223,7 @@
 
   function gameRow(h, i) {
     const who = h.mode === 'ai' ? persona(h.level) : null;
-    return '<button class="row-item" data-game="' + i + '"><span class="res ' + h.result + '">' + t('learn.result.' + h.result) + '</span>' +
+    return '<button class="row-item" data-game="' + i + '"><span class="res ' + h.result + '">' + (h.result === '-' ? '-' : t('learn.result.' + h.result)) + '</span>' +
       '<span class="gr">' + (who ? '<img class="portrait mini" src="' + face(who) + '" alt="">' : '') + '<span><b>' + (who ? t('learn.vs', { name: esc(oppFull(who)) }) : t(h.mode === 'online' ? 'learn.online' : 'learn.local')) + '</b><small>' +
       esc(REASON_TEXT[h.reason] || h.reason || '') + ' · ' + t('learn.moves', { n: Math.ceil(h.plies / 2) }) + ' · ' + esc(I18N.date(new Date(h.date))) + '</small></span></span><span class="pill">' + icon('eye') + ' ' + t('learn.review') + '</span></button>';
   }
@@ -1356,6 +1356,7 @@
   // ---------------------------------------------------------------- collection
   const CAT_ORDER = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock', 'sound'];
   const CAT_ICON = { pieces: 'pawn', board: 'grid', room: 'home', avatar: 'profile', frame: 'frame', capture: 'sparkle', victory: 'trophy', trail: 'wave', clock: 'clock', sound: 'speaker' };
+  const rarity = (it) => (I18N.has('collection.rarity.' + it.rarity) ? t('collection.rarity.' + it.rarity) : it.rarity);
   const eraOfRoom = (r) => CAMPAIGN.eras.find((e) => e.room === r) || null;
   function soundArt(pack) {
     const h = { wood: [5, 9, 6, 11, 7, 4, 8, 10, 6, 4], soft: [3, 5, 4, 6, 5, 3, 4, 5, 3, 2], marble: [8, 12, 7, 13, 9, 6, 11, 12, 8, 5], glass: [6, 10, 13, 8, 12, 9, 13, 7, 10, 6] }[pack] || [5, 8, 6, 9, 7, 5, 8, 9, 6, 4];
@@ -1403,10 +1404,10 @@
     let active = CAT_ORDER.includes(cat) ? cat : 'pieces', q = '', filter = 'all';
     const owned = () => CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length;
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Collection', 'Your collection', 'Chess sets from every age, boards, rooms and more. Open anything to read its story, or try it on the table.', '<span id="c-meter">' + meter(owned(), CATALOG.items.length, 'collected') + '</span>') +
-      '<div class="cats glass" role="tablist">' + CAT_ORDER.map((c) => '<button role="tab" data-cat="' + c + '">' + icon(CAT_ICON[c]) + '<span>' + esc(CATALOG.categories.find((x) => x.id === c).name) + '</span></button>').join('') + '</div>' +
-      '<div class="col-tools"><label class="search">' + icon('search') + '<input id="c-q" type="search" placeholder="Search the collection" autocomplete="off" aria-label="Search the collection"></label>' +
-      '<div class="seg" id="c-f">' + [['all', 'All items'], ['owned', 'Owned'], ['locked', 'To unlock']].map(([v, t], k) => '<label><input type="radio" name="cf" value="' + v + '"' + (k ? '' : ' checked') + '><span>' + t + '</span></label>').join('') + '</div></div>' +
+      pageHead(t('common.nav.collection'), t('collection.title'), t('collection.sub'), '<span id="c-meter">' + meter(owned(), CATALOG.items.length, t('collection.collected')) + '</span>') +
+      '<div class="cats glass" role="tablist">' + CAT_ORDER.map((c) => '<button role="tab" data-cat="' + c + '">' + icon(CAT_ICON[c]) + '<span>' + t('collection.cat.' + c) + '</span></button>').join('') + '</div>' +
+      '<div class="col-tools"><label class="search">' + icon('search') + '<input id="c-q" type="search" placeholder="' + t('collection.search') + '" autocomplete="off" aria-label="' + t('collection.search') + '"></label>' +
+      '<div class="seg" id="c-f">' + ['all', 'owned', 'locked'].map((v, k) => '<label><input type="radio" name="cf" value="' + v + '"' + (k ? '' : ' checked') + '><span>' + t('collection.filter.' + v) + '</span></label>').join('') + '</div></div>' +
       '<div class="items" id="items"></div>' +
       '</div></div>');
     wireLinks();
@@ -1414,16 +1415,16 @@
       document.querySelectorAll('[data-cat]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.cat === active)));
       const words = q.toLowerCase().split(/\s+/).filter(Boolean);
       const items = CATALOG.items.filter((i) => (words.length ? true : i.category === active) &&
-        words.every((w) => (i.name + ' ' + i.desc + ' ' + i.category).toLowerCase().includes(w)) &&
+        words.every((w) => (i.name + ' ' + i.desc + ' ' + i.category + ' ' + catName(i.category)).toLowerCase().includes(w)) &&
         (filter === 'all' || (filter === 'owned') === PG.isUnlocked(P, i)));
       $('items').innerHTML = items.length ? items.map((it) => {
         const un = PG.isUnlocked(P, it), on = P.equipped[it.category] === it.id;
         return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
-          '<span class="rar ' + it.rarity + '">' + it.rarity + '</span>' +
+          '<span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' +
           '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(it.desc) + '</span><span class="st">' +
-          (un ? '<span>' + (on ? icon('check') + ' Equipped' : 'Owned') + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
-          '<button class="round sm eye" data-peek="' + it.id + '" aria-label="Try ' + esc(it.name) + ' on the table" title="Try it on the table">' + icon('eye') + '</button></span></div></div>';
-      }).join('') : '<p class="muted">Nothing here yet. Try another search.</p>';
+          (un ? '<span>' + (on ? icon('check') + ' ' + t('collection.equipped') : t('collection.filter.owned')) + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
+          '<button class="round sm eye" data-peek="' + it.id + '" aria-label="' + t('collection.tryName', { name: esc(it.name) }) + '" title="' + t('collection.try') + '">' + icon('eye') + '</button></span></div></div>';
+      }).join('') : '<p class="muted">' + t('collection.none') + '</p>';
       hydrate($('items'), true);
       $('items').querySelectorAll('.item').forEach((el) => {
         el.onclick = (e) => {
@@ -1432,7 +1433,7 @@
           if (e.target.closest('[data-peek]')) peek(it); else itemModal(it, render, items);
         };
       });
-      $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, 'collected');
+      $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, t('collection.collected'));
     }
     document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { active = b.dataset.cat; q = ''; $('c-q').value = ''; AU.play('tap'); render(); }; });
     $('c-q').oninput = (e) => { q = e.target.value; render(); };
@@ -1448,7 +1449,7 @@
     let at = list.indexOf(it), live = null;
     const many = list.length > 1;
     const m = modal('<div class="museum"><div class="stagecol"><div class="stagebox" id="mu-stage"></div>' +
-      (many ? '<button class="round mu-nav prev" aria-label="Previous item">' + icon('prev') + '</button><button class="round mu-nav next" aria-label="Next item">' + icon('next') + '</button><span class="mu-count" id="mu-count"></span>' : '') +
+      (many ? '<button class="round mu-nav prev" aria-label="' + t('collection.prevItem') + '">' + icon('prev') + '</button><button class="round mu-nav next" aria-label="' + t('collection.nextItem') + '">' + icon('next') + '</button><span class="mu-count" id="mu-count"></span>' : '') +
       '</div><div id="mu-info"></div></div>', { cls: 'wide', x: true, onClose: () => { document.removeEventListener('keydown', keys, true); if (live) live.stop(); } });
     const stageEl = m.querySelector('#mu-stage'), info = m.querySelector('#mu-info');
     function fill(it, dir) {
@@ -1456,15 +1457,15 @@
       const d = it.data || {};
       const set = it.category === 'pieces' ? setInfo(d.set) : null;
       info.innerHTML = '<div class="eyebrow">' + esc(catName(it.category)) + '</div><h2>' + esc(it.name) + '</h2>' +
-        '<div class="facts"><span class="rar ' + it.rarity + '">' + it.rarity + '</span>' + (set ? '<span class="pill gold">' + esc(set.era) + '</span><span class="pill">' + esc(set.year) + '</span>' : '') + '</div>' +
+        '<div class="facts"><span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' + (set ? '<span class="pill gold">' + esc(set.era) + '</span><span class="pill">' + esc(set.year) + '</span>' : '') + '</div>' +
         '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
-        (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((t) => '<button data-pt="' + t + '" aria-pressed="false" title="' + PIECE_NAME[t] + '">' + snap({ kind: 'piece', set: d.set, type: t, side: 'w' }, 84, 104, ART.pieceUri(t)) + '</button>').join('') + '</div>' +
-          '<p class="plore" id="mu-lore">Tap a piece to read its story.</p>' : '') +
-        '<p class="fine">' + (un ? (on ? icon('check') + ' Equipped.' : 'This is yours to use.') : icon('lock') + ' ' + esc(PG.unlockText(it)) + ' to unlock.') + '</p>' +
-        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' Equip</button>' : '') +
-        '<button class="btn outline" id="mu-try">' + icon('eye') + ' Try it on the table</button></div>';
+        (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((pt) => '<button data-pt="' + pt + '" aria-pressed="false" title="' + PIECE_NAME[pt] + '">' + snap({ kind: 'piece', set: d.set, type: pt, side: 'w' }, 84, 104, ART.pieceUri(pt)) + '</button>').join('') + '</div>' +
+          '<p class="plore" id="mu-lore">' + t('collection.tapPiece') + '</p>' : '') +
+        '<p class="fine">' + (un ? (on ? icon('check') + ' ' + t('collection.equippedDot') : t('collection.yours')) : icon('lock') + ' ' + t('collection.toUnlock', { how: esc(PG.unlockText(it)) })) + '</p>' +
+        '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' ' + t('collection.equip') + '</button>' : '') +
+        '<button class="btn outline" id="mu-try">' + icon('eye') + ' ' + t('collection.try') + '</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
-      if (many) m.querySelector('#mu-count').textContent = (at + 1) + ' of ' + list.length;
+      if (many) m.querySelector('#mu-count').textContent = t('collection.count', { n: at + 1, of: list.length });
       // The picture is only a placeholder: the item itself turns on the stage in real 3D.
       if (live) { live.stop(); live = null; }
       stageEl.setAttribute('style', tintStyle(it).replace(/^ style="|"$/g, ''));
@@ -1472,16 +1473,16 @@
       stageEl.innerHTML = itemArt(it, true, staged);
       hydrate(m);
       live = spec && view.stage ? view.stage(stageEl, spec, 520 / 360) : null;
-      if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' Drag to turn · pinch to zoom</span>');
+      if (live) stageEl.insertAdjacentHTML('beforeend', '<span class="hint3d">' + icon('rotate') + ' ' + t('collection.drag') + '</span>');
       info.querySelectorAll('[data-pt]').forEach((b) => {
         b.onclick = () => {
-          const t = b.dataset.pt;
+          const pt = b.dataset.pt;
           AU.play('select');
           info.querySelectorAll('[data-pt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-          info.querySelector('#mu-lore').innerHTML = '<b>The ' + PIECE_NAME[t] + '.</b> ' + esc(set.lore[t]);
-          const one = { kind: 'piece', set: d.set, type: t, side: t === 'q' || t === 'b' ? 'b' : 'w' };
+          info.querySelector('#mu-lore').innerHTML = '<b>' + t('collection.thePiece', { piece: PIECE_NAME[pt] }) + '</b> ' + esc(set.lore[pt]);
+          const one = { kind: 'piece', set: d.set, type: pt, side: pt === 'q' || pt === 'b' ? 'b' : 'w' };
           if (live) { live.show(one, 360 / 400); return; }
-          stageEl.innerHTML = snap(one, 360, 400, ART.pieceUri(t), 'fit');
+          stageEl.innerHTML = snap(one, 360, 400, ART.pieceUri(pt), 'fit');
           hydrate(stageEl);
         };
       });
@@ -1528,42 +1529,42 @@
     const got = Object.keys(P.achievements).length;
     const stat = (ic, label, v) => '<div class="stat"><span class="ic">' + icon(ic) + '</span><span><small>' + label + '</small><b>' + v + '</b></span></div>';
     mount('<div class="page"><div class="page-in">' +
-      '<section class="pbanner glass"><button class="pav" id="pf-av" aria-label="Change your picture">' + avatarHtml('xl') + '<span class="round sm">' + icon('edit') + '</span></button>' +
-      '<div class="who"><div class="eyebrow">' + esc(lv.title) + ' · Level ' + lv.level + '</div><h1>' + esc(state.settings.name) + ' <button class="round sm" id="pf-name" aria-label="Change your name">' + icon('edit') + '</button></h1>' +
-      '<div class="xp"><div class="bar"><i style="width:' + Math.round(lv.into / lv.need * 100) + '%"></i></div><small>' + lv.into + ' / ' + lv.need + ' XP to level ' + (lv.level + 1) + '</small></div>' +
-      '<div class="chips">' + (P.streak.count > 1 ? '<span class="pill gold">' + icon('flame') + ' ' + P.streak.count + '-day streak</span>' : '') +
-      '<span class="pill">' + icon('journey') + ' ' + eras + ' of ' + CAMPAIGN.eras.length + ' eras</span>' + (P.premium ? '<span class="pill gold">' + icon('crown') + ' Premium</span>' : '') + '</div></div></section>' +
-      '<section class="stats glass"><div class="stat big"><span class="ic">' + icon('star') + '</span><small>Puzzle rating</small><b>' + st.puzzles.rating + '</b></div>' +
-      stat('swords', 'Games', st.games) + stat('trophy', 'Wins', st.wins) + stat('percent', 'Win rate', rate) + stat('flame', 'Day streak', P.streak.count) +
-      stat('learn', 'Lessons', Object.keys(P.lessons).length) + stat('puzzle', 'Puzzles solved', st.puzzles.solved) + stat('chart', 'Accuracy', acc) + stat('collection', 'Collected', CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length) +
+      '<section class="pbanner glass"><button class="pav" id="pf-av" aria-label="' + t('profile.changePic') + '">' + avatarHtml('xl') + '<span class="round sm">' + icon('edit') + '</span></button>' +
+      '<div class="who"><div class="eyebrow">' + esc(lv.title) + ' · ' + t('common.level', { n: lv.level }) + '</div><h1>' + esc(myName()) + ' <button class="round sm" id="pf-name" aria-label="' + t('profile.changeName') + '">' + icon('edit') + '</button></h1>' +
+      '<div class="xp"><div class="bar"><i style="width:' + Math.round(lv.into / lv.need * 100) + '%"></i></div><small>' + t('profile.xpTo', { n: lv.into, of: lv.need, level: lv.level + 1 }) + '</small></div>' +
+      '<div class="chips">' + (P.streak.count > 1 ? '<span class="pill gold">' + icon('flame') + ' ' + t('profile.streak', { n: P.streak.count }) + '</span>' : '') +
+      '<span class="pill">' + icon('journey') + ' ' + t('profile.eras', { n: eras, of: CAMPAIGN.eras.length }) + '</span>' + (P.premium ? '<span class="pill gold">' + icon('crown') + ' ' + t('common.premium') + '</span>' : '') + '</div></div></section>' +
+      '<section class="stats glass"><div class="stat big"><span class="ic">' + icon('star') + '</span><small>' + t('profile.stat.rating') + '</small><b>' + st.puzzles.rating + '</b></div>' +
+      stat('swords', t('profile.stat.games'), st.games) + stat('trophy', t('profile.stat.wins'), st.wins) + stat('percent', t('profile.stat.rate'), rate) + stat('flame', t('profile.stat.streak'), P.streak.count) +
+      stat('learn', t('profile.stat.lessons'), Object.keys(P.lessons).length) + stat('puzzle', t('profile.stat.puzzles'), st.puzzles.solved) + stat('chart', t('profile.stat.accuracy'), acc) + stat('collection', t('profile.stat.collected'), CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length) +
       '</section>' +
-      sec('medal', 'Achievements', got + ' of ' + PG.ACHIEVEMENTS.length) +
-      '<div class="ach">' + PG.ACHIEVEMENTS.map((a) => '<div class="badge' + (P.achievements[a.id] ? ' got' : '') + '"><i>' + (P.achievements[a.id] ? '★' : '☆') + '</i><div><b>' + esc(a.name) + '</b><small>' + esc(a.desc) + '</small></div></div>').join('') + '</div>' +
-      '<h2 class="sec" id="games">' + icon('refresh') + '<span>Recent games</span></h2>' +
-      '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">No games yet. Your games appear here for Rooky to review.</p>') + '</div>' +
-      '<h2 class="sec" id="acct">' + icon('globe') + '<span>Online account</span></h2><div class="panel glass" id="pf-account"></div>' +
-      sec('crown', 'Premium') + '<div class="panel glass">' + premiumLine() +
-      '<label class="toggle">Preview Premium on this device, for testing without a server. It does not change your account. <input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></label></div>' +
+      sec('medal', t('profile.achievements'), t('collection.count', { n: got, of: PG.ACHIEVEMENTS.length })) +
+      '<div class="ach">' + PG.ACHIEVEMENTS.map((a) => '<div class="badge' + (P.achievements[a.id] ? ' got' : '') + '"><i>' + (P.achievements[a.id] ? '★' : '☆') + '</i><div><b>' + esc(achName(a)) + '</b><small>' + esc(achDesc(a)) + '</small></div></div>').join('') + '</div>' +
+      '<h2 class="sec" id="games">' + icon('refresh') + '<span>' + t('learn.recent') + '</span></h2>' +
+      '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">' + t('profile.noGames') + '</p>') + '</div>' +
+      '<h2 class="sec" id="acct">' + icon('globe') + '<span>' + t('profile.account') + '</span></h2><div class="panel glass" id="pf-account"></div>' +
+      sec('crown', t('common.premium')) + '<div class="panel glass">' + premiumLine() +
+      '<label class="toggle">' + t('profile.preview') + ' <input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></label></div>' +
       '</div></div>');
     wireLinks();
     wireGames(P.history);
     $('pf-av').onclick = () => { AU.play('tap'); go('collection', 'avatar'); };
     $('pf-name').onclick = () => {
-      const m = modal('<div class="eyebrow">Profile</div><h2>Your name</h2><form id="nm"><div class="field"><label for="nm-v">Display name</label><input class="text-in" id="nm-v" maxlength="20" value="' + esc(state.settings.name) + '" autofocus></div>' +
-        '<p class="fine">Use a nickname, not your real full name.</p><div class="row"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save</button></div></form>');
-      m.querySelector('#nm').onsubmit = (e) => { e.preventDefault(); const v = m.querySelector('#nm-v').value.trim().slice(0, 20); if (v) { state.settings.name = v; save(); m.close(); toast('Name saved.'); go('profile'); } };
+      const m = modal('<div class="eyebrow">' + t('common.nav.profile') + '</div><h2>' + t('profile.nameTitle') + '</h2><form id="nm"><div class="field"><label for="nm-v">' + t('profile.nameLabel') + '</label><input class="text-in" id="nm-v" maxlength="20" value="' + esc(myName()) + '" autofocus></div>' +
+        '<p class="fine">' + t('profile.nameFine') + '</p><div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('common.save') + '</button></div></form>');
+      m.querySelector('#nm').onsubmit = (e) => { e.preventDefault(); const v = m.querySelector('#nm-v').value.trim().slice(0, 20); if (v) { state.settings.name = v; save(); m.close(); toast(t('profile.nameSaved')); go('profile'); } };
     };
-    $('pf-prem').onchange = (e) => { state.settings.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); save(); toast(e.target.checked ? 'Premium preview on.' : 'Premium preview off.'); go('profile'); };
+    $('pf-prem').onchange = (e) => { state.settings.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); save(); toast(t(e.target.checked ? 'profile.previewOn' : 'profile.previewOff')); go('profile'); };
     $('pf-store').onclick = () => go('store');
-    if (window.ChacklateNet) ChacklateNet.renderAccount($('pf-account')); else $('pf-account').innerHTML = '<p class="muted">Online play is not available in this build.</p>';
+    if (window.ChacklateNet) ChacklateNet.renderAccount($('pf-account')); else $('pf-account').innerHTML = '<p class="muted">' + t('profile.noOnline') + '</p>';
     if (section === 'games') setTimeout(() => $('games').scrollIntoView({ behavior: 'smooth' }), 120);
     if (section === 'account') setTimeout(() => $('acct').scrollIntoView({ behavior: 'smooth' }), 120);
     return {};
   };
   function premiumLine() {
     const e = (state.account && state.account.ent) || {};
-    const what = e.premium ? (e.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(e.premiumUntil).toLocaleDateString()) : (e.passes || []).length ? 'Free plan with a Season Pass' : 'Free plan';
-    return '<div class="acct-row"><span class="sg gold">' + icon('crown') + '</span><span style="flex:1"><b>' + esc(what) + '</b><br><small class="muted">Purchases belong to your online account.</small></span><button class="btn small gold" id="pf-store">Store</button></div>';
+    const what = e.premium ? (e.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(e.premiumUntil)) })) : t((e.passes || []).length ? 'store.freePass' : 'store.free');
+    return '<div class="acct-row"><span class="sg gold">' + icon('crown') + '</span><span style="flex:1"><b>' + esc(what) + '</b><br><small class="muted">' + t('store.belong') + '</small></span><button class="btn small gold" id="pf-store">' + t('store.store') + '</button></div>';
   }
 
   // ---------------------------------------------------------------- season
@@ -1582,27 +1583,27 @@
     const P = state.progress;
     const id = P.season || (PG.SEASONS.seasons[PG.SEASONS.seasons.length - 1] || {}).id;
     const s = id && PG.seasonInfo(P, id);
-    if (!s) { mount('<div class="page"><div class="page-in">' + pageHead('Season', 'Seasons', 'The next season starts soon.') + '</div></div>'); return {}; }
+    if (!s) { mount('<div class="page"><div class="page-in">' + pageHead(t('season.eyebrow'), t('season.title'), t('season.soon')) + '</div></div>'); return {}; }
     const at = (tier, track) => s.items.find((i) => i.unlock.tier === tier && i.unlock.track === track);
     const cell = (it, track, reached) => {
       if (!it) return '<div class="tcell empty"></div>';
       const un = PG.isUnlocked(P, it);
       return '<button class="tcell' + (un ? ' got' : '') + (track === 'pass' ? ' pass' : '') + '" data-item="' + it.id + '"><span class="sw">' + seasonSwatch(it) + '</span><span><b>' + esc(it.name) + '</b><small>' +
-        esc(catName(it.category)) + ' · ' + (un ? 'Unlocked' : reached && track === 'pass' ? 'Needs the pass' : 'Tier ' + it.unlock.tier) + '</small></span></button>';
+        esc(catName(it.category)) + ' · ' + (un ? t('season.unlocked') : reached && track === 'pass' ? t('season.needsPass') : t('home.season.tier', { n: it.unlock.tier })) + '</small></span></button>';
     };
     const rows = [];
-    for (let t = 1; t <= s.season.tiers; t++) {
-      const f = at(t, 'free'), p = at(t, 'pass');
+    for (let n = 1; n <= s.season.tiers; n++) {
+      const f = at(n, 'free'), p = at(n, 'pass');
       if (!f && !p) continue;
-      const reached = s.tier >= t;
-      rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === t ? ' next' : '') + '"><div class="tn">' + t + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
+      const reached = s.tier >= n;
+      rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === n ? ' next' : '') + '"><div class="tn">' + n + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
     }
     mount('<div class="page"><div class="page-in">' +
-      pageHead('Season ' + s.season.number + ' · until ' + seasonEnd(s.season), s.season.name, esc(s.season.blurb), '<div class="meter">' + icon('season') + '<b>Tier <em>' + s.tier + '</em> / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
-      (s.pass ? '<p class="pill gold">' + icon('crown') + (P.premium ? ' Season Pass included with Premium' : ' Season Pass owned') + '</p>'
-        : '<div class="pass-cta"><div><b>Season Pass</b><small>Unlock the gold track: ' + s.items.filter((i) => i.unlock.track === 'pass').length + ' extra rewards, including tiers you have already reached.</small></div><button class="btn gold" id="se-buy">Ask a grown-up</button></div>') +
-      '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">Free track</div><div class="eyebrow">Season Pass</div></div>' + rows.join('') + '</div>' +
-      '<p class="fine">Every XP you earn while the season runs counts: games, puzzles, lessons, the journey, drills and daily missions. Items you unlock stay yours after the season ends.</p></div></div>');
+      pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), s.season.name, esc(s.season.blurb), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
+      (s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
+        : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.ask') + '</button></div>') +
+      '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">' + t('season.free') + '</div><div class="eyebrow">' + t('season.pass') + '</div></div>' + rows.join('') + '</div>' +
+      '<p class="fine">' + t('season.fine') + '</p></div></div>');
     hydrate(null, true);
     wireLinks();
     const b = $('se-buy'); if (b) b.onclick = () => go('store', 'pass.' + id);
@@ -1611,66 +1612,66 @@
   };
 
   // ---------------------------------------------------------------- store
-  const money = (p) => !p ? 'Price at launch' : new Intl.NumberFormat('en-IN', { style: 'currency', currency: p.currency, maximumFractionDigits: 0 }).format(p.amount / 100);
+  const money = (p) => !p ? t('store.priceLater') : new Intl.NumberFormat(I18N.lang === 'hi' ? 'hi-IN' : 'en-IN', { style: 'currency', currency: p.currency, maximumFractionDigits: 0 }).format(p.amount / 100);
   SCREENS.store = function (focus) {
     idleBoard();
     const P = state.progress;
     let remote = null;
     function render() {
       if (Date.now() - gatePassed >= 10 * 60e3) {
-        $('st-body').innerHTML = '<div class="gate"><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>The store is for grown-ups.</b><p class="muted">Ask a parent to open it. Everything you have earned stays yours.</p></div><button class="btn primary" id="st-gate">' + icon('lock') + ' Parent: open the store</button></div>';
-        $('st-gate').onclick = async () => { if (await parentGate('Answer to open the store.')) render(); };
+        $('st-body').innerHTML = '<div class="gate"><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>' + t('store.grownups') + '</b><p class="muted">' + t('store.askParent') + '</p></div><button class="btn primary" id="st-gate">' + icon('lock') + ' ' + t('store.parentOpen') + '</button></div>';
+        $('st-gate').onclick = async () => { if (await parentGate(t('store.gateWhy'))) render(); };
         return;
       }
       if (safety && safety.kind === 'minor' && safety.purchases === 'off') {
-        $('st-body').innerHTML = '<p class="sub">A parent has turned purchases off for this account. Everything you have earned stays yours.</p>';
+        $('st-body').innerHTML = '<p class="sub">' + t('store.off') + '</p>';
         return;
       }
       const ent = (state.account && state.account.ent) || {};
       const online = netOn();
       const products = STORE.products.map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
       const owned = (p) => p.id.startsWith('pass.') ? PG.hasPass(P, p.id.slice(5)) : p.id === 'premium.lifetime' ? ent.premiumUntil === 'lifetime' : false;
-      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? 'Premium Lifetime' : 'Premium until ' + new Date(ent.premiumUntil).toLocaleDateString()) : state.settings.previewPremium ? 'Premium preview on this device' : 'Free';
+      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(ent.premiumUntil)) })) : t(state.settings.previewPremium ? 'store.previewStatus' : 'store.freeStatus');
       $('st-body').innerHTML =
-        '<div class="hero-card"><span class="sg big gold">' + icon('crown') + '</span><span style="flex:1"><span class="eyebrow">Your plan</span><b class="plan">' + esc(status) + '</b></span></div>' +
-        '<ul class="perks">' + STORE.perks.map((t) => '<li>' + icon('check') + esc(t) + '</li>').join('') + '</ul>' +
-        '<div class="products">' + products.map((p) => '<div class="product' + (p.id === focus ? ' focus' : '') + '">' + (p.badge ? '<span class="pbadge">' + esc(p.badge) + '</span>' : '') +
-          '<span class="eyebrow plain">' + esc(p.kind === 'subscription' ? 'Every ' + p.period : 'One payment') + '</span><b>' + esc(p.name) + '</b><div class="price">' + money(p.price) + '</div>' +
-          (owned(p) ? '<span class="pill gold">Owned</span>' : '<button class="btn ' + (p.id === 'premium.yearly' || p.id === focus ? 'gold' : '') + '" data-buy="' + p.id + '"' + (p.onSale ? '' : ' disabled') + '>' + (p.onSale ? 'Buy' : 'Opens at launch') + '</button>') + '</div>').join('') + '</div>' +
-        '<p class="fine">' + (!online ? 'Purchases go through your Chackmate account on the game server, which is not connected.' : remote && remote.mode === 'dev' ? 'Test store: purchases complete without payment. Nothing is charged.' : remote && remote.mode === 'off' ? 'The store opens at launch.' : 'Payments are handled by our payment provider. Subscriptions renew until cancelled.') +
-        ' Purchases are tied to your account and restore on any device.</p>' +
-        '<div class="row" style="justify-content:flex-start"><button class="btn small" id="st-restore">' + icon('refresh') + ' Restore purchases</button></div>';
+        '<div class="hero-card"><span class="sg big gold">' + icon('crown') + '</span><span style="flex:1"><span class="eyebrow">' + t('store.yourPlan') + '</span><b class="plan">' + esc(status) + '</b></span></div>' +
+        '<ul class="perks">' + STORE.perks.map((p, k) => '<li>' + icon('check') + esc(t('store.perk' + k)) + '</li>').join('') + '</ul>' +
+        '<div class="products">' + products.map((p) => '<div class="product' + (p.id === focus ? ' focus' : '') + '">' + (p.badge ? '<span class="pbadge">' + esc(tx('store.badge.' + p.id, p.badge)) + '</span>' : '') +
+          '<span class="eyebrow plain">' + esc(p.kind === 'subscription' ? t('store.every.' + p.period) : t('store.once')) + '</span><b>' + esc(tx('store.name.' + p.id, p.name)) + '</b><div class="price">' + money(p.price) + '</div>' +
+          (owned(p) ? '<span class="pill gold">' + t('collection.filter.owned') + '</span>' : '<button class="btn ' + (p.id === 'premium.yearly' || p.id === focus ? 'gold' : '') + '" data-buy="' + p.id + '"' + (p.onSale ? '' : ' disabled') + '>' + t(p.onSale ? 'store.buy' : 'store.atLaunch') + '</button>') + '</div>').join('') + '</div>' +
+        '<p class="fine">' + t(!online ? 'store.fine.offline' : remote && remote.mode === 'dev' ? 'store.fine.dev' : remote && remote.mode === 'off' ? 'store.fine.off' : 'store.fine.live') +
+        ' ' + t('store.fine.restore') + '</p>' +
+        '<div class="row" style="justify-content:flex-start"><button class="btn small" id="st-restore">' + icon('refresh') + ' ' + t('store.restore') + '</button></div>';
       document.querySelectorAll('[data-buy]').forEach((b) => { b.onclick = () => buy(b.dataset.buy); });
       $('st-restore').onclick = restore;
     }
     async function restore() {
-      if (!netOn()) return toast('Connect to the game server first.', 'bad');
-      try { const me = await ChacklateNet.api('/api/me'); setEntitlements(me.entitlements); save(); toast(me.entitlements.premium || me.entitlements.passes.length ? 'Purchases restored.' : 'No purchases on this account yet.'); go('store', focus); }
+      if (!netOn()) return toast(t('store.connect'), 'bad');
+      try { const me = await ChacklateNet.api('/api/me'); setEntitlements(me.entitlements); save(); toast(t(me.entitlements.premium || me.entitlements.passes.length ? 'store.restored' : 'store.nothing')); go('store', focus); }
       catch (e) { toast(esc(e.message), 'bad'); }
     }
     async function buy(id) {
       const acct = state.account || {};
       if (!acct.token || acct.guest) {
-        const m = modal('<h2>Create an account first</h2><p class="sub">Purchases belong to your account, so they are safe if you change phones or clear this browser.</p><div class="row"><button class="btn" data-close>Not now</button><button class="btn primary" id="ca-go">Create account</button></div>');
+        const m = modal('<h2>' + t('store.acct.title') + '</h2><p class="sub">' + t('store.acct.sub') + '</p><div class="row"><button class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary" id="ca-go">' + t('store.acct.create') + '</button></div>');
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
-      if (!await parentGate('A parent needs to approve purchases.')) return;
+      if (!await parentGate(t('store.gateBuy'))) return;
       let pin;
       if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
         const o = await ChacklateNet.api('/api/store/checkout', { product: id, pin });
         const p = STORE.products.find((x) => x.id === id);
         if (o.action.type === 'dev-confirm') {
-          const m = modal('<h2>Test purchase</h2><p class="sub">' + esc(p.name) + (p.period ? ' (' + p.period + ')' : '') + '. This server runs the test store, so no money moves.</p><div class="row"><button class="btn" data-close>Cancel</button><button class="btn gold" id="tp-ok">Confirm</button></div>');
+          const m = modal('<h2>' + t('store.test.title') + '</h2><p class="sub">' + esc(tx('store.name.' + p.id, p.name)) + (p.period ? ' (' + t('store.every.' + p.period) + ')' : '') + '. ' + t('store.test.sub') + '</p><div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn gold" id="tp-ok">' + t('common.confirm') + '</button></div>');
           m.querySelector('#tp-ok').onclick = async () => {
             m.close();
             try { const r = await ChacklateNet.api('/api/store/dev/complete', { order: o.order }); thanks(p, r.entitlements); } catch (e) { toast(esc(e.message), 'bad'); }
           };
         } else if (o.action.type === 'redirect' && o.action.url) {
           window.open(o.action.url, '_blank', 'noopener');
-          const m = modal('<h2>Finish paying in the new tab</h2><p class="sub">Come back here when you are done. Your purchase appears as soon as the payment provider confirms it.</p><div class="row"><button class="btn" data-close>Close</button><button class="btn primary" id="pp-check">I have paid</button></div>');
-          m.querySelector('#pp-check').onclick = async () => { const me = await ChacklateNet.api('/api/me'); if (me.entitlements.premium || me.entitlements.passes.length) { m.close(); thanks(p, me.entitlements); } else toast('Not confirmed yet. Give it a moment.'); };
+          const m = modal('<h2>' + t('store.pay.title') + '</h2><p class="sub">' + t('store.pay.sub') + '</p><div class="row"><button class="btn" data-close>' + t('common.close') + '</button><button class="btn primary" id="pp-check">' + t('store.pay.paid') + '</button></div>');
+          m.querySelector('#pp-check').onclick = async () => { const me = await ChacklateNet.api('/api/me'); if (me.entitlements.premium || me.entitlements.passes.length) { m.close(); thanks(p, me.entitlements); } else toast(t('store.pay.wait')); };
         }
       } catch (e) { toast(esc(e.message), 'bad'); }
     }
@@ -1678,11 +1679,11 @@
       setEntitlements(ent); save();
       AU.play('levelUp');
       const pass = p.id.startsWith('pass.');
-      modal('<div class="result-hero"><img class="portrait" src="' + medal('emblem:crown', '#ffd27a', '#b8862b') + '" alt=""><span class="result-badge win">Thank you</span><h2 class="result-title">' + (pass ? 'Season Pass unlocked' : 'Welcome to Premium') + '</h2>' +
-        '<p class="sub">' + (pass ? 'Every gold-track reward you have reached is now yours.' : 'Every animal friend, chapter, opening, endgame and era is open, and the season pass is included.') + '</p>' +
-        '<div class="row" style="justify-content:center"><button class="btn primary" data-close>Let\'s play</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
+      modal('<div class="result-hero"><img class="portrait" src="' + medal('emblem:crown', '#ffd27a', '#b8862b') + '" alt=""><span class="result-badge win">' + t('store.thanks') + '</span><h2 class="result-title">' + t(pass ? 'store.passUnlocked' : 'store.welcome') + '</h2>' +
+        '<p class="sub">' + t(pass ? 'store.passText' : 'store.welcomeText') + '</p>' +
+        '<div class="row" style="justify-content:center"><button class="btn primary" data-close>' + t('common.letsPlay') + '</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
-    mount('<div class="page"><div class="page-in">' + pageHead('Store', 'Chackmate Premium', 'The whole journey, every animal friend and the finest sets in the house.') +
+    mount('<div class="page"><div class="page-in">' + pageHead(t('store.store'), t('store.title'), t('store.sub')) +
       '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
     render();
