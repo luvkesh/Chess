@@ -17,6 +17,7 @@ SCRIPTS = [
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
     src / 'pieces3d.js',
+    src / 'landmarks3d.js',
     src / 'world3d.js',
     src / 'scene.js',
     src / 'art.js',
@@ -47,7 +48,7 @@ parts = [
 ]
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
-look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
+look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
 parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
 for path in SCRIPTS:
     parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))

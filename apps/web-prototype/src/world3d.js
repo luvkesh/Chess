@@ -1563,6 +1563,7 @@ function ChacklateWorld(THREE, K) {
   // Every room is a twelve-sided hall around the same table. Faces carry windows, a
   // fireplace, shelves of books, paintings, niches with vases, mirrors or screens; the
   // palette, wall finish, columns, windows, light and the view outside set the era.
+  const LM = ChacklateLandmarks(THREE, K, { canvas, texFrom, shade, rgba, glowTexture, flame });
   const ROOMS = {
     salon: {
       name: 'Grand Cocoa Salon', era: 'A Regency drawing room',
@@ -1636,7 +1637,7 @@ function ChacklateWorld(THREE, K) {
       env: { wall: '#5a2a24', floor: '#4a2a20', ceiling: '#2a1410', key: '#ffe8d0', keyI: 6, window: '#ffc890', windowI: 3.2, rim: '#ffc890', rimI: 5, lamp: '#ffb060', lampI: 9, fill: 0.65 },
     },
     mughal: {
-      name: 'Hall of Mirrors', era: 'A palace hall at Agra, about 1640',
+      name: 'Taj Mahal Gardens', era: 'The moonlit garden of the Taj Mahal, Agra, about 1650', vista: 'taj', terrace: { r: 12.5, step: 0.6, edge: '#d8dde8' },
       palette: { wall: '#efe8dc', paper: '#f2ece2', paperInk: '#cfc6b6', wood: '#e2d8c8', trim: '#d8b060', floor: '#f0ebe2', floorDark: '#9a3f2a', floorLine: 'rgba(216,176,96,0.5)', table: '#4a2a18', inlay: '#e8c06a',
         rugBorder: '#0f3322', rugField: '#7a1e1e', rugGold: '#e8c06a', rugAccent: '#1e4a8a', drape: '#0f3322', sky: ['#020612', '#0a1636', '#1a2e5a', '#2a3e6a'],
         paintSky: ['#1a2e5a', '#4a5a8a', '#c8b0a0'], paintLand: '#2a4a3a', fog: '#14100c', hemi: ['#e0e8ff', '#1a120a'], ceiling: '#2a2016', dado: '#e0d8c8' },
@@ -1698,6 +1699,16 @@ function ChacklateWorld(THREE, K) {
     for (let i = 0; i < p.count; i++) uv.setXY(i, U0 + ((p.getX(i) + w / 2) / w) * (U1 - U0), V0 + ((p.getY(i) + h / 2) / h) * (V1 - V0));
     return g;
   }
+  // A wall panel w x h (centred on yc) with a window opening cut through it.
+  function wallWithOpening(w, h, wd, yc) {
+    const s = new THREE.Shape(); s.moveTo(-w / 2, -h / 2); s.lineTo(w / 2, -h / 2); s.lineTo(w / 2, h / 2); s.lineTo(-w / 2, h / 2); s.closePath();
+    const hole = opening(wd.kind, wd.w, wd.h, 0.02), dy = (wd.y !== undefined ? wd.y : -4.6 + 3.2 + 0.5 + wd.h / 2) - yc;
+    const path = new THREE.Path(hole.getPoints(40).map((p) => new THREE.Vector2(p.x, p.y + dy)));
+    s.holes.push(path);
+    const g = new THREE.ShapeGeometry(s, 40), p = g.attributes.position, uv = g.attributes.uv;
+    for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) + w / 2) / w, (p.getY(i) + h / 2) / h);
+    return g;
+  }
   // Mirror work (sheesh mahal): small silvered and gilt tiles in rosettes, set in plaster.
   function sheeshTexture() {
     const c = canvas(512, 1024), g = c.getContext('2d');
@@ -1731,10 +1742,21 @@ function ChacklateWorld(THREE, K) {
     const flames = [], owned = [];
     const own = (t) => { owned.push(t); return t; };
     const FLOOR = -4.6, TOP = -0.46, NF = def.faces.length, RAD = 19, H = 21;
+    // the world outside: a landmark to play in front of (outdoors) or to see through the windows
+    const vista = def.vista ? LM.build(def.vista, { groundY: FLOOR - (def.terrace ? def.terrace.step : 0.4) }) : null;
+    const outdoor = !!(vista && vista.outdoor);
+    if (vista) grp.add(vista.group);
     // floor and rug
     const shiny = def.floor === 'octagon';   // polished marble
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 64), new THREE.MeshPhysicalMaterial({ map: own(floorTexture(def)), roughness: shiny ? 0.18 : 0.5, clearcoat: shiny ? 0.9 : 0.5, clearcoatRoughness: shiny ? 0.1 : 0.32 }));
+    const floorR = outdoor ? def.terrace.r : vista ? RAD + 0.6 : 30;
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(floorR, 64), new THREE.MeshPhysicalMaterial({ map: own(floorTexture(def)), roughness: shiny ? 0.18 : 0.5, clearcoat: shiny ? 0.9 : 0.5, clearcoatRoughness: shiny ? 0.1 : 0.32 }));
     floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR; floor.receiveShadow = true; grp.add(floor);
+    if (outdoor) {
+      // the terrace stands a step or two above the ground, edged in stone
+      const t = def.terrace, edge = MAT.matte(t.edge || o.floorDark, { roughness: 0.7 });
+      grp.add(new THREE.Mesh(new THREE.CylinderGeometry(floorR, floorR + 0.25, t.step, 96, 1, true).translate(0, FLOOR - t.step / 2, 0), edge));
+      grp.add(new THREE.Mesh(K.ring(floorR, FLOOR + 0.02, 0.12, { seg: 160 }), edge));
+    }
     const rug = new THREE.Mesh(new THREE.CircleGeometry(10.5, 96), new THREE.MeshStandardMaterial({ map: own(rugTexture(o)), roughness: 0.95, transparent: true }));
     rug.rotation.x = -Math.PI / 2; rug.position.y = FLOOR + 0.02; rug.receiveShadow = true; grp.add(rug);
     // the table: a round top with a moulded edge on a turned pedestal
@@ -1761,7 +1783,7 @@ function ChacklateWorld(THREE, K) {
     const faceW = 2 * RAD * Math.sin(Math.PI / NF), WAIN = 3.2;
     fin.map.wrapS = fin.map.wrapT = THREE.RepeatWrapping;
     fin.map.repeat.set(faceW / fin.tile[0], (H - WAIN) / fin.tile[1]);
-    const pano = def.view ? own(panorama(def)) : null;
+    const pano = def.view && !def.vista ? own(panorama(def)) : null;
     if (pano) pano.wrapS = THREE.RepeatWrapping;
     const wd = def.window;
     const frieze = def.frieze ? own(friezeTexture(def.frieze, o)) : null;
@@ -1776,13 +1798,15 @@ function ChacklateWorld(THREE, K) {
     // home screen's crest, where it would peep out from behind it
     let moonAt = def.faces[0] === 'window' ? 0 : -1;
     def.faces.forEach((f, k) => { if (f === 'window' && k > 0 && (moonAt <= 0 || Math.min(k, NF - k) < Math.min(moonAt, NF - moonAt))) moonAt = k; });
-    for (let i = 0; i < NF; i++) {
+    for (let i = 0; i < (outdoor ? 0 : NF); i++) {
       const a = (i / NF) * TAU, kind = def.faces[i];
       const face = new THREE.Group();
       // white's camera is at +z; face 0 sits straight ahead (-z) and the rest go round
       face.rotation.y = -a;
       const at = (m, x, y, z) => { m.position.set(x, y, z - RAD * Math.cos(Math.PI / NF)); face.add(m); return m; };
-      const paper = new THREE.Mesh(new THREE.PlaneGeometry(faceW, H - WAIN), wallMats.paper); at(paper, 0, FLOOR + WAIN + (H - WAIN) / 2, 0);
+      // with a vista outside, a window is a real opening cut through the wall
+      const cut = vista && kind === 'window';
+      const paper = new THREE.Mesh(cut ? wallWithOpening(faceW, H - WAIN, wd, FLOOR + WAIN + (H - WAIN) / 2) : new THREE.PlaneGeometry(faceW, H - WAIN), wallMats.paper); at(paper, 0, FLOOR + WAIN + (H - WAIN) / 2, 0);
       const wains = new THREE.Mesh(new THREE.PlaneGeometry(faceW, WAIN), wallMats.wains); at(wains, 0, FLOOR + WAIN / 2, 0.02);
       const rail = new THREE.Mesh(new THREE.BoxGeometry(faceW, 0.16, 0.16), wallMats.wood); at(rail, 0, FLOOR + WAIN, 0.08);
       const railG = new THREE.Mesh(new THREE.BoxGeometry(faceW, 0.03, 0.03), wallMats.gold); at(railG, 0, FLOOR + WAIN + 0.1, 0.17);
@@ -1810,8 +1834,7 @@ function ChacklateWorld(THREE, K) {
         // (which sees only the lower part of the far windows) still meets the landmark
         const v0 = wk === 'moon' ? 0.3 : def.view.v0 || 0.36, v1 = wk === 'moon' ? 0.86 : 1;
         const sw = (v1 - v0) * (w / h) * (VH / VW);
-        const sky = new THREE.Mesh(shapePlane(wk, w, h, uc - sw / 2, uc + sw / 2, v0, v1), new THREE.MeshBasicMaterial({ map: pano, toneMapped: true }));
-        at(sky, 0, yc, 0.05);
+        if (!vista) at(new THREE.Mesh(shapePlane(wk, w, h, uc - sw / 2, uc + sw / 2, v0, v1), new THREE.MeshBasicMaterial({ map: pano, toneMapped: true })), 0, yc, 0.05);
         const frameMat = wd.wood ? wallMats.wood : wk === 'portal' ? stoneMat : wallMats.gold;
         at(new THREE.Mesh(ringGeometry(wk, w, h, wk === 'portal' ? 0.55 : 0.24, 0.2), frameMat), 0, yc, 0.12);
         if (wd.bars !== 'none' && wk !== 'portal') at(new THREE.Mesh(glazing(wk, w, h, wd.bars), frameMat), 0, yc, 0.1);
@@ -1888,18 +1911,20 @@ function ChacklateWorld(THREE, K) {
       grp.add(face);
     }
     // ceiling
-    const ceil = new THREE.Mesh(new THREE.CircleGeometry(RAD + 1, 64), new THREE.MeshStandardMaterial({ color: o.ceiling || '#1a0f0a', roughness: 1 }));
-    ceil.rotation.x = Math.PI / 2; ceil.position.y = FLOOR + H; grp.add(ceil);
-    // the light over the table and two candelabra on it
-    const ch = fixture(def, 7.8, flames); grp.add(ch);
+    if (!outdoor) {
+      const ceil = new THREE.Mesh(new THREE.CircleGeometry(RAD + 1, 64), new THREE.MeshStandardMaterial({ color: o.ceiling || '#1a0f0a', roughness: 1 }));
+      ceil.rotation.x = Math.PI / 2; ceil.position.y = FLOOR + H; grp.add(ceil);
+    }
+    // the light over the table (indoors) and two candelabra on it
+    const ch = outdoor ? null : fixture(def, 7.8, flames); if (ch) grp.add(ch);
     grp.add(candelabrum(-5.9, TOP, -4.6, flames, wallMats.gold));
     grp.add(candelabrum(5.9, TOP, -4.6, flames, wallMats.gold));
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
     // the chandelier steps aside for the camera and the flames flicker; the rest stands still
-    K.batchStatic(grp, [ch].concat(flames.map((f) => f.m)));
+    K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
     return {
-      group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8,
-      fog: o.fog, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
+      group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
+      fog: vista ? vista.fog.color : o.fog, fogDensity: vista ? vista.fog.density : 0.022, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
       chandelierLight: new THREE.Vector3(0, 7.2, 0),
       update(t) {
         for (const f of flames) {
@@ -1911,6 +1936,7 @@ function ChacklateWorld(THREE, K) {
       },
       // frees what this room made for itself (shared materials and textures stay)
       dispose() {
+        if (vista) vista.dispose();
         owned.forEach((t) => t.dispose());
         grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
       },

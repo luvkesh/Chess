@@ -189,7 +189,7 @@ function ChacklateScene(canvas, options) {
     if (room && room.dispose) room.dispose();
     room = W.room(id);
     roomGroup.add(room.group);
-    scene.fog = new THREE.FogExp2(room.fog, 0.022);
+    scene.fog = new THREE.FogExp2(room.fog, room.fogDensity);
     scene.background = new THREE.Color(room.fog);
     hemi.color.set(room.hemi[0]); hemi.groundColor.set(room.hemi[1]); hemi.intensity = room.lights.hemi;
     chandLight.intensity = room.lights.chand; chandLight.color.set(room.lights.color);
@@ -630,10 +630,11 @@ function ChacklateScene(canvas, options) {
     lastFrame = now;
     let busy = false;
     if (cam.intro) {
-      const t = clamp01((now - cam.intro.start) / cam.intro.dur), e = easeInOut(t);
+      const t = clamp01((now - cam.intro.start) / cam.intro.dur), hold = cam.intro.hold || 0, e = easeInOut(clamp01((t - hold) / (1 - hold)));
       cam.yaw = cam.intro.fYaw + (cam.tYaw - cam.intro.fYaw) * e;
       cam.pitch = cam.intro.fPitch + (cam.tPitch - cam.intro.fPitch) * e;
       cam.zoom = cam.intro.fZoom + (cam.tZoom - cam.intro.fZoom) * e;
+      if (cam.intro.fLookY !== undefined) cam.lookY = cam.intro.fLookY + (cam.tLookY - cam.intro.fLookY) * e;
       if (t >= 1) cam.intro = null;
       busy = true;
     } else {
@@ -1087,7 +1088,7 @@ function ChacklateScene(canvas, options) {
       s2.add(rm.group); disposeList.push({ userData: { dispose: rm.dispose } });
       s2.environment = envFor(rm.env);
       s2.background = new THREE.Color(rm.fog);
-      s2.fog = new THREE.FogExp2(rm.fog, 0.018);
+      s2.fog = new THREE.FogExp2(rm.fog, rm.vista ? rm.fogDensity : 0.018);
       const cl = new THREE.PointLight(rm.lights.color, rm.lights.chand, 40, 2); cl.position.set(0, 7.2, 0); s2.add(cl);
       s2.add(new THREE.HemisphereLight(rm.hemi[0], rm.hemi[1], Math.max(0, rm.lights.hemi - 0.4)));
       const b = W.board(spec.board || boardId, 'white'); s2.add(b); disposeList.push(b);
@@ -1370,7 +1371,14 @@ function ChacklateScene(canvas, options) {
     // Sweeping camera move into the player's seat at the start of a game.
     intro() {
       if (!animations) return;
-      cam.intro = { start: performance.now(), dur: 1700, fYaw: cam.tYaw + 0.9, fPitch: 0.42, fZoom: 1.25 };
+      if (room && room.vista) {
+        // where the table stands before a landmark, the game opens looking out at it (white's
+        // way, whichever side the player takes), holds a moment, then sweeps into the seat
+        let fYaw = 0.1;
+        while (fYaw - cam.tYaw > Math.PI) fYaw -= TAU;
+        while (cam.tYaw - fYaw > Math.PI) fYaw += TAU;
+        cam.intro = { start: performance.now(), dur: 2800, hold: 0.22, fYaw, fPitch: 0.03, fZoom: room.outdoor ? 1.45 : 1.08, fLookY: 3.2 };
+      } else cam.intro = { start: performance.now(), dur: 1700, fYaw: cam.tYaw + 0.9, fPitch: 0.42, fZoom: 1.25 };
       requestRender();
     },
     animateMove(info, done, o) {
