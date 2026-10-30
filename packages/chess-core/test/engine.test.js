@@ -100,3 +100,109 @@ for (const lv of E.LEVELS) {
 }
 const t0 = Date.now(); const deep = E.search(E.positionFrom(E.START_FEN, []), { timeMs: 1500 });
 console.log('search ok, depth', deep.depth, 'nodes', deep.nodes, 'ms', Date.now() - t0, E.uci(deep.move));
+
+// ---------------------------------------------------------------- Chaturanga
+// A plain, slow move generator written from the rule sheet, to check the engine's fast one.
+function refMoves(fen) {
+  const [board, side] = fen.replace(/^chaturanga:/, '').split(' ');
+  const sq = {};
+  board.split('/').forEach((row, i) => { let f = 0; for (const c of row) { if (/\d/.test(c)) f += +c; else { sq[f + ',' + (7 - i)] = c; f++; } } });
+  const mine = (c) => c && (side === 'w' ? c === c.toUpperCase() : c === c.toLowerCase());
+  const theirs = (c) => c && !mine(c);
+  const at = (f, r) => (f < 0 || f > 7 || r < 0 || r > 7 ? undefined : sq[f + ',' + r] || '');
+  const name = (f, r) => 'abcdefgh'[f] + (r + 1);
+  const pseudo = (s, who) => {
+    const out = [];
+    const own = (c) => c && (who === 'w' ? c === c.toUpperCase() : c === c.toLowerCase());
+    for (const k of Object.keys(s)) {
+      const c = s[k]; if (!own(c)) continue;
+      const [f, r] = k.split(',').map(Number), t = c.toLowerCase();
+      const look = (df, dr, slide) => {
+        for (let n = 1; ; n++) {
+          const ff = f + df * n, rr = r + dr * n;
+          if (ff < 0 || ff > 7 || rr < 0 || rr > 7) return;
+          const there = s[ff + ',' + rr];
+          if (!own(there)) out.push([f, r, ff, rr]);
+          if (there || !slide) return;
+        }
+      };
+      if (t === 'p') {
+        const dir = who === 'w' ? 1 : -1;
+        if (r + dir >= 0 && r + dir <= 7 && !s[f + ',' + (r + dir)]) out.push([f, r, f, r + dir]);
+        for (const df of [-1, 1]) { const x = s[(f + df) + ',' + (r + dir)]; if (x && !own(x)) out.push([f, r, f + df, r + dir]); }
+      }
+      if (t === 'n') for (const [a, b] of [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]]) look(a, b, false);
+      if (t === 'k') for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) look(a, b, false);
+      if (t === 'q') for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) look(a, b, false);          // Mantri
+      if (t === 'b') for (const [a, b] of [[2, 2], [2, -2], [-2, 2], [-2, -2]]) look(a, b, false);          // Gaja, jumps
+      if (t === 'r') for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) look(a, b, true);
+    }
+    return out;
+  };
+  const out = [];
+  for (const [f, r, ff, rr] of pseudo(sq, side)) {
+    const s2 = Object.assign({}, sq); let c = s2[f + ',' + r]; delete s2[f + ',' + r];
+    if (c.toLowerCase() === 'p' && (rr === 7 || rr === 0)) c = side === 'w' ? 'Q' : 'q';
+    s2[ff + ',' + rr] = c;
+    const king = Object.keys(s2).find((k) => s2[k] === (side === 'w' ? 'K' : 'k'));
+    if (pseudo(s2, side === 'w' ? 'b' : 'w').some(([, , x, y]) => x + ',' + y === king)) continue;
+    out.push(name(f, r) + name(ff, rr) + ((c === 'Q' || c === 'q') && sq[f + ',' + r].toLowerCase() === 'p' ? 'q' : ''));
+  }
+  return out.sort();
+}
+assert.strictEqual(E.variantOf(E.VARIANTS.chaturanga.start), 'chaturanga');
+assert.strictEqual(E.variantOf(E.START_FEN), 'standard');
+{
+  const p = new E.Pos(); assert.strictEqual(p.load(E.VARIANTS.chaturanga.start), null);
+  assert.strictEqual(p.fen(), E.VARIANTS.chaturanga.start, 'variant FEN round trip');
+  assert.deepStrictEqual([1, 2, 3].map((d) => E.perft(p, d)), [16, 256, 4176]);
+  assert.ok(new E.Pos().load('chaturanga:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'), 'no castling rights');
+  assert.ok(new E.Pos().load('fairy:8/8/8/8/8/8/8/K6k w - - 0 1'), 'unknown variation');
+  const s = new E.Pos(); s.load(E.START_FEN);
+  assert.notStrictEqual(s.hl ^ s.hh, p.hl ^ p.hh, 'chess and chaturanga hash apart');
+}
+// Random chaturanga games agree with the reference generator at every move.
+for (let gi = 0; gi < 120; gi++) {
+  const gm = new E.Game(E.VARIANTS.chaturanga.start);
+  assert.strictEqual(gm.variant, 'chaturanga');
+  while (!gm.outcome && gm.moves.length < 200) {
+    assert.deepStrictEqual(gm.legal.map(E.uci).sort(), refMoves(gm.pos.fen()), gm.pos.fen());
+    const m = gm.legal[Math.floor(rnd() * gm.legal.length)];
+    const san = gm.pos.san(m, gm.legal);
+    assert.strictEqual(gm.pos.parseMove(san, gm.legal), m, 'san roundtrip ' + san);
+    gm.play(m);
+    const q = new E.Pos(); assert.strictEqual(q.load(gm.pos.fen()), null, gm.pos.fen());
+    assert.strictEqual(q.hl, gm.pos.hl, 'incremental hash'); assert.strictEqual(q.hh, gm.pos.hh);
+  }
+}
+// Mantri steps one square diagonally, Gaja jumps two (over pieces), pawns step once and become a Mantri.
+g = new E.Game('chaturanga:4k3/8/8/8/3q4/8/8/4K3 b - - 0 1');
+assert.deepStrictEqual(g.targets(E.to64(E.parseSq('d4'))).map((s) => E.sqName(E.to88(s))).sort(), ['c3', 'c5', 'e3', 'e5']);
+g = new E.Game('chaturanga:4k3/8/8/8/8/3P4/2B5/4K3 w - - 0 1');
+assert.deepStrictEqual(g.targets(E.to64(E.parseSq('c2'))).map((s) => E.sqName(E.to88(s))).sort(), ['a4', 'e4'], 'jumps over d3');
+g = new E.Game('chaturanga:4k3/8/8/8/8/8/4P3/4K3 w - - 0 1'); assert.strictEqual(g.playText('e4'), null, 'no double step');
+g = new E.Game('chaturanga:8/3P4/8/8/8/8/k7/4K3 w - - 0 1');
+assert.deepStrictEqual(g.legal.filter((m) => E.mPromo(m)).map(E.uci), ['d7d8q'], 'promotes only to a Mantri');
+// Endings: bare king loses, baring back draws, stalemate wins for the side that gives it.
+g = new E.Game('chaturanga:8/8/8/8/k7/8/3r4/K2R4 w - - 0 1'); g.playText('Rxd2');
+assert.deepStrictEqual(g.outcome, { result: '1-0', reason: 'bare-king' });
+g = new E.Game('chaturanga:8/8/8/8/8/1k6/2r5/K1R5 w - - 0 1'); g.playText('Rxc2');
+assert.strictEqual(g.outcome, null, 'black can bare white back');
+g.playText('Kxc2'); assert.deepStrictEqual(g.outcome, { result: '1/2-1/2', reason: 'insufficient' });
+g = new E.Game('chaturanga:k7/7p/K6P/8/8/8/8/2R5 w - - 0 1'); g.playText('Rb1');
+assert.deepStrictEqual(g.outcome, { result: '1-0', reason: 'stalemate-win' });
+assert.ok(g.pgn().includes('[Variant "Chaturanga"]') && g.pgn().includes('[FEN "k7/7p/K6P/8/8/8/8/2R5 w - - 0 1"]'));
+// The bots know the old endings: they bare the king and give the winning stalemate.
+assert.strictEqual(E.uci(E.search(E.positionFrom('chaturanga:8/8/8/8/k7/8/3r4/K2R4 w - - 0 1', []), { timeMs: 300 }).move), 'd1d2');
+{
+  // Here Rb1 (stalemate) and Rc8 (mate) both win at once; the bot must pick one of them.
+  const gm = new E.Game('chaturanga:k7/7p/K6P/8/8/8/8/2R5 w - - 0 1');
+  gm.play(E.search(gm.pos, { timeMs: 300 }).move);
+  assert.strictEqual(gm.outcome && gm.outcome.result, '1-0');
+}
+for (const lv of E.LEVELS) {
+  const pp = E.positionFrom(E.VARIANTS.chaturanga.start, ['e2e3', 'e7e6']);
+  const rr = E.search(pp, Object.assign({}, lv, { timeMs: Math.min(lv.timeMs, 400) }));
+  assert.ok(pp.legalMoves().includes(rr.move), 'chaturanga ' + lv.name);
+}
+console.log('chaturanga ok');

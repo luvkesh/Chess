@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const G = require('../../../packages/content/guide.json');
 const C = require('../../../packages/content/campaign.json');
+const VR = require('../../../packages/content/variants.json');
 
 const app = fs.readFileSync(path.join(__dirname, '../src/app.js'), 'utf8');
 const dir = path.join(__dirname, '../public/guide');
@@ -23,6 +24,14 @@ for (const e of C.eras) {
   }
 }
 
+// Every lesson step and exercise of a variation is a line said by Rooky.
+const variantLines = new Set();
+for (const v of VR.variants) for (const x of v.lesson ? v.lesson.steps.concat(v.lesson.exercises) : []) {
+  assert(G.lines[x.line], v.id + ' lesson line ' + x.line);
+  assert.strictEqual(G.lines[x.line].who, 'rooky', x.line + ' is said by Rooky');
+  variantLines.add(x.line);
+}
+
 // Every line the game asks for exists, and every line is used.
 const asked = new Set([...app.matchAll(/guide(?:Say|Idle|Fresh)\('([a-z.]+)'/g)].map((m) => m[1]));
 for (const k of asked) assert(G.lines[k], 'guide.json has ' + k);
@@ -39,7 +48,7 @@ for (const b of PL.bands) { assert(G.lines[b.say] && G.lines[b.say].who === 'roo
 const menus = [...app.matchAll(/SCREENS\.([a-z]+) = function/g)].map((m) => m[1]).filter((n) => !['era', 'lesson', 'puzzle', 'game', 'drill', 'home'].includes(n));
 for (const n of menus) assert(G.lines[n], 'the ' + n + ' screen has a line');
 for (const k of Object.keys(G.lines)) {
-  const used = asked.has(k) || k.startsWith('era.') || menus.includes(k) || k === 'home';
+  const used = asked.has(k) || k.startsWith('era.') || variantLines.has(k) || menus.includes(k) || k === 'home';
   assert(used, k + ' is never said');
 }
 

@@ -458,5 +458,75 @@
   "who": "rooky",
   "voice": "am_puck,am_michael",
   "text": "Amazing, you found nearly everything! You're ready to learn defence and king safety."
+ },
+ "variants": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Chess has cousins from all over the world! Pick one to learn its rules, then play it."
+ },
+ "variant": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Here are the rules on one page. The gold ones are not like chess. Try my short lesson, then pick a friend to play."
+ },
+ "variant.chaturanga.hello": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Long ago in India, chess had another name: chaturanga. It means the four parts of an army. Let's play it the old way!"
+ },
+ "variant.chaturanga.same": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The king, the horse and the chariot move just like our king, knight and rook. The foot soldiers are the pawns."
+ },
+ "variant.chaturanga.mantri": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Next to the king stands the Mantri, his wise counsellor. He takes one small step, on a slant. Much later, he grew into the queen!"
+ },
+ "variant.chaturanga.gaja": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "The Gaja is a war elephant. It jumps exactly two squares on a slant, right over anything in the way. It grew into the bishop."
+ },
+ "variant.chaturanga.soldier": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Foot soldiers march one square at a time, even on their first move. A soldier who reaches the far side becomes a Mantri."
+ },
+ "variant.chaturanga.castle": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "There is no castling in chaturanga. Walk your king to safety, one step at a time."
+ },
+ "variant.chaturanga.win": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Checkmate still wins. You also win if you capture every enemy piece except the king. And a king with no move at all loses too!"
+ },
+ "variant.chaturanga.ex.mantri": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap every square the Mantri can step to."
+ },
+ "variant.chaturanga.ex.gaja": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Tap every square the Gaja can jump to."
+ },
+ "variant.chaturanga.ex.bare": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Capture Black's last piece, and leave the king all alone."
+ },
+ "variant.chaturanga.ex.promote": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "This foot soldier is about to reach the far side. What will he become?"
+ },
+ "variant.chaturanga.ex.stuck": {
+  "who": "rooky",
+  "voice": "am_puck,am_michael",
+  "text": "Find a move that leaves Black with no move at all. In chaturanga, that wins!"
  }
 }
