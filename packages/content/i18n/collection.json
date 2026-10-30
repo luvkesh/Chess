@@ -46,5 +46,10 @@
   "toUnlock": { "en": "{how} to unlock." },
   "count": { "en": "{n} of {of}" },
   "drag": { "en": "Drag to turn · pinch to zoom" },
-  "thePiece": { "en": "The {piece}." }
+  "thePiece": { "en": "The {piece}." },
+  "unlock.level": { "en": "Reach level {n}" },
+  "unlock.achievement": { "en": "Achievement: {name}" },
+  "unlock.season": { "en": "{name} tier {n}" },
+  "unlock.journey": { "en": "Journey: {era}" },
+  "unlock.free": { "en": "Free" }
 }

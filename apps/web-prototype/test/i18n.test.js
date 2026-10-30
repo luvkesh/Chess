@@ -57,6 +57,15 @@ for (const f of code) {
     else if (!area || !area[key.slice(i + 1)]) problems.push(path.basename(f) + ': t(\'' + key + '\') has no string');
   }
 }
+// Content strings: their English must match the content files they translate.
+const want = require('./i18n-content.js').expected();
+const have = strings.content || {};
+for (const [k, en] of Object.entries(want)) {
+  if (!have[k]) problems.push('content.' + k + ': missing (English: ' + en + ')');
+  else if (have[k].en !== en) problems.push('content.' + k + ': English changed to "' + en + '", update the translations');
+}
+for (const k of Object.keys(have)) if (!(k in want)) problems.push('content.' + k + ': no longer in the content files');
+
 assert.ok(problems.length === 0, problems.length + ' string problems:\n  ' + problems.join('\n  '));
 
 // The runtime: fallback, placeholders and the first-run guess.

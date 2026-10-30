@@ -16,7 +16,7 @@
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   // A plain end date rather than a countdown: no ticking clocks aimed at children.
-  const seasonEnd = (s) => new Date(s.ends + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const seasonEnd = (s) => ChacklateI18n.date(new Date(s.ends + 'T00:00:00'), { day: 'numeric', month: 'short' });
   const STORE_KEY = 'chacklate-chess:v2';
   const VALUE = [0, 1, 3, 3, 5, 9, 0];
   const TYPE = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 5: 'q', 6: 'k' };
@@ -128,6 +128,21 @@
   // Names and lines from the content files (eras, the animal friends, missions) are English there;
   // i18n/content.json holds the other languages, and the test keeps its English in step.
   const tx = (key, en) => (I18N.lang !== 'en' && I18N.has(key) ? t(key) : en);
+  const slug = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const levelTitle = (lv) => tx('content.title.' + slug(lv.title), lv.title);
+  const achName = (a) => tx('content.ach.' + a.id + '.name', a.name), achDesc = (a) => tx('content.ach.' + a.id + '.desc', a.desc);
+  const missionText = (m) => tx('content.mission.' + m.id, m.text);
+  const seasonName = (s) => tx('content.season.' + s.id + '.name', s.name);
+  // What unlocks an item, as progress.js words it, in the player's language.
+  function unlockText(item) {
+    const u = item.unlock;
+    if (u.type === 'level') return t('collection.unlock.level', { n: u.level });
+    if (u.type === 'achievement') { const a = PG.ACHIEVEMENTS.find((x) => x.id === u.achievement); return t('collection.unlock.achievement', { name: a ? achName(a) : u.achievement }); }
+    if (u.type === 'premium') return t('common.premium');
+    if (u.type === 'season') { const s = PG.SEASONS.seasons.find((x) => x.id === u.season); return t('collection.unlock.season', { name: s ? seasonName(s) : t('season.eyebrow'), n: u.tier }) + (u.track === 'pass' ? ' · ' + t('season.pass') : ''); }
+    if (u.type === 'journey') { const e = eraById(u.era); return t('collection.unlock.journey', { era: e ? eraName(e) : u.era }) + (e && e.access === 'premium' ? ' · ' + t('common.premium') : ''); }
+    return t('collection.unlock.free');
+  }
   PG.setSeason(state.progress);
   function save() {
     try {
@@ -485,12 +500,12 @@
     if (!res) return;
     res.achievements.forEach((a, i) => setTimeout(() => {
       AU.play('achievement');
-      toast('<i>★</i><div><small>' + t('home.toast.achievement') + '</small><b>' + esc(a.name) + '</b> · +' + t('common.xp', { n: a.xp }) + '</div>', 'ach');
+      toast('<i>★</i><div><small>' + t('home.toast.achievement') + '</small><b>' + esc(achName(a)) + '</b> · +' + t('common.xp', { n: a.xp }) + '</div>', 'ach');
     }, 600 + i * 900));
     const lag = 600 + res.achievements.length * 900;
     (res.missions || []).forEach((m, i) => setTimeout(() => {
       AU.play('achievement');
-      toast('<i>✓</i><div><small>' + t('home.toast.mission') + '</small><b>' + esc(m.text) + '</b> · +' + t('common.xp', { n: m.xp }) + '</div>', 'ach');
+      toast('<i>✓</i><div><small>' + t('home.toast.mission') + '</small><b>' + esc(missionText(m)) + '</b> · +' + t('common.xp', { n: m.xp }) + '</div>', 'ach');
     }, lag + i * 900));
     if (res.missionsAll) setTimeout(() => toast(t('home.toast.allMissions', { n: CHACKLATE_MISSIONS.allDoneXp })), lag + (res.missions || []).length * 900);
     if (res.seasonTier && !res.levelUp) setTimeout(() => toast(t('home.toast.tier', { n: res.seasonTier })), lag + 300);
@@ -807,7 +822,7 @@
     const bar = document.createElement('div');
     bar.className = 'peekbar glass';
     bar.innerHTML = '<div><small>' + t(un ? 'collection.trying' : 'collection.preview') + '</small><b>' + esc(it.name) + '</b></div>' +
-      (un ? (on ? '<span class="pill gold">' + icon('check') + ' ' + t('collection.equipped') + '</span>' : '<button class="btn primary small" id="pk-eq">' + t('collection.equip') + '</button>') : '<span class="pill lock">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
+      (un ? (on ? '<span class="pill gold">' + icon('check') + ' ' + t('collection.equipped') + '</span>' : '<button class="btn primary small" id="pk-eq">' + t('collection.equip') + '</button>') : '<span class="pill lock">' + icon('lock') + ' ' + esc(unlockText(it)) + '</span>') +
       '<button class="btn small" id="pk-back">' + icon('back') + ' ' + t('common.back') + '</button>';
     document.body.appendChild(bar);
     peeking.bar = bar;
@@ -898,13 +913,13 @@
   function seasonStrip() {
     const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
     if (!s) return '';
-    return '<button class="strip glass" id="a-season"><span class="sg">' + icon('season') + '</span><span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(s.season.name) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
+    return '<button class="strip glass" id="a-season"><span class="sg">' + icon('season') + '</span><span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(seasonName(s.season)) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
       '<span class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
   }
   function missionsCard() {
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
     if (!list.length) return '<p class="sub">' + t('home.missions.none') + '</p>';
-    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(m.text) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? t('home.missions.done') : m.n + '/' + m.goal) + '<br><span>+' + t('common.xp', { n: m.xp }) + '</span></small></div>').join('') + '</div>';
+    return '<div class="missions">' + list.map((m) => '<div class="mission' + (m.done ? ' done' : '') + '"><i>' + (m.done ? icon('check') : icon('target')) + '</i><div><b>' + esc(missionText(m)) + '</b><div class="bar"><i style="width:' + Math.round(m.n / m.goal * 100) + '%"></i></div></div><small>' + (m.done ? t('home.missions.done') : m.n + '/' + m.goal) + '<br><span>+' + t('common.xp', { n: m.xp }) + '</span></small></div>').join('') + '</div>';
   }
   function missionsModal() {
     modal('<div class="eyebrow">' + t('home.missions.eyebrow') + '</div><h2>' + t('home.missions.title') + '</h2><p class="sub">' + t('home.missions.sub', { n: CHACKLATE_MISSIONS.allDoneXp }) + '</p>' + missionsCard() +
@@ -1422,7 +1437,7 @@
         return '<div class="item' + (on ? ' on' : '') + (un ? '' : ' locked') + '" data-item="' + it.id + '"><button class="sw" aria-label="' + esc(it.name) + '"' + tintStyle(it) + '>' + itemArt(it) + '</button>' +
           '<span class="rar ' + it.rarity + '">' + rarity(it) + '</span>' +
           '<div class="ib"><b>' + esc(it.name) + '</b><span class="d">' + esc(it.desc) + '</span><span class="st">' +
-          (un ? '<span>' + (on ? icon('check') + ' ' + t('collection.equipped') : t('collection.filter.owned')) + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(PG.unlockText(it)) + '</span>') +
+          (un ? '<span>' + (on ? icon('check') + ' ' + t('collection.equipped') : t('collection.filter.owned')) + '</span>' : '<span class="lk">' + icon('lock') + ' ' + esc(unlockText(it)) + '</span>') +
           '<button class="round sm eye" data-peek="' + it.id + '" aria-label="' + t('collection.tryName', { name: esc(it.name) }) + '" title="' + t('collection.try') + '">' + icon('eye') + '</button></span></div></div>';
       }).join('') : '<p class="muted">' + t('collection.none') + '</p>';
       hydrate($('items'), true);
@@ -1461,7 +1476,7 @@
         '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
         (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((pt) => '<button data-pt="' + pt + '" aria-pressed="false" title="' + PIECE_NAME[pt] + '">' + snap({ kind: 'piece', set: d.set, type: pt, side: 'w' }, 84, 104, ART.pieceUri(pt)) + '</button>').join('') + '</div>' +
           '<p class="plore" id="mu-lore">' + t('collection.tapPiece') + '</p>' : '') +
-        '<p class="fine">' + (un ? (on ? icon('check') + ' ' + t('collection.equippedDot') : t('collection.yours')) : icon('lock') + ' ' + t('collection.toUnlock', { how: esc(PG.unlockText(it)) })) + '</p>' +
+        '<p class="fine">' + (un ? (on ? icon('check') + ' ' + t('collection.equippedDot') : t('collection.yours')) : icon('lock') + ' ' + t('collection.toUnlock', { how: esc(unlockText(it)) })) + '</p>' +
         '<div class="row" style="justify-content:flex-start">' + (un && !on ? '<button class="btn primary" id="mu-eq">' + icon('check') + ' ' + t('collection.equip') + '</button>' : '') +
         '<button class="btn outline" id="mu-try">' + icon('eye') + ' ' + t('collection.try') + '</button></div>';
       if (dir) { info.classList.remove('in-l', 'in-r'); void info.offsetWidth; info.classList.add(dir < 0 ? 'in-l' : 'in-r'); }
@@ -1530,7 +1545,7 @@
     const stat = (ic, label, v) => '<div class="stat"><span class="ic">' + icon(ic) + '</span><span><small>' + label + '</small><b>' + v + '</b></span></div>';
     mount('<div class="page"><div class="page-in">' +
       '<section class="pbanner glass"><button class="pav" id="pf-av" aria-label="' + t('profile.changePic') + '">' + avatarHtml('xl') + '<span class="round sm">' + icon('edit') + '</span></button>' +
-      '<div class="who"><div class="eyebrow">' + esc(lv.title) + ' · ' + t('common.level', { n: lv.level }) + '</div><h1>' + esc(myName()) + ' <button class="round sm" id="pf-name" aria-label="' + t('profile.changeName') + '">' + icon('edit') + '</button></h1>' +
+      '<div class="who"><div class="eyebrow">' + esc(levelTitle(lv)) + ' · ' + t('common.level', { n: lv.level }) + '</div><h1>' + esc(myName()) + ' <button class="round sm" id="pf-name" aria-label="' + t('profile.changeName') + '">' + icon('edit') + '</button></h1>' +
       '<div class="xp"><div class="bar"><i style="width:' + Math.round(lv.into / lv.need * 100) + '%"></i></div><small>' + t('profile.xpTo', { n: lv.into, of: lv.need, level: lv.level + 1 }) + '</small></div>' +
       '<div class="chips">' + (P.streak.count > 1 ? '<span class="pill gold">' + icon('flame') + ' ' + t('profile.streak', { n: P.streak.count }) + '</span>' : '') +
       '<span class="pill">' + icon('journey') + ' ' + t('profile.eras', { n: eras, of: CAMPAIGN.eras.length }) + '</span>' + (P.premium ? '<span class="pill gold">' + icon('crown') + ' ' + t('common.premium') + '</span>' : '') + '</div></div></section>' +
@@ -1599,7 +1614,7 @@
       rows.push('<div class="tier' + (reached ? ' reached' : '') + (s.tier + 1 === n ? ' next' : '') + '"><div class="tn">' + n + '</div>' + cell(f, 'free', reached) + cell(p, 'pass', reached) + '</div>');
     }
     mount('<div class="page"><div class="page-in">' +
-      pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), s.season.name, esc(s.season.blurb), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
+      pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), seasonName(s.season), esc(tx('content.season.' + s.season.id + '.blurb', s.season.blurb)), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
       (s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
         : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.ask') + '</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">' + t('season.free') + '</div><div class="eyebrow">' + t('season.pass') + '</div></div>' + rows.join('') + '</div>' +
@@ -1792,7 +1807,7 @@
   function levelUpModal(level, unlocked) {
     AU.play('levelUp');
     const lv = PG.levelFor(state.progress.xp);
-    const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">Level up</span><h2 class="result-title">Level ' + level + '</h2><p class="sub">You are now ' + esc(lv.title) + '.</p>' +
+    const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">Level up</span><h2 class="result-title">Level ' + level + '</h2><p class="sub">You are now ' + esc(levelTitle(lv)) + '.</p>' +
       (unlocked.length ? '<div class="eyebrow">Unlocked</div><div class="unlocks">' + unlocked.map((u) => '<span class="pill gold">' + esc(u.name) + '</span>').join('') + '</div>' : '') +
       '<div class="row" style="justify-content:center;margin-top:18px">' + (unlocked.length ? '<button class="btn" id="lu-col">See collection</button>' : '') + '<button class="btn primary" data-close>Continue</button></div></div>');
     if (KIND[state.screen] === 'hud') view.celebrate('win', -1, null, -1);
@@ -2392,7 +2407,7 @@
       '<h2 class="result-title">' + esc(title) + '</h2>' +
       (who ? '<p class="quote"><b>' + esc(who.full) + '</b>“' + esc(sayLine(who, youWon ? 'win' : youLost ? 'lose' : 'draw')) + '”</p>' : '') +
       '<p class="sub">' + esc(resultSub(G, o, winner)) + '</p>' +
-      (res ? '<div class="xpline"><div class="top"><span>Level ' + lv.level + ' · ' + esc(lv.title) + '</span><b>+' + res.xp + ' XP</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
+      (res ? '<div class="xpline"><div class="top"><span>Level ' + lv.level + ' · ' + esc(levelTitle(lv)) + '</span><b>+' + res.xp + ' XP</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
       (G.online && G.online.ratingDelta !== undefined ? '<p class="sub">Rating: <b>' + G.online.rating + '</b> (' + (G.online.ratingDelta >= 0 ? '+' : '') + G.online.ratingDelta + ')</p>' : '') +
       '<div class="row" style="justify-content:center"><button class="btn" data-close>Look at the board</button>' +
       (era ? '<button class="btn" id="r-era">' + icon('journey') + ' ' + esc(era.name) + '</button>' : '<button class="btn" id="r-home">' + icon('home') + ' Home</button>') +
