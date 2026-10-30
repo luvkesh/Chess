@@ -7,7 +7,7 @@ function ChacklateScene(canvas, options) {
   'use strict';
   const THREE = window.THREE;
   if (!THREE) return null;
-  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {} }, options);
+  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {}, onPerf() {} }, options);
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
@@ -74,6 +74,7 @@ function ChacklateScene(canvas, options) {
     return 0;
   })();
   if (window.__SHOT) perf = 0;   // screenshots always show full detail
+  if (perf >= 1) K.setTextureBudget(1024, perf >= 3 ? 2 : 4);
   // While a collection item is being shown off on the table ("Try it on the table") the
   // table draws at full detail and up to 2x resolution, whatever level it has fallen to:
   // the view is mostly still, and a soft, blocky preview sells the item short.
@@ -336,7 +337,8 @@ function ChacklateScene(canvas, options) {
   }
   function rebuildSprite(s) {
     if (s.obj) pieceGroup.remove(s.obj);
-    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b');
+    // table pieces use the lighter build, except while an item is shown off close up
+    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b', fullDetail ? 'show' : 'play');
     obj.traverse((m) => { m.layers.enable(REFLECT); });
     s.obj = obj;
     pieceGroup.add(obj);
@@ -677,8 +679,9 @@ function ChacklateScene(canvas, options) {
     if (shadowDirty) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
     if (composer) composer.render(); else renderer.render(scene, camera);
   }
-  // the idle frame gap: 30 fps, or 20 fps once the table has had to give up detail
-  const ambientMs = () => (lvl() >= 3 ? 50 : 33);
+  // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
+  // bottom levels (candle flicker and the slow orbit don't need more)
+  const ambientMs = () => (lvl() >= 3 ? 66 : lvl() >= 1 ? 50 : 33);
   function frame(now) {
     raf = 0;
     if (glLost) return;
@@ -729,6 +732,7 @@ function ChacklateScene(canvas, options) {
     const hadBloom = bloomOn(), hadLvl = lvl();
     fullDetail = on;
     govN = 0;
+    for (const sp of sprites.concat(graveyard)) if (sp.obj) rebuildSprite(sp);
     detailChanged(hadBloom, hadLvl);
   }
   function detailChanged(hadBloom, hadLvl) {
@@ -737,6 +741,7 @@ function ChacklateScene(canvas, options) {
     if (!motesOn()) particles = particles.filter((p) => p.kind !== 'mote');
     shadowQuality();
     lastW = 0; resize();
+    opts.onPerf(perf);
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) requestRender(); });
 
@@ -892,6 +897,7 @@ function ChacklateScene(canvas, options) {
     shadowQuality();
     lastW = 0; resize();
     opts.onContextRestored();
+    opts.onPerf(perf);
     requestRender();
   });
 
@@ -964,7 +970,7 @@ function ChacklateScene(canvas, options) {
       const types = spec.kind === 'piece' ? [spec.type || 'k'] : ['r', 'n', 'b', 'q', 'k', 'p'];
       const sides = spec.kind === 'piece' ? [spec.side || 'w'] : ['w', 'b'];
       sides.forEach((side, row) => types.forEach((t, i) => {
-        const g = P.make(spec.set, t, side);
+        const g = P.make(spec.set, t, side, spec.detail);
         g.position.set((i - (types.length - 1) / 2) * 0.78, 0, row ? -0.85 : 0.2);
         g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
@@ -985,7 +991,7 @@ function ChacklateScene(canvas, options) {
       const foot = new THREE.Mesh(new THREE.TorusGeometry(R * 0.86, 0.04, 14, 96), gold); foot.rotation.x = Math.PI / 2; foot.position.y = -0.34;
       for (const m of [top, rim, base, foot]) { s2.add(m); disposeList.push(m); }
       (spec.items || []).forEach((it) => {
-        const g = P.make(it.set || setId, it.type || 'k', it.side || 'w');
+        const g = P.make(it.set || setId, it.type || 'k', it.side || 'w', spec.detail);
         g.position.set(it.x || 0, it.y || 0, it.z || 0);
         g.rotation.set(0, it.rot || 0, it.tilt || 0, 'YXZ');
         if (it.scale) g.scale.setScalar(it.scale);
@@ -1007,15 +1013,15 @@ function ChacklateScene(canvas, options) {
       s2.add(new THREE.HemisphereLight(rm.hemi[0], rm.hemi[1], Math.max(0, rm.lights.hemi - 0.4)));
       const b = W.board(spec.board || boardId, 'white'); s2.add(b); disposeList.push(b);
       [['r', 'w', -3.5, 3.5], ['k', 'w', 0.5, 3.5], ['q', 'w', -0.5, 3.5], ['n', 'w', 1.5, 1.5], ['k', 'b', 0.5, -3.5], ['q', 'b', -0.5, -3.5], ['r', 'b', 3.5, -3.5], ['b', 'b', -1.5, -2.5]].forEach(([t, side, x, z]) => {
-        const g = P.make(setId, t, side); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
+        const g = P.make(setId, t, side, 'play'); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
       });
       c2.fov = spec.fov || 46;
       c2.position.set(5.5, 5.2, 12.5);
       look.set(0, 1.6, -2);
     } else if (spec.kind === 'board') {
       const b = W.board(spec.board, 'white'); s2.add(b); disposeList.push(b);
-      const g = P.make(setId, 'k', 'w'); g.position.set(-0.5, 0, 0.5); s2.add(g);
-      const g2 = P.make(setId, 'n', 'b'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
+      const g = P.make(setId, 'k', 'w', 'play'); g.position.set(-0.5, 0, 0.5); s2.add(g);
+      const g2 = P.make(setId, 'n', 'b', 'play'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
       // back far enough that both pieces fit, with the frame and its letters in front
       c2.position.set(3.0, 5.6, 11.2); look.set(0, 0.35, 1.6);
     }

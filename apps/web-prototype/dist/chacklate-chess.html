@@ -73,6 +73,11 @@ img { display: block; }
 #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; transition: filter .7s var(--ease), transform .9s var(--ease); }
 body.paged #stage canvas { filter: blur(9px) brightness(0.42) saturate(1.12); transform: scale(1.04); pointer-events: none; }
 body.paged.lowfx #stage canvas { filter: brightness(0.3); transform: none; }
+/* Slow devices (the table sets .lite when it has to give up detail): frosted glass over a
+   live 3D canvas is re-blurred on every frame, so panels go solid instead. */
+body.lite *, body.lite *::before, body.lite *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+body.lite .glass, body.lite .lux, body.lite .hud-top .round, body.lite .hud-top .title, body.lite .backbtn, body.lite .tabbar { background-color: rgba(16, 10, 7, 0.9); }
+body.lite.paged #stage canvas { filter: brightness(0.32); transform: none; }
 .shade { position: fixed; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse 85% 75% at 50% 42%, transparent 50%, rgba(6, 3, 2, 0.62) 100%); transition: background .7s; }
 body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba(13, 8, 6, 0.1), rgba(6, 3, 2, 0.7) 100%), linear-gradient(180deg, rgba(10, 6, 4, 0.35), rgba(10, 6, 4, 0.65)); }
 .grain { position: fixed; inset: 0; pointer-events: none; z-index: 2; opacity: 0.05; mix-blend-mode: overlay; background-size: 180px; }
@@ -6384,7 +6389,11 @@ function ChacklateKit(THREE) {
     this.at = pts[pts.length - 1];
     return this;
   };
-  const stepsFor = (len, density) => Math.max(2, Math.min(64, Math.ceil(len / (density || 0.006))));
+  // How finely shapes are tessellated. 1 is the full detail used for close-ups (menu art
+  // and the collection); pieces on the table are built coarser (see ChacklatePieces), since
+  // 32 of them are drawn three times a frame (view, shadows, reflections).
+  const DETAIL = { around: 1, along: 1, tube: 1 };
+  const stepsFor = (len, density) => Math.max(2, Math.round(Math.min(64, Math.ceil(len / (density || 0.006))) * DETAIL.along));
   Profile.prototype.line = function (r, y, smoothJoin) {
     const [r0, y0] = this.at, n = stepsFor(Math.hypot(r - r0, y - y0), 0.05);
     const pts = []; for (let i = 0; i <= n; i++) pts.push([mix(r0, r, i / n), mix(y0, y, i / n)]);
@@ -6608,7 +6617,8 @@ function ChacklateKit(THREE) {
   function revolve(prof, opts) {
     const o = opts || {};
     const rings = prof instanceof Profile ? prof.rings(o.creaseDeg) : prof;
-    const segs = o.segs || 64, phi0 = o.phi0 || 0, phiLen = o.phiLen || TAU;
+    const segs0 = o.segs || 64, segs = Math.max(Math.min(segs0, 8), Math.round(segs0 * DETAIL.around));
+    const phi0 = o.phi0 || 0, phiLen = o.phiLen || TAU;
     const mod = o.mod || null, lift = o.lift || null;
     const nR = rings.length, nC = segs + 1;
     const pos = new Float32Array(nR * nC * 3), nor = new Float32Array(nR * nC * 3), uv = new Float32Array(nR * nC * 2);
@@ -6933,7 +6943,8 @@ function ChacklateKit(THREE) {
   // A ring of beads (pearls, gold dots) at height y and radius r.
   function beadRing(r, y, count, size, o) {
     o = o || {};
-    const base = new THREE.SphereGeometry(size, o.seg || 10, Math.max(6, (o.seg || 10) - 2));
+    const seg = Math.max(6, Math.round((o.seg || 10) * Math.sqrt(DETAIL.around)));
+    const base = new THREE.SphereGeometry(size, seg, Math.max(4, seg - 2));
     const parts = [];
     for (let i = 0; i < count; i++) {
       const th = (i / count) * TAU + (o.phase || 0);
@@ -6947,7 +6958,7 @@ function ChacklateKit(THREE) {
   // A torus-section band lying on a radius (gold rings around collars).
   function ring(r, y, thick, o) {
     o = o || {};
-    const g = new THREE.TorusGeometry(r, thick, o.tube || 10, o.seg || 72);
+    const g = new THREE.TorusGeometry(r, thick, Math.max(5, Math.round((o.tube || 10) * Math.sqrt(DETAIL.around))), Math.max(16, Math.round((o.seg || 72) * DETAIL.around)));
     g.rotateX(Math.PI / 2);
     if (o.squash) g.scale(1, o.squash, 1);
     g.translate(0, y, 0);
@@ -6958,7 +6969,7 @@ function ChacklateKit(THREE) {
     o = o || {};
     const shape = new THREE.Shape(outline.map(([x, y]) => new THREE.Vector2(x, y)));
     (o.holes || []).forEach((h) => shape.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x, y)))));
-    const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * (o.bevelSize || 0.9), bevelSegments: o.bevelSegments || 4, curveSegments: o.curveSegments || 24 });
+    const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * (o.bevelSize || 0.9), bevelSegments: Math.max(2, Math.round((o.bevelSegments || 4) * DETAIL.along * 1.5)), curveSegments: Math.max(6, Math.round((o.curveSegments || 24) * DETAIL.around)) });
     g.translate(0, 0, -depth / 2);
     g.computeVertexNormals();
     return g;
@@ -6986,11 +6997,13 @@ function ChacklateKit(THREE) {
   function tube(points, radius, o) {
     o = o || {};
     const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(p[0], p[1], p[2])), !!o.closed, 'centripetal');
-    const g = new THREE.TubeGeometry(curve, o.segs || Math.max(8, points.length * 6), radius, o.radial || 8, !!o.closed);
+    const segs = Math.max(4, Math.round((o.segs || Math.max(8, points.length * 6)) * DETAIL.tube));
+    const radialN = Math.max(5, Math.round((o.radial || 8) * Math.sqrt(DETAIL.tube)));
+    const g = new THREE.TubeGeometry(curve, segs, radius, radialN, !!o.closed);
     if (o.taper || o.radiusAt) {
       // shrink toward the ends, or follow radiusAt(t) (a multiple of radius, t from 0 to 1)
       const p = g.attributes.position, n = g.attributes.normal;
-      const rings = (o.segs || Math.max(8, points.length * 6)) + 1, radial = (o.radial || 8) + 1;
+      const rings = segs + 1, radial = radialN + 1;
       for (let i = 0; i < rings; i++) {
         const t = i / (rings - 1), s = o.radiusAt ? o.radiusAt(t) : Math.max(0.15, Math.sin(Math.PI * Math.min(1, t * (o.taperIn || 1.2))) ** 0.35);
         const c = curve.getPointAt(Math.min(1, t));
@@ -7020,15 +7033,28 @@ function ChacklateKit(THREE) {
 
   // ------------------------------------------------------------------ canvas textures
   const texCache = new Map();
+  // Phones get textures of at most 1024 px and less anisotropic filtering (setTextureBudget):
+  // four 2048 px room textures alone are ~90 MB of GPU memory with their mipmaps.
+  const TEXB = { max: 2048, aniso: 8 };
+  function setTextureBudget(max, aniso) { TEXB.max = max; TEXB.aniso = aniso; }
+  // The canvas itself if it fits the budget, otherwise a scaled-down copy for the GPU.
+  function fitCanvas(c) {
+    const k = TEXB.max / Math.max(c.width, c.height);
+    if (k >= 1) return c;
+    const d = document.createElement('canvas'); d.width = Math.max(1, Math.round(c.width * k)); d.height = Math.max(1, Math.round(c.height * k));
+    const dc = d.getContext('2d'); dc.imageSmoothingQuality = 'high'; dc.drawImage(c, 0, 0, d.width, d.height);
+    return d;
+  }
+  const texAniso = () => TEXB.aniso;
   function canvasTex(key, w, h, draw, o) {
     if (texCache.has(key)) return texCache.get(key);
     const c = document.createElement('canvas'); c.width = w; c.height = h || w;
     const ctx = c.getContext('2d');
     draw(ctx, c.width, c.height);
-    const t = new THREE.CanvasTexture(c);
+    const t = new THREE.CanvasTexture(fitCanvas(c));
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.anisotropy = 8;
+    t.anisotropy = TEXB.aniso;
     if (o && o.repeat) t.repeat.set(o.repeat[0], o.repeat[1]);
     texCache.set(key, t);
     return t;
@@ -7214,7 +7240,54 @@ function ChacklateKit(THREE) {
     return THREE.mergeGeometries(ready);
   }
 
-  return { TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
+  // Rooms are built from hundreds of small meshes (mouldings, books, candles, frames), and
+  // every one is a draw call. Once a room is built, meshes that never move and look the same
+  // (same material, shadow flags, layers and draw order) are merged into one mesh each, in
+  // the group's own space. `keep` lists objects that animate or toggle; they and everything
+  // under them stay as they are, as do transparent and multi-material meshes.
+  function batchStatic(group, keep) {
+    const skip = new Set();
+    (keep || []).forEach((o) => o && o.traverse((c) => skip.add(c)));
+    group.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(group.matrixWorld).invert();
+    const bins = new Map();
+    group.traverse((m) => {
+      if (!m.isMesh || m.isInstancedMesh || skip.has(m) || !m.visible || Array.isArray(m.material) || m.material.transparent) return;
+      for (let p = m.parent; p && p !== group; p = p.parent) if (!p.visible) return;
+      const g = m.geometry;
+      if (!g || !g.attributes.position || Object.keys(g.morphAttributes).length) return;
+      const key = [m.material.uuid, Object.keys(g.attributes).sort().join(), g.index ? 1 : 0, m.castShadow, m.receiveShadow, m.layers.mask, m.renderOrder].join('|');
+      if (!bins.has(key)) bins.set(key, []);
+      bins.get(key).push(m);
+    });
+    const mat = new THREE.Matrix4();
+    let merged = 0;
+    for (const list of bins.values()) {
+      if (list.length < 2) continue;
+      const geos = list.map((m) => {
+        mat.multiplyMatrices(inv, m.matrixWorld);
+        const g = m.geometry.clone();
+        g.clearGroups();
+        g.applyMatrix4(mat);
+        // a mirrored part keeps facing out: three flips the winding for it at draw time
+        if (mat.determinant() < 0 && g.index) { const a = g.index.array; for (let i = 0; i < a.length; i += 3) { const t = a[i]; a[i] = a[i + 2]; a[i + 2] = t; } }
+        else if (mat.determinant() < 0) return null;
+        return g;
+      });
+      if (geos.some((g) => !g)) continue;
+      const one = THREE.mergeGeometries(geos);
+      if (!one) continue;
+      const first = list[0], mesh = new THREE.Mesh(one, first.material);
+      mesh.castShadow = first.castShadow; mesh.receiveShadow = first.receiveShadow;
+      mesh.layers.mask = first.layers.mask; mesh.renderOrder = first.renderOrder;
+      list.forEach((m) => m.parent.remove(m));
+      group.add(mesh);
+      merged += list.length - 1;
+    }
+    return merged;
+  }
+
+  return { DETAIL, batchStatic, setTextureBudget, fitCanvas, texAniso, TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
     beadRing, ring, extrude, closedCurve, mirrorOutline, tube, scroll, wrap, canvasTex, paint, hex, lerpC, TEX, MAT, material, merge };
 }
 
@@ -7226,7 +7299,7 @@ function ChacklateKit(THREE) {
 // the knight a horse head, the rook battlements, the pawn a round head.
 function ChacklatePieces(THREE, K) {
   'use strict';
-  const { TAU, clamp, mix, smooth, profile, revolve, MOD, mods, SD, spline, strand, strandField, sdfGeometry, beadRing, ring, extrude, merge, MAT, TEX, alongProfile, rng } = K;
+  const { DETAIL, TAU, clamp, mix, smooth, profile, revolve, MOD, mods, SD, spline, strand, strandField, sdfGeometry, beadRing, ring, extrude, merge, MAT, TEX, alongProfile, rng } = K;
   const Q = { segs: 96, cell: 0.0052, mane: 0.0042 };
 
   // ------------------------------------------------------------------ assembly
@@ -7487,7 +7560,7 @@ function ChacklatePieces(THREE, K) {
   // The horse is the slowest part to build, and sets share a few variants: cache by options.
   const horseCache = new Map();
   function horse(o) {
-    const key = JSON.stringify(o || {}) + Q.cell + Q.mane;
+    const key = JSON.stringify(o || {}) + Q.cell + Q.mane + JSON.stringify(DETAIL);
     if (!horseCache.has(key)) horseCache.set(key, sculptHorse(o));
     return horseCache.get(key);
   }
@@ -8978,22 +9051,34 @@ function ChacklatePieces(THREE, K) {
   }
 
   // ------------------------------------------------------------------ building and caching
+  // Two levels of detail. 'show' is the full sculpt for close-ups: menu art, the collection
+  // and the museum. 'play' is what stands on the table, where a piece is a few hundred
+  // pixels tall at most and all 32 are drawn for the view, the shadows and the
+  // reflection: about a sixth of the triangles, and quicker to build when a game loads.
+  const LOD = {
+    show: { around: 1, along: 1, tube: 1, cell: 0.0052, mane: 0.0042 },
+    play: { around: 0.4, along: 0.34, tube: 0.45, cell: 0.012, mane: 0.0095 },
+  };
   const geomCache = new Map();
-  function geometry(setId, type) {
+  function geometry(setId, type, detail) {
     const set = SETS[setId] || SETS.regency;
     const shape = set.shape || set.id;
-    const key = shape + type + Q.segs;
+    const lod = LOD[detail] ? detail : 'show';
+    const key = shape + type + lod;
     if (!geomCache.has(key)) {
       const t0 = performance.now();
-      geomCache.set(key, SETS[shape].pieces[type]({ Q }).geoms());
-      if (typeof window !== 'undefined' && window.__PIECE_TIMES) window.__PIECE_TIMES.push([shape, type, Math.round(performance.now() - t0)]);
+      const L = LOD[lod], keep = { around: DETAIL.around, along: DETAIL.along, tube: DETAIL.tube, cell: Q.cell, mane: Q.mane };
+      Object.assign(DETAIL, { around: L.around, along: L.along, tube: L.tube }); Q.cell = L.cell; Q.mane = L.mane;
+      try { geomCache.set(key, SETS[shape].pieces[type]({ Q }).geoms()); }
+      finally { Object.assign(DETAIL, { around: keep.around, along: keep.along, tube: keep.tube }); Q.cell = keep.cell; Q.mane = keep.mane; }
+      if (typeof window !== 'undefined' && window.__PIECE_TIMES) window.__PIECE_TIMES.push([shape, type, lod, Math.round(performance.now() - t0)]);
     }
     return geomCache.get(key);
   }
   // A ready-to-place group for one piece: meshes share geometry and materials.
-  function make(setId, type, side) {
+  function make(setId, type, side, detail) {
     const set = SETS[setId] || SETS.regency;
-    const g = geometry(set.id, type);
+    const g = geometry(set.id, type, detail);
     const mats = set.mats(side);
     const grp = new THREE.Group();
     for (const slot of Object.keys(g)) {
@@ -9005,11 +9090,8 @@ function ChacklatePieces(THREE, K) {
     grp.userData = { set: set.id, type, side };
     return grp;
   }
-  function setDetail(level) {
-    if (level === 'low') { Q.segs = 48; Q.cell = 0.0075; Q.mane = 0.0055; } else { Q.segs = 96; Q.cell = 0.0052; Q.mane = 0.0042; }
-  }
   const HEIGHT = { k: 1.62, q: 1.43, b: 1.24, n: 1.06, r: 0.97, p: 0.72 };
-  return { SETS, make, geometry, setDetail, HEIGHT, list: () => Object.keys(SETS).map((k) => SETS[k]) };
+  return { SETS, make, geometry, HEIGHT, list: () => Object.keys(SETS).map((k) => SETS[k]) };
 }
 
 // ---- world3d.js ----
@@ -9025,9 +9107,9 @@ function ChacklateWorld(THREE, K) {
   // ------------------------------------------------------------------ small helpers
   const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h || w; return c; };
   function texFrom(c, o) {
-    const t = new THREE.CanvasTexture(c);
+    const t = new THREE.CanvasTexture(K.fitCanvas(c));
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
-    t.anisotropy = 8;
+    t.anisotropy = K.texAniso();
     if (o && o.repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(o.repeat[0], o.repeat[1]); }
     return t;
   }
@@ -10910,6 +10992,8 @@ function ChacklateWorld(THREE, K) {
     grp.add(candelabrum(-5.9, TOP, -4.6, flames, wallMats.gold));
     grp.add(candelabrum(5.9, TOP, -4.6, flames, wallMats.gold));
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
+    // the chandelier steps aside for the camera and the flames flicker; the rest stands still
+    K.batchStatic(grp, [ch].concat(flames.map((f) => f.m)));
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8,
       fog: o.fog, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
@@ -11005,7 +11089,7 @@ function ChacklateScene(canvas, options) {
   'use strict';
   const THREE = window.THREE;
   if (!THREE) return null;
-  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {} }, options);
+  const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {}, onPerf() {} }, options);
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SHOT });
@@ -11072,6 +11156,7 @@ function ChacklateScene(canvas, options) {
     return 0;
   })();
   if (window.__SHOT) perf = 0;   // screenshots always show full detail
+  if (perf >= 1) K.setTextureBudget(1024, perf >= 3 ? 2 : 4);
   // While a collection item is being shown off on the table ("Try it on the table") the
   // table draws at full detail and up to 2x resolution, whatever level it has fallen to:
   // the view is mostly still, and a soft, blocky preview sells the item short.
@@ -11334,7 +11419,8 @@ function ChacklateScene(canvas, options) {
   }
   function rebuildSprite(s) {
     if (s.obj) pieceGroup.remove(s.obj);
-    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b');
+    // table pieces use the lighter build, except while an item is shown off close up
+    const obj = P.make(setId, TYPE[kindOf(s.piece)], s.piece > 0 ? 'w' : 'b', fullDetail ? 'show' : 'play');
     obj.traverse((m) => { m.layers.enable(REFLECT); });
     s.obj = obj;
     pieceGroup.add(obj);
@@ -11675,8 +11761,9 @@ function ChacklateScene(canvas, options) {
     if (shadowDirty) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
     if (composer) composer.render(); else renderer.render(scene, camera);
   }
-  // the idle frame gap: 30 fps, or 20 fps once the table has had to give up detail
-  const ambientMs = () => (lvl() >= 3 ? 50 : 33);
+  // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
+  // bottom levels (candle flicker and the slow orbit don't need more)
+  const ambientMs = () => (lvl() >= 3 ? 66 : lvl() >= 1 ? 50 : 33);
   function frame(now) {
     raf = 0;
     if (glLost) return;
@@ -11727,6 +11814,7 @@ function ChacklateScene(canvas, options) {
     const hadBloom = bloomOn(), hadLvl = lvl();
     fullDetail = on;
     govN = 0;
+    for (const sp of sprites.concat(graveyard)) if (sp.obj) rebuildSprite(sp);
     detailChanged(hadBloom, hadLvl);
   }
   function detailChanged(hadBloom, hadLvl) {
@@ -11735,6 +11823,7 @@ function ChacklateScene(canvas, options) {
     if (!motesOn()) particles = particles.filter((p) => p.kind !== 'mote');
     shadowQuality();
     lastW = 0; resize();
+    opts.onPerf(perf);
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) requestRender(); });
 
@@ -11890,6 +11979,7 @@ function ChacklateScene(canvas, options) {
     shadowQuality();
     lastW = 0; resize();
     opts.onContextRestored();
+    opts.onPerf(perf);
     requestRender();
   });
 
@@ -11962,7 +12052,7 @@ function ChacklateScene(canvas, options) {
       const types = spec.kind === 'piece' ? [spec.type || 'k'] : ['r', 'n', 'b', 'q', 'k', 'p'];
       const sides = spec.kind === 'piece' ? [spec.side || 'w'] : ['w', 'b'];
       sides.forEach((side, row) => types.forEach((t, i) => {
-        const g = P.make(spec.set, t, side);
+        const g = P.make(spec.set, t, side, spec.detail);
         g.position.set((i - (types.length - 1) / 2) * 0.78, 0, row ? -0.85 : 0.2);
         g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
@@ -11983,7 +12073,7 @@ function ChacklateScene(canvas, options) {
       const foot = new THREE.Mesh(new THREE.TorusGeometry(R * 0.86, 0.04, 14, 96), gold); foot.rotation.x = Math.PI / 2; foot.position.y = -0.34;
       for (const m of [top, rim, base, foot]) { s2.add(m); disposeList.push(m); }
       (spec.items || []).forEach((it) => {
-        const g = P.make(it.set || setId, it.type || 'k', it.side || 'w');
+        const g = P.make(it.set || setId, it.type || 'k', it.side || 'w', spec.detail);
         g.position.set(it.x || 0, it.y || 0, it.z || 0);
         g.rotation.set(0, it.rot || 0, it.tilt || 0, 'YXZ');
         if (it.scale) g.scale.setScalar(it.scale);
@@ -12005,15 +12095,15 @@ function ChacklateScene(canvas, options) {
       s2.add(new THREE.HemisphereLight(rm.hemi[0], rm.hemi[1], Math.max(0, rm.lights.hemi - 0.4)));
       const b = W.board(spec.board || boardId, 'white'); s2.add(b); disposeList.push(b);
       [['r', 'w', -3.5, 3.5], ['k', 'w', 0.5, 3.5], ['q', 'w', -0.5, 3.5], ['n', 'w', 1.5, 1.5], ['k', 'b', 0.5, -3.5], ['q', 'b', -0.5, -3.5], ['r', 'b', 3.5, -3.5], ['b', 'b', -1.5, -2.5]].forEach(([t, side, x, z]) => {
-        const g = P.make(setId, t, side); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
+        const g = P.make(setId, t, side, 'play'); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
       });
       c2.fov = spec.fov || 46;
       c2.position.set(5.5, 5.2, 12.5);
       look.set(0, 1.6, -2);
     } else if (spec.kind === 'board') {
       const b = W.board(spec.board, 'white'); s2.add(b); disposeList.push(b);
-      const g = P.make(setId, 'k', 'w'); g.position.set(-0.5, 0, 0.5); s2.add(g);
-      const g2 = P.make(setId, 'n', 'b'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
+      const g = P.make(setId, 'k', 'w', 'play'); g.position.set(-0.5, 0, 0.5); s2.add(g);
+      const g2 = P.make(setId, 'n', 'b', 'play'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
       // back far enough that both pieces fit, with the frame and its letters in front
       c2.position.set(3.0, 5.6, 11.2); look.set(0, 0.35, 1.6);
     }
@@ -14463,9 +14553,11 @@ function ChacklateAudio() {
       onDrop: (f, t) => ctlHooks.onDrop(f, t),
       onContextLost() { $('nogl').hidden = false; },
       onContextRestored() { $('nogl').hidden = true; },
+      onPerf: (level) => document.body.classList.toggle('lite', level >= 2),
     });
   } catch (e) { console.error(e); view = null; }
   if (!view) { $('nogl').hidden = false; view = nullView(); }
+  else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
   function nullView() {
     const noop = () => {};
@@ -14531,6 +14623,8 @@ function ChacklateAudio() {
       if (!img.dataset.snap) return;
       const [spec, w, h] = JSON.parse(img.dataset.snap);
       delete img.dataset.snap;
+      // small menu-card art doesn't need the full sculpt (and building it slows the first screen)
+      if (w <= 240 && !spec.detail) spec.detail = 'play';
       const k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
       view.snapshot(spec, Math.round(w * k), Math.round(h * k)).then((url) => { if (url && img.isConnected) { img.src = url; img.classList.add('in'); } });
     };
