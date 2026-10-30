@@ -111,7 +111,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 /* ---------- numbers ---------- */
 .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 54px; }
 .nums .lux { padding: 28px 24px; }
-.nums b { display: block; font: 600 54px/1 var(--serif); font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 14px; }
+.nums b { display: block; font: 600 52px/1 var(--caps); font-variant-numeric: lining-nums tabular-nums; font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 14px; }
 .nums p { margin: 8px 0 0; color: var(--muted); font-size: 15.5px; }
 
 /* ---------- wonders ---------- */
@@ -125,6 +125,19 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .places b { display: block; font: 600 11.5px/1.25 var(--caps); letter-spacing: 0.1em; text-transform: uppercase; }
 .places span { display: block; margin-top: 3px; font-size: 12.5px; color: var(--muted); line-height: 1.3; }
 .places .lock { position: absolute; top: 10px; right: 10px; width: 14px; height: 14px; color: var(--gold-2); }
+.passport { margin-top: 26px; padding: clamp(22px, 3vw, 34px); box-shadow: inset 0 0 0 5px rgba(18, 12, 10, 0.6), inset 0 0 0 6px var(--line); }
+.pp-head { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.pp-head h3 { margin: 0; font: 600 clamp(24px, 2.6vw, 30px)/1.1 var(--serif); }
+.pp-head .grule { margin-top: 12px; width: 70px; }
+.pp-head p { margin: 12px 0 0; color: var(--muted); }
+.stamps { display: grid; grid-template-columns: repeat(9, 1fr); gap: 14px 8px; margin-top: 24px; }
+.stamp { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; min-width: 0; }
+.stamp span { position: relative; display: block; transform: rotate(var(--tilt, 0deg)); }
+.stamp img { display: block; width: 96px; max-width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(216, 164, 71, 0.25)); }
+.stamp b { font: 600 13px/1.25 var(--caps); letter-spacing: 0.06em; color: var(--ink); }
+.stamp.faint img { opacity: 0.32; filter: grayscale(0.6); }
+.stamp.faint b { color: var(--faint); }
+.stamp .lock { position: absolute; right: 2px; bottom: 2px; width: 22px; height: 22px; padding: 4px; border-radius: 50%; background: rgba(18, 12, 10, 0.9); border: 1px solid var(--line); color: var(--gold-2); }
 .placeinfo { margin-top: 22px; display: inline-flex; align-items: center; gap: 16px; padding: 12px 22px 12px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: rgba(20, 12, 9, 0.82); max-width: 100%; }
 .placeinfo img { width: 54px; height: 54px; flex: none; }
 .placeinfo p { min-width: 0; }
@@ -169,7 +182,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .strip-arrow:disabled { opacity: .35; cursor: default; }
 @media (prefers-reduced-motion: reduce) { .stage { transform: none !important; transition: none; } .stage .glint { display: none; } .strip { scroll-behavior: auto; } }
 .counts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line-2); color: var(--muted); font-size: 15px; }
-.counts b { color: var(--ink); font: 600 22px/1 var(--serif); font-variant-numeric: lining-nums; margin-right: 6px; }
+.counts b { color: var(--ink); font: 600 21px/1 var(--caps); font-variant-numeric: lining-nums tabular-nums; margin-right: 6px; }
 .minihead { display: flex; flex-direction: column; align-items: center; text-align: center; margin: 72px 0 30px; }
 .minihead h3 { margin: 0; font: 600 clamp(26px, 3vw, 34px)/1.15 var(--serif); color: var(--ink); }
 .minihead .grule { margin-top: 14px; width: 80px; }
@@ -210,6 +223,11 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .safe p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
 .links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
 
+/* ---------- interlude ---------- */
+.interlude { position: relative; z-index: 1; height: clamp(260px, 42vw, 460px); overflow: hidden; display: grid; place-items: center; border-block: 1px solid var(--line-2); }
+.il-pic { position: absolute; inset: -60px 0; background-size: cover; background-position: center 40%; will-change: transform; filter: brightness(0.7) saturate(1.15) hue-rotate(-12deg); }
+.interlude::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(18, 12, 10, 0.85), rgba(70, 22, 48, 0.42) 48%, rgba(18, 12, 10, 0.9)); }
+.il-quote { position: relative; z-index: 2; margin: 0; padding: 0 24px; max-width: 900px; text-align: center; font: italic 600 clamp(26px, 4vw, 48px)/1.2 var(--serif); color: var(--ink); text-shadow: 0 2px 24px rgba(0, 0, 0, 0.8); }
 /* ---------- pricing ---------- */
 .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 46px; align-items: stretch; }
 .plan { padding: 30px 28px; display: flex; flex-direction: column; }
@@ -235,6 +253,9 @@ footer .quiet { width: 100%; margin-top: 6px; font-size: 13px; }
 
 /* ---------- @@COACH@@'s guided tour (built like Mei's tour on JongClub's site) ---------- */
 .htools { display: flex; align-items: center; gap: 10px; flex: none; }
+.menu-btn { display: none; width: 42px; height: 42px; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(18, 12, 10, 0.6); color: var(--gold-2); cursor: pointer; }
+.menu-btn svg { width: 20px; height: 20px; }
+.menu-btn[aria-expanded="true"] { border-color: var(--gold-3); }
 .lang { position: relative; }
 .lang-btn { width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(18, 12, 10, 0.6); color: var(--gold-2); cursor: pointer; transition: border-color .2s; }
 .lang-btn:hover, .lang-btn[aria-expanded="true"] { border-color: var(--gold-3); }
@@ -301,7 +322,7 @@ html.nonlatin body { line-height: 1.75; }
   .r-start { min-height: 36px; padding: 0 14px; }
   .r-no { width: 36px; height: 36px; }
   .r-invite .r-face { width: 46px; height: 46px; }
-  .rooky-tool, .lang-btn { width: 38px; height: 38px; }
+  .rooky-tool, .lang-btn, .menu-btn { width: 38px; height: 38px; }
   .r-next { right: calc(max(16px, env(safe-area-inset-right)) + 62px); }
 }
 @media (prefers-reduced-motion: reduce) { .r-dot.talking .ring { animation: none; opacity: .8; } .r-next svg { animation: none; } .r-invite, .r-orb { animation: none; } }
@@ -310,9 +331,16 @@ html.nonlatin body { line-height: 1.75; }
 @media (max-width: 1100px) {
   header nav { display: none; }
   header.top .wrap { justify-content: space-between; }
+  .menu-btn { display: grid; }
+  header.top.menu-open { background: rgba(18, 12, 10, 0.97); border-color: var(--line-2); }
+  header.top.menu-open nav { display: flex; flex-direction: column; gap: 0; position: absolute; top: 100%; left: 0; right: 0; margin: 0; padding: 8px 16px 18px; background: rgba(18, 12, 10, 0.97); border-bottom: 1px solid var(--line-2); }
+  header.top.menu-open nav a { padding: 15px 4px; font-size: 13px; border-bottom: 1px solid var(--line-2); }
+  header.top.menu-open nav a:last-child { border-bottom: 0; }
+  header.top.menu-open nav a.on::after { left: auto; right: 4px; top: 50%; bottom: auto; transform: none; }
   .places { grid-template-columns: repeat(3, 1fr); }
   .nums, .safe { grid-template-columns: repeat(2, 1fr); }
   .earn-cards { grid-template-columns: repeat(2, 1fr); }
+  .stamps { grid-template-columns: repeat(5, 1fr); }
   .collect { grid-template-columns: 1fr; gap: 16px; }
   .pricing { grid-template-columns: 1fr; max-width: 520px; margin-left: auto; margin-right: auto; }
 }
@@ -349,6 +377,7 @@ html.nonlatin body { line-height: 1.75; }
   .friend b { font-size: 20px; }
   .friend p { font-size: 13.5px; }
   .earn-cards { grid-template-columns: 1fr; gap: 12px; }
+  .stamps { grid-template-columns: repeat(3, 1fr); }
   .minihead { margin: 56px 0 24px; }
   .medals { gap: 22px 10px; }
   .medal { width: calc(50% - 10px); max-width: 160px; }
@@ -356,7 +385,7 @@ html.nonlatin body { line-height: 1.75; }
   .strip button { width: 104px; } .strip button img { width: 104px; height: 78px; } .strip-arrow { display: none; } .car-tabs { flex-wrap: nowrap; gap: 6px; } .car-tabs button { padding: 0 10px; gap: 6px; font-size: 11px; letter-spacing: 0.04em; } .car-tabs button svg { width: 15px; height: 15px; }
 }
 @media (max-width: 480px) { header.top .wrap { gap: 10px; } .logo { gap: 9px; font-size: 13px; letter-spacing: 0.18em; } .htools { gap: 8px; } .htools .btn.small { padding: 0 14px; letter-spacing: 0.12em; } }
-@media (max-width: 350px) { .logo > span { display: none; } }
+@media (max-width: 440px) { .logo > span:not(.crest) { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
@@ -370,8 +399,9 @@ html.nonlatin body { line-height: 1.75; }
 
 <header class="top" id="top"><div class="wrap">
   <a class="logo" href="#main" data-tip="Back to the top"><span class="crest"><img src="@@IMG:crest@@" alt="" width="36" height="36"></span><span>Chackmate</span></a>
-  <nav aria-label="Sections"><a href="#learn" data-tip="How @@COACH@@ teaches chess, one small step at a time">Learn</a><a href="#wonders" data-tip="The famous places where you play">Wonders</a><a href="#collect" data-tip="The chess sets you can win and collect">Collect</a><a href="#families" data-tip="Safety and privacy, for grown-ups">Families</a><a href="#pricing" data-tip="What is free and what Premium adds">Pricing</a></nav>
+  <nav aria-label="Sections" id="nav"><a href="#learn" data-tip="How @@COACH@@ teaches chess, one small step at a time">Learn</a><a href="#wonders" data-tip="The famous places where you play">Wonders</a><a href="#collect" data-tip="The chess sets you can win and collect">Collect</a><a href="#families" data-tip="Safety and privacy, for grown-ups">Families</a><a href="#pricing" data-tip="What is free and what Premium adds">Pricing</a></nav>
   <div class="htools">
+    <button type="button" class="menu-btn" id="menu-btn" aria-controls="nav" aria-expanded="false" aria-label="Sections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
     <div class="lang" data-no-i18n><button type="button" class="lang-btn" id="lang-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Language / भाषा" data-tip="Language / भाषा"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg></button><div class="lang-menu" id="lang-menu" role="menu" aria-label="Language" hidden></div></div>
     <button type="button" class="rooky-tool" id="r-btn" aria-pressed="false" aria-label="Guided tour with @@COACH@@" data-tip="Let @@COACH@@ show you around, out loud"><img src="@@ART:coach@@" alt=""></button>
     <a class="btn gold small" href="@@PLAY@@" target="_top">Play now</a>
@@ -410,10 +440,10 @@ html.nonlatin body { line-height: 1.75; }
     <h2>From your first move <em>to your first tournament.</em></h2>
   </div>
   <div class="nums">
-    <div class="lux reveal"><b>@@N:lessons@@</b><h3>Spoken lessons</h3><p>Ten chapters, read aloud.</p></div>
-    <div class="lux reveal"><b>@@N:puzzles@@</b><h3>Puzzles</h3><p>A new one every day.</p></div>
-    <div class="lux reveal"><b>@@N:openings@@</b><h3>Openings</h3><p>Learn the famous ones.</p></div>
-    <div class="lux reveal"><b>@@N:endgames@@</b><h3>Endgames</h3><p>Win them every time.</p></div>
+    <div class="lux reveal"><b data-count>@@N:lessons@@</b><h3>Spoken lessons</h3><p>Ten chapters, read aloud.</p></div>
+    <div class="lux reveal"><b data-count>@@N:puzzles@@</b><h3>Puzzles</h3><p>A new one every day.</p></div>
+    <div class="lux reveal"><b data-count>@@N:openings@@</b><h3>Openings</h3><p>Learn the famous ones.</p></div>
+    <div class="lux reveal"><b data-count>@@N:endgames@@</b><h3>Endgames</h3><p>Win them every time.</p></div>
   </div>
 </div></section>
 
@@ -426,6 +456,10 @@ html.nonlatin body { line-height: 1.75; }
   <div class="wrap">
     <div class="placeinfo"><img id="pcoach" src="" alt="" width="54" height="54"><p><small id="pwho"></small><span id="psay"></span></p></div>
     <div class="places" id="places" role="group" aria-label="Choose a place"></div>
+    <div class="passport glass reveal">
+      <div class="pp-head"><h3>Passport</h3><span class="grule" aria-hidden="true"></span><p>Beat each champion to stamp your passport.</p></div>
+      <div class="stamps" id="stamps"></div>
+    </div>
   </div>
 </section>
 
@@ -450,7 +484,7 @@ html.nonlatin body { line-height: 1.75; }
     <div class="strip" id="strip" role="tablist" aria-label="Pieces"></div>
     <button type="button" class="strip-arrow next" id="snext" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
   </div>
-  <div class="counts"><span><b>@@N:sets@@</b>chess sets</span><span><b>@@N:boards@@</b>boards</span><span><b>@@N:rooms@@</b>places</span></div>
+  <div class="counts"><span><b data-count>@@N:sets@@</b>chess sets</span><span><b data-count>@@N:boards@@</b>boards</span><span><b data-count>@@N:rooms@@</b>places</span></div>
 
   <div class="earn">
     <div class="minihead reveal"><h3>Play for it</h3><span class="grule" aria-hidden="true"></span></div>
@@ -500,6 +534,8 @@ html.nonlatin body { line-height: 1.75; }
   </div>
   <div class="links reveal"><a class="btn small" href="@@PARENT@@" target="_top">Parent page</a><a class="btn small" href="@@PRIVACY@@" target="_top">Privacy for families</a></div>
 </div></section>
+
+<div class="interlude"><div class="il-pic" id="il-pic" style="background-image: url(@@IMG:egypt-hero@@)"></div><p class="il-quote">One game, played in front of every wonder.</p></div>
 
 <section class="solid" id="pricing"><div class="wrap">
   <div class="center reveal">
@@ -711,6 +747,11 @@ html.nonlatin body { line-height: 1.75; }
     if (user) { if (mode === 'wonders') place(id); else $('wonders').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); }
   }
   choose(HERO, false);
+  // The passport: a stamp per place; Premium places are pale, with a small lock.
+  $('stamps').innerHTML = D.eras.map(function (e, i) {
+    var free = e.access === 'free';
+    return '<div class="stamp' + (free ? '' : ' faint') + '" style="--tilt:' + ((i * 37) % 13 - 6) + 'deg"><span><img src="' + ART['stamp-' + e.id] + '" alt="" width="96" height="96">' + (free ? '' : lock) + '</span><b>' + e.place.split(',')[0] + '</b></div>';
+  }).join('');
 
   // ---------------------------------------------------------------- collect
   // A showroom of everything the game lets you collect: three tabs, a live 3D stage, a plaque
@@ -855,6 +896,13 @@ html.nonlatin body { line-height: 1.75; }
         .catch(function (e) { delete buffers[key]; throw e; });
       return buffers[key];
     }
+    // While the tour is on, the clips for sections coming up are fetched and decoded early.
+    if ('IntersectionObserver' in window) {
+      var ahead = new IntersectionObserver(function (es) {
+        es.forEach(function (en) { if (en.isIntersecting && on && actx) load(en.target.dataset.guide).catch(function () {}); });
+      }, { rootMargin: '1200px 0px' });
+      sections.forEach(function (el) { ahead.observe(el); });
+    }
     function current() {
       var mid = innerHeight / 2, best = null;
       sections.forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top <= mid && r.bottom > mid) best = el; });
@@ -988,6 +1036,13 @@ html.nonlatin body { line-height: 1.75; }
   var onScroll = function () { top.classList.toggle('solid-bar', window.scrollY > 40); };
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
   var links = [].slice.call(document.querySelectorAll('header nav a'));
+  // Below 1100 px the sections fold into a menu beside the header buttons.
+  var menuBtn = $('menu-btn');
+  function menu(v) { top.classList.toggle('menu-open', v); menuBtn.setAttribute('aria-expanded', v ? 'true' : 'false'); }
+  menuBtn.addEventListener('click', function () { menu(!top.classList.contains('menu-open')); });
+  links.forEach(function (a) { a.addEventListener('click', function () { menu(false); }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && top.classList.contains('menu-open')) { menu(false); menuBtn.focus(); } });
+  document.addEventListener('click', function (e) { if (top.classList.contains('menu-open') && !e.target.closest('header.top')) menu(false); });
   if ('IntersectionObserver' in window) {
     var spy = new IntersectionObserver(function (es) {
       es.forEach(function (en) { if (en.isIntersecting) links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id); }); });
@@ -996,6 +1051,51 @@ html.nonlatin body { line-height: 1.75; }
     var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }); }, { threshold: 0.08 });
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   } else document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+  // ---------------------------------------------------------------- interlude
+  // The picture band drifts about 60 px slower than the page over one screen.
+  var ilPic = $('il-pic');
+  if (!reduce) {
+    var drift = function () {
+      var r = ilPic.parentNode.getBoundingClientRect(), h = innerHeight;
+      if (r.bottom < 0 || r.top > h) return;
+      var k = (r.top + r.height / 2 - h / 2) / h;
+      ilPic.style.transform = 'translate3d(0,' + (k * -60).toFixed(1) + 'px,0)';
+    };
+    addEventListener('scroll', function () { requestAnimationFrame(drift); }, { passive: true }); drift();
+  }
+
+  // ---------------------------------------------------------------- preloading
+  // Pictures in the sections ahead are decoded well before they scroll in, so nothing pops.
+  if ('IntersectionObserver' in window) {
+    var ioP = new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        ioP.unobserve(en.target);
+        [].forEach.call(en.target.querySelectorAll('img'), function (im) { im.loading = 'eager'; if (im.decode) im.decode().catch(function () {}); });
+      });
+    }, { rootMargin: '1500px 0px' });
+    document.querySelectorAll('main section, .interlude').forEach(function (el) { ioP.observe(el); });
+  }
+
+  // ---------------------------------------------------------------- numbers
+  // The big numbers count up from 0 once, as they come into view (1.4 s, easing out).
+  var counters = [].slice.call(document.querySelectorAll('[data-count]'));
+  if (!reduce && 'IntersectionObserver' in window) {
+    var ioN = new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        ioN.unobserve(en.target);
+        var el = en.target, to = +el.dataset.count, t0 = performance.now();
+        (function frame(now) {
+          var k = Math.min(1, (now - t0) / 1400);
+          el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3)));
+          if (k < 1) requestAnimationFrame(frame);
+        })(t0);
+      });
+    }, { threshold: 0.6 });
+    counters.forEach(function (el) { el.dataset.count = el.textContent; el.textContent = '0'; ioN.observe(el); });
+  }
+
   // ---------------------------------------------------------------- languages
   // Built like the language picker on JongClub's site. English text is the key: each text node
   // and label keeps its English and shows the translation from i18n/<code>.json, and anything

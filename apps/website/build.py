@@ -233,7 +233,7 @@ def build(target):
     art = json.loads(subprocess.run(['node', str(here / 'tools' / 'render-art.js')], check=True, capture_output=True, text=True).stdout)
     # art.js hands out URI-encoded SVG; base64 is about half the size
     prefix = 'data:image/svg+xml;charset=utf-8,'
-    art = {k: 'data:image/svg+xml;base64,' + base64.b64encode(urllib.parse.unquote(v[len(prefix):]).encode()).decode() for k, v in art.items()}
+    art = {k: 'data:image/svg+xml;base64,' + base64.b64encode(urllib.parse.unquote(v[len(prefix):]).encode()).decode() if v.startswith(prefix) else v for k, v in art.items()}
     img = {p.stem: data_uri(p) for p in sorted((here / 'img').iterdir()) if p.suffix in ('.webp', '.jpg', '.png')}
     for e in eras:
         # stills: shown before the 3D table is ready, and instead of it where WebGL is missing
