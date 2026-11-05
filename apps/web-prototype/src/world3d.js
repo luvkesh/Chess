@@ -1998,30 +1998,42 @@ function ChacklateWorld(THREE, K) {
     });
     return scene;
   }
-  // Cached per renderer: a map made on one GPU context can't be used on another.
+  // Cached per renderer: a map made on one GPU context can't be used on another. Each map is
+  // a render target of several MB, so trimEnvironments keeps only the last few rooms' maps:
+  // keeping every room's on a phone helped run Safari out of GPU memory.
   const envCaches = new Map();
   function environment(renderer, style) {
     const key = JSON.stringify(style || {});
     if (!envCaches.has(renderer)) envCaches.set(renderer, new Map());
     const envCache = envCaches.get(renderer);
-    if (envCache.has(key)) return envCache.get(key);
+    if (envCache.has(key)) { const rt = envCache.get(key); envCache.delete(key); envCache.set(key, rt); return rt.texture; }   // most recent last
     const pm = new THREE.PMREMGenerator(renderer);
     const scene = envScene(style);
     const rt = pm.fromScene(scene, 0.03);
     scene.traverse((m) => { if (m.geometry) m.geometry.dispose(); if (m.material) [].concat(m.material).forEach((x) => x.dispose()); });
     pm.dispose();
-    envCache.set(key, rt.texture);
+    envCache.set(key, rt);
     return rt.texture;
+  }
+  // Frees all but the `keep` most recently used maps of one renderer, never one in `inUse`.
+  function trimEnvironments(renderer, keep, inUse) {
+    const envCache = envCaches.get(renderer);
+    if (!envCache) return;
+    for (const [k, rt] of envCache) {
+      if (envCache.size <= keep) break;
+      if (inUse && inUse.includes(rt.texture)) continue;
+      rt.dispose(); envCache.delete(k);
+    }
   }
   // After a lost GPU context the cached maps are empty and have to be rendered again.
   // With no renderer given, every renderer's maps go.
   function resetEnvironments(renderer) {
     for (const [r, envCache] of envCaches) {
       if (renderer && r !== renderer) continue;
-      envCache.forEach((t) => t.dispose());
+      envCache.forEach((rt) => rt.dispose());
       envCaches.delete(r);
     }
   }
-  return { BOARDS, ROOMS, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
+  return { BOARDS, ROOMS, board, room, environment, trimEnvironments, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateWorld;
