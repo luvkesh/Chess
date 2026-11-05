@@ -15147,7 +15147,7 @@ const ChacklateTips = (function () {
     }
     function quiet() { if (hush) hush.pause(); if (tag && !(audio && audio.el)) tag.pause(); }
     // any tap while the tour is on wakes sound that iOS put to sleep
-    ['touchend', 'click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (on && !paused && actx && actx.state !== 'running') unlock(); }, true); });
+    ['touchend', 'click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (!on || paused) return; if (held) carryOn(true); else if (actx && actx.state !== 'running') unlock(); }, true); });
     // An inlined clip is decoded from its base64 text: the page's sandbox may refuse fetch() of a data: URL.
     function bytes(src) {
       if (src.indexOf('data:') === 0) {
@@ -15194,15 +15194,16 @@ const ChacklateTips = (function () {
     }
     // When sound cannot start, the caption says why, so a visitor (and we) can tell what went wrong.
     function failed(a, why) { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); cap.textContent = 'No sound from ' + D.coach + ' (' + why + '). Check the volume, then tap replay.'; peek(6000); }
-    function speak(key) {
-      var L = G[key]; if (!L) return;
-      fadeOut(); hideCue();
-      var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null }; audio = a; lastKey = key;
+    function speak(key, from) {
+      var L = G[key]; if (!L) return; from = from || 0;
+      fadeOut(); hideCue(); held = null;
+      var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null, now: null }; audio = a; lastKey = key;
       if (key.indexOf('item-') !== 0) lastSection = key;
       cap.textContent = L.cues[0].text; where.textContent = label(key);
       function ended() { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (key.indexOf('item-') !== 0) showCue(key); }
       // the caption is the last cue whose time has passed
       function follow(now) {
+        a.now = now;
         if (!paused) live.classList.add('talking');
         clearInterval(capTimer);
         capTimer = setInterval(function () {
@@ -15215,7 +15216,7 @@ const ChacklateTips = (function () {
         if (audio !== a) return;
         if (!tag) return failed(a, why || 'no audio');
         a.el = tag; tag.loop = false; tag.onended = ended; tag.onerror = function () { failed(a, 'clip would not load'); };
-        tag.src = L.src; try { tag.currentTime = 0; } catch (e) {}
+        tag.src = L.src; try { tag.currentTime = from; } catch (e) {}
         var p = tag.play();
         if (p && p.then) p.then(function () { if (audio === a) follow(function () { return tag.currentTime; }); }, function (e) { failed(a, (e && e.name) || 'blocked'); });
         else follow(function () { return tag.currentTime; });
@@ -15225,13 +15226,30 @@ const ChacklateTips = (function () {
       load(key).then(function (buf) {
         if (audio !== a) return;
         if (actx.state !== 'running') return viaElement('sound is asleep');
-        var src = actx.createBufferSource(); src.buffer = buf; src.connect(a.gain); a.src = src; var t0 = actx.currentTime;
+        var src = actx.createBufferSource(); src.buffer = buf; src.connect(a.gain); a.src = src; var t0 = actx.currentTime - from;
         src.onended = ended;
-        src.start();
+        src.start(0, Math.min(from, Math.max(0, buf.duration - 0.05)));
         follow(function () { return actx.currentTime - t0; });
         // fetch the neighbouring sections so the next one starts at once
         var i = keys.indexOf(a.sec); [keys[i + 1], keys[i - 1]].forEach(function (k) { if (k) load(k).catch(function () {}); });
       }).catch(function (e) { viaElement((e && e.message) || 'decode'); });
+    }
+    // Leaving the page (another tab, a call, the lock screen) stops the clip where it is; coming back
+    // carries on from that spot. iOS will not always let sound restart on its own, so when it refuses,
+    // the caption asks for a tap, and the next tap anywhere carries on.
+    var held = null;
+    function hold() {
+      if (!audio) return;
+      var a = audio; held = { key: a.key, at: a.now ? a.now() : 0, cap: cap.textContent }; audio = null;
+      live.classList.remove('talking'); clearInterval(capTimer);
+      if (a.el) { a.el.onended = a.el.onerror = null; a.el.pause(); }
+      if (a.src) { a.src.onended = null; try { a.src.stop(); } catch (e) {} }
+    }
+    function carryOn(tapped) {
+      var h = held; if (!h || !on || paused) return;
+      if (tapped) { unlock(); held = null; speak(h.key, h.at); return; }
+      var go = function () { if (held !== h || !on || paused) return; if (actx && actx.state === 'running') { held = null; speak(h.key, h.at); } else { cap.textContent = 'Tap anywhere and I will carry on.'; where.textContent = label(h.key); peek(8000); } };
+      if (actx && actx.state !== 'running') { var r = actx.resume(); if (r && r.then) r.then(go, go); setTimeout(go, 600); } else go();
     }
     function onScroll() {
       if (nextTo && Math.abs(scrollY - cueAt) > 24) hideCue();
@@ -15239,7 +15257,7 @@ const ChacklateTips = (function () {
       var k = current();
       if (audio && k !== audio.sec) { fadeOut(); clearTimeout(itemT); }
       clearTimeout(settle);
-      settle = setTimeout(function () { var k2 = current(); if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); }, 500);
+      settle = setTimeout(function () { var k2 = current(); if (held && k2 !== sectionOf(held.key)) held = null; if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); else if (held) carryOn(false); }, 500);
     }
     function setPaused(v) {
       paused = v; live.classList.toggle('paused', v);
@@ -15249,7 +15267,7 @@ const ChacklateTips = (function () {
     }
     function setOn(v) {
       on = v; store.set(KEY, v ? '1' : '0'); btn.setAttribute('aria-pressed', String(v)); invite.hidden = true; live.hidden = !v; paused = false; live.classList.remove('paused', 'show');
-      if (v) { unlock(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); clearTimeout(itemT); fadeOut(); hideCue(); quiet(); }
+      if (v) { unlock(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); clearTimeout(itemT); fadeOut(); hideCue(); quiet(); held = null; }
     }
     addEventListener('scroll', onScroll, { passive: true });
     // a piece on show in Collect gets its own pitch once it has been there half a second
@@ -15301,7 +15319,10 @@ const ChacklateTips = (function () {
     live.addEventListener('mouseenter', function () { peek(0); }); live.addEventListener('mouseleave', function () { peek(1200); });
     orb.addEventListener('focus', function () { peek(0); }); orb.addEventListener('blur', function () { peek(1200); });
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) setOn(false); });
-    document.addEventListener('visibilitychange', function () { if (!actx || paused || !on) return; if (document.hidden) { actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); quiet(); } else { actx.resume().catch(function () {}); if (hush) hush.play().catch(function () {}); if (audio && audio.el) audio.el.play().catch(function () {}); } });
+    document.addEventListener('visibilitychange', function () { if (paused || !on) return; if (document.hidden) { hold(); quiet(); } else { if (hush) hush.play().catch(function () {}); carryOn(false); } });
+    // iOS also fires these on a lock or a return, sometimes without visibilitychange
+    addEventListener('pagehide', function () { if (on && !paused) { hold(); quiet(); } });
+    addEventListener('pageshow', function () { if (on && !paused) carryOn(false); });
     var saved = store.get(KEY);
     if (saved === '1') {
       // sound needs a tap first, so a returning visitor's tour carries on at their first tap or key
@@ -15313,7 +15334,7 @@ const ChacklateTips = (function () {
       };
       addEventListener('click', first, true); addEventListener('touchend', first, true); addEventListener('keydown', first, true);
     } else if (saved !== '0') setTimeout(function () { if (!on) invite.hidden = false; }, 1800);
-    if (window.__SHOT) window.__tour = { setOn: setOn, speak: speak, state: function () { return { on: on, paused: paused, last: lastKey, cap: cap.textContent, talking: live.classList.contains('talking') }; } };
+    if (window.__SHOT) window.__tour = { setOn: setOn, speak: speak, state: function () { return { on: on, paused: paused, last: lastKey, cap: cap.textContent, talking: live.classList.contains('talking'), held: held, at: audio && audio.now ? audio.now() : null }; } };
   })();
 
   // ---------------------------------------------------------------- chrome
