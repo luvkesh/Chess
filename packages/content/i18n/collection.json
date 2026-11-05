@@ -42,6 +42,7 @@
   "nextItem": { "en": "Next item", "hi": "अगली चीज़", "check": ["hi"] },
   "tapPiece": { "en": "Tap a piece to read its story.", "hi": "किसी मोहरे पर टैप करके उसकी कहानी पढ़ें।", "check": ["hi"] },
   "equippedDot": { "en": "Equipped.", "hi": "लगा हुआ है।", "check": ["hi"] },
+  "suite": { "en": "These come together: {room}, with the {board} board and {pieces} pieces.", "hi": "ये एक साथ आते हैं: {room}, {board} बोर्ड और {pieces} मोहरों के साथ।", "check": ["hi"] },
   "yours": { "en": "This is yours to use.", "hi": "यह आपका है, इस्तेमाल करें।", "check": ["hi"] },
   "toUnlock": { "en": "{how} to unlock.", "hi": "खोलने के लिए: {how}।", "check": ["hi"] },
   "prevItem": { "en": "Previous item", "hi": "पिछली चीज़", "check": ["hi"] },

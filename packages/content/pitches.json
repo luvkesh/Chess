@@ -2,16 +2,33 @@
   "note": "What Rooky says when an item is opened in the Collection, built like JongClub's item pop-over: warm, about how the thing is made and what it is made of, never a price. A chess set from an era uses the pitch Rooky gives for it on the website (site: the key in apps/website/guide.json, item-sets-<set id>, recorded once in apps/website/audio/), so it is recorded once and heard in both places. Every other item has its own line here, recorded by tools/voice/record-pitches.py into apps/web-prototype/public/pitch/ in Rooky's voice, Toby. test/pitch.test.js checks every item has a line and every clip matches its words.",
   "who": "rooky",
   "lines": {
-    "pieces.pharaoh.v1": { "site": "item-sets-pharaoh" },
-    "pieces.olympian.v1": { "site": "item-sets-olympian" },
-    "pieces.imperial.v1": { "site": "item-sets-imperial" },
-    "pieces.maharaja.v1": { "site": "item-sets-maharaja" },
-    "pieces.dynasty.v1": { "site": "item-sets-dynasty" },
-    "pieces.murano.v1": { "site": "item-sets-murano" },
-    "pieces.ruby-pearl.v1": { "site": "item-sets-ruby-pearl" },
-    "pieces.tsarina.v1": { "site": "item-sets-tsarina" },
-    "pieces.manhattan.v1": { "site": "item-sets-manhattan" },
-
+    "pieces.pharaoh.v1": {
+      "site": "item-sets-pharaoh"
+    },
+    "pieces.olympian.v1": {
+      "site": "item-sets-olympian"
+    },
+    "pieces.imperial.v1": {
+      "site": "item-sets-imperial"
+    },
+    "pieces.maharaja.v1": {
+      "site": "item-sets-maharaja"
+    },
+    "pieces.dynasty.v1": {
+      "site": "item-sets-dynasty"
+    },
+    "pieces.murano.v1": {
+      "site": "item-sets-murano"
+    },
+    "pieces.ruby-pearl.v1": {
+      "site": "item-sets-ruby-pearl"
+    },
+    "pieces.tsarina.v1": {
+      "site": "item-sets-tsarina"
+    },
+    "pieces.manhattan.v1": {
+      "site": "item-sets-manhattan"
+    },
     "pieces.regency.v1": "Regency Gilt was made for a royal summer house by the sea. Black and white lacquer, polished until it shines like a mirror, with crowns and pearls in real gold leaf. Every game feels like a party at the palace.",
     "pieces.staunton.v1": "This is the classic! The Staunton set is boxwood and ebony, turned on a lathe and carved by hand, way back in 1849. Almost every chess set in the world learned from this one.",
     "pieces.marble.v1": "Carrara and Nero is real stone. White marble from Italy, the same kind Michelangelo carved, against shiny black marble from Spain. It's cool to touch, and it clacks so nicely on the board.",
@@ -27,7 +44,6 @@
     "pieces.army.v1": "Chess began in India, as a battle game of elephants, horses and soldiers. The Royal Army brings them back, carved in sandalwood and ebony, with silk robes and gold armour. It's chess the way it first was.",
     "pieces.robots.v1": "Beep boop! The Robot Squad is made of glossy toy plastic and shiny chrome, with eyes that glow. Every robot still wears its piece's badge, so you always know who's who.",
     "pieces.ocean.v1": "Come under the sea! Coral Kingdom is carved in mother of pearl, with merfolk, an octopus, a seahorse and a coral castle. Their tails shimmer like fish scales.",
-
     "board.walnut.v1": "Walnut and Maple is a proper wooden board, with a gold line round the edge. Warm, simple and beautiful.",
     "board.cocoa-cream.v1": "Cocoa and Cream has squares like chocolate and cream, with tiny raspberry lines in between. Yum!",
     "board.tournament.v1": "Green and buff, the colours of chess clubs and tournaments everywhere. This is the board the champions use.",
@@ -35,13 +51,12 @@
     "board.rosewood-gold.v1": "Deep rosewood and honey squares, framed in real gold leaf. It glows when the lights are low.",
     "board.emerald-ivory.v1": "Green marble with jade veins, next to warm ivory stone. It's like playing in a garden.",
     "board.obsidian.v1": "Obsidian is glass from a volcano! Smoky and shiny, with a chrome rim, and reflections everywhere.",
-    "board.sakura.v1": "Sakura Lacquer is pink like cherry blossoms in spring. You earn it by playing seven days in a row.",
+    "board.sakura.v1": "Sakura Lacquer is pink like cherry blossoms in spring. It comes with the Tokyo Sky Garden and the Robot Squad.",
     "board.sandstone.v1": "Pink and honey sandstone, from Jaipur, the Pink City. It feels warm, like a sunny afternoon.",
     "board.ruby-truffle.v1": "Ruby lacquer and pale praline squares, with gold between them. It's sweet, and very fancy.",
     "board.gilded-ebony.v1": "Black lacquer and ivory, with every line drawn in gold. Smart enough for a royal game.",
     "board.harvest-oak.v1": "Golden oak from the Cocoa Harvest. It smells like autumn, if boards could smell.",
     "board.cacao-pod.v1": "These squares are the colours of a ripe cacao pod and its beans. That's where chocolate comes from!",
-    "board.single-origin.v1": "The darkest wood, in a frame of black marble. It's the very top of the season track.",
     "board.nile.v1": "Desert sandstone and blue lapis, with hieroglyphs carved round the frame. Fit for a pharaoh.",
     "board.athens.v1": "White marble and green stone, with the Greek key pattern all the way round. Very Athens.",
     "board.roma.v1": "Warm travertine and grey marble, framed in purple porphyry and bronze. The stones of ancient Rome.",
@@ -51,7 +66,6 @@
     "board.belle.v1": "Blue grey and white marble, in a frame of kingwood, like the grand houses of Paris.",
     "board.winter.v1": "Rose pink stone and white onyx, framed in swirly green malachite from the Ural Mountains.",
     "board.deco.v1": "Striped ebony and shiny chrome, straight from a fancy New York penthouse in the 1930s.",
-
     "room.salon.v1": "The Grand Cocoa Salon is cosy, with candles, a chandelier and a crackling fire. My favourite place for a quiet game.",
     "room.library.v1": "The Midnight Library has shelves of old books under a starry blue sky. Perfect for a thinking game.",
     "room.marble-hall.v1": "The Marble Hall is white and gold, and bright as morning. Every move looks important in here.",
@@ -65,7 +79,6 @@
     "room.winter.v1": "A palace ballroom, with colourful onion domes outside in the snow. Cosy and grand at the same time.",
     "room.deco.v1": "A rooftop above Times Square, in a sea of neon lights. The city never sleeps, and neither does this game!",
     "room.paris.v1": "A garden terrace right below the Eiffel Tower, all lit up for the World's Fair. Ooh la la!",
-
     "capture.cocoa-dust.v1": "A polite bow, then a little hop to the tray in a puff of cocoa. Good manners, even in battle.",
     "capture.none.v1": "Plain and simple. The taken piece just steps off to the tray.",
     "capture.gold-sparks.v1": "A friendly duel with golden sparks, then a twirl and a bow to the winner. So graceful!",
@@ -74,33 +87,28 @@
     "capture.frost.v1": "A frosty breath, a shiver of crystals, and the piece skates away across the ice. Brrr!",
     "capture.cocoa-nibs.v1": "Leapfrog! One piece somersaults over, and the other bounces off in a shower of cocoa nibs.",
     "capture.caramel-sparks.v1": "Two happy hops, then the piece whooshes up on caramel sparks. Like a little firework.",
-
     "victory.confetti.v1": "Gold, ruby and cream confetti for every win. Let's celebrate!",
     "victory.none.v1": "A quiet win, like a true gentleman. Sometimes a smile is enough.",
     "victory.sparks.v1": "A shower of white and gold sparks, to make every win shine.",
     "victory.fireworks.v1": "Colourful fireworks, as bright as Diwali night. Boom, you won!",
     "victory.petals.v1": "Rose petals drift down over the board. A soft, pretty way to win.",
     "victory.harvest.v1": "Golden fireworks for the harvest festival. A win worth cheering for!",
-
     "clock.classic.v1": "A real tournament clock, with a glowing green display. Tick, tock, your move!",
     "clock.amber.v1": "Warm amber numbers, like the glowing tubes in very old clocks.",
     "clock.ruby.v1": "A ruby lacquer clock with soft pink numbers. Pretty, but it still keeps time.",
     "clock.gold.v1": "A gold chronograph with a cream face, like a fancy watch.",
     "clock.ice.v1": "Frosted glass and icy blue numbers. Stay cool under pressure!",
     "clock.harvest.v1": "Polished brass with harvest gold numbers. Shiny and warm.",
-
     "sound.wood.v1": "The soft knock of heavy wooden pieces on felt. My favourite sound in chess.",
     "sound.soft.v1": "Quiet, gentle clicks, for calm and cosy games.",
     "sound.marble.v1": "The bright clack of marble on marble. Every move sounds important!",
     "sound.glass.v1": "Crystal chimes for every move. It sounds like magic.",
-
     "trail.none.v1": "No trail, just neat and tidy moves.",
     "trail.gold.v1": "A trail of golden dust behind every move. Sparkly!",
     "trail.mint.v1": "A cool wisp of mint, light as a breeze.",
     "trail.ruby.v1": "A ruby comet tail. Your pieces zoom like shooting stars!",
     "trail.caramel.v1": "A sweet drizzle of caramel behind every move.",
     "trail.cinnamon.v1": "A spicy cinnamon swirl. Your moves will look so fancy.",
-
     "avatar.knight.v1": "A golden knight on ruby enamel. For players who jump into action!",
     "avatar.rook.v1": "A golden rook on green enamel. Strong and steady, just like you.",
     "avatar.bishop.v1": "A golden bishop on violet enamel. Sneaky, smart, and always diagonal.",
@@ -128,7 +136,6 @@
     "avatar.gaston.v1": "Gaston the rooster, from Paris. Cock a doodle doo!",
     "avatar.mishka.v1": "Mishka the bear, from snowy Russia. Big, warm hugs!",
     "avatar.skye.v1": "Skye the eagle, soaring above New York. Fly high!",
-
     "frame.none.v1": "No frame at all, nice and simple.",
     "frame.bronze.v1": "A shiny bronze ring, for players who are getting good.",
     "frame.silver.v1": "A bright silver ring. You're really going places!",
@@ -136,6 +143,34 @@
     "frame.ruby.v1": "A deep ruby ring that glows like a jewel.",
     "frame.harvest.v1": "A wreath of harvest gold, from the Cocoa Harvest season.",
     "frame.cocoa-gold.v1": "Gold over cocoa enamel. Rich and sweet.",
-    "frame.ember.v1": "A glowing ring of cacao embers. Warm and fiery!"
+    "frame.ember.v1": "A glowing ring of cacao embers. Warm and fiery!",
+    "pieces.sarsen.v1": {
+      "site": "item-sets-sarsen"
+    },
+    "pieces.harappa.v1": {
+      "site": "item-sets-harappa"
+    },
+    "pieces.inca.v1": {
+      "site": "item-sets-inca"
+    },
+    "board.pearl.v1": "Real mother of pearl and soft coral pink, framed in sea-blue lacquer. It shimmers like the inside of a shell.",
+    "board.lapis.v1": "Pale moonstone and starry blue lapis, with tiny gold stars round the frame. A board for night owls.",
+    "board.sarsen.v1": "Rough stone, chiselled by hand, with no polish at all. It's as old-looking as Stonehenge itself.",
+    "board.terracotta.v1": "Sun-baked clay, painted with circles like the jars of the Indus potters. Warm, earthy and very, very old.",
+    "board.andesite.v1": "Grey mountain stone in a frame of fitted blocks, just like the walls the Inca built.",
+    "room.tokyo.v1": "A cherry-blossom garden on a Tokyo rooftop, with Mount Fuji far away. The city twinkles below you.",
+    "room.brussels.v1": "A chocolate shop on the Grand-Place of Brussels, with golden guild houses outside. Mmm, smell that cocoa!",
+    "room.reef.v1": "A pearl palace on the sea floor, with coral towers and fish swimming by. Don't forget to breathe!",
+    "room.amber.v1": "The honey-gold courtyard of Amber Fort, high above Jaipur. Look at the little domes on the walls.",
+    "room.mysore.v1": "Mysore Palace on a festival night, lit up by thousands of lamps. It's like playing inside a celebration.",
+    "room.greatwall.v1": "A watchtower on the Great Wall of China. The wall winds away over the green hills as far as you can see.",
+    "room.swiss.v1": "A cosy wooden chalet, with the Matterhorn outside the window. Hot chocolate, anyone?",
+    "room.dubai.v1": "A lounge high above Dubai at sunset, facing the tallest building in the world. What a view!",
+    "room.crystal.v1": "A palace made of glass and iron, with palm trees and a crystal fountain inside. It's full of light.",
+    "room.aurora.v1": "A frozen lake in Iceland, under green and purple northern lights. Wrap up warm!",
+    "room.castle.v1": "A meadow above the forest, facing a white castle with blue towers. Just like a fairy tale.",
+    "room.stonehenge.v1": "Inside the great stone circle, as the sun comes up. People built this more than four thousand years ago!",
+    "room.indus.v1": "A brick courtyard in Mohenjo-daro, one of the first cities ever, right by the Great Bath.",
+    "room.inca.v1": "A grassy terrace in Machu Picchu, the Inca city in the clouds. Say hello to the llamas!"
   }
 }

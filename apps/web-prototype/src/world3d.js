@@ -52,6 +52,33 @@ function ChacklateWorld(THREE, K) {
     lapis: (f, light) => (light ? marbleTile(f.light, f.veinLight || '#b89a6a', f.marbleLight) : TEX.lapis({ size: 512 }).image),
     stone: (f, light) => TEX.stone(light ? f.light : f.dark, light ? shade(f.light, -0.2) : shade(f.dark, 0.25), { size: 512, scale: 4, cloud: 0.35, speckMix: 0.35 }).image,
     lacquer: (f, light) => TEX.mottle(light ? f.light : f.dark, { amount: 0.06 }).image,
+    // mother of pearl: pale shell with soft bands of rose, mint and blue; abalone, deep blue-green
+    nacre: (f, light) => {
+      const c = canvas(512), g = c.getContext('2d'), R = rng(light ? 51 : 52);
+      g.drawImage(TEX.mottle(light ? f.light : f.dark, { amount: 0.08 }).image, 0, 0, 512, 512);
+      const tones = light ? ['#f8d8e0', '#d8f0e8', '#d8e4f8', '#fff4dc'] : ['#f0a090', '#e8b8a0', '#d88a7a', '#f8c8b8'];
+      for (let i = 0; i < 60; i++) { g.fillStyle = rgba(tones[i % 4], light ? 0.3 : 0.28); g.beginPath(); g.ellipse(R() * 512, R() * 512, 30 + R() * 120, 6 + R() * 22, R() * 0.6 - 0.3, 0, TAU); g.fill(); }
+      return c;
+    },
+    // stone dressed by hand: tool strokes, pits and a crack or two, every square a little different
+    chisel: (f, light) => {
+      const c = canvas(512), g = c.getContext('2d'), R = rng((f.seed || 31) + (light ? 1 : 0)), base = light ? f.light : f.dark;
+      g.drawImage(TEX.stone(base, shade(base, light ? -0.18 : 0.2), { size: 512, scale: 3, cloud: 0.5, speckMix: 0.5 }).image, 0, 0);
+      for (let i = 0; i < 420; i++) { const x = R() * 512, y = R() * 512, a = 0.5 + R() * 0.3; g.strokeStyle = rgba(R() < 0.5 ? '#000000' : '#ffffff', 0.05 + R() * 0.06); g.lineWidth = 2 + R() * 3; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 18, y + Math.sin(a) * 18); g.stroke(); }
+      for (let i = 0; i < 900; i++) { g.fillStyle = rgba('#000000', 0.1 + R() * 0.2); g.beginPath(); g.arc(R() * 512, R() * 512, 0.8 + R() * 2.4, 0, TAU); g.fill(); }
+      g.strokeStyle = rgba('#1a1810', 0.35); g.lineWidth = 2;
+      for (let i = 0; i < 3; i++) { let x = R() * 512, y = R() * 512; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 8; k++) { x += (R() - 0.5) * 60; y += 10 + R() * 30; g.lineTo(x, y); } g.stroke(); }
+      if (light) for (let i = 0; i < 20; i++) { g.fillStyle = rgba('#c8c890', 0.12); g.beginPath(); g.ellipse(R() * 512, R() * 512, 10 + R() * 30, 8 + R() * 20, R() * 3, 0, TAU); g.fill(); }
+      return c;
+    },
+    // fired clay: buff squares painted with the Harappan potters' black circles, red-slipped
+    // squares burnished by hand
+    clay: (f, light) => {
+      const c = canvas(512), g = c.getContext('2d'), R = rng(light ? 61 : 62), base = light ? f.light : f.dark;
+      g.drawImage(TEX.stone(base, shade(base, light ? -0.12 : 0.12), { size: 512, scale: 2, cloud: 0.6, speckMix: 0.25 }).image, 0, 0);
+      for (let i = 0; i < 500; i++) { g.fillStyle = rgba(R() < 0.5 ? '#000000' : '#fff4e0', 0.06); g.fillRect(R() * 512, R() * 512, 2 + R() * 4, 1 + R() * 2); }
+      return c;
+    },
     // Murano aventurine: amber glass full of copper sparkles (light squares are mirror glass)
     aventurine: (f, light) => {
       if (light) return TEX.mottle(f.light, { amount: 0.06 }).image;
@@ -72,6 +99,7 @@ function ChacklateWorld(THREE, K) {
     const tiles = [PAINT[f.type](f, false), PAINT[f.type](f, true)];
     for (let r = 0; r < 8; r++) for (let fl = 0; fl < 8; fl++) {
       const light = (r + fl) % 2 === 1, img = tiles[light ? 1 : 0];
+      if (f.type === 'clay' && light) { const x = fl * S, y = (7 - r) * S; g.drawImage(img, R() * (img.width - S), R() * (img.height - S), S, S, x, y, S, S); intersecting(g, x, y, S, R); continue; }
       const x = fl * S, y = (7 - r) * S;
       g.save(); g.beginPath(); g.rect(x, y, S, S); g.clip();
       const ox = R() * (img.width - S), oy = R() * (img.height - S);
@@ -92,6 +120,16 @@ function ChacklateWorld(THREE, K) {
       for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(i * S, 0); g.lineTo(i * S, S * 8); g.moveTo(0, i * S); g.lineTo(S * 8, i * S); g.stroke(); }
     }
     return c;
+  }
+  // The Indus potters' pattern: four circles that overlap into a flower, in black slip.
+  function intersecting(g, x, y, S, R) {
+    g.save(); g.translate(x + S / 2, y + S / 2); g.rotate((R() - 0.5) * 0.08);
+    g.strokeStyle = 'rgba(30,14,8,0.82)'; g.lineWidth = 7;
+    const r = S * 0.2;
+    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { g.beginPath(); g.arc(dx * r * 0.72, dy * r * 0.72, r, 0, TAU); g.stroke(); }
+    g.fillStyle = 'rgba(30,14,8,0.82)'; g.beginPath(); g.arc(0, 0, S * 0.03, 0, TAU); g.fill();
+    g.restore();
+    g.fillStyle = 'rgba(0,0,0,' + (R() * 0.06) + ')'; g.fillRect(x, y, S, S);
   }
   // Pietra dura flowers for the Mughal board's light squares.
   function flowerMotif(g, x, y, S, R) {
@@ -124,7 +162,7 @@ function ChacklateWorld(THREE, K) {
   const BOARDS = {
     walnut: { name: 'Walnut & Maple', field: { type: 'wood', light: '#e2c08e', dark: '#5e3824' }, frame: { type: 'wood', color: '#3b2216', grainLight: '#5a3524' }, inlay: '#d9b56a', label: '#f0d9a8', rim: 'gold' },
     regency: { name: 'Gilded Ebony', field: { type: 'lacquer', light: '#eee6d6', dark: '#16110f', seam: 'rgba(0,0,0,0.6)', seamGold: 'rgba(220,180,100,0.55)' }, frame: { type: 'lacquer', color: '#120d0b' }, inlay: '#e8c06a', label: '#f2d08a', rim: 'gold', gloss: 0.18 },
-    marble: { name: 'Carrara & Nero', field: { type: 'marble', light: '#efede8', dark: '#232326', veinLight: '#9a9aa0', veinDark: '#d8d6d0' }, frame: { type: 'marble', color: '#2a2a2e', vein: '#9a968c' }, inlay: '#d8b46a', label: '#f0dcae', rim: 'gold', gloss: 0.12 },
+    marble: { name: 'Carrara & Nero', field: { type: 'marble', light: '#efede8', dark: '#5c5e66', veinLight: '#9a9aa0', veinDark: '#c8c6c0' }, frame: { type: 'marble', color: '#2a2a2e', vein: '#9a968c' }, inlay: '#d8b46a', label: '#f0dcae', rim: 'gold', gloss: 0.12 },
     nile: { name: 'Sandstone & Lapis', field: { type: 'lapis', tintDark: ['#4a74e8', 0.3], light: '#e3c99a', dark: '#1d2f7a', veinLight: '#b08850', marbleLight: { cloud: 0.4, strength: 0.25, freq: 1 } }, frame: { type: 'stone', color: '#8a6a3e', speck: '#c8a46a' }, inlay: '#f0c860', label: '#ffe2a0', rim: 'gold', motif: 'egypt' },
     athens: { name: 'Pentelic & Verde Antico', field: { type: 'marble', light: '#e4d7c0', dark: '#3d6b56', veinLight: '#b0a898', veinDark: '#a8d4bc', marbleDark: { cloud: 0.5, strength: 0.6, freq: 3 } }, frame: { type: 'marble', color: '#ddd0b8', vein: '#a89c86' }, inlay: '#b8863b', label: '#4a3420', rim: 'bronze', motif: 'meander' },
     roma: { name: 'Porphyry & Travertine', field: { type: 'marble', light: '#e2d4b6', dark: '#6a7480', veinLight: '#c4ae88', veinDark: '#c8d2dc', marbleLight: { cloud: 0.4, strength: 0.3 }, marbleDark: { cloud: 0.4, strength: 0.45, freq: 3 } }, frame: { type: 'stone', color: '#3a1416', speck: '#a8686a' }, inlay: '#c8954a', label: '#f0d8b0', rim: 'bronze' },
@@ -134,17 +172,24 @@ function ChacklateWorld(THREE, K) {
     winter: { name: 'Malachite & Rhodonite', field: { type: 'marble', light: '#efe8dc', dark: '#b86a78', veinLight: '#c8c0b0', veinDark: '#3a2228', marbleDark: { cloud: 0.4, strength: 0.5, freq: 3 } }, frame: { type: 'malachite', color: '#13563a' }, inlay: '#e8c06a', label: '#f2d696', rim: 'gold', gloss: 0.1 },
     belle: { name: 'Bleu Turquin & Carrara', field: { type: 'marble', light: '#efe8dc', dark: '#3e4f63', veinLight: '#b8b4ac', veinDark: '#a8b8c8', marbleDark: { cloud: 0.5, strength: 0.45, freq: 3 } }, frame: { type: 'wood', color: '#3a1a14', grainLight: '#6a3424' }, inlay: '#e8c06a', label: '#f4e2b8', rim: 'gold', gloss: 0.1 },
     deco: { name: 'Macassar & Chrome', field: { type: 'wood', light: '#e6dccb', dark: '#7a5636', woodDark: { lines: 16, contrast: 0.75, warp: 2.4 }, woodLight: { lines: 70, contrast: 0.22 } }, frame: { type: 'lacquer', color: '#0e0e10' }, inlay: '#dfe3e8', label: '#e8ecf0', rim: 'chrome' },
-    cocoa: { name: 'Cocoa & Cream', field: { type: 'lacquer', light: '#ecdcc4', dark: '#6a3d2a', seamGold: 'rgba(214,92,124,0.55)' }, frame: { type: 'wood', color: '#2c1a12', grainLight: '#4e3022' }, inlay: '#d9668a', label: '#f2e3cb', rim: 'gold', gloss: 0.16 },
+    cocoa: { name: 'Cocoa & Cream', field: { type: 'lacquer', light: '#ecdcc4', dark: '#9a5e3e', seamGold: 'rgba(214,92,124,0.55)' }, frame: { type: 'wood', color: '#2c1a12', grainLight: '#4e3022' }, inlay: '#d9668a', label: '#f2e3cb', rim: 'gold', gloss: 0.16 },
     tournament: { name: 'Tournament Green', field: { type: 'lacquer', light: '#eceed0', dark: '#6f9150' }, frame: { type: 'wood', color: '#2e3a22', grainLight: '#4a5a36' }, inlay: '#d9d2a8', label: '#eeeed2', rim: 'bronze', gloss: 0.42 },
     rosewood: { name: 'Rosewood & Gold Leaf', field: { type: 'wood', light: '#e8c9a4', dark: '#5a2620', woodDark: { lines: 30, contrast: 0.8, warp: 2 } }, frame: { type: 'wood', color: '#2a100c', grainLight: '#5a2a20' }, inlay: '#e8b85a', label: '#f6dcae', rim: 'gold' },
-    emerald: { name: 'Emerald & Ivory', field: { type: 'marble', light: '#f2ebda', dark: '#1d5a49', veinLight: '#bcae92', veinDark: '#62a891', marbleDark: { cloud: 0.5, strength: 0.5, freq: 3 } }, frame: { type: 'lacquer', color: '#0f2520' }, inlay: '#d8b46a', label: '#efe6cf', rim: 'gold', gloss: 0.1 },
-    obsidian: { name: 'Obsidian Glass', field: { type: 'lacquer', light: '#8c919b', dark: '#121419' }, frame: { type: 'lacquer', color: '#0a0b0e' }, inlay: '#aab2c0', label: '#d5dae2', rim: 'chrome', gloss: 0.04, glass: true },
+    emerald: { name: 'Emerald & Ivory', field: { type: 'marble', light: '#f2ebda', dark: '#3a8a6e', veinLight: '#bcae92', veinDark: '#62a891', marbleDark: { cloud: 0.5, strength: 0.5, freq: 3 } }, frame: { type: 'lacquer', color: '#0f2520' }, inlay: '#d8b46a', label: '#efe6cf', rim: 'gold', gloss: 0.1 },
+    obsidian: { name: 'Obsidian Glass', field: { type: 'lacquer', light: '#c4c8d2', dark: '#4a4e5c' }, frame: { type: 'lacquer', color: '#0a0b0e' }, inlay: '#aab2c0', label: '#d5dae2', rim: 'chrome', gloss: 0.04, glass: true },
     sakura: { name: 'Sakura Lacquer', field: { type: 'lacquer', light: '#f6e2e5', dark: '#a03f58', seamGold: 'rgba(240,190,200,0.6)' }, frame: { type: 'lacquer', color: '#36121c' }, inlay: '#f2b8c6', label: '#ffe9ee', rim: 'gold', gloss: 0.1 },
     jaipur: { name: 'Jaipur Sandstone', field: { type: 'stone', light: '#ecd0a8', dark: '#b05e3c' }, frame: { type: 'stone', color: '#5a2c1b', speck: '#a8603c' }, inlay: '#f0c98c', label: '#fbe7c9', rim: 'gold', motif: 'flowers' },
-    ruby: { name: 'Ruby Truffle', field: { type: 'lacquer', light: '#f2dcc8', dark: '#74122c', seamGold: 'rgba(232,184,90,0.7)' }, frame: { type: 'lacquer', color: '#22060e' }, inlay: '#e8b85a', label: '#ffd9e4', rim: 'gold', gloss: 0.06 },
-    harvest: { name: 'Harvest Oak', field: { type: 'wood', light: '#e6c898', dark: '#7a522e' }, frame: { type: 'wood', color: '#3b2412', grainLight: '#5e3a1e' }, inlay: '#d0a060', label: '#f0dcb8', rim: 'bronze' },
+    ruby: { name: 'Ruby Truffle', field: { type: 'lacquer', light: '#f2dcc8', dark: '#a8344e', seamGold: 'rgba(232,184,90,0.7)' }, frame: { type: 'lacquer', color: '#22060e' }, inlay: '#e8b85a', label: '#ffd9e4', rim: 'gold', gloss: 0.06 },
+    harvest: { name: 'Harvest Oak', field: { type: 'wood', light: '#e6c898', dark: '#5a3a1e' }, frame: { type: 'wood', color: '#3b2412', grainLight: '#5e3a1e' }, inlay: '#d0a060', label: '#f0dcb8', rim: 'bronze' },
     cacao: { name: 'Cacao Pod', field: { type: 'wood', light: '#f0dab6', dark: '#8a3826', woodDark: { lines: 24, contrast: 0.6 } }, frame: { type: 'lacquer', color: '#2a120c' }, inlay: '#e8b85a', label: '#f6e3c4', rim: 'gold' },
-    origin: { name: 'Single Origin', field: { type: 'wood', light: '#f3e3c6', dark: '#3a1d10', woodDark: { lines: 16, contrast: 0.9, warp: 2.4 } }, frame: { type: 'marble', color: '#1a0e08', vein: '#8a6a4a' }, inlay: '#ffd27a', label: '#ffe9c4', rim: 'gold', gloss: 0.12 },
+    // Coral Kingdom's: mother of pearl and rose coral, in a frame of deep-sea lacquer
+    pearl: { name: 'Pearl & Coral', field: { type: 'nacre', light: '#eef0ee', dark: '#c27866' }, frame: { type: 'lacquer', color: '#0e3040' }, inlay: '#e8c890', label: '#f4ecd8', rim: 'gold', gloss: 0.06, pearly: true },
+    // Celestial Opal's: lapis lazuli with gold flecks for stars, against pale moonstone
+    lapis: { name: 'Lapis & Moonstone', field: { type: 'lapis', light: '#e4e8f0', dark: '#3a56a8', veinLight: '#a8b0c8', marbleLight: { cloud: 0.5, strength: 0.2, freq: 1 } }, frame: { type: 'lacquer', color: '#0e1630', stars: true }, inlay: '#e8c870', label: '#f2e6c0', rim: 'gold', gloss: 0.1 },
+    // the raw boards: no polish, no gold, squares cut and rubbed by hand
+    sarsen: { name: 'Sarsen Stone', field: { type: 'chisel', light: '#cfc8b4', dark: '#7a7464' }, frame: { type: 'raw', color: '#8a8472', speck: '#5a5648' }, inlay: '#4a4638', label: '#3a3628', raw: true },
+    terracotta: { name: 'Indus Terracotta', field: { type: 'clay', light: '#e2b88c', dark: '#9a4a2a' }, frame: { type: 'raw', color: '#a8643a', speck: '#6a3420', clay: true }, inlay: '#2a140a', label: '#2a140a', raw: true },
+    andesite: { name: 'Andesite Block', field: { type: 'chisel', light: '#c4beb2', dark: '#6a6660', seed: 23 }, frame: { type: 'raw', color: '#76726a', speck: '#4a4640', polygonal: true }, inlay: '#3a3630', label: '#2e2a26', raw: true },
   };
   function frameTexture(b, side) {
     const N = 2048, c = canvas(N), g = c.getContext('2d');
@@ -172,6 +217,23 @@ function ChacklateWorld(THREE, K) {
       for (const qx of [1, -1]) for (const qy of [1, -1]) { g.save(); g.translate(N / 2, N / 2); g.scale(qx, qy); g.drawImage(img, 0, 0, N / 2, N / 2); g.restore(); }
     }
     else if (f.type === 'stone') g.drawImage(TEX.stone(f.color, f.speck || shade(f.color, 0.3), { size: 1024, scale: 6 }).image, 0, 0, N, N);
+    else if (f.type === 'raw') {
+      g.drawImage(PAINT.chisel({ light: f.color, dark: f.color, seed: 41 }, true), 0, 0, N, N);
+      if (f.polygonal) {
+        // Inca masonry: many-sided blocks fitted without mortar
+        // (a jittered grid of blocks, each its own tone, with dark joints and a lit upper edge)
+        const R = rng(17), C = 9, cell = N / C, pts = [];
+        for (let y = 0; y <= C; y++) { pts.push([]); for (let x = 0; x <= C; x++) pts[y].push([x * cell + (x % C ? (R() - 0.5) * cell * 0.5 : 0), y * cell + (y % C ? (R() - 0.5) * cell * 0.5 : 0)]); }
+        for (let y = 0; y < C; y++) for (let x = 0; x < C; x++) {
+          const q = [pts[y][x], pts[y][x + 1], pts[y + 1][x + 1], pts[y + 1][x]];
+          g.beginPath(); q.forEach(([a, b], k) => (k ? g.lineTo(a, b) : g.moveTo(a, b))); g.closePath();
+          g.fillStyle = rgba(R() < 0.5 ? '#000000' : '#ffffff', 0.04 + R() * 0.08); g.fill();
+          g.strokeStyle = 'rgba(18,16,12,0.75)'; g.lineWidth = 7; g.stroke();
+          g.strokeStyle = 'rgba(255,250,240,0.18)'; g.lineWidth = 3; g.beginPath(); g.moveTo(q[0][0] + 6, q[0][1] + 6); g.lineTo(q[1][0] - 6, q[1][1] + 6); g.stroke();
+        }
+      }
+      if (f.clay) { g.globalAlpha = 0.5; g.drawImage(TEX.stone(f.color, f.speck, { size: 1024, scale: 2 }).image, 0, 0, N, N); g.globalAlpha = 1; }
+    }
     else { g.fillStyle = f.color; g.fillRect(0, 0, N, N); g.globalAlpha = 0.6; g.drawImage(TEX.mottle(f.color, { amount: 0.1 }).image, 0, 0, N, N); g.globalAlpha = 1; }
     if (f.diaper) {
       // carved lacquer: a fine diaper ground cut into the cinnabar, dark in the cuts and lit on
@@ -185,12 +247,17 @@ function ChacklateWorld(THREE, K) {
         g.strokeStyle = shade(f.color, 0.18); g.lineWidth = 1.5; g.stroke(); g.lineWidth = 3;
       }
     }
-    // inner and outer gold lines
-    g.strokeStyle = b.inlay; g.lineWidth = 5;
+    if (f.stars) {
+      // gold stars scattered in the lacquer, as in a night sky
+      const R = rng(29);
+      for (let i = 0; i < 260; i++) { const x = R() * N, y = R() * N, u = x / N * 9.8 - 4.9, v = y / N * 9.8 - 4.9; if (Math.max(Math.abs(u), Math.abs(v)) < 4.2) continue; g.fillStyle = rgba('#f0d890', 0.4 + R() * 0.6); g.beginPath(); g.arc(x, y, 1 + R() * 2.6, 0, TAU); g.fill(); }
+    }
+    // inner and outer gold lines (raw boards have a cut groove instead, and no rosettes)
+    g.strokeStyle = b.raw ? 'rgba(20,16,10,0.5)' : b.inlay; g.lineWidth = 5;
     const box = (u, w) => { g.lineWidth = w; g.strokeRect(px(-u), px(-u), px(u) - px(-u), px(u) - px(-u)); };
-    box(4.1, 6); box(4.16, 2); box(4.78, 3);
+    box(4.1, b.raw ? 4 : 6); if (!b.raw) { box(4.16, 2); box(4.78, 3); }
     // corner rosettes
-    for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+    if (!b.raw) for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
       const cx = px(sx * 4.45), cy = px(sy * 4.45);
       g.save(); g.translate(cx, cy); g.fillStyle = b.inlay; g.strokeStyle = b.inlay; g.lineWidth = 3;
       for (let i = 0; i < 8; i++) { g.rotate(TAU / 8); g.beginPath(); g.ellipse(0, -18, 7, 16, 0, 0, TAU); g.fill(); }
@@ -227,6 +294,18 @@ function ChacklateWorld(THREE, K) {
     }
     return c;
   }
+  // A hand-cut edge: every corner of a shape nudged a little (the raw boards).
+  function roughGeometry(g, amt, seed) {
+    const p = g.attributes.position, R = rng(seed), seen = new Map();
+    for (let i = 0; i < p.count; i++) {
+      const key = Math.round(p.getX(i) * 40) + ',' + Math.round(p.getY(i) * 40) + ',' + Math.round(p.getZ(i) * 40);
+      if (!seen.has(key)) seen.set(key, [(R() - 0.5) * amt * 2, (R() - 0.5) * amt * 0.6, (R() - 0.5) * amt * 2]);
+      const d = seen.get(key), edge = Math.max(Math.abs(p.getX(i)), Math.abs(p.getZ(i))) > 4.3 ? 1 : 0.15;
+      p.setXYZ(i, p.getX(i) + d[0] * edge, p.getY(i) + d[1] * edge, p.getZ(i) + d[2] * edge);
+    }
+    g.computeVertexNormals();
+    return g;
+  }
   // Gold, bronze or chrome by name.
   const metal = (name) => (name === 'bronze' ? MAT.bronze() : name === 'chrome' ? MAT.chrome() : name === 'brass' ? MAT.brass() : name === 'silver' ? MAT.silver() : MAT.gold());
   function board(id, side) {
@@ -237,6 +316,9 @@ function ChacklateWorld(THREE, K) {
     const fieldTex = texFrom(paintField(Object.assign({ motif: b.motif === 'flowers' ? flowerMotif : null }, b.field)));
     const fieldMat = new THREE.MeshPhysicalMaterial({ map: fieldTex, roughness: b.gloss === undefined ? 0.44 : b.gloss + 0.26, clearcoat: 1, clearcoatRoughness: b.gloss === undefined ? 0.08 : b.gloss * 0.5, envMapIntensity: 0.85 });
     if (b.glass) { fieldMat.metalness = 0.2; fieldMat.iridescence = 0.25; fieldMat.envMapIntensity = 1.3; }
+    if (b.pearly) { fieldMat.iridescence = 0.7; fieldMat.iridescenceIOR = 1.4; fieldMat.sheen = 0.4; fieldMat.sheenColor = new THREE.Color('#ffe8f0'); }
+    // raw stone and clay: matt, no lacquer
+    if (b.raw) { fieldMat.roughness = 0.92; fieldMat.clearcoat = 0; fieldMat.envMapIntensity = 0.4; }
     const field = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), fieldMat);
     field.rotation.x = -Math.PI / 2; field.receiveShadow = true;
     field.userData.role = 'field';
@@ -250,7 +332,8 @@ function ChacklateWorld(THREE, K) {
     topTex.repeat.set(1 / 9.8, 1 / 9.8); topTex.offset.set(0.5, 0.5); topTex.wrapS = topTex.wrapT = THREE.ClampToEdgeWrapping;
     const frameTop = new THREE.MeshPhysicalMaterial({ map: topTex, roughness: 0.36, clearcoat: 1, clearcoatRoughness: 0.3, envMapIntensity: 0.9 });
     const frameSide = new THREE.MeshPhysicalMaterial({ color: b.frame.color, roughness: 0.36, clearcoat: 1, clearcoatRoughness: 0.22 });
-    const frame = new THREE.Mesh(fg, [frameTop, frameSide]);
+    if (b.raw) { for (const m of [frameTop, frameSide]) { m.roughness = 0.95; m.clearcoat = 0; m.envMapIntensity = 0.35; } frameSide.map = topTex; frameSide.color.set('#ffffff'); }
+    const frame = new THREE.Mesh(b.raw ? roughGeometry(fg, 0.035, 3) : fg, [frameTop, frameSide]);
     frame.receiveShadow = true; frame.castShadow = true;
     frame.userData.role = 'frame';
     grp.add(frame);
@@ -266,9 +349,10 @@ function ChacklateWorld(THREE, K) {
     };
     const rimMesh = new THREE.Mesh(K.merge([fillet(4.0, 0.03, 0.05), fillet(4.93, -0.06, 0.035)]), gold);
     rimMesh.castShadow = false; rimMesh.receiveShadow = true;
-    grp.add(rimMesh);
+    if (!b.raw) grp.add(rimMesh);
     // plinth beneath, slightly wider, with a moulded edge
-    const plinth = new THREE.Mesh(slab(roundedSquare(5.05, 0.22), -0.46, -0.33, 0.03, 16), frameSide);
+    const plinthG = slab(roundedSquare(5.05, 0.22), -0.46, -0.33, 0.03, 16);
+    const plinth = new THREE.Mesh(b.raw ? roughGeometry(plinthG, 0.05, 5) : plinthG, frameSide);
     plinth.receiveShadow = true; plinth.castShadow = true;
     grp.add(plinth);
     let labelSide = side, gone = false;
@@ -441,27 +525,6 @@ function ChacklateWorld(THREE, K) {
     g.fillStyle = 'rgba(80,50,10,0.22)'; g.fillRect(0, 0, 512, 384);
     g.strokeStyle = 'rgba(0,0,0,0.08)';
     for (let i = 0; i < 120; i++) { g.beginPath(); const x = R() * 512, y = R() * 384; g.moveTo(x, y); g.lineTo(x + (R() - 0.5) * 30, y + (R() - 0.5) * 30); g.stroke(); }
-    return texFrom(c);
-  }
-  function tableTexture(o) {
-    const N = 2048, c = canvas(N), g = c.getContext('2d'), C = N / 2;
-    g.drawImage(TEX.wood(shade(o.table, 0.14), shade(o.table, -0.45), { lines: 84, w: 1024, h: 1024, seed: 8, contrast: 0.6, figure: 0.18, warp: 2.4 }).image, 0, 0, N, N);
-    // marquetry: a band of burr-toned veneer between gold lines, edged with a fine
-    // dogtooth of light and dark slips
-    const band = (r0, r1, n, a, b) => {
-      for (let i = 0; i < n; i++) {
-        const a0 = (i / n) * TAU, a1 = ((i + 1) / n) * TAU;
-        g.beginPath(); g.arc(C, C, r1, a0, a1); g.arc(C, C, r0, a1, a0, true); g.closePath();
-        g.fillStyle = i % 2 ? a : b; g.fill();
-      }
-    };
-    g.globalAlpha = 0.9;
-    band(C * 0.86, C * 0.905, 1, shade(o.table, -0.28), shade(o.table, -0.28));
-    g.globalAlpha = 1;
-    band(C * 0.905, C * 0.918, 240, shade(o.table, 0.42), shade(o.table, -0.4));
-    band(C * 0.848, C * 0.86, 240, shade(o.table, 0.42), shade(o.table, -0.4));
-    g.strokeStyle = o.inlay; g.lineWidth = 4;
-    for (const r of [C * 0.845, C * 0.921, C * 0.985]) { g.beginPath(); g.arc(C, C, r, 0, TAU); g.stroke(); }
     return texFrom(c);
   }
   function flameTexture() {
@@ -1565,6 +1628,8 @@ function ChacklateWorld(THREE, K) {
   // fireplace, shelves of books, paintings, niches with vases, mirrors or screens; the
   // palette, wall finish, columns, windows, light and the view outside set the era.
   const LM = ChacklateLandmarks(THREE, K, { canvas, texFrom, shade, rgba, glowTexture, flame });
+  // each place's own board, set, table and the things laid round the board (suites3d.js)
+  const SU = ChacklateSuites(THREE, K, { canvas, texFrom, shade, rgba, candle, candelabrum, slab, metal });
   const ROOMS = {
     salon: {
       name: 'Grand Cocoa Salon', era: 'A Regency drawing room',
@@ -1699,6 +1764,132 @@ function ChacklateWorld(THREE, K) {
       faces: ['window', 'window', 'window', 'painting', 'books', 'fire', 'books', 'painting', 'books', 'painting', 'books', 'painting'],
       metal: 'gold', floor: 'stone', lights: { hemi: 0.6, chand: 12 },
       env: { wall: '#4a3a4a', floor: '#3a3a30', ceiling: '#34407a', key: '#fff0e0', keyI: 6, window: '#f0c0a0', windowI: 3.5, rim: '#ffd0a8', rimI: 4.5, lamp: '#ffc070', lampI: 8, fill: 0.8 },
+    },    // ---- the newer places, each with its own board, set and table (suites3d.js)
+    tokyo: {
+      name: 'Tokyo Sky Garden', era: 'A cherry-blossom garden on a Tokyo rooftop, with Mount Fuji far away', vista: 'tokyo', terrace: { r: 12.8, step: 0.6, edge: '#d8d0c8' },
+      palette: { wall: '#2a1e2a', paper: '#e8dcd0', paperInk: '#c8b8a8', wood: '#3a2a22', trim: '#c8a060', floor: '#b8a890', floorDark: '#6a5a4a', table: '#2a1a14', inlay: '#e8b8c0',
+        rugBorder: '#1e2a4a', rugField: '#e8d8c8', rugGold: '#c84a5a', rugAccent: '#f4c0cc', drape: '#c84a5a', sky: ['#1a1a3a', '#4a3a6a', '#c87a8a', '#f4c0a0'],
+        paintSky: ['#4a3a6a', '#c87a8a', '#f4c0a0'], paintLand: '#3a4a5a', fog: '#3a2a3a', hemi: ['#ffe0e8', '#2a2030'], ceiling: '#1a1420', dado: '#3a2a22' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'brass', floor: 'stone', lights: { hemi: 0.6, chand: 12, color: '#ffd0c0' },
+      env: { wall: '#5a4a5a', floor: '#4a4040', ceiling: '#4a3a6a', key: '#fff0f0', keyI: 6, window: '#f4c0c8', windowI: 3.5, rim: '#ffc8d0', rimI: 4.5, lamp: '#ffc890', lampI: 8, fill: 0.8 },
+    },
+    brussels: {
+      name: 'Chocolatier on the Grand-Place', era: 'A chocolate shop on the Grand-Place of Brussels, on a winter evening', vista: 'grandplace',
+      palette: { wall: '#3a2014', paper: '#4a2a1a', paperInk: '#5a3420', wood: '#2e180e', trim: '#e0b860', floor: '#c8a878', floorDark: '#3a2010', table: '#3a1e10', inlay: '#e0b860',
+        rugBorder: '#2a1208', rugField: '#7a3a1e', rugGold: '#e0b860', rugAccent: '#f0e0c8', drape: '#7a1a22', sky: ['#0a1030', '#1e2a5a', '#5a4a7a', '#c88a7a'],
+        paintSky: ['#1e2a5a', '#5a4a7a', '#c88a7a'], paintLand: '#3a3a40', fog: '#1a0e08', hemi: ['#ffe8c8', '#1a0e08'], ceiling: '#2a160c', dado: '#2e180e' },
+      faces: ['window', 'window', 'books', 'painting', 'books', 'fire', 'books', 'painting', 'books', 'mirror', 'books', 'window'],
+      wall: 'panel', window: { kind: 'rect', w: 4.4, h: 8.4, drape: true, wood: true }, light: 'brass', metal: 'gold', floor: 'parquet', vase: 'urn-gold', mirror: 'venetian', lights: { hemi: 0.55, chand: 14 },
+      view: {}, env: { wall: '#4a2a1a', floor: '#3a2414', ceiling: '#2a160c', key: '#fff0d8', keyI: 6, window: '#c8c8ff', windowI: 2.8, rim: '#ffd8a8', rimI: 4.5, lamp: '#ffb860', lampI: 10, fill: 0.6 },
+    },
+    reef: {
+      name: 'Coral Palace', era: 'A pearl pavilion on the sea floor, among coral towers', vista: 'reef', terrace: { r: 12.6, step: 0.5, edge: '#f0e4e0' },
+      palette: { wall: '#0e3040', paper: '#e8f0ee', paperInk: '#a8c8c8', wood: '#0e3040', trim: '#e8c890', floor: '#e4e8e4', floorDark: '#8ab0b0', floorLine: 'rgba(232,200,144,0.45)', table: '#0e2a38', inlay: '#e8c890',
+        rugBorder: '#0e3040', rugField: '#2a6a7a', rugGold: '#f0d8a8', rugAccent: '#e88a7a', drape: '#2a6a7a', sky: ['#02101e', '#06304a', '#0a5a7a', '#2a8aa0'],
+        paintSky: ['#06304a', '#0a5a7a', '#2a8aa0'], paintLand: '#0a3a4a', fog: '#0a3a52', hemi: ['#c8f0ff', '#0a2030'], ceiling: '#06304a', dado: '#0e3040' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'octagon', lights: { hemi: 0.55, chand: 12, color: '#d8f4ff' },
+      env: { wall: '#1a4a5a', floor: '#2a5a6a', ceiling: '#0a4a6a', key: '#e8fcff', keyI: 5, window: '#6ac8e8', windowI: 3, rim: '#a8f0ff', rimI: 5, lamp: '#ffe8c0', lampI: 6, fill: 0.6 },
+    },
+    amber: {
+      name: 'Amber Fort', era: 'A courtyard of Amber Fort above Jaipur, in the late afternoon, about 1600', vista: 'amber', terrace: { r: 12.6, step: 0.5, edge: '#d8b07a' },
+      palette: { wall: '#c8904a', paper: '#e8c890', paperInk: '#b8884a', wood: '#5a2a14', trim: '#e8c060', floor: '#ecd0a8', floorDark: '#b05e3c', table: '#5a2a14', inlay: '#e8c060',
+        rugBorder: '#7a1a1e', rugField: '#c83a2a', rugGold: '#f0c860', rugAccent: '#1e4a8a', drape: '#c83a2a', sky: ['#3a5a9a', '#7aa0c8', '#f0c890', '#f8d8a0'],
+        paintSky: ['#7aa0c8', '#f0c890', '#f8d8a0'], paintLand: '#a87a4a', fog: '#c8a070', hemi: ['#fff0d0', '#6a3a1a'], ceiling: '#5a2a14', dado: '#c8904a' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 0.9, chand: 10 },
+      env: { wall: '#a8784a', floor: '#c8a070', ceiling: '#7aa0c8', key: '#fff4e0', keyI: 7, window: '#ffe0b0', windowI: 4, rim: '#ffd8a0', rimI: 5, lamp: '#ffc070', lampI: 6, fill: 1.1 },
+    },
+    mysore: {
+      name: 'Mysore Palace', era: 'The lawns of Mysore Palace on a festival night, lit by thousands of lamps', vista: 'mysore', terrace: { r: 12.6, step: 0.5, edge: '#d8c8b0' },
+      palette: { wall: '#3a1a14', paper: '#e8d8c0', paperInk: '#b8a080', wood: '#3a1a10', trim: '#e8c060', floor: '#e8dcc8', floorDark: '#7a3a2a', floorLine: 'rgba(232,192,96,0.4)', table: '#3a1a10', inlay: '#e8c060',
+        rugBorder: '#1e0e3a', rugField: '#7a1430', rugGold: '#f0c860', rugAccent: '#1e6a5a', drape: '#7a1430', sky: ['#02040e', '#0a0e2a', '#1a1a3e', '#2a2448'],
+        paintSky: ['#0a0e2a', '#1a1a3e', '#3a2a48'], paintLand: '#1a2a1a', fog: '#140e14', hemi: ['#ffe0b0', '#140a08'], ceiling: '#0a0e2a', dado: '#3a1a14' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'octagon', lights: { hemi: 0.5, chand: 14, color: '#ffc880' },
+      env: { wall: '#4a3020', floor: '#3a2a20', ceiling: '#0a0e2a', key: '#fff0d0', keyI: 6, window: '#ffd890', windowI: 3, rim: '#ffd090', rimI: 5, lamp: '#ffb860', lampI: 10, fill: 0.65 },
+    },
+    greatwall: {
+      name: 'The Great Wall', era: 'A watchtower on the Great Wall of China at Mutianyu, about 1570', vista: 'greatwall', terrace: { r: 12.6, step: 0.5, edge: '#8a8278' },
+      palette: { wall: '#6a625a', paper: '#a89a88', paperInk: '#7a6e60', wood: '#5a0e0a', trim: '#c8a050', floor: '#a49a8c', floorDark: '#5a524a', table: '#2a1a10', inlay: '#c8a050',
+        rugBorder: '#1a2a4a', rugField: '#8a1a14', rugGold: '#e8c060', rugAccent: '#1e5a4a', drape: '#8a1a14', sky: ['#2a4a8a', '#6a90c0', '#c8d8e0', '#e8e4d8'],
+        paintSky: ['#6a90c0', '#c8d8e0', '#e8e4d8'], paintLand: '#4a6a3a', fog: '#a8b8c0', hemi: ['#f0f4ff', '#3a4a2a'], ceiling: '#6a90c0', dado: '#6a625a' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'bronze', floor: 'stone', lights: { hemi: 1.0, chand: 8 },
+      env: { wall: '#8a8278', floor: '#7a7268', ceiling: '#6a90c0', key: '#fffaf0', keyI: 7, window: '#e0ecff', windowI: 4, rim: '#fff0d8', rimI: 4, lamp: '#ffd8a0', lampI: 5, fill: 1.3 },
+    },
+    swiss: {
+      name: 'Alpine Chalet', era: 'A warm wooden chalet in Zermatt, looking up at the Matterhorn', vista: 'matterhorn',
+      palette: { wall: '#6a4228', paper: '#8a5a34', paperInk: '#6a4224', wood: '#4a2a14', trim: '#c8963b', floor: '#9a6a3a', floorDark: '#3a2410', table: '#4a2a14', inlay: '#d8a050',
+        rugBorder: '#7a1a1a', rugField: '#e8dcc8', rugGold: '#c83a2a', rugAccent: '#2a4a2a', drape: '#a81e22', sky: ['#3a6ab0', '#7aa8d8', '#d8e8f4', '#f4f0e8'],
+        paintSky: ['#7aa8d8', '#d8e8f4', '#f4f0e8'], paintLand: '#e8eef4', fog: '#2a1a0e', hemi: ['#fff4e8', '#3a2414'], ceiling: '#4a2a14', dado: '#4a2a14' },
+      faces: ['window', 'window', 'books', 'painting', 'niche', 'fire', 'niche', 'painting', 'books', 'painting', 'books', 'window'],
+      wall: 'panel', window: { kind: 'rect', w: 4.2, h: 7.6, drape: true, wood: true }, light: 'wheel', metal: 'brass', floor: 'planks', vase: 'jug', lights: { hemi: 0.8, chand: 12, fire: 1.2 },
+      view: {}, env: { wall: '#6a4228', floor: '#4a3018', ceiling: '#3a2414', key: '#fff8f0', keyI: 6, window: '#e8f0ff', windowI: 3, rim: '#ffe0b8', rimI: 4.5, lamp: '#ffb860', lampI: 9, fill: 1.0 },
+    },
+    dubai: {
+      name: 'Desert Sky Lounge', era: 'A lounge high above Dubai at dusk, facing the tallest tower in the world', vista: 'desert',
+      palette: { wall: '#e8dcc8', paper: '#efe6d6', paperInk: '#c8b89a', wood: '#2a1a10', trim: '#d8b060', floor: '#f0e8dc', floorDark: '#2a2420', floorLine: 'rgba(216,176,96,0.5)', table: '#1a1210', inlay: '#e0c070',
+        rugBorder: '#1a1a2a', rugField: '#c8a878', rugGold: '#e8c870', rugAccent: '#1e4a6a', drape: '#c8a878', sky: ['#1a1a3e', '#4a3a6a', '#d8805a', '#f8c088'],
+        paintSky: ['#4a3a6a', '#d8805a', '#f8c088'], paintLand: '#c8a070', fog: '#2a1e1a', hemi: ['#ffe8d0', '#2a1a10'], ceiling: '#e8dcc8', dado: '#2a1a10' },
+      faces: ['window', 'window', 'window', 'mirror', 'painting', 'fire', 'painting', 'mirror', 'painting', 'mirror', 'window', 'window'],
+      wall: 'marble', window: { kind: 'rect', w: 6.6, h: 10.2, bars: 'grid' }, light: 'deco', metal: 'gold', floor: 'octagon', vase: 'ewer', mirror: 'venetian', fire: 'deco', lights: { hemi: 0.6, chand: 12, color: '#fff0dc' },
+      view: {}, env: { wall: '#c8b8a0', floor: '#a89880', ceiling: '#e8dcc8', key: '#fff4e8', keyI: 7, window: '#ffc8a0', windowI: 3.5, rim: '#ffd8b0', rimI: 4.5, lamp: '#ffd8a0', lampI: 8, fill: 0.8 },
+    },
+    crystal: {
+      name: 'The Crystal Palace', era: 'Under the glass vault of the Crystal Palace, London, 1851', vista: 'crystal', terrace: { r: 12.6, step: 0.3, edge: '#c8c0b0' },
+      palette: { wall: '#2a4a5a', paper: '#e8e4dc', paperInk: '#b8b0a0', wood: '#2a3a4a', trim: '#d8b060', floor: '#e8e2d6', floorDark: '#5a6a7a', floorLine: 'rgba(216,176,96,0.4)', table: '#1a1e2a', inlay: '#d8e0f0',
+        rugBorder: '#1a2a5a', rugField: '#8a1a2a', rugGold: '#e0c070', rugAccent: '#e8e4dc', drape: '#1a2a5a', sky: ['#5a8ac8', '#8ab4e0', '#d8e8f4', '#f4f4f0'],
+        paintSky: ['#8ab4e0', '#d8e8f4', '#f4f4f0'], paintLand: '#5a7a4a', fog: '#c8d4dc', hemi: ['#ffffff', '#6a7a7a'], ceiling: '#8ab4e0', dado: '#2a4a5a' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'chrome', floor: 'octagon', lights: { hemi: 0.7, chand: 8 },
+      env: { wall: '#8a98a8', floor: '#8a8680', ceiling: '#a8c0d8', key: '#ffffff', keyI: 6, window: '#e8f4ff', windowI: 3.5, rim: '#ffffff', rimI: 4, lamp: '#fff0d0', lampI: 5, fill: 0.9 },
+    },
+    aurora: {
+      name: 'Northern Lights', era: 'A frozen lake in Iceland on a winter night, under the northern lights', vista: 'aurora', terrace: { r: 12.6, step: 0.5, edge: '#c8d0dc' },
+      palette: { wall: '#0a1424', paper: '#d8e0ea', paperInk: '#a8b4c4', wood: '#1a2030', trim: '#c8d0e0', floor: '#c8d4e2', floorDark: '#3a4a6a', table: '#101828', inlay: '#a8c8ff',
+        rugBorder: '#0a1430', rugField: '#1e3a6a', rugGold: '#d8e4f4', rugAccent: '#3ad8a0', drape: '#1e3a6a', sky: ['#02040c', '#061430', '#0a2a3a', '#1a3a4a'],
+        paintSky: ['#061430', '#0a2a3a', '#1a4a4a'], paintLand: '#d8e0ea', fog: '#0a1a28', hemi: ['#c8fff0', '#0a1020'], ceiling: '#061430', dado: '#0a1424' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'silver', floor: 'stone', lights: { hemi: 0.55, chand: 12, color: '#ffd8a8' },
+      env: { wall: '#1a3a4a', floor: '#2a3a4a', ceiling: '#0a2a3a', key: '#e8fff8', keyI: 6, window: '#6affc8', windowI: 3, rim: '#8affd8', rimI: 5, lamp: '#ffc880', lampI: 9, fill: 0.6 },
+    },
+    castle: {
+      name: 'Fairy-Tale Castle', era: 'A meadow above the forest, facing a white castle with blue towers, Bavaria, 1886', vista: 'castle', terrace: { r: 12.6, step: 0.6, edge: '#d8d4cc' },
+      palette: { wall: '#3a2a3a', paper: '#e8e4dc', paperInk: '#c8c0b0', wood: '#3a1a1a', trim: '#e0b860', floor: '#d8d2c8', floorDark: '#6a5a5a', table: '#3a1418', inlay: '#e0b860',
+        rugBorder: '#1a2a6a', rugField: '#7a1a2a', rugGold: '#e8c870', rugAccent: '#f4e8f0', drape: '#7a1a2a', sky: ['#2a4a8a', '#6a8ac0', '#f0b8a0', '#f8d8b8'],
+        paintSky: ['#6a8ac0', '#f0b8a0', '#f8d8b8'], paintLand: '#3a5a3a', fog: '#9aa8c0', hemi: ['#fff0e8', '#2a3a2a'], ceiling: '#6a8ac0', dado: '#3a2a3a' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 0.85, chand: 10 },
+      env: { wall: '#6a6a7a', floor: '#5a5a50', ceiling: '#6a8ac0', key: '#fff4ec', keyI: 7, window: '#ffd8c8', windowI: 4, rim: '#ffd8c0', rimI: 4.5, lamp: '#ffc890', lampI: 6, fill: 1.1 },
+    },
+    stonehenge: {
+      name: 'Stonehenge at Dawn', era: 'Inside the great stone circle as the sun comes up, about 2500 BC', vista: 'stonehenge', terrace: { r: 12.4, step: 0.4, edge: '#7a786a' }, raw: true,
+      palette: { wall: '#4a4a40', paper: '#8a8670', paperInk: '#5a5848', wood: '#3a2a1a', trim: '#8a7a5a', floor: '#8a8a6a', floorDark: '#4a4a3a', table: '#5a5448', inlay: '#7a7462',
+        rugBorder: '#3a2a1a', rugField: '#7a5a3a', rugGold: '#c8a870', rugAccent: '#4a3a2a', drape: '#5a4a3a', sky: ['#2a3a5a', '#7a7a9a', '#f0b890', '#f8d8a8'],
+        paintSky: ['#7a7a9a', '#f0b890', '#f8d8a8'], paintLand: '#5a6a3a', fog: '#b8b0a8', hemi: ['#ffe8d0', '#3a3a2a'], ceiling: '#7a7a9a', dado: '#4a4a40' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'bronze', floor: 'stone', lights: { hemi: 0.85, chand: 9 },
+      env: { wall: '#6a6a5a', floor: '#5a5a48', ceiling: '#7a7a9a', key: '#fff0e0', keyI: 6.5, window: '#ffd0b0', windowI: 4, rim: '#ffc890', rimI: 5, lamp: '#ffb870', lampI: 6, fill: 1.0 },
+    },
+    indus: {
+      name: 'Mohenjo-daro', era: 'A brick courtyard by the Great Bath of Mohenjo-daro, about 2500 BC', vista: 'indus', terrace: { r: 12.4, step: 0.5, edge: '#a8643a' }, raw: true,
+      palette: { wall: '#9a5a34', paper: '#c88a5a', paperInk: '#8a4a2a', wood: '#4a2a14', trim: '#a8743a', floor: '#c88a5a', floorDark: '#7a3a1e', table: '#5a3018', inlay: '#2a140a',
+        rugBorder: '#3a1a0a', rugField: '#c89a5a', rugGold: '#2a140a', rugAccent: '#8a2a1a', drape: '#8a2a1a', sky: ['#4a6a9a', '#8aa8c8', '#e8d8b8', '#f4e4c8'],
+        paintSky: ['#8aa8c8', '#e8d8b8', '#f4e4c8'], paintLand: '#a87a4a', fog: '#d8b890', hemi: ['#fff0d8', '#5a3018'], ceiling: '#8aa8c8', dado: '#9a5a34' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'bronze', floor: 'planks', lights: { hemi: 0.95, chand: 9 },
+      env: { wall: '#9a6a44', floor: '#8a5a34', ceiling: '#8aa8c8', key: '#fff4e0', keyI: 7, window: '#ffe8c8', windowI: 4, rim: '#ffd8a8', rimI: 4.5, lamp: '#ffc070', lampI: 6, fill: 1.1 },
+    },
+    inca: {
+      name: 'Machu Picchu', era: 'A grassy terrace in the Inca city in the clouds, Peru, about 1450', vista: 'inca', terrace: { r: 12.4, step: 0.6, edge: '#7a766e' }, raw: true,
+      palette: { wall: '#5a5850', paper: '#9a968a', paperInk: '#6a665a', wood: '#3a2a1a', trim: '#c8a040', floor: '#8a8a7a', floorDark: '#4a4a42', table: '#4a463e', inlay: '#c8a040',
+        rugBorder: '#5a1a14', rugField: '#c8402a', rugGold: '#f0c040', rugAccent: '#1e4a6a', drape: '#c8402a', sky: ['#3a5a8a', '#7a9ac0', '#d8e0e4', '#eef0ec'],
+        paintSky: ['#7a9ac0', '#d8e0e4', '#eef0ec'], paintLand: '#3a6a3a', fog: '#c8d0d0', hemi: ['#f4f8ff', '#3a4a2a'], ceiling: '#7a9ac0', dado: '#5a5850' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 1.0, chand: 8 },
+      env: { wall: '#7a7a6a', floor: '#6a6a5a', ceiling: '#7a9ac0', key: '#fffaf0', keyI: 7, window: '#e8f0ff', windowI: 4.5, rim: '#fff0d8', rimI: 4, lamp: '#ffd8a0', lampI: 5, fill: 1.3 },
     },
   };
   // A flat outline as a mesh with 0..1 UVs (or the given ranges).
@@ -1746,6 +1937,66 @@ function ChacklateWorld(THREE, K) {
     for (let k = 0; k < 6; k++) flame((k % 3 - 1) * 0.3, 2.5, (k < 3 ? -0.15 : 0.15), 0.6 + (k % 3) * 0.2, flames).forEach((m) => grp.add(m));
     return grp;
   }
+  // The edge of an outdoor terrace, so it reads as a finished place and not a disc in a
+  // field: a stone balustrade with planters and lanterns on its posts, or (for the raw,
+  // ancient places) a ring of rough boulders with torches. All merged into a few meshes.
+  function terraceDressing(def, R0, FLOOR, flames) {
+    const grp = new THREE.Group(), o = def.palette, t = def.terrace, R = rng(5);
+    const stone = MAT.matte(t.edge || o.floorDark, { roughness: 0.7 });
+    const r = R0 - 0.45, posts = 16, parts = [], potParts = [], greenParts = [], bloomParts = [];
+    const green = MAT.matte(def.raw ? '#4a5a2a' : '#2e5a2a', { roughness: 1, flatShading: true });
+    const bloom = MAT.matte(o.rugAccent || '#c8405a', { roughness: 0.9 });
+    const pot = def.raw ? MAT.matte('#9a5a34', { roughness: 0.95 }) : metal(def.metal);
+    if (def.raw) {
+      // rough boulders in a broken ring, with a gap for each player
+      for (let i = 0; i < 44; i++) {
+        const a = i / 44 * TAU;
+        if (Math.abs(Math.sin(a)) < 0.16) continue;
+        const g = new THREE.DodecahedronGeometry(0.42 + R() * 0.4, 0), p = g.attributes.position;
+        for (let j = 0; j < p.count; j++) p.setXYZ(j, p.getX(j) * (1 + (R() - 0.5) * 0.5), p.getY(j) * (0.6 + R() * 0.3), p.getZ(j) * (1 + (R() - 0.5) * 0.5));
+        g.computeVertexNormals();
+        g.translate(Math.sin(a) * (r + (R() - 0.5) * 0.4), FLOOR + 0.2, -Math.cos(a) * (r + (R() - 0.5) * 0.4)); parts.push(g);
+      }
+      // wooden torches on poles
+      const pole = MAT.matte('#4a3420', { roughness: 0.95 }), poles = [];
+      for (let i = 0; i < 6; i++) {
+        const a = (i + 0.5) / 6 * TAU, x = Math.sin(a) * (r - 0.3), z = -Math.cos(a) * (r - 0.3);
+        poles.push(new THREE.CylinderGeometry(0.07, 0.09, 3.2, 6).translate(x, FLOOR + 1.6, z), new THREE.CylinderGeometry(0.2, 0.12, 0.4, 7).translate(x, FLOOR + 3.3, z));
+        flame(x, FLOOR + 3.45, z, 0.7, flames).forEach((m) => grp.add(m));
+      }
+      grp.add(new THREE.Mesh(K.merge(poles), pole));
+    } else {
+      // balusters between square posts, a rail on top
+      const bal = K.revolve(K.profile(0, 0).line(0.13, 0).line(0.13, 0.1).curve([[0.08, 0.2], [0.17, 0.48], [0.07, 0.8]]).line(0.1, 0.86).line(0.1, 0.95).line(0, 0.95), { segs: 10 });
+      const n = Math.round(TAU * r / 0.42);
+      for (let i = 0; i < n; i++) {
+        const a = i / n * TAU;
+        if (Math.abs(((i * posts) / n) % 1) < 0.5 / (n / posts)) continue;
+        parts.push(bal.clone().translate(Math.sin(a) * r, FLOOR, -Math.cos(a) * r));
+      }
+      parts.push(new THREE.TorusGeometry(r, 0.12, 6, 160).rotateX(Math.PI / 2).scale(1, 0.7, 1).translate(0, FLOOR + 1.02, 0));
+      parts.push(new THREE.TorusGeometry(r, 0.1, 6, 160).rotateX(Math.PI / 2).translate(0, FLOOR + 0.06, 0));
+      for (let i = 0; i < posts; i++) {
+        const a = i / posts * TAU, x = Math.sin(a) * r, z = -Math.cos(a) * r;
+        parts.push(new THREE.BoxGeometry(0.42, 1.2, 0.42).rotateY(-a).translate(x, FLOOR + 0.6, z), new THREE.BoxGeometry(0.52, 0.1, 0.52).rotateY(-a).translate(x, FLOOR + 1.22, z));
+        if (i % 2) {
+          // a planter: an urn with a clipped shrub, or flowers in the rug's colour
+          potParts.push(K.revolve(K.profile(0, 0).line(0.16, 0).line(0.12, 0.08).curve([[0.3, 0.3], [0.34, 0.5]]).line(0.38, 0.54).line(0, 0.54), { segs: 16 }).translate(x, FLOOR + 1.27, z));
+          if (i % 4 === 1) greenParts.push(new THREE.IcosahedronGeometry(0.34, 1).translate(x, FLOOR + 2.02, z));
+          else for (let k = 0; k < 6; k++) { const b = k / 6 * TAU; bloomParts.push(new THREE.IcosahedronGeometry(0.1, 0).translate(x + Math.cos(b) * 0.18, FLOOR + 1.9 + (k % 2) * 0.08, z + Math.sin(b) * 0.18)); greenParts.push(new THREE.IcosahedronGeometry(0.12, 0).translate(x + Math.cos(b + 0.5) * 0.24, FLOOR + 1.84, z + Math.sin(b + 0.5) * 0.24)); }
+        } else if (i % 4 === 0) {
+          // a lantern on the post, lit at dusk
+          potParts.push(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 6).translate(x, FLOOR + 1.72, z), new THREE.ConeGeometry(0.2, 0.2, 4).rotateY(Math.PI / 4).translate(x, FLOOR + 2.55, z), new THREE.BoxGeometry(0.26, 0.04, 0.26).translate(x, FLOOR + 2.15, z));
+          flame(x, FLOOR + 2.18, z, 0.3, flames).forEach((m) => grp.add(m));
+        }
+      }
+    }
+    grp.add(new THREE.Mesh(K.merge(parts), stone));
+    if (potParts.length) grp.add(new THREE.Mesh(K.merge(potParts), pot));
+    if (greenParts.length) grp.add(new THREE.Mesh(K.merge(greenParts), green));
+    if (bloomParts.length) grp.add(new THREE.Mesh(K.merge(bloomParts), bloom));
+    return grp;
+  }
   function room(id) {
     const def = ROOMS[id] || ROOMS.salon, o = def.palette;
     const grp = new THREE.Group();
@@ -1766,20 +2017,13 @@ function ChacklateWorld(THREE, K) {
       const t = def.terrace, edge = MAT.matte(t.edge || o.floorDark, { roughness: 0.7 });
       grp.add(new THREE.Mesh(new THREE.CylinderGeometry(floorR, floorR + 0.25, t.step, 96, 1, true).translate(0, FLOOR - t.step / 2, 0), edge));
       grp.add(new THREE.Mesh(K.ring(floorR, FLOOR + 0.02, 0.12, { seg: 160 }), edge));
+      grp.add(terraceDressing(def, floorR, FLOOR, flames));
     }
     const rug = new THREE.Mesh(new THREE.CircleGeometry(10.5, 96), new THREE.MeshStandardMaterial({ map: own(rugTexture(o)), roughness: 0.95, transparent: true }));
     rug.rotation.x = -Math.PI / 2; rug.position.y = FLOOR + 0.02; rug.receiveShadow = true; grp.add(rug);
-    // the table: a round top with a moulded edge on a turned pedestal
-    const tableMat = new THREE.MeshPhysicalMaterial({ map: own(tableTexture(o)), roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.32 });
-    const top = new THREE.Mesh(new THREE.CircleGeometry(7.6, 128), tableMat);
-    top.rotation.x = -Math.PI / 2; top.position.y = TOP; top.receiveShadow = true; top.userData.role = 'table';
-    grp.add(top);
-    const edgeP = K.profile(7.6, TOP).arc(7.72, TOP - 0.1, 0.35).line(7.7, TOP - 0.2).arc(7.55, TOP - 0.42, -0.3).line(6.6, TOP - 0.46);
-    const edgeMat = new THREE.MeshPhysicalMaterial({ color: o.table, roughness: 0.42, clearcoat: 1, clearcoatRoughness: 0.32 });
-    grp.add(new THREE.Mesh(K.revolve(edgeP, { segs: 128 }), edgeMat));
-    grp.add(new THREE.Mesh(K.ring(7.6, TOP - 0.004, 0.025, { seg: 160 }), metal(def.metal)));
-    const pedP = K.profile(0, FLOOR).line(2.6, FLOOR).arc(2.5, FLOOR + 0.3, 0.3).curve([[1.6, FLOOR + 0.6], [0.9, FLOOR + 1.2], [0.75, FLOOR + 2.4], [0.95, TOP - 1.2], [2.2, TOP - 0.5]]).line(0, TOP - 0.46);
-    grp.add(new THREE.Mesh(K.revolve(pedP, { segs: 64, mod: K.MOD.flutes(16, 0.06, FLOOR + 1.3, TOP - 1.4) }), edgeMat));
+    // the table: the suite's own outline, top and foot (suites3d.js)
+    const tbl = SU.table(id, TOP, FLOOR, o.table);
+    grp.add(tbl); owned.push({ dispose: tbl.userData.dispose });
     // walls
     const fin = wallFinish(def);
     own(fin.map);
@@ -1930,8 +2174,8 @@ function ChacklateWorld(THREE, K) {
     }
     // the light over the table (indoors) and two candelabra on it
     const ch = outdoor ? null : fixture(def, 7.8, flames); if (ch) grp.add(ch);
-    grp.add(candelabrum(-5.9, TOP, -4.6, flames, wallMats.gold));
-    grp.add(candelabrum(5.9, TOP, -4.6, flames, wallMats.gold));
+    // what is laid out round the board: candelabra, fruit, a crown, a toy car...
+    grp.add(SU.decor(id, TOP, flames, def.metal, FLOOR));
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
     // the chandelier steps aside for the camera and the flames flicker; the rest stands still
     K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
@@ -1939,8 +2183,8 @@ function ChacklateWorld(THREE, K) {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
       // where a free camera may go: inside the walls, clear of what stands against them, and
       // under the ceiling; outdoors, over the terrace and not far above it
-      bounds: outdoor ? { r: def.terrace.r - 1.2, y0: FLOOR + 0.6, y1: FLOOR + 13, tableR: 7.9, tableY: TOP }
-        : { r: RAD * Math.cos(Math.PI / NF) - 3.2, y0: FLOOR + 0.6, y1: FLOOR + H - 0.9, tableR: 7.9, tableY: TOP },
+      bounds: outdoor ? { r: def.terrace.r - 1.2, y0: FLOOR + 0.6, y1: FLOOR + 13, tableR: tbl.userData.R + 0.3, tableY: TOP }
+        : { r: RAD * Math.cos(Math.PI / NF) - 3.2, y0: FLOOR + 0.6, y1: FLOOR + H - 0.9, tableR: tbl.userData.R + 0.3, tableY: TOP },
       fog: vista ? vista.fog.color : o.fog, fogDensity: vista ? vista.fog.density : 0.022, hemi: o.hemi, env: def.env, lights: Object.assign({ hemi: 0.35, chand: 14, color: '#ffc480', fire: 1 }, def.lights || {}),
       chandelierLight: new THREE.Vector3(0, 7.2, 0),
       update(t) {
@@ -2022,6 +2266,6 @@ function ChacklateWorld(THREE, K) {
       envCaches.delete(r);
     }
   }
-  return { BOARDS, ROOMS, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
+  return { BOARDS, ROOMS, SUITES: SU.SUITES, suiteOf: (o) => (o.room ? SU.SUITES[o.room] && o.room : o.board ? SU.byBoard[o.board] : o.set ? SU.bySet[o.set] : null) || null, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateWorld;

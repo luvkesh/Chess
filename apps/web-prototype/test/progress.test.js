@@ -93,7 +93,7 @@ assert.strictEqual(s.season, '');
 PS.gameFinished(s, Object.assign({}, win, { plies: 60 }), day(1));
 assert.deepStrictEqual(s.seasons, {}, 'no season XP between seasons');
 assert.strictEqual(PS.setSeason(s, inSeason).id, S1.id);
-const freeItem = catalog.items.find((i) => i.unlock.type === 'season' && i.unlock.track === 'free');
+const freeItem = catalog.items.filter((i) => i.unlock.type === 'season' && i.unlock.track === 'free').sort((x, y) => x.unlock.tier - y.unlock.tier)[0];
 const passItem = catalog.items.find((i) => i.unlock.type === 'season' && i.unlock.track === 'pass' && i.unlock.tier >= freeItem.unlock.tier);
 assert(freeItem && passItem);
 const top = Math.max(freeItem.unlock.tier, passItem.unlock.tier);
@@ -239,8 +239,14 @@ assert(PG.buyWithCoins(s, near));
 assert(PG.isUnlocked(s, near) && s.coins === 100000 - PG.coinPrice(near));
 assert.strictEqual(PG.coinOffer(s, near).reason, 'owned');
 assert(!PG.buyWithCoins(s, near), 'cannot buy twice');
+// a room, its board and its set are one suite: buying one buys all three, equipping one equips all three
+const su = PG.suiteOf(near);
+assert(su && [su.room, su.board, su.pieces].every((id) => PG.isUnlocked(s, PG.item(id))), 'the whole suite is bought');
+assert(PG.equip(s, PG.item(su.board)) && s.equipped.room === su.room && s.equipped.pieces === su.pieces, 'the whole suite is equipped');
+{ const mixed = PG.fresh(); mixed.equipped.board = su.board; const m = PG.migrate(mixed);
+  assert(m.equipped.board === catalog.defaults.board && m.equipped.pieces === catalog.defaults.pieces, 'old mixed looks line up with the room'); }
 s.coins = 10;
-const near2 = lvItems.find((i) => i.unlock.level <= 3 && i !== near);
+const near2 = lvItems.find((i) => i.unlock.level <= 3 && PG.suiteOf(i) !== PG.suiteOf(near));
 assert.strictEqual(PG.coinOffer(s, near2).reason, 'short');
 // old saves gain an empty purse; bought items survive a save
 const back = PG.migrate(JSON.parse(JSON.stringify(s)));

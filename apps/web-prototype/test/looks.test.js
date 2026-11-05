@@ -14,7 +14,13 @@ function keysOf(text, name) {
   assert.ok(start >= 0, name + ' not found');
   const end = text.indexOf('\n  };', start);
   const body = text.slice(start, end);
-  return new Set([...body.matchAll(/^ {4}'?([a-z][\w-]*)'?: \{/gm)].map((m) => m[1]));
+  const keys = new Set([...body.matchAll(/^ {4}'?([a-z][\w-]*)'?: \{/gm)].map((m) => m[1]));
+  // Later additions: `Object.assign(NAME, { ... });`
+  for (let i = text.indexOf('Object.assign(' + name + ', {'); i >= 0; i = text.indexOf('Object.assign(' + name + ', {', i + 1)) {
+    const more = text.slice(i, text.indexOf('\n  });', i));
+    for (const m of more.matchAll(/^ {4}'?([a-z][\w-]*)'?: \{/gm)) keys.add(m[1]);
+  }
+  return keys;
 }
 const pieces = src('pieces3d.js'), world = src('world3d.js');
 const SETS = new Set([...keysOf(pieces, 'SETS'), ...keysOf(pieces, 'COLOURWAYS')]);

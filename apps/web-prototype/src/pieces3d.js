@@ -3311,6 +3311,185 @@ function ChacklatePieces(THREE, K) {
     },
   };
 
+  // ------------------------------------------------------------------ the raw sets
+  // Three sets made the old way, by hand, with stone and clay: no lathe-perfect curves, no
+  // polish. A hammer-dressed surface comes from nudging every vertex by a little smooth noise.
+  function hewn(g, amt, seed, y0) {
+    g = g.index ? g.toNonIndexed() : g;
+    const p = g.attributes.position, s = (seed || 1) * 7.31;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+      if (y0 !== undefined && y < y0) continue;
+      const n = Math.sin(x * 41 + s) * Math.cos(z * 37 - s) + Math.sin(y * 53 + x * 13 + s) * 0.6 + Math.sin(z * 29 + y * 31) * 0.4;
+      const r = Math.hypot(x, z) || 1, k = amt * n;
+      p.setXYZ(i, x + (x / r) * k, y + k * 0.25, z + (z / r) * k);
+    }
+    g.computeVertexNormals();
+    return g;
+  }
+  const hewnLathe = (P, slot, prof, o, amt, seed) => P.add(slot, hewn(revolve(prof, Object.assign({ segs: 40 }, o || {})), amt === undefined ? 0.006 : amt, seed));
+  // Stonehenge: sarsen and bluestone, standing stones and lintels, cut with stone hammers.
+  function stoneBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R, 0).line(R * 0.97, 0.06 * k).line(R * 0.86, 0.1 * k).line(top, 0.13 * k);
+  }
+  const blocky = (n, y0, y1) => MOD.facets(n, y0, y1, 0.15);
+  const SARSEN = {
+    k() {
+      const P = new Piece();
+      // a tall standing stone, and on top a little trilithon: two uprights and a lintel
+      hewnLathe(P, 'body', stoneBase(profile(0, 0), 0.32, 0.17).line(0.15, 0.6).line(0.14, 1.02).line(0.16, 1.05).line(0, 1.06), { mod: blocky(7, -1, 2) }, 0.007, 1);
+      for (const x of [-0.07, 0.07]) P.add('body', hewn(new THREE.BoxGeometry(0.06, 0.16, 0.07, 2, 3, 2).translate(x, 1.14, 0), 0.004, 2));
+      P.add('body', hewn(new THREE.BoxGeometry(0.24, 0.06, 0.09, 4, 2, 2).translate(0, 1.25, 0), 0.004, 3));
+      return P;
+    },
+    q() {
+      const P = new Piece();
+      // a stone with a hole worn through it, like the Men-an-Tol
+      hewnLathe(P, 'body', stoneBase(profile(0, 0), 0.31, 0.16).line(0.13, 0.62).line(0.12, 0.9).line(0, 0.92), { mod: blocky(8, -1, 2) }, 0.006, 4);
+      const ring = new THREE.TorusGeometry(0.12, 0.05, 8, 14).scale(1, 1.05, 0.8).translate(0, 1.06, 0);
+      P.add('body', hewn(ring, 0.006, 5));
+      return P;
+    },
+    b() {
+      const P = new Piece();
+      const prof = stoneBase(profile(0, 0), 0.29, 0.14).line(0.11, 0.5).curve([[0.14, 0.7], [0.12, 0.88], [0.05, 1.0]]).line(0, 1.02);
+      hewnLathe(P, 'body', prof, { mod: mods([blocky(6, -1, 2), MOD.slit(0.4, 0.83, 0.6, 0.026, 0.55)]) }, 0.005, 6);
+      return P;
+    },
+    n() {
+      const P = new Piece();
+      hewnLathe(P, 'body', stoneBase(profile(0, 0), 0.31, 0.2).line(0.2, 0.3).line(0, 0.3), { mod: blocky(7, -1, 2) }, 0.006, 7);
+      P.add('body', horse({ base: 0.3, mane: 'none', seed: 41, form: { facet: 0.032, girth: 1.12, tuck: 0.1, neck: -0.04, ears: 0.05, headW: 1.06 } }).body);
+      return P;
+    },
+    r() {
+      const P = new Piece(), top = 0.6;
+      hewnLathe(P, 'body', stoneBase(profile(0, 0), 0.31, 0.22).line(0.2, top).line(0, top), { mod: blocky(9, -1, 2) }, 0.006, 8);
+      // a ring of standing stones for battlements
+      for (let i = 0; i < 7; i++) { const a = i / 7 * TAU; P.add('body', hewn(new THREE.BoxGeometry(0.06, 0.13, 0.05, 2, 2, 2).rotateY(-a).translate(Math.sin(a) * 0.17, top + 0.06, Math.cos(a) * 0.17), 0.003, 9 + i)); }
+      return P;
+    },
+    p() {
+      const P = new Piece();
+      hewnLathe(P, 'body', stoneBase(profile(0, 0), 0.25, 0.1, 0.85).line(0.08, 0.3).line(0, 0.31), { mod: blocky(6, -1, 2) }, 0.005, 10);
+      P.add('body', hewn(new THREE.IcosahedronGeometry(0.11, 1).scale(1, 0.9, 1).translate(0, 0.42, 0), 0.01, 11));
+      return P;
+    },
+  };
+  // Mohenjo-daro and Harappa: fired clay, buff and red-slipped, painted in black bands.
+  function clayBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R, 0).curve([[R + 0.005, 0.04 * k], [R - 0.03, 0.08 * k]]).line(top + 0.04, 0.11 * k).line(top, 0.14 * k);
+  }
+  const bands = (P, list) => list.forEach(([r, y]) => P.add('trim', ring(r, y, 0.008, { seg: 40, tube: 6 })));
+  const HARAPPA = {
+    k() {
+      const P = new Piece();
+      // the "priest-king": a robed figure with a headband and a round ornament on his brow
+      hewnLathe(P, 'body', clayBase(profile(0, 0), 0.32, 0.17).curve([[0.13, 0.4], [0.15, 0.7], [0.17, 0.86]]).line(0.1, 0.92).line(0.08, 0.96).line(0, 0.97), {}, 0.004, 21);
+      P.add('body', hewn(sphere(0.1, 0, 1.06, 0, 18).scale(1, 1.12, 1), 0.004, 22));
+      P.add('trim', ring(0.1, 1.08, 0.014, { seg: 32 }));
+      P.add('trim', sphere(0.03, 0, 1.08, 0.105, 10));
+      P.add('trim', placeAt(new THREE.CylinderGeometry(0.03, 0.03, 0.06, 8), 0, 0, 1.2));
+      bands(P, [[0.165, 0.6], [0.17, 0.8]]);
+      return P;
+    },
+    q() {
+      const P = new Piece();
+      // the "mother goddess": a fan headdress with a cup on either side
+      hewnLathe(P, 'body', clayBase(profile(0, 0), 0.31, 0.16).curve([[0.12, 0.4], [0.14, 0.66], [0.15, 0.78]]).line(0.09, 0.84).line(0, 0.85), {}, 0.004, 23);
+      P.add('body', hewn(sphere(0.09, 0, 0.93, 0, 16), 0.004, 24));
+      P.add('body', hewn(new THREE.CylinderGeometry(0.17, 0.08, 0.1, 18, 1, false, -1.3, 2.6).translate(0, 1.04, -0.02), 0.004, 25));
+      for (const s of [-1, 1]) P.add('trim', new THREE.CylinderGeometry(0.035, 0.025, 0.06, 10).translate(s * 0.13, 1.06, 0.02));
+      bands(P, [[0.14, 0.62], [0.15, 0.74]]);
+      return P;
+    },
+    b() {
+      const P = new Piece();
+      // a square seal-stone pillar with a slanted cut, like the steatite seals of Mohenjo-daro
+      const prof = clayBase(profile(0, 0), 0.29, 0.14).line(0.12, 0.5).curve([[0.15, 0.7], [0.13, 0.86], [0.05, 0.98]]).line(0, 1.0);
+      hewnLathe(P, 'body', prof, { mod: mods([MOD.facets(4, 0.14, 2, 0.35), MOD.slit(Math.PI / 4, 0.8, 0.6, 0.024, 0.55)]) }, 0.003, 26);
+      P.add('trim', new THREE.BoxGeometry(0.1, 0.1, 0.01).translate(0, 0.62, 0.135));
+      return P;
+    },
+    n() {
+      const P = new Piece();
+      hewnLathe(P, 'body', clayBase(profile(0, 0), 0.31, 0.2).line(0.2, 0.3).line(0, 0.3), {}, 0.004, 27);
+      P.add('body', horse({ base: 0.3, mane: 'carved', seed: 43, form: { girth: 1.2, tuck: 0.02, neck: -0.1, reach: -0.06, ears: -0.1, headW: 1.12, nose: 0.02 } }).body);
+      return P;
+    },
+    r() {
+      const P = new Piece(), top = 0.66;
+      // a granary tower of stacked mud brick, with gaps along the top
+      hewnLathe(P, 'body', clayBase(profile(0, 0), 0.31, 0.21).line(0.2, top).line(0.16, top).line(0.16, top - 0.05).line(0, top - 0.05), { mod: mods([MOD.facets(6, 0.14, 2, 0.4), MOD.crenel(6, top - 0.11, top + 0.1, 0.32, 0.9)]) }, 0.003, 28);
+      bands(P, [[0.205, 0.3], [0.205, 0.46]]);
+      return P;
+    },
+    p() {
+      const P = new Piece();
+      // a little jar with a round clay bead for a head
+      hewnLathe(P, 'body', clayBase(profile(0, 0), 0.25, 0.1, 0.85).curve([[0.12, 0.2], [0.09, 0.32]]).line(0, 0.33), {}, 0.004, 29);
+      P.add('body', hewn(sphere(0.1, 0, 0.42, 0, 16), 0.004, 30));
+      bands(P, [[0.11, 0.24]]);
+      return P;
+    },
+  };
+  // Machu Picchu: grey andesite dressed into many-sided blocks, with a little hammered gold.
+  function incaBase(p, R, top, k) {
+    k = k || 1;
+    // two steps, as in a terrace wall
+    return p.line(R, 0).line(R, 0.05 * k).line(R * 0.84, 0.06 * k).line(R * 0.84, 0.11 * k).line(top, 0.13 * k);
+  }
+  const INCA = {
+    k() {
+      const P = new Piece();
+      hewnLathe(P, 'body', incaBase(profile(0, 0), 0.33, 0.17).line(0.13, 0.84).line(0.17, 0.86).line(0.17, 0.92).line(0, 0.93), { mod: MOD.facets(4, -1, 2, 0.1) }, 0.004, 31);
+      // Inti, the sun: a gold disc with rays, standing on his head
+      const sun = merge([new THREE.CylinderGeometry(0.1, 0.1, 0.03, 24).rotateX(Math.PI / 2), ...Array.from({ length: 12 }, (_, i) => { const r = ray(0.05, 0.07, 0.02); r.translate(0, 0.095, 0); r.rotateZ(i / 12 * TAU); return r; })]);
+      P.add('trim', sun.translate(0, 1.1, 0));
+      return P;
+    },
+    q() {
+      const P = new Piece();
+      hewnLathe(P, 'body', incaBase(profile(0, 0), 0.32, 0.16).line(0.12, 0.76).line(0.16, 0.78).line(0.16, 0.84).line(0, 0.85), { mod: MOD.facets(5, -1, 2, 0.15) }, 0.004, 32);
+      // Mama Killa, the moon, as a crescent
+      P.add('trim', crescent(0.14, 0.03).translate(0, 1.0, 0));
+      return P;
+    },
+    b() {
+      const P = new Piece();
+      const prof = incaBase(profile(0, 0), 0.3, 0.14).line(0.11, 0.56).line(0.13, 0.6).line(0.04, 0.66).line(0, 0.66);
+      hewnLathe(P, 'body', prof, { mod: MOD.facets(4, -1, 2, 0.1) }, 0.004, 33);
+      // a tumi: the half-moon blade of a ceremonial knife, with the bishop's notch in its edge
+      const half = [];
+      for (let i = 0; i <= 20; i++) { const a = Math.PI * i / 20; half.push([Math.cos(a) * 0.15, 0.22 + Math.sin(a) * 0.2 * (Math.abs(a - Math.PI * 0.62) < 0.18 ? 0.7 : 1)]); }
+      half.push([-0.04, 0.2], [-0.03, 0], [0.03, 0], [0.04, 0.2]);
+      P.add('trim', extrude(half, 0.03, 0.008, { bevelSegments: 2 }).translate(0, 0.62, 0));
+      return P;
+    },
+    n() {
+      const P = new Piece();
+      hewnLathe(P, 'body', incaBase(profile(0, 0), 0.31, 0.2).line(0.2, 0.3).line(0, 0.3), { mod: MOD.facets(4, -1, 2, 0.1) }, 0.004, 34);
+      P.add('body', horse({ base: 0.3, mane: 'none', seed: 47, form: { facet: 0.026, tuck: 0.3, neck: 0.04, girth: 0.96, reach: 0.08, ears: 0.22 } }).body);
+      return P;
+    },
+    r() {
+      const P = new Piece(), top = 0.64;
+      hewnLathe(P, 'body', incaBase(profile(0, 0), 0.32, 0.22).line(0.19, top).line(0, top), { mod: MOD.facets(4, -1, 2, 0.05) }, 0.003, 35);
+      for (const [x, z] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) P.add('body', hewn(new THREE.BoxGeometry(0.08, 0.12, 0.08, 2, 2, 2).translate(x * 0.095, top + 0.055, z * 0.095), 0.003, 36));
+      // a trapezoid doorway, the Inca builders' signature
+      P.add('trim', extrude([[-0.05, 0], [0.05, 0], [0.035, 0.14], [-0.035, 0.14]], 0.01, 0.003).translate(0, 0.3, 0.14));
+      return P;
+    },
+    p() {
+      const P = new Piece();
+      hewnLathe(P, 'body', incaBase(profile(0, 0), 0.26, 0.1, 0.85).line(0.08, 0.3).line(0.1, 0.31).line(0, 0.32), { mod: MOD.facets(4, -1, 2, 0.1) }, 0.004, 37);
+      P.add('body', hewn(new THREE.IcosahedronGeometry(0.105, 1).translate(0, 0.42, 0), 0.006, 38));
+      return P;
+    },
+  };
+
   // ------------------------------------------------------------------ era materials
   const phys = (key, o) => K.material('p:' + key, () => new THREE.MeshPhysicalMaterial(o));
   const MATS = {
@@ -3656,6 +3835,55 @@ function ChacklatePieces(THREE, K) {
         : { body: MATS.nacreDark(), cloth: MATS.scalesDark(), rock: lacquer('coral-b', '#5a2030', { roughness: 0.5 }), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#2fb8a0'), eye: MAT.lacquer('#f0f4f6') }),
     },
   };
+
+  // The raw sets: stone and clay with no polish (rough, matt surfaces) and a little gold.
+  const raw = (key, map, o) => phys('raw-' + key, Object.assign({ map, roughness: 0.92, metalness: 0, clearcoat: 0, envMapIntensity: 0.5 }, o || {}));
+  Object.assign(SETS, {
+    sarsen: {
+      id: 'sarsen', name: 'Sarsen Stones', era: 'Stone Age Britain', year: 'c. 2500 BC', tint: '#6a6a5a',
+      story: 'Carved the way the builders of Stonehenge shaped their giant stones: with round hammer stones, one chip at a time. Pale sarsen from the downs faces blue-grey bluestone from the hills of Wales, and no two pieces are quite the same.',
+      lore: {
+        k: 'A tall standing stone wearing a tiny trilithon, two uprights and a lintel, just like the great stones of Stonehenge.',
+        q: 'A stone with a hole worn right through it. People once crawled through stones like this for luck.',
+        b: 'A pointed stone with a notch cut in its side, the bishop\'s mark.',
+        n: 'A horse chipped from a single block. Knights still jump in an L.',
+        r: 'A round tower of stone, ringed with little standing stones.',
+        p: 'A pebble on a rough base: small, but ready to march.',
+      },
+      pieces: SARSEN,
+      mats: (side) => (side === 'w' ? { body: raw('sarsen', TEX.stone('#d6cfbc', '#9a9280', { scale: 3, cloud: 0.5, speckMix: 0.5 })) } : { body: raw('bluestone', TEX.stone('#4a5058', '#7a8490', { scale: 3, cloud: 0.5, speckMix: 0.5 })) }),
+    },
+    harappa: {
+      id: 'harappa', name: 'Indus Terracotta', era: 'The Indus Valley', year: 'c. 2500 BC', tint: '#8a3a1e',
+      story: 'Shaped by hand from river clay and fired in a kiln, like the toys and figures found at Mohenjo-daro and Harappa: one of the very first cities in the world. Pale buff clay faces clay dipped in red slip, both painted with bands of black.',
+      lore: {
+        k: 'A figure like the famous "priest-king" of Mohenjo-daro, with a headband and a round ornament on his brow.',
+        q: 'A figure with a fan-shaped headdress and little cups at each side, like the clay figures found in Indus homes.',
+        b: 'A square pillar like the stone seals the Indus traders stamped on their goods, with the bishop\'s slanted cut.',
+        n: 'A sturdy clay horse, made by hand like an Indus toy.',
+        r: 'A tower of mud brick, like the walls of the great granary.',
+        p: 'A little clay jar with a round bead for a head.',
+      },
+      pieces: HARAPPA,
+      mats: (side) => (side === 'w'
+        ? { body: raw('buff', TEX.stone('#e2b88c', '#c8946a', { scale: 2, cloud: 0.6, speckMix: 0.25 }), { roughness: 0.85 }), trim: raw('slip-black', null, { color: '#2a140a', roughness: 0.7 }) }
+        : { body: raw('redslip', TEX.stone('#9a4024', '#c8643c', { scale: 2, cloud: 0.6, speckMix: 0.25 }), { roughness: 0.6, clearcoat: 0.15, clearcoatRoughness: 0.6 }), trim: raw('slip-black', null, { color: '#2a140a', roughness: 0.7 }) }),
+    },
+    inca: {
+      id: 'inca', name: 'Inca Stone', era: 'The Inca Empire', year: 'c. 1450', tint: '#4a4a52',
+      story: 'Dressed by Inca masons at Machu Picchu, who fitted stones so closely that not even a blade of grass fits between them. Pale granite faces dark andesite from the mountain, with the sun, the moon and a tumi knife in hammered gold.',
+      lore: {
+        k: 'A stepped stone crowned with Inti, the golden sun. The Inca kings said they were his children.',
+        q: 'Her crown is a crescent for Mama Killa, the moon, the sun\'s wife in Inca stories.',
+        b: 'A tumi, the half-moon blade of a ceremonial knife, with a notch for the bishop\'s cut.',
+        n: 'A horse cut in sharp, flat facets, the way the masons dressed their blocks.',
+        r: 'A square stone tower with a trapezoid doorway, the Inca builders\' favourite shape.',
+        p: 'A square stone with a round head, like a little milestone on the Inca road.',
+      },
+      pieces: INCA,
+      mats: (side) => Object.assign(side === 'w' ? { body: raw('granite', TEX.stone('#cdc8bc', '#8a867c', { scale: 4, cloud: 0.35, speckMix: 0.6 })) } : { body: raw('andesite', TEX.stone('#4c4a48', '#86827a', { scale: 4, cloud: 0.35, speckMix: 0.6 })) }, { trim: MAT.gold('#d8a848') }),
+    },
+  });
 
   // ------------------------------------------------------------------ collection sets
   // Sets earned with levels, achievements, the season track and Premium. Each has its own

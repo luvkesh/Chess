@@ -675,6 +675,20 @@ ChacklateElements.ROOMS = {
   winter: { strike: 'lightning', storm: 'lightning' },
   deco: { strike: 'lightning', storm: 'fire' },
   paris: { strike: 'stone', storm: 'petals', petals: ['#c8a0e0', '#e8c8f4', '#ffd4e4', '#f4e8ff'], dust: '#d8ccb8', stone: '#ddd2c0' },
+  tokyo: { strike: 'lightning', storm: 'petals', petals: ['#ffc4d4', '#ffdbe4', '#fff0f4', '#f4a0b8'] },
+  brussels: { strike: 'fire', storm: 'petals', petals: ['#f4d27a', '#e8b860', '#6a3a1e', '#fff0d0'] },
+  reef: { strike: 'stone', storm: 'petals', petals: ['#ffffff', '#f4e8f0', '#ff9a8a', '#8ae0e8'], dust: '#d8e8f0', stone: '#f0d8d0' },
+  amber: { strike: 'fire', storm: 'petals', petals: ['#ff9a20', '#ffc840', '#e84a2a', '#ffe08a'] },
+  mysore: { strike: 'fire', storm: 'petals', petals: ['#ff9a20', '#ffc840', '#e8502a', '#fff0b0'] },
+  greatwall: { strike: 'stone', storm: 'lightning', dust: '#b8aa90', stone: '#a89a84' },
+  swiss: { strike: 'stone', storm: 'petals', petals: ['#ffffff', '#f4f8ff', '#e8eef8', '#dce6f4'], dust: '#eef2f8', stone: '#e8e4dc' },
+  dubai: { strike: 'stone', storm: 'fire', dust: '#e8c890', stone: '#e0c088' },
+  crystal: { strike: 'lightning', storm: 'petals', petals: ['#ffffff', '#d8f0ff', '#f0e0ff', '#fff8d8'] },
+  aurora: { strike: 'lightning', storm: 'lightning' },
+  castle: { strike: 'lightning', storm: 'petals', petals: ['#e8506a', '#ff9ab0', '#ffffff', '#f4c860'] },
+  stonehenge: { strike: 'stone', storm: 'lightning', dust: '#a8a490', stone: '#9a968a' },
+  indus: { strike: 'stone', storm: 'fire', dust: '#c89a6a', stone: '#b8784a' },
+  inca: { strike: 'stone', storm: 'lightning', dust: '#b8b4a8', stone: '#8a867e' },
 };
 ChacklateElements.STRIKE_MS = 3000;
 ChacklateElements.STORM_MS = 10000;

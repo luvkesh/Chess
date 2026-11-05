@@ -21,6 +21,7 @@ SCRIPTS = [
     src / 'kit3d.js',
     src / 'pieces3d.js',
     src / 'landmarks3d.js',
+    src / 'suites3d.js',
     src / 'world3d.js',
     src / 'elements3d.js',
     src / 'scene.js',

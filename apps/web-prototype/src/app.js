@@ -410,7 +410,9 @@
   // its era's board, pieces and room for the length of the game.
   let preview = null, lookOverride = null, clockSkin = null;
   function applyLook() {
-    const pick = (cat) => (preview && preview.category === cat ? preview : PG.equipped(state.progress, cat));
+    // Trying on a room, board or set shows its whole suite: the room with its own board and pieces.
+    const su = preview && PG.suiteOf(preview);
+    const pick = (cat) => (su && su[cat] ? PG.item(su[cat]) : preview && preview.category === cat ? preview : PG.equipped(state.progress, cat));
     const o = (preview ? null : lookOverride) || {};
     view.setTheme(o.board ? { board: o.board } : pick('board').data, o.set ? { set: o.set } : pick('pieces').data);
     const room = o.room ? { room: o.room } : pick('room').data;
@@ -2232,6 +2234,7 @@
         '<p class="lore">' + esc(set ? set.story : it.desc) + '</p>' +
         (set ? '<div class="pieces">' + ['k', 'q', 'b', 'n', 'r', 'p'].map((pt) => '<button data-pt="' + pt + '" aria-pressed="false" title="' + PIECE_NAME[pt] + '">' + snap({ kind: 'piece', set: d.set, type: pt, side: 'w' }, 84, 104, ART.pieceUri(pt)) + '</button>').join('') + '</div>' +
           '<p class="plore" id="mu-lore">' + t('collection.tapPiece') + '</p>' : '') +
+        (PG.suiteOf(it) ? (() => { const su = PG.suiteOf(it), nm = (id) => '<b>' + esc(PG.item(id).name) + '</b>'; return '<p class="fine">' + t('collection.suite', { room: nm(su.room), board: nm(su.board), pieces: nm(su.pieces) }) + '</p>'; })() : '') +
         (PITCH[it.id] ? '<p class="mu-quote"><b>' + esc(COACH.name) + ':</b> “' + esc(PITCH[it.id].text) + '”</p>' : '') +
         '<p class="fine">' + (un ? (on ? icon('check') + ' ' + t('collection.equippedDot') : t('collection.yours')) : icon('lock') + ' ' + t('collection.toUnlock', { how: esc(unlockText(it)) })) + '</p>' +
         (offer && offer.price !== null ? '<p class="fine">' + icon('coin') + ' ' + (offer.reason === 'too-far' ? t('collection.coin.far', { price: coinCount(offer.price), n: Math.max(1, it.unlock.level - PG.COIN_REACH) }) : offer.ok ? t('collection.coin.now', { price: coinCount(offer.price) }) : t('collection.coin.short', { price: coinCount(offer.price), n: I18N.num(offer.short) })) + '</p>' : '') +
