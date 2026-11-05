@@ -22,6 +22,13 @@ function ChacklateProgress(catalog, extras) {
   // Level items can be bought with coins once the player is within this many levels of them.
   const COIN_REACH = 2;
   const COIN_PRICE = { common: 200, rare: 400, epic: 900, legendary: 1500 };
+  // Suites: each room comes with its own board and piece set (1:1:1). They unlock, are
+  // bought and are equipped together, so a room is never shown with another room's board.
+  const SUITES = catalog.suites || [];
+  const SUITE_OF = {};
+  for (const su of SUITES) for (const k of ['room', 'board', 'pieces']) SUITE_OF[su[k]] = su;
+  const suiteOf = (it) => SUITE_OF[typeof it === 'string' ? it : it && it.id] || null;
+  const suiteIds = (it) => { const su = suiteOf(it); return su ? [su.room, su.board, su.pieces] : [typeof it === 'string' ? it : it.id]; };
   const TITLES = [[1, 'Cocoa Bean'], [5, 'Apprentice'], [10, 'Chocolatier'], [15, 'Maître'], [20, 'Grand Maître']];
   const ACHIEVEMENTS = [
     { id: 'first-game', name: 'First move', desc: 'Finish your first game.', xp: 20 },
@@ -98,6 +105,9 @@ function ChacklateProgress(catalog, extras) {
     out.coins = Math.max(0, Math.floor(+s.coins || 0));
     out.earned = Object.assign(f.earned, s.earned || {});
     out.bought = Array.isArray(s.bought) ? s.bought.slice() : [];
+    // Older saves could mix a room with another room's board or set: line them up with the room.
+    const su = suiteOf(out.equipped.room) || suiteOf(catalog.defaults.room);
+    if (su) Object.assign(out.equipped, { room: su.room, board: su.board, pieces: su.pieces });
     out.mini = Object.assign(f.mini, s.mini || {});
     return out;
   }
@@ -162,7 +172,7 @@ function ChacklateProgress(catalog, extras) {
     const o = coinOffer(state, item);
     if (!o.ok) return false;
     state.coins -= o.price;
-    state.bought.push(item.id);
+    for (const id of suiteIds(item)) if (!state.bought.includes(id)) state.bought.push(id);
     return true;
   }
 
@@ -487,8 +497,9 @@ function ChacklateProgress(catalog, extras) {
 
   function isUnlocked(state, item) {
     const u = item.unlock;
-    if (u.type === 'free' || (state.granted && state.granted[item.id])) return true;
-    if (u.type === 'level') return levelFor(state.xp).level >= u.level || (state.bought || []).includes(item.id);
+    const ids = suiteIds(item);
+    if (u.type === 'free' || (state.granted && ids.some((id) => state.granted[id]))) return true;
+    if (u.type === 'level') return levelFor(state.xp).level >= u.level || ids.some((id) => (state.bought || []).includes(id));
     if (u.type === 'achievement') return !!state.achievements[u.achievement];
     if (u.type === 'premium') return !!state.premium;
     if (u.type === 'season') return tierOf(state, u.season) >= u.tier && (u.track === 'free' || hasPass(state, u.season));
@@ -506,7 +517,9 @@ function ChacklateProgress(catalog, extras) {
   }
   function equip(state, item) {
     if (!isUnlocked(state, item)) return false;
-    state.equipped[item.category] = item.id;
+    const su = suiteOf(item);
+    if (su) Object.assign(state.equipped, { room: su.room, board: su.board, pieces: su.pieces });
+    else state.equipped[item.category] = item.id;
     return true;
   }
   function item(id) { return catalog.items.find((i) => i.id === id); }
@@ -538,7 +551,7 @@ function ChacklateProgress(catalog, extras) {
     return Math.min(best, maxLevel);
   }
 
-  return { COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
+  return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
     ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished,
     setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }

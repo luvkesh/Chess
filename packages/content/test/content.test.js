@@ -153,8 +153,33 @@ for (const it of catalog.items) {
 for (const c of cats) assert.ok(itemIds.has(catalog.defaults[c]), 'default for ' + c);
 for (const s of seasons.seasons) {
   assert.ok(s.starts < s.ends, s.id + ' dates');
-  const slots = catalog.items.filter((i) => i.unlock.season === s.id).map((i) => i.unlock.track + i.unlock.tier);
+  // A suite (room, board and set together) is one reward, so its three items share a slot.
+  const suiteOf = (i) => (catalog.suites.find((x) => [x.room, x.board, x.pieces].includes(i.id)) || {}).id;
+  const slots = [...new Set(catalog.items.filter((i) => i.unlock.season === s.id).map((i) => suiteOf(i) || i.id))]
+    .map((k) => catalog.items.find((i) => i.unlock.season === s.id && (suiteOf(i) || i.id) === k)).map((i) => i.unlock.track + i.unlock.tier);
   assert.strictEqual(new Set(slots).size, slots.length, s.id + ' one reward per tier and track');
+}
+// Suites: every room has exactly one matching board and piece set (1:1:1), and the three
+// share one unlock and one rarity, so they always appear and unlock together.
+{
+  const seen = new Set();
+  const want = { room: 'room', board: 'board', pieces: 'pieces' };
+  for (const su of catalog.suites) {
+    const trio = Object.keys(want).map((k) => {
+      const it = catalog.items.find((i) => i.id === su[k]);
+      assert.ok(it && it.category === want[k], su.id + ' ' + k);
+      assert.ok(!seen.has(it.id), it.id + ' in two suites'); seen.add(it.id);
+      return it;
+    });
+    for (const it of trio) {
+      assert.deepStrictEqual(it.unlock, trio[0].unlock, it.id + ' unlocks with its suite');
+      assert.strictEqual(it.rarity, trio[0].rarity, it.id + ' rarity matches its suite');
+    }
+  }
+  for (const it of catalog.items) if (want[it.category]) assert.ok(seen.has(it.id), it.id + ' belongs to a suite');
+  const d = catalog.suites.find((x) => x.room === catalog.defaults.room);
+  assert.ok(d && d.board === catalog.defaults.board && d.pieces === catalog.defaults.pieces, 'defaults are one suite');
+  console.log('suites ok:', catalog.suites.length);
 }
 const EVENTS = ['game', 'win', 'online', 'puzzle', 'daily', 'lesson', 'drill', 'dojo', 'review', 'mini'];
 for (const m of missions.missions) assert.ok(EVENTS.includes(m.event) && m.goal > 0 && m.xp > 0 && m.text, m.id);

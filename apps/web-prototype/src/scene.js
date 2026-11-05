@@ -59,7 +59,9 @@ function ChacklateScene(canvas, options) {
 
   // ------------------------------------------------------------------ scene graph
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 200);
+  // far enough that a landmark at the back of its vista (the pyramids stand 190 out) is never
+  // cut off when the camera swings round to the far side of the table
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 640);
   const roomGroup = new THREE.Group(), boardGroup = new THREE.Group(), pieceGroup = new THREE.Group(), fxGroup = new THREE.Group();
   scene.add(roomGroup, boardGroup, pieceGroup, fxGroup);
   const key = new THREE.DirectionalLight('#ffeedd', 2.0);
@@ -1697,7 +1699,7 @@ function ChacklateScene(canvas, options) {
     const s2 = new THREE.Scene();
     s2.environment = envFor((W.ROOMS[roomId] || W.ROOMS.salon).env);
     s2.environmentIntensity = 0.95;
-    const c2 = new THREE.PerspectiveCamera(spec.fov || 24, w / h, 0.05, 100);
+    const c2 = new THREE.PerspectiveCamera(spec.fov || 24, w / h, 0.05, 640);
     const l = new THREE.DirectionalLight('#fff0dd', 2.2); l.position.set(-3, 6, 5); s2.add(l);
     const r2 = new THREE.DirectionalLight('#ffd9a8', 1.1); r2.position.set(4, 3, -5); s2.add(r2);
     s2.add(new THREE.HemisphereLight('#ffe8d0', '#20120a', 0.4));
@@ -1753,17 +1755,22 @@ function ChacklateScene(canvas, options) {
       s2.fog = new THREE.FogExp2(rm.fog, rm.vista ? rm.fogDensity : 0.018);
       const cl = new THREE.PointLight(rm.lights.color, rm.lights.chand, 40, 2); cl.position.set(0, 7.2, 0); s2.add(cl);
       s2.add(new THREE.HemisphereLight(rm.hemi[0], rm.hemi[1], Math.max(0, rm.lights.hemi - 0.4)));
-      const b = W.board(spec.board || boardId, 'white'); s2.add(b); disposeList.push(b);
+      // a room is always shown with its own board and set (its suite)
+      const su = W.SUITES[spec.room] || {};
+      const rs = spec.set || su.set || setId;
+      const b = W.board(spec.board || su.board || boardId, 'white'); s2.add(b); disposeList.push(b);
       [['r', 'w', -3.5, 3.5], ['k', 'w', 0.5, 3.5], ['q', 'w', -0.5, 3.5], ['n', 'w', 1.5, 1.5], ['k', 'b', 0.5, -3.5], ['q', 'b', -0.5, -3.5], ['r', 'b', 3.5, -3.5], ['b', 'b', -1.5, -2.5]].forEach(([t, side, x, z]) => {
-        const g = P.make(setId, t, side, 'play'); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
+        const g = P.make(rs, t, side, 'play'); g.position.set(x, 0, z); if (side === 'b') g.rotation.y = Math.PI; s2.add(g);
       });
       c2.fov = spec.fov || 46;
       c2.position.set(5.5, 5.2, 12.5);
       look.set(0, 1.6, -2);
     } else if (spec.kind === 'board') {
       const b = W.board(spec.board, 'white'); s2.add(b); disposeList.push(b);
-      const g = P.make(setId, 'k', 'w', 'play'); g.position.set(-0.5, 0, 0.5); s2.add(g);
-      const g2 = P.make(setId, 'n', 'b', 'play'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
+      // a board is always shown with the pieces of its own suite
+      const bs = spec.set || (W.SUITES[W.suiteOf({ board: spec.board })] || {}).set || setId;
+      const g = P.make(bs, 'k', 'w', 'play'); g.position.set(-0.5, 0, 0.5); s2.add(g);
+      const g2 = P.make(bs, 'n', 'b', 'play'); g2.position.set(0.5, 0, -0.5); g2.rotation.y = -0.9; s2.add(g2);
       // back far enough that both pieces fit, with the frame and its letters in front
       c2.position.set(3.0, 5.6, 11.2); look.set(0, 0.35, 1.6);
     }

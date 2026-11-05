@@ -89,7 +89,7 @@
  },
  "board.sakura.v1": {
   "voice": "am_puck,am_michael",
-  "text": "Sakura Lacquer is pink like cherry blossoms in spring. You earn it by playing seven days in a row."
+  "text": "Sakura Lacquer is pink like cherry blossoms in spring. It comes with the Tokyo Sky Garden and the Robot Squad."
  },
  "board.sandstone.v1": {
   "voice": "am_puck,am_michael",
@@ -110,10 +110,6 @@
  "board.cacao-pod.v1": {
   "voice": "am_puck,am_michael",
   "text": "These squares are the colours of a ripe cacao pod and its beans. That's where chocolate comes from!"
- },
- "board.single-origin.v1": {
-  "voice": "am_puck,am_michael",
-  "text": "The darkest wood, in a frame of black marble. It's the very top of the season track."
  },
  "board.nile.v1": {
   "voice": "am_puck,am_michael",
@@ -462,5 +458,81 @@
  "frame.ember.v1": {
   "voice": "am_puck,am_michael",
   "text": "A glowing ring of cacao embers. Warm and fiery!"
+ },
+ "board.pearl.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "Real mother of pearl and soft coral pink, framed in sea-blue lacquer. It shimmers like the inside of a shell."
+ },
+ "board.lapis.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "Pale moonstone and starry blue lapis, with tiny gold stars round the frame. A board for night owls."
+ },
+ "board.sarsen.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "Rough stone, chiselled by hand, with no polish at all. It's as old-looking as Stonehenge itself."
+ },
+ "board.terracotta.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "Sun-baked clay, painted with circles like the jars of the Indus potters. Warm, earthy and very, very old."
+ },
+ "board.andesite.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "Grey mountain stone in a frame of fitted blocks, just like the walls the Inca built."
+ },
+ "room.tokyo.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A cherry-blossom garden on a Tokyo rooftop, with Mount Fuji far away. The city twinkles below you."
+ },
+ "room.brussels.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A chocolate shop on the Grand-Place of Brussels, with golden guild houses outside. Mmm, smell that cocoa!"
+ },
+ "room.reef.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A pearl palace on the sea floor, with coral towers and fish swimming by. Don't forget to breathe!"
+ },
+ "room.amber.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "The honey-gold courtyard of Amber Fort, high above Jaipur. Look at the little domes on the walls."
+ },
+ "room.mysore.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "Mysore Palace on a festival night, lit up by thousands of lamps. It's like playing inside a celebration."
+ },
+ "room.greatwall.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A watchtower on the Great Wall of China. The wall winds away over the green hills as far as you can see."
+ },
+ "room.swiss.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A cosy wooden chalet, with the Matterhorn outside the window. Hot chocolate, anyone?"
+ },
+ "room.dubai.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A lounge high above Dubai at sunset, facing the tallest building in the world. What a view!"
+ },
+ "room.crystal.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A palace made of glass and iron, with palm trees and a crystal fountain inside. It's full of light."
+ },
+ "room.aurora.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A frozen lake in Iceland, under green and purple northern lights. Wrap up warm!"
+ },
+ "room.castle.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A meadow above the forest, facing a white castle with blue towers. Just like a fairy tale."
+ },
+ "room.stonehenge.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "Inside the great stone circle, as the sun comes up. People built this more than four thousand years ago!"
+ },
+ "room.indus.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A brick courtyard in Mohenjo-daro, one of the first cities ever, right by the Great Bath."
+ },
+ "room.inca.v1": {
+  "voice": "am_puck,am_michael",
+  "text": "A grassy terrace in Machu Picchu, the Inca city in the clouds. Say hello to the llamas!"
  }
 }

@@ -337,23 +337,23 @@
       ]
     },
     "item-sets-marble": {
-      "text": "Some sets whisper instead of shout. Carrara and Nero is made of simple shapes, cones, spheres and discs, cut from white and black marble and polished until they feel cool and smooth in your hand. Grown-ups love this one. Reach level seven to unlock it.",
+      "text": "Some sets whisper instead of shout. Carrara and Nero is made of simple shapes, cones, spheres and discs, cut from white and black marble and polished until they feel cool and smooth in your hand. Grown-ups love this one. It comes with the Marble Hall and its marble board.",
       "cues": [
         {
           "t": 0,
           "text": "Some sets whisper instead of shout."
         },
         {
-          "t": 2.53,
+          "t": 2.65,
           "text": "Carrara and Nero is made of simple shapes, cones, spheres and discs, cut from white and black marble and polished until they feel cool and smooth in your hand."
         },
         {
-          "t": 13.46,
+          "t": 13.63,
           "text": "Grown-ups love this one."
         },
         {
-          "t": 15.58,
-          "text": "Reach level seven to unlock it."
+          "t": 15.61,
+          "text": "It comes with the Marble Hall and its marble board."
         }
       ]
     },
@@ -413,23 +413,23 @@
       ]
     },
     "item-sets-ruby-chocolate": {
-      "text": "Pink chocolate is real, and here it is on your board! Ruby Chocolate is soft, bubbly moulded pieces in rosy ruby and dark bittersweet, with little bumps like chocolate fresh out of the mould. It's sweet, cheerful and very pink. It comes with Premium.",
+      "text": "Pink chocolate is real, and here it is on your board! Ruby Chocolate is soft, bubbly moulded pieces in rosy ruby and dark bittersweet, with little bumps like chocolate fresh out of the mould. It's sweet, cheerful and very pink. It comes with the Fairy-Tale Castle, for players who come back seven days in a row.",
       "cues": [
         {
           "t": 0,
           "text": "Pink chocolate is real, and here it is on your board!"
         },
         {
-          "t": 3.89,
+          "t": 3.79,
           "text": "Ruby Chocolate is soft, bubbly moulded pieces in rosy ruby and dark bittersweet, with little bumps like chocolate fresh out of the mould."
         },
         {
-          "t": 13.24,
+          "t": 12.92,
           "text": "It's sweet, cheerful and very pink."
         },
         {
-          "t": 16.49,
-          "text": "It comes with Premium."
+          "t": 16.23,
+          "text": "It comes with the Fairy-Tale Castle, for players who come back seven days in a row."
         }
       ]
     },
@@ -514,23 +514,23 @@
       ]
     },
     "item-sets-peacock": {
-      "text": "Peacocks are the proudest birds in the garden, and these pieces know it. Peacock Court is ivory and peacock-blue enamel, with fanned tails, tiny crests and feather eyes on every piece. It's elegant, bright and a little bit royal. It comes with Premium.",
+      "text": "Peacocks are the proudest birds in the garden, and these pieces know it. Peacock Court is ivory and peacock-blue enamel, with fanned tails, tiny crests and feather eyes on every piece. It's elegant, bright and a little bit royal. It comes with Mysore Palace, all lit up at night.",
       "cues": [
         {
           "t": 0,
           "text": "Peacocks are the proudest birds in the garden, and these pieces know it."
         },
         {
-          "t": 4.66,
+          "t": 4.52,
           "text": "Peacock Court is ivory and peacock-blue enamel, with fanned tails, tiny crests and feather eyes on every piece."
         },
         {
-          "t": 13.14,
+          "t": 12.89,
           "text": "It's elegant, bright and a little bit royal."
         },
         {
-          "t": 16.39,
-          "text": "It comes with Premium."
+          "t": 16.22,
+          "text": "It comes with Mysore Palace, all lit up at night."
         }
       ]
     },
@@ -615,7 +615,7 @@
       ]
     },
     "item-boards-cocoa-cream": {
-      "text": "Doesn't this look like a fancy chocolate box? Cocoa and Cream has squares of glossy cocoa lacquer and soft cream, with fine raspberry-red seams running between them. It's cosy and sweet, and it's yours from the start.",
+      "text": "Doesn't this look like a fancy chocolate box? Cocoa and Cream has squares of glossy cocoa lacquer and soft cream, with fine raspberry-red seams running between them. It's cosy and sweet, and it comes with the chocolate shop in Brussels.",
       "cues": [
         {
           "t": 0,
@@ -626,8 +626,8 @@
           "text": "Cocoa and Cream has squares of glossy cocoa lacquer and soft cream, with fine raspberry-red seams running between them."
         },
         {
-          "t": 11.45,
-          "text": "It's cosy and sweet, and it's yours from the start."
+          "t": 11.5,
+          "text": "It's cosy and sweet, and it comes with the chocolate shop in Brussels."
         }
       ]
     },
@@ -670,112 +670,112 @@
       ]
     },
     "item-boards-rosewood-gold": {
-      "text": "Rosewood has a deep red glow that gets richer with time. Rosewood and Gold Leaf sets it against honey-coloured squares, and the frame is laid with real gold leaf, one thin sheet at a time. Reach level five, and it's on your table.",
+      "text": "Rosewood has a deep red glow that gets richer with time. Rosewood and Gold Leaf sets it against honey-coloured squares, and the frame is laid with real gold leaf, one thin sheet at a time. It comes with Mysore Palace and the Peacock Court.",
       "cues": [
         {
           "t": 0,
           "text": "Rosewood has a deep red glow that gets richer with time."
         },
         {
-          "t": 4.2,
+          "t": 4.23,
           "text": "Rosewood and Gold Leaf sets it against honey-coloured squares, and the frame is laid with real gold leaf, one thin sheet at a time."
         },
         {
-          "t": 13.62,
-          "text": "Reach level five, and it's on your table."
+          "t": 13.7,
+          "text": "It comes with Mysore Palace and the Peacock Court."
         }
       ]
     },
     "item-boards-emerald-ivory": {
-      "text": "Peer into the green squares. Emerald and Ivory is green marble with veins of jade running through it, set against warm ivory stone, so no two squares are quite the same. It's fresh and elegant, and it unlocks at level eight.",
+      "text": "Peer into the green squares. Emerald and Ivory is green marble with veins of jade running through it, set against warm ivory stone, so no two squares are quite the same. It's fresh and elegant, and it comes with the Great Wall and the Jade and Onyx set.",
       "cues": [
         {
           "t": 0,
           "text": "Peer into the green squares."
         },
         {
-          "t": 2.35,
+          "t": 2.34,
           "text": "Emerald and Ivory is green marble with veins of jade running through it, set against warm ivory stone, so no two squares are quite the same."
         },
         {
-          "t": 12.31,
-          "text": "It's fresh and elegant, and it unlocks at level eight."
+          "t": 12.4,
+          "text": "It's fresh and elegant, and it comes with the Great Wall and the Jade and Onyx set."
         }
       ]
     },
     "item-boards-obsidian": {
-      "text": "Obsidian is glass made by volcanoes! Obsidian Glass is smoky black volcanic glass with a shining chrome rim, and every piece you place shows its reflection underneath. It's sleek and a little mysterious. Reach level twelve to unlock it.",
+      "text": "Obsidian is glass made by volcanoes! Obsidian Glass is smoky black volcanic glass with a shining chrome rim, and every piece you place shows its reflection underneath. It's sleek and a little mysterious. It comes with the Crystal Palace and the Crystal Jewels.",
       "cues": [
         {
           "t": 0,
           "text": "Obsidian is glass made by volcanoes!"
         },
         {
-          "t": 3.07,
+          "t": 3.18,
           "text": "Obsidian Glass is smoky black volcanic glass with a shining chrome rim, and every piece you place shows its reflection underneath."
         },
         {
-          "t": 12.03,
+          "t": 12.13,
           "text": "It's sleek and a little mysterious."
         },
         {
-          "t": 14.77,
-          "text": "Reach level twelve to unlock it."
+          "t": 14.79,
+          "text": "It comes with the Crystal Palace and the Crystal Jewels."
         }
       ]
     },
     "item-boards-sakura": {
-      "text": "In Japan, families picnic under the cherry blossoms every spring. Sakura Lacquer captures that soft pink in layers of glossy lacquer, smooth as a petal. You earn it by playing seven days in a row, so it's a reward for keeping your chess habit going.",
+      "text": "In Japan, families picnic under the cherry blossoms every spring. Sakura Lacquer captures that soft pink in layers of glossy lacquer, smooth as a petal. It comes with the Tokyo Sky Garden and the Robot Squad.",
       "cues": [
         {
           "t": 0,
           "text": "In Japan, families picnic under the cherry blossoms every spring."
         },
         {
-          "t": 5.03,
+          "t": 5.07,
           "text": "Sakura Lacquer captures that soft pink in layers of glossy lacquer, smooth as a petal."
         },
         {
           "t": 11.71,
-          "text": "You earn it by playing seven days in a row, so it's a reward for keeping your chess habit going."
+          "text": "It comes with the Tokyo Sky Garden and the Robot Squad."
         }
       ]
     },
     "item-boards-sandstone": {
-      "text": "Jaipur is called the Pink City because its palaces are built from this stone. Jaipur Sandstone sets pink and honey sandstone side by side, glowing like the city at sunset. It's a little piece of India on your table. Reach level fifteen to unlock it.",
+      "text": "Jaipur is called the Pink City because its palaces are built from this stone. Jaipur Sandstone sets pink and honey sandstone side by side, glowing like the city at sunset. It's a little piece of India on your table. It comes with Amber Fort and the Royal Army.",
       "cues": [
         {
           "t": 0,
           "text": "Jaipur is called the Pink City because its palaces are built from this stone."
         },
         {
-          "t": 4.74,
+          "t": 4.75,
           "text": "Jaipur Sandstone sets pink and honey sandstone side by side, glowing like the city at sunset."
         },
         {
-          "t": 12.12,
+          "t": 12.18,
           "text": "It's a little piece of India on your table."
         },
         {
-          "t": 15.15,
-          "text": "Reach level fifteen to unlock it."
+          "t": 15.13,
+          "text": "It comes with Amber Fort and the Royal Army."
         }
       ]
     },
     "item-boards-ruby-truffle": {
-      "text": "Got a sweet tooth? Ruby Truffle has squares of glossy ruby lacquer and pale praline, divided by thin seams of gold, just like a box of fine truffles. It's rich and cheerful, and it comes with Premium.",
+      "text": "Got a sweet tooth? Ruby Truffle has squares of glossy ruby lacquer and pale praline, divided by thin seams of gold, just like a box of fine truffles. It's rich and cheerful, and it comes with the Fairy-Tale Castle.",
       "cues": [
         {
           "t": 0,
           "text": "Got a sweet tooth?"
         },
         {
-          "t": 1.47,
+          "t": 1.51,
           "text": "Ruby Truffle has squares of glossy ruby lacquer and pale praline, divided by thin seams of gold, just like a box of fine truffles."
         },
         {
-          "t": 11.34,
-          "text": "It's rich and cheerful, and it comes with Premium."
+          "t": 11.41,
+          "text": "It's rich and cheerful, and it comes with the Fairy-Tale Castle."
         }
       ]
     },
@@ -797,57 +797,40 @@
       ]
     },
     "item-boards-harvest-oak": {
-      "text": "Smell that? It's harvest time! Harvest Oak is golden oak with a warm, honey-coloured grain, like a farmhouse table at the end of summer. It's a free reward on the Cocoa Harvest season track, so every player can earn it.",
+      "text": "Smell that? It's harvest time! Harvest Oak is golden oak with a warm, honey-coloured grain, like a farmhouse table at the end of summer. It comes with the Harvest Loft and the Caramel and Cream set.",
       "cues": [
         {
           "t": 0,
           "text": "Smell that?"
         },
         {
-          "t": 1.01,
+          "t": 1.02,
           "text": "It's harvest time!"
         },
         {
-          "t": 2.77,
+          "t": 2.82,
           "text": "Harvest Oak is golden oak with a warm, honey-coloured grain, like a farmhouse table at the end of summer."
         },
         {
-          "t": 10.3,
-          "text": "It's a free reward on the Cocoa Harvest season track, so every player can earn it."
+          "t": 10.2,
+          "text": "It comes with the Harvest Loft and the Caramel and Cream set."
         }
       ]
     },
     "item-boards-cacao-pod": {
-      "text": "Have you ever seen a ripe cacao pod? Cacao Pod paints the board in the warm colours of the pod and the beans inside it, the very beans that become chocolate. It's a cheerful board, and a reward on the Cocoa Harvest season pass.",
+      "text": "Have you ever seen a ripe cacao pod? Cacao Pod paints the board in the warm colours of the pod and the beans inside it, the very beans that become chocolate. It's a cheerful board, and it comes with the Alpine Chalet and the Milk and Dark set.",
       "cues": [
         {
           "t": 0,
           "text": "Have you ever seen a ripe cacao pod?"
         },
         {
-          "t": 2.67,
+          "t": 2.75,
           "text": "Cacao Pod paints the board in the warm colours of the pod and the beans inside it, the very beans that become chocolate."
         },
         {
-          "t": 10.73,
-          "text": "It's a cheerful board, and a reward on the Cocoa Harvest season pass."
-        }
-      ]
-    },
-    "item-boards-single-origin": {
-      "text": "At the very top of the season sits this board. Single Origin uses the darkest wood of all, set in a frame of black marble, like the finest chocolate made from one special farm. It waits at the end of the Cocoa Harvest season pass.",
-      "cues": [
-        {
-          "t": 0,
-          "text": "At the very top of the season sits this board."
-        },
-        {
-          "t": 3.2,
-          "text": "Single Origin uses the darkest wood of all, set in a frame of black marble, like the finest chocolate made from one special farm."
-        },
-        {
-          "t": 12.8,
-          "text": "It waits at the end of the Cocoa Harvest season pass."
+          "t": 10.81,
+          "text": "It's a cheerful board, and it comes with the Alpine Chalet and the Milk and Dark set."
         }
       ]
     },
@@ -1038,48 +1021,48 @@
       ]
     },
     "item-places-library": {
-      "text": "Shh, this is my favourite place to think. The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky. It's quiet, a little magical and perfect for a long game. Reach level four to open its doors.",
+      "text": "Shh, this is my favourite place to think. The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky. It's quiet, a little magical and perfect for a long game. It's yours from the start.",
       "cues": [
         {
           "t": 0,
           "text": "Shh, this is my favourite place to think."
         },
         {
-          "t": 3.65,
+          "t": 3.67,
           "text": "The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky."
         },
         {
-          "t": 10.59,
+          "t": 10.64,
           "text": "It's quiet, a little magical and perfect for a long game."
         },
         {
-          "t": 15.02,
-          "text": "Reach level four to open its doors."
+          "t": 15.1,
+          "text": "It's yours from the start."
         }
       ]
     },
     "item-places-marble-hall": {
-      "text": "Good morning! The Marble Hall is white marble and gold, with sunlight pouring in so everything feels bright and fresh. Every step echoes softly on the polished floor. It's the kind of room where a champion might play. It comes with Premium.",
+      "text": "Good morning! The Marble Hall is white marble and gold, with sunlight pouring in so everything feels bright and fresh. Every step echoes softly on the polished floor. It's the kind of room where a champion might play. Reach level three to open its doors.",
       "cues": [
         {
           "t": 0,
           "text": "Good morning!"
         },
         {
-          "t": 1.01,
+          "t": 1.03,
           "text": "The Marble Hall is white marble and gold, with sunlight pouring in so everything feels bright and fresh."
         },
         {
-          "t": 8.03,
+          "t": 7.91,
           "text": "Every step echoes softly on the polished floor."
         },
         {
-          "t": 11.52,
+          "t": 11.45,
           "text": "It's the kind of room where a champion might play."
         },
         {
-          "t": 14.58,
-          "text": "It comes with Premium."
+          "t": 14.56,
+          "text": "Reach level three to open its doors."
         }
       ]
     },
@@ -1282,6 +1265,400 @@
         {
           "t": 13.99,
           "text": "Skye the Eagle is waiting at the top."
+        }
+      ]
+    },
+    "item-sets-sarsen": {
+      "text": "These pieces look as if giants carved them. Sarsen Stones is rough grey stone, chipped by hand with no polish at all: the king is a little trilithon, two standing stones with one laid across the top. It's the oldest-looking set we have, and it comes with Stonehenge.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "These pieces look as if giants carved them."
+        },
+        {
+          "t": 3.1,
+          "text": "Sarsen Stones is rough grey stone, chipped by hand with no polish at all: the king is a little trilithon, two standing stones with one laid across the top."
+        },
+        {
+          "t": 14.57,
+          "text": "It's the oldest-looking set we have, and it comes with Stonehenge."
+        }
+      ]
+    },
+    "item-sets-harappa": {
+      "text": "Five thousand years ago, potters by the Indus river made toys and seals from clay. Indus Terracotta brings them back: a priest-king, a mother goddess, a granary and little painted jars, in red baked clay with black slip. It comes with Mohenjo-daro.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Five thousand years ago, potters by the Indus river made toys and seals from clay."
+        },
+        {
+          "t": 6.18,
+          "text": "Indus Terracotta brings them back: a priest-king, a mother goddess, a granary and little painted jars, in red baked clay with black slip."
+        },
+        {
+          "t": 16.58,
+          "text": "It comes with Mohenjo-daro."
+        }
+      ]
+    },
+    "item-sets-inca": {
+      "text": "High in the mountains of Peru, the Inca fitted stones so tightly that not even a blade of grass fits between them. Inca Stone is grey stone and gold, with a sun king, a moon queen and doorways shaped like trapezoids. It comes with Machu Picchu.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "High in the mountains of Peru, the Inca fitted stones so tightly that not even a blade of grass fits between them."
+        },
+        {
+          "t": 7.6,
+          "text": "Inca Stone is grey stone and gold, with a sun king, a moon queen and doorways shaped like trapezoids."
+        },
+        {
+          "t": 15.8,
+          "text": "It comes with Machu Picchu."
+        }
+      ]
+    },
+    "item-boards-pearl": {
+      "text": "Look at the squares shimmer! Pearl and Coral is real mother of pearl beside soft coral pink, framed in deep sea-blue lacquer. It belongs under the sea, in the Coral Palace, with the Coral Kingdom set.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Look at the squares shimmer!"
+        },
+        {
+          "t": 1.79,
+          "text": "Pearl and Coral is real mother of pearl beside soft coral pink, framed in deep sea-blue lacquer."
+        },
+        {
+          "t": 8.98,
+          "text": "It belongs under the sea, in the Coral Palace, with the Coral Kingdom set."
+        }
+      ]
+    },
+    "item-boards-lapis": {
+      "text": "This board is a little piece of the night sky. Lapis and Moonstone sets pale moonstone beside deep blue lapis lazuli, with tiny golden stars around the frame. It comes with the Northern Lights and the Celestial Opal set.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This board is a little piece of the night sky."
+        },
+        {
+          "t": 3.2,
+          "text": "Lapis and Moonstone sets pale moonstone beside deep blue lapis lazuli, with tiny golden stars around the frame."
+        },
+        {
+          "t": 12.06,
+          "text": "It comes with the Northern Lights and the Celestial Opal set."
+        }
+      ]
+    },
+    "item-boards-sarsen": {
+      "text": "No polish, no gold, just stone. Sarsen Stone is grey and cream squares chiselled by hand, with every tool mark still there. It's rough, ancient and very strong, and it comes with Stonehenge.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "No polish, no gold, just stone."
+        },
+        {
+          "t": 3.65,
+          "text": "Sarsen Stone is grey and cream squares chiselled by hand, with every tool mark still there."
+        },
+        {
+          "t": 10.14,
+          "text": "It's rough, ancient and very strong, and it comes with Stonehenge."
+        }
+      ]
+    },
+    "item-boards-terracotta": {
+      "text": "Can you see the circles? The potters of the Indus painted them on their jars, and here they are on sun-baked clay squares. Indus Terracotta is warm, earthy and very old, and it comes with Mohenjo-daro.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Can you see the circles?"
+        },
+        {
+          "t": 1.85,
+          "text": "The potters of the Indus painted them on their jars, and here they are on sun-baked clay squares."
+        },
+        {
+          "t": 8.37,
+          "text": "Indus Terracotta is warm, earthy and very old, and it comes with Mohenjo-daro."
+        }
+      ]
+    },
+    "item-boards-andesite": {
+      "text": "The Inca built walls of giant stones, each one cut to fit its neighbours exactly. Andesite Block has grey mountain-stone squares in a frame of fitted blocks, just like those walls. It comes with Machu Picchu.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "The Inca built walls of giant stones, each one cut to fit its neighbours exactly."
+        },
+        {
+          "t": 6.17,
+          "text": "Andesite Block has grey mountain-stone squares in a frame of fitted blocks, just like those walls."
+        },
+        {
+          "t": 12.93,
+          "text": "It comes with Machu Picchu."
+        }
+      ]
+    },
+    "item-places-tokyo": {
+      "text": "Way up high, on a rooftop in Tokyo, there's a secret garden. Cherry trees bloom pink all around you, stone lanterns glow, and the whole city twinkles far below, with Mount Fuji on the horizon. The Robot Squad plays here, on Sakura Lacquer.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Way up high, on a rooftop in Tokyo, there's a secret garden."
+        },
+        {
+          "t": 4.91,
+          "text": "Cherry trees bloom pink all around you, stone lanterns glow, and the whole city twinkles far below, with Mount Fuji on the horizon."
+        },
+        {
+          "t": 14.61,
+          "text": "The Robot Squad plays here, on Sakura Lacquer."
+        }
+      ]
+    },
+    "item-places-brussels": {
+      "text": "Smell the chocolate? This little shop sits on the Grand-Place of Brussels, one of the prettiest squares in the world, with golden guild houses all around and a carpet of flowers outside. Cocoa and Gilt plays here, on Cocoa and Cream.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Smell the chocolate?"
+        },
+        {
+          "t": 1.6,
+          "text": "This little shop sits on the Grand-Place of Brussels, one of the prettiest squares in the world, with golden guild houses all around and a carpet of flowers outside."
+        },
+        {
+          "t": 12.12,
+          "text": "Cocoa and Gilt plays here, on Cocoa and Cream."
+        }
+      ]
+    },
+    "item-places-reef": {
+      "text": "Take a deep breath, we're going under the sea! The Coral Palace is a pearl pavilion on the sea floor, with coral towers, swaying kelp and shoals of fish all around. The Coral Kingdom plays here, on Pearl and Coral.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Take a deep breath, we're going under the sea!"
+        },
+        {
+          "t": 3.15,
+          "text": "The Coral Palace is a pearl pavilion on the sea floor, with coral towers, swaying kelp and shoals of fish all around."
+        },
+        {
+          "t": 11.68,
+          "text": "The Coral Kingdom plays here, on Pearl and Coral."
+        }
+      ]
+    },
+    "item-places-amber": {
+      "text": "Welcome to Amber Fort, high on a hill above Jaipur. The courtyard glows honey gold, a painted gate stands ahead, and little domed pavilions sit on the walls. The Royal Army plays here, on Jaipur Sandstone.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Welcome to Amber Fort, high on a hill above Jaipur."
+        },
+        {
+          "t": 4.24,
+          "text": "The courtyard glows honey gold, a painted gate stands ahead, and little domed pavilions sit on the walls."
+        },
+        {
+          "t": 11.84,
+          "text": "The Royal Army plays here, on Jaipur Sandstone."
+        }
+      ]
+    },
+    "item-places-mysore": {
+      "text": "Every year during Dasara, Mysore Palace lights up with thousands and thousands of little lamps. You're on the lawn, right in front of it, on a warm festival night. The Peacock Court plays here, on Rosewood and Gold Leaf.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every year during Dasara, Mysore Palace lights up with thousands and thousands of little lamps."
+        },
+        {
+          "t": 6.26,
+          "text": "You're on the lawn, right in front of it, on a warm festival night."
+        },
+        {
+          "t": 11.27,
+          "text": "The Peacock Court plays here, on Rosewood and Gold Leaf."
+        }
+      ]
+    },
+    "item-places-greatwall": {
+      "text": "The Great Wall of China runs for thousands of kilometres over the mountains. You're on top of a watchtower, with the wall winding away into the green hills and red lanterns by your table. Jade and Onyx plays here, on Emerald and Ivory.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "The Great Wall of China runs for thousands of kilometres over the mountains."
+        },
+        {
+          "t": 4.77,
+          "text": "You're on top of a watchtower, with the wall winding away into the green hills and red lanterns by your table."
+        },
+        {
+          "t": 11.98,
+          "text": "Jade and Onyx plays here, on Emerald and Ivory."
+        }
+      ]
+    },
+    "item-places-swiss": {
+      "text": "Brr, it's snowy outside! Come into the warm wooden chalet. Through the big window you can see the Matterhorn, the most famous mountain in the Alps, and a little village under the snow. Milk and Dark plays here, on Cacao Pod.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Brr, it's snowy outside!"
+        },
+        {
+          "t": 2.8,
+          "text": "Come into the warm wooden chalet."
+        },
+        {
+          "t": 5.41,
+          "text": "Through the big window you can see the Matterhorn, the most famous mountain in the Alps, and a little village under the snow."
+        },
+        {
+          "t": 13.0,
+          "text": "Milk and Dark plays here, on Cacao Pod."
+        }
+      ]
+    },
+    "item-places-dubai": {
+      "text": "Up, up, up! This lounge is high above Dubai at sunset, and right outside the window stands the tallest building in the whole world. The desert glows pink beyond the city. Gold and Platinum plays here, on Gilded Ebony.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Up, up, up!"
+        },
+        {
+          "t": 1.69,
+          "text": "This lounge is high above Dubai at sunset, and right outside the window stands the tallest building in the whole world."
+        },
+        {
+          "t": 9.27,
+          "text": "The desert glows pink beyond the city."
+        },
+        {
+          "t": 12.45,
+          "text": "Gold and Platinum plays here, on Gilded Ebony."
+        }
+      ]
+    },
+    "item-places-crystal": {
+      "text": "In 1851, London built a palace made almost entirely of glass, so big that whole trees grew inside it. Under its shining roof are palms, statues and a fountain of crystal. The Crystal Jewels play here, on Obsidian Glass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "In 1851, London built a palace made almost entirely of glass, so big that whole trees grew inside it."
+        },
+        {
+          "t": 8.45,
+          "text": "Under its shining roof are palms, statues and a fountain of crystal."
+        },
+        {
+          "t": 13.58,
+          "text": "The Crystal Jewels play here, on Obsidian Glass."
+        }
+      ]
+    },
+    "item-places-aurora": {
+      "text": "Look up! On a winter night in Iceland, green and purple lights dance across the sky. They're called the northern lights. You're on a frozen lake, with glowing glass huts on the shore. Celestial Opal plays here, on Lapis and Moonstone.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Look up!"
+        },
+        {
+          "t": 0.83,
+          "text": "On a winter night in Iceland, green and purple lights dance across the sky."
+        },
+        {
+          "t": 6.2,
+          "text": "They're called the northern lights."
+        },
+        {
+          "t": 8.47,
+          "text": "You're on a frozen lake, with glowing glass huts on the shore."
+        },
+        {
+          "t": 12.77,
+          "text": "Celestial Opal plays here, on Lapis and Moonstone."
+        }
+      ]
+    },
+    "item-places-castle": {
+      "text": "Once upon a time, a king built a castle that looked just like a fairy tale. There it is, white with blue towers, high on its rock above the forest, with the Alps behind. Ruby Chocolate plays here, on Ruby Truffle.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Once upon a time, a king built a castle that looked just like a fairy tale."
+        },
+        {
+          "t": 5.23,
+          "text": "There it is, white with blue towers, high on its rock above the forest, with the Alps behind."
+        },
+        {
+          "t": 12.53,
+          "text": "Ruby Chocolate plays here, on Ruby Truffle."
+        }
+      ]
+    },
+    "item-places-stonehenge": {
+      "text": "Shh, the sun is coming up. You're inside Stonehenge, a giant circle of stones raised by people more than four thousand years ago. Nobody knows exactly how they did it! The Sarsen Stones play here, on a board of rough stone.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Shh, the sun is coming up."
+        },
+        {
+          "t": 2.87,
+          "text": "You're inside Stonehenge, a giant circle of stones raised by people more than four thousand years ago."
+        },
+        {
+          "t": 10.24,
+          "text": "Nobody knows exactly how they did it!"
+        },
+        {
+          "t": 12.89,
+          "text": "The Sarsen Stones play here, on a board of rough stone."
+        }
+      ]
+    },
+    "item-places-indus": {
+      "text": "This is Mohenjo-daro, one of the very first cities in the world. It had straight streets, brick houses, wells and even a great public bath, right there ahead of you. The Indus Terracotta set plays here, on a board of baked clay.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This is Mohenjo-daro, one of the very first cities in the world."
+        },
+        {
+          "t": 4.51,
+          "text": "It had straight streets, brick houses, wells and even a great public bath, right there ahead of you."
+        },
+        {
+          "t": 11.91,
+          "text": "The Indus Terracotta set plays here, on a board of baked clay."
+        }
+      ]
+    },
+    "item-places-inca": {
+      "text": "Up in the clouds of Peru sits Machu Picchu, a city of stone the Inca built on a mountain top. Green terraces step down the slopes, llamas wander about, and a tall peak rises straight ahead. The Inca Stone set plays here.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Up in the clouds of Peru sits Machu Picchu, a city of stone the Inca built on a mountain top."
+        },
+        {
+          "t": 6.62,
+          "text": "Green terraces step down the slopes, llamas wander about, and a tall peak rises straight ahead."
+        },
+        {
+          "t": 13.74,
+          "text": "The Inca Stone set plays here."
         }
       ]
     }

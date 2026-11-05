@@ -171,6 +171,48 @@ function ChacklateAudio() {
     // ninth chords and a blue note, late at night
     deco: { chords: [[36, 47, 52, 55, 62], [33, 43, 48, 52, 59], [38, 48, 53, 57, 64], [31, 41, 47, 52, 57]],
       scale: [60, 62, 63, 64, 67, 69, 72, 74, 75, 76], voice: 'ep', every: 7000 },
+    // in-sen: a Japanese five-note scale, light and high
+    tokyo: { chords: [[40, 47, 52, 57, 59], [45, 52, 57, 59, 64], [41, 48, 53, 57, 60], [40, 47, 52, 53, 59]],
+      scale: [64, 65, 69, 71, 72, 76, 77, 81, 83, 84], voice: 'guzheng', every: 8000 },
+    // F major, a chocolate shop waltz
+    brussels: { chords: [[41, 48, 53, 57, 64], [38, 45, 50, 53, 60], [34, 46, 50, 53, 58], [36, 48, 52, 55, 58]],
+      scale: [65, 67, 69, 70, 72, 74, 76, 77, 79, 81], voice: 'celesta', every: 7500 },
+    // E lydian, floating under the sea
+    reef: { chords: [[40, 52, 56, 59, 63], [42, 54, 58, 61, 64], [37, 49, 52, 56, 59], [40, 52, 58, 59, 66]],
+      scale: [64, 66, 68, 70, 71, 73, 75, 76, 78, 80], voice: 'harp', every: 9000 },
+    // raga bhairav at a desert fort
+    amber: { chords: [[36, 43, 48, 55, 61], [36, 43, 49, 55, 60], [36, 43, 48, 52, 59], [36, 43, 47, 53, 60]],
+      scale: [60, 61, 64, 65, 67, 68, 71, 72, 73, 76], voice: 'sitar', every: 9000 },
+    // raga kalyani, festive and bright
+    mysore: { chords: [[38, 45, 50, 57, 66], [38, 45, 50, 56, 61], [38, 45, 49, 57, 64], [38, 45, 50, 59, 66]],
+      scale: [61, 62, 64, 66, 68, 69, 71, 73, 74, 76], voice: 'sitar', every: 8500 },
+    // open fifths over the mountains
+    greatwall: { chords: [[31, 38, 43, 50, 57], [36, 43, 48, 55, 62], [33, 40, 45, 52, 59], [31, 38, 45, 50, 55]],
+      scale: [62, 64, 67, 69, 71, 74, 76, 79, 81, 83], voice: 'guzheng', every: 9000 },
+    // a slow Alpine song in D
+    swiss: { chords: [[38, 50, 54, 57, 62], [43, 50, 55, 59, 62], [45, 52, 57, 61, 64], [38, 50, 54, 57, 66]],
+      scale: [62, 64, 66, 67, 69, 71, 73, 74, 76, 78], voice: 'horn', every: 8000 },
+    // D hijaz kar, warm desert night
+    dubai: { chords: [[38, 45, 50, 54, 57], [38, 46, 51, 54, 58], [38, 45, 50, 53, 61], [38, 46, 50, 55, 58]],
+      scale: [62, 63, 66, 67, 69, 70, 73, 74, 75, 78], voice: 'harp', every: 8500 },
+    // bright and glassy, C major sevenths
+    crystal: { chords: [[36, 48, 52, 59, 64], [41, 48, 53, 57, 64], [43, 50, 55, 59, 66], [45, 52, 57, 60, 67]],
+      scale: [72, 74, 76, 79, 81, 83, 84, 86, 88, 91], voice: 'celesta', every: 8000 },
+    // slow and wide, under the northern lights
+    aurora: { chords: [[33, 45, 52, 59, 64], [29, 41, 48, 55, 64], [36, 48, 55, 59, 67], [31, 43, 50, 57, 62]],
+      scale: [64, 67, 69, 71, 72, 74, 76, 79, 81, 83], voice: 'ep', every: 10000 },
+    // a fairy-tale in B flat
+    castle: { chords: [[34, 46, 50, 53, 58], [39, 46, 51, 55, 58], [41, 48, 53, 57, 60], [31, 43, 50, 55, 58]],
+      scale: [70, 72, 74, 75, 77, 79, 81, 82, 84, 86], voice: 'harp', every: 7500 },
+    // a drone and a horn call at dawn
+    stonehenge: { chords: [[33, 40, 45, 52, 57], [33, 40, 45, 50, 57], [33, 40, 43, 52, 55], [33, 40, 45, 52, 59]],
+      scale: [57, 60, 62, 64, 67, 69, 72, 74, 76, 79], voice: 'horn', every: 10000 },
+    // a drone and an old pentatonic tune
+    indus: { chords: [[36, 43, 48, 55, 60], [36, 43, 50, 55, 62], [36, 43, 48, 53, 57], [36, 43, 47, 55, 59]],
+      scale: [60, 62, 65, 67, 69, 72, 74, 77, 79, 81], voice: 'lyre', every: 9500 },
+    // Andean pentatonic in A minor
+    inca: { chords: [[33, 45, 52, 57, 60], [36, 48, 52, 55, 60], [31, 43, 50, 55, 59], [28, 40, 47, 52, 55]],
+      scale: [57, 60, 62, 64, 67, 69, 72, 74, 76, 79], voice: 'lyre', every: 8500 },
   };
   let mood = MOODS.salon;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
