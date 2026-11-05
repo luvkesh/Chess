@@ -68,6 +68,11 @@ function ChacklateScene(canvas, options) {
   // starts at 1x resolution and only lowers it further.
   const PERF_DPR = { high: [1.75, 1.5, 1.25, 1, 1, 0.85], low: [1, 1, 0.85, 0.75, 0.75, 0.75] };
   const MAX_PERF = 5;
+  // Small screens with dense pixels (phones) cost little per CSS pixel, so a flat scale like
+  // 1.25 leaves a 3x phone soft. Each level also has a budget of drawn pixels: a small canvas
+  // may go above PERF_DPR until it reaches the budget (never above the screen's own ratio).
+  // A desktop window is already past the budget, so it keeps PERF_DPR.
+  const PERF_PIXELS = { high: [3.0e6, 2.2e6, 1.6e6, 1.1e6, 0.9e6, 0.7e6], low: [0, 0, 0, 0, 0, 0] };
   let perf = (() => {
     const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     const cores = navigator.hardwareConcurrency || 4, mem = navigator.deviceMemory || 8;
@@ -1555,8 +1560,9 @@ function ChacklateScene(canvas, options) {
   // ------------------------------------------------------------------ sizing
   let lastW = 0, lastH = 0;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, fullDetail ? 2 : PERF_DPR[quality][perf]);
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
+    const fit = Math.sqrt(PERF_PIXELS[quality][lvl()] / (w * h));
+    const dpr = Math.round(Math.min(window.devicePixelRatio || 1, Math.max(fullDetail ? 2 : PERF_DPR[quality][perf], fit)) * 8) / 8;
     if (w !== lastW || h !== lastH || renderer.getPixelRatio() !== dpr) {
       lastW = w; lastH = h;
       renderer.setPixelRatio(dpr);
