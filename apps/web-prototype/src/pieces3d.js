@@ -3490,6 +3490,179 @@ function ChacklatePieces(THREE, K) {
     },
   };
 
+  // ------------------------------------------------------------------ Norse Carved (wood)
+  // Whittled in birch and bog oak by the fire in a Norse hall: stacked, turned shapes with
+  // knife-cut rings, a hammer for the king, a dragon-prow knight and toadstool pawns.
+  function norseBase(p, R, top, k) {
+    k = k || 1;
+    return p.line(R, 0).line(R, 0.05 * k).line(R * 0.9, 0.065 * k).line(R * 0.9, 0.1 * k).line(top + 0.03, 0.12 * k).line(top, 0.14 * k);
+  }
+  const knife = (y0, y1, n) => MOD.rope(n || 6, 0.22, y0, y1, 1.2);
+  // tiers turned one on another, like the stacked pieces in old Norse sets
+  function tiers(p, r0, y0, n, h, shrink) {
+    let r = r0, y = y0;
+    for (let i = 0; i < n; i++) { p.line(r * 1.18, y + h * 0.15).line(r * 1.18, y + h * 0.45).line(r * 0.8, y + h * 0.6).line(r * 0.8, y + h); r *= shrink; y += h; }
+    return { p, y, r };
+  }
+  const NORSE = {
+    k() {
+      const P = new Piece();
+      const t = tiers(norseBase(profile(0, 0), 0.34, 0.16).line(0.13, 0.5), 0.13, 0.5, 3, 0.1, 0.86);
+      t.p.line(0.07, t.y + 0.04).line(0, t.y + 0.04);
+      hewnLathe(P, 'body', t.p, { mod: knife(0.14, 0.48) }, 0.0025, 51);
+      // Mjolnir, Thor's hammer, standing on the king's head
+      P.add('trim', new THREE.CylinderGeometry(0.024, 0.026, 0.16, 10).translate(0, t.y + 0.12, 0));
+      P.add('trim', hewn(new THREE.BoxGeometry(0.2, 0.09, 0.1, 3, 2, 2).translate(0, t.y + 0.24, 0), 0.004, 52));
+      P.add('accent', ring(0.12, 0.3, 0.008, { seg: 32 }));
+      return P;
+    },
+    q() {
+      const P = new Piece();
+      const t = tiers(norseBase(profile(0, 0), 0.33, 0.15).line(0.12, 0.46), 0.12, 0.46, 3, 0.09, 0.84);
+      t.p.curve([[0.09, t.y + 0.06], [0.06, t.y + 0.1], [0, t.y + 0.11]]);
+      hewnLathe(P, 'body', t.p, { mod: knife(0.14, 0.44) }, 0.0025, 53);
+      // a circlet of carved leaves
+      P.add('trim', pointedCrown(0.085, t.y - 0.02, 6, 0.08, { flare: 0.2, w: 0.9 }));
+      P.add('accent', ring(0.115, 0.28, 0.008, { seg: 32 }));
+      return P;
+    },
+    b() {
+      const P = new Piece();
+      const t = tiers(norseBase(profile(0, 0), 0.3, 0.13).line(0.1, 0.36), 0.1, 0.36, 2, 0.1, 0.8);
+      t.p.curve([[0.09, t.y + 0.08], [0.05, t.y + 0.18], [0, t.y + 0.24]]);
+      hewnLathe(P, 'body', t.p, { mod: knife(0.13, 0.34, 5) }, 0.0025, 54);
+      // a rune cut into the cap: Tiwaz, the arrow
+      P.add('accent', extrude([[0, 0.07], [0.04, 0.03], [0.03, 0.022], [0.007, 0.045], [0.007, -0.03], [-0.007, -0.03], [-0.007, 0.045], [-0.03, 0.022], [-0.04, 0.03]], 0.012, 0.002).translate(0, t.y + 0.07, 0.072));
+      return P;
+    },
+    n() {
+      const P = new Piece();
+      hewnLathe(P, 'body', norseBase(profile(0, 0), 0.31, 0.2).line(0.2, 0.3).line(0, 0.3), { mod: knife(0.12, 0.3, 8) }, 0.0025, 55);
+      P.add('body', horse({ base: 0.3, mane: 'carved', seed: 59, form: { tuck: 0.34, neck: 0.14, girth: 0.88, reach: 0.22, ears: 0.38, headW: 0.94, nose: 0.024 } }).body);
+      return P;
+    },
+    r() {
+      const P = new Piece();
+      // a stacked tower like a longhouse roof seen end on: four tiers and a little ridge
+      const t = tiers(norseBase(profile(0, 0), 0.32, 0.17).line(0.15, 0.24), 0.15, 0.24, 4, 0.1, 0.9);
+      t.p.line(0.06, t.y + 0.03).line(0, t.y + 0.03);
+      hewnLathe(P, 'body', t.p, { mod: MOD.facets(8, 0.14, t.y, 0.25) }, 0.003, 56);
+      return P;
+    },
+    p() {
+      const P = new Piece();
+      // a toadstool: a short stem and a round cap
+      const p = norseBase(profile(0, 0), 0.26, 0.09, 0.8).line(0.07, 0.24).line(0.08, 0.26)
+        .curve([[0.15, 0.27], [0.17, 0.31], [0.14, 0.37], [0.07, 0.4], [0, 0.41]]);
+      hewnLathe(P, 'body', p, {}, 0.002, 57);
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Gods of Sounion (statues)
+  // Little statues as at the temple of Poseidon on Cape Sounion: a hoplite with spear and
+  // shield, a fluted column, a breaking wave, a rearing horse, a draped goddess and the sea god
+  // with his trident. White is Parian marble, black green-bronze.
+  function sounionBase(P, R, h) {
+    P.lathe('body', profile(0, 0).line(R - 0.012, 0).arc(R, 0.014, 0.3).line(R, 0.03).line(R - 0.02, 0.04).line(R - 0.03, h - 0.012).arc(R - 0.04, h, 0.35).line(0, h));
+    P.add('trim', keyBand(R - 0.002, 0.008, 0.02, Math.round(R * 60), 0.004, 0.003));
+    return h;
+  }
+  const SOUNION = {
+    k() {
+      const P = new Piece(), y0 = sounionBase(P, 0.34, 0.1), s = 1.14, A = at([0, y0, 0], s);
+      const body = new Sculpt(0.018, 1.2), robe = new Sculpt(0.02, 1.3);
+      robe.floor = y0 - 0.004;
+      robe.cone(A(0, 0, 0), A(0, 0.4, 0), 0.15 * s, 0.09 * s, 0.03);                       // a himation round the legs
+      robe.cone(A(0.06, 0.42, 0.02), A(-0.09, 0.66, -0.01), 0.04 * s, 0.035 * s, 0.03);       // over one shoulder
+      body.ell(A(0, 0.55, 0.01), [0.1 * s, 0.14 * s, 0.075 * s], 0.04);                        // a strong bare chest
+      body.pair((x) => body.ell(A(x * 0.1, 0.67, 0), [0.045 * s, 0.04 * s, 0.045 * s], 0.03));
+      body.cone(A(0, 0.69, 0), A(0, 0.75, 0.004), 0.034 * s, 0.032 * s, 0.01);
+      const hd = head(body, A(0, 0.82, 0.008), 0.064 * s, { beard: 0.9, moustache: true });
+      body.ell(A(0, 0.85, -0.012), [0.07 * s, 0.07 * s, 0.066 * s], 0.014);                      // thick curled hair
+      arm(body, body, A(-0.11, 0.66, 0), A(-0.17, 0.75, 0.02), A(-0.16, 0.9, 0.04), 0.028 * s);   // arm raised with the trident
+      arm(body, body, A(0.11, 0.66, 0), A(0.15, 0.52, 0.03), A(0.12, 0.42, 0.06), 0.028 * s);
+      P.add('body', body.mesh()); P.add('cloth', robe.mesh()); eyes(P, hd);
+      // the trident
+      const tp = A(-0.16, 0.9, 0.04);
+      P.add('trim', new THREE.CylinderGeometry(0.008 * s, 0.008 * s, 0.86 * s, 8).translate(tp[0], y0 + 0.43 * s, tp[2]));
+      const fork = [];
+      for (const dx of [-0.05, 0, 0.05]) fork.push(new THREE.ConeGeometry(0.011 * s, 0.09 * s, 6).translate(tp[0] + dx * s, y0 + 0.97 * s, tp[2]), new THREE.CylinderGeometry(0.006 * s, 0.006 * s, 0.06 * s, 6).translate(tp[0] + dx * s, y0 + 0.9 * s, tp[2]));
+      fork.push(new THREE.BoxGeometry(0.11 * s, 0.012 * s, 0.012 * s).translate(tp[0], y0 + 0.87 * s, tp[2]));
+      P.add('trim', merge(fork));
+      return turnPiece(P, 0.4);
+    },
+    q() {
+      const P = new Piece(), y0 = sounionBase(P, 0.33, 0.1), s = 1.08, A = at([0, y0, 0], s);
+      const skin = new Sculpt(), gown = new Sculpt(0.025, 1.2);
+      gown.floor = y0 - 0.004;
+      // a long peplos falling in folds
+      P.lathe('cloth', profile(0, y0).line(0.15 * s, y0).curve([[0.148 * s, y0 + 0.08 * s], [0.12 * s, y0 + 0.26 * s], [0.08 * s, y0 + 0.44 * s], [0.06 * s, y0 + 0.5 * s]]).line(0, y0 + 0.5 * s), { mod: MOD.flutes(18, 0.12, y0 + 0.01, y0 + 0.46 * s, { soft: true, end: 0.03 }) });
+      gown.ell(A(0, 0.55, 0.004), [0.058 * s, 0.1 * s, 0.046 * s], 0.03);
+      gown.pair((x) => gown.ell(A(x * 0.068, 0.62, 0), [0.03 * s, 0.026 * s, 0.03 * s], 0.025));
+      skin.cone(A(0, 0.62, 0.004), A(0, 0.685, 0.006), 0.026 * s, 0.024 * s, 0.01);
+      const hd = head(skin, A(0, 0.74, 0.01), 0.055 * s);
+      // a veil over her hair, falling to her shoulders
+      gown.cone(A(0, 0.78, -0.012), A(0, 0.6, -0.05), 0.064 * s, 0.07 * s, 0.02);
+      arm(gown, skin, A(-0.07, 0.62, 0), A(-0.09, 0.53, 0.05), A(-0.02, 0.6, 0.07), 0.022 * s);   // hand at her breast
+      arm(gown, skin, A(0.07, 0.62, 0), A(0.1, 0.5, 0.02), A(0.09, 0.4, 0.05), 0.022 * s);
+      P.add('cloth', gown.mesh()); P.add('body', skin.mesh()); eyes(P, hd);
+      P.add('trim', ring(0.052 * s, y0 + 0.8 * s, 0.006 * s));
+      return turnPiece(P, -0.35);
+    },
+    b() {
+      const P = new Piece(), y0 = sounionBase(P, 0.3, 0.09);
+      // a breaking wave: a curling crest over a hollow, with a fringe of foam
+      const pts = [];
+      for (let i = 0; i <= 30; i++) { const t = i / 30, a = t * Math.PI * 1.45; pts.push([0, y0 + 0.02 + Math.sin(a) * 0.3 * (0.6 + t * 0.6) + t * 0.32, -0.08 + Math.cos(a) * -0.16 * (0.5 + t * 0.7)]); }
+      P.add('body', K.tube(pts, 0.09, { segs: 48, radial: 14, radiusAt: (t) => mix(1.2, 0.35, t) }));
+      P.add('body', new THREE.CylinderGeometry(0.12, 0.17, 0.12, 24).translate(0, y0 + 0.06, 0));
+      const foam = [];
+      for (let i = 0; i < 9; i++) { const t = 0.55 + i * 0.05, a = t * Math.PI * 1.45; foam.push(sphere(0.022 + (i % 3) * 0.006, (i % 2 ? 0.03 : -0.03), y0 + 0.02 + Math.sin(a) * 0.3 * (0.6 + t * 0.6) + t * 0.32 + 0.04, -0.08 + Math.cos(a) * -0.16 * (0.5 + t * 0.7), 10)); }
+      P.add('trim', merge(foam));
+      return turnPiece(P, Math.PI / 2);
+    },
+    n() {
+      const P = new Piece();
+      P.lathe('body', profile(0, 0).line(0.29, 0).arc(0.3, 0.014, 0.3).line(0.3, 0.03).line(0.21, 0.06).line(0.2, 0.3).line(0, 0.3));
+      P.add('trim', keyBand(0.298, 0.008, 0.02, 18, 0.004, 0.003));
+      P.add('body', horse({ base: 0.3, mane: 'flow', seed: 61, form: { tuck: -0.3, neck: 0.18, lean: 0.16, reach: 0.12, chest: 0.2, ears: 0.26 } }).body);
+      return P;
+    },
+    r() {
+      const P = new Piece(), top = 0.92;
+      // a Doric column on a square plinth, with its echinus and abacus
+      const p = profile(0, 0).line(0.3, 0).line(0.3, 0.08).line(0.2, 0.09).line(0.2, 0.12).line(0.17, 0.13)
+        .line(0.15, top - 0.12).line(0.16, top - 0.1).curve([[0.2, top - 0.06], [0.22, top - 0.03]]).line(0.22, top).line(0, top);
+      P.lathe('body', p, { mod: mods([MOD.facets(4, 0, 0.085, 0.05), MOD.flutes(20, 0.09, 0.14, top - 0.12, { end: 0.02 }), MOD.facets(4, top - 0.03, top, 0.02)]) });
+      return P;
+    },
+    p() {
+      const P = new Piece(), y0 = sounionBase(P, 0.26, 0.07), s = 0.62, A = at([0, y0, 0], s);
+      // a hoplite: crested helmet, round shield and spear
+      const body = new Sculpt(0.016, 1.1);
+      body.floor = y0 - 0.004;
+      body.pair((x) => body.cone(A(x * 0.05, 0, 0), A(x * 0.045, 0.3, 0), 0.04 * s, 0.05 * s, 0.02));
+      body.cone(A(0, 0.28, 0), A(0, 0.4, 0), 0.11 * s, 0.09 * s, 0.03);
+      body.ell(A(0, 0.55, 0.01), [0.1 * s, 0.14 * s, 0.07 * s], 0.04);
+      body.cone(A(0, 0.69, 0), A(0, 0.75, 0.004), 0.034 * s, 0.032 * s, 0.01);
+      const c = A(0, 0.82, 0.008);
+      body.ell(c, [0.064 * s * 0.92, 0.064 * s, 0.064 * s * 0.95], 0.01);
+      arm(body, body, A(0.1, 0.66, 0), A(0.15, 0.55, 0.04), A(0.13, 0.62, 0.1), 0.026 * s);
+      arm(body, body, A(-0.1, 0.66, 0), A(-0.15, 0.55, 0.04), A(-0.14, 0.5, 0.1), 0.026 * s);
+      P.add('body', body.mesh());
+      const hm = helmet(c, 0.064 * s, { crest: true, tall: 1.1 });
+      P.add('trim', hm.metal); if (hm.crest) P.add('accent', hm.crest);
+      const sh = shield(0.17 * s, 0.03);
+      for (const g of [sh.face, sh.rim, sh.boss]) g.translate(-0.1 * s, y0 + 0.5 * s, 0.14 * s);
+      P.add('trim', merge([sh.face, sh.rim])); P.add('accent', sh.boss);
+      const sp = spear(0.9 * s, 0.006);
+      for (const g of [sp.shaft, sp.head]) g.translate(0.13 * s, y0 + 0.08 * s, 0.1 * s);
+      P.add('trim', merge([sp.shaft, sp.head]));
+      return turnPiece(P, 0.3);
+    },
+  };
+
   // ------------------------------------------------------------------ era materials
   const phys = (key, o) => K.material('p:' + key, () => new THREE.MeshPhysicalMaterial(o));
   const MATS = {
@@ -3882,6 +4055,39 @@ function ChacklatePieces(THREE, K) {
       },
       pieces: INCA,
       mats: (side) => Object.assign(side === 'w' ? { body: raw('granite', TEX.stone('#cdc8bc', '#8a867c', { scale: 4, cloud: 0.35, speckMix: 0.6 })) } : { body: raw('andesite', TEX.stone('#4c4a48', '#86827a', { scale: 4, cloud: 0.35, speckMix: 0.6 })) }, { trim: MAT.gold('#d8a848') }),
+    },
+    norse: {
+      id: 'norse', name: 'Norse Carved', era: 'The Viking Age', year: 'c. 900',
+      tint: '#5a3a22',
+      story: 'Whittled by the fire in a Norse longhouse, the way old sets were made through the long northern winters. Pale birch faces smoked bog oak, each piece turned in stacked rings and cut with a knife.',
+      lore: {
+        k: 'His crown is Mjolnir, the hammer of Thor, who kept the farms and the sailors safe.',
+        q: 'A circlet of carved leaves for the lady of the hall, who held its keys.',
+        b: 'Its cap carries Tiwaz, the arrow rune, cut with the tip of the knife.',
+        n: 'A horse with a carved mane, like the beasts on the prows of the longships.',
+        r: 'Four tiers, stacked like the roofs of a longhouse seen end on.',
+        p: 'A little toadstool from the forest floor.',
+      },
+      pieces: NORSE,
+      mats: (side) => (side === 'w'
+        ? { body: raw('birch', TEX.wood('#e6d2ae', '#b89466', { lines: 26, contrast: 0.42, figure: 0.12, seed: 21 }), { roughness: 0.7 }), trim: raw('birch-dark', TEX.wood('#b8905e', '#7a5a34', { lines: 20, contrast: 0.4, seed: 22 }), { roughness: 0.75 }), accent: MAT.bronze() }
+        : { body: raw('bogoak', TEX.wood('#4a3424', '#1e140c', { lines: 26, contrast: 0.5, figure: 0.12, seed: 23 }), { roughness: 0.65 }), trim: raw('bogoak-dark', TEX.wood('#2a1c12', '#0e0906', { lines: 20, contrast: 0.4, seed: 24 }), { roughness: 0.7 }), accent: MAT.bronze() }),
+    },
+    sounion: {
+      id: 'sounion', name: 'Gods of Sounion', era: 'Classical Greece', year: 'c. 440 BC', tint: '#2e6a5a',
+      story: 'Little statues for the temple of Poseidon on Cape Sounion, high above the Aegean. White is cut from Parian marble; black is cast in bronze that the sea air has turned green.',
+      lore: {
+        k: 'Poseidon, god of the sea, raising his trident over the waves.',
+        q: 'A goddess in a long peplos, her veil falling to her shoulders.',
+        b: 'A breaking wave, curling over in white foam.',
+        n: 'A horse rearing up. Poseidon gave the first horse to Athens, the stories say.',
+        r: 'A Doric column, like the sixteen still standing on the cape.',
+        p: 'A hoplite with his crested helmet, round shield and spear.',
+      },
+      pieces: SOUNION,
+      mats: (side) => (side === 'w'
+        ? { body: MAT.stone(TEX.marble('#f4f0e8', '#c8beac', { scale: 2, strength: 0.3 }), { roughness: 0.4, clearcoat: 0.3 }), cloth: MAT.stone(TEX.marble('#ece6da', '#bcb2a0', { scale: 2, strength: 0.3 }), { roughness: 0.45, clearcoat: 0.2 }), trim: MAT.gold('#d8b060'), accent: MAT.gold('#d8b060'), eye: MAT.matte('#8a8478') }
+        : { body: phys('verdigris', { map: TEX.stone('#3e7a66', '#8a6a3a', { scale: 5, cloud: 0.5, speckMix: 0.4 }), metalness: 0.55, roughness: 0.5, clearcoat: 0.2 }), cloth: phys('verdigris-2', { map: TEX.stone('#2e6a58', '#6a5a30', { scale: 5, cloud: 0.5, speckMix: 0.4 }), metalness: 0.5, roughness: 0.55 }), trim: MAT.bronze(), accent: MAT.bronze(), eye: MAT.matte('#1a2a24') }),
     },
   });
 

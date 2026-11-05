@@ -213,6 +213,12 @@ function ChacklateAudio() {
     // Andean pentatonic in A minor
     inca: { chords: [[33, 45, 52, 57, 60], [36, 48, 52, 55, 60], [31, 43, 50, 55, 59], [28, 40, 47, 52, 55]],
       scale: [57, 60, 62, 64, 67, 69, 72, 74, 76, 79], voice: 'lyre', every: 8500 },
+    // a low drone and a slow northern tune on the horn, by the fire
+    norse: { chords: [[26, 38, 45, 50, 57], [26, 38, 45, 48, 55], [24, 36, 43, 48, 55], [26, 38, 45, 50, 53]],
+      scale: [50, 53, 55, 57, 60, 62, 65, 67, 69, 72], voice: 'horn', every: 9000 },
+    // the lyre in the Dorian mode, over the sea
+    sounion: { chords: [[38, 50, 57, 62, 65], [36, 48, 55, 60, 64], [41, 48, 53, 57, 62], [43, 50, 55, 59, 62]],
+      scale: [62, 64, 65, 67, 69, 71, 72, 74, 76, 77], voice: 'lyre', every: 8000 },
   };
   let mood = MOODS.salon;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);

@@ -190,6 +190,10 @@ function ChacklateWorld(THREE, K) {
     sarsen: { name: 'Sarsen Stone', field: { type: 'chisel', light: '#cfc8b4', dark: '#7a7464' }, frame: { type: 'raw', color: '#8a8472', speck: '#5a5648' }, inlay: '#4a4638', label: '#3a3628', raw: true },
     terracotta: { name: 'Indus Terracotta', field: { type: 'clay', light: '#e2b88c', dark: '#9a4a2a' }, frame: { type: 'raw', color: '#a8643a', speck: '#6a3420', clay: true }, inlay: '#2a140a', label: '#2a140a', raw: true },
     andesite: { name: 'Andesite Block', field: { type: 'chisel', light: '#c4beb2', dark: '#6a6660', seed: 23 }, frame: { type: 'raw', color: '#76726a', speck: '#4a4640', polygonal: true }, inlay: '#3a3630', label: '#2e2a26', raw: true },
+    // Norse Carved's: birch and bog oak in a frame carved with knotwork, matt like a well-used table
+    runewood: { name: 'Runewood', field: { type: 'wood', light: '#d8b47e', dark: '#4a2e1a', woodDark: { lines: 22, contrast: 0.7, warp: 2.2 }, woodLight: { lines: 34, contrast: 0.45 } }, frame: { type: 'wood', color: '#5a3820', grainLight: '#8a5a32' }, inlay: '#2a180c', label: '#f2dcb4', raw: true, motif: 'knot' },
+    // Gods of Sounion's: pale ash and dark wenge planks in a Pentelic marble frame with a bronze key
+    agora: { name: 'Ash and Wenge', field: { type: 'wood', light: '#e8dcc4', dark: '#3e2e28', woodDark: { lines: 40, contrast: 0.5 }, woodLight: { lines: 50, contrast: 0.25 } }, frame: { type: 'marble', color: '#ece6da', vein: '#b8ae9c' }, inlay: '#a8763a', label: '#4a3420', rim: 'bronze', motif: 'meander' },
   };
   function frameTexture(b, side) {
     const N = 2048, c = canvas(N), g = c.getContext('2d');
@@ -266,6 +270,22 @@ function ChacklateWorld(THREE, K) {
     }
     // era bands
     if (b.motif === 'meander') { g.strokeStyle = b.inlay; g.lineWidth = 5; for (const s of [-1, 1]) { meander(g, px(-3.7), px(s * 4.45) - 18, px(3.7) - px(-3.7), 24, true); meander(g, px(s * 4.45) - 18, px(-3.7), px(3.7) - px(-3.7), 24, false); } }
+    if (b.motif === 'knot') {
+      // interlace carved into the wood: two strands weaving along every side, cut dark with a
+      // lit edge, broken at each corner by a ring knot
+      for (const s2 of [-1, 1]) for (const horiz of [true, false]) {
+        const at2 = (u, w) => (horiz ? [px(u), px(s2 * 4.45) + w] : [px(s2 * 4.45) + w, px(u)]);
+        for (const [ph, col] of [[0, 'rgba(20,10,4,0.75)'], [Math.PI, 'rgba(20,10,4,0.75)']]) {
+          g.strokeStyle = col; g.lineWidth = 9; g.beginPath();
+          for (let k2 = 0; k2 <= 200; k2++) { const u = -3.7 + k2 / 200 * 7.4, [x, y] = at2(u, Math.sin(u * 5.2 + ph) * 26); k2 ? g.lineTo(x, y) : g.moveTo(x, y); }
+          g.stroke();
+          g.strokeStyle = 'rgba(255,230,190,0.22)'; g.lineWidth = 3; g.beginPath();
+          for (let k2 = 0; k2 <= 200; k2++) { const u = -3.7 + k2 / 200 * 7.4, [x, y] = at2(u, Math.sin(u * 5.2 + ph) * 26 - 5); k2 ? g.lineTo(x, y) : g.moveTo(x, y); }
+          g.stroke();
+        }
+      }
+      for (const sx of [-1, 1]) for (const sy of [-1, 1]) { g.strokeStyle = 'rgba(20,10,4,0.75)'; g.lineWidth = 9; g.beginPath(); g.arc(px(sx * 4.45), px(sy * 4.45), 30, 0, TAU); g.stroke(); g.beginPath(); g.arc(px(sx * 4.45), px(sy * 4.45), 14, 0, TAU); g.stroke(); }
+    }
     if (b.motif === 'egypt') {
       g.fillStyle = b.inlay;
       for (let i = 0; i < 26; i++) for (const s of [-1, 1]) {
@@ -282,7 +302,7 @@ function ChacklateWorld(THREE, K) {
     for (let i = 0; i < 8; i++) {
       const write = (t, u, v, rot) => {
         g.save(); g.translate(px(u), px(v)); g.rotate(rot);
-        if (b.motif === 'meander' || b.motif === 'egypt' || f.type === 'malachite') {
+        if (b.motif === 'meander' || b.motif === 'egypt' || b.motif === 'knot' || f.type === 'malachite') {
           roundRect(g, -36, -36, 72, 72, 12); g.fillStyle = f.color; g.fill();
           g.strokeStyle = b.inlay; g.lineWidth = 3; g.stroke();
         }
@@ -488,6 +508,31 @@ function ChacklateWorld(THREE, K) {
     for (let x = 0; x <= 512; x += 16) g.lineTo(x, 800 - Math.abs(Math.sin(x * 0.03)) * 60 - R() * 30);
     g.lineTo(512, 1024); g.fill();
     for (let i = 0; i < 40; i++) { g.fillStyle = 'rgba(255,200,120,' + (0.4 + R() * 0.5) + ')'; g.fillRect(R() * 512, 840 + R() * 160, 3, 3); }
+    return texFrom(c);
+  }
+  // A row of a shop's goods for one shelf: 'chocolate' (ribboned boxes, glass jars of truffles,
+  // gold-wrapped bars) or 'chalet' (cheese wheels, milk churns, cowbells, honey pots).
+  function goodsTexture(seed, kind) {
+    const c = canvas(512, 160), g = c.getContext('2d'), w = 512, h = 160;
+    {
+      g.fillStyle = 'rgba(20,10,6,0.85)'; g.fillRect(0, 0, w, h);
+      const R = rng(seed + 31);
+      let x = 6;
+      while (x < w - 20) {
+        const t = R(), bw = 26 + R() * 40;
+        if (kind === 'chalet') {
+          if (t < 0.4) { const r = bw / 2; g.fillStyle = ['#e8c060', '#f0d890', '#d8a840'][Math.floor(R() * 3)]; g.fillRect(x, h - r * 0.9, bw, r * 0.9); g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(x, h - r * 0.9, bw, 4); }
+          else if (t < 0.65) { g.fillStyle = '#c8ccd0'; g.fillRect(x + 4, h - 90, bw - 8, 90); g.fillStyle = '#8a9096'; g.fillRect(x, h - 96, bw, 10); }
+          else if (t < 0.85) { g.fillStyle = '#c89a3a'; g.beginPath(); g.moveTo(x + 6, h - 70); g.lineTo(x + bw - 6, h - 70); g.lineTo(x + bw, h); g.lineTo(x, h); g.fill(); g.fillStyle = '#7a1a1a'; g.fillRect(x + 4, h - 78, bw - 8, 8); }
+          else { g.fillStyle = '#d89030'; g.beginPath(); g.ellipse(x + bw / 2, h - 34, bw / 2, 34, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = '#f4e8c8'; g.fillRect(x + bw * 0.2, h - 72, bw * 0.6, 10); }
+        } else {
+          if (t < 0.45) { const bh = 50 + R() * 60; g.fillStyle = ['#7a1a22', '#3a1a10', '#e8d8c0', '#1e3a5a', '#c8a060'][Math.floor(R() * 5)]; g.fillRect(x, h - bh, bw, bh); g.fillStyle = '#e8c060'; g.fillRect(x + bw / 2 - 3, h - bh, 6, bh); g.fillRect(x, h - bh * 0.6, bw, 5); }
+          else if (t < 0.75) { g.fillStyle = 'rgba(220,235,240,0.35)'; g.fillRect(x, h - 110, bw, 110); g.fillStyle = '#4a2414'; for (let n = 0; n < 12; n++) { g.beginPath(); g.arc(x + 8 + R() * (bw - 16), h - 8 - R() * 70, 7, 0, Math.PI * 2); g.fill(); } g.fillStyle = '#c8a060'; g.fillRect(x - 2, h - 118, bw + 4, 10); }
+          else { for (let n = 0; n < 4; n++) { g.fillStyle = n % 2 ? '#e8c060' : '#5a2a14'; g.fillRect(x, h - 18 - n * 18, bw, 16); } }
+        }
+        x += bw + 6 + R() * 10;
+      }
+    }
     return texFrom(c);
   }
   function booksTexture(seed) {
@@ -1779,7 +1824,7 @@ function ChacklateWorld(THREE, K) {
       palette: { wall: '#3a2014', paper: '#4a2a1a', paperInk: '#5a3420', wood: '#2e180e', trim: '#e0b860', floor: '#c8a878', floorDark: '#3a2010', table: '#3a1e10', inlay: '#e0b860',
         rugBorder: '#2a1208', rugField: '#7a3a1e', rugGold: '#e0b860', rugAccent: '#f0e0c8', drape: '#7a1a22', sky: ['#0a1030', '#1e2a5a', '#5a4a7a', '#c88a7a'],
         paintSky: ['#1e2a5a', '#5a4a7a', '#c88a7a'], paintLand: '#3a3a40', fog: '#1a0e08', hemi: ['#ffe8c8', '#1a0e08'], ceiling: '#2a160c', dado: '#2e180e' },
-      faces: ['window', 'window', 'books', 'painting', 'books', 'fire', 'books', 'painting', 'books', 'mirror', 'books', 'window'],
+      faces: ['window', 'window', 'shelf', 'painting', 'shelf', 'fire', 'shelf', 'painting', 'shelf', 'mirror', 'shelf', 'window'], goods: 'chocolate',
       wall: 'panel', window: { kind: 'rect', w: 4.4, h: 8.4, drape: true, wood: true }, light: 'brass', metal: 'gold', floor: 'parquet', vase: 'urn-gold', mirror: 'venetian', lights: { hemi: 0.55, chand: 14 },
       view: {}, env: { wall: '#4a2a1a', floor: '#3a2414', ceiling: '#2a160c', key: '#fff0d8', keyI: 6, window: '#c8c8ff', windowI: 2.8, rim: '#ffd8a8', rimI: 4.5, lamp: '#ffb860', lampI: 10, fill: 0.6 },
     },
@@ -1824,7 +1869,7 @@ function ChacklateWorld(THREE, K) {
       palette: { wall: '#6a4228', paper: '#8a5a34', paperInk: '#6a4224', wood: '#4a2a14', trim: '#c8963b', floor: '#9a6a3a', floorDark: '#3a2410', table: '#4a2a14', inlay: '#d8a050',
         rugBorder: '#7a1a1a', rugField: '#e8dcc8', rugGold: '#c83a2a', rugAccent: '#2a4a2a', drape: '#a81e22', sky: ['#3a6ab0', '#7aa8d8', '#d8e8f4', '#f4f0e8'],
         paintSky: ['#7aa8d8', '#d8e8f4', '#f4f0e8'], paintLand: '#e8eef4', fog: '#2a1a0e', hemi: ['#fff4e8', '#3a2414'], ceiling: '#4a2a14', dado: '#4a2a14' },
-      faces: ['window', 'window', 'books', 'painting', 'niche', 'fire', 'niche', 'painting', 'books', 'painting', 'books', 'window'],
+      faces: ['window', 'window', 'shelf', 'painting', 'niche', 'fire', 'niche', 'painting', 'shelf', 'painting', 'shelf', 'window'], goods: 'chalet',
       wall: 'panel', window: { kind: 'rect', w: 4.2, h: 7.6, drape: true, wood: true }, light: 'wheel', metal: 'brass', floor: 'planks', vase: 'jug', lights: { hemi: 0.8, chand: 12, fire: 1.2 },
       view: {}, env: { wall: '#6a4228', floor: '#4a3018', ceiling: '#3a2414', key: '#fff8f0', keyI: 6, window: '#e8f0ff', windowI: 3, rim: '#ffe0b8', rimI: 4.5, lamp: '#ffb860', lampI: 9, fill: 1.0 },
     },
@@ -1890,6 +1935,24 @@ function ChacklateWorld(THREE, K) {
       faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
       metal: 'gold', floor: 'stone', lights: { hemi: 1.0, chand: 8 },
       env: { wall: '#7a7a6a', floor: '#6a6a5a', ceiling: '#7a9ac0', key: '#fffaf0', keyI: 7, window: '#e8f0ff', windowI: 4.5, rim: '#fff0d8', rimI: 4, lamp: '#ffd8a0', lampI: 5, fill: 1.3 },
+    },
+    norse: {
+      name: 'Norse Fireside', era: 'A clearing in a northern pine forest by a longhouse, on a Viking autumn night, about 900', vista: 'norse', terrace: { r: 12.4, step: 0.4, edge: '#5a4a36' }, raw: true,
+      palette: { wall: '#2a2018', paper: '#5a4632', paperInk: '#3a2c1e', wood: '#3a2414', trim: '#a87a42', floor: '#6a5038', floorDark: '#2a1e14', table: '#4a3020', inlay: '#a87a42',
+        rugBorder: '#2a1a10', rugField: '#5a3a24', rugGold: '#c8964a', rugAccent: '#2a4a3a', drape: '#5a2a1a', sky: ['#04060e', '#0a1424', '#1a2a3a', '#3a3a3e'],
+        paintSky: ['#0a1424', '#1a2a3a', '#3a3a3e'], paintLand: '#0e1a12', fog: '#0e1418', hemi: ['#ffd8b0', '#1a140e'], ceiling: '#0a1424', dado: '#2a2018' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'bronze', floor: 'planks', lights: { hemi: 0.55, chand: 10, color: '#ffb070' },
+      env: { wall: '#3a2a1e', floor: '#3a2a1a', ceiling: '#0a1424', key: '#ffe0c0', keyI: 5.5, window: '#ff9a50', windowI: 3.5, rim: '#ffa860', rimI: 5.5, lamp: '#ff9a40', lampI: 10, fill: 0.7 },
+    },
+    sounion: {
+      name: 'Temple of Poseidon', era: 'On the cliff at Cape Sounion beside the temple of the sea god, at sunset over the Aegean, about 440 BC', vista: 'sounion', terrace: { r: 12.6, step: 0.5, edge: '#e8e0d0' },
+      palette: { wall: '#3a4a5a', paper: '#e8e0d0', paperInk: '#c8bca8', wood: '#4a3424', trim: '#b8863b', floor: '#e4dccc', floorDark: '#a89c88', table: '#4a3424', inlay: '#b8863b',
+        rugBorder: '#1e3a4a', rugField: '#e8dcc4', rugGold: '#b8863b', rugAccent: '#2e6a5a', drape: '#1e3a4a', sky: ['#1a2a5a', '#5a5a8a', '#e88a5a', '#f8c890'],
+        paintSky: ['#5a5a8a', '#e88a5a', '#f8c890'], paintLand: '#2a4a6a', fog: '#c89a88', hemi: ['#ffe4c8', '#2a3a4a'], ceiling: '#5a5a8a', dado: '#3a4a5a' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'bronze', floor: 'stone', lights: { hemi: 0.85, chand: 9 },
+      env: { wall: '#8a8478', floor: '#8a8274', ceiling: '#5a5a8a', key: '#fff0e0', keyI: 6.5, window: '#ffc8a0', windowI: 4, rim: '#ffb880', rimI: 5, lamp: '#ffc070', lampI: 6, fill: 1.0 },
     },
   };
   // A flat outline as a mesh with 0..1 UVs (or the given ranges).
@@ -2106,6 +2169,15 @@ function ChacklateWorld(THREE, K) {
             const wing = new THREE.Mesh(K.extrude([[0, 0.16], [1.9 * s, 0.26], [2.1 * s, 0.06], [1.8 * s, -0.14], [0, -0.12]].map(([x, y]) => [x, y]), 0.06, 0.02), MAT.gold());
             at(wing, s * 0.3, ty + 0.5, 0.58);
           }
+        }
+      } else if (kind === 'shelf') {
+        // a shop's open shelves: boxes and jars of the room's own goods (def.goods)
+        const shelfW = faceW - 1.2;
+        const caseM = new THREE.Mesh(new THREE.BoxGeometry(shelfW + 0.4, 9.6, 0.9), wallMats.wood); at(caseM, 0, FLOOR + 4.8, 0.3);
+        for (let k = 0; k < 5; k++) {
+          const goods = new THREE.Mesh(new THREE.PlaneGeometry(shelfW, 1.55), new THREE.MeshStandardMaterial({ map: own(goodsTexture(i * 7 + k, def.goods)), roughness: 0.6, transparent: true }));
+          at(goods, 0, FLOOR + 1.0 + k * 1.82, 0.78);
+          const shelf = new THREE.Mesh(new THREE.BoxGeometry(shelfW, 0.1, 0.5), wallMats.wood); at(shelf, 0, FLOOR + 0.18 + k * 1.82, 0.9);
         }
       } else if (kind === 'books') {
         const shelfW = faceW - 1.2;

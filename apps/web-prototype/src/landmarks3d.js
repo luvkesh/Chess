@@ -451,6 +451,46 @@ function ChacklateLandmarks(THREE, K, H) {
   // ------------------------------------------------------------------ vistas
   // Gardens, terraces and streets around each landmark. `outdoor` vistas replace the room's
   // walls; the others are seen through its windows.
+
+  // A walled compound round the garden, so the place goes on all the way round when the camera
+  // turns: wall runs with merlons along the top, a domed kiosk on every corner and half way
+  // along each side, and gaps for gates. o: { x0, x1, z0, z1 (z1 is behind White), h, t, mat,
+  // cap, dome, gold, skip: ['n'|'s'|'e'|'w'], gates: { side: [[from, to]] }, lamps: colour }.
+  function enclosure(k, P, G, o) {
+    const B = G.y, h = o.h || 7, t = o.t || 1.6, cap = o.cap || o.mat;
+    const sides = {
+      n: { a: [o.x0, o.z0], b: [o.x1, o.z0] }, s: { a: [o.x0, o.z1], b: [o.x1, o.z1] },
+      w: { a: [o.x0, o.z1], b: [o.x0, o.z0] }, e: { a: [o.x1, o.z1], b: [o.x1, o.z0] },
+    };
+    for (const [key, sd] of Object.entries(sides)) {
+      if ((o.skip || []).includes(key)) continue;
+      const [ax, az] = sd.a, [bx, bz] = sd.b, len = Math.hypot(bx - ax, bz - az), ux = (bx - ax) / len, uz = (bz - az) / len;
+      const gaps = ((o.gates || {})[key] || []).map(([f, tt]) => [f, tt]).sort((p, q) => p[0] - q[0]);
+      const runs = []; let at = 0;
+      for (const [f, tt] of gaps) { if (f > at) runs.push([at, f]); at = Math.max(at, tt); }
+      if (at < len) runs.push([at, len]);
+      for (const [r0, r1] of runs) {
+        const l = r1 - r0, cx = ax + ux * (r0 + l / 2), cz = az + uz * (r0 + l / 2), ry = Math.atan2(ux, uz) + Math.PI / 2;
+        P.add(o.mat, new THREE.BoxGeometry(l, h, t).rotateY(ry).translate(cx, B + h / 2, cz));
+        P.add(cap, new THREE.BoxGeometry(l + 0.2, 0.5, t + 0.5).rotateY(ry).translate(cx, B + h, cz));
+        for (let d = r0 + 1; d < r1 - 0.6; d += 2.2) P.add(cap, new THREE.BoxGeometry(1, 1, t * 0.7).rotateY(ry).translate(ax + ux * d, B + h + 0.5, az + uz * d));
+        if (o.lamps) for (let d = r0 + 0.5; d < r1; d += 2) G.glows.push([ax + ux * d, B + h + 0.4, az + uz * d, o.lamps, 2.2]);
+      }
+      for (const [f, tt] of gaps) for (const d of [f, tt]) kiosk(k, P, G, o, ax + ux * d, az + uz * d, h * 1.5, 1.6);
+      if (!gaps.length) kiosk(k, P, G, o, ax + ux * len / 2, az + uz * len / 2, h * 1.35, 1.8);
+    }
+    for (const [x, z] of [[o.x0, o.z0], [o.x1, o.z0], [o.x0, o.z1], [o.x1, o.z1]]) kiosk(k, P, G, o, x, z, h * 1.6, 2.4);
+  }
+  // A tower with a little domed pavilion on top (a chhatri), on the ground at x, z.
+  function kiosk(k, P, G, o, x, z, h, r) {
+    const B = G.y;
+    P.add(o.mat, new THREE.CylinderGeometry(r, r * 1.1, h, 8), { x, y: B + h / 2, z });
+    P.add(o.cap || o.mat, new THREE.CylinderGeometry(r * 1.25, r * 1.25, 0.5, 8), { x, y: B + h + 0.25, z });
+    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU; P.add(o.cap || o.mat, new THREE.CylinderGeometry(0.16, 0.16, r * 1.1, 6), { x: x + Math.cos(a) * r * 0.9, y: B + h + 0.5 + r * 0.55, z: z + Math.sin(a) * r * 0.9 }); }
+    P.add(o.dome || o.cap || o.mat, lathe([[r * 1.15, 0], [r * 1.1, r * 0.4], [r * 0.7, r * 0.95], [r * 0.2, r * 1.25], [0, r * 1.35]], 16, 10), { x, y: B + h + 0.5 + r * 1.1, z });
+    if (o.gold) P.add(o.gold, new THREE.ConeGeometry(0.12, r * 0.8, 6), { x, y: B + h + 0.5 + r * 2.85, z });
+    if (o.lamps) for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; G.glows.push([x + Math.cos(a) * r * 1.2, B + h + 0.6, z + Math.sin(a) * r * 1.2, o.lamps, 2.2]); }
+  }
   const VISTAS = {
     // Egypt: a stone terrace on the Giza plateau at sunset, before the three pyramids and the Sphinx.
     giza: {
@@ -492,6 +532,22 @@ function ChacklateLandmarks(THREE, K, H) {
         const trunk = k.mat({ color: '#6a4a2e', roughness: 1 }), frond = k.own(new THREE.MeshStandardMaterial({ map: frondTexture(k, '#3a5a24'), alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9 }));
         const palms = [[-16, 4, 7, 0.2], [-19, -6, 9, -0.15], [17, 8, 8, -0.2], [20, -2, 6.5, 0.15], [-46, -40, 9, 0.1], [-52, -48, 8, -0.1], [-40, -56, 10, 0.05], [48, -36, 9, -0.1], [56, -44, 8, 0.12], [-70, -20, 9, 0], [72, -16, 10, 0.1]];
         palms.forEach(([x, z, h, l], i) => palmTree(k, P, trunk, frond, x, B, z, h, l, i + 3));
+        // the plateau goes on all round: dunes behind and beside us, a temple's broken columns
+        // on one side, a palm oasis with mud-brick houses on the other, and a camel caravan
+        const dune = k.mat({ map: sandT, roughness: 1, flatShading: true, color: '#e8c098' });
+        for (let i = 0; i < 14; i++) { const a = Math.PI * 0.35 + i / 13 * Math.PI * 1.3, r = 120 + (i % 3) * 14; mountain(P, dune, Math.sin(a) * r, B - 1, -Math.cos(a) * r, 34 + (i % 4) * 6, 9 + (i % 3) * 4, 40 + i, { sides: 12, rough: 0.2 }); }
+        const lime = k.mat({ map: k.tile(128, 128, (g, w, h) => speckle(g, w, h, '#d8b080', '#9a7048', '#ecd0a0', 1200, 4)), roughness: 0.9 });
+        const R = rng(19);
+        for (let i = 0; i < 12; i++) { const x = -62 - (i % 4) * 6, z = 34 - Math.floor(i / 4) * 12, hh = i % 3 === 1 ? 3 + R() * 3 : 9 + R() * 2;
+          P.add(lime, new THREE.CylinderGeometry(1.3, 1.4, hh, 12), { x, y: B + hh / 2, z }); if (hh > 8) P.add(lime, box(3.2, 1, 3.2, x, B + hh, z)); }
+        P.add(lime, box(26, 1.4, 6, -71, B + 10.4, 34)); P.add(lime, box(4, 1, 2.2, -60, B, 46));
+        for (let i = 0; i < 6; i++) block(P, k.mat({ color: ['#c89a6a', '#b88658', '#d4a676'][i % 3], roughness: 1 }), k.mat({ color: '#9a7048', roughness: 1 }), 62 + (i % 3) * 9, B, 24 - Math.floor(i / 3) * 12, 7, 3.5 + R() * 2, 7, 0);
+        [[56, 38, 9], [70, 44, 8], [78, 30, 10], [60, 6, 9], [84, 14, 8]].forEach(([x, z, h], i) => palmTree(k, P, trunk, frond, x, B, z, h, (i % 2 ? 0.1 : -0.1), 30 + i));
+        const camel = k.mat({ color: '#a87a4a', roughness: 1 });
+        for (let i = 0; i < 5; i++) { const x = -30 + i * 7, z = 78 + i * 1.5;
+          P.add(camel, box(3, 1.6, 1.2, x, B + 2.2, z)); P.add(camel, lathe([[0.7, 0], [0.9, 0.5], [0, 1.1]], 8), { x, y: B + 3.6, z });
+          P.add(camel, box(0.5, 2, 0.5, x + 1.6, B + 3.4, z)); P.add(camel, box(1.2, 0.6, 0.5, x + 2.1, B + 5.2, z));
+          for (const [dx, dz] of [[-1.1, -0.4], [-1.1, 0.4], [1.1, -0.4], [1.1, 0.4]]) P.add(camel, box(0.3, 2.2, 0.3, x + dx, B, z + dz)); }
       },
     },
     // Greece: a marble stoa below the Acropolis; the Parthenon stands on its rock beyond the
@@ -1016,6 +1072,19 @@ function ChacklateLandmarks(THREE, K, H) {
         // lanterns along the walk to the table
         const post = k.mat({ color: '#2a2018', roughness: 0.5, metalness: 0.6 });
         for (const z of [-14, -32, -70]) for (const sx of [-1, 1]) lamp(k, P, post, sx * 6.5, B, z, 3.2, '#ffc070', G, 3.5);
+        // the garden goes on all round: red sandstone walls with white-domed kiosks, the Great
+        // Gate set in the near wall, and lawns, cypresses and lamps on every side
+        const redT = k.tile(256, 256, (g, w, h) => { courses(g, w, h, '#9a4632', 'rgba(40,12,6,0.45)', 6, 3, 9); g.strokeStyle = 'rgba(242,232,220,0.75)'; g.lineWidth = 5; g.strokeRect(14, 20, w - 28, h - 40); }, [1, 1]);
+        const redM = k.mat({ map: redT, roughness: 0.9, emissive: '#2a1010', emissiveIntensity: 0.35 });
+        enclosure(k, P, G, { x0: -64, x1: 64, z0: -112, z1: 92, h: 8, t: 2, mat: redM, cap: white, dome: white, gold: k.mat({ color: '#e8c060', metalness: 0.9, roughness: 0.3 }), skip: ['n'], gates: { s: [[44, 84]], w: [[96, 106]], e: [[96, 106]] }, lamps: '#ffc070' });
+        for (const sx of [-1, 1]) {
+          walk(5, 190, sx * 46, 0);
+          for (let z = 84; z > -104; z -= 7) { cypress(P, cyM, sx * 42, B, z, 6.5 + (Math.abs(z) % 3), 1.2); cypress(P, cyM, sx * 50, B, z + 3.5, 6 + (Math.abs(z) % 2), 1.1); }
+          for (const z of [70, 40, 10, -20]) lamp(k, P, post, sx * 46, B, z, 3.2, '#ffc070', G, 3.5);
+          // a flower bed in each quarter of the near garden
+          for (const z of [30, 60]) { P.add(rimM, box(16, 0.4, 10, sx * 24, B, z)); P.add(k.mat({ color: '#a8304a', roughness: 0.9, emissive: '#3a0a14', emissiveIntensity: 0.3 }), box(15, 0.55, 9, sx * 24, B, z)); }
+        }
+        walk(100, 5, 0, 45);
       },
     },
   };
@@ -1300,6 +1369,17 @@ function ChacklateLandmarks(THREE, K, H) {
         // banyan-like trees round the lawn
         const leaves = k.mat({ color: '#1a2a18', roughness: 1, flatShading: true }), bark = k.mat({ color: '#2a201a', roughness: 1 });
         for (const s of [-1, 1]) for (let i = 0; i < 6; i++) { const x = s * (28 + (i % 2) * 8), z = 14 - i * 16; P.add(bark, new THREE.CylinderGeometry(0.5, 0.7, 5, 6), { x, y: B + 2.5, z }); P.add(leaves, new THREE.IcosahedronGeometry(4.4, 1), { x, y: B + 7.6, z, s: [1.3, 0.9, 1.3] }); }
+        // the palace grounds go on all round: a lit compound wall with kiosks, gateways on the
+        // sides, palms and lamp posts along the drives
+        const wallM = k.mat({ map: k.tile(256, 128, (g, w, h) => courses(g, w, h, '#b8a898', 'rgba(60,40,30,0.4)', 4, 2, 3), [1, 1]), roughness: 0.85, emissive: '#2a1a10', emissiveIntensity: 0.3 });
+        enclosure(k, P, G, { x0: -70, x1: 70, z0: -104, z1: 70, h: 6, t: 1.6, mat: wallM, cap: stoneM, dome: domeM, gold, skip: ['n'], gates: { s: [[60, 80]], w: [[80, 100]], e: [[80, 100]] }, lamps: '#ffd070' });
+        const postM = k.mat({ color: '#2a2018', roughness: 0.5, metalness: 0.6 });
+        for (const sx of [-1, 1]) {
+          { const gg = new THREE.PlaneGeometry(8, 170).rotateX(-Math.PI / 2); const uv = gg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2, uv.getY(i) * 34); P.add(gravel, gg.translate(sx * 52, B + 0.02, -15)); }
+          for (let z = 60; z > -95; z -= 18) lamp(k, P, postM, sx * 47, B, z, 3.4, '#ffd070', G, 3.6);
+          for (let z = 52; z > -95; z -= 12) { P.add(bark, new THREE.CylinderGeometry(0.4, 0.55, 4.5, 6), { x: sx * 60, y: B + 2.25, z }); P.add(leaves, new THREE.IcosahedronGeometry(3.4, 1), { x: sx * 60, y: B + 6.2, z, s: [1.2, 0.85, 1.2] }); }
+        }
+        { const gg = new THREE.PlaneGeometry(130, 8).rotateX(-Math.PI / 2); const uv = gg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 26, uv.getY(i) * 2); P.add(gravel, gg.translate(0, B + 0.02, 48)); }
       },
     },
 
@@ -1605,14 +1685,14 @@ function ChacklateLandmarks(THREE, K, H) {
     // Mohenjo-daro: a courtyard of fired brick by the Great Bath, flat-roofed brick houses
     // in straight streets and the stupa mound of the citadel above.
     indus: {
-      outdoor: true, fog: { color: '#d8b890', density: 0.004 },
+      outdoor: true, fog: { color: '#d8b890', density: 0.0028 },
       sky: { stops: ['#4a6a9a', '#8aa8c8', '#e8d8b8', '#f4e4c8'], haze: '#f0dcb8', below: '#c8a07a', clouds: 6, cloud: '#ffffff', sun: { az: -40, el: 22, size: 10, color: '#fff0d0' },
         far(g, W, HY) { g.fillStyle = '#a8906a'; g.fillRect(0, HY - 4, W, 6); } },
       build(k, P, G) {
         const B = G.y, R = rng(73);
         const brickT = (base, rep) => k.tile(256, 128, (g, w, h) => courses(g, w, h, base, 'rgba(70,30,14,0.55)', 8, 4, 6, 0.16), rep);
         const brick = k.mat({ map: brickT('#b8703e'), roughness: 0.95, side: THREE.DoubleSide });
-        P.add(k.mat({ map: k.tile(512, 512, (g, w, h) => speckle(g, w, h, '#c8a07a', '#9a7a54', '#e0c098', 4000, 6)), roughness: 1 }), ground(k, null, 165, B, 10));
+        P.add(k.mat({ map: k.tile(512, 512, (g, w, h) => speckle(g, w, h, '#a87a4e', '#7a5434', '#c49466', 4000, 6)), roughness: 1 }), ground(k, null, 165, B, 10));
         P.add(k.mat({ map: brickT('#c07a48'), roughness: 0.95 }), ground(k, null, 32, B + 0.02, 3, [[-14, -26, 14, -56]]));
         // the Great Bath: a sunken pool with steps down at each end, a brick colonnade round it
         const Z = -41, Lp = 26, Wp = 24;
@@ -1631,7 +1711,16 @@ function ChacklateLandmarks(THREE, K, H) {
           const w = 9 + R() * 3, d = 9 + R() * 3, h = 4 + R() * 4;
           block(P, house[(gx + gz + 9) % 3], roof, x, B, z, w, h, d, 0);
         }
-        for (let i = 0; i < 16; i++) { const a = R() * TAU, r = 36 + R() * 14; if (Math.cos(a) > 0.2) continue; block(P, house[i % 3], roof, Math.sin(a) * r, B, -Math.cos(a) * r, 8, 3 + R() * 3, 8, -a); }
+        // the lanes go on all round the courtyard: houses on every side, each with a dark doorway
+        const door = k.mat({ color: '#2a1a10', roughness: 1 });
+        for (let i = 0; i < 30; i++) {
+          const a = i / 30 * TAU + (R() - 0.5) * 0.1, r = 38 + R() * 16, x = Math.sin(a) * r, z = -Math.cos(a) * r;
+          if (Math.abs(x) < 16 && z < -26 && z > -58) continue;
+          const hh = 3 + R() * 3.5;
+          block(P, house[i % 3], roof, x, B, z, 8, hh, 8, -a);
+          P.add(door, new THREE.PlaneGeometry(1.4, 2.2).translate(0, 1.1, 4.02).rotateY(-a + Math.PI).translate(x, B, z));
+          if (R() < 0.5) P.add(roof, box(8.4, 0.5, 8.4, 0, 0, 0).rotateY(-a).translate(x, B + hh, z));
+        }
         // the citadel mound with the brick stupa on top
         const mound = k.mat({ color: '#b08a60', roughness: 1, flatShading: true });
         P.add(mound, new THREE.CylinderGeometry(30, 46, 12, 10), { x: 40, y: B + 6, z: -150 });
@@ -1745,6 +1834,143 @@ function ChacklateLandmarks(THREE, K, H) {
         }), roughness: 1 }), new THREE.PlaneGeometry(40, 30).rotateX(-Math.PI / 2), { y: B + 0.03, z: -48 });
         const post = k.mat({ color: '#1a1a20', roughness: 0.5, metalness: 0.6 });
         for (const [x, z] of [[-24, -18], [24, -18], [-24, -64], [24, -64], [-12, -72], [12, -72]]) lamp(k, P, post, x, B, z, 4.6, '#ffd080', G, 4);
+      },
+    },
+    // A Norse fireside: a clearing in a night pine forest above a fjord, a longhouse with
+    // its doors lit, runestones and a fire, a longship on the black water below the fells.
+    norse: {
+      outdoor: true, fog: { color: '#0e1622', density: 0.0045 },
+      sky: { stops: ['#02040a', '#08101e', '#122236', '#1e3044'], haze: '#1e3044', below: '#0e1622', stars: 460, moon: { az: 24, el: 28, size: 6, color: '#fff2d8', glow: '#c8d8ff' },
+        far(g, W, HY) {
+          g.fillStyle = '#141e2c'; g.beginPath(); g.moveTo(0, HY + 2); for (let x = 0; x <= W; x += 6) g.lineTo(x, HY - 6 - Math.abs(Math.sin(x * 0.006) * 34 + Math.sin(x * 0.031) * 6)); g.lineTo(W, HY + 2); g.fill();
+        } },
+      build(k, P, G) {
+        const B = G.y, R = rng(97);
+        const floorT = k.tile(512, 512, (g, w, h) => { speckle(g, w, h, '#26241c', '#16140e', '#3a3624', 6000, 4); for (let i = 0; i < 200; i++) { g.fillStyle = rgba(i % 3 ? '#4a3e28' : '#2e4a2a', 0.6); g.fillRect((i * 97) % w, (i * 61) % h, 4, 2); } });
+        P.add(k.mat({ map: floorT, roughness: 1, emissive: '#0a0c10', emissiveIntensity: 0.3 }), ground(k, null, 165, B, 12, [[-80, -48, 80, -140]]));
+        // the fjord ahead, still and dark, with the moon's path on it
+        const water = k.mat({ map: k.tile(256, 256, (g, w, h) => { g.fillStyle = '#0a1420'; g.fillRect(0, 0, w, h); for (let i = 0; i < 160; i++) { g.fillStyle = rgba('#8aa8d0', 0.08 + (i % 4) * 0.04); g.fillRect((i * 53) % w, (i * 29) % h, 10 + (i % 5) * 6, 1); } }), roughness: 0.3, metalness: 0, envMapIntensity: 0.15, emissive: '#12283e', emissiveIntensity: 0.9 });
+        { const gg = new THREE.PlaneGeometry(170, 96).rotateX(-Math.PI / 2); const uv = gg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 6, uv.getY(i) * 4); P.add(water, gg.translate(0, B - 1.2, -94)); }
+        const shore = k.mat({ color: '#2a2a28', roughness: 1, flatShading: true });
+        for (let i = 0; i < 26; i++) { const x = -78 + i * 6.2 + R() * 2; P.add(shore, new THREE.DodecahedronGeometry(1.4 + R() * 1.6, 0), { x, y: B - 0.8, z: -47 - R() * 2, s: [1.3, 0.6, 1] }); }
+        // the fells round the fjord, dark below with snow on the tops
+        const fell = peakMat(k, '#161c26', '#5a6680', 0.22, { emissive: '#06080c', emissiveIntensity: 0.4, envMapIntensity: 0.05 });
+        for (let i = 0; i < 9; i++) { const x = -110 + i * 28 + R() * 8; mountain(P, fell, x, B - 2, -150 - R() * 14, 26 + R() * 12, 34 + R() * 26, i + 140, { sides: 9, rough: 0.3 }); }
+        for (const s of [-1, 1]) for (let i = 0; i < 4; i++) mountain(P, fell, s * (96 + i * 6), B - 2, -60 - i * 26, 22 + R() * 8, 26 + R() * 18, i + 150 + s, { sides: 9, rough: 0.3 });
+        // a longship drawn up on the water, its striped sail furled, a dragon at the prow
+        const hullM = k.mat({ color: '#3a2616', roughness: 0.8 });
+        const hull = new THREE.CylinderGeometry(2.2, 2.2, 22, 16, 6, true, Math.PI / 2, Math.PI), hp = hull.attributes.position;
+        for (let i = 0; i < hp.count; i++) { const t = hp.getY(i) / 11; const f = Math.cos(t * Math.PI / 2) * 0.9 + 0.1; hp.setX(i, hp.getX(i) * f); hp.setZ(i, hp.getZ(i) * f * 0.7); hp.setY(i, hp.getY(i)); }
+        hull.rotateZ(Math.PI / 2); hull.computeVertexNormals();
+        const LX = 18, LZ = -84;
+        P.add(k.own(new THREE.MeshStandardMaterial({ color: '#3a2616', roughness: 0.8, side: THREE.DoubleSide })), hull, { x: LX, y: B + 0.2, z: LZ, ry: 0.35 });
+        for (const s of [-1, 1]) P.add(hullM, K.tube([[s * 10.6, B + 0.2, 0], [s * 11.6, B + 2.4, 0], [s * 11, B + 3.6, 0], [s * 10.2, B + 3.2, 0]], 0.22, { segs: 8, radial: 5 }), { x: LX, z: LZ, ry: 0.35 });
+        P.add(hullM, new THREE.CylinderGeometry(0.16, 0.2, 9, 6), { x: LX, y: B + 4.6, z: LZ });
+        P.add(k.mat({ map: k.tile(64, 64, (g, w, h) => { for (let x = 0; x < w; x += 16) { g.fillStyle = '#b02a24'; g.fillRect(x, 0, 8, h); g.fillStyle = '#e8dcc0'; g.fillRect(x + 8, 0, 8, h); } }), roughness: 1 }), new THREE.CylinderGeometry(0.4, 0.4, 7.4, 10).rotateZ(Math.PI / 2), { x: LX, y: B + 7.6, z: LZ, ry: 0.35 });
+        const shieldCols = ['#c8a040', '#b02a24', '#2a4a7a', '#e8dcc0'];
+        for (let i = 0; i < 10; i++) { const t = -8 + i * 1.8, c = Math.cos(0.35), s = Math.sin(0.35); for (const side of [-1, 1]) P.add(k.mat({ color: shieldCols[i % 4], roughness: 0.7 }), new THREE.CylinderGeometry(0.55, 0.55, 0.1, 12).rotateX(Math.PI / 2), { x: LX + t * c + side * 1.7 * s, y: B + 1.3, z: LZ - t * s + side * 1.7 * c, ry: 0.35 }); }
+        // the longhouse to the left: long turf-roofed hall with curved walls and a glowing door
+        const timber = k.mat({ map: k.tile(128, 128, (g, w, h) => { g.fillStyle = '#4a3220'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 10) { g.fillStyle = shade('#5a3e26', (R() - 0.5) * 0.4); g.fillRect(x, 0, 9, h); } }), roughness: 0.9 });
+        const turf = k.mat({ map: k.tile(128, 128, (g, w, h) => speckle(g, w, h, '#3a4a26', '#24301a', '#5a6a34', 1600, 4)), roughness: 1, flatShading: true });
+        const HX = -32, HZ = -22, HR = 1.1;
+        P.add(timber, new THREE.BoxGeometry(24, 3.4, 8), { x: HX, y: B + 1.7, z: HZ, ry: HR });
+        { const roof = new THREE.CylinderGeometry(5.6, 5.6, 25, 14, 1, false, -Math.PI / 2, Math.PI).rotateZ(Math.PI / 2).scale(1, 0.62, 1); P.add(turf, roof, { x: HX, y: B + 3.3, z: HZ, ry: HR }); }
+        const c = Math.cos(HR), s = Math.sin(HR);
+        P.add(k.glowMat('#ffa040', 1.6), new THREE.PlaneGeometry(1.6, 2.4), { x: HX + s * 4.05, y: B + 1.2, z: HZ + c * 4.05, ry: HR });
+        G.glows.push([HX + s * 5, B + 1.6, HZ + c * 5, '#ff9a3a', 5]);
+        for (const t of [-11, 11]) P.add(timber, K.tube([[0, 0, 0], [0, 1.4, 0.2], [0, 2.2, -0.4]], 0.18, { segs: 6, radial: 5 }), { x: HX + c * t, y: B + 6.6, z: HZ - s * t, ry: HR });
+        // two more halls and a storehouse on stilts, behind and to the right
+        P.add(timber, new THREE.BoxGeometry(16, 3, 7), { x: 34, y: B + 1.5, z: 28, ry: -0.7 });
+        P.add(turf, new THREE.CylinderGeometry(5, 5, 17, 12, 1, false, -Math.PI / 2, Math.PI).rotateZ(Math.PI / 2).scale(1, 0.6, 1), { x: 34, y: B + 3, z: 28, ry: -0.7 });
+        G.glows.push([31, B + 1.4, 32, '#ff9a3a', 3]);
+        P.add(timber, new THREE.BoxGeometry(14, 2.8, 6), { x: -26, y: B + 1.4, z: 34, ry: 0.5 });
+        P.add(turf, new THREE.CylinderGeometry(4.4, 4.4, 15, 12, 1, false, -Math.PI / 2, Math.PI).rotateZ(Math.PI / 2).scale(1, 0.6, 1), { x: -26, y: B + 2.8, z: 34, ry: 0.5 });
+        for (const [dx, dz] of [[-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4], [1.4, 1.4]]) P.add(timber, new THREE.CylinderGeometry(0.2, 0.2, 2, 6), { x: 30 + dx, y: B + 1, z: -10 + dz });
+        P.add(timber, new THREE.BoxGeometry(4, 2.4, 4), { x: 30, y: B + 3.2, z: -10 });
+        P.add(turf, K.extrude([[-2.6, 0], [2.6, 0], [0, 2]], 4.6, 0), { x: 30, y: B + 4.4, z: -10 });
+        // runestones by the path, carved with a serpent band, and a ring of standing stones
+        const runeT = k.tile(128, 256, (g, w, h) => { speckle(g, w, h, '#6a6a64', '#4a4a44', '#8a8a80', 1600, 3); g.strokeStyle = '#a83a2a'; g.lineWidth = 6; g.beginPath(); for (let y = 30; y < h - 20; y += 4) g.lineTo(w / 2 + Math.sin(y * 0.05) * w * 0.3, y); g.stroke(); g.strokeStyle = '#2a2a28'; g.lineWidth = 2; for (let y = 40; y < h - 30; y += 16) { g.beginPath(); g.moveTo(w / 2 - 8, y); g.lineTo(w / 2 + 6, y + 8); g.stroke(); } });
+        const runeM = k.mat({ map: runeT, roughness: 1 });
+        for (const [x, z, ry] of [[-16, -8, 0.6], [17, 8, -0.8], [-12, 18, 2.6]]) P.add(runeM, new THREE.CylinderGeometry(0.9, 1.3, 4, 6).scale(1, 1, 0.45), { x, y: B + 2, z, ry });
+        const grey = k.mat({ color: '#5a5a56', roughness: 1, flatShading: true });
+        for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, x = 44 + Math.sin(a) * 9, z = 4 - Math.cos(a) * 5; P.add(grey, new THREE.BoxGeometry(0.8, 1.6 + R() * 0.8, 0.6).toNonIndexed(), { x, y: B + 0.8, z, ry: a }); }
+        // the campfire in front of the hall, with logs and stones round it
+        const FX = -16, FZ = 4;
+        for (let i = 0; i < 9; i++) { const a = i / 9 * TAU; P.add(grey, new THREE.DodecahedronGeometry(0.42, 0), { x: FX + Math.sin(a) * 1.4, y: B + 0.2, z: FZ + Math.cos(a) * 1.4 }); }
+        for (let i = 0; i < 4; i++) P.add(timber, new THREE.CylinderGeometry(0.16, 0.18, 2.2, 6).rotateZ(1.1), { x: FX, y: B + 0.7, z: FZ, ry: i * Math.PI / 2 });
+        P.add(k.glowMat('#ff8a2a', 2.2), new THREE.ConeGeometry(0.7, 1.8, 7), { x: FX, y: B + 1, z: FZ });
+        P.add(k.glowMat('#ffd060', 2.4), new THREE.ConeGeometry(0.36, 1.2, 6), { x: FX, y: B + 0.9, z: FZ });
+        G.glows.push([FX, B + 1.6, FZ, '#ff8a2a', 9]);
+        for (const [x, z] of [[-22, -10], [12, -18], [-4, 22]]) { P.add(timber, new THREE.CylinderGeometry(0.12, 0.14, 3, 6), { x, y: B + 1.5, z }); P.add(k.glowMat('#ffa040', 1.8), new THREE.ConeGeometry(0.3, 0.8, 6), { x, y: B + 3.3, z }); G.glows.push([x, B + 3.4, z, '#ff9a3a', 3]); }
+        // pines all round the clearing, thick behind us and along the shore
+        const pineM = k.mat({ color: '#142a1e', roughness: 1, flatShading: true, emissive: '#04080a', emissiveIntensity: 0.4 });
+        for (let i = 0; i < 230; i++) {
+          const a = R() * TAU, r = 26 + R() * 110, x = Math.sin(a) * r, z = -Math.cos(a) * r;
+          if (z < -42 && z > -150 && Math.abs(x) < 82) continue;
+          if (Math.hypot(x - HX, z - HZ) < 15 || Math.hypot(x - 34, z - 28) < 12 || Math.hypot(x + 26, z - 34) < 11 || Math.hypot(x - 44, z - 4) < 12) continue;
+          pine(P, pineM, x, B, z, 8 + R() * 9);
+        }
+        for (let i = 0; i < 40; i++) { const x = (R() - 0.5) * 160, z = -150 - R() * 20; pine(P, pineM, x, B + 4, z, 6 + R() * 6); }
+      },
+    },
+
+    // Cape Sounion at sunset: a clifftop of dry grass and olive trees high above the Aegean,
+    // the white Doric columns of Poseidon's temple ahead, islands out in the golden sea.
+    sounion: {
+      outdoor: true, fog: { color: '#e8b890', density: 0.0028 },
+      sky: { stops: ['#2a3a6a', '#7a7aa8', '#f0a878', '#f8d8a0'], haze: '#f4c8a0', below: '#3a5a7a', clouds: 9, cloud: '#ffe0c0', sun: { az: -38, el: 6, size: 12, color: '#ffc070', glow: '#ffa860' },
+        far(g, W, HY) { g.fillStyle = '#6a6a8a'; for (const [x0, w, h] of [[0.08, 0.1, 10], [0.34, 0.06, 6], [0.62, 0.14, 12], [0.86, 0.07, 7]]) { g.beginPath(); g.ellipse(W * x0, HY, W * w / 2, h, 0, Math.PI, TAU); g.fill(); } } },
+      build(k, P, G) {
+        const B = G.y, R = rng(101);
+        // the sea far below on every side but the land behind us
+        const sea = k.mat({ map: k.tile(256, 256, (g, w, h) => { g.fillStyle = '#2a5a7a'; g.fillRect(0, 0, w, h); for (let i = 0; i < 220; i++) { g.fillStyle = rgba(i % 3 ? '#f8c890' : '#8ac0d8', 0.1 + (i % 4) * 0.05); g.fillRect((i * 53) % w, (i * 29) % h, 8 + (i % 5) * 6, 1.5); } }), roughness: 0.15, metalness: 0.3, emissive: '#1a3a50', emissiveIntensity: 0.35 });
+        P.add(sea, ground(k, null, 170, B - 34, 18));
+        // the headland: a flat top of dry grass and rock, with cliffs falling to the sea
+        const grass = k.mat({ map: k.tile(512, 512, (g, w, h) => { speckle(g, w, h, '#8a8650', '#6a6234', '#aaa468', 6000, 4); for (let i = 0; i < 90; i++) { g.fillStyle = rgba('#d8d0c0', 0.7); g.fillRect((i * 71) % w, (i * 43) % h, 6, 4); } }), roughness: 1 });
+        const cliffM = k.mat({ map: k.tile(128, 256, (g, w, h) => { speckle(g, w, h, '#a8907a', '#6a5a4a', '#d8c0a0', 2400, 5); for (let y = 0; y < h; y += 14) { g.fillStyle = 'rgba(70,50,40,0.25)'; g.fillRect(0, y, w, 2); } }), roughness: 1, flatShading: true });
+        const top = new THREE.CircleGeometry(1, 40), tp = top.attributes.position;
+        const rad = (a) => 62 + Math.sin(a * 3) * 8 + Math.sin(a * 7 + 1) * 4 + (Math.cos(a) < -0.2 ? 60 : 0);
+        for (let i = 1; i < tp.count; i++) { const a = Math.atan2(tp.getY(i), tp.getX(i)); const r = rad(a); tp.setX(i, Math.cos(a) * r); tp.setY(i, Math.sin(a) * r); }
+        { const uv = top.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, tp.getX(i) / 14, tp.getY(i) / 14); }
+        P.add(grass, top.rotateX(-Math.PI / 2), { y: B, z: -10 });
+        { const N = 40, pos = []; for (let i = 0; i < N; i++) { const a0 = i / N * TAU, a1 = (i + 1) / N * TAU, r0 = rad(a0), r1 = rad(a1); const x0 = Math.cos(a0) * r0, z0 = -Math.sin(a0) * r0 - 10, x1 = Math.cos(a1) * r1, z1 = -Math.sin(a1) * r1 - 10; const d = 1.1 + R() * 0.1; pos.push(x0, B, z0, x0 * d, B - 36, (z0 + 10) * d - 10, x1, B, z1, x1, B, z1, x0 * d, B - 36, (z0 + 10) * d - 10, x1 * d, B - 36, (z1 + 10) * d - 10); }
+          const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); const uv = []; for (let i = 0; i < pos.length / 3; i++) uv.push((i % 3) * 0.5, pos[i * 3 + 1] > B - 1 ? 1 : 0); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.computeVertexNormals();
+          P.add(k.own(new THREE.MeshStandardMaterial({ map: cliffM.map, roughness: 1, flatShading: true, side: THREE.DoubleSide })), g); }
+        // the temple ahead: a stepped base and the Doric columns still standing, with a lintel
+        const marble = k.mat({ map: k.tile(128, 128, (g, w, h) => speckle(g, w, h, '#ece4d4', '#c8bca8', '#fff8ec', 900, 3)), roughness: 0.6, emissive: '#3a2010', emissiveIntensity: 0.25 });
+        const TZ = -44, TW = 14, TL = 32;
+        for (let i = 0; i < 3; i++) P.add(marble, box(TW + 4 - i * 1.4, 0.6, TL + 4 - i * 1.4, 0, B + i * 0.6, TZ));
+        const SY = B + 1.8, colH = 7.4;
+        const col = new THREE.CylinderGeometry(0.58, 0.72, colH, 16, 1);
+        const capital = new THREE.BoxGeometry(1.7, 0.4, 1.7), echinus = new THREE.CylinderGeometry(0.85, 0.6, 0.4, 16);
+        const colAt = (x, z, h) => { P.add(marble, col.clone(), { x, y: SY + h / 2, z, s: [1, h / colH, 1] }); if (h >= colH) { P.add(marble, echinus.clone(), { x, y: SY + colH + 0.2, z }); P.add(marble, capital.clone(), { x, y: SY + colH + 0.6, z }); } };
+        const xs = [-6, -3.6, -1.2, 1.2, 3.6, 6], zs = Array.from({ length: 13 }, (_, i) => TZ + TL / 2 - 1.2 - i * (TL - 2.4) / 12);
+        // the long south side stands complete; the north side is only partly standing
+        for (const z of zs) colAt(6, z, colH);
+        zs.forEach((z, i) => { if (i < 4 || i > 9) colAt(-6, z, colH); else if (i === 6) colAt(-6, z, 2.4); });
+        for (const x of xs.slice(1, 5)) colAt(x, zs[0], colH);
+        colAt(-1.2, zs[12], colH); colAt(3.6, zs[12], colH);
+        P.add(marble, box(1.6, 1.4, TL - 1, 6, SY + colH + 0.8, TZ));
+        P.add(marble, box(TW - 0.8, 1.4, 1.6, 0, SY + colH + 0.8, zs[0]));
+        P.add(marble, box(1.6, 1.4, 9, -6, SY + colH + 0.8, zs[0] - 3.6));
+        // fallen drums and blocks round the base
+        for (let i = 0; i < 9; i++) P.add(marble, new THREE.CylinderGeometry(0.66, 0.66, 1 + R(), 14).rotateZ(Math.PI / 2), { x: -12 + R() * 4, y: B + 0.6, z: TZ - 12 + i * 3 + R(), ry: R() * 3 });
+        // olive trees, silver-green, round the clifftop and behind us; rocks and wild thyme
+        const bark = k.mat({ color: '#5a4a3a', roughness: 1 });
+        const leaf = k.mat({ color: '#7a8a5a', roughness: 1, flatShading: true });
+        const olive = (x, z, h) => { const r2 = rng(Math.floor(x * 13 + z * 7)); P.add(bark, K.tube([[x, B, z], [x + (r2() - 0.5) * 1.4, B + h * 0.35, z + (r2() - 0.5)], [x + (r2() - 0.5) * 2, B + h * 0.6, z + (r2() - 0.5) * 1.6]], h * 0.07, { segs: 8, radial: 6 })); for (let i = 0; i < 6; i++) P.add(leaf, new THREE.IcosahedronGeometry(h * (0.22 + r2() * 0.1), 0), { x: x + (r2() - 0.5) * h * 0.8, y: B + h * (0.6 + r2() * 0.3), z: z + (r2() - 0.5) * h * 0.8, s: [1.3, 0.7, 1.3] }); };
+        for (let i = 0; i < 46; i++) { const a = R() * TAU, r = 18 + R() * 50, x = Math.sin(a) * r, z = -Math.cos(a) * r; if (Math.abs(x) < 14 && z < -22 && z > -66) continue; if (Math.hypot(x, z + 10) > rad(Math.atan2(-(z + 10), x)) - 4) continue; olive(x, z, 4 + R() * 3); }
+        const rock = k.mat({ color: '#a8987e', roughness: 1, flatShading: true });
+        for (let i = 0; i < 40; i++) { const a = R() * TAU, r = 16 + R() * 50, x = Math.sin(a) * r, z = -Math.cos(a) * r; if (Math.hypot(x, z + 10) > rad(Math.atan2(-(z + 10), x)) - 2) continue; P.add(rock, new THREE.DodecahedronGeometry(0.5 + R() * 1.4, 0), { x, y: B + 0.2, z, s: [1.2, 0.6, 1] }); }
+        // the hills of Attica behind us, and islands out to sea
+        const hill = peakMat(k, '#8a7a5a', '#6a7a4a', 0.5, { envMapIntensity: 0.1 });
+        for (let i = 0; i < 9; i++) { const a = Math.PI + (i - 4) * 0.22, r = 140 + R() * 20; mountain(P, hill, Math.sin(a) * r, B - 20, -Math.cos(a) * r, 34 + R() * 14, 30 + R() * 22, i + 160, { sides: 9, rough: 0.3 }); }
+        const isle = peakMat(k, '#7a6a5a', null, 0, { envMapIntensity: 0.1 });
+        for (const [x, z, r, h] of [[-90, -110, 20, 16], [70, -130, 26, 22], [120, -40, 18, 12], [-130, -20, 22, 14], [20, -160, 14, 9]]) mountain(P, isle, x, B - 35, z, r, h, x + z, { sides: 9, rough: 0.35 });
+        // a small white chapel and a sail far below
+        P.add(k.mat({ color: '#f4f0e8', roughness: 0.8 }), box(4, 3.4, 5, -40, B, 30));
+        P.add(k.mat({ color: '#2a5aa8', roughness: 0.5 }), new THREE.SphereGeometry(1.6, 14, 8, 0, TAU, 0, Math.PI / 2), { x: -40, y: B + 3.4, z: 30 });
+        P.add(k.mat({ color: '#fff8ec', roughness: 0.9 }), K.extrude([[0, 0], [3, 0], [0, 5]], 0.05, 0), { x: 50, y: B - 34, z: -90 });
       },
     },
   });
