@@ -163,7 +163,7 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 
 /* ------------------------------------------------------------ top navigation */
 .topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: calc(var(--nav-h) + var(--safe-t)); padding: var(--safe-t) max(22px, var(--safe-r)) 0 max(22px, var(--safe-l)); display: flex; align-items: center; gap: 22px;
-  background: linear-gradient(180deg, rgba(12, 7, 5, 0.92), rgba(12, 7, 5, 0.66)); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); transition: transform .5s var(--ease), opacity .5s; }
+  background: linear-gradient(180deg, rgba(12, 7, 5, 0.95), rgba(12, 7, 5, 0.88)); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); transition: transform .5s var(--ease), opacity .5s; }
 .topnav::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, rgba(232, 194, 122, 0.45) 30%, rgba(232, 194, 122, 0.45) 70%, transparent); opacity: 0.5; }
 body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: none; }
 .brand { display: flex; align-items: center; gap: 12px; flex: none; }
@@ -228,9 +228,12 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .lux { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 20px 20px; border-radius: 22px; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); backdrop-filter: blur(16px) saturate(1.15); -webkit-backdrop-filter: blur(16px) saturate(1.15);
   transition: transform .4s var(--ease), border-color .4s, box-shadow .4s; overflow: hidden; color: var(--ink); isolation: isolate; }
 .lux::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(120% 70% at 50% 0%, rgba(232, 194, 122, 0.1), transparent 60%); opacity: 0.8; z-index: -1; transition: opacity .4s; }
-.lux:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); }
+/* Hover lift only where there is a real pointer: on touch screens :hover sticks after a tap and leaves one card with a brighter stroke. */
+@media (hover: hover) { .lux:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); } }
+.lux:focus-visible { border-color: var(--line-3); }
 .lux:hover .go { background: rgba(232, 194, 122, 0.16); box-shadow: 0 0 18px rgba(232, 194, 122, 0.35); transform: translateX(2px); }
-.lux.feature { border-color: rgba(232, 194, 122, 0.62); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), var(--glow); }
+/* Every card keeps the same 1px stroke; the featured one only carries a soft halo. */
+.lux.feature { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 38px rgba(232, 194, 122, 0.14); }
 .lux .art { position: relative; width: 100%; height: 150px; display: grid; place-items: center; margin: 0 0 12px; }
 /* The art box shrinks with short screens (hero cards use vh). One track the size of the box makes
    max-height: 100% shrink the picture with it; an auto track grew to the picture and pushed it over the title. */
@@ -271,7 +274,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .personas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .persona { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 16px 16px; border-radius: 22px; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .4s var(--ease), border-color .4s, box-shadow .4s; overflow: hidden; isolation: isolate; }
 .persona::before { content: ""; position: absolute; inset: 0 0 auto; height: 58%; background: radial-gradient(80% 90% at 50% 20%, var(--tint, rgba(232, 194, 122, 0.18)), transparent 70%); z-index: -1; opacity: 0.65; }
-.persona:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); }
+@media (hover: hover) { .persona:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); } }
 .persona img.portrait { width: 116px; height: 116px; filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.55)); transition: transform .5s var(--ease); }
 .persona:hover img.portrait { transform: scale(1.05) rotate(-2deg); }
 .persona .lvl { margin-top: 12px; font: 600 10.5px/1 var(--caps); letter-spacing: 0.22em; color: var(--gold); text-transform: uppercase; }
@@ -286,7 +289,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 /* ------------------------------------------------------------ Journey */
 .eras { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; }
 .era { position: relative; display: flex; flex-direction: column; text-align: left; border-radius: 22px; overflow: hidden; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .4s var(--ease), border-color .4s, box-shadow .4s; }
-.era:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); }
+@media (hover: hover) { .era:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); } }
 .era .banner { position: relative; display: block; height: 150px; overflow: hidden; }
 .era .banner img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
 .era:hover .banner img { transform: scale(1.06); }
@@ -317,7 +320,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .era-layout { display: grid; grid-template-columns: 1.35fr 1fr; gap: 26px; margin-top: 26px; }
 .stages { display: grid; gap: 14px; position: relative; }
 .stage { position: relative; display: grid; grid-template-columns: 64px 1fr auto; gap: 16px; align-items: center; padding: 16px 18px; border-radius: 18px; text-align: left; background: var(--glass); border: 1px solid var(--line); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 236, 200, 0.06); transition: transform .35s var(--ease), border-color .35s, box-shadow .35s; }
-.stage:hover:not(:disabled) { transform: translateX(4px); border-color: var(--line-3); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), var(--glow); }
+@media (hover: hover) { .stage:hover:not(:disabled) { transform: translateX(4px); border-color: var(--line-3); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), var(--glow); } }
 .stage:disabled { opacity: 0.55; cursor: default; }
 .stage .badge-ic { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--gold); background: radial-gradient(circle at 35% 30%, rgba(246, 220, 156, 0.25), rgba(20, 12, 8, 0.8)); color: var(--gold-2); }
 .stage .badge-ic .ico { width: 26px; height: 26px; }
@@ -390,7 +393,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .stars .off { color: rgba(232, 194, 122, 0.2); }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
 .tile { position: relative; display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 18px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .35s var(--ease), border-color .35s, box-shadow .35s; min-height: 136px; }
-.tile:hover:not(:disabled) { transform: translateY(-4px); border-color: var(--line-3); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), var(--glow); }
+@media (hover: hover) { .tile:hover:not(:disabled) { transform: translateY(-4px); border-color: var(--line-3); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), var(--glow); } }
 .tile:disabled { opacity: 0.5; cursor: default; }
 .tile .ic { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--gold); color: var(--gold-2); background: radial-gradient(circle at 35% 30%, rgba(246, 220, 156, 0.22), rgba(20, 12, 8, 0.8)); margin-bottom: 6px; }
 .tile .ic img { width: 34px; height: 34px; }
@@ -404,7 +407,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .tile.wide .go { position: static; }
 .list { display: grid; gap: 8px; }
 .row-item { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line); background: rgba(24, 15, 11, 0.6); text-align: left; transition: border-color .25s, background .25s; }
-.row-item:hover:not(:disabled) { border-color: var(--line-3); background: rgba(42, 26, 18, 0.7); }
+@media (hover: hover) { .row-item:hover:not(:disabled) { border-color: var(--line-3); background: rgba(42, 26, 18, 0.7); } }
 .row-item:disabled { opacity: 0.55; cursor: default; }
 .row-item b { font-weight: 500; }
 .row-item small { color: var(--muted); }
@@ -420,7 +423,7 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .col-top { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 16px; }
 .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px, 1fr)); gap: 16px; }
 .item { position: relative; display: flex; flex-direction: column; text-align: left; border-radius: 18px; overflow: hidden; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .35s var(--ease), border-color .35s, box-shadow .35s; }
-.item:hover { transform: translateY(-4px); border-color: var(--line-3); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), var(--glow); }
+@media (hover: hover) { .item:hover { transform: translateY(-4px); border-color: var(--line-3); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), var(--glow); } }
 .item.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 18px 50px rgba(232, 194, 122, 0.16); }
 .item .sw { position: relative; width: 100%; height: 146px; display: grid; place-items: center; overflow: hidden; background: radial-gradient(90% 90% at 50% 30%, var(--tint, rgba(80, 52, 36, 0.6)), rgba(14, 9, 6, 0.95)); }
 .item .sw { grid-template: minmax(0, 1fr) / minmax(0, 1fr); }   /* see .lux .art: keeps max-height: 100% from growing past the box */
@@ -1109,6 +1112,8 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 @media (max-width: 600px) { .rs-pieces { grid-template-columns: 1fr; } .rs-card { padding: 16px; } }
 
 /* ------------------------------------------------------------ responsive */
+/* Must stay above the phone rules below, or it puts three squeezed cards in a row on phones. */
+@media (max-width: 1300px) { .hero .lux-row { grid-template-columns: repeat(3, 1fr); width: min(1060px, 100%); } }
 @media (max-width: 1240px) { .links button { padding: 0 8px; letter-spacing: 0.12em; font-size: 12px; } .brand span { display: none; } }
 @media (max-width: 1100px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
   .hero .lux-row { grid-template-columns: repeat(3, 1fr); }
@@ -1153,7 +1158,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .lux.h h3::after { margin: 9px 0 0; width: 30px; background: linear-gradient(90deg, var(--gold), transparent); }
   .lux.h p { margin: 8px 0 0; font-size: 13px; align-self: start; }
   .lux.h .go { grid-row: 1 / span 2; grid-column: 3; margin: 0; }
-  .home-foot { flex-direction: column; align-items: center; } .strip { max-width: 560px; width: 100%; }
+  .home-foot { flex-direction: column; align-items: center; } .strip { flex: none; max-width: 560px; width: 100%; }   /* flex: none, or the 300px basis becomes the height in a column */
   .wordmark { letter-spacing: 0.03em; }
   .motto { letter-spacing: 0.3em; font-size: 11.5px; }
   .personas { gap: 12px; }
@@ -1397,7 +1402,6 @@ body.ingame .guide .gd-text { font-size: 15.5px; }
 .mini-pay { margin: 10px auto 18px; max-width: 360px; padding: 12px 16px; border-radius: 16px; border: 1px solid var(--line-2); background: linear-gradient(110deg, rgba(232, 194, 122, 0.14), transparent 80%); }
 .mini-pay b { font: 600 28px/1 var(--body); font-variant-numeric: lining-nums tabular-nums; color: var(--gold-2); }
 .mini-pay small { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; }
-@media (max-width: 1300px) { .hero .lux-row { grid-template-columns: repeat(3, 1fr); width: min(1060px, 100%); } }
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
   .mini-summary { grid-template-columns: 1fr; gap: 10px; }
   .lux.h.mini-card { grid-template-rows: auto auto auto; }

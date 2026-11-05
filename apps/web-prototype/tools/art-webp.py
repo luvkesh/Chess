@@ -10,14 +10,14 @@ out = here / 'out'
 dest = here.parent / 'src' / 'art'
 dest.mkdir(exist_ok=True)
 
-# The gold pieces for the medals: trimmed to the piece and 240 px tall, on transparency.
+# The gold pieces for the medals: trimmed to the piece and 360 px tall (sharp on 3x phones), on transparency.
 for t in 'kqrbnp':
     f = out / ('piece-%s.png' % t)
     if not f.exists():
         continue
     im = Image.open(f).convert('RGBA')
     im = im.crop(im.getbbox())
-    im = im.resize((round(im.width * 240 / im.height), 240), Image.LANCZOS)
+    im = im.resize((round(im.width * 360 / im.height), 360), Image.LANCZOS)
     im.save(dest / ('piece-%s.webp' % t), quality=84, method=6)
 
 # Each era's room and landmark for the Journey banners and portholes, cropped wide from the
