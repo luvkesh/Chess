@@ -1793,16 +1793,24 @@ function ChacklateScene(canvas, options) {
       try { drawSnapshot(built, w, h).then(res, () => res(null)); } catch (e) { res(null); }
     })));
   }
-  const snapCam = new THREE.PerspectiveCamera();
+  const snapCam = new THREE.PerspectiveCamera(), snapScene = new THREE.Scene();
+  // puts a built scene inside a long-lived one, with its sky, fog and reflections
+  function holdIn(outer, inner) {
+    outer.environment = inner.environment; outer.environmentIntensity = inner.environmentIntensity;
+    outer.background = inner.background; outer.fog = inner.fog;
+    outer.add(inner);
+  }
   function drawSnapshot({ scene: s2, camera: c2, dispose }, w, h) {
     const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
     const prevT = renderer.toneMapping;
     renderer.setRenderTarget(rt);
     renderer.setClearColor(0x000000, 0); renderer.clear();
-    // drawn through one long-lived camera: three keeps a glass (transmission) buffer for every
-    // camera it has drawn with, so a new camera per picture left one behind each time
+    // drawn through one long-lived scene and camera: three keeps a glass (transmission) buffer
+    // per scene and camera it has drawn, so a new pair per picture left one behind each time
     snapCam.copy(c2); snapCam.updateMatrixWorld();
-    renderer.render(s2, snapCam);
+    holdIn(snapScene, s2);
+    renderer.render(snapScene, snapCam);
+    snapScene.remove(s2);
     renderer.setRenderTarget(null);
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
@@ -1838,7 +1846,7 @@ function ChacklateScene(canvas, options) {
   // pinch or the wheel brings it closer. One renderer is kept and moved from card to card: a
   // new GPU context for every card would leave the old ones' state on the shared piece meshes.
   let stageR = null, stageOn = null;
-  const stageCam = new THREE.PerspectiveCamera();
+  const stageCam = new THREE.PerspectiveCamera(), stageScene = new THREE.Scene();
   function stageRenderer() {
     if (stageR) return stageR;
     let r;
@@ -1924,8 +1932,9 @@ function ChacklateScene(canvas, options) {
       built.spin.rotation.y = yaw;
       built.camera.position.copy(built.look).addScaledVector(base.clone().sub(built.look), zoom * fitK);
       built.camera.lookAt(built.look);
-      stageCam.copy(built.camera); stageCam.updateMatrixWorld();   // one camera for every item: see snapCam
-      r.render(built.scene, stageCam);
+      stageCam.copy(built.camera); stageCam.updateMatrixWorld();   // one scene and camera for every item: see snapCam
+      if (built.scene.parent !== stageScene) { stageScene.clear(); holdIn(stageScene, built.scene); }
+      r.render(stageScene, stageCam);
       if (!shown) { shown = true; host.classList.add('live'); }
       loop = requestAnimationFrame(tick);
     }
@@ -1971,6 +1980,7 @@ function ChacklateScene(canvas, options) {
       cv.removeEventListener('pointercancel', up);
       cv.removeEventListener('wheel', wheel);
       if (built) { drop(built); built = null; }
+      stageScene.clear(); stageScene.environment = stageScene.background = stageScene.fog = null;
       if (cv.parentNode === host) host.removeChild(cv);
       host.classList.remove('live');
       if (stageOn === api) stageOn = null;
