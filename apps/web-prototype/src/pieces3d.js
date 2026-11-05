@@ -1536,7 +1536,7 @@ function ChacklatePieces(THREE, K) {
     },
   };
 
-  // ------------------------------------------------------------------ Tsarina's Faberge (Imperial Russia)
+  // ------------------------------------------------------------------ Tsarina's Treasure (Imperial Russia)
   // Guilloche enamel and Ural malachite set in gold, pearls and diamonds, Kremlin battlements.
   function russiaBase(p, R, top, k) {
     k = k || 1;
@@ -3717,7 +3717,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.lattimo() } : { body: MATS.cobalt() }, { trim: MAT.gold('#f0c564') }),
     },
     tsarina: {
-      id: 'tsarina', name: "Tsarina's Faberge", era: 'Imperial Russia', year: 'c. 1900', tint: '#13563a',
+      id: 'tsarina', name: "Tsarina's Treasure", era: 'Imperial Russia', year: 'c. 1900', tint: '#13563a',
       story: 'Inspired by the jewellers who made Easter eggs for the Tsars: shimmering white enamel over engraved waves, green malachite from the Ural Mountains, gold, pearls and diamonds. The rooks wear the swallowtail battlements of the Moscow Kremlin.',
       lore: {
         k: 'The Great Imperial Crown: two half-domes, an arch of pearls, a red spinel and a cross.',

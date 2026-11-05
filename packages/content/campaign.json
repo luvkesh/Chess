@@ -142,8 +142,8 @@
       "id": "russia", "n": 8, "name": "Imperial Russia", "title": "Jewels in the Snow", "when": "c. 1900", "place": "Saint Petersburg", "access": "premium",
       "set": "tsarina", "board": "winter", "room": "winter", "landmark": "domes", "colors": ["#f0e4d0", "#13563a"],
       "coach": { "id": "mishka", "name": "Mishka", "full": "Mishka the Bear", "animal": "bear",
-        "hello": "Privet! Can you win an endgame against a bear? Win, and the Tsarina's Faberge set is yours.",
-        "win": "Molodets! Well done! The Faberge set is yours.",
+        "hello": "Privet! Can you win an endgame against a bear? Win, and the Tsarina's Treasure set is yours.",
+        "win": "Molodets! Well done! The Tsarina's Treasure set is yours.",
         "lose": "Bears are strong, but you are getting stronger. Try again!" },
       "stages": [
         { "kind": "tale", "title": "The endgame school", "pages": [
