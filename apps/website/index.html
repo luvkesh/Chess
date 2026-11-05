@@ -189,12 +189,13 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .how { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; max-width: 100%; padding: 8px 14px; border: 1px solid var(--gold-3); border-radius: 999px; font: 600 12px/1.3 var(--sans); letter-spacing: 0.06em; color: var(--gold-2); }
 .how svg { width: 16px; height: 16px; flex: none; }
 .strip-wrap { display: flex; align-items: center; gap: 10px; margin-top: 26px; }
-.strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 4px 2px 10px; flex: 1; min-width: 0; scrollbar-width: none; }
+/* the scroller clips at its padding box, so the padding is wider than the gold ring (3.5px) plus the hover lift (2px) */
+.strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-inline: 7px; padding: 8px 7px 12px; flex: 1; min-width: 0; scrollbar-width: none; }
 .strip::-webkit-scrollbar { display: none; }
 .strip button { flex: none; width: 132px; scroll-snap-align: start; padding: 0; border: 0; background: none; cursor: pointer; color: var(--muted); text-align: center; }
 .strip button img { width: 132px; height: 99px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); transition: transform .2s, box-shadow .2s; }
 .strip button span { display: block; margin-top: 7px; font-size: 13px; line-height: 1.25; }
-.strip button:hover img { transform: translateY(-2px); }
+@media (hover: hover) { .strip button:hover img { transform: translateY(-2px); } }   /* a tap leaves :hover stuck on phones */
 .strip button[aria-selected="true"] img { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--gold); }
 .strip button[aria-selected="true"] span { color: var(--ink); }
 .strip-arrow { flex: none; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(20, 12, 10, 0.7); color: var(--gold-2); cursor: pointer; }
@@ -14354,31 +14355,43 @@ function ChacklateWorld(THREE, K) {
     });
     return scene;
   }
-  // Cached per renderer: a map made on one GPU context can't be used on another.
+  // Cached per renderer: a map made on one GPU context can't be used on another. Each map is
+  // a render target of several MB, so trimEnvironments keeps only the last few rooms' maps:
+  // keeping every room's on a phone helped run Safari out of GPU memory.
   const envCaches = new Map();
   function environment(renderer, style) {
     const key = JSON.stringify(style || {});
     if (!envCaches.has(renderer)) envCaches.set(renderer, new Map());
     const envCache = envCaches.get(renderer);
-    if (envCache.has(key)) return envCache.get(key);
+    if (envCache.has(key)) { const rt = envCache.get(key); envCache.delete(key); envCache.set(key, rt); return rt.texture; }   // most recent last
     const pm = new THREE.PMREMGenerator(renderer);
     const scene = envScene(style);
     const rt = pm.fromScene(scene, 0.03);
     scene.traverse((m) => { if (m.geometry) m.geometry.dispose(); if (m.material) [].concat(m.material).forEach((x) => x.dispose()); });
     pm.dispose();
-    envCache.set(key, rt.texture);
+    envCache.set(key, rt);
     return rt.texture;
+  }
+  // Frees all but the `keep` most recently used maps of one renderer, never one in `inUse`.
+  function trimEnvironments(renderer, keep, inUse) {
+    const envCache = envCaches.get(renderer);
+    if (!envCache) return;
+    for (const [k, rt] of envCache) {
+      if (envCache.size <= keep) break;
+      if (inUse && inUse.includes(rt.texture)) continue;
+      rt.dispose(); envCache.delete(k);
+    }
   }
   // After a lost GPU context the cached maps are empty and have to be rendered again.
   // With no renderer given, every renderer's maps go.
   function resetEnvironments(renderer) {
     for (const [r, envCache] of envCaches) {
       if (renderer && r !== renderer) continue;
-      envCache.forEach((t) => t.dispose());
+      envCache.forEach((rt) => rt.dispose());
       envCaches.delete(r);
     }
   }
-  return { BOARDS, ROOMS, SUITES: SU.SUITES, suiteOf: (o) => (o.room ? SU.SUITES[o.room] && o.room : o.board ? SU.byBoard[o.board] : o.set ? SU.bySet[o.set] : null) || null, board, room, environment, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
+  return { BOARDS, ROOMS, SUITES: SU.SUITES, suiteOf: (o) => (o.room ? SU.SUITES[o.room] && o.room : o.board ? SU.byBoard[o.board] : o.set ? SU.bySet[o.set] : null) || null, board, room, environment, trimEnvironments, resetEnvironments, envScene, flame, glowTexture, shade, texFrom, canvas, roundRect, roundedSquare, slab, metal };
 }
 
 // Chackmate table scene (three.js). Same API as the old hand-written renderer, so the game
@@ -14419,6 +14432,26 @@ function ChacklateScene(canvas, options) {
   const sqZ = (sq) => 3.5 - (sq >> 3);
   const TYPE = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 5: 'q', 6: 'k' };
   const kindOf = (p) => Math.abs(p);
+  // Every image texture an object's materials use. Render-target textures (reflection maps,
+  // shadows) are left out: they hold no picture to upload again.
+  function texturesOf(root, out = new Set()) {
+    const take = (v) => { if (v && v.isTexture && !v.isRenderTargetTexture) out.add(v); };
+    root.traverse((m) => {
+      if (!m.material) return;
+      for (const mat of [].concat(m.material)) {
+        for (const k in mat) take(mat[k]);
+        if (mat.uniforms) for (const k in mat.uniforms) take(mat.uniforms[k] && mat.uniforms[k].value);
+      }
+    });
+    return out;
+  }
+  // Takes the textures in `old` that `now` no longer uses off the GPU. They stay in the shared
+  // texture cache with their canvas, so a room or set that comes back uploads them again.
+  // Without this every room visited stayed in GPU memory, and on a phone switching through
+  // the places ran Safari out of memory (the tab reloaded).
+  function releaseTextures(old, now) {
+    old.forEach((t) => { if (!now.has(t)) t.dispose(); });
+  }
 
   // ------------------------------------------------------------------ scene graph
   const scene = new THREE.Scene();
@@ -14453,8 +14486,13 @@ function ChacklateScene(canvas, options) {
   // starts at 1x resolution and only lowers it further.
   const PERF_DPR = { high: [1.75, 1.5, 1.25, 1, 1, 0.85], low: [1, 1, 0.85, 0.75, 0.75, 0.75] };
   const MAX_PERF = 5;
+  // Small screens with dense pixels (phones) cost little per CSS pixel, so a flat scale like
+  // 1.25 leaves a 3x phone soft. Each level also has a budget of drawn pixels: a small canvas
+  // may go above PERF_DPR until it reaches the budget (never above the screen's own ratio).
+  // A desktop window is already past the budget, so it keeps PERF_DPR.
+  const PERF_PIXELS = { high: [3.0e6, 2.2e6, 1.6e6, 1.1e6, 0.9e6, 0.7e6], low: [0, 0, 0, 0, 0, 0] };
+  const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
   let perf = (() => {
-    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     const cores = navigator.hardwareConcurrency || 4, mem = navigator.deviceMemory || 8;
     if (mem <= 2 || cores <= 2) return 3;
     if (coarse && (mem <= 4 || cores <= 4)) return 2;
@@ -14576,15 +14614,18 @@ function ChacklateScene(canvas, options) {
   function loadRoom(id) {
     if (room && room.def && id === roomId && roomGroup.children.length) return;
     roomId = id;
+    const before = texturesOf(roomGroup);
     while (roomGroup.children.length) roomGroup.children.pop();
     if (room && room.dispose) room.dispose();
     room = W.room(id);
     roomGroup.add(room.group);
+    releaseTextures(before, texturesOf(scene));
     scene.fog = new THREE.FogExp2(room.fog, room.fogDensity);
     scene.background = new THREE.Color(room.fog);
     hemi.color.set(room.hemi[0]); hemi.groundColor.set(room.hemi[1]); hemi.intensity = room.lights.hemi;
     chandLight.intensity = room.lights.chand; chandLight.color.set(room.lights.color);
     scene.environment = W.environment(renderer, room.env);
+    W.trimEnvironments(renderer, 2, [scene.environment]);
     scene.environmentIntensity = 0.9;
     // flames are reflected in the board too
     room.flames.forEach((f) => { f.m.layers.enable(REFLECT); f.halo.layers.enable(REFLECT); });
@@ -15940,8 +15981,9 @@ function ChacklateScene(canvas, options) {
   // ------------------------------------------------------------------ sizing
   let lastW = 0, lastH = 0;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, fullDetail ? 2 : PERF_DPR[quality][perf]);
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
+    const fit = Math.sqrt(PERF_PIXELS[quality][lvl()] / (w * h));
+    const dpr = Math.round(Math.min(window.devicePixelRatio || 1, Math.max(fullDetail ? 2 : PERF_DPR[quality][perf], fit)) * 8) / 8;
     if (w !== lastW || h !== lastH || renderer.getPixelRatio() !== dpr) {
       lastW = w; lastH = h;
       renderer.setPixelRatio(dpr);
@@ -16134,10 +16176,14 @@ function ChacklateScene(canvas, options) {
     const spin = new THREE.Group();
     s2.children.filter((o) => !o.isLight).forEach((o) => spin.add(o));
     s2.add(spin);
-    const dispose = () => disposeList.forEach((o) => {
-      if (o.userData && o.userData.dispose) o.userData.dispose();
-      else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
-    });
+    const dispose = () => {
+      disposeList.forEach((o) => {
+        if (o.userData && o.userData.dispose) o.userData.dispose();
+        else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
+      });
+      // a light that cast shadows (the live stage's key light) owns a shadow map on the GPU
+      s2.traverse((o) => { if (o.isLight && o.shadow && o.shadow.map) o.shadow.dispose(); });
+    };
     return { scene: s2, camera: c2, look, spin, dispose };
   }
   // The scene's shaders are compiled first without holding up the page (where the browser can
@@ -16150,16 +16196,29 @@ function ChacklateScene(canvas, options) {
       try { drawSnapshot(built, w, h).then(res, () => res(null)); } catch (e) { res(null); }
     })));
   }
+  const snapCam = new THREE.PerspectiveCamera(), snapScene = new THREE.Scene();
+  // puts a built scene inside a long-lived one, with its sky, fog and reflections
+  function holdIn(outer, inner) {
+    outer.environment = inner.environment; outer.environmentIntensity = inner.environmentIntensity;
+    outer.background = inner.background; outer.fog = inner.fog;
+    outer.add(inner);
+  }
   function drawSnapshot({ scene: s2, camera: c2, dispose }, w, h) {
     const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
     const prevT = renderer.toneMapping;
     renderer.setRenderTarget(rt);
     renderer.setClearColor(0x000000, 0); renderer.clear();
-    renderer.render(s2, c2);
+    // drawn through one long-lived scene and camera: three keeps a glass (transmission) buffer
+    // per scene and camera it has drawn, so a new pair per picture left one behind each time
+    snapCam.copy(c2); snapCam.updateMatrixWorld();
+    holdIn(snapScene, s2);
+    renderer.render(snapScene, snapCam);
+    snapScene.remove(s2);
     renderer.setRenderTarget(null);
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
     dispose();
+    W.trimEnvironments(renderer, 2, [scene.environment]);
     // The pixels are read back without waiting on the GPU where WebGL 2 allows it: the plain
     // read stops the page until the picture is drawn, a long freeze on a slow phone.
     const px = new Uint8Array(w * h * 4);
@@ -16190,6 +16249,7 @@ function ChacklateScene(canvas, options) {
   // pinch or the wheel brings it closer. One renderer is kept and moved from card to card: a
   // new GPU context for every card would leave the old ones' state on the shared piece meshes.
   let stageR = null, stageOn = null;
+  const stageCam = new THREE.PerspectiveCamera(), stageScene = new THREE.Scene();
   function stageRenderer() {
     if (stageR) return stageR;
     let r;
@@ -16224,7 +16284,8 @@ function ChacklateScene(canvas, options) {
     const pts = new Map();
     function size() {
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
-      r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      // phones draw at 1.5x: a second full-size drawing buffer at 3x is a lot of GPU memory
+      r.setPixelRatio(Math.min(coarse ? 1.5 : 2, window.devicePixelRatio || 1));
       r.setSize(w, h, false);
       fitK = Math.max(1, (aspect || w / h) / (w / h));
       if (built) { built.camera.aspect = w / h; built.camera.updateProjectionMatrix(); }
@@ -16232,9 +16293,10 @@ function ChacklateScene(canvas, options) {
     function show(sp, asp) {
       if (asp) aspect = asp;
       if (loop) { cancelAnimationFrame(loop); loop = 0; }
-      if (built) drop(built);
+      const prev = built;
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       built = buildSpec(sp, w, h, (style) => W.environment(r, style));
+      if (prev) drop(prev);   // after the new one is built, so what both use stays on the GPU
       base = built.camera.position.clone();
       // a soft contact shadow under the pieces; rooms are lit by their own lamps
       const keyL = built.scene.children.find((o) => o.isDirectionalLight);
@@ -16254,7 +16316,16 @@ function ChacklateScene(canvas, options) {
     }
     // A scene still compiling is freed only once three.js has finished with it; freeing it
     // mid-compile throws inside three when the visitor flips quickly between items.
-    function drop(b) { if (b.compiling) b.compiling.then(() => b.dispose()); else b.dispose(); }
+    // Whatever the old item's materials used and the new one doesn't comes off the GPU too.
+    function drop(b) {
+      const free = () => {
+        const old = texturesOf(b.scene);
+        b.dispose();
+        releaseTextures(old, built && built !== b ? texturesOf(built.scene) : new Set());
+        W.trimEnvironments(r, 1, built && built !== b ? [built.scene.environment] : []);
+      };
+      if (b.compiling) b.compiling.then(free); else free();
+    }
     function tick(now) {
       loop = 0;
       if (!cv.isConnected || stageR !== r) { stop(); return; }
@@ -16264,7 +16335,9 @@ function ChacklateScene(canvas, options) {
       built.spin.rotation.y = yaw;
       built.camera.position.copy(built.look).addScaledVector(base.clone().sub(built.look), zoom * fitK);
       built.camera.lookAt(built.look);
-      r.render(built.scene, built.camera);
+      stageCam.copy(built.camera); stageCam.updateMatrixWorld();   // one scene and camera for every item: see snapCam
+      if (built.scene.parent !== stageScene) { stageScene.clear(); holdIn(stageScene, built.scene); }
+      r.render(stageScene, stageCam);
       if (!shown) { shown = true; host.classList.add('live'); }
       loop = requestAnimationFrame(tick);
     }
@@ -16310,6 +16383,7 @@ function ChacklateScene(canvas, options) {
       cv.removeEventListener('pointercancel', up);
       cv.removeEventListener('wheel', wheel);
       if (built) { drop(built); built = null; }
+      stageScene.clear(); stageScene.environment = stageScene.background = stageScene.fog = null;
       if (cv.parentNode === host) host.removeChild(cv);
       host.classList.remove('live');
       if (stageOn === api) stageOn = null;
@@ -17050,7 +17124,7 @@ const ChacklateTips = (function () {
     }
     function quiet() { if (hush) hush.pause(); if (tag && !(audio && audio.el)) tag.pause(); }
     // any tap while the tour is on wakes sound that iOS put to sleep
-    ['touchend', 'click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (on && !paused && actx && actx.state !== 'running') unlock(); }, true); });
+    ['touchend', 'click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (!on || paused) return; if (held) carryOn(true); else if (actx && actx.state !== 'running') unlock(); }, true); });
     // An inlined clip is decoded from its base64 text: the page's sandbox may refuse fetch() of a data: URL.
     function bytes(src) {
       if (src.indexOf('data:') === 0) {
@@ -17097,15 +17171,16 @@ const ChacklateTips = (function () {
     }
     // When sound cannot start, the caption says why, so a visitor (and we) can tell what went wrong.
     function failed(a, why) { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); cap.textContent = 'No sound from ' + D.coach + ' (' + why + '). Check the volume, then tap replay.'; peek(6000); }
-    function speak(key) {
-      var L = G[key]; if (!L) return;
-      fadeOut(); hideCue();
-      var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null }; audio = a; lastKey = key;
+    function speak(key, from) {
+      var L = G[key]; if (!L) return; from = from || 0;
+      fadeOut(); hideCue(); held = null;
+      var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null, now: null }; audio = a; lastKey = key;
       if (key.indexOf('item-') !== 0) lastSection = key;
       cap.textContent = L.cues[0].text; where.textContent = label(key);
       function ended() { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (key.indexOf('item-') !== 0) showCue(key); }
       // the caption is the last cue whose time has passed
       function follow(now) {
+        a.now = now;
         if (!paused) live.classList.add('talking');
         clearInterval(capTimer);
         capTimer = setInterval(function () {
@@ -17118,7 +17193,7 @@ const ChacklateTips = (function () {
         if (audio !== a) return;
         if (!tag) return failed(a, why || 'no audio');
         a.el = tag; tag.loop = false; tag.onended = ended; tag.onerror = function () { failed(a, 'clip would not load'); };
-        tag.src = L.src; try { tag.currentTime = 0; } catch (e) {}
+        tag.src = L.src; try { tag.currentTime = from; } catch (e) {}
         var p = tag.play();
         if (p && p.then) p.then(function () { if (audio === a) follow(function () { return tag.currentTime; }); }, function (e) { failed(a, (e && e.name) || 'blocked'); });
         else follow(function () { return tag.currentTime; });
@@ -17128,13 +17203,30 @@ const ChacklateTips = (function () {
       load(key).then(function (buf) {
         if (audio !== a) return;
         if (actx.state !== 'running') return viaElement('sound is asleep');
-        var src = actx.createBufferSource(); src.buffer = buf; src.connect(a.gain); a.src = src; var t0 = actx.currentTime;
+        var src = actx.createBufferSource(); src.buffer = buf; src.connect(a.gain); a.src = src; var t0 = actx.currentTime - from;
         src.onended = ended;
-        src.start();
+        src.start(0, Math.min(from, Math.max(0, buf.duration - 0.05)));
         follow(function () { return actx.currentTime - t0; });
         // fetch the neighbouring sections so the next one starts at once
         var i = keys.indexOf(a.sec); [keys[i + 1], keys[i - 1]].forEach(function (k) { if (k) load(k).catch(function () {}); });
       }).catch(function (e) { viaElement((e && e.message) || 'decode'); });
+    }
+    // Leaving the page (another tab, a call, the lock screen) stops the clip where it is; coming back
+    // carries on from that spot. iOS will not always let sound restart on its own, so when it refuses,
+    // the caption asks for a tap, and the next tap anywhere carries on.
+    var held = null;
+    function hold() {
+      if (!audio) return;
+      var a = audio; held = { key: a.key, at: a.now ? a.now() : 0, cap: cap.textContent }; audio = null;
+      live.classList.remove('talking'); clearInterval(capTimer);
+      if (a.el) { a.el.onended = a.el.onerror = null; a.el.pause(); }
+      if (a.src) { a.src.onended = null; try { a.src.stop(); } catch (e) {} }
+    }
+    function carryOn(tapped) {
+      var h = held; if (!h || !on || paused) return;
+      if (tapped) { unlock(); held = null; speak(h.key, h.at); return; }
+      var go = function () { if (held !== h || !on || paused) return; if (actx && actx.state === 'running') { held = null; speak(h.key, h.at); } else { cap.textContent = 'Tap anywhere and I will carry on.'; where.textContent = label(h.key); peek(8000); } };
+      if (actx && actx.state !== 'running') { var r = actx.resume(); if (r && r.then) r.then(go, go); setTimeout(go, 600); } else go();
     }
     function onScroll() {
       if (nextTo && Math.abs(scrollY - cueAt) > 24) hideCue();
@@ -17142,7 +17234,7 @@ const ChacklateTips = (function () {
       var k = current();
       if (audio && k !== audio.sec) { fadeOut(); clearTimeout(itemT); }
       clearTimeout(settle);
-      settle = setTimeout(function () { var k2 = current(); if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); }, 500);
+      settle = setTimeout(function () { var k2 = current(); if (held && k2 !== sectionOf(held.key)) held = null; if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); else if (held) carryOn(false); }, 500);
     }
     function setPaused(v) {
       paused = v; live.classList.toggle('paused', v);
@@ -17152,7 +17244,7 @@ const ChacklateTips = (function () {
     }
     function setOn(v) {
       on = v; store.set(KEY, v ? '1' : '0'); btn.setAttribute('aria-pressed', String(v)); invite.hidden = true; live.hidden = !v; paused = false; live.classList.remove('paused', 'show');
-      if (v) { unlock(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); clearTimeout(itemT); fadeOut(); hideCue(); quiet(); }
+      if (v) { unlock(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); clearTimeout(itemT); fadeOut(); hideCue(); quiet(); held = null; }
     }
     addEventListener('scroll', onScroll, { passive: true });
     // a piece on show in Collect gets its own pitch once it has been there half a second
@@ -17204,7 +17296,10 @@ const ChacklateTips = (function () {
     live.addEventListener('mouseenter', function () { peek(0); }); live.addEventListener('mouseleave', function () { peek(1200); });
     orb.addEventListener('focus', function () { peek(0); }); orb.addEventListener('blur', function () { peek(1200); });
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) setOn(false); });
-    document.addEventListener('visibilitychange', function () { if (!actx || paused || !on) return; if (document.hidden) { actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); quiet(); } else { actx.resume().catch(function () {}); if (hush) hush.play().catch(function () {}); if (audio && audio.el) audio.el.play().catch(function () {}); } });
+    document.addEventListener('visibilitychange', function () { if (paused || !on) return; if (document.hidden) { hold(); quiet(); } else { if (hush) hush.play().catch(function () {}); carryOn(false); } });
+    // iOS also fires these on a lock or a return, sometimes without visibilitychange
+    addEventListener('pagehide', function () { if (on && !paused) { hold(); quiet(); } });
+    addEventListener('pageshow', function () { if (on && !paused) carryOn(false); });
     var saved = store.get(KEY);
     if (saved === '1') {
       // sound needs a tap first, so a returning visitor's tour carries on at their first tap or key
@@ -17216,7 +17311,7 @@ const ChacklateTips = (function () {
       };
       addEventListener('click', first, true); addEventListener('touchend', first, true); addEventListener('keydown', first, true);
     } else if (saved !== '0') setTimeout(function () { if (!on) invite.hidden = false; }, 1800);
-    if (window.__SHOT) window.__tour = { setOn: setOn, speak: speak, state: function () { return { on: on, paused: paused, last: lastKey, cap: cap.textContent, talking: live.classList.contains('talking') }; } };
+    if (window.__SHOT) window.__tour = { setOn: setOn, speak: speak, state: function () { return { on: on, paused: paused, last: lastKey, cap: cap.textContent, talking: live.classList.contains('talking'), held: held, at: audio && audio.now ? audio.now() : null }; } };
   })();
 
   // ---------------------------------------------------------------- chrome
