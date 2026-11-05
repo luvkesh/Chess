@@ -36,6 +36,26 @@ function ChacklateScene(canvas, options) {
   const sqZ = (sq) => 3.5 - (sq >> 3);
   const TYPE = { 1: 'p', 2: 'n', 3: 'b', 4: 'r', 5: 'q', 6: 'k' };
   const kindOf = (p) => Math.abs(p);
+  // Every image texture an object's materials use. Render-target textures (reflection maps,
+  // shadows) are left out: they hold no picture to upload again.
+  function texturesOf(root, out = new Set()) {
+    const take = (v) => { if (v && v.isTexture && !v.isRenderTargetTexture) out.add(v); };
+    root.traverse((m) => {
+      if (!m.material) return;
+      for (const mat of [].concat(m.material)) {
+        for (const k in mat) take(mat[k]);
+        if (mat.uniforms) for (const k in mat.uniforms) take(mat.uniforms[k] && mat.uniforms[k].value);
+      }
+    });
+    return out;
+  }
+  // Takes the textures in `old` that `now` no longer uses off the GPU. They stay in the shared
+  // texture cache with their canvas, so a room or set that comes back uploads them again.
+  // Without this every room visited stayed in GPU memory, and on a phone switching through
+  // the places ran Safari out of memory (the tab reloaded).
+  function releaseTextures(old, now) {
+    old.forEach((t) => { if (!now.has(t)) t.dispose(); });
+  }
 
   // ------------------------------------------------------------------ scene graph
   const scene = new THREE.Scene();
@@ -73,8 +93,8 @@ function ChacklateScene(canvas, options) {
   // may go above PERF_DPR until it reaches the budget (never above the screen's own ratio).
   // A desktop window is already past the budget, so it keeps PERF_DPR.
   const PERF_PIXELS = { high: [3.0e6, 2.2e6, 1.6e6, 1.1e6, 0.9e6, 0.7e6], low: [0, 0, 0, 0, 0, 0] };
+  const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
   let perf = (() => {
-    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     const cores = navigator.hardwareConcurrency || 4, mem = navigator.deviceMemory || 8;
     if (mem <= 2 || cores <= 2) return 3;
     if (coarse && (mem <= 4 || cores <= 4)) return 2;
@@ -196,15 +216,18 @@ function ChacklateScene(canvas, options) {
   function loadRoom(id) {
     if (room && room.def && id === roomId && roomGroup.children.length) return;
     roomId = id;
+    const before = texturesOf(roomGroup);
     while (roomGroup.children.length) roomGroup.children.pop();
     if (room && room.dispose) room.dispose();
     room = W.room(id);
     roomGroup.add(room.group);
+    releaseTextures(before, texturesOf(scene));
     scene.fog = new THREE.FogExp2(room.fog, room.fogDensity);
     scene.background = new THREE.Color(room.fog);
     hemi.color.set(room.hemi[0]); hemi.groundColor.set(room.hemi[1]); hemi.intensity = room.lights.hemi;
     chandLight.intensity = room.lights.chand; chandLight.color.set(room.lights.color);
     scene.environment = W.environment(renderer, room.env);
+    W.trimEnvironments(renderer, 2, [scene.environment]);
     scene.environmentIntensity = 0.9;
     // flames are reflected in the board too
     room.flames.forEach((f) => { f.m.layers.enable(REFLECT); f.halo.layers.enable(REFLECT); });
@@ -1750,10 +1773,14 @@ function ChacklateScene(canvas, options) {
     const spin = new THREE.Group();
     s2.children.filter((o) => !o.isLight).forEach((o) => spin.add(o));
     s2.add(spin);
-    const dispose = () => disposeList.forEach((o) => {
-      if (o.userData && o.userData.dispose) o.userData.dispose();
-      else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
-    });
+    const dispose = () => {
+      disposeList.forEach((o) => {
+        if (o.userData && o.userData.dispose) o.userData.dispose();
+        else o.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
+      });
+      // a light that cast shadows (the live stage's key light) owns a shadow map on the GPU
+      s2.traverse((o) => { if (o.isLight && o.shadow && o.shadow.map) o.shadow.dispose(); });
+    };
     return { scene: s2, camera: c2, look, spin, dispose };
   }
   // The scene's shaders are compiled first without holding up the page (where the browser can
@@ -1766,16 +1793,21 @@ function ChacklateScene(canvas, options) {
       try { drawSnapshot(built, w, h).then(res, () => res(null)); } catch (e) { res(null); }
     })));
   }
+  const snapCam = new THREE.PerspectiveCamera();
   function drawSnapshot({ scene: s2, camera: c2, dispose }, w, h) {
     const rt = new THREE.WebGLRenderTarget(w, h, { samples: 4 });
     const prevT = renderer.toneMapping;
     renderer.setRenderTarget(rt);
     renderer.setClearColor(0x000000, 0); renderer.clear();
-    renderer.render(s2, c2);
+    // drawn through one long-lived camera: three keeps a glass (transmission) buffer for every
+    // camera it has drawn with, so a new camera per picture left one behind each time
+    snapCam.copy(c2); snapCam.updateMatrixWorld();
+    renderer.render(s2, snapCam);
     renderer.setRenderTarget(null);
     renderer.setClearColor('#120a07', 1);
     renderer.toneMapping = prevT;
     dispose();
+    W.trimEnvironments(renderer, 2, [scene.environment]);
     // The pixels are read back without waiting on the GPU where WebGL 2 allows it: the plain
     // read stops the page until the picture is drawn, a long freeze on a slow phone.
     const px = new Uint8Array(w * h * 4);
@@ -1806,6 +1838,7 @@ function ChacklateScene(canvas, options) {
   // pinch or the wheel brings it closer. One renderer is kept and moved from card to card: a
   // new GPU context for every card would leave the old ones' state on the shared piece meshes.
   let stageR = null, stageOn = null;
+  const stageCam = new THREE.PerspectiveCamera();
   function stageRenderer() {
     if (stageR) return stageR;
     let r;
@@ -1840,7 +1873,8 @@ function ChacklateScene(canvas, options) {
     const pts = new Map();
     function size() {
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
-      r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      // phones draw at 1.5x: a second full-size drawing buffer at 3x is a lot of GPU memory
+      r.setPixelRatio(Math.min(coarse ? 1.5 : 2, window.devicePixelRatio || 1));
       r.setSize(w, h, false);
       fitK = Math.max(1, (aspect || w / h) / (w / h));
       if (built) { built.camera.aspect = w / h; built.camera.updateProjectionMatrix(); }
@@ -1848,9 +1882,10 @@ function ChacklateScene(canvas, options) {
     function show(sp, asp) {
       if (asp) aspect = asp;
       if (loop) { cancelAnimationFrame(loop); loop = 0; }
-      if (built) drop(built);
+      const prev = built;
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       built = buildSpec(sp, w, h, (style) => W.environment(r, style));
+      if (prev) drop(prev);   // after the new one is built, so what both use stays on the GPU
       base = built.camera.position.clone();
       // a soft contact shadow under the pieces; rooms are lit by their own lamps
       const keyL = built.scene.children.find((o) => o.isDirectionalLight);
@@ -1870,7 +1905,16 @@ function ChacklateScene(canvas, options) {
     }
     // A scene still compiling is freed only once three.js has finished with it; freeing it
     // mid-compile throws inside three when the visitor flips quickly between items.
-    function drop(b) { if (b.compiling) b.compiling.then(() => b.dispose()); else b.dispose(); }
+    // Whatever the old item's materials used and the new one doesn't comes off the GPU too.
+    function drop(b) {
+      const free = () => {
+        const old = texturesOf(b.scene);
+        b.dispose();
+        releaseTextures(old, built && built !== b ? texturesOf(built.scene) : new Set());
+        W.trimEnvironments(r, 1, built && built !== b ? [built.scene.environment] : []);
+      };
+      if (b.compiling) b.compiling.then(free); else free();
+    }
     function tick(now) {
       loop = 0;
       if (!cv.isConnected || stageR !== r) { stop(); return; }
@@ -1880,7 +1924,8 @@ function ChacklateScene(canvas, options) {
       built.spin.rotation.y = yaw;
       built.camera.position.copy(built.look).addScaledVector(base.clone().sub(built.look), zoom * fitK);
       built.camera.lookAt(built.look);
-      r.render(built.scene, built.camera);
+      stageCam.copy(built.camera); stageCam.updateMatrixWorld();   // one camera for every item: see snapCam
+      r.render(built.scene, stageCam);
       if (!shown) { shown = true; host.classList.add('live'); }
       loop = requestAnimationFrame(tick);
     }
