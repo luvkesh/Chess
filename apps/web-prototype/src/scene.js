@@ -2037,6 +2037,17 @@ function ChacklateScene(canvas, options) {
       if (pieces) loadSet(pieces.set || 'regency');
       requestRender();
     },
+    // Paints a room's and a board's textures and sculpts a set's pieces ahead of time (they stay
+    // in the caches, on the CPU only), so a later setRoom/setTheme to them is quick. Nothing is
+    // drawn or uploaded.
+    prepare(look) {
+      look = look || {};
+      try {
+        if (look.room && look.room !== roomId) W.room(look.room).dispose();
+        if (look.board && look.board !== boardId) W.board(look.board, labelSide).userData.dispose();
+        if (look.set && P.SETS[look.set]) for (const t of ['k', 'q', 'r', 'b', 'n', 'p']) P.geometry(look.set, t, fullDetail ? 'show' : 'play');
+      } catch (e) { /* a look that fails here fails again, visibly, when it is shown */ }
+    },
     setRoom(r) { if (r && EL && (r.room || 'salon') !== roomId) EL.clear(); if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },
     setFx(f) { fx = Object.assign({}, fx, f); },
     setCaptureEffects(on) { captureFxOn = on; },

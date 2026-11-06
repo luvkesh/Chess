@@ -692,5 +692,6 @@
  "White: knight to f3": "सफ़ेद: घोड़ा f3 पर",
  "Black: knight to c6": "काला: घोड़ा c6 पर",
  "White: bishop to c4": "सफ़ेद: ऊँट c4 पर",
- "Black: bishop to c5": "काला: ऊँट c5 पर"
+ "Black: bishop to c5": "काला: ऊँट c5 पर",
+ "Win the {0} set": "{0} सेट जीतें"
 }
