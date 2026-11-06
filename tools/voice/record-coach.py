@@ -17,6 +17,7 @@ recorded again; pieces whose clip is up to date are skipped.
 Two ways to run Kokoro: the `kokoro` package (see record.py), or, where its weights can't be fetched,
 kokoro-onnx with misaki: set KOKORO_ONNX to a folder holding kokoro-v1.0.onnx and voices-v1.0.bin.
 """
+import atexit
 import hashlib
 import json
 import os
@@ -52,7 +53,7 @@ SAY = {
     'ay': 'ˈA', 'ee': 'ˈi', 'jee': 'ʤˈi', 'Alapin': 'ˈæləpɪn', "Alekhine's": 'ˈæləkˌinz', 'Blackburne': 'blˈækbɜɹn',
     'Caro-Kann': 'kˈɑɹO kˈɑn', 'Colle': 'kˈɔli', 'Englund': 'ˈɛŋɡlənd', 'Evans': 'ˈɛvənz', 'Giuoco': 'ʤˈwOkO',
     'Grünfeld': 'ɡɹˈunfɛld', "Larsen's": 'lˈɑɹsənz', 'Lopez': 'lˈOpɛz', 'Middlegame': 'mˈɪdᵊlɡˌAm', 'Morphy': 'mˈɔɹfi',
-    'Najdorf': 'nˈIdɔɹf', 'Nimzo-Indian': 'nˈɪmzO ˈɪndiən', 'Nimzowitsch': 'nˈɪmzOvɪʧ', "Petrov's": 'pˈɛtɹɔfs',
+    'Najdorf': 'nˈIdɔɹf', 'Nimzo-Indian': 'nˈɪmzO ˈɪndiən', 'Nimzowitsch': 'nˈɪmzOvɪʧ', 'Oops': 'ˈups', "Petrov's": 'pˈɛtɹɔfs',
     'Philidor': 'fˈɪlɪdɔɹ', 'Pirc': 'pˈɪɹts', 'Ponziani': 'pˌɔnziˈɑni', 'Ruy': 'ɹˈuˌi', 'Réti': 'ɹˈAti', 'Smith-Morra': 'smˈɪθ mˈɔɹə',
     'Trompowsky': 'tɹɑmpˈɔfski', 'Winawer': 'vˈɪnəvəɹ', 'Zwischenzug': 'tsvˈɪʃəntsˌuk', 'chaturanga': 'ʧˌʌtʊɹˈʌŋɡə',
 }
@@ -68,9 +69,9 @@ def say(text):
     global engine
     onnx = os.environ.get('KOKORO_ONNX')
     if onnx:
+        from misaki import en
         if engine is None:
             from kokoro_onnx import Kokoro
-            from misaki import en
             engine = (Kokoro(os.path.join(onnx, 'kokoro-v1.0.onnx'), os.path.join(onnx, 'voices-v1.0.bin')), {})
         k, g2ps = engine
         names = voice.split(',')
@@ -104,6 +105,15 @@ def say(text):
 
 
 made = 0
+names = {vid for vid, _, _, _ in VOICES}
+
+
+@atexit.register
+def save():
+    # kept even when a run stops part way, so the clips already made are not recorded again
+    record_path.write_text(json.dumps({k: recorded[k] for k in sorted(recorded) if k.split('/')[0] in names and k.split('/')[1] in keys}, indent=1, ensure_ascii=False) + '\n')
+
+
 keys = [l['key'] for l in lines]
 index = {'engine': 'Kokoro-82M (Apache-2.0)', 'keys': keys, 'voices': {}}
 out.mkdir(parents=True, exist_ok=True)
@@ -136,6 +146,4 @@ for f in out.glob('*.mp3'):
     if f.stem not in index['voices']:
         f.unlink()
 (out / 'index.json').write_text(json.dumps(index) + '\n')
-names = {vid for vid, _, _, _ in VOICES}
-record_path.write_text(json.dumps({k: recorded[k] for k in sorted(recorded) if k.split('/')[0] in names and k.split('/')[1] in keys}, indent=1, ensure_ascii=False) + '\n')
 print('recorded', made, 'new pieces;', len(VOICES), 'voices')
