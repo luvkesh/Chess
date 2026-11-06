@@ -107,7 +107,7 @@
   // every era of the journey. Portraits are drawn by art.js.
   const OPP = CAMPAIGN.opponents, COACH = CAMPAIGN.coach;
   const persona = (lv) => OPP[lv] || OPP[0];
-  const species = (p) => (p.full || '').replace(p.name, '').trim().replace(/^the /, '');
+  const species = (p) => (p.species || (p.full || '').replace(p.name, '')).trim().replace(/^the /, '');
   const face = (who, o) => ART.portraitUri(who.animal, Object.assign({ from: who.colors[0], to: who.colors[1] }, o || {}));
   const faceImg = (who, cls) => '<img class="portrait ' + (cls || '') + '" src="' + face(who) + '" alt="' + esc(who.full || who.name) + '">';
   const eraById = (id) => CAMPAIGN.eras.find((e) => e.id === id) || null;
