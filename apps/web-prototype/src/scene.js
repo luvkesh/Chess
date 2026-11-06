@@ -549,7 +549,7 @@ function ChacklateScene(canvas, options) {
   }
 
   // ------------------------------------------------------------------ particles
-  const MAXP = 900;
+  const MAXP = 1600;
   const pGeo = new THREE.BufferGeometry();
   const pPos = new Float32Array(MAXP * 3), pCol = new Float32Array(MAXP * 4), pSize = new Float32Array(MAXP), pShape = new Float32Array(MAXP);
   pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
@@ -568,13 +568,14 @@ function ChacklateScene(canvas, options) {
   pAdd.frustumCulled = false; pNorm.frustumCulled = false; pAdd.renderOrder = 6; pNorm.renderOrder = 5;
   scene.add(pAdd, pNorm);
   const lin = (h) => new THREE.Color(h);
-  function spawn(kind, x, y, z, colors, count) {
+  // opt: { speed } for a ring; { style, size, life } for a trail (see trailOf)
+  function spawn(kind, x, y, z, colors, count, opt) {
     if (!animations) return;
-    const cols = (colors || ['#ffffff']).map(lin);
+    const cols = (colors && colors.length ? colors : ['#ffffff']).map(lin);
     const now = performance.now();
     for (let i = 0; i < count; i++) {
       if (particles.length >= MAXP - 2) break;
-      const a = Math.random() * TAU, sp = Math.random();
+      const a = kind === 'ring' ? (i / count) * TAU : Math.random() * TAU, sp = Math.random();
       const c = cols[i % cols.length];
       const p = { x, y, z, vx: Math.cos(a) * sp, vy: 0, vz: Math.sin(a) * sp, born: now, life: 700, size: 0.06, color: c, alpha: 1, kind, square: false, add: true, g: 0, drag: 0.9 };
       if (kind === 'dust') { p.vx *= 1.3; p.vz *= 1.3; p.vy = 0.4 + Math.random() * 0.7; p.g = 2.2; p.life = 650; p.size = 0.05 + Math.random() * 0.05; p.add = false; p.alpha = 0.7; }
@@ -585,10 +586,32 @@ function ChacklateScene(canvas, options) {
       else if (kind === 'confetti') { p.vx *= 2.5; p.vz *= 2.5; p.vy = 3.5 + Math.random() * 3; p.g = 4.2; p.life = 2800; p.size = 0.08; p.square = true; p.add = false; p.drag = 0.5; p.flutter = Math.random() * 6; }
       else if (kind === 'firework') { const e = Math.random() * Math.PI - Math.PI / 2; p.vx = Math.cos(a) * Math.cos(e) * 3; p.vz = Math.sin(a) * Math.cos(e) * 3; p.vy = Math.sin(e) * 3 + 0.6; p.g = 1.6; p.life = 1600; p.size = 0.06; }
       else if (kind === 'mote') { p.vx = (Math.random() - 0.5) * 0.05; p.vz = (Math.random() - 0.5) * 0.05; p.vy = 0.02 + Math.random() * 0.04; p.g = 0; p.life = 9000 + Math.random() * 6000; p.size = 0.03 + Math.random() * 0.03; p.alpha = 0.3; p.drag = 1; p.born = now - Math.random() * 4000; }
-      else if (kind === 'trail') { p.vx *= 0.15; p.vz *= 0.15; p.vy = 0.15; p.g = 0; p.life = 450; p.size = 0.07; p.alpha = 0.7; }
+      else if (kind === 'ring') { const v = 3.4 * ((opt && opt.speed) || 1); p.vx = Math.cos(a) * v; p.vz = Math.sin(a) * v; p.vy = 0.05; p.g = 0; p.drag = 0.3; p.life = 560; p.size = 0.11; }
+      else if (kind === 'aura') { p.vx *= 0.25; p.vz *= 0.25; p.vy = 0.6 + Math.random() * 0.8; p.g = -0.2; p.life = 900; p.size = 0.09 + Math.random() * 0.06; }
+      else if (kind === 'trail') trailParticle(p, opt || {});
       particles.push(p);
     }
     requestRender();
+  }
+  // One particle of a move trail, by the trail's style; o.size and o.life scale it for the
+  // piece's level (see trailOf).
+  function trailParticle(p, o) {
+    const sz = o.size || 1, lf = o.life || 1, r = Math.random();
+    p.vx *= 0.25; p.vz *= 0.25; p.vy = 0.12; p.g = 0; p.drag = 0.5; p.alpha = 0.95; p.life = 950 * lf; p.size = (0.1 + r * 0.05) * sz;
+    switch (o.style) {
+      case 'comet': p.life = 1150 * lf; p.size = (0.13 + r * 0.07) * sz; p.vy = 0.05; break;
+      case 'flame': p.vy = 0.7 + r * 0.7; p.g = -0.6; p.life = 800 * lf; p.size = (0.12 + r * 0.06) * sz; p.grow = 1.3; break;
+      case 'sparks': p.vx *= 14; p.vz *= 14; p.vy = 0.9 + r * 1.6; p.g = 5.5; p.life = 750 * lf; p.size = (0.045 + r * 0.03) * sz; p.drag = 0.8; break;
+      case 'stars': p.vy = 0.08; p.life = 1500 * lf; p.size = (0.07 + r * 0.08) * sz; p.twinkle = 1 + r * 6; p.square = r < 0.35; break;
+      case 'bubbles': p.add = false; p.vy = 0.3 + r * 0.3; p.g = -0.25; p.life = 1500 * lf; p.size = (0.08 + r * 0.1) * sz; p.alpha = 0.6; p.grow = 0.5; p.flutter = r * 6; break;
+      case 'petals': p.add = false; p.square = true; p.vy = 0.25; p.g = 0.4; p.life = 1700 * lf; p.size = (0.08 + r * 0.04) * sz; p.flutter = r * 6; break;
+      case 'frost': p.vx *= 3; p.vz *= 3; p.vy = 0.3 + r * 0.4; p.g = 0.5; p.life = 1100 * lf; p.size = (0.05 + r * 0.05) * sz; p.twinkle = 2 + r * 5; break;
+      case 'ribbon': p.vx = p.vz = 0; p.vy = 0; p.life = 700 * lf; p.size = 0.14 * sz; p.alpha = 0.9; break;
+      case 'wisp': p.vy = 0.35 + r * 0.3; p.g = -0.15; p.life = 1300 * lf; p.size = (0.12 + r * 0.06) * sz; p.grow = 1.6; p.alpha = 0.7; p.flutter = r * 6; break;
+      case 'drip': p.add = false; p.vy = -0.1; p.g = 2.4; p.life = 1100 * lf; p.size = (0.07 + r * 0.05) * sz; p.drag = 0.9; break;
+      case 'bolt': p.x += (Math.random() - 0.5) * 0.22 * sz; p.y += (Math.random() - 0.5) * 0.22 * sz; p.z += (Math.random() - 0.5) * 0.22 * sz; p.vx = p.vz = p.vy = 0; p.life = 420 * lf; p.size = (0.08 + r * 0.06) * sz; p.twinkle = 4 + r * 4; break;
+      default: p.g = 0.25; p.vy = 0.1; break;   // dust
+    }
   }
   function stepParticles(now, dt) {
     particles = particles.filter((p) => now - p.born < p.life);
@@ -613,7 +636,7 @@ function ChacklateScene(canvas, options) {
       let n = 0;
       for (const p of list) {
         if (now < p.born) continue;
-        const t = (now - p.born) / p.life, fade = p.kind === 'mote' ? Math.sin(Math.PI * t) : 1 - t * t;
+        const t = (now - p.born) / p.life, fade = (p.kind === 'mote' ? Math.sin(Math.PI * t) : 1 - t * t) * (p.twinkle ? 0.55 + 0.45 * Math.sin(now / 70 + p.twinkle * 9) : 1);
         pos[n * 3] = p.x; pos[n * 3 + 1] = p.y; pos[n * 3 + 2] = p.z;
         const boost = p.add ? 2.2 : 1;
         col[n * 4] = p.color.r * boost; col[n * 4 + 1] = p.color.g * boost; col[n * 4 + 2] = p.color.b * boost; col[n * 4 + 3] = p.alpha * fade;
@@ -628,9 +651,47 @@ function ChacklateScene(canvas, options) {
   }
   const motesOn = () => hq() && lvl() < 4 && animations && !window.__SHOT;
 
+  // ------------------------------------------------------------------ move trails
+  // The equipped trail follows every moving piece, bolder for the grander pieces:
+  //   level 1, the king and queen: a long, dense, glowing comet with a bright head;
+  //   level 2, rooks, bishops and knights: a strong, full trail;
+  //   level 3, pawns: a lighter one, still easy to see.
+  // Particles are laid all along the path between two frames, so the trail reads as one
+  // unbroken stroke even on a quick move. Each trail item has a style (data.style).
+  const TRAIL_LEVEL = { 6: 1, 5: 1, 4: 2, 3: 2, 2: 2, 1: 3 };
+  const TRAIL_K = { 1: { per: 34, size: 2.6, life: 1.9, head: 0.6, land: 40 }, 2: { per: 22, size: 2, life: 1.45, head: 0.4, land: 22 }, 3: { per: 12, size: 1.5, life: 1.1, head: 0, land: 10 } };
+  function trailOf(s) {
+    const tr = fx.trail;
+    if (!tr || !animations) { s.tp = null; return; }
+    const here = [s.x, worldY(s) + 0.28 * s.scale, s.z], prev = s.tp;
+    s.tp = here;
+    if (!prev) return;
+    const d = Math.hypot(here[0] - prev[0], here[1] - prev[1], here[2] - prev[2]);
+    if (d < 0.004) return;
+    const k = TRAIL_K[TRAIL_LEVEL[kindOf(s.piece)] || 3], opt = { style: tr.style, size: k.size, life: k.life };
+    const n = Math.min(48, Math.ceil(d * k.per * (lvl() >= 3 ? 0.5 : lvl() >= 1 ? 0.75 : 1)));
+    for (let i = 0; i < n; i++) {
+      const f = (i + Math.random()) / n, j = 0.05 * k.size;
+      spawn('trail', lerp(prev[0], here[0], f) + (Math.random() - 0.5) * j, lerp(prev[1], here[1], f) + (Math.random() - 0.5) * j, lerp(prev[2], here[2], f) + (Math.random() - 0.5) * j, tr.colors, 1, opt);
+    }
+    // the bright head of a king's or queen's comet
+    if (k.head) spawn('trail', here[0], here[1], here[2], [tr.colors[tr.colors.length - 1] || '#ffffff'], 1, { style: 'ribbon', size: k.head / 0.14, life: 0.35 });
+  }
+  // the trail's flourish as a piece lands
+  function trailLand(s) {
+    const tr = fx.trail;
+    if (!tr || !animations) return;
+    s.tp = null;
+    const k = TRAIL_K[TRAIL_LEVEL[kindOf(s.piece)] || 3];
+    spawn('ring', s.x, 0.06, s.z, tr.colors, pn(k.land), { speed: 0.35 + 0.25 * k.size });
+    if (k.head) spawn('trail', s.x, 0.5, s.z, tr.colors, pn(k.land), { style: tr.style === 'ribbon' ? 'stars' : tr.style, size: k.size, life: k.life });
+  }
+
   // ------------------------------------------------------------------ element effects
-  // The room's element (elements3d.js): fire, lightning or a stone shatter when a piece is
-  // taken, a petal, fire or lightning storm when a game is won. The website has no elements.
+  // Fire, lightning, petals or a stone shatter when a piece is taken, and a fire, lightning,
+  // petal or stone storm when a game is won (elements3d.js). The equipped capture and victory
+  // effects name their element (data.strike, data.storm); effects without one use the room's
+  // own. The website has no elements.
   const EL = typeof ChacklateElements !== 'undefined' ? ChacklateElements(THREE, {
     scene, camera, level: lvl, rich: hq, wake: () => requestRender(),
     // where things land: the board, or the table around it
@@ -638,215 +699,207 @@ function ChacklateScene(canvas, options) {
   }) : null;
   let elementsOn = true, stormHint = false;
   const element = () => (EL && ChacklateElements.ROOMS[roomId]) || (EL && ChacklateElements.ROOMS.salon);
-  function strikeAt(x, z) {
+  // the capture strike to play: the effect's own, else the room's ('none' plays nothing)
+  const strikeKind = () => (fx.capture && fx.capture.kind === 'none' ? null : (fx.capture && fx.capture.strike) || element().strike);
+  const stormKind = () => (fx.victory && fx.victory.kind === 'none' ? null : (fx.victory && fx.victory.storm) || element().storm);
+  // power: how grand the strike is (a pawn's is small, the queen's the biggest)
+  function strikeAt(x, z, power) {
     if (!EL || !elementsOn || !animations) return;
-    const el = element();
-    EL.strike(el.strike, x, z, { dust: el.dust, stone: el.stone });
+    const el = element(), kind = strikeKind();
+    if (!kind) return;
+    EL.strike(kind, x, z, { dust: el.dust, stone: el.stone, petals: (fx.capture && fx.capture.strike && fx.capture.colors) || el.petals, power: power || 1 });
   }
+  // a short jolt of the camera at a hit (on top of any element shake)
+  let jolt = 0, joltAt = 0;
+  function bump(k) { if (!animations || window.__SHOT) return; jolt = Math.max(k, jolt * Math.exp(-(performance.now() - joltAt) / 170)); joltAt = performance.now(); }
 
   // ------------------------------------------------------------------ capture scenes
-  // A capture plays as a short scene between the two pieces (3.5 to 4.5 s): a bow, a friendly
-  // duel, a waltz, a magic trick, a frosty slide, leapfrog or a sparkler send-off. Every one is
-  // gentle: the taken piece is never hurt, it says goodbye and goes to the tray. The camera
-  // leans in and pulls back out. A tap on the table (or Space, Enter or Escape) skips to the end.
-  // Scenes move only the two existing pieces and a few particles, so they cost no more to draw
+  // A capture is one continuous sequence: the attacker sets off from its own square and the
+  // taking happens inside that same movement, never a move and then a separate capture.
+  // How grand it is follows the piece taken:
+  //   level 1, the queen (4 s): the camera comes close, time slows as the attacker hangs over
+  //     her, it lands with a boom and she is lifted on a spiral of the effect, bursts into
+  //     light and floats down, small and safe, into the tray;
+  //   level 2, a rook, bishop or knight (2 s): a charge that knocks it cartwheeling away, or a
+  //     leap and a flip that bounces it up and out, taking turns;
+  //   level 3, a pawn (1 s): a quick flick, or a hop that pops it like a bubble, taking turns.
+  // Kid-gentle: the taken piece is never broken; it tumbles away and lands safely in its tray.
+  // The equipped capture effect gives the particles and colours, and its element bursts at the
+  // moment of the hit, sized to the piece. A tap on the table (or Space, Enter or Escape) skips
+  // to the end. Scenes move only the two pieces and particles, so they cost no more to draw
   // than an ordinary move; on slow devices the particles are thinned and shadows refresh less.
   const lerp = (a, b, t) => a + (b - a) * t;
   const lerpA = (a, b, t) => { let d = (b - a) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return a + d * t; };
   const seg = (t, a, b) => clamp01((t - a) / (b - a));
   const bell = (t, a, b) => (t > a && t < b ? Math.sin(Math.PI * seg(t, a, b)) : 0);
+  const easeIn = (t) => t * t * t;
   const pn = (n) => Math.max(1, Math.round(n * (lvl() >= 3 ? 0.45 : lvl() >= 1 ? 0.75 : 1)));
-  // which scene each capture effect plays; items may also name one with data.scene
-  const SCENE_FOR = { dust: 'bow', sparks: 'duel', petals: 'waltz', ink: 'magic', frost: 'frost', nibs: 'leapfrog', rocket: 'sendoff' };
+  // the level of each piece taken (by kind: 1 pawn ... 5 queen) and its sequences, which take turns
+  const LEVEL = { 1: 3, 2: 2, 3: 2, 4: 2, 5: 1 };
+  const SEQUENCES = { 1: ['queen'], 2: ['clash', 'vault'], 3: ['flick', 'pop'] };
+  const turn = { 1: 0, 2: 0, 3: 0 };
   let cine = null, skipEl = null, skipTimer = 0;
 
   function once(c, key, at, t, fn) { if (t >= at && !c.fired.has(key)) { c.fired.add(key); fn(); } }
-  function puff(c, kind, x, y, z, n) { spawn(kind, x, y, z, c.colors, pn(n)); }
+  function puff(c, kind, x, y, z, n) { if (c.kind !== 'none') spawn(kind, x, y, z, c.colors, pn(n)); }
+  // a ring of the effect racing out over the board from (x, z)
+  function shock(c, x, y, z, n, speed) { if (c.kind !== 'none') spawn('ring', x, y, z, c.colors, pn(n), { speed }); }
   const worldY = (s) => (s.grave ? TRAY_Y : 0) + s.y;
-  // the attacker walks (a knight leaps) up to the piece it takes and turns to face it
-  function approach(c, t, t0, t1) {
-    c.arrive = t1;
-    const k = seg(t, t0, t1), e = easeInOut(k), m = c.m;
-    m.x = lerp(c.sx, c.px, e); m.z = lerp(c.sz, c.pz, e);
-    m.y = Math.sin(Math.PI * k) * (c.knight ? 0.6 : c.far ? 0.14 : 0.06);
-    m.yaw = lerpA(c.mYaw, c.fM, easeOut(seg(t, t0, t0 + (t1 - t0) * 0.6)));
-  }
-  function faceUp(c, t, t0, t1) { if (t < t1 + 40) c.v.yaw = lerpA(c.vYaw, c.fV, easeInOut(seg(t, t0, t1))); }
-  // the attacker takes the square (from where the scene left it), facing ahead again
-  function settle(c, t, t0, t1, o) {
-    if (t < t0) return;
-    o = o || {};
-    const k = seg(t, t0, t1), e = easeInOut(k), m = c.m;
-    m.x = lerp(o.x !== undefined ? o.x : c.px, c.tx, e); m.z = lerp(o.z !== undefined ? o.z : c.pz, c.tz, e);
-    m.y = Math.sin(Math.PI * k) * (o.arc || 0.08);
-    m.bow = 0;
-    m.yaw = lerpA(o.yaw !== undefined ? o.yaw : c.fM, c.endYaw, e);
-  }
-  // the taken piece travels to its tray: o.arc (height), o.spin (turns), o.hops (little steps),
-  // o.bounces, o.ease, o.from [x, z], o.scale (size it starts at)
+  // the attacker turns to face its run, and back to its resting way at the end
+  function face(c, t, t0, t1) { if (t < t1 + 40) c.m.yaw = lerpA(c.mYaw, c.fM, easeOut(seg(t, t0, t1))); }
+  function rest(c, t, t0, t1) { if (t >= t0) c.m.yaw = lerpA(c.fM, c.endYaw, easeInOut(seg(t, t0, t1))); }
+  // the attacker at fraction f of the way from (ax, az) to (bx, bz), h above the board
+  function at(s, ax, az, bx, bz, f, h) { s.x = lerp(ax, bx, f); s.z = lerp(az, bz, f); s.y = h || 0; }
+  // the taken piece flies from where it is to its tray: o.arc (height), o.spin (turns about
+  // its axis), o.tumble (head over heels turns), o.ease, o.from [x, y, z], o.scale (size it starts at)
   function exit(c, t, t0, t1, o) {
     if (t < t0) return;
     o = o || {};
     const k = seg(t, t0, t1), e = (o.ease || easeInOut)(k), v = c.v;
-    const fx = o.from ? o.from[0] : c.vx, fz = o.from ? o.from[1] : c.vz;
-    v.x = lerp(fx, c.gx, e); v.z = lerp(fz, c.gz, e);
-    let h = lerp(0, TRAY_Y, e) + Math.sin(Math.PI * k) * (o.arc === undefined ? 1 : o.arc);
-    if (o.hops) h += Math.abs(Math.sin(Math.PI * k * o.hops)) * 0.2 * (1 - k);
-    if (o.bounces) h = lerp(0, TRAY_Y, e) + Math.abs(Math.sin(Math.PI * k * o.bounces)) * (0.25 + 0.85 * (1 - k));
+    const [fx0, fy0, fz0] = o.from || [c.vx, 0, c.vz];
+    v.x = lerp(fx0, c.gx, e); v.z = lerp(fz0, c.gz, e);
+    const h = lerp(fy0, TRAY_Y, e) + Math.sin(Math.PI * k) * (o.arc === undefined ? 1 : o.arc);
     v.grave = k > 0.5;
     v.y = v.grave ? h - TRAY_Y : h;
     v.scale = lerp(o.scale || 1, 0.72, e);
-    v.bow = 0; v.tilt = 0;
+    v.bow = (o.tumble || 0) * TAU * e; v.tilt = 0;
     v.yaw = lerpA(c.fV, c.gYaw, e) + (o.spin || 0) * TAU * e;
   }
+  // the little puff as the taken piece lands in its tray
+  function landed(c, t, when) { once(c, 'tray', when, t, () => puff(c, c.kind, c.gx, TRAY_Y + 0.15, c.gz, 12)); }
 
   const SCENES = {
-    // Cocoa Dust: they bow to each other; the taken piece gives a little hop goodbye and
-    // toddles off to the tray in a puff of cocoa.
-    bow: { dur: 3500, impact: 1950, run(c, t) {
-      approach(c, t, 0, 700); faceUp(c, t, 350, 900);
-      c.m.bow = 0.38 * bell(t, 950, 1650);
-      c.v.bow = 0.42 * bell(t, 1100, 1800);
-      if (t < 2250) c.v.y = 0.22 * bell(t, 1900, 2250);
-      once(c, 'puff', 1950, t, () => puff(c, c.kind, c.vx, 0.35, c.vz, 30));
-      exit(c, t, 2250, 3150, { arc: 0.55, hops: 4 });
-      settle(c, t, 2950, 3450);
-    } },
-    // Gold Sparks: a friendly duel of three touches, sparks at each, then the taken piece
-    // twirls, bows to the winner and hops away.
-    duel: { dur: 4450, impact: 1990, gap: 0.9, run(c, t) {
-      approach(c, t, 0, 650); faceUp(c, t, 300, 800);
-      const ml = bell(t, 900, 1280) + bell(t, 1800, 2180), vl = bell(t, 1350, 1730);
-      const dm = 0.26 * ml - 0.1 * vl, dv = 0.26 * vl - 0.1 * ml;
-      if (t >= 650) { c.m.x = c.px + c.dx * dm; c.m.z = c.pz + c.dz * dm; c.m.bow = 0.24 * ml - 0.14 * vl; }
-      if (t < 3300) { c.v.x = c.vx - c.dx * dv; c.v.z = c.vz - c.dz * dv; c.v.bow = 0.24 * vl - 0.14 * ml; }
-      for (const at of [1090, 1540, 1990]) once(c, 'touch' + at, at, t, () => puff(c, 'sparks', c.vx - c.dx * c.gap / 2, 0.95, c.vz - c.dz * c.gap / 2, at === 1990 ? 30 : 16));
-      if (t >= 2200 && t < 3300) {
-        const k = seg(t, 2200, 2900);
-        c.v.yaw = c.fV + TAU * 2 * easeOut(k);
-        c.v.tilt = 0.14 * Math.sin(k * TAU * 3) * (1 - k);
-        c.v.bow = 0.45 * bell(t, 2900, 3300);
+    // Level 1, the queen. The attacker gathers itself and leaps; time slows as it hangs over her
+    // and turns in the air; it lands with a boom, and the queen is lifted, spinning, on a spiral
+    // of the effect, bursts into light at the top and floats down to the tray.
+    queen: { dur: 4000, impact: 1250, back: 2500, lean: 1, power: 1.5, run(c, t) {
+      const m = c.m, v = c.v;
+      face(c, t, 0, 300);
+      if (t < 260) { at(m, c.sx, c.sz, c.px, c.pz, 0, 0); m.bow = -0.26 * easeOut(seg(t, 0, 260)); }
+      else if (t < 700) { const k = seg(t, 260, 700); at(m, c.sx, c.sz, c.px, c.pz, 0.7 * easeOut(k), 1.5 * easeOut(k)); m.bow = -0.26 * (1 - k); }
+      else if (t < 1050) {
+        // the slow moment: barely moving, turning once in the air above her
+        const k = seg(t, 700, 1050);
+        at(m, c.sx, c.sz, c.px, c.pz, 0.7 + 0.12 * k, 1.5 + 0.12 * Math.sin(Math.PI * k));
+        m.yaw = c.fM + TAU * easeInOut(k); m.bow = 0.3 * Math.sin(Math.PI * k);
+        if (Math.random() < 0.8) puff(c, c.kind, m.x, m.y + 0.5, m.z, 2);
+      } else if (t < 1250) { const k = seg(t, 1050, 1250); at(m, c.sx, c.sz, c.px, c.pz, 0.82 + 0.18 * easeIn(k), 1.62 * (1 - easeIn(k))); m.bow = 0.2 * k; }
+      else if (t < 2700) { at(m, c.px, c.pz, c.px, c.pz, 0, 0.32 * bell(t, 2350, 2700)); m.bow = 0.3 * bell(t, 1250, 1550) - 0.32 * bell(t, 2150, 2750); }
+      // she sees it coming: turns, leans back and trembles
+      if (t < 1250) {
+        v.yaw = lerpA(c.vYaw, c.fV, easeInOut(seg(t, 250, 650)));
+        v.bow = -0.24 * seg(t, 650, 1050); v.tilt = 0.07 * Math.sin(t / 24) * seg(t, 700, 1200);
       }
-      exit(c, t, 3300, 4100, { arc: 0.6, hops: 4 });
-      settle(c, t, 3900, 4400, { arc: 0.3 });
-    } },
-    // Ruby Petals: the two waltz once round each other in a swirl of petals, then the taken
-    // piece twirls away to the tray.
-    waltz: { dur: 3750, impact: 900, run(c, t) {
-      approach(c, t, 0, 650); faceUp(c, t, 300, 700);
-      if (t >= 750 && t < 2450) {
-        const e = easeInOut(seg(t, 750, 2350));
-        const cx = (c.px + c.vx) / 2, cz = (c.pz + c.vz) / 2, r = c.gap / 2, a0 = Math.atan2(c.pz - cz, c.px - cx), a = a0 + e * TAU;
-        c.m.x = cx + Math.cos(a) * r; c.m.z = cz + Math.sin(a) * r;
-        c.v.x = cx - Math.cos(a) * r; c.v.z = cz - Math.sin(a) * r;
-        c.m.yaw = Math.atan2(c.v.x - c.m.x, c.v.z - c.m.z); c.v.yaw = Math.atan2(c.m.x - c.v.x, c.m.z - c.v.z);
-        c.m.y = c.v.y = 0.1 * Math.abs(Math.sin(e * Math.PI * 4));
+      once(c, 'gather', 700, t, () => shock(c, c.vx, 0.05, c.vz, 30, -0.35));
+      once(c, 'boom', 1250, t, () => {
+        puff(c, c.kind, c.vx, 0.45, c.vz, 70);
+        puff(c, 'sparks', c.vx, 0.6, c.vz, 36);
+        shock(c, c.vx, 0.06, c.vz, 56, 1.4);
+        bump(0.09);
+        // the camera lifts its eyes to follow her up
+        if (!attract && !c.restored) { cam.tLookY = 1.15; cam.tZoom = Math.min(cam.tZoom * 1.3, c.saved.zoom); }
+      });
+      // lifted, spinning faster and faster, on a spiral of the effect
+      if (t >= 1250 && t < 2350) {
+        const k = seg(t, 1250, 2300);
+        Object.assign(v, { x: c.vx, z: c.vz, y: 1.7 * easeOut(k), grave: false, scale: 1, bow: 0, tilt: 0.12 * Math.sin(k * TAU * 2) * (1 - k) });
+        v.yaw = c.fV + TAU * 3 * k * k;
+        const a = t / 70;
+        puff(c, c.kind, c.vx + Math.cos(a) * 0.6, v.y + 0.25, c.vz + Math.sin(a) * 0.6, 2);
+        puff(c, c.kind, c.vx - Math.cos(a) * 0.6, v.y + 0.55, c.vz - Math.sin(a) * 0.6, 1);
       }
-      for (const at of [900, 1500, 2100]) once(c, 'petal' + at, at, t, () => puff(c, c.kind, (c.px + c.vx) / 2, 0.8, (c.pz + c.vz) / 2, 18));
-      for (const at of [2550, 2850]) once(c, 'trail' + at, at, t, () => puff(c, c.kind, c.v.x, worldY(c.v) + 0.6, c.v.z, 10));
-      exit(c, t, 2450, 3350, { arc: 0.9, spin: 3 });
-      settle(c, t, 3150, 3700);
-    } },
-    // Ink Smoke: a magic trick. The attacker spins like a wand, the taken piece twirls into a
-    // cloud of ink and pops up again, small and safe, in the tray.
-    magic: { dur: 3450, impact: 1150, run(c, t) {
-      approach(c, t, 0, 650); faceUp(c, t, 300, 750);
-      if (t >= 800 && t < 1600) { const k = seg(t, 800, 1500); c.m.y = 0.2 * Math.sin(Math.PI * k); c.m.yaw = c.fM + TAU * easeInOut(k); }
-      [1150, 1400, 1650, 1900].forEach((at, i) => once(c, 'ink' + at, at, t, () => puff(c, 'ink', c.vx + (i % 2 ? 0.15 : -0.15), 0.3 + i * 0.22, c.vz, 14)));
-      if (t >= 1300 && t < 2150) {
-        const k = seg(t, 1300, 2100);
-        c.v.yaw = c.fV + TAU * 3 * k * k; c.v.scale = 1 - 0.96 * k * k * k; c.v.y = 0.15 * Math.sin(Math.PI * k);
+      once(c, 'flare', 2300, t, () => {
+        spawn('firework', c.vx, 2.3, c.vz, c.kind === 'none' ? ['#fff2c8'] : c.colors, pn(70));
+        puff(c, c.kind, c.vx, 2.3, c.vz, 40);
+        shock(c, c.vx, 2.0, c.vz, 30, 0.8);
+        bump(0.03);
+      });
+      // and floats down, turning slowly, to the tray
+      if (t >= 2350) {
+        exit(c, t, 2350, 3550, { from: [c.vx, 1.7, c.vz], arc: 0.6, spin: 1 });
+        if (t < 3500 && Math.random() < 0.5) puff(c, c.kind, v.x, worldY(v) + 0.5, v.z, 1);
       }
-      once(c, 'pop', 2200, t, () => puff(c, 'ink', c.gx, TRAY_Y + 0.4, c.gz, 14));
-      if (t >= 2150) {
-        const k = seg(t, 2200, 2800), back = k * k * (2.7 * k - 1.7);   // overshoots a little, like a pop
-        Object.assign(c.v, { x: c.gx, z: c.gz, y: 0, grave: true, scale: Math.max(0.03, 0.03 + 0.69 * back), yaw: c.gYaw + TAU * (1 - k) });
-      }
-      settle(c, t, 2850, 3400);
+      landed(c, t, 3550);
+      if (t >= 2700) { at(m, c.px, c.pz, c.tx, c.tz, easeInOut(seg(t, 2700, 3350)), 0.22 * bell(t, 2700, 3350)); rest(c, t, 2850, 3450); }
     } },
-    // Frost Crystals: the attacker breathes a frosty puff, the taken piece shivers, frosts
-    // over and slides away across the board like a skater, into the tray.
-    frost: { dur: 3650, impact: 1450, back: 2000, run(c, t) {
-      approach(c, t, 0, 650); faceUp(c, t, 300, 750);
-      if (t >= 650 && t < 1500) c.m.bow = -0.14 * bell(t, 750, 1150) + 0.18 * bell(t, 1150, 1450);
-      [1150, 1230, 1310, 1390].forEach((at, i) => once(c, 'breath' + at, at, t, () => puff(c, c.kind, lerp(c.px, c.vx, (i + 1) / 5), 0.75, lerp(c.pz, c.vz, (i + 1) / 5), 8)));
-      once(c, 'freeze', 1450, t, () => puff(c, c.kind, c.vx, 0.6, c.vz, 32));
-      if (t >= 1400 && t < 1950) c.v.yaw = c.fV + 0.07 * Math.sin(t / 22) * (1 - seg(t, 1400, 1950));
-      for (let i = 0; i < 7; i++) once(c, 'ice' + i, 2050 + i * 150, t, () => puff(c, c.kind, c.v.x, worldY(c.v) + 0.15, c.v.z, 5));
-      exit(c, t, 1950, 3150, { arc: 0.25, spin: 2, ease: easeOut });
-      if (t >= 2950) { settle(c, t, 2950, 3600, { arc: 0.01 }); c.m.tilt = 0.08 * Math.sin(seg(t, 2950, 3600) * TAU); }
+    // Level 2, a charge. The attacker rocks back, rushes in gathering speed (a knight leaps)
+    // and knocks the piece off its square; it cartwheels away in a high arc to the tray while
+    // the attacker skids to a stop on the square.
+    clash: { dur: 2000, impact: 620, back: 1250, lean: 0.55, power: 0.85, run(c, t) {
+      const m = c.m, cx = c.vx - c.dx * 0.45, cz = c.vz - c.dz * 0.45;
+      face(c, t, 0, 200);
+      if (t < 160) { at(m, c.sx, c.sz, cx, cz, 0, 0); m.bow = -0.22 * easeOut(seg(t, 0, 160)); }
+      else if (t < 620) { const k = seg(t, 160, 620); at(m, c.sx, c.sz, cx, cz, k * k, Math.sin(Math.PI * k) * (c.knight ? 0.8 : 0.1)); m.bow = c.knight ? -0.3 * Math.sin(Math.PI * k) : 0.28 * k; }
+      else { const k = seg(t, 620, 920); at(m, cx, cz, c.tx, c.tz, easeOut(k), 0.12 * bell(t, 620, 900)); m.bow = 0.28 * (1 - k); m.tilt = 0.06 * Math.sin(k * TAU) * (1 - k); }
+      rest(c, t, 1150, 1550);
+      if (t < 620) { c.v.bow = -0.26 * seg(t, 380, 620); c.v.tilt = 0.06 * Math.sin(t / 20) * seg(t, 380, 620); c.v.yaw = lerpA(c.vYaw, c.fV, easeInOut(seg(t, 100, 420))); }
+      once(c, 'hit', 620, t, () => {
+        puff(c, c.kind, c.vx, 0.5, c.vz, 42);
+        puff(c, 'sparks', c.vx - c.dx * 0.3, 0.7, c.vz - c.dz * 0.3, 22);
+        shock(c, c.vx, 0.06, c.vz, 34, 1);
+        bump(0.05);
+      });
+      exit(c, t, 620, 1650, { arc: 1.7, spin: 1, tumble: 2, ease: (k) => 1 - Math.pow(1 - k, 2) });
+      if (t > 620 && t < 1500 && Math.random() < 0.6) puff(c, c.kind, c.v.x, worldY(c.v) + 0.4, c.v.z, 1);
+      landed(c, t, 1650);
     } },
-    // Cocoa Nibs: leapfrog. The attacker somersaults over the taken piece, which wobbles,
-    // then bounces like a ball to the tray, scattering nibs.
-    leapfrog: { dur: 3650, impact: 1450, run(c, t) {
-      approach(c, t, 0, 600); faceUp(c, t, 250, 700);
-      const bx = c.vx + c.dx * c.gap, bz = c.vz + c.dz * c.gap;
-      if (t < 1900) c.v.bow = 0.32 * bell(t, 650, 1600);
-      if (t >= 750 && t < 3050) {
-        const k = seg(t, 750, 1450), e = easeInOut(k);
-        c.m.x = lerp(c.px, bx, e); c.m.z = lerp(c.pz, bz, e);
-        c.m.y = Math.sin(Math.PI * k) * 1.5;
-        c.m.bow = k < 1 ? TAU * e : 0;
-        c.m.yaw = lerpA(c.fM, c.fM + Math.PI, easeInOut(seg(t, 1450, 1750)));
+    // Level 2, a vault. The attacker crouches and springs high, flips over and lands on the
+    // square with a thump; the piece there is bounced straight up, spinning, and drops into
+    // the tray.
+    vault: { dur: 2000, impact: 760, back: 1300, lean: 0.55, power: 0.85, run(c, t) {
+      const m = c.m, v = c.v;
+      face(c, t, 0, 200);
+      if (t < 200) { at(m, c.sx, c.sz, c.tx, c.tz, 0, 0); m.bow = -0.24 * easeOut(seg(t, 0, 200)); }
+      else if (t < 820) { const k = seg(t, 200, 820); at(m, c.sx, c.sz, c.tx, c.tz, easeInOut(k), Math.sin(Math.PI * k) * 1.7); m.bow = TAU * easeInOut(seg(t, 300, 780)); }
+      else { at(m, c.tx, c.tz, c.tx, c.tz, 0, 0.1 * bell(t, 950, 1150)); m.bow = 0.22 * bell(t, 820, 1060); }
+      rest(c, t, 1200, 1600);
+      if (t < 760) { v.bow = -0.32 * seg(t, 450, 760); v.yaw = lerpA(c.vYaw, c.fV, easeInOut(seg(t, 150, 500))); }
+      once(c, 'hit', 760, t, () => {
+        puff(c, c.kind, c.vx, 0.3, c.vz, 46);
+        shock(c, c.vx, 0.06, c.vz, 40, 1.15);
+        bump(0.06);
+      });
+      if (t >= 760 && t < 1150) {
+        const k = seg(t, 760, 1150);
+        Object.assign(v, { x: c.vx, z: c.vz, y: 1.9 * easeOut(k), grave: false, bow: 0.4 * Math.sin(k * Math.PI), tilt: 0 });
+        v.yaw = c.fV + TAU * 2 * easeOut(k);
       }
-      once(c, 'land', 1450, t, () => puff(c, c.kind, bx, 0.1, bz, 18));
-      if (t >= 1450 && t < 1900) { const k = seg(t, 1450, 1900); c.v.tilt = 0.18 * Math.sin(k * TAU * 2) * (1 - k); }
-      for (let i = 1; i <= 3; i++) once(c, 'bounce' + i, 1900 + i * 383, t, () => puff(c, c.kind, c.v.x, worldY(c.v) + 0.05, c.v.z, 10));
-      exit(c, t, 1900, 3050, { bounces: 3, spin: 1, ease: (k) => k });
-      settle(c, t, 3050, 3600, { x: bx, z: bz, yaw: c.fM + Math.PI, arc: 0.3 });
+      if (t >= 1150) exit(c, t, 1150, 1750, { from: [c.vx, 1.9, c.vz], arc: 0.45, spin: 1, tumble: 1 });
+      if (t > 760 && t < 1650 && Math.random() < 0.6) puff(c, c.kind, v.x, worldY(v) + 0.4, v.z, 1);
+      landed(c, t, 1750);
     } },
-    // Caramel Sparks: a sparkler send-off. Two happy hops together, then the taken piece
-    // whooshes up on a trail of sparks and lands in the tray while the attacker looks up.
-    sendoff: { dur: 3650, impact: 1100, back: 1750, run(c, t) {
-      approach(c, t, 0, 650); faceUp(c, t, 300, 750);
-      const hop = 0.26 * (bell(t, 800, 1100) + bell(t, 1150, 1450));
-      if (t >= 650 && t < 1800) { c.m.y = hop; c.v.y = hop; }
-      for (const at of [1100, 1450]) once(c, 'five' + at, at, t, () => puff(c, 'sparks', (c.px + c.vx) / 2, 0.9, (c.pz + c.vz) / 2, 10));
-      if (t >= 1500 && t < 1800) c.v.tilt = 0.06 * Math.sin(t / 18);
-      if (t >= 1800 && t < 3100) {
-        const k = seg(t, 1800, 3100), e = easeInOut(k), v = c.v;
-        v.x = lerp(c.vx, c.gx, e); v.z = lerp(c.vz, c.gz, e); v.tilt = 0;
-        const h = lerp(0, TRAY_Y, e) + Math.sin(Math.PI * k) * 2.4;
-        v.grave = k > 0.5; v.y = v.grave ? h - TRAY_Y : h;
-        v.scale = lerp(1, 0.72, e); v.yaw = c.fV + TAU * 4 * e;
-        if (k < 0.9 && Math.random() < 0.6) puff(c, 'sparks', v.x, h + 0.1, v.z, 2);
+    // Level 3, a flick. The attacker slides in fast and flicks the pawn away; it spins off in a
+    // low arc to the tray.
+    flick: { dur: 1000, impact: 330, power: 0.5, run(c, t) {
+      const m = c.m, cx = c.vx - c.dx * 0.4, cz = c.vz - c.dz * 0.4;
+      face(c, t, 0, 120);
+      if (t < 330) { const k = seg(t, 0, 330); at(m, c.sx, c.sz, cx, cz, k * k, c.knight ? Math.sin(Math.PI * k) * 0.6 : 0.05 * Math.abs(Math.sin(Math.PI * k * 2))); m.bow = c.knight ? 0 : 0.2 * k; }
+      else { const k = seg(t, 330, 520); at(m, cx, cz, c.tx, c.tz, easeOut(k), 0); m.bow = 0.2 * (1 - k); }
+      rest(c, t, 560, 860);
+      if (t < 330) c.v.bow = -0.2 * seg(t, 180, 330);
+      once(c, 'hit', 330, t, () => { puff(c, c.kind, c.vx, 0.35, c.vz, 20); shock(c, c.vx, 0.05, c.vz, 18, 0.7); bump(0.02); });
+      exit(c, t, 330, 880, { arc: 0.75, spin: 1.5, tumble: 1, ease: easeOut });
+      landed(c, t, 880);
+    } },
+    // Level 3, a pop. The attacker hops onto the square; the pawn shrinks with a pop like a
+    // bubble and pops up again, small and safe, in the tray.
+    pop: { dur: 1000, impact: 400, power: 0.5, run(c, t) {
+      const m = c.m, v = c.v;
+      face(c, t, 0, 120);
+      if (t < 400) { const k = seg(t, 0, 400); at(m, c.sx, c.sz, c.tx, c.tz, easeInOut(k), Math.sin(Math.PI * k) * (c.knight ? 0.8 : 0.5)); }
+      else { at(m, c.tx, c.tz, c.tx, c.tz, 0, 0); m.bow = 0.16 * bell(t, 400, 580); }
+      rest(c, t, 560, 860);
+      if (t < 400) v.bow = -0.22 * seg(t, 220, 400);
+      else if (t < 560) { const k = seg(t, 380, 540); Object.assign(v, { x: c.vx, z: c.vz, scale: Math.max(0.03, 1 - easeIn(k)) }); v.yaw = c.fV + TAU * 2 * k; }
+      once(c, 'hit', 400, t, () => { puff(c, c.kind, c.vx, 0.4, c.vz, 26); shock(c, c.vx, 0.05, c.vz, 16, 0.6); bump(0.015); });
+      once(c, 'pop', 620, t, () => puff(c, c.kind, c.gx, TRAY_Y + 0.35, c.gz, 12));
+      if (t >= 560) {
+        const k = seg(t, 620, 900), back = k * k * (2.7 * k - 1.7);   // overshoots a little, like a pop
+        Object.assign(v, { x: c.gx, z: c.gz, y: 0, grave: true, bow: 0, scale: Math.max(0.03, 0.03 + 0.69 * back), yaw: c.gYaw + TAU * (1 - k) });
       }
-      if (t >= 1800 && t < 3000) c.m.bow = -0.28 * bell(t, 1800, 3000);
-      settle(c, t, 3000, 3600);
     } },
   };
 
-  // Every piece also moves in its own way, whatever the scene: a pawn marches, a knight
-  // gallops and rears, a bishop glides, a rook rumbles in and stamps, the queen sweeps in with a
-  // twirl and the king strides. The piece being taken answers in character as the attacker
-  // arrives: a pawn jumps, a knight rears, a bishop leans back, a rook trembles, the queen
-  // gasps and the king gives a dignified nod. Added on top of the scene, frame by frame.
-  function flourish(c, t) {
-    if (c.castle) return;
-    const m = c.m, v = c.v, a = c.arrive, k = seg(t, 0, a), on = t < a;
-    switch (kindOf(m.piece)) {
-      case 1: if (on) m.y += Math.abs(Math.sin(k * Math.PI * 4)) * 0.09; break;
-      case 2: m.bow -= 0.38 * bell(t, a - 180, a + 260); break;
-      case 3: if (on) m.tilt += 0.07 * Math.sin(k * Math.PI * 2); break;
-      case 4:
-        if (on) m.yaw += 0.05 * Math.sin(t / 28) * Math.sin(Math.PI * k);
-        once(c, 'stamp', a, t, () => { puff(c, 'dust', m.x, 0.05, m.z, 14); });
-        m.y += 0.12 * bell(t, a - 220, a);
-        break;
-      case 5: if (on) { m.yaw += TAU * easeInOut(k); m.y += 0.14 * Math.sin(Math.PI * k); } break;
-      case 6: if (on) m.y += Math.abs(Math.sin(k * Math.PI * 3)) * 0.04; m.bow += 0.16 * bell(t, a, a + 380); break;
-    }
-    const r = bell(t, a, a + 420);
-    if (!r) return;
-    switch (kindOf(v.piece)) {
-      case 1: v.y += 0.17 * r; break;
-      case 2: v.bow -= 0.32 * r; break;
-      case 3: v.bow -= 0.2 * r; break;
-      case 4: v.tilt += 0.07 * Math.sin(t / 22) * r; break;
-      case 5: v.y += 0.08 * r; v.bow -= 0.12 * r; break;
-      case 6: v.bow += 0.2 * r; break;
-    }
-  }
   // Castling: the king and the rook turn and bow to each other, the king strides two squares,
   // the rook hops over it into place, and both turn back to face the game with a gold shimmer.
   const CASTLE = { dur: 3000, impact: 2300, back: 2350, run(c, t) {
@@ -877,38 +930,39 @@ function ChacklateScene(canvas, options) {
     }
   } };
 
-  function sceneFor(f) {
-    if (!f || f.kind === 'none') return null;
-    const name = f.scene || SCENE_FOR[f.kind];
-    return SCENES[name] ? name : null;
+  // the sequence for the piece taken: its level's, the two at a level taking turns
+  function sceneFor(piece) {
+    const level = LEVEL[kindOf(piece)] || 3, list = SEQUENCES[level];
+    return list[turn[level]++ % list.length];
   }
   function startCine(name, info, m, v, grave, gYaw, toGrave, done, o) {
     const S = SCENES[name], now = performance.now();
     const sx = m.x, sz = m.z, vx = v.x, vz = v.z;
     const L = Math.hypot(vx - sx, vz - sz) || 1, dx = (vx - sx) / L, dz = (vz - sz) / L;
     const gap = S.gap || 0.8;
-    m.anim = null; v.anim = null; v.dead = true; m.selected = false;
+    m.anim = null; v.anim = null; v.dead = true; m.selected = false; m.tp = null;
     cine = { name, S, start: now, info, m, v, sx, sz, vx, vz, dx, dz, gap, px: vx - dx * gap, pz: vz - dz * gap,
       tx: sqX(info.to), tz: sqZ(info.to), gx: grave[0], gz: grave[1], gYaw,
-      mYaw: m.yaw, vYaw: v.yaw, fM: Math.atan2(dx, dz), fV: Math.atan2(-dx, -dz),
+      mYaw: m.yaw, vYaw: v.yaw, fM: Math.atan2(sqX(info.to) - sx, sqZ(info.to) - sz), fV: Math.atan2(-dx, -dz),
       endYaw: baseYaw(info.promo || m.piece, info.to), knight: kindOf(m.piece) === 2, far: L > 1.6,
-      kind: fx.capture.kind === 'nibs' ? 'dust' : fx.capture.kind === 'rocket' ? 'sparks' : fx.capture.kind, colors: fx.capture.colors,
-      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, elements: !(o && o.elements === false), arrive: 650,
+      kind: !fx.capture || !fx.capture.kind ? 'dust' : fx.capture.kind === 'nibs' ? 'dust' : fx.capture.kind === 'rocket' ? 'sparks' : fx.capture.kind, colors: (fx.capture && fx.capture.colors) || [],
+      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, elements: !(o && o.elements === false),
       saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
-    leanIn((vx + cine.px) / 2, (vz + cine.pz) / 2);
+    if (S.lean) leanIn((sx + vx) / 2 * 0.4 + vx * 0.6, (sz + vz) / 2 * 0.4 + vz * 0.6, S.lean);
     clearTimeout(skipTimer);
     if (!o || o.skipHint !== false) skipTimer = setTimeout(() => showSkip(true), 500);
     requestRender();
   }
-  // lean in toward the two pieces, turned a little for depth
-  function leanIn(midX, midZ) {
+  // lean in toward (midX, midZ), turned a little for depth; k from 0 (not at all) to 1 (close)
+  function leanIn(midX, midZ, k) {
+    if (k === undefined) k = 1;
     if (!attract) {
       // aim a little past the pair: the fitted view sits the board's middle high on the screen
-      cam.tPanX = midX - Math.sin(cam.tYaw) * 1.1; cam.tPanZ = midZ - Math.cos(cam.tYaw) * 1.1;
-      cam.tZoom = Math.max(ZOOM_MIN, cam.tZoom * 0.5);
-      cam.tPitch = Math.max(0.5, cam.tPitch - 0.22);
-      cam.tLookY = 0.45; cam.tLookZ = 0;
-      cam.tYaw += midX * Math.cos(cam.yaw) >= 0 ? -0.2 : 0.2;
+      cam.tPanX = (midX - Math.sin(cam.tYaw) * 1.1) * k; cam.tPanZ = (midZ - Math.cos(cam.tYaw) * 1.1) * k;
+      cam.tZoom = Math.max(ZOOM_MIN, cam.tZoom * (1 - 0.5 * k));
+      cam.tPitch = Math.max(0.5, cam.tPitch - 0.22 * k);
+      cam.tLookY = lerp(cam.tLookY, 0.45, k); cam.tLookZ = 0;
+      cam.tYaw += (midX * Math.cos(cam.yaw) >= 0 ? -0.2 : 0.2) * k;
     }
   }
   function startCastle(info, K, R, done, o) {
@@ -932,9 +986,9 @@ function ChacklateScene(canvas, options) {
     c.m.bow = c.m.tilt = c.v.bow = c.v.tilt = 0;
     if (!c.castle) c.v.y = 0;
     c.S.run(c, t);
-    flourish(c, t);
+    if (!c.castle) trailOf(c.m);
     if (c.onImpact) once(c, 'impact', c.S.impact, t, c.onImpact);
-    if (!c.castle && c.elements) once(c, 'strike', c.S.impact, t, () => strikeAt(c.vx, c.vz));
+    if (!c.castle && c.elements) once(c, 'strike', c.S.impact, t, () => strikeAt(c.vx, c.vz, c.S.power));
     // pull back out once the taken piece heads for the tray
     once(c, 'pullback', c.S.back || c.S.dur - 1300, t, restoreCam);
     if (t >= c.S.dur) endCine(false);
@@ -956,7 +1010,7 @@ function ChacklateScene(canvas, options) {
     clearTimeout(skipTimer); showSkip(false);
     if (dropped) return;
     if (skipped && c.onImpact && !c.fired.has('impact')) c.onImpact();
-    if (skipped && !c.castle && c.elements && !c.fired.has('strike')) strikeAt(c.vx, c.vz);
+    if (skipped && !c.castle && c.elements && !c.fired.has('strike')) strikeAt(c.vx, c.vz, c.S.power);
     const m = c.m, v = c.v;
     if (c.castle) {
       Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, yaw: c.endYaw });
@@ -972,6 +1026,7 @@ function ChacklateScene(canvas, options) {
     Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, scale: 1, yaw: c.endYaw });
     if (c.info.promo) { m.piece = c.info.promo; rebuildSprite(m); if (!skipped) spawn('sparks', m.x, 0.6, m.z, ['#ffe28a', '#ffffff'], pn(46)); }
     placeSprite(m);
+    if (!skipped) trailLand(m); else m.tp = null;
     if (skipped) particles = particles.filter((p) => p.kind === 'mote');
     requestRender();
     if (c.done) c.done();
@@ -981,15 +1036,111 @@ function ChacklateScene(canvas, options) {
     if (on && !skipEl) {
       skipEl = document.createElement('button');
       skipEl.type = 'button'; skipEl.className = 'cine-skip'; skipEl.textContent = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n.t('play.skip') : 'Tap to skip';   // the website shares this file, in English
-      skipEl.addEventListener('click', (e) => { e.stopPropagation(); if (cine) skipCine(); else if (EL) EL.calm(); showSkip(false); });
+      skipEl.addEventListener('click', (e) => { e.stopPropagation(); if (cine) skipCine(); else calmAll(); showSkip(false); });
       document.body.appendChild(skipEl);
     }
-    if (skipEl) skipEl.classList.toggle('on', !!on && (!!cine || !!(EL && EL.storming())));
+    if (skipEl) skipEl.classList.toggle('on', !!on && (!!cine || celebrating()));
   }
   document.addEventListener('keydown', (e) => {
     if (cine && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopImmediatePropagation(); skipCine(); }
-    else if (e.key === 'Escape' && EL && EL.storming()) EL.calm();
+    else if (e.key === 'Escape' && celebrating()) calmAll();
   }, true);
+
+  // ------------------------------------------------------------------ checkmate
+  // The end of a won game is a show, not a nap. The beaten king trembles, then spins up into
+  // the air on a whirl of the victory effect, bursts with light at the top and comes crashing
+  // down onto its side with a boom: the room's (or the effect's) element strikes where it
+  // lands, a shock ring races out, and a wave runs through its army, each piece jolting as the
+  // wave passes. Then the winners jump for joy, one after another, out from their king, and the
+  // win storm begins. Kid-gentle: the king faints in style; nothing breaks. About 3.3 s, and a
+  // tap skips it.
+  const MATE_HIT = 2200, MATE_DUR = 3300;
+  let mate = null, stormWait = 0;
+  const vcol = () => (fx.victory && fx.victory.kind !== 'none' && fx.victory.colors && fx.victory.colors.length ? fx.victory.colors : ['#ffe6a8', '#f6c25a', '#ffffff']);
+  function startMate(k, w, onHit) {
+    const now = performance.now();
+    k.anim = { type: 'mate', start: now, dur: MATE_DUR, yaw0: k.yaw, fired: new Set() };
+    mate = { k, w, onHit, saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
+    leanIn(k.x, k.z, 0.7);
+    spawn('ring', k.x, 0.06, k.z, vcol(), pn(36), { speed: -0.3 });
+    clearTimeout(skipTimer); skipTimer = setTimeout(() => showSkip(true), 600);
+  }
+  function mateStep(s, a, ms) {
+    const fire = (key, when, fn) => { if (ms >= when && !a.fired.has(key)) { a.fired.add(key); fn(); } };
+    s.bow = 0;
+    if (ms < 700) {
+      const r = seg(ms, 0, 700);
+      s.tilt = 0.12 * Math.sin(ms / 17) * r; s.y = 0.06 * Math.abs(Math.sin(ms / 40)) * r; s.yaw = a.yaw0;
+      if (Math.random() < 0.5) spawn('aura', s.x + (Math.random() - 0.5) * 0.6, 0.1, s.z + (Math.random() - 0.5) * 0.6, vcol(), 1);
+    } else if (ms < 1500) {
+      const k = seg(ms, 700, 1500);
+      // the camera lifts its eyes to follow the king up
+      if (mate && mate.k === s && mate.saved && !attract) cam.tLookY = lerp(cam.tLookY, 1.1, 0.08);
+      s.y = 1.3 * easeOut(k); s.tilt = 0.14 * Math.sin(k * TAU * 2) * (1 - k); s.yaw = a.yaw0 + TAU * 3 * easeInOut(k);
+      const ang = ms / 60;
+      spawn('aura', s.x + Math.cos(ang) * 0.55, s.y + 0.2, s.z + Math.sin(ang) * 0.55, vcol(), pn(2));
+      spawn('aura', s.x - Math.cos(ang) * 0.55, s.y + 0.6, s.z - Math.sin(ang) * 0.55, vcol(), 1);
+    } else if (ms < 1750) {
+      s.y = 1.3 + 0.06 * Math.sin(seg(ms, 1500, 1750) * Math.PI); s.tilt = 0; s.yaw = a.yaw0;
+    } else if (ms < MATE_HIT) {
+      const k = seg(ms, 1750, MATE_HIT);
+      s.y = 1.3 * (1 - easeIn(k)); s.tilt = 1.45 * easeIn(k); s.yaw = a.yaw0;
+    } else {
+      const e = seg(ms, MATE_HIT, MATE_DUR);
+      s.y = 0.28 * Math.abs(Math.sin(Math.PI * e * 2)) * (1 - e); s.tilt = 1.45 + 0.2 * Math.sin(e * TAU * 2) * (1 - e); s.yaw = a.yaw0;
+    }
+    fire('flare', 1500, () => {
+      spawn('firework', s.x, 2.2, s.z, vcol(), pn(70));
+      spawn('ring', s.x, 1.8, s.z, vcol(), pn(30), { speed: 0.7 });
+      bump(0.03);
+    });
+    fire('hit', MATE_HIT, () => {
+      spawn('ring', s.x, 0.06, s.z, vcol(), pn(60), { speed: 1.5 });
+      spawn('dust', s.x, 0.1, s.z, ['#fff2dc', '#c8a27a'], pn(40));
+      spawn('sparks', s.x, 0.4, s.z, vcol(), pn(40));
+      bump(0.1);
+      strikeAt(s.x, s.z, 1.2);
+      if (mate && mate.k === s && mate.onHit) mate.onHit();
+    });
+    fire('back', 2850, mateBack);
+  }
+  function mateBack() {
+    if (!mate || !mate.saved) return;
+    const sv = mate.saved;
+    mate.saved = null;
+    cam.tPanX = 0; cam.tPanZ = 0;
+    if (!attract) { cam.tYaw = sv.yaw; cam.tPitch = sv.pitch; cam.tZoom = sv.zoom; cam.tLookY = sv.lookY; cam.tLookZ = sv.lookZ; }
+  }
+  // the camera is taken over by something else (a new view, a new game): forget the lean
+  function dropMate() { if (mate) { if (mate.saved) { cam.tPanX = 0; cam.tPanZ = 0; } mate.saved = null; } }
+  // the wave through the beaten army, and the winners' jumps for joy
+  function mateWave(k, w) {
+    const now = performance.now();
+    for (const s of sprites) {
+      if (s === k || s.dead) continue;
+      if (Math.sign(s.piece) === Math.sign(k.piece)) {
+        s.anim = { type: 'quake', start: now + Math.hypot(s.x - k.x, s.z - k.z) * 70, dur: 650 };
+      } else {
+        const d = w ? Math.hypot(s.x - w.x, s.z - w.z) : 0, big = kindOf(s.piece) >= 5;
+        s.anim = { type: 'cheer', start: now + 250 + d * 60, dur: big ? 800 : 650, yaw0: s.yaw, big };
+      }
+    }
+  }
+  // true while the end of a game is still being celebrated (the result card waits for it)
+  const celebrating = () => !!(mate && mate.k.anim && mate.k.anim.type === 'mate') || !!stormWait || !!(EL && EL.storming());
+  // a tap: the king lands at once, the waves stop, and any storm calms
+  function calmAll() {
+    if (mate) {
+      const k = mate.k;
+      if (k.anim && k.anim.type === 'mate') { k.anim = null; Object.assign(k, { y: 0, tilt: 1.45, bow: 0 }); placeSprite(k); }
+      for (const s of sprites) if (s.anim && (s.anim.type === 'quake' || s.anim.type === 'cheer')) { s.anim = null; s.y = 0; s.tilt = 0; s.bow = 0; placeSprite(s); }
+      mateBack();
+      mate = null;
+    }
+    clearTimeout(stormWait); stormWait = 0;
+    if (EL) EL.calm();
+    requestRender();
+  }
 
   // ------------------------------------------------------------------ camera
   // The camera orbits the table. Its distance is fitted so the board, and the tallest pieces
@@ -1050,6 +1201,11 @@ function ChacklateScene(canvas, options) {
     if (fly.on) flyCamera(); else orbitCamera();
     if (fly.glide) blendGlide();
     if (EL && !fly.on) { const k = EL.shake(); camera.position.x += k.x; camera.position.y += k.y; camera.position.z += k.z; }
+    if (jolt && !fly.on) {
+      const k = jolt * Math.exp(-(performance.now() - joltAt) / 170) * Math.cos((performance.now() - joltAt) / 22);
+      if (Math.abs(k) < 0.001 && performance.now() - joltAt > 200) jolt = 0;
+      else { camera.position.y += k; camera.position.x += k * 0.5; }
+    }
     placeChandelier();
   }
   // Dragging the seat's view down below LOOK_UP lifts the eyes from the board to the place
@@ -1349,7 +1505,7 @@ function ChacklateScene(canvas, options) {
           const e = easeOut(t);
           s.x = a.fx + (a.tx - a.fx) * e; s.z = a.fz + (a.tz - a.fz) * e;
           s.y = a.fy * (1 - e) + Math.sin(Math.PI * Math.min(1, t * 1.08)) * a.arc;
-          if (fx.trail && t < 0.9 && Math.random() < 0.6) spawn('trail', s.x, s.y + 0.15, s.z, fx.trail.colors, 1);
+          if (!a.quick) { trailOf(s); if (t >= 1) trailLand(s); }
           if (t >= 1 && a.promoteTo) { s.piece = a.promoteTo; rebuildSprite(s); spawn('sparks', s.x, 0.6, s.z, ['#ffe28a', '#ffffff'], 46); }
           if (t >= 1 && a.land) a.land();
         } else if (a.type === 'grave') {
@@ -1358,6 +1514,14 @@ function ChacklateScene(canvas, options) {
           s.y = Math.sin(Math.PI * t) * 1.2 + (TRAY_Y) * e * 0; s.grave = t > 0.5;
           if (s.grave) s.y -= 0;
           s.scale = 1 - 0.28 * e; s.yaw = a.fyaw + e * Math.PI * 1.5;
+        } else if (a.type === 'mate') {
+          mateStep(s, a, t * a.dur);
+        } else if (a.type === 'quake') {
+          s.tilt = 0.2 * Math.sin(t * TAU * 2) * (1 - t); s.y = 0.2 * Math.sin(Math.PI * t); s.bow = -0.28 * Math.sin(Math.PI * t);
+        } else if (a.type === 'cheer') {
+          s.y = (a.big ? 0.6 : 0.4) * Math.sin(Math.PI * t);
+          if (a.big) s.yaw = a.yaw0 + TAU * easeInOut(t);
+          if (t > 0.45 && !a.sparked) { a.sparked = true; spawn('aura', s.x, s.y + 0.8, s.z, vcol(), pn(a.big ? 10 : 4)); }
         } else if (a.type === 'topple') {
           s.tilt = a.to * (1 - Math.pow(1 - t, 3)) + Math.sin(t * Math.PI * 3) * 0.04 * (1 - t);
         } else if (a.type === 'glow') {
@@ -1375,7 +1539,7 @@ function ChacklateScene(canvas, options) {
     }
     if (EL && EL.active()) {
       busy = EL.step(now, dt) || busy;
-      if (stormHint && !EL.storming()) { stormHint = false; if (!cine) showSkip(false); }
+      if (stormHint && !celebrating()) { stormHint = false; if (!cine) showSkip(false); }
     }
     if (particles.length || motesOn()) { stepParticles(now, dt); busy = busy || particles.some((p) => p.kind !== 'mote'); }
     if (clockState && clockState.running) busy = true;
@@ -1550,7 +1714,7 @@ function ChacklateScene(canvas, options) {
     if (fly.glide) return;
     if (cam.intro && cam.intro.keys) { endIntro(true); return; }
     if (cine) { skipCine(); return; }
-    if (EL && EL.storming()) { EL.calm(); return; }
+    if (celebrating()) { calmAll(); return; }
     canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, [e.clientX, e.clientY]);
     if (pointers.size === 1) {
@@ -2144,6 +2308,7 @@ function ChacklateScene(canvas, options) {
     ready: () => new Promise((r) => { if (drawnOnce) r(); else { readyWaits.push(r); requestRender(); } }),
     setBoard(pieces, captured) {
       endCine(false, true);
+      if (mate) { dropMate(); mate = null; if (stormWait === -1) stormWait = 0; }
       sprites.forEach(dropSprite);
       sprites = pieces.map(([sq, piece]) => makeSprite(piece, sq));
       warm();
@@ -2209,7 +2374,7 @@ function ChacklateScene(canvas, options) {
     exploring: () => fly.on,
     // Home-screen showcase: a low, slowly circling view across the board.
     setAttract(on, instant) {
-      stopFly(true);
+      stopFly(true); if (on) dropMate();
       if (cam.intro) endIntro(true);
       attract = on;
       if (on) { const a = attractPose(); cam.tPitch = a.pitch; cam.tLookY = a.lookY; cam.tZoom = 1; }
@@ -2226,7 +2391,7 @@ function ChacklateScene(canvas, options) {
     },
     // side: 'white' | 'black'; preset: 'player' | 'top' | 'low'
     setView(side, preset, instant) {
-      stopFly(true);
+      stopFly(true); dropMate();
       if (cam.intro) endIntro(true);
       if (side !== labelSide) { labelSide = side; if (boardMesh) boardMesh.userData.relabel(side); placeTrays(); relayoutGrave(); placeClock(); clockKey = ''; placeLights(side); }
       attract = false; cam.tLookY = 0; cam.tLookZ = 0; cam.tZoom = 1;
@@ -2253,7 +2418,8 @@ function ChacklateScene(canvas, options) {
     // done() runs once the camera is in the seat (at once when there is no tour), so the
     // game waits for the opening shot. Returns how long the tour lasts in ms (0 for none).
     intro(done) {
-      stopFly(true);
+      stopFly(true); dropMate(); mate = null;
+      clearTimeout(stormWait); stormWait = 0;
       if (EL) EL.clear();
       if (introDone) { const cb = introDone; introDone = null; cb(); }
       if (!animations || reducedMotion() || !room) { cam.intro = null; cam.free = 0; if (done) done(); return 0; }
@@ -2308,7 +2474,7 @@ function ChacklateScene(canvas, options) {
         startCastle(info, mover, rook, finish, o);
         return true;
       }
-      const scene = victim && cinema && sceneFor(fx.capture);
+      const scene = victim && cinema && sceneFor(victim.piece);
       if (scene) {
         mover.sq = info.to;
         startCine(scene, info, mover, victim, gravePos(capturer, graveIdx), graveYaw(capturer), toGrave, finish, o);
@@ -2316,9 +2482,12 @@ function ChacklateScene(canvas, options) {
       }
       const knight = kindOf(info.mover) === 2;
       const dist = Math.hypot(sqX(info.to) - mover.x, sqZ(info.to) - mover.z);
-      const dur = dist < 0.6 ? 130 : Math.min(300, 200 + dist * 14) + (knight ? 50 : 0);
+      // with a trail on, the grander pieces travel a touch slower so their trail can be seen
+      const showy = fx.trail && !quick ? ({ 1: 160, 2: 90, 3: 40 })[TRAIL_LEVEL[kindOf(info.mover)] || 3] : 0;
+      const dur = (dist < 0.6 ? 130 : Math.min(300, 200 + dist * 14) + (knight ? 50 : 0)) + showy;
+      mover.tp = null;
       const landX = sqX(info.to), landZ = sqZ(info.to);
-      mover.anim = { type: 'move', start: now, dur, fx: mover.x, fz: mover.z, fy: mover.y, tx: landX, tz: landZ,
+      mover.anim = { type: 'move', start: now, dur, quick, fx: mover.x, fz: mover.z, fy: mover.y, tx: landX, tz: landZ,
         arc: dist < 0.6 ? 0 : knight ? 0.6 : 0.16, promoteTo: info.promo || 0, done: finish,
         land: () => { if (!victim && !quick) spawn('dust', landX, 0.02, landZ, ['#fff2dc'], 7); } };
       mover.sq = info.to;
@@ -2335,7 +2504,7 @@ function ChacklateScene(canvas, options) {
       }
       if (castleRook) {
         const r = castleRook;
-        r.anim = { type: 'move', start: now + 80, dur, fx: r.x, fz: r.z, fy: 0, tx: sqX(info.rook[1]), tz: sqZ(info.rook[1]), arc: 0.34 }; r.sq = info.rook[1];
+        r.anim = { type: 'move', start: now + 80, dur, quick, fx: r.x, fz: r.z, fy: 0, tx: sqX(info.rook[1]), tz: sqZ(info.rook[1]), arc: 0.34 }; r.sq = info.rook[1];
       }
       requestRender();
       return false;
@@ -2343,26 +2512,39 @@ function ChacklateScene(canvas, options) {
     skipCapture: skipCine,
     capturePlaying: () => !!cine,
     // true while a win storm plays (the result card waits for it)
-    storming: () => !!(EL && EL.storming()),
+    storming: () => celebrating(),
+    // ends the celebration now (the king lands, any storm calms)
+    calm: calmAll,
     // o.storm: a real game won, so the room's storm plays too (10 s; a tap calms it)
     celebrate(kind, loserSq, kingSqs, winnerSq, o) {
       const now = performance.now();
-      if (kind === 'win' && o && o.storm && EL && elementsOn && animations) {
-        const el = element(), w = winnerSq >= 0 ? sprites.find((s) => s.sq === winnerSq && !s.dead) : null;
-        EL.storm(el.storm, w ? w.x : 0, w ? w.z : 0, { petals: el.petals,
-          onCrown: () => { if (w && !w.dead) { w.anim = { type: 'glow', start: performance.now(), dur: 1800 }; requestRender(); } } });
-        stormHint = true;
-        clearTimeout(skipTimer); skipTimer = setTimeout(() => showSkip(true), 1200);
-      }
       if (kind === 'win') {
+        dropMate();
         const k = loserSq >= 0 ? sprites.find((s) => s.sq === loserSq && !s.dead) : null;
-        if (k) k.anim = { type: 'topple', start: now + 150, dur: animations ? 1100 : 1, to: 1.45 };
         const w = winnerSq >= 0 ? sprites.find((s) => s.sq === winnerSq && !s.dead) : null;
-        if (w && animations) w.anim = { type: 'hop', start: now + 300, dur: 520 };
+        // a real game's end: the beaten king's fall (see startMate); the storm and the
+        // victory effect wait for it to land
+        const drama = !!(k && animations), hit = drama ? MATE_HIT : 0;
+        const storm = o && o.storm && EL && elementsOn && animations && stormKind();
+        const go = () => {
+          stormWait = 0;
+          const el = element(), own = fx.victory && fx.victory.storm;
+          EL.storm(stormKind(), w ? w.x : 0, w ? w.z : 0, { petals: own ? fx.victory.colors : el.petals,
+            onCrown: () => { if (w && !w.dead) { w.anim = { type: 'glow', start: performance.now(), dur: 1800 }; requestRender(); } } });
+          stormHint = true;
+        };
+        if (storm) {
+          if (hit) stormWait = -1; else go();   // with the fall, it starts as the king lands (mateStep)
+          stormHint = true;
+          clearTimeout(skipTimer); skipTimer = setTimeout(() => showSkip(true), drama ? 600 : 1200);
+        }
+        if (drama) startMate(k, w, () => { mateWave(k, w); if (stormWait === -1) go(); });
+        else if (k) k.anim = { type: 'topple', start: now + 150, dur: animations ? 1100 : 1, to: 1.45 };
+        if (w && animations && !drama) w.anim = { type: 'hop', start: now + 300, dur: 520 };
         if (animations && fx.victory && fx.victory.kind !== 'none') {
           const v = fx.victory;
           const at = w ? [w.x, 1.4, w.z] : [0, 1.2, 0];
-          const burst = (dx, dz, delay) => setTimeout(() => spawn(v.kind === 'fireworks' ? 'firework' : v.kind === 'petals' ? 'petals' : v.kind === 'sparks' ? 'sparks' : 'confetti', at[0] + dx, at[1] + (v.kind === 'fireworks' ? 2 : 0), at[2] + dz, v.colors, v.kind === 'fireworks' ? 80 : 100), delay);
+          const burst = (dx, dz, delay) => setTimeout(() => spawn(v.kind === 'fireworks' ? 'firework' : v.kind === 'petals' ? 'petals' : v.kind === 'sparks' ? 'sparks' : 'confetti', at[0] + dx, at[1] + (v.kind === 'fireworks' ? 2 : 0), at[2] + dz, v.colors, v.kind === 'fireworks' ? 80 : 100), delay + hit);
           burst(0, 0, 500);
           if (v.kind === 'fireworks') { burst(-2, -1, 900); burst(2, 1, 1300); }
           if (v.kind === 'confetti') burst(0, 0, 900);
