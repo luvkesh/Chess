@@ -38,38 +38,80 @@ function ChacklateRules(E) {
     },
   ];
 
+  // Every line the rule book says, as whole sentences so each language can order its words its own
+  // way. say(key, vars) gives the player's language (packages/content/i18n/rules.json, which the
+  // i18n test keeps in step with EN); without it, English.
+  const EN = {
+    white: 'White', black: 'Black', and: ' and ', andAlso: ', and ',
+    kingside: 'kingside', queenside: 'queenside', both: 'kingside or queenside',
+    onBoth: 'on both sides', onKingside: 'on the kingside', onQueenside: 'on the queenside',
+    'castle.gone.you': 'Your king or rooks have moved, so castling is gone for this game.',
+    'castle.gone.side': '{side}’s king or rooks have moved, so castling is gone for this game.',
+    'castle.now.you': 'You can castle right now: {ways}. Move the king two squares towards the rook.',
+    'castle.now.side': '{side} can castle right now: {ways}. Move the king two squares towards the rook.',
+    'castle.notYet.you': 'You can still castle {where} later, but not yet: {why}.',
+    'castle.notYet.side': '{side} can still castle {where} later, but not yet: {why}.',
+    'castle.later.you': 'You can still castle {where} later once it is your turn.',
+    'castle.later.side': '{side} can still castle {where} later once it is their turn.',
+    'castle.why.check': 'the king is in check',
+    'castle.why.between': 'pieces are standing in between',
+    'castle.why.watched': 'an enemy piece watches a square the king must cross',
+    'ep.none': 'No en passant capture is possible right now.',
+    'ep.you': 'Right now, you can capture en passant on {sq}. This is the only move it is allowed on.',
+    'ep.side': 'Right now, {side} can capture en passant on {sq}. This is the only move it is allowed on.',
+    'ep.opponent': 'Your opponent can capture en passant on {sq} this move.',
+    'promo.you': 'Your pawn on {sq} is one step from promoting!',
+    'promo.youMany': 'Your pawns on {sq} are one step from promoting!',
+    'promo.side': '{side}’s pawn on {sq} is one step from promoting!',
+    'promo.sideMany': '{side}’s pawns on {sq} are one step from promoting!',
+    'promo.theirs': 'Watch out: the other side’s pawn on {sq} is one step from promoting.',
+    'promo.none': 'No pawn is close to the far side yet.',
+    'draw.ended': 'This game ended in a draw.',
+    'draw.threefold': 'This position has come up three times, so either player can claim a draw right now.',
+    'draw.fifty': 'Fifty moves have passed with no capture and no pawn move, so either player can claim a draw right now.',
+    'draw.twice': 'This position has come up twice. Once more and either player can claim a draw.',
+    'draw.count': '{n} moves with no capture and no pawn move. At 50, either player can claim a draw.',
+    'draw.none': 'Nothing points to a draw yet.',
+    'check.you': 'You are in check right now.',
+    'check.side': '{side} is in check right now.',
+    'title.check': 'Check', 'title.castling': 'Castling', 'title.en-passant': 'En passant', 'title.promotion': 'Promotion', 'title.draws': 'Draws',
+    'text.check': RULES[0].text, 'text.castling': RULES[1].text, 'text.en-passant': RULES[2].text, 'text.promotion': RULES[3].text, 'text.draws': RULES[4].text,
+  };
+  const fill = (str, v) => (v ? str.replace(/\{(\w+)\}/g, (m, k) => (v[k] === undefined ? m : v[k])) : str);
+  let say = null;
+  const L = (k, v) => { const x = say && say(k, v); return x || fill(EN[k], v); };
+
   // Who the rule book speaks to: the player in a game against a bot or online, the side to move
   // when two players share the device.
-  const you = (game, side) => (side === E.WHITE ? 'White' : 'Black');
+  const you = (game, side) => L(side === E.WHITE ? 'white' : 'black');
 
   function castlingNow(g, side, mine) {
     const pos = g.pos;
     const ks = side === E.WHITE ? 1 : 4, qs = side === E.WHITE ? 2 : 8;
-    const who = mine ? 'You' : you(g, side);
+    const who = mine ? 'you' : 'side', sv = { side: you(g, side) };
     const rights = [(pos.castle & ks) && 'kingside', (pos.castle & qs) && 'queenside'].filter(Boolean);
-    if (!rights.length) return { now: false, line: (mine ? 'Your' : you(g, side) + '’s') + ' king or rooks have moved, so castling is gone for this game.' };
+    if (!rights.length) return { now: false, line: L('castle.gone.' + who, sv) };
     const home = side === E.WHITE ? 4 : 60;
     const legal = g.pos.side === side ? g.legal.filter((m) => E.mFlags(m) & E.F_CASTLE).map((m) => (E.mTo(m) > home ? 'kingside' : 'queenside')) : [];
-    if (legal.length) return { now: true, line: who + ' can castle right now: ' + legal.join(' or ') + '. Move the king two squares towards the rook.' };
+    if (legal.length) return { now: true, line: L('castle.now.' + who, Object.assign({ ways: legal.length > 1 ? L('both') : L(legal[0]) }, sv)) };
     // Still allowed later: say what is in the way today.
     const why = [];
-    if (pos.inCheck(side)) why.push('the king is in check');
+    if (pos.inCheck(side)) why.push(L('castle.why.check'));
     // files the king crosses, and the files that must be empty, for each side of the board
     const crossed = { kingside: [5, 6], queenside: [3, 2] }, between = { kingside: [5, 6], queenside: [1, 2, 3] };
     const base = home - 4;
-    if (rights.some((r) => between[r].some((f) => at88(pos, base + f)))) why.push('pieces are standing in between');
-    if (rights.some((r) => crossed[r].some((f) => pos.attacked(E.to88(base + f), -side)))) why.push('an enemy piece watches a square the king must cross');
-    const still = rights.length === 2 ? 'on both sides' : 'on the ' + rights[0];
-    return { now: false, line: who + ' can still castle ' + still + ' later' + (why.length ? ', but not yet: ' + why.join(', and ') + '.' : ' once it is ' + (mine ? 'your' : 'their') + ' turn.') };
+    if (rights.some((r) => between[r].some((f) => at88(pos, base + f)))) why.push(L('castle.why.between'));
+    if (rights.some((r) => crossed[r].some((f) => pos.attacked(E.to88(base + f), -side)))) why.push(L('castle.why.watched'));
+    const where = L(rights.length === 2 ? 'onBoth' : rights[0] === 'kingside' ? 'onKingside' : 'onQueenside');
+    return { now: false, line: why.length ? L('castle.notYet.' + who, Object.assign({ where, why: why.join(L('andAlso')) }, sv)) : L('castle.later.' + who, Object.assign({ where }, sv)) };
   }
 
   function enPassantNow(g, side, mine) {
     const caps = g.legal.filter((m) => E.mFlags(m) & E.F_EP);
-    if (!caps.length) return { now: false, line: 'No en passant capture is possible right now.' };
-    const to = name64(E.mTo(caps[0]));
+    if (!caps.length) return { now: false, line: L('ep.none') };
+    const sqName = name64(E.mTo(caps[0]));
     const mover = g.pos.side === side;
-    return { now: true, line: mover ? (mine ? 'Right now, you' : 'Right now, ' + you(g, side)) + ' can capture en passant on ' + to + '. This is the only move it is allowed on.'
-      : 'Your opponent can capture en passant on ' + to + ' this move.' };
+    return { now: true, line: mover ? L(mine ? 'ep.you' : 'ep.side', { sq: sqName, side: you(g, side) }) : L('ep.opponent', { sq: sqName }) };
   }
 
   function promotionNow(g, side, mine) {
@@ -79,22 +121,22 @@ function ChacklateRules(E) {
       return out;
     };
     const ours = near(side), theirs = near(-side);
-    if (ours.length) return { now: true, line: (mine ? 'Your' : you(g, side) + '’s') + ' pawn' + (ours.length > 1 ? 's on ' + ours.join(' and ') + ' are' : ' on ' + ours[0] + ' is') + ' one step from promoting!' };
-    if (theirs.length) return { now: true, line: 'Watch out: the other side’s pawn on ' + theirs.join(' and ') + ' is one step from promoting.' };
-    return { now: false, line: 'No pawn is close to the far side yet.' };
+    if (ours.length) return { now: true, line: L((mine ? 'promo.you' : 'promo.side') + (ours.length > 1 ? 'Many' : ''), { sq: ours.join(L('and')), side: you(g, side) }) };
+    if (theirs.length) return { now: true, line: L('promo.theirs', { sq: theirs.join(L('and')) }) };
+    return { now: false, line: L('promo.none') };
   }
 
   function drawsNow(g) {
     const pos = g.pos;
-    if (g.outcome && g.outcome.result === '1/2-1/2') return { now: true, line: 'This game ended in a draw.' };
+    if (g.outcome && g.outcome.result === '1/2-1/2') return { now: true, line: L('draw.ended') };
     const claim = g.claimable();
-    if (claim === 'threefold') return { now: true, line: 'This position has come up three times, so either player can claim a draw right now.' };
-    if (claim === 'fifty') return { now: true, line: 'Fifty moves have passed with no capture and no pawn move, so either player can claim a draw right now.' };
+    if (claim === 'threefold') return { now: true, line: L('draw.threefold') };
+    if (claim === 'fifty') return { now: true, line: L('draw.fifty') };
     const reps = g.repetitions();
-    if (reps === 2) return { now: true, line: 'This position has come up twice. Once more and either player can claim a draw.' };
+    if (reps === 2) return { now: true, line: L('draw.twice') };
     const moves = Math.floor(pos.half / 2);
-    if (moves >= 30) return { now: true, line: moves + ' moves with no capture and no pawn move. At 50, either player can claim a draw.' };
-    return { now: false, line: 'Nothing points to a draw yet.' };
+    if (moves >= 30) return { now: true, line: L('draw.count', { n: moves }) };
+    return { now: false, line: L('draw.none') };
   }
 
   // The rule book for a game: every rule with its line for this position, the ones that matter
@@ -105,7 +147,7 @@ function ChacklateRules(E) {
       check: () => {
         const s = g.pos.side;
         if (!g.pos.inCheck()) return null;
-        return { now: true, line: (s === side && mine ? 'You are' : you(g, s) + ' is') + ' in check right now.' };
+        return { now: true, line: s === side && mine ? L('check.you') : L('check.side', { side: you(g, s) }) };
       },
       castling: () => castlingNow(g, side, mine),
       'en-passant': () => enPassantNow(g, side, mine),
@@ -115,11 +157,11 @@ function ChacklateRules(E) {
     const out = [];
     RULES.forEach((r, i) => {
       const s = status[r.id]();
-      if (s) out.push(Object.assign({}, r, s, { order: i }));
+      if (s) out.push(Object.assign({}, r, s, { order: i, title: L('title.' + r.id), text: L('text.' + r.id) }));
     });
     return out.sort((a, b) => (b.now - a.now) || (a.order - b.order));
   }
 
-  return { RULES, forGame, sq };
+  return { RULES, forGame, sq, EN, setSay(f) { say = f; } };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateRules;

@@ -56,5 +56,6 @@
   "guideLabel": { "en": "Guide", "hi": "गाइड", "check": ["hi"] },
   "coins": { "en": "Choco Coins", "hi": "चॉको सिक्के", "check": ["hi"] },
   "coin": { "en": "Choco Coin", "hi": "चॉको सिक्का", "check": ["hi"] },
-  "nav.club": { "en": "Club", "hi": "क्लब", "check": ["hi"] }
+  "nav.club": { "en": "Club", "hi": "क्लब", "check": ["hi"] },
+  "whatIsThis": {"en": "What does this do?", "hi": "यह क्या करता है?", "check": ["hi"]}
 }

@@ -138,7 +138,7 @@ const ChacklateTips = (function () {
     // Scrolling moves the control away from its bubble; a tip still waiting to open stays.
     window.addEventListener('scroll', () => { if (bubble && !bubble.hidden) hide(); }, true);
   }
-  const icon = '<button type="button" class="ck-i" aria-label="What does this do?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.01"/></svg></button>';
+  const icon = '<button type="button" class="ck-i" aria-label="' + (typeof ChacklateI18n !== 'undefined' && ChacklateI18n.has('common.whatIsThis') ? ChacklateI18n.t('common.whatIsThis') : 'What does this do?') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.01"/></svg></button>';
   return { init, hide, icon };
 })();
 

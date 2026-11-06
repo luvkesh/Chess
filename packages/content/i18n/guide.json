@@ -19,7 +19,7 @@
   "game.check": { "en": "Uh oh, your king is in check! Move it to safety, block the attack, or take the attacker.", "hi": "अरे, आपके राजा को शह है! उसे सुरक्षित जगह ले जाएँ, हमले को बीच में रोकें, या हमला करने वाले को मार दें।", "check": ["hi"] },
   "game.idle": { "en": "Take your time. If you're stuck, tap Hint, and I'll show you a good idea.", "hi": "आराम से सोचें। अगर अटक जाएँ, तो \"संकेत\" पर टैप करें, और मैं एक अच्छा विचार दिखाऊँगा।", "check": ["hi"] },
   "game.over": { "en": "Good game! Tap Review with Rooky to see your best moves, or play again.", "hi": "अच्छा खेल! अपनी सबसे अच्छी चालें देखने के लिए \"Rooky के साथ समीक्षा\" पर टैप करें, या फिर से खेलें।", "check": ["hi"] },
-  "lesson.steps": { "en": "Let's learn! Listen, and watch the board. Then tap Next, when you're ready.", "hi": "चलिए सीखें! सुनिए, और बिसात देखिए। तैयार होने पर Next पर टैप करें।", "check": ["hi"] },
+  "lesson.steps": { "en": "Let's learn! Listen, and watch the board. Then tap Next, when you're ready.", "hi": "चलिए सीखें! सुनिए, और बिसात देखिए। तैयार होने पर ‘आगे’ पर टैप करें।", "check": ["hi"] },
   "lesson.ex": { "en": "Now it's your turn! Move a piece on the board, to answer.", "hi": "अब आपकी बारी! जवाब देने के लिए बिसात पर एक मोहरा चलाएँ।", "check": ["hi"] },
   "lesson.idle": { "en": "Need some help? Tap Hint, and I'll give you a clue.", "hi": "थोड़ी मदद चाहिए? Hint पर टैप करें, और मैं एक इशारा दूँगा।", "check": ["hi"] },
   "lesson.done": { "en": "Well done, you finished the lesson! Tap the gold button to carry on.", "hi": "शाबाश, आपने पाठ पूरा कर लिया! आगे बढ़ने के लिए सुनहरे बटन पर टैप करें।", "check": ["hi"] },

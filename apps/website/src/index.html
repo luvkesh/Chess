@@ -19,9 +19,9 @@
   --line: rgba(232, 192, 112, 0.22); --line-2: rgba(255, 235, 215, 0.1);
   --ink: #f6ece2; --muted: #cdbaa8; --faint: #9c8776;
   --gold: #e8c070; --gold-2: #f6dc9c; --gold-3: #b9893a;
-  --caps: 'Cinzel', 'Noto Serif Devanagari', 'Trajan Pro', Georgia, serif;
-  --serif: 'Cormorant Garamond', 'Noto Serif Devanagari', 'Iowan Old Style', Palatino, Georgia, serif;
-  --sans: 'Jost', 'Noto Sans Devanagari', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --caps: 'Cinzel', 'Noto Serif Devanagari', 'Chack Serif', 'Songti SC', 'Noto Serif SC', 'Trajan Pro', Georgia, serif;
+  --serif: 'Cormorant Garamond', 'Noto Serif Devanagari', 'Chack Serif', 'Songti SC', 'Noto Serif SC', 'Iowan Old Style', Palatino, Georgia, serif;
+  --sans: 'Jost', 'Noto Sans Devanagari', 'Chack Sans', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Microsoft YaHei', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --gold-grad: linear-gradient(180deg, #fff3c4 0%, #f3d38a 30%, #d2a04c 62%, #9a6a24 100%);
   --ring: linear-gradient(145deg, #fff6d0 0%, #e9c27a 22%, #9a6a24 48%, #f3d38a 70%, #7a4a14 100%);
   --r: 18px;
@@ -1002,9 +1002,22 @@ html.nonlatin body { line-height: 1.75; }
       }
       return fetch(src).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); });
     }
+    // The device's own voice for the page's language (used until Rooky is recorded in it).
+    var voices = {};
+    function speechVoice() {
+      if (voices[D.lang] !== undefined) return voices[D.lang];
+      var vs = speechSynthesis.getVoices(), tag = (D.speech || '').toLowerCase();
+      var mine = vs.filter(function (v) { return v.lang.toLowerCase().replace('_', '-').split('-')[0] === D.lang; });
+      var v = mine.filter(function (v) { return v.lang.toLowerCase().replace('_', '-') === tag && /natural|neural|enhanced|premium|google/i.test(v.name); })[0] ||
+        mine.filter(function (v) { return v.lang.toLowerCase().replace('_', '-') === tag; })[0] || mine[0] || null;
+      if (vs.length) voices[D.lang] = v;
+      return v;
+    }
     var buffers = {};
     function load(key) {
-      if (!buffers[key]) buffers[key] = bytes(G[key].src)
+      var own = D.lang && D.lang !== 'en' && G[key].langs && G[key].langs[D.lang];
+      if (own) key = D.lang + ':' + key;
+      if (!buffers[key]) buffers[key] = bytes(own ? own.src : G[key].src)
         .then(function (ab) { return new Promise(function (res, rej) { var r = actx.decodeAudioData(ab, res, function (e) { rej(e || new Error('decode')); }); if (r && r.catch) r.catch(function () {}); }); })
         .catch(function (e) { delete buffers[key]; throw e; });
       return buffers[key];
@@ -1012,7 +1025,7 @@ html.nonlatin body { line-height: 1.75; }
     // While the tour is on, the clips for sections coming up are fetched and decoded early.
     if ('IntersectionObserver' in window) {
       var ahead = new IntersectionObserver(function (es) {
-        es.forEach(function (en) { if (en.isIntersecting && on && actx) load(en.target.dataset.guide).catch(function () {}); });
+        es.forEach(function (en) { if (en.isIntersecting && on && actx && (!D.lang || D.lang === 'en')) load(en.target.dataset.guide).catch(function () {}); });
       }, { rootMargin: '1200px 0px' });
       sections.forEach(function (el) { ahead.observe(el); });
     }
@@ -1032,6 +1045,7 @@ html.nonlatin body { line-height: 1.75; }
     function fadeOut() {
       if (!audio) return; trace('fadeOut ' + audio.key);
       var a = audio; audio = null; live.classList.remove('talking'); clearInterval(capTimer);
+      if (a.speech) speechSynthesis.cancel();
       if (a.el) { a.el.onended = a.el.onerror = null; a.el.pause(); }
       if (a.src) { var now = actx.currentTime; a.gain.gain.cancelScheduledValues(now); a.gain.gain.setValueAtTime(a.gain.gain.value, now); a.gain.gain.linearRampToValueAtTime(0, now + 0.35); try { a.src.stop(now + 0.4); } catch (e) {} }
     }
@@ -1043,6 +1057,7 @@ html.nonlatin body { line-height: 1.75; }
     function failed(a, why) { trace('failed ' + why); if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); cap.textContent = 'No sound from ' + D.coach + ' (' + why + '). Check the volume, then tap replay.'; peek(6000); }
     function speak(key, from, retry) {
       var L = G[key]; if (!L) return; from = from || 0; trace('speak ' + key + ' ' + from);
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
       fadeOut(); hideCue(); held = null;
       var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null, now: null, retry: !!retry }; audio = a; lastKey = key;
       if (key.indexOf('item-') !== 0) lastSection = key;
@@ -1070,6 +1085,27 @@ html.nonlatin body { line-height: 1.75; }
         if (p && p.then) p.then(function () { if (audio === a) follow(function () { return tag.currentTime; }); }, no);
         else follow(function () { return tag.currentTime; });
       }
+      // Another language: its own recording when there is one, else the device's voice in that language.
+      if (D.lang && D.lang !== 'en') {
+        var own = L.langs && L.langs[D.lang];
+        if (!own) return viaSpeech();
+        L = { src: own.src, cues: own.cues }; cap.textContent = L.cues[0].text;
+      }
+      function viaSpeech() {
+        if (!('speechSynthesis' in window)) return failed(a, 'no voice for this language');
+        var parts = L.cues.map(function (c) { return D.tr(c.text); }), i = 0, sv = speechVoice();
+        a.speech = true; speechSynthesis.cancel(); if (!paused) live.classList.add('talking');
+        (function next() {
+          if (audio !== a) return;
+          if (i >= parts.length) return ended();
+          cap.textContent = parts[i];
+          var u = new SpeechSynthesisUtterance(parts[i]);
+          u.lang = sv ? sv.lang : D.speech; if (sv) u.voice = sv; u.rate = 0.95;
+          u.onend = function () { i++; setTimeout(next, 350); };
+          u.onerror = function () { if (audio === a) { i++; setTimeout(next, 50); } };
+          speechSynthesis.speak(u);
+        })();
+      }
       if (!actx || actx.state !== 'running') { if (actx && !paused) { var r = actx.resume(); if (r && r.catch) r.catch(function () {}); } return viaElement('sound is asleep'); }
       a.gain = actx.createGain(); a.gain.connect(voice);
       load(key).then(function (buf) {
@@ -1080,7 +1116,7 @@ html.nonlatin body { line-height: 1.75; }
         src.start(0, Math.min(from, Math.max(0, buf.duration - 0.05)));
         follow(function () { return actx.currentTime - t0; });
         // fetch the neighbouring sections so the next one starts at once
-        var i = keys.indexOf(a.sec); [keys[i + 1], keys[i - 1]].forEach(function (k) { if (k) load(k).catch(function () {}); });
+        var i = keys.indexOf(a.sec); if (!D.lang || D.lang === 'en') [keys[i + 1], keys[i - 1]].forEach(function (k) { if (k) load(k).catch(function () {}); });
       }).catch(function (e) { viaElement((e && e.message) || 'decode'); });
     }
     // Leaving the page (another tab, a call, the lock screen) stops the clip where it is; coming back
@@ -1091,6 +1127,7 @@ html.nonlatin body { line-height: 1.75; }
       if (!audio) return; trace('hold ' + audio.key);
       var a = audio; held = { key: a.key, at: a.now ? a.now() : 0, cap: cap.textContent }; audio = null;
       live.classList.remove('talking'); clearInterval(capTimer);
+      if (a.speech) speechSynthesis.cancel();
       if (a.el) { a.el.onended = a.el.onerror = null; a.el.pause(); }
       if (a.src) { a.src.onended = null; try { a.src.stop(); } catch (e) {} }
     }
@@ -1117,8 +1154,8 @@ html.nonlatin body { line-height: 1.75; }
     function setPaused(v) {
       paused = v; live.classList.toggle('paused', v);
       orb.setAttribute('aria-label', v ? D.coach + ' is paused. Tap to carry on.' : D.coach + ' is guiding you. Tap to pause.');
-      if (v) { clearTimeout(settle); if (actx) actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); quiet(); live.classList.remove('talking'); }
-      else { unlock(); if (audio && audio.el) audio.el.play().catch(function () {}); if (audio) live.classList.add('talking'); else onScroll(); }
+      if (v) { clearTimeout(settle); if (actx) actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); if (audio && audio.speech) speechSynthesis.pause(); quiet(); live.classList.remove('talking'); }
+      else { unlock(); if (audio && audio.el) audio.el.play().catch(function () {}); if (audio && audio.speech) speechSynthesis.resume(); if (audio) live.classList.add('talking'); else onScroll(); }
     }
     function setOn(v) {
       on = v; store.set(KEY, v ? '1' : '0'); btn.setAttribute('aria-pressed', String(v)); invite.hidden = true; live.hidden = !v; paused = false; live.classList.remove('paused', 'show');
@@ -1355,9 +1392,13 @@ html.nonlatin body { line-height: 1.75; }
     function set(code, save) {
       var pack = D.i18n[code];
       lang = pack ? code : 'en'; table = pack ? pack.table : null; templates();
+      D.lang = lang; D.speech = pack ? pack.meta.speech : 'en-IN';
+      D.tr = function (s) { var w = table ? word(s.replace(/\s+/g, ' ').trim()) : null; return w === null ? s : w; };
       document.documentElement.lang = lang;
       document.documentElement.dir = pack && pack.meta.dir === 'rtl' ? 'rtl' : 'ltr';
-      document.documentElement.classList.toggle('nonlatin', !!pack && pack.meta.script !== 'Latin');
+      document.documentElement.classList.toggle('nonlatin', !!pack && pack.meta.script !== 'Latin' && pack.meta.script !== 'Cyrillic');
+      var fk = pack && pack.meta.fonts;
+      if (fk && D.fonts[fk] && !document.querySelector('style[data-script="' + fk + '"]')) { var st = document.createElement('style'); st.dataset.script = fk; st.textContent = D.fonts[fk]; document.head.appendChild(st); }
       [].forEach.call(menu.children, function (b) { b.setAttribute('aria-checked', b.dataset.code === lang ? 'true' : 'false'); });
       walk(document.body);
       if (save) try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
