@@ -336,3 +336,26 @@ assert(mig.coins === 0 && Array.isArray(mig.bought) && mig.earned.by);
   assert.deepStrictEqual(PG.migrate(JSON.parse(JSON.stringify(t))).stats.variants, t.stats.variants);
 }
 console.log('progress ok');
+
+// Regrouped lessons: done only when every part was done; records of lessons that are gone are dropped.
+{
+  const ls = [{ id: 'lesson.c01.l01.a', chapter: 1, replaces: ['lesson.c01.l02.b'] }, { id: 'lesson.c01.l03.c', chapter: 1, replaces: ['lesson.c01.l04.d'] }];
+  const s = PG.fresh(); delete s.lessonsV;   // a player from before the regrouping
+  const rec = (stars) => ({ stars, attempts: 1, mastered: stars > 1, completed: '2026-11-01', reviews: [] });
+  s.lessons['lesson.c01.l01.a'] = rec(3); s.lessons['lesson.c01.l02.b'] = rec(2);
+  s.lessons['lesson.c01.l03.c'] = rec(3); s.lessons['lesson.c09.l09.gone'] = rec(1);
+  PG.mergeLessons(s, ls);
+  assert.strictEqual(s.lessons['lesson.c01.l01.a'].stars, 2, 'a merged lesson keeps the lowest stars of its parts');
+  assert(!s.lessons['lesson.c01.l03.c'], 'half a merged lesson is not a finished lesson');
+  assert.deepStrictEqual(Object.keys(s.lessons), ['lesson.c01.l01.a'], 'old and missing lessons are dropped');
+  s.lessons['lesson.c01.l03.c'] = rec(3);   // played after the regrouping
+  PG.mergeLessons(s, ls);
+  assert(s.lessons['lesson.c01.l03.c'] && s.lessons['lesson.c01.l01.a'].stars === 2, 'it runs once: new results stay');
+  const f = PG.fresh(); f.lessons['lesson.c01.l03.c'] = rec(3); PG.mergeLessons(f, ls);
+  assert(f.lessons['lesson.c01.l03.c'], 'a new player is never regrouped');
+  const old = PG.fresh(); delete old.lessonsV; old.lessons['lesson.c01.l03.c'] = rec(3);
+  PG.mergeLessons(PG.migrate(JSON.parse(JSON.stringify(old))), ls);
+  const m = PG.migrate(JSON.parse(JSON.stringify(old))); PG.mergeLessons(m, ls);
+  assert(!m.lessons['lesson.c01.l03.c'] && m.lessonsV === 2, 'a saved game from before is regrouped after loading');
+  console.log('lesson regrouping ok');
+}

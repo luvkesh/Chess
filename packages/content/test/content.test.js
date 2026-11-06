@@ -44,6 +44,11 @@ function checkExercise(x, where) {
     assert.ok(x.prompt, where + ' prompt');
     if (x.fen && x.type === 'choice') load(x.fen, where);
     if (x.type === 'choice') { assert.ok(x.options.length >= 2 && x.answer >= 0 && x.answer < x.options.length, where); checked++; return; }
+    if (x.type === 'puzzle' && x.puzzle) {
+      const pz = puzzles.find((q) => q.id === x.puzzle);
+      assert.ok(pz, where + ' puzzle ' + x.puzzle);
+      checked++; return;
+    }
     if (x.type === "puzzles") { if (!puzzles.length) { checked++; return; } assert.ok(puzzles.some((p) => p.themes.includes(x.theme) || (x.theme === 'mate' && p.themes.some((t) => t.startsWith('mateIn')))), where + ' has puzzles for ' + x.theme); checked++; return; }
     const p = load(x.fen, where);
     const legal = p.legalMoves();
@@ -89,6 +94,41 @@ function checkExercise(x, where) {
     }
     assert.fail(where + ' unknown type ' + x.type);
   }
+}
+// The curriculum: mid-length lessons, and nothing repeated anywhere in Learn. Every exercise has its own
+// board (never one a lesson step showed, never one another exercise used), a step board belongs to one
+// lesson only (the starting position aside), no puzzle is used twice, no question is asked twice, and
+// every lesson has its own drawn icon. Lessons with their own speakers (a word list) may run longer.
+{
+  const bd = (fen) => fen.split(' ').slice(0, 2).join(' ');
+  const START = bd(E.START_FEN);
+  const stepOwner = new Map(), exBoards = new Map(), seenPuzzles = new Map(), prompts = new Map(), icons = new Set();
+  for (const l of lessons.lessons) {
+    const n = l.steps.length + l.exercises.length;
+    if (!l.voice) assert.ok(n >= 6 && n <= 10, l.id + ' has ' + n + ' steps and exercises, not 6 to 10');
+    const art = JSON.stringify(l.art && l.art.items);
+    assert.ok(l.art && l.art.felt && l.art.items.length && !icons.has(art), l.id + ' has its own 3D picture'); icons.add(art);
+    for (const s of l.steps) {
+      const b = bd(s.fen);
+      if (b === START) continue;
+      assert.ok(!stepOwner.has(b) || stepOwner.get(b) === l.id, l.id + ' shows a board ' + stepOwner.get(b) + ' already shows: ' + s.fen);
+      stepOwner.set(b, l.id);
+    }
+  }
+  for (const l of lessons.lessons) for (const [i, x] of l.exercises.entries()) {
+    const where = l.id + ' exercise ' + i;
+    if (x.type === 'puzzles') assert.fail(where + ': name each puzzle, so none is picked twice');
+    if (x.type === 'puzzle') { assert.ok(!seenPuzzles.has(x.puzzle), where + ' repeats ' + x.puzzle + ' from ' + seenPuzzles.get(x.puzzle)); seenPuzzles.set(x.puzzle, where); continue; }
+    if (x.type === 'choice') { assert.ok(!prompts.has(x.prompt), where + ' asks again: ' + x.prompt); prompts.set(x.prompt, where); }
+    if (!x.fen) continue;
+    const b = bd(x.fen);
+    assert.ok(!exBoards.has(b), where + ' repeats the board of ' + exBoards.get(b));
+    assert.ok(!stepOwner.has(b), where + ' repeats a board ' + stepOwner.get(b) + ' already showed');
+    exBoards.set(b, where);
+  }
+  // a merged lesson names the lessons it replaces, so progress carries over
+  const all = new Set(lessons.lessons.map((l) => l.id));
+  for (const l of lessons.lessons) for (const r of l.replaces || []) { assert.ok(/^lesson\.c\d\d\.l\d\d\.[a-z-]+$/.test(r) && !all.has(r), l.id + ' replaces ' + r); all.add(r); }
 }
 console.log('lessons ok:', lessons.lessons.length, 'lessons,', checked, 'exercises');
 
@@ -208,6 +248,7 @@ const learnBoards = new Set(), eraBoards = new Set(), eraPuzzles = new Set();
 const learnPuzzles = new Set();
 for (const l of lessons.lessons) {
   for (const x of l.steps.concat(l.exercises)) if (x.fen) learnBoards.add(board(x.fen));
+  for (const x of l.exercises) if (x.type === 'puzzle') learnPuzzles.add(x.puzzle);
   for (const x of l.exercises) if (x.type === 'puzzles') {
     // the same pick the lesson screen makes
     puzzles.filter((p) => x.theme === 'mate' ? p.themes.some((t) => t.startsWith('mateIn')) : p.themes.includes(x.theme))

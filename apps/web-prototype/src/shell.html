@@ -393,11 +393,13 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .chapter .meta { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
 .chapter header .bar { width: 160px; margin-left: auto; }
 .lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
-.node { position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; text-align: left; padding: 13px 15px; border-radius: 14px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.04); transition: border-color .25s, background .25s, transform .25s var(--ease); }
+.node { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; text-align: left; padding: 13px 15px; border-radius: 14px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.04); transition: border-color .25s, background .25s, transform .25s var(--ease); }
 .node:hover:not(:disabled) { border-color: var(--line-3); background: rgba(232, 194, 122, 0.08); transform: translateY(-2px); }
 .node.done { border-color: rgba(232, 194, 122, 0.35); }
 .node.next { border-color: rgba(232, 194, 122, 0.75); background: rgba(232, 194, 122, 0.1); box-shadow: var(--glow); }
 .node:disabled { opacity: 0.5; cursor: default; }
+.node-art { width: 64px; height: 64px; flex: none; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
+.node-art img { width: 64px; height: 64px; object-fit: cover; display: block; }
 .node b { display: block; font-weight: 500; font-size: 15px; }
 .node small { color: var(--muted); font-size: 12.5px; line-height: 1.35; display: block; margin-top: 2px; }
 .stars { color: var(--gold); letter-spacing: 2px; font-size: 14px; white-space: nowrap; }

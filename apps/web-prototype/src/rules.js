@@ -22,7 +22,7 @@ function ChacklateRules(E) {
       pic: { fen: '8/8/8/8/8/8/8/4K2R w K - 0 1', files: [3, 7], ranks: [0, 1], arrows: [['e1', 'g1'], ['h1', 'f1', 0.55]] },
     },
     {
-      id: 'en-passant', title: 'En passant', lesson: 'lesson.c02.l04.en-passant',
+      id: 'en-passant', title: 'En passant', lesson: 'lesson.c01.l06.pawns',
       text: 'When an enemy pawn jumps two squares and lands right beside your pawn, your pawn may capture it as if it had moved only one square. It is French for “in passing”. You must do it on your very next move, or the chance is gone.',
       pic: { fen: '8/8/8/3pP3/8/8/8/8 w - d6 0 1', files: [2, 5], ranks: [4, 6], arrows: [['e5', 'd6']], marks: ['d5'] },
     },
@@ -32,7 +32,7 @@ function ChacklateRules(E) {
       pic: { fen: '8/4P3/8/8/8/8/8/8 w - - 0 1', files: [2, 6], ranks: [5, 7], arrows: [['e7', 'e8']], marks: ['e8'] },
     },
     {
-      id: 'draws', title: 'Draws', lesson: 'lesson.c02.l06.draws', also: { id: 'lesson.c02.l05.stalemate', title: 'Stalemate' },
+      id: 'draws', title: 'Draws', lesson: 'lesson.c02.l05.stalemate',
       text: 'A game can end in a draw, a tie with no winner: when the player to move has no legal move but is not in check (stalemate), when the same position comes up three times, when fifty moves pass with no capture and no pawn move, when neither side has enough pieces left to checkmate, or when both players agree.',
       pic: { fen: '7k/8/6Q1/8/8/8/8/K7 b - - 0 1', files: [4, 7], ranks: [5, 7], marks: ['h8'] },
     },

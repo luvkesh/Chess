@@ -1839,14 +1839,36 @@ function ChacklateScene(canvas, options) {
       const base = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.06, R * 0.86, 0.22, 72), gold); base.position.y = -0.23;
       const foot = new THREE.Mesh(new THREE.TorusGeometry(R * 0.86, 0.04, 14, 96), gold); foot.rotation.x = Math.PI / 2; foot.position.y = -0.34;
       for (const m of [top, rim, base, foot]) { s2.add(m); disposeList.push(m); }
+      // Props for lesson pictures: board tiles, glowing target rings and arrows lying on the velvet.
+      const prop = (it) => {
+        const col = new THREE.Color(it.color || '#e2b35e');
+        let m;
+        if (it.kind === 'tile') {
+          m = new THREE.Mesh(new THREE.BoxGeometry(it.size || 0.42, 0.05, it.size || 0.42), new THREE.MeshPhysicalMaterial({ color: it.light ? '#ead6b4' : '#6b3f24', roughness: 0.45, clearcoat: 0.6 }));
+          m.position.set(it.x || 0, 0.025, it.z || 0);
+        } else if (it.kind === 'ring') {
+          m = new THREE.Mesh(new THREE.TorusGeometry(it.r || 0.2, 0.045, 12, 48), new THREE.MeshPhysicalMaterial({ color: col, emissive: col, emissiveIntensity: 0.8, metalness: 0.3, roughness: 0.3 }));
+          m.rotation.x = Math.PI / 2; m.position.set(it.x || 0, 0.04, it.z || 0);
+        } else if (it.kind === 'arrow') {
+          const dx = it.x2 - it.x, dz = it.z2 - it.z, len = Math.hypot(dx, dz), head = Math.min(0.26, len * 0.42);
+          const mat = new THREE.MeshPhysicalMaterial({ color: col, emissive: col, emissiveIntensity: 0.55, metalness: 0.4, roughness: 0.3 });
+          m = new THREE.Group();
+          const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.04, len - head), mat); shaft.position.z = (len - head) / 2;
+          const tip = new THREE.Mesh(new THREE.ConeGeometry(0.15, head, 3), mat); tip.rotation.x = Math.PI / 2; tip.position.z = len - head / 2; tip.scale.y = 1;
+          m.add(shaft, tip);
+          m.position.set(it.x, 0.05, it.z); m.rotation.y = Math.atan2(dx, dz);
+        }
+        if (m) { s2.add(m); disposeList.push(m); }
+      };
       (spec.items || []).forEach((it) => {
+        if (it.kind) { prop(it); return; }
         const g = P.make(it.set || setId, it.type || 'k', it.side || 'w', spec.detail);
         g.position.set(it.x || 0, it.y || 0, it.z || 0);
         g.rotation.set(0, it.rot || 0, it.tilt || 0, 'YXZ');
         if (it.scale) g.scale.setScalar(it.scale);
         s2.add(g);
       });
-      const tall = Math.max(0.8, ...(spec.items || []).map((it) => (P.HEIGHT[it.type || 'k'] || 1) * (it.scale || 1)));
+      const tall = Math.max(0.8, ...(spec.items || []).filter((it) => !it.kind).map((it) => (P.HEIGHT[it.type || 'k'] || 1) * (it.scale || 1)));
       c2.fov = spec.fov || 23;
       c2.position.set(0, 1.3 + tall * 0.55, 6.8);
       look.set(0, tall * 0.45 - 0.1, 0);
