@@ -18,6 +18,7 @@
   const TIME_CONTROLS = ['3+2', '5+0', '5+3', '10+0'];
   const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const FIRST_MOVE_MS = 30000;   // each side has this long for its first move, or the game is called off
+  const TOSS_MS = 15000;         // a friend's table adds this for the pick-a-hand before the first move
   const AWAY_MS = 60000;         // an opponent who leaves for this long loses the game
   const FLAG_GRACE_MS = 3000;    // how far past zero an opponent's clock runs here before we call it
   const LATENCY_MS = 2000;       // the most an opponent's own clock report may give back for the network
@@ -175,14 +176,15 @@
       const guest = peers.find((p) => p.presence && p.presence.role === 'guest' && (!h.expect || p.peer === h.expect));
       if (!guest) return;
       const meWhite = Math.random() < 0.5;
-      const start = { id: h.code + '-' + Date.now().toString(36), tc: h.tc, white: meWhite ? h.me : guest.peer, black: meWhite ? guest.peer : h.me };
+      // One of the two friends, drawn at random, picks a hand; the other watches them pick.
+      const start = { id: h.code + '-' + Date.now().toString(36), tc: h.tc, white: meWhite ? h.me : guest.peer, black: meWhite ? guest.peer : h.me, picker: Math.random() < 0.5 ? h.me : guest.peer };
       h.room.presence({ start }).catch(() => {});
       begin(h, start, guest);
       return;
     }
     const host = peers.find((p) => p.presence && p.presence.role === 'host');
     const s = host && host.presence.start;
-    if (s && typeof s === 'object' && TIME_CONTROLS.includes(s.tc) && (s.white === h.me || s.black === h.me) && typeof s.id === 'string') begin(h, { id: s.id.slice(0, 40), tc: s.tc, white: s.white, black: s.black }, host);
+    if (s && typeof s === 'object' && TIME_CONTROLS.includes(s.tc) && (s.white === h.me || s.black === h.me) && typeof s.id === 'string') begin(h, { id: s.id.slice(0, 40), tc: s.tc, white: s.white, black: s.black, picker: s.picker === h.me || s.picker === host.peer ? s.picker : host.peer }, host);
     else if (host && s && !(s.white === h.me || s.black === h.me)) { cancelAll(); A().toast(t('online.started'), 'bad'); }
   }
 
@@ -199,11 +201,12 @@
     game = {
       id: start.id, room: h.room, me: h.me, opp: opp.peer, color, mine: color === 'white' ? 'w' : 'b', tc: start.tc, inc, world: h.world,
       moves: [], clock: { w: base, b: base }, turnAt: performance.now(), startedAt: performance.now(), seen: {}, oppAway: 0, emoteN: 0, lastEmote: 0, ended: false,
+      toss: h.world ? null : start.picker === h.me ? 'pick' : 'watch',
       oppRating: op.r && typeof op.r === 'object' ? op.r[poolFor(start.tc)] : undefined,
     };
     game.unsub = h.room.onPeers(() => fromOpponent());
-    h.room.presence({ game: game.id, moves: '', clock: game.clock, end: null, drawOffer: null, drawAccept: null, emote: null }).catch(() => {});
-    A().startOnline({ id: game.id, color, tc: start.tc, friend: !h.world, opponent: { name: clean(opp.presence && opp.presence.name), label: t(h.world ? 'online.worldPlayer' : 'online.yourFriend') }, moves: [], clock: clockMsg() });
+    h.room.presence({ game: game.id, moves: '', clock: game.clock, end: null, drawOffer: null, drawAccept: null, emote: null, toss: null }).catch(() => {});
+    A().startOnline({ id: game.id, color, tc: start.tc, friend: !h.world, toss: game.toss, opponent: { name: clean(opp.presence && opp.presence.name), label: t(h.world ? 'online.worldPlayer' : 'online.yourFriend') }, moves: [], clock: clockMsg() });
     fromOpponent();
   }
 
@@ -262,6 +265,11 @@
         if (G && G.g.outcome) return boardOver(G.g.outcome);
       }
     }
+    // The friend who picks a hand: which one, so this side can watch the same paw open.
+    if (game.toss === 'watch' && !game.seen.toss && s.toss && (s.toss.hand === 'left' || s.toss.hand === 'right')) {
+      game.seen.toss = true;
+      app.onlineToss(s.toss.hand);
+    }
     // Reactions: preset ids only, a fresh number each time.
     if (s.emote && typeof s.emote === 'object' && s.emote.n !== game.seen.emote && EMOTE_IDS.includes(s.emote.id)) {
       game.seen.emote = s.emote.n;
@@ -289,7 +297,7 @@
     const now = performance.now();
     const side = toMove();
     if (!running()) {
-      if (now - game.turnAt > FIRST_MOVE_MS + (side === game.mine ? 0 : FLAG_GRACE_MS)) finish('1/2-1/2', 'aborted', false);
+      if (now - game.turnAt > FIRST_MOVE_MS + (game.toss && !game.moves.length ? TOSS_MS : 0) + (side === game.mine ? 0 : FLAG_GRACE_MS)) finish('1/2-1/2', 'aborted', false);
       return;
     }
     if (left(side) <= (side === game.mine ? 0 : -FLAG_GRACE_MS)) {
@@ -333,6 +341,11 @@
         A().onlineEmote(m.id, true);
         return;
       }
+      case 'toss':
+        if (game.toss !== 'pick' || game.seen.myToss || (m.hand !== 'left' && m.hand !== 'right')) return;
+        game.seen.myToss = true;
+        game.room.presence({ toss: { hand: m.hand } }).catch(() => {});
+        return;
       case 'sync': return;
     }
   }
