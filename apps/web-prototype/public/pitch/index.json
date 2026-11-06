@@ -201,7 +201,7 @@
  },
  "capture.cocoa-dust.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A puff of cocoa dust with every capture. Sweet and simple!"
+  "text": "Puff, puff, pop: the piece swells up and bursts in cocoa and confetti!"
  },
  "capture.none.v1": {
   "voice": "am_puck,am_liam",
@@ -209,27 +209,27 @@
  },
  "capture.gold-sparks.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Golden sparks fly with every capture. So shiny!"
+  "text": "Sizzle! A white-hot touch and a fountain of gold sparks, like a real welder."
  },
  "capture.ruby-petals.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Ruby petals swirl round every capture. How lovely."
+  "text": "A ruby rose wraps the piece up, then opens, ring after ring. So pretty!"
  },
  "capture.ink.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A swirl of ink smoke, like a magic trick. Ta-da!"
+  "text": "Swirl, swirl, gone: an ink whirlpool spins the piece smaller and smaller. Ta-da!"
  },
  "capture.frost.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Frost crystals glitter with every capture. Brrr!"
+  "text": "Brrr! The piece freezes solid, then shatters into sparkly ice."
  },
  "capture.cocoa-nibs.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Cocoa nibs scatter with every capture. Crunchy!"
+  "text": "Uh-oh, it's melting! The piece melts into a glossy chocolate puddle, yum!"
  },
  "capture.caramel-sparks.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Caramel sparks shower every capture. Like a little firework."
+  "text": "Three, two, one, whoosh: the piece rockets up and bursts like a firework!"
  },
  "capture.fire-burst.v1": {
   "voice": "am_puck,am_liam",
@@ -249,7 +249,7 @@
  },
  "victory.confetti.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Gold, ruby and cream confetti for every win. Let's celebrate!"
+  "text": "Confetti cannons, popping balloons and a shower for your king. Party time!"
  },
  "victory.none.v1": {
   "voice": "am_puck,am_liam",
@@ -257,19 +257,19 @@
  },
  "victory.sparks.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A shower of white and gold sparks, to make every win shine."
+  "text": "Sparks blaze from every corner and the board glows like a forge. Wow!"
  },
  "victory.fireworks.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Colourful fireworks, as bright as Diwali night. Boom, you won!"
+  "text": "Rockets all round the table, as bright as Diwali night. Boom, you won!"
  },
  "victory.petals.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Rose petals drift down over the board. A soft, pretty way to win."
+  "text": "Roses bloom all round the board, and a great big rose opens over your king."
  },
  "victory.harvest.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Golden fireworks for the harvest festival. A win worth cheering for!"
+  "text": "A golden fireworks show for the harvest festival. A win worth cheering for!"
  },
  "victory.fire-storm.v1": {
   "voice": "am_puck,am_liam",
@@ -286,6 +286,18 @@
  "victory.stone-storm.v1": {
   "voice": "am_puck,am_liam",
   "text": "Stones and golden dust spin round the board, then gold crowns your king!"
+ },
+ "victory.ink-vortex.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A giant ink whirlpool spins round the board, then snaps shut in a burst of stars!"
+ },
+ "victory.blizzard.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Whoosh, a blizzard! Snow whirls round the table and an ice crown sparkles on your king."
+ },
+ "victory.chocolate-fountain.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Your king becomes a chocolate fountain! Splish, splash, delicious."
  },
  "clock.classic.v1": {
   "voice": "am_puck,am_liam",

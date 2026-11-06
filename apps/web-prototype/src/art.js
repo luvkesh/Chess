@@ -802,6 +802,33 @@ const ChacklateArt = (() => {
       for (let i = 0; i < 16; i++) s += C((40 + rnd() * 120).toFixed(1), (40 + rnd() * 70).toFixed(1), (1 + rnd() * 2).toFixed(1), '#f0c060', ' opacity=".9"');
       for (let i = 0; i < 6; i++) s += C((60 + rnd() * 80).toFixed(1), (96 + rnd() * 20).toFixed(1), (10 + rnd() * 10).toFixed(1), '#d8ccb8', ' opacity=".35"');
     }
+    else if (kind === 'melt') {
+      s += '<ellipse cx="100" cy="126" rx="66" ry="15" fill="#3a1a0c"/><ellipse cx="92" cy="122" rx="30" ry="5" fill="#a86a3a" opacity=".5"/>';
+      for (let i = 0; i < 9; i++) { const x = 52 + i * 12, h = 22 + rnd() * 34; s += P('M' + (x - 5) + ' 124C' + (x - 5) + ' ' + (124 - h * 0.7) + ' ' + (x - 2) + ' ' + (124 - h) + ' ' + x + ' ' + (124 - h) + 'C' + (x + 2) + ' ' + (124 - h) + ' ' + (x + 5) + ' ' + (124 - h * 0.7) + ' ' + (x + 5) + ' 124Z', i % 3 ? '#5a2e16' : '#8a5230'); s += C(x, (124 - h - 9 - rnd() * 14).toFixed(1), (3 + rnd() * 3).toFixed(1), i % 2 ? '#6a3a1e' : '#e0a050'); }
+      for (let i = 0; i < 10; i++) s += C((60 + rnd() * 80).toFixed(1), (30 + rnd() * 40).toFixed(1), (2 + rnd() * 3).toFixed(1), i % 3 ? '#5a2e16' : '#f4c27a');
+    } else if (kind === 'freeze') {
+      s += C(100, 84, 54, p.rad([[0, '#e8f8ff', 0.8], [1, '#9fd4ff', 0]], 0.5, 0.5, 0.5));
+      for (let i = 0; i < 7; i++) { const a = -Math.PI / 2 + (i - 3) * 0.38, l = 34 + (3 - Math.abs(i - 3)) * 12, w = 8 + (3 - Math.abs(i - 3)) * 2; s += '<path d="M' + (100 + Math.cos(a - Math.PI / 2) * w).toFixed(1) + ' ' + (118 + Math.sin(a - Math.PI / 2) * w).toFixed(1) + 'L' + (100 + Math.cos(a) * l).toFixed(1) + ' ' + (118 + Math.sin(a) * l).toFixed(1) + 'L' + (100 + Math.cos(a + Math.PI / 2) * w).toFixed(1) + ' ' + (118 + Math.sin(a + Math.PI / 2) * w).toFixed(1) + 'Z" fill="' + (i % 2 ? '#bfe6ff' : '#e8f8ff') + '" stroke="#7ab8ff" stroke-width="1.2" opacity=".95"/>'; }
+      for (let i = 0; i < 18; i++) { const x = 30 + rnd() * 140, y = 24 + rnd() * 110, r = 2 + rnd() * 4; s += '<path d="M' + (x - r).toFixed(1) + ' ' + y.toFixed(1) + 'h' + (2 * r).toFixed(1) + 'M' + x.toFixed(1) + ' ' + (y - r).toFixed(1) + 'v' + (2 * r).toFixed(1) + '" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>'; }
+    } else if (kind === 'weld') {
+      s += C(100, 112, 40, p.rad([[0, '#ffffff', 1], [0.25, '#dce8ff', 0.8], [1, '#9ab8ff', 0]], 0.5, 0.5, 0.5));
+      for (let i = 0; i < 30; i++) { const a = -Math.PI * (0.08 + rnd() * 0.84), v = 40 + rnd() * 60; let d = 'M100 112'; for (let j = 1; j <= 5; j++) { const t = j / 5; d += 'L' + (100 + Math.cos(a) * v * t).toFixed(1) + ' ' + (112 + Math.sin(a) * v * t + 46 * t * t).toFixed(1); } s += '<path d="' + d + '" fill="none" stroke="' + c(i) + '" stroke-width="' + (1 + rnd() * 1.4).toFixed(1) + '" stroke-linecap="round" opacity=".9"/>'; }
+      s += C(100, 112, 6, '#ffffff');
+    } else if (kind === 'vortex') {
+      s += '<ellipse cx="100" cy="116" rx="62" ry="16" fill="#140f1e"/>';
+      for (let i = 0; i < 4; i++) { let d = ''; for (let j = 0; j <= 40; j++) { const t = j / 40, a = t * 9 + i * 1.57, r = 58 * (1 - t) + 4; d += (j ? 'L' : 'M') + (100 + Math.cos(a) * r).toFixed(1) + ' ' + (84 + Math.sin(a) * r * 0.45 - t * 20).toFixed(1); } s += '<path d="' + d + '" fill="none" stroke="' + ['#2e2444', '#4a3a7a', '#221a32', '#6a4aa0'][i] + '" stroke-width="' + (7 - i) + '" stroke-linecap="round" opacity=".9"/>'; }
+      for (let i = 0; i < 16; i++) s += C((50 + rnd() * 100).toFixed(1), (40 + rnd() * 70).toFixed(1), (1 + rnd() * 2.4).toFixed(1), i % 2 ? '#d8c4ff' : '#b08aff');
+      s += C(100, 64, 8, p.rad([[0, '#fff'], [0.5, '#d8c4ff'], [1, '#8a6aff', 0]], 0.5, 0.5, 0.5));
+    } else if (kind === 'burst') {
+      for (let i = 0; i < 6; i++) s += C((70 + rnd() * 60).toFixed(1), (70 + rnd() * 40).toFixed(1), (16 + rnd() * 14).toFixed(1), '#b08660', ' opacity=".35"');
+      s += C(100, 86, 40, 'none', ' stroke="#fff0d0" stroke-width="3" opacity=".7"') + C(100, 86, 56, 'none', ' stroke="#fff0d0" stroke-width="1.6" opacity=".45"');
+      for (let i = 0; i < 40; i++) { const a = rnd() * 6.283, r = 16 + rnd() * 66, x = 100 + Math.cos(a) * r, y = 86 + Math.sin(a) * r * 0.8; s += '<rect x="' + (x - 3).toFixed(1) + '" y="' + (y - 5).toFixed(1) + '" width="6" height="10" rx="1" fill="' + c(i) + '"' + rot((rnd() * 180).toFixed(0), x.toFixed(1), y.toFixed(1)) + '/>'; }
+      s += C(100, 86, 12, p.rad([[0, '#fff'], [1, '#fff0d0', 0]], 0.5, 0.5, 0.5));
+    } else if (kind === 'bloom') {
+      s += C(100, 84, 54, p.rad([[0, '#ffd0dc', 0.6], [1, '#d2466f', 0]], 0.5, 0.5, 0.5));
+      for (const [n, r, k] of [[10, 46, 0], [8, 32, 1], [6, 20, 2], [5, 10, 3]]) for (let i = 0; i < n; i++) { const a = i / n * 360 + k * 17; s += P('M100 84C' + (100 - r * 0.45) + ' ' + (84 - r * 0.5) + ' ' + (100 - r * 0.3) + ' ' + (84 - r) + ' 100 ' + (84 - r) + 'C' + (100 + r * 0.3) + ' ' + (84 - r) + ' ' + (100 + r * 0.45) + ' ' + (84 - r * 0.5) + ' 100 84Z', c(i + k), rot(a, 100, 84) + ' opacity=".92"'); }
+      s += C(100, 84, 5, '#7a1630');
+    }
     // a move trail: the same sweep, drawn in the trail's own style
     else if (kind.startsWith('trail')) {
       const st = kind.split(':')[1] || 'dust';

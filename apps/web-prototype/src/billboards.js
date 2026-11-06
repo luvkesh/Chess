@@ -7,8 +7,8 @@
 // screen moves to its next advert by swapping the texture, so frames never bleed into each other.
 //
 // The brands' own artwork (the Nibbland logo, the Jong Club wordmark, the Chackmate crest) comes
-// in as CHACKLATE_ADS, built from src/ads/ by build.py. Aertrip has no logo file here, so its
-// name is set in type. Until the pictures and fonts have loaded an advert shows its plain
+// in as CHACKLATE_ADS, built from src/ads/ by build.py; the Aertrip logo is from aertrip.com.
+// Until the pictures and fonts have loaded an advert shows its plain
 // layout, then it is painted again.
 function ChacklateBillboards(THREE, K, H) {
   'use strict';
@@ -163,45 +163,59 @@ function ChacklateBillboards(THREE, K, H) {
       g.fillStyle = '#2a5a6a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, py + ph / 2 + 1);
     },
 
-    // Aertrip: a dusk sky in its teal, a flight path arcing over a lit horizon and the name in type.
+    // Aertrip: its own logo (the teal arrow mark and spaced name, from aertrip.com) on a bright
+    // morning sky, a flight path arcing across, and the site's line, "One trip. Every piece, Planned."
     aertrip(g, w, h) {
       const land = w >= h;
-      g.fillStyle = lgrad(g, 0, 0, 0, h, [[0, '#062b33'], [0.45, '#0b5a5c'], [0.78, '#13867c'], [1, '#f2b880']]);
+      g.fillStyle = lgrad(g, 0, 0, 0, h, [[0, '#9fdcea'], [0.5, '#d6f1f3'], [1, '#f6fcfb']]);
       g.fillRect(0, 0, w, h);
-      g.fillStyle = rgrad(g, w * 0.5, h * 1.05, 0, Math.max(w, h) * 0.7, [[0, 'rgba(255,196,130,0.75)'], [0.4, 'rgba(255,170,110,0.18)'], [1, 'rgba(255,170,110,0)']]);
+      g.fillStyle = rgrad(g, w * 0.85, h * 0.1, 0, Math.max(w, h) * 0.6, [[0, 'rgba(255,255,255,0.85)'], [1, 'rgba(255,255,255,0)']]);
       g.fillRect(0, 0, w, h);
-      // stars in the upper sky
-      const R = rng(11);
-      for (let i = 0; i < 70; i++) { const y = R() * h * 0.45; g.fillStyle = 'rgba(255,255,255,' + (0.25 + R() * 0.55) * (1 - y / (h * 0.45)) + ')'; g.beginPath(); g.arc(R() * w, y, 0.8 + R() * 1.4, 0, TAU); g.fill(); }
-      // a faint globe of meridians rising from the horizon
-      g.save(); g.strokeStyle = 'rgba(190,240,230,0.13)'; g.lineWidth = 2;
-      const gx = w / 2, gy = h * 1.18, gr = Math.max(w, h) * (land ? 0.62 : 0.5);
+      // soft clouds low down
+      const R = rng(13);
+      for (let i = 0; i < 9; i++) {
+        const x = R() * w, y = h * (land ? 0.72 : 0.78) + R() * h * 0.2, s = (land ? 60 : 50) + R() * 50;
+        g.fillStyle = rgrad(g, x, y, 0, s * 1.6, [[0, 'rgba(255,255,255,0.9)'], [1, 'rgba(255,255,255,0)']]);
+        g.beginPath(); g.ellipse(x, y, s * 1.8, s * 0.7, 0, 0, TAU); g.fill();
+      }
+      // a faint globe of meridians behind
+      g.save(); g.strokeStyle = 'rgba(0,160,168,0.12)'; g.lineWidth = 2;
+      const gx = w / 2, gy = h * 1.25, gr = Math.max(w, h) * (land ? 0.66 : 0.52);
       g.beginPath(); g.arc(gx, gy, gr, 0, TAU); g.stroke();
       for (let i = 1; i < 6; i++) { g.beginPath(); g.ellipse(gx, gy, gr * i / 6, gr, 0, 0, TAU); g.stroke(); }
-      for (let i = 1; i < 5; i++) { const y = gy - gr * i / 5, hw = Math.sqrt(gr * gr - (gy - y) ** 2); g.beginPath(); g.moveTo(gx - hw, y); g.lineTo(gx + hw, y); g.stroke(); }
       g.restore();
-      // a city's lights along the horizon
-      for (let x = -4; x < w;) { const bw = 10 + R() * 22, bh = (R() < 0.2 ? 34 : 12) + R() * 22; g.fillStyle = '#05262b'; g.fillRect(x, h - bh, bw, bh); g.fillStyle = 'rgba(255,214,150,0.8)'; for (let yy = h - bh + 5; yy < h - 3; yy += 6) for (let xx = x + 3; xx < x + bw - 3; xx += 5) if (R() < 0.28) g.fillRect(xx, yy, 2, 2); x += bw + 1; }
-      // the flight path and the plane
-      const ax = w * 0.1, ay = land ? h * 0.78 : h * 0.86, bx = w * 0.9, by = land ? h * 0.3 : h * 0.18, cx = w * (land ? 0.42 : 0.2), cy = land ? h * 0.06 : h * 0.1;
-      g.save(); g.setLineDash([2, 14]); g.lineCap = 'round'; g.strokeStyle = 'rgba(255,255,255,0.75)'; g.lineWidth = 5;
+      // the flight path and the plane, in the brand's teal
+      const ax = w * 0.08, ay = land ? h * 0.3 : h * 0.26, bx = w * 0.88, by = land ? h * 0.2 : h * 0.15, cx = w * 0.45, cy = land ? -h * 0.08 : h * 0.0;   // over the top, clear of the words
+      g.save(); g.setLineDash([2, 14]); g.lineCap = 'round'; g.strokeStyle = 'rgba(0,160,168,0.7)'; g.lineWidth = 5;
       g.beginPath(); g.moveTo(ax, ay); g.quadraticCurveTo(cx, cy, bx, by); g.stroke(); g.restore();
-      g.fillStyle = '#ffffff'; g.beginPath(); g.arc(ax, ay, 7, 0, TAU); g.fill();
-      const tx = 2 * (bx - cx), ty = 2 * (by - cy);
-      g.save(); g.translate(bx, by); g.rotate(Math.atan2(ty, tx)); g.scale(land ? 1.25 : 1.1, land ? 1.25 : 1.1);
-      g.fillStyle = '#ffffff'; g.shadowColor = 'rgba(255,255,255,0.6)'; g.shadowBlur = 12;
-      g.beginPath();   // a jet seen from above, nose pointing along the path
+      g.fillStyle = '#00a0a8'; g.beginPath(); g.arc(ax, ay, 7, 0, TAU); g.fill();
+      g.save(); g.translate(bx, by); g.rotate(Math.atan2(by - cy, bx - cx)); g.scale(land ? 1.25 : 1.1, land ? 1.25 : 1.1);
+      g.fillStyle = lgrad(g, -30, 0, 26, 0, [[0, '#00a0a8'], [1, '#00cc99']]);
+      g.beginPath();
       g.moveTo(26, 0); g.quadraticCurveTo(24, -4, 16, -4); g.lineTo(2, -4); g.lineTo(-10, -26); g.lineTo(-16, -26); g.lineTo(-8, -4); g.lineTo(-20, -4); g.lineTo(-26, -12); g.lineTo(-30, -12); g.lineTo(-27, 0);
       g.lineTo(-30, 12); g.lineTo(-26, 12); g.lineTo(-20, 4); g.lineTo(-8, 4); g.lineTo(-16, 26); g.lineTo(-10, 26); g.lineTo(2, 4); g.lineTo(16, 4); g.quadraticCurveTo(24, 4, 26, 0); g.closePath(); g.fill();
       g.restore();
-      // the name and the line
-      g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-      const nx = w / 2, ny = land ? h * 0.56 : h * 0.55;
-      const s = land ? 168 : 150;
-      g.font = '600 ' + s + 'px ' + JOST; g.shadowColor = 'rgba(0,20,24,0.45)'; g.shadowBlur = 18; g.shadowOffsetY = 4;
-      g.fillStyle = '#ffffff'; spaced(g, 'aertrip', nx, ny, -2); g.shadowColor = 'transparent';
-      g.font = '400 ' + (land ? 38 : 40) + 'px ' + JOST; g.fillStyle = '#d9f6f0';
-      spaced(g, 'Where to next?', nx, ny + (land ? 70 : 76), 2);
+      // the logo
+      const lw = land ? w * 0.62 : w * 0.84, lh = lw * 30.5 / 173, ly = land ? h * 0.5 : h * 0.46;
+      if (IMG.aertrip) g.drawImage(IMG.aertrip, w / 2 - lw / 2, ly - lh / 2, lw, lh * 30 / 30.5);
+      else { g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '500 ' + Math.round(lh * 0.8) + 'px ' + JOST; g.fillStyle = '#00a0a8'; spaced(g, 'AERTRIP', w / 2, ly, lh * 0.3); }
+      // the line, as on aertrip.com: "One trip. Every piece," upright, "Planned." in italic serif
+      g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+      const a = 'One trip. Every piece, ', b = 'Planned.';
+      let ts = land ? 48 : 46, wa, wb;
+      for (;; ts -= 2) { g.font = '600 ' + ts + 'px ' + JOST; wa = g.measureText(land ? a : 'Every piece, ').width; g.font = 'italic 600 ' + Math.round(ts * 1.18) + 'px ' + CORM; wb = g.measureText(b).width; if (wa + wb < w * 0.86 || ts < 20) break; }
+      g.fillStyle = '#23313a';
+      if (land) {
+        const x0 = w / 2 - (wa + wb) / 2, y = ly + lh / 2 + h * 0.16;
+        g.font = '600 ' + ts + 'px ' + JOST; g.fillText(a, x0, y);
+        g.font = 'italic 600 ' + Math.round(ts * 1.18) + 'px ' + CORM; g.fillStyle = '#008f8f'; g.fillText(b, x0 + wa, y);
+      } else {
+        // portrait: two lines
+        const y1 = ly + lh / 2 + h * 0.09, y2 = y1 + ts * 1.3;
+        g.font = '600 ' + ts + 'px ' + JOST; g.textAlign = 'center'; g.fillText('One trip.', w / 2, y1);
+        g.textAlign = 'left'; const x0 = w / 2 - (wa + wb) / 2; g.fillText('Every piece, ', x0, y2);
+        g.font = 'italic 600 ' + Math.round(ts * 1.18) + 'px ' + CORM; g.fillStyle = '#008f8f'; g.fillText(b, x0 + wa, y2);
+      }
     },
   };
 

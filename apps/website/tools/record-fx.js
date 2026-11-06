@@ -84,7 +84,7 @@ async function record(id) {
       // checkmate: the queen runs up the board, the beaten king falls, and the win plays
       v.setFx({ victory: it.data });
       v.setBoard([[46, 6], [63, -6], [0, 5], [13, 1], [14, 1], [49, -1], [50, -1], [57, -2]], null);
-      run = async () => { await wait(700); await mv(0, 56, 5); await wait(200); v.celebrate('win', 63, null, 46, { storm: true }); await wait(6500); };
+      run = async () => { await wait(700); await mv(0, 56, 5); await wait(200); v.celebrate('win', 63, null, 46, { storm: true }); await wait(8500); };
     } else if (cat === 'clock') {
       v.setBoard(full, null);
       let ms = 300000;
@@ -113,7 +113,7 @@ async function record(id) {
     const d = await grab();
     fs.writeFileSync(out + '/f' + String(i).padStart(4, '0') + '.jpg', Buffer.from(d.split(',')[1], 'base64'));
     if (i % 12 === 0) log('frame', i);
-    if ((MAX && i + 1 >= MAX) || i > FPS * 9 || await p.evaluate(() => window.__done)) break;
+    if ((MAX && i + 1 >= MAX) || i > FPS * 12 || await p.evaluate(() => window.__done)) break;
   }
   const lands = await p.evaluate(() => window.__lands);
   await b.close();

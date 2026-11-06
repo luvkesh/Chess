@@ -45,7 +45,8 @@ for (const [k, ms] of Object.entries(want)) { assert.strictEqual(durs[k][0], ms,
 assert.ok(/LEVEL = \{ 1: 3, 2: 2, 3: 2, 4: 2, 5: 1 \}/.test(scene) && /SEQUENCES = \{ 1: \['queen'\], 2: \['clash', 'vault'\], 3: \['flick', 'pop'\] \}/.test(scene), 'queen level 1, rook/bishop/knight level 2, pawn level 3');
 // Capture and victory effects with an element name one elements3d.js can play, and every
 // element has both a capture effect and a victory effect, so captures and wins match.
-const FAMILIES = ['fire', 'lightning', 'petals', 'stone'];
+const FAMILIES = require('../src/elements3d.js').FAMILIES;
+assert.strictEqual(FAMILIES.length, 11, 'eleven element families');
 for (const f of FAMILIES) {
   assert.ok(catalog.items.some((i) => i.category === 'capture' && i.data.strike === f), 'no capture effect for ' + f);
   assert.ok(catalog.items.some((i) => i.category === 'victory' && i.data.storm === f), 'no victory effect for ' + f);
