@@ -218,7 +218,7 @@ def guide(coach, collection):
 # packages/content/i18n/text/<code>.json; i18n/<code>.json holds the site's own text and wins.
 ALL_LANGS = [('en', 'English'), ('zh', '中文'), ('hi', 'हिन्दी'), ('es', 'Español'), ('fr', 'Français'), ('ar', 'العربية'),
              ('bn', 'বাংলা'), ('pt', 'Português'), ('ru', 'Русский'), ('ur', 'اردو')]
-READY = ['en', 'hi']   # as in the game: a language joins once it is fully translated
+READY = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ru', 'ur']   # as in the game: a language joins once it is fully translated
 LANGS = [l for l in ALL_LANGS if l[0] in READY]
 META = {
     'zh': {'dir': 'ltr', 'script': 'Han', 'speech': 'zh-CN'},
@@ -359,7 +359,8 @@ def build(target):
     ads_dir = game / 'src' / 'ads'
     ads = {'crest': 'data:image/webp;base64,' + base64.b64encode((game / 'src' / 'crest.webp').read_bytes()).decode(),
            'nibbland': 'data:image/webp;base64,' + base64.b64encode((ads_dir / 'nibbland-logo.webp').read_bytes()).decode(),
-           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode()}
+           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode(),
+           'aertrip': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'aertrip-logo.svg').read_bytes()).decode()}
     scene = 'const CHACKLATE_ADS = %s;\n' % json.dumps(ads, separators=(',', ':')) + scene
     assert '</script' not in scene.lower()
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
@@ -398,6 +399,9 @@ def main():
         (out / 'audio').mkdir(exist_ok=True)
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
+        for clip in (here / 'audio').glob('*/item-*.mp3'):   # the same pitches in other languages
+            (out / 'audio' / clip.parent.name).mkdir(exist_ok=True)
+            (out / 'audio' / clip.parent.name / clip.name).write_bytes(clip.read_bytes())
         (out / 'fx').mkdir(exist_ok=True)
         for clip in (here / 'fx').glob('*.*'):
             if clip.suffix in ('.mp4', '.jpg'):

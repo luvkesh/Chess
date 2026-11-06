@@ -107,7 +107,8 @@
   };
   // The options of a question in a fresh order each time, so the right answer is never always in the same place.
   const shuffled = (a) => { const o = a.slice(); for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; };
-  const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
+  // arrow and back point the way the page reads, so they turn round in right-to-left languages.
+  const icon = (k, cls) => '<svg class="ico ' + (k === 'arrow' || k === 'back' ? 'ico-dir ' : '') + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const netOn = () => !!(window.ChacklateNet && ChacklateNet.available());
 
