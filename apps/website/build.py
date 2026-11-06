@@ -283,9 +283,10 @@ def build(target):
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
     tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
     assert '</script' not in tips.lower()
-    # the sound packs' recipes, so "hear it" on the site knocks exactly like the game
-    packs = re.search(r'^  const PACKS = \{.*?^  \};', (game / 'src' / 'audio.js').read_text(), re.M | re.S).group(0)
-    page = page.replace('/*PACKS*/', packs.strip())
+    # the packs shown, as the game's own recordings, so "Hear it" sounds exactly like the game
+    sfx_index = json.loads((game / 'sfx' / 'index.json').read_text())
+    sfx = {i['data']['pack']: {'mp3': base64.b64encode((game / 'sfx' / (i['data']['pack'] + '.mp3')).read_bytes()).decode(), 'clips': sfx_index[i['data']['pack']]} for i in fx['sound']}
+    page = page.replace('/*SFX*/null', json.dumps(sfx, separators=(',', ':')))
     return fill(page.replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips), img, art, counts, coach, target)
 
 
