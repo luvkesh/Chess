@@ -876,7 +876,7 @@ function ChacklateLandmarks(THREE, K, H) {
           { text: 'THEATRE', sub: 'TONIGHT: THE ROYAL GAME', color: '#ff4a6a', edge: '#ffd060', icon: SIGN.star },
           { text: 'NIBBLAND', sub: 'A TINY 3D PET WORLD', color: '#a0ff80', edge: '#ff80c0', icon: SIGN.star },
           { text: 'CHESS CLUB', sub: 'ALL WELCOME', color: '#60e0ff', edge: '#ffffff', icon: SIGN.king },
-          { text: 'aertrip', sub: 'WHERE TO NEXT?', color: '#5af0e0', edge: '#ffffff', icon: SIGN.plane, size: 170 },
+          { text: 'AERTRIP', sub: 'ONE TRIP. EVERY PIECE, PLANNED.', sp: 16, color: '#3af0c8', edge: '#ffffff', icon: SIGN.plane },
           { text: 'MOVIES', sub: 'TALKIES IN COLOUR', color: '#ffe060', edge: '#60c0ff', icon: SIGN.star },
           { text: 'GRAND HOTEL', color: '#ffffff', edge: '#ffb040', icon: SIGN.king },
         ].map((o) => k.own(new THREE.MeshBasicMaterial({ map: neonTex(k, o), toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.2) })));
