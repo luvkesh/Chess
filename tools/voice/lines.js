@@ -110,5 +110,30 @@ function jobs() {
   return out;
 }
 
-if (require.main === module) process.stdout.write(JSON.stringify(process.argv[2] === 'words' ? wordLines() : jobs()));
-module.exports = { voiceKey, spokenEn, fragments, jobs, wordLines };
+// Rooky's coach and mentor lines (packages/chess-core/src/mentor.js): the fixed pieces every coach
+// line is cut into (speechVocab), plus the move words, all in Rooky's voice. The game says a line by
+// playing its pieces back to back (speakCoach in audio.js). Recorded by tools/voice/record-coach.py.
+function coachLines() {
+  const core = path.join(__dirname, '..', '..', 'packages', 'chess-core', 'src');
+  const E = require(path.join(core, 'engine.js'))();
+  const C = require(path.join(core, 'coach.js'))(E);
+  const ME = require(path.join(core, 'mentor.js'))(E, C);
+  const M = load('voice.json').moves.en, out = [], seen = new Set();
+  const add = (text, spoken) => {
+    const key = voiceKey(text);
+    if (seen.has(key)) return;
+    seen.add(key);
+    // a piece that starts with a comma or ends mid-sentence is said without the stray mark
+    out.push({ key, text, spoken: (spoken || spokenEn(text, M)).replace(/^[\s,;:.\-]+/, '').trim() });
+  };
+  for (const t of ME.speechVocab()) add(t);
+  for (const f of Object.keys(M.file)) add(M.file[f]);
+  for (const t of fragments(M).filter((x) => !M.old || !Object.values(M.old.piece).concat(Object.values(M.old.promote)).includes(x))) add(t);
+  return out.sort((a, b) => (a.key < b.key ? -1 : 1));
+}
+
+if (require.main === module) {
+  const job = process.argv[2];
+  process.stdout.write(JSON.stringify(job === 'words' ? wordLines() : job === 'coach' ? coachLines() : jobs()));
+}
+module.exports = { voiceKey, spokenEn, fragments, jobs, wordLines, coachLines };

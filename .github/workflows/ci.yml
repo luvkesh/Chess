@@ -23,6 +23,8 @@ jobs:
         run: node packages/chess-core/test/xiangqi.test.js
       - name: Coach tests
         run: node packages/chess-core/test/coach.test.js
+      - name: Mentor tests
+        run: node packages/chess-core/test/mentor.test.js
       - name: Content tests (lessons, puzzles, catalog)
         run: node packages/content/test/content.test.js
 
