@@ -202,6 +202,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .strip-arrow { flex: none; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(20, 12, 10, 0.7); color: var(--gold-2); cursor: pointer; }
 .strip-arrow svg { width: 18px; height: 18px; }
 .strip-arrow:disabled { opacity: .35; cursor: default; }
+html[dir="rtl"] .strip-arrow svg { transform: scaleX(-1); }
 @media (prefers-reduced-motion: reduce) { .stage { transform: none !important; transition: none; } .stage .glint { display: none; } .strip { scroll-behavior: auto; } }
 .counts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line-2); color: var(--muted); font-size: 15px; }
 .counts .total { margin-left: auto; }
