@@ -66,7 +66,7 @@
   "settings.anim": { "en": "Pieces glide, sparkle and celebrate. Turn this off for a calmer, faster game.", "hi": "मोहरे सरकते, चमकते और जश्न मनाते हैं। शांत और तेज़ खेल के लिए इसे बंद करें।", "check": ["hi"] },
   "settings.announce": { "en": "Hear every move said out loud, like “Knight to f3”.", "hi": "हर चाल ज़ोर से सुनें, जैसे “घोड़ा f3 पर”।", "check": ["hi"] },
   "settings.cine": { "en": "One smooth scene per capture: a second for a pawn, two for most pieces, four for the queen.", "hi": "मोहरा मारना एक लगातार दृश्य है: प्यादे के लिए 1 सेकंड, ज़्यादातर मोहरों के लिए 2, वज़ीर के लिए 4।", "check": ["hi"] },
-  "settings.elements": { "en": "Fire, lightning, petal or stone bursts on captures and storms on wins, chosen by your effects.", "hi": "मोहरा मारने पर आग, बिजली, पंखुड़ियों या पत्थरों की बौछार और जीत पर तूफ़ान, आपके इफ़ेक्ट के हिसाब से।", "check": ["hi"] },
+  "settings.elements": { "en": "Your capture and win effects play in full: fire, ice, chocolate, fireworks and more.", "hi": "मोहरा मारने और जीत पर आपके इफ़ेक्ट पूरे दिखते हैं: आग, बर्फ़, चॉकलेट, आतिशबाज़ी और भी बहुत कुछ।", "check": ["hi"] },
   "settings.eval": { "en": "A bar beside the board shows who is ahead. It is hidden in online games.", "hi": "बिसात के बगल में एक पट्टी दिखाती है कि कौन आगे है। ऑनलाइन खेलों में यह छिपी रहती है।", "check": ["hi"] },
   "settings.guide": { "en": "Shows Rooky's face in the bottom corner. He tells you what to do next on each screen.", "hi": "नीचे कोने में Rooky का चेहरा दिखाता है। वह हर स्क्रीन पर बताता है कि आगे क्या करना है।", "check": ["hi"] },
   "settings.install": { "en": "Add Chackmate to the home screen so it opens like an app.", "hi": "Chackmate को होम स्क्रीन पर जोड़ें ताकि यह ऐप की तरह खुले।", "check": ["hi"] },

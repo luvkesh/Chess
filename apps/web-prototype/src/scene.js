@@ -441,12 +441,14 @@ function ChacklateScene(canvas, options) {
     const base = s.grave ? TRAY_Y : 0;
     const lift = s.y + s.lift;
     // every sprite is placed on every frame; only a real change redraws the shadows
-    const at = s.x + ',' + s.z + ',' + (base + lift) + ',' + s.yaw + ',' + s.tilt + ',' + s.bow + ',' + s.scale;
+    const q = s.squash || 0;
+    const at = s.x + ',' + s.z + ',' + (base + lift) + ',' + s.yaw + ',' + s.tilt + ',' + s.bow + ',' + s.scale + ',' + q;
     if (at !== s.placed) { s.placed = at; dirtyShadows(); }
     o.position.set(s.x, base + lift + Math.sin(Math.abs(s.tilt)) * 0.3 * s.scale, s.z);
     // bow tips the piece toward the way it faces (capture scenes); tilt tips it sideways
     o.rotation.set(s.bow || 0, s.yaw, s.tilt || 0, 'YXZ');
-    o.scale.setScalar(s.scale);
+    // squash flattens a piece (melting, a bounce); below zero it stretches tall
+    if (q) o.scale.set(s.scale * (1 + q * 0.6), s.scale * (1 - q), s.scale * (1 + q * 0.6)); else o.scale.setScalar(s.scale);
     if (s.contact) {
       const r = (kindOf(s.piece) === 1 ? 0.62 : 0.78) * s.scale * (1 + lift * 0.8);
       s.contact.scale.set(r, 1, r);
@@ -703,9 +705,9 @@ function ChacklateScene(canvas, options) {
   const strikeKind = () => (fx.capture && fx.capture.kind === 'none' ? null : (fx.capture && fx.capture.strike) || element().strike);
   const stormKind = () => (fx.victory && fx.victory.kind === 'none' ? null : (fx.victory && fx.victory.storm) || element().storm);
   // power: how grand the strike is (a pawn's is small, the queen's the biggest)
-  function strikeAt(x, z, power) {
+  function strikeAt(x, z, power, own) {
     if (!EL || !elementsOn || !animations) return;
-    const el = element(), kind = strikeKind();
+    const el = element(), kind = own || strikeKind();
     if (!kind) return;
     EL.strike(kind, x, z, { dust: el.dust, stone: el.stone, petals: (fx.capture && fx.capture.strike && fx.capture.colors) || el.petals, power: power || 1 });
   }
@@ -772,7 +774,7 @@ function ChacklateScene(canvas, options) {
     // Level 1, the queen. The attacker gathers itself and leaps; time slows as it hangs over her
     // and turns in the air; it lands with a boom, and the queen is lifted, spinning, on a spiral
     // of the effect, bursts into light at the top and floats down to the tray.
-    queen: { dur: 4000, impact: 1250, back: 2500, lean: 1, power: 1.5, run(c, t) {
+    queen: { dur: 4000, impact: 1250, back: 2500, lean: 1, power: 1.5, fateAt: 2300, run(c, t) {
       const m = c.m, v = c.v;
       face(c, t, 0, 300);
       if (t < 260) { at(m, c.sx, c.sz, c.px, c.pz, 0, 0); m.bow = -0.26 * easeOut(seg(t, 0, 260)); }
@@ -900,6 +902,97 @@ function ChacklateScene(canvas, options) {
     } },
   };
 
+  // ------------------------------------------------------------------ the effect takes the piece
+  // With an element effect on, the taken piece does not simply fly to its tray: the effect takes
+  // it. It is pushed a step aside, caught by the effect (it burns away, crackles with lightning,
+  // whirls up in petals, turns to stone and crumbles, melts into a puddle, freezes and shatters,
+  // rockets up and bursts like a firework, glows white-hot under a shower of sparks, shrinks
+  // into an ink whirlpool, inflates and pops, or wraps in a rose that opens), vanishes in it and
+  // pops up again, small and safe, in its tray. The attacker's run carries a trail of the effect.
+  // A coat drawn over the piece shows the effect on it: chocolate, ice, stone, white heat, ink.
+  const COAT = {
+    fire: ['#ff7a2a', '#ff5a10', 0.7], lightning: ['#cfe0ff', '#6f9cff', 0.6], petals: ['#ffb0c8', '#ff6a9a', 0.45],
+    stone: ['#9a9286', '#000000', 0.95], melt: ['#5a2e16', '#140600', 0.93], freeze: ['#d8f2ff', '#4a8aff', 0.72],
+    weld: ['#ffb060', '#ff6a10', 0.85], vortex: ['#1a1428', '#3a2a6a', 0.9], bloom: ['#ff7aa0', '#d02a5a', 0.55],
+  };
+  const coatMat = new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#000000', roughness: 0.22, metalness: 0, transparent: true, opacity: 0, depthWrite: false });
+  // a speck that is always drawn, so the coat's shader compiles with the room, not mid-capture
+  { const w = new THREE.Mesh(new THREE.SphereGeometry(0.001, 4, 2), coatMat); w.frustumCulled = false; w.position.set(0, -1, 0); scene.add(w); }
+  function coat(s, kind, a) {
+    const look = COAT[kind];
+    if (!s.obj || !look || !(a > 0.01)) { uncoat(s); return; }
+    if (s.coat !== s.obj) {
+      uncoat(s);
+      const list = [];
+      s.obj.traverse((m) => { if (m.isMesh) list.push(m); });
+      s.coatMeshes = list.map((m) => { const c = new THREE.Mesh(m.geometry, coatMat); c.scale.setScalar(1.025); c.renderOrder = 3; m.add(c); return c; });
+      s.coat = s.obj;
+    }
+    coatMat.color.set(look[0]); coatMat.emissive.set(look[1]);
+    coatMat.emissiveIntensity = kind === 'weld' || kind === 'fire' ? 0.6 + 1.4 * a : 0.4;
+    coatMat.opacity = Math.min(1, a) * look[2];
+  }
+  function uncoat(s) { if (s.coatMeshes) for (const c of s.coatMeshes) if (c.parent) c.parent.remove(c); s.coatMeshes = null; s.coat = null; }
+  // how thick the coat is as the effect takes hold (k from 0 to 1); lightning's shimmers gently
+  const coatK = (kind, k) => (kind === 'lightning' ? (0.7 + 0.3 * Math.sin(performance.now() / 70)) * Math.min(1, k * 3) : Math.min(1, k * (kind === 'stone' || kind === 'freeze' ? 1.8 : 1.3)));
+  // where the piece is pushed: a step on past its square, else to one side, kept on the board
+  function fateSpot(c) {
+    for (const [ux, uz] of [[c.dx, c.dz], [-c.dz, c.dx], [c.dz, -c.dx], [-c.dx, -c.dz]]) {
+      const x = c.vx + ux * 0.95, z = c.vz + uz * 0.95;
+      if (Math.abs(x) < 3.6 && Math.abs(z) < 3.6) return [x, z];
+    }
+    return [c.vx, c.vz];
+  }
+  // the piece while the effect holds it (k from 0 to 1)
+  function pose(v, kind, k, t) {
+    switch (kind) {
+      case 'fire': v.scale = 1 - 0.25 * k; v.tilt = 0.05 * Math.sin(t / 30) * k; break;
+      case 'lightning': v.x += (Math.random() - 0.5) * 0.06; v.z += (Math.random() - 0.5) * 0.06; v.y += 0.06 * Math.abs(Math.sin(t / 25)); v.tilt = 0.08 * Math.sin(t / 19); break;
+      case 'petals': v.y += 0.9 * easeIn(k); v.yaw += TAU * 3 * k * k; v.scale = 1 - 0.75 * easeIn(k); break;
+      case 'stone': v.squash = k > 0.7 ? 0.5 * seg(k, 0.7, 1) : 0; v.tilt = k > 0.55 ? 0.03 * Math.sin(t / 20) : 0; break;
+      case 'melt': v.squash = 0.85 * easeIn(k); v.y -= 0.04 * k; v.tilt = 0.04 * Math.sin(t / 90) * k; break;
+      case 'freeze': v.tilt = k > 0.7 ? 0.035 * Math.sin(t / 18) : 0; break;
+      case 'fireworks': { const r = seg(k, 0.25, 1); v.squash = k < 0.25 ? 0.3 * Math.sin(Math.PI * k / 0.25) : -0.15 * (1 - r); v.y += 3.2 * easeIn(r); v.yaw += TAU * 3 * r * r; break; }
+      case 'weld': v.x += (Math.random() - 0.5) * 0.025 * k; v.z += (Math.random() - 0.5) * 0.025 * k; v.tilt = 0.03 * Math.sin(t / 15) * k; break;
+      case 'vortex': v.yaw += TAU * 5 * k * k; v.scale = Math.max(0.02, 1 - easeIn(k)); v.y += 0.3 * Math.sin(Math.PI * k); v.tilt = 0.15 * k; break;
+      case 'burst': v.scale = 1 + 0.75 * easeIn(k); v.squash = 0.14 * Math.sin(k * TAU * 4) * k; v.y += 0.1 * k; break;
+      case 'bloom': v.y += 0.35 * k; v.yaw += TAU * 2 * k; v.scale = Math.max(0.02, 1 - 0.85 * easeIn(k)); break;
+    }
+  }
+  function stepFate(c, t, dt) {
+    const S = c.S, kind = c.fate, v = c.v, m = c.m;
+    // the attacker's run: a trail of the effect, and a step of its own
+    if (t < S.impact) {
+      EL.fate(kind, 'aura', m.x, worldY(m) + 0.35, m.z, dt);
+      if (kind === 'burst') m.squash = 0.16 * Math.sin(t / 55);
+      else if (kind === 'freeze') m.tilt += 0.05 * Math.sin(t / 90);
+      else if (kind === 'lightning' && t > 80) { m.x += (Math.random() - 0.5) * 0.03; m.z += (Math.random() - 0.5) * 0.03; }
+      else if (kind === 'melt') m.squash = 0.08 * Math.sin(t / 80);
+      else if (kind === 'vortex') m.yaw += 0.6 * Math.sin(t / 120);
+    }
+    const f0 = S.fateAt || S.impact, f1 = S.dur - 40;
+    if (t < f0) return;
+    const W = f1 - f0, A = f0 + W * 0.18, B = f0 + W * 0.78;
+    if (!c.f) { const [ax, az] = fateSpot(c); c.f = { x: v.x, y: worldY(v), z: v.z, yaw: v.yaw, scale: v.scale || 1, ax, az }; }
+    const F = c.f, rocket = kind === 'fireworks';
+    v.bow = 0; v.tilt = 0; v.squash = 0; v.grave = false;
+    if (t < B) {
+      const a = rocket ? 1 : easeInOut(seg(t, f0, A));
+      v.x = rocket ? F.x : lerp(F.x, F.ax, a); v.z = rocket ? F.z : lerp(F.z, F.az, a);
+      v.y = rocket ? F.y : lerp(F.y, 0, a) + (F.y < 0.3 ? Math.sin(Math.PI * a) * 0.35 : 0);
+      v.scale = lerp(F.scale, 1, a); v.yaw = F.yaw + (rocket ? 0 : Math.PI * a);
+      const k = seg(t, A, B);
+      if (t >= A) { pose(v, kind, k, t); EL.fate(kind, 'hold', v.x, worldY(v), v.z, k, dt); }
+      coat(v, kind, coatK(kind, t < A ? seg(t, f0, A) * 0.3 : k));
+    } else {
+      if (!F.gone) { F.gone = true; uncoat(v); EL.fate(kind, 'end', v.x, worldY(v), v.z, S.power || 1, c.colors); bump(0.03 * (S.power || 1)); }
+      // and it pops up again in its tray, small and safe
+      const k = seg(t, B + 60, f1), back = k * k * (2.7 * k - 1.7);
+      if (k > 0 && !F.tray) { F.tray = true; EL.fate(kind, 'tray', c.gx, TRAY_Y + 0.1, c.gz); }
+      Object.assign(v, { x: c.gx, z: c.gz, y: 0, grave: true, scale: Math.max(0.001, 0.72 * back), yaw: c.gYaw + TAU * (1 - k) });
+    }
+  }
+
   // Castling: the king and the rook turn and bow to each other, the king strides two squares,
   // the rook hops over it into place, and both turn back to face the game with a gold shimmer.
   const CASTLE = { dur: 3000, impact: 2300, back: 2350, run(c, t) {
@@ -946,8 +1039,9 @@ function ChacklateScene(canvas, options) {
       mYaw: m.yaw, vYaw: v.yaw, fM: Math.atan2(sqX(info.to) - sx, sqZ(info.to) - sz), fV: Math.atan2(-dx, -dz),
       endYaw: baseYaw(info.promo || m.piece, info.to), knight: kindOf(m.piece) === 2, far: L > 1.6,
       kind: !fx.capture || !fx.capture.kind ? 'dust' : fx.capture.kind === 'nibs' ? 'dust' : fx.capture.kind === 'rocket' ? 'sparks' : fx.capture.kind, colors: (fx.capture && fx.capture.colors) || [],
-      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, elements: !(o && o.elements === false),
+      fired: new Set(), toGrave, done, onImpact: o && o.onImpact, elements: !(o && o.elements === false), last: now,
       saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
+    cine.fate = cine.elements && EL && elementsOn && animations ? strikeKind() : null;
     if (S.lean) leanIn((sx + vx) / 2 * 0.4 + vx * 0.6, (sz + vz) / 2 * 0.4 + vz * 0.6, S.lean);
     clearTimeout(skipTimer);
     if (!o || o.skipHint !== false) skipTimer = setTimeout(() => showSkip(true), 500);
@@ -983,9 +1077,11 @@ function ChacklateScene(canvas, options) {
   function stepCine(now) {
     const c = cine, t = now - c.start;
     // the scene sets what it needs each frame; leaning and hopping start from upright
-    c.m.bow = c.m.tilt = c.v.bow = c.v.tilt = 0;
+    c.m.bow = c.m.tilt = c.v.bow = c.v.tilt = 0; c.m.squash = c.v.squash = 0;
     if (!c.castle) c.v.y = 0;
     c.S.run(c, t);
+    const dt = Math.min(0.05, Math.max(0, (now - c.last) / 1000)); c.last = now;
+    if (c.fate) stepFate(c, t, dt);
     if (!c.castle) trailOf(c.m);
     if (c.onImpact) once(c, 'impact', c.S.impact, t, c.onImpact);
     if (!c.castle && c.elements) once(c, 'strike', c.S.impact, t, () => strikeAt(c.vx, c.vz, c.S.power));
@@ -1021,9 +1117,10 @@ function ChacklateScene(canvas, options) {
       if (c.done) c.done();
       return;
     }
-    Object.assign(v, { bow: 0, tilt: 0 });
+    uncoat(v);
+    Object.assign(v, { bow: 0, tilt: 0, squash: 0 });
     c.toGrave(v);
-    Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, scale: 1, yaw: c.endYaw });
+    Object.assign(m, { x: c.tx, z: c.tz, y: 0, bow: 0, tilt: 0, squash: 0, scale: 1, yaw: c.endYaw });
     if (c.info.promo) { m.piece = c.info.promo; rebuildSprite(m); if (!skipped) spawn('sparks', m.x, 0.6, m.z, ['#ffe28a', '#ffffff'], pn(46)); }
     placeSprite(m);
     if (!skipped) trailLand(m); else m.tp = null;
@@ -1054,12 +1151,17 @@ function ChacklateScene(canvas, options) {
   // wave passes. Then the winners jump for joy, one after another, out from their king, and the
   // win storm begins. Kid-gentle: the king faints in style; nothing breaks. About 3.3 s, and a
   // tap skips it.
-  const MATE_HIT = 2200, MATE_DUR = 3300;
+  // The beaten king's fall, 3.8 s: he trembles, is lifted spinning as the camera swings round
+  // him, hangs in a spotlight while the winning effect takes hold of him (ice, chocolate, stone,
+  // white heat, ink, petals...), then crashes down onto his side; the effect bursts from the
+  // landing, a shock ring runs out, and his whole army faints (and gets back up).
+  const MATE_HIT = 2600, MATE_DUR = 3800;
   let mate = null, stormWait = 0;
   const vcol = () => (fx.victory && fx.victory.kind !== 'none' && fx.victory.colors && fx.victory.colors.length ? fx.victory.colors : ['#ffe6a8', '#f6c25a', '#ffffff']);
   function startMate(k, w, onHit) {
     const now = performance.now();
-    k.anim = { type: 'mate', start: now, dur: MATE_DUR, yaw0: k.yaw, fired: new Set() };
+    const fam = EL && elementsOn && animations ? stormKind() : null;
+    k.anim = { type: 'mate', start: now, dur: MATE_DUR, yaw0: k.yaw, fired: new Set(), fam, last: now };
     mate = { k, w, onHit, saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
     leanIn(k.x, k.z, 0.7);
     spawn('ring', k.x, 0.06, k.z, vcol(), pn(36), { speed: -0.3 });
@@ -1067,42 +1169,64 @@ function ChacklateScene(canvas, options) {
   }
   function mateStep(s, a, ms) {
     const fire = (key, when, fn) => { if (ms >= when && !a.fired.has(key)) { a.fired.add(key); fn(); } };
-    s.bow = 0;
+    const now = performance.now(), dt = Math.min(0.05, Math.max(0, (now - a.last) / 1000)), fam = a.fam;
+    a.last = now;
+    const lead = mate && mate.k === s && mate.saved && !attract;
+    s.bow = 0; s.squash = 0; s.scale = 1;
     if (ms < 700) {
       const r = seg(ms, 0, 700);
-      s.tilt = 0.12 * Math.sin(ms / 17) * r; s.y = 0.06 * Math.abs(Math.sin(ms / 40)) * r; s.yaw = a.yaw0;
-      if (Math.random() < 0.5) spawn('aura', s.x + (Math.random() - 0.5) * 0.6, 0.1, s.z + (Math.random() - 0.5) * 0.6, vcol(), 1);
+      s.tilt = 0.16 * Math.sin(ms / 15) * r; s.y = 0.08 * Math.abs(Math.sin(ms / 38)) * r; s.yaw = a.yaw0;
+      if (Math.random() < 0.6) spawn('aura', s.x + (Math.random() - 0.5) * 0.6, 0.1, s.z + (Math.random() - 0.5) * 0.6, vcol(), 1);
     } else if (ms < 1500) {
       const k = seg(ms, 700, 1500);
-      // the camera lifts its eyes to follow the king up
-      if (mate && mate.k === s && mate.saved && !attract) cam.tLookY = lerp(cam.tLookY, 1.1, 0.08);
-      s.y = 1.3 * easeOut(k); s.tilt = 0.14 * Math.sin(k * TAU * 2) * (1 - k); s.yaw = a.yaw0 + TAU * 3 * easeInOut(k);
+      // the camera lifts its eyes to follow him up and swings round him
+      if (lead) { cam.tLookY = lerp(cam.tLookY, 1.15, 0.08); cam.tYaw = mate.saved.yaw + 0.55 * easeInOut(k); }
+      s.y = 1.5 * easeOut(k); s.tilt = 0.14 * Math.sin(k * TAU * 2) * (1 - k); s.yaw = a.yaw0 + TAU * 3 * easeInOut(k);
       const ang = ms / 60;
       spawn('aura', s.x + Math.cos(ang) * 0.55, s.y + 0.2, s.z + Math.sin(ang) * 0.55, vcol(), pn(2));
       spawn('aura', s.x - Math.cos(ang) * 0.55, s.y + 0.6, s.z - Math.sin(ang) * 0.55, vcol(), 1);
-    } else if (ms < 1750) {
-      s.y = 1.3 + 0.06 * Math.sin(seg(ms, 1500, 1750) * Math.PI); s.tilt = 0; s.yaw = a.yaw0;
+    } else if (ms < 2150) {
+      // the hang: barely turning, in a spotlight, as the effect takes hold of him
+      const k = seg(ms, 1500, 2150);
+      if (lead) cam.tYaw = mate.saved.yaw + 0.55 + 0.1 * easeInOut(k);
+      s.y = 1.5 + 0.08 * Math.sin(k * Math.PI); s.tilt = 0.05 * Math.sin(ms / 40) * k; s.yaw = a.yaw0 + 0.5 * Math.sin(k * Math.PI);
+      if (fam === 'burst') s.scale = 1 + 0.35 * easeIn(k);
+      if (fam === 'vortex') s.yaw = a.yaw0 + TAU * 2 * k * k;
     } else if (ms < MATE_HIT) {
-      const k = seg(ms, 1750, MATE_HIT);
-      s.y = 1.3 * (1 - easeIn(k)); s.tilt = 1.45 * easeIn(k); s.yaw = a.yaw0;
+      const k = seg(ms, 2150, MATE_HIT);
+      if (lead) cam.tYaw = mate.saved.yaw + 0.65 * (1 - 0.3 * k);
+      s.y = 1.5 * (1 - easeIn(k)); s.tilt = 1.45 * easeIn(k); s.yaw = a.yaw0 + 0.7 * easeIn(k);
+      if (fam === 'burst') s.scale = 1.35 - 0.35 * k;
     } else {
       const e = seg(ms, MATE_HIT, MATE_DUR);
-      s.y = 0.28 * Math.abs(Math.sin(Math.PI * e * 2)) * (1 - e); s.tilt = 1.45 + 0.2 * Math.sin(e * TAU * 2) * (1 - e); s.yaw = a.yaw0;
+      s.y = 0.32 * Math.abs(Math.sin(Math.PI * e * 2)) * (1 - e); s.tilt = 1.45 + 0.2 * Math.sin(e * TAU * 2) * (1 - e); s.yaw = a.yaw0 + 0.7;
+      if (fam === 'melt') s.squash = 0.3 * seg(ms, MATE_HIT, MATE_HIT + 500);
     }
+    // the winning effect takes hold of him: a coat of it while he rises and hangs, and its
+    // particles round him; ice and stone break off as he lands, the rest fade
+    if (fam) {
+      const k = seg(ms, 700, 2150);
+      if (ms >= 700 && ms < MATE_HIT) EL.fate(fam, 'hold', s.x, s.y, s.z, k, dt);
+      coat(s, fam, ms < MATE_HIT ? coatK(fam, k) : fam === 'stone' || fam === 'freeze' ? 0 : coatK(fam, 1) * (1 - seg(ms, MATE_HIT + 300, MATE_DUR - 60)));
+    }
+    fire('spot', 1450, () => { if (EL && animations) EL.spot(s.x, s.z); });
     fire('flare', 1500, () => {
-      spawn('firework', s.x, 2.2, s.z, vcol(), pn(70));
-      spawn('ring', s.x, 1.8, s.z, vcol(), pn(30), { speed: 0.7 });
+      spawn('firework', s.x, 2.4, s.z, vcol(), pn(70));
+      spawn('ring', s.x, 2, s.z, vcol(), pn(30), { speed: 0.7 });
       bump(0.03);
     });
+    fire('pulse', 1850, () => spawn('ring', s.x, s.y, s.z, vcol(), pn(24), { speed: 0.5 }));
     fire('hit', MATE_HIT, () => {
-      spawn('ring', s.x, 0.06, s.z, vcol(), pn(60), { speed: 1.5 });
-      spawn('dust', s.x, 0.1, s.z, ['#fff2dc', '#c8a27a'], pn(40));
-      spawn('sparks', s.x, 0.4, s.z, vcol(), pn(40));
-      bump(0.1);
-      strikeAt(s.x, s.z, 1.2);
+      spawn('ring', s.x, 0.06, s.z, vcol(), pn(70), { speed: 1.8 });
+      spawn('ring', s.x, 0.08, s.z, vcol(), pn(40), { speed: 1.1 });
+      spawn('dust', s.x, 0.1, s.z, ['#fff2dc', '#c8a27a'], pn(50));
+      spawn('sparks', s.x, 0.4, s.z, vcol(), pn(50));
+      bump(0.14);
+      if (fam) EL.fate(fam, 'end', s.x, 0.2, s.z, 1.6, fx.victory && fx.victory.colors);
+      strikeAt(s.x, s.z, 1.3, fam);
       if (mate && mate.k === s && mate.onHit) mate.onHit();
     });
-    fire('back', 2850, mateBack);
+    fire('back', 3350, mateBack);
   }
   function mateBack() {
     if (!mate || !mate.saved) return;
@@ -1119,7 +1243,8 @@ function ChacklateScene(canvas, options) {
     for (const s of sprites) {
       if (s === k || s.dead) continue;
       if (Math.sign(s.piece) === Math.sign(k.piece)) {
-        s.anim = { type: 'quake', start: now + Math.hypot(s.x - k.x, s.z - k.z) * 70, dur: 650 };
+        // the beaten army faints, in a wave out from the king, and gets back up
+        s.anim = { type: 'faint', start: now + Math.hypot(s.x - k.x, s.z - k.z) * 70, dur: 2300, dir: (s.x - k.x) * Math.cos(s.yaw) - (s.z - k.z) * Math.sin(s.yaw) >= 0 ? -1 : 1 };
       } else {
         const d = w ? Math.hypot(s.x - w.x, s.z - w.z) : 0, big = kindOf(s.piece) >= 5;
         s.anim = { type: 'cheer', start: now + 250 + d * 60, dur: big ? 800 : 650, yaw0: s.yaw, big };
@@ -1132,8 +1257,8 @@ function ChacklateScene(canvas, options) {
   function calmAll() {
     if (mate) {
       const k = mate.k;
-      if (k.anim && k.anim.type === 'mate') { k.anim = null; Object.assign(k, { y: 0, tilt: 1.45, bow: 0 }); placeSprite(k); }
-      for (const s of sprites) if (s.anim && (s.anim.type === 'quake' || s.anim.type === 'cheer')) { s.anim = null; s.y = 0; s.tilt = 0; s.bow = 0; placeSprite(s); }
+      if (k.anim && k.anim.type === 'mate') { k.anim = null; uncoat(k); Object.assign(k, { y: 0, tilt: 1.45, bow: 0, squash: 0, scale: 1 }); placeSprite(k); }
+      for (const s of sprites) if (s.anim && (s.anim.type === 'faint' || s.anim.type === 'cheer')) { s.anim = null; s.y = 0; s.tilt = 0; s.bow = 0; placeSprite(s); }
       mateBack();
       mate = null;
     }
@@ -1521,8 +1646,10 @@ function ChacklateScene(canvas, options) {
           s.scale = 1 - 0.28 * e; s.yaw = a.fyaw + e * Math.PI * 1.5;
         } else if (a.type === 'mate') {
           mateStep(s, a, t * a.dur);
-        } else if (a.type === 'quake') {
-          s.tilt = 0.2 * Math.sin(t * TAU * 2) * (1 - t); s.y = 0.2 * Math.sin(Math.PI * t); s.bow = -0.28 * Math.sin(Math.PI * t);
+        } else if (a.type === 'faint') {
+          const f = t < 0.2 ? easeIn(t / 0.2) : t < 0.68 ? 1 : 1 - easeInOut((t - 0.68) / 0.32);
+          s.tilt = a.dir * (1.45 * f + (t > 0.2 && t < 0.32 ? 0.08 * Math.sin((t - 0.2) / 0.12 * Math.PI) : 0)); s.y = 0;
+          if (t >= 0.2 && !a.thud) { a.thud = true; spawn('dust', s.x, 0.05, s.z, ['#fff2dc', '#c8a27a'], pn(6)); }
         } else if (a.type === 'cheer') {
           s.y = (a.big ? 0.6 : 0.4) * Math.sin(Math.PI * t);
           if (a.big) s.yaw = a.yaw0 + TAU * easeInOut(t);

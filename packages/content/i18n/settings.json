@@ -17,7 +17,7 @@
   "low": { "en": "Low: faster, saves battery", "hi": "कम: तेज़, बैटरी बचाता है", "check": ["hi"] },
   "anim": { "en": "Animations and effects", "hi": "एनिमेशन और इफ़ेक्ट", "check": ["hi"] },
   "cine": { "en": "Capture and castling scenes (1 to 4 seconds, tap to skip)", "hi": "मारने और किलाबंदी के दृश्य (1 से 4 सेकंड, छोड़ने के लिए टैप करें)", "check": ["hi"] },
-  "elements": { "en": "Dramatic effects: fire, lightning, petal and stone bursts and storms", "hi": "शानदार इफ़ेक्ट: आग, बिजली, पंखुड़ियों और पत्थरों की बौछारें और तूफ़ान", "check": ["hi"] },
+  "elements": { "en": "Dramatic effects: fire, ice, chocolate, fireworks, sparks and more on captures and wins", "hi": "शानदार इफ़ेक्ट: मोहरा मारने और जीत पर आग, बर्फ़, चॉकलेट, आतिशबाज़ी, चिंगारियाँ और भी बहुत कुछ", "check": ["hi"] },
   "sound": { "en": "Sound", "hi": "आवाज़", "check": ["hi"] },
   "sfx": { "en": "Sound effects", "hi": "साउंड इफ़ेक्ट", "check": ["hi"] },
   "sfxVol": { "en": "Sound effects volume", "hi": "साउंड इफ़ेक्ट की आवाज़", "check": ["hi"] },

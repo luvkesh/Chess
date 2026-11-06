@@ -1,18 +1,19 @@
-// Element effects for the 3D table, in four families: fire, lightning, petals and stone. When
-// a piece is taken, a burst of fire, a lightning strike, a petal burst or a stone shatter plays
-// on its square (3 s, sized to the piece); when a game is won, a fire, lightning, petal or
-// stone storm sweeps the table (10 s). Capture and victory effects in the Collection name
-// their element (each family has both); effects without one use the room's own element.
+// Element effects for the 3D table, in eleven families: fire, lightning, petals, stone, melt,
+// freeze, fireworks, weld, vortex, burst and bloom. When a piece is taken, the family's strike
+// plays on its square (3 s, sized to the piece) and its touch takes the piece itself (FATE: it
+// burns away, melts, freezes and shatters, rockets up and bursts...); when a game is won, the
+// family's storm sweeps the table (10 s). Every capture effect in the Collection names its
+// family and has a matching victory effect; effects without one use the room's own element.
 //
-// Kid-gentle by design: nothing is hurt or broken. The taken piece still bows and goes to
-// its tray; the fire is a festival burst, the lightning a crown of light for the winner.
-// Lightning flashes are spaced so the screen never brightens more than twice a second
-// (well under the three-flashes-a-second photosensitivity limit).
+// Kid-gentle by design: nothing is hurt or broken. The taken piece vanishes into the effect
+// and pops up again, small and safe, in its tray; the beaten king faints in style.
+// Flashes (lightning, fireworks) are spaced so the screen never brightens more than twice a
+// second (well under the three-flashes-a-second photosensitivity limit).
 //
-// Cost: two point clouds, one ribbon mesh for bolts, a few flat rings, a crack decal and
-// two instanced meshes (stone chips and petals). Every part is created once, up front, so
-// its shader compiles with the room's and nothing is allocated while an effect plays.
-// Counts scale with the table's performance level; Low graphics plays a lighter version.
+// Cost: two point clouds, one ribbon mesh for bolts, a few flat rings, a crack decal, a pool
+// decal and two instanced meshes (stone or ice chips, and petals). Every part is created once,
+// up front, so its shader compiles with the room's and nothing is allocated while an effect
+// plays. Counts scale with the table's performance level; Low graphics plays a lighter version.
 function ChacklateElements(THREE, o) {
   const TAU = Math.PI * 2;
   const { scene, camera } = o;
@@ -304,7 +305,7 @@ function ChacklateElements(THREE, o) {
   }
 
   // ------------------------------------------------------------------ stone chips and petals
-  const chipMax = 70, petalMax = 600;
+  const chipMax = 160, petalMax = 600;
   const chips = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.92, flatShading: true }), chipMax);
   chips.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   chips.setColorAt(0, col('#ffffff'));
@@ -617,6 +618,405 @@ function ChacklateElements(THREE, o) {
     e.shake = 0.03 * Math.exp(-t / 400) + 0.04 * th;
   } };
 
+  // ------------------------------------------------------------------ seven more families
+  // Melt, freeze, fireworks, weld, vortex (ink that shrinks things away), burst and bloom, each
+  // as grand as fire and lightning: a 3 s strike on the square and a 10 s storm for a win.
+  // A pool on the board (melted chocolate, ink) spreads and fades.
+  const pool = new THREE.Mesh(flatGeo, new THREE.ShaderMaterial({
+    uniforms: { color: { value: new THREE.Color() }, sheen: { value: new THREE.Color() }, alpha: { value: 0 }, seed: { value: 0 } },
+    vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform vec3 color; uniform vec3 sheen; uniform float alpha; uniform float seed; varying vec2 vUv;
+      void main() { vec2 d = vUv - 0.5; float an = atan(d.y, d.x); float r = length(d) * 2.0 * (1.0 + 0.12 * sin(an * 5.0 + seed) + 0.06 * sin(an * 11.0 - seed * 2.0));
+        float a = smoothstep(1.0, 0.9, r); if (a < 0.01) discard;
+        float rim = smoothstep(0.55, 0.85, r) * smoothstep(1.0, 0.86, r);
+        gl_FragColor = vec4(mix(color, sheen, rim * 0.6 + smoothstep(0.35, 0.0, length(d - vec2(-0.12, 0.1))) * 0.35), a * alpha); }`,
+    transparent: true, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2,
+  }));
+  pool.visible = false; pool.renderOrder = 6; pool.userData = { born: 0, life: 0, R: 1 };
+  group.add(pool);
+  function poolAt(x, z, color, sheen, R, life) {
+    const u = pool.material.uniforms;
+    u.color.value.set(color); u.sheen.value.set(sheen); u.seed.value = rnd(0, 6);
+    pool.position.set(x, o.floorY(x, z) + 0.025, z); pool.rotation.y = rnd(0, TAU);
+    pool.userData = { born: clock, life, R };
+    pool.visible = true;
+  }
+  function stepPool() {
+    if (!pool.visible) return;
+    const d = pool.userData, t = (clock - d.born) / d.life;
+    if (t >= 1) { pool.visible = false; return; }
+    const s = d.R * (0.15 + 0.85 * (1 - Math.pow(1 - smooth(0, 0.35, t), 2)));
+    pool.scale.set(s, 1, s);
+    pool.material.uniforms.alpha.value = 0.92 * (1 - smooth(0.65, 1, t));
+  }
+  const pick = (list, i) => list[(i === undefined ? Math.floor(Math.random() * list.length) : i) % list.length];
+  // a sphere of streaks bursting out (a firework shell)
+  function shell(x, y, z, cols, count, speed, life) {
+    for (let i = 0; i < n(count); i++) {
+      const a = rnd(0, TAU), b = Math.acos(rnd(-1, 1)), s = speed * rnd(0.75, 1.05), c = pick(cols, i);
+      emit({ x, y, z, vx: Math.sin(b) * Math.cos(a) * s, vy: Math.cos(b) * s + 0.4, vz: Math.sin(b) * Math.sin(a) * s, life: rnd(life * 0.75, life * 1.1), s0: 0.2, s1: 0.06, shape: 3,
+        c0: tone('#ffffff'), c1: tone(c), c2: tone(c), g: 1.5, drag: 0.45, rot: rnd(0, 1) });
+    }
+    // and a crackle of glitter a moment later
+    for (let i = 0; i < n(count * 0.35); i++) {
+      const a = rnd(0, TAU), r = rnd(0.4, 1.2) * speed * 0.5;
+      emit({ born: clock + rnd(350, 750), x: x + Math.cos(a) * r, y: y + rnd(-0.5, 0.3) * speed * 0.4, z: z + Math.sin(a) * r, vy: -0.3, life: rnd(250, 500), s0: 0.16, s1: 0.04, c0: tone('#ffffff'), c1: tone('#fff4c0'), c2: tone(pick(cols)), g: 0.5 });
+    }
+  }
+  // confetti: little flat chips of colour that flutter down
+  function confetti(x, y, z, cols, count, speed, up, life) {
+    for (let i = 0; i < n(count); i++) {
+      const a = rnd(0, TAU), s = rnd(0.3, 1) * speed, c = tone(pick(cols, i));
+      emit({ x, y, z, vx: Math.cos(a) * s, vy: rnd(0.5, 1) * up, vz: Math.sin(a) * s, life: rnd(life * 0.7, life), s0: rnd(0.08, 0.13), s1: 0.09, shape: 4, add: false, hdr: 1.35,
+        c0: c, c1: c, c2: c, g: 3.2, drag: 0.42, floor: true, rot: rnd(0, 6), spin: rnd(-9, 9), flutter: rnd(1, 3), fadeIn: 0.01 });
+    }
+  }
+  // a glossy drop (chocolate, caramel) that arcs and lands
+  const drop = (x, y, z, vx, vy, vz, color, size, life) => emit({ x, y, z, vx, vy, vz, life, s0: size, s1: size * 0.8, shape: 0, add: false, a: 1, hdr: 1.1,
+    c0: tone(color), c1: tone(color), c2: tone(color), g: 9, drag: 0.8, floor: true, fadeIn: 0.01 });
+  const glint = (x, y, z, c, s, life, vy) => emit({ x, y, z, vy: vy || 0, life, s0: s, s1: s * 0.2, c0: tone('#ffffff'), c1: tone(c), c2: tone(c) });
+  const CHOC = ['#4a2412', '#6a3a1e', '#8a5230'], CARAMEL = ['#c8843a', '#e0a050', '#f4c27a'], ICE = ['#e8f8ff', '#bfe6ff', '#9fd4ff', '#ffffff'];
+  const INK = ['#140f1e', '#221a32', '#2e2444'], VIOLET = ['#b08aff', '#d8c4ff', '#8a6aff'];
+  const PARTY = ['#ffcf5a', '#ff6a8a', '#7fe0ff', '#b6ff8a', '#ffffff'];
+  const ROSE = ['#d2466f', '#ff8fb0', '#b0204a', '#ffd0dc'];
+  const cols = (e, def) => (e.colors && e.colors.length ? e.colors : def);
+  // an icy shard: a chip of ice that leaps, tumbles and melts away
+  const shard = (x, y, z, s, up, life) => { const a = rnd(0, TAU), v = rnd(0.5, 1) * s; chip(x, y, z, Math.cos(a) * v, rnd(0.5, 1) * up, Math.sin(a) * v, rnd(0.05, 0.13), pick(ICE), life); };
+
+  // Melt: the square goes soft; a crown of chocolate splashes up, drops rain round it and a
+  // glossy pool spreads, steaming.
+  STRIKES.melt = { dur: 3000, run(e, t, dt) {
+    const { x, z } = e;
+    once(e, 'splash', 0, t, () => {
+      poolAt(x, z, '#3a1a0c', '#a86a3a', 2.4, 2900);
+      ring(x, 0.03, z, '#e0a050', 2.6, 650);
+      for (let i = 0; i < n(80); i++) { const a = rnd(0, TAU), s = rnd(0.8, 3.4); drop(x + Math.cos(a) * 0.2, 0.15, z + Math.sin(a) * 0.2, Math.cos(a) * s, rnd(2.2, 5.6), Math.sin(a) * s, pick(i % 4 ? CHOC : CARAMEL), rnd(0.07, 0.15), rnd(1500, 2600)); }
+      for (let i = 0; i < n(30); i++) glint(x + rnd(-0.4, 0.4), rnd(0.2, 1), z + rnd(-0.4, 0.4), '#ffd8a0', 0.14, rnd(400, 900), rnd(0.4, 1.4));
+    });
+    once(e, 'crown', 280, t, () => { for (let i = 0; i < n(36); i++) { const a = (i / 36) * TAU; drop(x + Math.cos(a) * 0.5, 0.1, z + Math.sin(a) * 0.5, Math.cos(a) * 0.9, rnd(3.6, 4.6), Math.sin(a) * 0.9, pick(CHOC), 0.09, 1400); } });
+    if (t < 2200) for (let i = rate(e, 'steam', 14, dt); i > 0; i--) smoke(x + rnd(-0.6, 0.6), 0.1, z + rnd(-0.6, 0.6), '#f4e4d4', 0.22, 0.3, 1.4, rnd(1200, 1800), 0.15);
+    e.light = { point: [x, 0.9, z], color: '#ffb070', power: 18 * Math.exp(-t / 700), expo: 0.08 * Math.exp(-t / 200), tint: '#ffc890', dim: 0.1 * (1 - smooth(500, 1600, t)) };
+    e.shake = 0.03 * Math.exp(-t / 200);
+  } };
+  // Freeze: a blast of cold. Frost races across the board in a web, ice shards leap, snow
+  // bursts up and a cold mist rolls out.
+  STRIKES.freeze = { dur: 3000, run(e, t, dt) {
+    const { x, z } = e;
+    once(e, 'blast', 0, t, () => {
+      crackAt(x, z, '#ffffff', '#9fd4ff', 2.8, 2900);
+      ring(x, 0.03, z, '#cfefff', 3, 700);
+      for (let i = 0; i < n(56); i++) shard(x + rnd(-0.2, 0.2), 0.2, z + rnd(-0.2, 0.2), 3, 6, rnd(2000, 2900));
+      for (let i = 0; i < n(110); i++) { const a = rnd(0, TAU), s = rnd(0.6, 3.2); emit({ x, y: rnd(0.1, 0.5), z, vx: Math.cos(a) * s, vy: rnd(1, 4.5), vz: Math.sin(a) * s, life: rnd(1400, 2600), s0: rnd(0.06, 0.12), s1: 0.04, c0: tone('#ffffff'), c1: tone('#e0f4ff'), c2: tone('#9fd4ff'), g: 1.1, drag: 0.5, flutter: 1.6 }); }
+      for (let i = 0; i < n(20); i++) smoke(x + rnd(-0.3, 0.3), rnd(0.1, 0.5), z + rnd(-0.3, 0.3), '#e4f4ff', 0.5, 0.5, 2.4, rnd(1700, 2600), 1);
+    });
+    once(e, 'shards2', 380, t, () => { ring(x, 0.03, z, '#9fd4ff', 1.8, 500); for (let i = 0; i < n(20); i++) shard(x, 0.15, z, 2, 4.5, 2300); });
+    if (t < 2000) for (let i = rate(e, 'crystal', 46, dt); i > 0; i--) { const a = rnd(0, TAU), r = rnd(0.2, 1.4); emit({ x: x + Math.cos(a) * r, y: 0.05, z: z + Math.sin(a) * r, vy: rnd(0.05, 0.3), life: rnd(500, 1000), s0: 0.04, s1: 0.18, c0: tone('#ffffff'), c1: tone('#dff4ff'), c2: tone('#9fd4ff'), fadeIn: 0.3 }); }
+    e.light = { point: [x, 1.2, z], color: '#bfe4ff', power: 30 * Math.exp(-t / 700), expo: 0.18 * Math.exp(-t / 200), tint: '#a8d0ff', dim: 0.22 * smooth(0, 120, t) * (1 - smooth(900, 2200, t)) };
+    e.shake = 0.05 * Math.exp(-t / 220);
+  } };
+  // Fireworks: three rockets whoosh up from the square and burst overhead in colour, one after
+  // another (never more than two bursts a second), with a glittering crackle.
+  STRIKES.fireworks = { dur: 3000, run(e, t, dt) {
+    const { x, z } = e, pal = cols(e, PARTY);
+    const R = e.rk || (e.rk = [[0, 0, 0, 3.6], [520, -1.1, 0.4, 3.0], [1040, 1.1, -0.4, 3.2]]);
+    for (const [at, ox, oz, h] of R) {
+      const k = (t - at) / 420;
+      if (k >= 0 && k < 1) { const ry = 0.2 + h * (1 - Math.pow(1 - k, 2)), rx = x + ox * k, rz = z + oz * k; for (let i = rate(e, 'rk' + at, 260, dt); i > 0; i--) emit({ x: rx, y: ry, z: rz, vx: rnd(-0.3, 0.3), vy: rnd(-1.6, -0.6), vz: rnd(-0.3, 0.3), life: rnd(250, 500), s0: 0.14, s1: 0.04, c0: tone('#fff4c0'), c1: tone('#ffb040'), c2: tone('#ff6a20'), g: 2 }); }
+      once(e, 'b' + at, at + 420, t, () => { shell(x + ox, 0.2 + h, z + oz, pal, at ? 90 : 130, at ? 3 : 3.8, 1400); e.flash = { at: clock, p: [x + ox, h, z + oz], k: at ? 0.6 : 1 }; });
+      once(e, 'l' + at, at, t, () => ring(x + ox * 0.2, 0.03, z + oz * 0.2, '#ffe0a0', 1.2, 400));
+    }
+    const f = e.flash ? Math.exp(-(clock - e.flash.at) / 160) * e.flash.k : 0;
+    e.light = { point: e.flash ? e.flash.p : [x, 1, z], color: pal[0], power: 70 * f, expo: 0.2 * f, dim: 0.2 * smooth(0, 200, t) * (1 - smooth(1800, 2700, t)), tint: '#6a5a8a' };
+    e.shake = 0.025 * f;
+  } };
+  // Weld: a white-hot point where the pieces met; a fountain of sparks sprays and bounces over
+  // the board, a molten bead glows and cools, and a wisp of smoke rises.
+  STRIKES.weld = { dur: 3000, run(e, t, dt) {
+    const { x, z } = e, pal = cols(e, ['#ffd27a', '#ffb347', '#fff2c8']);
+    once(e, 'arc', 0, t, () => {
+      ring(x, 0.03, z, '#ffe8b0', 2.2, 500);
+      emit({ x, y: 0.05, z, life: 2800, s0: 0.5, s1: 0.3, c0: tone('#fff6d8'), c1: tone('#ff9a30'), c2: tone('#601404'), fadeIn: 0.01 });
+      for (let i = 0; i < n(70); i++) spark(x, 0.35, z, 6, 6, pick(pal, i), rnd(700, 1400));
+    });
+    if (t < 1900) {
+      const k = 1 - smooth(1300, 1900, t);
+      for (let i = rate(e, 'fount', 330 * k, dt); i > 0; i--) { const a = rnd(0, TAU), s = rnd(0.5, 3.6); emit({ x, y: 0.35, z, vx: Math.cos(a) * s, vy: rnd(1.6, 5.2), vz: Math.sin(a) * s, life: rnd(500, 1100), s0: 0.13, s1: 0.05, shape: 3, c0: tone('#ffffff'), c1: tone(pick(pal)), c2: tone('#ff6a10'), g: 9, drag: 0.6, floor: true, rot: rnd(0, 1) }); }
+      for (let i = rate(e, 'core', 40 * k, dt); i > 0; i--) emit({ x: x + rnd(-0.05, 0.05), y: 0.35, z: z + rnd(-0.05, 0.05), life: 110, s0: rnd(0.5, 0.8), s1: 0.3, c0: tone('#ffffff'), c1: tone('#dce8ff'), c2: tone('#9ab8ff'), a: 0.8 });
+    }
+    if (t > 600 && t < 2400) for (let i = rate(e, 'smoke', 8, dt); i > 0; i--) smoke(x, 0.3, z, '#6a625a', 0.25, 0.3, 1.4, rnd(1200, 1700), 0.15);
+    const k = t < 1900 ? 1 - smooth(1300, 1900, t) : 0;
+    e.light = { point: [x, 0.6, z], color: '#dce8ff', power: k * (28 + 4 * Math.sin(t * 0.03)) + 8 * Math.exp(-t / 900), expo: 0.06 * k, tint: '#c8d8ff', dim: 0.16 * k };
+  } };
+  // Vortex: a pool of ink opens and a whirlpool of ink and violet light spins inward, faster
+  // and faster, until it snaps shut with a burst of stars.
+  STRIKES.vortex = { dur: 3000, run(e, t, dt) {
+    const { x, z } = e;
+    once(e, 'open', 0, t, () => { poolAt(x, z, '#0e0a16', '#4a3a7a', 2.2, 2700); ring(x, 0.03, z, '#9a7aff', 2.4, 550); });
+    if (t < 1500) {
+      for (let i = rate(e, 'ink', 140, dt); i > 0; i--) emit({ y: rnd(0.05, 0.9), vy: rnd(0, 0.5), life: rnd(900, 1400), s0: rnd(0.25, 0.4), s1: rnd(0.5, 0.8), shape: 2, add: false, a: 0.75,
+        c0: tone(pick(INK)), c1: tone(pick(INK)), c2: tone('#3a2e5a'), rot: rnd(0, 6), spin: rnd(-1, 1), fadeIn: 0.15, orb: { cx: x, cz: z, th: rnd(0, TAU), r: rnd(0.9, 1.6), w: 3 + t / 300, vr: -0.9 } });
+      for (let i = rate(e, 'vio', 60, dt); i > 0; i--) emit({ y: rnd(0.1, 1.2), life: rnd(500, 900), s0: 0.13, s1: 0.04, c0: tone('#ffffff'), c1: tone(pick(VIOLET)), c2: tone('#6a4aff'), orb: { cx: x, cz: z, th: rnd(0, TAU), r: rnd(0.6, 1.4), w: 4 + t / 250, vr: -0.8 } });
+    }
+    once(e, 'snap', 1500, t, () => {
+      ring(x, 0.05, z, '#d8c4ff', 3, 650);
+      for (let i = 0; i < n(90); i++) { const a = rnd(0, TAU), b = rnd(-0.3, 1), s = rnd(2, 5); emit({ x, y: 0.6, z, vx: Math.cos(a) * s, vy: b * s, vz: Math.sin(a) * s, life: rnd(600, 1200), s0: 0.16, s1: 0.04, shape: 3, c0: tone('#ffffff'), c1: tone(pick(VIOLET)), c2: tone('#6a4aff'), g: 1, drag: 0.5 }); }
+      emit({ x, y: 0.6, z, life: 300, s0: 1.4, s1: 2.4, c0: tone('#ffffff'), c1: tone('#d8c4ff'), c2: tone('#8a6aff'), a: 0.6 });
+      e.flash = clock;
+    });
+    const f = e.flash ? Math.exp(-(clock - e.flash) / 150) : 0;
+    e.light = { point: [x, 0.8, z], color: '#a88aff', power: 40 * f + 6, expo: 0.18 * f, dim: 0.34 * smooth(0, 300, t) * (1 - smooth(1500, 2300, t)), tint: '#5a40a0' };
+    e.shake = 0.05 * f;
+  } };
+  // Burst: a big soft BOOM. A ring of air, a cloud of cocoa powder and a cannon of confetti
+  // that flutters down all round.
+  STRIKES.burst = { dur: 3000, run(e, t, dt) {
+    const { x, z } = e, pal = cols(e, ['#e3b25a', '#d2466f', '#f4ebe3', '#c8a27a']), dust = e.dust || '#b08660';
+    once(e, 'boom', 0, t, () => {
+      ring(x, 0.04, z, '#fff0d0', 3.4, 600);
+      emit({ x, y: 0.6, z, life: 240, s0: 1.8, s1: 3.2, c0: tone('#ffffff'), c1: tone('#fff0d0'), c2: tone('#ffd8a0'), a: 0.7 });
+      for (let i = 0; i < n(36); i++) { const a = rnd(0, TAU), s = rnd(0.8, 2.6); emit({ x, y: rnd(0.2, 0.7), z, vx: Math.cos(a) * s, vy: rnd(0.4, 1.4), vz: Math.sin(a) * s, life: rnd(1500, 2400), s0: 0.5, s1: rnd(1.8, 2.8), shape: 2, add: false, a: 0.7, c0: tone(dust), c1: tone(dust), c2: tone(dust), drag: 0.4, rot: rnd(0, 6), spin: rnd(-0.6, 0.6), fadeIn: 0.05 }); }
+      confetti(x, 0.5, z, pal, 150, 3.6, 6, 2900);
+      for (let i = 0; i < n(40); i++) spark(x, 0.5, z, 6, 5, pick(pal, i), rnd(500, 1000));
+    });
+    once(e, 'boom2', 160, t, () => ring(x, 0.04, z, '#ffd8a0', 2, 450));
+    e.light = { point: [x, 1, z], color: '#ffe0b0', power: 40 * Math.exp(-t / 200), expo: 0.22 * Math.exp(-t / 130) };
+    e.shake = 0.09 * Math.exp(-t / 170);
+  } };
+  // Bloom: a rose opens on the square. Rings of petals unfold outward one after another, a
+  // second rose blooms in the air above, and a pink glow fades.
+  STRIKES.bloom = { dur: 3000, run(e, t) {
+    const { x, z } = e, pal = cols(e, ROSE);
+    for (const [layer, at] of [[0, 0], [1, 140], [2, 300], [3, 480]]) once(e, 'l' + layer, at, t, () => {
+      const cnt = n(10 + layer * 6), sp = 0.8 + layer * 0.7;
+      for (let i = 0; i < cnt; i++) { const a = (i / cnt) * TAU + layer * 0.3; petal(x + Math.cos(a) * 0.15, 0.08 + layer * 0.05, z + Math.sin(a) * 0.15, Math.cos(a) * sp, 1.2 + layer * 0.5, Math.sin(a) * sp, pick(pal, i + layer), 0.16 + layer * 0.03, 2900 - at); }
+      ring(x, 0.03, z, '#ffb0c8', 0.8 + layer * 0.7, 500);
+    });
+    once(e, 'sky', 900, t, () => {
+      for (let i = 0; i < n(60); i++) { const a = rnd(0, TAU), s = rnd(1, 2.8); petal(x, 1.6, z, Math.cos(a) * s, rnd(0.5, 2), Math.sin(a) * s, pick(pal, i), rnd(0.14, 0.22), 2000); }
+      for (let i = 0; i < n(30); i++) glint(x + rnd(-0.5, 0.5), rnd(1.2, 2), z + rnd(-0.5, 0.5), '#ffd0e0', 0.14, rnd(500, 1000));
+    });
+    e.light = { point: [x, 1.2, z], color: '#ff8ab0', power: 26 * Math.exp(-t / 800), expo: 0.08 * Math.exp(-t / 300), tint: '#ffb0c8', dim: 0 };
+  } };
+
+  // the storms: each 10 s, centred on the winner's king, with a crown for the winner at 8 s
+  const crown = (e, a, b) => {
+    ring(e.x, 0.04, e.z, a, 4, 900);
+    for (let i = 0; i < n(90); i++) spark(e.x, 1.2, e.z, 5, 6, i % 2 ? a : b, rnd(600, 1500));
+    for (let i = 0; i < n(36); i++) emit({ x: e.x, y: 1.5, z: e.z, vy: rnd(0.2, 0.8), life: rnd(1200, 1700), s0: 0.16, s1: 0.06, c0: tone('#ffffff'), c1: tone(b), c2: tone(a), orb: { cx: e.x, cz: e.z, th: (i / 36) * TAU, r: 0.42, w: 2.4, vr: 0.1 } });
+    if (e.onCrown) e.onCrown();
+  };
+  const around = (rMin, rMax) => { const a = rnd(0, TAU), r = rnd(rMin, rMax); return [Math.cos(a) * r, Math.sin(a) * r]; };
+  const PILLARS = [['p1', 2200], ['p2', 3600], ['p3', 5000], ['p4', 6400]];
+  // Blizzard: frost spreads out from the winner across the whole board, snow wheels round the
+  // table, ice bursts up at the edges and an ice crown glitters over the winner.
+  STORMS.freeze = { dur: 10000, run(e, t, dt) {
+    const live = t < 8000, glow = smooth(0, 900, t) * (1 - smooth(8200, 9600, t));
+    once(e, 'frost', 0, t, () => { crackAt(e.x, e.z, '#ffffff', '#9fd4ff', 7, 9600); ring(e.x, 0.03, e.z, '#cfefff', 4, 900); for (let i = 0; i < n(30); i++) shard(e.x, 0.2, e.z, 3, 5, 2600); });
+    if (live) for (let i = rate(e, 'snow', 150, dt); i > 0; i--) emit({ y: rnd(0.3, 4.5), vy: -rnd(0.1, 0.4), life: rnd(2400, 3400), s0: rnd(0.05, 0.1), s1: 0.05, c0: tone('#ffffff'), c1: tone('#eaf6ff'), c2: tone('#bfe6ff'), orb: { cx: 0, cz: 0, th: rnd(0, TAU), r: rnd(2.5, 7), w: rnd(0.7, 1.3), vr: rnd(-0.2, 0.1) } });
+    if (live) for (let i = rate(e, 'mist', 10, dt); i > 0; i--) { const [px, pz] = around(4, 6.5); smoke(px, 0.2, pz, '#e4f4ff', 0.35, 0.8, 2.6, rnd(2000, 3000), 0.4); }
+    for (const [key, when] of PILLARS) once(e, key, when, t, () => {
+      const [px, pz] = around(5, 6.2), py = o.floorY(px, pz) + 0.05;
+      ring(px, py, pz, '#cfefff', 1.8, 600);
+      for (let i = 0; i < n(36); i++) shard(px, py + 0.1, pz, 1.4, 7, rnd(2200, 2800));
+      for (let i = 0; i < n(40); i++) emit({ x: px, y: py + 0.2, z: pz, vx: rnd(-1.5, 1.5), vy: rnd(1.5, 4.5), vz: rnd(-1.5, 1.5), life: rnd(1200, 2000), s0: 0.1, s1: 0.04, c0: tone('#ffffff'), c1: tone('#e0f4ff'), c2: tone('#9fd4ff'), g: 1, drag: 0.5, flutter: 1.5 });
+      e.thump = clock;
+    });
+    once(e, 'crown', 8000, t, () => { for (let i = 0; i < n(30); i++) shard(e.x, 1.4, e.z, 2.5, 3, 1800); crown(e, '#bfe6ff', '#ffffff'); e.thump = clock; });
+    const th = e.thump ? Math.exp(-(clock - e.thump) / 220) : 0;
+    e.light = { point: [e.x, 1.6, e.z], color: '#cfe8ff', power: 14 * glow + 40 * th, expo: 0.04 * glow + 0.15 * th, tint: '#a8d0ff', dim: 0.24 * glow };
+    e.shake = 0.03 * th;
+  } };
+  // Chocolate fountain: the winner's king becomes a fountain of chocolate and caramel that
+  // arcs out over the board, ribbons of caramel wheel round, and gold crowns the winner.
+  STORMS.melt = { dur: 10000, run(e, t, dt) {
+    const live = t < 8000, glow = smooth(0, 900, t) * (1 - smooth(8200, 9600, t));
+    once(e, 'pool', 0, t, () => { poolAt(e.x, e.z, '#3a1a0c', '#a86a3a', 2.6, 9500); ring(e.x, 0.03, e.z, '#e0a050', 3.2, 800); });
+    if (t > 500 && live) for (let i = rate(e, 'fount', 90, dt); i > 0; i--) { const a = rnd(0, TAU), s = rnd(0.8, 2.6); drop(e.x, 1.5, e.z, Math.cos(a) * s, rnd(3, 4.8), Math.sin(a) * s, pick(i % 3 ? CHOC : CARAMEL), rnd(0.07, 0.13), rnd(1600, 2400)); }
+    if (live) for (let i = rate(e, 'ribbon', 50, dt); i > 0; i--) emit({ y: rnd(0.4, 2.4), vy: rnd(-0.1, 0.3), life: rnd(2400, 3400), s0: 0.1, s1: 0.06, c0: tone('#fff0c8'), c1: tone(pick(CARAMEL)), c2: tone('#a86a3a'), orb: { cx: 0, cz: 0, th: rnd(0, TAU), r: rnd(3.5, 6.5), w: rnd(0.8, 1.2), vr: 0 } });
+    if (live) for (let i = rate(e, 'steam', 8, dt); i > 0; i--) { const [px, pz] = around(0.5, 4); smoke(e.x + px * 0.3, 0.2, e.z + pz * 0.3, '#f4e4d4', 0.2, 0.4, 1.8, rnd(1600, 2200), 0.2); }
+    for (const [key, when] of PILLARS) once(e, key, when, t, () => {
+      const [px, pz] = around(4.8, 6.2), py = o.floorY(px, pz) + 0.05;
+      ring(px, py, pz, '#e0a050', 1.6, 600);
+      for (let i = 0; i < n(40); i++) { const a = rnd(0, TAU), s = rnd(0.4, 1.6); drop(px, py + 0.1, pz, Math.cos(a) * s, rnd(3, 6), Math.sin(a) * s, pick(CHOC), rnd(0.07, 0.14), 2200); }
+      e.thump = clock;
+    });
+    once(e, 'crown', 8000, t, () => { crown(e, '#f0c060', '#fff2c0'); e.thump = clock; });
+    const th = e.thump ? Math.exp(-(clock - e.thump) / 240) : 0;
+    e.light = { point: [e.x, 1.8, e.z], color: '#ffb070', power: 22 * glow + 30 * th, expo: 0.05 * glow + 0.12 * th, tint: '#ffc890', dim: 0.12 * glow };
+  } };
+  // A fireworks show: rockets climb from all round the table and burst overhead in colour (never
+  // more than two a second), and three burst together over the winner at the end.
+  STORMS.fireworks = { dur: 10000, run(e, t, dt) {
+    const pal = cols(e, PARTY);
+    if (!e.show) { e.show = []; for (let at = 900, i = 0; at < 7400; at += rnd(600, 820), i++) { const [px, pz] = around(3.5, 6); e.show.push([at, px, pz, rnd(4.2, 6.2), i]); } }
+    for (const [at, px, pz, h, i] of e.show) {
+      const k = (t - at) / 600;
+      if (k >= 0 && k < 1) { const ry = 0.2 + h * (1 - Math.pow(1 - k, 2)); for (let j = rate(e, 'r' + i, 200, dt); j > 0; j--) emit({ x: px * (1 - 0.3 * k), y: ry, z: pz * (1 - 0.3 * k), vx: rnd(-0.3, 0.3), vy: rnd(-1.6, -0.6), vz: rnd(-0.3, 0.3), life: rnd(250, 500), s0: 0.14, s1: 0.04, c0: tone('#fff4c0'), c1: tone('#ffb040'), c2: tone('#ff6a20'), g: 2 }); }
+      once(e, 'b' + i, at + 600, t, () => { const bx = px * 0.7, bz = pz * 0.7, c = [pick(pal, i), pick(pal, i + 2), '#ffffff']; shell(bx, h, bz, c, 120, 3.6, 1600); e.flash = { at: clock, p: [bx, h, bz], k: 0.7, c: c[0] }; });
+    }
+    once(e, 'finale', 8000, t, () => {
+      for (const [dx, dz, h] of [[0, 0, 4.4], [-1.6, 0.6, 3.8], [1.6, -0.6, 3.8]]) shell(e.x + dx, h, e.z + dz, pal, 120, 4, 1800);
+      e.flash = { at: clock, p: [e.x, 4, e.z], k: 1, c: '#ffffff' };
+      crown(e, pal[0], '#fff2c0');
+    });
+    const dark = smooth(0, 900, t) * (1 - smooth(8600, 9800, t)), f = e.flash ? Math.exp(-(clock - e.flash.at) / 180) * e.flash.k : 0;
+    e.light = { point: e.flash ? e.flash.p : [0, 5, 0], color: e.flash ? e.flash.c : '#ffffff', power: 110 * f, expo: 0.3 * f, dim: 0.3 * dark, tint: '#4a4070' };
+    e.shake = 0.02 * f;
+  } };
+  // The forge: four fountains of sparks at the corners of the board spray toward the middle,
+  // the board's edge glows like a hot seam, and sparks crown the winner.
+  STORMS.weld = { dur: 10000, run(e, t, dt) {
+    const pal = cols(e, ['#ffd27a', '#ffb347', '#fff2c8']), live = t > 600 && t < 7800, glow = smooth(0, 900, t) * (1 - smooth(8000, 9400, t));
+    if (live) for (const [cx, cz, i] of [[4.4, 4.4, 0], [-4.4, 4.4, 1], [-4.4, -4.4, 2], [4.4, -4.4, 3]]) {
+      const on = Math.sin(t / 700 + i * 1.6) > -0.4;
+      if (on) for (let j = rate(e, 'f' + i, 110, dt); j > 0; j--) emit({ x: cx, y: 0.3, z: cz, vx: -cx / 4.4 * rnd(1, 3.4) + rnd(-0.8, 0.8), vy: rnd(2, 5.4), vz: -cz / 4.4 * rnd(1, 3.4) + rnd(-0.8, 0.8), life: rnd(700, 1300), s0: 0.14, s1: 0.05, shape: 3,
+        c0: tone('#ffffff'), c1: tone(pick(pal)), c2: tone('#ff6a10'), g: 9, drag: 0.65, floor: true, rot: rnd(0, 1) });
+      if (on) for (let j = rate(e, 'c' + i, 25, dt); j > 0; j--) emit({ x: cx, y: 0.3, z: cz, life: 110, s0: rnd(0.5, 0.8), s1: 0.3, c0: tone('#ffffff'), c1: tone('#dce8ff'), c2: tone('#9ab8ff'), a: 0.7 });
+    }
+    const H = 4.6;
+    if (live) for (let i = rate(e, 'seam', 70, dt); i > 0; i--) { const u = rnd(-H, H), s = Math.floor(rnd(0, 4)), p = [[u, H], [H, u], [u, -H], [-H, u]][s]; emit({ x: p[0], y: 0.04, z: p[1], vy: 0.1, life: rnd(900, 1500), s0: 0.16, s1: 0.1, c0: tone('#fff0c0'), c1: tone('#ff9a30'), c2: tone('#a02008'), fadeIn: 0.2 }); }
+    if (live) for (let i = rate(e, 'smoke', 6, dt); i > 0; i--) { const [px, pz] = [[4.4, 4.4], [-4.4, 4.4], [-4.4, -4.4], [4.4, -4.4]][Math.floor(rnd(0, 4))]; smoke(px, 0.3, pz, '#6a625a', 0.22, 0.4, 1.8, rnd(1400, 2000), 0.2); }
+    once(e, 'crown', 8000, t, () => { for (let i = 0; i < n(80); i++) spark(e.x, 1.4, e.z, 6, 6, pick(pal, i), rnd(700, 1500)); crown(e, '#ffd27a', '#fff2c8'); e.thump = clock; });
+    const th = e.thump ? Math.exp(-(clock - e.thump) / 220) : 0;
+    e.light = { point: [e.x, 1.8, e.z], color: '#dce8ff', power: 18 * glow * (0.9 + 0.1 * Math.sin(t * 0.02)) + 40 * th, expo: 0.04 * glow + 0.15 * th, tint: '#c8d0ff', dim: 0.2 * glow };
+  } };
+  // The ink whirlpool: the room darkens, a great spiral of ink and violet light wheels round the
+  // board, tighter and faster, and it snaps shut into a burst of stars over the winner.
+  STORMS.vortex = { dur: 10000, run(e, t, dt) {
+    const live = t < 7600, tight = smooth(1000, 7600, t);
+    once(e, 'open', 0, t, () => { poolAt(e.x, e.z, '#0e0a16', '#4a3a7a', 2.4, 8000); ring(e.x, 0.03, e.z, '#9a7aff', 4, 900); });
+    if (live) for (let i = rate(e, 'ink', 90, dt); i > 0; i--) emit({ y: rnd(0.1, 2.6), vy: rnd(-0.1, 0.2), life: rnd(2200, 3000), s0: rnd(0.5, 0.9), s1: rnd(1.2, 1.8), shape: 2, add: false, a: 0.6,
+      c0: tone(pick(INK)), c1: tone(pick(INK)), c2: tone('#3a2e5a'), rot: rnd(0, 6), spin: rnd(-0.8, 0.8), fadeIn: 0.15, orb: { cx: e.x * tight, cz: e.z * tight, th: rnd(0, TAU), r: rnd(3, 7) * (1 - 0.55 * tight), w: 0.8 + 2.4 * tight, vr: -0.4 * (0.4 + tight) } });
+    if (live) for (let i = rate(e, 'vio', 50, dt); i > 0; i--) emit({ y: rnd(0.2, 3), life: rnd(900, 1500), s0: 0.13, s1: 0.04, c0: tone('#ffffff'), c1: tone(pick(VIOLET)), c2: tone('#6a4aff'), orb: { cx: e.x * tight, cz: e.z * tight, th: rnd(0, TAU), r: rnd(2.5, 6.5) * (1 - 0.55 * tight), w: 1 + 2.6 * tight, vr: -0.5 } });
+    for (const [key, when] of PILLARS) once(e, key, when, t, () => { const [px, pz] = around(4, 6); ring(px, o.floorY(px, pz) + 0.04, pz, '#b08aff', 1.6, 600); for (let i = 0; i < n(30); i++) glint(px + rnd(-0.4, 0.4), rnd(0.2, 1.4), pz + rnd(-0.4, 0.4), pick(VIOLET), 0.15, rnd(500, 1000), rnd(0.2, 1)); e.thump = clock; });
+    once(e, 'snap', 7600, t, () => {
+      ring(e.x, 0.05, e.z, '#d8c4ff', 4.5, 800);
+      shell(e.x, 1.6, e.z, ['#ffffff', '#d8c4ff', '#b08aff', '#fff2c0'], 140, 4.4, 1600);
+      e.flash = clock;
+    });
+    once(e, 'crown', 8000, t, () => crown(e, '#b08aff', '#ffffff'));
+    const dark = smooth(0, 1200, t) * (1 - smooth(7600, 8400, t)), f = e.flash ? Math.exp(-(clock - e.flash) / 200) : 0, th = e.thump ? Math.exp(-(clock - e.thump) / 220) : 0;
+    e.light = { point: [e.x, 1.6, e.z], color: '#b89aff', power: 12 + 80 * f + 20 * th, expo: 0.3 * f + 0.08 * th, dim: 0.4 * dark, tint: '#5a40a0' };
+    e.shake = 0.05 * f;
+  } };
+  // The party: confetti cannons fire from all four sides, glowing balloons float up from round
+  // the board and pop into confetti, and a last huge cannon showers the winner.
+  STORMS.burst = { dur: 10000, run(e, t, dt) {
+    const pal = cols(e, ['#e3b25a', '#d2466f', '#f4ebe3', '#7fc8ff']);
+    const cannon = (key, at, side) => once(e, key, at, t, () => {
+      const [sx, sz] = [[0, -5.6], [5.6, 0], [0, 5.6], [-5.6, 0]][side];
+      for (let i = 0; i < n(90); i++) { const c = tone(pick(pal, i)); emit({ x: sx, y: 0.4, z: sz, vx: -sx * rnd(0.3, 0.75) + rnd(-1.4, 1.4), vy: rnd(4, 8), vz: -sz * rnd(0.3, 0.75) + rnd(-1.4, 1.4), life: rnd(2600, 3600), s0: rnd(0.08, 0.13), s1: 0.09, shape: 4, add: false, hdr: 1.35, c0: c, c1: c, c2: c, g: 3.2, drag: 0.5, floor: true, rot: rnd(0, 6), spin: rnd(-9, 9), flutter: rnd(1, 3), fadeIn: 0.01 }); }
+      ring(sx, 0.05, sz, '#fff0d0', 1.6, 500);
+      e.thump = clock;
+    });
+    cannon('c0', 300, 0); cannon('c1', 700, 1); cannon('c2', 1100, 2); cannon('c3', 1500, 3);
+    if (!e.balloons) { e.balloons = []; for (let at = 1800, i = 0; at < 7200; at += rnd(450, 700), i++) { const [px, pz] = around(2.5, 6); e.balloons.push([at, px, pz, pick(pal, i), i]); } }
+    for (const [at, px, pz, c, i] of e.balloons) {
+      once(e, 'u' + i, at, t, () => emit({ x: px, y: 0.3, z: pz, vy: 1.6, life: 1300, s0: 0.5, s1: 0.75, c0: tone(c), c1: tone(c), c2: tone('#ffffff'), a: 0.85, g: -0.2, drag: 0.9, fadeIn: 0.15 }));
+      once(e, 'p' + i, at + 1250, t, () => { const y = 0.3 + 1.6 * 1.25 + 0.1; confetti(px, y, pz, [c, '#ffffff', pick(pal, i + 1)], 40, 2.4, 2.5, 2400); ring(px, o.floorY(px, pz) + 0.04, pz, c, 1, 400); });
+    }
+    once(e, 'finale', 8000, t, () => { confetti(e.x, 1.4, e.z, pal, 200, 4, 7, 2000); emit({ x: e.x, y: 1.4, z: e.z, life: 260, s0: 2, s1: 3.4, c0: tone('#ffffff'), c1: tone('#fff0d0'), c2: tone('#ffd8a0'), a: 0.6 }); crown(e, '#e3b25a', '#ffffff'); e.thump = clock; });
+    const th = e.thump ? Math.exp(-(clock - e.thump) / 200) : 0;
+    e.light = { point: [e.x, 1.6, e.z], color: '#ffe0b0', power: 30 * th + 6, expo: 0.12 * th };
+    e.shake = 0.03 * th;
+  } };
+  // The rose garden: roses unfold one after another round the board, petals fall like rain,
+  // and a great rose opens in the air over the winner.
+  STORMS.bloom = { dur: 10000, run(e, t, dt) {
+    const pal = cols(e, ROSE), live = t < 8000;
+    if (!e.roses) { e.roses = []; for (let at = 600, i = 0; at < 7000; at += rnd(600, 900), i++) { const [px, pz] = around(3.2, 6); e.roses.push([at, px, pz, i]); } }
+    for (const [at, px, pz, i] of e.roses) for (const [layer, d] of [[0, 0], [1, 160], [2, 340]]) once(e, 'r' + i + layer, at + d, t, () => {
+      const cnt = n(8 + layer * 5), sp = 0.6 + layer * 0.6, py = o.floorY(px, pz);
+      for (let j = 0; j < cnt; j++) { const a = (j / cnt) * TAU + layer * 0.3; petal(px, py + 0.1, pz, Math.cos(a) * sp, 1 + layer * 0.4, Math.sin(a) * sp, pick(pal, j + i), 0.16 + layer * 0.03, 10000 - t); }
+      if (!layer) ring(px, py + 0.03, pz, '#ffb0c8', 1.4, 500);
+    });
+    if (live && t > 1500) for (let i = rate(e, 'rain', 60, dt); i > 0; i--) petal(rnd(-6, 6), rnd(4, 5.5), rnd(-6, 6), 0, -0.4, 0, pick(pal, i), rnd(0.14, 0.22), 10000 - t);
+    if (live) for (let i = rate(e, 'glint', 20, dt); i > 0; i--) { const [px, pz] = around(2, 6); glint(px, rnd(0.3, 3), pz, '#ffd0e0', 0.09, rnd(600, 1200)); }
+    once(e, 'rose', 7800, t, () => {
+      for (const [layer, sp] of [[0, 0.8], [1, 1.6], [2, 2.6], [3, 3.6]]) { const cnt = n(12 + layer * 8); for (let j = 0; j < cnt; j++) { const a = (j / cnt) * TAU + layer * 0.3; petal(e.x, 1.8 + layer * 0.1, e.z, Math.cos(a) * sp, 1.5, Math.sin(a) * sp, pick(pal, j + layer), 0.2, 2200); } }
+    });
+    once(e, 'crown', 8000, t, () => crown(e, '#ff8fb0', '#fff2f6'));
+    const glow = smooth(0, 900, t) * (1 - smooth(8200, 9600, t));
+    e.light = { point: [e.x, 1.6, e.z], color: '#ff9ab8', power: 12 * glow, expo: 0.05 * glow, tint: '#ffb8c8', dim: 0 };
+  } };
+
+  // ------------------------------------------------------------------ what happens to a taken piece
+  // The table moves the pieces; these add the effect's own particles around them.
+  //   aura: each frame while the attacker runs in (its trail of the element)
+  //   hold: each frame while the taken piece is caught by the effect (k from 0 to 1)
+  //   end:  the moment it vanishes in the effect (it reappears, safe, in its tray)
+  //   tray: a small sparkle as it reappears
+  const facc = {};
+  const per = (key, perSec, dt) => { facc[key] = (facc[key] || 0) + perSec * amount() * dt; const k = Math.floor(facc[key]); facc[key] -= k; return k; };
+  const FATE = {
+    fire: {
+      aura(x, y, z, dt) { for (let i = per('fa', 70, dt); i > 0; i--) flame(x + rnd(-0.1, 0.1), y - 0.2, z + rnd(-0.1, 0.1), rnd(0.4, 1), rnd(0.25, 0.4), rnd(300, 500)); },
+      hold(x, y, z, k, dt) { for (let i = per('fh', 90 + 120 * k, dt); i > 0; i--) flame(x + rnd(-0.25, 0.25), y + rnd(-0.1, 0.5), z + rnd(-0.25, 0.25), rnd(0.8, 1.8), rnd(0.35, 0.6), rnd(400, 700)); },
+      end(x, y, z, p) { for (let i = 0; i < n(70 * p); i++) ember(x, y + 0.4, z, rnd(2, 6), rnd(1, 5), rnd(800, 1800)); for (let i = 0; i < n(10 * p); i++) smoke(x, y + 0.5, z, '#3d2c22', 0.35, 0.4, 1.8, rnd(1300, 1900)); ring(x, 0.04, z, '#ffb050', 1.6 * p, 500); },
+    },
+    lightning: {
+      aura(x, y, z, dt) { for (let i = per('la', 50, dt); i > 0; i--) spark(x, y, z, 1.5, 1.5, '#8fb4ff', rnd(200, 400)); if (Math.random() < dt * 6) bolt(V(x, y + 0.3, z), V(x + rnd(-0.4, 0.4), 0.03, z + rnd(-0.4, 0.4)), { life: 110, branches: 0, width: 0.3, depth: 3 }); },
+      hold(x, y, z, k, dt) { if (Math.random() < dt * 14) { const a = rnd(0, TAU); bolt(V(x + Math.cos(a) * 0.1, y + rnd(0.2, 0.9), z + Math.sin(a) * 0.1), V(x + Math.cos(a) * rnd(0.4, 0.8), rnd(0.03, 0.6), z + Math.sin(a) * rnd(0.4, 0.8)), { life: 120, branches: 1, width: 0.35, depth: 4 }); } for (let i = per('lh', 60, dt); i > 0; i--) spark(x, y + rnd(0.2, 0.8), z, 2.5, 2.5, i % 2 ? '#8fb4ff' : '#e8f0ff', rnd(250, 600)); },
+      end(x, y, z, p) { bolt(V(x, y + 0.5, z), V(x + rnd(-0.8, 0.8), 9, z + rnd(-0.8, 0.8)), { life: 380, branches: 3, width: 1 }); for (let i = 0; i < n(70 * p); i++) spark(x, y + 0.4, z, 5, 5, i % 3 ? '#8fb4ff' : '#e8f0ff', rnd(500, 1100)); ring(x, 0.04, z, '#bcd2ff', 1.8 * p, 500); },
+    },
+    petals: {
+      aura(x, y, z, dt) { for (let i = per('pa', 18, dt); i > 0; i--) petal(x, y, z, rnd(-0.6, 0.6), rnd(0.2, 1), rnd(-0.6, 0.6), pick(ROSE.slice(1)), 0.12, 1400); },
+      hold(x, y, z, k, dt) { for (let i = per('ph', 50, dt); i > 0; i--) { const a = rnd(0, TAU); petal(x + Math.cos(a) * 0.45, y + rnd(0, 0.8), z + Math.sin(a) * 0.45, -Math.sin(a) * 2.4, rnd(0.5, 1.6), Math.cos(a) * 2.4, pick(['#ff9fb8', '#ffc4d4', '#ffe4ec', '#e86a8a']), 0.14, 1500); } },
+      end(x, y, z, p) { for (let i = 0; i < n(60 * p); i++) { const a = rnd(0, TAU), s = rnd(0.8, 2.4); petal(x, y + 0.4, z, Math.cos(a) * s, rnd(1, 3), Math.sin(a) * s, pick(['#ff9fb8', '#ffc4d4', '#ffe4ec', '#e86a8a'], i), rnd(0.12, 0.2), 2200); } ring(x, 0.04, z, '#ffc0d0', 1.6 * p, 500); },
+    },
+    stone: {
+      aura(x, y, z, dt) { for (let i = per('sa', 10, dt); i > 0; i--) smoke(x, y - 0.25, z, '#c8b08a', 0.35, 0.2, 0.7, rnd(500, 800), 0.4); },
+      hold(x, y, z, k, dt) { for (let i = per('sh', 30 * k, dt); i > 0; i--) emit({ x: x + rnd(-0.25, 0.25), y: y + rnd(0.1, 0.9), z: z + rnd(-0.25, 0.25), vy: -0.5, life: rnd(400, 800), s0: 0.05, s1: 0.03, shape: 4, add: false, c0: tone('#bfb2a0'), c1: tone('#a89a86'), c2: tone('#8a7c6a'), g: 6, floor: true, rot: rnd(0, 6), spin: rnd(-6, 6) }); },
+      end(x, y, z, p) { for (let i = 0; i < n(40 * p); i++) { const a = rnd(0, TAU), s = rnd(0.5, 2.4); chip(x, y + rnd(0.1, 0.8), z, Math.cos(a) * s, rnd(1.5, 4.5), Math.sin(a) * s, rnd(0.05, 0.12), i % 3 ? '#bfb2a0' : '#8a7c6a', rnd(1800, 2600)); } for (let i = 0; i < n(16 * p); i++) smoke(x, y + 0.3, z, '#c8b08a', 0.6, 0.5, 2.2, rnd(1400, 2100), 0.8); ring(x, 0.04, z, '#e8cc90', 1.6 * p, 500); },
+    },
+    melt: {
+      aura(x, y, z, dt) { for (let i = per('ma', 16, dt); i > 0; i--) drop(x + rnd(-0.15, 0.15), y, z + rnd(-0.15, 0.15), 0, -0.5, 0, pick(CHOC), rnd(0.05, 0.08), 900); },
+      hold(x, y, z, k, dt) { for (let i = per('mh', 30 + 40 * k, dt); i > 0; i--) { const a = rnd(0, TAU); drop(x + Math.cos(a) * 0.3, y + rnd(0.1, 0.6) * (1 - k), z + Math.sin(a) * 0.3, Math.cos(a) * 0.4, rnd(-0.3, 0.6), Math.sin(a) * 0.4, pick(CHOC), rnd(0.06, 0.1), 1100); } for (let i = per('ms', 8, dt); i > 0; i--) smoke(x, y + 0.3, z, '#f4e4d4', 0.2, 0.3, 1.2, 1200, 0.15); },
+      end(x, y, z, p) { for (let i = 0; i < n(50 * p); i++) { const a = rnd(0, TAU), s = rnd(0.6, 2.4); drop(x, y + 0.1, z, Math.cos(a) * s, rnd(2, 4.5), Math.sin(a) * s, pick(i % 3 ? CHOC : CARAMEL), rnd(0.07, 0.13), rnd(1300, 2000)); } ring(x, 0.04, z, '#e0a050', 1.6 * p, 500); },
+    },
+    freeze: {
+      aura(x, y, z, dt) { for (let i = per('za', 40, dt); i > 0; i--) emit({ x: x + rnd(-0.2, 0.2), y: y - 0.2, z: z + rnd(-0.2, 0.2), vy: rnd(0, 0.4), life: rnd(500, 900), s0: 0.08, s1: 0.03, c0: tone('#ffffff'), c1: tone('#dff4ff'), c2: tone('#9fd4ff'), flutter: 1 }); },
+      hold(x, y, z, k, dt) { for (let i = per('zh', 40, dt); i > 0; i--) { const a = rnd(0, TAU); emit({ x: x + Math.cos(a) * 0.32, y: y + rnd(0, 0.9), z: z + Math.sin(a) * 0.32, life: rnd(400, 800), s0: 0.03, s1: 0.14, c0: tone('#ffffff'), c1: tone('#dff4ff'), c2: tone('#9fd4ff'), fadeIn: 0.3 }); } for (let i = per('zm', 6, dt); i > 0; i--) smoke(x, y + 0.1, z, '#e4f4ff', 0.3, 0.3, 1.4, 1200, 0.4); },
+      end(x, y, z, p) { for (let i = 0; i < n(40 * p); i++) shard(x, y + rnd(0.1, 0.9), z, 3, 4.5, rnd(1800, 2600)); for (let i = 0; i < n(50 * p); i++) glint(x + rnd(-0.3, 0.3), y + rnd(0.1, 1), z + rnd(-0.3, 0.3), '#bfe6ff', 0.12, rnd(500, 1000), rnd(-0.3, 1)); for (let i = 0; i < n(10 * p); i++) smoke(x, y + 0.3, z, '#e4f4ff', 0.45, 0.4, 2, rnd(1300, 2000), 0.8); ring(x, 0.04, z, '#cfefff', 1.8 * p, 500); },
+    },
+    fireworks: {
+      aura(x, y, z, dt) { for (let i = per('ka', 60, dt); i > 0; i--) emit({ x, y: y - 0.2, z, vx: rnd(-0.4, 0.4), vy: rnd(-0.6, 0.6), vz: rnd(-0.4, 0.4), life: rnd(250, 450), s0: 0.12, s1: 0.03, c0: tone('#fff4c0'), c1: tone('#ffb040'), c2: tone('#ff6a20'), g: 2 }); },
+      hold(x, y, z, k, dt) { for (let i = per('kh', 220 * k, dt); i > 0; i--) emit({ x: x + rnd(-0.08, 0.08), y, z: z + rnd(-0.08, 0.08), vx: rnd(-0.4, 0.4), vy: rnd(-2.4, -1), vz: rnd(-0.4, 0.4), life: rnd(300, 600), s0: 0.16, s1: 0.04, c0: tone('#fff4c0'), c1: tone('#ffb040'), c2: tone('#ff6a20'), g: 2 }); },
+      end(x, y, z, p, c) { shell(x, y + 0.5, z, c && c.length ? c : PARTY, 110 * p, 3.4 * Math.sqrt(p), 1400); },
+    },
+    weld: {
+      aura(x, y, z, dt) { for (let i = per('wa', 40, dt); i > 0; i--) spark(x, y - 0.2, z, 1.6, 2.4, pick(['#ffd27a', '#ffb347']), rnd(250, 500)); },
+      hold(x, y, z, k, dt) { for (let i = per('wh', 160, dt); i > 0; i--) { const a = rnd(0, TAU), s = rnd(0.5, 3); emit({ x, y: y + 0.35, z, vx: Math.cos(a) * s, vy: rnd(1.2, 4.4), vz: Math.sin(a) * s, life: rnd(400, 900), s0: 0.12, s1: 0.05, shape: 3, c0: tone('#ffffff'), c1: tone('#ffd27a'), c2: tone('#ff6a10'), g: 9, drag: 0.6, floor: true, rot: rnd(0, 1) }); } for (let i = per('wc', 30, dt); i > 0; i--) emit({ x, y: y + 0.35, z, life: 100, s0: rnd(0.4, 0.6), s1: 0.25, c0: tone('#ffffff'), c1: tone('#dce8ff'), c2: tone('#9ab8ff'), a: 0.75 }); },
+      end(x, y, z, p) { for (let i = 0; i < n(80 * p); i++) spark(x, y + 0.4, z, 6, 6, pick(['#ffd27a', '#ffb347', '#fff2c8'], i), rnd(600, 1300)); emit({ x, y: 0.05, z, life: 2000, s0: 0.4, s1: 0.25, c0: tone('#fff6d8'), c1: tone('#ff9a30'), c2: tone('#601404'), fadeIn: 0.01 }); ring(x, 0.04, z, '#ffe8b0', 1.6 * p, 450); },
+    },
+    vortex: {
+      aura(x, y, z, dt) { for (let i = per('va', 30, dt); i > 0; i--) emit({ x, y: y - 0.1, z, vx: rnd(-0.3, 0.3), vy: rnd(0, 0.3), vz: rnd(-0.3, 0.3), life: rnd(500, 800), s0: 0.18, s1: 0.4, shape: 2, add: false, a: 0.55, c0: tone(pick(INK)), c1: tone(pick(INK)), c2: tone('#3a2e5a'), rot: rnd(0, 6), fadeIn: 0.2 }); },
+      hold(x, y, z, k, dt) { for (let i = per('vh', 90, dt); i > 0; i--) emit({ y: y + rnd(0, 0.8), life: rnd(400, 700), s0: 0.2, s1: 0.1, shape: 2, add: false, a: 0.7, c0: tone(pick(INK)), c1: tone(pick(INK)), c2: tone('#3a2e5a'), rot: rnd(0, 6), fadeIn: 0.2, orb: { cx: x, cz: z, th: rnd(0, TAU), r: rnd(0.4, 0.7) * (1 - 0.6 * k), w: 6 + 10 * k, vr: -0.6 } }); for (let i = per('vg', 30, dt); i > 0; i--) emit({ y: y + rnd(0, 0.8), life: rnd(300, 600), s0: 0.1, s1: 0.03, c0: tone('#ffffff'), c1: tone(pick(VIOLET)), c2: tone('#6a4aff'), orb: { cx: x, cz: z, th: rnd(0, TAU), r: rnd(0.3, 0.6) * (1 - 0.6 * k), w: 8 + 10 * k, vr: -0.5 } }); },
+      end(x, y, z, p) { emit({ x, y: y + 0.2, z, life: 260, s0: 0.9 * p, s1: 0.1, c0: tone('#ffffff'), c1: tone('#d8c4ff'), c2: tone('#8a6aff') }); for (let i = 0; i < n(40 * p); i++) { const a = rnd(0, TAU), s = rnd(1.5, 3.5); emit({ x, y: y + 0.2, z, vx: Math.cos(a) * s, vy: rnd(-1, 2), vz: Math.sin(a) * s, life: rnd(400, 800), s0: 0.13, s1: 0.03, shape: 3, c0: tone('#ffffff'), c1: tone(pick(VIOLET)), c2: tone('#6a4aff'), drag: 0.5 }); } ring(x, 0.04, z, '#d8c4ff', 1.6 * p, 450); },
+    },
+    burst: {
+      aura(x, y, z, dt) { for (let i = per('ba', 14, dt); i > 0; i--) confetti(x, y, z, ['#e3b25a', '#d2466f', '#f4ebe3'], 1, 0.8, 1.4, 900); },
+      hold(x, y, z, k, dt) { for (let i = per('bh', 20 * k, dt); i > 0; i--) glint(x + rnd(-0.4, 0.4), y + rnd(0.2, 1.1), z + rnd(-0.4, 0.4), '#fff0d0', 0.1, rnd(200, 400)); },
+      end(x, y, z, p, c) { confetti(x, y + 0.5, z, c && c.length ? c : ['#e3b25a', '#d2466f', '#f4ebe3'], 110 * p, 3.4, 4.5, 2200); for (let i = 0; i < n(14 * p); i++) smoke(x, y + 0.5, z, '#b08660', 0.6, 0.5, 2, rnd(1200, 1800), 1); emit({ x, y: y + 0.5, z, life: 200, s0: 1.4 * p, s1: 2.2 * p, c0: tone('#ffffff'), c1: tone('#fff0d0'), c2: tone('#ffd8a0'), a: 0.7 }); ring(x, 0.04, z, '#fff0d0', 2 * p, 450); },
+    },
+    bloom: {
+      aura(x, y, z, dt) { for (let i = per('oa', 16, dt); i > 0; i--) petal(x, y, z, rnd(-0.5, 0.5), rnd(0.3, 1), rnd(-0.5, 0.5), pick(ROSE), 0.13, 1400); },
+      hold(x, y, z, k, dt) { for (let i = per('oh', 60, dt); i > 0; i--) { const a = rnd(0, TAU), r = 0.5 * (1 - 0.5 * k); petal(x + Math.cos(a) * r, y + rnd(0, 0.9) * (1 - 0.4 * k), z + Math.sin(a) * r, -Math.sin(a) * 2.8 - Math.cos(a) * 0.6, rnd(0.6, 1.4), Math.cos(a) * 2.8 - Math.sin(a) * 0.6, pick(ROSE), 0.15, 900); } },
+      end(x, y, z, p, c) { const pal = c && c.length ? c : ROSE; for (const [layer, sp] of [[0, 0.8], [1, 1.6], [2, 2.5]]) { const cnt = n((10 + layer * 7) * p); for (let j = 0; j < cnt; j++) { const a = (j / cnt) * TAU + layer * 0.3; petal(x, y + 0.4, z, Math.cos(a) * sp, 1.6, Math.sin(a) * sp, pick(pal, j + layer), 0.17, 1900); } } ring(x, 0.04, z, '#ffb0c8', 1.8 * p, 500); },
+    },
+  };
+  function fate(kind, phase, x, y, z, a, b, c) {
+    const F = FATE[kind];
+    if (!F || !F[phase]) return;
+    clock = performance.now();
+    if (phase === 'tray') { for (let i = 0; i < n(14); i++) glint(x + rnd(-0.25, 0.25), y + rnd(0, 0.6), z + rnd(-0.25, 0.25), '#fff2c0', 0.11, rnd(300, 700), rnd(0.2, 1)); }
+    else F[phase](x, y, z, a, b, c);
+    o.wake();
+  }
+  // a short spotlight: the room dims round a point and a warm light falls on it (the beaten
+  // king, hanging in the air before he falls)
+  const SPOT = { spot: { dur: 1400, run(e, t) { const k = smooth(0, 250, t) * (1 - smooth(900, 1400, t)); e.light = { point: [e.x, 2.6, e.z], color: e.color || '#fff0d0', power: 30 * k, dim: 0.45 * k, tint: e.tint || '#8a7aa0' }; } } };
+
   // ------------------------------------------------------------------ lighting the table
   // The table's lights are lent to the effect for a frame: scene.js asks light() before it
   // draws and puts everything back after. The storm's darkness eases in and out; flashes are sharp.
@@ -660,6 +1060,11 @@ function ChacklateElements(THREE, o) {
       for (const e of effects) if (STORMS[e.kind] && e.S === STORMS[e.kind]) e.calm = clock;
       return start(STORMS, kind, x, z, opt);
     },
+    // the effect's touch on the pieces themselves (see FATE): fate(kind, 'aura' | 'hold' | 'end' |
+    // 'tray', x, y, z, ...)
+    fate,
+    // the room dims round (x, z) for a moment, with a light on it
+    spot(x, z, opt) { return start(SPOT, 'spot', x, z, opt); },
     // Calms a storm early (a tap on the table): nothing new is made and what is there fades
     // within half a second.
     calm() {
@@ -674,12 +1079,12 @@ function ChacklateElements(THREE, o) {
     // Everything gone at once (a new game, the home screen).
     clear() {
       effects.length = 0; parts.length = 0; bolts.length = 0; chipList.length = 0; petalList.length = 0;
-      rings.forEach((r) => { r.visible = false; }); crack.visible = false;
+      rings.forEach((r) => { r.visible = false; }); crack.visible = false; pool.visible = false;
       chips.count = 0; petals.count = 0; glowPts.geometry.setDrawRange(0, 0); mattePts.geometry.setDrawRange(0, 0); boltGeo.setDrawRange(0, 0);
       lit.dim = 0; lit.tintK = 0; lastLight = null;
     },
     storming: () => effects.some((e) => e.S.dur > 3000 && e.calm === undefined),
-    active: () => effects.length > 0 || parts.length > 0 || bolts.length > 0 || chipList.length > 0 || petalList.length > 0 || crack.visible || rings.some((r) => r.visible) || lit.dim > 0.002 || lit.tintK > 0.002,
+    active: () => effects.length > 0 || parts.length > 0 || bolts.length > 0 || chipList.length > 0 || petalList.length > 0 || crack.visible || pool.visible || rings.some((r) => r.visible) || lit.dim > 0.002 || lit.tintK > 0.002,
     // one frame: returns true while anything is still moving
     step(now, dt) {
       clock = now;
@@ -705,7 +1110,7 @@ function ChacklateElements(THREE, o) {
       for (const e of effects) shakeNow = Math.max(shakeNow, e.shake || 0);
       stepParts(dt); stepChips(dt);
       stepPetals(dt, wind.length ? wind[wind.length - 1] : null);
-      stepRings(); stepCrack();
+      stepRings(); stepCrack(); stepPool();
       lastLight = light(dt);
       if (!parts.length) { glowPts.geometry.setDrawRange(0, 0); mattePts.geometry.setDrawRange(0, 0); }
       if (!bolts.length) boltGeo.setDrawRange(0, 0);
@@ -759,6 +1164,8 @@ ChacklateElements.ROOMS = {
   saturn: { strike: 'lightning', storm: 'petals', petals: ['#ffffff', '#d8ecff', '#f4e0b0', '#a8c8ff'] },
   burj: { strike: 'fire', storm: 'petals', petals: ['#f4d27a', '#ffe8b0', '#ffffff', '#e8c06a'] },
 };
+// every family has a capture strike and a win storm
+ChacklateElements.FAMILIES = ['fire', 'lightning', 'petals', 'stone', 'melt', 'freeze', 'fireworks', 'weld', 'vortex', 'burst', 'bloom'];
 ChacklateElements.STRIKE_MS = 3000;
 ChacklateElements.STORM_MS = 10000;
 if (typeof module !== 'undefined') module.exports = ChacklateElements;
