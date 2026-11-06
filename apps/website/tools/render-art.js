@@ -37,14 +37,7 @@ const fs = require('fs');
 for (const t of ['k', 'q', 'r', 'b', 'n', 'p']) {
   out['fx-piece-' + t] = 'data:image/webp;base64,' + fs.readFileSync(path.join(root, 'apps/web-prototype/src/art/piece-' + t + '.webp')).toString('base64');
 }
-// Passport stamps: each place's landmark, as the game draws it, inked inside a double ring.
-for (const e of C.eras) {
-  const ink = '#d8a447';
-  out['stamp-' + e.id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">' +
-    '<circle cx="100" cy="100" r="92" fill="none" stroke="' + ink + '" stroke-width="5"/>' +
-    '<circle cx="100" cy="100" r="81" fill="none" stroke="' + ink + '" stroke-width="1.6" stroke-dasharray="3 4"/>' +
-    '<g transform="translate(24 62) scale(0.38)"><path d="' + ART.LANDMARKS[e.landmark] + '" fill="' + ink + '" fill-rule="evenodd"/></g>' +
-    '<path d="M44 138h112" stroke="' + ink + '" stroke-width="2.4"/></svg>');
-}
+// Place badges: each landmark in colour, in its own sky, inside a gold bezel (tools/place-icons.js).
+const ICONS = require('./place-icons.js');
+for (const e of C.eras) out['icon-' + e.id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ICONS.icon(e.id));
 process.stdout.write(JSON.stringify(out));
