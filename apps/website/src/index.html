@@ -100,9 +100,11 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .feats { list-style: none; display: flex; justify-content: center; margin: 0 auto 34px; padding: 0; }
 .feats li { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 150px; padding: 2px 22px; color: #f6ead8; font: 500 16px/1.2 var(--sans); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95); }
 .feats li + li { border-left: 1px solid rgba(232, 192, 112, 0.35); }
-.feats svg { width: 40px; height: 40px; fill: none; stroke: var(--gold-2); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(232, 192, 112, 0.45)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8)); }
-.feats svg .fill { fill: rgba(246, 220, 156, 0.35); stroke: none; }
-.feats li:first-child svg .fill { fill: var(--gold-2); }
+.ic3d { display: block; flex: none; object-fit: contain; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45)); transition: transform .4s cubic-bezier(.2, .8, .2, 1.2); }
+.feats .ic3d { width: 64px; height: 64px; margin: -6px 0 -4px; }
+.feats li:hover .ic3d, .ticks li:hover .ic3d, .lux:hover > .ic3d { transform: translateY(-3px) scale(1.06) rotate(-3deg); }
+.ticks .ic3d { width: 52px; height: 52px; margin: -4px 0 -2px; }
+.earn-cards .ic3d, .safe .ic3d { width: 64px; height: 64px; margin: -4px 0 12px -4px; }
 .feats b { font: 600 17px/1 var(--caps); color: var(--gold-2); }
 .btn.big { min-height: 60px; padding: 0 44px; font-size: 15px; }
 .btn.big svg { width: 20px; height: 20px; }
@@ -122,7 +124,6 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .coach-card p { margin: 0; font: 500 20px/1.35 var(--serif); transition: opacity .35s; }
 .ticks { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 560px; }
 .ticks li { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px 13px; border-radius: 16px; border: 1px solid var(--line); background: rgba(20, 12, 9, 0.84); font-size: 14px; line-height: 1.3; color: #eadccd; text-align: center; text-wrap: balance; }
-.ticks svg { width: 24px; height: 24px; color: var(--gold); flex: none; }
 
 /* ---------- numbers ---------- */
 .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 54px; }
@@ -213,7 +214,6 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .minihead .grule { margin-top: 14px; width: 80px; }
 .earn-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .earn-cards .lux { padding: 24px 22px; }
-.earn-cards svg { width: 28px; height: 28px; color: var(--gold); margin-bottom: 14px; }
 .earn-cards h4 { margin: 0; font: 600 21px/1.2 var(--serif); color: var(--ink); }
 .earn-cards p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
 .promise { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 28px 0 0; font: 600 italic clamp(20px, 2.2vw, 24px)/1.3 var(--serif); color: var(--gold-2); text-align: center; }
@@ -263,7 +263,6 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 /* ---------- families ---------- */
 .safe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 46px; }
 .safe div { padding: 24px 22px; }
-.safe svg { width: 26px; height: 26px; color: #9fe0c8; margin-bottom: 14px; }
 .safe p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
 .links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
 
@@ -424,7 +423,7 @@ html.nonlatin body { line-height: 1.75; }
   .feats { display: grid; grid-template-columns: repeat(2, 1fr); row-gap: 18px; max-width: 360px; }
   .feats li { min-width: 0; padding: 2px 10px; font-size: 15px; }
   .feats li:nth-child(3) { border-left: 0; }
-  .feats svg { width: 34px; height: 34px; }
+  .feats .ic3d { width: 52px; height: 52px; }
   .btn.big { min-height: 54px; padding: 0 36px; }
   .wordmark { font-size: 13px; letter-spacing: 0.5em; }
   .btn { width: 100%; max-width: 360px; }
@@ -497,14 +496,14 @@ html.nonlatin body { line-height: 1.75; }
   <div class="inner">
     <span class="crest big"><img src="@@IMG:crest@@" alt="" width="122" height="122"></span>
     <p class="wordmark">Chackmate</p>
-    <h1>Chess <em>for all ages.</em></h1>
+    <h1>Chess, <em>through the ages.</em></h1>
     <span class="hero-rule" aria-hidden="true"></span>
     <p class="lede">From the timeless game to today.</p>
     <ul class="feats">
-      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 9.5A3.5 3.5 0 0 1 8.5 6h15A3.5 3.5 0 0 1 27 9.5v9a3.5 3.5 0 0 1-3.5 3.5H15l-5.5 4.5V22h-1A3.5 3.5 0 0 1 5 18.5z"/><path class="fill" d="M16 8.6l1.3 3.9 3.9 1.3-3.9 1.3-1.3 3.9-1.3-3.9-3.9-1.3 3.9-1.3z"/><path class="fill" d="M22.3 9.2l.5 1.4 1.4.5-1.4.5-.5 1.4-.5-1.4-1.4-.5 1.4-.5z"/></svg><span>AI coach</span></li>
-      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8c4-1.8 8-1.8 12 1v16c-4-2.8-8-2.8-12-1z"/><path d="M16 9c4-2.8 8-2.8 12-1v16c-4-1.8-8-1.8-12 1"/><path d="M7.5 12.5c1.9-.6 3.8-.5 5.5.3M7.5 16.5c1.9-.6 3.8-.5 5.5.3M19 12.8c1.7-.8 3.6-.9 5.5-.3"/></svg><span><b>@@N:lessons@@</b> lessons</span></li>
-      <li><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><path d="M5 16h22M16 5c3.2 3 4.6 6.6 4.6 11S19.2 24 16 27c-3.2-3-4.6-6.6-4.6-11S12.8 8 16 5z"/></svg><span>Play online</span></li>
-      <li><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="5" width="22" height="22" rx="2"/><path d="M5 12.3h22M5 19.7h22M12.3 5v22M19.7 5v22"/><path class="fill" d="M5.6 5.6h6.7v6.7H5.6zM19.7 5.6h6.7v6.7h-6.7zM12.3 12.3h7.4v7.4h-7.4zM5.6 19.7h6.7v6.7H5.6zM19.7 19.7h6.7v6.7h-6.7z"/></svg><span><b>@@N:boards@@</b> boards</span></li>
+      <li><img class="ic3d" src="@@IMG:ic-coach@@" alt="" width="56" height="56"><span>AI coach</span></li>
+      <li><img class="ic3d" src="@@IMG:ic-lessons@@" alt="" width="56" height="56"><span><b>@@N:lessons@@</b> lessons</span></li>
+      <li><img class="ic3d" src="@@IMG:ic-online@@" alt="" width="56" height="56"><span>Play online</span></li>
+      <li><img class="ic3d" src="@@IMG:ic-boards@@" alt="" width="56" height="56"><span><b>@@N:boards@@</b> boards</span></li>
     </ul>
     <div class="cta">
       <a class="btn gold big" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a>
@@ -522,9 +521,9 @@ html.nonlatin body { line-height: 1.75; }
     </div>
     <div class="coach-card glass"><img src="@@ART:coach@@" alt="@@COACHFULL@@" width="72" height="72"><div><b><span class="cc-move" id="cmove">White: pawn to e4</span></b><p id="cline">Pawn to e4 grabs the centre and opens a road for your queen and bishop.</p></div></div>
     <ul class="ticks">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4h0A2.5 2.5 0 0 1 4 13.5z"/><path d="M8.5 8.5h7M8.5 11.5h4.5"/></svg><span>Explains each move</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5c3-1.4 6-1.4 9 .8v13c-3-2.2-6-2.2-9-.8z"/><path d="M12 6.3c3-2.2 6-2.2 9-.8v13c-3-1.4-6-1.4-9 .8"/></svg><span>Reads lessons aloud</span></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.8 16a5 5 0 0 1 6.4 0"/><circle cx="12" cy="19.2" r="1" fill="currentColor"/><path d="M3.5 3.5l17 17"/></svg><span>No internet needed</span></li>
+      <li><img class="ic3d" src="@@IMG:ic-explain@@" alt="" width="44" height="44"><span>Explains each move</span></li>
+      <li><img class="ic3d" src="@@IMG:ic-aloud@@" alt="" width="44" height="44"><span>Reads lessons aloud</span></li>
+      <li><img class="ic3d" src="@@IMG:ic-offline@@" alt="" width="44" height="44"><span>No internet needed</span></li>
     </ul>
   </div>
   <div></div>
@@ -585,10 +584,10 @@ html.nonlatin body { line-height: 1.75; }
   <div class="earn">
     <div class="minihead reveal"><h3>Play for it</h3><span class="grule" aria-hidden="true"></span></div>
     <div class="earn-cards">
-      <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v4M8 21h8M9 18h6"/></svg><h4>Beat the champions</h4><p>Win a place's chess set, board and room by beating its champion.</p></div>
-      <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-7-4-7 4z"/><path d="M9 8h6M9 12h6"/></svg><h4>Season pass</h4><p>@@N:tiers@@ tiers of season rewards, earned by playing and never sold one by one.</p></div>
-      <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h4v3a2 2 0 1 0 0 4v1h3v4a2 2 0 1 1 0 4v2H5v-5a2 2 0 1 0 0-4V7h5V3z"/></svg><h4>Daily puzzles and lessons</h4><p>Every puzzle, lesson and daily mission earns XP, and each new level unlocks a piece.</p></div>
-      <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8l4 4 4.5-7 4.5 7 4-4-1.8 10H5.3z"/><path d="M5.5 21h13"/></svg><h4>Premium</h4><p>Opens the premium places and everything in the Premium collection.</p></div>
+      <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-trophy@@" alt="" width="64" height="64"><h4>Beat the champions</h4><p>Win a place's chess set, board and room by beating its champion.</p></div>
+      <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-pass@@" alt="" width="64" height="64"><h4>Season pass</h4><p>@@N:tiers@@ tiers of season rewards, earned by playing and never sold one by one.</p></div>
+      <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-daily@@" alt="" width="64" height="64"><h4>Daily puzzles and lessons</h4><p>Every puzzle, lesson and daily mission earns XP, and each new level unlocks a piece.</p></div>
+      <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-crown@@" alt="" width="64" height="64"><h4>Premium</h4><p>Opens the premium places and everything in the Premium collection.</p></div>
     </div>
     <p class="promise reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Nothing you collect makes you stronger.</span></p>
   </div>
@@ -638,10 +637,10 @@ html.nonlatin body { line-height: 1.75; }
     <h2>Safe for children, <em>by design.</em></h2>
   </div>
   <div class="safe">
-    <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.2-4.4A8 8 0 1 1 21 12z"/><path d="M5 5l14 14"/></svg><h3>No chat</h3><p>Only friendly preset reactions.</p></div>
-    <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg><h3>No ads, no tracking</h3><p>Not in the game, not on this site.</p></div>
-    <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><h3>Parents decide</h3><p>Online play and buying need your yes.</p></div>
-    <div class="lux reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg><h3>Healthy play</h3><p>Time limits, and no pressure to keep going.</p></div>
+    <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-nochat@@" alt="" width="64" height="64"><h3>No chat</h3><p>Only friendly preset reactions.</p></div>
+    <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-noads@@" alt="" width="64" height="64"><h3>No ads, no tracking</h3><p>Not in the game, not on this site.</p></div>
+    <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-parents@@" alt="" width="64" height="64"><h3>Parents decide</h3><p>Online play and buying need your yes.</p></div>
+    <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-healthy@@" alt="" width="64" height="64"><h3>Healthy play</h3><p>Time limits, and no pressure to keep going.</p></div>
   </div>
   <div class="links reveal"><a class="btn small" href="@@PARENT@@" target="_top">Parent page</a><a class="btn small" href="@@PRIVACY@@" target="_top">Privacy for families</a></div>
 </div></section>
