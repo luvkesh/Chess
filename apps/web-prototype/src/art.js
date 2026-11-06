@@ -656,6 +656,21 @@ const ChacklateArt = (() => {
       const [x, y] = mid(1.5, 1.5);
       art += E(x, y, 30, 12, p.rad([[0, '#ff4a40', 0.85], [1, '#ff4a40', 0]], 0.5, 0.5, 0.5)) + piece('k', 1.5, 1.5, 96);
       art += P('M146 54 L126 88 L140 88 L130 120 L160 80 L145 80 L156 54Z', p.gold(), ol('#c08a36', 1.2) + ' filter="url(#lift)"');
+    } else if (kind === 'fork') {
+      // a puzzle solved: the gold knight forks the ebony king and rook, both squares glowing red
+      art += tint(0, 1, '#ff4a40', 0.6) + tint(3, 0, '#ff4a40', 0.6);
+      art += wire([mid(2, 2), mid(2, 1), mid(0, 1)]) + wire([mid(2, 2), mid(3, 2), mid(3, 0)]);
+      art += piece('r', 3, 0, 58, ebony) + piece('k', 0, 1, 74, ebony) + piece('n', 2, 2, 84);
+    } else if (kind === 'opening') {
+      // the first moves: the gold pawns stride into the centre and the ebony pawn meets them
+      for (const [u, v] of [[1, 2], [2, 1]]) art += tint(u, v, '#f2c462', 0.55);
+      art += wire([mid(1, 3.6), mid(1, 2)]) + wire([mid(2.4, 3.6), mid(2, 1)]);
+      art += piece('p', 1.6, 0.2, 54, ebony) + piece('p', 2, 1, 58) + piece('p', 1, 2, 62) + piece('n', 3.3, 3.3, 66);
+    } else if (kind === 'endgame') {
+      // a won ending: the gold rook checkmates the lone ebony king along the edge, its king guarding
+      for (let u = 0; u < 4; u++) art += tint(u, 0, '#ff4a40', u === 1 ? 0.8 : 0.35);
+      art += wire([mid(3.3, 0.2), mid(1.8, 0)]);
+      art += piece('k', 1, 0, 60, ebony) + piece('r', 3.3, 0.2, 62) + piece('k', 0.9, 2.1, 78);
     }
     const out = ring(p, 97) + '<g clip-path="url(#inner)">' + field(p, 87, o.from || '#a3294f', o.to || '#4a0c1e') + board + art +
       C(100, 100, 87, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
