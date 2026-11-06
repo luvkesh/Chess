@@ -217,9 +217,10 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .promise { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 28px 0 0; font: 600 italic clamp(20px, 2.2vw, 24px)/1.3 var(--serif); color: var(--gold-2); text-align: center; }
 .promise svg { width: 24px; height: 24px; flex: none; color: #9fe0c8; }
 /* The details: a list of tabs on the left, the chosen one's demos playing on the right */
-.fx { display: grid; grid-template-columns: minmax(220px, 290px) minmax(0, 1fr); gap: 28px; align-items: start; max-width: 1080px; margin: 0 auto; }
+/* the list runs the full height of the panel beside it: its tabs share the height evenly */
+.fx { display: grid; grid-template-columns: minmax(220px, 290px) minmax(0, 1fr); gap: 28px; align-items: stretch; max-width: 1080px; margin: 0 auto; }
 .fx-tabs { display: flex; flex-direction: column; gap: 10px; }
-.fx-tabs button { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 6px 16px 6px 7px; border-radius: 16px; border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255, 235, 215, 0.05), rgba(255, 235, 215, 0.015)); color: var(--muted); font: 600 19px/1.15 var(--serif); text-align: left; cursor: pointer; transition: border-color 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s; }
+.fx-tabs button { flex: 1 1 0; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 6px 16px 6px 7px; border-radius: 16px; border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255, 235, 215, 0.05), rgba(255, 235, 215, 0.015)); color: var(--muted); font: 600 19px/1.15 var(--serif); text-align: left; cursor: pointer; transition: border-color 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s; }
 .fx-tabs button[aria-selected="true"] { color: var(--ink); border-color: rgba(246, 220, 156, 0.85); background: linear-gradient(180deg, rgba(232, 192, 112, 0.2), rgba(232, 192, 112, 0.06)); box-shadow: inset 0 0 0 1px rgba(246, 220, 156, 0.35), 0 12px 30px rgba(0, 0, 0, 0.4); }
 .fx-tabs button:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 3px; }
 @media (hover: hover) { .fx-tabs button:hover { color: var(--ink); border-color: rgba(232, 192, 112, 0.55); } }
@@ -462,7 +463,7 @@ html.nonlatin body { line-height: 1.75; }
   .minihead { margin: 56px 0 24px; }
   .fx { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .fx-tabs { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px 6px; }
-  .fx-tabs button { flex-direction: column; justify-content: flex-start; gap: 6px; width: calc(25% - 5px); min-height: 0; padding: 8px 2px 9px; border-radius: 14px; font-size: 14px; line-height: 1.1; text-align: center; }
+  .fx-tabs button { flex: none; flex-direction: column; justify-content: flex-start; gap: 6px; width: calc(25% - 5px); min-height: 0; padding: 8px 2px 9px; border-radius: 14px; font-size: 14px; line-height: 1.1; text-align: center; }
   .fx-ic { width: 44px; height: 44px; }
   .fx-ic.snd svg { padding: 11px; }
   .fx-panel { padding: 18px 16px 16px; border-radius: 18px; }
@@ -1051,7 +1052,7 @@ html.nonlatin body { line-height: 1.75; }
   // ---------------------------------------------------------------- the details
   // A tab for each kind of extra; the chosen tab's two demos play one after the other. They are
   // drawn in 2D on a little board with the game's own gold pieces, in each item's colours from the
-  // catalog, and "Hear it" knocks with the sound packs' recipes from audio.js. Nothing plays while
+  // catalog, and "Hear it" plays the game's own recorded sound packs. Nothing plays while
   // the section is off screen. With reduced motion each demo is one still frame and the pips switch.
   (function () {
     var root = $('fx');
@@ -1333,7 +1334,7 @@ html.nonlatin body { line-height: 1.75; }
         function land(p) {
           var o = P(p.u + 0.5, p.v + 0.5);
           for (var i = 0; i < 3; i++) parts.push({ x: o.x, y: o.y, vx: 0, vy: 0, g: 0, drag: 0, life: 1.1 + i * 0.25, age: -i * 0.12, size: o.k, c: col, shape: 'ring', add: true, alpha: 0.9 });
-          if (sound && visible && !reduce && scene && scene.live) knock(pack);
+          if (sound && visible && !reduce && scene && scene.live) knock(pack, p.t);
         }
         return {
           still: 1.35,
@@ -1400,41 +1401,52 @@ html.nonlatin body { line-height: 1.75; }
       g.restore();
     }
 
-    // ------------------------------------------------ sound: the game's own knock, on request
-    var PACKS = (function () {
-      /*PACKS*/
-      return PACKS;
-    })();
-    var sound = false, ac = null, nb = null;
-    function knock(pack) {
-      if (!ac) return;
-      var p = PACKS[pack] || PACKS.wood, now = ac.currentTime + 0.01, weight = 0.9, k = 0.96 + Math.random() * 0.08;
-      var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = p.felt; lp.connect(ac.destination);
-      var s = ac.createBufferSource(); s.buffer = nb;
-      var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = p.click[0] * k; bp.Q.value = p.click[1];
-      var ng = ac.createGain(), dur = 0.025 + weight * 0.02;
-      ng.gain.setValueAtTime(0.55 * p.gain * weight, now); ng.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-      s.connect(bp).connect(ng).connect(lp); s.start(now, Math.random() * 0.5, dur + 0.05);
-      p.body.forEach(function (b) {
-        var o = ac.createOscillator(), og = ac.createGain(), d = b[2] * (0.8 + weight * 0.4);
-        o.frequency.value = b[0] * k;
-        og.gain.setValueAtTime(0.0001, now); og.gain.exponentialRampToValueAtTime(b[1] * p.gain * weight, now + 0.0015); og.gain.exponentialRampToValueAtTime(0.0001, now + d);
-        o.connect(og).connect(lp); o.start(now); o.stop(now + d + 0.05);
-      });
+    // ------------------------------------------------ sound: the game's own recordings, on request
+    // The same takes the game plays (apps/web-prototype/sfx): four per weight, never the same twice
+    // running, with a touch of pitch and level, so the pawn sounds lighter than the knight.
+    var SFX = /*SFX*/null;
+    var TIER = { k: 'L1', q: 'L1', r: 'L2', b: 'L2', n: 'L2', p: 'L3' };
+    var sound = false, ac = null, banks = {};
+    function bank(pack) {
+      if (!ac || !SFX[pack]) return null;
+      var b = banks[pack];
+      if (!b) {
+        b = banks[pack] = { buf: null, last: {} };
+        try {
+          var bin = atob(SFX[pack].mp3), u = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+          var pr = ac.decodeAudioData(u.buffer, function (buf) { b.buf = buf; }, function () {});
+          if (pr && pr.catch) pr.catch(function () {});
+        } catch (e) { /* sound is optional */ }
+      }
+      return b.buf ? b : null;
+    }
+    function knock(pack, piece) {
+      var b = bank(pack);
+      if (!b) return;
+      var tier = TIER[piece] || 'L2', takes = SFX[pack].clips[tier], i = Math.floor(Math.random() * takes.length);
+      if (i === b.last[tier]) i = (i + 1 + Math.floor(Math.random() * (takes.length - 1))) % takes.length;
+      b.last[tier] = i;
+      var s = ac.createBufferSource(), g = ac.createGain();
+      s.buffer = b.buf; s.playbackRate.value = 0.97 + Math.random() * 0.06;
+      g.gain.value = 0.86 + Math.random() * 0.14;
+      s.connect(g).connect(ac.destination);
+      s.start(ac.currentTime + 0.01, Math.max(0, takes[i][0] / 1000 - 0.001), takes[i][1] / 1000 + 0.02);
     }
     hear.addEventListener('click', function () {
       sound = !sound;
       hear.setAttribute('aria-pressed', sound ? 'true' : 'false');
       if (sound && !ac) {
-        try {
-          ac = new (window.AudioContext || window.webkitAudioContext)();
-          nb = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
-          var d = nb.getChannelData(0);
-          for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-        } catch (e) { ac = null; }
+        try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; }
       }
       if (ac && ac.state === 'suspended') ac.resume();
-      if (sound) knock(FX_ITEMS()[idx].data.pack);
+      if (!ac) return;
+      // decode both packs now; the first landing plays as soon as its pack is ready
+      Object.keys(SFX).forEach(bank);
+      if (sound) {
+        var pack = FX_ITEMS()[idx].data.pack, tries = 0;
+        (function first() { if (bank(pack)) knock(pack, 'n'); else if (tries++ < 20) setTimeout(first, 50); })();
+      }
     });
 
     // ------------------------------------------------ playing them
