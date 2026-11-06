@@ -1,0 +1,802 @@
+{
+ "3b96c9c8": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Regency Gilt 是为海边的一座皇家夏宫而做的。黑漆和白漆擦得像镜子一样亮，王冠和珍珠贴着真正的金箔。每一盘棋都像宫殿里的一场派对。"
+ },
+ "ad1de6be": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这是经典之作！Staunton 套装用黄杨木和乌木做成，早在 1849 年就用车床旋制、手工雕刻。世界上几乎每一套国际象棋都借鉴过它。"
+ },
+ "c048ea34": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Carrara and Nero 是真正的石头。来自意大利的白色大理石，和米开朗基罗雕刻用的是同一种，对上来自西班牙的闪亮黑色大理石。摸起来凉凉的，放在棋盘上咔哒咔哒响，好听极了。"
+ },
+ "8ab7e956": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一位巧克力师傅把这套棋子放在店铺橱窗里！亮闪闪的金色配上深色的可可漆，擦得锃亮，看起来好吃极了。不过请别真的尝哦。"
+ },
+ "51cde559": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Jade and Onyx 又平静又清凉。浅绿色的玉，几千年来一直受中国人喜爱，对上光滑的黑色缟玛瑙。这是一套给聪明棋手的安静棋子。"
+ },
+ "276fd59c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这套棋子应该放进奖杯柜。抛光的金子对上清冷的铂金，每一方都用另一方镶边。这是真正冠军的棋子。"
+ },
+ "6d9895d8": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你知道吗？红宝石巧克力是真的有！它是粉色的，来自特别的可可豆。在这里，它对上最深色的巧克力，光亮又顺滑。"
+ },
+ "650eff2c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Milk and Dark 亮得像一块全新的巧克力。一边是香滑的牛奶巧克力，另一边是浓郁的黑巧克力。这是“可可丰收”的最高奖品。"
+ },
+ "d3d718bd": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "金色焦糖和新鲜奶油，王冠和鬃毛贴着金箔。它柔和、温暖又甜美，就像它的名字一样。来自“可可丰收”的一份礼物。"
+ },
+ "ee29dea5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "看它闪闪发光！Crystal Jewels 像珠宝店橱窗里的宝石一样切割，透明水晶对上墨黑色。每种棋子都戴着自己颜色的宝石，所以你一眼就能认出来。"
+ },
+ "f877545a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Celestial Opal 里面藏着一道彩虹。白色和黑色的蛋白石，镶在银子里，撒满金色的星星。找找行星、月亮，还有马身上的彗星。"
+ },
+ "992b3b78": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Peacock Court 是最骄傲的一套棋子。象牙色和孔雀蓝珐琅镶在金子里，有展开的尾巴和闪亮的羽毛眼睛。每个棋子都准备好炫耀一番。"
+ },
+ "708eaf4c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "国际象棋起源于印度，是一种有大象、马和士兵的战斗游戏。Royal Army 把它们带了回来，用檀香木和乌木雕刻，穿着丝绸长袍和金色盔甲。这就是国际象棋最初的样子。"
+ },
+ "9212a01f": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哔哔啵啵！Robot Squad 是用闪亮的玩具塑料和亮晶晶的铬合金做的，眼睛会发光。每个机器人都戴着自己棋子的徽章，所以你总能分清谁是谁。"
+ },
+ "d16a0bf0": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "来海底吧！Coral Kingdom 用珍珠母雕刻而成，有人鱼、章鱼、海马和珊瑚城堡。它们的尾巴像鱼鳞一样闪闪发光。"
+ },
+ "e4f73c52": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Walnut and Maple 是一块真正的木头棋盘，边上有一圈金线。温暖、简单又漂亮。"
+ },
+ "e75865aa": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Cocoa and Cream 的格子像巧克力和奶油，中间还有细细的覆盆子线。好好吃的样子！"
+ },
+ "1c32525d": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "绿色和浅黄色，世界各地国际象棋俱乐部和比赛的颜色。这就是冠军们用的棋盘。"
+ },
+ "6200dc71": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "白色和黑色的大理石，像宫殿的地板一样光亮。你的棋子会在上面滑来滑去。"
+ },
+ "2c512437": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "深色玫瑰木和蜂蜜色的格子，用真正的金箔镶框。灯光暗下来时，它会发光。"
+ },
+ "832fee2e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "带玉纹的绿色大理石，旁边是温暖的象牙色石头。就像在花园里下棋一样。"
+ },
+ "20efed48": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "黑曜石是火山里的玻璃！烟灰色又亮晶晶，有铬合金边，到处都是倒影。"
+ },
+ "8855f56a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Sakura Lacquer 是粉色的，像春天的樱花。它和 Tokyo Sky Garden、Robot Squad 是一套。"
+ },
+ "9512a6b4": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "粉色和蜂蜜色的砂岩，来自粉红之城斋浦尔。摸起来暖暖的，像阳光明媚的下午。"
+ },
+ "a16088a7": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "红宝石色漆和浅色果仁糖格子，中间镶着金。又甜又华丽。"
+ },
+ "b456bfa9": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "黑漆和象牙色，每一条线都描着金。精致得可以下一盘皇家棋局。"
+ },
+ "e8c7523a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "来自“可可丰收”的金色橡木。如果棋盘有味道，它闻起来就像秋天。"
+ },
+ "7f3e9e64": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这些格子的颜色像成熟的可可荚和可可豆。巧克力就是从那里来的！"
+ },
+ "9f0d835e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "沙漠砂岩和蓝色青金石，外框刻着象形文字。配得上法老。"
+ },
+ "2bb07a1d": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "白色大理石和绿色石头，四周都是希腊回纹。很有雅典的味道。"
+ },
+ "de797fb5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "温暖的洞石和灰色大理石，配紫色斑岩和青铜外框。古罗马的石头。"
+ },
+ "0ca7785d": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "白色大理石上镶着用小石头拼成的花朵，嵌在红色砂岩里，就像泰姬陵一样。"
+ },
+ "1f3110be": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "黑漆和淡色丝绸，配上金线和红色剔红漆外框。就像紫禁城一样。"
+ },
+ "c08057ca": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "镜面玻璃和闪亮的金点玻璃，是穆拉诺的玻璃匠人一次幸运的意外发现的！"
+ },
+ "9cc8c7e6": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "蓝灰色和白色的大理石，配国王木外框，就像巴黎的豪宅一样。"
+ },
+ "8835164d": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "玫瑰粉色的石头和白色缟玛瑙，配来自乌拉尔山的绿色旋纹孔雀石外框。"
+ },
+ "c4ac8f60": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "条纹乌木和闪亮的铬合金，直接来自 1930 年代纽约的一间豪华顶层公寓。"
+ },
+ "eab40ae5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Grand Cocoa Salon 很温馨，有蜡烛、水晶吊灯和噼啪作响的炉火。这是我最喜欢安静下棋的地方。"
+ },
+ "b311fc3e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Midnight Library 在星光闪烁的蓝色夜空下摆满了旧书架。最适合下一盘动脑筋的棋。"
+ },
+ "e015e8e5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Marble Hall 是白色和金色的，明亮得像早晨。在这里，每一步棋都显得很重要。"
+ },
+ "59f1824a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "Harvest Loft 温暖又洒满金色的阳光。就像丰收时节在谷仓里下棋。"
+ },
+ "ce8c24db": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "在日落时分下棋，就在金字塔和狮身人面像下面！你周围的沙子都闪着橙色的光。"
+ },
+ "446e88eb": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一排大理石柱廊，帕特农神庙就在山上。你几乎能听到哲学家们在思考。"
+ },
+ "59f80ed4": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的棋桌就在罗马斗兽场的场地上，每一层看台上都燃着火把。多好的战场啊！"
+ },
+ "668b40bc": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "长长水池边的花园，泰姬陵在月光下闪闪发光。好安静啊。"
+ },
+ "a053f5ba": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "红漆和金子，正对着紫禁城的大殿。一间配得上皇帝的书房。"
+ },
+ "83938870": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "大运河上的一个阳台，能看到里亚尔托桥和滑过的贡多拉。Ciao，威尼斯！"
+ },
+ "9f0a8efe": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一间宫殿舞厅，外面是雪中五彩的洋葱头圆顶。既温馨又宏伟。"
+ },
+ "afae4fd3": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "时代广场上方的屋顶，被霓虹灯的海洋包围。这座城市从不睡觉，这盘棋也一样！"
+ },
+ "750cd699": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "就在埃菲尔铁塔下的花园露台，为世界博览会点亮了灯光。Ooh la la！"
+ },
+ "372cb316": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "噗，噗，砰：棋子鼓起来，炸成可可粉和彩纸！"
+ },
+ "d145721e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "简单朴素。没有闪光，只有着法。"
+ },
+ "c8f61222": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "嗞嗞！白热的一触和一股金色火花喷泉，就像真正的焊工。"
+ },
+ "42cfc2ae": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一朵红宝石玫瑰把棋子包起来，然后一圈又一圈地绽放。真美！"
+ },
+ "23fe4f2e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "转呀转，不见了：墨水漩涡让棋子越转越小。当当！"
+ },
+ "944a661a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "嗖嗖好冷！棋子被冻得结结实实，然后碎成闪亮的冰块。"
+ },
+ "eb93fc0c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哎呀，它在融化！棋子化成一摊亮晶晶的巧克力，好好吃！"
+ },
+ "56ead813": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "三，二，一，嗖：棋子像火箭一样冲上去，像烟花一样炸开！"
+ },
+ "03911e2b": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "呼！每次吃子都会迸发出火焰和飞舞的火星。"
+ },
+ "70c808c1": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "咔嚓！每次吃子都有一道闪电落下。"
+ },
+ "71b68512": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每次吃子都有花瓣旋转飞起、绽放开来。好漂亮！"
+ },
+ "b833557c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "咔嚓！格子裂开，碎石飞溅。"
+ },
+ "b74231cc": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "彩纸炮、砰砰的气球，还有为你的国王洒下的彩纸雨。派对时间！"
+ },
+ "39745dae": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "安静地赢下来，像一位真正的绅士。有时候一个微笑就够了。"
+ },
+ "c7a14779": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "火花从每个角落迸发，棋盘像熔炉一样发光。哇！"
+ },
+ "c662d190": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "桌子四周都是火箭，像排灯节之夜一样明亮。砰，你赢了！"
+ },
+ "b1996882": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "玫瑰在棋盘四周盛开，一朵超大的玫瑰在你的国王上方绽放。"
+ },
+ "67e9ab2d": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "为丰收节准备的金色烟花。值得欢呼的胜利！"
+ },
+ "93121976": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "棋盘周围一圈火环，天空中绽放火焰之花。你赢了！"
+ },
+ "cfb67041": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "雷云翻滚，一道闪光为你的王加冕。万岁！"
+ },
+ "5d7e3ddf": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一阵花瓣绕着棋盘跳舞，庆祝你的胜利。哇哦！"
+ },
+ "77e95a32": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "石头和金粉绕着棋盘旋转，然后金光为你的王加冕！"
+ },
+ "8a46c823": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个巨大的墨水漩涡绕着棋盘旋转，然后在一阵星光中猛地合上！"
+ },
+ "a4e760db": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "呼，暴风雪来了！雪花绕着桌子飞旋，一顶冰冠在你的国王头上闪闪发光。"
+ },
+ "39943cf5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的国王变成了巧克力喷泉！哗啦哗啦，真美味。"
+ },
+ "81df1c11": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个真正的比赛用棋钟，有发光的绿色显示屏。滴答，滴答，该你走了！"
+ },
+ "955864d6": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "温暖的琥珀色数字，像非常古老的钟里那种发光的管子。"
+ },
+ "903bcc6e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个红宝石色漆面的棋钟，有柔和的粉色数字。很漂亮，但照样准时。"
+ },
+ "b3666558": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一块奶油色表面的金色计时码表，像一块高级手表。"
+ },
+ "8e2a7305": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "磨砂玻璃和冰蓝色的数字。压力之下也要保持冷静！"
+ },
+ "301bfa42": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "抛光的黄铜，配丰收金色的数字。亮闪闪又暖洋洋。"
+ },
+ "c380466f": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "沉甸甸的木头棋子轻轻敲在毛毡上的声音。这是我在国际象棋里最喜欢的声音。"
+ },
+ "65e94687": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "安静、轻柔的咔嗒声，适合平静又温馨的对局。"
+ },
+ "82fc84c5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "大理石碰大理石的清脆咔哒声。每一步听起来都很重要！"
+ },
+ "ea678558": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步都有水晶风铃声。听起来像魔法一样。"
+ },
+ "ecfc3676": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "没有轨迹，只有干净整齐的走棋。"
+ },
+ "699c1953": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步，后面都会留下一道金粉。亮晶晶！"
+ },
+ "2a316d88": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步，后面都会飘起一缕清凉的薄荷，轻得像一阵微风。"
+ },
+ "e13b8ae5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一条红宝石彗星尾巴。你的棋子像流星一样飞驰！"
+ },
+ "a06f6628": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步，后面都会滴下甜甜的焦糖。"
+ },
+ "432de97e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步，后面都有辛辣的肉桂火花噼啪作响。好炫！"
+ },
+ "3444d9ae": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的棋子身后留下一道火焰。好烫，好烫，好烫！"
+ },
+ "40df91f7": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "滋啦！每走一步都跟着一道噼啪作响的闪电。"
+ },
+ "0882a49e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步，后面都会浮起泡泡。啵，啵！"
+ },
+ "43301206": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步，后面都会飘起粉色花瓣。好柔软！"
+ },
+ "c2df4ad2": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一闪一闪亮晶晶！每走一步，后面都撒下星星。"
+ },
+ "d2971258": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每走一步，后面都跟着闪闪发光的霜花。好冷！"
+ },
+ "215a7443": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一条五颜六色的彩带在你的棋子后面飘扬。哇！"
+ },
+ "4c8dee06": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "红宝石色珐琅上的一个金色的马。献给立刻跳进行动的玩家！"
+ },
+ "4d6136d6": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "绿色珐琅上的一个金色的车。又强又稳，就像你一样。"
+ },
+ "bac3a7a5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "紫色珐琅上的一个金色的象。狡猾、聪明，总是斜着走。"
+ },
+ "1d19680f": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "可可色珐琅上的一个金色的兵。个子小，但它能变成后！"
+ },
+ "b61cafbf": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "金色的后，棋盘上最强大的棋子。"
+ },
+ "4ac3c434": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "金色的王。只有最厉害的玩家才能戴它。"
+ },
+ "8511c210": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "小兔 Truffle，你的第一个朋友。好软好善良！"
+ },
+ "f01a61c6": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "特级大师王冠！只给打败巨龙 Ember 的玩家。"
+ },
+ "7c2d487b": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个来自丰收赛季的成熟可可荚。好甜！"
+ },
+ "2179fc47": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一顶金色麦穗王冠，献给丰收之王或丰收王后。"
+ },
+ "74e4ab76": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "嘿，那是我！戴上我的脸，我们就是双胞胎啦。"
+ },
+ "4a203f53": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "河狸 Bramble，一个忙碌的建筑师，最爱做计划。"
+ },
+ "0c36ffe9": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "松鼠 Zippy，森林里下棋最快的玩家！"
+ },
+ "6bcbabf6": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "乌龟 Shelly。慢而稳才能赢棋。"
+ },
+ "e0b14d60": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "浣熊 Rocco，满肚子聪明的小花招。"
+ },
+ "90e62cab": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "长颈鹿 Ivy，她总能看到整个棋盘。"
+ },
+ "39d2208a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "渡鸦 Onyx，目光敏锐，非常聪明。"
+ },
+ "7c6fabfa": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "巨龙 Ember，最强的棋手。好勇敢！"
+ },
+ "2dc43371": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "猫咪 Miu，来自古埃及。优雅又聪明。"
+ },
+ "b0ecce6c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "猫头鹰 Sophie，来自古希腊。身边最聪明的朋友。"
+ },
+ "3424776e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "狼 Marcus，来自古罗马。勇敢又忠诚。"
+ },
+ "3cb47024": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "大象 Moti，来自莫卧儿印度。温柔又强壮。"
+ },
+ "2a14081d": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "熊猫 Bao，来自明朝中国。沉着、善良，非常有耐心。"
+ },
+ "58417d35": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "飞狮 Marco，威尼斯骄傲的守护者。"
+ },
+ "bf9c37a7": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "公鸡 Gaston，来自巴黎。喔喔喔！"
+ },
+ "eaecfad4": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "熊 Mishka，来自白雪皑皑的俄罗斯。大大的、暖暖的拥抱！"
+ },
+ "33c91474": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "老鹰 Skye，在纽约上空翱翔。飞得高高的！"
+ },
+ "477df493": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "完全没有边框，简简单单。"
+ },
+ "80939062": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个闪亮的青铜头像框，给越来越厉害的玩家。"
+ },
+ "5b6b6d90": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个明亮的银色头像框。你真的越来越厉害了！"
+ },
+ "7c6e42d1": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个金色头像框，只给最投入的玩家。"
+ },
+ "a957f05a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个深红宝石色的头像框，像宝石一样闪闪发光。"
+ },
+ "8b9f9097": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个丰收金色的花环，来自“可可丰收”赛季。"
+ },
+ "d6f85e25": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "可可色珐琅上的金色。浓郁又甜美。"
+ },
+ "a4d23bc8": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一圈发光的可可余烬。温暖又火热！"
+ },
+ "30d14d9e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "真正的珍珠母和柔和的珊瑚粉，配海蓝色漆框。它像贝壳内壁一样闪闪发光。"
+ },
+ "c8104534": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "浅色月光石和星空般的蓝色青金石，外框镶着小小的金星。一个给夜猫子的棋盘。"
+ },
+ "9f0d40de": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "粗糙的石头，手工凿成，完全没有打磨。看起来和巨石阵一样古老。"
+ },
+ "628a9a20": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "晒干的陶土，画着像印度河流域陶工的陶罐那样的圆圈。温暖、朴实，非常非常古老。"
+ },
+ "5f47050d": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "灰色的山石，配一个由拼接石块组成的外框，就像印加人建的墙。"
+ },
+ "6d612c24": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "桦木和深色沼泽橡木，手工切割，周围刻着一圈蛇结。闻起来有森林的味道！"
+ },
+ "87cf8a62": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "浅色白蜡木和深色鸡翅木，配白色大理石外框，上面有像希腊神庙上那样的青铜回纹。"
+ },
+ "ecb72348": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "从太空掉下来的深色陨石，旁边是结霜的冰。外框周围有一圈发光的蓝线。"
+ },
+ "d542e685": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "珍珠白和夜黑色的沙子，封在玻璃下面，配金边。它像夜晚的沙漠一样闪闪发光。"
+ },
+ "efbe90e2": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "东京屋顶上的樱花花园，远处是富士山。城市在你脚下闪闪发光。"
+ },
+ "ee3249e2": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "布鲁塞尔大广场上的一家巧克力店，外面是金色的行会大楼。嗯，闻闻那可可香！"
+ },
+ "91146b4c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "海底的一座珍珠宫殿，有珊瑚塔楼，鱼儿游来游去。别忘了呼吸！"
+ },
+ "cee78ded": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "高高在斋浦尔上方的琥珀堡，有蜂蜜金色的庭院。看看墙上的小圆顶。"
+ },
+ "a2a6c4fd": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "节日之夜的迈索尔宫，被成千上万盏灯点亮。就像在一场庆典里下棋。"
+ },
+ "31cadcd3": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "中国长城上的一座烽火台。长城在青山上蜿蜒，一眼望不到头。"
+ },
+ "88c657ac": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一间舒适的木屋，窗外就是马特洪峰。有人要喝热巧克力吗？"
+ },
+ "57320b10": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "日落时分迪拜高空的一间休息室，正对着世界最高的大楼。好美的风景！"
+ },
+ "78d0059f": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一座玻璃和铁建成的宫殿，里面有棕榈树和水晶喷泉。到处都是阳光。"
+ },
+ "b2d0a951": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "冰岛的一个冰冻湖面，头顶是绿色和紫色的北极光。穿暖和点！"
+ },
+ "d09e281c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "森林上方的一片草地，正对着一座有蓝色塔楼的白色城堡。就像童话故事一样。"
+ },
+ "d411c6a2": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "日出时，在巨大的石圈里面。人们在四千多年前就建好了它！"
+ },
+ "5714be5e": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "摩亨佐-达罗的一个砖砌庭院，这是最早的城市之一，就在大浴场旁边。"
+ },
+ "5a05fb33": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "马丘比丘的一片草地露台，这是云中的印加古城。和羊驼打个招呼吧！"
+ },
+ "bb9c90f5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "松林深处篝火旁的一张木板桌。下面的峡湾里，一艘长船在月光下等待。"
+ },
+ "30175969": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "海神波塞冬的神庙，高高地建在海边的悬崖上。看太阳在群岛上落下吧！"
+ },
+ "72c78965": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "土星的一颗冰冷卫星，一枚火箭在发射台上等待。抬头看，光环占满了整个天空！"
+ },
+ "d9d768f5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "世界最高的大楼哈利法塔的最顶层。我们在云层上面！"
+ }
+}

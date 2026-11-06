@@ -1,0 +1,227 @@
+{
+ "egypt/434ce76f": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido a Egipto, hace más de 3000 años! El gran río Nilo pasa junto a templos y pirámides, y en el palacio el joven faraón Tutankamón está jugando a un juego de tablero llamado senet."
+ },
+ "egypt/05aa8a9f": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "El ajedrez todavía no se había inventado. Aparecería en la India unos dos mil años después. Pero a los egipcios les encantaban los juegos de habilidad, y a Tutankamón lo enterraron con varios tableros de senet."
+ },
+ "egypt/66129f07": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "Soy Miu. ¿Sabes? En el antiguo Egipto los gatos eran muy queridos. Hoy te enseñaré el caballo, la pieza con forma de caballo. ¡Los caballos del faraón tiraban de sus carros dorados!"
+ },
+ "egypt/b6c17807": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "¿A qué juego de tablero jugaba Tutankamón?"
+ },
+ "egypt/e5050ee1": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "El senet es uno de los juegos de tablero más antiguos que conocemos. El ajedrez llegó mucho después."
+ },
+ "greece/498ef1f0": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido a Atenas! En la colina llamada Acrópolis, los constructores están terminando el Partenón, un templo de mármol blanco para la diosa Atenea."
+ },
+ "greece/52c4cbd4": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "Los griegos jugaban a un juego llamado petteia, en el que atrapaban las piezas del otro bando en una cuadrícula. ¡El filósofo Platón escribió sobre él! A los pensadores griegos les encantaban los números y la lógica, igual que a los ajedrecistas."
+ },
+ "greece/89e0046d": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "Soy Sophie. La lechuza era el ave de Atenea, un símbolo de sabiduría. Los jugadores sabios cuentan antes de capturar: un peón vale 1, un caballo o un alfil 3, una torre 5 y una dama 9."
+ },
+ "greece/d9913381": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "¿Cuántos puntos vale una torre?"
+ },
+ "greece/06a08e9b": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "Una torre vale 5: más que un caballo o un alfil, menos que una dama."
+ },
+ "rome/c24b16a6": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a Roma! El emperador Trajano acaba de terminar una gran columna, tallada con una espiral de más de 2500 figuras que sube hasta arriba del todo."
+ },
+ "rome/f006d131": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Los soldados romanos jugaban al ludus latrunculorum, el juego de los soldaditos. Capturabas una pieza enemiga atrapándola entre dos de las tuyas."
+ },
+ "rome/a6fafb7d": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Soy Marcus. En la leyenda más antigua de Roma, una loba cuidó de los gemelos Rómulo y Remo. Una batalla se gana cuando el jefe enemigo queda atrapado. ¡En ajedrez lo llamamos jaque mate!"
+ },
+ "rome/63d87daa": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "¿Qué es el jaque mate?"
+ },
+ "rome/1729b949": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "El jaque mate termina la partida: el rey está en jaque y no tiene salida."
+ },
+ "mughal/5a967731": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a Agra! El emperador Shah Jahan está construyendo el Taj Mahal, una tumba de mármol blanco tan bonita que todavía hoy viene gente de todo el mundo a verla."
+ },
+ "mughal/deb0eccc": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "El ajedrez nació en la India hace unos 1500 años. Se llamaba chaturanga, las cuatro partes de un ejército: soldados de a pie, caballos, elefantes y carros. Hoy son nuestros peones, caballos, alfiles y torres."
+ },
+ "mughal/53d8b539": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Soy Moti. ¡Sí, el alfil antes era un elefante! Como los elefantes en una batalla, las piezas de ajedrez son más fuertes en el centro. Controla el centro y tu ejército podrá ir a cualquier parte."
+ },
+ "mughal/f33e3bbd": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "¿Dónde nació el ajedrez?"
+ },
+ "mughal/c40276e8": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "El ajedrez nació en la India como chaturanga y luego viajó a Persia, al mundo árabe y a Europa."
+ },
+ "ming/4a705097": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido a Pekín! Acaban de terminar la Ciudad Prohibida: un palacio de muros rojos y tejados dorados con cientos de edificios, donde vivía el emperador."
+ },
+ "ming/62267a79": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "En China se juega al xiangqi, un primo del ajedrez. Las piezas son discos planos con caracteres escritos, un río cruza el centro del tablero ¡y los cañones saltan sobre las piezas para capturar!"
+ },
+ "ming/b7152ca2": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "Soy Bao. Los pandas son pacientes, y los jugadores pacientes ven las ensartadas: ataca una pieza grande y, cuando se aparte, captura la pieza que está detrás."
+ },
+ "ming/121eaa44": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "¿Qué cruza el centro de un tablero de xiangqi?"
+ },
+ "ming/23d76725": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "El río separa los dos ejércitos. Algunas piezas se mueven de otra forma cuando lo cruzan."
+ },
+ "venice/04d16d5b": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Bienvenido a Venecia, una ciudad construida sobre el agua, donde la gente viaja en góndola por los canales. En la isla de Murano, los vidrieros soplan el mejor vidrio del mundo."
+ },
+ "venice/6e564a2d": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Hace mucho tiempo, la dama solo podía moverse una casilla en diagonal. Luego, hacia 1475, los jugadores de España e Italia le dieron nuevos poderes: podía moverse cualquier distancia, en cualquier dirección. ¡La gente lo llamó el ajedrez de la dama loca!"
+ },
+ "venice/d3cf1f1b": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Soy Marco. El león alado es el símbolo de Venecia. Un gran poder exige mucho cuidado: si sacas tu dama demasiado pronto, la perseguirán por todo el tablero."
+ },
+ "venice/ae8d8626": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "¿Qué ganó la dama hacia 1475?"
+ },
+ "venice/0931df61": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Ese cambio convirtió a la dama en la pieza más fuerte e hizo el ajedrez mucho más rápido."
+ },
+ "paris/79613060": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a París en 1889! Para la Exposición Universal, la ciudad ha construido la torre más alta de la Tierra, hecha de encaje de hierro. Se llama la torre Eiffel."
+ },
+ "paris/0b4a53a5": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "No muy lejos está el Café de la Régence, donde se jugó al ajedrez durante más de cien años. El gran jugador Philidor aprendió a jugar allí."
+ },
+ "paris/fb9acc2e": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Soy Gaston. El gallo es un símbolo de Francia. Philidor decía que los peones son el alma del ajedrez. ¡Un peón que nadie puede detener puede marchar hasta el final y convertirse en dama!"
+ },
+ "paris/55856ceb": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "¿Cómo llamaba Philidor a los peones?"
+ },
+ "paris/13e6f0fa": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Los peones deciden la forma de la partida, y un peón que llega al otro lado se convierte en dama."
+ },
+ "russia/f1aa8222": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a San Petersburgo! La nieve brilla sobre las cúpulas doradas, y los joyeros reales están haciendo huevos de Pascua enjoyados para la familia del zar."
+ },
+ "russia/0b4d748f": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "A Rusia le encanta el ajedrez. Ha dado muchos campeones del mundo, y sus escuelas de ajedrez son famosas por enseñar el final: la última parte de la partida, cuando quedan pocas piezas."
+ },
+ "russia/b0080480": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Soy Mishka. ¡En el final, hasta el rey se vuelve un luchador! Cuando dos reyes están frente a frente con una casilla entre ellos, lo llamamos la oposición."
+ },
+ "russia/0e1d3bfc": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "En el final, ¿qué debería hacer tu rey?"
+ },
+ "russia/1e6412d7": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Con menos piezas en el tablero, el rey está lo bastante seguro para ayudar, y es una pieza fuerte."
+ },
+ "deco/cdab0cfd": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido a Nueva York en 1930! El edificio Chrysler acaba de convertirse en el más alto del mundo, con una brillante corona de acero hecha de arcos y una aguja afilada."
+ },
+ "deco/b7d9c217": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "La ciudad está llena de clubes de ajedrez, y el Manhattan Chess Club es uno de los más famosos del mundo. El gran campeón cubano José Raúl Capablanca jugó allí."
+ },
+ "deco/05d610f8": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "Soy Skye. Desde lo alto, un águila ve todo el tablero. Los jugadores fuertes se saben de memoria los patrones de jaque mate, así que los descubren en un abrir y cerrar de ojos."
+ },
+ "deco/102ee573": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "¿Qué campeón del mundo de Cuba jugaba en el Manhattan Chess Club?"
+ },
+ "deco/c156822e": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "Capablanca fue campeón del mundo de 1921 a 1927 y era famoso por su estilo claro y sencillo."
+ }
+}

@@ -1,0 +1,917 @@
+{
+ "home.first": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Hola, soy Rooky! Toca El Viaje para viajar en el tiempo conmigo, o toca Partida rápida para jugar con un amigo animal."
+ },
+ "home": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Hola de nuevo! Toca El Viaje para seguir tu aventura, o toca Partida rápida para jugar un rato."
+ },
+ "home.resume": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Tu partida te está esperando! Toca Continuar partida y sigue donde lo dejaste."
+ },
+ "play": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Elige un amigo animal para jugar. Si eres nuevo, empieza con Truffle la conejita. Cada amigo es un poquito más fuerte que el anterior."
+ },
+ "journey": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Cada época es una nueva aventura! Toca una época abierta y conoce al amigo que vive allí."
+ },
+ "learn": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Elige una lección y te enseñaré paso a paso. Empieza por arriba y ve bajando."
+ },
+ "puzzles": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los problemas son pequeñas búsquedas del tesoro. Elige uno y encuentra la mejor jugada."
+ },
+ "training": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Vamos a practicar! Elige una habilidad y la trabajaremos juntos."
+ },
+ "minis": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Los minijuegos son rápidos! Elige uno y supera tu mejor puntuación."
+ },
+ "mini": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Toca el pergamino si necesitas las reglas. ¡Diviértete!"
+ },
+ "openings": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Las aperturas son las primeras jugadas de una partida. Elige una y pruébala en el tablero."
+ },
+ "dojo": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los finales son el final de una partida, cuando quedan pocas piezas. Elige uno y gánalo paso a paso."
+ },
+ "collection": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Esta es tu colección! Toca cualquier cosa para verla de cerca y te contaré todo sobre ella. Luego toca Equipar para ponerla en tu mesa."
+ },
+ "profile": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Este eres tú! Aquí puedes ver tu nivel, tus partidas y tus insignias."
+ },
+ "club": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Bienvenido al Club! Mira en qué puesto estás, sube de liga y encuentra a los amigos con los que juegas usando un código."
+ },
+ "season": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Juega partidas, aprende y resuelve problemas para subir en la temporada. ¡Cada escalón tiene un premio!"
+ },
+ "store": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Esta parte es para adultos. Por favor, pregúntale a un adulto antes de comprar algo."
+ },
+ "review": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Vamos a repasar tu partida. Toca las flechas y avanza jugada a jugada."
+ },
+ "game.white": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Empiezas tú! Toca una de tus piezas y luego toca la casilla adonde quieres llevarla."
+ },
+ "game.black": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu amigo mueve primero. Mira su jugada, ¡y luego te toca a ti!"
+ },
+ "game.check": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Oh, oh, tu rey está en jaque! Ponlo a salvo, bloquea el ataque o captura a la pieza que ataca."
+ },
+ "game.idle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tómate tu tiempo. Si te atascas, toca Pista y te mostraré una buena idea."
+ },
+ "game.over": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Buena partida! Toca Repasar con Rooky para ver tus mejores jugadas, o juega otra vez."
+ },
+ "lesson.steps": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Vamos a aprender! Escucha y mira el tablero. Luego toca Siguiente cuando estés listo."
+ },
+ "lesson.open.board": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Hola, explorador! Toda aventura de ajedrez empieza en el tablero. Escucha y luego toca Siguiente para seguir."
+ },
+ "lesson.open.setup": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Hora de despertar al ejército! Vamos a poner cada pieza en su casa."
+ },
+ "lesson.open.rook-bishop": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Líneas rectas, líneas inclinadas y un rey muy prudente. ¿Listo? ¡Allá vamos!"
+ },
+ "lesson.open.knight": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Boing! El caballo es la única pieza que salta. ¡Mira cómo brinca!"
+ },
+ "lesson.open.pawns": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Peones pequeños, grandes sueños! Llega al otro lado y te conviertes en dama."
+ },
+ "lesson.open.values": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Qué pieza vale más? Vamos a pesarlas, como si fueran un tesoro."
+ },
+ "lesson.open.check": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Oh, oh, el rey está en peligro! Vamos a aprender tres formas de salvarlo."
+ },
+ "lesson.open.checkmate": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Esta es la gorda! El jaque mate gana toda la partida."
+ },
+ "lesson.open.castling": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Una jugada secreta para el rey y la torre! Veamos cómo funciona."
+ },
+ "lesson.open.stalemate": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "No todas las partidas tienen un ganador. ¡Vamos a descubrir por qué!"
+ },
+ "lesson.open.centre": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El centro del tablero es el mejor sitio de la ciudad. ¡Vamos a ocuparlo!"
+ },
+ "lesson.open.king-safety": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Pon al rey bien a salvo y cuidado con una dama traviesa!"
+ },
+ "lesson.open.traps": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Algunas partidas terminan rapidísimo! Aprendamos las trampas para que nunca te atrapen."
+ },
+ "lesson.open.forks": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Una pieza, dos objetivos! Las horquillas son mi truco favorito."
+ },
+ "lesson.open.pins": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Algunas piezas se quedan atrapadas y no pueden moverse! Vamos a clavar y a ensartar."
+ },
+ "lesson.open.discovered": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mueve una pieza y... ¡sorpresa! Otra ataca."
+ },
+ "lesson.open.mates": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Vamos a coleccionar mates famosos, como si fueran pegatinas brillantes!"
+ },
+ "lesson.open.scan": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Hora de hacer de detective! ¿Qué está tramando tu rival?"
+ },
+ "lesson.open.blocking": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Levanta un muro y mantén a tu rey calentito y a salvo!"
+ },
+ "lesson.open.counter": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Te atacan? ¡A veces la mejor respuesta es un ataque más grande!"
+ },
+ "lesson.open.pawn-islands": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "A los peones les gusta estar juntos. Veamos cuáles se quedan solitos."
+ },
+ "lesson.open.passed": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un peón con el camino libre es una superestrella. ¡A empujar!"
+ },
+ "lesson.open.outposts": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Vamos a buscar una casa perfecta para tu caballo, donde nadie lo pueda echar."
+ },
+ "lesson.open.open-files": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡A las torres les encantan los caminos abiertos, y a los alfiles, los cielos despejados!"
+ },
+ "lesson.open.when-to-trade": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Cambiar o guardar? Aprendamos cuándo un cambio te ayuda a ganar."
+ },
+ "lesson.open.three-questions": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Todo gran jugador tiene un plan. ¡Vamos a hacer el tuyo!"
+ },
+ "lesson.open.initiative": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Sigue con las amenazas y marcha hacia el rey!"
+ },
+ "lesson.open.activity": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Las piezas felices trabajan en equipo. ¡Démosles espacio para jugar!"
+ },
+ "lesson.open.king-activity": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Sorpresa! En el final, el rey se convierte en un héroe."
+ },
+ "lesson.open.opposition": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Dos reyes, cara a cara! ¿Quién parpadea primero?"
+ },
+ "lesson.open.lucena": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los finales de torre son complicados, ¡pero conozco dos posiciones mágicas!"
+ },
+ "lesson.open.candidates": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Antes de mover, elige unas cuantas ideas y luego ponlas a prueba."
+ },
+ "lesson.open.visualise": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Cierra los ojos e imagina el tablero. ¡Vamos a ver el futuro!"
+ },
+ "lesson.open.blunder-check": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Un vistazo rápido antes de mover puede salvar toda la partida!"
+ },
+ "lesson.open.combinations": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Ahora vamos a mezclar trucos para hacer fuegos artificiales de verdad!"
+ },
+ "lesson.open.clock": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Tic, tac! Aprendamos a usar bien tu tiempo."
+ },
+ "lesson.open.repertoire": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Elige tus aperturas favoritas y aprende de cada partida!"
+ },
+ "lesson.open.etiquette": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los buenos jugadores también son buenos amigos. Juguemos limpio y con calma."
+ },
+ "lesson.open.table-words": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Vamos a aprender las palabras especiales que dicen los ajedrecistas de todo el mundo!"
+ },
+ "lesson.ex": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Ahora te toca a ti! Mueve una pieza en el tablero para responder."
+ },
+ "lesson.idle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Necesitas ayuda? Toca Pista y te daré una pista."
+ },
+ "lesson.done": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Muy bien, terminaste la lección! Toca el botón dorado para seguir."
+ },
+ "puzzle.start": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Encuentra la mejor jugada! Busca jaques, capturas y amenazas."
+ },
+ "puzzle.wrong": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Buen intento! Míralo otra vez o toca Pista para recibir una ayuda."
+ },
+ "puzzle.idle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Atascado? Toca Pista y te daré una ayuda."
+ },
+ "puzzle.solved": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Lo lograste! Toca Siguiente problema para seguir."
+ },
+ "era.egypt.tale": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido al Antiguo Egipto! Soy Miu. Toca la primera etapa, Los juegos de los faraones, y te contaré una historia."
+ },
+ "era.egypt.lesson": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, La carrera de carros, y aprende algo nuevo."
+ },
+ "era.egypt.puzzles": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "¡Muy bien! Ahora toca El tesoro de la tumba y resuelve mis problemas."
+ },
+ "era.egypt.champion": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "¡Ya estás listo! Toca El desafío de Miu y juega contra mí. ¡Si ganas, el juego Pharaoh's Treasure es tuyo!"
+ },
+ "era.egypt.done": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "¡Me ganaste! El juego Pharaoh's Treasure es tuyo. Toca Todas las épocas y viaja a la Antigua Grecia."
+ },
+ "era.greece.tale": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido a la Antigua Grecia! Soy Sophie. Toca la primera etapa, Los pensadores y sus juegos, y te contaré una historia."
+ },
+ "era.greece.lesson": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, El mercado del ágora, y aprende algo nuevo."
+ },
+ "era.greece.puzzles": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "¡Muy bien! Ahora toca Los ojos de la lechuza y resuelve mis problemas."
+ },
+ "era.greece.champion": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "¡Ya estás listo! Toca El desafío de Sophie y juega contra mí. ¡Si ganas, el juego Olympian Marble es tuyo!"
+ },
+ "era.greece.done": {
+  "who": "sophie",
+  "voice": "ef_dora",
+  "text": "¡Me ganaste! El juego Olympian Marble es tuyo. Toca Todas las épocas y viaja a la Antigua Roma."
+ },
+ "era.rome.tale": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a la Antigua Roma! Soy Marcus. Toca la primera etapa, El juego de los soldaditos, y te contaré una historia."
+ },
+ "era.rome.lesson": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, La muralla de la legión, y aprende algo nuevo."
+ },
+ "era.rome.puzzles": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "¡Muy bien! Ahora toca Atrapa al general y resuelve mis problemas."
+ },
+ "era.rome.champion": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "¡Ya estás listo! Toca El desafío de Marcus y juega contra mí. ¡Si ganas, el juego Imperial Rome es tuyo!"
+ },
+ "era.rome.done": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "¡Me ganaste! El juego Imperial Rome es tuyo. Toca Todas las épocas y viaja a la India mogol."
+ },
+ "era.mughal.tale": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a la India mogol! Soy Moti. Toca la primera etapa, Chaturanga, y te contaré una historia."
+ },
+ "era.mughal.lesson": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, Elefantes al centro, y aprende algo nuevo."
+ },
+ "era.mughal.puzzles": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "¡Muy bien! Ahora toca La horquilla del elefante y resuelve mis problemas."
+ },
+ "era.mughal.champion": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "¡Ya estás listo! Toca El desafío de Moti y juega contra mí. ¡Si ganas, el juego Maharaja's Jade es tuyo!"
+ },
+ "era.mughal.done": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "¡Me ganaste! El juego Maharaja's Jade es tuyo. Toca Todas las épocas y viaja a la China de los Ming."
+ },
+ "era.ming.tale": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido a la China de los Ming! Soy Bao. Toca la primera etapa, Elefantes, cañones y un río, y te contaré una historia."
+ },
+ "era.ming.lesson": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, La lanza de bambú de Bao, y aprende algo nuevo."
+ },
+ "era.ming.puzzles": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "¡Muy bien! Ahora toca La ensartada del panda y resuelve mis problemas."
+ },
+ "era.ming.champion": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "¡Ya estás listo! Toca El desafío de Bao y juega contra mí. ¡Si ganas, el juego Ming Porcelain es tuyo!"
+ },
+ "era.ming.done": {
+  "who": "bao",
+  "voice": "ef_dora",
+  "text": "¡Me ganaste! El juego Ming Porcelain es tuyo. Toca Todas las épocas y viaja a Venecia."
+ },
+ "era.venice.tale": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a Venecia! Soy Marco. Toca la primera etapa, La dama gana su poder, y te contaré una historia."
+ },
+ "era.venice.lesson": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, La advertencia del dux, y aprende algo nuevo."
+ },
+ "era.venice.endgame": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "¡Muy bien! Ahora toca Corona una nueva dama y gana el final."
+ },
+ "era.venice.champion": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "¡Ya estás listo! Toca El desafío de Marco y juega contra mí. ¡Si ganas, el juego Murano Glass es tuyo!"
+ },
+ "era.venice.done": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "¡Me ganaste! El juego Murano Glass es tuyo. Toca Todas las épocas y viaja a París."
+ },
+ "era.paris.tale": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a París! Soy Gaston. Toca la primera etapa, El alma del ajedrez, y te contaré una historia."
+ },
+ "era.paris.lesson": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, Peones en marcha, y aprende algo nuevo."
+ },
+ "era.paris.puzzles": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "¡Muy bien! Ahora toca Problemas de café y resuelve mis problemas."
+ },
+ "era.paris.champion": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "¡Ya estás listo! Toca El desafío de Gaston y juega contra mí. ¡Si ganas, el juego Ruby & Pearl es tuyo!"
+ },
+ "era.paris.done": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "¡Me ganaste! El juego Ruby & Pearl es tuyo. Toca Todas las épocas y viaja a la Rusia imperial."
+ },
+ "era.russia.tale": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "¡Bienvenido a la Rusia imperial! Soy Mishka. Toca la primera etapa, La escuela de finales, y te contaré una historia."
+ },
+ "era.russia.lesson": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, Reyes en la nieve, y aprende algo nuevo."
+ },
+ "era.russia.endgame": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "¡Muy bien! Ahora toca La marcha del peón y gana el final."
+ },
+ "era.russia.champion": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "¡Ya estás listo! Toca El desafío de Mishka y juega contra mí. ¡Si ganas, el juego Tsarina's Treasure es tuyo!"
+ },
+ "era.russia.done": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "¡Me ganaste! El juego Tsarina's Treasure es tuyo. Toca Todas las épocas y viaja a Nueva York."
+ },
+ "era.deco.tale": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "¡Bienvenido a Nueva York! Soy Skye. Toca la primera etapa, La ciudad de los clubes de ajedrez, y te contaré una historia."
+ },
+ "era.deco.lesson": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "¡Qué bien escuchaste! Ahora toca la lección, Mates en la azotea, y aprende algo nuevo."
+ },
+ "era.deco.puzzles": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "¡Muy bien! Ahora toca Final con rascacielos y resuelve mis problemas."
+ },
+ "era.deco.champion": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "¡Ya estás listo! Toca El desafío de Skye y juega contra mí. ¡Si ganas, el juego Manhattan Deco es tuyo!"
+ },
+ "era.deco.done": {
+  "who": "skye",
+  "voice": "ef_dora",
+  "text": "¡Me ganaste! El juego Manhattan Deco es tuyo. ¡Qué viaje, recorriendo toda la historia del ajedrez!"
+ },
+ "placement.offer": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Ya jugaste al ajedrez antes? Haz mi pequeña prueba y elegiré tu primera lección y un amigo para jugar. O sáltatela y empezaremos desde el principio."
+ },
+ "placement.q01": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Toca todas las casillas a las que puede llegar la torre. Recuerda: puede capturar una pieza negra, pero no saltar por encima."
+ },
+ "placement.q02": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ahora el caballo. Toca todas las casillas a las que puede saltar."
+ },
+ "placement.q03": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu caballo puede capturar una pieza. Captura la que nadie defiende."
+ },
+ "placement.q04": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Da jaque con tu dama en una casilla donde no la puedan capturar."
+ },
+ "placement.q05": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Encuentra el jaque mate en una jugada."
+ },
+ "placement.q06": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El rey negro está atrapado detrás de sus peones. Encuentra el jaque mate en una jugada."
+ },
+ "placement.q07": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Encuentra una jugada de caballo que ataque al rey y a la torre a la vez."
+ },
+ "placement.q08": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mueven primero las blancas. ¿Puede el rey negro alcanzar al peón antes de que se convierta en dama?"
+ },
+ "placement.q09": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu rival acaba de mover. Encuentra la mejor jugada y sigue."
+ },
+ "placement.q10": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La última, y la más difícil. Encuentra la mejor jugada y sigue."
+ },
+ "placement.r1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Gracias por intentarlo! Empezaremos desde el principio, con cómo se mueven las piezas. ¡Lo aprenderás enseguida!"
+ },
+ "placement.r2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Buen trabajo! Sabes cómo se mueven las piezas, así que empezaremos con el jaque y el jaque mate."
+ },
+ "placement.r3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Muy bien hecho! Conoces las reglas, así que tu camino empieza con las ideas de apertura."
+ },
+ "placement.r4": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Guau, viste la horquilla! Estás listo para la táctica, como las horquillas y las clavadas."
+ },
+ "placement.r5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Increíble, lo encontraste casi todo! Estás listo para aprender defensa y seguridad del rey."
+ },
+ "variants": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡El ajedrez tiene primos por todo el mundo! Elige uno para aprender sus reglas y luego juégalo."
+ },
+ "variant": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Aquí tienes las reglas en una página. Las doradas no son como en el ajedrez. Prueba mi pequeña lección y luego elige un amigo para jugar."
+ },
+ "variant.chaturanga.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Hace mucho tiempo, en la India, el ajedrez tenía otro nombre: chaturanga. Significa las cuatro partes de un ejército. ¡Juguemos a la manera antigua!"
+ },
+ "variant.chaturanga.same": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El rey, el caballo y el carro se mueven igual que nuestro rey, caballo y torre. Los soldados de a pie son los peones."
+ },
+ "variant.chaturanga.mantri": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Al lado del rey está el Mantri, su sabio consejero. Da un pasito en diagonal. ¡Mucho después se convirtió en la dama!"
+ },
+ "variant.chaturanga.gaja": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El Gaja es un elefante de guerra. Salta exactamente dos casillas en diagonal, por encima de lo que haya en medio. Se convirtió en el alfil."
+ },
+ "variant.chaturanga.soldier": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los soldados de a pie avanzan de una casilla en una, incluso en su primera jugada. Un soldado que llega al otro lado se convierte en Mantri."
+ },
+ "variant.chaturanga.castle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "En el chaturanga no hay enroque. Lleva a tu rey a un lugar seguro paso a paso."
+ },
+ "variant.chaturanga.win": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El jaque mate sigue ganando. También ganas si capturas todas las piezas enemigas menos el rey. ¡Y un rey que no puede moverse también pierde!"
+ },
+ "variant.chaturanga.ex.mantri": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Toca todas las casillas a las que puede ir el Mantri."
+ },
+ "variant.chaturanga.ex.gaja": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Toca todas las casillas a las que puede saltar el Gaja."
+ },
+ "variant.chaturanga.ex.bare": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Captura la última pieza de las negras y deja al rey solito."
+ },
+ "variant.chaturanga.ex.promote": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Este soldado de a pie está a punto de llegar al otro lado. ¿En qué se convertirá?"
+ },
+ "variant.chaturanga.ex.stuck": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Encuentra una jugada que deje a las negras sin ninguna jugada. ¡En el chaturanga, eso gana!"
+ },
+ "variant.chess960.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un campeón del mundo llamado Bobby Fischer tuvo una idea divertida: ¡mezclar la última fila antes de cada partida! Se llama Chess960."
+ },
+ "variant.chess960.mirror": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mira con atención. Las piezas negras copian a las blancas, columna por columna, como un espejo. Los peones se quedan donde siempre."
+ },
+ "variant.chess960.order": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La mezcla solo tiene dos reglas. Los alfiles van en casillas de distinto color y el rey está entre las torres."
+ },
+ "variant.chess960.castle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El enroque termina igual que en el ajedrez: el rey en la columna g o en la columna c, con la torre justo a su lado. Para enrocar, mueve tu rey sobre tu torre."
+ },
+ "variant.chess960.think": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Aquí nadie conoce las aperturas, así que piensa desde tu primera jugada. Saca tus piezas y mantén a salvo a tu rey."
+ },
+ "variant.chess960.ex.short": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Enroca en el lado del rey. Pon tu rey sobre la torre de h1."
+ },
+ "variant.chess960.ex.long": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ahora enroca en el lado de la dama, hacia la columna a."
+ },
+ "variant.chess960.ex.land": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Si aquí las blancas enrocan en el lado del rey, ¿dónde cae el rey?"
+ },
+ "variant.chess960.ex.rule": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Qué regla se cumple siempre en Chess960?"
+ },
+ "variant.koth.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Bienvenido al Rey de la Colina! Las cuatro casillas del centro son la colina. Sube allí a tu rey y ganas."
+ },
+ "variant.koth.hill": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Ves las casillas que brillan? d4, e4, d5 y e5. Un paso a cualquiera de ellas gana la partida al instante."
+ },
+ "variant.koth.safe": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Pero un rey nunca puede pisar una casilla que vigila el enemigo. Esta torre vigila la cuarta fila, así que esas casillas de la colina están cerradas."
+ },
+ "variant.koth.block": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Así que vigila también al rey enemigo! Si se acerca a la colina, vigila las casillas de la colina antes de que suba."
+ },
+ "variant.koth.same": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El jaque mate sigue ganando y todas las piezas se mueven igual que en el ajedrez. ¡Ahora, a escalar!"
+ },
+ "variant.koth.ex.climb": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Lleva a tu rey hasta la colina."
+ },
+ "variant.koth.ex.stop": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El rey negro quiere la colina. Detenlo con una jugada de torre."
+ },
+ "variant.koth.ex.guarded": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El alfil vigila una casilla de la colina. Encuentra la segura y sube."
+ },
+ "variant.threecheck.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡En Tres jaques, cada jaque cuenta! Da jaque tres veces y ganas, aunque no haya jaque mate."
+ },
+ "variant.threecheck.count": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El alfil blanco acaba de dar jaque, así que el contador de las blancas marca uno. Los contadores están junto a los nombres de los jugadores."
+ },
+ "variant.threecheck.safe": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Así que mantén a tu rey bien guardado. No abras líneas hacia él demasiado pronto, o los jaques se acumulan muy rápido."
+ },
+ "variant.threecheck.same": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El jaque mate sigue ganando y todas las piezas se mueven igual que en el ajedrez. ¡Vamos a practicar!"
+ },
+ "variant.threecheck.ex.third": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ya diste dos jaques. Da el tercero y gana."
+ },
+ "variant.threecheck.ex.knight": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Dos jaques hechos. ¿Puede tu caballo dar el tercero?"
+ },
+ "variant.threecheck.ex.what": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Qué pasa cuando das tu tercer jaque?"
+ },
+ "variant.xiangqi.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Bienvenido a la corte Ming! Esto es el xiangqi, el ajedrez chino. Las rojas mueven primero y cada pieza tiene su nombre tallado encima."
+ },
+ "variant.xiangqi.points": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mira con atención: las piezas están en los puntos donde se cruzan las líneas, no en las casillas. La franja del medio es el río."
+ },
+ "variant.xiangqi.palace": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Estos nueve puntos con la cruz son el palacio. El general y sus dos consejeros nunca salen de él. El general avanza por las líneas, y los consejeros, en diagonal."
+ },
+ "variant.xiangqi.horse": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El caballo se mueve como el caballo del ajedrez: un paso por una línea y luego uno en diagonal. Pero una pieza justo a su lado le bloquea ese camino. ¿Ves cómo el soldado de abajo le impide dos jugadas?"
+ },
+ "variant.xiangqi.elephant": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El elefante salta exactamente dos puntos en diagonal. Es un guardián de casa: nunca puede cruzar el río."
+ },
+ "variant.xiangqi.cannon": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Aquí hay una pieza que el ajedrez no tiene: ¡el cañón! Se mueve como un carro, pero para capturar tiene que saltar exactamente sobre una pieza, llamada la pantalla."
+ },
+ "variant.xiangqi.soldier": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los soldados avanzan un paso hacia delante. Cuando cruzan el río, también pueden moverse de lado. Nunca retroceden."
+ },
+ "variant.xiangqi.generals": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Una regla especial: los dos generales nunca pueden estar frente a frente en una línea abierta. ¡Así que tu general vigila toda su línea, de punta a punta del tablero!"
+ },
+ "variant.xiangqi.win": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El jaque mate gana. Y un bando que no tiene ninguna jugada legal también pierde. ¡Vamos a practicar!"
+ },
+ "variant.xiangqi.ex.horse": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Toca todos los puntos a los que puede llegar este caballo."
+ },
+ "variant.xiangqi.ex.elephant": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Toca todos los puntos a los que puede llegar este elefante."
+ },
+ "variant.xiangqi.ex.cannon": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Usa el cañón para capturar el carro de las negras."
+ },
+ "variant.xiangqi.ex.mate": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Jaque mate en una jugada. ¡Tu general puede ayudar!"
+ },
+ "variant.xiangqi.ex.river": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Qué pieza puede cruzar el río?"
+ }
+}

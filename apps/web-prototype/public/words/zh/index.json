@@ -1,0 +1,97 @@
+{
+ "rooky/2419e65f": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "全世界的棋手都会说几个小词。我们来学学在棋桌上该说什么，用英语和印地语！Priya 会把每个印地语词念给你听。"
+ },
+ "rooky/4e8e486c": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "当你的着法攻击到王时，你可以说：将军！这是友好的提醒，不是规则。印地语的将军是："
+ },
+ "rooky/291b10b7": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "将军！"
+ },
+ "rooky/73908946": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "当王被攻击又逃不掉时，棋局就结束了。要说：将死！印地语是："
+ },
+ "rooky/c5c58f29": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "将死！"
+ },
+ "rooky/d8efa396": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "冷知识：checkmate（将死）和 Shah-maat 来自同一个古老的波斯词。Shah 的意思是国王，所以 Shah-maat 的意思是：国王动不了了！"
+ },
+ "rooky/91733038": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你已经知道什么时候提和了。要说的话是：我提议和棋。你的朋友可以说好，也可以继续下。印地语是："
+ },
+ "rooky/b0cf3b41": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我提议和棋。"
+ },
+ "rooky/7ecd8c25": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "棋局结束时，不管输赢，都要说：下得好！这是告诉你的朋友你玩得很开心。印地语是："
+ },
+ "rooky/e66d6ad0": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "下得好！"
+ },
+ "rooky/38011959": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "还记得吗？摆正棋子之前要说“扶正”。世界各地的棋手都用法语说：j'adoube。意思是“我扶正一下”。印地语是："
+ },
+ "rooky/a776530a": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "J'adoube！"
+ },
+ "rooky/5b9cc190": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这是你所有的棋桌用语。点任何一个词，再听一遍英语或印地语。"
+ },
+ "rooky/37b54509": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "找出让你能说“将死！”的那一步。"
+ },
+ "rooky/583dd676": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的后可以走到最上面一行。"
+ },
+ "rooky/14505ef2": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "把后走到 b8。"
+ },
+ "rooky/d250d608": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的朋友扶正一个象，说了一句 j'adoube。他是什么意思？"
+ },
+ "rooky/717a42c7": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哪个是印地语的“将死”？"
+ },
+ "rooky/25ad799b": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这盘棋结束了，你输了。说什么话比较友好？"
+ }
+}

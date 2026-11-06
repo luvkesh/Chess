@@ -158,22 +158,26 @@
     state.progress.passes = e.passes || [];
   }
   setEntitlements(state.account && state.account.ent);
-  // Languages: Hindi brings Priya for the game calls (check, results); the coach voice stays as chosen.
+  // Languages: Hindi brings Priya for the game calls (check, results); another language with a recorded
+  // voice (Spanish, French, Portuguese, Mandarin) brings Rooky's voice in it. The coach voice stays as chosen.
   const CALLS_DEFAULT = 'toby';
+  const langVoice = (lang) => (lang === 'en' ? null : lang === 'hi' ? 'priya' : (AU.voices().find((v) => v.lang === lang) || {}).id || null);
   // Rooky's own voice (Toby) replaced Mira as the default; players still on the old default move over once.
   if (!state.settings.voiceRev) {
     if (state.settings.voiceCoach === 'mira') state.settings.voiceCoach = 'toby';
     if (state.settings.voiceCalls === 'mira') state.settings.voiceCalls = 'toby';
     state.settings.voiceRev = 1;
   }
-  const callsFor = (lang, cur) => (cur === 'off' ? cur : lang === 'hi' ? 'priya' : AU.voices().some((v) => v.id === cur && v.lang === 'en') ? cur : CALLS_DEFAULT);
+  const callsFor = (lang, cur) => (cur === 'off' ? cur : langVoice(lang) ? langVoice(lang) : AU.voices().some((v) => v.id === cur && v.lang === 'en') ? cur : CALLS_DEFAULT);
   if (!(saved.settings && saved.settings.lang)) state.settings.voiceCalls = callsFor(state.settings.lang, state.settings.voiceCalls);
   // One voice: in English the game calls are said in the voice picked for Rooky, so the game never
-  // switches between two voices. (Hindi keeps Priya for the calls.) Players with two different
+  // switches between two voices. (A language with its own recorded voice keeps it for the calls.) Players with two different
   // voices from before move over once.
   const englishVoice = (id) => AU.voices().some((v) => v.id === id && v.lang === 'en');
-  function oneVoice(s) { if (s.lang !== 'hi' && s.voiceCalls !== 'off' && englishVoice(s.voiceCoach)) s.voiceCalls = s.voiceCoach; }
+  function oneVoice(s) { if (!langVoice(s.lang) && s.voiceCalls !== 'off' && englishVoice(s.voiceCoach)) s.voiceCalls = s.voiceCoach; }
   if (state.settings.voiceRev < 2) { oneVoice(state.settings); state.settings.voiceRev = 2; }
+  // Spanish, French, Portuguese and Mandarin gained Rooky's recorded voice: players already in one move over once.
+  if (state.settings.voiceRev < 3) { const lv = langVoice(state.settings.lang); if (lv && state.settings.voiceCalls !== 'off' && englishVoice(state.settings.voiceCalls)) state.settings.voiceCalls = lv; state.settings.voiceRev = 3; }
   I18N.set(state.settings.lang);
   I18N.watch(document.body);   // content text written straight from the content files
   if (I18N.lang !== 'en') { C = ChacklateCoach(E, coachStrings()); M = ChacklateMentor(E, C, areaStrings('mentor')); }
@@ -2787,14 +2791,15 @@
     const blurb = (v) => tx('settings.voiceBlurb.' + v.id, v.blurb.replace(/ (American|British) English, (fe)?male\.$/, ''));
     const opt = (v, cur) => '<option value="' + v.id + '"' + (cur === v.id ? ' selected' : '') + '>' + esc(varName(v)) + ' · ' + esc(blurb(v)) + '</option>';
     const groups = (cur, pick) => GROUPS.map(([a, g, label]) => '<optgroup label="' + esc(tx('settings.voiceGroup.' + a + g, label)) + '">' + vs.filter((v) => v.accent === a && v.gender === g && pick(v)).map((v) => opt(v, cur)).join('') + '</optgroup>').join('');
-    const hindi = (cur) => '<optgroup label="' + esc(tx('settings.voiceGroup.hi', 'Hindi')) + '">' + vs.filter((v) => v.lang === 'hi').map((v) => opt(v, cur)).join('') + '</optgroup>';
+    // the voices recorded in other languages, one group each, named in that language
+    const others = (cur) => [...new Set(vs.map((v) => v.lang))].filter((l) => l !== 'en').map((l) => '<optgroup label="' + esc(l === 'hi' ? tx('settings.voiceGroup.hi', 'Hindi') : (I18N.ALL.find((x) => x.id === l) || { native: l }).native) + '">' + vs.filter((v) => v.lang === l).map((v) => opt(v, cur)).join('') + '</optgroup>').join('');
     const tryBtn = (id) => '<button type="button" class="btn small" id="' + id + '" aria-label="' + esc(tx('settings.hearVoice', 'Hear this voice')) + '">▶</button>';
     return '<div class="label set-h">' + t('settings.voices') + '</div>' +
       '<label class="toggle" data-tk="settings.narr">' + t('settings.narration') + TIP_I + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.guide">' + t('settings.guideCard') + TIP_I + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.captions">' + t('settings.captions') + TIP_I + ' <input type="checkbox" id="s-cc"' + (s.captions ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.vcoach">' + t('settings.coachVoice') + TIP_I + ' <span class="voice-pick"><select id="s-vcoach">' + groups(s.voiceCoach, (v) => v.lessons) + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>' + t('settings.deviceVoice') + '</option></select>' + tryBtn('s-vcoach-try') + '</span></label>' +
-      '<label class="toggle" data-tk="settings.vcalls">' + t('settings.calls') + TIP_I + ' <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + hindi(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select>' + tryBtn('s-vcalls-try') + '</span></label>' +
+      '<label class="toggle" data-tk="settings.vcalls">' + t('settings.calls') + TIP_I + ' <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + others(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select>' + tryBtn('s-vcalls-try') + '</span></label>' +
       '<label class="toggle" data-tk="settings.announce">' + t('settings.announce') + TIP_I + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
   // Settings come in sections, as on Jong Club: a list of sections on the left (each with a drawn
@@ -2851,7 +2856,7 @@
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     // A new language: Hindi brings Priya for the game calls; the coach voice stays. The menus redraw.
-    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); if (s.lang !== 'hi') oneVoice(s); applySettings(); save(); m.close(); relocalise(); settingsModal('lang'); });
+    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); oneVoice(s); applySettings(); save(); m.close(); relocalise(); settingsModal('lang'); });
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
     on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
     on('#s-elements', 'change', (e) => { s.elements = e.target.checked; applySettings(); save(); });

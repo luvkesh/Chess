@@ -1,0 +1,917 @@
+{
+ "home.first": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Salut, je suis Rooky ! Touche Le Voyage pour voyager dans le temps avec moi, ou touche Partie rapide pour jouer avec un ami animal."
+ },
+ "home": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Te revoilà ! Touche Le Voyage pour continuer ton aventure, ou touche Partie rapide pour une partie amusante."
+ },
+ "home.resume": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ta partie t'attend ! Touche Reprendre la partie, et continue là où tu t'étais arrêté."
+ },
+ "play": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Choisis un ami animal pour jouer. Si tu débutes, commence avec Truffle le lapin. Chaque ami est un peu plus fort que le précédent."
+ },
+ "journey": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Chaque époque est une nouvelle aventure ! Touche une époque ouverte, et rencontre l'ami qui y vit."
+ },
+ "learn": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Choisis une leçon, et je vais t'apprendre, pas à pas. Commence en haut, et descends petit à petit."
+ },
+ "puzzles": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les problèmes sont de petites chasses au trésor. Choisis-en un, puis trouve le meilleur coup."
+ },
+ "training": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "On s'entraîne ! Choisis une compétence, et on va la travailler ensemble."
+ },
+ "minis": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les mini-jeux, c'est rapide ! Choisis-en un, et bats ton meilleur score."
+ },
+ "mini": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Touche le parchemin si tu as besoin des règles. Amuse-toi bien !"
+ },
+ "openings": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les ouvertures, ce sont les premiers coups d'une partie. Choisis-en une, et essaie-la sur l'échiquier."
+ },
+ "dojo": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les finales, c'est la fin d'une partie, quand il ne reste que quelques pièces. Choisis-en une, et gagne-la, pas à pas."
+ },
+ "collection": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Voici ta collection ! Touche n'importe quel objet pour le voir de près, et je vais tout te raconter. Ensuite, touche Équiper pour le mettre sur ta table."
+ },
+ "profile": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "C'est toi ! Ici, tu peux voir ton niveau, tes parties et tes badges."
+ },
+ "club": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bienvenue au Club ! Regarde ton classement, grimpe dans les ligues, et retrouve les amis avec qui tu joues grâce à un code."
+ },
+ "season": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Joue des parties, apprends et résous des problèmes pour monter dans la saison. Chaque palier a un cadeau !"
+ },
+ "store": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Cette partie est pour les adultes. Demande à un adulte avant d'acheter quoi que ce soit."
+ },
+ "review": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Revoyons ta partie. Touche les flèches pour la parcourir, un coup à la fois."
+ },
+ "game.white": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "C'est toi qui commences ! Touche une de tes pièces, puis touche la case où tu veux qu'elle aille."
+ },
+ "game.black": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ton ami joue en premier. Regarde son coup, et ensuite c'est ton tour !"
+ },
+ "game.check": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Oh oh, ton roi est en échec ! Mets-le à l'abri, bloque l'attaque ou prends l'attaquant."
+ },
+ "game.idle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Prends ton temps. Si tu es bloqué, touche Indice, et je te montrerai une bonne idée."
+ },
+ "game.over": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bien joué ! Touche Revoir avec Rooky pour voir tes meilleurs coups, ou rejoue."
+ },
+ "lesson.steps": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "On apprend ! Écoute et regarde l'échiquier. Puis touche Suivant quand tu es prêt."
+ },
+ "lesson.open.board": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bonjour, explorateur ! Toute aventure aux échecs commence sur l'échiquier. Écoute, puis touche Suivant pour continuer."
+ },
+ "lesson.open.setup": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "C'est l'heure de réveiller l'armée ! Mettons chaque pièce à sa place."
+ },
+ "lesson.open.rook-bishop": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des lignes droites, des lignes en biais, et un roi très prudent. Prêt ? C'est parti !"
+ },
+ "lesson.open.knight": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Boing ! Le cavalier est la seule pièce qui saute. Regarde-le bondir !"
+ },
+ "lesson.open.pawns": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Petits pions, grands rêves ! Arrive de l'autre côté, et tu deviens une dame."
+ },
+ "lesson.open.values": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Quelle pièce vaut le plus ? Pesons-les, comme un trésor."
+ },
+ "lesson.open.check": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Oh oh, le roi est en danger ! Apprenons trois façons de le sauver."
+ },
+ "lesson.open.checkmate": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "C'est la plus importante ! L'échec et mat fait gagner toute la partie."
+ },
+ "lesson.open.castling": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un coup secret pour le roi et la tour ! Voyons comment ça marche."
+ },
+ "lesson.open.stalemate": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Toutes les parties n'ont pas de gagnant. Découvrons pourquoi !"
+ },
+ "lesson.open.centre": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le centre de l'échiquier, c'est le meilleur endroit. Allons le prendre !"
+ },
+ "lesson.open.king-safety": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mets le roi bien à l'abri, et attention à la dame sournoise !"
+ },
+ "lesson.open.traps": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Certaines parties finissent super vite ! Apprenons les pièges, pour ne jamais tomber dedans."
+ },
+ "lesson.open.forks": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une pièce, deux cibles ! Les fourchettes, c'est mon tour préféré."
+ },
+ "lesson.open.pins": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Certaines pièces sont coincées et ne peuvent pas bouger ! Apprenons le clouage et l'enfilade."
+ },
+ "lesson.open.discovered": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bouge une pièce, et surprise ! Une autre attaque."
+ },
+ "lesson.open.mates": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Collectionnons des échecs et mats célèbres, comme des autocollants brillants !"
+ },
+ "lesson.open.scan": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "C'est l'heure de jouer au détective ! Que prépare ton adversaire ?"
+ },
+ "lesson.open.blocking": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Construis un mur, et garde ton roi bien au chaud et en sécurité !"
+ },
+ "lesson.open.counter": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu es attaqué ? Parfois, la meilleure réponse, c'est une attaque encore plus grosse !"
+ },
+ "lesson.open.pawn-islands": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les pions aiment rester ensemble. Voyons lesquels se sentent seuls."
+ },
+ "lesson.open.passed": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un pion qui a la route libre devant lui, c'est une superstar. Poussons-le !"
+ },
+ "lesson.open.outposts": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trouvons une maison parfaite pour ton cavalier, où personne ne peut le chasser."
+ },
+ "lesson.open.open-files": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les tours adorent les routes ouvertes, et les fous adorent le ciel dégagé !"
+ },
+ "lesson.open.when-to-trade": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Échanger ou garder ? Apprenons quand un échange t'aide à gagner."
+ },
+ "lesson.open.three-questions": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tous les grands joueurs ont un plan. Faisons le tien !"
+ },
+ "lesson.open.initiative": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Continue les menaces, et marche sur le roi !"
+ },
+ "lesson.open.activity": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des pièces heureuses travaillent en équipe. Donnons-leur de la place pour jouer !"
+ },
+ "lesson.open.king-activity": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Surprise ! Dans la finale, le roi devient un héros."
+ },
+ "lesson.open.opposition": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Deux rois face à face ! Qui cligne des yeux en premier ?"
+ },
+ "lesson.open.lucena": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les finales de tours sont difficiles, mais je connais deux positions magiques !"
+ },
+ "lesson.open.candidates": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Avant de jouer, choisis quelques idées, puis teste-les."
+ },
+ "lesson.open.visualise": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ferme les yeux, et imagine l'échiquier. Voyons plus loin !"
+ },
+ "lesson.open.blunder-check": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un petit coup d'œil avant de jouer peut sauver toute la partie !"
+ },
+ "lesson.open.combinations": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Maintenant, mélangeons les astuces, pour un vrai feu d'artifice !"
+ },
+ "lesson.open.clock": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tic-tac ! Apprenons à bien utiliser ton temps."
+ },
+ "lesson.open.repertoire": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Choisis tes ouvertures préférées, et apprends de chaque partie !"
+ },
+ "lesson.open.etiquette": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les bons joueurs sont aussi de bons amis. Jouons fair-play et restons calmes."
+ },
+ "lesson.open.table-words": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Apprenons les mots spéciaux que disent les joueurs d'échecs, partout dans le monde !"
+ },
+ "lesson.ex": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Maintenant, c'est ton tour ! Bouge une pièce sur l'échiquier pour répondre."
+ },
+ "lesson.idle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Besoin d'aide ? Touche Indice, et je te donnerai un coup de pouce."
+ },
+ "lesson.done": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bravo, tu as fini la leçon ! Touche le bouton doré pour continuer."
+ },
+ "puzzle.start": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trouve le meilleur coup ! Cherche les échecs, les prises et les menaces."
+ },
+ "puzzle.wrong": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bien essayé ! Regarde encore, ou touche Indice pour un coup de pouce."
+ },
+ "puzzle.idle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bloqué ? Touche Indice, et je te donnerai un coup de pouce."
+ },
+ "puzzle.solved": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu as réussi ! Touche Problème suivant pour continuer."
+ },
+ "era.egypt.tale": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Bienvenue dans l'Égypte ancienne ! Je suis Miu. Touche la première étape, Les jeux des pharaons, et je vais te raconter une histoire."
+ },
+ "era.egypt.lesson": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, La course de chars, et apprends quelque chose de nouveau."
+ },
+ "era.egypt.puzzles": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Bravo ! Ensuite, touche Le trésor du tombeau, et résous mes problèmes."
+ },
+ "era.egypt.champion": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Tu es prêt ! Touche Le défi de Miu, et joue contre moi. Gagne, et le jeu Pharaoh's Treasure est à toi !"
+ },
+ "era.egypt.done": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Tu m'as battu ! Le jeu Pharaoh's Treasure est à toi. Touche Toutes les époques, et continue ton voyage vers la Grèce antique."
+ },
+ "era.greece.tale": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Bienvenue dans la Grèce antique ! Je suis Sophie. Touche la première étape, Les penseurs et leurs jeux, et je vais te raconter une histoire."
+ },
+ "era.greece.lesson": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, Le marché de l'agora, et apprends quelque chose de nouveau."
+ },
+ "era.greece.puzzles": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Bravo ! Ensuite, touche Les yeux de la chouette, et résous mes problèmes."
+ },
+ "era.greece.champion": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Tu es prêt ! Touche Le défi de Sophie, et joue contre moi. Gagne, et le jeu Olympian Marble est à toi !"
+ },
+ "era.greece.done": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Tu m'as battue ! Le jeu Olympian Marble est à toi. Touche Toutes les époques, et continue ton voyage vers la Rome antique."
+ },
+ "era.rome.tale": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Bienvenue dans la Rome antique ! Je suis Marcus. Touche la première étape, Le jeu des petits soldats, et je vais te raconter une histoire."
+ },
+ "era.rome.lesson": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, Le mur de la légion, et apprends quelque chose de nouveau."
+ },
+ "era.rome.puzzles": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Bravo ! Ensuite, touche Piège le général, et résous mes problèmes."
+ },
+ "era.rome.champion": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Tu es prêt ! Touche Le défi de Marcus, et joue contre moi. Gagne, et le jeu Imperial Rome est à toi !"
+ },
+ "era.rome.done": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Tu m'as battu ! Le jeu Imperial Rome est à toi. Touche Toutes les époques, et continue ton voyage vers l'Inde moghole."
+ },
+ "era.mughal.tale": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Bienvenue dans l'Inde moghole ! Je suis Moti. Touche la première étape, Chaturanga, et je vais te raconter une histoire."
+ },
+ "era.mughal.lesson": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, Les éléphants au centre, et apprends quelque chose de nouveau."
+ },
+ "era.mughal.puzzles": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Bravo ! Ensuite, touche La fourchette de l'éléphant, et résous mes problèmes."
+ },
+ "era.mughal.champion": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Tu es prêt ! Touche Le défi de Moti, et joue contre moi. Gagne, et le jeu Maharaja's Jade est à toi !"
+ },
+ "era.mughal.done": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Tu m'as battu ! Le jeu Maharaja's Jade est à toi. Touche Toutes les époques, et continue ton voyage vers la Chine des Ming."
+ },
+ "era.ming.tale": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Bienvenue dans la Chine des Ming ! Je suis Bao. Touche la première étape, Des éléphants, des canons et une rivière, et je vais te raconter une histoire."
+ },
+ "era.ming.lesson": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, La lance en bambou de Bao, et apprends quelque chose de nouveau."
+ },
+ "era.ming.puzzles": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Bravo ! Ensuite, touche L'enfilade du panda, et résous mes problèmes."
+ },
+ "era.ming.champion": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Tu es prêt ! Touche Le défi de Bao, et joue contre moi. Gagne, et le jeu Ming Porcelain est à toi !"
+ },
+ "era.ming.done": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Tu m'as battu ! Le jeu Ming Porcelain est à toi. Touche Toutes les époques, et continue ton voyage vers Venise."
+ },
+ "era.venice.tale": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Bienvenue à Venise ! Je suis Marco. Touche la première étape, La dame devient puissante, et je vais te raconter une histoire."
+ },
+ "era.venice.lesson": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, L'avertissement du doge, et apprends quelque chose de nouveau."
+ },
+ "era.venice.endgame": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Bravo ! Ensuite, touche Couronne une nouvelle dame, et gagne la finale."
+ },
+ "era.venice.champion": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Tu es prêt ! Touche Le défi de Marco, et joue contre moi. Gagne, et le jeu Murano Glass est à toi !"
+ },
+ "era.venice.done": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Tu m'as battu ! Le jeu Murano Glass est à toi. Touche Toutes les époques, et continue ton voyage vers Paris."
+ },
+ "era.paris.tale": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Bienvenue à Paris ! Je suis Gaston. Touche la première étape, L'âme des échecs, et je vais te raconter une histoire."
+ },
+ "era.paris.lesson": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, Les pions en marche, et apprends quelque chose de nouveau."
+ },
+ "era.paris.puzzles": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Bravo ! Ensuite, touche Les problèmes du café, et résous mes problèmes."
+ },
+ "era.paris.champion": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Tu es prêt ! Touche Le défi de Gaston, et joue contre moi. Gagne, et le jeu Ruby and Pearl est à toi !"
+ },
+ "era.paris.done": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Tu m'as battu ! Le jeu Ruby and Pearl est à toi. Touche Toutes les époques, et continue ton voyage vers la Russie impériale."
+ },
+ "era.russia.tale": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Bienvenue dans la Russie impériale ! Je suis Mishka. Touche la première étape, L'école des finales, et je vais te raconter une histoire."
+ },
+ "era.russia.lesson": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, Des rois dans la neige, et apprends quelque chose de nouveau."
+ },
+ "era.russia.endgame": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Bravo ! Ensuite, touche La marche du pion, et gagne la finale."
+ },
+ "era.russia.champion": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Tu es prêt ! Touche Le défi de Mishka, et joue contre moi. Gagne, et le jeu Tsarina's Treasure est à toi !"
+ },
+ "era.russia.done": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Tu m'as battu ! Le jeu Tsarina's Treasure est à toi. Touche Toutes les époques, et continue ton voyage vers New York."
+ },
+ "era.deco.tale": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Bienvenue à New York ! Je suis Skye. Touche la première étape, La ville des clubs d'échecs, et je vais te raconter une histoire."
+ },
+ "era.deco.lesson": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Tu as bien écouté ! Maintenant, touche la leçon, Des mats sur les toits, et apprends quelque chose de nouveau."
+ },
+ "era.deco.puzzles": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Bravo ! Ensuite, touche Finale au sommet des gratte-ciel, et résous mes problèmes."
+ },
+ "era.deco.champion": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Tu es prêt ! Touche Le défi de Skye, et joue contre moi. Gagne, et le jeu Manhattan Deco est à toi !"
+ },
+ "era.deco.done": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Tu m'as battu ! Le jeu Manhattan Deco est à toi. Quel voyage, à travers toute l'histoire des échecs !"
+ },
+ "placement.offer": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu as déjà joué aux échecs ? Fais mon petit test, et je choisirai ta première leçon et un ami pour jouer. Ou passe-le, et on commencera depuis le début."
+ },
+ "placement.q01": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Touche toutes les cases que la tour peut atteindre. N'oublie pas : elle peut prendre une pièce noire, mais pas sauter par-dessus."
+ },
+ "placement.q02": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Maintenant le cavalier. Touche toutes les cases où il peut sauter."
+ },
+ "placement.q03": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ton cavalier peut prendre une pièce. Prends celle que personne ne protège."
+ },
+ "placement.q04": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Fais échec avec ta dame, sur une case où elle ne peut pas être prise."
+ },
+ "placement.q05": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trouve l'échec et mat en un coup."
+ },
+ "placement.q06": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le roi noir est coincé derrière ses pions. Trouve l'échec et mat en un coup."
+ },
+ "placement.q07": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trouve un coup de cavalier qui attaque le roi et la tour en même temps."
+ },
+ "placement.q08": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les Blancs jouent en premier. Le roi noir peut-il attraper le pion avant qu'il devienne une dame ?"
+ },
+ "placement.q09": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ton adversaire vient de jouer. Trouve le meilleur coup, puis continue."
+ },
+ "placement.q10": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le dernier, et le plus difficile. Trouve le meilleur coup, puis continue."
+ },
+ "placement.r1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Merci d'avoir essayé ! On va commencer tout au début, avec la façon dont bougent les pièces. Tu vas apprendre en un rien de temps !"
+ },
+ "placement.r2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Beau travail ! Tu sais comment bougent les pièces, alors on va commencer par l'échec et l'échec et mat."
+ },
+ "placement.r3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Super ! Tu connais les règles, alors ton parcours commence avec les idées d'ouverture."
+ },
+ "placement.r4": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Waouh, tu as repéré la fourchette ! Tu es prêt pour la tactique, comme les fourchettes et les clouages."
+ },
+ "placement.r5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Incroyable, tu as presque tout trouvé ! Tu es prêt à apprendre la défense et la sécurité du roi."
+ },
+ "variants": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les échecs ont des cousins partout dans le monde ! Choisis-en un pour apprendre ses règles, puis joue."
+ },
+ "variant": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Voici les règles sur une seule page. Celles en doré ne sont pas comme aux échecs. Essaie ma petite leçon, puis choisis un ami pour jouer."
+ },
+ "variant.chaturanga.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Il y a très longtemps en Inde, les échecs avaient un autre nom : le chaturanga. Ça veut dire les quatre parties d'une armée. Jouons à l'ancienne !"
+ },
+ "variant.chaturanga.same": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le roi, le cheval et le char bougent exactement comme notre roi, notre cavalier et notre tour. Les soldats à pied sont les pions."
+ },
+ "variant.chaturanga.mantri": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "À côté du roi se tient le Mantri, son sage conseiller. Il fait un petit pas, en biais. Bien plus tard, il est devenu la dame !"
+ },
+ "variant.chaturanga.gaja": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le Gaja est un éléphant de guerre. Il saute exactement deux cases en biais, par-dessus tout ce qui est sur son chemin. Il est devenu le fou."
+ },
+ "variant.chaturanga.soldier": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les soldats à pied avancent d'une case à la fois, même à leur premier coup. Un soldat qui atteint l'autre bout devient un Mantri."
+ },
+ "variant.chaturanga.castle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Il n'y a pas de roque au chaturanga. Mets ton roi à l'abri, un pas à la fois."
+ },
+ "variant.chaturanga.win": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "L'échec et mat fait toujours gagner. Tu gagnes aussi si tu prends toutes les pièces ennemies sauf le roi. Et un roi qui n'a plus aucun coup perd aussi !"
+ },
+ "variant.chaturanga.ex.mantri": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Touche toutes les cases où le Mantri peut aller."
+ },
+ "variant.chaturanga.ex.gaja": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Touche toutes les cases où le Gaja peut sauter."
+ },
+ "variant.chaturanga.ex.bare": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Prends la dernière pièce des Noirs, et laisse le roi tout seul."
+ },
+ "variant.chaturanga.ex.promote": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ce soldat à pied va bientôt atteindre l'autre bout. Qu'est-ce qu'il va devenir ?"
+ },
+ "variant.chaturanga.ex.stuck": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trouve un coup qui ne laisse aucun coup aux Noirs. Au chaturanga, ça fait gagner !"
+ },
+ "variant.chess960.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un champion du monde qui s'appelait Bobby Fischer a eu une idée amusante : mélanger la dernière rangée avant chaque partie ! Ça s'appelle les Échecs960."
+ },
+ "variant.chess960.mirror": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Regarde bien. Les pièces noires copient les blanches, colonne par colonne, comme dans un miroir. Les pions restent à leur place habituelle."
+ },
+ "variant.chess960.order": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Il n'y a que deux règles pour le mélange. Les fous sont sur des couleurs différentes, et le roi est entre les tours."
+ },
+ "variant.chess960.castle": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le roque finit exactement comme aux échecs : le roi sur la colonne g ou la colonne c, la tour juste à côté. Pour roquer, place ton roi sur ta tour."
+ },
+ "variant.chess960.think": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ici, personne ne connaît les ouvertures, alors réfléchis dès ton tout premier coup. Sors tes pièces et garde ton roi en sécurité."
+ },
+ "variant.chess960.ex.short": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Roque du côté du roi. Place ton roi sur la tour en h1."
+ },
+ "variant.chess960.ex.long": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Maintenant, roque du côté de la dame, vers la colonne a."
+ },
+ "variant.chess960.ex.land": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Si les Blancs roquent du côté du roi ici, où arrive le roi ?"
+ },
+ "variant.chess960.ex.rule": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Quelle règle est toujours vraie aux Échecs960 ?"
+ },
+ "variant.koth.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bienvenue au Roi de la colline ! Les quatre cases du centre sont la colline. Amène ton roi là-haut et tu gagnes."
+ },
+ "variant.koth.hill": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu vois les cases qui brillent ? d4, e4, d5 et e5. Un pas sur l'une d'elles fait gagner la partie tout de suite."
+ },
+ "variant.koth.safe": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mais un roi ne peut jamais aller sur une case gardée par l'ennemi. Cette tour garde la quatrième rangée, donc ces cases de la colline sont fermées."
+ },
+ "variant.koth.block": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Alors, surveille aussi le roi ennemi ! S'il s'approche de la colline, garde les cases de la colline avant qu'il monte."
+ },
+ "variant.koth.same": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "L'échec et mat fait toujours gagner, et chaque pièce bouge exactement comme aux échecs. Maintenant, on grimpe !"
+ },
+ "variant.koth.ex.climb": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Amène ton roi sur la colline."
+ },
+ "variant.koth.ex.stop": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le roi noir veut la colline. Arrête-le avec un coup de tour."
+ },
+ "variant.koth.ex.guarded": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le fou garde une case de la colline. Trouve celle qui est sûre et grimpe."
+ },
+ "variant.threecheck.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Aux Trois échecs, chaque échec compte ! Fais échec trois fois et tu gagnes, même sans échec et mat."
+ },
+ "variant.threecheck.count": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le fou blanc vient de faire échec, alors le compteur des Blancs affiche un. Les compteurs sont à côté des noms des joueurs."
+ },
+ "variant.threecheck.safe": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Alors, garde ton roi bien à l'abri. N'ouvre pas de lignes vers lui trop tôt, sinon les échecs s'accumulent vite."
+ },
+ "variant.threecheck.same": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "L'échec et mat fait toujours gagner, et chaque pièce bouge exactement comme aux échecs. On s'entraîne !"
+ },
+ "variant.threecheck.ex.third": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu as déjà fait deux échecs. Fais le troisième et gagne."
+ },
+ "variant.threecheck.ex.knight": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Deux échecs de faits. Ton cavalier peut-il faire le troisième ?"
+ },
+ "variant.threecheck.ex.what": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Que se passe-t-il quand tu fais ton troisième échec ?"
+ },
+ "variant.xiangqi.hello": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bienvenue à la cour des Ming ! Voici le xiangqi, les échecs chinois. Les Rouges jouent en premier, et chaque pièce a son nom gravé dessus."
+ },
+ "variant.xiangqi.points": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Regarde bien : les pièces sont sur les points où les lignes se croisent, pas dans les cases. La bande au milieu, c'est la rivière."
+ },
+ "variant.xiangqi.palace": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ces neuf points avec la croix forment le palais. Le général et ses deux conseillers ne le quittent jamais. Le général avance le long des lignes, les conseillers en biais."
+ },
+ "variant.xiangqi.horse": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le cheval bouge comme un cavalier : un pas le long d'une ligne, puis un en biais. Mais une pièce juste à côté de lui bloque ce chemin. Tu vois comment le soldat en dessous empêche deux coups ?"
+ },
+ "variant.xiangqi.elephant": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "L'éléphant saute exactement deux points en biais. C'est un garde de la maison : il ne peut jamais traverser la rivière."
+ },
+ "variant.xiangqi.cannon": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Voici une pièce qui n'existe pas aux échecs : le canon ! Il bouge comme un char, mais pour prendre, il doit sauter par-dessus exactement une pièce, qu'on appelle l'écran."
+ },
+ "variant.xiangqi.soldier": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les soldats avancent d'un pas. Une fois la rivière traversée, ils peuvent aussi aller sur le côté. Ils ne reculent jamais."
+ },
+ "variant.xiangqi.generals": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une règle spéciale : les deux généraux ne peuvent jamais se faire face sur une ligne ouverte. Donc ton général garde toute sa ligne, jusqu'en haut de l'échiquier !"
+ },
+ "variant.xiangqi.win": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "L'échec et mat fait gagner. Et un camp qui n'a plus aucun coup permis perd aussi. On s'entraîne !"
+ },
+ "variant.xiangqi.ex.horse": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Touche tous les points que ce cheval peut atteindre."
+ },
+ "variant.xiangqi.ex.elephant": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Touche tous les points que cet éléphant peut atteindre."
+ },
+ "variant.xiangqi.ex.cannon": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Utilise le canon pour prendre le char noir."
+ },
+ "variant.xiangqi.ex.mate": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Échec et mat en un coup. Ton général peut t'aider !"
+ },
+ "variant.xiangqi.ex.river": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Quelle pièce peut traverser la rivière ?"
+ }
+}

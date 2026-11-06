@@ -1,0 +1,917 @@
+{
+ "home.first": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "嗨，我是 Rooky！点“旅程”和我一起穿越时间，或者点“快速对局”和动物朋友下一盘。"
+ },
+ "home": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "欢迎回来！点“旅程”继续你的冒险，或者点“快速对局”玩一盘。"
+ },
+ "home.resume": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的棋还在等你呢！点“继续对局”，从上次停下的地方接着下。"
+ },
+ "play": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "选一个动物朋友一起下棋。如果你是新手，先从小兔 Truffle 开始。每个朋友都比前一个强一点。"
+ },
+ "journey": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每个时代都是一次新的冒险！点一个开放的时代，去见见住在那里的朋友。"
+ },
+ "learn": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "选一节课，我会一步一步教你。从最上面开始，一节一节往下学。"
+ },
+ "puzzles": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "谜题就是小小的寻宝游戏。选一道，然后找出最好的一步。"
+ },
+ "training": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来练习吧！选一项技能，我们一起练。"
+ },
+ "minis": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "小游戏很快就能玩完！选一个，打破你的最好成绩。"
+ },
+ "mini": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "需要规则的话就点卷轴。玩得开心！"
+ },
+ "openings": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "开局就是一盘棋最开始的几步。选一个，在棋盘上试试。"
+ },
+ "dojo": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "残局是一盘棋的最后阶段，只剩下几个棋子。选一个，一步一步赢下来。"
+ },
+ "collection": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这是你的收藏！点任何一件就能凑近看，我会把它的一切都告诉你。然后点“装备”，把它摆到你的桌上。"
+ },
+ "profile": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这就是你！在这里你能看到你的等级、你下过的棋和你的徽章。"
+ },
+ "club": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "欢迎来到俱乐部！看看你的排名，在联赛里往上爬，还能找到用代码一起下棋的朋友。"
+ },
+ "season": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "下棋、学习、解谜题，就能在赛季里往上爬。每一阶都有奖品！"
+ },
+ "store": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这部分是给大人看的。买东西之前请先问问大人。"
+ },
+ "review": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来回顾一下你的棋吧。点箭头，一步一步往下看。"
+ },
+ "game.white": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你先走！点一个你的棋子，再点你想让它去的格子。"
+ },
+ "game.black": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的朋友先走。看看他走了什么，然后就轮到你啦！"
+ },
+ "game.check": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哎呀，你的王被将军了！把它移到安全的地方，挡住攻击，或者吃掉攻击的棋子。"
+ },
+ "game.idle": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "慢慢来。如果卡住了，点“提示”，我会告诉你一个好主意。"
+ },
+ "game.over": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "下得好！点“和 Rooky 复盘”看看你最好的几步，或者再来一盘。"
+ },
+ "lesson.steps": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来学习吧！仔细听，看着棋盘。准备好了就点“下一步”。"
+ },
+ "lesson.open.board": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你好，小探险家！每一次国际象棋冒险都从棋盘开始。听完后点“下一步”继续。"
+ },
+ "lesson.open.setup": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "该叫醒军队啦！我们把每个棋子都放回家。"
+ },
+ "lesson.open.rook-bishop": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "直线、斜线，还有一个非常小心的王。准备好了吗？出发！"
+ },
+ "lesson.open.knight": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "嘣！马是唯一会跳的棋子。看它蹦！"
+ },
+ "lesson.open.pawns": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "小小的兵，大大的梦想！走到对面，你就能变成后。"
+ },
+ "lesson.open.values": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哪个棋子最值钱？我们像称宝藏一样称一称。"
+ },
+ "lesson.open.check": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哎呀，王有危险！我们来学三种救他的办法。"
+ },
+ "lesson.open.checkmate": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这可是最重要的！将死就赢下整盘棋。"
+ },
+ "lesson.open.castling": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "王和车的秘密招式！我们来看看它怎么走。"
+ },
+ "lesson.open.stalemate": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "不是每盘棋都有赢家。我们来看看为什么！"
+ },
+ "lesson.open.centre": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "棋盘中间是最好的地方。我们去占领它！"
+ },
+ "lesson.open.king-safety": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "把王安顿好，小心狡猾的后！"
+ },
+ "lesson.open.traps": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "有些棋结束得超级快！我们来学学这些陷阱，让它们永远抓不住你。"
+ },
+ "lesson.open.forks": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个棋子，两个目标！捉双是我最喜欢的招数。"
+ },
+ "lesson.open.pins": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "有些棋子被卡住，动不了！我们来学牵制和串击。"
+ },
+ "lesson.open.discovered": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "走开一个棋子，惊喜！另一个棋子发动攻击。"
+ },
+ "lesson.open.mates": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来收集一些有名的将死，就像收集闪亮的贴纸！"
+ },
+ "lesson.open.scan": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "侦探时间到！你的对手在打什么主意？"
+ },
+ "lesson.open.blocking": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "筑起一道墙，让你的王舒舒服服、安安全全！"
+ },
+ "lesson.open.counter": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "被攻击了？有时候最好的回答是更大的攻击！"
+ },
+ "lesson.open.pawn-islands": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "兵喜欢待在一起。我们来看看哪些兵会变孤单。"
+ },
+ "lesson.open.passed": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "前面道路畅通的兵就是超级明星。冲啊！"
+ },
+ "lesson.open.outposts": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来给你的马找一个完美的家，谁也赶不走它。"
+ },
+ "lesson.open.open-files": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "车喜欢敞开的大路，象喜欢开阔的天空！"
+ },
+ "lesson.open.when-to-trade": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "换还是不换？我们来学学什么时候兑子能帮你赢。"
+ },
+ "lesson.open.three-questions": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每个厉害的棋手都有计划。我们来做你的计划吧！"
+ },
+ "lesson.open.initiative": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一个威胁接一个威胁，向王进军！"
+ },
+ "lesson.open.activity": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "开心的棋子会团队合作。我们给它们发挥的空间吧！"
+ },
+ "lesson.open.king-activity": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "惊喜！到了残局，王会变成英雄。"
+ },
+ "lesson.open.opposition": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "两个王，面对面！谁先眨眼？"
+ },
+ "lesson.open.lucena": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "车残局很难，不过我知道两个神奇的局面！"
+ },
+ "lesson.open.candidates": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "走棋之前，先挑几个想法，再一个个检验。"
+ },
+ "lesson.open.visualise": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "闭上眼睛，想象棋盘的样子。我们来往前看几步！"
+ },
+ "lesson.open.blunder-check": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "走棋前快速看一眼，就能救下整盘棋！"
+ },
+ "lesson.open.combinations": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "现在我们把招数组合起来，放一场真正的烟花！"
+ },
+ "lesson.open.clock": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "滴答滴答！我们来学学怎样聪明地用时间。"
+ },
+ "lesson.open.repertoire": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "挑选你最喜欢的开局，从每盘棋里学到东西！"
+ },
+ "lesson.open.etiquette": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "好棋手也是好朋友。我们要公平下棋，保持冷静。"
+ },
+ "lesson.open.table-words": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来学学全世界棋手都会说的特别用语！"
+ },
+ "lesson.ex": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "现在轮到你啦！在棋盘上走一步来回答。"
+ },
+ "lesson.idle": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "需要帮忙吗？点“提示”，我给你一点线索。"
+ },
+ "lesson.done": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "真棒，你学完这节课了！点金色按钮继续。"
+ },
+ "puzzle.start": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "找出最好的一步！看看将军、吃子和威胁。"
+ },
+ "puzzle.wrong": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "试得好！再看一看，或者点“提示”要一点线索。"
+ },
+ "puzzle.idle": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "卡住了？点“提示”，我给你一点线索。"
+ },
+ "puzzle.solved": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你做到了！点“下一道谜题”继续。"
+ },
+ "era.egypt.tale": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "欢迎来到古埃及！我是 Miu。点第一关“法老的游戏”，我给你讲个故事。"
+ },
+ "era.egypt.lesson": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "听得真认真！现在点课程“战车比赛”，学点新东西。"
+ },
+ "era.egypt.puzzles": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "干得好！接下来点“古墓宝藏”，解开我的谜题。"
+ },
+ "era.egypt.champion": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "你准备好了！点“Miu 的挑战”，和我下一盘。赢了，Pharaoh's Treasure 棋子套装就归你！"
+ },
+ "era.egypt.done": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "你打败我了！Pharaoh's Treasure 棋子套装归你了。点“所有时代”，继续前往古希腊。"
+ },
+ "era.greece.tale": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "欢迎来到古希腊！我是 Sophie。点第一关“思想家和他们的游戏”，我给你讲个故事。"
+ },
+ "era.greece.lesson": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "听得真认真！现在点课程“阿哥拉集市”，学点新东西。"
+ },
+ "era.greece.puzzles": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "干得好！接下来点“猫头鹰的眼睛”，解开我的谜题。"
+ },
+ "era.greece.champion": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "你准备好了！点“Sophie 的挑战”，和我下一盘。赢了，Olympian Marble 棋子套装就归你！"
+ },
+ "era.greece.done": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "你打败我了！Olympian Marble 棋子套装归你了。点“所有时代”，继续前往古罗马。"
+ },
+ "era.rome.tale": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到古罗马！我是 Marcus。点第一关“小士兵的游戏”，我给你讲个故事。"
+ },
+ "era.rome.lesson": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "听得真认真！现在点课程“军团的城墙”，学点新东西。"
+ },
+ "era.rome.puzzles": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "干得好！接下来点“困住将军”，解开我的谜题。"
+ },
+ "era.rome.champion": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "你准备好了！点“Marcus 的挑战”，和我下一盘。赢了，Imperial Rome 棋子套装就归你！"
+ },
+ "era.rome.done": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "你打败我了！Imperial Rome 棋子套装归你了。点“所有时代”，继续前往莫卧儿印度。"
+ },
+ "era.mughal.tale": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到莫卧儿印度！我是 Moti。点第一关“恰图兰卡”，我给你讲个故事。"
+ },
+ "era.mughal.lesson": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "听得真认真！现在点课程“大象走向中心”，学点新东西。"
+ },
+ "era.mughal.puzzles": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "干得好！接下来点“大象的捉双”，解开我的谜题。"
+ },
+ "era.mughal.champion": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "你准备好了！点“Moti 的挑战”，和我下一盘。赢了，Maharaja's Jade 棋子套装就归你！"
+ },
+ "era.mughal.done": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "你打败我了！Maharaja's Jade 棋子套装归你了。点“所有时代”，继续前往明朝中国。"
+ },
+ "era.ming.tale": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "欢迎来到明朝中国！我是 Bao。点第一关“象、炮和一条河”，我给你讲个故事。"
+ },
+ "era.ming.lesson": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "听得真认真！现在点课程“Bao 的竹矛”，学点新东西。"
+ },
+ "era.ming.puzzles": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "干得好！接下来点“熊猫的串击”，解开我的谜题。"
+ },
+ "era.ming.champion": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "你准备好了！点“Bao 的挑战”，和我下一盘。赢了，Ming Porcelain 棋子套装就归你！"
+ },
+ "era.ming.done": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "你打败我了！Ming Porcelain 棋子套装归你了。点“所有时代”，继续前往威尼斯。"
+ },
+ "era.venice.tale": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到威尼斯！我是 Marco。点第一关“后获得了力量”，我给你讲个故事。"
+ },
+ "era.venice.lesson": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "听得真认真！现在点课程“总督的警告”，学点新东西。"
+ },
+ "era.venice.endgame": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "干得好！接下来点“加冕一位新后”，赢下这个残局。"
+ },
+ "era.venice.champion": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "你准备好了！点“Marco 的挑战”，和我下一盘。赢了，Murano Glass 棋子套装就归你！"
+ },
+ "era.venice.done": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "你打败我了！Murano Glass 棋子套装归你了。点“所有时代”，继续前往巴黎。"
+ },
+ "era.paris.tale": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到巴黎！我是 Gaston。点第一关“国际象棋的灵魂”，我给你讲个故事。"
+ },
+ "era.paris.lesson": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "听得真认真！现在点课程“兵在前进”，学点新东西。"
+ },
+ "era.paris.puzzles": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "干得好！接下来点“咖啡馆谜题”，解开我的谜题。"
+ },
+ "era.paris.champion": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "你准备好了！点“Gaston 的挑战”，和我下一盘。赢了，Ruby & Pearl 棋子套装就归你！"
+ },
+ "era.paris.done": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "你打败我了！Ruby & Pearl 棋子套装归你了。点“所有时代”，继续前往沙皇俄国。"
+ },
+ "era.russia.tale": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到沙皇俄国！我是 Mishka。点第一关“残局学校”，我给你讲个故事。"
+ },
+ "era.russia.lesson": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "听得真认真！现在点课程“雪中的王”，学点新东西。"
+ },
+ "era.russia.endgame": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "干得好！接下来点“兵的进军”，赢下这个残局。"
+ },
+ "era.russia.champion": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "你准备好了！点“Mishka 的挑战”，和我下一盘。赢了，Tsarina's Treasure 棋子套装就归你！"
+ },
+ "era.russia.done": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "你打败我了！Tsarina's Treasure 棋子套装归你了。点“所有时代”，继续前往纽约。"
+ },
+ "era.deco.tale": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "欢迎来到纽约！我是 Skye。点第一关“国际象棋俱乐部之城”，我给你讲个故事。"
+ },
+ "era.deco.lesson": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "听得真认真！现在点课程“屋顶上的将死”，学点新东西。"
+ },
+ "era.deco.puzzles": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "干得好！接下来点“天际线终点”，解开我的谜题。"
+ },
+ "era.deco.champion": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "你准备好了！点“Skye 的挑战”，和我下一盘。赢了，Manhattan Deco 棋子套装就归你！"
+ },
+ "era.deco.done": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "你打败我了！Manhattan Deco 棋子套装归你了。多棒的旅程，一路走过了整部国际象棋历史！"
+ },
+ "placement.offer": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你以前下过国际象棋吗？做一下我的小测试，我会帮你挑第一节课和一个对手朋友。也可以跳过，我们从头开始。"
+ },
+ "placement.q01": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "点车能到达的每一个格子。记住，它可以吃黑方的棋子，但不能跳过去。"
+ },
+ "placement.q02": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "现在轮到马。点它能跳到的每一个格子。"
+ },
+ "placement.q03": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的马可以吃一个棋子。吃掉那个没人保护的。"
+ },
+ "placement.q04": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "用你的后将军，要走到一个她不会被吃掉的格子上。"
+ },
+ "placement.q05": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "找出一步将死。"
+ },
+ "placement.q06": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "黑王被自己的兵挡住了。找出一步将死。"
+ },
+ "placement.q07": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "找一步马棋，同时攻击王和车。"
+ },
+ "placement.q08": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "白方先走。黑王能在兵变成后之前追上它吗？"
+ },
+ "placement.q09": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你的对手刚走了一步。找出最好的一步，然后接着下。"
+ },
+ "placement.q10": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "最后一题，也是最难的。找出最好的一步，然后接着下。"
+ },
+ "placement.r1": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "谢谢你来试试！我们从最开始的棋子走法学起。你很快就会学会的！"
+ },
+ "placement.r2": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "做得好！你知道棋子怎么走，所以我们从将军和将死开始。"
+ },
+ "placement.r3": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "太棒了！你懂规则，所以你的路线从开局思路开始。"
+ },
+ "placement.r4": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哇，你发现了捉双！你可以学战术了，比如捉双和牵制。"
+ },
+ "placement.r5": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "太厉害了，你几乎全都找到了！你可以学防守和王的安全了。"
+ },
+ "variants": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "国际象棋在世界各地都有亲戚！选一个学学它的规则，然后来下一盘。"
+ },
+ "variant": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "规则都在这一页上。金色的那些和国际象棋不一样。先上我的小课，再选个朋友来下。"
+ },
+ "variant.chaturanga.hello": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "很久以前在印度，国际象棋有另一个名字：恰图兰卡。意思是军队的四个部分。我们用古老的方式来下吧！"
+ },
+ "variant.chaturanga.same": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "王、马和战车的走法，和我们的王、马、车一模一样。步兵就是兵。"
+ },
+ "variant.chaturanga.mantri": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "王的旁边站着曼特里，他聪明的谋士。他每次斜着走一小步。很久以后，他变成了后！"
+ },
+ "variant.chaturanga.gaja": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "加贾是一头战象。它斜着正好跳两格，路上有什么都能跳过去。后来它变成了象。"
+ },
+ "variant.chaturanga.soldier": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "步兵每次走一格，第一步也一样。走到对面的步兵会变成曼特里。"
+ },
+ "variant.chaturanga.castle": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "恰图兰卡里没有王车易位。把你的王一步一步走到安全的地方。"
+ },
+ "variant.chaturanga.win": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "将死仍然能赢。如果你吃掉了对方除王以外的所有棋子，也能赢。王完全没法走的一方也算输！"
+ },
+ "variant.chaturanga.ex.mantri": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "点曼特里能走到的每一个格子。"
+ },
+ "variant.chaturanga.ex.gaja": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "点加贾能跳到的每一个格子。"
+ },
+ "variant.chaturanga.ex.bare": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "吃掉黑方最后一个棋子，让王孤零零的。"
+ },
+ "variant.chaturanga.ex.promote": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这个步兵快要走到对面了。他会变成什么？"
+ },
+ "variant.chaturanga.ex.stuck": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "找一步让黑方完全没法走的棋。在恰图兰卡里，这样就赢了！"
+ },
+ "variant.chess960.hello": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一位名叫鲍比·菲舍尔的世界冠军有个好玩的主意：每盘棋前把底线打乱！它叫 Chess960。"
+ },
+ "variant.chess960.mirror": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "仔细看。黑方的棋子一列一列地照着白方摆，就像照镜子。兵还待在老地方。"
+ },
+ "variant.chess960.order": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "打乱只有两条规则。两个象站在不同颜色的格子上，王站在两个车中间。"
+ },
+ "variant.chess960.castle": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "王车易位的结果和国际象棋一样：王在 g 列或 c 列，车紧挨在它旁边。要易位，就把王走到你的车上。"
+ },
+ "variant.chess960.think": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这里谁都不懂开局，所以从第一步就要动脑筋。把棋子走出来，让你的王保持安全。"
+ },
+ "variant.chess960.ex.short": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "在王翼易位。把你的王走到 h1 的车上。"
+ },
+ "variant.chess960.ex.long": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "现在在后翼易位，朝 a 列方向。"
+ },
+ "variant.chess960.ex.land": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "如果白方在这里王翼易位，王会落在哪里？"
+ },
+ "variant.chess960.ex.rule": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "在 Chess960 里，哪条规则总是对的？"
+ },
+ "variant.koth.hello": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "欢迎来到“山丘之王”！中间的四个格子就是山丘。把你的王走上去就赢了。"
+ },
+ "variant.koth.hill": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "看到发光的格子了吗？d4、e4、d5 和 e5。只要走上其中任何一格，马上就赢。"
+ },
+ "variant.koth.safe": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "可是王永远不能走到被敌方控制的格子上。这个车控制着第四横排，所以那几个山丘格子去不了。"
+ },
+ "variant.koth.block": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "所以也要留意对方的王！如果它靠近山丘，在它爬上去之前守住山丘格子。"
+ },
+ "variant.koth.same": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "将死仍然能赢，每个棋子的走法都和国际象棋一样。现在，我们去爬山吧！"
+ },
+ "variant.koth.ex.climb": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "把你的王走上山丘。"
+ },
+ "variant.koth.ex.stop": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "黑王想上山丘。用一步车棋阻止它。"
+ },
+ "variant.koth.ex.guarded": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "象控制着一个山丘格子。找到安全的那个，爬上去。"
+ },
+ "variant.threecheck.hello": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "在“三将军”里，每次将军都算数！将军三次你就赢了，不用将死也行。"
+ },
+ "variant.threecheck.count": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "白方的象刚刚将军，所以白方的计数器显示一。计数器就在玩家名字旁边。"
+ },
+ "variant.threecheck.safe": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "所以要把你的王藏好。别太早打开通向它的线路，不然将军会一下子越积越多。"
+ },
+ "variant.threecheck.same": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "将死仍然能赢，每个棋子的走法都和国际象棋一样。我们来练习吧！"
+ },
+ "variant.threecheck.ex.third": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你已经将军两次了。再将第三次就赢了。"
+ },
+ "variant.threecheck.ex.knight": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "已经将军两次。你的马能将第三次吗？"
+ },
+ "variant.threecheck.ex.what": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你将第三次军的时候会怎么样？"
+ },
+ "variant.xiangqi.hello": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "欢迎来到明朝宫廷！这是象棋，也就是中国象棋。红方先走，每个棋子上面都刻着它的名字。"
+ },
+ "variant.xiangqi.points": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "仔细看：棋子站在线和线交叉的点上，而不是格子里。中间横着的那一条就是河。"
+ },
+ "variant.xiangqi.palace": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这九个画着交叉线的点就是九宫。帅和他的两个仕从不离开这里。帅沿着线走，仕斜着走。"
+ },
+ "variant.xiangqi.horse": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "马的走法像国际象棋的马：先沿线走一步，再斜走一步。但如果紧挨着它有一个棋子，那个方向就被挡住了。看到下面的兵怎样挡住两步了吗？"
+ },
+ "variant.xiangqi.elephant": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "相斜着正好跳两个点。它是守家的：永远不能过河。"
+ },
+ "variant.xiangqi.cannon": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这是国际象棋里没有的棋子：炮！它像车一样走，但吃子时必须正好跳过一个棋子，这个棋子叫“炮架”。"
+ },
+ "variant.xiangqi.soldier": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "兵每次向前走一步。过了河以后，也可以向左右走。兵永远不能后退。"
+ },
+ "variant.xiangqi.generals": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一条特别的规则：两个帅（将）永远不能在一条没有棋子挡着的线上面对面。所以你的帅控制着他整条线，一直到棋盘那头！"
+ },
+ "variant.xiangqi.win": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "将死就赢。完全没有合法着法的一方也算输。我们来练习吧！"
+ },
+ "variant.xiangqi.ex.horse": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "点这匹马能到达的每一个点。"
+ },
+ "variant.xiangqi.ex.elephant": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "点这个相能到达的每一个点。"
+ },
+ "variant.xiangqi.ex.cannon": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "用炮吃掉黑方的车。"
+ },
+ "variant.xiangqi.ex.mate": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "一步将死。你的帅也能帮忙！"
+ },
+ "variant.xiangqi.ex.river": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "哪个棋子能过河？"
+ }
+}

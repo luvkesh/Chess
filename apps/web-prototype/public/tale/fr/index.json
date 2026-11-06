@@ -1,0 +1,227 @@
+{
+ "egypt/01e4c9b4": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Bienvenue en Égypte, il y a plus de 3 000 ans ! Le grand fleuve Nil coule devant des temples et des pyramides, et dans le palais, le jeune pharaon Toutânkhamon joue à un jeu de plateau appelé le senet."
+ },
+ "egypt/3944d308": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Les échecs n'avaient pas encore été inventés. Ils allaient apparaître en Inde environ deux mille ans plus tard. Mais les Égyptiens adoraient les jeux d'adresse, et Toutânkhamon a été enterré avec plusieurs plateaux de senet."
+ },
+ "egypt/88ad34bc": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Je suis Miu. Tu sais, les chats étaient adorés dans l'Égypte ancienne. Aujourd'hui, je vais t'apprendre le cavalier, la pièce en forme de cheval. Les chevaux du pharaon tiraient ses chars dorés !"
+ },
+ "egypt/0d66bf3a": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "À quel jeu de plateau jouait Toutânkhamon ?"
+ },
+ "egypt/163d3ad6": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Le senet est l'un des plus vieux jeux de plateau qu'on connaisse. Les échecs sont arrivés bien plus tard."
+ },
+ "greece/ce09589d": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Bienvenue à Athènes ! Sur la colline qu'on appelle l'Acropole, des bâtisseurs terminent le Parthénon, un temple de marbre blanc pour la déesse Athéna."
+ },
+ "greece/f3a729a0": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Les Grecs jouaient à un jeu appelé petteia, où on piégeait les pièces de l'autre camp sur une grille. Le philosophe Platon en a parlé dans ses écrits ! Les penseurs grecs adoraient les nombres et la logique, exactement comme les joueurs d'échecs."
+ },
+ "greece/b202cd9c": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Je suis Sophie. La chouette était l'oiseau d'Athéna, un signe de sagesse. Les joueurs sages comptent avant de prendre : un pion vaut 1, un cavalier ou un fou 3, une tour 5 et une dame 9."
+ },
+ "greece/57f33bab": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Combien de points vaut une tour ?"
+ },
+ "greece/48c004b4": {
+  "who": "sophie",
+  "voice": "ff_siwis",
+  "text": "Une tour vaut 5 : plus qu'un cavalier ou un fou, moins qu'une dame."
+ },
+ "rome/2c98ee18": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Bienvenue à Rome ! L'empereur Trajan vient de terminer une grande colonne, sculptée d'une spirale de plus de 2 500 personnages qui monte jusqu'en haut."
+ },
+ "rome/6bf98f8b": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Les soldats romains jouaient au ludus latrunculorum, le jeu des petits soldats. On prenait une pièce ennemie en la coinçant entre deux des siennes."
+ },
+ "rome/a07a3ca0": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "Je suis Marcus. Dans la plus vieille légende de Rome, une louve a pris soin des jumeaux Romulus et Rémus. Une bataille est gagnée quand le chef ennemi est piégé. Aux échecs, on appelle ça échec et mat !"
+ },
+ "rome/8f47c366": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "C'est quoi, l'échec et mat ?"
+ },
+ "rome/05daa1a5": {
+  "who": "marcus",
+  "voice": "em_santa",
+  "text": "L'échec et mat termine la partie : le roi est en échec et n'a aucune sortie."
+ },
+ "mughal/799f1b6a": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Bienvenue à Agra ! L'empereur Shah Jahan construit le Taj Mahal, un tombeau de marbre blanc si beau que des gens viennent encore du monde entier pour le voir."
+ },
+ "mughal/82e97960": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Les échecs sont nés en Inde il y a environ 1 500 ans. On les appelait chaturanga, les quatre parties d'une armée : les soldats à pied, les chevaux, les éléphants et les chars. Aujourd'hui, ce sont nos pions, nos cavaliers, nos fous et nos tours."
+ },
+ "mughal/f9e9ab02": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Je suis Moti. Eh oui, le fou était autrefois un éléphant ! Comme les éléphants dans une bataille, les pièces d'échecs sont plus fortes au centre. Contrôle le centre et ton armée pourra aller partout."
+ },
+ "mughal/38e72d4b": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Où sont nés les échecs ?"
+ },
+ "mughal/e10aaab4": {
+  "who": "moti",
+  "voice": "em_santa",
+  "text": "Les échecs sont nés en Inde sous le nom de chaturanga, puis ils ont voyagé jusqu'en Perse, dans le monde arabe et en Europe."
+ },
+ "ming/8c67e7b0": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Bienvenue à Pékin ! La Cité interdite vient d'être terminée : un palais aux murs rouges et aux toits dorés avec des centaines de bâtiments, où vivait l'empereur."
+ },
+ "ming/cadffc7e": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "En Chine, on joue au xiangqi, un cousin des échecs. Les pièces sont des disques plats avec des caractères dessus, une rivière traverse le milieu de l'échiquier, et les canons sautent par-dessus les pièces pour prendre !"
+ },
+ "ming/d8592e0f": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Je suis Bao. Les pandas sont patients, et les joueurs patients repèrent les enfilades : attaque une grosse pièce, et quand elle s'en va, prends la pièce qui est derrière."
+ },
+ "ming/f9439574": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "Qu'est-ce qui traverse le milieu d'un échiquier de xiangqi ?"
+ },
+ "ming/c0841772": {
+  "who": "bao",
+  "voice": "ff_siwis",
+  "text": "La rivière sépare les deux armées. Certaines pièces bougent différemment une fois qu'elles l'ont traversée."
+ },
+ "venice/134c524c": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Bienvenue à Venise, une ville construite sur l'eau, où les gens se déplacent en gondole le long des canaux. Sur l'île de Murano, les verriers soufflent le plus beau verre du monde."
+ },
+ "venice/1d411ff7": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Il y a longtemps, la dame ne pouvait bouger que d'une case en diagonale. Puis, vers 1475, des joueurs en Espagne et en Italie lui ont donné de nouveaux pouvoirs : elle pouvait aller aussi loin qu'elle voulait, dans toutes les directions. On appelait ça les échecs de la dame enragée !"
+ },
+ "venice/903507a7": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Je suis Marco. Le lion ailé est le symbole de Venise. Un grand pouvoir demande beaucoup de prudence : sors ta dame trop tôt et elle sera chassée sur tout l'échiquier."
+ },
+ "venice/1de173df": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Qu'est-ce que la dame a gagné vers 1475 ?"
+ },
+ "venice/7ac8aae1": {
+  "who": "marco",
+  "voice": "em_santa",
+  "text": "Ce changement a fait de la dame la pièce la plus forte et a rendu les échecs beaucoup plus rapides."
+ },
+ "paris/2ebe4090": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Bienvenue à Paris en 1889 ! Pour l'Exposition universelle, la ville a construit la plus haute tour du monde, en dentelle de fer. On l'appelle la tour Eiffel."
+ },
+ "paris/156249a8": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Pas loin d'ici se trouve le café de la Régence, où on a joué aux échecs pendant plus de cent ans. Le grand joueur Philidor y a appris le jeu."
+ },
+ "paris/21e7523a": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Je suis Gaston. Le coq est un symbole de la France. Philidor disait que les pions sont l'âme des échecs. Un pion que personne ne peut arrêter peut marcher jusqu'au bout et devenir une dame !"
+ },
+ "paris/8110982f": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Comment Philidor appelait-il les pions ?"
+ },
+ "paris/ab684328": {
+  "who": "gaston",
+  "voice": "em_santa",
+  "text": "Les pions décident de la forme de la partie, et un pion qui atteint l'autre bout devient une dame."
+ },
+ "russia/145dfcb5": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Bienvenue à Saint-Pétersbourg ! La neige scintille sur les coupoles dorées, et les joailliers royaux fabriquent des œufs de Pâques couverts de bijoux pour la famille du tsar."
+ },
+ "russia/88b3ff8c": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "La Russie adore les échecs. Elle a donné beaucoup de champions du monde, et ses écoles d'échecs sont célèbres pour enseigner la finale : la dernière partie du jeu, quand il ne reste que quelques pièces."
+ },
+ "russia/c8032e87": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Je suis Mishka. Dans la finale, même le roi devient un combattant ! Quand deux rois sont face à face avec une case entre eux, on appelle ça l'opposition."
+ },
+ "russia/22dea253": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Dans la finale, que doit faire ton roi ?"
+ },
+ "russia/b92ad2a8": {
+  "who": "mishka",
+  "voice": "em_santa",
+  "text": "Quand il reste moins de pièces, le roi est assez en sécurité pour aider, et c'est une pièce forte."
+ },
+ "deco/74c28959": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Bienvenue à New York en 1930 ! Le Chrysler Building vient de devenir le plus haut bâtiment du monde, avec une couronne d'arches en acier brillant et une flèche pointue comme une aiguille."
+ },
+ "deco/d7e4b410": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "La ville est pleine de clubs d'échecs, et le Manhattan Chess Club est l'un des plus célèbres du monde. Le grand champion cubain José Raúl Capablanca y a joué."
+ },
+ "deco/3b4bc95d": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Je suis Skye. De là-haut, un aigle voit tout l'échiquier. Les bons joueurs connaissent leurs motifs de mat par cœur, alors ils les repèrent en un éclair."
+ },
+ "deco/e60884a2": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Quel champion du monde venu de Cuba a joué au Manhattan Chess Club ?"
+ },
+ "deco/306e1491": {
+  "who": "skye",
+  "voice": "ff_siwis",
+  "text": "Capablanca a été champion du monde de 1921 à 1927 et il était célèbre pour son style clair et simple."
+ }
+}

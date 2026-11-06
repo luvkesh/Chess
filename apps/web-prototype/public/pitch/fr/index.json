@@ -1,0 +1,802 @@
+{
+ "381ac9d6": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Regency Gilt a été fait pour une résidence d'été royale au bord de la mer. De la laque noire et blanche, polie jusqu'à briller comme un miroir, avec des couronnes et des perles en vraie feuille d'or. Chaque partie ressemble à une fête au palais."
+ },
+ "6269c60b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Voici le grand classique ! Le jeu Staunton est en buis et en ébène, tourné sur un tour et sculpté à la main, il y a bien longtemps, en 1849. Presque tous les jeux d'échecs du monde se sont inspirés de celui-ci."
+ },
+ "fbed65e6": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Carrara and Nero, c'est de la vraie pierre. Du marbre blanc d'Italie, le même que celui que sculptait Michel-Ange, face à un marbre noir brillant d'Espagne. Il est frais au toucher, et il claque si joliment sur l'échiquier."
+ },
+ "cf092b4b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un chocolatier gardait ce jeu dans sa vitrine ! De l'or brillant sur une laque couleur cacao foncé, poli jusqu'à en avoir l'air délicieux. Mais n'essaie pas de le manger !"
+ },
+ "af71f45b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Jade and Onyx est calme et frais. Du jade vert pâle, adoré en Chine depuis des milliers d'années, face à de l'onyx noir tout lisse. Un jeu tranquille pour un joueur malin."
+ },
+ "ff6c277b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Celui-ci a sa place dans une vitrine à trophées. De l'or poli face à du platine froid, et chaque camp est bordé de l'autre. C'est le jeu d'un vrai champion."
+ },
+ "535b2bf3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu savais que le chocolat rubis existe vraiment ? Il est rose, et il vient de fèves de cacao spéciales. Ici, il affronte le chocolat le plus noir, brillant et lisse."
+ },
+ "6b969349": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Milk and Dark brille comme une tablette de chocolat toute neuve. Du chocolat au lait crémeux d'un côté, du chocolat noir intense de l'autre. C'est le grand prix de la Récolte du cacao."
+ },
+ "5b4cacce": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du caramel doré et de la crème fraîche, avec des couronnes et des crinières à la feuille d'or. C'est doux, chaleureux et sucré, comme son nom. Une gourmandise de la Récolte du cacao."
+ },
+ "eb2d5f8c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Regarde comme ça brille ! Crystal Jewels est taillé comme les pierres précieuses dans la vitrine d'un bijoutier, du cristal transparent contre du noir de jais. Chaque type de pièce porte son propre bijou de couleur, pour la repérer d'un coup d'œil."
+ },
+ "cae6203d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Celestial Opal cache un arc-en-ciel à l'intérieur. De l'opale blanche et noire, montée sur argent et parsemée d'étoiles dorées. Cherche les planètes, la lune, et une comète sur le cavalier."
+ },
+ "7423c1a6": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Peacock Court est le jeu le plus fier de tous. De l'ivoire et de l'émail bleu paon sur or, avec des queues en éventail et des yeux de plumes brillants. Chaque pièce est prête à faire la roue."
+ },
+ "f14df61c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les échecs sont nés en Inde, comme un jeu de bataille avec des éléphants, des chevaux et des soldats. Le Royal Army les fait revivre, sculptés dans le bois de santal et l'ébène, avec des robes de soie et des armures d'or. Ce sont les échecs tels qu'ils étaient au début."
+ },
+ "9fe4bd57": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bip boup ! La Robot Squad est faite de plastique jouet brillant et de chrome étincelant, avec des yeux qui s'allument. Chaque robot porte le badge de sa pièce, alors tu sais toujours qui est qui."
+ },
+ "6e685f78": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Viens sous la mer ! Coral Kingdom est sculpté dans la nacre, avec des sirènes, une pieuvre, un hippocampe et un château de corail. Leurs queues scintillent comme des écailles de poisson."
+ },
+ "1d181655": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Walnut and Maple est un vrai échiquier en bois, avec une ligne dorée autour du bord. Chaleureux, simple et beau."
+ },
+ "46fd767c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Cocoa and Cream a des cases comme du chocolat et de la crème, avec de minuscules lignes framboise entre elles. Miam !"
+ },
+ "5b449acf": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Vert et chamois, les couleurs des clubs d'échecs et des tournois du monde entier. C'est l'échiquier des champions."
+ },
+ "c70e0137": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre blanc et noir, poli comme le sol d'un palais. Tes pièces vont glisser dessus."
+ },
+ "5521b08f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des cases en bois de rose foncé et couleur miel, encadrées de vraie feuille d'or. Il brille quand la lumière est douce."
+ },
+ "f328a84e": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre vert aux veines de jade, à côté d'une pierre ivoire chaleureuse. C'est comme jouer dans un jardin."
+ },
+ "a5a0c07a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "L'obsidienne, c'est du verre de volcan ! Fumée et brillante, avec un bord chromé, et des reflets partout."
+ },
+ "a8966f86": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Sakura Lacquer est rose comme les cerisiers en fleurs au printemps. Il va avec le Tokyo Sky Garden et la Robot Squad."
+ },
+ "9d573727": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du grès rose et couleur miel, de Jaipur, la Ville rose. Il est chaleureux, comme un après-midi ensoleillé."
+ },
+ "0935034a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des cases en laque rubis et praliné clair, avec de l'or entre elles. C'est gourmand, et très chic."
+ },
+ "a8588988": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la laque noire et de l'ivoire, avec chaque ligne dessinée à l'or. Assez chic pour une partie royale."
+ },
+ "5a2030ff": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du chêne doré de la Récolte du cacao. Il sent l'automne, si les échiquiers pouvaient sentir."
+ },
+ "203ee9c4": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ces cases ont les couleurs d'une cabosse de cacao bien mûre et de ses fèves. C'est de là que vient le chocolat !"
+ },
+ "39b5baf2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du grès du désert et du lapis bleu, avec des hiéroglyphes sculptés tout autour du cadre. Digne d'un pharaon."
+ },
+ "b07fc41d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre blanc et de la pierre verte, avec une frise de grecques tout autour. Très Athènes."
+ },
+ "44bcddb3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du travertin chaleureux et du marbre gris, encadrés de porphyre violet et de bronze. Les pierres de la Rome antique."
+ },
+ "0a74f6c6": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre blanc avec des fleurs faites de minuscules pierres, posé dans du grès rouge, exactement comme le Taj Mahal."
+ },
+ "f116dbcd": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la laque noire et de la soie pâle, avec des lignes dorées et un cadre de cinabre rouge. On se croirait dans la Cité interdite."
+ },
+ "65a5ff8e": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du verre miroir et du verre pailleté d'or qui brille, découvert par les verriers de Murano grâce à un heureux accident !"
+ },
+ "3c0c573c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre gris-bleu et blanc, dans un cadre en bois de violette, comme dans les grandes maisons de Paris."
+ },
+ "6ed261ee": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre rose et de l'onyx blanc, encadrés de malachite verte tourbillonnante des monts Oural."
+ },
+ "4f0a21ec": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De l'ébène rayée et du chrome brillant, tout droit sortis d'un penthouse chic de New York des années 1930."
+ },
+ "eca6161a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le Grand Cocoa Salon est douillet, avec des bougies, un lustre et un feu qui crépite. Mon endroit préféré pour une partie tranquille."
+ },
+ "fd19a20f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La Midnight Library a des étagères de vieux livres sous un ciel bleu étoilé. Parfait pour une partie où il faut réfléchir."
+ },
+ "a0487b20": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le Marble Hall est blanc et doré, lumineux comme le matin. Ici, chaque coup a l'air important."
+ },
+ "2f99e8ca": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le Harvest Loft est chaleureux et plein de lumière dorée. C'est comme jouer dans une grange au moment des récoltes."
+ },
+ "16211640": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Joue au coucher du soleil, juste au pied des pyramides et du Sphinx ! Le sable brille en orange tout autour de toi."
+ },
+ "e3e84f01": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une colonnade de marbre, avec le Parthénon là-haut sur la colline. On entendrait presque les philosophes réfléchir."
+ },
+ "b9f65ace": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ta table est au milieu du Colisée, avec des torches allumées à chaque gradin. Quel endroit pour une bataille !"
+ },
+ "6d5ef3d0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un jardin au bord du long bassin, avec le Taj Mahal qui brille au clair de lune. C'est si paisible."
+ },
+ "010ccd3b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la laque rouge et de l'or, face à la grande salle de la Cité interdite. Un bureau digne d'un empereur."
+ },
+ "0e242335": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un balcon au-dessus du Grand Canal, avec le pont du Rialto et des gondoles qui glissent. Ciao, Venise !"
+ },
+ "4c2d8ee2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une salle de bal de palais, avec des coupoles en bulbe colorées dehors, sous la neige. Douillet et grandiose à la fois."
+ },
+ "8e36870f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un toit au-dessus de Times Square, dans une mer de néons. La ville ne dort jamais, et cette partie non plus !"
+ },
+ "a381f03b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une terrasse de jardin juste au pied de la tour Eiffel, toute illuminée pour l'Exposition universelle. Oh là là !"
+ },
+ "0347b893": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Pouf, pouf, pop : la pièce gonfle et éclate en cacao et confettis !"
+ },
+ "67bf2557": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Simple et sobre. Pas d'étincelles, juste le coup."
+ },
+ "0c5cf953": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tsss ! Une touche chauffée à blanc et une fontaine d'étincelles dorées, comme un vrai soudeur."
+ },
+ "68f51f13": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une rose rubis enveloppe la pièce, puis s'ouvre, anneau après anneau. Trop joli !"
+ },
+ "f2405d02": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tourne, tourne, disparu : un tourbillon d'encre rend la pièce de plus en plus petite. Tadaa !"
+ },
+ "57ad688a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Brrr ! La pièce gèle complètement, puis éclate en glace scintillante."
+ },
+ "bafc7156": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Oh oh, elle fond ! La pièce devient une flaque de chocolat brillante, miam !"
+ },
+ "2cddf100": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trois, deux, un, fiouuu : la pièce file vers le ciel et éclate comme un feu d'artifice !"
+ },
+ "b5046d6a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Whoosh ! Chaque prise explose en flammes et en braises qui volent."
+ },
+ "a3b8dcfb": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Crac ! Un éclair tombe à chaque prise."
+ },
+ "cdb856c5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des pétales jaillissent en tourbillon à chaque prise et s'épanouissent. Trop joli !"
+ },
+ "0157d13d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Crac ! La case se fend et des éclats de pierre volent partout."
+ },
+ "6d8d707e": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des canons à confettis, des ballons qui éclatent et une pluie pour ton roi. C'est la fête !"
+ },
+ "06c0fa41": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une victoire tranquille, comme un vrai gentleman. Parfois, un sourire suffit."
+ },
+ "7b29c459": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des étincelles jaillissent de chaque coin et l'échiquier rougeoie comme une forge. Waouh !"
+ },
+ "9f3fd54a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des fusées tout autour de la table, aussi brillantes qu'une nuit de Diwali. Boum, tu as gagné !"
+ },
+ "d90317e3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des roses fleurissent tout autour de l'échiquier, et une rose géante s'ouvre au-dessus de ton roi."
+ },
+ "f1c773f4": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un feu d'artifice doré pour la fête des moissons. Une victoire qui mérite des applaudissements !"
+ },
+ "793494d9": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un cercle de feu autour de l'échiquier, et des fleurs de feu dans le ciel. Tu as gagné !"
+ },
+ "950fdd13": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des nuages d'orage tourbillonnent, et un éclair de lumière couronne ton roi. Hourra !"
+ },
+ "107ec46e": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un tourbillon de pétales danse autour de l'échiquier pour ta victoire. Youpi !"
+ },
+ "91c4f204": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des pierres et de la poussière dorée tournent autour de l'échiquier, puis de l'or couronne ton roi !"
+ },
+ "d49f83cb": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un tourbillon d'encre géant tourne autour de l'échiquier, puis se referme d'un coup dans une gerbe d'étoiles !"
+ },
+ "ae933c8b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Fiouuu, un blizzard ! La neige tourbillonne autour de la table et une couronne de glace scintille sur ton roi."
+ },
+ "f44c73f2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ton roi devient une fontaine de chocolat ! Plic, ploc, délicieux."
+ },
+ "3ebf08e6": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une vraie pendule de tournoi, avec un écran vert lumineux. Tic, tac, à toi de jouer !"
+ },
+ "18c72834": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des chiffres ambrés et chaleureux, comme les tubes lumineux des très vieilles horloges."
+ },
+ "1cba3062": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une pendule en laque rubis avec des chiffres rose tendre. Jolie, mais elle donne toujours l'heure."
+ },
+ "4eafa7fa": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un chronographe doré avec un cadran crème, comme une belle montre."
+ },
+ "fdcb90fe": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du verre givré et des chiffres bleu glacier. Garde ton sang-froid sous la pression !"
+ },
+ "74030c04": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du laiton poli avec des chiffres couleur or de récolte. Brillant et chaleureux."
+ },
+ "ddfb9124": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le petit toc doux des lourdes pièces en bois sur le feutre. Mon bruit préféré aux échecs."
+ },
+ "54513847": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des petits clics doux et tranquilles, pour des parties calmes et douillettes."
+ },
+ "0262768f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le claquement clair du marbre sur le marbre. Chaque coup a l'air important !"
+ },
+ "d568e5fc": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des carillons de cristal à chaque coup. On dirait de la magie."
+ },
+ "5fc5838f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Pas de traînée, juste des coups nets et bien rangés."
+ },
+ "2f87ef58": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une traînée de poussière dorée derrière chaque coup. Ça brille !"
+ },
+ "533bb645": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une fraîche volute de menthe s'enroule derrière chaque coup, légère comme une brise."
+ },
+ "7653e8d5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une queue de comète rubis. Tes pièces filent comme des étoiles filantes !"
+ },
+ "c2e3a215": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De douces gouttes de caramel coulent derrière chaque coup."
+ },
+ "ad8f3e50": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des étincelles de cannelle épicées crépitent derrière chaque coup. Trop chic !"
+ },
+ "76669c5e": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tes pièces laissent une traînée de flammes. Ça chauffe, ça chauffe !"
+ },
+ "f62efd60": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Zap ! Un éclair qui crépite suit chaque coup."
+ },
+ "020751c3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des bulles montent derrière chaque coup. Pop, pop !"
+ },
+ "0c9d92f9": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des pétales roses voltigent derrière chaque coup. Tout doux !"
+ },
+ "4fe15749": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Scintille, scintille ! Des étoiles parsèment chaque coup."
+ },
+ "03580c99": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des cristaux de givre scintillants suivent chaque coup. Brrr !"
+ },
+ "0cb8c407": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un ruban de toutes les couleurs flotte derrière tes pièces. Waouh !"
+ },
+ "35e61346": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un cavalier doré sur émail rubis. Pour les joueurs qui sautent dans l'action !"
+ },
+ "53c3b76d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une tour dorée sur émail vert. Forte et solide, comme toi."
+ },
+ "7a2aaede": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un fou doré sur émail violet. Rusé, malin, et toujours en diagonale."
+ },
+ "1e91f641": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un pion doré sur émail cacao. Petit, mais il peut devenir une dame !"
+ },
+ "eb13b0c0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La dame dorée, la pièce la plus puissante de l'échiquier."
+ },
+ "4f4ea186": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le roi doré. Seuls les meilleurs joueurs portent celui-là."
+ },
+ "891fabb3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Truffle le lapin, ton tout premier ami. Si doux et si gentil !"
+ },
+ "56316b36": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La Grandmaster Crown ! Seulement pour les joueurs qui ont battu Ember le dragon."
+ },
+ "1f901205": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une cabosse de cacao bien mûre de la saison des récoltes. Miam !"
+ },
+ "5ea60106": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une couronne de blé doré, pour un roi ou une reine de la moisson."
+ },
+ "19743ca7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Hé, c'est moi ! Prends mon visage, et on sera jumeaux."
+ },
+ "7e82b2d7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bramble le castor, un bâtisseur infatigable qui adore les plans."
+ },
+ "cf618fd3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Zippy l'écureuil, le joueur le plus rapide de la forêt !"
+ },
+ "adf9fa63": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Shelly la tortue. Lentement et prudemment, on gagne la partie."
+ },
+ "3c0a65f2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Rocco le raton laveur, plein de petits tours malins."
+ },
+ "203b9908": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ivy la girafe, qui voit toujours tout l'échiquier."
+ },
+ "7e8f54cc": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Onyx le corbeau, à l'œil vif et très sage."
+ },
+ "3c69f796": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ember le dragon, le joueur le plus fort de tous. Courage !"
+ },
+ "4e4d5b30": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Miu le chat, de l'Égypte ancienne. Élégant et malin."
+ },
+ "463bad91": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Sophie la chouette, de la Grèce antique. L'amie la plus sage qui soit."
+ },
+ "f215fb8f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marcus le loup, de la Rome antique. Courageux et fidèle."
+ },
+ "17d8604d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Moti l'éléphant, de l'Inde moghole. Doux et fort."
+ },
+ "7df11a32": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Bao le panda, de la Chine des Ming. Calme, gentil et très patient."
+ },
+ "f4a19791": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marco le lion ailé, le fier gardien de Venise."
+ },
+ "42531b09": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Gaston le coq, de Paris. Cocorico !"
+ },
+ "1c952e1d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mishka l'ours, de la Russie enneigée. De gros câlins tout chauds !"
+ },
+ "32a81514": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Skye l'aigle, qui plane au-dessus de New York. Vole haut !"
+ },
+ "7bc195b7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Pas de cadre du tout, joli et simple."
+ },
+ "5ffc1cf9": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un anneau de bronze brillant, pour les joueurs qui progressent."
+ },
+ "b5fc341a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un anneau d'argent brillant. Tu vas loin !"
+ },
+ "7fd272a0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un anneau d'or, réservé aux joueurs les plus passionnés."
+ },
+ "a5ef0df1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un anneau rubis profond qui brille comme un bijou."
+ },
+ "30006a84": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une couronne couleur or de récolte, de la saison Récolte du cacao."
+ },
+ "7f120ae0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De l'or sur émail cacao. Riche et gourmand."
+ },
+ "70fd14ba": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un anneau rougeoyant de braises de cacao. Chaud et ardent !"
+ },
+ "193e0a27": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la vraie nacre et du rose corail tout doux, encadrés de laque bleu océan. Il chatoie comme l'intérieur d'un coquillage."
+ },
+ "4d723d19": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre de lune pâle et du lapis bleu étoilé, avec de minuscules étoiles dorées autour du cadre. Un échiquier pour les oiseaux de nuit."
+ },
+ "b1074d9c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre brute, taillée au burin à la main, sans aucun polissage. Elle a l'air aussi vieille que Stonehenge."
+ },
+ "f1558423": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De l'argile séchée au soleil, peinte de cercles comme les jarres des potiers de l'Indus. Chaleureuse, terreuse et très, très ancienne."
+ },
+ "7cf3a56a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre grise de montagne dans un cadre de blocs ajustés, exactement comme les murs construits par les Incas."
+ },
+ "c20dad31": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du bouleau et du chêne des tourbières foncé, taillés à la main, avec un nœud de serpent sculpté qui fait tout le tour. Ça sent la forêt !"
+ },
+ "81108959": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du frêne clair et du bois de wengé foncé dans un cadre de marbre blanc, avec une frise de grecques en bronze comme sur les temples grecs."
+ },
+ "69eeb98a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la météorite foncée tombée de l'espace, à côté de la glace givrée. Une ligne bleue lumineuse fait le tour du cadre."
+ },
+ "3295c047": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du sable blanc nacré et du sable noir comme la nuit, scellés sous verre avec un bord doré. Il scintille comme le désert la nuit."
+ },
+ "e89f15b1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un jardin de cerisiers en fleurs sur un toit de Tokyo, avec le mont Fuji au loin. La ville scintille sous tes pieds."
+ },
+ "759582e0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une chocolaterie sur la Grand-Place de Bruxelles, avec les maisons dorées des corporations dehors. Mmm, sens ce cacao !"
+ },
+ "ee08a2ed": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un palais de perles au fond de la mer, avec des tours de corail et des poissons qui passent. N'oublie pas de respirer !"
+ },
+ "a1b774ab": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La cour dorée comme le miel du fort d'Amber, tout en haut au-dessus de Jaipur. Regarde les petites coupoles sur les murs."
+ },
+ "2b5ebd57": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le palais de Mysore un soir de fête, illuminé par des milliers de lampes. C'est comme jouer au milieu d'une fête."
+ },
+ "27e5e665": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une tour de guet sur la Grande Muraille de Chine. La muraille serpente sur les collines vertes aussi loin que tu peux voir."
+ },
+ "e9830c2d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un chalet en bois tout douillet, avec le Cervin par la fenêtre. Quelqu'un veut un chocolat chaud ?"
+ },
+ "f7fc07f1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un salon tout en haut de Dubaï au coucher du soleil, face au plus haut bâtiment du monde. Quelle vue !"
+ },
+ "25451f3e": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un palais en verre et en fer, avec des palmiers et une fontaine de cristal à l'intérieur. Il est plein de lumière."
+ },
+ "5cb16e31": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un lac gelé en Islande, sous des aurores boréales vertes et violettes. Couvre-toi bien !"
+ },
+ "b1cb0574": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une prairie au-dessus de la forêt, face à un château blanc aux tours bleues. Comme dans un conte de fées."
+ },
+ "1081d9c9": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Au milieu du grand cercle de pierres, au lever du soleil. Des gens l'ont construit il y a plus de quatre mille ans !"
+ },
+ "4428e59a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une cour en briques à Mohenjo-daro, l'une des toutes premières villes, juste à côté du Grand Bain."
+ },
+ "45e422d9": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une terrasse herbeuse au Machu Picchu, la cité inca dans les nuages. Dis bonjour aux lamas !"
+ },
+ "c7bc7a2a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une table en planches près du feu de camp, au fond d'une forêt de pins. En bas sur le fjord, un drakkar attend au clair de lune."
+ },
+ "c95becc7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le temple de Poséidon, tout en haut d'une falaise au-dessus de la mer. Regarde le soleil se coucher sur les îles !"
+ },
+ "eedd4ab8": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une lune glacée de Saturne, avec une fusée qui attend sur son pas de tir. Regarde en l'air, les anneaux remplissent tout le ciel !"
+ },
+ "4691725a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tout en haut de la Burj Khalifa, le plus haut bâtiment du monde. On est au-dessus des nuages !"
+ }
+}
