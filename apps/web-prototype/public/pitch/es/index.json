@@ -249,45 +249,45 @@
   "voice": "em_alex",
   "text": "Una terraza ajardinada justo al pie de la torre Eiffel, toda iluminada para la Exposición Universal. ¡Oh là là!"
  },
- "514aa5ab": {
+ "73553ba5": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Una nube de polvo de cacao en cada captura. ¡Dulce y sencillo!"
+  "text": "Puf, puf, ¡pum!: la pieza se infla y estalla en cacao y confeti."
  },
  "f8a25b10": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Sencillo y simple. Sin brillos, solo la jugada."
  },
- "beb0b923": {
+ "c5f20b3f": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Chispas doradas saltan en cada captura. ¡Cuánto brillo!"
+  "text": "¡Chisss! Un toque al rojo blanco y una fuente de chispas doradas, como un soldador de verdad."
  },
- "3dd09ade": {
+ "ff395add": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Pétalos rubí giran alrededor de cada captura. Qué bonito."
+  "text": "Una rosa rubí envuelve la pieza y luego se abre, anillo tras anillo. ¡Qué bonito!"
  },
- "66977e19": {
+ "bd4ef6d3": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Un remolino de humo de tinta, como un truco de magia. ¡Tachán!"
+  "text": "Gira, gira, ¡ya no está!: un remolino de tinta hace la pieza cada vez más pequeña. ¡Tachán!"
  },
- "e588e228": {
+ "3104d365": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Cristales de escarcha brillan en cada captura. ¡Brrr!"
+  "text": "¡Brrr! La pieza se congela por completo y luego se rompe en hielo brillante."
  },
- "857ad59e": {
+ "71302f0a": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "En cada captura salen volando trocitos de cacao. ¡Crujientes!"
+  "text": "¡Oh, oh, se está derritiendo! La pieza se vuelve un charco de chocolate brillante, ¡ñam!"
  },
- "8aa879d1": {
+ "b32b0423": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Chispas de caramelo llueven en cada captura. Como un pequeño fuego artificial."
+  "text": "Tres, dos, uno, ¡fiuuu!: la pieza sale disparada y estalla como un fuego artificial."
  },
  "c808cf56": {
   "who": "rooky",
@@ -309,35 +309,35 @@
   "voice": "em_alex",
   "text": "¡Crac! La casilla se agrieta y saltan trozos de piedra."
  },
- "c6a2075e": {
+ "aaaabedd": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Confeti dorado, rubí y crema en cada victoria. ¡A celebrarlo!"
+  "text": "Cañones de confeti, globos que estallan y una lluvia para tu rey. ¡Hora de fiesta!"
  },
  "12bd7ce8": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Una victoria tranquila, como un verdadero caballero. A veces basta con una sonrisa."
  },
- "93f48bf6": {
+ "71e675ac": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Una lluvia de chispas blancas y doradas, para que cada victoria brille."
+  "text": "Las chispas brotan de cada rincón y el tablero brilla como una forja. ¡Guau!"
  },
- "45ac5718": {
+ "0b6979cc": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Fuegos artificiales de colores, tan brillantes como una noche de Diwali. ¡Bum, ganaste!"
+  "text": "Cohetes alrededor de la mesa, tan brillantes como la noche de Diwali. ¡Bum, has ganado!"
  },
- "36546e13": {
+ "b843992f": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Pétalos de rosa caen flotando sobre el tablero. Una forma suave y bonita de ganar."
+  "text": "Las rosas florecen alrededor del tablero y una rosa enorme se abre sobre tu rey."
  },
- "6bd7ea94": {
+ "8919e2f0": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Fuegos artificiales dorados para la fiesta de la cosecha. ¡Una victoria que vale la pena celebrar!"
+  "text": "Un espectáculo de fuegos artificiales dorados para la fiesta de la cosecha. ¡Una victoria para celebrar!"
  },
  "c0710ef6": {
   "who": "rooky",
@@ -358,6 +358,21 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "Las piedras y el polvo dorado giran alrededor del tablero, ¡y luego el oro corona a tu rey!"
+ },
+ "70f8dce8": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Un remolino gigante de tinta gira alrededor del tablero y se cierra de golpe en un estallido de estrellas!"
+ },
+ "1a7c049e": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Fiuuu, una ventisca! La nieve gira alrededor de la mesa y una corona de hielo brilla sobre tu rey."
+ },
+ "622b6dd1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Tu rey se convierte en una fuente de chocolate! Chap, chap, delicioso."
  },
  "d3a585d9": {
   "who": "rooky",

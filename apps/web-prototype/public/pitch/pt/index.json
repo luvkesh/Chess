@@ -249,45 +249,45 @@
   "voice": "pm_alex",
   "text": "Um terraço de jardim bem aos pés da Torre Eiffel, toda iluminada para a Exposição Universal. Oh là là!"
  },
- "32e72120": {
+ "71047a3f": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Uma nuvenzinha de pó de cacau a cada captura. Doce e simples!"
+  "text": "Puf, puf, pou: a peça incha e estoura em cacau e confete!"
  },
  "83837778": {
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Puro e simples. Sem brilho, só o lance."
  },
- "3bb35e61": {
+ "aeaadb71": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Faíscas douradas voam a cada captura. Que brilho!"
+  "text": "Tsss! Um toque incandescente e uma fonte de faíscas douradas, como um soldador de verdade."
  },
- "a878449f": {
+ "fe731de4": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Pétalas de rubi giram em volta de cada captura. Que lindo."
+  "text": "Uma rosa rubi envolve a peça e depois se abre, anel após anel. Que lindo!"
  },
- "cabbfe40": {
+ "1efd5de6": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Um redemoinho de fumaça de tinta, como um truque de mágica. Tcharam!"
+  "text": "Gira, gira, sumiu: um redemoinho de tinta deixa a peça cada vez menor. Tcharam!"
  },
- "5b361a7f": {
+ "75b4e907": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Cristais de gelo brilham a cada captura. Brrr!"
+  "text": "Brrr! A peça congela inteirinha e depois se quebra em gelo brilhante."
  },
- "b059b6fc": {
+ "c1c39009": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Nibs de cacau se espalham a cada captura. Crocante!"
+  "text": "Ih, está derretendo! A peça vira uma poça de chocolate brilhante, nham!"
  },
- "fa5e6079": {
+ "848bdcb7": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Faíscas de caramelo chovem a cada captura. Como um fogo de artifício pequenininho."
+  "text": "Três, dois, um, fiuuu: a peça sobe como um foguete e explode como fogos de artifício!"
  },
  "c89e9f37": {
   "who": "rooky",
@@ -309,35 +309,35 @@
   "voice": "pm_alex",
   "text": "Craque! A casa racha e lascas de pedra voam para todo lado."
  },
- "d783c176": {
+ "8ae1930d": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Confete dourado, rubi e creme a cada vitória. Vamos comemorar!"
+  "text": "Canhões de confete, balões estourando e uma chuva para o seu rei. Hora da festa!"
  },
  "78ae6384": {
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Uma vitória tranquila, como um verdadeiro cavalheiro. Às vezes um sorriso basta."
  },
- "706907cb": {
+ "448fe36a": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Uma chuva de faíscas brancas e douradas, para fazer cada vitória brilhar."
+  "text": "Faíscas jorram de todos os cantos e o tabuleiro brilha como uma forja. Uau!"
  },
- "e083bb9c": {
+ "31adbd42": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Fogos de artifício coloridos, brilhantes como a noite de Diwali. Bum, você ganhou!"
+  "text": "Foguetes em volta da mesa, brilhantes como a noite de Diwali. Bum, você venceu!"
  },
- "665e8842": {
+ "7c846adf": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Pétalas de rosa caem flutuando sobre o tabuleiro. Um jeito suave e lindo de vencer."
+  "text": "Rosas florescem em volta do tabuleiro, e uma rosa enorme se abre sobre o seu rei."
  },
- "c63b2b92": {
+ "7db7bfe4": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Fogos de artifício dourados para a festa da colheita. Uma vitória que merece festa!"
+  "text": "Um show de fogos de artifício dourados para a festa da colheita. Uma vitória para comemorar!"
  },
  "fb5193ae": {
   "who": "rooky",
@@ -358,6 +358,21 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Pedras e pó dourado giram em volta do tabuleiro, e depois o ouro coroa seu rei!"
+ },
+ "16a39893": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Um redemoinho gigante de tinta gira em volta do tabuleiro e se fecha de repente numa explosão de estrelas!"
+ },
+ "20bb4ac9": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Fiuuu, uma nevasca! A neve rodopia em volta da mesa e uma coroa de gelo brilha sobre o seu rei."
+ },
+ "cd886a28": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Seu rei vira uma fonte de chocolate! Splish, splash, delícia."
  },
  "b17c3d3d": {
   "who": "rooky",

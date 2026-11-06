@@ -249,45 +249,45 @@
   "voice": "em_alex",
   "text": "Une terrasse de jardin juste au pied de la tour Eiffel, toute illuminée pour l'Exposition universelle. Oh là là !"
  },
- "a1bdb606": {
+ "0347b893": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Un nuage de poudre de cacao à chaque prise. Doux et simple !"
+  "text": "Pouf, pouf, pop : la pièce gonfle et éclate en cacao et confettis !"
  },
  "67bf2557": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Simple et sobre. Pas d'étincelles, juste le coup."
  },
- "18dd3c90": {
+ "0c5cf953": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Des étincelles dorées volent à chaque prise. Ça brille !"
+  "text": "Tsss ! Une touche chauffée à blanc et une fontaine d'étincelles dorées, comme un vrai soudeur."
  },
- "5416750d": {
+ "68f51f13": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Des pétales rubis tourbillonnent autour de chaque prise. Que c'est joli."
+  "text": "Une rose rubis enveloppe la pièce, puis s'ouvre, anneau après anneau. Trop joli !"
  },
- "90692706": {
+ "f2405d02": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Un tourbillon de fumée d'encre, comme un tour de magie. Et hop !"
+  "text": "Tourne, tourne, disparu : un tourbillon d'encre rend la pièce de plus en plus petite. Tadaa !"
  },
- "76fbf670": {
+ "57ad688a": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Des cristaux de givre scintillent à chaque prise. Brrr !"
+  "text": "Brrr ! La pièce gèle complètement, puis éclate en glace scintillante."
  },
- "f19ce8df": {
+ "bafc7156": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Des éclats de fèves de cacao volent à chaque prise. Croustillant !"
+  "text": "Oh oh, elle fond ! La pièce devient une flaque de chocolat brillante, miam !"
  },
- "8c7843c1": {
+ "2cddf100": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Une pluie d'étincelles de caramel à chaque prise. Comme un petit feu d'artifice."
+  "text": "Trois, deux, un, fiouuu : la pièce file vers le ciel et éclate comme un feu d'artifice !"
  },
  "b5046d6a": {
   "who": "rooky",
@@ -309,35 +309,35 @@
   "voice": "em_alex",
   "text": "Crac ! La case se fend et des éclats de pierre volent partout."
  },
- "c52d4282": {
+ "6d8d707e": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Des confettis or, rubis et crème pour chaque victoire. Faisons la fête !"
+  "text": "Des canons à confettis, des ballons qui éclatent et une pluie pour ton roi. C'est la fête !"
  },
  "06c0fa41": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Une victoire tranquille, comme un vrai gentleman. Parfois, un sourire suffit."
  },
- "ca9e6455": {
+ "7b29c459": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Une pluie d'étincelles blanches et dorées, pour faire briller chaque victoire."
+  "text": "Des étincelles jaillissent de chaque coin et l'échiquier rougeoie comme une forge. Waouh !"
  },
- "28a36fd7": {
+ "9f3fd54a": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Un feu d'artifice coloré, aussi lumineux qu'une nuit de Diwali. Boum, tu as gagné !"
+  "text": "Des fusées tout autour de la table, aussi brillantes qu'une nuit de Diwali. Boum, tu as gagné !"
  },
- "161fc946": {
+ "d90317e3": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Des pétales de rose tombent doucement sur l'échiquier. Une façon douce et jolie de gagner."
+  "text": "Des roses fleurissent tout autour de l'échiquier, et une rose géante s'ouvre au-dessus de ton roi."
  },
- "55b5cf06": {
+ "f1c773f4": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Un feu d'artifice doré pour la fête des récoltes. Une victoire qui mérite des hourras !"
+  "text": "Un feu d'artifice doré pour la fête des moissons. Une victoire qui mérite des applaudissements !"
  },
  "793494d9": {
   "who": "rooky",
@@ -358,6 +358,21 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "Des pierres et de la poussière dorée tournent autour de l'échiquier, puis de l'or couronne ton roi !"
+ },
+ "d49f83cb": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un tourbillon d'encre géant tourne autour de l'échiquier, puis se referme d'un coup dans une gerbe d'étoiles !"
+ },
+ "ae933c8b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Fiouuu, un blizzard ! La neige tourbillonne autour de la table et une couronne de glace scintille sur ton roi."
+ },
+ "f44c73f2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ton roi devient une fontaine de chocolat ! Plic, ploc, délicieux."
  },
  "3ebf08e6": {
   "who": "rooky",
