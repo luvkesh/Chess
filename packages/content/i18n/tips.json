@@ -68,7 +68,7 @@
   "settings.cine": { "en": "Short movie scenes when a piece is captured or a king castles. Tap the board to skip one.", "hi": "जब कोई मोहरा मारा जाए या राजा किलाबंदी करे, तो छोटे फ़िल्मी दृश्य। छोड़ने के लिए बिसात पर टैप करें।", "check": ["hi"] },
   "settings.elements": { "en": "Each room's own fire, lightning or stone burst on captures, and a storm when you win.", "hi": "हर कमरे की अपनी आग, बिजली या पत्थरों की बौछार मोहरा मारने पर, और जीतने पर एक तूफ़ान।", "check": ["hi"] },
   "settings.eval": { "en": "A bar beside the board shows who is ahead. It is hidden in online games.", "hi": "बिसात के बगल में एक पट्टी दिखाती है कि कौन आगे है। ऑनलाइन खेलों में यह छिपी रहती है।", "check": ["hi"] },
-  "settings.guide": { "en": "Shows Rooky's card that tells you what to do next on each screen.", "hi": "Rooky का कार्ड दिखाता है, जो हर स्क्रीन पर बताता है कि आगे क्या करना है।", "check": ["hi"] },
+  "settings.guide": { "en": "Shows Rooky's face in the bottom corner. He tells you what to do next on each screen.", "hi": "नीचे कोने में Rooky का चेहरा दिखाता है। वह हर स्क्रीन पर बताता है कि आगे क्या करना है।", "check": ["hi"] },
   "settings.install": { "en": "Add Chackmate to the home screen so it opens like an app.", "hi": "Chackmate को होम स्क्रीन पर जोड़ें ताकि यह ऐप की तरह खुले।", "check": ["hi"] },
   "settings.legal": { "en": "Dots show every square your chosen piece can move to.", "hi": "बिंदु वे सारे खाने दिखाते हैं जहाँ आपका चुना मोहरा जा सकता है।", "check": ["hi"] },
   "settings.music": { "en": "Gentle music for each room. Slide for loudness; the tick box turns it on or off.", "hi": "हर कमरे के लिए हल्का संगीत। आवाज़ के लिए स्लाइड करें; टिक बॉक्स से चालू या बंद करें।", "check": ["hi"] },
@@ -148,5 +148,6 @@
   "settings.cm.time": { "en": "Clock tips|Tips on using your clock in timed games.", "hi": "घड़ी के सुझाव|समय वाले खेलों में घड़ी के इस्तेमाल के सुझाव।", "check": ["hi"] },
   "settings.cm.style": { "en": "Style|How Rooky sounds: friendly, calm and exact, or extra cheerful.", "hi": "अंदाज़|Rooky कैसा लगे: दोस्ताना, शांत और सटीक, या ख़ूब ख़ुशमिज़ाज।", "check": ["hi"] },
   "settings.cm.level": { "en": "Explain for|Pick how simple the explanations are, or let Rooky match your level.", "hi": "किसके लिए समझाए|समझाना कितना आसान हो, या Rooky आपके स्तर से मिलाए।", "check": ["hi"] },
-  "settings.cm.voice": { "en": "Who speaks|Who reads the coach's tips aloud. Every voice is recorded.", "hi": "कौन बोले|कोच के सुझाव कौन पढ़े। हर आवाज़ रिकॉर्ड की हुई है।", "check": ["hi"] }
+  "settings.cm.voice": { "en": "Who speaks|Who reads the coach's tips aloud. Every voice is recorded.", "hi": "कौन बोले|कोच के सुझाव कौन पढ़े। हर आवाज़ रिकॉर्ड की हुई है।", "check": ["hi"] },
+  "settings.captions": { "en": "Shows Rooky's words beside his face while he talks. Off unless you turn it on.", "hi": "Rooky के बोलते समय उसके शब्द उसके चेहरे के पास दिखाता है। जब तक आप चालू न करें, बंद रहता है।", "check": ["hi"] }
 }

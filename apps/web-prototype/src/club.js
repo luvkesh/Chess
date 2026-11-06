@@ -58,6 +58,14 @@ const ChacklateClub = (function () {
     return { country: best[1], city: best[0], source: 'gps' };
   }
   // Only when the player taps the location button. The browser asks them first.
+  // False when this page may not ask at all, for example inside a frame that does not allow
+  // location. Then the button is left out, because tapping it could never show the question.
+  function gpsAllowed() {
+    if (!('geolocation' in navigator) || !window.isSecureContext) return false;
+    const pol = document.permissionsPolicy || document.featurePolicy;
+    try { if (pol && pol.allowsFeature && !pol.allowsFeature('geolocation')) return false; } catch (e) {}
+    return true;
+  }
   function gps() {
     return new Promise((resolve) => {
       if (!('geolocation' in navigator)) return resolve(null);
@@ -271,7 +279,7 @@ const ChacklateClub = (function () {
 
   return {
     POOLS, LEAGUES, leagueOf, START,
-    countryName, flag, countries, citiesOf, countryOfCity, guess, nearest, gps,
+    countryName, flag, countries, citiesOf, countryOfCity, guess, nearest, gps, gpsAllowed,
     data, place, setPlace, autoLocate, fromServer,
     members, droppingBy, following, toggleFollow,
     card, publish, livePeers, addFriend, friends, removeFriend, rated, board, myRating,

@@ -43,6 +43,7 @@ button { font: inherit; color: inherit; }
 #world canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s ease; }
 #world.live canvas { opacity: 1; }
 #world.live .poster { opacity: 0; }
+#world.swap .poster { z-index: 1; opacity: 1; transition: opacity .14s ease; }
 #world::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: var(--shade, radial-gradient(ellipse 70% 60% at 50% 42%, rgba(18,12,10,.45), rgba(18,12,10,.75) 80%)); transition: background .8s; }
 main, footer, header.top { position: relative; z-index: 1; }
 .solid { background: var(--bg); }
@@ -86,13 +87,26 @@ header nav a:hover, header nav a.on { color: var(--ink); }
 header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2px; width: 16px; height: 1px; background: var(--gold); transform: translateX(-50%); }
 
 /* ---------- hero ---------- */
-.hero { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 110px 0 150px; }
+.hero { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 110px 0 150px; overflow-x: clip; }   /* the dark glow behind the title reaches past a phone screen */
 .hero .inner { padding: 0 20px; }
 .hero .crest.big { margin: 0 auto 22px; }
 .wordmark { font: 700 15px/1 var(--caps); letter-spacing: 0.6em; color: var(--gold-2); text-transform: uppercase; margin: 0 0 18px; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9); padding-left: 0.6em; }
 .hero h1 { font: 500 clamp(52px, 8.4vw, 118px)/0.98 var(--serif); letter-spacing: -0.01em; margin: 0 0 22px; text-shadow: 0 4px 40px rgba(0, 0, 0, 0.7); }
 .hero h1 em { font-style: italic; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 0.05em 0.16em 0; }
-.hero .lede { font-size: clamp(18px, 1.6vw, 21px); color: #f1e4d6; max-width: 640px; margin: 0 auto 34px; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95); }
+.hero .inner { position: relative; }
+.hero .inner::before { content: ''; position: absolute; z-index: -1; inset: -40px -120px -30px; background: radial-gradient(closest-side, rgba(10, 8, 20, 0.62), rgba(10, 8, 20, 0.34) 60%, transparent); pointer-events: none; }
+.hero h1 { margin-bottom: 18px; }
+.hero-rule { display: block; width: min(520px, 70vw); height: 1px; margin: 0 auto 18px; background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-2) 50%, var(--gold) 70%, transparent); box-shadow: 0 0 12px rgba(232, 192, 112, 0.45); }
+.hero .lede { font: 500 clamp(22px, 2.2vw, 30px)/1.3 var(--serif); color: #f6ead8; max-width: 640px; margin: 0 auto 30px; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95); }
+.feats { list-style: none; display: flex; justify-content: center; margin: 0 auto 34px; padding: 0; }
+.feats li { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 150px; padding: 2px 22px; color: #f6ead8; font: 500 16px/1.2 var(--sans); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95); }
+.feats li + li { border-left: 1px solid rgba(232, 192, 112, 0.35); }
+.feats svg { width: 40px; height: 40px; fill: none; stroke: var(--gold-2); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(232, 192, 112, 0.45)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8)); }
+.feats svg .fill { fill: rgba(246, 220, 156, 0.35); stroke: none; }
+.feats li:first-child svg .fill { fill: var(--gold-2); }
+.feats b { font: 600 17px/1 var(--caps); color: var(--gold-2); }
+.btn.big { min-height: 60px; padding: 0 44px; font-size: 15px; }
+.btn.big svg { width: 20px; height: 20px; }
 .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 .place { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 9px 16px; font: 500 12px/1.2 var(--caps); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .place b { color: var(--gold-2); font-weight: 600; }
@@ -113,40 +127,38 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 
 /* ---------- numbers ---------- */
 .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 54px; }
-.nums .lux { padding: 28px 24px; }
-.nums .medal3d { position: absolute; top: 18px; right: 18px; width: 84px; height: 84px; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5)); }
-.nums b { display: block; font: 600 52px/1 var(--caps); font-variant-numeric: lining-nums tabular-nums; font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.12em; margin-bottom: 8px; }
-.nums p { margin: 8px 0 0; color: var(--muted); font-size: 15.5px; }
+.nums .lux { padding: 34px 22px 30px; text-align: center; overflow: hidden; background: radial-gradient(120% 80% at 50% 0%, rgba(232, 192, 112, 0.14), transparent 60%), linear-gradient(180deg, rgba(56, 36, 27, 0.78), rgba(22, 13, 10, 0.92)); transition: transform .35s, box-shadow .35s, border-color .35s; }
+.nums .lux::before { content: ''; position: absolute; inset: 7px; border: 1px solid rgba(232, 192, 112, 0.16); border-radius: calc(var(--r) - 5px); pointer-events: none; }
+.nums .lux:hover { transform: translateY(-4px); border-color: rgba(232, 192, 112, 0.5); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45), 0 0 40px rgba(232, 192, 112, 0.12); }
+.nums .medal3d { display: block; width: 96px; height: 96px; margin: 0 auto 14px; border-radius: 50%; filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 18px rgba(232, 192, 112, 0.22)); transition: transform .5s; }
+.nums .lux:hover .medal3d { transform: translateY(-3px) rotate(-4deg) scale(1.04); }
+.nums b { display: block; font: 600 54px/1 var(--caps); font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.1em; margin-bottom: 6px; }
+.nums h3 { margin: 0; }
+.nums h3::after { content: ''; display: block; width: 36px; height: 1px; margin: 12px auto 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.nums p { margin: 12px 0 0; color: var(--muted); font-size: 15.5px; }
 
 /* ---------- wonders ---------- */
 #wonders { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 130px 0 40px; }
 #wonders > .wrap { width: 100%; min-width: 0; box-sizing: border-box; }
-.places { display: grid; grid-template-columns: repeat(9, 1fr); gap: 10px; margin-top: 40px; }
-.places button { position: relative; padding: 12px 12px 11px; text-align: left; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(20, 12, 9, 0.78); cursor: pointer; transition: border-color .2s, transform .2s, background .2s; }
-.places button:hover { transform: translateY(-2px); border-color: var(--line); }
-.places button[aria-pressed="true"] { border-color: var(--gold); background: rgba(40, 24, 16, 0.78); box-shadow: 0 0 0 1px var(--gold), 0 10px 30px rgba(232, 192, 112, 0.2); }
-.places i { display: block; font: italic 500 15px/1 var(--serif); color: var(--gold-3); margin-bottom: 6px; }
-.places b { display: block; font: 600 11.5px/1.25 var(--caps); letter-spacing: 0.1em; text-transform: uppercase; }
-.places span { display: block; margin-top: 3px; font-size: 12.5px; color: var(--muted); line-height: 1.3; }
-.places .lock { position: absolute; top: 10px; right: 10px; width: 14px; height: 14px; color: var(--gold-2); }
-.passport { margin-top: 26px; padding: clamp(22px, 3vw, 34px); box-shadow: inset 0 0 0 5px rgba(18, 12, 10, 0.6), inset 0 0 0 6px var(--line); }
-.pp-head { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.pp-head h3 { margin: 0; font: 600 clamp(24px, 2.6vw, 30px)/1.1 var(--serif); }
-.pp-head .grule { margin-top: 12px; width: 70px; }
-.pp-head p { margin: 12px 0 0; color: var(--muted); }
-.stamps { display: grid; grid-template-columns: repeat(9, 1fr); gap: 14px 8px; margin-top: 24px; }
-.stamp { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; min-width: 0; }
-.stamp span { position: relative; display: block; transform: rotate(var(--tilt, 0deg)); }
-.stamp img { display: block; width: 96px; max-width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(216, 164, 71, 0.25)); }
-.stamp b { font: 600 13px/1.25 var(--caps); letter-spacing: 0.06em; color: var(--ink); }
-.stamp.faint img { opacity: 0.32; filter: grayscale(0.6); }
-.stamp.faint b { color: var(--faint); }
-.stamp .lock { position: absolute; right: 2px; bottom: 2px; width: 22px; height: 22px; padding: 4px; border-radius: 50%; background: rgba(18, 12, 10, 0.9); border: 1px solid var(--line); color: var(--gold-2); }
-.placeinfo { margin-top: 22px; display: inline-flex; align-items: center; gap: 16px; padding: 12px 22px 12px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: rgba(20, 12, 9, 0.82); max-width: 100%; }
-.placeinfo img { width: 54px; height: 54px; flex: none; }
-.placeinfo p { min-width: 0; }
-.placeinfo p { margin: 0; font: italic 500 19px/1.35 var(--serif); max-width: 640px; }
-.placeinfo small { display: block; font: 600 11px/1.3 var(--caps); letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); font-style: normal; margin-bottom: 4px; }
+.voyage { padding: 18px clamp(16px, 2.4vw, 28px) 20px; }
+.champ { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line-2); }
+.champ img { width: 64px; height: 64px; flex: none; }
+.champ-words { min-width: 0; flex: 1; }
+.champ small { display: block; font: 600 11px/1.3 var(--caps); letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.champ h3 { margin: 0; font: 600 clamp(22px, 2.2vw, 28px)/1.15 var(--serif); letter-spacing: 0; text-transform: none; }
+.prize { display: inline-flex; align-items: center; gap: 9px; flex: none; padding: 8px 16px 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(232, 192, 112, 0.08); color: var(--gold-2); font-size: 14.5px; line-height: 1.25; }
+.prize svg { width: 20px; height: 20px; flex: none; }
+.places { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; margin-top: 16px; }
+.places button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; padding: 8px 2px 6px; border: 0; border-radius: 14px; background: none; color: var(--muted); cursor: pointer; text-align: center; }
+.places .badge { position: relative; display: block; width: 100%; max-width: 92px; aspect-ratio: 1; border-radius: 50%; transition: transform .2s; }
+.places .badge img { display: block; width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); }
+.places .badge::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: 0 0 18px rgba(232, 192, 112, 0.45); opacity: 0; transition: opacity .15s; }
+@media (hover: hover) { .places button:hover .badge { transform: translateY(-3px); } .places button:hover { color: var(--ink); } }
+.places button[aria-pressed="true"] { color: var(--ink); }
+.places button[aria-pressed="true"] .badge::after { opacity: 1; }
+.places b { display: block; font: 600 11.5px/1.25 var(--caps); letter-spacing: 0.08em; text-transform: uppercase; overflow-wrap: anywhere; }
+.places .lock { position: absolute; right: -2px; bottom: -2px; width: 24px; height: 24px; padding: 5px; border-radius: 50%; background: rgba(18, 12, 10, 0.92); border: 1px solid var(--line); color: var(--gold-2); }
+.places button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* ---------- collect ---------- */
 /* The Collect showroom, built like the Atelier on JongClub's site, with our live 3D stage. */
@@ -177,10 +189,14 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-inline: 7px; padding: 8px 7px 12px; flex: 1; min-width: 0; scrollbar-width: none; }
 .strip::-webkit-scrollbar { display: none; }
 .strip button { flex: none; width: 132px; scroll-snap-align: start; padding: 0; border: 0; background: none; cursor: pointer; color: var(--muted); text-align: center; }
-.strip button img { width: 132px; height: 99px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); transition: transform .2s, box-shadow .2s; }
+.strip button .thumb { position: relative; display: block; margin: 0; border-radius: 10px; transition: transform .2s; }
+.strip button img { display: block; width: 132px; height: 99px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+/* the selected ring is its own layer, drawn the moment the tile is picked (a box-shadow on the
+   lifted picture was only repainted once the pointer left it) */
+.strip button .thumb::after { content: ''; position: absolute; inset: -3.5px; border-radius: 13px; border: 1.5px solid var(--gold); opacity: 0; pointer-events: none; }
 .strip button span { display: block; margin-top: 7px; font-size: 13px; line-height: 1.25; }
-@media (hover: hover) { .strip button:hover img { transform: translateY(-2px); } }   /* a tap leaves :hover stuck on phones */
-.strip button[aria-selected="true"] img { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--gold); }
+@media (hover: hover) { .strip button:hover .thumb { transform: translateY(-2px); } }   /* a tap leaves :hover stuck on phones */
+.strip button[aria-selected="true"] .thumb::after { opacity: 1; }
 .strip button[aria-selected="true"] span { color: var(--ink); }
 .strip-arrow { flex: none; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(20, 12, 10, 0.7); color: var(--gold-2); cursor: pointer; }
 .strip-arrow svg { width: 18px; height: 18px; }
@@ -200,16 +216,35 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .earn-cards p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
 .promise { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 28px 0 0; font: 600 italic clamp(20px, 2.2vw, 24px)/1.3 var(--serif); color: var(--gold-2); text-align: center; }
 .promise svg { width: 24px; height: 24px; flex: none; color: #9fe0c8; }
-.medals { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px 18px; }
-.medal { width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
-.medal .disc { position: relative; display: grid; place-items: center; width: 112px; height: 112px; margin-bottom: 8px; border-radius: 50%; overflow: hidden; padding: 3px; background: linear-gradient(135deg, #f6dc9a, #8a6326 55%, #e9c77d); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 240, 210, 0.4); }
-.medal .disc img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a2416, #120a07); }
-.medal .disc::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: radial-gradient(60% 45% at 35% 20%, rgba(255, 245, 225, 0.22), transparent 70%); pointer-events: none; }
-.medal .disc.framed { background: var(--ring); padding: 8px; }
-.medal .disc.snd { color: var(--gold-2); }
-.medal .disc.snd svg { width: 100%; height: 100%; padding: 30px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a2416, #120a07); }
-.medal b { font: 600 18px/1.2 var(--serif); color: var(--ink); }
-.medal small { font-size: 13.5px; line-height: 1.35; color: var(--muted); }
+/* The details: a list of tabs on the left, the chosen one's demos playing on the right */
+.fx { display: grid; grid-template-columns: minmax(220px, 290px) minmax(0, 1fr); gap: 28px; align-items: start; max-width: 1080px; margin: 0 auto; }
+.fx-tabs { display: flex; flex-direction: column; gap: 10px; }
+.fx-tabs button { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 6px 16px 6px 7px; border-radius: 16px; border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255, 235, 215, 0.05), rgba(255, 235, 215, 0.015)); color: var(--muted); font: 600 19px/1.15 var(--serif); text-align: left; cursor: pointer; transition: border-color 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s; }
+.fx-tabs button[aria-selected="true"] { color: var(--ink); border-color: rgba(246, 220, 156, 0.85); background: linear-gradient(180deg, rgba(232, 192, 112, 0.2), rgba(232, 192, 112, 0.06)); box-shadow: inset 0 0 0 1px rgba(246, 220, 156, 0.35), 0 12px 30px rgba(0, 0, 0, 0.4); }
+.fx-tabs button:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 3px; }
+@media (hover: hover) { .fx-tabs button:hover { color: var(--ink); border-color: rgba(232, 192, 112, 0.55); } }
+.fx-ic { flex: none; position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, #f6dc9a, #8a6326 55%, #e9c77d); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45); }
+.fx-ic img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a2416, #120a07); }
+.fx-ic img.framed { padding: 4px; background: var(--ring); }
+.fx-ic.snd { color: var(--gold-2); }
+.fx-ic.snd svg { width: 100%; height: 100%; padding: 13px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a2416, #120a07); }
+.fx-panel { min-width: 0; padding: 24px 26px 26px; border: 1px solid var(--line); border-radius: 22px; background: linear-gradient(180deg, rgba(42, 27, 20, 0.88), rgba(20, 13, 10, 0.92)); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); }
+.fx-copy h4 { margin: 0; font: 600 clamp(22px, 2.4vw, 28px)/1.15 var(--caps); letter-spacing: 0.04em; color: var(--gold-2); }
+.fx-copy p { margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: var(--muted); }
+.fx-copy .fx-n { color: var(--ink); }
+.fx-stage { position: relative; margin-top: 18px; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; border: 1px solid rgba(232, 192, 112, 0.4); background: radial-gradient(ellipse 80% 70% at 50% 30%, #3a2618, #140c09 75%); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 -40px 60px rgba(0, 0, 0, 0.35); }
+.fx-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.fx-foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 30px 16px 12px; background: linear-gradient(0deg, rgba(14, 9, 7, 0.85), transparent); pointer-events: none; }
+.fx-name { font: italic 600 19px/1.2 var(--serif); color: var(--ink); transition: opacity 0.35s; }
+.fx-pips { display: flex; gap: 4px; pointer-events: auto; }
+.fx-pips button { position: relative; width: 30px; height: 30px; border: 0; padding: 0; background: none; cursor: pointer; }
+.fx-pips button::after { content: ''; position: absolute; left: 7px; right: 7px; top: 13px; height: 4px; border-radius: 2px; background: rgba(255, 235, 215, 0.3); }
+.fx-pips button[aria-current="true"]::after { background: var(--gold-2); }
+.fx-pips button:focus-visible { outline: 2px solid var(--gold-2); outline-offset: -2px; border-radius: 8px; }
+.fx-hear { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid rgba(246, 220, 156, 0.6); background: rgba(20, 13, 10, 0.75); color: var(--gold-2); font: 500 14px/1 var(--sans); cursor: pointer; }
+.fx-hear svg { width: 17px; height: 17px; }
+.fx-hear[aria-pressed="true"] { background: linear-gradient(180deg, #f3d38a, #b9893a); color: #2a1a10; border-color: transparent; }
+.fx-hear[hidden] { display: none; }
 
 /* ---------- all ages ---------- */
 .friends { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 52px; }
@@ -230,11 +265,6 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .safe p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
 .links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
 
-/* ---------- interlude ---------- */
-.interlude { position: relative; z-index: 1; height: clamp(260px, 42vw, 460px); overflow: hidden; display: grid; place-items: center; border-block: 1px solid var(--line-2); }
-.il-pic { position: absolute; inset: -60px 0; background-size: cover; background-position: center 40%; will-change: transform; filter: brightness(0.7) saturate(1.15) hue-rotate(-12deg); }
-.interlude::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(18, 12, 10, 0.85), rgba(70, 22, 48, 0.42) 48%, rgba(18, 12, 10, 0.9)); }
-.il-quote { position: relative; z-index: 2; margin: 0; padding: 0 24px; max-width: 900px; text-align: center; font: italic 600 clamp(26px, 4vw, 48px)/1.2 var(--serif); color: var(--ink); text-shadow: 0 2px 24px rgba(0, 0, 0, 0.8); }
 /* ---------- pricing ---------- */
 .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 46px; align-items: stretch; }
 .plan { padding: 30px 28px; display: flex; flex-direction: column; }
@@ -363,6 +393,11 @@ html.nonlatin body { line-height: 1.75; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1100px) {
+  .fx { grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); gap: 20px; }
+  .fx-tabs { gap: 8px; }
+  .fx-tabs button { min-height: 54px; gap: 11px; font-size: 17px; }
+  .fx-ic { width: 44px; height: 44px; }
+  .fx-ic.snd svg { padding: 11px; }
   header nav { display: none; }
   header.top .wrap { justify-content: space-between; }
   .menu-btn { display: grid; }
@@ -371,10 +406,10 @@ html.nonlatin body { line-height: 1.75; }
   header.top.menu-open nav a { padding: 15px 4px; font-size: 13px; border-bottom: 1px solid var(--line-2); }
   header.top.menu-open nav a:last-child { border-bottom: 0; }
   header.top.menu-open nav a.on::after { left: auto; right: 4px; top: 50%; bottom: auto; transform: none; }
-  .places { grid-template-columns: repeat(3, 1fr); }
+  .places { gap: 4px; }
+  .places b { font-size: 10px; letter-spacing: 0.04em; }
   .nums, .safe { grid-template-columns: repeat(2, 1fr); }
   .earn-cards { grid-template-columns: repeat(2, 1fr); }
-  .stamps { grid-template-columns: repeat(5, 1fr); }
   .collect { grid-template-columns: 1fr; gap: 16px; }
   .pricing { grid-template-columns: 1fr; max-width: 520px; margin-left: auto; margin-right: auto; }
 }
@@ -384,6 +419,11 @@ html.nonlatin body { line-height: 1.75; }
   section { padding: 90px 0; }
   .sub { font-size: 17px; }
   .crest.big { width: 104px; height: 104px; }
+  .feats { display: grid; grid-template-columns: repeat(2, 1fr); row-gap: 18px; max-width: 360px; }
+  .feats li { min-width: 0; padding: 2px 10px; font-size: 15px; }
+  .feats li:nth-child(3) { border-left: 0; }
+  .feats svg { width: 34px; height: 34px; }
+  .btn.big { min-height: 54px; padding: 0 36px; }
   .wordmark { font-size: 13px; letter-spacing: 0.5em; }
   .btn { width: 100%; max-width: 360px; }
   .btn.small { width: auto; }
@@ -395,16 +435,22 @@ html.nonlatin body { line-height: 1.75; }
   .ticks li { font-size: 13px; padding: 12px 6px 11px; }
   .learn-copy { padding: 20px 18px 22px; }
   #wonders { padding-top: 90px; }
-  .places { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; margin: 30px -16px 0; padding: 2px 16px 8px; scrollbar-width: none; }
+  .voyage { padding: 14px 12px 14px; }
+  .champ { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px 12px; padding-bottom: 12px; }
+  .prize { grid-column: 1 / -1; justify-self: start; }
+  .champ h3 { font-size: 22px; }
+  .champ img { width: 52px; height: 52px; }
+  .prize { font-size: 13.5px; padding: 6px 12px 6px 10px; }
+  .places { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 4px; gap: 4px; margin: 10px -12px 0; padding: 4px 8px 2px; scrollbar-width: none; }
   .places::-webkit-scrollbar { display: none; }
-  .places button { flex: 0 0 40%; scroll-snap-align: start; }
-  .placeinfo { display: flex; border-radius: 18px; padding: 10px 14px 10px 10px; gap: 12px; }
-  .placeinfo img { width: 46px; height: 46px; }
-  .placeinfo p { font-size: 16px; }
+  .places button { flex: 0 0 23%; scroll-snap-align: start; }
+  .places .badge { max-width: 70px; }
+  .places b { font-size: 10px; letter-spacing: 0.04em; }
+  .places .lock { width: 21px; height: 21px; padding: 4px; }
   .nums { gap: 10px; }
-  .nums .lux { padding: 20px 16px; }
-  .nums b { font-size: 42px; }
-  .nums .medal3d { top: 14px; right: 12px; width: 58px; height: 58px; }
+  .nums .lux { padding: 22px 12px 20px; }
+  .nums b { font-size: 40px; }
+  .nums .medal3d { width: 66px; height: 66px; margin-bottom: 10px; }
   .nums p { font-size: 14px; }
   .safe { grid-template-columns: 1fr; }
   .friends { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -413,11 +459,16 @@ html.nonlatin body { line-height: 1.75; }
   .friend b { font-size: 20px; }
   .friend p { font-size: 13.5px; }
   .earn-cards { grid-template-columns: 1fr; gap: 12px; }
-  .stamps { grid-template-columns: repeat(3, 1fr); }
   .minihead { margin: 56px 0 24px; }
-  .medals { gap: 22px 10px; }
-  .medal { width: calc(50% - 10px); max-width: 160px; }
-  .medal .disc { width: 96px; height: 96px; }
+  .fx { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .fx-tabs { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px 6px; }
+  .fx-tabs button { flex-direction: column; justify-content: flex-start; gap: 6px; width: calc(25% - 5px); min-height: 0; padding: 8px 2px 9px; border-radius: 14px; font-size: 14px; line-height: 1.1; text-align: center; }
+  .fx-ic { width: 44px; height: 44px; }
+  .fx-ic.snd svg { padding: 11px; }
+  .fx-panel { padding: 18px 16px 16px; border-radius: 18px; }
+  .fx-copy p { font-size: 15px; }
+  .fx-stage { margin-top: 14px; aspect-ratio: 4 / 3; }
+  .fx-name { font-size: 17px; }
   .strip button { width: 104px; } .strip button img { width: 104px; height: 78px; } .strip-arrow { display: none; } .car-tabs { flex-wrap: nowrap; gap: 6px; } .car-tabs button { padding: 0 10px; gap: 6px; font-size: 11px; letter-spacing: 0.04em; } .car-tabs button svg { width: 15px; height: 15px; }
 }
 @media (max-width: 480px) { header.top .wrap { gap: 10px; } .logo { gap: 9px; font-size: 13px; letter-spacing: 0.18em; } .htools { gap: 8px; } .htools .btn.small { padding: 0 14px; letter-spacing: 0.12em; } }
@@ -449,11 +500,17 @@ html.nonlatin body { line-height: 1.75; }
   <div class="inner">
     <span class="crest big"><img src="@@IMG:crest@@" alt="" width="122" height="122"></span>
     <p class="wordmark">Chackmate</p>
-    <h1>Chess, for <em>every age.</em></h1>
-    <p class="lede">Learn with an AI coach. Play in front of the world's wonders. Collect it all.</p>
+    <h1>Chess <em>for all ages.</em></h1>
+    <span class="hero-rule" aria-hidden="true"></span>
+    <p class="lede">From the timeless game to today.</p>
+    <ul class="feats">
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 9.5A3.5 3.5 0 0 1 8.5 6h15A3.5 3.5 0 0 1 27 9.5v9a3.5 3.5 0 0 1-3.5 3.5H15l-5.5 4.5V22h-1A3.5 3.5 0 0 1 5 18.5z"/><path class="fill" d="M16 8.6l1.3 3.9 3.9 1.3-3.9 1.3-1.3 3.9-1.3-3.9-3.9-1.3 3.9-1.3z"/><path class="fill" d="M22.3 9.2l.5 1.4 1.4.5-1.4.5-.5 1.4-.5-1.4-1.4-.5 1.4-.5z"/></svg><span>AI coach</span></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8c4-1.8 8-1.8 12 1v16c-4-2.8-8-2.8-12-1z"/><path d="M16 9c4-2.8 8-2.8 12-1v16c-4-1.8-8-1.8-12 1"/><path d="M7.5 12.5c1.9-.6 3.8-.5 5.5.3M7.5 16.5c1.9-.6 3.8-.5 5.5.3M19 12.8c1.7-.8 3.6-.9 5.5-.3"/></svg><span><b>@@N:lessons@@</b> lessons</span></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><path d="M5 16h22M16 5c3.2 3 4.6 6.6 4.6 11S19.2 24 16 27c-3.2-3-4.6-6.6-4.6-11S12.8 8 16 5z"/></svg><span>Play online</span></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="5" width="22" height="22" rx="2"/><path d="M5 12.3h22M5 19.7h22M12.3 5v22M19.7 5v22"/><path class="fill" d="M5.6 5.6h6.7v6.7H5.6zM19.7 5.6h6.7v6.7h-6.7zM12.3 12.3h7.4v7.4h-7.4zM5.6 19.7h6.7v6.7H5.6zM19.7 19.7h6.7v6.7h-6.7z"/></svg><span><b>@@N:boards@@</b> boards</span></li>
+    </ul>
     <div class="cta">
-      <a class="btn gold" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a>
-      <a class="btn" href="#learn">See how it works</a>
+      <a class="btn gold big" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a>
     </div>
   </div>
   <div class="place glass" aria-live="polite"><span id="heroplace">Mughal India · <b>The Taj Mahal</b></span></div>
@@ -493,14 +550,16 @@ html.nonlatin body { line-height: 1.75; }
   <div class="wrap">
     <div class="eyebrow">Play</div>
     <h2>Play in front of <em>the world's wonders.</em></h2>
-    <p class="sub">Beat each champion to unlock the next place.</p>
+    <p class="sub">Beat each champion to stamp your passport.</p>
   </div>
   <div class="wrap">
-    <div class="placeinfo"><img id="pcoach" src="" alt="" width="54" height="54"><p><small id="pwho"></small><span id="psay"></span></p></div>
-    <div class="places" id="places" role="group" aria-label="Choose a place"></div>
-    <div class="passport glass reveal">
-      <div class="pp-head"><h3>Passport</h3><span class="grule" aria-hidden="true"></span><p>Beat each champion to stamp your passport.</p></div>
-      <div class="stamps" id="stamps"></div>
+    <div class="voyage glass reveal">
+      <div class="champ" aria-live="polite">
+        <img id="pcoach" src="" alt="" width="64" height="64">
+        <div class="champ-words"><small id="pwhere"></small><h3 id="pwho"></h3></div>
+        <span class="prize" id="pprize"></span>
+      </div>
+      <div class="places" id="places" role="group" aria-label="Choose a place"></div>
     </div>
   </div>
 </section>
@@ -541,14 +600,29 @@ html.nonlatin body { line-height: 1.75; }
 
   <div class="details">
     <div class="minihead reveal"><h3>And the details</h3><span class="grule" aria-hidden="true"></span></div>
-    <div class="medals reveal">
-      <div class="medal"><span class="disc"><img src="@@ART:detail-capture@@" alt=""></span><b>Capture effects</b><small>A little show each time a piece is taken.</small></div>
-      <div class="medal"><span class="disc"><img src="@@ART:detail-victory@@" alt=""></span><b>Victory effects</b><small>Fireworks, sparks or petals when you win.</small></div>
-      <div class="medal"><span class="disc"><img src="@@ART:detail-trail@@" alt=""></span><b>Move trails</b><small>A soft glow follows every move.</small></div>
-      <div class="medal"><span class="disc"><img src="@@ART:detail-clock@@" alt=""></span><b>Clock skins</b><small>From a classic display to a gold chronograph.</small></div>
-      <div class="medal"><span class="disc snd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></span><b>Sound packs</b><small>Felted wood, marble or crystal under each move.</small></div>
-      <div class="medal"><span class="disc"><img src="@@ART:detail-avatar@@" alt=""></span><b>Avatars</b><small>Pick a face for your player card.</small></div>
-      <div class="medal"><span class="disc framed" style="--ring: @@ART:detail-frame-ring@@"><img src="@@ART:detail-frame@@" alt=""></span><b>Frames</b><small>Bronze, silver, gold or ruby around it.</small></div>
+    <div class="fx reveal" id="fx">
+      <div class="fx-tabs" role="tablist" aria-label="The details" aria-orientation="vertical">
+        <button type="button" role="tab" id="fxt-capture" data-fx="capture" aria-controls="fx-panel" aria-selected="true" tabindex="0"><span class="fx-ic"><img src="@@ART:detail-capture@@" alt=""></span><span class="fx-tl">Capture effects</span></button>
+        <button type="button" role="tab" id="fxt-victory" data-fx="victory" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-victory@@" alt=""></span><span class="fx-tl">Victory effects</span></button>
+        <button type="button" role="tab" id="fxt-trail" data-fx="trail" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-trail@@" alt=""></span><span class="fx-tl">Move trails</span></button>
+        <button type="button" role="tab" id="fxt-clock" data-fx="clock" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-clock@@" alt=""></span><span class="fx-tl">Clock skins</span></button>
+        <button type="button" role="tab" id="fxt-sound" data-fx="sound" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic snd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></span><span class="fx-tl">Sound packs</span></button>
+        <button type="button" role="tab" id="fxt-avatar" data-fx="avatar" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-avatar@@" alt=""></span><span class="fx-tl">Avatars</span></button>
+        <button type="button" role="tab" id="fxt-frame" data-fx="frame" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-frame@@" alt="" class="framed" style="--ring: @@ART:detail-frame-ring@@"></span><span class="fx-tl">Frames</span></button>
+      </div>
+      <div class="fx-panel" id="fx-panel" role="tabpanel" aria-labelledby="fxt-capture">
+        <div class="fx-copy" data-fx="capture"><h4>Capture effects</h4><p>A little show each time a piece is taken. <span class="fx-n">There are @@N:fx_capture@@ to collect.</span></p></div>
+        <div class="fx-copy" data-fx="victory" hidden><h4>Victory effects</h4><p>A burst of colour over the board when you win. <span class="fx-n">There are @@N:fx_victory@@ to collect.</span></p></div>
+        <div class="fx-copy" data-fx="trail" hidden><h4>Move trails</h4><p>Every piece leaves a subtle trail while it moves. <span class="fx-n">There are @@N:fx_trail@@ to collect.</span></p></div>
+        <div class="fx-copy" data-fx="clock" hidden><h4>Clock skins</h4><p>Your game clock, from glacier glass to ruby lacquer. <span class="fx-n">There are @@N:fx_clock@@ to collect.</span></p></div>
+        <div class="fx-copy" data-fx="sound" hidden><h4>Sound packs</h4><p>The sound each piece makes as it meets the board. <span class="fx-n">There are @@N:fx_sound@@ to collect.</span></p></div>
+        <div class="fx-copy" data-fx="avatar" hidden><h4>Avatars</h4><p>A face for your player card. <span class="fx-n">There are @@N:fx_avatar@@ to collect.</span></p></div>
+        <div class="fx-copy" data-fx="frame" hidden><h4>Frames</h4><p>A ring of metal or enamel around your avatar. <span class="fx-n">There are @@N:fx_frame@@ to collect.</span></p></div>
+        <div class="fx-stage" id="fx-stage"><canvas id="fx-cv" aria-hidden="true"></canvas>
+          <button type="button" class="fx-hear" id="fx-hear" hidden aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg><span>Hear it</span></button>
+          <div class="fx-foot"><span class="fx-name" id="fx-name" aria-live="polite"></span><span class="fx-pips" id="fx-pips"><button type="button" aria-label="Demo 1 of 2"></button><button type="button" aria-label="Demo 2 of 2"></button></span></div>
+        </div>
+      </div>
     </div>
   </div>
 </div></section>
@@ -577,7 +651,6 @@ html.nonlatin body { line-height: 1.75; }
   <div class="links reveal"><a class="btn small" href="@@PARENT@@" target="_top">Parent page</a><a class="btn small" href="@@PRIVACY@@" target="_top">Privacy for families</a></div>
 </div></section>
 
-<div class="interlude"><div class="il-pic" id="il-pic" style="background-image: url(@@IMG:egypt-hero@@)"></div><p class="il-quote">One game, played in front of every wonder.</p></div>
 
 <section class="solid" id="pricing"><div class="wrap">
   <div class="center reveal">
@@ -711,17 +784,56 @@ html.nonlatin body { line-height: 1.75; }
     var reveal = function () { if (!shown) { shown = true; setTimeout(function () { world.classList.add('live'); }, 350); } };
     // the poster stays until the table's shaders are compiled and its first frame is drawn
     if (view.ready) view.ready().then(reveal); else requestAnimationFrame(function () { requestAnimationFrame(reveal); });
+    // the other places are got ready once the first one is on screen
+    (view.ready ? view.ready() : Promise.resolve()).then(function () { setTimeout(prepareNext, 2500); });
+  }
+  // Changing place: the new place's picture shows at once, the room is built behind it, and
+  // the picture fades away once the table has drawn the new room.
+  var swapT = 0;
+  function drawn(fn) {
+    var info = view.three.renderer.info.render, f0 = info.frame, t0 = Date.now();
+    (function wait() { if (info.frame > f0 + 1 || Date.now() - t0 > 6000) fn(); else requestAnimationFrame(wait); })();
   }
   function place(id) {
     var e = eraById[id];
     $('poster').src = IMG[id + '-hero'];
     if (!view || cur === id) { cur = id; return; }
     cur = id;
-    view.setTheme({ board: e.board }, { set: e.set.id });
-    view.setRoom({ room: e.room.id });
-    view.setBoard(startPieces(), null);
-    view.setHighlights({});
+    prepared[id] = true;
+    var build = function () {
+      if (cur !== id) return;
+      view.setTheme({ board: e.board }, { set: e.set.id });
+      view.setRoom({ room: e.room.id });
+      view.setBoard(startPieces(), null);
+      view.setHighlights({});
+      drawn(function () { if (cur === id) world.classList.remove('swap'); });
+    };
+    clearTimeout(swapT);
+    if (mode === 'wonders' && world.classList.contains('live')) {
+      world.classList.add('swap');
+      // two frames, so the picture is on screen before the build holds up the page
+      requestAnimationFrame(function () { requestAnimationFrame(function () { swapT = setTimeout(build, reduce ? 0 : 140); }); });
+    } else build();
   }
+  // Between scrolls, the places not yet seen are got ready one at a time: their textures
+  // painted and pieces sculpted, so choosing one later only has to put it on the table. Never
+  // during the coach's lesson, whose moves would stutter.
+  var prepared = {}, prepT = 0, scrolledAt = 0;
+  function prepareNext() {
+    clearTimeout(prepT);
+    if (!view || !view.prepare) return;
+    var ids = D.eras.map(function (e) { return e.id; }), at = ids.indexOf(wonder || HERO), next = null;
+    for (var k = 1; k <= ids.length && !next; k++) { var e = D.eras[(at + k) % ids.length]; if (!prepared[e.id]) next = e; }
+    if (!next) return;
+    var go = function () {
+      if (Date.now() - scrolledAt < 900 || mode === 'learn' || document.hidden) { prepT = setTimeout(prepareNext, 1000); return; }
+      prepared[next.id] = true;
+      view.prepare({ room: next.room.id, board: next.board, set: next.set.id });
+      prepT = setTimeout(prepareNext, 1200);
+    };
+    prepT = setTimeout(function () { if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2000 }); else go(); }, 300);
+  }
+  addEventListener('scroll', function () { scrolledAt = Date.now(); }, { passive: true });
   function insetsFor(mode) {
     var W = window.innerWidth, H = window.innerHeight, phone = W <= 760;
     if (mode === 'learn') return phone ? { top: 80, bottom: H * 0.5, left: 8, right: 8 } : { top: 90, bottom: 60, left: W * 0.5, right: 40 };
@@ -735,6 +847,9 @@ html.nonlatin body { line-height: 1.75; }
     if (!view || m === mode) return;
     mode = m;
     stopLesson();
+    // The lesson is a still camera on a board that is read closely, so it draws at full detail
+    // and up to twice the screen's resolution, as the game does when an item is tried on the table.
+    if (view.setFullDetail) view.setFullDetail(m === 'learn');
     if (m === 'learn') {
       place(HERO);
       view.setInsets(insetsFor(m));
@@ -802,12 +917,16 @@ html.nonlatin body { line-height: 1.75; }
   if (view) setMode('hero');
 
   // ---------------------------------------------------------------- wonders
+  // One passport: a colourful badge per place picks it; the champion above says what beating
+  // them wins. Premium places carry a small lock.
   var places = $('places'), wonder = HERO;
-  D.eras.forEach(function (e, i) {
+  var TROPHY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v4M8 21h8M9 18h6"/></svg>';
+  D.eras.forEach(function (e) {
     var b = document.createElement('button');
     b.type = 'button';
+    b.setAttribute('aria-label', e.name + ' · ' + e.landmark);
     b.setAttribute('data-tip', e.name + '|' + (e.access === 'free' ? 'Free to play.' : 'Comes with Premium.') + ' Your table looks out on ' + e.landmark.replace(/^The /, 'the ') + '.');
-    b.innerHTML = (e.access === 'free' ? '' : lock) + '<i>' + ROMAN[i] + '</i><b>' + e.name + '</b><span>' + e.landmark + '</span>';
+    b.innerHTML = '<span class="badge"><img src="' + ART['icon-' + e.id] + '" alt="" width="92" height="92">' + (e.access === 'free' ? '' : lock) + '</span><b>' + e.place.split(',')[0] + '</b>';
     b.onclick = function () { choose(e.id, true); };
     places.appendChild(b);
   });
@@ -815,17 +934,16 @@ html.nonlatin body { line-height: 1.75; }
     wonder = id;
     var e = eraById[id];
     [].forEach.call(places.children, function (b, k) { b.setAttribute('aria-pressed', D.eras[k].id === id ? 'true' : 'false'); });
+    // on phones the badges scroll sideways: keep the chosen one in view
+    var sel = places.children[D.eras.map(function (x) { return x.id; }).indexOf(id)], l = sel.offsetLeft - places.offsetLeft;
+    if (places.scrollWidth > places.clientWidth && (l < places.scrollLeft || l + sel.offsetWidth > places.scrollLeft + places.clientWidth)) places.scrollTo({ left: l - (places.clientWidth - sel.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
     $('pcoach').src = ART['coach-' + id];
-    $('pwho').textContent = e.coach.full + ' · ' + e.place + ', ' + e.when;
-    $('psay').textContent = '“' + e.coach.hello + '”';
+    $('pwho').textContent = e.coach.full;
+    $('pwhere').textContent = e.landmark + ' · ' + e.when;
+    $('pprize').innerHTML = TROPHY + '<span>Win the ' + e.set.name + ' set</span>';
     if (user) { if (mode === 'wonders') place(id); else $('wonders').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); }
   }
   choose(HERO, false);
-  // The passport: a stamp per place; Premium places are pale, with a small lock.
-  $('stamps').innerHTML = D.eras.map(function (e, i) {
-    var free = e.access === 'free';
-    return '<div class="stamp' + (free ? '' : ' faint') + '" style="--tilt:' + ((i * 37) % 13 - 6) + 'deg"><span><img src="' + ART['stamp-' + e.id] + '" alt="" width="96" height="96">' + (free ? '' : lock) + '</span><b>' + e.place.split(',')[0] + '</b></div>';
-  }).join('');
 
   // ---------------------------------------------------------------- collect
   // A showroom of everything the game lets you collect: three tabs, a live 3D stage, a plaque
@@ -867,7 +985,7 @@ html.nonlatin body { line-height: 1.75; }
     C[t].forEach(function (it, k) {
       var b = document.createElement('button');
       b.type = 'button'; b.setAttribute('role', 'tab');
-      b.innerHTML = '<img src="' + IMG[it.key] + '" alt="" width="132" height="99" loading="lazy"><span>' + it.name + '</span>';
+      b.innerHTML = '<span class="thumb"><img src="' + IMG[it.key] + '" alt="" width="132" height="99" loading="lazy"></span><span>' + it.name + '</span>';
       b.onclick = function () { if (k !== at) { show(k); tell(); } };
       strip.appendChild(b);
     });
@@ -930,6 +1048,470 @@ html.nonlatin body { line-height: 1.75; }
     ios.observe(stage);
   }
 
+  // ---------------------------------------------------------------- the details
+  // A tab for each kind of extra; the chosen tab's two demos play one after the other. They are
+  // drawn in 2D on a little board with the game's own gold pieces, in each item's colours from the
+  // catalog, and "Hear it" knocks with the sound packs' recipes from audio.js. Nothing plays while
+  // the section is off screen. With reduced motion each demo is one still frame and the pips switch.
+  (function () {
+    var root = $('fx');
+    if (!root) return;
+    var cv = $('fx-cv'), g = cv.getContext('2d'), stageEl = $('fx-stage'), hear = $('fx-hear'), nameEl = $('fx-name');
+    var tabs = [].slice.call(root.querySelectorAll('[role="tab"]'));
+    var copies = [].slice.call(root.querySelectorAll('.fx-copy'));
+    var pips = [].slice.call($('fx-pips').children);
+    var DUR = 5.4, FADE = 0.45, STEP = 1 / 60;
+    var cat = 'capture', idx = 0, t = 0, visible = false, raf = 0, last = 0, W = 640, H = 400, S = 1, scene = null, parts = [];
+    var seed = 1;
+    function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+    function hex(c, a) { var n = parseInt(c.slice(1), 16); return 'rgba(' + (n >> 16) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; }
+    function ease(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+    function span(a, b) { return ease((t - a) / (b - a)); }
+
+    // pictures: the gold pieces, an ebony copy of each, and the avatar medals
+    var pics = {};
+    function pic(key, dark) {
+      var id = key + (dark ? ':d' : '');
+      if (pics[id] !== undefined) return pics[id] || null;
+      pics[id] = false;
+      var im = new Image();
+      im.onload = function () {
+        if (!dark) pics[id] = im;
+        else {
+          var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+          var x = c.getContext('2d');
+          x.drawImage(im, 0, 0);
+          x.globalCompositeOperation = 'multiply'; x.fillStyle = '#4e3a3c'; x.fillRect(0, 0, c.width, c.height);
+          x.globalCompositeOperation = 'destination-in'; x.drawImage(im, 0, 0);
+          pics[id] = c;
+        }
+        if (!raf) draw();
+      };
+      im.src = ART[key];
+      return null;
+    }
+
+    // ------------------------------------------------ the board, seen from the player's chair
+    // u runs 0..6 across, v 0..4 from the far edge to the near one, y is height in squares.
+    function P(u, v, y) {
+      var d = 7 - v, k = 300 * S / d;
+      return { x: W / 2 + (u - 3) * k, y: 256 + ((-84 + 1428 / d) - 256) * S - (y || 0) * k * 0.62, k: k };
+    }
+    function quad(u0, v0, u1, v1) {
+      var a = P(u0, v0), b = P(u1, v0), c = P(u1, v1), d = P(u0, v1);
+      g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.lineTo(c.x, c.y); g.lineTo(d.x, d.y); g.closePath();
+    }
+    function board() {
+      var glow = g.createRadialGradient(W / 2, 250, 20, W / 2, 250, 380);
+      glow.addColorStop(0, 'rgba(255,210,150,.16)'); glow.addColorStop(1, 'rgba(255,210,150,0)');
+      g.fillStyle = glow; g.fillRect(0, 0, W, H);
+      quad(-0.28, -0.28, 6.28, 4.6); g.fillStyle = '#2c1a10'; g.fill();
+      g.strokeStyle = 'rgba(232,192,112,.75)'; g.lineWidth = 1.5; g.stroke();
+      for (var v = 0; v < 4; v++) for (var u = 0; u < 6; u++) {
+        quad(u, v, u + 1, v + 1);
+        g.fillStyle = (u + v) % 2 ? '#6a4026' : '#e0c294';
+        g.fill();
+      }
+      quad(0, 0, 6, 4); g.strokeStyle = 'rgba(232,192,112,.6)'; g.lineWidth = 1; g.stroke();
+      // the far edge fades into the room
+      var f = g.createLinearGradient(0, P(0, -0.3).y - 4, 0, P(0, 1.4).y);
+      f.addColorStop(0, 'rgba(20,12,9,.85)'); f.addColorStop(1, 'rgba(20,12,9,0)');
+      g.fillStyle = f; g.fillRect(0, 0, W, P(0, 1.4).y);
+    }
+    // A piece standing on square (u, v): o.y lifts it, o.tilt tips it over, o.spin turns it, o.a fades it.
+    function piece(p) {
+      var o = P(p.u + 0.5, p.v + 0.5), base = P(p.u + 0.5, p.v + 0.5, p.y || 0), a = p.a === undefined ? 1 : p.a;
+      if (a <= 0) return;
+      g.save();
+      g.globalAlpha *= a;
+      g.fillStyle = 'rgba(0,0,0,' + (0.5 / (1 + (p.y || 0) * 2)) + ')';
+      g.beginPath(); g.ellipse(o.x, o.y + o.k * 0.04, o.k * 0.34, o.k * 0.12, 0, 0, Math.PI * 2); g.fill();
+      var im = pic('fx-piece-' + p.t, p.dark);
+      if (im) {
+        var h = o.k * (p.t === 'k' || p.t === 'q' ? 1.5 : p.t === 'p' ? 1.08 : 1.28), w = h * 200 / 360;
+        g.translate(base.x, base.y + o.k * 0.06);
+        if (p.tilt) g.rotate(p.tilt);
+        if (p.spin) g.scale(Math.cos(p.spin) || 0.001, 1);
+        g.drawImage(im, -w / 2, -h, w, h);
+      }
+      g.restore();
+    }
+    function pieces(list) {
+      list.slice().sort(function (a, b) { return a.v - b.v; }).forEach(piece);
+    }
+    // a move from square a to square b between times t0 and t1, hopping when hop is set
+    function move(p, a, b, t0, t1, hop) {
+      var f = span(t0, t1);
+      p.u = a[0] + (b[0] - a[0]) * f; p.v = a[1] + (b[1] - a[1]) * f;
+      p.y = hop ? Math.sin(Math.PI * f) * hop : 0;
+      return t > t0 && t < t1;
+    }
+
+    // ------------------------------------------------ particles
+    function burst(n, at, make) { for (var i = 0; i < n; i++) parts.push(make(i, at)); }
+    function spark(at, col, speed, life, add) {
+      var a = rnd() * Math.PI * 2, s = speed * (0.4 + rnd() * 0.6);
+      return { x: at.x, y: at.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.8 - speed * 0.25, g: 220, drag: 1.6, life: life * (0.6 + rnd() * 0.4), age: 0, size: 1.6 + rnd() * 1.6, c: col, shape: 'spark', add: add !== false };
+    }
+    function tick(dt) {
+      for (var i = parts.length - 1; i >= 0; i--) {
+        var p = parts[i];
+        p.age += dt;
+        if (p.age >= p.life) { parts.splice(i, 1); continue; }
+        var k = Math.max(0, 1 - p.drag * dt);
+        p.vx *= k; p.vy = p.vy * k + p.g * dt;
+        p.x += p.vx * dt + (p.sway ? Math.sin(p.age * p.sway + p.ph) * 26 * dt : 0); p.y += p.vy * dt;
+        p.rot = (p.rot || 0) + (p.vr || 0) * dt;
+      }
+    }
+    function drawParts() {
+      parts.forEach(function (p) {
+        var life = 1 - p.age / p.life, a = Math.min(1, life * 1.6) * (p.alpha || 1) * Math.min(1, p.age / 0.06 + 0.2);
+        g.save();
+        g.globalCompositeOperation = p.add ? 'lighter' : 'source-over';
+        g.globalAlpha *= a;
+        g.translate(p.x, p.y);
+        var s = p.size * S;
+        if (p.shape === 'spark') {
+          var len = Math.min(18, Math.hypot(p.vx, p.vy) * 0.035) * S + s;
+          var ang = Math.atan2(p.vy, p.vx);
+          g.rotate(ang);
+          g.strokeStyle = p.c; g.lineWidth = s; g.lineCap = 'round';
+          g.beginPath(); g.moveTo(-len, 0); g.lineTo(0, 0); g.stroke();
+          g.fillStyle = '#fff'; g.beginPath(); g.arc(0, 0, s * 0.55, 0, 7); g.fill();
+        } else if (p.shape === 'glow') {
+          var r = g.createRadialGradient(0, 0, 0, 0, 0, s * 3);
+          r.addColorStop(0, hex(p.c, 1)); r.addColorStop(0.35, hex(p.c, 0.55)); r.addColorStop(1, hex(p.c, 0));
+          g.fillStyle = r; g.beginPath(); g.arc(0, 0, s * 3, 0, 7); g.fill();
+        } else if (p.shape === 'petal') {
+          g.rotate(p.rot); g.scale(1, 0.55 + 0.45 * Math.sin(p.age * 5 + p.ph));
+          g.fillStyle = p.c; g.beginPath(); g.moveTo(-s * 1.6, 0); g.quadraticCurveTo(0, -s * 1.3, s * 1.6, 0); g.quadraticCurveTo(0, s * 1.3, -s * 1.6, 0); g.fill();
+        } else if (p.shape === 'flake') {
+          g.rotate(p.rot); g.strokeStyle = p.c; g.lineWidth = Math.max(1, s * 0.22); g.lineCap = 'round';
+          g.beginPath();
+          for (var i = 0; i < 6; i++) {
+            var c = Math.cos(i * Math.PI / 3), n = Math.sin(i * Math.PI / 3);
+            g.moveTo(0, 0); g.lineTo(c * s * 2.2, n * s * 2.2);
+            g.moveTo(c * s * 1.3, n * s * 1.3); g.lineTo(c * s * 1.3 + Math.cos(i * Math.PI / 3 + 0.8) * s * 0.6, n * s * 1.3 + Math.sin(i * Math.PI / 3 + 0.8) * s * 0.6);
+            g.moveTo(c * s * 1.3, n * s * 1.3); g.lineTo(c * s * 1.3 + Math.cos(i * Math.PI / 3 - 0.8) * s * 0.6, n * s * 1.3 + Math.sin(i * Math.PI / 3 - 0.8) * s * 0.6);
+          }
+          g.stroke();
+        } else if (p.shape === 'ring') {
+          var f = p.age / p.life;
+          g.strokeStyle = p.c; g.lineWidth = 2.2 * S * (1 - f) + 0.6;
+          g.beginPath(); g.ellipse(0, 0, p.size * (0.3 + f * 1.5), p.size * (0.3 + f * 1.5) * 0.36, 0, 0, Math.PI * 2); g.stroke();
+        } else {
+          g.fillStyle = p.c; g.beginPath(); g.arc(0, 0, s, 0, 7); g.fill();
+        }
+        g.restore();
+      });
+    }
+
+    // ------------------------------------------------ the demos, one maker per kind of extra
+    var fired = {};
+    function at(key, when) { if (t >= when && !fired[key]) { fired[key] = 1; return true; } return false; }
+    var MAKE = {
+      capture: function (it) {
+        var d = it.data, cols = d.colors, kn = { t: 'n', u: 2, v: 3 }, pawn = { t: 'p', dark: true, u: 3, v: 1 };
+        var still = [{ t: 'p', u: 0, v: 3 }, { t: 'b', dark: true, u: 1, v: 0 }, { t: 'r', dark: true, u: 5, v: 0 }, { t: 'k', u: 4, v: 3 }];
+        return {
+          still: 1.75,
+          step: function () {
+            move(kn, [2, 3], [3, 1], 0.7, 1.5, 0.9);
+            var hit = P(3.5, 1.5, 0.4);
+            if (at('hit', 1.45)) {
+              if (d.kind === 'frost') {
+                burst(8, hit, function (i) { var a = i / 8 * Math.PI * 2 + 0.3; return { x: hit.x, y: hit.y, vx: Math.cos(a) * 110, vy: Math.sin(a) * 60 - 25, g: 8, drag: 1.7, life: 2.4, age: 0, size: 6 + rnd() * 5, c: cols[i % 2], shape: 'flake', rot: rnd() * 3, vr: (rnd() - 0.5) * 1.6 }; });
+                burst(14, hit, function (i) { return spark(hit, cols[1], 150, 0.9); });
+              } else if (d.kind === 'petals') {
+                burst(26, hit, function (i) { var a = rnd() * Math.PI * 2, s = 50 + rnd() * 70; return { x: hit.x, y: hit.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.6 - 40, g: 26, drag: 1.1, life: 2.6, age: 0, size: 4 + rnd() * 2.5, c: cols[i % cols.length], shape: 'petal', rot: rnd() * 6, vr: (rnd() - 0.5) * 5, ph: rnd() * 6, sway: 3 }; });
+              } else burst(40, hit, function (i) { return spark(hit, cols[i % cols.length], 260, 1); });
+            }
+            if (d.kind === 'frost') {
+              // the taken piece skates off across the board to the tray
+              var f = span(1.9, 3.1);
+              pawn.u = 3 + f * 4.2; pawn.v = 1 + f * 0.6; pawn.y = 0; pawn.a = 1 - span(2.8, 3.1);
+              if (t > 1.9 && t < 3.1 && rnd() < 0.5) { var q = P(pawn.u + 0.5, pawn.v + 0.5); parts.push({ x: q.x, y: q.y, vx: (rnd() - 0.5) * 20, vy: -10, g: 0, drag: 1, life: 0.7, age: 0, size: 1.4, c: cols[1], shape: 'glow', add: true }); }
+            } else {
+              // it twirls, then hops away to the tray
+              pawn.spin = span(1.6, 2.4) * Math.PI * 4;
+              var h = span(2.4, 3.3);
+              pawn.u = 3 + h * 4; pawn.v = 1 + h * 0.4; pawn.y = Math.sin(Math.PI * h) * 1.3; pawn.a = 1 - span(3.0, 3.3);
+            }
+            pawn.a = t < 1.45 ? 1 : pawn.a;
+          },
+          draw: function () { board(); pieces(still.concat([pawn, kn])); drawParts(); }
+        };
+      },
+      victory: function (it) {
+        var d = it.data, cols = d.colors, q = { t: 'q', u: 1, v: 3 }, bk = { t: 'k', dark: true, u: 5, v: 0 };
+        var still = [{ t: 'k', u: 4, v: 2 }, { t: 'p', u: 2, v: 3 }, { t: 'p', dark: true, u: 1, v: 1 }];
+        return {
+          still: 2.9,
+          step: function () {
+            move(q, [1, 3], [4, 0], 0.4, 1.2);
+            bk.tilt = span(1.3, 1.75) * 1.35;
+            if (d.kind === 'fireworks') {
+              [1.6, 2.2, 2.8, 3.4, 3.9].forEach(function (when, i) {
+                var x = W * (0.22 + ((i * 0.37) % 1) * 0.56), y = 70 + (i % 3) * 30, col = cols[i % cols.length];
+                if (at('up' + i, when - 0.55)) parts.push({ x: x, y: H * 0.95, vx: 0, vy: -(H * 0.95 - y) / 0.55, g: 0, drag: 0, life: 0.55, age: 0, size: 2, c: '#fff2c8', shape: 'glow', add: true, trail: true });
+                if (at('pop' + i, when)) burst(56, { x: x, y: y }, function (j) { var a = j / 56 * Math.PI * 2, s = 120 + rnd() * 40; return { x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, g: 60, drag: 1.5, life: 1.5, age: 0, size: 1.4 + rnd(), c: j % 4 ? col : cols[(i + 1) % cols.length], shape: 'spark', add: true }; });
+              });
+            } else if (t > 1.6 && t < 4.2) {
+              // a shower of sparks falling over the board
+              if (rnd() < 0.7) parts.push({ x: W * (0.2 + rnd() * 0.6), y: 20 + rnd() * 40, vx: (rnd() - 0.5) * 50, vy: 20 + rnd() * 40, g: 120, drag: 0.6, life: 1.4 + rnd() * 0.6, age: 0, size: 1.4 + rnd() * 1.6, c: cols[rnd() < 0.7 ? 0 : 1], shape: rnd() < 0.5 ? 'glow' : 'dot', add: true, alpha: 0.9 });
+            }
+            parts.forEach(function (p) { if (p.trail && rnd() < 0.8) parts.push({ x: p.x, y: p.y, vx: 0, vy: 30, g: 0, drag: 0, life: 0.35, age: 0, size: 1, c: '#ffd27a', shape: 'dot', add: true }); });
+          },
+          draw: function () { board(); pieces(still.concat([q, bk])); drawParts(); }
+        };
+      },
+      trail: function (it) {
+        var cols = it.data.colors, b = { t: 'b', u: 0, v: 3 }, r = { t: 'r', u: 5, v: 3 }, n = { t: 'n', u: 1, v: 3 };
+        var still = [{ t: 'p', dark: true, u: 2, v: 0 }, { t: 'k', dark: true, u: 4, v: 0 }];
+        function wake(p) { var q = P(p.u + 0.5, p.v + 0.5, (p.y || 0) + 0.28); for (var i = 0; i < 2; i++) parts.push({ x: q.x + (rnd() - 0.5) * 8 * S, y: q.y + (rnd() - 0.5) * 8 * S, vx: (rnd() - 0.5) * 12, vy: -8 - rnd() * 10, g: 0, drag: 0.5, life: 0.7 + rnd() * 0.4, age: 0, size: 1.6 + rnd() * 1.8, c: cols[i ? 0 : 1], shape: 'glow', add: false, alpha: 0.5 }); }
+        return {
+          still: 1.45,
+          step: function () {
+            if (move(b, [0, 3], [3, 0], 0.5, 1.7)) wake(b);
+            if (move(r, [5, 3], [5, 1], 2.1, 3.0)) wake(r);
+            if (move(n, [1, 3], [2, 1], 3.4, 4.2, 0.9)) wake(n);
+          },
+          draw: function () { board(); drawParts(); pieces(still.concat([b, r, n])); }
+        };
+      },
+      clock: function (it) {
+        var d = it.data;
+        function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+        function shade(c, k) { var n = parseInt(c.slice(1), 16), f = function (v) { return Math.max(0, Math.min(255, Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k)))); }; return 'rgb(' + f(n >> 16) + ',' + f(n >> 8 & 255) + ',' + f(n & 255) + ')'; }
+        function time(s) { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+        return {
+          still: 1.2,
+          step: function () {},
+          draw: function () {
+            var cx = W / 2, w = 400 * S, h = 200 * S, x = cx - w / 2, y = 120 + (1 - S) * 40;
+            // the table it stands on
+            var tb = g.createLinearGradient(0, y + h * 0.7, 0, H);
+            tb.addColorStop(0, '#3a2416'); tb.addColorStop(1, '#1a0f0a');
+            g.fillStyle = tb; g.fillRect(0, y + h * 0.78, W, H);
+            g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.ellipse(cx, y + h + 6, w * 0.55, 16 * S, 0, 0, 7); g.fill();
+            // which side is running: the left until it is pressed at 2.4 s
+            var press = t >= 2.4, dip = Math.max(0, 1 - Math.abs(t - 2.45) / 0.15);
+            var L = 180 - Math.min(t, 2.4), R = 180 - Math.max(0, t - 2.4);
+            // buttons
+            [[x + w * 0.2, !press ? 0 : 1], [x + w * 0.66, press ? 0 : 1]].forEach(function (bt, i) {
+              var down = (i === 0 ? dip : 0) * 8 * S + bt[1] * 6 * S;
+              var bg = g.createLinearGradient(0, y - 22 * S, 0, y);
+              bg.addColorStop(0, shade(d.metal, 0.45)); bg.addColorStop(1, shade(d.metal, -0.3));
+              g.fillStyle = bg; rr(bt[0], y - 22 * S + down, w * 0.14, 30 * S, 6 * S); g.fill();
+            });
+            var body = g.createLinearGradient(0, y, 0, y + h);
+            body.addColorStop(0, shade(d.body, 0.28)); body.addColorStop(0.5, d.body); body.addColorStop(1, shade(d.body, -0.4));
+            g.fillStyle = body; rr(x, y, w, h, 26 * S); g.fill();
+            g.strokeStyle = shade(d.metal, 0.2); g.lineWidth = 2; g.stroke();
+            [[x + w * 0.08, L, !press], [x + w * 0.52, R, press]].forEach(function (f) {
+              var fx = f[0], fw = w * 0.4, fy = y + h * 0.2, fh = h * 0.46;
+              g.fillStyle = d.face; rr(fx, fy, fw, fh, 12 * S); g.fill();
+              g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 1.5; g.stroke();
+              g.save();
+              g.font = '600 ' + Math.round(50 * S) + 'px Jost, sans-serif';
+              g.textAlign = 'center'; g.textBaseline = 'middle';
+              g.fillStyle = f[2] ? d.glow : d.ink; g.globalAlpha = f[2] ? 1 : 0.7;
+              if (f[2]) { g.shadowColor = d.glow; g.shadowBlur = 16 * S; }
+              g.fillText(time(f[1]), fx + fw / 2, fy + fh / 2 + 2 * S);
+              g.restore();
+              if (f[2]) { g.fillStyle = d.accent; g.beginPath(); g.arc(fx + fw / 2, fy + fh + 18 * S, 5 * S, 0, 7); g.fill(); }
+            });
+            g.fillStyle = d.metal; g.globalAlpha = 0.7; rr(x + w * 0.1, y + h * 0.86, w * 0.8, 6 * S, 3 * S); g.fill(); g.globalAlpha = 1;
+          }
+        };
+      },
+      sound: function (it) {
+        var pack = it.data.pack, col = pack === 'glass' ? '#bfe8ff' : '#f2ede4';
+        var p1 = { t: 'p', u: 2, v: 3 }, kn = { t: 'n', u: 4, v: 3 }, bp = { t: 'p', dark: true, u: 1, v: 0 };
+        var still = [{ t: 'k', u: 3, v: 3 }, { t: 'r', dark: true, u: 5, v: 0 }];
+        function land(p) {
+          var o = P(p.u + 0.5, p.v + 0.5);
+          for (var i = 0; i < 3; i++) parts.push({ x: o.x, y: o.y, vx: 0, vy: 0, g: 0, drag: 0, life: 1.1 + i * 0.25, age: -i * 0.12, size: o.k, c: col, shape: 'ring', add: true, alpha: 0.9 });
+          if (sound && visible && !reduce && scene && scene.live) knock(pack);
+        }
+        return {
+          still: 1.35,
+          step: function () {
+            move(p1, [2, 3], [2, 2], 0.6, 1.15, 0.6); if (at('a', 1.15)) land(p1);
+            move(kn, [4, 3], [3, 1], 2.0, 2.75, 0.9); if (at('b', 2.75)) land(kn);
+            move(bp, [1, 0], [1, 1], 3.5, 4.05, 0.6); if (at('c', 4.05)) land(bp);
+          },
+          draw: function () { board(); drawParts(); pieces(still.concat([p1, kn, bp])); }
+        };
+      },
+      avatar: function (it) {
+        var key = 'fx-' + it.id.split('.')[1], from = it.data.from;
+        return { still: 3, step: function () {}, draw: function () { medal(key, from, null); } };
+      },
+      frame: function (it) {
+        var cols = it.data.ring.match(/#[0-9a-f]{6}/gi) || ['#ffe29a', '#b8862b'];
+        return { still: 3.6, step: function () {}, draw: function () { medal('fx-rook', '#2f6f6a', cols); } };
+      }
+    };
+    // A medal on the player card: it turns in like a coin, catches a sweep of light, and with
+    // a frame the ring is drawn round it and a glint runs along it.
+    function medal(key, tint, ring) {
+      var cx = W / 2, cy = H * 0.46, r = 118 * S;
+      var rays = g.createRadialGradient(cx, cy, r * 0.6, cx, cy, r * 2.6);
+      rays.addColorStop(0, hex(tint, 0.3)); rays.addColorStop(1, hex(tint, 0));
+      g.fillStyle = rays; g.fillRect(0, 0, W, H);
+      var turn = ring ? 1 : Math.sin(span(0.2, 1.1) * Math.PI / 2), lift = Math.sin(t * 1.6) * 3 * S;
+      var im = pic(key);
+      g.save();
+      g.translate(cx, cy + lift);
+      g.fillStyle = 'rgba(0,0,0,.5)'; g.beginPath(); g.ellipse(0, r + 34 * S, r * 0.8, 12 * S, 0, 0, 7); g.fill();
+      g.scale(Math.max(0.02, turn), 1);
+      if (im) g.drawImage(im, -r, -r, r * 2, r * 2);
+      // the sweep of light
+      var sw = span(1.4, 2.4);
+      if (sw > 0 && sw < 1) {
+        g.save(); g.beginPath(); g.arc(0, 0, r * 0.97, 0, 7); g.clip();
+        g.globalCompositeOperation = 'lighter';
+        var x = -r * 1.6 + sw * r * 3.2, lg = g.createLinearGradient(x - r * 0.35, -r, x + r * 0.35, r);
+        lg.addColorStop(0, 'rgba(255,240,210,0)'); lg.addColorStop(0.5, 'rgba(255,240,210,.45)'); lg.addColorStop(1, 'rgba(255,240,210,0)');
+        g.fillStyle = lg; g.fillRect(-r, -r, r * 2, r * 2);
+        g.restore();
+      }
+      if (ring) {
+        // the frame is drawn round the medal, then a glint runs along it
+        var rr = r * 1.13, f = span(0.4, 1.5), lg2 = g.createLinearGradient(-rr, -rr, rr, rr);
+        ring.forEach(function (c, i) { lg2.addColorStop(i / Math.max(1, ring.length - 1), c); });
+        g.lineCap = 'round';
+        g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 22 * S;
+        g.beginPath(); g.arc(0, 0, rr, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2); g.stroke();
+        g.strokeStyle = lg2; g.lineWidth = 17 * S;
+        g.beginPath(); g.arc(0, 0, rr, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2); g.stroke();
+        g.strokeStyle = 'rgba(255,250,235,.45)'; g.lineWidth = 1.5 * S;
+        g.beginPath(); g.arc(0, 0, rr - 5 * S, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2); g.stroke();
+        var gl = span(1.8, 3.4);
+        if (gl > 0 && gl < 1) {
+          var ang = -Math.PI / 2 + gl * Math.PI * 2, gx = Math.cos(ang) * rr, gy = Math.sin(ang) * rr;
+          var sp = g.createRadialGradient(gx, gy, 0, gx, gy, 26 * S);
+          sp.addColorStop(0, 'rgba(255,255,255,.95)'); sp.addColorStop(0.3, 'rgba(255,240,200,.5)'); sp.addColorStop(1, 'rgba(255,240,200,0)');
+          g.globalCompositeOperation = 'lighter'; g.fillStyle = sp; g.beginPath(); g.arc(gx, gy, 26 * S, 0, 7); g.fill();
+        }
+      }
+      g.restore();
+    }
+
+    // ------------------------------------------------ sound: the game's own knock, on request
+    var PACKS = (function () {
+      /*PACKS*/
+      return PACKS;
+    })();
+    var sound = false, ac = null, nb = null;
+    function knock(pack) {
+      if (!ac) return;
+      var p = PACKS[pack] || PACKS.wood, now = ac.currentTime + 0.01, weight = 0.9, k = 0.96 + Math.random() * 0.08;
+      var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = p.felt; lp.connect(ac.destination);
+      var s = ac.createBufferSource(); s.buffer = nb;
+      var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = p.click[0] * k; bp.Q.value = p.click[1];
+      var ng = ac.createGain(), dur = 0.025 + weight * 0.02;
+      ng.gain.setValueAtTime(0.55 * p.gain * weight, now); ng.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      s.connect(bp).connect(ng).connect(lp); s.start(now, Math.random() * 0.5, dur + 0.05);
+      p.body.forEach(function (b) {
+        var o = ac.createOscillator(), og = ac.createGain(), d = b[2] * (0.8 + weight * 0.4);
+        o.frequency.value = b[0] * k;
+        og.gain.setValueAtTime(0.0001, now); og.gain.exponentialRampToValueAtTime(b[1] * p.gain * weight, now + 0.0015); og.gain.exponentialRampToValueAtTime(0.0001, now + d);
+        o.connect(og).connect(lp); o.start(now); o.stop(now + d + 0.05);
+      });
+    }
+    hear.addEventListener('click', function () {
+      sound = !sound;
+      hear.setAttribute('aria-pressed', sound ? 'true' : 'false');
+      if (sound && !ac) {
+        try {
+          ac = new (window.AudioContext || window.webkitAudioContext)();
+          nb = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+          var d = nb.getChannelData(0);
+          for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        } catch (e) { ac = null; }
+      }
+      if (ac && ac.state === 'suspended') ac.resume();
+      if (sound) knock(FX_ITEMS()[idx].data.pack);
+    });
+
+    // ------------------------------------------------ playing them
+    function FX_ITEMS() { return D.fx[cat]; }
+    function start(i) {
+      idx = i; t = 0; parts = []; fired = {}; seed = 7 + i * 31 + cat.length;
+      var it = FX_ITEMS()[i];
+      scene = MAKE[cat](it);
+      scene.live = !reduce;
+      nameEl.textContent = it.name;
+      pips.forEach(function (p, k) { if (k === i) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current'); });
+      if (reduce) {
+        // one still frame: everything up to that moment, without drawing
+        while (t < scene.still) { t += STEP; scene.step(); tick(STEP); }
+      }
+      draw();
+    }
+    function size() {
+      var r = stageEl.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (!r.width) return;
+      cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+      H = 400; W = H * r.width / r.height; S = Math.min(1, W / 560);
+      g.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+      draw();
+    }
+    function draw() {
+      if (!scene) return;
+      g.save();
+      g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
+      g.restore();
+      g.save();
+      g.globalAlpha = reduce ? 1 : Math.max(0, Math.min(1, t / FADE, (DUR - t) / FADE));
+      scene.draw();
+      g.restore();
+    }
+    function frame(now) {
+      raf = 0;
+      if (!visible || document.hidden) return;
+      var dt = Math.min(0.05, (now - (last || now)) / 1000);
+      last = now;
+      // fixed steps, so the particles move the same at any frame rate
+      for (var acc = dt; acc > 1e-6; acc -= STEP) { var h = Math.min(STEP, acc); t += h; scene.step(); tick(h); }
+      if (t >= DUR) start((idx + 1) % 2);
+      draw();
+      raf = requestAnimationFrame(frame);
+    }
+    function play() { if (!reduce && visible && !document.hidden && !raf) { last = 0; raf = requestAnimationFrame(frame); } }
+    function pause() { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    function choose(k, focus) {
+      cat = k;
+      tabs.forEach(function (b) { var on = b.dataset.fx === k; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
+      copies.forEach(function (c) { c.hidden = c.dataset.fx !== k; });
+      $('fx-panel').setAttribute('aria-labelledby', 'fxt-' + k);
+      hear.hidden = k !== 'sound';
+      start(0);
+    }
+    tabs.forEach(function (b, i) {
+      b.addEventListener('click', function () { choose(b.dataset.fx); });
+      b.addEventListener('keydown', function (e) {
+        var n = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key], j = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : n ? (i + n + tabs.length) % tabs.length : -1;
+        if (j < 0) return;
+        e.preventDefault(); choose(tabs[j].dataset.fx, true);
+      });
+    });
+    pips.forEach(function (p, i) { p.addEventListener('click', function () { start(i); }); });
+    if ('ResizeObserver' in window) new ResizeObserver(size).observe(stageEl); else window.addEventListener('resize', size);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) play(); else pause(); }, { threshold: 0.15 }).observe(stageEl);
+    } else { visible = true; }
+    document.addEventListener('visibilitychange', function () { if (document.hidden) pause(); else play(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    choose('capture');
+    size();
+    play();
+    if (window.__SHOT) window.__fx = { choose: choose, start: start, seek: function (s) { pause(); visible = false; start(idx); while (t < s) { t += STEP; scene.step(); tick(STEP); } draw(); } };
+  })();
+
   // ---------------------------------------------------------------- friends
   $('friends').innerHTML = D.opponents.map(function (o) {
     return '<div class="friend lux"><img src="' + ART['opp-' + o.id] + '" alt="" width="132" height="132"><b>' + o.name + '</b><i>the ' + o.animal.toLowerCase() + '</i><small>' + o.range + '</small><p>' + o.plays + '</p></div>';
@@ -938,9 +1520,9 @@ html.nonlatin body { line-height: 1.75; }
   // ---------------------------------------------------------------- Rooky's guide
   // Built like Mei's tour on JongClub's site. Nothing speaks until the visitor asks: an invite
   // pill offers the tour, and the Rooky button in the header turns it on or off. Rooky then
-  // speaks about the section the reader settles on (500 ms after scrolling stops), fades out as
+  // speaks about the section the reader settles on (as it slides in, once it has been in view a fifth of a second; at once on Continue or a menu link), fades out as
   // soon as they move on, and offers a Continue cue when a line ends. In Collect, each piece the
-  // visitor picks gets its own pitch half a second later ('cm:item'). Sound goes through one Web
+  // visitor picks gets its own pitch a fifth of a second later ('cm:item'). Sound goes through one Web
   // Audio context unlocked by the visitor's tap: iPhone Safari will not start <audio> from a scroll
   // timer. Captions follow the voice cue by cue; CC hides them. The clips are recorded, never generated.
   (function () {
@@ -1016,9 +1598,11 @@ html.nonlatin body { line-height: 1.75; }
       }, { rootMargin: '1200px 0px' });
       sections.forEach(function (el) { ahead.observe(el); });
     }
+    // A section is the reader's once its top has come 40% of the way up the screen, so Rooky
+    // starts as it slides in, not once it fills the view.
     function current() {
-      var mid = innerHeight / 2, best = null;
-      sections.forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top <= mid && r.bottom > mid) best = el; });
+      var line = innerHeight * 0.6, best = null;
+      sections.forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top <= line && r.bottom > line) best = el; });
       return best && best.dataset.guide;
     }
     function hideCue() { if (!nextTo) return; nextTo = null; nextBtn.classList.remove('show'); setTimeout(function () { if (!nextTo) nextBtn.hidden = true; }, 500); }
@@ -1027,7 +1611,15 @@ html.nonlatin body { line-height: 1.75; }
       if (i < 0 || !nx || current() !== key) return;
       nextTo = nx; cueAt = scrollY; nextBtn.hidden = false; requestAnimationFrame(function () { nextBtn.classList.add('show'); });
     }
-    nextBtn.addEventListener('click', function () { var nx = nextTo; hideCue(); if (nx) nx.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); });
+    // Continue starts the next line at the tap, while the page is still scrolling to it.
+    var goingTo = null, goingT = 0;
+    function headFor(el) {
+      if (!on || paused || !el || !G[el.dataset.guide]) return;
+      goingTo = el.dataset.guide; clearTimeout(goingT); goingT = setTimeout(function () { goingTo = null; }, 2500);
+      unlock(); speak(goingTo);
+    }
+    nextBtn.addEventListener('click', function () { var nx = nextTo; hideCue(); if (nx) { headFor(nx); nx.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); } });
+    document.addEventListener('click', function (e) { var a = e.target.closest && e.target.closest('a[href^="#"]'); if (a && a.getAttribute('href').length > 1) headFor(document.querySelector(a.getAttribute('href'))); });
     function trace(m) { if (window.__SHOT) (window.__trace = window.__trace || []).push(m); }
     function fadeOut() {
       if (!audio) return; trace('fadeOut ' + audio.key);
@@ -1110,28 +1702,41 @@ html.nonlatin body { line-height: 1.75; }
       if (nextTo && Math.abs(scrollY - cueAt) > 24) hideCue();
       if (!on || paused) return;
       var k = current();
+      if (goingTo) { if (k === goingTo) goingTo = null; else return; }
       if (audio && k !== audio.sec) { fadeOut(); clearTimeout(itemT); }
-      clearTimeout(settle);
-      settle = setTimeout(function () { var k2 = current(); if (held && k2 !== sectionOf(held.key)) held = null; if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); else if (held) carryOn(false); }, 500);
+      // A section that stays the reader's for a fifth of a second gets its line, even while the
+      // page is still gliding; one that only flashes past during a fast flick does not.
+      if (k === pending) return;
+      pending = k; clearTimeout(settle);
+      settle = setTimeout(function () {
+        pending = undefined;
+        var k2 = current();
+        if (k2 !== k) return onScroll();
+        if (held && k2 !== sectionOf(held.key)) held = null;
+        if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); else if (held) carryOn(false);
+      }, 200);
     }
+    var pending;
     function setPaused(v) {
       paused = v; live.classList.toggle('paused', v);
       orb.setAttribute('aria-label', v ? D.coach + ' is paused. Tap to carry on.' : D.coach + ' is guiding you. Tap to pause.');
-      if (v) { clearTimeout(settle); if (actx) actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); quiet(); live.classList.remove('talking'); }
+      if (v) { clearTimeout(settle); pending = undefined; if (actx) actx.suspend().catch(function () {}); if (audio && audio.el) audio.el.pause(); quiet(); live.classList.remove('talking'); }
       else { unlock(); if (audio && audio.el) audio.el.play().catch(function () {}); if (audio) live.classList.add('talking'); else onScroll(); }
     }
     function setOn(v) {
       on = v; store.set(KEY, v ? '1' : '0'); btn.setAttribute('aria-pressed', String(v)); invite.hidden = true; live.hidden = !v; paused = false; live.classList.remove('paused', 'show');
-      if (v) { unlock(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); clearTimeout(itemT); fadeOut(); hideCue(); quiet(); held = null; }
+      if (v) { unlock(); preload(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); pending = undefined; clearTimeout(itemT); fadeOut(); hideCue(); quiet(); held = null; }
     }
     addEventListener('scroll', onScroll, { passive: true });
-    // a piece on show in Collect gets its own pitch once it has been there half a second
+    // every section's line is decoded as soon as the tour is on, so each one starts at once
+    function preload() { if (actx) keys.forEach(function (k) { load(k).catch(function () {}); }); }
+    // a piece on show in Collect gets its own pitch once it has been there a moment
     addEventListener('cm:item', function (e) {
       clearTimeout(itemT);
       if (!on || paused || !G[e.detail] || current() !== 'collect') return;
-      clearTimeout(settle);
+      clearTimeout(settle); pending = undefined;
       if (audio) fadeOut();
-      itemT = setTimeout(function () { speak(e.detail); }, 500);
+      itemT = setTimeout(function () { speak(e.detail); }, 200);
     });
     btn.addEventListener('click', function () { setOn(!on); });
     $('r-yes').addEventListener('click', function () { setOn(true); });
@@ -1185,7 +1790,7 @@ html.nonlatin body { line-height: 1.75; }
       var first = function (e) {
         removeEventListener('click', first, true); removeEventListener('touchend', first, true); removeEventListener('keydown', first, true);
         if (on) return; if (e.target.closest && e.target.closest('#r-stop, #r-btn, #r-orb')) return;
-        on = true; unlock(); lastSection = null; onScroll();
+        on = true; unlock(); preload(); lastSection = null; onScroll();
       };
       addEventListener('click', first, true); addEventListener('touchend', first, true); addEventListener('keydown', first, true);
     } else if (saved !== '0') setTimeout(function () { if (!on) invite.hidden = false; }, 1800);
@@ -1212,19 +1817,6 @@ html.nonlatin body { line-height: 1.75; }
     var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }); }, { threshold: 0.08 });
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   } else document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
-  // ---------------------------------------------------------------- interlude
-  // The picture band drifts about 60 px slower than the page over one screen.
-  var ilPic = $('il-pic');
-  if (!reduce) {
-    var drift = function () {
-      var r = ilPic.parentNode.getBoundingClientRect(), h = innerHeight;
-      if (r.bottom < 0 || r.top > h) return;
-      var k = (r.top + r.height / 2 - h / 2) / h;
-      ilPic.style.transform = 'translate3d(0,' + (k * -60).toFixed(1) + 'px,0)';
-    };
-    addEventListener('scroll', function () { requestAnimationFrame(drift); }, { passive: true }); drift();
-  }
-
   // ---------------------------------------------------------------- preloading
   // Pictures in the sections ahead are decoded well before they scroll in, so nothing pops.
   if ('IntersectionObserver' in window) {
@@ -1235,7 +1827,7 @@ html.nonlatin body { line-height: 1.75; }
         [].forEach.call(en.target.querySelectorAll('img'), function (im) { im.loading = 'eager'; if (im.decode) im.decode().catch(function () {}); });
       });
     }, { rootMargin: '1500px 0px' });
-    document.querySelectorAll('main section, .interlude').forEach(function (el) { ioP.observe(el); });
+    document.querySelectorAll('main section').forEach(function (el) { ioP.observe(el); });
   }
 
   // ---------------------------------------------------------------- numbers
