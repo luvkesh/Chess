@@ -230,22 +230,59 @@ function ChacklateAvatars(THREE, K) {
   }
   // A pair of eyes at (±x, y, z), turned out by `spread` and up by `lift`.
   function eyes(group, x, y, z, r, o, spread, lift) {
-    for (const s of [-1, 1]) eye(group, [s * x, y, z], [s * (spread === undefined ? 0.32 : spread), lift || 0.06, 1], r, o);
+    for (const s of [-1, 1]) {
+      const dir = [s * (spread === undefined ? 0.32 : spread), lift || 0.06, 1];
+      eye(group, [s * x, y, z], dir, r, o);
+      BUILD.eyes.push({ group, p: [s * x, y, z], dir, r });
+    }
   }
 
   // ------------------------------------------------------------------ meshing
   // detail: cell size of the sculpt grid. Fine for pictures and the stage on big screens.
-  let CELL = 0.014;
+  let CELL = 0.014, SHELLS = 0;
+  // What the character being built has so far: its head sculpt (the first fur, feather or skin
+  // sculpt) and its eyes, for the eyelids added at the end.
+  const BUILD = { head: null, eyes: [] };
+  // Fur as real pile: shells of the surface pushed out along the normal and combed down a
+  // little, each cut by a strand pattern, so the silhouette and the light go soft like plush.
+  const strands = () => once('strands', () => {
+    const N = 256, data = new Uint8Array(N * N * 4), rnd = K.rng(17);
+    for (let i = 0; i < N * N; i++) { const v = Math.pow(rnd(), 0.7) * 255; data[i * 4] = data[i * 4 + 1] = data[i * 4 + 2] = v; data[i * 4 + 3] = 255; }
+    const t = new THREE.DataTexture(data, N, N, THREE.RGBAFormat);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(7, 5); t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.needsUpdate = true;
+    return t;
+  });
+  function shellMat(base, i, n, len) {
+    return once('shell' + base.uuid + i + '/' + n, () => {
+      const m = base.clone();
+      const t = i / n;
+      m.alphaMap = strands(); m.alphaTest = 0.15 + t * 0.75; m.transparent = false;
+      m.normalMap = null;
+      m.color = new THREE.Color(1, 1, 1).multiplyScalar(0.72 + 0.28 * t);
+      m.sheen = Math.min(1, (base.sheen || 0) + 0.3 * t);
+      m.onBeforeCompile = (sh) => {
+        sh.vertexShader = sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n transformed += objectNormal * ' + (len * t).toFixed(5) + ' + vec3(0.0, ' + (-len * 0.35 * t * t).toFixed(5) + ', 0.0);');
+      };
+      m.customProgramCacheKey = () => 'furshell' + i + '/' + n;
+      return m;
+    });
+  }
   function mesh(group, sc, matOverride) {
     if (!sc.ops.length) return null;
     const f = (x, y, z) => sc.field(x, y, z);
     const geo = sdfGeometry(f, sc.bounds(), CELL, { project: 2 });
-    const pos = geo.attributes.position, n = pos.count;
+    const pos = geo.attributes.position, nrm = geo.attributes.normal, n = pos.count;
     const colors = new Float32Array(n * 3), uv = geo.attributes.uv, c = new THREE.Color();
     for (let i = 0; i < n; i++) {
       const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
       sc.color(x, y, z, c);
-      colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+      // ambient occlusion from the sculpt itself: creases (eye sockets, under the ears and chin)
+      // are darker, which the eye reads as depth
+      const nx = nrm.getX(i), ny = nrm.getY(i), nz = nrm.getZ(i);
+      let occ = 0, w = 0.5;
+      for (let k = 1; k <= 5; k++) { const h = 0.022 * k; occ += w * Math.max(0, h - f(x + nx * h, y + ny * h, z + nz * h)) / h; w *= 0.5; }
+      const ao = clamp(1 - occ * 1.25, 0.35, 1);
+      colors[i * 3] = c.r * ao; colors[i * 3 + 1] = c.g * ao; colors[i * 3 + 2] = c.b * ao;
       // fur runs round the head and down the body
       uv.setXY(i, Math.atan2(x, z) / TAU + 0.5, Math.acos(clamp(y / (Math.hypot(x, y, z) || 1), -1, 1)) / Math.PI);
     }
@@ -255,7 +292,37 @@ function ChacklateAvatars(THREE, K) {
     const m = new THREE.Mesh(geo, mat);
     m.castShadow = true; m.receiveShadow = true;
     group.add(m);
+    if (!BUILD.head && (kind === 'fur' || kind === 'feather' || kind === 'skin')) BUILD.head = sc;
+    if (SHELLS && !matOverride && (kind === 'fur' || kind === 'feather' || kind === 'velvet')) {
+      const len = kind === 'fur' ? 0.03 : kind === 'feather' ? 0.022 : 0.008;
+      for (let i = 1; i <= SHELLS; i++) { const sh = new THREE.Mesh(geo, shellMat(mat, i, SHELLS, len)); sh.castShadow = false; sh.receiveShadow = true; sh.userData.shell = true; group.add(sh); }
+    }
     return m;
+  }
+  // Upper eyelids over each eye, in the colour of the face around it: a soft, half-closed lid
+  // makes the look gentle and alive instead of staring.
+  function lids(cover) {
+    const head = BUILD.head;
+    if (!head) return;
+    const c = new THREE.Color();
+    for (const e of BUILD.eyes) {
+      const [x, y, z] = e.p, r = e.r, d = new THREE.Vector3(...e.dir).normalize();
+      // the lid's edge is a plane tilted back from the eye's view, a little above its middle
+      const up = new THREE.Vector3(0, 1, 0).addScaledVector(d, -d.y).normalize();
+      const k = cover === undefined ? 0.74 : cover;
+      const lidShape = withBB((a, b, cc) => {
+        const dx = a - x, dy = b - y, dz = cc - z;
+        const shell = Math.abs(Math.sqrt(dx * dx + dy * dy + dz * dz) - r * 1.05) - r * 0.045;
+        const edge = r * k - (dx * up.x + dy * up.y + dz * up.z) + Math.max(0, -(dx * d.x + dy * d.y + dz * d.z)) * 0.0;
+        return Math.max(shell, edge);
+      }, [x - r * 1.2, y - r * 1.2, z - r * 1.2, x + r * 1.2, y + r * 1.2, z + r * 1.2]);
+      head.color(x + up.x * r * 1.15 + d.x * r * 0.3, y + up.y * r * 1.15 + d.y * r * 0.3, z + up.z * r * 1.15 + d.z * r * 0.3, c);
+      const lid = Sculpt(head.kind).add(lidShape, '#' + c.getHexString(), 0);
+      const cell = CELL; CELL = Math.min(CELL, r * 0.12);
+      const m = mesh(e.group, lid, MATS[head.kind]());
+      CELL = cell;
+      void m;
+    }
   }
   // Plain three.js parts: lathe (profile [[r, y], ...]), torus, tube, sphere, all with a material.
   function lathe(group, prof, mat, at, rot, segs) {
@@ -399,7 +466,7 @@ function ChacklateAvatars(THREE, K) {
       mesh(g, teeth);
       eyes(g, 0.19, 0.02, 0.36, 0.088, { iris: '#5a3420' });
       // the neckerchief and the bow on the upright ear
-      const silk = Sculpt('silk');
+      const silk = Sculpt('velvet');
       silk.add(Wrap(-0.53, 0.33, 0.09), rose, 0.04).add(R(Cone([0, -0.5, 0.3], [0, -0.78, 0.36], 0.07, 0.02), [0, -0.5, 0.3], 0, 0, 0.2), rose, 0.05);
       mesh(g, silk);
       const bow = Sculpt('silk');
@@ -478,7 +545,7 @@ function ChacklateAvatars(THREE, K) {
       shell.cut(BUST_Y);
       mesh(g, shell);
       eyes(g, 0.17, 0.02, 0.39, 0.08, { iris: '#3a2a12' }, 0.38);
-      const scarf = Sculpt('silk');
+      const scarf = Sculpt('velvet');
       scarf.add(Wrap(-0.5, 0.3, 0.09), '#f2e6c4', 0.04).add(R(E(0.2, -0.78, 0.36, 0.09, 0.24, 0.03), [0.2, -0.78, 0.36], -0.2, 0, 0.2), '#f2e6c4', 0.05);
       for (let i = 0; i < 9; i++) scarf.paint(withBB((x, y, z) => Math.abs(Math.sin(Math.atan2(x, z) * 4.5 + y * 6)) - 0.45, [-2, -2, -2, 2, 2, 2]), '#d0463a', 0.04);
       mesh(g, scarf);
@@ -623,7 +690,7 @@ function ChacklateAvatars(THREE, K) {
       mesh(g, fur);
       mesh(g, Sculpt('gloss').add(R(E(0, -0.1, 0.5, 0.06, 0.04, 0.038), [0, -0.1, 0.5], -0.2, 0, 0), '#1e100a'));
       eyes(g, 0.19, 0.03, 0.36, 0.088, { iris: '#5a3218' });
-      const scarf = Sculpt('silk');
+      const scarf = Sculpt('velvet');
       scarf.add(Wrap(-0.54, 0.35, 0.1), '#b8325a', 0.04).add(R(Cone([0.18, -0.56, 0.3], [0.3, -0.98, 0.38], 0.08, 0.035), [0.18, -0.56, 0.3], 0, 0, 0.18), '#a02a4e', 0.05);
       mesh(g, scarf);
       jewel(g, 0.035, '#d0103a', [-0.15, -0.56, 0.33], [-0.3, -0.1, 1]);
@@ -691,7 +758,6 @@ function ChacklateAvatars(THREE, K) {
       fur.add(M(T(Cone([0, 0, 0], [0, 0.32, 0], 0.13, 0.02), [0.24, 0.3, -0.06], -0.1, 0, -0.3)), f, 0.08);
       fur.sub(M(T(Cone([0, 0.02, 0.06], [0, 0.27, 0.05], 0.085, 0.012), [0.24, 0.3, -0.06], -0.1, 0, -0.3)), 0.02, '#5a4048');
       fur.sub(M(R(E(0.17, 0.06, 0.38, 0.09, 0.07, 0.08), [0.17, 0.06, 0.38], 0, 0, 0.15)), 0.03);
-      fur.add(M(R(E(0.17, 0.14, 0.4, 0.1, 0.03, 0.05), [0.17, 0.15, 0.4], 0, 0, -0.04)), '#6c707c', 0.03);
       fur.sub(Curve([[-0.1, -0.27, 0.48], [0, -0.3, 0.52], [0.1, -0.27, 0.48]], 8, 0.009), 0.01, '#4a4650');
       fur.add(Cone([0, -0.3, -0.04], [0, -0.7, -0.06], 0.3, 0.36), f, 0.12);
       mesh(g, fur);
@@ -717,7 +783,6 @@ function ChacklateAvatars(THREE, K) {
       sk.add(M(T(E(0, 0, 0, 0.36, 0.4, 0.06), [0.55, -0.08, -0.08], 0.05, 0.55, 0.1)), f, 0.08);
       sk.sub(M(T(E(0.02, -0.02, 0.06, 0.28, 0.32, 0.05), [0.55, -0.08, -0.08], 0.05, 0.55, 0.1)), 0.03, pink);
       sk.sub(M(S(0.2, 0.06, 0.37, 0.07)), 0.03);
-      sk.add(M(R(E(0.2, 0.13, 0.39, 0.09, 0.025, 0.05), [0.2, 0.14, 0.39], 0, 0, -0.04)), '#8e90a2', 0.03);
       mesh(g, sk);
       eyes(g, 0.2, 0.06, 0.34, 0.065, { iris: '#3a2a20' }, 0.4);
       const tusk = Sculpt('enamel').add(M(Curve([[0.12, -0.3, 0.4], [0.2, -0.42, 0.5], [0.24, -0.46, 0.62]], 10, (t) => 0.04 * (1 - t) + 0.008)), '#fffbee');
@@ -880,7 +945,6 @@ function ChacklateAvatars(THREE, K) {
       const fe = Sculpt('feather');
       fe.add(E(0, 0.02, 0, 0.46, 0.45, 0.45), w);
       fe.add(M(R(Cone([0.26, -0.12, 0.0], [0.58, -0.3, -0.08], 0.18, 0.03), [0.26, -0.12, 0], 0, 0, 0)), w, 0.12);
-      fe.add(M(R(E(0.18, 0.13, 0.36, 0.13, 0.035, 0.06), [0.18, 0.13, 0.36], 0, 0, -0.04)), '#e6e0d6', 0.04);
       fe.sub(M(S(0.18, 0.04, 0.37, 0.08)), 0.03);
       fe.add(bodyFur(0.84), br, 0.12);
       for (let r = 0; r < 3; r++) for (let i = 0; i < 7; i++) { const x = (i - 3) * 0.22 + (r % 2) * 0.11, y = -0.86 - r * 0.15; fe.paint(R(E(x, y, 0, 0.11, 0.06, 1), [x, y, 0], 0, 0, 0), '#6e4a2c', 0.02); }
@@ -897,7 +961,7 @@ function ChacklateAvatars(THREE, K) {
         lathe(g, [[0.0, 0], [0.1, 0], [0.11, 0.02], [0.1, 0.06], [0.085, 0.07], [0, 0.07]], MATS.gold(), [sx * 0.15, 0.32, 0.36], [Math.PI / 2 - 0.45, 0, sx * -0.3]);
         const l = new THREE.Mesh(new THREE.SphereGeometry(0.085, 32, 12, 0, TAU, 0, 0.7), MATS.gem('#3a7ab8')); l.position.set(sx * 0.15, 0.34, 0.42); l.rotation.set(Math.PI / 2 - 0.45, 0, sx * -0.3); l.position.set(sx * 0.15 + sx * 0.0, 0.32 + Math.cos(Math.PI / 2 - 0.45) * 0.07, 0.36 + Math.sin(Math.PI / 2 - 0.45) * 0.07); g.add(l);
       }
-      const scarf = Sculpt('silk');
+      const scarf = Sculpt('velvet');
       scarf.add(Wrap(-0.54, 0.34, 0.09), '#fbfaf6', 0.04).add(R(E(0.16, -0.86, 0.4, 0.1, 0.28, 0.03), [0.16, -0.86, 0.4], -0.25, 0, 0.2), '#fbfaf6', 0.05).add(R(E(0.04, -0.82, 0.42, 0.09, 0.22, 0.03), [0.04, -0.82, 0.42], -0.25, 0, -0.15), '#f2efe8', 0.05);
       mesh(g, scarf);
     },
@@ -1002,10 +1066,13 @@ function ChacklateAvatars(THREE, K) {
   function make(art, o) {
     o = o || {};
     const [kind, name] = String(art || 'animal:redpanda').split(':');
-    CELL = o.detail === 'play' ? 0.02 : o.detail === 'stage' ? 0.016 : 0.012;
+    // pictures: the finest sculpt and full fur; the live stage: lighter, and no fur shells on phones
+    CELL = o.detail === 'play' ? 0.02 : o.detail === 'stage' ? 0.015 : 0.009;
+    SHELLS = o.detail === 'play' ? 0 : o.detail === 'stage' ? 6 : 16;
+    BUILD.head = null; BUILD.eyes = [];
     const g = new THREE.Group();
     if (kind === 'emblem') (EMBLEMS[name] || EMBLEMS.crown)(g);
-    else (ANIMALS[name] || ANIMALS.redpanda)(g);
+    else { (ANIMALS[name] || ANIMALS.redpanda)(g); lids(); }
     g.userData.portrait = kind !== 'emblem';
     g.userData.dispose = () => g.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
     return g;

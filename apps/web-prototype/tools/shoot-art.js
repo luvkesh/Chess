@@ -34,7 +34,7 @@ const SET = process.env.ART_SET || 'regency', SIDE = process.env.ART_SIDE || 'w'
   for (const art of A) {
     const name = art.split(':')[1];
     if (!want('avatar') && !want('avatar-' + name)) continue;
-    const url = await page.evaluate((art) => window.__view.snapshot({ kind: 'avatar', art, floor: false }, 800, 800), art);
+    const url = await page.evaluate((art) => window.__view.snapshot({ kind: 'avatar', art, floor: false }, 1024, 1024), art);
     save('avatar-' + name, url);
     console.log('avatar', name);
   }
