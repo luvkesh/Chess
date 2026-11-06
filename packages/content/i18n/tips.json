@@ -73,8 +73,7 @@
   "settings.coach.off": { "en": "Rooky stays quiet, so you can play on your own.", "hi": "Rooky चुप रहता है, ताकि आप अपने दम पर खेल सकें।", "check": ["hi"] },
   "settings.coach.quiet": { "en": "Rooky speaks up only when a move loses something big.", "hi": "Rooky तभी बोलता है जब किसी चाल से कुछ बड़ा नुक़सान हो।", "check": ["hi"] },
   "settings.eval": { "en": "A bar beside the board shows who is ahead. It is hidden in online games.", "hi": "बिसात के बगल में एक पट्टी दिखाती है कि कौन आगे है। ऑनलाइन खेलों में यह छिपी रहती है।", "check": ["hi"] },
-  "settings.guide": { "en": "Shows Rooky's card that tells you what to do next on each screen.", "hi": "Rooky का कार्ड दिखाता है, जो हर स्क्रीन पर बताता है कि आगे क्या करना है।", "check": ["hi"] },
-  "settings.subs": { "en": "Shows the words Rooky and friends say on the guide card. Off by default.", "hi": "गाइड कार्ड पर Rooky और दोस्तों की कही बात लिखकर दिखाता है। शुरुआत में बंद रहता है।", "check": ["hi"] },
+  "settings.guide": { "en": "Shows Rooky's face in the bottom corner. He tells you what to do next on each screen.", "hi": "नीचे कोने में Rooky का चेहरा दिखाता है। वह हर स्क्रीन पर बताता है कि आगे क्या करना है।", "check": ["hi"] },
   "settings.install": { "en": "Add Chackmate to the home screen so it opens like an app.", "hi": "Chackmate को होम स्क्रीन पर जोड़ें ताकि यह ऐप की तरह खुले।", "check": ["hi"] },
   "settings.legal": { "en": "Dots show every square your chosen piece can move to.", "hi": "बिंदु वे सारे खाने दिखाते हैं जहाँ आपका चुना मोहरा जा सकता है।", "check": ["hi"] },
   "settings.music": { "en": "Gentle music for each room. Slide for loudness; the tick box turns it on or off.", "hi": "हर कमरे के लिए हल्का संगीत। आवाज़ के लिए स्लाइड करें; टिक बॉक्स से चालू या बंद करें।", "check": ["hi"] },
@@ -137,5 +136,6 @@
   "voice.finn": { "en": "Soft British accent, warm tone, in British English, a man's voice.", "hi": "हल्का ब्रिटिश लहजा, गर्मजोशी भरा स्वर, ब्रिटिश अंग्रेज़ी में, पुरुष की आवाज़।", "check": ["hi"] },
   "voice.edward": { "en": "Steady and formal, in British English, a man's voice.", "hi": "स्थिर और औपचारिक, ब्रिटिश अंग्रेज़ी में, पुरुष की आवाज़।", "check": ["hi"] },
   "voice.lewis": { "en": "Deep and serious, in British English, a man's voice.", "hi": "गहरी और गंभीर, ब्रिटिश अंग्रेज़ी में, पुरुष की आवाज़।", "check": ["hi"] },
-  "voice.daniel": { "en": "Formal newsreader style, in British English, a man's voice.", "hi": "औपचारिक, समाचार पढ़ने वाले जैसी, ब्रिटिश अंग्रेज़ी में, पुरुष की आवाज़।", "check": ["hi"] }
+  "voice.daniel": { "en": "Formal newsreader style, in British English, a man's voice.", "hi": "औपचारिक, समाचार पढ़ने वाले जैसी, ब्रिटिश अंग्रेज़ी में, पुरुष की आवाज़।", "check": ["hi"] },
+  "settings.captions": { "en": "Shows Rooky's words beside his face while he talks. Off unless you turn it on.", "hi": "Rooky के बोलते समय उसके शब्द उसके चेहरे के पास दिखाता है। जब तक आप चालू न करें, बंद रहता है।", "check": ["hi"] }
 }

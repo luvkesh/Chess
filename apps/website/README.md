@@ -9,7 +9,7 @@ The audience is children and their parents, so the page is built to be safe as w
 | `src/index.html` | Page template: the story, layout, styles and the script that drives the live 3D table behind the page (the coach's lesson, the world-wonder picker and the turning sets). |
 | `img/` | Pictures as WebP: `crest` (the logo, the game's 3D knight), `<era>-hero` (the era room from the home-screen camera) and `set-<era>` (the era set on a pedestal). The page shows these stills until the live 3D is ready, and instead of it where WebGL is missing. |
 | `guide.json`, `audio/` | Rooky's guide, built like JongClub's guided game: a card in the bottom right that says one line per section as the reader reaches it (`{coach}` is the coach's name from `packages/content/campaign.json`), and the recorded MP3s. The voice is off until someone taps the speaker. |
-| `tools/render-art.js` | Draws the crest, animal portraits and era banners with the game's own `art.js`. |
+| `tools/render-art.js` | Draws the crest, animal portraits and era banners with the game's own `art.js`, and the colourful place badges of the Wonders passport from `tools/place-icons.js`. |
 | `build.py` | Inlines the game's fonts, its 3D renderer (three.js, `kit3d`, `pieces3d`, `world3d`, `scene`), `img/`, the art and the facts from `packages/content` (eras, coaches, sets, rooms, counts) into `index.html`. |
 | `index.html` | The built page, committed. CI fails if it is stale. |
 | `privacy.html`, `terms.html` | Written by hand, not built. |

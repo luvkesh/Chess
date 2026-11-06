@@ -1041,22 +1041,22 @@
       ]
     },
     "item-places-library": {
-      "text": "Welcome to my favourite place to think! The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky. It's quiet, a little magical and perfect for a long game. It's yours from the start.",
+      "text": "Shh, this is my favourite place to think. The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky. It's quiet, a little magical and perfect for a long game. It's yours from the start.",
       "cues": [
         {
           "t": 0,
-          "text": "Welcome to my favourite place to think!"
+          "text": "Shh, this is my favourite place to think."
         },
         {
-          "t": 2.22,
+          "t": 3.68,
           "text": "The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky."
         },
         {
-          "t": 8.15,
+          "t": 9.47,
           "text": "It's quiet, a little magical and perfect for a long game."
         },
         {
-          "t": 11.89,
+          "t": 13.02,
           "text": "It's yours from the start."
         }
       ]
@@ -1781,6 +1781,116 @@
         {
           "t": 11.48,
           "text": "The Gods of Sounion play here, on Ash and Wenge."
+        }
+      ]
+    },
+    "item-sets-astro": {
+      "text": "Three, two, one, blast off! Space Explorers is white ceramic against deep navy, with red and orange fins. There's a star on the king, portholes on the bishops and rockets for rooks. It comes with the Rings of Saturn.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Three, two, one, blast off!"
+        },
+        {
+          "t": 2.47,
+          "text": "Space Explorers is white ceramic against deep navy, with red and orange fins."
+        },
+        {
+          "t": 7.71,
+          "text": "There's a star on the king, portholes on the bishops and rockets for rooks."
+        },
+        {
+          "t": 11.76,
+          "text": "It comes with the Rings of Saturn."
+        }
+      ]
+    },
+    "item-sets-falcon": {
+      "text": "In the desert, falcons are treasured friends. Falcon and Pearl is pearl against black pearl, trimmed in gold, with falcon knights, sailing-boat rooks and a pearl on the king's crown. It comes with the Burj Khalifa Summit.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "In the desert, falcons are treasured friends."
+        },
+        {
+          "t": 2.87,
+          "text": "Falcon and Pearl is pearl against black pearl, trimmed in gold, with falcon knights, sailing-boat rooks and a pearl on the king's crown."
+        },
+        {
+          "t": 10.74,
+          "text": "It comes with the Burj Khalifa Summit."
+        }
+      ]
+    },
+    "item-boards-meteor": {
+      "text": "Some of these squares came from space! Meteorite and Ice sets dark iron meteorite beside frosty ice, in a black frame with a glowing blue line. It comes with the Rings of Saturn and the Space Explorers.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Some of these squares came from space!"
+        },
+        {
+          "t": 2.37,
+          "text": "Meteorite and Ice sets dark iron meteorite beside frosty ice, in a black frame with a glowing blue line."
+        },
+        {
+          "t": 8.95,
+          "text": "It comes with the Rings of Saturn and the Space Explorers."
+        }
+      ]
+    },
+    "item-boards-mirage": {
+      "text": "Pearl and Night Sand is pearly white beside night-dark sand, sealed under glass with a golden rim. It sparkles like the desert under the stars, and it comes with the Burj Khalifa Summit and Falcon and Pearl.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Pearl and Night Sand is pearly white beside night-dark sand, sealed under glass with a golden rim."
+        },
+        {
+          "t": 6.25,
+          "text": "It sparkles like the desert under the stars, and it comes with the Burj Khalifa Summit and Falcon and Pearl."
+        }
+      ]
+    },
+    "item-places-saturn": {
+      "text": "Grab your space helmet! We're on an icy moon of Saturn, with ice spires all around, a little moon base and a rocket ready to fly. Look up, and Saturn and its rings fill the sky. The Space Explorers play here, on Meteorite and Ice.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Grab your space helmet!"
+        },
+        {
+          "t": 1.54,
+          "text": "We're on an icy moon of Saturn, with ice spires all around, a little moon base and a rocket ready to fly."
+        },
+        {
+          "t": 7.7,
+          "text": "Look up, and Saturn and its rings fill the sky."
+        },
+        {
+          "t": 10.91,
+          "text": "The Space Explorers play here, on Meteorite and Ice."
+        }
+      ]
+    },
+    "item-places-burj": {
+      "text": "Hold on tight! This is the very top of the Burj Khalifa, the tallest building in the world. The clouds drift below us, the city lights twinkle far down, and the sea shines all the way to the edge of the sky. Falcon and Pearl play here, on Pearl and Night Sand.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hold on tight!"
+        },
+        {
+          "t": 1.15,
+          "text": "This is the very top of the Burj Khalifa, the tallest building in the world."
+        },
+        {
+          "t": 5.28,
+          "text": "The clouds drift below us, the city lights twinkle far down, and the sea shines all the way to the edge of the sky."
+        },
+        {
+          "t": 11.87,
+          "text": "Falcon and Pearl play here, on Pearl and Night Sand."
         }
       ]
     }

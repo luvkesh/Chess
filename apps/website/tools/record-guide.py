@@ -37,8 +37,30 @@ sys.path.insert(0, str(here.parent.parent / 'tools' / 'voice'))
 from pauses import speak, RATE as SR
 
 
+def hush(level, seconds=1.0):
+    """A soft, breathy "shhh": unvoiced noise shaped like the sh sound (most of its energy around
+    2.5 to 5 kHz), fading in and out, at `level` RMS so it sits well under the speaking voice.
+    Any voiced "shoo" from Kokoro comes out too loud (user, 2026-11-06: a soft whisper, not a loud shoo)."""
+    rng = np.random.default_rng(7)
+    n = int(seconds * SR)
+    spec = np.fft.rfft(rng.standard_normal(n))
+    f = np.fft.rfftfreq(n, 1 / SR)
+    spec *= np.exp(-((np.log(np.maximum(f, 1) / 3400)) ** 2) / (2 * 0.38 ** 2))   # the sh band
+    noise = np.fft.irfft(spec, n)
+    t = np.arange(n) / SR
+    env = np.minimum(1, t / 0.18) * np.minimum(1, (seconds - t) / 0.45) ** 1.6   # breath in, long fade
+    env *= 1 + 0.08 * np.sin(2 * np.pi * 3.1 * t)                                  # a little unsteady, like breath
+    out = noise * np.clip(env, 0, None)
+    return (out * level / np.sqrt(np.mean(out[int(0.18 * SR):int(0.5 * SR)] ** 2))).astype(np.float32)
+
+
 def spoken(text):
     """The line as audio, and the second each sentence starts (for the captions)."""
+    if text.startswith('Shh, '):
+        # the whispered hush, a short breath, then the rest of the line in Rooky's voice
+        audio, starts = speak(pipe, text[5:], guide['voice'], guide['speed'], starts=True)
+        lead = np.concatenate([hush(0.22 * float(np.sqrt(np.mean(audio ** 2)))), np.zeros(int(0.3 * SR), dtype=np.float32)])
+        return np.concatenate([lead, audio.astype(np.float32)]), [0] + [s + len(lead) / SR for s in starts[1:]]
     return speak(pipe, text, guide['voice'], guide['speed'], starts=True)
 
 

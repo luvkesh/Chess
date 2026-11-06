@@ -31,8 +31,6 @@
   "guide.show": { "en": "Show the guide", "hi": "गाइड दिखाएँ", "check": ["hi"] },
   "guide.again": { "en": "Hear that again", "hi": "फिर से सुनें", "check": ["hi"] },
   "guide.hide": { "en": "Hide the guide", "hi": "गाइड छिपाएँ", "check": ["hi"] },
-  "guide.ccShow": { "en": "Show subtitles", "hi": "सबटाइटल दिखाएँ", "check": ["hi"] },
-  "guide.ccHide": { "en": "Hide subtitles", "hi": "सबटाइटल छिपाएँ", "check": ["hi"] },
   "voice.turnOff": { "en": "Turn the voice off", "hi": "आवाज़ बंद करें", "check": ["hi"] },
   "voice.turnOn": { "en": "Turn the voice on", "hi": "आवाज़ चालू करें", "check": ["hi"] },
   "voice.onTip": { "en": "Voice on. Tap to mute", "hi": "आवाज़ चालू है। बंद करने के लिए टैप करें", "check": ["hi"] },
@@ -58,5 +56,8 @@
   "guideLabel": { "en": "Guide", "hi": "गाइड", "check": ["hi"] },
   "coins": { "en": "Choco Coins", "hi": "चॉको सिक्के", "check": ["hi"] },
   "coin": { "en": "Choco Coin", "hi": "चॉको सिक्का", "check": ["hi"] },
-  "nav.club": { "en": "Club", "hi": "क्लब", "check": ["hi"] }
+  "nav.club": { "en": "Club", "hi": "क्लब", "check": ["hi"] },
+  "guide.ccShow": { "en": "Show subtitles", "hi": "उपशीर्षक दिखाएँ", "check": ["hi"] },
+  "guide.ccHide": { "en": "Hide subtitles", "hi": "उपशीर्षक छिपाएँ", "check": ["hi"] },
+  "guide.face": { "en": "{who}: tap to hear again, or to stop", "hi": "{who}: फिर से सुनने या रोकने के लिए टैप करें", "check": ["hi"] }
 }

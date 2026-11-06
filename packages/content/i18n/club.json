@@ -66,7 +66,7 @@
   "chooseLocal": { "en": "Choose your country for the local rankings.", "hi": "अपने इलाक़े की रैंकिंग के लिए अपना देश चुनें।", "check": ["hi"] },
   "guessTz": { "en": "Guess from my time zone", "hi": "मेरे टाइम ज़ोन से अंदाज़ा लगाएँ", "check": ["hi"] },
   "tzFail": { "en": "Your time zone did not tell us a place, so we kept your choice.", "hi": "आपके टाइम ज़ोन से कोई जगह पता नहीं चली, इसलिए हमने आपकी पसंद रखी।", "check": ["hi"] },
-  "gpsFail": { "en": "Your device did not share its location, so we kept {place}.", "hi": "आपके डिवाइस ने लोकेशन नहीं दी, इसलिए हमने {place} रखा।", "check": ["hi"] },
+  "gpsFail": { "en": "Location was not shared, so we kept {place}. You can pick your city above.", "hi": "लोकेशन नहीं मिली, इसलिए हमने {place} रखा। आप ऊपर अपना शहर चुन सकते हैं।", "check": ["hi"] },
   "yourChoice": { "en": "your choice", "hi": "आपकी पसंद", "check": ["hi"] },
   "lg.Master": { "en": "Master", "hi": "मास्टर", "check": ["hi"] },
   "lg.Diamond": { "en": "Diamond", "hi": "हीरा", "check": ["hi"] },
