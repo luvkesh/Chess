@@ -720,8 +720,11 @@ function ChacklateAudio() {
       if (!canTalk() || !ready()) return done();
       talking(true, what);
       const viaDevice = () => loadIndex().then(() => { if (my !== queueId) return done(); if (!(mayUseDeviceIn(null, lang) && device(text, 0.95, lang || 'en', end))) end(); });
-      if (typeof fetch === 'undefined' || location.protocol === 'file:' || !url) return viaDevice();
-      lineClip(url).then((b) => {
+      // url may list several clips, best first (the chosen voice's, then Rooky's own)
+      const urls = [].concat(url).filter(Boolean);
+      if (typeof fetch === 'undefined' || location.protocol === 'file:' || !urls.length) return viaDevice();
+      const clip = (i) => (i >= urls.length ? Promise.reject(new Error('missing')) : lineClip(urls[i]).catch(() => clip(i + 1)));
+      clip(0).then((b) => {
         if (my !== queueId) return done();
         const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(master);
         const s = ctx.createBufferSource(); s.buffer = b; s.connect(bus); s.start(ctx.currentTime + 0.03);
@@ -731,15 +734,30 @@ function ChacklateAudio() {
       }, viaDevice);
     });
   }
+  // Rooky's lines in every English coach voice (rooky/<voice>/<key>.mp3, recorded by
+  // tools/voice/record-rooky.py), so the voice the player picks says the guide, his item pitches and
+  // his lesson words too. rooky/index.json names the voices and the words of every key; a line it
+  // doesn't hold, or the default voice (Toby, Rooky's own), plays Rooky's own clip.
+  let rooky = null, rookyLoad = null;
+  function loadRooky() {
+    if (!rookyLoad) rookyLoad = (typeof fetch === 'undefined' || location.protocol === 'file:' ? Promise.resolve(null)
+      : fetch('rooky/index.json').then((r) => (r.ok ? r.json() : null)).catch(() => null)).then((j) => (rooky = j));
+    return rookyLoad;
+  }
+  function inVoice(text, url) {
+    if (here().id !== 'en' || !rooky || !rooky.voices || !rooky.voices[coachVoice]) return url;
+    const k = voiceKey(text);
+    return rooky.lines[k] === text ? ['rooky/' + coachVoice + '/' + k + '.mp3', url] : url;
+  }
   // Recordings in another language sit in a folder named for it: guide/hi/<key>.mp3, pitch/hi/...
   const localUrl = (url) => (here().id === 'en' || !url ? url : url.replace(/^(guide|pitch|tale)\//, '$1/' + here().id + '/'));
-  const guide = (key, text) => line(localUrl('guide/' + key + '.mp3'), I18N && I18N.has('guide.' + key) ? I18N.t('guide.' + key) : inLang(text), 'guide', here().id);
-  const pitch = (url, text) => { const said = inLang(text); return line(here().id === 'en' ? url : 'pitch/' + here().id + '/' + voiceKey(said) + '.mp3', said, 'pitch', here().id); };
+  const guide = (key, text) => line(inVoice(text, localUrl('guide/' + key + '.mp3')), I18N && I18N.has('guide.' + key) ? I18N.t('guide.' + key) : inLang(text), 'guide', here().id);
+  const pitch = (url, text) => { const said = inLang(text); return line(here().id === 'en' ? inVoice(text, url) : 'pitch/' + here().id + '/' + voiceKey(said) + '.mp3', said, 'pitch', here().id); };
   // Lessons with their own speakers (words/<who>/<key>.mp3, recorded by tools/voice/record-words.py):
   // Rooky in English, Priya in Hindi.
   // In another language Rooky's part is said in that language; Priya's Hindi word stays Hindi.
   const words = (who, text) => {
-    if (who === 'priya' || here().id === 'en') return line('words/' + who + '/' + voiceKey(text) + '.mp3', text, 'words', who === 'priya' ? 'hi' : 'en');
+    if (who === 'priya' || here().id === 'en') return line(who === 'rooky' ? inVoice(text, 'words/rooky/' + voiceKey(text) + '.mp3') : 'words/' + who + '/' + voiceKey(text) + '.mp3', text, 'words', who === 'priya' ? 'hi' : 'en');
     const said = inLang(text);
     return line('words/' + here().id + '/' + who + '/' + voiceKey(said) + '.mp3', said, 'words', here().id);
   };
@@ -769,7 +787,7 @@ function ChacklateAudio() {
     onTalk(fn) { talkers.push(fn); },
     voices: () => V.voices.slice(),
     setVoices(o) {
-      if (o.coach) coachVoice = OLD_IDS[o.coach] || o.coach;
+      if (o.coach) { coachVoice = OLD_IDS[o.coach] || o.coach; loadRooky(); }
       if (o.calls) callVoice = OLD_IDS[o.calls] || o.calls;
       if (o.announce !== undefined) announceOn = !!o.announce;
       if (o.deviceFallback !== undefined) deviceFallback = !!o.deviceFallback;
