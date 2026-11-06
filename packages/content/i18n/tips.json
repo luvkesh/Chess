@@ -74,6 +74,7 @@
   "settings.coach.quiet": { "en": "Rooky speaks up only when a move loses something big.", "hi": "Rooky तभी बोलता है जब किसी चाल से कुछ बड़ा नुक़सान हो।", "check": ["hi"] },
   "settings.eval": { "en": "A bar beside the board shows who is ahead. It is hidden in online games.", "hi": "बिसात के बगल में एक पट्टी दिखाती है कि कौन आगे है। ऑनलाइन खेलों में यह छिपी रहती है।", "check": ["hi"] },
   "settings.guide": { "en": "Shows Rooky's card that tells you what to do next on each screen.", "hi": "Rooky का कार्ड दिखाता है, जो हर स्क्रीन पर बताता है कि आगे क्या करना है।", "check": ["hi"] },
+  "settings.subs": { "en": "Shows the words Rooky and friends say on the guide card. Off by default.", "hi": "गाइड कार्ड पर Rooky और दोस्तों की कही बात लिखकर दिखाता है। शुरुआत में बंद रहता है।", "check": ["hi"] },
   "settings.install": { "en": "Add Chackmate to the home screen so it opens like an app.", "hi": "Chackmate को होम स्क्रीन पर जोड़ें ताकि यह ऐप की तरह खुले।", "check": ["hi"] },
   "settings.legal": { "en": "Dots show every square your chosen piece can move to.", "hi": "बिंदु वे सारे खाने दिखाते हैं जहाँ आपका चुना मोहरा जा सकता है।", "check": ["hi"] },
   "settings.music": { "en": "Gentle music for each room. Slide for loudness; the tick box turns it on or off.", "hi": "हर कमरे के लिए हल्का संगीत। आवाज़ के लिए स्लाइड करें; टिक बॉक्स से चालू या बंद करें।", "check": ["hi"] },

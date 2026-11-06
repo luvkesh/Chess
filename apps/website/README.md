@@ -37,7 +37,7 @@ python3 apps/website/build.py
 
 ## The coach's audio guide
 
-The clips are recorded offline with Kokoro-82M in Rooky's voice from the game ("Toby", the Kokoro blend `am_puck,am_michael`), using the same setup as `tools/voice/record.py`:
+The clips are recorded offline with Kokoro-82M in Rooky's voice from the game ("Toby", the Kokoro blend `am_puck,am_liam`), using the same setup as `tools/voice/record.py`:
 
 ```sh
 HF_HOME=... python3.12 apps/website/tools/record-guide.py   # audio/<section>.mp3 and audio/index.json

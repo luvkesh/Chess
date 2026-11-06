@@ -58,7 +58,7 @@
     compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
-    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>',
+    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', cc: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6"/>', ccOff: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6M4 4l16 16"/>', down: '<path d="M6 9l6 6 6-6"/>',
     smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
@@ -98,7 +98,7 @@
   // every era of the journey. Portraits are drawn by art.js.
   const OPP = CAMPAIGN.opponents, COACH = CAMPAIGN.coach;
   const persona = (lv) => OPP[lv] || OPP[0];
-  const species = (p) => (p.full || '').replace(p.name, '').trim().replace(/^the /, '');
+  const species = (p) => (p.species || (p.full || '').replace(p.name, '')).trim().replace(/^the /, '');
   const face = (who, o) => ART.portraitUri(who.animal, Object.assign({ from: who.colors[0], to: who.colors[1] }, o || {}));
   const faceImg = (who, cls) => '<img class="portrait ' + (cls || '') + '" src="' + face(who) + '" alt="' + esc(who.full || who.name) + '">';
   const eraById = (id) => CAMPAIGN.eras.find((e) => e.id === id) || null;
@@ -119,7 +119,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, elements: true, colourToss: true,
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, subtitles: false, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, elements: true, colourToss: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You', lang: I18N.guess(navigator.languages || [navigator.language]) }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -570,15 +570,34 @@
     el.innerHTML = '<button class="narrator" id="gd-show" tabindex="-1" aria-label="' + t('common.guide.show') + '" title="' + t('common.guide.show') + '"><img alt=""></button>' +
       '<div class="gd-body"><div class="gd-head"><p class="gd-who" id="gd-who"></p>' +
       '<button class="gd-btn" id="gd-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button>' +
+      '<button class="gd-btn" id="gd-cc"></button>' +
       '<button class="gd-btn" id="gd-voice"></button>' +
       '<button class="gd-btn" id="gd-hide" aria-label="' + t('common.guide.hide') + '" title="' + t('common.guide.hide') + '">' + icon('down') + '</button></div>' +
       '<p class="gd-text" id="gd-text"></p><p class="gd-extra" id="gd-extra"></p></div>';
     $('gd-again').onclick = () => { AU.unlock(); if (guideSt.key) { if (!state.settings.narration) setVoice(true, true); guideSay(guideSt.key, { force: true }); } };
     $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
+    $('gd-cc').onclick = () => { setSubtitles(!state.settings.subtitles); };
     $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
     $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
     AU.onTalk((on, what) => el.classList.toggle('speaking', on && what !== 'pitch' && what !== 'tale'));
     return el;
+  }
+  // Subtitles: the words of what Rooky says. Optional and off by default (user, 2026-11-01); they
+  // still show when the voice is off, so the line is never lost.
+  function subtitleState() {
+    const el = guideCard(), on = !!state.settings.subtitles, b = $('gd-cc');
+    el.classList.toggle('nocap', !on && !!state.settings.narration);
+    b.innerHTML = icon(on ? 'cc' : 'ccOff');
+    b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', t(on ? 'common.guide.ccHide' : 'common.guide.ccShow'));
+    b.title = b.getAttribute('aria-label');
+  }
+  function setSubtitles(on) {
+    state.settings.subtitles = !!on; save();
+    const box = document.getElementById('s-subs');
+    if (box) box.checked = !!on;
+    subtitleState();
+    if (KIND[state.screen] === 'hud') { guideSt.h = 0; applyInsets(); }
   }
   function guideTuck() {
     const el = guideCard();
@@ -615,6 +634,7 @@
     $('gd-text').textContent = t('guide.' + key);
     $('gd-extra').textContent = !state.settings.narration ? t('common.guide.tapSpeaker', { who: who.name }) : AU.canTalk() ? '' : t('common.guide.tapAnywhere', { who: who.name });
     voiceIcon($('gd-voice'), who.name);
+    subtitleState();
     if (guideSt.key !== key) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
     guideSt.key = key;
     if (KIND[state.screen] === 'hud' && el.offsetHeight !== guideSt.h) { guideSt.h = el.offsetHeight; applyInsets(); }
@@ -2674,6 +2694,7 @@
     return '<div class="label set-h">' + t('settings.voices') + '</div>' +
       '<label class="toggle" data-tk="settings.narr">' + t('settings.narration') + TIP_I + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.guide">' + t('settings.guideCard') + TIP_I + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.subs">' + t('settings.subtitles') + TIP_I + ' <input type="checkbox" id="s-subs"' + (s.subtitles ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.vcoach">' + t('settings.coachVoice') + TIP_I + ' <span class="voice-pick"><select id="s-vcoach">' + groups(s.voiceCoach, (v) => v.lessons) + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>' + t('settings.deviceVoice') + '</option></select>' + tryBtn('s-vcoach-try') + '</span></label>' +
       '<label class="toggle" data-tk="settings.vcalls">' + t('settings.calls') + TIP_I + ' <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + hindi(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select>' + tryBtn('s-vcalls-try') + '</span></label>' +
       '<label class="toggle" data-tk="settings.announce">' + t('settings.announce') + TIP_I + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
@@ -2716,6 +2737,7 @@
     on('#s-musv', 'input', (e) => { s.musicVol = +e.target.value; applySettings(); save(); });
     on('#s-narr', 'change', (e) => { setVoice(e.target.checked, true); });
     on('#s-guide', 'change', (e) => { s.guide = e.target.checked; save(); guideTuck(); });
+    on('#s-subs', 'change', (e) => { setSubtitles(e.target.checked); });
     on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-vcoach-try', 'click', (e) => { e.preventDefault(); AU.unlock(); AU.preview(s.voiceCoach); });

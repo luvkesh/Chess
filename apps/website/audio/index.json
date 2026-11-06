@@ -1,138 +1,158 @@
 {
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "lines": {
     "hero": {
-      "text": "Hi! I'm Rooky, your chess coach. Welcome to Chackmate, chess for every age! Scroll down, and I'll show you around.",
+      "text": "Hey there! I'm Rooky, your chess coach. Welcome to Chackmate! Come on, scroll down. I've got so much to show you!",
       "cues": [
         {
           "t": 0,
-          "text": "Hi!"
+          "text": "Hey there!"
         },
         {
-          "t": 0.61,
+          "t": 0.71,
           "text": "I'm Rooky, your chess coach."
         },
         {
-          "t": 3.12,
-          "text": "Welcome to Chackmate, chess for every age!"
+          "t": 2.63,
+          "text": "Welcome to Chackmate!"
         },
         {
-          "t": 6.27,
-          "text": "Scroll down, and I'll show you around."
+          "t": 4.09,
+          "text": "Come on, scroll down."
+        },
+        {
+          "t": 5.61,
+          "text": "I've got so much to show you!"
         }
       ]
     },
     "learn": {
-      "text": "This is me, teaching on a real board. Every time you move, I tell you why, in one simple sentence. No long words, I promise.",
+      "text": "Ooh, look, a real game! Every time you move, I tell you why, in one quick sentence. It's like having a coach right beside you!",
       "cues": [
         {
           "t": 0,
-          "text": "This is me, teaching on a real board."
+          "text": "Ooh, look, a real game!"
         },
         {
-          "t": 2.89,
-          "text": "Every time you move, I tell you why, in one simple sentence."
+          "t": 1.81,
+          "text": "Every time you move, I tell you why, in one quick sentence."
         },
         {
-          "t": 7.78,
-          "text": "No long words, I promise."
+          "t": 5.57,
+          "text": "It's like having a coach right beside you!"
         }
       ]
     },
     "lessons": {
-      "text": "Start with how the pieces move, then try puzzles, famous openings and endgames. A new puzzle is waiting for you every day.",
+      "text": "First, learn how every piece moves. Then crack puzzles, try famous openings and win endgames. And guess what? A brand new puzzle waits for you every day!",
       "cues": [
         {
           "t": 0,
-          "text": "Start with how the pieces move, then try puzzles, famous openings and endgames."
+          "text": "First, learn how every piece moves."
         },
         {
-          "t": 6.14,
-          "text": "A new puzzle is waiting for you every day."
+          "t": 2.35,
+          "text": "Then crack puzzles, try famous openings and win endgames."
+        },
+        {
+          "t": 6.31,
+          "text": "And guess what?"
+        },
+        {
+          "t": 7.57,
+          "text": "A brand new puzzle waits for you every day!"
         }
       ]
     },
     "wonders": {
-      "text": "Every game happens somewhere amazing! Some places are grand rooms, and some are out in the open, right in front of a wonder of the world. Beat each champion to unlock the next place.",
+      "text": "Now for the fun part! You play right in front of real wonders of the world, from the Pyramids to the Taj Mahal. Beat each champion, get a passport stamp, and the next place unlocks!",
       "cues": [
         {
           "t": 0,
-          "text": "Every game happens somewhere amazing!"
+          "text": "Now for the fun part!"
         },
         {
-          "t": 2.9,
-          "text": "Some places are grand rooms, and some are out in the open, right in front of a wonder of the world."
+          "t": 1.35,
+          "text": "You play right in front of real wonders of the world, from the Pyramids to the Taj Mahal."
         },
         {
-          "t": 9.87,
-          "text": "Beat each champion to unlock the next place."
+          "t": 6.37,
+          "text": "Beat each champion, get a passport stamp, and the next place unlocks!"
         }
       ]
     },
     "collect": {
-      "text": "Every chess set has its own story. Win them, collect them, and try them on your table! Nothing is random, and nobody can buy a stronger army.",
+      "text": "Every chess set has its own story! Win them, collect them and try them on your table. Nothing is random, and nobody can buy a stronger army. Fair and square!",
       "cues": [
         {
           "t": 0,
-          "text": "Every chess set has its own story."
+          "text": "Every chess set has its own story!"
         },
         {
-          "t": 2.73,
-          "text": "Win them, collect them, and try them on your table!"
+          "t": 2.21,
+          "text": "Win them, collect them and try them on your table."
         },
         {
-          "t": 6.8,
+          "t": 5.27,
           "text": "Nothing is random, and nobody can buy a stronger army."
+        },
+        {
+          "t": 8.9,
+          "text": "Fair and square!"
         }
       ]
     },
     "ages": {
-      "text": "Pick a friend to play. Truffle the bunny is gentle with beginners. Ember the dragon plays at full strength. You'll get better with every game.",
+      "text": "So, who do you want to play? Truffle the bunny is super gentle with beginners. Ember the dragon plays at full strength! Every game makes you a little better.",
       "cues": [
         {
           "t": 0,
-          "text": "Pick a friend to play."
+          "text": "So, who do you want to play?"
         },
         {
-          "t": 1.44,
-          "text": "Truffle the bunny is gentle with beginners."
+          "t": 1.57,
+          "text": "Truffle the bunny is super gentle with beginners."
         },
         {
-          "t": 4.64,
-          "text": "Ember the dragon plays at full strength."
+          "t": 4.84,
+          "text": "Ember the dragon plays at full strength!"
         },
         {
-          "t": 7.44,
-          "text": "You'll get better with every game."
+          "t": 7.43,
+          "text": "Every game makes you a little better."
         }
       ]
     },
     "families": {
-      "text": "Grown-ups, this part is for you. There's no chat with strangers, no ads and no tracking. Parents decide about online play and buying things.",
+      "text": "Grown-ups, this bit is for you! No chat with strangers, no ads and no tracking. You decide about online play and buying things.",
       "cues": [
         {
           "t": 0,
-          "text": "Grown-ups, this part is for you."
+          "text": "Grown-ups, this bit is for you!"
         },
         {
-          "t": 2.39,
-          "text": "There's no chat with strangers, no ads and no tracking."
+          "t": 1.87,
+          "text": "No chat with strangers, no ads and no tracking."
         },
         {
-          "t": 6.68,
-          "text": "Parents decide about online play and buying things."
+          "t": 5.18,
+          "text": "You decide about online play and buying things."
         }
       ]
     },
     "close": {
-      "text": "Your first move is waiting. Let's play!",
+      "text": "Your first move is waiting. Ready? Let's play!",
       "cues": [
         {
           "t": 0,
           "text": "Your first move is waiting."
         },
         {
-          "t": 1.6,
+          "t": 1.42,
+          "text": "Ready?"
+        },
+        {
+          "t": 2.13,
           "text": "Let's play!"
         }
       ]
@@ -145,15 +165,15 @@
           "text": "Look at this one shine!"
         },
         {
-          "t": 1.79,
+          "t": 1.48,
           "text": "Pharaoh's Treasure is smooth white alabaster and dark basalt, and every piece wears a collar of gold, blue lapis and red carnelian, like a real pharaoh's jewels."
         },
         {
-          "t": 13.21,
+          "t": 11.05,
           "text": "Miu the Cat guards it on the Nile."
         },
         {
-          "t": 15.63,
+          "t": 13.2,
           "text": "Beat her, and it's yours."
         }
       ]
@@ -166,11 +186,11 @@
           "text": "Run your finger down this king."
         },
         {
-          "t": 2.35,
+          "t": 1.99,
           "text": "Those grooves are carved like the columns of a Greek temple, in white Pentelic marble with a bronze laurel crown."
         },
         {
-          "t": 10.27,
+          "t": 8.59,
           "text": "Sophie the Owl guards this set, and it's yours when you beat her in Athens."
         }
       ]
@@ -183,11 +203,11 @@
           "text": "Here is a set fit for an emperor."
         },
         {
-          "t": 2.44,
+          "t": 2.18,
           "text": "Imperial Rome pairs white Carrara marble with deep purple porphyry, a stone so rare that only emperors could use it, and every king wears a gilded laurel wreath."
         },
         {
-          "t": 14.09,
+          "t": 11.9,
           "text": "Beat Marcus the Wolf in Rome to make it yours."
         }
       ]
@@ -200,11 +220,11 @@
           "text": "This one is fit for a palace."
         },
         {
-          "t": 2.46,
+          "t": 2.03,
           "text": "White and green jade, with tiny rubies and emeralds set into the crowns, just like the jewels of the Mughal emperors."
         },
         {
-          "t": 10.73,
+          "t": 8.76,
           "text": "Hold the queen up to the light and watch the green glow."
         }
       ]
@@ -217,11 +237,11 @@
           "text": "Blue and white, like a precious Ming vase."
         },
         {
-          "t": 3.39,
+          "t": 2.77,
           "text": "Ming Porcelain is painted by hand in deep cobalt blue, and each piece stands on red cinnabar lacquer, carved layer by layer into patterns."
         },
         {
-          "t": 13.61,
+          "t": 11.3,
           "text": "Win against Bao the Panda in Beijing, and the Forbidden City's own set is yours."
         }
       ]
@@ -234,11 +254,11 @@
           "text": "Glassmakers in Venice have spun glass like this for seven hundred years."
         },
         {
-          "t": 4.92,
+          "t": 4.22,
           "text": "Milk-white and cobalt blue, with twisted stems and threads of gold."
         },
         {
-          "t": 10.07,
+          "t": 8.72,
           "text": "Every piece catches the light differently, so no two games look the same."
         }
       ]
@@ -251,11 +271,11 @@
           "text": "Paris, 1889: the Eiffel Tower is brand new, and so is this set."
         },
         {
-          "t": 6.38,
+          "t": 5.06,
           "text": "Ruby and Pearl has lilies and tulips climbing every piece, in creamy pearl and deep ruby red, wrapped in thin golden tendrils."
         },
         {
-          "t": 15.55,
+          "t": 12.71,
           "text": "Beat Gaston the Rooster in Paris, and this romantic set is yours."
         }
       ]
@@ -268,15 +288,15 @@
           "text": "Now for the crown jewel."
         },
         {
-          "t": 1.92,
+          "t": 1.61,
           "text": "The Tsarina's set shimmers with guilloche enamel, tiny engraved lines glowing under clear colour, with green malachite, pearls, little diamonds and rose gold."
         },
         {
-          "t": 13.36,
+          "t": 10.96,
           "text": "It looks like treasure from a royal palace."
         },
         {
-          "t": 16.34,
+          "t": 13.64,
           "text": "Beat Mishka the Bear in Saint Petersburg, and it's yours."
         }
       ]
@@ -289,11 +309,11 @@
           "text": "Manhattan Deco is as tall and stylish as New York itself."
         },
         {
-          "t": 4.54,
+          "t": 3.76,
           "text": "Cream enamel and shiny black onyx rise in steps, just like the skyscrapers of the 1930s, with the bold lines of the jazz age."
         },
         {
-          "t": 14.42,
+          "t": 12.05,
           "text": "Beat Skye the Eagle high above Manhattan to claim it."
         }
       ]
@@ -306,11 +326,11 @@
           "text": "Every great collection starts somewhere, and yours starts here."
         },
         {
-          "t": 4.1,
+          "t": 3.67,
           "text": "Regency Gilt is glossy black and white lacquer, and the crowns and horses' manes are brushed with real gold leaf, the way furniture makers worked two hundred years ago."
         },
         {
-          "t": 15.55,
+          "t": 13.34,
           "text": "It's waiting for you from your very first game."
         }
       ]
@@ -323,15 +343,15 @@
           "text": "Almost every chess set in the world learned its shape from this one."
         },
         {
-          "t": 4.02,
+          "t": 3.63,
           "text": "Classic Staunton is pale boxwood and dark ebony, with a proud carved horse for a knight and a little cross on the king."
         },
         {
-          "t": 12.02,
+          "t": 10.44,
           "text": "Simple, honest and smart."
         },
         {
-          "t": 14.91,
+          "t": 12.75,
           "text": "It's yours from the start."
         }
       ]
@@ -344,15 +364,15 @@
           "text": "Some sets whisper instead of shout."
         },
         {
-          "t": 2.65,
+          "t": 2.29,
           "text": "Carrara and Nero is made of simple shapes, cones, spheres and discs, cut from white and black marble and polished until they feel cool and smooth in your hand."
         },
         {
-          "t": 13.63,
+          "t": 11.37,
           "text": "Grown-ups love this one."
         },
         {
-          "t": 15.61,
+          "t": 13.13,
           "text": "It comes with the Marble Hall and its marble board."
         }
       ]
@@ -365,15 +385,15 @@
           "text": "Careful, this one looks good enough to eat!"
         },
         {
-          "t": 3.01,
+          "t": 2.52,
           "text": "Cocoa and Gilt turns every piece into a treat: chocolate truffles, piped rosettes and little paper cups, in dark cocoa and shiny gilt."
         },
         {
-          "t": 12.99,
+          "t": 10.53,
           "text": "It's the sweetest set in the collection."
         },
         {
-          "t": 15.6,
+          "t": 12.84,
           "text": "Reach level ten, and the box is yours."
         }
       ]
@@ -386,11 +406,11 @@
           "text": "These pieces stand like ancient stones in a misty field."
         },
         {
-          "t": 4.04,
+          "t": 3.52,
           "text": "Jade and Onyx is square-cut from pale green jade and deep black onyx, with sharp, clean edges you can feel."
         },
         {
-          "t": 12.13,
+          "t": 10.25,
           "text": "Shelly the Tortoise guards it, so beat her slow and steady game to take it home."
         }
       ]
@@ -403,11 +423,11 @@
           "text": "Every piece in this set is a trophy."
         },
         {
-          "t": 2.8,
+          "t": 2.51,
           "text": "Gold and Platinum gives each one gleaming cups and curly handles, polished like the prizes at a big tournament, and the king holds the tallest cup of all."
         },
         {
-          "t": 13.12,
+          "t": 11.19,
           "text": "It comes with Premium, for players who love a little sparkle."
         }
       ]
@@ -420,15 +440,15 @@
           "text": "Pink chocolate is real, and here it is on your board!"
         },
         {
-          "t": 3.79,
+          "t": 3.09,
           "text": "Ruby Chocolate is soft, bubbly moulded pieces in rosy ruby and dark bittersweet, with little bumps like chocolate fresh out of the mould."
         },
         {
-          "t": 12.92,
+          "t": 10.75,
           "text": "It's sweet, cheerful and very pink."
         },
         {
-          "t": 16.23,
+          "t": 13.32,
           "text": "It comes with the Fairy-Tale Castle, for players who come back seven days in a row."
         }
       ]
@@ -441,11 +461,11 @@
           "text": "Did you know chocolate grows in pods on trees?"
         },
         {
-          "t": 3.23,
+          "t": 2.79,
           "text": "Milk and Dark turns every piece into a ribbed cocoa pod standing on leafy feet, in creamy milk and rich dark chocolate."
         },
         {
-          "t": 11.69,
+          "t": 9.99,
           "text": "It's the top prize on the free Cocoa Harvest season track, so keep playing to reach it."
         }
       ]
@@ -458,15 +478,15 @@
           "text": "Watch the light run down these twists."
         },
         {
-          "t": 2.83,
+          "t": 2.47,
           "text": "Caramel and Cream is barley-sugar spirals in golden caramel and fresh white cream, like sweets in an old shop window."
         },
         {
-          "t": 10.68,
+          "t": 9.31,
           "text": "They look almost sticky!"
         },
         {
-          "t": 12.72,
+          "t": 11.06,
           "text": "It's one of the rewards on the Cocoa Harvest season pass."
         }
       ]
@@ -479,15 +499,15 @@
           "text": "Hold a piece up to the window and watch the colours dance."
         },
         {
-          "t": 3.86,
+          "t": 3.4,
           "text": "Crystal Jewels is cut crystal, clear for one side and jet black for the other, and every kind of piece carries its own coloured gem."
         },
         {
-          "t": 13.04,
+          "t": 11.31,
           "text": "Each one sparkles differently."
         },
         {
-          "t": 15.19,
+          "t": 13.4,
           "text": "It comes with Premium."
         }
       ]
@@ -500,15 +520,15 @@
           "text": "This set comes from the night sky."
         },
         {
-          "t": 2.38,
+          "t": 2.08,
           "text": "Celestial Opal is milky white and black opal set in silver, with ringed planets, a crescent moon and little golden stars."
         },
         {
-          "t": 11.27,
+          "t": 9.64,
           "text": "Turn it slowly and the opal flashes blue and green."
         },
         {
-          "t": 14.98,
+          "t": 12.88,
           "text": "It comes with Premium, for dreamers."
         }
       ]
@@ -521,15 +541,15 @@
           "text": "Peacocks are the proudest birds in the garden, and these pieces know it."
         },
         {
-          "t": 4.52,
+          "t": 3.85,
           "text": "Peacock Court is ivory and peacock-blue enamel, with fanned tails, tiny crests and feather eyes on every piece."
         },
         {
-          "t": 12.89,
+          "t": 10.68,
           "text": "It's elegant, bright and a little bit royal."
         },
         {
-          "t": 16.22,
+          "t": 13.42,
           "text": "It comes with Mysore Palace, all lit up at night."
         }
       ]
@@ -542,15 +562,15 @@
           "text": "Here comes a whole army!"
         },
         {
-          "t": 2.14,
+          "t": 1.7,
           "text": "In The Royal Army, the rook is a war elephant, the bishop rides a camel, the knight is a horseman and the pawns carry swords and shields."
         },
         {
-          "t": 11.61,
+          "t": 9.67,
           "text": "Chess began as a game of armies in India, and this set remembers it."
         },
         {
-          "t": 16.45,
+          "t": 13.78,
           "text": "It comes with Premium."
         }
       ]
@@ -563,15 +583,15 @@
           "text": "Beep boop!"
         },
         {
-          "t": 0.9,
+          "t": 0.73,
           "text": "Robot Squad is a team of friendly toy robots in glossy plastic and shiny chrome, and every one of them has glowing eyes."
         },
         {
-          "t": 9.59,
+          "t": 8.03,
           "text": "They look ready to march across the board."
         },
         {
-          "t": 12.44,
+          "t": 10.6,
           "text": "Younger players love this one, and it unlocks when you reach level five."
         }
       ]
@@ -584,15 +604,15 @@
           "text": "Dive under the sea!"
         },
         {
-          "t": 1.77,
+          "t": 1.39,
           "text": "Coral Kingdom is a whole undersea court, with merfolk, an octopus, a seahorse, a coral castle and puffed-up pufferfish for pawns."
         },
         {
-          "t": 11.92,
+          "t": 9.73,
           "text": "Every piece is painted in bright ocean colours."
         },
         {
-          "t": 15.27,
+          "t": 12.75,
           "text": "Reach level twelve, and the whole kingdom swims onto your board."
         }
       ]
@@ -605,11 +625,11 @@
           "text": "A good board starts with good wood."
         },
         {
-          "t": 2.67,
+          "t": 2.29,
           "text": "Walnut and Maple sets dark figured walnut beside pale maple, in a frame joined at the corners like fine furniture, with thin gold lines all around."
         },
         {
-          "t": 13.22,
+          "t": 11.41,
           "text": "It's warm, classic and yours from your very first game."
         }
       ]
@@ -622,11 +642,11 @@
           "text": "Doesn't this look like a fancy chocolate box?"
         },
         {
-          "t": 2.99,
+          "t": 2.66,
           "text": "Cocoa and Cream has squares of glossy cocoa lacquer and soft cream, with fine raspberry-red seams running between them."
         },
         {
-          "t": 11.5,
+          "t": 9.76,
           "text": "It's cosy and sweet, and it comes with the chocolate shop in Brussels."
         }
       ]
@@ -639,11 +659,11 @@
           "text": "Visit any chess club, and you'll see this board."
         },
         {
-          "t": 3.55,
+          "t": 2.88,
           "text": "Tournament Green is the green and buff that players use in clubs and championships all over the world, with clear squares that are easy on the eyes."
         },
         {
-          "t": 13.2,
+          "t": 11.23,
           "text": "It's ready for you from the start."
         }
       ]
@@ -656,15 +676,15 @@
           "text": "Imagine playing on a palace floor."
         },
         {
-          "t": 2.54,
+          "t": 2.31,
           "text": "Carrara and Nero is white Carrara and black Nero Marquina marble, polished until you can almost see your pieces reflected in it."
         },
         {
-          "t": 10.8,
+          "t": 9.49,
           "text": "It feels cool, calm and grand."
         },
         {
-          "t": 14.28,
+          "t": 12.2,
           "text": "Reach level three to unlock it."
         }
       ]
@@ -677,11 +697,11 @@
           "text": "Rosewood has a deep red glow that gets richer with time."
         },
         {
-          "t": 4.23,
+          "t": 3.6,
           "text": "Rosewood and Gold Leaf sets it against honey-coloured squares, and the frame is laid with real gold leaf, one thin sheet at a time."
         },
         {
-          "t": 13.7,
+          "t": 11.36,
           "text": "It comes with Mysore Palace and the Peacock Court."
         }
       ]
@@ -694,11 +714,11 @@
           "text": "Peer into the green squares."
         },
         {
-          "t": 2.34,
+          "t": 1.96,
           "text": "Emerald and Ivory is green marble with veins of jade running through it, set against warm ivory stone, so no two squares are quite the same."
         },
         {
-          "t": 12.4,
+          "t": 10.13,
           "text": "It's fresh and elegant, and it comes with the Great Wall and the Jade and Onyx set."
         }
       ]
@@ -711,15 +731,15 @@
           "text": "Obsidian is glass made by volcanoes!"
         },
         {
-          "t": 3.18,
+          "t": 2.73,
           "text": "Obsidian Glass is smoky black volcanic glass with a shining chrome rim, and every piece you place shows its reflection underneath."
         },
         {
-          "t": 12.13,
+          "t": 10.54,
           "text": "It's sleek and a little mysterious."
         },
         {
-          "t": 14.79,
+          "t": 12.84,
           "text": "It comes with the Crystal Palace and the Crystal Jewels."
         }
       ]
@@ -732,11 +752,11 @@
           "text": "In Japan, families picnic under the cherry blossoms every spring."
         },
         {
-          "t": 5.07,
+          "t": 4.44,
           "text": "Sakura Lacquer captures that soft pink in layers of glossy lacquer, smooth as a petal."
         },
         {
-          "t": 11.71,
+          "t": 10.13,
           "text": "It comes with the Tokyo Sky Garden and the Robot Squad."
         }
       ]
@@ -749,15 +769,15 @@
           "text": "Jaipur is called the Pink City because its palaces are built from this stone."
         },
         {
-          "t": 4.75,
+          "t": 4.35,
           "text": "Jaipur Sandstone sets pink and honey sandstone side by side, glowing like the city at sunset."
         },
         {
-          "t": 12.18,
+          "t": 10.35,
           "text": "It's a little piece of India on your table."
         },
         {
-          "t": 15.13,
+          "t": 12.94,
           "text": "It comes with Amber Fort and the Royal Army."
         }
       ]
@@ -770,11 +790,11 @@
           "text": "Got a sweet tooth?"
         },
         {
-          "t": 1.51,
+          "t": 1.18,
           "text": "Ruby Truffle has squares of glossy ruby lacquer and pale praline, divided by thin seams of gold, just like a box of fine truffles."
         },
         {
-          "t": 11.41,
+          "t": 9.36,
           "text": "It's rich and cheerful, and it comes with the Fairy-Tale Castle."
         }
       ]
@@ -787,11 +807,11 @@
           "text": "Some boards are made for a grand occasion."
         },
         {
-          "t": 3.07,
+          "t": 2.51,
           "text": "Gilded Ebony is deep black lacquer and soft ivory, and every single seam between the squares is drawn in gold, so under the lights the whole board glows."
         },
         {
-          "t": 13.77,
+          "t": 11.57,
           "text": "It comes with Premium."
         }
       ]
@@ -804,15 +824,15 @@
           "text": "Smell that?"
         },
         {
-          "t": 1.02,
+          "t": 0.86,
           "text": "It's harvest time!"
         },
         {
-          "t": 2.82,
+          "t": 2.39,
           "text": "Harvest Oak is golden oak with a warm, honey-coloured grain, like a farmhouse table at the end of summer."
         },
         {
-          "t": 10.2,
+          "t": 8.62,
           "text": "It comes with the Harvest Loft and the Caramel and Cream set."
         }
       ]
@@ -825,11 +845,11 @@
           "text": "Have you ever seen a ripe cacao pod?"
         },
         {
-          "t": 2.75,
+          "t": 2.39,
           "text": "Cacao Pod paints the board in the warm colours of the pod and the beans inside it, the very beans that become chocolate."
         },
         {
-          "t": 10.81,
+          "t": 9.21,
           "text": "It's a cheerful board, and it comes with the Alpine Chalet and the Milk and Dark set."
         }
       ]
@@ -842,11 +862,11 @@
           "text": "Hieroglyphs run all the way around this frame, just like the walls of an Egyptian temple."
         },
         {
-          "t": 6.15,
+          "t": 5.1,
           "text": "Sandstone and Lapis sets desert-gold sandstone beside deep blue lapis lazuli, the stone the pharaohs loved."
         },
         {
-          "t": 14.47,
+          "t": 12.01,
           "text": "Beat Miu the Cat on the Nile, and it's yours."
         }
       ]
@@ -859,11 +879,11 @@
           "text": "The Greeks loved marble, and this board shows why."
         },
         {
-          "t": 3.86,
+          "t": 3.07,
           "text": "Pentelic and Verde puts white Pentelic marble, the stone of the Parthenon, beside green verde antico, with a Greek key pattern around the edge."
         },
         {
-          "t": 14.17,
+          "t": 11.64,
           "text": "Win against Sophie the Owl in Athens to take it home."
         }
       ]
@@ -876,15 +896,15 @@
           "text": "Romans built with stone that lasted thousands of years."
         },
         {
-          "t": 3.83,
+          "t": 3.31,
           "text": "Porphyry and Travertine sets warm travertine beside grey marble, framed in imperial porphyry with a bronze rim."
         },
         {
-          "t": 12.02,
+          "t": 10.15,
           "text": "It feels as solid as the Colosseum."
         },
         {
-          "t": 15.15,
+          "t": 12.87,
           "text": "Beat Marcus the Wolf in Rome, and it's yours."
         }
       ]
@@ -897,11 +917,11 @@
           "text": "Look closer: those flowers aren't painted, they're stone."
         },
         {
-          "t": 4.38,
+          "t": 3.36,
           "text": "Taj Marble is white marble inlaid with tiny stone flowers, the way the Taj Mahal was decorated, set against warm red sandstone."
         },
         {
-          "t": 14.28,
+          "t": 11.62,
           "text": "Beat Moti the Elephant in Agra to bring it home."
         }
       ]
@@ -914,11 +934,11 @@
           "text": "Silk, lacquer and gold, the treasures of an emperor's study."
         },
         {
-          "t": 4.79,
+          "t": 3.86,
           "text": "Cinnabar and Gold has black lacquer and pale silk squares with golden seams, in a frame of carved red cinnabar."
         },
         {
-          "t": 12.86,
+          "t": 10.5,
           "text": "Win against Bao the Panda in Beijing, and it's yours."
         }
       ]
@@ -931,15 +951,15 @@
           "text": "Here's a lucky story."
         },
         {
-          "t": 1.89,
+          "t": 1.66,
           "text": "Long ago, glassmakers on Murano made a mistake and discovered aventurine, a glass that sparkles with flecks of gold."
         },
         {
-          "t": 10.72,
+          "t": 8.93,
           "text": "Murano Mirror sets it beside silver mirror glass."
         },
         {
-          "t": 14.69,
+          "t": 12.42,
           "text": "Beat Marco the Winged Lion in Venice to win it."
         }
       ]
@@ -952,11 +972,11 @@
           "text": "This board comes from the grand houses of Paris."
         },
         {
-          "t": 3.43,
+          "t": 3.05,
           "text": "Bleu Turquin and Carrara sets blue-grey marble beside white Carrara, in a frame of kingwood, a wood so fine it was used for royal furniture."
         },
         {
-          "t": 13.15,
+          "t": 11.14,
           "text": "Beat Gaston the Rooster in Paris to win it."
         }
       ]
@@ -969,11 +989,11 @@
           "text": "The green swirls in this frame are malachite, dug from the Ural Mountains of Russia."
         },
         {
-          "t": 5.81,
+          "t": 4.73,
           "text": "Malachite and Rhodonite sets rose-pink rhodonite beside white onyx inside it, like a palace garden in the snow."
         },
         {
-          "t": 13.59,
+          "t": 11.49,
           "text": "Beat Mishka the Bear, and it's yours."
         }
       ]
@@ -986,15 +1006,15 @@
           "text": "Step into a 1930s penthouse."
         },
         {
-          "t": 3.02,
+          "t": 2.69,
           "text": "Macassar and Chrome has striped macassar ebony, a wood with bold dark and golden stripes, beside gleaming chrome."
         },
         {
-          "t": 11.21,
+          "t": 9.4,
           "text": "It's sharp, shiny and very New York."
         },
         {
-          "t": 14.62,
+          "t": 12.15,
           "text": "Beat Skye the Eagle above Manhattan, and it's yours."
         }
       ]
@@ -1007,36 +1027,36 @@
           "text": "Pull up a chair by the fire."
         },
         {
-          "t": 2.17,
+          "t": 1.97,
           "text": "The Grand Cocoa Salon is a Regency drawing room with candlelight, a sparkling chandelier and a fire that crackles while you think."
         },
         {
-          "t": 10.84,
+          "t": 9.38,
           "text": "It's cosy, calm and the perfect first place to play."
         },
         {
-          "t": 15.14,
+          "t": 12.98,
           "text": "It's yours from the start."
         }
       ]
     },
     "item-places-library": {
-      "text": "Shh, this is my favourite place to think. The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky. It's quiet, a little magical and perfect for a long game. It's yours from the start.",
+      "text": "Welcome to my favourite place to think! The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky. It's quiet, a little magical and perfect for a long game. It's yours from the start.",
       "cues": [
         {
           "t": 0,
-          "text": "Shh, this is my favourite place to think."
+          "text": "Welcome to my favourite place to think!"
         },
         {
-          "t": 3.56,
+          "t": 2.22,
           "text": "The Midnight Library has shelves of old books climbing all the way up, under a deep blue night sky."
         },
         {
-          "t": 10.5,
+          "t": 8.15,
           "text": "It's quiet, a little magical and perfect for a long game."
         },
         {
-          "t": 14.94,
+          "t": 11.89,
           "text": "It's yours from the start."
         }
       ]
@@ -1049,19 +1069,19 @@
           "text": "Good morning!"
         },
         {
-          "t": 1.03,
+          "t": 0.87,
           "text": "The Marble Hall is white marble and gold, with sunlight pouring in so everything feels bright and fresh."
         },
         {
-          "t": 7.91,
+          "t": 7.04,
           "text": "Every step echoes softly on the polished floor."
         },
         {
-          "t": 11.45,
+          "t": 10.17,
           "text": "It's the kind of room where a champion might play."
         },
         {
-          "t": 14.56,
+          "t": 12.84,
           "text": "Reach level three to open its doors."
         }
       ]
@@ -1074,15 +1094,15 @@
           "text": "Climb the ladder into the loft!"
         },
         {
-          "t": 2.48,
+          "t": 1.99,
           "text": "The Harvest Loft is a warm wooden room at harvest time, filled with golden afternoon light."
         },
         {
-          "t": 9.17,
+          "t": 7.67,
           "text": "It's snug and happy, like a secret hideout just for you."
         },
         {
-          "t": 13.25,
+          "t": 11.15,
           "text": "It's a reward on the Cocoa Harvest season pass."
         }
       ]
@@ -1095,11 +1115,11 @@
           "text": "Feel the warm desert wind."
         },
         {
-          "t": 2.68,
+          "t": 2.27,
           "text": "Giza Plateau puts your table on a terrace at sunset, with the Pyramids and the Sphinx glowing orange right in front of you."
         },
         {
-          "t": 10.56,
+          "t": 9.07,
           "text": "It's outdoors, under the open sky, and it's where your journey begins, with Miu the Cat."
         }
       ]
@@ -1112,15 +1132,15 @@
           "text": "Stand between tall marble columns and look up the hill."
         },
         {
-          "t": 3.62,
+          "t": 3.28,
           "text": "The Stoa of Athens is a shady colonnade where Greek thinkers once talked and argued, with the Parthenon shining outside."
         },
         {
-          "t": 11.5,
+          "t": 10.05,
           "text": "It's indoors, but full of air and light."
         },
         {
-          "t": 14.94,
+          "t": 12.82,
           "text": "Sophie the Owl is waiting for you here."
         }
       ]
@@ -1133,15 +1153,15 @@
           "text": "Hear the crowd?"
         },
         {
-          "t": 1.23,
+          "t": 0.98,
           "text": "Your table stands right on the arena floor of the Colosseum at dusk, with torches burning on every tier around you."
         },
         {
-          "t": 8.79,
+          "t": 7.45,
           "text": "It's outdoors and very dramatic."
         },
         {
-          "t": 11.74,
+          "t": 10.07,
           "text": "Marcus the Wolf is waiting for you here, so be brave."
         }
       ]
@@ -1154,15 +1174,15 @@
           "text": "Take a deep breath."
         },
         {
-          "t": 1.63,
+          "t": 1.34,
           "text": "The Taj Mahal Gardens put your table on a terrace across the long pool from the Taj Mahal, glowing white in the moonlight."
         },
         {
-          "t": 9.56,
+          "t": 8.2,
           "text": "It's outdoors, peaceful and beautiful."
         },
         {
-          "t": 12.91,
+          "t": 10.86,
           "text": "Moti the Elephant plays here, gently but cleverly."
         }
       ]
@@ -1175,15 +1195,15 @@
           "text": "Welcome to the emperor's study."
         },
         {
-          "t": 2.29,
+          "t": 1.94,
           "text": "The Forbidden City Study is red lacquer and gold, and through the doors you can see the Hall of Supreme Harmony."
         },
         {
-          "t": 9.8,
+          "t": 8.46,
           "text": "It's indoors, calm and very grand."
         },
         {
-          "t": 13.32,
+          "t": 11.33,
           "text": "Bao the Panda is waiting here for a game."
         }
       ]
@@ -1196,11 +1216,11 @@
           "text": "Listen to the water lapping below."
         },
         {
-          "t": 2.62,
+          "t": 2.32,
           "text": "The Palazzo on the Canal puts your table on a balcony over the Grand Canal, with gondolas gliding past and the Rialto Bridge just ahead."
         },
         {
-          "t": 11.86,
+          "t": 10.21,
           "text": "Marco the Winged Lion plays here, so watch out."
         }
       ]
@@ -1213,15 +1233,15 @@
           "text": "It's 1889, and the Eiffel Tower has just been finished."
         },
         {
-          "t": 4.6,
+          "t": 4.0,
           "text": "The Champ de Mars puts your table on a garden terrace right below it, lit up for the World's Fair."
         },
         {
-          "t": 11.09,
+          "t": 9.41,
           "text": "It's outdoors and full of sparkle."
         },
         {
-          "t": 14.07,
+          "t": 11.89,
           "text": "Gaston the Rooster is waiting for you here."
         }
       ]
@@ -1234,15 +1254,15 @@
           "text": "Snow is falling outside the windows."
         },
         {
-          "t": 2.83,
+          "t": 2.49,
           "text": "The Winter Palace is a golden ballroom facing the colourful onion domes of the Savior on Spilled Blood."
         },
         {
-          "t": 9.88,
+          "t": 8.69,
           "text": "It's indoors, warm and sparkling."
         },
         {
-          "t": 13.36,
+          "t": 11.44,
           "text": "Mishka the Bear is waiting here for a game."
         }
       ]
@@ -1255,15 +1275,15 @@
           "text": "So many lights!"
         },
         {
-          "t": 1.39,
+          "t": 1.04,
           "text": "The Times Square Rooftop puts your table high above Broadway, in a sea of glowing neon signs."
         },
         {
-          "t": 8.11,
+          "t": 6.54,
           "text": "It's outdoors, buzzing and exciting, and it's the very last place on the journey."
         },
         {
-          "t": 13.99,
+          "t": 11.6,
           "text": "Skye the Eagle is waiting at the top."
         }
       ]
@@ -1276,11 +1296,11 @@
           "text": "These pieces look as if giants carved them."
         },
         {
-          "t": 3.1,
+          "t": 2.74,
           "text": "Sarsen Stones is rough grey stone, chipped by hand with no polish at all: the king is a little trilithon, two standing stones with one laid across the top."
         },
         {
-          "t": 14.57,
+          "t": 12.12,
           "text": "It's the oldest-looking set we have, and it comes with Stonehenge."
         }
       ]
@@ -1293,11 +1313,11 @@
           "text": "Five thousand years ago, potters by the Indus river made toys and seals from clay."
         },
         {
-          "t": 6.18,
+          "t": 5.21,
           "text": "Indus Terracotta brings them back: a priest-king, a mother goddess, a granary and little painted jars, in red baked clay with black slip."
         },
         {
-          "t": 16.58,
+          "t": 13.48,
           "text": "It comes with Mohenjo-daro."
         }
       ]
@@ -1310,11 +1330,11 @@
           "text": "High in the mountains of Peru, the Inca fitted stones so tightly that not even a blade of grass fits between them."
         },
         {
-          "t": 7.6,
+          "t": 6.1,
           "text": "Inca Stone is grey stone and gold, with a sun king, a moon queen and doorways shaped like trapezoids."
         },
         {
-          "t": 15.8,
+          "t": 12.9,
           "text": "It comes with Machu Picchu."
         }
       ]
@@ -1327,11 +1347,11 @@
           "text": "A thousand years ago, Norse woodcarvers whittled their games by the fire on long winter nights."
         },
         {
-          "t": 6.47,
+          "t": 5.54,
           "text": "Norse Carved is birch and dark bog oak: the king holds a hammer, the bishops wear runes, and the pawns are little toadstools."
         },
         {
-          "t": 15.65,
+          "t": 13.04,
           "text": "It comes with the Norse Fireside."
         }
       ]
@@ -1344,11 +1364,11 @@
           "text": "These pieces look like the bronze statues the Greeks pulled up from the sea."
         },
         {
-          "t": 4.84,
+          "t": 4.25,
           "text": "Gods of Sounion is white marble against green bronze: Poseidon with his trident, a goddess, ocean waves, columns and brave hoplites."
         },
         {
-          "t": 15.52,
+          "t": 12.77,
           "text": "It comes with the Temple of Poseidon."
         }
       ]
@@ -1361,11 +1381,11 @@
           "text": "Look at the squares shimmer!"
         },
         {
-          "t": 1.79,
+          "t": 1.67,
           "text": "Pearl and Coral is real mother of pearl beside soft coral pink, framed in deep sea-blue lacquer."
         },
         {
-          "t": 8.98,
+          "t": 7.67,
           "text": "It belongs under the sea, in the Coral Palace, with the Coral Kingdom set."
         }
       ]
@@ -1378,11 +1398,11 @@
           "text": "This board is a little piece of the night sky."
         },
         {
-          "t": 3.2,
+          "t": 2.73,
           "text": "Lapis and Moonstone sets pale moonstone beside deep blue lapis lazuli, with tiny golden stars around the frame."
         },
         {
-          "t": 12.06,
+          "t": 10.19,
           "text": "It comes with the Northern Lights and the Celestial Opal set."
         }
       ]
@@ -1395,11 +1415,11 @@
           "text": "No polish, no gold, just stone."
         },
         {
-          "t": 3.65,
+          "t": 2.73,
           "text": "Sarsen Stone is grey and cream squares chiselled by hand, with every tool mark still there."
         },
         {
-          "t": 10.14,
+          "t": 8.35,
           "text": "It's rough, ancient and very strong, and it comes with Stonehenge."
         }
       ]
@@ -1412,11 +1432,11 @@
           "text": "Can you see the circles?"
         },
         {
-          "t": 1.85,
+          "t": 1.62,
           "text": "The potters of the Indus painted them on their jars, and here they are on sun-baked clay squares."
         },
         {
-          "t": 8.37,
+          "t": 7.03,
           "text": "Indus Terracotta is warm, earthy and very old, and it comes with Mohenjo-daro."
         }
       ]
@@ -1429,11 +1449,11 @@
           "text": "The Inca built walls of giant stones, each one cut to fit its neighbours exactly."
         },
         {
-          "t": 6.17,
+          "t": 5.36,
           "text": "Andesite Block has grey mountain-stone squares in a frame of fitted blocks, just like those walls."
         },
         {
-          "t": 12.93,
+          "t": 11.13,
           "text": "It comes with Machu Picchu."
         }
       ]
@@ -1446,11 +1466,11 @@
           "text": "Run your hand along the frame!"
         },
         {
-          "t": 2.24,
+          "t": 1.91,
           "text": "Runewood is birch and bog oak, rough-cut by hand, with a serpent knot carved all the way round, the way the Norse decorated their ships and halls."
         },
         {
-          "t": 12.7,
+          "t": 10.47,
           "text": "It comes with the Norse Fireside and the Norse Carved set."
         }
       ]
@@ -1463,7 +1483,7 @@
           "text": "Ash and Wenge sets pale and dark wood in a frame of white marble, with a bronze key pattern just like the ones on Greek temples."
         },
         {
-          "t": 8.77,
+          "t": 7.48,
           "text": "It's calm and grand, and it comes with the Temple of Poseidon and the Gods of Sounion."
         }
       ]
@@ -1476,11 +1496,11 @@
           "text": "Way up high, on a rooftop in Tokyo, there's a secret garden."
         },
         {
-          "t": 4.91,
+          "t": 3.98,
           "text": "Cherry trees bloom pink all around you, stone lanterns glow, and the whole city twinkles far below, with Mount Fuji on the horizon."
         },
         {
-          "t": 14.61,
+          "t": 11.77,
           "text": "The Robot Squad plays here, on Sakura Lacquer."
         }
       ]
@@ -1493,11 +1513,11 @@
           "text": "Smell the chocolate?"
         },
         {
-          "t": 1.6,
+          "t": 1.24,
           "text": "This little shop sits on the Grand-Place of Brussels, one of the prettiest squares in the world, with golden guild houses all around and a carpet of flowers outside."
         },
         {
-          "t": 12.12,
+          "t": 10.18,
           "text": "Cocoa and Gilt plays here, on Cocoa and Cream."
         }
       ]
@@ -1510,11 +1530,11 @@
           "text": "Take a deep breath, we're going under the sea!"
         },
         {
-          "t": 3.15,
+          "t": 2.53,
           "text": "The Coral Palace is a pearl pavilion on the sea floor, with coral towers, swaying kelp and shoals of fish all around."
         },
         {
-          "t": 11.68,
+          "t": 9.55,
           "text": "The Coral Kingdom plays here, on Pearl and Coral."
         }
       ]
@@ -1527,11 +1547,11 @@
           "text": "Welcome to Amber Fort, high on a hill above Jaipur."
         },
         {
-          "t": 4.24,
+          "t": 3.36,
           "text": "The courtyard glows honey gold, a painted gate stands ahead, and little domed pavilions sit on the walls."
         },
         {
-          "t": 11.84,
+          "t": 9.76,
           "text": "The Royal Army plays here, on Jaipur Sandstone."
         }
       ]
@@ -1544,11 +1564,11 @@
           "text": "Every year during Dasara, Mysore Palace lights up with thousands and thousands of little lamps."
         },
         {
-          "t": 6.26,
+          "t": 5.43,
           "text": "You're on the lawn, right in front of it, on a warm festival night."
         },
         {
-          "t": 11.27,
+          "t": 9.49,
           "text": "The Peacock Court plays here, on Rosewood and Gold Leaf."
         }
       ]
@@ -1561,11 +1581,11 @@
           "text": "The Great Wall of China runs for thousands of kilometres over the mountains."
         },
         {
-          "t": 4.77,
+          "t": 4.22,
           "text": "You're on top of a watchtower, with the wall winding away into the green hills and red lanterns by your table."
         },
         {
-          "t": 11.98,
+          "t": 10.32,
           "text": "Jade and Onyx plays here, on Emerald and Ivory."
         }
       ]
@@ -1578,15 +1598,15 @@
           "text": "Brr, it's snowy outside!"
         },
         {
-          "t": 2.53,
+          "t": 2.01,
           "text": "Come into the warm wooden chalet."
         },
         {
-          "t": 5.11,
+          "t": 4.25,
           "text": "Through the big window you can see the Matterhorn, the most famous mountain in the Alps, and a little village under the snow."
         },
         {
-          "t": 12.75,
+          "t": 10.67,
           "text": "Milk and Dark plays here, on Cacao Pod."
         }
       ]
@@ -1599,15 +1619,15 @@
           "text": "Up, up, up!"
         },
         {
-          "t": 1.69,
+          "t": 1.07,
           "text": "This lounge is high above Dubai at sunset, and right outside the window stands the tallest building in the whole world."
         },
         {
-          "t": 9.27,
+          "t": 7.49,
           "text": "The desert glows pink beyond the city."
         },
         {
-          "t": 12.45,
+          "t": 10.19,
           "text": "Gold and Platinum plays here, on Gilded Ebony."
         }
       ]
@@ -1620,11 +1640,11 @@
           "text": "In 1851, London built a palace made almost entirely of glass, so big that whole trees grew inside it."
         },
         {
-          "t": 8.45,
+          "t": 7.04,
           "text": "Under its shining roof are palms, statues and a fountain of crystal."
         },
         {
-          "t": 13.58,
+          "t": 11.38,
           "text": "The Crystal Jewels play here, on Obsidian Glass."
         }
       ]
@@ -1637,19 +1657,19 @@
           "text": "Look up!"
         },
         {
-          "t": 0.83,
+          "t": 0.73,
           "text": "On a winter night in Iceland, green and purple lights dance across the sky."
         },
         {
-          "t": 6.2,
+          "t": 5.16,
           "text": "They're called the northern lights."
         },
         {
-          "t": 8.47,
+          "t": 7.2,
           "text": "You're on a frozen lake, with glowing glass huts on the shore."
         },
         {
-          "t": 12.77,
+          "t": 10.72,
           "text": "Celestial Opal plays here, on Lapis and Moonstone."
         }
       ]
@@ -1662,32 +1682,32 @@
           "text": "Once upon a time, a king built a castle that looked just like a fairy tale."
         },
         {
-          "t": 5.23,
+          "t": 4.36,
           "text": "There it is, white with blue towers, high on its rock above the forest, with the Alps behind."
         },
         {
-          "t": 12.53,
+          "t": 10.19,
           "text": "Ruby Chocolate plays here, on Ruby Truffle."
         }
       ]
     },
     "item-places-stonehenge": {
-      "text": "Shh, the sun is coming up. You're inside Stonehenge, a giant circle of stones raised by people more than four thousand years ago. Nobody knows exactly how they did it! The Sarsen Stones play here, on a board of rough stone.",
+      "text": "Look, the sun is coming up! You're inside Stonehenge, a giant circle of stones raised by people more than four thousand years ago. Nobody knows exactly how they did it! The Sarsen Stones play here, on a board of rough stone.",
       "cues": [
         {
           "t": 0,
-          "text": "Shh, the sun is coming up."
+          "text": "Look, the sun is coming up!"
         },
         {
-          "t": 2.77,
+          "t": 1.68,
           "text": "You're inside Stonehenge, a giant circle of stones raised by people more than four thousand years ago."
         },
         {
-          "t": 10.1,
+          "t": 7.76,
           "text": "Nobody knows exactly how they did it!"
         },
         {
-          "t": 12.77,
+          "t": 10.32,
           "text": "The Sarsen Stones play here, on a board of rough stone."
         }
       ]
@@ -1700,11 +1720,11 @@
           "text": "This is Mohenjo-daro, one of the very first cities in the world."
         },
         {
-          "t": 4.51,
+          "t": 3.9,
           "text": "It had straight streets, brick houses, wells and even a great public bath, right there ahead of you."
         },
         {
-          "t": 11.91,
+          "t": 9.67,
           "text": "The Indus Terracotta set plays here, on a board of baked clay."
         }
       ]
@@ -1717,32 +1737,32 @@
           "text": "Up in the clouds of Peru sits Machu Picchu, a city of stone the Inca built on a mountain top."
         },
         {
-          "t": 6.62,
+          "t": 5.6,
           "text": "Green terraces step down the slopes, llamas wander about, and a tall peak rises straight ahead."
         },
         {
-          "t": 13.74,
+          "t": 11.25,
           "text": "The Inca Stone set plays here."
         }
       ]
     },
     "item-places-norse": {
-      "text": "Shh, listen to the fire crackle. You're in a clearing in a pine forest, a thousand years ago. A longhouse glows behind you, runestones stand by the path, and a longship waits on the fjord below the mountains. Norse Carved plays here, on Runewood.",
+      "text": "Can you hear the fire crackle? You're in a clearing in a pine forest, a thousand years ago. A longhouse glows behind you, runestones stand by the path, and a longship waits on the fjord below the mountains. Norse Carved plays here, on Runewood.",
       "cues": [
         {
           "t": 0,
-          "text": "Shh, listen to the fire crackle."
+          "text": "Can you hear the fire crackle?"
         },
         {
-          "t": 3.24,
+          "t": 1.69,
           "text": "You're in a clearing in a pine forest, a thousand years ago."
         },
         {
-          "t": 7.72,
+          "t": 5.27,
           "text": "A longhouse glows behind you, runestones stand by the path, and a longship waits on the fjord below the mountains."
         },
         {
-          "t": 15.72,
+          "t": 11.94,
           "text": "Norse Carved plays here, on Runewood."
         }
       ]
@@ -1755,11 +1775,11 @@
           "text": "High on a cliff at Cape Sounion, the Greeks built a temple to Poseidon, god of the sea."
         },
         {
-          "t": 6.02,
+          "t": 5.03,
           "text": "Its white columns glow in the sunset, olive trees rustle, and islands float on the golden water far below."
         },
         {
-          "t": 13.99,
+          "t": 11.48,
           "text": "The Gods of Sounion play here, on Ash and Wenge."
         }
       ]

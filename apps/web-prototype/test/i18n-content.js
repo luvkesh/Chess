@@ -15,7 +15,7 @@ function expected() {
   const put = (k, v) => { if (v) out[k] = v; };
   for (const o of campaign.opponents.concat([campaign.coach])) {
     for (const f of ['full', 'blurb', 'hello', 'win', 'lose', 'draw']) put('opp.' + o.id + '.' + f, o[f]);
-    put('opp.' + o.id + '.species', 'the ' + (o.full || '').replace(o.name, '').trim().replace(/^the /, ''));
+    put('opp.' + o.id + '.species', 'the ' + (o.species || (o.full || '').replace(o.name, '')).trim().replace(/^the /, ''));
   }
   for (const e of campaign.eras) {
     for (const f of ['name', 'title', 'when', 'place']) put('era.' + e.id + '.' + f, e[f]);

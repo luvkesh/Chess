@@ -4,6 +4,7 @@
   "voices": { "en": "Voices", "hi": "आवाज़ें", "check": ["hi"] },
   "narration": { "en": "Voice: the guide, stories and lessons", "hi": "आवाज़: गाइड, कहानियाँ और पाठ", "check": ["hi"] },
   "guideCard": { "en": "Show the guide card", "hi": "गाइड कार्ड दिखाएँ", "check": ["hi"] },
+  "subtitles": { "en": "Subtitles", "hi": "सबटाइटल", "check": ["hi"] },
   "coachVoice": { "en": "Coach voice", "hi": "कोच की आवाज़", "check": ["hi"] },
   "deviceVoice": { "en": "Device voice", "hi": "डिवाइस की आवाज़", "check": ["hi"] },
   "calls": { "en": "Game calls (check, results, puzzles)", "hi": "खेल की घोषणाएँ (शह, नतीजे, पहेलियाँ)", "check": ["hi"] },

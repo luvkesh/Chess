@@ -55,7 +55,7 @@
   "opp.ember.lose": { "en": "Roar! Even champions lose to dragons. Try again!", "hi": "गर्र! चैंपियन भी ड्रैगन से हार जाते हैं। फिर कोशिश करो!", "check": ["hi"] },
   "opp.ember.draw": { "en": "A draw against a dragon is a mighty result!", "hi": "ड्रैगन के ख़िलाफ़ ड्रॉ एक बड़ी कामयाबी है!", "check": ["hi"] },
   "opp.ember.species": { "en": "the Dragon", "hi": "ड्रैगन", "check": ["hi"] },
-  "opp.praline.full": { "en": "Rooky the Red Panda", "hi": "Rooky लाल पांडा", "check": ["hi"] },
+  "opp.praline.full": { "en": "Rooky", "hi": "Rooky", "check": ["hi"] },
   "opp.praline.blurb": { "en": "Your coach. Rooky explains every move, cheers your best ones and helps you learn from the rest.", "hi": "आपका कोच। Rooky हर चाल समझाता है, आपकी सबसे अच्छी चालों पर ख़ुश होता है और बाक़ी से सीखने में मदद करता है।", "check": ["hi"] },
   "opp.praline.species": { "en": "the Red Panda", "hi": "लाल पांडा", "check": ["hi"] },
   "era.egypt.name": { "en": "Ancient Egypt", "hi": "प्राचीन मिस्र", "check": ["hi"] },

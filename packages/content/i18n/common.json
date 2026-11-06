@@ -31,6 +31,8 @@
   "guide.show": { "en": "Show the guide", "hi": "गाइड दिखाएँ", "check": ["hi"] },
   "guide.again": { "en": "Hear that again", "hi": "फिर से सुनें", "check": ["hi"] },
   "guide.hide": { "en": "Hide the guide", "hi": "गाइड छिपाएँ", "check": ["hi"] },
+  "guide.ccShow": { "en": "Show subtitles", "hi": "सबटाइटल दिखाएँ", "check": ["hi"] },
+  "guide.ccHide": { "en": "Hide subtitles", "hi": "सबटाइटल छिपाएँ", "check": ["hi"] },
   "voice.turnOff": { "en": "Turn the voice off", "hi": "आवाज़ बंद करें", "check": ["hi"] },
   "voice.turnOn": { "en": "Turn the voice on", "hi": "आवाज़ चालू करें", "check": ["hi"] },
   "voice.onTip": { "en": "Voice on. Tap to mute", "hi": "आवाज़ चालू है। बंद करने के लिए टैप करें", "check": ["hi"] },

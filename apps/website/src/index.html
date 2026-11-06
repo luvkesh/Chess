@@ -644,7 +644,7 @@ html.nonlatin body { line-height: 1.75; }
   <div class="r-bubble" id="r-bubble" role="status">
     <div class="r-words"><p class="r-caption" id="r-caption"></p><p class="r-where" id="r-where"></p></div>
     <button type="button" class="r-x" id="r-again" aria-label="Hear that again" title="Hear that again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
-    <button type="button" class="r-x" id="r-cc" aria-pressed="true" aria-label="Hide captions" title="Hide captions"></button>
+    <button type="button" class="r-x" id="r-cc" aria-pressed="false" aria-label="Show captions" title="Show captions"></button>
     <button type="button" class="r-x" id="r-stop" aria-label="End the tour" title="End the tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
 </div>
@@ -1144,7 +1144,7 @@ html.nonlatin body { line-height: 1.75; }
       ccBtn.setAttribute('aria-pressed', String(v));
       ccBtn.setAttribute('aria-label', v ? 'Hide captions' : 'Show captions'); ccBtn.title = ccBtn.getAttribute('aria-label');
     }
-    setCaptions(store.get(CC_KEY) !== '0');
+    setCaptions(store.get(CC_KEY) === '1');   // off until the visitor turns them on
     ccBtn.addEventListener('click', function () { var v = live.classList.contains('nocap'); store.set(CC_KEY, v ? '1' : '0'); setCaptions(v); });
     // the face floats on the right edge: drag it up or down (a drag never counts as a tap); hold to read the caption
     var holdT = 0, held = false, drag = null, dragged = false;
