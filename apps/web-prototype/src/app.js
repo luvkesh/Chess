@@ -803,7 +803,7 @@
       peeking.timers.push(setTimeout(() => {
         if (!live()) return;
         view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
-          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move'); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false, elements: false });
+          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move', { mover: piece, captured: capture ? -1 : 0 }); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false, elements: false });
       }, 450));
     };
     play();
@@ -834,7 +834,7 @@
       const win = () => view.celebrate('win', -1, null, sqIndex('e1'));
       peeking.timers.push(setTimeout(win, 500), setInterval(win, 4200));
     }
-    if (it.category === 'sound') AU.play('capture');
+    if (it.category === 'sound') AU.play('capture', { mover: 2, captured: -1 });
     // Clocks, pictures and frames are not on the table, so they show on a player card above the bar,
     // the way they look in a game; a clock counts down there and on the chess clock by the board.
     if (['clock', 'avatar', 'frame'].includes(it.category)) peekCard(it);
@@ -1399,7 +1399,7 @@
       for (const id of ['x-top', 'x-bottom']) { const el = $(id); if (el) el.classList.toggle('to-move', !g.outcome && g.pos.side === +el.dataset.side); }
     }
     function after(info) {
-      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
       Q.selected = -1; marks(); hud();
       if (Q.g.outcome) { end(); return; }
       if (Q.kind === 'ai' && Q.g.pos.side !== Q.human) think();
@@ -1633,7 +1633,7 @@
       else if (x.type === 'win') { const tg = new X.Game(x.fen); tg.play(m); ok = !!(tg.outcome && tg.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1')); msg = ok ? x.yes : x.no; }
       if (ok) {
         const info = g.play(m);
-        AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+        AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
         if (T) T.move(info, () => T.setMarks({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? g.pos.kingSq(g.pos.side) : -1 }));
         answer(S.tries === 0, msg);
       } else { S.tries++; AU.play('wrong'); fb('bad', msg); if (T) T.setMarks({}); }
@@ -3329,7 +3329,7 @@
     // Captures and castling play a short scene, except online, where the server's clock keeps running.
     const cinema = !!(info.captured || info.rook) && !quick && state.settings.captureScenes && G.kind !== 'online';
     const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : cinema ? 'move' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
-    setTimeout(() => AU.play(sound), dropped ? 0 : 140);
+    setTimeout(() => AU.play(sound, info), dropped ? 0 : 140);
     if (!g.outcome) setTimeout(() => AU.announce(info.san, !!g.pos.ch).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
     G.cinema = view.animateMove(info, () => {
@@ -3348,7 +3348,7 @@
       if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
       else { maybeComputer(); gameNudge(G); }
-    }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture') });
+    }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture', info) });
     // the clocks wait while a capture scene plays (local games; see clockRunning)
     if (G.cinema && G.clock) G.clock.since = 0;
     refreshHighlights();
@@ -4091,7 +4091,7 @@
           const g = new E.Game(S.pos.fen());
           const info = g.playText(playMoves[k++]);
           if (!info) return;
-          quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to }); AU.play(info.captured ? 'capture' : 'move'); setTimeout(stepPlay, 650); });
+          quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to }); AU.play(info.captured ? 'capture' : 'move', info); setTimeout(stepPlay, 650); });
         };
         setTimeout(stepPlay, 700);
       } else if (cb) cb();
@@ -4233,20 +4233,20 @@
           msg = ok ? 'Correct!' : 'Not the best move. Try again.';
           if (ok && S.pz * 2 + 2 < x.puzzle.moves.length) {
             const info = g.play(m);
-            AU.play(info.captured ? 'capture' : 'move');
+            AU.play(info.captured ? 'capture' : 'move', info);
             quickMove(info, () => {
               S.pos = g.pos; view.setBoard(piecesOf(g.pos), null);
               const reply = g.playText(x.puzzle.moves[S.pz * 2 + 2]);
               S.pz++;
               fb('ok', 'Good. Keep going.');
-              setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play('move'); }), 350);
+              setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move', reply); }), 350);
             });
             return;
           }
         }
         if (ok) {
           const info = g.play(m);
-          AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+          AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
           quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); });
           answer(S.tries === 0, msg);
         } else if (test) {
@@ -4394,7 +4394,7 @@
         const info = S.g.playText(o.moves[S.i]);
         const note = o.notes[S.i];
         S.i++;
-        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', t('learn.dr.theyPlay', { san: info.san, note })); advance(); });
+        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move', info); if (note) fb('hint', t('learn.dr.theyPlay', { san: info.san, note })); advance(); });
       }, 450);
     }
     function finish() {
@@ -4515,7 +4515,7 @@
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
+        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move', info); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
@@ -4561,7 +4561,7 @@
         return true;
       }
       const info = g.play(m);
-      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
         if (S.step * 2 + 2 >= S.cur.moves.length || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
