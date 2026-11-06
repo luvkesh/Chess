@@ -1103,8 +1103,10 @@ html.nonlatin body { line-height: 1.75; }
         return { still: 3, step: function () {}, draw: function () { medal(key, from, null); } };
       },
       frame: function (it) {
-        var cols = it.data.ring.match(/#[0-9a-f]{6}/gi) || ['#ffe29a', '#b8862b'];
-        return { still: 3.6, step: function () {}, draw: function () { medal('fx-rook', '#2f6f6a', cols); } };
+        // the game's own 3D frame picture where the build has one, else its gradient ring
+        var key = 'fx-frame-' + it.id.split('.')[1];
+        var ring = ART[key] ? key : (it.data.ring.match(/#[0-9a-f]{6}/gi) || ['#ffe29a', '#b8862b']);
+        return { still: 3.6, step: function () {}, draw: function () { medal('fx-rook', '#2f6f6a', ring); } };
       }
     };
     // A medal on the player card: it turns in like a coin, catches a sweep of light, and with
@@ -1131,7 +1133,24 @@ html.nonlatin body { line-height: 1.75; }
         g.fillStyle = lg; g.fillRect(-r, -r, r * 2, r * 2);
         g.restore();
       }
-      if (ring) {
+      if (typeof ring === 'string') {
+        // the 3D frame settles round the medal (in from a touch larger, fading up), then a glint runs along it
+        var fim = pic(ring), fa = span(0.4, 1.3), fr = r * 1.21 * (1 + (1 - fa) * 0.12), rr3 = r * 1.07;
+        if (fim && fa > 0) {
+          g.save();
+          g.globalAlpha *= fa;
+          g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 14 * S; g.shadowOffsetY = 5 * S;
+          g.drawImage(fim, -fr, -fr, fr * 2, fr * 2);
+          g.restore();
+        }
+        var gl3 = span(1.8, 3.4);
+        if (gl3 > 0 && gl3 < 1) {
+          var a3 = -Math.PI / 2 + gl3 * Math.PI * 2, gx3 = Math.cos(a3) * rr3, gy3 = Math.sin(a3) * rr3;
+          var sp3 = g.createRadialGradient(gx3, gy3, 0, gx3, gy3, 26 * S);
+          sp3.addColorStop(0, 'rgba(255,255,255,.95)'); sp3.addColorStop(0.3, 'rgba(255,240,200,.5)'); sp3.addColorStop(1, 'rgba(255,240,200,0)');
+          g.globalCompositeOperation = 'lighter'; g.fillStyle = sp3; g.beginPath(); g.arc(gx3, gy3, 26 * S, 0, 7); g.fill();
+        }
+      } else if (ring) {
         // the frame is drawn round the medal, then a glint runs along it
         var rr = r * 1.13, f = span(0.4, 1.5), lg2 = g.createLinearGradient(-rr, -rr, rr, rr);
         ring.forEach(function (c, i) { lg2.addColorStop(i / Math.max(1, ring.length - 1), c); });
