@@ -7,7 +7,8 @@ The audience is children and their parents, so the page is built to be safe as w
 | Path | What it is |
 | --- | --- |
 | `src/index.html` | Page template: the story, layout, styles and the script that drives the live 3D table behind the page (the coach's lesson, the world-wonder picker and the turning sets). |
-| `img/` | Pictures as WebP: `crest` (the logo, the game's 3D knight), `<era>-hero` (the era room from the home-screen camera) and `set-<era>` (the era set on a pedestal). The page shows these stills until the live 3D is ready, and instead of it where WebGL is missing. |
+| `img/` | Pictures as WebP: `crest` (the logo, the game's 3D knight), `<era>-hero` (the era room from the home-screen camera), `set-<era>` (the era set on a pedestal) and `ic-<name>` (the page's icons, rendered in 3D by `tools/shoot-icons.js`). The page shows the stills until the live 3D is ready, and instead of it where WebGL is missing. |
+| `tools/icons3d.js`, `tools/shoot-icons.js` | The icons: colourful 3D objects (lacquer, enamel, velvet and gold, with the game's own Regency pieces) built from three.js primitives in `icons3d.js`, lit and shot in a studio by `shoot-icons.js` into `img/ic-<name>.webp` on a transparent ground. The house rule: icons are 3D illustrations, never flat line glyphs. |
 | `guide.json`, `audio/` | Rooky's guide, built like JongClub's guided game: a card in the bottom right that says one line per section as the reader reaches it (`{coach}` is the coach's name from `packages/content/campaign.json`), and the recorded MP3s. The voice is off until someone taps the speaker. |
 | `tools/render-art.js` | Draws the crest, animal portraits and era banners with the game's own `art.js`, and the colourful place badges of the Wonders passport from `tools/place-icons.js`. |
 | `build.py` | Inlines the game's fonts, its 3D renderer (three.js, `kit3d`, `pieces3d`, `world3d`, `scene`), `img/`, the art and the facts from `packages/content` (eras, coaches, sets, rooms, counts) into `index.html`. |
@@ -34,7 +35,14 @@ python3 apps/website/tools/to-webp.py                 # into img/
 python3 apps/website/build.py
 ```
 
-`shoot.js` sets `window.__SHOT`, hides the menus and uses the table directly: the home-screen camera with the board pushed down (`hero`), `__view.snapshot` for the set on its pedestal, and the black gold-and-silver knight alone for the crest (`to-webp.py` puts it on the ruby disc). Keep each picture under about 140 KB; the whole page is about 3.7 MB, of which the 3D renderer is about 1.1 MB.
+`shoot.js` sets `window.__SHOT`, hides the menus and uses the table directly: the home-screen camera with the board pushed down (`hero`), `__view.snapshot` for the set on its pedestal, and the black gold-and-silver knight alone for the crest (`to-webp.py` puts it on the ruby disc). Keep each picture under about 140 KB; the whole page is about 8 MB, of which the pictures are about 4 MB and the 3D renderer about 1.1 MB.
+
+The icons are rendered the same way, from `ICONS` in `tools/icons3d.js` (the shapes, their materials and the camera's angle for each):
+
+```sh
+node apps/website/tools/shoot-icons.js [coach,lessons,...]   # img/ic-<name>.webp, 360 px, and a contact sheet in tools/out/icons (under a minute for all)
+python3 apps/website/build.py
+```
 
 ## The details showcase's clips
 

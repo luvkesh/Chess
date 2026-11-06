@@ -71,6 +71,24 @@ def load(name):
     return json.loads((content / name).read_text())
 
 
+# What a board's squares and frame are made of (world3d.js BOARDS), in the plaque's words.
+FIELD = {'wood': 'Wood squares', 'lacquer': 'Lacquer squares', 'marble': 'Marble squares', 'lapis': 'Lapis lazuli squares', 'stone': 'Stone squares',
+         'clay': 'Terracotta squares', 'chisel': 'Chiselled stone squares', 'nacre': 'Mother-of-pearl squares', 'aventurine': 'Aventurine glass squares'}
+FRAME = {'wood': 'Wood frame', 'lacquer': 'Lacquer frame', 'marble': 'Marble frame', 'stone': 'Stone frame', 'malachite': 'Malachite frame', 'raw': 'Rough-hewn frame'}
+
+
+def facts():
+    """Each set's era and year (pieces3d.js SETS) and each board's materials (world3d.js BOARDS), for the plaque's chips."""
+    out = {}
+    src = (game / 'src' / 'pieces3d.js').read_text()
+    for m in re.finditer(r"id: '([\w-]+)', name: (?:'[^']*'|\"[^\"]*\"), era: '((?:[^'\\]|\\.)*)', year: '([^']*)'", src):
+        out['set:' + m.group(1)] = [m.group(2).replace("\\'", "'"), m.group(3)]
+    src = (game / 'src' / 'world3d.js').read_text()
+    for m in re.finditer(r"^\s+([\w-]+): \{ name: '[^']*', field: \{ type: '(\w+)'.*?frame: \{ type: '(\w+)'", src, re.M):
+        out['board:' + m.group(1)] = [FIELD[m.group(2)], FRAME[m.group(3)]]
+    return out
+
+
 def set_tints():
     """Each era set's signature colour, read from the 3D code so the cards match the game."""
     src = (game / 'src' / 'pieces3d.js').read_text()
@@ -105,7 +123,8 @@ def site_data():
             'music': MUSIC[e['room']],
         })
     opponents = [{'id': o['id'], 'name': o['name'], 'animal': o['animal'].replace('redpanda', 'red panda').capitalize(),
-                  'range': RANGES[o['level']], 'blurb': o['blurb'], 'plays': PLAYS[o['id']]} for o in campaign['opponents']]
+                  'range': RANGES[o['level']], 'blurb': o['blurb'], 'plays': PLAYS[o['id']],
+                  'colors': [mix(o['colors'][0], '#000000', 0.55), mix(o['colors'][1], '#000000', 0.45)]} for o in campaign['opponents']]
     cats = {}
     for i in catalog['items']:
         cats[i['category']] = cats.get(i['category'], 0) + 1
@@ -129,6 +148,7 @@ def showroom(campaign, catalog):
     eras = {e['id']: e for e in campaign['eras']}
     season = {x['id']: x['name'] for x in load('seasons.json')['seasons']}
     tints = set_tints()
+    known = facts()
     out = {'sets': [], 'boards': [], 'places': []}
     for it in catalog['items']:
         cat = {'pieces': 'sets', 'board': 'boards', 'room': 'places'}.get(it['category'])
@@ -153,8 +173,9 @@ def showroom(campaign, catalog):
         d = it['data']
         tint = tints.get(d.get('set') or '', '#6a4a2c') if cat == 'sets' else {'boards': '#5a3c22', 'places': '#2c3a52'}[cat]
         felt = FELT.get(u.get('era'), ('#3a2414', '#c8a47a')) if cat == 'sets' else None
+        chips = known.get('set:' + d['set'] if cat == 'sets' else 'board:' + d['board'] if cat == 'boards' else '', [])
         out[cat].append({'tint': mix(tint, '#000000', 0.35), 'glow': mix(tint, '#ffffff', 0.18), 'felt': felt, 'key': 'item-%s-%s' % (cat, it['id'].split('.')[1]), 'name': it['name'], 'desc': it['desc'], 'line': line, 'how': how, 'icon': icon,
-                         'set': d.get('set'), 'board': d.get('board'), 'room': d.get('room'), 'era': u.get('era')})
+                         'chips': chips, 'set': d.get('set'), 'board': d.get('board'), 'room': d.get('room'), 'era': u.get('era')})
     return out
 
 
@@ -256,7 +277,7 @@ def i18n(page, eras, opponents, collection, guide_lines, keep):
         wanted |= {o['animal'], o['plays'], o['range']}
     for items in collection.values():
         for it in items:
-            wanted |= {it['desc'], it['line'], it['how']}
+            wanted |= {it['desc'], it['line'], it['how']} | set(it['chips'])
     for line in guide_lines.values():
         wanted |= {c['text'] for c in line['cues']}
     # Rooky's lesson on the live table: the move names and his line on each move (LESSON in the page script)
@@ -273,7 +294,10 @@ def i18n(page, eras, opponents, collection, guide_lines, keep):
         site = json.loads(own.read_text()) if own.exists() else {}
         meta = dict(META[code], **site.pop('_meta', {}))
         table.update(site)
-        found = lambda x: x in table or x in keep or not re.search('[A-Za-z]', x) or all(found(p) for p in SEP.split(x) if p != x) and bool(SEP.search(x))
+        # a template like "There are {0} to collect." covers the lines it fills, as the page's own tr() does
+        tpl = [(re.compile('^' + re.sub(r'\\\{\d\\\}', '(.+?)', re.escape(k)) + '$'), k) for k in table if '{0}' in k]
+        found = lambda x: x in table or x in keep or not re.search('[A-Za-z]', x) or all(found(p) for p in SEP.split(x) if p != x) and bool(SEP.search(x)) \
+            or any(all(found(g) for g in m.groups()) for m in (r.match(x) for r, _ in tpl) if m)
         missing = sorted(x for x in wanted if not found(x.strip('“”').rstrip(' ·')))
         if missing:
             print('i18n/%s.json is missing %d strings; the site shows them in English%s' % (code, len(missing), ':' if len(missing) < 60 else ' (python3 build.py --missing %s lists them)' % code))
