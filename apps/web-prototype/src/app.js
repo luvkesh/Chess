@@ -5,8 +5,13 @@
   'use strict';
   const E = ChacklateEngine();
   // The coach speaks the player's language (its sentences: i18n/coach.json). Rebuilt when that changes.
-  const coachStrings = () => { const out = {}; const c = ChacklateI18n.strings.coach || {}; for (const k in c) out[k] = c[k][ChacklateI18n.lang] || c[k].en; return out; };
+  const areaStrings = (area) => { const out = {}; const c = ChacklateI18n.strings[area] || {}; for (const k in c) out[k] = c[k][ChacklateI18n.lang] || c[k].en; return out; };
+  const coachStrings = () => areaStrings('coach');
   let C = ChacklateCoach(E);
+  // The mentor (packages/chess-core/src/mentor.js) teaches on top of the coach: M speaks the player's
+  // language on screen; ME is the same mentor in English, for Rooky's recorded voice.
+  let M = ChacklateMentor(E, C);
+  const CE = ChacklateCoach(E), ME = ChacklateMentor(E, CE);
   const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES;
   const OPENINGS = CHACKLATE_OPENINGS.openings, ENDGAMES = CHACKLATE_ENDGAMES.endgames;
   const STORE = CHACKLATE_STORE, CAMPAIGN = CHACKLATE_CAMPAIGN;
@@ -15,6 +20,7 @@
   const PLACEMENT = CHACKLATE_PLACEMENT;
   const PLACE_ART = ['piece:p', 'piece:n', 'piece:b', 'piece:r', 'piece:q'];   // the badge of each placement band
   const AU = ChacklateAudio();
+  AU.setCoachSplit((en) => ME.speechParts(en));   // Rooky says the coach's English lines from recordings
   const ART = ChacklateArt;
   const I18N = ChacklateI18n, t = I18N.t;
   const RULES = ChacklateRules(E);
@@ -58,7 +64,7 @@
     compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
-    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>',
+    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>', up: '<path d="M6 15l6-6 6 6"/>',
     smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
@@ -82,6 +88,8 @@
     edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
     chart: '<path d="M4 20V11M10 20V5M16 20v-6M2 20h20"/>',
+    bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
+    book: '<path d="M12 6.5C10.5 5 8 4.5 3 4.5v14c5 0 7.5.5 9 2 1.5-1.5 4-2 9-2v-14c-5 0-7.5.5-9 2z"/><path d="M12 6.5v14"/>',
     medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 3l2.5 6.2M15.5 3L13 9.2"/><path d="M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3z"/>',
     swords: '<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/><path d="M14.5 6.5L18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/>',
     rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
@@ -149,7 +157,9 @@
   const callsFor = (lang, cur) => (cur === 'off' ? cur : lang === 'hi' ? 'priya' : AU.voices().some((v) => v.id === cur && v.lang === 'en') ? cur : CALLS_DEFAULT);
   if (!(saved.settings && saved.settings.lang)) state.settings.voiceCalls = callsFor(state.settings.lang, state.settings.voiceCalls);
   I18N.set(state.settings.lang);
-  if (I18N.lang !== 'en') C = ChacklateCoach(E, coachStrings());
+  if (I18N.lang !== 'en') { C = ChacklateCoach(E, coachStrings()); M = ChacklateMentor(E, C, areaStrings('mentor')); }
+  // The coach's settings (the spec's table): filled from the old one-word setting on first run.
+  state.settings.coachCfg = ME.migrate(state.settings.coach, state.settings.coachCfg);
   const myName = () => (state.settings.name === 'You' ? t('common.you') : state.settings.name);
   // Names and lines from the content files (eras, the animal friends, missions) are English there;
   // i18n/content.json holds the other languages, and the test keeps its English in step.
@@ -262,6 +272,7 @@
   function makeWorker() {
     try {
       const src = 'const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E,' + JSON.stringify(coachStrings()) + ');' +
+        'const M=(' + ChacklateMentor.toString() + ')(E,C);' +
         'onmessage=function(e){var d=e.data;try{var p=E.positionFrom(d.fen,d.moves);var r;' +
         'if(d.type==="search"){var s=E.search(p,d.opts);r={uci:s.move?E.uci(s.move):null,score:s.score,depth:s.depth};}' +
         'else if(d.type==="analyse"){var a=C.engineAnalyser({timeMs:d.timeMs||200})(p);r={cp:a.cp,mate:a.mate,best:a.best?E.uci(a.best):null,bestSan:a.best?p.san(a.best,p.legalMoves()):null};}' +
@@ -269,6 +280,10 @@
         'else if(d.type==="threat"){r={threat:C.threat(p,{timeMs:d.timeMs||250})};}' +
         'else if(d.type==="hint"){var b=E.search(p,{timeMs:d.timeMs||900});r={hint:b.move?C.hintLadder(p,b.move):null,uci:b.move?E.uci(b.move):null};}' +
         'else if(d.type==="line"){r={line:C.line(p,d.plies||5,d.timeMs||150)};}' +
+        'else if(d.type==="study"){r={study:M.study(d.fen,d.moves,d.opts)};}' +
+        'else if(d.type==="look"){r={look:M.look(d.fen,d.moves,d.opts)};}' +
+        'else if(d.type==="check"){r={check:M.check(d.fen,d.moves,d.uci,d.opts)};}' +
+        'else if(d.type==="checkLine"){r={line:M.checkLine(d.fen,d.moves,d.line,d.opts)};}' +
         'r.id=d.id;postMessage(r);}catch(err){postMessage({id:d.id,error:String(err)});}};';
       const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
       const pending = new Map();
@@ -286,6 +301,7 @@
   // A new language: the coach and its workers start again with the new sentences.
   function coachLanguage() {
     C = ChacklateCoach(E, coachStrings());
+    M = ChacklateMentor(E, C, areaStrings('mentor'));
     for (const k of Object.keys(workers)) {
       const old = workers[k];
       workers[k] = makeWorker();
@@ -309,6 +325,10 @@
         else if (m.type === 'threat') r = { threat: C.threat(p, { timeMs: 150 }) };
         else if (m.type === 'hint') { const b = E.search(p, { timeMs: 500 }); r = { hint: b.move ? C.hintLadder(p, b.move) : null, uci: b.move ? E.uci(b.move) : null }; }
         else if (m.type === 'line') r = { line: C.line(p, m.plies || 5, 100) };
+        else if (m.type === 'study') r = { study: M.study(m.fen, m.moves, Object.assign({}, m.opts, { timeMs: 90 })) };
+        else if (m.type === 'look') r = { look: M.look(m.fen, m.moves, Object.assign({}, m.opts, { timeMs: 90 })) };
+        else if (m.type === 'check') r = { check: M.check(m.fen, m.moves, m.uci, { timeMs: 90 }) };
+        else if (m.type === 'checkLine') r = { line: M.checkLine(m.fen, m.moves, m.line, { timeMs: 80 }) };
         r.id = id; done(r);
       } catch (err) { done({ id, error: String(err) }); }
     }, 30);
@@ -435,6 +455,7 @@
     AU.setSfx(s.sfx, s.sfxVol);
     AU.setMusic(s.music, s.musicVol);
     AU.setVoices({ coach: s.voiceCoach, calls: s.voiceCalls, announce: s.announce });
+    if (s.coachCfg) AU.setCoachVoice(s.coachCfg.voice);
     applyLook();
   }
 
@@ -1932,7 +1953,7 @@
     document.querySelectorAll('[data-game]').forEach((b) => {
       b.onclick = () => {
         const h = list[+b.dataset.game];
-        if (h.ucis && h.ucis.length) go('review', { start: h.start || E.START_FEN, ucis: h.ucis, side: h.color || WHITE, title: h.mode === 'ai' ? t('learn.vs', { name: persona(h.level).name }) : t(h.mode === 'online' ? 'learn.online' : 'learn.local'), level: h.level });
+        if (h.ucis && h.ucis.length) go('review', { start: h.start || E.START_FEN, ucis: h.ucis, side: h.color || WHITE, title: h.mode === 'ai' ? t('learn.vs', { name: persona(h.level).name }) : t(h.mode === 'online' ? 'learn.online' : 'learn.local'), level: h.level, outcome: h.result, summary: true });
       };
     });
   }
@@ -1949,6 +1970,11 @@
       lux({ id: 't-dojo', art: snap(VIGN.endgame(set), 240, 150, medal('piece:k', '#5b4a8a', '#2c2248')), title: t('learn.dojo'), text: t('learn.dojoText', { n: ENDGAMES.length, s: dojoStars, of: ENDGAMES.length * 3 }) }) +
       lux({ id: 't-review', art: snap(VIGN.review(set), 240, 150, medal('piece:q', '#8a5a2a', '#3a1e0e')), title: t('learn.reviews'), text: t(P.history.length ? 'learn.reviewsText' : 'learn.reviewsNone') }) +
       '</div>' +
+      sec('bulb', t('learn.coachSec')) +
+      '<div class="list">' +
+      '<button class="row-item" id="t-coach"><span class="sg">' + icon('chart') + '</span><span><b>' + t('learn.coachProfile') + '</b><br><small>' + t('learn.coachProfileText') + '</small></span></button>' +
+      '<button class="row-item" id="t-words"><span class="sg">' + icon('book') + '</span><span><b>' + t('learn.coachWords') + '</b><br><small>' + t('learn.coachWordsText') + '</small></span></button>' +
+      '</div>' +
       sec('refresh', t('learn.recent')) +
       '<div class="list">' + (P.history.length ? P.history.slice(0, 6).map(gameRow).join('') : '<p class="muted">' + t('learn.recentNone') + '</p>') + '</div>' +
       '</div></div>');
@@ -1958,6 +1984,8 @@
     $('t-open').onclick = () => { AU.unlock(); AU.play('tap'); go('openings'); };
     $('t-dojo').onclick = () => { AU.unlock(); AU.play('tap'); go('dojo'); };
     $('t-review').onclick = () => { AU.play('tap'); go('profile', 'games'); };
+    $('t-coach').onclick = () => { AU.unlock(); AU.play('tap'); profileModal(); };
+    $('t-words').onclick = () => { AU.unlock(); AU.play('tap'); glossaryModal(); };
     return {};
   };
 
@@ -2692,8 +2720,7 @@
       '<label class="toggle" data-tk="settings.sfx">' + t('settings.sfx') + TIP_I + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="' + t('settings.sfxVol') + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="' + t('settings.sfxOn') + '"></label>' +
       '<label class="toggle" data-tk="settings.music">' + t('settings.music') + TIP_I + ' <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="' + t('settings.musicVol') + '"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="' + t('settings.musicOn') + '"></label>' +
       voiceSection(s) +
-      '<div class="label set-h">' + t('settings.coaching') + '</div>' +
-      '<label class="toggle" data-tk="settings.coach">' + t('settings.comments') + TIP_I + ' <select id="s-coach">' + ['off', 'quiet', 'normal', 'chatty'].map((v) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t('settings.coach.' + v) + '</option>').join('') + '</select></label>' +
+      '<div id="s-coachcfg">' + coachSettingsHtml() + '</div>' +
       '<label class="toggle" data-tk="settings.eval">' + t('settings.eval') + TIP_I + ' <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.legal">' + t('settings.legal') + TIP_I + ' <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.turn">' + t('settings.turn') + TIP_I + ' <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
@@ -2721,7 +2748,7 @@
     on('#s-vcoach-try', 'click', (e) => { e.preventDefault(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls-try', 'click', (e) => { e.preventDefault(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-announce', 'change', (e) => { s.announce = e.target.checked; applySettings(); save(); if (s.announce) { AU.unlock(); AU.announce('Nf3'); } });
-    on('#s-coach', 'change', (e) => { s.coach = e.target.value; save(); });
+    { const box = m.querySelector('#s-coachcfg'); const redraw = () => { box.innerHTML = coachSettingsHtml(); wireCoachSettings(box, redraw); }; wireCoachSettings(box, redraw); }
     on('#s-eval', 'change', (e) => { s.evalBar = e.target.checked; save(); renderEval(); applyInsets(); });
     on('#s-legal', 'change', (e) => { s.legal = e.target.checked; save(); refreshHighlights(); });
     on('#s-turn', 'change', (e) => { s.turnBoard = e.target.checked; save(); });
@@ -2896,7 +2923,8 @@
     const human = restore && restore.human ? restore.human : setup.color === 'black' ? BLACK : setup.color === 'random' ? (Math.random() < 0.5 ? WHITE : BLACK) : WHITE;
     const game = { kind, setup: Object.assign({}, setup), g, human, clock: parseTc(setup.tc), selected: -1, hint: null, hintStep: 0, busy: false, thinking: false, request: 0,
       viewSide: kind === 'local' ? 'white' : human === WHITE ? 'white' : 'black', coachMsg: null, evals: {}, threat: null, resultShown: false, review: null,
-      online: setup.online || null, takebacks: 0, drawOffered: false };
+      online: setup.online || null, takebacks: 0, drawOffered: false,
+      looks: {}, studies: {}, times: [], noted: [], timeStats: { rushed: 0, slowEasy: 0, low: false }, coachMarks: [], coachArrows: [] };
     if (setup.online && !restore) setTimeout(() => AU.event('online.found'), 400);
     if (restore) {
       for (const u of restore.moves || []) if (!g.playText(u)) break;
@@ -2919,7 +2947,7 @@
     const begin = () => {
       if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: toss ? 2600 : 600 });
       gameNudge(game);
-      if (!g.outcome) maybeComputer();
+      if (!g.outcome) { maybeComputer(); coachTurn(game); }
     };
     if (toss) colourToss(game, begin); else begin();
     preAnalyse();
@@ -3035,7 +3063,7 @@
       '<div class="actionbar glass" id="actionbar">' +
       (online ? '' : '<button class="btn" id="g-undo">' + icon('undo') + '<span class="lbl">' + t('play.btn.undo') + '</span></button>') +
       (online ? '' : '<button class="btn" id="g-hint">' + icon('hint') + '<span class="lbl">' + t('play.btn.hint') + '</span></button>') +
-      (online ? '' : '<button class="btn" id="g-threat">' + icon('eye') + '<span class="lbl">' + t('play.btn.threat') + '</span></button>') +
+      (G.kind === 'ai' ? '<button class="btn coach-btn" id="g-coach" aria-haspopup="menu" aria-label="' + t('play.btn.coachLabel', { coach: COACH.name }) + '"><img class="portrait" src="' + face(COACH) + '" alt=""><span class="lbl">' + t('play.btn.coach') + '</span></button>' : '') +
       '<span class="sep"></span>' +
       '<button class="btn" id="g-flip">' + icon('flip') + '<span class="lbl">' + t('play.btn.flip') + '</span></button>' +
       '<button class="btn" id="g-view">' + icon('cam') + '<span class="lbl" id="g-view-lbl">' + t('play.btn.topView') + '</span></button>' +
@@ -3059,14 +3087,14 @@
     $('g-copy').onclick = () => copy(pgn(), 'PGN');
     if ($('g-undo')) $('g-undo').onclick = undo;
     if ($('g-hint')) $('g-hint').onclick = hint;
-    if ($('g-threat')) $('g-threat').onclick = showThreat;
+    if ($('g-coach')) $('g-coach').onclick = () => { AU.unlock(); coachMenu(); };
     $('g-flip').onclick = () => { AU.play('tap'); G.viewSide = G.viewSide === 'white' ? 'black' : 'white'; view.setView(G.viewSide, state.settings.view); renderCards(); renderHud(); };
     $('g-view').onclick = () => { AU.play('tap'); state.settings.view = state.settings.view === 'top' ? 'player' : 'top'; view.setView(G.viewSide, state.settings.view); save(); renderHud(); };
     if ($('g-draw')) $('g-draw').onclick = offerDraw;
     if ($('g-emote')) $('g-emote').onclick = emotePicker;
     $('g-resign').onclick = resign;
     $('g-claim').onclick = () => { if (G.g.claimDraw()) { G.request++; if (online) ChacklateNet.send({ type: 'claim' }); endGame(); } };
-    $('g-review').onclick = () => go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: local ? WHITE : G.human, title: titleFor(G), review: G.review, level: G.kind === 'ai' ? G.setup.level : undefined, rival: G.kind === 'ai' ? rival(G) : null });
+    $('g-review').onclick = () => go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: local ? WHITE : G.human, title: titleFor(G), review: G.review, level: G.kind === 'ai' ? G.setup.level : undefined, rival: G.kind === 'ai' ? rival(G) : null, times: G.times, report: G.report, summary: true });
     $('g-new').onclick = () => newGameModal();
     $('g-explore').onclick = () => { if (view.explore && view.explore(true)) AU.play('tap'); };
     $('move-form').onsubmit = (e) => {
@@ -3076,7 +3104,7 @@
       const m = G.g.pos.parseMove(text, G.g.legal);
       if (m === null || m === undefined) { toast(t('play.notLegal', { move: esc(text) })); AU.play('illegal'); return; }
       input.value = '';
-      playMove(m, true);
+      guardMove(m, () => playMove(m, true));
     };
     setHooks({
       onSquare: onSquare,
@@ -3189,7 +3217,7 @@
     const G = state.game;
     if (!G || G.g.outcome || G.busy || G.thinking || G.tossing) return false;
     if (G.kind === 'local') return true;
-    return G.g.pos.side === G.human;
+    return G.g.pos.side === G.human && !G.checking;
   }
   function sideName(G, side) {
     if (G.kind === 'ai') return side === G.human ? myName() : rival(G).name;
@@ -3249,14 +3277,10 @@
       }
     }
     h.marks = hillMarks(g.pos.fen());
-    if (G.hint && G.hintStep >= 2) h.hintFrom = sqIndex(G.hint.from);
-    if (G.hint && G.hintStep >= 3) h.hintTo = sqIndex(G.hint.to);
+    // what the coach points at: its marked squares glow, its arrows show moves (once the player picks up a piece, they step aside)
+    if (G.coachMsg && G.selected < 0) h.spots = toSpots(G.coachMarks);
     view.setHighlights(h);
-    const arrows = [];
-    if (G.hint && G.hintStep >= 3) arrows.push({ from: sqIndex(G.hint.from), to: sqIndex(G.hint.to), color: '#2fd8ff' });
-    if (G.threat && G.threat.facts) arrows.push({ from: sqIndex(G.threat.facts.from), to: sqIndex(G.threat.facts.to), color: '#ff5a50' });
-    if (G.coachArrow) arrows.push(G.coachArrow);
-    view.setArrows(arrows);
+    view.setArrows(G.coachMsg && G.selected < 0 ? toArrows(G.coachArrows) : []);
   }
 
   function onSquare(sq) {
@@ -3279,12 +3303,12 @@
     if (g.needsPromotion(from, to)) {
       choosePromotion(g.pos.side, (kind) => {
         const m = kind ? g.find(from, to, kind) : null;
-        if (m !== null) playMove(m, true); else view.setBoard(piecesOf(g.pos), capturedFor(g));
+        if (m !== null) guardMove(m, () => playMove(m, true)); else view.setBoard(piecesOf(g.pos), capturedFor(g));
       });
       return;
     }
     const m = g.find(from, to, 0);
-    if (m !== null) playMove(m, true, dropped);
+    if (m !== null) guardMove(m, () => playMove(m, true, dropped));
   }
 
   // Lessons, drills and puzzles keep moving: their captures skip the capture scene.
@@ -3300,9 +3324,9 @@
     if (G.kind === 'online' && byHuman) ChacklateNet.send({ type: 'move', uci: E.uci(m), ply: g.moves.length - 1 });
     if (G.kind !== 'online') pressClock(moverKey);
     G.request++;
-    G.selected = -1; G.hint = null; G.hintStep = 0; G.threat = null; G.coachArrow = null;
-    // The opponent's hello makes way once the game is under way.
-    if (G.coachMsg && G.coachMsg.who && !G.coachMsg.cls) G.coachMsg = null;
+    G.selected = -1; G.hint = null; G.hintStep = 0; G.hintData = null; G.threat = null; G.coachArrows = []; G.coachMarks = [];
+    // The opponent's hello makes way once the game is under way; the coach's last word folds away.
+    if (G.coachMsg && (G.coachMsg.who || G.coachMsg.kind !== 'move' || G.coachMsg.expanded)) G.coachMsg = null;
     G.busy = true;
     const quick = G.clock && G.clock[moverKey] < 10000;   // effects off under 10 s, per the art bible
     // Captures and castling play a short scene, except online, where the server's clock keeps running.
@@ -3326,7 +3350,7 @@
       save();
       if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
-      else { maybeComputer(); gameNudge(G); }
+      else { maybeComputer(); gameNudge(G); coachTurn(G); }
     }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture') });
     // the clocks wait while a capture scene plays (local games; see clockRunning)
     if (G.cinema && G.clock) G.clock.since = 0;
@@ -3355,7 +3379,8 @@
       if (G.clock.since) G.clock[k] = Math.max(0, G.clock[k] - (now - G.clock.since));
       G.clock.since = now;
       if (G.clock[k] <= 0) { G.request++; G.thinking = false; G.g.timeout(G.g.pos.side); endGame(); }
-      else if (G.clock[k] < 10000 && (G.kind === 'local' || G.g.pos.side === G.human) && Date.now() - lowTick > 1000) { lowTick = Date.now(); AU.play('low'); if (!G.lowCalled && G.kind !== 'local') { G.lowCalled = true; AU.event('time.low'); } }
+      else if (G.clock[k] < 10000 && (G.kind === 'local' || G.g.pos.side === G.human) && Date.now() - lowTick > 1000) {
+        G.timeStats.low = true; lowTick = Date.now(); AU.play('low'); if (!G.lowCalled && G.kind !== 'local') { G.lowCalled = true; AU.event('time.low'); } }
     }
     renderClocks();
   }, 100);
@@ -3416,53 +3441,164 @@
     bar.dataset.tip = t('play.eval.title') + '|' + (e.mate ? t('play.eval.mate', { side: sideWord(e.mate * G.g.pos.side > 0), n: Math.abs(e.mate) })
       : Math.abs(white) < 30 ? t('play.eval.even') : t('play.eval.ahead', { side: sideWord(white > 0), n: (Math.abs(white) / 100).toFixed(1) })) + ' ' + t('play.eval.more');
   }
-  function liveCoach(before, info) {
-    const G = state.game;
-    if (state.settings.coach === 'off') return;
-    const ply = G.g.moves.length - 1;
-    const wait = (cb, tries) => {
-      if (state.game !== G) return;
-      const e = G.evals[ply];
-      if (e) cb(e); else if (tries > 0) setTimeout(() => wait(cb, tries - 1), 150);
-    };
-    wait((pre) => {
-      job('analysis', { type: 'analyse', fen: G.g.startFen, moves: G.g.uciMoves().slice(0, ply + 1), timeMs: 260 }, (post) => {
-        if (post.error || state.game !== G || G.g.moves.length < ply + 1) return;
-        G.evals[ply + 1] = G.evals[ply + 1] || post;
-        renderEval();
-        const isBest = pre.best === info.uci || pre.best === E.uci(info.move);
-        const loss = isBest ? 0 : Math.max(0, C.winProb(pre.cp) - C.winProb(-post.cp));
-        const pos = E.positionFrom(before.fen, before.moves);
-        const m = pos.parseMove(E.uci(info.move));
-        const f = C.facts(pos, m);
-        const cls = C.classify(loss, isBest, f, -post.cp);
-        let text = '', actions = [];
-        const lvl = state.settings.coach;
-        if (cls === 'blunder' || (cls === 'mistake' && lvl !== 'quiet')) {
-          pos.make(m);
-          const refut = post.best ? C.facts(pos, pos.parseMove(post.best)) : null;
-          pos.unmake();
-          const bestM = pre.best ? pos.parseMove(pre.best) : null;
-          const ex = C.explain({ cls, side: before.side, san: info.san, facts: f, refutation: refut, bestSan: pre.bestSan || (bestM ? pos.san(bestM, pos.legalMoves()) : ''), bestFacts: bestM ? C.facts(pos, bestM) : null, mateAgainst: post.mate > 0 ? post.mate : 0, missedMate: 0 });
-          text = t(cls === 'blunder' ? 'play.coach.careful' : 'play.coach.hmm') + ' ' + ex;
-          // The computer may have answered already, and then the reply is on the board.
-          const replied = G.g.moves.length > ply + 1;
-          actions = replied ? [[t('play.coach.takeBack'), 'takeback'], [t('play.coach.playOn'), 'dismiss']] : [[t('play.coach.takeBack'), 'takeback'], [t('play.coach.showReply'), 'reply'], [t('play.coach.playOn'), 'dismiss']];
-          if (refut && !replied) G.coachArrow = { from: sqIndex(refut.from), to: sqIndex(refut.to), color: '#ff5a50' };
-        } else if (cls === 'brilliant' && lvl !== 'quiet') { text = t('play.coach.brilliant') + ' ' + (C.describe(f) || t('play.coach.bold')); actions = [[t('play.coach.thanks'), 'dismiss']]; }
-        else if (lvl === 'chatty' && (cls === 'best' || cls === 'excellent')) { const d = C.describe(f); text = t(cls === 'best' ? 'play.coach.top' : 'play.coach.nice') + ' ' + (d || ''); actions = [[t('play.coach.thanks'), 'dismiss']]; }
-        else if (lvl === 'chatty' && cls === 'inaccuracy') { text = pre.bestSan ? t('play.coach.playable', { san: pre.bestSan }) : t('play.coach.playableOther'); actions = [[t('common.ok'), 'dismiss']]; }
-        if (!text) return;
-        G.coachArrow = G.coachArrow && cls !== 'blunder' && cls !== 'mistake' ? null : G.coachArrow;
-        coachSay(text, actions, cls);
-        refreshHighlights();
-      });
-    }, 20);
+  // ----- Rooky the coach and mentor (games against the computer; never online)
+  // The Analyst runs in the analysis worker (mentor.js study, look, check); the Coach grades moves
+  // and gives hints; the Mentor plans, thinks ahead and teaches. Every line comes from the engine's
+  // facts. M writes on screen in the player's language; ME writes the same line in English for the
+  // recorded voice. Settings: state.settings.coachCfg (the coaching spec's table, three modes).
+  const CFG = () => state.settings.coachCfg;
+  const coachOn = (G) => !!G && G.kind === 'ai' && !!CFG().on;
+  const strength = () => Math.max(state.progress.stats.puzzles.rating || 800, 600 + 150 * PG.personalLevel(state.progress, 7));
+  const coachLevel = () => M.levelFor(CFG(), strength());
+  // What Rooky said lately (so lines are not repeated) and his notes on the player, across games.
+  const coachMem = () => state.progress.coach || (state.progress.coach = { said: [], warned: [], noted: [] });
+  function remember(list, key, n) { const m = coachMem(); const l = m[list] || (m[list] = []); l.push(key); while (l.length > (n || 24)) l.shift(); }
+  const SPOT = { good: '#3ee07a', bad: '#ff4a40', warn: '#f0b44a', target: '#ff8a3d', idea: '#2fd8ff', best: '#7fd6a4', them: '#ff5a50' };
+  const toSpots = (marks) => (marks || []).map((m) => ({ sq: sqIndex(m.sq), color: SPOT[m.color] || SPOT.idea, pulse: m.color === 'bad' || m.color === 'idea' })).filter((m) => m.sq >= 0);
+  const toArrows = (arrows) => (arrows || []).map((a) => ({ from: sqIndex(a.from), to: sqIndex(a.to), color: SPOT[a.color] || SPOT.idea })).filter((a) => a.from >= 0 && a.to >= 0);
+  // The same mentor call in both languages: [on screen, English for the voice].
+  const both = (fn, ...args) => [M[fn](...args), ME[fn](...args)];
+  // Rooky says a line in his recorded voice (audio.js puts it together from recorded phrases).
+  function coachSpeak(en) { if (CFG().audio && en) { AU.unlock(); AU.coach(en); } }
+
+  // When the player's turn starts: look at the position once (threats, chances, the best moves),
+  // in the background, so hints, warnings and the move feedback are ready without a wait.
+  function coachTurn(G) {
+    if (!coachOn(G) || G.g.outcome || G.g.pos.side !== G.human || G.tossing) return;
+    const key = G.g.moves.length;
+    G.turnStart = performance.now();
+    if (G.looks[key]) return;
+    lookAt(G, (lk) => proactive(G, lk));
   }
-  // A message in the side panel from Rooky, or from whoever is across the table.
+  function lookAt(G, done, timeMs) {
+    const key = G.g.moves.length;
+    if (G.looks[key] && !timeMs) { done(G.looks[key]); return; }
+    job('analysis', { type: 'look', fen: G.g.startFen, moves: G.g.uciMoves(), opts: { timeMs: timeMs || 200, alts: 3, plies: 4 } }, (r) => {
+      if (r.error || !r.look || state.game !== G || G.g.moves.length !== key) return;
+      r.look.enteredEndgame = r.look.phase === 'endgame' && !G.endgameSaid;
+      G.looks[key] = r.look;
+      done(r.look);
+    });
+  }
+  // Thinking assistance and Mentor mode: at most one word per turn, only when it matters.
+  function proactive(G, lk) {
+    const cfg = CFG();
+    if (lk.over || state.game !== G || !coachOn(G) || G.g.pos.side !== G.human) return;
+    // a warning about the player's own last move stays up while it is still the story
+    const m = G.coachMsg;
+    if (m && m.kind === 'move' && (m.grade === 'blunder' || m.grade === 'mistake') && m.ply === G.g.moves.length - 2) return;
+    if (m && (m.kind === 'hint' || m.kind === 'warn')) return;
+    const ply = G.g.moves.length;
+    let pickd = null;
+    if (cfg.think) {
+      const [th, the] = both('threats', lk, coachMem().warned);
+      if (th.length && th[0].w >= 4) { pickd = { kind: 'threat', group: 'threat', lines: [th[0].text], en: [the[0].text], marks: th[0].marks, id: th[0].id }; remember('warned', th[0].id, 30); }
+      if (!pickd && lk.mate && (G.lastChance === undefined || ply - G.lastChance >= 4)) {
+        const [r, re] = both('mateRadar', lk);
+        pickd = { kind: 'chance', group: 'mate', lines: [r.mine.n === 1 ? M.tr('op.mate1') : M.tr('op.mate', { n: r.mine.n })], en: [r.mine.n === 1 ? ME.tr('op.mate1') : ME.tr('op.mate', { n: r.mine.n })], show: true };
+        void re; G.lastChance = ply;
+      }
+      if (!pickd && (G.lastChance === undefined || ply - G.lastChance >= 4)) {
+        const [ch, che] = both('chances', lk);
+        if (ch.length && ch[0].real) { pickd = { kind: 'chance', group: 'chance', lines: [ch[0].text], en: [che[0].text], show: true }; G.lastChance = ply; }
+      }
+    }
+    if (!pickd && cfg.mentor) {
+      if (lk.trap && !G.noted.includes('trap:' + lk.trap.name)) {
+        const [a, b] = [M.tr('o.trap', { name: lk.trap.name, idea: M.tr(lk.trap.idea) }), ME.tr('o.trap', { name: lk.trap.name, idea: ME.tr(lk.trap.idea) })];
+        pickd = { kind: 'mentor', group: 'mentor', lines: [a], en: [b] }; G.noted.push('trap:' + lk.trap.name);
+      } else if (lk.phase === 'endgame' && !G.endgameSaid) {
+        G.endgameSaid = true;
+        const [g1, g2] = both('phaseGuide', lk, coachLevel());
+        pickd = { kind: 'mentor', group: 'mentor', title: g1.title, lines: g1.lines, en: g2.lines, marks: g1.marks };
+      } else if (lk.opening && lk.opening.name && G.openingSaid !== lk.opening.name && lk.phase === 'opening') {
+        G.openingSaid = lk.opening.name;
+        const [g1, g2] = both('phaseGuide', lk, coachLevel());
+        pickd = { kind: 'mentor', group: 'mentor', title: g1.title, lines: g1.lines.slice(0, 2), en: g2.lines.slice(0, 2), marks: g1.marks };
+      } else if (ply - (G.lastPlan || 0) >= 10) {
+        const [p1, p2] = both('plans', lk);
+        if (p1.length && !G.noted.includes(p1[0].text)) { G.lastPlan = ply; G.noted.push(p1[0].text); pickd = { kind: 'mentor', group: 'mentor', lines: [p1[0].text], en: [p2[0].text], marks: p1[0].marks }; }
+      }
+    }
+    if (!pickd && cfg.time && G.clock && G.clock.base) {
+      const t1 = M.timeThink(lk, clockFacts(G)), t2 = ME.timeThink(lk, clockFacts(G));
+      if (t1 && !G.noted.includes('think:' + ply)) { G.noted.push('think:' + ply); pickd = { kind: 'time', group: 'mentor', lines: [t1.text], en: [t2.text] }; }
+    }
+    if (!pickd) return;
+    const opener = M.lineKey(pickd.group, coachMem().said);
+    remember('said', opener);
+    say(Object.assign(pickd, { head: M.tr(opener), enHead: ME.tr(opener), lk }));
+  }
+  function clockFacts(G) {
+    const c = G.clock, me = G.human === WHITE ? 'w' : 'b', them = me === 'w' ? 'b' : 'w';
+    return { base: c.base, inc: c.inc, left: c[me], oppLeft: c[them] };
+  }
+
+  // After the player's move: grade it (five grades) and say as much as the depth setting asks.
+  function liveCoach(before, info) {
+    const G = state.game, cfg = CFG();
+    if (!coachOn(G)) return;
+    const ply = G.g.moves.length - 1;
+    const spent = G.turnStart ? performance.now() - G.turnStart : 0;
+    G.times[ply] = spent;
+    const deep = cfg.depth >= 3;
+    const pre = G.looks[ply] ? { alts: G.looks[ply].alts, threat: G.looks[ply].threat && G.looks[ply].threat.serious ? G.looks[ply].threat.facts : null, assess: G.looks[ply].assess } : null;
+    job('analysis', { type: 'study', fen: G.g.startFen, moves: G.g.uciMoves().slice(0, ply + 1), opts: { timeMs: 200, alts: deep ? 3 : 2, plies: deep ? 4 : 0, pre } }, (r) => {
+      if (r.error || !r.study || state.game !== G || G.g.moves.length < ply + 1) return;
+      const st = r.study;
+      G.studies[ply] = st;
+      const seed = Math.random(), ctx = { style: cfg.style, seen: coachMem().said, rand: () => seed };
+      const fb = M.feedback(st, ctx), fe = ME.feedback(st, ctx);
+      // the time coach watches clock habits for the profile, and speaks only when it is switched on
+      let tm = null;
+      if (G.clock && G.clock.base) {
+        const easy = (G.looks[ply] && G.looks[ply].legalCount <= 2) || !!st.facts.capture && st.isBest && st.alts.length > 1 && C.winProb(st.alts[0].cp) - C.winProb(st.alts[1].cp) > 0.25;
+        const sharp = !!(st.threatBefore || (G.looks[ply] && G.looks[ply].captures >= 3));
+        const facts = Object.assign(clockFacts(G), { spent, grade: fb.grade, easy, sharp, saidLow: G.lowSaid });
+        if (sharp && spent < 2500 && (fb.grade === 'mistake' || fb.grade === 'blunder')) G.timeStats.rushed++;
+        if (easy && spent > 20000) G.timeStats.slowEasy++;
+        if (cfg.time) { tm = [M.timeAdvice(facts), ME.timeAdvice(facts)]; if (tm[0] && tm[0].id === 'low') G.lowSaid = true; if (!tm[0]) tm = null; }
+      }
+      if (!M.shouldComment(cfg, fb.grade)) {
+        if (tm && cfg.on) say({ kind: 'time', head: '', enHead: '', lines: [tm[0].text], en: [tm[1].text], ply });
+        return;
+      }
+      remember('said', fb.opener);
+      const replied = G.g.moves.length > ply + 1;
+      const bad = fb.grade === 'blunder' || fb.grade === 'mistake';
+      const actions = [];
+      if (bad && !G.setup.dojo) actions.push([t('play.coach.takeBack'), 'takeback']);
+      say({
+        kind: 'move', ply, grade: fb.grade, label: fb.label, head: fb.head, enHead: fe.head, lines: fb.text, en: fe.text, more: fb.more, enMore: fe.more, deep: fb.deep, enDeep: fe.deep,
+        marks: fb.marks, arrows: fb.arrows.filter((a) => !(replied && a.color === 'them')), st, actions,
+        after: tm ? { lines: [tm[0].text], en: [tm[1].text] } : null,
+      });
+    });
+  }
+  // The coach card in the side panel. A message: { kind, head, lines (level 1), more (2), deep (3),
+  // en/enMore/enDeep (the same in English, for the voice), label, grade, marks, arrows, actions }.
+  // Text guidance off: the card shows only its badge and buttons; the voice still speaks.
+  function say(msg) {
+    const G = state.game, cfg = CFG();
+    if (!G) return;
+    msg.expanded = false;
+    G.coachMsg = msg;
+    G.coachMarks = msg.marks || [];
+    G.coachArrows = msg.arrows || [];
+    AU.play('coach');
+    renderCoach();
+    refreshHighlights();
+    const depth = msg.kind === 'move' ? 1 : 3;
+    coachSpeak(spoken(msg, depth));
+    void cfg;
+  }
+  const spoken = (m, depth) => [m.enHead].concat(m.en || [], depth >= 2 ? m.enMore || [] : [], depth >= 3 ? m.enDeep || [] : [], m.after && depth >= 1 ? m.after.en : []).filter(Boolean).join(' ');
+  const shownLines = (m, depth) => (m.lines || []).concat(depth >= 2 ? m.more || [] : [], depth >= 3 ? m.deep || [] : []);
+  // The opponent's greetings and other plain notes keep the old shape: coachSay(text, actions, cls, who).
   function coachSay(text, actions, cls, who) {
     const G = state.game;
-    G.coachMsg = { text, actions, cls, who: who || null };
+    G.coachMsg = { kind: who ? 'rival' : 'note', lines: [text], actions, who: who || null };
+    G.coachMarks = []; G.coachArrows = [];
     AU.play('coach');
     renderCoach();
   }
@@ -3470,18 +3606,79 @@
     const G = state.game, slot = $('coach-slot');
     if (!slot || !G) return;
     if (!G.coachMsg) { slot.innerHTML = ''; applyInsets(); return; }
-    const m = G.coachMsg, who = m.who || COACH;
-    slot.innerHTML = '<div class="coach' + (m.who ? ' rival' : '') + '"><div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div><b>' + esc(m.who ? fullName(who) : t('play.coach.rooky')) + (m.cls ? ' · <span class="cls ' + m.cls + '">' + C.LABEL[m.cls] + '</span>' : '') + '</b><p>' + esc(m.text) + '</p>' +
-      '<div class="row">' + (m.actions || []).map(([label, a]) => '<button class="btn small' + (a === 'takeback' ? ' primary' : '') + '" data-coach="' + a + '">' + esc(label) + '</button>').join('') + '</div></div></div>';
-    slot.querySelectorAll('[data-coach]').forEach((b) => {
-      b.onclick = () => {
-        const a = b.dataset.coach;
-        if (a === 'takeback') { G.takebacks++; undo(); }
-        if (a === 'reply') { refreshHighlights(); return; }
-        G.coachMsg = null; G.coachArrow = null; renderCoach(); refreshHighlights();
-      };
-    });
+    const m = G.coachMsg, who = m.who || COACH, cfg = CFG();
+    const rival = m.kind === 'rival';
+    const depth = m.kind === 'move' ? (m.expanded ? 3 : Math.min(cfg.depth, 1)) : 3;
+    const showText = rival || m.kind === 'note' || cfg.text || m.expanded || m.kind === 'hint' || m.kind === 'warn';
+    const lines = shownLines(m, m.kind === 'move' && m.expanded ? cfg.depth : depth);
+    const canMore = m.kind === 'move' && cfg.depth >= 2 && ((m.more || []).length || (m.deep || []).length);
+    const words = showText && !rival ? M.termsIn([m.enHead].concat(m.en || [], m.expanded ? (m.enMore || []).concat(m.enDeep || []) : []).join(' '), lines.join(' ')).slice(0, 3) : [];
+    const kindLabel = m.label ? '<span class="cls g-' + m.grade + '">' + esc(m.label) + '</span>' : m.kind === 'threat' ? '<span class="cls g-blunder">' + t('play.coach.kind.threat') + '</span>'
+      : m.kind === 'chance' ? '<span class="cls g-excellent">' + t('play.coach.kind.chance') + '</span>' : m.kind === 'mentor' ? '<span class="cls g-mentor">' + esc(m.title || t('play.coach.kind.mentor')) + '</span>'
+      : m.kind === 'hint' ? '<span class="cls g-mentor">' + t('play.coach.kind.hint', { n: G.hintStep }) + '</span>' : m.kind === 'warn' ? '<span class="cls g-mistake">' + t('play.coach.kind.warn') + '</span>'
+      : m.kind === 'time' ? '<span class="cls g-mentor">' + t('play.coach.kind.time') + '</span>' : '';
+    const btn = (a, label, ic, primary) => '<button class="btn small' + (primary ? ' primary' : '') + '" data-coach="' + a + '"' + (ic ? ' aria-label="' + esc(label) + '"' : '') + '>' + (ic ? icon(ic) : '') + (ic && !label ? '' : '<span>' + esc(label) + '</span>') + '</button>';
+    const tools = rival || m.kind === 'note' ? '' :
+      '<div class="ctools">' +
+      ('<button class="cbtn" data-coach="listen" aria-label="' + t('play.coach.listen') + '" title="' + t('play.coach.listen') + '">' + icon(m.talking ? 'speakerOff' : 'speaker') + '</button>') +
+      (canMore ? '<button class="cbtn" data-coach="more" aria-expanded="' + !!m.expanded + '" aria-label="' + t(m.expanded ? 'play.coach.less' : 'play.coach.more') + '" title="' + t(m.expanded ? 'play.coach.less' : 'play.coach.more') + '">' + icon(m.expanded ? 'up' : 'down') + '</button>' : '') +
+      '<button class="cbtn" data-coach="dismiss" aria-label="' + t('common.close') + '" title="' + t('common.close') + '">' + icon('x') + '</button></div>';
+    slot.innerHTML = '<div class="coach' + (rival ? ' rival' : '') + (m.grade ? ' g-' + m.grade : '') + (m.expanded ? ' open' : '') + (showText ? '' : ' slim') + '" role="status">' +
+      '<div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div class="cbody"><div class="chead"><b>' + esc(m.who ? fullName(who) : COACH.name) + '</b>' + kindLabel + tools + '</div>' +
+      (showText ? '<button class="ctext" data-coach="' + (canMore ? 'more' : 'none') + '"' + (canMore ? '' : ' tabindex="-1"') + '>' + (m.head ? '<strong>' + esc(m.head) + '</strong> ' : '') + lines.map(esc).join(' ') + (m.after ? ' ' + m.after.lines.map(esc).join(' ') : '') + '</button>' : '') +
+      (words.length ? '<div class="cwords"><small>' + t('play.coach.words') + '</small>' + words.map((w) => '<button class="chip" data-term="' + w + '">' + esc(M.term(w, coachLevel()).word) + '</button>').join('') + '</div>' : '') +
+      '<div class="row">' + (m.actions || []).map(([label, a]) => btn(a, label, null, a === 'takeback' || a === 'play-anyway')).join('') +
+      (m.kind === 'move' && m.st ? btn('detail', t('play.coach.detail')) : '') +
+      (m.kind === 'hint' && G.hintStep < 3 ? btn('hint-more', t('play.coach.anotherHint')) : '') +
+      (m.kind === 'chance' && m.show ? btn('hint', t('play.coach.showMe')) : '') +
+      (m.steps ? btn('think-show', t('play.coach.showLine')) : '') +
+      (m.kind === 'mentor' || m.steps || m.kind === 'chance' ? btn('practice', t('play.coach.practice')) : '') +
+      '</div></div></div>';
+    slot.querySelectorAll('[data-coach]').forEach((b) => { b.onclick = () => coachAction(b.dataset.coach); });
+    slot.querySelectorAll('[data-term]').forEach((b) => { b.onclick = () => termPop(b.dataset.term, b); });
     applyInsets();
+  }
+  function coachAction(a) {
+    const G = state.game, m = G && G.coachMsg;
+    if (!m) return;
+    if (a === 'none') return;
+    if (a === 'takeback') { G.takebacks++; undo(); return; }
+    if (a === 'more') { m.expanded = !m.expanded; renderCoach(); if (m.expanded) coachSpeak(spoken(m, CFG().depth)); return; }
+    if (a === 'listen') {
+      if (m.talking) { AU.hush(); m.talking = false; renderCoach(); return; }
+      AU.unlock();
+      const p = AU.coach(spoken(m, m.kind === 'move' ? (m.expanded ? CFG().depth : 1) : 3));
+      m.talking = true; renderCoach();
+      Promise.resolve(p).then(() => { m.talking = false; if (G.coachMsg === m) renderCoach(); });
+      return;
+    }
+    if (a === 'detail') { detailModal(m.st); return; }
+    if (a === 'hint-more') { if (G.hintStep < 3) { G.hintStep++; showHintStep(); } return; }
+    if (a === 'hint') { hint(); return; }
+    if (a === 'think-show') { playThinkLine(m.steps); return; }
+    if (a === 'practice') { openPractice(); return; }
+    if (a === 'play-anyway') { const mv = G.pendingMove; G.pendingMove = null; G.guardOk = mv; G.coachMsg = null; G.coachArrows = []; G.coachMarks = []; renderCoach(); if (mv !== null && mv !== undefined) playMove(mv, true); return; }
+    // dismiss, think-again, ok
+    AU.hush();
+    if (a === 'think-again') { G.pendingMove = null; view.setBoard(piecesOf(G.g.pos), capturedFor(G.g)); }
+    G.coachMsg = null; G.coachArrows = []; G.coachMarks = []; G.coachArrow = null;
+    renderCoach(); refreshHighlights();
+  }
+  // Tapping a chess word: what it means, at the player's level.
+  function termPop(id, anchor) {
+    document.querySelectorAll('.term-pop').forEach((p) => p.remove());
+    const tm = M.term(id, coachLevel());
+    const pop = document.createElement('div');
+    pop.className = 'term-pop glass'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', tm.word);
+    pop.innerHTML = '<b>' + esc(tm.word) + '</b><p>' + esc(tm.text) + '</p><div class="row"><button class="btn small" data-x="listen">' + icon('speaker') + ' ' + t('play.coach.listen') + '</button><button class="btn small" data-x="close">' + t('common.gotIt') + '</button></div>';
+    document.body.appendChild(pop);
+    const r = anchor.getBoundingClientRect();
+    pop.style.left = Math.max(12, Math.min(window.innerWidth - pop.offsetWidth - 12, r.left)) + 'px';
+    pop.style.top = Math.max(12, r.top - pop.offsetHeight - 8) + 'px';
+    pop.querySelector('[data-x=listen]').onclick = () => { AU.unlock(); const en = ME.term(id, coachLevel()); AU.coach(en.word + '. ' + en.text); };
+    pop.querySelector('[data-x=close]').onclick = () => pop.remove();
+    setTimeout(() => document.addEventListener('pointerdown', function off(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('pointerdown', off); } }), 0);
+    remember('noted', 'term:' + id, 60);
   }
 
   function undo() {
@@ -3489,44 +3686,274 @@
     if (G.kind === 'online' || !g.moves.length || g.ended || G.busy) return;
     G.request++; G.thinking = false;
     if (G.kind === 'ai') { g.undo(); if (g.moves.length && g.pos.side !== G.human) g.undo(); } else g.undo();
-    G.selected = -1; G.hint = null; G.hintStep = 0; G.threat = null; G.coachMsg = null; G.coachArrow = null; G.resultShown = false;
-    AU.play('tap');
+    G.selected = -1; G.hint = null; G.hintStep = 0; G.threat = null; G.coachMsg = null; G.coachArrow = null; G.coachArrows = []; G.coachMarks = []; G.resultShown = false; G.pendingMove = null;
+    AU.play('tap'); AU.hush();
     view.setBoard(piecesOf(g.pos), capturedFor(g));
     if (G.kind === 'local' && state.settings.turnBoard) { G.viewSide = g.pos.side === WHITE ? 'white' : 'black'; view.setView(G.viewSide, state.settings.view); renderCards(); }
     refreshHighlights(); renderHud(); renderCoach(); save();
-    maybeComputer(); preAnalyse();
+    maybeComputer(); preAnalyse(); coachTurn(G);
   }
-  // Hint ladder: the idea, then the piece, then the move.
+  // Suggest my next move: three levels. A direction, then the piece and the idea, then the move and why.
   function hint() {
     const G = state.game;
     if (!humanTurn()) return;
-    if (G.hint && G.hintStep < 3) { G.hintStep++; showHintStep(); return; }
-    $('g-hint').disabled = true;
-    const id = ++G.request;
-    job('play', { type: 'hint', fen: G.g.startFen, moves: G.g.uciMoves(), timeMs: 900 }, (r) => {
-      if (id !== G.request || state.game !== G || !r.hint) { renderHud(); return; }
-      G.hint = r.hint; G.hintStep = 1;
-      showHintStep(); renderHud();
-    });
+    if (G.hintData && G.hintKey === G.g.moves.length && G.hintStep < 3) { G.hintStep++; showHintStep(); return; }
+    if ($('g-hint')) $('g-hint').disabled = true;
+    const key = G.g.moves.length;
+    lookAt(G, (lk) => {
+      renderHud();
+      const [h, he] = both('hints', lk);
+      if (!h) return;
+      G.hintData = h; G.hintEn = he; G.hintKey = key; G.hintStep = 1; G.hints = (G.hints || 0) + 1;
+      showHintStep();
+    }, G.looks[key] ? 0 : 300);
   }
   function showHintStep() {
-    const G = state.game, h = G.hint;
-    const text = G.hintStep === 1 ? h.theme : G.hintStep === 2 ? t('play.coach.lookAt', { piece: h.piece }) : t('play.coach.try', { san: h.san }) + ' ' + (h.text || '');
-    coachSay(text, G.hintStep < 3 ? [[t('play.coach.anotherHint'), 'more'], [t('common.gotIt'), 'dismiss']] : [[t('common.gotIt'), 'dismiss']]);
-    const slot = $('coach-slot'), more = slot && slot.querySelector('[data-coach="more"]');
-    if (more) more.onclick = () => { G.hintStep++; showHintStep(); };
-    refreshHighlights();
+    const G = state.game, h = G.hintData, he = G.hintEn, lv = h.levels[G.hintStep - 1], le = he.levels[G.hintStep - 1];
+    G.hint = { from: h.from, to: h.to };
+    const opener = G.hintStep === 1 ? M.lineKey('hint', coachMem().said) : null;
+    if (opener) remember('said', opener);
+    say({ kind: 'hint', head: opener ? M.tr(opener) : '', enHead: opener ? ME.tr(opener) : '', lines: [lv.text], en: [le.text], marks: lv.marks, arrows: lv.arrows || [] });
+    renderHud();
   }
-  function showThreat() {
+  // The coach menu: everything Rooky can do, a tap away. Items that read the position wait for the player's turn.
+  function coachMenu() {
     const G = state.game;
-    if (!humanTurn()) return;
-    if (G.g.pos.inCheck()) { coachSay(t('play.coach.inCheck'), [[t('common.ok'), 'dismiss']]); return; }
-    job('analysis', { type: 'threat', fen: G.g.startFen, moves: G.g.uciMoves(), timeMs: 300 }, (r) => {
-      if (state.game !== G || !r.threat) return;
-      G.threat = r.threat.serious ? r.threat : null;
-      coachSay(r.threat.serious ? r.threat.text : t('play.coach.noDanger') + ' ' + r.threat.text, [[t('common.ok'), 'dismiss']]);
+    const old = document.querySelector('.coach-pop');
+    if (old) { old.remove(); return; }
+    const my = humanTurn(), cfg = CFG();
+    const lastMine = (() => { for (let i = G.g.moves.length - 1; i >= 0; i--) if ((i % 2 === 0) === (E.positionFrom(G.g.startFen, []).side === G.human)) return i; return -1; })();
+    const items = [
+      ['hint', 'hint', t('play.coach.m.hint'), t('play.coach.m.hintSub'), my],
+      ['mentor', 'scroll', t('play.coach.m.mentor'), t('play.coach.m.mentorSub'), my],
+      ['think', 'compass', t('play.coach.m.think'), t('play.coach.m.thinkSub'), my],
+      ['chances', 'sparkle', t('play.coach.m.chances'), t('play.coach.m.chancesSub'), my],
+      ['threats', 'shield', t('play.coach.m.threats'), t('play.coach.m.threatsSub'), my],
+      ['radar', 'target', t('play.coach.m.radar'), t('play.coach.m.radarSub'), my],
+      ['last', 'eye', t('play.coach.m.last'), t('play.coach.m.lastSub'), lastMine >= 0 && !G.busy],
+      ['analyse', 'chart', t('play.coach.m.analyse'), t('play.coach.m.analyseSub'), G.g.moves.length > 0 && (my || !!G.g.outcome)],
+      ['practice', 'grid', t('play.coach.m.practice'), t('play.coach.m.practiceSub'), my || !!G.g.outcome],
+      ['words', 'book', t('play.coach.m.words'), t('play.coach.m.wordsSub'), true],
+      ['settings', 'gear', t('play.coach.m.settings'), t('play.coach.m.settingsSub', { mode: t('settings.cm.mode.' + M.modeOf(cfg)) }), true],
+    ];
+    const pop = document.createElement('div');
+    pop.className = 'coach-pop glass'; pop.setAttribute('role', 'menu'); pop.setAttribute('aria-label', t('play.coach.m.title'));
+    pop.innerHTML = '<header><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>' + t('play.coach.m.title') + '</b><small>' + t('play.coach.m.sub', { coach: COACH.name }) + '</small></div></header>' +
+      items.map(([id, ic, label, sub, ok]) => '<button role="menuitem" class="cm-item" data-cm="' + id + '"' + (ok ? '' : ' disabled') + '>' + icon(ic) + '<span><b>' + esc(label) + '</b><small>' + esc(sub) + '</small></span></button>').join('');
+    document.body.appendChild(pop);
+    const r = $('g-coach').getBoundingClientRect();
+    pop.style.left = Math.max(10, Math.min(window.innerWidth - pop.offsetWidth - 10, r.left + r.width / 2 - pop.offsetWidth / 2)) + 'px';
+    pop.style.bottom = Math.max(10, window.innerHeight - r.top + 10) + 'px';
+    pop.style.maxHeight = Math.max(200, r.top - 20) + 'px';
+    AU.play('open');
+    pop.querySelectorAll('[data-cm]').forEach((b) => { b.onclick = () => { pop.remove(); AU.play('tap'); coachDo(b.dataset.cm, lastMine); }; });
+    const first = pop.querySelector('[data-cm]:not([disabled])'); if (first) first.focus({ preventScroll: true });
+    pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') { pop.remove(); $('g-coach').focus(); } });
+    setTimeout(() => document.addEventListener('pointerdown', function off(e) { if (!pop.contains(e.target) && e.target !== $('g-coach') && !$('g-coach').contains(e.target)) { pop.remove(); } if (!pop.isConnected) document.removeEventListener('pointerdown', off); }), 0);
+  }
+  function coachDo(id, lastMine) {
+    const G = state.game;
+    if (id === 'hint') return hint();
+    if (id === 'words') return glossaryModal();
+    if (id === 'settings') return coachSettingsModal();
+    if (id === 'analyse') return openAnalysis();
+    if (id === 'practice') return openPractice();
+    if (id === 'last') {
+      if (G.studies[lastMine]) return detailModal(G.studies[lastMine]);
+      return job('analysis', { type: 'study', fen: G.g.startFen, moves: G.g.uciMoves().slice(0, lastMine + 1), opts: { timeMs: 220, alts: 3, plies: 4 } }, (r) => { if (r.study && state.game === G) { G.studies[lastMine] = r.study; detailModal(r.study); } });
+    }
+    lookAt(G, (lk) => {
+      const opener = M.lineKey(id === 'threats' ? 'threat' : id === 'radar' ? 'mate' : id === 'chances' ? 'chance' : 'mentor', coachMem().said);
+      remember('said', opener);
+      const base = { head: M.tr(opener), enHead: ME.tr(opener), lk };
+      if (id === 'mentor') {
+        const [g1, g2] = both('phaseGuide', lk, coachLevel());
+        const [c1, c2] = both('chances', lk);
+        const real = c1.length && c1[0].real;
+        const rec = lk.phase === 'opening' && G.g.moves.length <= 2 ? both('recommendOpening', coachLevel(), G.human) : [[], []];
+        say(Object.assign(base, { kind: 'mentor', title: g1.title, lines: (real ? [c1[0].text] : []).concat(g1.lines, rec[0]), en: (real ? [c2[0].text] : []).concat(g2.lines, rec[1]), marks: g1.marks }));
+      } else if (id === 'think') {
+        const [a, b] = both('thinkAhead', lk);
+        if (!a) return;
+        say(Object.assign(base, { kind: 'mentor', title: t('play.coach.m.think'), lines: [a.intro].concat(a.steps.map((s) => s.text), a.notes), en: [b.intro].concat(b.steps.map((s) => s.text), b.notes), steps: a.steps }));
+      } else if (id === 'chances') {
+        const [a, b] = both('chances', lk);
+        const none = [M.tr('op.none'), ME.tr('op.none')];
+        say(Object.assign(base, { kind: 'chance', lines: a.length ? a.map((x) => x.text) : [none[0]], en: b.length ? b.map((x) => x.text) : [none[1]], show: a.length > 0, marks: [] }));
+      } else if (id === 'threats') {
+        const [a, b] = both('threats', lk, []);
+        const none = [M.tr('n.noThreat'), ME.tr('n.noThreat')];
+        say(Object.assign(base, { kind: 'threat', lines: a.length ? a.slice(0, 2).map((x) => x.text) : [none[0]], en: b.length ? b.slice(0, 2).map((x) => x.text) : [none[1]], marks: a.length ? a[0].marks : [] }));
+      } else if (id === 'radar') {
+        const [a, b] = both('mateRadar', lk);
+        const arrows = a.mine && lk.alts[0] ? [{ from: lk.alts[0].facts.from, to: lk.alts[0].facts.to, color: 'best' }] : a.theirs && lk.threat ? [{ from: lk.threat.facts.from, to: lk.threat.facts.to, color: 'them' }] : [];
+        say(Object.assign(base, { kind: a.theirs ? 'threat' : 'chance', lines: [a.text], en: [b.text], arrows }));
+      }
+    }, G.looks[G.g.moves.length] ? 0 : 300);
+  }
+  // Think ahead on the board: the line's moves appear as arrows one after another, the player's in blue, the opponent's in red.
+  function playThinkLine(steps) {
+    const G = state.game;
+    if (!G || !steps) return;
+    const run = ++G.request;
+    G.coachArrows = [];
+    let i = 0;
+    const next = () => {
+      if (state.game !== G || G.request !== run || i >= steps.length || !G.coachMsg) return;
+      const s = steps[i++];
+      G.coachArrows = G.coachArrows.concat([{ from: s.from, to: s.to, color: s.mine ? 'idea' : 'them' }]);
       refreshHighlights();
+      setTimeout(next, state.settings.animations ? 900 : 200);
+    };
+    next();
+  }
+  // Mistake prevention: before a move the engine calls a mistake, ask "Are you sure?". The player decides.
+  function guardMove(m, play) {
+    const G = state.game, cfg = CFG();
+    if (!coachOn(G) || !cfg.prevent || G.guardOk === m || G.setup.dojo) { G.guardOk = null; play(); return; }
+    const key = G.g.moves.length, lk = G.looks[key];
+    if (lk && lk.alts[0] && lk.alts[0].uci === E.uci(m)) { play(); return; }
+    G.checking = true;
+    job('play', { type: 'check', fen: G.g.startFen, moves: G.g.uciMoves(), uci: E.uci(m), opts: { timeMs: 170 } }, (r) => {
+      G.checking = false;
+      if (state.game !== G || G.g.moves.length !== key) return;
+      const w = r.check ? M.warning(r.check) : null, we = r.check ? ME.warning(r.check) : null;
+      if (!w) { play(); return; }
+      G.pendingMove = m; G.warnings = (G.warnings || 0) + 1;
+      view.setBoard(piecesOf(G.g.pos), capturedFor(G.g));
+      say({ kind: 'warn', head: w.title, enHead: we.title, lines: [w.text], en: [we.text], marks: w.marks, arrows: w.arrows, actions: [[w.think, 'think-again'], [w.play, 'play-anyway']] });
     });
+  }
+  // Detailed move analysis: the chess logic behind one move, section by section, with a Listen button.
+  function detailModal(st, from) {
+    const [d, de] = both('detail', st);
+    const moveNo = Math.floor(st.ply / 2) + 1;
+    const m = modal('<div class="eyebrow">' + t('play.coach.detailTitle') + '</div><h2>' + esc(moveNo + (st.side === WHITE ? '. ' : '… ') + st.san) + ' <span class="cls g-' + d.grade + '">' + esc(d.label) + '</span></h2>' +
+      '<div class="detail">' + d.sections.map((s) => '<section><h3>' + esc(s.head) + '</h3>' + s.lines.map((l) => '<p>' + esc(l) + '</p>').join('') + '</section>').join('') + '</div>' +
+      '<div class="row"><button class="btn" id="dt-listen">' + icon('speaker') + ' ' + t('play.coach.listen') + '</button><button class="btn" id="dt-try">' + icon('grid') + ' ' + t('play.coach.practice') + '</button><button class="btn primary" data-close>' + t('common.gotIt') + '</button></div>', { x: true, cls: 'wide-card', onClose: () => AU.hush() });
+    m.querySelector('#dt-listen').onclick = () => { AU.unlock(); AU.coach(de.sections.map((s) => s.head + '. ' + s.lines.join(' ')).join(' ')); };
+    m.querySelector('#dt-try').onclick = () => { m.close(); const G = state.game; openPractice(from || { start: G.g.startFen, ucis: G.g.uciMoves().slice(0, st.ply) }); };
+  }
+  // Words to know: every chess word Rooky uses, in simple words (or deeper, for stronger players).
+  function glossaryModal() {
+    const lv = coachLevel();
+    const seenT = new Set(coachMem().noted.filter((n) => n.startsWith('term:')).map((n) => n.slice(5)));
+    const m = modal('<div class="eyebrow">' + t('play.coach.m.words') + '</div><h2>' + t('play.coach.wordsTitle') + '</h2><p class="sub">' + t('play.coach.wordsSub') + '</p>' +
+      '<div class="gloss">' + M.glossary(lv).map((g) => '<div class="gl' + (seenT.has(g.id) ? ' seen' : '') + '"><b>' + esc(g.word) + '</b><p>' + esc(g.text) + '</p><button class="cbtn" data-say="' + g.id + '" aria-label="' + t('play.coach.listen') + ': ' + esc(g.word) + '">' + icon('speaker') + '</button></div>').join('') + '</div>' +
+      '<div class="row"><button class="btn primary" data-close>' + t('common.done') + '</button></div>', { x: true, cls: 'wide-card', onClose: () => AU.hush() });
+    m.querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => { AU.unlock(); const e = ME.term(b.dataset.say, lv); AU.coach(e.word + '. ' + e.text); }; });
+  }
+  // The coach's settings, as the spec lists them, with the three ready-made modes on top.
+  function coachSettingsHtml() {
+    const c = CFG(), mode = M.modeOf(c);
+    const tg = (id, key) => '<label class="toggle" data-tk="settings.cm.' + key + '">' + t('settings.cm.' + key) + TIP_I + ' <input type="checkbox" id="' + id + '" data-cfg="' + key + '"' + (c[key] ? ' checked' : '') + '></label>';
+    const sel = (id, key, opts) => '<label class="toggle" data-tk="settings.cm.' + key + '">' + t('settings.cm.' + key) + TIP_I + ' <select id="' + id + '" data-cfg="' + key + '">' + opts.map((o) => '<option value="' + o + '"' + (String(c[key]) === String(o) ? ' selected' : '') + '>' + t('settings.cm.' + key + '.' + o) + '</option>').join('') + '</select></label>';
+    return '<div class="label set-h">' + t('settings.coaching') + '</div>' +
+      '<div class="seg cm-modes" role="radiogroup" aria-label="' + t('settings.cm.modes') + '">' + ['silent', 'learning', 'mentor'].map((k) => '<label data-tk="settings.cm.mode.' + k + '"><input type="radio" name="cm-mode" value="' + k + '"' + (mode === k ? ' checked' : '') + '><span>' + t('settings.cm.mode.' + k) + '</span></label>').join('') + '</div>' +
+      '<p class="cm-note">' + (mode === 'custom' ? t('settings.cm.custom') : t('settings.cm.about.' + mode)) + '</p>' +
+      tg('cm-on', 'on') + tg('cm-auto', 'auto') + sel('cm-freq', 'freq', ['every', 'important']) + sel('cm-depth', 'depth', [1, 2, 3]) +
+      tg('cm-audio', 'audio') + tg('cm-text', 'text') + tg('cm-mentor', 'mentor') + tg('cm-think', 'think') + tg('cm-prevent', 'prevent') + tg('cm-post', 'post') + tg('cm-time', 'time') +
+      sel('cm-style', 'style', ['friendly', 'professional', 'encouraging']) + sel('cm-level', 'level', ['auto', 'beginner', 'intermediate', 'advanced']) +
+      // who speaks: Rooky, or another recorded coach voice
+      '<label class="toggle" data-tk="settings.cm.voice">' + t('settings.cm.voice') + TIP_I + ' <select id="cm-voice" data-cfg="voice">' +
+      [['rooky', COACH.name]].concat(AU.voices().filter((v) => v.coach).map((v) => [v.id, v.name])).map(([id, name]) => '<option value="' + id + '"' + ((c.voice || 'rooky') === id ? ' selected' : '') + '>' + esc(name) + '</option>').join('') + '</select></label>';
+  }
+  function wireCoachSettings(root, redraw) {
+    const c = CFG();
+    root.querySelectorAll('input[name=cm-mode]').forEach((r) => r.addEventListener('change', () => { Object.assign(c, M.MODES[r.value], { mode: r.value }); save(); redraw(); }));
+    root.querySelectorAll('[data-cfg]').forEach((el) => el.addEventListener('change', () => {
+      const k = el.dataset.cfg;
+      c[k] = el.type === 'checkbox' ? el.checked : k === 'depth' ? +el.value : el.value;
+      c.mode = M.modeOf(c);
+      save(); redraw();
+      if (k === 'voice') AU.setCoachVoice(c.voice);
+      if ((k === 'audio' && c.audio) || k === 'voice') { AU.unlock(); AU.coach(ME.tr(ME.openerKey('good', c.style, 'middlegame', []))); }
+      if (state.game && state.screen === 'game') { renderHud(); renderCoach(); }
+    }));
+  }
+  function coachSettingsModal() {
+    const m = modal('<div class="eyebrow">' + t('settings.title') + '</div><h2>' + t('settings.cm.title', { coach: COACH.name }) + '</h2><div id="cm-body">' + coachSettingsHtml() + '</div>' +
+      '<div class="row"><button class="btn primary" data-close>' + t('common.done') + '</button></div>', { x: true });
+    const redraw = () => { const b = m.querySelector('#cm-body'); b.innerHTML = coachSettingsHtml(); wireCoachSettings(b, redraw); };
+    wireCoachSettings(m, redraw);
+  }
+  // Analyse all moves, during the game (the clocks wait) or after it.
+  function openAnalysis(focusPly) {
+    const G = state.game;
+    if (!G || !G.g.moves.length) return;
+    if (!G.g.outcome) pauseClock(G, true);
+    go('review', { start: G.g.startFen, ucis: G.g.uciMoves(), side: G.kind === 'local' ? WHITE : G.human, title: titleFor(G), review: G.g.outcome ? G.review : null, level: G.kind === 'ai' ? G.setup.level : undefined,
+      rival: G.kind === 'ai' ? rival(G) : null, live: !G.g.outcome, ply: focusPly, times: G.times, report: G.report });
+  }
+  // The practice board: try moves (and the opponent's answers) on a copy. The real game never changes.
+  function openPractice(from) {
+    const G = state.game;
+    const start = from ? from.start : G ? G.g.startFen : E.START_FEN, ucis = from ? from.ucis : G ? G.g.uciMoves() : [];
+    if (G && !G.g.outcome) pauseClock(G, true);
+    go('review', { start, ucis, side: G ? (G.kind === 'local' ? WHITE : G.human) : WHITE, title: G ? titleFor(G) : '', live: !!(G && !G.g.outcome), practice: true, review: null, level: G && G.kind === 'ai' ? G.setup.level : undefined });
+  }
+  // After the game: the full review runs in the background, then the report, the profile and practice picks.
+  function postGame(G) {
+    if (!coachOn(G) || G.g.moves.length < 4 || G.review || G.reviewing || G.setup.dojo || G.g.variant !== 'standard') return;
+    G.reviewing = true;
+    const side = G.human;
+    job('analysis', { type: 'review', fen: G.g.startFen, moves: G.g.uciMoves(), timeMs: state.progress.premium ? 300 : 160 }, (r) => {
+      G.reviewing = false;
+      if (r.error || !r.review) return;
+      G.review = r.review;
+      coachReport(G, r.review, side);
+    });
+  }
+  function coachReport(G, rv, side) {
+    const meta = { side, result: G.g.outcome.result, timeTrouble: !!(G.clock && G.clock.base && G.timeStats.low) };
+    const [rep, repE] = both('report', rv, G.g.startFen, G.g.uciMoves(), meta);
+    G.report = rep; G.reportEn = repE;
+    if (!G.profiled) {
+      G.profiled = true;
+      const mem = coachMem();
+      mem.profile = M.profileAdd(mem.profile, rep, { standard: G.g.startFen === E.START_FEN, time: G.clock && G.clock.base ? { trouble: !!G.timeStats.low, rushed: G.timeStats.rushed, slowEasy: G.timeStats.slowEasy } : null });
+      save();
+    }
+    const box = document.getElementById('r-coach');
+    if (box) fillReportBox(box, G);
+  }
+  // The coach's few lines on the result card.
+  function fillReportBox(box, G) {
+    const r = G.report;
+    if (!r) { box.innerHTML = '<div class="progress-ring small">' + faceImg(COACH) + '<span>' + t('learn.rv.looking') + '</span></div>'; return; }
+    const key = r.result === 'win' ? 'win' : r.result === 'loss' ? 'loss' : 'draw';
+    const opener = M.lineKey(key, coachMem().said);
+    remember('said', opener);
+    box.innerHTML = '<div class="rc-head"><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>' + esc(M.tr(opener)) + '</b>' + (r.accuracyText ? '<small>' + esc(r.accuracyText) + '</small>' : '') + '</div>' +
+      '<button class="cbtn" id="rc-say" aria-label="' + t('play.coach.listen') + '">' + icon('speaker') + '</button></div>' +
+      '<div class="rc-grades">' + ['excellent', 'good', 'inaccurate', 'mistake', 'blunder'].map((g) => '<span class="cls g-' + g + '">' + esc(r.labels[g]) + ' ' + r.counts[g] + '</span>').join('') + '</div>' +
+      '<p>' + esc([r.well[0], r.struggle[0], r.focus].filter(Boolean).join(' ')) + '</p>';
+    box.querySelector('#rc-say').onclick = () => { AU.unlock(); const e = G.reportEn; AU.coach([ME.tr(opener), e.well[0], e.struggle[0] || '', e.focus].filter(Boolean).join(' ')); };
+    if (CFG().audio) { const e = G.reportEn; coachSpeak([ME.tr(opener), e.well[0], e.focus].filter(Boolean).join(' ')); }
+  }
+  // Rooky's notes on the player, across games: strengths, weaknesses, the trend, and what to practise.
+  function profileModal() {
+    const p = coachMem().profile;
+    const [ins, insE] = both('insights', p);
+    const avg = ins.avg || {};
+    const acc = p && p.acc ? p.acc : [];
+    const spark = acc.length >= 2 ? '<svg class="spark" viewBox="0 0 200 50" preserveAspectRatio="none" aria-label="' + t('learn.pf.trend') + '"><polyline fill="none" stroke="currentColor" stroke-width="2" points="' +
+      acc.map((a, i) => (i / (acc.length - 1) * 200).toFixed(1) + ',' + (48 - a * 0.46).toFixed(1)).join(' ') + '"/></svg>' : '';
+    const m = modal('<div class="result-hero">' + faceImg(COACH) + '<span class="result-badge">' + t('learn.pf.badge') + '</span><h2 class="result-title">' + t('learn.pf.title', { coach: COACH.name }) + '</h2></div>' +
+      '<div class="pf-lines">' + ins.lines.map((l) => '<p>' + esc(l) + '</p>').join('') + '</div>' +
+      (p && p.games ? '<div class="pf-stats"><div><small>' + t('learn.pf.games') + '</small><b>' + p.games + '</b></div>' +
+        ['opening', 'middlegame', 'endgame'].map((ph) => '<div><small>' + M.tr('rp.cat.' + ph) + '</small><b>' + (avg[ph] === null || avg[ph] === undefined ? '–' : Math.round(avg[ph]) + '%') + '</b></div>').join('') + '</div>' : '') +
+      spark +
+      (ins.recs.length ? '<div class="label set-h">' + t('learn.pf.practise') + '</div><div class="pf-recs">' + ins.recs.map((r, i) => '<button class="btn" data-rec="' + i + '">' + icon(r.theme ? 'puzzle' : 'learn') + ' ' + esc(r.text) + '</button>').join('') + '</div>' : '') +
+      '<div class="row"><button class="btn" id="pf-say">' + icon('speaker') + ' ' + t('play.coach.listen') + '</button><button class="btn primary" data-close>' + t('common.done') + '</button></div>', { x: true, cls: 'narrow', onClose: () => AU.hush() });
+    m.querySelectorAll('[data-rec]').forEach((b) => { b.onclick = () => { m.close(); practiceGo(ins.recs[+b.dataset.rec]); }; });
+    m.querySelector('#pf-say').onclick = () => { AU.unlock(); AU.coach(insE.lines.join(' ')); };
+  }
+  // A practice pick opens its lesson, or its puzzles when the theme has some.
+  function practiceGo(rec) {
+    AU.unlock();
+    if (rec.theme && PUZZLES.some((p) => p.themes.includes(rec.theme))) go('puzzle', { theme: rec.theme, rated: true, title: rec.text });
+    else if (rec.lesson && LESSONS.lessons.some((l) => l.id === rec.lesson)) go('lesson', rec.lesson);
   }
   // Online reactions: a short preset list, never typed text.
   const EMOTES = { hello: '👋', luck: '🍀', nice: '👍', wow: '😮', think: '🤔', gg: '🤝' };
@@ -3603,6 +4030,7 @@
     if (G.resultShown) return;
     G.resultShown = true;
     guideIdle(null);
+    if (CFG().post) postGame(G);
     const o = g.outcome;
     const winner = o.result === '1-0' ? WHITE : o.result === '0-1' ? BLACK : 0;
     const pos = g.pos;
@@ -3642,6 +4070,7 @@
       '<h2 class="result-title">' + esc(title) + '</h2>' +
       (who ? '<p class="quote"><b>' + esc(fullName(who)) + '</b>“' + esc(sayLine(who, youWon ? 'win' : youLost ? 'lose' : 'draw')) + '”</p>' : '') +
       '<p class="sub">' + esc(resultSub(G, o, winner)) + '</p>' +
+      (coachOn(G) && CFG().post && g.moves.length >= 4 && !G.setup.dojo && g.variant === 'standard' ? '<div class="rc" id="r-coach"></div>' : '') +
       (res ? '<div class="xpline"><div class="top"><span>' + t('common.level', { n: lv.level }) + ' · ' + esc(levelTitle(lv)) + '</span><b>+' + t('common.xp', { n: res.xp }) + '</b></div><div class="bar"><i id="xpfill" style="width:0%"></i></div></div>' : '') +
       (G.online && G.online.ratingDelta !== undefined ? '<p class="sub">' + t('play.end.rating', { n: '<b>' + G.online.rating + '</b>', delta: (G.online.ratingDelta >= 0 ? '+' : '') + G.online.ratingDelta }) + '</p>' : '') +
       '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('play.end.look') + '</button>' +
@@ -3659,6 +4088,7 @@
       const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr), 250); } } });
       setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
       const on = (id, fn) => { const b = mdl.querySelector(id); if (b) b.onclick = fn; };
+      if (mdl.querySelector('#r-coach')) fillReportBox(mdl.querySelector('#r-coach'), G);
       on('#r-review', () => { mdl.close(); $('g-review').click(); });
       on('#r-home', () => { mdl.close(); go('home'); });
       on('#r-era', () => { mdl.close(); go('era', era.id); });
@@ -3762,7 +4192,8 @@
     const set = (id, dis) => { const b = $(id); if (b) b.disabled = dis; };
     set('g-undo', !g.moves.length || done || G.busy || G.kind === 'online' || !!G.setup.dojo);
     set('g-hint', !humanTurn());
-    set('g-threat', !humanTurn());
+    if ($('g-hint')) $('g-hint').hidden = G.kind === 'ai' && !CFG().on;
+    if ($('g-coach')) $('g-coach').hidden = !CFG().on;
     set('g-draw', done);
     $('g-resign').hidden = done;
     if ($('g-draw')) $('g-draw').hidden = done;
@@ -3902,66 +4333,153 @@
   SCREENS.review = function (arg) {
     view.setAttract(false);
     const start = arg.start, ucis = arg.ucis;
-    const R = { ply: ucis.length - 1, data: arg.review || null, side: arg.side || WHITE, line: null };
-    const sans = [];
-    { const p = E.positionFrom(start, []); for (const u of ucis) { const m = p.parseMove(u); sans.push(p.san(m, p.legalMoves())); p.make(m); } }
-    const fromGame = state.game && state.game.g.outcome && state.game.g.startFen === start && state.game.g.moves.length === ucis.length;
-    if (fromGame) setLook(state.game.setup.look || null);
-    mount('<div class="hud-top"><button class="backbtn" id="rv-back">' + icon('back') + '<span>' + t(fromGame ? 'learn.rv.backGame' : 'common.back') + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + t('learn.rv.title', { name: esc(arg.title || '') }) + '</span></div><span class="spacer"></span>' +
+    const R = { ply: arg.ply !== undefined ? arg.ply : ucis.length - 1, data: arg.review || null, side: arg.side || WHITE, line: null, tab: 'moves', studies: {}, ex: null, report: arg.report || null, reportEn: null };
+    const sans = ME.sanList(start, ucis);
+    const startPos = E.positionFrom(start, []);
+    const standardGame = startPos.v === E.positionFrom(E.START_FEN, []).v && !startPos.ch;
+    const G0 = state.game;
+    const fromGame = G0 && G0.g.startFen === start && G0.g.moves.length === ucis.length && (G0.g.outcome || arg.live);
+    if (fromGame) setLook(G0.setup.look || null);
+    // who won, for the report: from the game, the history row, or the final position
+    const outcome = (() => {
+      if (fromGame && G0.g.outcome) return G0.g.outcome.result;
+      if (arg.outcome === 'win' || arg.outcome === 'loss') return (arg.outcome === 'win') === (R.side === WHITE) ? '1-0' : '0-1';
+      if (arg.outcome === 'draw') return '1/2-1/2';
+      const p = E.positionFrom(start, ucis);
+      if (!p.legalMoves().length) return p.inCheck() ? (p.side === WHITE ? '0-1' : '1-0') : '1/2-1/2';
+      return null;
+    })();
+    const backLabel = arg.live ? t('learn.rv.backGame') : fromGame ? t('learn.rv.backGame') : t('common.back');
+    mount('<div class="hud-top"><button class="backbtn" id="rv-back">' + icon('back') + '<span>' + backLabel + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + (arg.practice ? t('learn.rv.practiceTitle') : t('learn.rv.title', { name: esc(arg.title || '') })) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="rv-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
-      '<aside class="side glass wide" id="side"><header><b>' + t('learn.rv.head') + '</b><span class="pill" id="rv-depth"></span></header>' +
+      '<aside class="side glass wide" id="side"><header><div class="rv-tabs" role="tablist">' +
+      '<button role="tab" id="rv-tab-moves" aria-selected="true">' + t('learn.rv.tabMoves') + '</button><button role="tab" id="rv-tab-sum" aria-selected="false" hidden>' + t('learn.rv.tabSummary') + '</button></div><span class="pill" id="rv-depth"></span></header>' +
       '<div id="rv-body" class="rv-body"><div class="progress-ring">' + faceImg(COACH) + '<div>' + t('learn.rv.looking') + '</div><div class="bar" style="width:180px"><i id="rv-prog" style="width:0%"></i></div></div></div></aside>' +
-      '<div class="actionbar glass"><button class="btn" id="rv-first" aria-label="' + t('learn.rv.first') + '">' + icon('first') + '</button><button class="btn" id="rv-prev" aria-label="' + t('learn.rv.prev') + '">' + icon('prev') + '</button>' +
-      '<button class="btn" id="rv-next" aria-label="' + t('learn.rv.next') + '">' + icon('next') + '</button><button class="btn" id="rv-last" aria-label="' + t('learn.rv.last') + '">' + icon('last') + '</button><span class="sep"></span>' +
-      '<button class="btn" id="rv-turn">' + icon('star') + '<span class="lbl">' + t('learn.rv.turning') + '</span></button><button class="btn" id="rv-best">' + icon('hint') + '<span class="lbl">' + t('learn.rv.bestLine') + '</span></button>' +
-      '<button class="btn primary" id="rv-practice">' + icon('play') + '<span class="lbl">' + t('learn.rv.fromHere') + '</span></button></div>');
-    $('rv-back').onclick = () => { AU.play('tap'); if (fromGame) go('game'); else go('training'); };
+      '<div class="actionbar glass" id="rv-bar"></div>');
+    const leave = () => { AU.hush(); if (arg.live && state.game === G0) backToGame(); else if (fromGame) go('game'); else go('training'); };
+    $('rv-back').onclick = () => { AU.play('tap'); leave(); };
     $('rv-set').onclick = () => settingsModal();
     const deep = state.progress.premium;
     $('rv-depth').textContent = t(deep ? 'learn.rv.deep' : 'learn.rv.standard');
-    const show = () => {
-      const p = E.positionFrom(start, ucis.slice(0, R.ply + 1));
+    $('rv-tab-moves').onclick = () => { R.tab = 'moves'; renderSide(); };
+    $('rv-tab-sum').onclick = () => { R.tab = 'summary'; renderSide(); };
+    const sideOf = (i) => ((i % 2 === 0) === (startPos.side === WHITE) ? WHITE : BLACK);
+    const moveLabel = (i) => { const n = Math.floor((i + (startPos.side === BLACK ? 1 : 0)) / 2) + startPos.full; return n + (sideOf(i) === WHITE ? '. ' : '… ') + sans[i]; };
+    const gradeOf = (pl) => M.gradeOf(pl.cls, pl.facts, false);
+
+    // ---- the board
+    function boardAt(ucisNow, last) {
+      const p = E.positionFrom(start, ucisNow);
       const cap = { byWhite: [], byBlack: [] };
-      { const q = E.positionFrom(start, []); for (const u of ucis.slice(0, R.ply + 1)) { const m = q.parseMove(u); const fl = E.mFlags(m); if (fl & E.F_CAP) { const to = (m >> 7) & 127; const v = fl & E.F_EP ? -E.P * q.side : q.b[to]; (v < 0 ? cap.byWhite : cap.byBlack).push(v); } q.make(m); } }
+      { const q = E.positionFrom(start, []); for (const u of ucisNow) { const m = q.parseMove(u); const fl = E.mFlags(m); if (fl & E.F_CAP) { const to = (m >> 7) & 127; const v = fl & E.F_EP ? -E.P * q.side : q.b[to]; (v < 0 ? cap.byWhite : cap.byBlack).push(v); } q.make(m); } }
       view.setBoard(piecesOf(p), cap);
-      const h = { lastFrom: -1, lastTo: -1, check: p.inCheck() ? kingSquare(p, p.side) : -1 };
+      const h = { lastFrom: -1, lastTo: -1, check: p.inCheck() ? kingSquare(p, p.side) : -1, selected: -1, targets: [], captures: [] };
+      if (last) { h.lastFrom = sqIndex(last.slice(0, 2)); h.lastTo = sqIndex(last.slice(2, 4)); }
+      return { p, h };
+    }
+    const show = () => {
+      if (R.ex) return showExplore();
+      const { h } = boardAt(ucis.slice(0, R.ply + 1), R.ply >= 0 ? ucis[R.ply] : null);
       const arrows = [];
-      if (R.ply >= 0) { const u = ucis[R.ply]; h.lastFrom = sqIndex(u.slice(0, 2)); h.lastTo = sqIndex(u.slice(2, 4)); }
       if (R.data && R.ply >= 0) {
-        const pl = R.data.plies[R.ply];
-        if (pl && pl.best && !pl.isBest && ['inaccuracy', 'mistake', 'blunder'].includes(pl.cls)) arrows.push({ from: sqIndex(pl.best.slice(0, 2)), to: sqIndex(pl.best.slice(2, 4)), color: '#7fd6a4' });
-        if (pl && pl.refutation && ['mistake', 'blunder'].includes(pl.cls)) arrows.push({ from: sqIndex(pl.refutation.from), to: sqIndex(pl.refutation.to), color: '#ff5a50', alpha: 0.7 });
+        const pl = R.data.plies[R.ply], g = pl && gradeOf(pl);
+        if (pl && pl.best && !pl.isBest && ['inaccurate', 'mistake', 'blunder'].includes(g)) arrows.push({ from: sqIndex(pl.best.slice(0, 2)), to: sqIndex(pl.best.slice(2, 4)), color: SPOT.best });
+        if (pl && pl.refutation && ['mistake', 'blunder'].includes(g)) arrows.push({ from: sqIndex(pl.refutation.from), to: sqIndex(pl.refutation.to), color: SPOT.them, alpha: 0.7 });
       }
       view.setHighlights(h); view.setArrows(arrows);
-      renderSide();
+      renderSide(); renderBar();
     };
     const step = (d) => { R.ply = Math.max(-1, Math.min(ucis.length - 1, R.ply + d)); R.line = null; AU.play('move'); show(); };
-    $('rv-first').onclick = () => { R.ply = -1; show(); };
-    $('rv-prev').onclick = () => step(-1);
-    $('rv-next').onclick = () => step(1);
-    $('rv-last').onclick = () => { R.ply = ucis.length - 1; show(); };
-    $('rv-turn').onclick = () => { if (R.data && R.data.summary.turning >= 0) { R.ply = R.data.summary.turning; show(); } };
-    $('rv-best').onclick = () => {
-      job('analysis', { type: 'line', fen: start, moves: ucis.slice(0, R.ply + 1), plies: 5, timeMs: 180 }, (r) => { if (r.line && state.screen === 'review') { R.line = r.line; renderSide(); } });
-    };
-    $('rv-practice').onclick = () => {
-      const p = E.positionFrom(start, ucis.slice(0, R.ply + 1));
-      if (!p.legalMoves().length) return;
-      const lv = arg.level !== undefined ? arg.level : Math.min(state.progress.premium ? 7 : 3, Math.max(2, state.setup.level || 2));
-      startGame({ mode: 'ai', color: p.side === WHITE ? 'white' : 'black', level: LEVELS[lv].premium && !state.progress.premium ? 3 : lv, tc: 'none', fen: p.fen() });
-    };
+
+    // ---- the action bar: stepping through the game, or the practice board's own buttons
+    function renderBar() {
+      const bar = $('rv-bar');
+      if (R.ex) {
+        bar.innerHTML = '<button class="btn" id="ex-undo" aria-label="' + t('learn.rv.exUndo') + '">' + icon('undo') + '<span class="lbl">' + t('learn.rv.exUndo') + '</span></button>' +
+          '<button class="btn" id="ex-reset">' + icon('refresh') + '<span class="lbl">' + t('learn.rv.exReset') + '</span></button>' +
+          '<label class="btn toggle-btn"><input type="checkbox" id="ex-reply"' + (R.ex.reply ? ' checked' : '') + '><span class="lbl">' + t('learn.rv.exReply') + '</span>' + icon('users') + '</label>' +
+          '<button class="btn" id="ex-best">' + icon('hint') + '<span class="lbl">' + t('learn.rv.exBest') + '</span></button><span class="sep"></span>' +
+          '<button class="btn primary" id="ex-leave">' + icon('back') + '<span class="lbl">' + t(arg.practice && arg.live ? 'learn.rv.backGame' : 'learn.rv.exLeave') + '</span></button>';
+        $('ex-undo').disabled = !R.ex.line.length;
+        $('ex-undo').onclick = () => { R.ex.line.pop(); R.ex.grades = R.ex.grades.slice(0, R.ex.line.length); R.ex.sel = -1; AU.play('tap'); showExplore(); };
+        $('ex-reset').onclick = () => { R.ex.line = []; R.ex.grades = []; R.ex.sel = -1; AU.play('tap'); showExplore(); };
+        $('ex-reply').onchange = (e) => { R.ex.reply = e.target.checked; state.settings.practiceReply = R.ex.reply; save(); };
+        $('ex-best').onclick = () => exBest();
+        $('ex-leave').onclick = () => { if (arg.practice && arg.live) return leave(); R.ex = null; setHooks({}); AU.play('tap'); show(); };
+        return;
+      }
+      bar.innerHTML = '<button class="btn" id="rv-first" aria-label="' + t('learn.rv.first') + '">' + icon('first') + '</button><button class="btn" id="rv-prev" aria-label="' + t('learn.rv.prev') + '">' + icon('prev') + '</button>' +
+        '<button class="btn" id="rv-next" aria-label="' + t('learn.rv.next') + '">' + icon('next') + '</button><button class="btn" id="rv-last" aria-label="' + t('learn.rv.last') + '">' + icon('last') + '</button><span class="sep"></span>' +
+        '<button class="btn" id="rv-turn">' + icon('star') + '<span class="lbl">' + t('learn.rv.turning') + '</span></button>' +
+        '<button class="btn" id="rv-try">' + icon('grid') + '<span class="lbl">' + t('learn.rv.tryHere') + '</span></button>' +
+        (arg.live ? '' : '<button class="btn primary" id="rv-practice">' + icon('play') + '<span class="lbl">' + t('learn.rv.fromHere') + '</span></button>');
+      $('rv-first').onclick = () => { R.ply = -1; show(); };
+      $('rv-prev').onclick = () => step(-1);
+      $('rv-next').onclick = () => step(1);
+      $('rv-last').onclick = () => { R.ply = ucis.length - 1; show(); };
+      $('rv-turn').disabled = !(R.data && R.data.summary.turning >= 0);
+      $('rv-turn').onclick = () => { if (R.data && R.data.summary.turning >= 0) { R.ply = R.data.summary.turning; R.tab = 'moves'; show(); } };
+      $('rv-try').onclick = () => explore(ucis.slice(0, R.ply + 1));
+      if ($('rv-practice')) $('rv-practice').onclick = () => {
+        const p = E.positionFrom(start, ucis.slice(0, R.ply + 1));
+        if (!p.legalMoves().length) return;
+        const lv = arg.level !== undefined ? arg.level : Math.min(state.progress.premium ? 7 : 3, Math.max(2, state.setup.level || 2));
+        startGame({ mode: 'ai', color: p.side === WHITE ? 'white' : 'black', level: LEVELS[lv].premium && !state.progress.premium ? 3 : lv, tc: 'none', fen: p.fen() });
+      };
+    }
+
+    // ---- one move's card: what it did, the best move, the strongest reply, what was missed, how the game changed
+    function moveCard(i) {
+      const pl = R.data.plies[i], g = gradeOf(pl);
+      const mine = pl.side === R.side;
+      const sw = (x) => x * pl.side;
+      const lines = [], en = [];
+      const add = (a, b) => { if (a) { lines.push(a); en.push(b); } };
+      const ply = Object.assign({}, pl);
+      add(pl.text, CE.explain(ply));
+      if (pl.isBest) add(M.tr('r.top'), ME.tr('r.top'));
+      else if (pl.bestSan && !['inaccurate', 'mistake', 'blunder'].includes(g)) add(M.tr('d.practical', { san: pl.bestSan }), ME.tr('d.practical', { san: pl.bestSan }));
+      if (!pl.isBest && pl.bestFacts && M.notable(pl.bestFacts) && pl.wpLoss >= 0.05 && !/Better was/.test(CE.explain(ply))) {
+        const b = C.describe(pl.bestFacts), be = CE.describe(pl.bestFacts);
+        add(M.tr('d.missed', { san: pl.bestSan, bits: b ? b.slice(pl.bestFacts.san.length + 1).replace(/\.$/, '') : M.tr('op.win') }), ME.tr('d.missed', { san: pl.bestSan, bits: be ? be.slice(pl.bestFacts.san.length + 1).replace(/\.$/, '') : ME.tr('op.win') }));
+      }
+      const r = pl.refutation;
+      if (r && !['mistake', 'blunder'].includes(g)) {
+        const b = C.describe(r), be = CE.describe(r);
+        add(b ? M.tr('d.theyReply', { san: r.san, bits: b.slice(r.san.length + 1).replace(/\.$/, '') }) : M.tr('d.theyReplyPlain', { san: r.san }), be ? ME.tr('d.theyReply', { san: r.san, bits: be.slice(r.san.length + 1).replace(/\.$/, '') }) : ME.tr('d.theyReplyPlain', { san: r.san }));
+      }
+      const ev = R.data.evals[i + 1];
+      add(M.swingWords(sw(pl.cpBefore), sw(pl.cpAfter)), ME.swingWords(sw(pl.cpBefore), sw(pl.cpAfter)));
+      if (ev) {
+        const cpMe = ev.cp * R.side, mateMe = ev.mate * R.side;
+        add(M.evalWords(cpMe, mateMe), ME.evalWords(cpMe, mateMe));
+      }
+      return { pl, g, mine, lines, en };
+    }
+    // ---- the side panel
     function renderSide() {
+      $('rv-tab-sum').hidden = !(R.data && standardGame && outcome);
+      $('rv-tab-moves').setAttribute('aria-selected', String(R.tab === 'moves'));
+      $('rv-tab-sum').setAttribute('aria-selected', String(R.tab === 'summary'));
+      if (R.ex) return renderExploreSide();
       if (!R.data) return;
+      if (R.tab === 'summary' && !$('rv-tab-sum').hidden) return renderSummary();
       const d = R.data, s = d.summary;
-      const badges = d.plies.map((p) => p.cls === 'good' ? '' : '<span class="cls ' + p.cls + '" title="' + C.LABEL[p.cls] + '">' + (C.SYMBOL[p.cls] || '') + '</span>');
-      const pl = R.ply >= 0 ? d.plies[R.ply] : null;
-      const cnt = (o, k) => (o[k] || 0);
-      const acc = (side, label) => { const c = s.counts[side]; return '<div class="acc' + (side === R.side ? ' me' : '') + '"><small>' + label + '</small><b>' + (s.accuracy[side] === null ? '–' : s.accuracy[side] + '%') + '</b><span>' + t('learn.rv.counts', { b: cnt(c, 'blunder'), m: cnt(c, 'mistake') }) + '</span></div>'; };
+      const SYM = { excellent: '!', inaccurate: '?!', mistake: '?', blunder: '??' };
+      const badges = d.plies.map((p) => { const g = gradeOf(p); return g === 'good' ? '' : '<span class="cls g-' + g + '" title="' + esc(M.tr('g.' + g)) + '">' + SYM[g] + '</span>'; });
+      const cnt = (side, g) => d.plies.filter((p) => p.side === side && gradeOf(p) === g).length;
+      const acc = (side, label) => '<div class="acc' + (side === R.side ? ' me' : '') + '"><small>' + label + '</small><b>' + (s.accuracy[side] === null ? '–' : s.accuracy[side] + '%') + '</b><span>' + t('learn.rv.counts', { b: cnt(side, 'blunder'), m: cnt(side, 'mistake') }) + '</span></div>';
+      const card = R.ply >= 0 ? moveCard(R.ply) : null;
       $('rv-body').innerHTML = '<svg class="graph" id="rv-graph" viewBox="0 0 300 110" preserveAspectRatio="none" aria-label="' + t('learn.rv.graph') + '"></svg>' +
         '<div class="sum">' + acc(WHITE, t('learn.rv.whiteAcc')) + acc(BLACK, t('learn.rv.blackAcc')) + '</div>' +
-        '<div class="comment" aria-live="polite">' + (pl ? '<div class="tagline2"><b>' + esc((pl.side === WHITE ? Math.floor(R.ply / 2) + 1 + '. ' : Math.floor(R.ply / 2) + 1 + '… ') + pl.san) + '</b><span class="cls ' + pl.cls + '">' + C.LABEL[pl.cls] + '</span>' +
-          (s.turning === R.ply ? '<span class="pill ruby">' + t('learn.rv.turning') + '</span>' : '') + '</div>' + esc(pl.text) : '<span class="muted">' + t('learn.rv.step') + '</span>') +
+        '<div class="comment" aria-live="polite">' + (card ? '<div class="tagline2"><b>' + esc(moveLabel(R.ply)) + '</b><span class="cls g-' + card.g + '">' + esc(M.tr('g.' + card.g)) + '</span>' +
+          (s.turning === R.ply ? '<span class="pill ruby">' + t('learn.rv.turning') + '</span>' : '') + '</div>' + card.lines.map((l) => '<p>' + esc(l) + '</p>').join('') +
+          '<div class="row rv-acts"><button class="btn small" id="rv-say">' + icon('speaker') + ' ' + t('play.coach.listen') + '</button><button class="btn small" id="rv-detail">' + icon('eye') + ' ' + t('play.coach.detail') + '</button>' +
+          '<button class="btn small" id="rv-replay">' + icon('replay') + ' ' + t('learn.rv.replay') + '</button>' +
+          (card.pl.bestSan && !card.pl.isBest ? '<button class="btn small" id="rv-better">' + icon('hint') + ' ' + t('learn.rv.tryBest', { san: esc(card.pl.bestSan) }) + '</button>' : '') +
+          '<button class="btn small" id="rv-best">' + icon('compass') + ' ' + t('learn.rv.bestLine') + '</button></div>'
+          : '<span class="muted">' + t('learn.rv.step') + '</span>') +
         (R.line ? '<div class="bestline">' + t('learn.rv.bestLineIs', { line: esc(R.line.join(' ')) }) + '</div>' : '') + '</div>' +
         '<div class="moves-wrap" id="rv-moves"><ol class="moves">' + moveRows(start, sans, R.ply, badges) + '</ol></div>';
       // the graph of who was winning
@@ -3970,30 +4488,179 @@
       let path = 'M0 ' + Y(ev[0]);
       ev.forEach((v, i) => { path += ' L' + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); });
       const area = path + ' L300 110 L0 110 Z';
-      const marks = d.plies.map((p, i) => ['mistake', 'blunder', 'brilliant'].includes(p.cls) ? '<circle cx="' + X(i + 1).toFixed(1) + '" cy="' + Y(ev[i + 1]).toFixed(1) + '" r="3.2" fill="' + (p.cls === 'blunder' ? '#e5484d' : p.cls === 'brilliant' ? '#1fb5c9' : '#f08a4b') + '"/>' : '').join('');
+      const marks = d.plies.map((p, i) => { const g = gradeOf(p); return ['mistake', 'blunder', 'excellent'].includes(g) && (g !== 'excellent' || M.notable(p.facts)) ? '<circle cx="' + X(i + 1).toFixed(1) + '" cy="' + Y(ev[i + 1]).toFixed(1) + '" r="3.2" fill="' + (g === 'blunder' ? '#e5484d' : g === 'excellent' ? '#1fb5c9' : '#f08a4b') + '"/>' : ''; }).join('');
       $('rv-graph').innerHTML = '<defs><linearGradient id="rvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e4"/><stop offset="1" stop-color="#d9c6a8"/></linearGradient></defs><rect width="300" height="110" fill="#1b1410"/><path d="' + area + '" fill="url(#rvg)" opacity="0.92"/><line x1="0" y1="55" x2="300" y2="55" stroke="rgba(255,235,215,.25)" stroke-dasharray="3 3"/>' +
         marks + '<line x1="' + X(R.ply + 1).toFixed(1) + '" y1="0" x2="' + X(R.ply + 1).toFixed(1) + '" y2="110" stroke="#e3b25a" stroke-width="1.5"/>';
       $('rv-graph').onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); R.ply = Math.max(-1, Math.min(ucis.length - 1, Math.round(((e.clientX - r.left) / r.width) * (n - 1)) - 1)); show(); };
-      $('rv-moves').querySelectorAll('[data-ply]').forEach((el) => { el.onclick = () => { R.ply = +el.dataset.ply; show(); }; });
+      $('rv-moves').querySelectorAll('[data-ply]').forEach((el) => { el.onclick = () => { R.ply = +el.dataset.ply; R.line = null; show(); }; });
       const cur = $('rv-moves').querySelector('.cur'); if (cur) cur.scrollIntoView({ block: 'nearest' });
+      if (!card) return;
+      const i = R.ply;
+      $('rv-say').onclick = () => { AU.unlock(); AU.coach([moveLabelEn(i)].concat(card.en).join('. ')); };
+      $('rv-detail').onclick = () => studyPly(i, (st) => detailModal(st, { start, ucis: ucis.slice(0, i) }));
+      $('rv-replay').onclick = () => replay(i);
+      if ($('rv-better')) $('rv-better').onclick = () => explore(ucis.slice(0, i), [card.pl.best]);
+      $('rv-best').onclick = () => {
+        job('analysis', { type: 'line', fen: start, moves: ucis.slice(0, i + 1), plies: 5, timeMs: 180 }, (r) => { if (r.line && state.screen === 'review') { R.line = r.line; renderSide(); } });
+      };
     }
+    // the move's name for the voice: "12. Knight f3" reads well enough as the number and the move words
+    const moveLabelEn = (i) => moveLabel(i);
+    function studyPly(i, done) {
+      if (R.studies[i]) return done(R.studies[i]);
+      job('analysis', { type: 'study', fen: start, moves: ucis.slice(0, i + 1), opts: { timeMs: 220, alts: 3, plies: 4 } }, (r) => { if (r.study && state.screen === 'review') { R.studies[i] = r.study; done(r.study); } });
+    }
+    // Replay one move: the board goes back a move and plays it again.
+    function replay(i) {
+      boardAt(ucis.slice(0, i), i > 0 ? ucis[i - 1] : null);
+      const g = new E.Game(start);
+      for (const u of ucis.slice(0, i)) g.playText(u);
+      const info = g.playText(ucis[i]);
+      if (!info) return;
+      setTimeout(() => quickMove(info, () => { AU.play(info.captured ? 'capture' : 'move'); show(); }), 350);
+    }
+
+    // ---- the summary: the post-game report
+    function renderSummary() {
+      if (!R.report) {
+        const meta = { side: R.side, result: outcome, timeTrouble: false };
+        const [a, b] = both('report', R.data, start, ucis, meta);
+        R.report = a; R.reportEn = b;
+      } else if (!R.reportEn) R.reportEn = ME.report(R.data, start, ucis, { side: R.side, result: outcome });
+      const r = R.report;
+      const jump = (x, label) => x ? '<button class="rp-jump" data-jump="' + x.i + '"><b>' + esc(label) + '</b><span>' + esc(x.text) + '</span>' + icon('next') + '</button>' : '';
+      $('rv-body').innerHTML = '<div class="rp">' +
+        '<div class="rp-top"><span class="result-badge' + (r.result === 'win' ? ' win' : r.result === 'loss' ? ' loss' : '') + '">' + esc(r.resultText) + '</span>' + (r.accuracyText ? '<b>' + esc(r.accuracyText) + '</b>' : '') +
+        '<button class="cbtn" id="rp-say" aria-label="' + t('play.coach.listen') + '">' + icon('speaker') + '</button></div>' +
+        '<div class="rc-grades">' + ['excellent', 'good', 'inaccurate', 'mistake', 'blunder'].map((g) => '<span class="cls g-' + g + '">' + esc(r.labels[g]) + ' ' + r.counts[g] + '</span>').join('') + '</div>' +
+        jump(r.strongest, t('learn.rp.strongest')) + jump(r.biggest, t('learn.rp.biggest')) + jump(r.missed, t('learn.rp.missed')) +
+        '<h3>' + t('learn.rp.breakdown') + '</h3><table class="rp-table"><tbody>' + r.breakdown.map((c) => '<tr><th>' + esc(c.name) + '<small>' + esc(c.what) + '</small></th><td><span class="rate ' + c.rating + '">' + esc(c.ratingText) + '</span></td></tr>').join('') + '</tbody></table>' +
+        '<h3>' + t('learn.rp.coach', { coach: COACH.name }) + '</h3><div class="rp-words">' + r.well.concat(r.struggle, r.changed).map((l) => '<p>' + esc(l) + '</p>').join('') + (r.focus ? '<p class="focus">' + esc(r.focus) + '</p>' : '') + '</div>' +
+        (r.recs.length ? '<h3>' + t('learn.rp.practise') + '</h3><div class="pf-recs">' + r.recs.map((x, i) => '<button class="btn small" data-rec="' + i + '">' + icon(x.theme ? 'puzzle' : 'learn') + ' ' + esc(x.text) + '</button>').join('') + '</div>' : '') +
+        (R.data.summary.key.length ? '<h3>' + t('learn.rp.critical') + '</h3><div class="rp-key">' + R.data.summary.key.map((i) => '<button class="btn small" data-jump="' + i + '">' + esc(moveLabel(i)) + '</button>').join('') + '</div>' : '') +
+        '<button class="btn small" id="rp-profile">' + icon('chart') + ' ' + t('learn.pf.open') + '</button>' +
+        '</div>';
+      $('rv-body').querySelectorAll('[data-jump]').forEach((b) => { b.onclick = () => { R.ply = +b.dataset.jump; R.tab = 'moves'; AU.play('tap'); show(); }; });
+      $('rv-body').querySelectorAll('[data-rec]').forEach((b) => { b.onclick = () => practiceGo(r.recs[+b.dataset.rec]); });
+      $('rp-say').onclick = () => { AU.unlock(); const e = R.reportEn; AU.coach([e.resultText].concat(e.well, e.struggle, e.changed, [e.focus]).filter(Boolean).join(' ')); };
+      $('rp-profile').onclick = () => profileModal();
+    }
+
+    // ---- the practice board: moves for both sides on a copy of the position; the real game never changes
+    function explore(base, first) {
+      R.ex = { base: base.slice(), line: [], grades: [], sel: -1, reply: state.settings.practiceReply !== false, busy: false };
+      AU.play('tap');
+      setHooks({
+        onSquare: (sq) => exSquare(sq),
+        canDrag: (sq) => { const p = exPos(); return !R.ex.busy && E.pieceAt(p, sq) && Math.sign(E.pieceAt(p, sq)) === p.side; },
+        onDrop: (from, to) => exTry(from, to),
+      });
+      if (first && first[0]) exPlay(first[0]); else showExplore();
+    }
+    const exPos = () => E.positionFrom(start, R.ex.base.concat(R.ex.line));
+    function exSquare(sq) {
+      if (!R.ex || R.ex.busy) return;
+      const p = exPos(), piece = E.pieceAt(p, sq);
+      if (R.ex.sel >= 0 && R.ex.sel !== sq && exTry(R.ex.sel, sq)) return;
+      if (piece && Math.sign(piece) === p.side) { R.ex.sel = sq; AU.play('select'); } else R.ex.sel = -1;
+      showExplore(true);
+    }
+    function exTry(from, to) {
+      const g = new E.Game(start);
+      for (const u of R.ex.base.concat(R.ex.line)) g.playText(u);
+      if (!g.targets(from).includes(to)) return false;
+      const promo = g.needsPromotion(from, to) ? E.Q : 0;
+      const m = g.find(from, to, promo);
+      if (m === null) return false;
+      R.ex.sel = -1;
+      exPlay(E.uci(m));
+      return true;
+    }
+    function exPlay(u, isReply) {
+      const g = new E.Game(start);
+      for (const x of R.ex.base.concat(R.ex.line)) g.playText(x);
+      const info = g.playText(u);
+      if (!info) return;
+      R.ex.line.push(u);
+      R.ex.busy = true;
+      quickMove(info, () => {
+        R.ex.busy = false;
+        AU.play(info.captured ? 'capture' : 'move');
+        showExplore();
+        grade();
+        if (!isReply && R.ex.reply && !g.outcome) {
+          R.ex.busy = true;
+          job('play', { type: 'search', fen: start, moves: R.ex.base.concat(R.ex.line), opts: { timeMs: 450 } }, (r) => {
+            if (!R.ex || state.screen !== 'review') return;
+            R.ex.busy = false;
+            if (r.uci) exPlay(r.uci, true);
+          });
+        }
+      });
+    }
+    function exBest() {
+      if (!R.ex || R.ex.busy) return;
+      job('play', { type: 'search', fen: start, moves: R.ex.base.concat(R.ex.line), opts: { timeMs: 500 } }, (r) => {
+        if (!R.ex || !r.uci) return;
+        R.ex.hintArrow = { from: sqIndex(r.uci.slice(0, 2)), to: sqIndex(r.uci.slice(2, 4)), color: SPOT.best };
+        showExplore();
+      });
+    }
+    function grade() {
+      const n = R.ex.line.length;
+      job('analysis', { type: 'checkLine', fen: start, moves: R.ex.base, line: R.ex.line.slice(), opts: { timeMs: 140 } }, (r) => {
+        if (!R.ex || R.ex.line.length !== n || !r.line) return;
+        R.ex.grades = r.line;
+        renderExploreSide();
+      });
+    }
+    function showExplore(selOnly) {
+      const last = R.ex.line.length ? R.ex.line[R.ex.line.length - 1] : R.ex.base[R.ex.base.length - 1];
+      const { p, h } = boardAt(R.ex.base.concat(R.ex.line), last || null);
+      if (R.ex.sel >= 0) {
+        h.selected = R.ex.sel;
+        const g = new E.Game(start); for (const u of R.ex.base.concat(R.ex.line)) g.playText(u);
+        for (const tq of g.targets(R.ex.sel)) (E.pieceAt(p, tq) ? h.captures : h.targets).push(tq);
+      }
+      view.setHighlights(h);
+      view.setArrows(R.ex.hintArrow && !selOnly ? [R.ex.hintArrow] : []);
+      if (!selOnly) { R.ex.hintArrow = null; renderExploreSide(); renderBar(); }
+    }
+    function renderExploreSide() {
+      const p = exPos();
+      const lineSans = ME.sanList(start, R.ex.base.concat(R.ex.line)).slice(R.ex.base.length);
+      const last = R.ex.grades[R.ex.grades.length - 1];
+      $('rv-body').innerHTML = '<div class="explore-side"><div class="rb-note">' + icon('grid') + '<span>' + t('learn.rv.exNote') + '</span></div>' +
+        '<p class="muted">' + t(p.side === WHITE ? 'learn.rv.exWhite' : 'learn.rv.exBlack') + '</p>' +
+        (lineSans.length ? '<ol class="ex-line">' + lineSans.map((s2, i) => { const gr = R.ex.grades[i]; return '<li><b>' + esc(s2) + '</b>' + (gr ? '<span class="cls g-' + gr.grade + '">' + esc(M.tr('g.' + gr.grade)) + '</span>' + (gr.text ? '<small>' + esc(gr.text) + '</small>' : '') : '') + '</li>'; }).join('') + '</ol>' : '<p class="muted">' + t('learn.rv.exEmpty') + '</p>') +
+        (last ? '<p class="ex-eval">' + esc(M.evalWords(last.mine ? last.cp : last.cp, 0)) + '</p>' : '') +
+        '</div>';
+    }
+
     view.setView(R.side === BLACK ? 'black' : 'white', state.settings.view, true);
-    show();
+    if (arg.practice) { setTimeout(() => explore(ucis.slice()), 0); }
+    else show();
     if (!R.data) {
       job('analysis', { type: 'review', fen: start, moves: ucis, timeMs: deep ? 450 : 160 }, (r) => {
         if (state.screen !== 'review') return;
-        if (r.error || !r.review) { $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>' + t('learn.rv.failed') + '</div></div>'; return; }
+        if (r.error || !r.review) { if (!R.ex) $('rv-body').innerHTML = '<div class="progress-ring">' + faceImg(COACH) + '<div>' + t('learn.rv.failed') + '</div></div>'; return; }
         R.data = r.review;
-        if (fromGame) state.game.review = r.review;
+        if (fromGame && G0.g.outcome) { G0.review = r.review; if (!G0.report && coachOn(G0)) coachReport(G0, r.review, R.side); R.report = G0.report || null; R.reportEn = G0.reportEn || null; }
         const res = PG.reviewFinished(state.progress, r.review, R.side, ucis.length, Date.now());
         celebrate(res);
-        if (r.review.summary.key.length) R.ply = r.review.summary.key[0];
+        if (arg.ply === undefined && r.review.summary.key.length) R.ply = r.review.summary.key[0];
+        if (arg.summary && standardGame && outcome) R.tab = 'summary';
         AU.play('correct');
-        show();
+        if (!R.ex) show();
       }, (p) => { const el = $('rv-prog'); if (el) el.style.width = Math.round(p * 100) + '%'; });
-    }
-    return { key(e) { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); } };
+    } else if (arg.summary && standardGame && outcome) { R.tab = 'summary'; show(); }
+    return {
+      key(e) { if (R.ex) return; if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); },
+      leave() { setHooks({}); AU.hush(); },
+      escape() { if (R.ex && !(arg.practice && arg.live)) { R.ex = null; setHooks({}); show(); } else leave(); },
+    };
   };
+
 
   // ---------------------------------------------------------------- lessons
   // The lesson player: Rooky's narrated steps, then exercises checked by the chess core.

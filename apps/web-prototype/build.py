@@ -15,6 +15,7 @@ vendor = here / 'vendor'
 SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
+    core / 'mentor.js',
     core / 'xiangqi.js',
     src / 'i18n.js',
     vendor / 'three.bundle.js',

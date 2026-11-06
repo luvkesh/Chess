@@ -362,6 +362,17 @@ function ChacklateAudio() {
         });
         index[id] = { at };
       }
+      return fetch('coach/index.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    }).then((c) => {
+      // The coach packs, one per coach voice: the pieces of every coach line, one after another (see coach()).
+      for (const [id, v] of Object.entries((c && c.voices) || {})) {
+        if (!c.keys || c.keys.length !== v.sizes.length) continue;
+        const p = { url: 'coach/' + id + '.mp3' + (v.v ? '?v=' + v.v : ''), n: c.keys.length };
+        const at = new Map();
+        let start = 0;
+        c.keys.forEach((k, i) => { at.set(k, [p, start, start + v.sizes[i]]); start += v.sizes[i]; });
+        index['coach:' + id] = { at, name: v.name };
+      }
       return index;
     });
     return indexLoad;
@@ -475,6 +486,51 @@ function ChacklateAudio() {
     if (id !== 'device' && await playKeys(id, [voiceKey(text)])) return true;
     return deviceFallback ? device(text, rate, 'en') : false;
   }
+  // Rooky's coach lines. The game cuts each English line into recorded pieces (setCoachSplit:
+  // fixed words, names and numbers, moves and squares said word by word) and they are played back to
+  // back from the coach pack, with a breath at each comma and full stop. Nothing is made up on the
+  // fly: a line with a piece that has no recording goes to the device voice only where that is
+  // allowed, else stays unsaid. Resolves when the line ends or is cut short; a new line or hush()
+  // cuts it short, and calling it again says it again.
+  let coachSplit = null, coachWho = 'rooky';
+  function coachKeys(text) {
+    const parts = coachSplit ? coachSplit(text) : null;
+    const B = V.moves.en;
+    if (!parts || !B) return null;
+    const keys = [], gaps = [];
+    for (const p of parts) {
+      if (p.pause) { if (keys.length) gaps[keys.length - 1] = Math.max(gaps[keys.length - 1] || 0, PAUSE[p.pause] / 1000); continue; }
+      const w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]]] : [B.file[p.file]];
+      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.05); }
+    }
+    return keys.length ? { keys, gaps } : null;
+  }
+  function coach(text) {
+    stopSpeech();
+    const my = queueId;
+    return new Promise((done) => {
+      const end = () => { if (my === queueId) { current = null; duck(false); talking(false, 'coach'); } done(); };
+      if (!text || !ready()) return done();
+      talking(true, 'coach');
+      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 1, 'en', end))) end(); };
+      loadIndex().then(async () => {
+        const plan = coachKeys(text);
+        const id = 'coach:' + (index['coach:' + coachWho] ? coachWho : 'rooky');
+        if (coachWho === 'device' || !plan || !index[id] || !plan.keys.every((k) => index[id].at.has(k))) return viaDevice();
+        let bufs;
+        try { bufs = await Promise.all(plan.keys.map((k) => clip(id, k))); } catch (e) { return viaDevice(); }
+        if (my !== queueId) return done();
+        const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(master);
+        let t = ctx.currentTime + 0.03, last = null;
+        const srcs = bufs.map((b, i) => { const src = ctx.createBufferSource(); src.buffer = b; src.connect(bus); src.start(t); t += b.duration + plan.gaps[i]; return (last = src); });
+        // cut short: every piece still waiting stops too
+        current = { stop() { for (const x of srcs) { try { x.stop(); } catch (e) { /* not started */ } } try { bus.disconnect(); } catch (e) { /* gone */ } done(); } };
+        const mine = current;
+        duck(true);
+        last.onended = () => { if (current === mine) end(); else done(); };
+      });
+    });
+  }
   // A game call such as "check" or "mate.win", in the language of the chosen call voice.
   async function event(key) {
     if (callVoice === 'off') return false;
@@ -573,7 +629,10 @@ function ChacklateAudio() {
     },
     // Browsers only allow sound after a user gesture; call this from one.
     unlock() { if (ready()) { tapped = true; if (musicOn && !music) startMusic(); } },
-    say, hush, event, announce, voiceKey, moveWords, guide, pitch, words, tale, canTalk, phrases,
+    say, hush, event, announce, coach, setCoachSplit(fn) { coachSplit = fn; }, coachKeys,
+    // Who says the coach's lines: a recorded coach voice ('rooky', or one marked "coach" in voice.json), or 'device'.
+    setCoachVoice(id) { coachWho = id || 'rooky'; },
+    coachVoices: () => loadIndex().then(() => Object.keys(index).filter((k) => k.startsWith('coach:')).map((k) => ({ id: k.slice(6), name: index[k].name }))), voiceKey, moveWords, guide, pitch, words, tale, canTalk, phrases,
     onTalk(fn) { talkers.push(fn); },
     voices: () => V.voices.slice(),
     setVoices(o) {
