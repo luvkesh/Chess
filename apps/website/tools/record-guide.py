@@ -33,7 +33,7 @@ if only:
     index['lines'] = json.loads((out / 'index.json').read_text())['lines']
 # Sounds that are not words: Kokoro spells "Shh" out as "S H H", so each is given its sound
 # (misaki phonemes) while the caption keeps the spelling. "Shh" is a long, soft hush ("shoooo").
-SAY = {'Shh': '[Shh](/ʃʃˈuːː/)', 'Brr': '[Brr](/bɹˈɜɹ/)'}
+SAY = {'Shh': '[Shh](/ʃʃʃʃˈuuu/)', 'Brr': '[Brr](/bɹˈɜɹ/)'}
 
 
 def voiced(text):
