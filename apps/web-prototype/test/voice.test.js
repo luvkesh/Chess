@@ -93,7 +93,7 @@ assert.deepStrictEqual(shipped, wlines.map((x) => x.who + '/' + x.key).sort(), '
 const clines = lines.coachLines();
 const crec = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../tools/voice/coach-recorded.json'), 'utf8'));
 const cindex = JSON.parse(fs.readFileSync(path.join(__dirname, '../public/coach/index.json'), 'utf8'));
-const coachVoices = [['rooky', G.speakers.rooky.engine, G.speed]].concat(V.voices.filter((v) => v.coach).map((v) => [v.id, v.engine, v.speed === undefined ? 1 : v.speed]));
+const coachVoices = [['rooky', G.speakers.rooky.engine, G.speakers.rooky.speed === undefined ? G.speed : G.speakers.rooky.speed]].concat(V.voices.filter((v) => v.coach).map((v) => [v.id, v.engine, v.speed === undefined ? 1 : v.speed]));
 assert.deepStrictEqual(cindex.keys, clines.map((x) => x.key), 'the coach packs hold every piece, in order');
 assert.deepStrictEqual(Object.keys(cindex.voices).sort(), coachVoices.map((v) => v[0]).sort(), 'one coach pack per coach voice');
 for (const [id, engine, speed] of coachVoices) {
