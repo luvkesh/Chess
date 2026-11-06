@@ -130,6 +130,7 @@
     game: null,
     account: saved.account || null,
   };
+  PG.mergeLessons(state.progress, LESSONS.lessons);
   // Premium comes from the account's entitlements on the server. The device-only preview switch
   // (for testing without a server) sits on top of that.
   if (state.settings.previewPremium === undefined) state.settings.previewPremium = !!state.progress.premium;
@@ -1542,7 +1543,9 @@
     function speak(now) {
       const cur = S.phase === 'steps' ? steps[S.i] : S.phase === 'ex' ? ex[S.i] : null;
       const say = () => { if (cur && state.settings.narration) AU.guide(cur.line, cur.say); };
-      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
+      // every Learn lesson opens with its own line from Rooky; other lessons share the general one
+      const open = L.id && GUIDE.lines['lesson.open.' + L.id.split('.').pop()] && !own && !vr ? 'lesson.open.' + L.id.split('.').pop() : 'lesson.steps';
+      const g = S.phase === 'steps' ? open : S.phase === 'ex' ? 'lesson.ex' : null;
       if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
       if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
     }
@@ -1847,6 +1850,15 @@
   const subnav = (cur) => '<nav class="subnav" aria-label="' + t('learn.nav') + '">' + ['learn', 'puzzles', 'training'].map((k) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t('learn.sub.' + k) + '</button>').join('') + '</nav>';
   const stars = (n) => '<span class="stars" aria-label="' + t('learn.stars', { n }) + '">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
   const locked = (item) => item.access === 'premium' && !state.progress.premium;
+  // Each lesson's own 3D picture: pieces, arrows and target rings on a velvet plinth, in the player's
+  // own set (lessons.json "art"). A drawn medal in the chapter's colours shows until it is rendered.
+  function lessonArt(l, size) {
+    if (!l.art) return '';
+    const set = equippedSet();
+    const spec = { kind: 'vignette', felt: l.art.felt, sheen: l.art.sheen, fov: 21, items: l.art.items.map((it) => (it.kind ? it : Object.assign({ set }, it))) };
+    const lead = l.art.items.find((it) => !it.kind);
+    return '<span class="node-art">' + snap(spec, size, size, medal('piece:' + (lead ? lead.type : 'k'), l.art.sheen, l.art.felt)) + '</span>';
+  }
   SCREENS.learn = function () {
     idleBoard();
     const P = state.progress;
@@ -1867,11 +1879,11 @@
           '<div class="bar"><i style="width:' + Math.round(n / ls.length * 100) + '%"></i></div></header><div class="lessons">' +
           ls.map((l) => {
             const r = P.lessons[l.id];
-            return '<button class="node' + (r ? ' done' : '') + (nl && nl.id === l.id ? ' next' : '') + '" data-lesson="' + l.id + '"' + (lock ? ' disabled' : '') + '><span><b>' + esc(l.title) + '</b><small>' + esc(l.objectives[0]) + '</small></span>' +
+            return '<button class="node' + (r ? ' done' : '') + (nl && nl.id === l.id ? ' next' : '') + '" data-lesson="' + l.id + '"' + (lock ? ' disabled' : '') + '>' + lessonArt(l, 72) + '<span><b>' + esc(l.title) + '</b><small>' + esc(l.objectives[0]) + '</small></span>' +
               (r ? stars(r.stars) : '<small>' + t('learn.min', { n: l.minutes }) + '</small>') + '</button>';
           }).join('') + '</div></section>';
       }).join('') + '</div></div></div>');
-    wireLinks();
+    wireLinks(); hydrate(null, true);
     document.querySelectorAll('[data-lesson]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', b.dataset.lesson); }; });
     if ($('l-next')) $('l-next').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', nl.id); };
     if ($('l-review')) $('l-review').onclick = () => { AU.unlock(); go('lesson', due[0]); };
@@ -4038,7 +4050,7 @@
     if (vr && variantLook(vr)) setLook(variantLook(vr));
     const ex = [];
     for (const x of L.exercises) {
-      if (test && x.type === 'puzzle') ex.push(Object.assign({}, x, { puzzle: PUZZLES.find((p) => p.id === x.puzzle) }));
+      if (x.type === 'puzzle' && typeof x.puzzle === 'string') { const p = PUZZLES.find((q) => q.id === x.puzzle); if (p) ex.push(Object.assign({}, x, { puzzle: p })); }
       else if (x.type === 'puzzles') {
         const pool = PUZZLES.filter((p) => x.theme === 'mate' ? p.themes.some((t) => t.startsWith('mateIn')) : p.themes.includes(x.theme)).sort((a, b) => a.rating - b.rating).slice(0, x.count);
         pool.forEach((p) => ex.push({ type: 'puzzle', prompt: x.prompt, puzzle: p }));
