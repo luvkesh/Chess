@@ -5766,7 +5766,39 @@ function ChacklateKit(THREE) {
     return merged;
   }
 
-  return { DETAIL, batchStatic, setTextureBudget, fitCanvas, texAniso, TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
+  // Glass in a room (chandelier drops, goblets, a glass table top, a fountain) is drawn as
+  // clear lacquered glass that lets the room show through, not with real refraction. One
+  // refracting surface anywhere in view makes three draw every solid thing in the scene a
+  // second time each frame into a full-size buffer, and in the glass rooms that doubled the
+  // cost of the whole table. At their size on screen the drops and goblets look the same; the
+  // glass piece sets keep their real refraction.
+  const glassCache = new WeakMap();
+  function clearGlass(root) {
+    let n = 0;
+    const swap = (src) => {
+      if (!(src && src.transmission > 0)) return src;
+      if (!glassCache.has(src)) {
+        const g = src.clone();
+        g.transmission = 0;
+        g.transparent = true;
+        g.depthWrite = false;
+        g.opacity = Math.min(src.transparent ? src.opacity : 1, 1 - 0.6 * src.transmission);
+        g.envMapIntensity = (src.envMapIntensity || 1) * 1.25;
+        g.specularIntensity = 1;
+        if (!g.clearcoat) { g.clearcoat = 0.6; g.clearcoatRoughness = 0.05; }
+        glassCache.set(src, g);
+      }
+      n++;
+      return glassCache.get(src);
+    };
+    root.traverse((m) => {
+      if (!m.isMesh) return;
+      m.material = Array.isArray(m.material) ? m.material.map(swap) : swap(m.material);
+    });
+    return n;
+  }
+
+  return { DETAIL, batchStatic, clearGlass, setTextureBudget, fitCanvas, texAniso, TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
     beadRing, ring, extrude, closedCurve, mirrorOutline, tube, scroll, wrap, canvasTex, paint, hex, lerpC, TEX, MAT, material, merge };
 }
 
@@ -15499,6 +15531,7 @@ function ChacklateWorld(THREE, K) {
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
     // the chandelier steps aside for the camera and the flames flicker; the rest stands still
     K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
+    K.clearGlass(grp);
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
       // where a free camera may go: inside the walls, clear of what stands against them, and
@@ -17087,7 +17120,12 @@ function ChacklateScene(canvas, options) {
       busy = true;
     } else {
       // the idle orbit turns the camera directly, so it runs on the calm ambient timer
-      if (attract && !window.__SHOT && !paused) { cam.tYaw += dt * 0.06; cam.yaw += dt * 0.06; }
+      if (attract && !window.__SHOT && !paused) {
+        cam.tYaw += dt * 0.06; cam.yaw += dt * 0.06;
+        // A turning camera moves every pixel, so on full detail it turns on every display
+        // frame: at the calm 30 fps timer the whole room visibly stepped round on a fast screen.
+        if (lvl() === 0) busy = true;
+      }
       for (const k of ['yaw', 'pitch', 'zoom', 'lookY', 'lookZ', 'panX', 'panZ']) {
         const t = 't' + k[0].toUpperCase() + k.slice(1);
         const d = cam[t] - cam[k];
@@ -17200,7 +17238,7 @@ function ChacklateScene(canvas, options) {
   }
   // the idle frame gap: 30 fps on full detail, 20 fps on phones and slower machines, 15 at the
   // bottom levels (candle flicker and the slow orbit don't need more)
-  const ambientMs = () => (lvl() >= 3 ? 66 : lvl() >= 1 ? 50 : 33);
+  const ambientMs = () => (lvl() >= 3 ? 50 : 33);
   function frame(now) {
     raf = 0;
     if (glLost || compileFirst()) return;   // asked for again once the shaders are ready
@@ -17225,12 +17263,15 @@ function ChacklateScene(canvas, options) {
   // stays more than ~22 ms over one display frame for 40 frames, the performance level steps
   // up. Single slow frames (shaders compiling for a new room) are capped so they can't do it
   // alone, and the level never steps back down in a session, so the view doesn't flicker.
+  // The first two steps only lower the resolution and the edge smoothing, which hardly show,
+  // so they come as soon as frames keep falling under about 37 fps; the later ones give up the
+  // reflections and the glow, so they wait until frames fall under about 25 fps.
   let govLate = 0, govN = 0;
   function govern(waitMs, drawMs) {
     if (window.__SHOT || fullDetail || document.hidden || perf >= MAX_PERF || (EL && EL.active())) { govN = 0; return; }
     const late = Math.min(80, Math.max(0, waitMs + drawMs - 17));
     govLate = govN ? govLate * 0.94 + late * 0.06 : late;
-    if (++govN >= 40 && govLate > 22) { setPerf(perf + 1); govN = 0; }
+    if (++govN >= 40 && govLate > (perf < 2 ? 10 : 22)) { setPerf(perf + 1); govN = 0; }
   }
   function shadowQuality() {
     const full = hq() && lvl() < 3;
@@ -17466,6 +17507,9 @@ function ChacklateScene(canvas, options) {
       lastW = w; lastH = h;
       renderer.setPixelRatio(dpr);
       renderer.setSize(w, h, false);
+      // the glass piece sets refract a copy of the table drawn at half size: it is seen bent
+      // and softened through the glass, and at full size it cost as much as the table itself
+      renderer.transmissionResolutionScale = fullDetail || window.__SHOT ? 1 : 0.5;
       if (composer) sizeComposer(); else if (bloomOn()) buildComposer();
       const rw = Math.max(1, Math.round(w * dpr / 2)), rh = Math.max(1, Math.round(h * dpr / 2));
       if (!reflectOn()) { if (reflRT) { reflRT.dispose(); reflRT = null; } }
@@ -17783,11 +17827,16 @@ function ChacklateScene(canvas, options) {
     const cv = r.domElement;
     host.appendChild(cv);
     let built = null, base = null, fitK = 1, yaw = 0, zoom = 1, idleAt = 0, last = 0, loop = 0, pinchD = 0, drag = null, shown = false;
+    // The stage draws at most about 2.4 million pixels (a big card on a 2x screen was drawing
+    // 3.5 million, with a whole room in it), and gives up resolution in steps, never below 1x,
+    // while its frames keep coming slower than about 40 fps.
+    let scale = 1, slow = 0, slowN = 0;
     const pts = new Map();
     function size() {
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       // phones draw at 1.5x: a second full-size drawing buffer at 3x is a lot of GPU memory
-      r.setPixelRatio(Math.min(coarse ? 1.5 : 2, window.devicePixelRatio || 1));
+      const budget = Math.sqrt(2.4e6 / (w * h));
+      r.setPixelRatio(Math.max(1, Math.min(coarse ? 1.5 : 2, window.devicePixelRatio || 1, budget) * scale));
       r.setSize(w, h, false);
       fitK = Math.max(1, (aspect || w / h) / (w / h));
       if (built) { built.camera.aspect = w / h; built.camera.updateProjectionMatrix(); }
@@ -17809,7 +17858,7 @@ function ChacklateScene(canvas, options) {
         keyL.shadow.bias = -0.0004; keyL.shadow.normalBias = 0.02; keyL.shadow.radius = 4;
         built.spin.traverse((m) => { if (m.isMesh) m.receiveShadow = true; });
       }
-      yaw = 0; zoom = 1; idleAt = 0;
+      yaw = 0; zoom = 1; idleAt = 0; last = 0; slowN = 0;
       size();
       // the card's picture stays up while the model's shaders compile in the background
       const mine = built, go = () => { if (built === mine && !stopped && !loop) loop = requestAnimationFrame(tick); };
@@ -17831,8 +17880,13 @@ function ChacklateScene(canvas, options) {
     function tick(now) {
       loop = 0;
       if (!cv.isConnected || stageR !== r) { stop(); return; }
-      const dt = Math.min(0.05, (now - (last || now)) / 1000);
+      const gap = last ? now - last : 16;
+      const dt = Math.min(0.05, gap / 1000);
       last = now;
+      if (!window.__SHOT && !document.hidden && scale > 0.6) {
+        slow = slowN ? slow * 0.92 + gap * 0.08 : gap;
+        if (++slowN >= 45 && slow > 25) { scale -= 0.2; slowN = 0; size(); }
+      }
       if (!drag && pts.size === 0 && now > idleAt && animations && !window.__SHOT) yaw += dt * 0.35;
       built.spin.rotation.y = yaw;
       built.camera.position.copy(built.look).addScaledVector(base.clone().sub(built.look), zoom * fitK);
