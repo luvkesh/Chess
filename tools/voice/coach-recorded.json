@@ -1,0 +1,5246 @@
+{
+ "rooky/005eb8c5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The king is attacked and can't escape. Game over.",
+  "spoken": "The king is attacked and can't escape. Game over."
+ },
+ "rooky/005f8d1c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Skewer",
+  "spoken": "Skewer"
+ },
+ "rooky/01340e6f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "English Opening, Symmetrical",
+  "spoken": "English Opening, Symmetrical"
+ },
+ "rooky/015825b7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Opening",
+  "spoken": "Opening"
+ },
+ "rooky/01df8b1d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "King's Knight Opening",
+  "spoken": "King's Knight Opening"
+ },
+ "rooky/022dcf3e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Benoni Defence",
+  "spoken": "Benoni Defence"
+ },
+ "rooky/026a8403": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Let me help.",
+  "spoken": "Let me help."
+ },
+ "rooky/035f1f67": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Best",
+  "spoken": "Best"
+ },
+ "rooky/041126bd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "An unprotected piece, or one attacked by something cheaper. Loose pieces drop off.",
+  "spoken": "An unprotected piece, or one attacked by something cheaper. Loose pieces drop off."
+ },
+ "rooky/0414c6c7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ruy Lopez, Berlin Defence",
+  "spoken": "Ruy Lopez, Berlin Defence"
+ },
+ "rooky/044f0fa6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Latvian Gambit",
+  "spoken": "Latvian Gambit"
+ },
+ "rooky/04530101": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can take something safely.",
+  "spoken": "It can take something safely."
+ },
+ "rooky/04869320": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Biggest mistake:",
+  "spoken": "Biggest mistake:"
+ },
+ "rooky/0516db4f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Plant a knight on",
+  "spoken": "Plant a knight on"
+ },
+ "rooky/05298a98": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "King safety",
+  "spoken": "King safety"
+ },
+ "rooky/05a16dad": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is pinned to your",
+  "spoken": "is pinned to your"
+ },
+ "rooky/05a9e1b0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A safe square for a piece that no enemy pawn can attack.",
+  "spoken": "A safe square for a piece that no enemy pawn can attack."
+ },
+ "rooky/05b93692": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A piece that can't move, or something more valuable behind it gets taken.",
+  "spoken": "A piece that can't move, or something more valuable behind it gets taken."
+ },
+ "rooky/05bf6f47": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "chariot",
+  "spoken": "chariot"
+ },
+ "rooky/06433239": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You often run short of time.",
+  "spoken": "You often run short of time."
+ },
+ "rooky/0651f122": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bishops on opposite colours often lead to a draw.",
+  "spoken": "Bishops on opposite colours often lead to a draw."
+ },
+ "rooky/06ae5622": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A strong sacrifice: the engine agrees.",
+  "spoken": "A strong sacrifice: the engine agrees."
+ },
+ "rooky/07757195": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are getting so good at this!",
+  "spoken": "You are getting so good at this!"
+ },
+ "rooky/07df237c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This is the",
+  "spoken": "This is the"
+ },
+ "rooky/07fe9280": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "94",
+  "spoken": "94"
+ },
+ "rooky/08cbcc06": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise checkmate patterns.",
+  "spoken": "Practise checkmate patterns."
+ },
+ "rooky/08fe9413": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "95",
+  "spoken": "95"
+ },
+ "rooky/09e4c831": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Outpost",
+  "spoken": "Outpost"
+ },
+ "rooky/09fe95a6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "96",
+  "spoken": "96"
+ },
+ "rooky/0a56cd04": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is dangerous. Block it with a piece.",
+  "spoken": "is dangerous. Block it with a piece."
+ },
+ "rooky/0a8b27be": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is pinned to their",
+  "spoken": "is pinned to their"
+ },
+ "rooky/0a9dc3cb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A good opening for you as White: the",
+  "spoken": "A good opening for you as White: the"
+ },
+ "rooky/0adf1315": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is pinned.",
+  "spoken": "is pinned."
+ },
+ "rooky/0afe9739": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "97",
+  "spoken": "97"
+ },
+ "rooky/0b9f1ce5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No checkmates in sight, for either side.",
+  "spoken": "No checkmates in sight, for either side."
+ },
+ "rooky/0bb21298": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No legal move and not in check: a draw.",
+  "spoken": "No legal move and not in check: a draw."
+ },
+ "rooky/0bdc63c2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "safe.",
+  "spoken": "safe."
+ },
+ "rooky/0bfe98cc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "90",
+  "spoken": "90"
+ },
+ "rooky/0c4afe69": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "with",
+  "spoken": "with"
+ },
+ "rooky/0c6a4090": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "pieces at home:",
+  "spoken": "pieces at home:"
+ },
+ "rooky/0ce8d410": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "69",
+  "spoken": "69"
+ },
+ "rooky/0cfe9a5f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "91",
+  "spoken": "91"
+ },
+ "rooky/0d18ee60": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Back rank",
+  "spoken": "Back rank"
+ },
+ "rooky/0d8edbc7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A setup the stronger side can't break.",
+  "spoken": "A setup the stronger side can't break."
+ },
+ "rooky/0da8f0f3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their threat is still there:",
+  "spoken": "Their threat is still there:"
+ },
+ "rooky/0dad409a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Strong",
+  "spoken": "Strong"
+ },
+ "rooky/0de8d5a3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "68",
+  "spoken": "68"
+ },
+ "rooky/0dfe9bf2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "92",
+  "spoken": "92"
+ },
+ "rooky/0e1e334e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Oh no, careful!",
+  "spoken": "Oh no, careful!"
+ },
+ "rooky/0e34a930": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Put a rook on the open",
+  "spoken": "Put a rook on the open"
+ },
+ "rooky/0e5edf64": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Close, but not the best.",
+  "spoken": "Close, but not the best."
+ },
+ "rooky/0e867bb3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Well calculated.",
+  "spoken": "Well calculated."
+ },
+ "rooky/0eadb914": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No big chance right now. Improve your pieces.",
+  "spoken": "No big chance right now. Improve your pieces."
+ },
+ "rooky/0ed289ab": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fortress",
+  "spoken": "Fortress"
+ },
+ "rooky/0eecf053": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Excellent calculation!",
+  "spoken": "Excellent calculation!"
+ },
+ "rooky/0efe9d85": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "93",
+  "spoken": "93"
+ },
+ "rooky/0f29c2a6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "and",
+  "spoken": "and"
+ },
+ "rooky/0f2fd31b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can give check.",
+  "spoken": "It can give check."
+ },
+ "rooky/0f9d2a05": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Reasonable.",
+  "spoken": "Reasonable."
+ },
+ "rooky/0fb740c9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "queen",
+  "spoken": "queen"
+ },
+ "rooky/106ce7cc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff three",
+  "spoken": "eff three"
+ },
+ "rooky/10b2516a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Castling",
+  "spoken": "Castling"
+ },
+ "rooky/111f9f54": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fool's Mate",
+  "spoken": "Fool's Mate"
+ },
+ "rooky/11935b64": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You still have",
+  "spoken": "You still have"
+ },
+ "rooky/11bcc3ce": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You have left the usual",
+  "spoken": "You have left the usual"
+ },
+ "rooky/11fd6afb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", which also attacks your",
+  "spoken": "which also attacks your"
+ },
+ "rooky/125479e8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff one",
+  "spoken": "eff one"
+ },
+ "rooky/1256c278": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Steady in the endgame.",
+  "spoken": "Steady in the endgame."
+ },
+ "rooky/12fab3f4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A square in the enemy half, guarded by your pawn, that enemy pawns can never attack. Perfect for a knight.",
+  "spoken": "A square in the enemy half, guarded by your pawn, that enemy pawns can never attack. Perfect for a knight."
+ },
+ "rooky/134087d0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see five",
+  "spoken": "see five"
+ },
+ "rooky/137150c4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Larsen's Opening",
+  "spoken": "Larsen's Opening"
+ },
+ "rooky/13eb1dac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "18",
+  "spoken": "18"
+ },
+ "rooky/13fea564": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "98",
+  "spoken": "98"
+ },
+ "rooky/1428304c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The engine's top choice.",
+  "spoken": "The engine's top choice."
+ },
+ "rooky/143e1e63": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a fork for you!",
+  "spoken": "There is a fork for you!"
+ },
+ "rooky/14e8e0a8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "61",
+  "spoken": "61"
+ },
+ "rooky/14eb1f3f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "19",
+  "spoken": "19"
+ },
+ "rooky/14f6ced4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "promotes to a queen",
+  "spoken": "promotes to a queen"
+ },
+ "rooky/14fea6f7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "99",
+  "spoken": "99"
+ },
+ "rooky/15bcfc97": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Big mistake, but don't give up!",
+  "spoken": "Big mistake, but don't give up!"
+ },
+ "rooky/15e8e23b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "60",
+  "spoken": "60"
+ },
+ "rooky/169949bc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The",
+  "spoken": "The"
+ },
+ "rooky/16d43314": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ooh, look closely!",
+  "spoken": "Ooh, look closely!"
+ },
+ "rooky/16e8e3ce": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "63",
+  "spoken": "63"
+ },
+ "rooky/16f03a8a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Victory! Well played!",
+  "spoken": "Victory! Well played!"
+ },
+ "rooky/17a0b734": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A little loose.",
+  "spoken": "A little loose."
+ },
+ "rooky/17ce8817": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Zwischenzug: instead of recapturing at once, you play a stronger threat first.",
+  "spoken": "Zwischenzug: instead of recapturing at once, you play a stronger threat first."
+ },
+ "rooky/17dd6c29": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "tucks the king away",
+  "spoken": "tucks the king away"
+ },
+ "rooky/17e2fe05": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can pin something.",
+  "spoken": "It can pin something."
+ },
+ "rooky/17e8e561": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "62",
+  "spoken": "62"
+ },
+ "rooky/17eb23f8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "14",
+  "spoken": "14"
+ },
+ "rooky/17ef919c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opening is going well: centre, pieces out, king safe.",
+  "spoken": "Your opening is going well: centre, pieces out, king safe."
+ },
+ "rooky/17fc2cad": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your pawn can promote!",
+  "spoken": "Your pawn can promote!"
+ },
+ "rooky/180880f0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That works well.",
+  "spoken": "That works well."
+ },
+ "rooky/183bd893": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are ahead. Trade pieces, not pawns, to make the win easier.",
+  "spoken": "You are ahead. Trade pieces, not pawns, to make the win easier."
+ },
+ "rooky/18e8e6f4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "65",
+  "spoken": "65"
+ },
+ "rooky/18e9a12e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king got caught in a mating net.",
+  "spoken": "Your king got caught in a mating net."
+ },
+ "rooky/18eb258b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "15",
+  "spoken": "15"
+ },
+ "rooky/19122bfb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Two Knights Defence",
+  "spoken": "Two Knights Defence"
+ },
+ "rooky/19136a33": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This is called a",
+  "spoken": "This is called a"
+ },
+ "rooky/193ef1fb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee four",
+  "spoken": "dee four"
+ },
+ "rooky/19b82192": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Endgames cost you points.",
+  "spoken": "Endgames cost you points."
+ },
+ "rooky/19be1ec4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Forks often catch you.",
+  "spoken": "Forks often catch you."
+ },
+ "rooky/19e8e887": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "64",
+  "spoken": "64"
+ },
+ "rooky/19eb271e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "16",
+  "spoken": "16"
+ },
+ "rooky/1a21096a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You have the opposition: the kings face each other and they must give way.",
+  "spoken": "You have the opposition: the kings face each other and they must give way."
+ },
+ "rooky/1a57905e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "queen kiss mate",
+  "spoken": "queen kiss mate"
+ },
+ "rooky/1a67c891": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Caro-Kann Defence",
+  "spoken": "Caro-Kann Defence"
+ },
+ "rooky/1ae8ea1a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "67",
+  "spoken": "67"
+ },
+ "rooky/1aeb28b1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "17",
+  "spoken": "17"
+ },
+ "rooky/1b193dec": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your bishop on",
+  "spoken": "Your bishop on"
+ },
+ "rooky/1b41f4e8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "the kingside",
+  "spoken": "the kingside"
+ },
+ "rooky/1b89bba0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king was not safe enough.",
+  "spoken": "Your king was not safe enough."
+ },
+ "rooky/1be8ebad": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "66",
+  "spoken": "66"
+ },
+ "rooky/1beb2a44": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "10",
+  "spoken": "10"
+ },
+ "rooky/1bfc83f7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Here's my advice.",
+  "spoken": "Here's my advice."
+ },
+ "rooky/1bfde4fe": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are winning. Trade pieces, push your pawns, use your king.",
+  "spoken": "You are winning. Trade pieces, push your pawns, use your king."
+ },
+ "rooky/1ce2a2c3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Defence",
+  "spoken": "Defence"
+ },
+ "rooky/1ceb2bd7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "11",
+  "spoken": "11"
+ },
+ "rooky/1d1ef620": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You handled the endgame well.",
+  "spoken": "You handled the endgame well."
+ },
+ "rooky/1deb2d6a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "12",
+  "spoken": "12"
+ },
+ "rooky/1e4a8aba": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Checkmate",
+  "spoken": "Checkmate"
+ },
+ "rooky/1e88eedb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Careful: this is the road to",
+  "spoken": "Careful: this is the road to"
+ },
+ "rooky/1eab5e32": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Plan",
+  "spoken": "Plan"
+ },
+ "rooky/1ed39e39": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "One of your pieces is under attack. Look at your",
+  "spoken": "One of your pieces is under attack. Look at your"
+ },
+ "rooky/1eeb2efd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "13",
+  "spoken": "13"
+ },
+ "rooky/1f638667": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "English Opening, Reversed Sicilian",
+  "spoken": "English Opening, Reversed Sicilian"
+ },
+ "rooky/1f75228c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff five",
+  "spoken": "eff five"
+ },
+ "rooky/1f75f652": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "trades pieces while you are ahead.",
+  "spoken": "trades pieces while you are ahead."
+ },
+ "rooky/1fe3b4ed": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The opening was slow: pieces stayed at home.",
+  "spoken": "The opening was slow: pieces stayed at home."
+ },
+ "rooky/200f2a8e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "to the king",
+  "spoken": "to the king"
+ },
+ "rooky/2107debf": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee five",
+  "spoken": "dee five"
+ },
+ "rooky/211823d5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Play it anyway",
+  "spoken": "Play it anyway"
+ },
+ "rooky/2156e73c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "We are in the endgame now. Kings become fighters!",
+  "spoken": "We are in the endgame now. Kings become fighters!"
+ },
+ "rooky/220c7785": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can make a fork.",
+  "spoken": "It can make a fork."
+ },
+ "rooky/225109c0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "In-between move",
+  "spoken": "In-between move"
+ },
+ "rooky/225904d6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is checkmate.",
+  "spoken": "is checkmate."
+ },
+ "rooky/234b5e36": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Threats",
+  "spoken": "Threats"
+ },
+ "rooky/235eab69": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "French Defence, Advance",
+  "spoken": "French Defence, Advance"
+ },
+ "rooky/2385e607": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff eight",
+  "spoken": "eff eight"
+ },
+ "rooky/239d74eb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No pawns of its side on the files beside it, so only pieces can defend it.",
+  "spoken": "No pawns of its side on the files beside it, so only pieces can defend it."
+ },
+ "rooky/242a039e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king can help in this endgame.",
+  "spoken": "Your king can help in this endgame."
+ },
+ "rooky/247d690d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "French Defence",
+  "spoken": "French Defence"
+ },
+ "rooky/24e1a3e5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Checkmate radar!",
+  "spoken": "Checkmate radar!"
+ },
+ "rooky/2526c13a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee eight",
+  "spoken": "dee eight"
+ },
+ "rooky/25633715": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You missed",
+  "spoken": "You missed"
+ },
+ "rooky/259b918e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Psst, look at this!",
+  "spoken": "Psst, look at this!"
+ },
+ "rooky/25a62011": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A little clue for you.",
+  "spoken": "A little clue for you."
+ },
+ "rooky/25f312c8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fine, but",
+  "spoken": "Fine, but"
+ },
+ "rooky/25f63351": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee two",
+  "spoken": "bee two"
+ },
+ "rooky/266ffd28": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see six",
+  "spoken": "see six"
+ },
+ "rooky/2710c38a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A piece that can be taken for free.",
+  "spoken": "A piece that can be taken for free."
+ },
+ "rooky/27224cb3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "With a rook pawn and the wrong bishop, this is a known draw.",
+  "spoken": "With a rook pawn and the wrong bishop, this is a known draw."
+ },
+ "rooky/27db3771": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nice work, keep it up!",
+  "spoken": "Nice work, keep it up!"
+ },
+ "rooky/27fce2bf": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You won!",
+  "spoken": "You won!"
+ },
+ "rooky/2849a3fe": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You play",
+  "spoken": "You play"
+ },
+ "rooky/28d42e0c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "An attack along a line on a piece that shields a more valuable piece. If the piece behind is the king, the pin is absolute.",
+  "spoken": "An attack along a line on a piece that shields a more valuable piece. If the piece behind is the king, the pin is absolute."
+ },
+ "rooky/28f5f956": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "threatens a forced mate starting with",
+  "spoken": "threatens a forced mate starting with"
+ },
+ "rooky/29b25842": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fight for the centre.",
+  "spoken": "Fight for the centre."
+ },
+ "rooky/29db22f1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A big slip, but you can learn from it.",
+  "spoken": "A big slip, but you can learn from it."
+ },
+ "rooky/2b043744": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Black",
+  "spoken": "Black"
+ },
+ "rooky/2b2c78b4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "When you are far ahead, leave the enemy king a square, or the game ends as a draw.",
+  "spoken": "When you are far ahead, leave the enemy king a square, or the game ends as a draw."
+ },
+ "rooky/2b38c15a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No worries, let's learn from this one.",
+  "spoken": "No worries, let's learn from this one."
+ },
+ "rooky/2b598d49": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "gives check",
+  "spoken": "gives check"
+ },
+ "rooky/2b5be9cd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Let's look at that again.",
+  "spoken": "Let's look at that again."
+ },
+ "rooky/2b8bfb79": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Dutch Defence",
+  "spoken": "Dutch Defence"
+ },
+ "rooky/2b95c9b4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Yes! Super move!",
+  "spoken": "Yes! Super move!"
+ },
+ "rooky/2ba6b11b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "-file is open: a rook there would be strong.",
+  "spoken": "file is open: a rook there would be strong."
+ },
+ "rooky/2be2ffc0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "back-rank mate",
+  "spoken": "back-rank mate"
+ },
+ "rooky/2cf12cdd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee four",
+  "spoken": "ee four"
+ },
+ "rooky/2d046d8c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good opening play.",
+  "spoken": "Good opening play."
+ },
+ "rooky/2d62910b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A surprise move you play first, before the expected one.",
+  "spoken": "A surprise move you play first, before the expected one."
+ },
+ "rooky/2dac7a9d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Converting and defending.",
+  "spoken": "Converting and defending."
+ },
+ "rooky/2dfe4116": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch six",
+  "spoken": "aitch six"
+ },
+ "rooky/2e142784": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "London System",
+  "spoken": "London System"
+ },
+ "rooky/2e1bcb13": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see eight",
+  "spoken": "see eight"
+ },
+ "rooky/2e4a71b6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The queen sits right next to the king, with a friend guarding her.",
+  "spoken": "The queen sits right next to the king, with a friend guarding her."
+ },
+ "rooky/2e8bc1d3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nice developing move!",
+  "spoken": "Nice developing move!"
+ },
+ "rooky/2ef2d92e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "the Fried Liver Attack",
+  "spoken": "the Fried Liver Attack"
+ },
+ "rooky/2f89adfc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Push your passed pawn. Every step forward makes it stronger.",
+  "spoken": "Push your passed pawn. Every step forward makes it stronger."
+ },
+ "rooky/2f9375ce": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "squares, up from",
+  "spoken": "squares, up from"
+ },
+ "rooky/2f99f76e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee seven",
+  "spoken": "jee seven"
+ },
+ "rooky/2fc90117": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This is an important moment. It is worth taking your time.",
+  "spoken": "This is an important moment. It is worth taking your time."
+ },
+ "rooky/2fee30e6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch one",
+  "spoken": "aitch one"
+ },
+ "rooky/300ca0d0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "5",
+  "spoken": "5"
+ },
+ "rooky/302b82fb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Wow, top move!",
+  "spoken": "Wow, top move!"
+ },
+ "rooky/30a61f60": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A sensible choice.",
+  "spoken": "A sensible choice."
+ },
+ "rooky/310562d1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nearly there!",
+  "spoken": "Nearly there!"
+ },
+ "rooky/310ca263": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "4",
+  "spoken": "4"
+ },
+ "rooky/3135cc52": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "threatens checkmate with",
+  "spoken": "threatens checkmate with"
+ },
+ "rooky/3173bf19": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "open lines near it",
+  "spoken": "open lines near it"
+ },
+ "rooky/319a299d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A piece steps out of a line, so the piece behind it attacks. The moving piece can make its own threat too.",
+  "spoken": "A piece steps out of a line, so the piece behind it attacks. The moving piece can make its own threat too."
+ },
+ "rooky/319fbb7d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is isolated. Pile up on it.",
+  "spoken": "is isolated. Pile up on it."
+ },
+ "rooky/31f41515": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Opposition",
+  "spoken": "Opposition"
+ },
+ "rooky/31fd2908": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "rook",
+  "spoken": "rook"
+ },
+ "rooky/320ca3f6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "7",
+  "spoken": "7"
+ },
+ "rooky/3218b60d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ouch, that one costs a lot.",
+  "spoken": "Ouch, that one costs a lot."
+ },
+ "rooky/32414c54": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Polish Opening",
+  "spoken": "Polish Opening"
+ },
+ "rooky/32a32422": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A double attack by one piece. Knights fork well because they jump.",
+  "spoken": "A double attack by one piece. Knights fork well because they jump."
+ },
+ "rooky/330ca589": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "6",
+  "spoken": "6"
+ },
+ "rooky/335a356e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Sicilian Defence, Dragon",
+  "spoken": "Sicilian Defence, Dragon"
+ },
+ "rooky/340ca71c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "1",
+  "spoken": "1"
+ },
+ "rooky/342bea3f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "takes",
+  "spoken": "takes"
+ },
+ "rooky/343f7d7b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look for a skewer.",
+  "spoken": "Look for a skewer."
+ },
+ "rooky/348dec98": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You played without big mistakes.",
+  "spoken": "You played without big mistakes."
+ },
+ "rooky/34d97f0c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", winning the",
+  "spoken": "winning the"
+ },
+ "rooky/35008cd9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Something can be won. Look for loose pieces.",
+  "spoken": "Something can be won. Look for loose pieces."
+ },
+ "rooky/350ca8af": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "0",
+  "spoken": "0"
+ },
+ "rooky/360caa42": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "3",
+  "spoken": "3"
+ },
+ "rooky/363de4a0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Plans and tactics in the middle.",
+  "spoken": "Plans and tactics in the middle."
+ },
+ "rooky/368be907": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent is clearly better.",
+  "spoken": "Your opponent is clearly better."
+ },
+ "rooky/370cabd5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "2",
+  "spoken": "2"
+ },
+ "rooky/37c9b687": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Don't worry, you'll get it next time.",
+  "spoken": "Don't worry, you'll get it next time."
+ },
+ "rooky/37c9c11c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You dealt with their threat.",
+  "spoken": "You dealt with their threat."
+ },
+ "rooky/37d778b5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee four",
+  "spoken": "jee four"
+ },
+ "rooky/37f49b31": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee two",
+  "spoken": "ee two"
+ },
+ "rooky/381a575f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee",
+  "spoken": "ee"
+ },
+ "rooky/3873f1d4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Trading pieces would help you here.",
+  "spoken": "Trading pieces would help you here."
+ },
+ "rooky/388e0873": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your move is practical and safe, even if",
+  "spoken": "Your move is practical and safe, even if"
+ },
+ "rooky/38a3ae7c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Let's think a few moves ahead.",
+  "spoken": "Let's think a few moves ahead."
+ },
+ "rooky/38bf236d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee five",
+  "spoken": "bee five"
+ },
+ "rooky/38f4c404": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your rook on",
+  "spoken": "Your rook on"
+ },
+ "rooky/38f875e7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You now have two pawns on the",
+  "spoken": "You now have two pawns on the"
+ },
+ "rooky/39cb5517": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Queen's Gambit Declined",
+  "spoken": "Queen's Gambit Declined"
+ },
+ "rooky/39ce0439": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king is safe. Now connect your rooks.",
+  "spoken": "Your king is safe. Now connect your rooks."
+ },
+ "rooky/3b094452": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent has a forced checkmate.",
+  "spoken": "Your opponent has a forced checkmate."
+ },
+ "rooky/3b80190a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Promotion",
+  "spoken": "Promotion"
+ },
+ "rooky/3bc617a0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "-file.",
+  "spoken": "file."
+ },
+ "rooky/3c0cb3b4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "9",
+  "spoken": "9"
+ },
+ "rooky/3c596fd8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That's how to play the endgame!",
+  "spoken": "That's how to play the endgame!"
+ },
+ "rooky/3cea2c00": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Having to move when every move makes things worse.",
+  "spoken": "Having to move when every move makes things worse."
+ },
+ "rooky/3d0cb547": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "8",
+  "spoken": "8"
+ },
+ "rooky/3d667e65": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "squares, down from",
+  "spoken": "squares, down from"
+ },
+ "rooky/3e837423": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Think again",
+  "spoken": "Think again"
+ },
+ "rooky/3f6bba91": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Being the one making threats.",
+  "spoken": "Being the one making threats."
+ },
+ "rooky/402c3736": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay seven",
+  "spoken": "ay seven"
+ },
+ "rooky/4087b825": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see seven",
+  "spoken": "see seven"
+ },
+ "rooky/40f50df6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "King",
+  "spoken": "King"
+ },
+ "rooky/413a6bee": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "uses the open",
+  "spoken": "uses the open"
+ },
+ "rooky/415433e5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That's the spirit!",
+  "spoken": "That's the spirit!"
+ },
+ "rooky/41bf82e2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "skewers the",
+  "spoken": "skewers the"
+ },
+ "rooky/41d50cee": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their queen and bishop both aim at f7. Guard it, or block the queen.",
+  "spoken": "Their queen and bishop both aim at eff seven. Guard it, or block the queen."
+ },
+ "rooky/42454824": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "to",
+  "spoken": "to"
+ },
+ "rooky/42c71d0c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Find a better square for one of your pieces.",
+  "spoken": "Find a better square for one of your pieces."
+ },
+ "rooky/42f5143b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ": no pawn can chase it away.",
+  "spoken": "no pawn can chase it away."
+ },
+ "rooky/43089580": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Philidor Defence",
+  "spoken": "Philidor Defence"
+ },
+ "rooky/4404b82b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Careful! Their king has almost no squares. Leave it room, or it is stalemate.",
+  "spoken": "Careful! Their king has almost no squares. Leave it room, or it is stalemate."
+ },
+ "rooky/44091580": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee seven",
+  "spoken": "dee seven"
+ },
+ "rooky/4464601a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch",
+  "spoken": "aitch"
+ },
+ "rooky/447a14b3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee three",
+  "spoken": "jee three"
+ },
+ "rooky/47aa4190": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are clearly better.",
+  "spoken": "You are clearly better."
+ },
+ "rooky/47e52c43": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ponziani Opening",
+  "spoken": "Ponziani Opening"
+ },
+ "rooky/4862d8a3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "stalemates: the game is drawn.",
+  "spoken": "stalemates: the game is drawn."
+ },
+ "rooky/490ea238": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bishop",
+  "spoken": "bishop"
+ },
+ "rooky/4965431a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Queen's Indian Defence",
+  "spoken": "Queen's Indian Defence"
+ },
+ "rooky/4983e8d5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a skewer for you.",
+  "spoken": "There is a skewer for you."
+ },
+ "rooky/49f5d5ca": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their strongest reply is",
+  "spoken": "Their strongest reply is"
+ },
+ "rooky/4b6ef87a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Better was",
+  "spoken": "Better was"
+ },
+ "rooky/4b8a8139": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Giving material for something bigger: an attack, a checkmate or a better position.",
+  "spoken": "Giving material for something bigger: an attack, a checkmate or a better position."
+ },
+ "rooky/4b988062": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise knight forks.",
+  "spoken": "Practise knight forks."
+ },
+ "rooky/4bc6b285": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent is winning.",
+  "spoken": "Your opponent is winning."
+ },
+ "rooky/4c48a826": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Think about keeping your king safe.",
+  "spoken": "Think about keeping your king safe."
+ },
+ "rooky/4c7025b7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Amazing, you found it!",
+  "spoken": "Amazing, you found it!"
+ },
+ "rooky/4c832a10": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Smith-Morra Gambit",
+  "spoken": "Smith-Morra Gambit"
+ },
+ "rooky/4e795a36": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You spotted tactics well.",
+  "spoken": "You spotted tactics well."
+ },
+ "rooky/4e8f8512": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Careful!",
+  "spoken": "Careful!"
+ },
+ "rooky/4ee10c66": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This makes your position worse.",
+  "spoken": "This makes your position worse."
+ },
+ "rooky/4eeae191": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That was the best move on the board.",
+  "spoken": "That was the best move on the board."
+ },
+ "rooky/4f2d51ad": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay four",
+  "spoken": "ay four"
+ },
+ "rooky/4f4e2cc7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Improve your opening development.",
+  "spoken": "Improve your opening development."
+ },
+ "rooky/508c3da3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your tactics are a strength.",
+  "spoken": "Your tactics are a strength."
+ },
+ "rooky/50a6d16e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ". Bring your king to help it.",
+  "spoken": "Bring your king to help it."
+ },
+ "rooky/5132f73f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The king is stuck behind its own pawns on the back row.",
+  "spoken": "The king is stuck behind its own pawns on the back row."
+ },
+ "rooky/51696730": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Oh no! It happens to everyone.",
+  "spoken": "Oh no! It happens to everyone."
+ },
+ "rooky/51ab840a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This move loses a lot.",
+  "spoken": "This move loses a lot."
+ },
+ "rooky/51ae487f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee",
+  "spoken": "bee"
+ },
+ "rooky/51c8f54f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Moving knights and bishops off the back rank early, so they can join the fight.",
+  "spoken": "Moving knights and bishops off the back rank early, so they can join the fight."
+ },
+ "rooky/51f13099": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "counsellor",
+  "spoken": "counsellor"
+ },
+ "rooky/522a87a3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee six",
+  "spoken": "bee six"
+ },
+ "rooky/52c12853": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A draw: both sides held on.",
+  "spoken": "A draw: both sides held on."
+ },
+ "rooky/5350e97c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Careful: this plan runs into trouble at",
+  "spoken": "Careful: this plan runs into trouble at"
+ },
+ "rooky/53a0d258": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Taking the e5 pawn lets their queen in. Watch g2 and f2.",
+  "spoken": "Taking the ee five pawn lets their queen in. Watch jee two and eff two."
+ },
+ "rooky/53bca1b9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Think about king safety.",
+  "spoken": "Think about king safety."
+ },
+ "rooky/53c3ddd0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is blocked by your own pawns.",
+  "spoken": "is blocked by your own pawns."
+ },
+ "rooky/53dcdcc6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bringing your pieces out from home.",
+  "spoken": "Bringing your pieces out from home."
+ },
+ "rooky/53e99afc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "was a bit stronger.",
+  "spoken": "was a bit stronger."
+ },
+ "rooky/542510cf": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay",
+  "spoken": "ay"
+ },
+ "rooky/5476cdd3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Loose piece",
+  "spoken": "Loose piece"
+ },
+ "rooky/549cc57f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your clock is getting low. Play simple, safe moves.",
+  "spoken": "Your clock is getting low. Play simple, safe moves."
+ },
+ "rooky/54b7d67a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your play is steady. Keep going!",
+  "spoken": "Your play is steady. Keep going!"
+ },
+ "rooky/5509dac1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Sicilian Defence",
+  "spoken": "Sicilian Defence"
+ },
+ "rooky/551df053": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Two big pieces walk the king to the edge, one row at a time.",
+  "spoken": "Two big pieces walk the king to the edge, one row at a time."
+ },
+ "rooky/565a4c24": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You spotted a great chance!",
+  "spoken": "You spotted a great chance!"
+ },
+ "rooky/56664ac8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The endgame slipped away.",
+  "spoken": "The endgame slipped away."
+ },
+ "rooky/568f85ef": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is isolated: it is a target.",
+  "spoken": "is isolated: it is a target."
+ },
+ "rooky/56e6b791": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are behind. Keep pieces on and look for chances.",
+  "spoken": "You are behind. Keep pieces on and look for chances."
+ },
+ "rooky/56fbec94": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Solid",
+  "spoken": "Solid"
+ },
+ "rooky/571247b3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise using your clock well.",
+  "spoken": "Practise using your clock well."
+ },
+ "rooky/57668a35": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is under attack.",
+  "spoken": "is under attack."
+ },
+ "rooky/584322e6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is guarding two pieces at once. Be careful.",
+  "spoken": "is guarding two pieces at once. Be careful."
+ },
+ "rooky/591aea3b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "undefended.",
+  "spoken": "undefended."
+ },
+ "rooky/59a62a48": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a bold idea here, but it is risky.",
+  "spoken": "There is a bold idea here, but it is risky."
+ },
+ "rooky/5a5ffd17": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "An opening sacrifice of material for development, the centre or an attack.",
+  "spoken": "An opening sacrifice of material for development, the centre or an attack."
+ },
+ "rooky/5a67d20a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Tough game! Let's find the key moments.",
+  "spoken": "Tough game! Let's find the key moments."
+ },
+ "rooky/5a736bc1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Now that's chess!",
+  "spoken": "Now that's chess!"
+ },
+ "rooky/5aaea77d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "fights for the centre.",
+  "spoken": "fights for the centre."
+ },
+ "rooky/5aef2581": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off.",
+  "spoken": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off."
+ },
+ "rooky/5bbab4ff": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Mistakes help us learn.",
+  "spoken": "Mistakes help us learn."
+ },
+ "rooky/5c6950cd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Like a pin, but the more valuable piece is in front.",
+  "spoken": "Like a pin, but the more valuable piece is in front."
+ },
+ "rooky/5e1cbcf4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Watch for their counter-attack:",
+  "spoken": "Watch for their counter-attack:"
+ },
+ "rooky/5e3889e3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Try this thought.",
+  "spoken": "Try this thought."
+ },
+ "rooky/5f77d5e8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Trompowsky Attack",
+  "spoken": "Trompowsky Attack"
+ },
+ "rooky/5f826c57": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "guards two things at once. Attack one of them.",
+  "spoken": "guards two things at once. Attack one of them."
+ },
+ "rooky/5fdd3a99": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee two",
+  "spoken": "jee two"
+ },
+ "rooky/5fe8700b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nearly as good as the best move.",
+  "spoken": "Nearly as good as the best move."
+ },
+ "rooky/5ffb082f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "If you had played the best move",
+  "spoken": "If you had played the best move"
+ },
+ "rooky/6006082b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king can catch their pawn on",
+  "spoken": "Your king can catch their pawn on"
+ },
+ "rooky/60956946": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Tactics",
+  "spoken": "Tactics"
+ },
+ "rooky/610b2281": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Next game, focus on this:",
+  "spoken": "Next game, focus on this:"
+ },
+ "rooky/6126720f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Initiative",
+  "spoken": "Initiative"
+ },
+ "rooky/61342fd0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "on",
+  "spoken": "on"
+ },
+ "rooky/6163efb9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "smothered mate",
+  "spoken": "smothered mate"
+ },
+ "rooky/619cf77f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Accurate play.",
+  "spoken": "Accurate play."
+ },
+ "rooky/61b95f60": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You can do this!",
+  "spoken": "You can do this!"
+ },
+ "rooky/61f42987": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Sensible move.",
+  "spoken": "Sensible move."
+ },
+ "rooky/62efd37c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Evans Gambit",
+  "spoken": "Evans Gambit"
+ },
+ "rooky/63447066": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is not doing much. Find it a better square.",
+  "spoken": "is not doing much. Find it a better square."
+ },
+ "rooky/634a2291": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent has no direct threat now.",
+  "spoken": "Your opponent has no direct threat now."
+ },
+ "rooky/639eb421": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is a strength. Support it and push it.",
+  "spoken": "is a strength. Support it and push it."
+ },
+ "rooky/641198b2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good thinking.",
+  "spoken": "Good thinking."
+ },
+ "rooky/64217094": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Scholar's mate",
+  "spoken": "Scholar's mate"
+ },
+ "rooky/6428ef83": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee six",
+  "spoken": "ee six"
+ },
+ "rooky/648f3bac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Isolated pawn",
+  "spoken": "Isolated pawn"
+ },
+ "rooky/65235958": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bishop",
+  "spoken": "Bishop"
+ },
+ "rooky/65414ef7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Move your",
+  "spoken": "Move your"
+ },
+ "rooky/654f6082": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Swapping pieces of the same value.",
+  "spoken": "Swapping pieces of the same value."
+ },
+ "rooky/6573e9c6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee seven",
+  "spoken": "ee seven"
+ },
+ "rooky/6584267a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look at your",
+  "spoken": "Look at your"
+ },
+ "rooky/65bb9022": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This allows checkmate:",
+  "spoken": "This allows checkmate:"
+ },
+ "rooky/65f0f920": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Superstar move!",
+  "spoken": "Superstar move!"
+ },
+ "rooky/667f70ce": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "for you!",
+  "spoken": "for you!"
+ },
+ "rooky/66963aed": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Zugzwang! Any move makes things worse for the side to move.",
+  "spoken": "Zugzwang! Any move makes things worse for the side to move."
+ },
+ "rooky/669b819c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You miss tactics that are there for you.",
+  "spoken": "You miss tactics that are there for you."
+ },
+ "rooky/66e63edb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Gaining a tempo means making progress while your opponent spends a move answering you.",
+  "spoken": "Gaining a tempo means making progress while your opponent spends a move answering you."
+ },
+ "rooky/6733d49c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "100",
+  "spoken": "100"
+ },
+ "rooky/6778e666": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A pawn with no enemy pawns in its way.",
+  "spoken": "A pawn with no enemy pawns in its way."
+ },
+ "rooky/67d07dca": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your",
+  "spoken": "Your"
+ },
+ "rooky/680fdba8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Don't give up, chess is full of surprises!",
+  "spoken": "Don't give up, chess is full of surprises!"
+ },
+ "rooky/68129d31": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", you are ready.",
+  "spoken": "you are ready."
+ },
+ "rooky/6813cda8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee eight",
+  "spoken": "bee eight"
+ },
+ "rooky/6884e28b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "pawn",
+  "spoken": "pawn"
+ },
+ "rooky/68981be8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Are you sure?",
+  "spoken": "Are you sure?"
+ },
+ "rooky/68ad048e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their king is in danger. Look for checks!",
+  "spoken": "Their king is in danger. Look for checks!"
+ },
+ "rooky/691b42b6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch four",
+  "spoken": "aitch four"
+ },
+ "rooky/69853893": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Not a good move.",
+  "spoken": "Not a good move."
+ },
+ "rooky/6a2893df": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Blunder",
+  "spoken": "Blunder"
+ },
+ "rooky/6ab0de83": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Here's an idea.",
+  "spoken": "Here's an idea."
+ },
+ "rooky/6ad0c8c9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "gives up material for a lasting attack.",
+  "spoken": "gives up material for a lasting attack."
+ },
+ "rooky/6b3efd82": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Well done!",
+  "spoken": "Well done!"
+ },
+ "rooky/6b8adfd6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Let's make a plan.",
+  "spoken": "Let's make a plan."
+ },
+ "rooky/6bb5f0a4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It needs a safer square.",
+  "spoken": "It needs a safer square."
+ },
+ "rooky/6c0f972e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a combination here!",
+  "spoken": "There is a combination here!"
+ },
+ "rooky/6c2a2364": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Use the blunder check before every move.",
+  "spoken": "Use the blunder check before every move."
+ },
+ "rooky/6c4fb8a9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "How the position changed",
+  "spoken": "How the position changed"
+ },
+ "rooky/6cc3dfda": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Accuracy:",
+  "spoken": "Accuracy:"
+ },
+ "rooky/6cc83327": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Best reply",
+  "spoken": "Best reply"
+ },
+ "rooky/6ccf564e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch three",
+  "spoken": "aitch three"
+ },
+ "rooky/6ceb2d06": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "White",
+  "spoken": "White"
+ },
+ "rooky/6d1571c4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "French Defence, Exchange",
+  "spoken": "French Defence, Exchange"
+ },
+ "rooky/6d2fa938": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Giving a pawn early to get a quick start.",
+  "spoken": "Giving a pawn early to get a quick start."
+ },
+ "rooky/6d3c1f9f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "brings your king into the game.",
+  "spoken": "brings your king into the game."
+ },
+ "rooky/6e21b527": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Queen's Pawn Opening",
+  "spoken": "Queen's Pawn Opening"
+ },
+ "rooky/6e8f9f83": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Use your rook to push their king to the edge, one row at a time, with your king helping.",
+  "spoken": "Use your rook to push their king to the edge, one row at a time, with your king helping."
+ },
+ "rooky/6e92eb66": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "An inaccuracy.",
+  "spoken": "An inaccuracy."
+ },
+ "rooky/6eb0253c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Moving it uncovers an attack.",
+  "spoken": "Moving it uncovers an attack."
+ },
+ "rooky/6efd0494": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Scandinavian Defence",
+  "spoken": "Scandinavian Defence"
+ },
+ "rooky/6f3231b6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise checkmate in two moves.",
+  "spoken": "Practise checkmate in two moves."
+ },
+ "rooky/6f33fa44": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see one",
+  "spoken": "see one"
+ },
+ "rooky/6f7913df": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ": head for it.",
+  "spoken": "head for it."
+ },
+ "rooky/6fa6f4e1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king is open:",
+  "spoken": "Your king is open:"
+ },
+ "rooky/6fef40db": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Italian Game",
+  "spoken": "Italian Game"
+ },
+ "rooky/705dc8f4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are ahead by",
+  "spoken": "You are ahead by"
+ },
+ "rooky/707545b3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Needs work",
+  "spoken": "Needs work"
+ },
+ "rooky/70d370ff": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Hmm, not quite the best.",
+  "spoken": "Hmm, not quite the best."
+ },
+ "rooky/70e3c2d5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look out!",
+  "spoken": "Look out!"
+ },
+ "rooky/70eb4bbd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Here's what I see.",
+  "spoken": "Here's what I see."
+ },
+ "rooky/70f5865e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That changes the game.",
+  "spoken": "That changes the game."
+ },
+ "rooky/7160d90c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Beautifully done!",
+  "spoken": "Beautifully done!"
+ },
+ "rooky/71b8ae07": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their",
+  "spoken": "Their"
+ },
+ "rooky/726fd3d5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Mate alert!",
+  "spoken": "Mate alert!"
+ },
+ "rooky/72a58d63": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Réti Opening",
+  "spoken": "Réti Opening"
+ },
+ "rooky/72fb1d50": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Decisions",
+  "spoken": "Decisions"
+ },
+ "rooky/73005dfc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Wait, that's a big mistake.",
+  "spoken": "Wait, that's a big mistake."
+ },
+ "rooky/737a8593": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Open Sicilian",
+  "spoken": "Open Sicilian"
+ },
+ "rooky/73d4f219": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your passed pawn on",
+  "spoken": "Your passed pawn on"
+ },
+ "rooky/74231abc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That keeps things in order.",
+  "spoken": "That keeps things in order."
+ },
+ "rooky/74d1d48e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You can pin a piece.",
+  "spoken": "You can pin a piece."
+ },
+ "rooky/74ff0fe6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their queen is going after your b2 pawn and back row.",
+  "spoken": "Their queen is going after your bee two pawn and back row."
+ },
+ "rooky/75f9fa5a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "percent",
+  "spoken": "percent"
+ },
+ "rooky/7655cedb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Knights like closed positions; bishops like open ones.",
+  "spoken": "Knights like closed positions; bishops like open ones."
+ },
+ "rooky/766124c0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Some winning chances were missed.",
+  "spoken": "Some winning chances were missed."
+ },
+ "rooky/77da6893": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Four Knights Game",
+  "spoken": "Four Knights Game"
+ },
+ "rooky/781c9f32": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Put a pawn in the centre (d4, e4, d5 or e5).",
+  "spoken": "Put a pawn in the centre (dee four, ee four, dee five or ee five)."
+ },
+ "rooky/7866d76f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Not bad, but not the strongest.",
+  "spoken": "Not bad, but not the strongest."
+ },
+ "rooky/786bc20c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "scores a little higher.",
+  "spoken": "scores a little higher."
+ },
+ "rooky/787970fc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff",
+  "spoken": "eff"
+ },
+ "rooky/78c422a9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You sometimes move too fast when pieces are attacked.",
+  "spoken": "You sometimes move too fast when pieces are attacked."
+ },
+ "rooky/7904a73f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A defender guarding two things at once: attack one and the other falls.",
+  "spoken": "A defender guarding two things at once: attack one and the other falls."
+ },
+ "rooky/797f123d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Danger!",
+  "spoken": "Danger!"
+ },
+ "rooky/798b7233": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "They have the opposition. Try to take it back.",
+  "spoken": "They have the opposition. Try to take it back."
+ },
+ "rooky/7a8c7df8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good",
+  "spoken": "Good"
+ },
+ "rooky/7a90682d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Hold on, look at this.",
+  "spoken": "Hold on, look at this."
+ },
+ "rooky/7ac5e947": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Castles queenside",
+  "spoken": "Castles queenside"
+ },
+ "rooky/7b3c1e94": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff six",
+  "spoken": "eff six"
+ },
+ "rooky/7b8038d9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Why",
+  "spoken": "Why"
+ },
+ "rooky/7b84f1d4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A big mistake.",
+  "spoken": "A big mistake."
+ },
+ "rooky/7c22dda6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "An attack along a line that forces a big piece to move and wins the piece behind it.",
+  "spoken": "An attack along a line that forces a big piece to move and wins the piece behind it."
+ },
+ "rooky/7cf2e5a3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A small slip.",
+  "spoken": "A small slip."
+ },
+ "rooky/7dda6dec": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It is still at home.",
+  "spoken": "It is still at home."
+ },
+ "rooky/7de54aee": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Material is even.",
+  "spoken": "Material is even."
+ },
+ "rooky/7de789ac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "was also good:",
+  "spoken": "was also good:"
+ },
+ "rooky/7e409263": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Inaccuracy",
+  "spoken": "Inaccuracy"
+ },
+ "rooky/7e4aaeb5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise king safety and castling.",
+  "spoken": "Practise king safety and castling."
+ },
+ "rooky/7ec17438": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There was a stronger option.",
+  "spoken": "There was a stronger option."
+ },
+ "rooky/7ee2615f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "has no pawn friends next to it (an isolated pawn).",
+  "spoken": "has no pawn friends next to it (an isolated pawn)."
+ },
+ "rooky/7f102862": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "If they answer",
+  "spoken": "If they answer"
+ },
+ "rooky/7f1d989d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You won! What a game!",
+  "spoken": "You won! What a game!"
+ },
+ "rooky/7f8b062e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Learn basic rook endgames.",
+  "spoken": "Learn basic rook endgames."
+ },
+ "rooky/7fb0656d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You won material:",
+  "spoken": "You won material:"
+ },
+ "rooky/8034328d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Catalan Opening",
+  "spoken": "Catalan Opening"
+ },
+ "rooky/8099a371": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Pirc Defence",
+  "spoken": "Pirc Defence"
+ },
+ "rooky/80fac56a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That's a fine move.",
+  "spoken": "That's a fine move."
+ },
+ "rooky/81978977": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Pieces were left unprotected.",
+  "spoken": "Pieces were left unprotected."
+ },
+ "rooky/81a6090a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "After that line:",
+  "spoken": "After that line:"
+ },
+ "rooky/81e74773": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king is exposed. Keep it covered.",
+  "spoken": "Your king is exposed. Keep it covered."
+ },
+ "rooky/821c7bf6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A mistake.",
+  "spoken": "A mistake."
+ },
+ "rooky/8256f6cb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You now attack the",
+  "spoken": "You now attack the"
+ },
+ "rooky/82afa607": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee two",
+  "spoken": "dee two"
+ },
+ "rooky/839ddae2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Play a few games and I will learn how you play.",
+  "spoken": "Play a few games and I will learn how you play."
+ },
+ "rooky/83d050e3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Gambit",
+  "spoken": "Gambit"
+ },
+ "rooky/83dafde2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This changes the game: you lose a lot of your chances.",
+  "spoken": "This changes the game: you lose a lot of your chances."
+ },
+ "rooky/83e140a0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "50",
+  "spoken": "50"
+ },
+ "rooky/8404cfa7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee one",
+  "spoken": "bee one"
+ },
+ "rooky/847e9b0c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look carefully at the board!",
+  "spoken": "Look carefully at the board!"
+ },
+ "rooky/84b3e0fd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their king can catch your pawn on",
+  "spoken": "Their king can catch your pawn on"
+ },
+ "rooky/84e14233": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "51",
+  "spoken": "51"
+ },
+ "rooky/856a3a4e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise pins.",
+  "spoken": "Practise pins."
+ },
+ "rooky/856c3924": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A mistake, but the game goes on!",
+  "spoken": "A mistake, but the game goes on!"
+ },
+ "rooky/85e143c6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "52",
+  "spoken": "52"
+ },
+ "rooky/85f04092": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "was better.",
+  "spoken": "was better."
+ },
+ "rooky/85f04e50": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "32",
+  "spoken": "32"
+ },
+ "rooky/85f426ab": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This gives your opponent an advantage.",
+  "spoken": "This gives your opponent an advantage."
+ },
+ "rooky/85fd0e6e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Giuoco Piano",
+  "spoken": "Giuoco Piano"
+ },
+ "rooky/8649ff20": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Alekhine's Defence",
+  "spoken": "Alekhine's Defence"
+ },
+ "rooky/86e14559": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "53",
+  "spoken": "53"
+ },
+ "rooky/86e383f0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "43",
+  "spoken": "43"
+ },
+ "rooky/86f04fe3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "33",
+  "spoken": "33"
+ },
+ "rooky/873eeac1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That gives them a chance.",
+  "spoken": "That gives them a chance."
+ },
+ "rooky/87449059": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Biggest missed chance:",
+  "spoken": "Biggest missed chance:"
+ },
+ "rooky/8767d867": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "now controls",
+  "spoken": "now controls"
+ },
+ "rooky/878285fa": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is overloaded.",
+  "spoken": "is overloaded."
+ },
+ "rooky/87b09707": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Not this time, but you played some good moves.",
+  "spoken": "Not this time, but you played some good moves."
+ },
+ "rooky/87dbca29": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your knights and bishops come out slowly.",
+  "spoken": "Your knights and bishops come out slowly."
+ },
+ "rooky/87e146ec": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "54",
+  "spoken": "54"
+ },
+ "rooky/87e22fc6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Weaknesses",
+  "spoken": "Weaknesses"
+ },
+ "rooky/87e38583": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "42",
+  "spoken": "42"
+ },
+ "rooky/87f05176": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "30",
+  "spoken": "30"
+ },
+ "rooky/88042550": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A calm position. Improve your worst piece.",
+  "spoken": "A calm position. Improve your worst piece."
+ },
+ "rooky/8825ceab": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee three",
+  "spoken": "bee three"
+ },
+ "rooky/88e1487f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "55",
+  "spoken": "55"
+ },
+ "rooky/88e38716": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "41",
+  "spoken": "41"
+ },
+ "rooky/88f05309": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "31",
+  "spoken": "31"
+ },
+ "rooky/88f291a0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "25",
+  "spoken": "25"
+ },
+ "rooky/89be3958": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay eight",
+  "spoken": "ay eight"
+ },
+ "rooky/89e14a12": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "56",
+  "spoken": "56"
+ },
+ "rooky/89e3398d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your queen is under attack!",
+  "spoken": "Your queen is under attack!"
+ },
+ "rooky/89e388a9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "40",
+  "spoken": "40"
+ },
+ "rooky/89e5c740": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "76",
+  "spoken": "76"
+ },
+ "rooky/89f0549c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "36",
+  "spoken": "36"
+ },
+ "rooky/89f29333": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "24",
+  "spoken": "24"
+ },
+ "rooky/8ac6ec69": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That was a simple move. You can play moves like that faster.",
+  "spoken": "That was a simple move. You can play moves like that faster."
+ },
+ "rooky/8adab1b3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your accuracy is going up. Great work!",
+  "spoken": "Your accuracy is going up. Great work!"
+ },
+ "rooky/8ae14ba5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "57",
+  "spoken": "57"
+ },
+ "rooky/8ae38a3c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "47",
+  "spoken": "47"
+ },
+ "rooky/8ae5c8d3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "77",
+  "spoken": "77"
+ },
+ "rooky/8af0562f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "37",
+  "spoken": "37"
+ },
+ "rooky/8af294c6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "27",
+  "spoken": "27"
+ },
+ "rooky/8b019f50": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "87",
+  "spoken": "87"
+ },
+ "rooky/8b3335e8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A win! Let's see how you did it.",
+  "spoken": "A win! Let's see how you did it."
+ },
+ "rooky/8b668637": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a trick here. Look at checks, captures and attacks.",
+  "spoken": "There is a trick here. Look at checks, captures and attacks."
+ },
+ "rooky/8bd1c206": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Checkmate threats sometimes slip past you.",
+  "spoken": "Checkmate threats sometimes slip past you."
+ },
+ "rooky/8be14d38": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "58",
+  "spoken": "58"
+ },
+ "rooky/8be38bcf": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "46",
+  "spoken": "46"
+ },
+ "rooky/8be5ca66": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "74",
+  "spoken": "74"
+ },
+ "rooky/8bf057c2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "34",
+  "spoken": "34"
+ },
+ "rooky/8bf29659": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "26",
+  "spoken": "26"
+ },
+ "rooky/8bf6498e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is not protected. Can you take it?",
+  "spoken": "is not protected. Can you take it?"
+ },
+ "rooky/8c01a0e3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "86",
+  "spoken": "86"
+ },
+ "rooky/8c037edf": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The king is boxed in by its own pieces and a knight gives check.",
+  "spoken": "The king is boxed in by its own pieces and a knight gives check."
+ },
+ "rooky/8c2c04b8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "the Blackburne Shilling Trap",
+  "spoken": "the Blackburne Shilling Trap"
+ },
+ "rooky/8c389e5b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee six",
+  "spoken": "jee six"
+ },
+ "rooky/8c6c0bd2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Watch out:",
+  "spoken": "Watch out:"
+ },
+ "rooky/8cb712d9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It is about equal.",
+  "spoken": "It is about equal."
+ },
+ "rooky/8ce14ecb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "59",
+  "spoken": "59"
+ },
+ "rooky/8ce347e4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Before you move, ask: what does my opponent want?",
+  "spoken": "Before you move, ask: what does my opponent want?"
+ },
+ "rooky/8ce38d62": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "45",
+  "spoken": "45"
+ },
+ "rooky/8ce5cbf9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "75",
+  "spoken": "75"
+ },
+ "rooky/8cf05955": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "35",
+  "spoken": "35"
+ },
+ "rooky/8cf297ec": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "21",
+  "spoken": "21"
+ },
+ "rooky/8d01a276": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "85",
+  "spoken": "85"
+ },
+ "rooky/8de38ef5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "44",
+  "spoken": "44"
+ },
+ "rooky/8de5cd8c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "72",
+  "spoken": "72"
+ },
+ "rooky/8df2997f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "20",
+  "spoken": "20"
+ },
+ "rooky/8e01a409": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "84",
+  "spoken": "84"
+ },
+ "rooky/8e2fccb8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent has a checkmate coming. Look for checks and defenders.",
+  "spoken": "Your opponent has a checkmate coming. Look for checks and defenders."
+ },
+ "rooky/8ed4a950": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "In rook endgames, keep your rook active.",
+  "spoken": "In rook endgames, keep your rook active."
+ },
+ "rooky/8ee5cf1f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "73",
+  "spoken": "73"
+ },
+ "rooky/8ef29b12": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "23",
+  "spoken": "23"
+ },
+ "rooky/8efd17cc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Let me show you something.",
+  "spoken": "Let me show you something."
+ },
+ "rooky/8f01a59c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "83",
+  "spoken": "83"
+ },
+ "rooky/8fe5d0b2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "70",
+  "spoken": "70"
+ },
+ "rooky/8ff05e0e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "38",
+  "spoken": "38"
+ },
+ "rooky/8ff29ca5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "22",
+  "spoken": "22"
+ },
+ "rooky/9001a72f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "82",
+  "spoken": "82"
+ },
+ "rooky/901589ae": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff two",
+  "spoken": "eff two"
+ },
+ "rooky/909d97fa": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That's exactly the kind of move to find!",
+  "spoken": "That's exactly the kind of move to find!"
+ },
+ "rooky/90b0a5b5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Forks caught you out.",
+  "spoken": "Forks caught you out."
+ },
+ "rooky/90e393ae": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "49",
+  "spoken": "49"
+ },
+ "rooky/90e5d245": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "71",
+  "spoken": "71"
+ },
+ "rooky/90f05fa1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "39",
+  "spoken": "39"
+ },
+ "rooky/9101a8c2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "81",
+  "spoken": "81"
+ },
+ "rooky/917a2677": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Almost! There was a better idea.",
+  "spoken": "Almost! There was a better idea."
+ },
+ "rooky/91e39541": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "48",
+  "spoken": "48"
+ },
+ "rooky/9201aa55": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "80",
+  "spoken": "80"
+ },
+ "rooky/93b554d1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "When kings stand two squares apart on a line, the side not to move has the opposition and can push the other king back.",
+  "spoken": "When kings stand two squares apart on a line, the side not to move has the opposition and can push the other king back."
+ },
+ "rooky/94593148": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Close one! Let's learn from it.",
+  "spoken": "Close one! Let's learn from it."
+ },
+ "rooky/9463ba0c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can give checkmate.",
+  "spoken": "It can give checkmate."
+ },
+ "rooky/94764525": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This allows",
+  "spoken": "This allows"
+ },
+ "rooky/94f2a484": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "29",
+  "spoken": "29"
+ },
+ "rooky/95b7652e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "King's Gambit",
+  "spoken": "King's Gambit"
+ },
+ "rooky/95cd8075": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "from",
+  "spoken": "from"
+ },
+ "rooky/95e8c48e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", which",
+  "spoken": "which"
+ },
+ "rooky/95f2a617": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "28",
+  "spoken": "28"
+ },
+ "rooky/96033787": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee one",
+  "spoken": "ee one"
+ },
+ "rooky/965c53ec": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a checkmate in one move!",
+  "spoken": "There is a checkmate in one move!"
+ },
+ "rooky/965f9ed0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The first row, where the king starts.",
+  "spoken": "The first row, where the king starts."
+ },
+ "rooky/968a1cfc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look for your most forcing move: checks, captures, then threats.",
+  "spoken": "Look for your most forcing move: checks, captures, then threats."
+ },
+ "rooky/968c5c9a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "leaves the king with no move: in chaturanga that wins.",
+  "spoken": "leaves the king with no move: in chaturanga that wins."
+ },
+ "rooky/96cac071": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "They likely answer",
+  "spoken": "They likely answer"
+ },
+ "rooky/96df5f5f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fight for the centre and give your pieces room.",
+  "spoken": "Fight for the centre and give your pieces room."
+ },
+ "rooky/97232745": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee five",
+  "spoken": "jee five"
+ },
+ "rooky/97c3e925": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king is now tucked away safely.",
+  "spoken": "Your king is now tucked away safely."
+ },
+ "rooky/97e5dd4a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "78",
+  "spoken": "78"
+ },
+ "rooky/97e7a84b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent's best answer is",
+  "spoken": "Your opponent's best answer is"
+ },
+ "rooky/987c0dea": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "puts your",
+  "spoken": "puts your"
+ },
+ "rooky/98c32782": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bishop's Opening",
+  "spoken": "Bishop's Opening"
+ },
+ "rooky/98e5dedd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "79",
+  "spoken": "79"
+ },
+ "rooky/9901b55a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "89",
+  "spoken": "89"
+ },
+ "rooky/99b2c921": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "wins a",
+  "spoken": "wins a"
+ },
+ "rooky/99e1d71b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", which is checkmate.",
+  "spoken": "which is checkmate."
+ },
+ "rooky/99ea850f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Sicilian Defence, Najdorf",
+  "spoken": "Sicilian Defence, Najdorf"
+ },
+ "rooky/9a01b6ed": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "88",
+  "spoken": "88"
+ },
+ "rooky/9a296528": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Inaccurate",
+  "spoken": "Inaccurate"
+ },
+ "rooky/9ab46cbd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You often leave pieces unprotected.",
+  "spoken": "You often leave pieces unprotected."
+ },
+ "rooky/9b27c35e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good job!",
+  "spoken": "Good job!"
+ },
+ "rooky/9b8951a6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "horse",
+  "spoken": "horse"
+ },
+ "rooky/9bbba63f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Seeing threats and king safety.",
+  "spoken": "Seeing threats and king safety."
+ },
+ "rooky/9bc66128": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "win a pawn with",
+  "spoken": "win a pawn with"
+ },
+ "rooky/9c344405": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your rook wants an open line.",
+  "spoken": "Your rook wants an open line."
+ },
+ "rooky/9c85df05": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Open file",
+  "spoken": "Open file"
+ },
+ "rooky/9cc1e719": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A special move that tucks the king away and brings a rook out.",
+  "spoken": "A special move that tucks the king away and brings a rook out."
+ },
+ "rooky/9cc8d99d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "enemy pieces aim at it",
+  "spoken": "enemy pieces aim at it"
+ },
+ "rooky/9ccd1fb5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "soldier",
+  "spoken": "soldier"
+ },
+ "rooky/9ce1e9cc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "on a better square.",
+  "spoken": "on a better square."
+ },
+ "rooky/9d5c5ef1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a checkmate in one move.",
+  "spoken": "There is a checkmate in one move."
+ },
+ "rooky/9d93e454": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind.",
+  "spoken": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind."
+ },
+ "rooky/9e1f5b1c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Overloaded piece",
+  "spoken": "Overloaded piece"
+ },
+ "rooky/9e401d5e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their passed pawn on",
+  "spoken": "Their passed pawn on"
+ },
+ "rooky/9ecad190": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Queen's Gambit Accepted",
+  "spoken": "Queen's Gambit Accepted"
+ },
+ "rooky/9ef36340": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Let's think together.",
+  "spoken": "Let's think together."
+ },
+ "rooky/9f3811bf": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "to the",
+  "spoken": "to the"
+ },
+ "rooky/9f3956cc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Move choice and missed chances.",
+  "spoken": "Move choice and missed chances."
+ },
+ "rooky/9fe219c8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see three",
+  "spoken": "see three"
+ },
+ "rooky/9fe3b8c0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Keep going, you're doing great!",
+  "spoken": "Keep going, you're doing great!"
+ },
+ "rooky/a0cd961d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A draw! A hard-fought game.",
+  "spoken": "A draw! A hard-fought game."
+ },
+ "rooky/a0ed1888": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Endgame",
+  "spoken": "Endgame"
+ },
+ "rooky/a1d20d79": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise converting an advantage.",
+  "spoken": "Practise converting an advantage."
+ },
+ "rooky/a1e790ce": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent is a little better.",
+  "spoken": "Your opponent is a little better."
+ },
+ "rooky/a2381c8a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Development",
+  "spoken": "Development"
+ },
+ "rooky/a3150b01": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Legal's Mate",
+  "spoken": "Legal's Mate"
+ },
+ "rooky/a36c3007": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Watch out!",
+  "spoken": "Watch out!"
+ },
+ "rooky/a3e6c3da": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your queen came out early. Watch out: their pieces can chase it and win time.",
+  "spoken": "Your queen came out early. Watch out: their pieces can chase it and win time."
+ },
+ "rooky/a4fcf1df": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "it is still in the middle",
+  "spoken": "it is still in the middle"
+ },
+ "rooky/a513bd1d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "In pawn endgames, every king move counts.",
+  "spoken": "In pawn endgames, every king move counts."
+ },
+ "rooky/a60de417": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That's a mistake, but you can fix things.",
+  "spoken": "That's a mistake, but you can fix things."
+ },
+ "rooky/a6614ec5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king can no longer castle.",
+  "spoken": "Your king can no longer castle."
+ },
+ "rooky/a6da2d6d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your passed pawn wants to run.",
+  "spoken": "Your passed pawn wants to run."
+ },
+ "rooky/a6fb3006": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "King's Pawn Opening",
+  "spoken": "King's Pawn Opening"
+ },
+ "rooky/a72f16c4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Every game makes you stronger.",
+  "spoken": "Every game makes you stronger."
+ },
+ "rooky/a75cde53": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Stalemate",
+  "spoken": "Stalemate"
+ },
+ "rooky/a7949b1b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Colle System",
+  "spoken": "Colle System"
+ },
+ "rooky/a7dd3a69": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "After",
+  "spoken": "After"
+ },
+ "rooky/a8872d94": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Not bad! You can find better.",
+  "spoken": "Not bad! You can find better."
+ },
+ "rooky/a895a8ce": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Solid.",
+  "spoken": "Solid."
+ },
+ "rooky/a8d718b3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "cannot be caught: push it!",
+  "spoken": "cannot be caught: push it!"
+ },
+ "rooky/a91dd8cd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A knight on the edge controls fewer squares.",
+  "spoken": "A knight on the edge controls fewer squares."
+ },
+ "rooky/a93a7622": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The mating line:",
+  "spoken": "The mating line:"
+ },
+ "rooky/a95b7977": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Queen's Gambit",
+  "spoken": "Queen's Gambit"
+ },
+ "rooky/a993f2f7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay one",
+  "spoken": "ay one"
+ },
+ "rooky/aa43955a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see two",
+  "spoken": "see two"
+ },
+ "rooky/aacb3c6c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Not reached",
+  "spoken": "Not reached"
+ },
+ "rooky/ab346193": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Scotch Game",
+  "spoken": "Scotch Game"
+ },
+ "rooky/abbd30d0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Something can be captured safely.",
+  "spoken": "Something can be captured safely."
+ },
+ "rooky/abf12d32": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Zugzwang",
+  "spoken": "Zugzwang"
+ },
+ "rooky/ac039094": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "brings a new piece into the game.",
+  "spoken": "brings a new piece into the game."
+ },
+ "rooky/ac3b7acd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee five",
+  "spoken": "ee five"
+ },
+ "rooky/ac8b7637": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Closed Sicilian",
+  "spoken": "Closed Sicilian"
+ },
+ "rooky/ad401281": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise spotting loose pieces.",
+  "spoken": "Practise spotting loose pieces."
+ },
+ "rooky/ad5dad4a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That move worsens your position.",
+  "spoken": "That move worsens your position."
+ },
+ "rooky/ad793a37": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "the centre",
+  "spoken": "the centre"
+ },
+ "rooky/adb36177": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Grünfeld Defence",
+  "spoken": "Grünfeld Defence"
+ },
+ "rooky/ae0d46cd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee one",
+  "spoken": "dee one"
+ },
+ "rooky/ae4eb746": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "instead of",
+  "spoken": "instead of"
+ },
+ "rooky/ae50aae4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "few pawns in front of it",
+  "spoken": "few pawns in front of it"
+ },
+ "rooky/ae5d689c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Be careful here.",
+  "spoken": "Be careful here."
+ },
+ "rooky/ae79003d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay five",
+  "spoken": "ay five"
+ },
+ "rooky/ae8647a5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Then you play",
+  "spoken": "Then you play"
+ },
+ "rooky/aeca1708": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff four",
+  "spoken": "eff four"
+ },
+ "rooky/aecc8645": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opening was strong: pieces out, king safe.",
+  "spoken": "Your opening was strong: pieces out, king safe."
+ },
+ "rooky/af0c340f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Other moves",
+  "spoken": "Other moves"
+ },
+ "rooky/af46656a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Best move:",
+  "spoken": "Best move:"
+ },
+ "rooky/afa4d8fe": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Playable, but let's look again.",
+  "spoken": "Playable, but let's look again."
+ },
+ "rooky/b0185e83": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Uh oh, that's a blunder.",
+  "spoken": "Uh oh, that's a blunder."
+ },
+ "rooky/b0f29917": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", starting with",
+  "spoken": "starting with"
+ },
+ "rooky/b12aba55": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This lets",
+  "spoken": "This lets"
+ },
+ "rooky/b1ef0e70": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "One move of time.",
+  "spoken": "One move of time."
+ },
+ "rooky/b2003ab1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good endgame thinking.",
+  "spoken": "Good endgame thinking."
+ },
+ "rooky/b2297528": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Rook",
+  "spoken": "Rook"
+ },
+ "rooky/b258eccc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Practise skewers.",
+  "spoken": "Practise skewers."
+ },
+ "rooky/b2f1b848": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look for a fork: one piece attacking two targets.",
+  "spoken": "Look for a fork: one piece attacking two targets."
+ },
+ "rooky/b2fa99a5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is a great square for a knight: no enemy pawn can chase it away.",
+  "spoken": "is a great square for a knight: no enemy pawn can chase it away."
+ },
+ "rooky/b3711c47": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "check",
+  "spoken": "check"
+ },
+ "rooky/b3f24a38": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A great start!",
+  "spoken": "A great start!"
+ },
+ "rooky/b3f75dcd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There's a chance here!",
+  "spoken": "There's a chance here!"
+ },
+ "rooky/b435f519": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You often move your queen too early in the opening.",
+  "spoken": "You often move your queen too early in the opening."
+ },
+ "rooky/b4512a4a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A sound move.",
+  "spoken": "A sound move."
+ },
+ "rooky/b526ec40": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see",
+  "spoken": "see"
+ },
+ "rooky/b572b269": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Queen",
+  "spoken": "Queen"
+ },
+ "rooky/b5b8963a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "has little room. Find it a better square.",
+  "spoken": "has little room. Find it a better square."
+ },
+ "rooky/b5c7c54e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can make a skewer.",
+  "spoken": "It can make a skewer."
+ },
+ "rooky/b63df618": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can become a queen.",
+  "spoken": "It can become a queen."
+ },
+ "rooky/b644bece": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Castles kingside",
+  "spoken": "Castles kingside"
+ },
+ "rooky/b6df9f36": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "behind it",
+  "spoken": "behind it"
+ },
+ "rooky/b7441bc0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You can lose material here:",
+  "spoken": "You can lose material here:"
+ },
+ "rooky/b7af2b3d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Moving one piece uncovers an attack by another.",
+  "spoken": "Moving one piece uncovers an attack by another."
+ },
+ "rooky/b843a5d3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are behind by",
+  "spoken": "You are behind by"
+ },
+ "rooky/b8778936": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A German word: the side to move would rather pass. Common in king and pawn endgames.",
+  "spoken": "A German word: the side to move would rather pass. Common in king and pawn endgames."
+ },
+ "rooky/b8ab311b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are a little better.",
+  "spoken": "You are a little better."
+ },
+ "rooky/b8cb53fb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay three",
+  "spoken": "ay three"
+ },
+ "rooky/b95ce965": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You can win material here.",
+  "spoken": "You can win material here."
+ },
+ "rooky/b96a2718": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Tempo",
+  "spoken": "Tempo"
+ },
+ "rooky/b973427d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee four",
+  "spoken": "bee four"
+ },
+ "rooky/b997db45": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "the queenside",
+  "spoken": "the queenside"
+ },
+ "rooky/b99b1d07": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Giving away material on purpose.",
+  "spoken": "Giving away material on purpose."
+ },
+ "rooky/bb5eaf79": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It wants to go toward",
+  "spoken": "It wants to go toward"
+ },
+ "rooky/bb9e6583": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "uncovers an attack on the",
+  "spoken": "uncovers an attack on the"
+ },
+ "rooky/bbd2aab5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No tactics on this move.",
+  "spoken": "No tactics on this move."
+ },
+ "rooky/bbd50729": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Taking on d5 looks free, but the bishop check wins the piece back.",
+  "spoken": "Taking on dee five looks free, but the bishop check wins the piece back."
+ },
+ "rooky/bbe2bb15": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A good answer for you as Black: the",
+  "spoken": "A good answer for you as Black: the"
+ },
+ "rooky/bc47a12e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", forking your",
+  "spoken": "forking your"
+ },
+ "rooky/bc5b877d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Caro-Kann Defence, Advance",
+  "spoken": "Caro-Kann Defence, Advance"
+ },
+ "rooky/bc9b6523": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A likely way the next moves go:",
+  "spoken": "A likely way the next moves go:"
+ },
+ "rooky/bcf8b48a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Sicilian Defence, Alapin",
+  "spoken": "Sicilian Defence, Alapin"
+ },
+ "rooky/bcfbe98e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Try your own moves on the practice board. The real game stays as it is.",
+  "spoken": "Try your own moves on the practice board. The real game stays as it is."
+ },
+ "rooky/bdb660ac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Usually a queen, but sometimes a knight is better.",
+  "spoken": "Usually a queen, but sometimes a knight is better."
+ },
+ "rooky/bde52b82": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That's okay, but there was better.",
+  "spoken": "That's okay, but there was better."
+ },
+ "rooky/bdf70c28": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Hmm, that one hurts a bit.",
+  "spoken": "Hmm, that one hurts a bit."
+ },
+ "rooky/bdf8297f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Rooks and queens love open files: they can travel all the way down.",
+  "spoken": "Rooks and queens love open files: they can travel all the way down."
+ },
+ "rooky/be2b3bfc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "the Elephant Trap",
+  "spoken": "the Elephant Trap"
+ },
+ "rooky/be65a674": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "the Englund Gambit Trap",
+  "spoken": "the Englund Gambit Trap"
+ },
+ "rooky/be837d69": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You did it! Great game!",
+  "spoken": "You did it! Great game!"
+ },
+ "rooky/be851041": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fork",
+  "spoken": "Fork"
+ },
+ "rooky/bece0569": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Careful there.",
+  "spoken": "Careful there."
+ },
+ "rooky/bf571877": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ruy Lopez",
+  "spoken": "Ruy Lopez"
+ },
+ "rooky/bf6b374b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good fight! Let's see what we can learn.",
+  "spoken": "Good fight! Let's see what we can learn."
+ },
+ "rooky/c00c0969": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your king is under fire. Bring a defender back or trade their attackers.",
+  "spoken": "Your king is under fire. Bring a defender back or trade their attackers."
+ },
+ "rooky/c0285db0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Playable, but not the best.",
+  "spoken": "Playable, but not the best."
+ },
+ "rooky/c1db360d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A pawn reaching the last row becomes a new piece.",
+  "spoken": "A pawn reaching the last row becomes a new piece."
+ },
+ "rooky/c1fae4ea": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "keeps your king safe.",
+  "spoken": "keeps your king safe."
+ },
+ "rooky/c2007c41": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "was another good choice.",
+  "spoken": "was another good choice."
+ },
+ "rooky/c248c39a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", attacking your",
+  "spoken": "attacking your"
+ },
+ "rooky/c2a7d7e1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch eight",
+  "spoken": "aitch eight"
+ },
+ "rooky/c318f0ef": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Usual moves here:",
+  "spoken": "Usual moves here:"
+ },
+ "rooky/c34e8758": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nicely played.",
+  "spoken": "Nicely played."
+ },
+ "rooky/c36f03f7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "now controls only",
+  "spoken": "now controls only"
+ },
+ "rooky/c38a5bc5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Moving the f- and g-pawns early opens a line straight to your king.",
+  "spoken": "Moving the f- and jee pawns early opens a line straight to your king."
+ },
+ "rooky/c3baf506": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A very strong move.",
+  "spoken": "A very strong move."
+ },
+ "rooky/c3e0c862": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The game turned on move",
+  "spoken": "The game turned on move"
+ },
+ "rooky/c41cb1b6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ooh, that's a very strong move!",
+  "spoken": "Ooh, that's a very strong move!"
+ },
+ "rooky/c45da675": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This plan looks safe.",
+  "spoken": "This plan looks safe."
+ },
+ "rooky/c4d5c05b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A king stuck behind its own pawns can be mated by a rook or queen on the back rank.",
+  "spoken": "A king stuck behind its own pawns can be mated by a rook or queen on the back rank."
+ },
+ "rooky/c4da08f9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The queen hits the weak f-pawn square next to the king.",
+  "spoken": "The queen hits the weak eff pawn square next to the king."
+ },
+ "rooky/c54ae403": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Learn king and pawn endgames.",
+  "spoken": "Learn king and pawn endgames."
+ },
+ "rooky/c5c08b72": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This leaves your",
+  "spoken": "This leaves your"
+ },
+ "rooky/c5f5566d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Slav Defence",
+  "spoken": "Slav Defence"
+ },
+ "rooky/c710a536": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Something good is waiting!",
+  "spoken": "Something good is waiting!"
+ },
+ "rooky/c7329238": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "points.",
+  "spoken": "points."
+ },
+ "rooky/c80d8861": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This walks into a forced mate in",
+  "spoken": "This walks into a forced mate in"
+ },
+ "rooky/c825c73d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee three",
+  "spoken": "dee three"
+ },
+ "rooky/c8532b44": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Excellent move.",
+  "spoken": "Excellent move."
+ },
+ "rooky/c8598345": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee",
+  "spoken": "dee"
+ },
+ "rooky/c8b71358": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No enemy pawn can block or capture it on the way to promotion. Push it with support.",
+  "spoken": "No enemy pawn can block or capture it on the way to promotion. Push it with support."
+ },
+ "rooky/c8e31957": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee",
+  "spoken": "jee"
+ },
+ "rooky/c9594d10": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "This makes your position better.",
+  "spoken": "This makes your position better."
+ },
+ "rooky/ca3299ec": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "It can help in the centre.",
+  "spoken": "It can help in the centre."
+ },
+ "rooky/ca5487b6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Getting your pieces out, good.",
+  "spoken": "Getting your pieces out, good."
+ },
+ "rooky/cacdc97c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You often castle late, or not at all.",
+  "spoken": "You often castle late, or not at all."
+ },
+ "rooky/cb557ce4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nimzo-Indian Defence",
+  "spoken": "Nimzo-Indian Defence"
+ },
+ "rooky/cbd0f3fe": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Piece activity",
+  "spoken": "Piece activity"
+ },
+ "rooky/cbd54f80": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Material",
+  "spoken": "Material"
+ },
+ "rooky/cbdafa2f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "No new weaknesses.",
+  "spoken": "No new weaknesses."
+ },
+ "rooky/cd17325c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Knight",
+  "spoken": "Knight"
+ },
+ "rooky/cd9ff4da": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You moved fast in a sharp spot. Take your time when pieces are attacked.",
+  "spoken": "You moved fast in a sharp spot. Take your time when pieces are attacked."
+ },
+ "rooky/cdb3d6ab": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "King's Indian Defence",
+  "spoken": "King's Indian Defence"
+ },
+ "rooky/cdeb72c5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Discovered attack",
+  "spoken": "Discovered attack"
+ },
+ "rooky/cdf8da26": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ladder mate",
+  "spoken": "ladder mate"
+ },
+ "rooky/cf5892a2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Elephant Gambit",
+  "spoken": "Elephant Gambit"
+ },
+ "rooky/cf6479ab": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Pawn",
+  "spoken": "Pawn"
+ },
+ "rooky/cf65cbfa": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look for a discovered attack.",
+  "spoken": "Look for a discovered attack."
+ },
+ "rooky/cfd991d9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A piece with too many jobs.",
+  "spoken": "A piece with too many jobs."
+ },
+ "rooky/d024bddc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a checkmate in",
+  "spoken": "There is a checkmate in"
+ },
+ "rooky/d08960e8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "I see a checkmate!",
+  "spoken": "I see a checkmate!"
+ },
+ "rooky/d0ff06da": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You missed a checkmate in",
+  "spoken": "You missed a checkmate in"
+ },
+ "rooky/d1085be6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "is a sound, steady move.",
+  "spoken": "is a sound, steady move."
+ },
+ "rooky/d23f508e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your opponent threatens checkmate with",
+  "spoken": "Your opponent threatens checkmate with"
+ },
+ "rooky/d2547b03": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There,",
+  "spoken": "There,"
+ },
+ "rooky/d2ad8d7a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You can trade into an easy, winning endgame.",
+  "spoken": "You can trade into an easy, winning endgame."
+ },
+ "rooky/d3e96e11": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nobody won this time. Let's look at it.",
+  "spoken": "Nobody won this time. Let's look at it."
+ },
+ "rooky/d441f5d9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Excellent",
+  "spoken": "Excellent"
+ },
+ "rooky/d4479a34": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Pin",
+  "spoken": "Pin"
+ },
+ "rooky/d4539b83": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Mistake",
+  "spoken": "Mistake"
+ },
+ "rooky/d4652937": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bring another piece into the game.",
+  "spoken": "Bring another piece into the game."
+ },
+ "rooky/d491a840": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Oops! Everyone makes mistakes.",
+  "spoken": "Oops! Everyone makes mistakes."
+ },
+ "rooky/d4e064c8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "takes over the initiative.",
+  "spoken": "takes over the initiative."
+ },
+ "rooky/d55e0bc1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "would fork your",
+  "spoken": "would fork your"
+ },
+ "rooky/d55ea6d0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ", because it",
+  "spoken": "because it"
+ },
+ "rooky/d58e6e3c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good move!",
+  "spoken": "Good move!"
+ },
+ "rooky/d5fbcc41": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good going!",
+  "spoken": "Good going!"
+ },
+ "rooky/d603b12c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Vienna Game",
+  "spoken": "Vienna Game"
+ },
+ "rooky/d77f6b9f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look for a pin along a line.",
+  "spoken": "Look for a pin along a line."
+ },
+ "rooky/d879f94e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "An error.",
+  "spoken": "An error."
+ },
+ "rooky/d8bab9ac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bring your king toward the middle. In the endgame it is a strong piece.",
+  "spoken": "Bring your king toward the middle. In the endgame it is a strong piece."
+ },
+ "rooky/d8d38bdb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Use your queen to box in their king, a knight's move away, then bring your king to help.",
+  "spoken": "Use your queen to box in their king, a knight's move away, then bring your king to help."
+ },
+ "rooky/d8fac298": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bogo-Indian Defence",
+  "spoken": "Bogo-Indian Defence"
+ },
+ "rooky/d9556252": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Textbook opening play!",
+  "spoken": "Textbook opening play!"
+ },
+ "rooky/d96c9ad7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Careful! Let's see what went wrong.",
+  "spoken": "Careful! Let's see what went wrong."
+ },
+ "rooky/da13e3d6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "king",
+  "spoken": "king"
+ },
+ "rooky/da595f79": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "King two squares toward a rook, rook jumps over. Only if neither has moved and the king is not in check.",
+  "spoken": "King two squares toward a rook, rook jumps over. Only if neither has moved and the king is not in check."
+ },
+ "rooky/db6e2f13": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Budapest Gambit",
+  "spoken": "Budapest Gambit"
+ },
+ "rooky/dbfe7eef": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "threatens",
+  "spoken": "threatens"
+ },
+ "rooky/dc610736": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Indian Defence",
+  "spoken": "Indian Defence"
+ },
+ "rooky/dc842b21": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The knight on g5 and bishop on c4 both hit f7. Keep it covered.",
+  "spoken": "The knight on jee five and bishop on see four both hit eff seven. Keep it covered."
+ },
+ "rooky/dc8e7941": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good move.",
+  "spoken": "Good move."
+ },
+ "rooky/dcabd6d0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Now your opponent may play",
+  "spoken": "Now your opponent may play"
+ },
+ "rooky/dd032a10": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Check with no way to move, block or capture. The goal of chess.",
+  "spoken": "Check with no way to move, block or capture. The goal of chess."
+ },
+ "rooky/dd1efef4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Precise.",
+  "spoken": "Precise."
+ },
+ "rooky/dda2e69b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Put your rook behind the passed pawn.",
+  "spoken": "Put your rook behind the passed pawn."
+ },
+ "rooky/dde1dde0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Take a breath, and look at the whole board.",
+  "spoken": "Take a breath, and look at the whole board."
+ },
+ "rooky/deb41074": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your bishop can get trapped by a wall of pawns on a6, b5 and c4.",
+  "spoken": "Your bishop can get trapped by a wall of pawns on ay six, bee five and see four."
+ },
+ "rooky/dedd63aa": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Great endgame technique!",
+  "spoken": "Great endgame technique!"
+ },
+ "rooky/df850900": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Wayward Queen Attack",
+  "spoken": "Wayward Queen Attack"
+ },
+ "rooky/dfbbf53c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "knight",
+  "spoken": "knight"
+ },
+ "rooky/e035a7f3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A pawn with no pawn friends next to it.",
+  "spoken": "A pawn with no pawn friends next to it."
+ },
+ "rooky/e0c62656": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Sacrifice",
+  "spoken": "Sacrifice"
+ },
+ "rooky/e0f977cd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You can uncover an attack.",
+  "spoken": "You can uncover an attack."
+ },
+ "rooky/e105a29c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The engine's first choice was",
+  "spoken": "The engine's first choice was"
+ },
+ "rooky/e15333ac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "see four",
+  "spoken": "see four"
+ },
+ "rooky/e164aa14": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You are winning.",
+  "spoken": "You are winning."
+ },
+ "rooky/e180656c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": ". Pile up on it.",
+  "spoken": "Pile up on it."
+ },
+ "rooky/e18134d3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch seven",
+  "spoken": "aitch seven"
+ },
+ "rooky/e1a732fb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You have used much more time than your opponent. Speed up a little on easy moves.",
+  "spoken": "You have used much more time than your opponent. Speed up a little on easy moves."
+ },
+ "rooky/e1c75491": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You're playing well!",
+  "spoken": "You're playing well!"
+ },
+ "rooky/e1f13634": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You lost this one.",
+  "spoken": "You lost this one."
+ },
+ "rooky/e202f217": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "promotes to a rook",
+  "spoken": "promotes to a rook"
+ },
+ "rooky/e27491be": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch five",
+  "spoken": "aitch five"
+ },
+ "rooky/e2e11d56": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Owen's Defence",
+  "spoken": "Owen's Defence"
+ },
+ "rooky/e305ae36": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "cannot be caught by your king. Use a piece to stop it.",
+  "spoken": "cannot be caught by your king. Use a piece to stop it."
+ },
+ "rooky/e44f4fb4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Scholar's Mate",
+  "spoken": "Scholar's Mate"
+ },
+ "rooky/e4d09e90": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Careful! That's a serious slip.",
+  "spoken": "Careful! That's a serious slip."
+ },
+ "rooky/e5c7adac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "One piece attacking two things at once.",
+  "spoken": "One piece attacking two things at once."
+ },
+ "rooky/e5f12404": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "elephant",
+  "spoken": "elephant"
+ },
+ "rooky/e61ee82b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fried Liver Attack",
+  "spoken": "Fried Liver Attack"
+ },
+ "rooky/e628cc9d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "dee six",
+  "spoken": "dee six"
+ },
+ "rooky/e646b406": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Danish Gambit",
+  "spoken": "Danish Gambit"
+ },
+ "rooky/e6726420": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "has no direct threat. Their best idea is",
+  "spoken": "has no direct threat. Their best idea is"
+ },
+ "rooky/e67eefea": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Middlegame",
+  "spoken": "Middlegame"
+ },
+ "rooky/e67f9125": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "attacks the",
+  "spoken": "attacks the"
+ },
+ "rooky/e71a17a6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A blunder.",
+  "spoken": "A blunder."
+ },
+ "rooky/e7295703": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The position stays about the same.",
+  "spoken": "The position stays about the same."
+ },
+ "rooky/e7720e78": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Brilliant",
+  "spoken": "Brilliant"
+ },
+ "rooky/e7cddfd3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "English Opening",
+  "spoken": "English Opening"
+ },
+ "rooky/e7e1ffef": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "moves. That is fine if your move follows the opening rules.",
+  "spoken": "moves. That is fine if your move follows the opening rules."
+ },
+ "rooky/e851413b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Petrov's Defence",
+  "spoken": "Petrov's Defence"
+ },
+ "rooky/e8a496b4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Every loss teaches something. Let's look.",
+  "spoken": "Every loss teaches something. Let's look."
+ },
+ "rooky/e8afc4f2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A defensive position that holds a draw even with less material.",
+  "spoken": "A defensive position that holds a draw even with less material."
+ },
+ "rooky/e927cb80": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Englund Gambit",
+  "spoken": "Englund Gambit"
+ },
+ "rooky/e94a4c14": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A pawn is ready to promote.",
+  "spoken": "A pawn is ready to promote."
+ },
+ "rooky/e9f8e0bb": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Solid choice.",
+  "spoken": "Solid choice."
+ },
+ "rooky/ea1053b6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "promotes to a",
+  "spoken": "promotes to a"
+ },
+ "rooky/eae3bc92": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nimzowitsch Defence",
+  "spoken": "Nimzowitsch Defence"
+ },
+ "rooky/ec565940": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee eight",
+  "spoken": "jee eight"
+ },
+ "rooky/ec648121": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "forks the",
+  "spoken": "forks the"
+ },
+ "rooky/ecc231f1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Castle soon to keep your king safe.",
+  "spoken": "Castle soon to keep your king safe."
+ },
+ "rooky/ed0d2165": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "-file (doubled pawns).",
+  "spoken": "file (doubled pawns)."
+ },
+ "rooky/ed881c71": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Taking the queen there walks into a knight and bishop mate.",
+  "spoken": "Taking the queen there walks into a knight and bishop mate."
+ },
+ "rooky/edb03318": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There was a forced mate in",
+  "spoken": "There was a forced mate in"
+ },
+ "rooky/edc23421": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay two",
+  "spoken": "ay two"
+ },
+ "rooky/edd7e8c5": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your pawn on",
+  "spoken": "Your pawn on"
+ },
+ "rooky/edec1df9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Look at you go!",
+  "spoken": "Look at you go!"
+ },
+ "rooky/ee16a937": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "promotes to a bishop",
+  "spoken": "promotes to a bishop"
+ },
+ "rooky/ee8d07ae": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A column with no pawns on it.",
+  "spoken": "A column with no pawns on it."
+ },
+ "rooky/ee8ecefd": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "The side with the initiative makes threats that the other side must keep answering.",
+  "spoken": "The side with the initiative makes threats that the other side must keep answering."
+ },
+ "rooky/eecd0fe3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That is a serious error.",
+  "spoken": "That is a serious error."
+ },
+ "rooky/eee8f10e": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "pushes your passed pawn closer to promotion.",
+  "spoken": "pushes your passed pawn closer to promotion."
+ },
+ "rooky/ef0a85f2": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Develop your knights and bishops before your queen.",
+  "spoken": "Develop your knights and bishops before your queen."
+ },
+ "rooky/ef6baf9a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Modern Defence",
+  "spoken": "Modern Defence"
+ },
+ "rooky/efcedfac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Forks, pins, attacks and combinations.",
+  "spoken": "Forks, pins, attacks and combinations."
+ },
+ "rooky/f01bc5e1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "can be taken.",
+  "spoken": "can be taken."
+ },
+ "rooky/f04a8fd7": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Your openings are a strength.",
+  "spoken": "Your openings are a strength."
+ },
+ "rooky/f07f151c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their pawn on",
+  "spoken": "Their pawn on"
+ },
+ "rooky/f098dc88": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee eight",
+  "spoken": "ee eight"
+ },
+ "rooky/f09ad344": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Slightly inaccurate.",
+  "spoken": "Slightly inaccurate."
+ },
+ "rooky/f12fbb3a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Development and opening rules.",
+  "spoken": "Development and opening rules."
+ },
+ "rooky/f1475b5f": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Here's a clue.",
+  "spoken": "Here's a clue."
+ },
+ "rooky/f1b32af1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Brilliantly played!",
+  "spoken": "Brilliantly played!"
+ },
+ "rooky/f1eb128a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "There is a forced checkmate for you.",
+  "spoken": "There is a forced checkmate for you."
+ },
+ "rooky/f28057a9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Oops, a mistake.",
+  "spoken": "Oops, a mistake."
+ },
+ "rooky/f3a0cfac": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Noah's Ark Trap",
+  "spoken": "Noah's Ark Trap"
+ },
+ "rooky/f410f509": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Open Game",
+  "spoken": "Open Game"
+ },
+ "rooky/f4481585": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "puts your rook on an open file.",
+  "spoken": "puts your rook on an open file."
+ },
+ "rooky/f4e3bf8b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ee three",
+  "spoken": "ee three"
+ },
+ "rooky/f5a00a9b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Watch out: they can uncover an attack with",
+  "spoken": "Watch out: they can uncover an attack with"
+ },
+ "rooky/f5dda070": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "keeps your",
+  "spoken": "keeps your"
+ },
+ "rooky/f63b8fe6": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "bee seven",
+  "spoken": "bee seven"
+ },
+ "rooky/f667dc25": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Fantastic thinking!",
+  "spoken": "Fantastic thinking!"
+ },
+ "rooky/f66b9fd3": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "promotes to a knight",
+  "spoken": "promotes to a knight"
+ },
+ "rooky/f6f1dff9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Trade",
+  "spoken": "Trade"
+ },
+ "rooky/f742cc1a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "checkmate",
+  "spoken": "checkmate"
+ },
+ "rooky/f7cc3001": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "In queen endgames, keep your king safe from checks.",
+  "spoken": "In queen endgames, keep your king safe from checks."
+ },
+ "rooky/f7ff523d": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Even with less material, the defender can hold here: a fortress.",
+  "spoken": "Even with less material, the defender can hold here: a fortress."
+ },
+ "rooky/f845b8d1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "eff seven",
+  "spoken": "eff seven"
+ },
+ "rooky/f8eabcf8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "A draw.",
+  "spoken": "A draw."
+ },
+ "rooky/f90582df": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "jee one",
+  "spoken": "jee one"
+ },
+ "rooky/f916c4bc": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "aitch two",
+  "spoken": "aitch two"
+ },
+ "rooky/f922c1da": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "pins the",
+  "spoken": "pins the"
+ },
+ "rooky/f9a6a433": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "ay six",
+  "spoken": "ay six"
+ },
+ "rooky/f9bd4a52": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Nice one.",
+  "spoken": "Nice one."
+ },
+ "rooky/fa0adb1a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "French Defence, Winawer",
+  "spoken": "French Defence, Winawer"
+ },
+ "rooky/fa9fd077": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Uh oh, that's a mistake.",
+  "spoken": "Uh oh, that's a mistake."
+ },
+ "rooky/fafae04b": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "You kept fighting in a hard game.",
+  "spoken": "You kept fighting in a hard game."
+ },
+ "rooky/fc11dc24": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "takes the",
+  "spoken": "takes the"
+ },
+ "rooky/fc57fcdf": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ouch! Take a deep breath, and look again.",
+  "spoken": "Ouch! Take a deep breath, and look again."
+ },
+ "rooky/fc96fd2a": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Ruy Lopez, Morphy Defence",
+  "spoken": "Ruy Lopez, Morphy Defence"
+ },
+ "rooky/fcab92b4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Both kings are safe for now.",
+  "spoken": "Both kings are safe for now."
+ },
+ "rooky/fce6add4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Good try, there was a stronger move.",
+  "spoken": "Good try, there was a stronger move."
+ },
+ "rooky/fcff84d8": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "win your",
+  "spoken": "win your"
+ },
+ "rooky/fd0e3b94": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Heads up!",
+  "spoken": "Heads up!"
+ },
+ "rooky/fd60f4a0": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their king is open:",
+  "spoken": "Their king is open:"
+ },
+ "rooky/fd811500": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Centre Game",
+  "spoken": "Centre Game"
+ },
+ "rooky/fda71b9c": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Bird's Opening",
+  "spoken": "Bird's Opening"
+ },
+ "rooky/fe642ef1": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Passed pawn",
+  "spoken": "Passed pawn"
+ },
+ "rooky/fe8724d9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "That is the strongest choice.",
+  "spoken": "That is the strongest choice."
+ },
+ "rooky/ff237cb9": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Something of yours is in danger. Keep it safe first.",
+  "spoken": "Something of yours is in danger. Keep it safe first."
+ },
+ "rooky/ffdc63d4": {
+  "voice": "am_puck,am_michael",
+  "speed": 0.95,
+  "text": "Their king is open. Bring more pieces toward it before you strike.",
+  "spoken": "Their king is open. Bring more pieces toward it before you strike."
+ }
+}

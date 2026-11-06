@@ -863,7 +863,7 @@ function ChacklateMentor(E, C, strings) {
     if (!tac.length) tac.push(tr('t.none'));
     add('h.tactics', tac);
     // plan
-    add('h.strategy', [reason(f, b, a), st.phase ? tr('ph.' + st.phase) + ': ' + mentorLine(a, st.side) : '']);
+    { const why = shortWhy(st, grade), r = reason(f, b, a); add('h.strategy', [r === why ? '' : r, st.phase ? tr('ph.' + st.phase) + ': ' + mentorLine(a, st.side) : '']); }
     // threats created or missed
     const thr = [];
     const newAttacks = f.attacks.filter((t) => !b.hanging.them.some((h) => h.sq === t.sq));
