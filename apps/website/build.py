@@ -46,14 +46,14 @@ LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome':
 FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome': ('#4a1840', '#ff9cd8'), 'mughal': ('#0e5a52', '#9fe0cc'),
         'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'paris': ('#4a1426', '#ffb0c4'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
 # The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
-SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'scene.js')]
+SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'scene.js')]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 # The two items each tab of the details showcase plays, one after the other. None of them is
 # the item on the tab's own medal, and no item shows twice.
 FX_DEMOS = {
-    'capture': ['capture.frost.v1', 'capture.ruby-petals.v1'],
-    'victory': ['victory.harvest.v1', 'victory.sparks.v1'],
-    'trail': ['trail.mint.v1', 'trail.gold.v1'],
+    'capture': ['capture.fire-burst.v1', 'capture.frost.v1'],
+    'victory': ['victory.lightning-storm.v1', 'victory.harvest.v1'],
+    'trail': ['trail.rainbow.v1', 'trail.mint.v1'],
     'clock': ['clock.ice.v1', 'clock.ruby.v1'],
     'sound': ['sound.marble.v1', 'sound.glass.v1'],
     'avatar': ['avatar.ember.v1', 'avatar.bao.v1'],
@@ -61,9 +61,9 @@ FX_DEMOS = {
 }
 
 LINKS = {
-    'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/'},
+    'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/', 'FX': '/fx/'},
     'preview': {'PLAY': 'https://claude.ai/artifact/LPXvesS3kLgtjYFDkxGJFL', 'PARENT': 'privacy.html#rights',
-                'PRIVACY': 'privacy.html', 'TERMS': 'terms.html', 'PITCHES': 'audio/'},
+                'PRIVACY': 'privacy.html', 'TERMS': 'terms.html', 'PITCHES': 'audio/', 'FX': 'fx/'},
 }
 
 
@@ -95,7 +95,7 @@ def site_data():
         tint = tints[e['set']]
         eras.append({
             'id': e['id'], 'name': e['name'], 'title': e['title'], 'when': e['when'], 'place': e['place'], 'access': e['access'],
-            'coach': {'full': e['coach']['full'], 'hello': e['coach']['hello']},
+            'coach': {'name': e['coach']['name'], 'full': e['coach']['full'], 'hello': e['coach']['hello']},
             'tale': e['stages'][0]['pages'][0],
             'stages': [{'kind': STAGES[st['kind']], 'title': st['title']} for st in e['stages']],
             'board': e['board'], 'landmark': LANDMARKS[e['id']],
@@ -179,11 +179,38 @@ def guide(coach, collection):
         src = ('@@PITCHES@@' + key + '.mp3' if key.startswith('item-') else
                'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode())
         out[key] = {'text': text, 'cues': recorded[key]['cues'], 'src': src}
+    # Rooky in other languages: audio/<lang>/index.json and its clips, recorded from the translated
+    # lines. A line with no clip in the visitor's language is read by the device's voice instead.
+    for d in sorted(x for x in (here / 'audio').iterdir() if x.is_dir() and (x / 'index.json').exists()):
+        said = json.loads((d / 'index.json').read_text())['lines']
+        for key, rec in said.items():
+            if key in out and (d / (key + '.mp3')).exists():
+                src = ('@@PITCHES@@' + d.name + '/' + key + '.mp3' if key.startswith('item-') else
+                       'data:audio/mpeg;base64,' + base64.b64encode((d / (key + '.mp3')).read_bytes()).decode())
+                out[key].setdefault('langs', {})[d.name] = {'cues': rec['cues'], 'src': src}
     return out
 
 
 # The site's languages. English text is the key; i18n/<code>.json maps it to the translation.
-LANGS = [('en', 'English'), ('hi', 'हिन्दी')]
+# The ten most spoken languages, as in the game (apps/web-prototype/src/i18n.js). Longer content
+# shared with the game (set and room descriptions, era names) comes from the game's tables in
+# packages/content/i18n/text/<code>.json; i18n/<code>.json holds the site's own text and wins.
+ALL_LANGS = [('en', 'English'), ('zh', '中文'), ('hi', 'हिन्दी'), ('es', 'Español'), ('fr', 'Français'), ('ar', 'العربية'),
+             ('bn', 'বাংলা'), ('pt', 'Português'), ('ru', 'Русский'), ('ur', 'اردو')]
+READY = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ru', 'ur']   # as in the game: a language joins once it is fully translated
+LANGS = [l for l in ALL_LANGS if l[0] in READY]
+META = {
+    'zh': {'dir': 'ltr', 'script': 'Han', 'speech': 'zh-CN'},
+    'hi': {'dir': 'ltr', 'script': 'Devanagari', 'speech': 'hi-IN'},
+    'es': {'dir': 'ltr', 'script': 'Latin', 'speech': 'es-ES'},
+    'fr': {'dir': 'ltr', 'script': 'Latin', 'speech': 'fr-FR'},
+    'ar': {'dir': 'rtl', 'script': 'Arabic', 'speech': 'ar-SA', 'fonts': 'arab'},
+    'bn': {'dir': 'ltr', 'script': 'Bengali', 'speech': 'bn-IN', 'fonts': 'beng'},
+    'pt': {'dir': 'ltr', 'script': 'Latin', 'speech': 'pt-BR'},
+    'ru': {'dir': 'ltr', 'script': 'Cyrillic', 'speech': 'ru-RU', 'fonts': 'cyrl'},
+    'ur': {'dir': 'rtl', 'script': 'Arabic', 'speech': 'ur-PK', 'fonts': 'arab'},
+}
+SHOW_MISSING = None
 SEP = re.compile(r' · |, |: ')
 
 
@@ -232,16 +259,27 @@ def i18n(page, eras, opponents, collection, guide_lines, keep):
             wanted |= {it['desc'], it['line'], it['how']}
     for line in guide_lines.values():
         wanted |= {c['text'] for c in line['cues']}
+    # Rooky's lesson on the live table: the move names and his line on each move (LESSON in the page script)
+    lesson = re.search(r'var LESSON = \[(.*?)\n  \];', page, re.S)
+    assert lesson, 'the page script has no LESSON'
+    for m in re.finditer(r"\['((?:[^'\\]|\\.)*)', \d+, \d+, -?\d+, '((?:[^'\\]|\\.)*)'\]", lesson.group(1)):
+        wanted |= {m.group(1).replace("\\'", "'"), m.group(2).replace("\\'", "'")}
     out = {}
     for code, name in LANGS[1:]:
-        table = json.loads((here / 'i18n' / (code + '.json')).read_text())
-        meta = table.pop('_meta')
+        shared = content / 'i18n' / 'text' / (code + '.json')
+        table = json.loads(shared.read_text()) if shared.exists() else {}
+        table.pop('_meta', None)
+        own = here / 'i18n' / (code + '.json')
+        site = json.loads(own.read_text()) if own.exists() else {}
+        meta = dict(META[code], **site.pop('_meta', {}))
+        table.update(site)
         found = lambda x: x in table or x in keep or not re.search('[A-Za-z]', x) or all(found(p) for p in SEP.split(x) if p != x) and bool(SEP.search(x))
         missing = sorted(x for x in wanted if not found(x.strip('“”').rstrip(' ·')))
         if missing:
-            print('i18n/%s.json is missing %d strings; the site shows them in English:' % (code, len(missing)))
-            for x in missing:
-                print('  ' + json.dumps(x, ensure_ascii=False))
+            print('i18n/%s.json is missing %d strings; the site shows them in English%s' % (code, len(missing), ':' if len(missing) < 60 else ' (python3 build.py --missing %s lists them)' % code))
+            if len(missing) < 60 or code == SHOW_MISSING:
+                for x in missing:
+                    print('  ' + json.dumps(x, ensure_ascii=False))
         out[code] = {'name': name, 'meta': meta, 'table': table}
     return out
 
@@ -268,17 +306,37 @@ def build(target):
     lines = guide(coach['name'], collection)
     catalog = load('catalog.json')
     fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in catalog['items'] if i['id'] == d] for c, ids in FX_DEMOS.items()}
+    # clips recorded from the game's own table (tools/record-fx.js): fx/<id>.mp4, its poster
+    # fx/<id>.jpg, and for sound packs fx/<id>.lands.json, when each piece lands in the clip
+    for items in fx.values():
+        for i in items:
+            if (here / 'fx' / (i['id'] + '.mp4')).exists():
+                assert (here / 'fx' / (i['id'] + '.jpg')).exists(), 'missing fx/%s.jpg' % i['id']
+                i['clip'] = i['id']
+                lands = here / 'fx' / (i['id'] + '.lands.json')
+                if lands.exists():
+                    i['lands'] = json.loads(lands.read_text())
     assert all(len(v) == 2 for v in fx.values()), fx
-    keep = {coach['name'], coach['full'], 'Chackmate'} | {o['name'] for o in opponents} | {it['name'] for items in collection.values() for it in items}
+    # Names stay as they are in every language: the characters, the game, the studio and the
+    # names of the sets, boards and rooms (like product names; the approved Hindi keeps them too).
+    keep = {coach['name'], coach['full'], 'Chackmate', 'Chacklate Experiences'} | {o['name'] for o in opponents} | {e['coach']['name'] for e in eras} | \
+        {it['name'] for items in collection.values() for it in items}
     keep |= {i['name'] for v in fx.values() for i in v}
     page = page.replace('/*FONTS*/', fonts + (here / 'vendor' / 'devanagari.css').read_text())
     filled = fill(page, img, art, counts, coach, target)
     langs = i18n(filled, eras, opponents, collection, lines, keep)
     data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': lines, 'coach': coach['name'], 'collection': collection, 'fx': fx,
-                                             'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep)},
+                                             'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep),
+                                             'fonts': {k: (game / 'vendor' / ('fonts-%s.css' % k)).read_text() for k in sorted({META[c]['fonts'] for c, _ in LANGS if 'fonts' in META.get(c, {})})}},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
+    # the brands' artwork for the Times Square billboards, as the game builds it
+    ads_dir = game / 'src' / 'ads'
+    ads = {'crest': 'data:image/webp;base64,' + base64.b64encode((game / 'src' / 'crest.webp').read_bytes()).decode(),
+           'nibbland': 'data:image/webp;base64,' + base64.b64encode((ads_dir / 'nibbland-logo.webp').read_bytes()).decode(),
+           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode()}
+    scene = 'const CHACKLATE_ADS = %s;\n' % json.dumps(ads, separators=(',', ':')) + scene
     assert '</script' not in scene.lower()
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
     tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
@@ -305,7 +363,10 @@ def fill(page, img, art, counts, coach, target):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--preview', metavar='DIR', help='write a stand-alone copy with privacy and terms beside it')
+    ap.add_argument('--missing', metavar='LANG', help='list every string LANG misses')
     args = ap.parse_args()
+    global SHOW_MISSING
+    SHOW_MISSING = args.missing
     if args.preview:
         out = pathlib.Path(args.preview)
         out.mkdir(parents=True, exist_ok=True)
@@ -313,6 +374,13 @@ def main():
         (out / 'audio').mkdir(exist_ok=True)
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
+        for clip in (here / 'audio').glob('*/item-*.mp3'):   # the same pitches in other languages
+            (out / 'audio' / clip.parent.name).mkdir(exist_ok=True)
+            (out / 'audio' / clip.parent.name / clip.name).write_bytes(clip.read_bytes())
+        (out / 'fx').mkdir(exist_ok=True)
+        for clip in (here / 'fx').glob('*.*'):
+            if clip.suffix in ('.mp4', '.jpg'):
+                (out / 'fx' / clip.name).write_bytes(clip.read_bytes())
         for name in ('privacy', 'terms'):
             text = (here / (name + '.html')).read_text()
             text = text.replace('href="/"', 'href="index.html"').replace('href="/parent"', 'href="privacy.html#rights"')

@@ -22,6 +22,7 @@ SCRIPTS = [
     src / 'kit3d.js',
     src / 'pieces3d.js',
     src / 'avatars3d.js',
+    src / 'billboards.js',
     src / 'landmarks3d.js',
     src / 'suites3d.js',
     src / 'world3d.js',
@@ -83,14 +84,24 @@ parts.append('const CHACKLATE_PITCH = %s;' % json.dumps(pitch, separators=(',', 
 strings = {f.stem: {k: {l: v for l, v in e.items() if l != 'check'} for k, e in json.loads(f.read_text()).items()}
            for f in sorted((content / 'i18n').glob('*.json'))}
 parts.append('const CHACKLATE_STRINGS = %s;' % json.dumps(strings, separators=(',', ':'), ensure_ascii=False))
-# Fonts for non-Latin scripts, added to the page only when such a language is chosen.
-parts.append('const CHACKLATE_SCRIPT_FONTS = %s;' % json.dumps({'deva': (vendor / 'fonts-deva.css').read_text()}))
+# Fonts for non-Latin scripts, added to the page only when such a language is chosen. Only the
+# scripts of the languages on offer (READY in src/i18n.js) are packed, so unused fonts cost nothing.
+ready = re.search(r"const READY = \[([^\]]*)\]", (here / 'src' / 'i18n.js').read_text()).group(1)
+scripts = {'hi': 'deva', 'ar': 'arab', 'ur': 'arab', 'bn': 'beng', 'ru': 'cyrl'}
+packed = sorted({scripts[l] for l in re.findall(r"'(\w+)'", ready) if l in scripts})
+parts.append('const CHACKLATE_SCRIPT_FONTS = %s;' % json.dumps({k: (vendor / ('fonts-%s.css' % k)).read_text() for k in packed}))
+# Longer content (lessons, stories, openings, rules, set stories) in each language, keyed by the
+# English; src/i18n.js text() and watch() read it. Made from tools/i18n-text.js's list.
+text = {f.stem: json.loads(f.read_text()) for f in sorted((content / 'i18n' / 'text').glob('*.json'))}
+for t in text.values():
+    t.pop('_meta', None)
+parts.append('const CHACKLATE_TEXT = %s;' % json.dumps(text, separators=(',', ':'), ensure_ascii=False))
 # The carved names on the Xiangqi pieces and the river: a Noto Serif SC cut of just those 18
 # characters (SIL Open Font License 1.1, (c) Google LLC), loaded by xiangqi3d.js.
 parts.append("const CHACKLATE_XQ_FONT = 'data:font/ttf;base64,%s';" % base64.b64encode((vendor / 'xiangqi-han.ttf').read_bytes()).decode())
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
-look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
+look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
 parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
 # The crest (the rendered gold knight, shared with the website), inlined so the game stays one file.
 parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
@@ -104,6 +115,11 @@ for f in sorted((src / 'art').glob('*.webp')):
     kind, name = f.stem.split('-', 1)
     art[kind][landmarks.get(name, name) if kind == 'view' else name] = uri(f)
 parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')))
+# The brands' own artwork for the Times Square billboards (src/billboards.js): the
+# Nibbland logo and the Jong Club wordmark (the crest is CHACKLATE_CREST above).
+ads = {'nibbland': uri(src / 'ads' / 'nibbland-logo.webp'),
+       'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((src / 'ads' / 'jongclub-wordmark.svg').read_bytes()).decode()}
+parts.append('const CHACKLATE_ADS = %s;' % json.dumps(ads, separators=(',', ':')))
 # The piece sound packs: real recordings, one short MP3 per pack (tools/sfx.py makes them).
 sfx_index = json.loads((here / 'sfx' / 'index.json').read_text())
 sfx = {k: {'mp3': base64.b64encode((here / 'sfx' / (k + '.mp3')).read_bytes()).decode(), 'clips': v} for k, v in sfx_index.items()}

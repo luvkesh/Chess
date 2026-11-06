@@ -237,6 +237,24 @@ function createServer(opts) {
         return fs.createReadStream(pf).pipe(res);
       }
     }
+    // The website's details showcase: clips recorded from the game's own table, and their posters.
+    const fm = url.pathname.match(/^\/fx\/([a-z0-9.-]+)\.(mp4|jpg)$/);
+    if (fm && req.method === 'GET') {
+      const ff = path.join(ROOT, 'apps/website/fx', fm[1] + '.' + fm[2]);
+      if (fs.existsSync(ff)) {
+        const size = fs.statSync(ff).size, type = fm[2] === 'mp4' ? 'video/mp4' : 'image/jpeg';
+        // Safari asks for video in ranges and will not play a clip served whole
+        const r = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+        if (r && fm[2] === 'mp4') {
+          const a = r[1] ? +r[1] : Math.max(0, size - +r[2]), b = r[1] && r[2] ? Math.min(+r[2], size - 1) : size - 1;
+          if (a > b || a >= size) { res.writeHead(416, Object.assign({ 'Content-Range': 'bytes */' + size }, SECURITY_HEADERS)); return res.end(); }
+          res.writeHead(206, Object.assign({ 'Content-Type': type, 'Content-Length': b - a + 1, 'Content-Range': 'bytes ' + a + '-' + b + '/' + size, 'Accept-Ranges': 'bytes', 'Cache-Control': 'public, max-age=86400' }, SECURITY_HEADERS));
+          return fs.createReadStream(ff, { start: a, end: b }).pipe(res);
+        }
+        res.writeHead(200, Object.assign({ 'Content-Type': type, 'Content-Length': size, 'Accept-Ranges': 'bytes', 'Cache-Control': 'public, max-age=86400' }, SECURITY_HEADERS));
+        return fs.createReadStream(ff).pipe(res);
+      }
+    }
     // Lessons with their own speakers: words/<who>/<hash of the text>.mp3, recorded again when a voice changes.
     const wm = url.pathname.match(/^\/words\/([a-z]+)\/([0-9a-f]{8})\.mp3$/);
     if (wm && req.method === 'GET') {

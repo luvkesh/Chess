@@ -1,0 +1,917 @@
+{
+ "home.first": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "नमस्ते, मैं Rooky हूँ! मेरे साथ समय की सैर के लिए \"यात्रा\" पर टैप करें, या किसी जानवर दोस्त के साथ खेलने के लिए \"झटपट खेल\" पर टैप करें।"
+ },
+ "home": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "फिर से स्वागत है! अपना सफ़र आगे बढ़ाने के लिए \"यात्रा\" पर टैप करें, या मज़ेदार खेल के लिए \"झटपट खेल\" पर।"
+ },
+ "home.resume": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आपका खेल आपका इंतज़ार कर रहा है! \"खेल जारी रखें\" पर टैप करें, और जहाँ छोड़ा था वहीं से खेलें।"
+ },
+ "play": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "खेलने के लिए कोई जानवर दोस्त चुनें। अगर आप नए हैं, तो Truffle ख़रगोश से शुरू करें। हर दोस्त पिछले से थोड़ा ज़्यादा मज़बूत है।"
+ },
+ "journey": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हर युग एक नया रोमांच है! किसी खुले युग पर टैप करें, और वहाँ रहने वाले दोस्त से मिलें।"
+ },
+ "learn": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "एक पाठ चुनिए, और मैं आपको क़दम-दर-क़दम सिखाऊँगा। ऊपर से शुरू करें, और नीचे की ओर बढ़ें।"
+ },
+ "puzzles": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "पहेलियाँ छोटी-छोटी ख़ज़ाने की खोज हैं। एक चुनें, फिर सबसे अच्छी चाल खोजें।"
+ },
+ "training": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए अभ्यास करें! एक हुनर चुनें, और हम साथ मिलकर उस पर काम करेंगे।"
+ },
+ "minis": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "मिनी-गेम झटपट होते हैं! एक चुनें, और अपना सबसे अच्छा स्कोर तोड़ें।"
+ },
+ "mini": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "नियम चाहिए तो स्क्रॉल पर टैप करें। मज़े करें!"
+ },
+ "openings": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "ओपनिंग खेल की पहली चालें होती हैं। एक चुनें, और उसे बिसात पर आज़माएँ।"
+ },
+ "dojo": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अंतिम खेल यानी खेल का आख़िरी हिस्सा, जब कुछ ही मोहरे बचते हैं। एक चुनें, और क़दम-दर-क़दम उसे जीतें।"
+ },
+ "collection": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यह आपका संग्रह है! किसी भी चीज़ को पास से देखने के लिए टैप करें, और मैं आपको उसके बारे में सब बताऊँगा। फिर उसे अपनी मेज़ पर लगाने के लिए \"लगाएँ\" पर टैप करें।"
+ },
+ "profile": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यह आप हैं! यहाँ आप अपना लेवल, अपने खेल और अपने बैज देख सकते हैं।"
+ },
+ "club": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "क्लब में आपका स्वागत है! देखें कि आपकी रैंक क्या है, लीग में ऊपर चढ़ें, और उन दोस्तों को ढूँढें जिनके साथ आप कोड से खेलते हैं।"
+ },
+ "season": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "सीज़न में ऊपर चढ़ने के लिए खेलें, सीखें और पहेलियाँ हल करें। हर टियर पर एक इनाम है!"
+ },
+ "store": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यह हिस्सा बड़ों के लिए है। कुछ भी ख़रीदने से पहले किसी बड़े से ज़रूर पूछें।"
+ },
+ "review": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए आपके खेल को फिर से देखें। तीरों पर टैप करें, और एक-एक चाल आगे बढ़ें।"
+ },
+ "game.white": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "पहले आप चलेंगे! अपने किसी मोहरे पर टैप करें, फिर उस खाने पर टैप करें जहाँ आप उसे ले जाना चाहते हैं।"
+ },
+ "game.black": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आपका दोस्त पहले चलेगा। उसकी चाल देखें, और फिर आपकी बारी!"
+ },
+ "game.check": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अरे, आपके राजा को शह है! उसे सुरक्षित जगह ले जाएँ, हमले को बीच में रोकें, या हमला करने वाले को मार दें।"
+ },
+ "game.idle": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आराम से सोचें। अगर अटक जाएँ, तो \"संकेत\" पर टैप करें, और मैं एक अच्छा विचार दिखाऊँगा।"
+ },
+ "game.over": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अच्छा खेल! अपनी सबसे अच्छी चालें देखने के लिए \"Rooky के साथ समीक्षा\" पर टैप करें, या फिर से खेलें।"
+ },
+ "lesson.steps": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए सीखें! सुनिए, और बिसात देखिए। तैयार होने पर ‘आगे’ पर टैप करें।"
+ },
+ "lesson.open.board": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "नमस्ते, खोजी! शतरंज का हर सफ़र बिसात से शुरू होता है। सुनिए, फिर आगे बढ़ने के लिए ‘आगे’ पर टैप करें।"
+ },
+ "lesson.open.setup": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "सेना को जगाने का समय! चलिए हर मोहरे को उसके घर में रखें।"
+ },
+ "lesson.open.rook-bishop": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "सीधी लकीरें, तिरछी लकीरें, और एक बहुत सावधान राजा। तैयार? चलिए!"
+ },
+ "lesson.open.knight": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "छलाँग! घोड़ा अकेला मोहरा है जो कूदता है। उसे कूदते देखिए!"
+ },
+ "lesson.open.pawns": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "छोटे प्यादे, बड़े सपने! आख़िरी पंक्ति तक पहुँचो, और वज़ीर बन जाओ।"
+ },
+ "lesson.open.values": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "किस मोहरे की क़ीमत सबसे ज़्यादा है? चलिए उन्हें ख़ज़ाने की तरह तौलें।"
+ },
+ "lesson.open.check": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अरे, राजा ख़तरे में है! चलिए उसे बचाने के तीन तरीक़े सीखें।"
+ },
+ "lesson.open.checkmate": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यह सबसे बड़ा है! शह-मात से पूरा खेल जीता जाता है।"
+ },
+ "lesson.open.castling": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "राजा और हाथी की एक ख़ास चाल! चलिए देखें यह कैसे होती है।"
+ },
+ "lesson.open.stalemate": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हर खेल में कोई जीतता नहीं। चलिए जानें क्यों!"
+ },
+ "lesson.open.centre": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "बिसात का बीच सबसे बढ़िया जगह है। चलिए उस पर क़ब्ज़ा करें!"
+ },
+ "lesson.open.king-safety": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "राजा को सुरक्षित रखिए, और चालाक वज़ीर से सावधान रहिए!"
+ },
+ "lesson.open.traps": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कुछ खेल बहुत जल्दी ख़त्म हो जाते हैं! चलिए जाल पहचानें, ताकि आप कभी न फँसें।"
+ },
+ "lesson.open.forks": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "एक मोहरा, दो निशाने! काँटा मेरी सबसे पसंदीदा चाल है।"
+ },
+ "lesson.open.pins": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कुछ मोहरे अटक जाते हैं, और हिल नहीं पाते! चलिए बाँधना और भेदना सीखें।"
+ },
+ "lesson.open.discovered": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "एक मोहरा चलाओ, और अचानक! दूसरा हमला करता है।"
+ },
+ "lesson.open.mates": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए कुछ मशहूर शह-मात इकट्ठा करें, चमकीले स्टिकर की तरह!"
+ },
+ "lesson.open.scan": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "जासूस बनने का समय! आपका विरोधी क्या सोच रहा है?"
+ },
+ "lesson.open.blocking": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "एक दीवार खड़ी करो, और अपने राजा को आराम से सुरक्षित रखो!"
+ },
+ "lesson.open.counter": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हमला हो रहा है? कभी-कभी सबसे अच्छा जवाब बड़ा हमला होता है!"
+ },
+ "lesson.open.pawn-islands": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "प्यादे साथ रहना पसंद करते हैं। चलिए देखें कौन से अकेले पड़ जाते हैं।"
+ },
+ "lesson.open.passed": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "जिस प्यादे का रास्ता खुला हो, वह सुपरस्टार है। चलिए आगे बढ़ाएँ!"
+ },
+ "lesson.open.outposts": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए आपके घोड़े के लिए एक बढ़िया घर ढूँढें, जहाँ से उसे कोई भगा न सके।"
+ },
+ "lesson.open.open-files": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हाथी को खुली सड़कें पसंद हैं, और ऊँट को खुला आसमान!"
+ },
+ "lesson.open.when-to-trade": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "बदलें या रखें? चलिए जानें कि अदला-बदली कब जीतने में मदद करती है।"
+ },
+ "lesson.open.three-questions": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हर बड़े खिलाड़ी के पास एक योजना होती है। चलिए आपकी बनाएँ!"
+ },
+ "lesson.open.initiative": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "धमकियाँ देते रहो, और राजा की ओर बढ़ो!"
+ },
+ "lesson.open.activity": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "ख़ुश मोहरे एक टीम की तरह काम करते हैं। चलिए उन्हें खेलने की जगह दें!"
+ },
+ "lesson.open.king-activity": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हैरानी की बात! अंत के खेल में राजा हीरो बन जाता है।"
+ },
+ "lesson.open.opposition": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "दो राजा, आमने-सामने! पहले कौन पीछे हटेगा?"
+ },
+ "lesson.open.lucena": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हाथी वाले अंत मुश्किल होते हैं, पर मुझे दो जादुई स्थितियाँ पता हैं!"
+ },
+ "lesson.open.candidates": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चाल चलने से पहले कुछ विचार चुनिए, फिर उन्हें परखिए।"
+ },
+ "lesson.open.visualise": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आँखें बंद करो, और बिसात की तस्वीर बनाओ। चलिए आगे देखें!"
+ },
+ "lesson.open.blunder-check": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चाल से पहले एक छोटी नज़र पूरा खेल बचा सकती है!"
+ },
+ "lesson.open.combinations": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अब चलिए चालों को मिलाएँ, असली आतिशबाज़ी के लिए!"
+ },
+ "lesson.open.clock": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "टिक टॉक! चलिए अपने समय का समझदारी से इस्तेमाल करना सीखें।"
+ },
+ "lesson.open.repertoire": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अपनी पसंदीदा शुरुआतें चुनिए, और हर खेल से सीखिए!"
+ },
+ "lesson.open.etiquette": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अच्छे खिलाड़ी अच्छे दोस्त भी होते हैं। चलिए ईमानदारी से खेलें और शांत रहें।"
+ },
+ "lesson.open.table-words": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए वे ख़ास शब्द सीखें जो दुनिया भर के शतरंज खिलाड़ी बोलते हैं!"
+ },
+ "lesson.ex": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अब आपकी बारी! जवाब देने के लिए बिसात पर एक मोहरा चलाएँ।"
+ },
+ "lesson.idle": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "थोड़ी मदद चाहिए? Hint पर टैप करें, और मैं एक इशारा दूँगा।"
+ },
+ "lesson.done": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शाबाश, आपने पाठ पूरा कर लिया! आगे बढ़ने के लिए सुनहरे बटन पर टैप करें।"
+ },
+ "puzzle.start": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "सबसे अच्छी चाल खोजें! शह, मारने वाली चालें और ख़तरे देखें।"
+ },
+ "puzzle.wrong": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अच्छी कोशिश! एक बार और देखें, या इशारे के लिए \"संकेत\" पर टैप करें।"
+ },
+ "puzzle.idle": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अटक गए? \"संकेत\" पर टैप करें, और मैं एक इशारा दूँगा।"
+ },
+ "puzzle.solved": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आपने कर दिखाया! आगे बढ़ने के लिए \"अगली पहेली\" पर टैप करें।"
+ },
+ "era.egypt.tale": {
+  "who": "miu",
+  "voice": "hf_alpha",
+  "text": "प्राचीन मिस्र में आपका स्वागत है! मैं Miu हूँ। पहले पड़ाव \"फ़राओ के खेल\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगी।"
+ },
+ "era.egypt.lesson": {
+  "who": "miu",
+  "voice": "hf_alpha",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"रथों की दौड़\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.egypt.puzzles": {
+  "who": "miu",
+  "voice": "hf_alpha",
+  "text": "बहुत अच्छे! अब \"मक़बरे का ख़ज़ाना\" पर टैप करें, और मेरी पहेलियाँ हल करें।"
+ },
+ "era.egypt.champion": {
+  "who": "miu",
+  "voice": "hf_alpha",
+  "text": "आप तैयार हैं! \"Miu की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Pharaoh's Treasure सेट आपका!"
+ },
+ "era.egypt.done": {
+  "who": "miu",
+  "voice": "hf_alpha",
+  "text": "आपने मुझे हरा दिया! Pharaoh's Treasure सेट आपका है। \"सारे युग\" पर टैप करें, और प्राचीन यूनान की ओर चलें।"
+ },
+ "era.greece.tale": {
+  "who": "sophie",
+  "voice": "hf_beta",
+  "text": "प्राचीन यूनान में आपका स्वागत है! मैं Sophie हूँ। पहले पड़ाव \"विचारक और उनके खेल\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगी।"
+ },
+ "era.greece.lesson": {
+  "who": "sophie",
+  "voice": "hf_beta",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"अगोरा का बाज़ार\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.greece.puzzles": {
+  "who": "sophie",
+  "voice": "hf_beta",
+  "text": "बहुत अच्छे! अब \"उल्लू की आँखें\" पर टैप करें, और मेरी पहेलियाँ हल करें।"
+ },
+ "era.greece.champion": {
+  "who": "sophie",
+  "voice": "hf_beta",
+  "text": "आप तैयार हैं! \"Sophie की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Olympian Marble सेट आपका!"
+ },
+ "era.greece.done": {
+  "who": "sophie",
+  "voice": "hf_beta",
+  "text": "आपने मुझे हरा दिया! Olympian Marble सेट आपका है। \"सारे युग\" पर टैप करें, और प्राचीन रोम की ओर चलें।"
+ },
+ "era.rome.tale": {
+  "who": "marcus",
+  "voice": "hm_psi",
+  "text": "प्राचीन रोम में आपका स्वागत है! मैं Marcus हूँ। पहले पड़ाव \"नन्हे सैनिकों का खेल\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगा।"
+ },
+ "era.rome.lesson": {
+  "who": "marcus",
+  "voice": "hm_psi",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"सेना की दीवार\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.rome.puzzles": {
+  "who": "marcus",
+  "voice": "hm_psi",
+  "text": "बहुत अच्छे! अब \"सेनापति को फँसाओ\" पर टैप करें, और मेरी पहेलियाँ हल करें।"
+ },
+ "era.rome.champion": {
+  "who": "marcus",
+  "voice": "hm_psi",
+  "text": "आप तैयार हैं! \"Marcus की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Imperial Rome सेट आपका!"
+ },
+ "era.rome.done": {
+  "who": "marcus",
+  "voice": "hm_psi",
+  "text": "आपने मुझे हरा दिया! Imperial Rome सेट आपका है। \"सारे युग\" पर टैप करें, और मुग़ल भारत की ओर चलें।"
+ },
+ "era.mughal.tale": {
+  "who": "moti",
+  "voice": "hm_psi",
+  "text": "मुग़ल भारत में आपका स्वागत है! मैं Moti हूँ। पहले पड़ाव \"चतुरंग\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगा।"
+ },
+ "era.mughal.lesson": {
+  "who": "moti",
+  "voice": "hm_psi",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"हाथी बीच में\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.mughal.puzzles": {
+  "who": "moti",
+  "voice": "hm_psi",
+  "text": "बहुत अच्छे! अब \"हाथी का फ़ोर्क\" पर टैप करें, और मेरी पहेलियाँ हल करें।"
+ },
+ "era.mughal.champion": {
+  "who": "moti",
+  "voice": "hm_psi",
+  "text": "आप तैयार हैं! \"Moti की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Maharaja's Jade सेट आपका!"
+ },
+ "era.mughal.done": {
+  "who": "moti",
+  "voice": "hm_psi",
+  "text": "आपने मुझे हरा दिया! Maharaja's Jade सेट आपका है। \"सारे युग\" पर टैप करें, और मिंग चीन की ओर चलें।"
+ },
+ "era.ming.tale": {
+  "who": "bao",
+  "voice": "hf_alpha",
+  "text": "मिंग चीन में आपका स्वागत है! मैं Bao हूँ। पहले पड़ाव \"हाथी, तोपें और एक नदी\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगा।"
+ },
+ "era.ming.lesson": {
+  "who": "bao",
+  "voice": "hf_alpha",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"Bao का बाँस का भाला\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.ming.puzzles": {
+  "who": "bao",
+  "voice": "hf_alpha",
+  "text": "बहुत अच्छे! अब \"पांडा का स्क्यूअर\" पर टैप करें, और मेरी पहेलियाँ हल करें।"
+ },
+ "era.ming.champion": {
+  "who": "bao",
+  "voice": "hf_alpha",
+  "text": "आप तैयार हैं! \"Bao की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Ming Porcelain सेट आपका!"
+ },
+ "era.ming.done": {
+  "who": "bao",
+  "voice": "hf_alpha",
+  "text": "आपने मुझे हरा दिया! Ming Porcelain सेट आपका है। \"सारे युग\" पर टैप करें, और वेनिस की ओर चलें।"
+ },
+ "era.venice.tale": {
+  "who": "marco",
+  "voice": "hm_psi",
+  "text": "वेनिस में आपका स्वागत है! मैं Marco हूँ। पहले पड़ाव \"वज़ीर को मिली ताक़त\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगा।"
+ },
+ "era.venice.lesson": {
+  "who": "marco",
+  "voice": "hm_psi",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"डोज की चेतावनी\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.venice.endgame": {
+  "who": "marco",
+  "voice": "hm_psi",
+  "text": "बहुत अच्छे! अब \"नया वज़ीर बनाएँ\" पर टैप करें, और अंतिम खेल जीतें।"
+ },
+ "era.venice.champion": {
+  "who": "marco",
+  "voice": "hm_psi",
+  "text": "आप तैयार हैं! \"Marco की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Murano Glass सेट आपका!"
+ },
+ "era.venice.done": {
+  "who": "marco",
+  "voice": "hm_psi",
+  "text": "आपने मुझे हरा दिया! Murano Glass सेट आपका है। \"सारे युग\" पर टैप करें, और पेरिस की ओर चलें।"
+ },
+ "era.paris.tale": {
+  "who": "gaston",
+  "voice": "hm_psi",
+  "text": "पेरिस में आपका स्वागत है! मैं Gaston हूँ। पहले पड़ाव \"शतरंज की आत्मा\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगा।"
+ },
+ "era.paris.lesson": {
+  "who": "gaston",
+  "voice": "hm_psi",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"आगे बढ़ते प्यादे\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.paris.puzzles": {
+  "who": "gaston",
+  "voice": "hm_psi",
+  "text": "बहुत अच्छे! अब \"कैफ़े की पहेलियाँ\" पर टैप करें, और मेरी पहेलियाँ हल करें।"
+ },
+ "era.paris.champion": {
+  "who": "gaston",
+  "voice": "hm_psi",
+  "text": "आप तैयार हैं! \"Gaston की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Ruby and Pearl सेट आपका!"
+ },
+ "era.paris.done": {
+  "who": "gaston",
+  "voice": "hm_psi",
+  "text": "आपने मुझे हरा दिया! Ruby and Pearl सेट आपका है। \"सारे युग\" पर टैप करें, और शाही रूस की ओर चलें।"
+ },
+ "era.russia.tale": {
+  "who": "mishka",
+  "voice": "hm_psi",
+  "text": "शाही रूस में आपका स्वागत है! मैं Mishka हूँ। पहले पड़ाव \"अंतिम खेल की पाठशाला\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगा।"
+ },
+ "era.russia.lesson": {
+  "who": "mishka",
+  "voice": "hm_psi",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"बर्फ़ में राजा\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.russia.endgame": {
+  "who": "mishka",
+  "voice": "hm_psi",
+  "text": "बहुत अच्छे! अब \"प्यादे की कूच\" पर टैप करें, और अंतिम खेल जीतें।"
+ },
+ "era.russia.champion": {
+  "who": "mishka",
+  "voice": "hm_psi",
+  "text": "आप तैयार हैं! \"Mishka की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Tsarina's Treasure सेट आपका!"
+ },
+ "era.russia.done": {
+  "who": "mishka",
+  "voice": "hm_psi",
+  "text": "आपने मुझे हरा दिया! Tsarina's Tsarina's Treasure सेट आपका है। \"सारे युग\" पर टैप करें, और न्यूयॉर्क की ओर चलें।"
+ },
+ "era.deco.tale": {
+  "who": "skye",
+  "voice": "hf_beta",
+  "text": "न्यूयॉर्क में आपका स्वागत है! मैं Skye हूँ। पहले पड़ाव \"शतरंज क्लबों का शहर\" पर टैप करें, और मैं आपको एक कहानी सुनाऊँगी।"
+ },
+ "era.deco.lesson": {
+  "who": "skye",
+  "voice": "hf_beta",
+  "text": "बहुत ध्यान से सुना! अब पाठ \"छत पर मात\" पर टैप करें, और कुछ नया सीखें।"
+ },
+ "era.deco.puzzles": {
+  "who": "skye",
+  "voice": "hf_beta",
+  "text": "बहुत अच्छे! अब \"आसमान छूती जीत\" पर टैप करें, और मेरी पहेलियाँ हल करें।"
+ },
+ "era.deco.champion": {
+  "who": "skye",
+  "voice": "hf_beta",
+  "text": "आप तैयार हैं! \"Skye की चुनौती\" पर टैप करें, और मुझसे खेलें। जीतिए, और Manhattan Deco सेट आपका!"
+ },
+ "era.deco.done": {
+  "who": "skye",
+  "voice": "hf_beta",
+  "text": "आपने मुझे हरा दिया! Manhattan Deco सेट आपका है। क्या सफ़र रहा, शतरंज के पूरे इतिहास से होकर!"
+ },
+ "placement.offer": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "क्या आपने पहले शतरंज खेली है? मेरी छोटी-सी जाँच दें, और मैं आपका पहला पाठ और खेलने के लिए एक दोस्त चुनूँगा। या इसे छोड़ दें, और हम शुरू से शुरू करेंगे।"
+ },
+ "placement.q01": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "उन सभी खानों पर टैप करें जहाँ हाथी पहुँच सकता है। याद रखें, वह काले मोहरे को मार सकता है, पर उसके ऊपर से कूद नहीं सकता।"
+ },
+ "placement.q02": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अब घोड़ा। उन सभी खानों पर टैप करें जहाँ वह कूद सकता है।"
+ },
+ "placement.q03": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आपका घोड़ा एक मोहरा मार सकता है। वह मोहरा मारें जिसकी कोई रक्षा नहीं कर रहा।"
+ },
+ "placement.q04": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अपने वज़ीर से शह दें, ऐसे खाने पर जहाँ उसे मारा न जा सके।"
+ },
+ "placement.q05": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "एक चाल में शह-मात ढूँढें।"
+ },
+ "placement.q06": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "काला राजा अपने प्यादों के पीछे फँसा है। एक चाल में शह-मात ढूँढें।"
+ },
+ "placement.q07": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "घोड़े की ऐसी चाल ढूँढें जो राजा और हाथी पर एक साथ हमला करे।"
+ },
+ "placement.q08": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "सफ़ेद पहले चलता है। क्या काला राजा प्यादे के वज़ीर बनने से पहले उसे पकड़ सकता है?"
+ },
+ "placement.q09": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आपके विरोधी ने अभी चाल चली है। सबसे अच्छी चाल ढूँढें, फिर आगे बढ़ते रहें।"
+ },
+ "placement.q10": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आख़िरी सवाल, और सबसे मुश्किल। सबसे अच्छी चाल ढूँढें, फिर आगे बढ़ते रहें।"
+ },
+ "placement.r1": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कोशिश के लिए शुक्रिया! हम बिल्कुल शुरू से शुरू करेंगे, कि मोहरे कैसे चलते हैं। आप जल्दी सीख जाएँगे!"
+ },
+ "placement.r2": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "बहुत बढ़िया! आप जानते हैं कि मोहरे कैसे चलते हैं, तो हम शह और शह-मात से शुरू करेंगे।"
+ },
+ "placement.r3": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शाबाश! आप नियम जानते हैं, तो आपका रास्ता शुरुआत की चालों के विचारों से शुरू होता है।"
+ },
+ "placement.r4": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "वाह, आपने फ़ोर्क पकड़ लिया! आप फ़ोर्क और पिन जैसी चालों के लिए तैयार हैं।"
+ },
+ "placement.r5": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कमाल, आपने लगभग सब ढूँढ लिया! आप बचाव और राजा की सुरक्षा सीखने के लिए तैयार हैं।"
+ },
+ "variants": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शतरंज के भाई-बहन पूरी दुनिया में हैं! किसी एक को चुनें, उसके नियम सीखें, फिर उसे खेलें।"
+ },
+ "variant": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यहाँ एक पन्ने पर सारे नियम हैं। सुनहरे नियम शतरंज जैसे नहीं हैं। मेरा छोटा पाठ आज़माएँ, फिर खेलने के लिए कोई दोस्त चुनें।"
+ },
+ "variant.chaturanga.hello": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "बहुत पहले भारत में शतरंज का एक और नाम था: चतुरंग। इसका मतलब है सेना के चार अंग। चलो, इसे पुराने तरीक़े से खेलें!"
+ },
+ "variant.chaturanga.same": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "राजा, घोड़ा और रथ बिल्कुल हमारे राजा, घोड़े और हाथी की तरह चलते हैं। पैदल सैनिक प्यादे हैं।"
+ },
+ "variant.chaturanga.mantri": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "राजा के पास मंत्री खड़ा है, उसका समझदार सलाहकार। वह तिरछा एक छोटा क़दम चलता है। बहुत बाद में वही वज़ीर बन गया!"
+ },
+ "variant.chaturanga.gaja": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "गज एक युद्ध का हाथी है। वह तिरछा ठीक दो खाने कूदता है, बीच में जो भी हो उसके ऊपर से। आगे चलकर वही ऊँट बना।"
+ },
+ "variant.chaturanga.soldier": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "पैदल सैनिक एक बार में एक खाना चलते हैं, पहली चाल में भी। जो सैनिक दूसरी ओर पहुँच जाए, वह मंत्री बन जाता है।"
+ },
+ "variant.chaturanga.castle": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चतुरंग में कैसलिंग नहीं होती। अपने राजा को एक-एक क़दम करके सुरक्षित जगह ले जाएँ।"
+ },
+ "variant.chaturanga.win": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शह-मात से अब भी जीत होती है। अगर आप राजा को छोड़कर दुश्मन के सारे मोहरे मार लें, तब भी आप जीतते हैं। और जिस राजा के पास कोई चाल न बचे, वह भी हार जाता है!"
+ },
+ "variant.chaturanga.ex.mantri": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "उन सभी खानों पर टैप करें जहाँ मंत्री जा सकता है।"
+ },
+ "variant.chaturanga.ex.gaja": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "उन सभी खानों पर टैप करें जहाँ गज कूद सकता है।"
+ },
+ "variant.chaturanga.ex.bare": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "काले का आख़िरी मोहरा मारें, और राजा को बिल्कुल अकेला छोड़ दें।"
+ },
+ "variant.chaturanga.ex.promote": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यह पैदल सैनिक दूसरी ओर पहुँचने वाला है। वह क्या बनेगा?"
+ },
+ "variant.chaturanga.ex.stuck": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "ऐसी चाल ढूँढें जिसके बाद काले के पास कोई चाल न बचे। चतुरंग में इससे जीत होती है!"
+ },
+ "variant.chess960.hello": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "बॉबी फ़िशर नाम के एक विश्व चैंपियन को एक मज़ेदार तरकीब सूझी: हर खेल से पहले पीछे की पंक्ति को फेंट दो! इसे चेस960 कहते हैं।"
+ },
+ "variant.chess960.mirror": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "ध्यान से देखें। काले मोहरे सफ़ेद मोहरों की नक़ल करते हैं, खाने दर खाने, जैसे आईने में। प्यादे अपनी जगह पर ही रहते हैं।"
+ },
+ "variant.chess960.order": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "फेंटने के बस दो नियम हैं। दोनों ऊँट अलग-अलग रंग के खानों पर होते हैं, और राजा दोनों हाथियों के बीच में खड़ा होता है।"
+ },
+ "variant.chess960.castle": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कैसलिंग शतरंज की तरह ही ख़त्म होती है: राजा g या c खाने पर, और हाथी ठीक उसके बगल में। कैसल करने के लिए अपने राजा को अपने हाथी पर रखें।"
+ },
+ "variant.chess960.think": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यहाँ किसी को ओपनिंग याद नहीं होती, तो पहली चाल से ही सोचें। अपने मोहरे बाहर निकालें और राजा को सुरक्षित रखें।"
+ },
+ "variant.chess960.ex.short": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "राजा की तरफ़ कैसल करें। अपने राजा को h1 वाले हाथी पर रखें।"
+ },
+ "variant.chess960.ex.long": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अब वज़ीर की तरफ़ कैसल करें, a खाने की ओर।"
+ },
+ "variant.chess960.ex.land": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अगर सफ़ेद यहाँ राजा की तरफ़ कैसल करे, तो राजा कहाँ पहुँचेगा?"
+ },
+ "variant.chess960.ex.rule": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चेस960 में कौन-सा नियम हमेशा सच होता है?"
+ },
+ "variant.koth.hello": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "किंग ऑफ़ द हिल में स्वागत है! बीच के चार खाने पहाड़ी हैं। अपने राजा को वहाँ पहुँचाएँ और आप जीत जाएँगे।"
+ },
+ "variant.koth.hill": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चमकते खाने देखे? d4, e4, d5 और e5। इनमें से किसी पर भी एक क़दम रखा, और खेल तुरंत जीत गए।"
+ },
+ "variant.koth.safe": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "पर राजा कभी ऐसे खाने पर नहीं जा सकता जिस पर दुश्मन की नज़र हो। यह हाथी चौथी पंक्ति पर नज़र रखता है, तो वे पहाड़ी खाने बंद हैं।"
+ },
+ "variant.koth.block": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "तो दुश्मन के राजा पर भी नज़र रखें! अगर वह पहाड़ी के पास आए, तो उसके चढ़ने से पहले पहाड़ी के खानों पर पहरा लगाएँ।"
+ },
+ "variant.koth.same": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शह-मात से अब भी जीत होती है, और हर मोहरा शतरंज की तरह ही चलता है। चलो, चढ़ाई करें!"
+ },
+ "variant.koth.ex.climb": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अपने राजा को पहाड़ी पर ले जाएँ।"
+ },
+ "variant.koth.ex.stop": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "काला राजा पहाड़ी चाहता है। हाथी की एक चाल से उसे रोकें।"
+ },
+ "variant.koth.ex.guarded": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "ऊँट एक पहाड़ी खाने पर नज़र रखता है। सुरक्षित खाना ढूँढें और चढ़ जाएँ।"
+ },
+ "variant.threecheck.hello": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "थ्री-चेक में हर शह गिनी जाती है! तीन बार शह दें और आप जीत जाएँगे, शह-मात के बिना भी।"
+ },
+ "variant.threecheck.count": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "सफ़ेद ऊँट ने अभी शह दी, तो सफ़ेद का गिनती वाला निशान एक दिखाता है। ये निशान खिलाड़ियों के नाम के पास होते हैं।"
+ },
+ "variant.threecheck.safe": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "तो अपने राजा को छिपाकर रखें। उसकी ओर रास्ते जल्दी न खोलें, नहीं तो शह जल्दी-जल्दी जुड़ती जाएँगी।"
+ },
+ "variant.threecheck.same": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शह-मात से अब भी जीत होती है, और हर मोहरा शतरंज की तरह ही चलता है। चलो, अभ्यास करें!"
+ },
+ "variant.threecheck.ex.third": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आप दो बार शह दे चुके हैं। तीसरी शह दें और जीत जाएँ।"
+ },
+ "variant.threecheck.ex.knight": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "दो शह हो गईं। क्या आपका घोड़ा तीसरी शह दे सकता है?"
+ },
+ "variant.threecheck.ex.what": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "जब आप तीसरी शह देते हैं, तब क्या होता है?"
+ },
+ "variant.xiangqi.hello": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "मिंग दरबार में स्वागत है! यह शियांगची है, चीनी शतरंज। लाल पहले चलता है, और हर मोहरे का नाम उसके ऊपर खुदा होता है।"
+ },
+ "variant.xiangqi.points": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "ध्यान से देखें: मोहरे खानों में नहीं, बल्कि उन बिंदुओं पर खड़े होते हैं जहाँ रेखाएँ मिलती हैं। बीच की पट्टी नदी है।"
+ },
+ "variant.xiangqi.palace": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "क्रॉस वाले ये नौ बिंदु महल हैं। सेनापति और उसके दो सलाहकार इसे कभी नहीं छोड़ते। सेनापति रेखाओं पर चलता है, सलाहकार तिरछे।"
+ },
+ "variant.xiangqi.horse": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "घोड़ा नाइट की तरह चलता है: एक क़दम सीधा, फिर एक तिरछा। पर ठीक बगल में खड़ा मोहरा वह रास्ता रोक देता है। देखिए, नीचे का सैनिक दो चालें कैसे रोकता है?"
+ },
+ "variant.xiangqi.elephant": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हाथी तिरछे ठीक दो बिंदु कूदता है। वह घर का रखवाला है: वह कभी नदी पार नहीं कर सकता।"
+ },
+ "variant.xiangqi.cannon": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "यह रहा एक ऐसा मोहरा जो शतरंज में नहीं है: तोप! यह रथ की तरह चलती है, पर मारने के लिए इसे ठीक एक मोहरे के ऊपर से कूदना पड़ता है, जिसे पर्दा कहते हैं।"
+ },
+ "variant.xiangqi.soldier": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "सैनिक एक क़दम आगे चलते हैं। नदी पार करने के बाद वे बगल में भी चल सकते हैं। वे कभी पीछे नहीं जाते।"
+ },
+ "variant.xiangqi.generals": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "एक ख़ास नियम: दोनों सेनापति कभी खुली रेखा पर आमने-सामने नहीं आ सकते। तो आपका सेनापति बोर्ड के ऊपर तक अपनी पूरी रेखा पर पहरा देता है!"
+ },
+ "variant.xiangqi.win": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शह-मात से जीत होती है। और जिस तरफ़ के पास कोई सही चाल न बचे, वह भी हार जाता है। चलो, अभ्यास करें!"
+ },
+ "variant.xiangqi.ex.horse": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "उन सभी बिंदुओं पर टैप करें जहाँ यह घोड़ा पहुँच सकता है।"
+ },
+ "variant.xiangqi.ex.elephant": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "उन सभी बिंदुओं पर टैप करें जहाँ यह हाथी पहुँच सकता है।"
+ },
+ "variant.xiangqi.ex.cannon": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "तोप से काले का रथ मारें।"
+ },
+ "variant.xiangqi.ex.mate": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "एक चाल में शह-मात दें। आपका सेनापति मदद कर सकता है!"
+ },
+ "variant.xiangqi.ex.river": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कौन-सा मोहरा नदी पार कर सकता है?"
+ }
+}

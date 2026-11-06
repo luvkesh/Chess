@@ -11,6 +11,7 @@ The audience is children and their parents, so the page is built to be safe as w
 | `guide.json`, `audio/` | Rooky's guide, built like JongClub's guided game: a card in the bottom right that says one line per section as the reader reaches it (`{coach}` is the coach's name from `packages/content/campaign.json`), and the recorded MP3s. The voice is off until someone taps the speaker. |
 | `tools/render-art.js` | Draws the crest, animal portraits and era banners with the game's own `art.js`, and the colourful place badges of the Wonders passport from `tools/place-icons.js`. |
 | `build.py` | Inlines the game's fonts, its 3D renderer (three.js, `kit3d`, `pieces3d`, `world3d`, `scene`), `img/`, the art and the facts from `packages/content` (eras, coaches, sets, rooms, counts) into `index.html`. |
+| `fx/` | The details showcase's clips, recorded from the game's own 3D table by `tools/record-fx.js`: `<id>.mp4`, its poster `<id>.jpg`, and for sound packs `<id>.lands.json` (when each piece lands, so "Hear it" knocks in time). Served at `/fx/`. |
 | `index.html` | The built page, committed. CI fails if it is stale. |
 | `privacy.html`, `terms.html` | Written by hand, not built. |
 
@@ -34,6 +35,16 @@ python3 apps/website/build.py
 ```
 
 `shoot.js` sets `window.__SHOT`, hides the menus and uses the table directly: the home-screen camera with the board pushed down (`hero`), `__view.snapshot` for the set on its pedestal, and the black gold-and-silver knight alone for the crest (`to-webp.py` puts it on the ruby disc). Keep each picture under about 140 KB; the whole page is about 3.7 MB, of which the 3D renderer is about 1.1 MB.
+
+## The details showcase's clips
+
+Each tab plays two items from `FX_DEMOS` in `build.py`. Effects, trails, clocks and sound packs are real footage of the game: `tools/record-fx.js` opens the built game in Chromium, sets the table up the way the Collection's "Try on the table" preview does, and saves every frame on a fake clock, so SwiftShader's slowness never shows (about 10 minutes a clip). Avatars and frames are the game's medal art, drawn on the page.
+
+```sh
+python3 apps/web-prototype/build.py
+node apps/website/tools/record-fx.js [ids]   # default: every effect in FX_DEMOS
+python3 apps/website/build.py
+```
 
 ## The coach's audio guide
 

@@ -519,13 +519,30 @@ function ChacklateAudio() {
     return true;
   }
 
+  // The player's language (src/i18n.js). Everything Rooky and the friends say follows it: the
+  // text is translated with I18N.text, a recording in that language plays when there is one
+  // (<folder>/<lang>/...), and otherwise the device's own voice for that language reads it.
+  const I18N = typeof ChacklateI18n !== 'undefined' ? ChacklateI18n : null;
+  const here = () => (I18N ? I18N.info : { id: 'en', speech: 'en-IN' });
+  const inLang = (text) => (I18N ? I18N.text(text) : text);
+  const speechTag = (lang) => ((I18N && I18N.LANGS.find((l) => l.id === lang)) || { speech: 'en-IN' }).speech;
+
   // Device speech engine, used only when there is no recording.
-  let deviceVoice = null;
+  const deviceVoices = {};
   function pickVoice(lang) {
     if (!('speechSynthesis' in window)) return null;
+    if (deviceVoices[lang]) return deviceVoices[lang];
     const vs = speechSynthesis.getVoices();
-    if (lang === 'hi') return vs.find((v) => /^hi/i.test(v.lang)) || null;
-    return vs.find((v) => /en-(IN|GB)/i.test(v.lang) && /female|natural|neural|samantha|serena|veena/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
+    let v = null;
+    if (lang === 'en') v = vs.find((x) => /en-(IN|GB)/i.test(x.lang) && /female|natural|neural|samantha|serena|veena/i.test(x.name)) || vs.find((x) => /^en/i.test(x.lang)) || null;
+    else {
+      const tag = speechTag(lang).toLowerCase().replace('_', '-');
+      const mine = vs.filter((x) => x.lang.toLowerCase().replace('_', '-').split('-')[0] === lang);
+      v = mine.find((x) => x.lang.toLowerCase().replace('_', '-') === tag && /natural|neural|enhanced|premium|google/i.test(x.name)) ||
+        mine.find((x) => x.lang.toLowerCase().replace('_', '-') === tag) || mine[0] || null;
+    }
+    if (v) deviceVoices[lang] = v;
+    return v;
   }
   // Sentences and clauses are spoken one at a time with a breath between them (longer after a full
   // stop than after a comma), because device voices tend to run a whole paragraph together.
@@ -535,7 +552,7 @@ function ChacklateAudio() {
   function device(text, rate, lang, onEnd) {
     if (!('speechSynthesis' in window)) return false;
     speechSynthesis.cancel();
-    const v = lang === 'hi' ? pickVoice('hi') : (deviceVoice = deviceVoice || pickVoice('en'));
+    const v = pickVoice(lang || 'en');
     const parts = phrases(text), my = queueId;
     if (music) duck(true);
     const next = (i) => {
@@ -543,7 +560,7 @@ function ChacklateAudio() {
       if (i >= parts.length) { duck(false); if (onEnd) onEnd(); return; }
       const u = new SpeechSynthesisUtterance(parts[i]);
       if (v) u.voice = v;
-      if (lang === 'hi') u.lang = 'hi-IN';
+      u.lang = v ? v.lang : speechTag(lang || 'en');
       u.rate = rate || 1; u.pitch = 1;
       u.onend = () => setTimeout(() => next(i + 1), /[,;:]$/.test(parts[i]) ? PAUSE.comma : PAUSE.stop);
       u.onerror = () => { if (my !== queueId && onEnd) onEnd(); };
@@ -558,9 +575,21 @@ function ChacklateAudio() {
   // recording stays unspoken (its words are still on screen) instead of a stranger's voice cutting in.
   const recorded = () => !!(index && Object.keys(index).length);
   const mayUseDevice = (id) => deviceFallback && (id === 'device' || !recorded());
-  // Lesson and coach lines (English text from the content files).
+  // In a language with no recording yet, the device's voice for that language is the only way to
+  // hear it, so it always stands in there.
+  const mayUseDeviceIn = (id, lang) => mayUseDevice(id) || (deviceFallback && !!lang && lang !== 'en');
+  // Lesson and coach lines (English text from the content files, or the coach's own words, which
+  // are already in the player's language). In another language: the voice recorded in that
+  // language for lessons, else the device's voice.
   async function say(text, rate) {
     stopSpeech();
+    const L = here();
+    if (L.id !== 'en') {
+      const said = inLang(text);
+      const v = V.voices.find((x) => x.lang === L.id && x.lessons);
+      if (v && await playKeys(v.id, [voiceKey(said)])) return true;
+      return deviceFallback ? device(said, rate, L.id) : false;
+    }
     const id = coachVoice;
     if (id !== 'device' && await playKeys(id, [voiceKey(text)])) return true;
     return mayUseDevice(id) ? device(text, rate, 'en') : false;
@@ -613,13 +642,15 @@ function ChacklateAudio() {
   // A game call such as "check" or "mate.win", in the language of the chosen call voice.
   async function event(key) {
     if (callVoice === 'off') return false;
-    const v = voiceInfo(callVoice);
-    const lang = v ? v.lang : 'en';
+    let v = voiceInfo(callVoice);
+    // A language with no recorded call voice says its calls with the device's voice.
+    if (here().id !== 'en' && (!v || v.lang !== here().id) && V.events[here().id]) v = null;
+    const lang = v ? v.lang : here().id;
     const text = (V.events[lang] || {})[key] || (V.events.en || {})[key];
     if (!text) return false;
     stopSpeech();
     if (v && await playKeys(v.id, [voiceKey(text)])) return true;
-    return mayUseDevice(callVoice) ? device(text, 1, lang) : false;
+    return mayUseDeviceIn(callVoice, lang) ? device(text, 1, lang) : false;
   }
   // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
   // old: an old variation (Chaturanga), whose pieces keep their old names (Mantri, Gaja...).
@@ -641,13 +672,14 @@ function ChacklateAudio() {
   }
   async function announce(san, old) {
     if (!announceOn || callVoice === 'off') return false;
-    const v = voiceInfo(callVoice);
-    const lang = v ? v.lang : 'en';
+    let v = voiceInfo(callVoice);
+    if (here().id !== 'en' && (!v || v.lang !== here().id) && V.moves[here().id]) v = null;
+    const lang = v ? v.lang : here().id;
     const words = moveWords(san, lang, old).filter(Boolean);
     if (!words.length) return false;
     stopSpeech();
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
-    return mayUseDevice(callVoice) ? device(words.join(' '), 1.1, lang) : false;
+    return mayUseDeviceIn(callVoice, lang) ? device(words.join(' '), 1.1, lang) : false;
   }
   // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
   // says the line) and Rooky's word on each Collection item (pitch/...). onTalk(fn) hears
@@ -656,9 +688,24 @@ function ChacklateAudio() {
   const lineClips = new Map();
   const talkers = [];
   function talking(on, what) { for (const fn of talkers) fn(on, what); }
+  // A host that caps how many files a page may serve gets a folder's clips bundled: bundle/index.json
+  // maps each clip's path to [part, start, end] in base64 text parts (tools/voice/bundle.js). Without a
+  // bundle index every clip is fetched on its own.
+  let bundles = null;
+  const bundleParts = new Map();
+  function bundled(url) {
+    if (!bundles) bundles = fetch('bundle/index.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    return bundles.then((b) => {
+      const at = b && b.clips && b.clips[url];
+      if (!at) return null;
+      const p = b.parts[at[0]];
+      if (!bundleParts.has(p)) bundleParts.set(p, fetch(p).then((r) => { if (!r.ok) throw new Error('missing'); return r.text(); }).catch((e) => { bundleParts.delete(p); throw e; }));
+      return bundleParts.get(p).then((t) => unbase64(t.slice(at[1], at[2])));
+    });
+  }
   function lineClip(url) {
     if (!lineClips.has(url)) {
-      lineClips.set(url, fetch(url).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+      lineClips.set(url, bundled(url).then((own) => own || fetch(url).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); }))
         .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { lineClips.delete(url); throw e; }));
     }
     return lineClips.get(url);
@@ -672,7 +719,7 @@ function ChacklateAudio() {
       const end = () => { if (my === queueId) talking(false, what); done(); };
       if (!canTalk() || !ready()) return done();
       talking(true, what);
-      const viaDevice = () => loadIndex().then(() => { if (my !== queueId) return done(); if (!(mayUseDevice(null) && device(text, 0.95, lang || 'en', end))) end(); });
+      const viaDevice = () => loadIndex().then(() => { if (my !== queueId) return done(); if (!(mayUseDeviceIn(null, lang) && device(text, 0.95, lang || 'en', end))) end(); });
       if (typeof fetch === 'undefined' || location.protocol === 'file:' || !url) return viaDevice();
       lineClip(url).then((b) => {
         if (my !== queueId) return done();
@@ -684,13 +731,20 @@ function ChacklateAudio() {
       }, viaDevice);
     });
   }
-  const guide = (key, text) => line('guide/' + key + '.mp3', text, 'guide', 'en');
-  const pitch = (url, text) => line(url, text, 'pitch', 'en');
+  // Recordings in another language sit in a folder named for it: guide/hi/<key>.mp3, pitch/hi/...
+  const localUrl = (url) => (here().id === 'en' || !url ? url : url.replace(/^(guide|pitch|tale)\//, '$1/' + here().id + '/'));
+  const guide = (key, text) => line(localUrl('guide/' + key + '.mp3'), I18N && I18N.has('guide.' + key) ? I18N.t('guide.' + key) : inLang(text), 'guide', here().id);
+  const pitch = (url, text) => { const said = inLang(text); return line(here().id === 'en' ? url : 'pitch/' + here().id + '/' + voiceKey(said) + '.mp3', said, 'pitch', here().id); };
   // Lessons with their own speakers (words/<who>/<key>.mp3, recorded by tools/voice/record-words.py):
   // Rooky in English, Priya in Hindi.
-  const words = (who, text) => line('words/' + who + '/' + voiceKey(text) + '.mp3', text, 'words', who === 'priya' ? 'hi' : 'en');
+  // In another language Rooky's part is said in that language; Priya's Hindi word stays Hindi.
+  const words = (who, text) => {
+    if (who === 'priya' || here().id === 'en') return line('words/' + who + '/' + voiceKey(text) + '.mp3', text, 'words', who === 'priya' ? 'hi' : 'en');
+    const said = inLang(text);
+    return line('words/' + here().id + '/' + who + '/' + voiceKey(said) + '.mp3', said, 'words', here().id);
+  };
   // An era's story, read by that era's friend (tale/<era>/<key>.mp3, recorded by tools/voice/record-tales.py).
-  const tale = (era, text) => line('tale/' + era + '/' + voiceKey(text) + '.mp3', text, 'tale', 'en');
+  const tale = (era, text) => { const said = inLang(text); return line(localUrl('tale/' + era + '/' + voiceKey(said) + '.mp3'), said, 'tale', here().id); };
   // True once the browser lets the game make sound (from the first tap on).
   let tapped = false;
   const canTalk = () => tapped || !!(ctx && ctx.state === 'running');

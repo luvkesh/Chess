@@ -2288,6 +2288,7 @@ function ChacklateWorld(THREE, K) {
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
     // the chandelier steps aside for the camera and the flames flicker; the rest stands still
     K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
+    K.clearGlass(grp);
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
       // where a free camera may go: inside the walls, clear of what stands against them, and

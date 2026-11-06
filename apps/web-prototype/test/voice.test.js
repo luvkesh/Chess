@@ -86,7 +86,9 @@ for (const x of wlines) {
   assert.deepStrictEqual(windex[name], { voice: engine[x.who], text: x.text }, name + ' "' + x.text + '" was recorded with other words or another voice: run tools/voice/record-words.py');
   assert(fs.existsSync(path.join(wdir, name + '.mp3')), name + '.mp3');
 }
-const shipped = fs.readdirSync(wdir).filter((d) => !d.includes('.')).flatMap((d) => fs.readdirSync(path.join(wdir, d)).map((f) => d + '/' + f.replace(/\.mp3$/, ''))).sort();
+// other languages' clips sit in a folder named for the language, checked below
+const LANG_DIRS = Object.keys(require('../../../tools/voice/langs.json')).filter((k) => k !== 'note');
+const shipped = fs.readdirSync(wdir).filter((d) => !d.includes('.') && !LANG_DIRS.includes(d)).flatMap((d) => fs.readdirSync(path.join(wdir, d)).map((f) => d + '/' + f.replace(/\.mp3$/, ''))).sort();
 assert.deepStrictEqual(shipped, wlines.map((x) => x.who + '/' + x.key).sort(), 'one words clip per line, nothing extra');
 // The coach library: every piece a coach line is cut into is recorded in Rooky's voice and in each
 // voice marked "coach", with today's words, and each pack holds exactly those pieces in order.
@@ -106,3 +108,30 @@ for (const [id, engine, speed] of coachVoices) {
 // Rooky's own voice is the default coach.
 assert(/voiceCoach: 'toby'/.test(fs.readFileSync(path.join(__dirname, '../src/app.js'), 'utf8')), 'Toby is the default coach voice');
 console.log('voice tests passed:', V.voices.length, 'voices,', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');
+
+// Rooky and his friends in other languages (tools/voice/record-lang.py): every translated line the
+// game and website say has its clip, recorded with today's words and voice, and nothing extra.
+{
+  const { execFileSync } = require('child_process');
+  const LV = require('../../../tools/voice/langs.json');
+  for (const lang of LANG_DIRS) {
+    const J = JSON.parse(execFileSync('node', [path.join(__dirname, '../../../tools/voice/lang-lines.js'), lang], { maxBuffer: 1 << 26 }).toString());
+    const dirs = { site: path.join(__dirname, '../../website/audio', lang) };
+    for (const k of ['guide', 'pitch', 'tale', 'words']) dirs[k] = path.join(__dirname, '../public', k, lang);
+    for (const [kind, dir] of Object.entries(dirs)) {
+      const raw = JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8'));
+      const idx = kind === 'site' ? raw.lines : raw;
+      for (const j of J[kind]) {
+        const voice = LV[lang].speakers[j.who].engine;
+        const text = kind === 'site' ? j.cues.join(' ') : j.text;
+        const got = idx[j.key] || {};
+        assert.strictEqual(got.text, text, lang + ' ' + kind + ' ' + j.key + ' was recorded with other words: run tools/voice/record-lang.py');
+        assert.strictEqual(got.voice, voice, lang + ' ' + kind + ' ' + j.key + ' was recorded in another voice: run tools/voice/record-lang.py');
+        if (kind === 'site') assert.deepStrictEqual(got.cues.map((c) => c.text), j.cues, lang + ' site ' + j.key + ' captions');
+        assert(fs.existsSync(path.join(dir, j.key + '.mp3')), lang + ' ' + kind + ' ' + j.key + '.mp3');
+      }
+      const walk = (d, pre) => fs.readdirSync(d).flatMap((f) => (fs.statSync(path.join(d, f)).isDirectory() ? walk(path.join(d, f), pre + f + '/') : f.endsWith('.mp3') ? [pre + f.slice(0, -4)] : []));
+      assert.deepStrictEqual(walk(dir, '').sort(), J[kind].map((j) => j.key).sort(), lang + ' ' + kind + ': one clip per line, nothing extra');
+    }
+  }
+}
