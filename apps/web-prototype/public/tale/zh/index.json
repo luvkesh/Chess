@@ -1,0 +1,227 @@
+{
+ "egypt/eaeeab1e": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "欢迎来到三千多年前的埃及！伟大的尼罗河流过神庙和金字塔，在宫殿里，年轻的法老图坦卡蒙正在玩一种叫塞尼特的棋盘游戏。"
+ },
+ "egypt/7198bb89": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "那时候国际象棋还没有发明。大约两千年后它才出现在印度。不过埃及人很喜欢需要技巧的游戏，图坦卡蒙下葬时还带着好几副塞尼特棋盘。"
+ },
+ "egypt/542ca661": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "我是 Miu。你知道吗，在古埃及，猫可是宝贝。今天我来教你马，就是那个长得像马的棋子。法老的马拉着他的金色战车！"
+ },
+ "egypt/a4afd090": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "图坦卡蒙玩的是哪种棋盘游戏？"
+ },
+ "egypt/02254cc8": {
+  "who": "miu",
+  "voice": "zf_xiaoxiao",
+  "text": "塞尼特是我们知道的最古老的棋盘游戏之一。国际象棋要晚得多。"
+ },
+ "greece/9c382a01": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "欢迎来到雅典！在叫作卫城的山丘上，工匠们正在完成帕特农神庙，那是献给女神雅典娜的白色大理石神庙。"
+ },
+ "greece/a75d18a6": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "希腊人玩一种叫 petteia 的游戏，在格子上围住对方的棋子。哲学家柏拉图还写过它！希腊的思想家热爱数字和逻辑，就像棋手一样。"
+ },
+ "greece/29945e2c": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "我是 Sophie。猫头鹰是雅典娜的鸟，是智慧的象征。聪明的棋手吃子前会先数一数：兵值 1 分，马或象值 3 分，车值 5 分，后值 9 分。"
+ },
+ "greece/a2146ba3": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "车值几分？"
+ },
+ "greece/314da46e": {
+  "who": "sophie",
+  "voice": "zf_xiaoyi",
+  "text": "车值 5 分：比马或象多，比后少。"
+ },
+ "rome/19e62820": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到罗马！图拉真皇帝刚刚建好一根巨大的柱子，上面刻着 2500 多个人物，螺旋着一直绕到顶上。"
+ },
+ "rome/42e40d39": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "罗马士兵玩一种叫 ludus latrunculorum 的游戏，意思是“小士兵的游戏”。把一个敌方棋子夹在你的两个棋子中间，就能吃掉它。"
+ },
+ "rome/d470512a": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "我是 Marcus。在罗马最古老的传说里，一只母狼照顾过双胞胎罗慕路斯和雷穆斯。当敌人的首领被困住时，战斗就赢了。在国际象棋里，我们管这叫将死！"
+ },
+ "rome/a07d38ce": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "什么是将死？"
+ },
+ "rome/319106c7": {
+  "who": "marcus",
+  "voice": "zm_yunjian",
+  "text": "将死就结束了棋局：王被将军，而且无路可逃。"
+ },
+ "mughal/71753c8e": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到阿格拉！沙贾汗皇帝正在建造泰姬陵，那是一座白色大理石陵墓，美得至今还有人从世界各地赶来参观。"
+ },
+ "mughal/8181fe99": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "国际象棋大约 1500 年前诞生在印度。它叫恰图兰卡，意思是军队的四个部分：步兵、马、象和战车。今天它们就是我们的兵、马、象和车。"
+ },
+ "mughal/18dcc58b": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "我是 Moti。没错，象以前就是大象！就像战场上的大象一样，棋子在中间最强。控制中心，你的军队就能去任何地方。"
+ },
+ "mughal/fa2942da": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "国际象棋诞生在哪里？"
+ },
+ "mughal/30086c79": {
+  "who": "moti",
+  "voice": "zm_yunjian",
+  "text": "国际象棋起源于印度，叫恰图兰卡，后来传到了波斯、阿拉伯世界和欧洲。"
+ },
+ "ming/3672caa3": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "欢迎来到北京！紫禁城刚刚建成：一座红墙金顶的宫殿，有几百座建筑，皇帝就住在那里。"
+ },
+ "ming/40b822e8": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "在中国，人们下象棋，它是国际象棋的亲戚。棋子是写着字的扁圆片，棋盘中间横着一条河，炮要跳过棋子才能吃子！"
+ },
+ "ming/58cca2a8": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "我是 Bao。熊猫很有耐心，有耐心的棋手能发现串击：攻击一个大子，等它让开，就吃掉它后面的棋子。"
+ },
+ "ming/b9850252": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "象棋棋盘中间横着的是什么？"
+ },
+ "ming/825705c7": {
+  "who": "bao",
+  "voice": "zf_xiaoxiao",
+  "text": "河把两支军队分开。有些棋子过了河走法就不一样了。"
+ },
+ "venice/53a7d5ff": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到威尼斯，一座建在水上的城市，人们坐着贡多拉沿着运河出行。在穆拉诺岛上，玻璃匠人吹制出世界上最精美的玻璃。"
+ },
+ "venice/58f00d0f": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "很久以前，后只能斜着走一格。后来，大约在 1475 年，西班牙和意大利的棋手给了她新的力量：她可以朝任何方向走任意远。人们管它叫“疯狂王后棋”！"
+ },
+ "venice/4e42d28c": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "我是 Marco。飞狮是威尼斯的象征。力量越大，越要小心：后出来得太早，就会被追得满棋盘跑。"
+ },
+ "venice/0c5c9f88": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "大约在 1475 年，后得到了什么？"
+ },
+ "venice/a981de2b": {
+  "who": "marco",
+  "voice": "zm_yunjian",
+  "text": "这个变化让后成了最强的棋子，也让国际象棋快了很多。"
+ },
+ "paris/505d81a6": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到 1889 年的巴黎！为了世界博览会，这座城市建起了地球上最高的塔，它是用铁像蕾丝一样编出来的。它叫埃菲尔铁塔。"
+ },
+ "paris/91937e00": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "不远处就是摄政咖啡馆，人们在那里下了一百多年的棋。伟大的棋手菲利多尔就是在那里学会下棋的。"
+ },
+ "paris/75424f0d": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "我是 Gaston。公鸡是法国的象征。菲利多尔说过，兵是国际象棋的灵魂。一个谁也挡不住的兵，能一路走到底变成后！"
+ },
+ "paris/515041c3": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "菲利多尔把兵叫作什么？"
+ },
+ "paris/e6a6a294": {
+  "who": "gaston",
+  "voice": "zm_yunjian",
+  "text": "兵决定了棋局的样子，走到对面的兵会变成后。"
+ },
+ "russia/494f628a": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "欢迎来到圣彼得堡！雪花在金色的圆顶上闪闪发光，皇家珠宝匠正在为沙皇一家制作镶满珠宝的复活节彩蛋。"
+ },
+ "russia/cd1f67ae": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "俄罗斯人热爱国际象棋。它出过很多世界冠军，它的国际象棋学校以教残局闻名：残局就是一盘棋的最后阶段，只剩下几个棋子。"
+ },
+ "russia/98ebd051": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "我是 Mishka。在残局里，就连王也会变成战士！当两个王面对面、中间隔一格时，我们叫它对王。"
+ },
+ "russia/3ed2a943": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "在残局里，你的王应该做什么？"
+ },
+ "russia/409ce165": {
+  "who": "mishka",
+  "voice": "zm_yunjian",
+  "text": "棋子少了，王就足够安全，可以来帮忙，而且它是一个很强的棋子。"
+ },
+ "deco/01a1d1df": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "欢迎来到 1930 年的纽约！克莱斯勒大厦刚刚成为世界最高的大楼，顶上有一圈闪亮的钢拱王冠，还有针一样尖的尖顶。"
+ },
+ "deco/01aa3a81": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "这座城市到处都是国际象棋俱乐部，曼哈顿国际象棋俱乐部是世界上最有名的俱乐部之一。伟大的古巴冠军何塞·劳尔·卡帕布兰卡在那里下过棋。"
+ },
+ "deco/26fd1ea0": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "我是 Skye。老鹰从高处能看到整个棋盘。强手把将死的套路记得滚瓜烂熟，所以一眼就能认出来。"
+ },
+ "deco/f01c38e8": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "哪位来自古巴的世界冠军在曼哈顿国际象棋俱乐部下过棋？"
+ },
+ "deco/4e416780": {
+  "who": "skye",
+  "voice": "zf_xiaoyi",
+  "text": "卡帕布兰卡在 1921 年到 1927 年是世界冠军，以清晰简洁的棋风闻名。"
+ }
+}

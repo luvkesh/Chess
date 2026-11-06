@@ -1,0 +1,1999 @@
+{
+ "lang": "es",
+ "lines": {
+  "hero": {
+   "text": "¡Hola! Soy Rooky, tu entrenador de ajedrez. ¡Bienvenido a Chackmate! Vamos, baja un poco. ¡Tengo muchísimas cosas que enseñarte!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Hola!"
+    },
+    {
+     "t": 0.94,
+     "text": "Soy Rooky, tu entrenador de ajedrez."
+    },
+    {
+     "t": 3.46,
+     "text": "¡Bienvenido a Chackmate!"
+    },
+    {
+     "t": 5.34,
+     "text": "Vamos, baja un poco."
+    },
+    {
+     "t": 7.23,
+     "text": "¡Tengo muchísimas cosas que enseñarte!"
+    }
+   ]
+  },
+  "learn": {
+   "text": "¡Uh, mira, una partida de verdad! Cada vez que mueves, te digo por qué, en una frase rápida. ¡Es como tener un entrenador justo a tu lado!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Uh, mira, una partida de verdad!"
+    },
+    {
+     "t": 2.26,
+     "text": "Cada vez que mueves, te digo por qué, en una frase rápida."
+    },
+    {
+     "t": 5.89,
+     "text": "¡Es como tener un entrenador justo a tu lado!"
+    }
+   ]
+  },
+  "lessons": {
+   "text": "Primero, aprende cómo se mueve cada pieza. Después, resuelve problemas, prueba aperturas famosas y gana finales. ¿Y sabes qué? ¡Cada día te espera un problema nuevecito!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Primero, aprende cómo se mueve cada pieza."
+    },
+    {
+     "t": 2.98,
+     "text": "Después, resuelve problemas, prueba aperturas famosas y gana finales."
+    },
+    {
+     "t": 7.54,
+     "text": "¿Y sabes qué?"
+    },
+    {
+     "t": 8.93,
+     "text": "¡Cada día te espera un problema nuevecito!"
+    }
+   ]
+  },
+  "wonders": {
+   "text": "¡Ahora viene lo divertido! Juegas justo delante de maravillas del mundo de verdad, desde las pirámides hasta el Taj Mahal. ¡Gana a cada campeón, consigue un sello en el pasaporte y se desbloquea el siguiente lugar!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Ahora viene lo divertido!"
+    },
+    {
+     "t": 1.96,
+     "text": "Juegas justo delante de maravillas del mundo de verdad, desde las pirámides hasta el Taj Mahal."
+    },
+    {
+     "t": 7.39,
+     "text": "¡Gana a cada campeón, consigue un sello en el pasaporte y se desbloquea el siguiente lugar!"
+    }
+   ]
+  },
+  "collect": {
+   "text": "¡Cada juego de ajedrez tiene su propia historia! Gánalos, colecciónalos y pruébalos en tu mesa. Nada es al azar, y nadie puede comprar un ejército más fuerte. ¡Limpio y justo!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Cada juego de ajedrez tiene su propia historia!"
+    },
+    {
+     "t": 3.18,
+     "text": "Gánalos, colecciónalos y pruébalos en tu mesa."
+    },
+    {
+     "t": 6.32,
+     "text": "Nada es al azar, y nadie puede comprar un ejército más fuerte."
+    },
+    {
+     "t": 10.35,
+     "text": "¡Limpio y justo!"
+    }
+   ]
+  },
+  "ages": {
+   "text": "Entonces, ¿contra quién quieres jugar? Truffle la conejita es muy suave con los principiantes. ¡Ember el dragón juega a toda potencia! Cada partida te hace un poquito mejor.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Entonces, ¿contra quién quieres jugar?"
+    },
+    {
+     "t": 2.5,
+     "text": "Truffle la conejita es muy suave con los principiantes."
+    },
+    {
+     "t": 6.22,
+     "text": "¡Ember el dragón juega a toda potencia!"
+    },
+    {
+     "t": 8.99,
+     "text": "Cada partida te hace un poquito mejor."
+    }
+   ]
+  },
+  "families": {
+   "text": "¡Esta parte es para los adultos! Sin chat con desconocidos, sin anuncios y sin rastreo. Tú decides sobre el juego en línea y las compras.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Esta parte es para los adultos!"
+    },
+    {
+     "t": 2.36,
+     "text": "Sin chat con desconocidos, sin anuncios y sin rastreo."
+    },
+    {
+     "t": 5.94,
+     "text": "Tú decides sobre el juego en línea y las compras."
+    }
+   ]
+  },
+  "close": {
+   "text": "Tu primera jugada te espera. ¿Listo? ¡A jugar!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Tu primera jugada te espera."
+    },
+    {
+     "t": 2.2,
+     "text": "¿Listo?"
+    },
+    {
+     "t": 3.29,
+     "text": "¡A jugar!"
+    }
+   ]
+  },
+  "item-sets-pharaoh": {
+   "text": "¡Mira cómo brilla este! Pharaoh's Treasure es alabastro blanco liso y basalto oscuro, y cada pieza lleva un collar de oro, lapislázuli azul y cornalina roja, como las joyas de un faraón de verdad. Miu la Gata lo vigila a orillas del Nilo. Gánale y será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Mira cómo brilla este!"
+    },
+    {
+     "t": 2.07,
+     "text": "Pharaoh's Treasure es alabastro blanco liso y basalto oscuro, y cada pieza lleva un collar de oro, lapislázuli azul y cornalina roja, como las joyas de un faraón de verdad."
+    },
+    {
+     "t": 12.26,
+     "text": "Miu la Gata lo vigila a orillas del Nilo."
+    },
+    {
+     "t": 15.08,
+     "text": "Gánale y será tuyo."
+    }
+   ]
+  },
+  "item-sets-olympian": {
+   "text": "Pasa el dedo por este rey. Esas estrías están talladas como las columnas de un templo griego, en mármol blanco del Pentélico con una corona de laurel de bronce. Sophie la Lechuza vigila este juego, y será tuyo cuando le ganes en Atenas.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Pasa el dedo por este rey."
+    },
+    {
+     "t": 2.1,
+     "text": "Esas estrías están talladas como las columnas de un templo griego, en mármol blanco del Pentélico con una corona de laurel de bronce."
+    },
+    {
+     "t": 9.82,
+     "text": "Sophie la Lechuza vigila este juego, y será tuyo cuando le ganes en Atenas."
+    }
+   ]
+  },
+  "item-sets-imperial": {
+   "text": "Aquí tienes un juego digno de un emperador. Imperial Rome combina mármol blanco de Carrara con pórfido morado intenso, una piedra tan rara que solo los emperadores podían usarla, y cada rey lleva una corona de laurel dorada. Gana a Marcus el Lobo en Roma para que sea tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Aquí tienes un juego digno de un emperador."
+    },
+    {
+     "t": 2.88,
+     "text": "Imperial Rome combina mármol blanco de Carrara con pórfido morado intenso, una piedra tan rara que solo los emperadores podían usarla, y cada rey lleva una corona de laurel dorada."
+    },
+    {
+     "t": 13.62,
+     "text": "Gana a Marcus el Lobo en Roma para que sea tuyo."
+    }
+   ]
+  },
+  "item-sets-maharaja": {
+   "text": "Este es digno de un palacio. Jade blanco y verde, con diminutos rubíes y esmeraldas en las coronas, igual que las joyas de los emperadores mogoles. Pon la dama a contraluz y mira cómo brilla el verde.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Este es digno de un palacio."
+    },
+    {
+     "t": 2.13,
+     "text": "Jade blanco y verde, con diminutos rubíes y esmeraldas en las coronas, igual que las joyas de los emperadores mogoles."
+    },
+    {
+     "t": 9.27,
+     "text": "Pon la dama a contraluz y mira cómo brilla el verde."
+    }
+   ]
+  },
+  "item-sets-dynasty": {
+   "text": "Azul y blanco, como un valioso jarrón Ming. Ming Porcelain está pintado a mano en azul cobalto intenso, y cada pieza se apoya en laca de cinabrio rojo, tallada capa a capa con dibujos. Gana a Bao el Panda en Pekín y el juego de la Ciudad Prohibida será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Azul y blanco, como un valioso jarrón Ming."
+    },
+    {
+     "t": 2.78,
+     "text": "Ming Porcelain está pintado a mano en azul cobalto intenso, y cada pieza se apoya en laca de cinabrio rojo, tallada capa a capa con dibujos."
+    },
+    {
+     "t": 11.2,
+     "text": "Gana a Bao el Panda en Pekín y el juego de la Ciudad Prohibida será tuyo."
+    }
+   ]
+  },
+  "item-sets-murano": {
+   "text": "Los vidrieros de Venecia llevan setecientos años hilando vidrio así. Blanco leche y azul cobalto, con pies retorcidos e hilos de oro. Cada pieza atrapa la luz de una forma distinta, así que no hay dos partidas iguales.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los vidrieros de Venecia llevan setecientos años hilando vidrio así."
+    },
+    {
+     "t": 4.43,
+     "text": "Blanco leche y azul cobalto, con pies retorcidos e hilos de oro."
+    },
+    {
+     "t": 8.55,
+     "text": "Cada pieza atrapa la luz de una forma distinta, así que no hay dos partidas iguales."
+    }
+   ]
+  },
+  "item-sets-ruby-pearl": {
+   "text": "París, 1889: la torre Eiffel es nuevecita, y este juego también. Ruby and Pearl tiene lirios y tulipanes que trepan por cada pieza, en perla cremosa y rojo rubí intenso, envueltos en finos zarcillos dorados. Gana a Gaston el Gallo en París y este juego tan romántico será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "París, 1889: la torre Eiffel es nuevecita, y este juego también."
+    },
+    {
+     "t": 5.4,
+     "text": "Ruby and Pearl tiene lirios y tulipanes que trepan por cada pieza, en perla cremosa y rojo rubí intenso, envueltos en finos zarcillos dorados."
+    },
+    {
+     "t": 14.36,
+     "text": "Gana a Gaston el Gallo en París y este juego tan romántico será tuyo."
+    }
+   ]
+  },
+  "item-sets-tsarina": {
+   "text": "Y ahora, la joya de la corona. El juego de la zarina reluce con esmalte guilloché, finísimas líneas grabadas que brillan bajo un color transparente, con malaquita verde, perlas, diamantes diminutos y oro rosa. Parece un tesoro de un palacio real. Gana a Mishka el Oso en San Petersburgo y será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Y ahora, la joya de la corona."
+    },
+    {
+     "t": 2.27,
+     "text": "El juego de la zarina reluce con esmalte guilloché, finísimas líneas grabadas que brillan bajo un color transparente, con malaquita verde, perlas, diamantes diminutos y oro rosa."
+    },
+    {
+     "t": 12.8,
+     "text": "Parece un tesoro de un palacio real."
+    },
+    {
+     "t": 15.52,
+     "text": "Gana a Mishka el Oso en San Petersburgo y será tuyo."
+    }
+   ]
+  },
+  "item-sets-manhattan": {
+   "text": "Manhattan Deco es tan alto y elegante como el mismísimo Nueva York. El esmalte crema y el brillante ónice negro suben en escalones, igual que los rascacielos de los años 30, con las líneas atrevidas de la era del jazz. Gana a Skye el Águila en lo alto de Manhattan para conseguirlo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Manhattan Deco es tan alto y elegante como el mismísimo Nueva York."
+    },
+    {
+     "t": 4.25,
+     "text": "El esmalte crema y el brillante ónice negro suben en escalones, igual que los rascacielos de los años 30, con las líneas atrevidas de la era del jazz."
+    },
+    {
+     "t": 13.24,
+     "text": "Gana a Skye el Águila en lo alto de Manhattan para conseguirlo."
+    }
+   ]
+  },
+  "item-sets-regency": {
+   "text": "Toda gran colección empieza en algún sitio, y la tuya empieza aquí. Regency Gilt es laca blanca y negra brillante, y las coronas y las crines de los caballos llevan pinceladas de pan de oro de verdad, como trabajaban los ebanistas hace doscientos años. Te espera desde tu primera partida.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Toda gran colección empieza en algún sitio, y la tuya empieza aquí."
+    },
+    {
+     "t": 4.24,
+     "text": "Regency Gilt es laca blanca y negra brillante, y las coronas y las crines de los caballos llevan pinceladas de pan de oro de verdad, como trabajaban los ebanistas hace doscientos años."
+    },
+    {
+     "t": 15.26,
+     "text": "Te espera desde tu primera partida."
+    }
+   ]
+  },
+  "item-sets-staunton": {
+   "text": "Casi todos los juegos de ajedrez del mundo aprendieron su forma de este. Classic Staunton es de boj claro y ébano oscuro, con un orgulloso caballo tallado y una pequeña cruz en el rey. Sencillo, honesto y listo. Es tuyo desde el principio.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Casi todos los juegos de ajedrez del mundo aprendieron su forma de este."
+    },
+    {
+     "t": 4.5,
+     "text": "Classic Staunton es de boj claro y ébano oscuro, con un orgulloso caballo tallado y una pequeña cruz en el rey."
+    },
+    {
+     "t": 11.21,
+     "text": "Sencillo, honesto y listo."
+    },
+    {
+     "t": 13.36,
+     "text": "Es tuyo desde el principio."
+    }
+   ]
+  },
+  "item-sets-marble": {
+   "text": "Algunos juegos susurran en lugar de gritar. Carrara and Nero está hecho de formas sencillas, conos, esferas y discos, tallados en mármol blanco y negro y pulidos hasta que se sienten frescos y suaves en la mano. A los adultos les encanta este. Viene con Marble Hall y su tablero de mármol.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Algunos juegos susurran en lugar de gritar."
+    },
+    {
+     "t": 2.92,
+     "text": "Carrara and Nero está hecho de formas sencillas, conos, esferas y discos, tallados en mármol blanco y negro y pulidos hasta que se sienten frescos y suaves en la mano."
+    },
+    {
+     "t": 12.39,
+     "text": "A los adultos les encanta este."
+    },
+    {
+     "t": 14.75,
+     "text": "Viene con Marble Hall y su tablero de mármol."
+    }
+   ]
+  },
+  "item-sets-cocoa-gilt": {
+   "text": "¡Cuidado, este parece tan rico que dan ganas de comérselo! Cocoa and Gilt convierte cada pieza en una golosina: trufas de chocolate, rosetas de manga pastelera y moldes de papel, en cacao oscuro y dorado brillante. Es el juego más dulce de la colección. Llega al nivel diez y la caja será tuya.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Cuidado, este parece tan rico que dan ganas de comérselo!"
+    },
+    {
+     "t": 3.72,
+     "text": "Cocoa and Gilt convierte cada pieza en una golosina: trufas de chocolate, rosetas de manga pastelera y moldes de papel, en cacao oscuro y dorado brillante."
+    },
+    {
+     "t": 13.09,
+     "text": "Es el juego más dulce de la colección."
+    },
+    {
+     "t": 15.84,
+     "text": "Llega al nivel diez y la caja será tuya."
+    }
+   ]
+  },
+  "item-sets-jade-onyx": {
+   "text": "Estas piezas se alzan como piedras antiguas en un campo con niebla. Jade and Onyx está tallado en cuadrados de jade verde claro y ónice negro profundo, con bordes afilados y limpios que se notan al tocarlos. Shelly la Tortuga lo vigila, así que gánale a su juego lento y seguro para llevártelo a casa.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Estas piezas se alzan como piedras antiguas en un campo con niebla."
+    },
+    {
+     "t": 4.32,
+     "text": "Jade and Onyx está tallado en cuadrados de jade verde claro y ónice negro profundo, con bordes afilados y limpios que se notan al tocarlos."
+    },
+    {
+     "t": 12.94,
+     "text": "Shelly la Tortuga lo vigila, así que gánale a su juego lento y seguro para llevártelo a casa."
+    }
+   ]
+  },
+  "item-sets-gold-silver": {
+   "text": "Cada pieza de este juego es un trofeo. Gold and Platinum le da a cada pieza copas relucientes y asas rizadas, pulidas como los premios de un gran torneo, y el rey sostiene la copa más alta de todas. Viene con Premium, para jugadores a los que les encanta un poco de brillo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Cada pieza de este juego es un trofeo."
+    },
+    {
+     "t": 2.83,
+     "text": "Gold and Platinum le da a cada pieza copas relucientes y asas rizadas, pulidas como los premios de un gran torneo, y el rey sostiene la copa más alta de todas."
+    },
+    {
+     "t": 12.22,
+     "text": "Viene con Premium, para jugadores a los que les encanta un poco de brillo."
+    }
+   ]
+  },
+  "item-sets-ruby-chocolate": {
+   "text": "¡El chocolate rosa existe de verdad, y aquí lo tienes en tu tablero! Ruby Chocolate son piezas moldeadas, suaves y burbujeantes, en rubí rosado y chocolate amargo oscuro, con pequeños bultitos como el chocolate recién sacado del molde. Es dulce, alegre y muy rosa. Viene con Fairy-Tale Castle, para los jugadores que vuelven siete días seguidos.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡El chocolate rosa existe de verdad, y aquí lo tienes en tu tablero!"
+    },
+    {
+     "t": 4.15,
+     "text": "Ruby Chocolate son piezas moldeadas, suaves y burbujeantes, en rubí rosado y chocolate amargo oscuro, con pequeños bultitos como el chocolate recién sacado del molde."
+    },
+    {
+     "t": 14.34,
+     "text": "Es dulce, alegre y muy rosa."
+    },
+    {
+     "t": 16.72,
+     "text": "Viene con Fairy-Tale Castle, para los jugadores que vuelven siete días seguidos."
+    }
+   ]
+  },
+  "item-sets-milk-dark": {
+   "text": "¿Sabías que el chocolate crece en mazorcas en los árboles? Milk and Dark convierte cada pieza en una mazorca de cacao estriada sobre pies de hojas, en cremoso chocolate con leche y rico chocolate negro. Es el gran premio del camino gratis de la temporada Cosecha de Cacao, así que sigue jugando para llegar a él.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Sabías que el chocolate crece en mazorcas en los árboles?"
+    },
+    {
+     "t": 3.64,
+     "text": "Milk and Dark convierte cada pieza en una mazorca de cacao estriada sobre pies de hojas, en cremoso chocolate con leche y rico chocolate negro."
+    },
+    {
+     "t": 12.26,
+     "text": "Es el gran premio del camino gratis de la temporada Cosecha de Cacao, así que sigue jugando para llegar a él."
+    }
+   ]
+  },
+  "item-sets-caramel-cream": {
+   "text": "Mira cómo corre la luz por estos retorcidos. Caramel and Cream son espirales retorcidas de caramelo dorado y nata blanca fresca, como los dulces del escaparate de una tienda antigua. ¡Parecen casi pegajosas! Es uno de los premios del pase de la temporada Cosecha de Cacao.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Mira cómo corre la luz por estos retorcidos."
+    },
+    {
+     "t": 2.92,
+     "text": "Caramel and Cream son espirales retorcidas de caramelo dorado y nata blanca fresca, como los dulces del escaparate de una tienda antigua."
+    },
+    {
+     "t": 11.24,
+     "text": "¡Parecen casi pegajosas!"
+    },
+    {
+     "t": 13.43,
+     "text": "Es uno de los premios del pase de la temporada Cosecha de Cacao."
+    }
+   ]
+  },
+  "item-sets-crystal": {
+   "text": "Pon una pieza a contraluz en la ventana y mira cómo bailan los colores. Crystal Jewels es de cristal tallado, transparente para un bando y negro azabache para el otro, y cada tipo de pieza lleva su propia gema de color. Cada uno brilla de una forma distinta. Viene con Premium.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Pon una pieza a contraluz en la ventana y mira cómo bailan los colores."
+    },
+    {
+     "t": 4.37,
+     "text": "Crystal Jewels es de cristal tallado, transparente para un bando y negro azabache para el otro, y cada tipo de pieza lleva su propia gema de color."
+    },
+    {
+     "t": 13.24,
+     "text": "Cada uno brilla de una forma distinta."
+    },
+    {
+     "t": 15.97,
+     "text": "Viene con Premium."
+    }
+   ]
+  },
+  "item-sets-celestial": {
+   "text": "Este juego viene del cielo nocturno. Celestial Opal es ópalo blanco lechoso y ópalo negro engastados en plata, con planetas con anillos, una luna creciente y pequeñas estrellas doradas. Gíralo despacio y el ópalo destella en azul y verde. Viene con Premium, para soñadores.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Este juego viene del cielo nocturno."
+    },
+    {
+     "t": 2.6,
+     "text": "Celestial Opal es ópalo blanco lechoso y ópalo negro engastados en plata, con planetas con anillos, una luna creciente y pequeñas estrellas doradas."
+    },
+    {
+     "t": 11.89,
+     "text": "Gíralo despacio y el ópalo destella en azul y verde."
+    },
+    {
+     "t": 15.44,
+     "text": "Viene con Premium, para soñadores."
+    }
+   ]
+  },
+  "item-sets-peacock": {
+   "text": "Los pavos reales son las aves más orgullosas del jardín, y estas piezas lo saben. Peacock Court es marfil y esmalte azul pavo real, con colas en abanico, crestas diminutas y ojos de pluma en cada pieza. Es elegante, luminoso y un poquito real. Viene con Mysore Palace, todo iluminado de noche.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los pavos reales son las aves más orgullosas del jardín, y estas piezas lo saben."
+    },
+    {
+     "t": 5.09,
+     "text": "Peacock Court es marfil y esmalte azul pavo real, con colas en abanico, crestas diminutas y ojos de pluma en cada pieza."
+    },
+    {
+     "t": 12.42,
+     "text": "Es elegante, luminoso y un poquito real."
+    },
+    {
+     "t": 15.44,
+     "text": "Viene con Mysore Palace, todo iluminado de noche."
+    }
+   ]
+  },
+  "item-sets-army": {
+   "text": "¡Aquí llega todo un ejército! En The Royal Army, la torre es un elefante de guerra, el alfil va montado en camello, el caballo es un jinete y los peones llevan espada y escudo. El ajedrez nació en la India como un juego de ejércitos, y este juego lo recuerda. Viene con Premium.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Aquí llega todo un ejército!"
+    },
+    {
+     "t": 2.3,
+     "text": "En The Royal Army, la torre es un elefante de guerra, el alfil va montado en camello, el caballo es un jinete y los peones llevan espada y escudo."
+    },
+    {
+     "t": 10.64,
+     "text": "El ajedrez nació en la India como un juego de ejércitos, y este juego lo recuerda."
+    },
+    {
+     "t": 15.46,
+     "text": "Viene con Premium."
+    }
+   ]
+  },
+  "item-sets-robots": {
+   "text": "¡Bip bup! Robot Squad es un equipo de simpáticos robots de juguete de plástico brillante y cromo reluciente, y todos tienen ojos que se iluminan. Parecen listas para marchar por el tablero. A los jugadores más pequeños les encanta este, y se desbloquea al llegar al nivel cinco.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Bip bup!"
+    },
+    {
+     "t": 1.23,
+     "text": "Robot Squad es un equipo de simpáticos robots de juguete de plástico brillante y cromo reluciente, y todos tienen ojos que se iluminan."
+    },
+    {
+     "t": 9.04,
+     "text": "Parecen listas para marchar por el tablero."
+    },
+    {
+     "t": 11.84,
+     "text": "A los jugadores más pequeños les encanta este, y se desbloquea al llegar al nivel cinco."
+    }
+   ]
+  },
+  "item-sets-ocean": {
+   "text": "¡Sumérgete bajo el mar! Coral Kingdom es toda una corte submarina, con sirenas y tritones, un pulpo, un caballito de mar, un castillo de coral y peces globo bien hinchados como peones. Cada pieza está pintada con colores vivos del océano. Llega al nivel doce y todo el reino llegará nadando a tu tablero.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Sumérgete bajo el mar!"
+    },
+    {
+     "t": 1.96,
+     "text": "Coral Kingdom es toda una corte submarina, con sirenas y tritones, un pulpo, un caballito de mar, un castillo de coral y peces globo bien hinchados como peones."
+    },
+    {
+     "t": 11.52,
+     "text": "Cada pieza está pintada con colores vivos del océano."
+    },
+    {
+     "t": 15.17,
+     "text": "Llega al nivel doce y todo el reino llegará nadando a tu tablero."
+    }
+   ]
+  },
+  "item-boards-walnut": {
+   "text": "Un buen tablero empieza con buena madera. Walnut and Maple pone nogal oscuro veteado junto a arce claro, en un marco unido por las esquinas como los muebles finos, con finas líneas doradas alrededor. Es cálido, clásico y tuyo desde tu primera partida.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Un buen tablero empieza con buena madera."
+    },
+    {
+     "t": 2.93,
+     "text": "Walnut and Maple pone nogal oscuro veteado junto a arce claro, en un marco unido por las esquinas como los muebles finos, con finas líneas doradas alrededor."
+    },
+    {
+     "t": 12.54,
+     "text": "Es cálido, clásico y tuyo desde tu primera partida."
+    }
+   ]
+  },
+  "item-boards-cocoa-cream": {
+   "text": "¿A que parece una elegante caja de bombones? Cocoa and Cream tiene casillas de brillante laca de cacao y suave crema, con finas uniones rojo frambuesa entre ellas. Es acogedor y dulce, y viene con la chocolatería de Bruselas.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿A que parece una elegante caja de bombones?"
+    },
+    {
+     "t": 2.93,
+     "text": "Cocoa and Cream tiene casillas de brillante laca de cacao y suave crema, con finas uniones rojo frambuesa entre ellas."
+    },
+    {
+     "t": 10.04,
+     "text": "Es acogedor y dulce, y viene con la chocolatería de Bruselas."
+    }
+   ]
+  },
+  "item-boards-tournament": {
+   "text": "Visita cualquier club de ajedrez y verás este tablero. Tournament Green es el verde y beige que usan los jugadores en clubes y campeonatos de todo el mundo, con casillas claras que no cansan la vista. Está listo para ti desde el principio.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Visita cualquier club de ajedrez y verás este tablero."
+    },
+    {
+     "t": 3.7,
+     "text": "Tournament Green es el verde y beige que usan los jugadores en clubes y campeonatos de todo el mundo, con casillas claras que no cansan la vista."
+    },
+    {
+     "t": 12.24,
+     "text": "Está listo para ti desde el principio."
+    }
+   ]
+  },
+  "item-boards-night-marble": {
+   "text": "Imagina jugar sobre el suelo de un palacio. Carrara and Nero es mármol blanco de Carrara y mármol negro Nero Marquina, pulido hasta que casi puedes ver tus piezas reflejadas en él. Se siente fresco, tranquilo y grandioso. Llega al nivel tres para desbloquearlo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Imagina jugar sobre el suelo de un palacio."
+    },
+    {
+     "t": 2.9,
+     "text": "Carrara and Nero es mármol blanco de Carrara y mármol negro Nero Marquina, pulido hasta que casi puedes ver tus piezas reflejadas en él."
+    },
+    {
+     "t": 10.8,
+     "text": "Se siente fresco, tranquilo y grandioso."
+    },
+    {
+     "t": 13.65,
+     "text": "Llega al nivel tres para desbloquearlo."
+    }
+   ]
+  },
+  "item-boards-rosewood-gold": {
+   "text": "El palo de rosa tiene un brillo rojo profundo que se vuelve más rico con el tiempo. Rosewood and Gold Leaf la pone frente a casillas color miel, y el marco lleva pan de oro de verdad, colocado lámina a lámina. Viene con Mysore Palace y Peacock Court.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "El palo de rosa tiene un brillo rojo profundo que se vuelve más rico con el tiempo."
+    },
+    {
+     "t": 4.91,
+     "text": "Rosewood and Gold Leaf la pone frente a casillas color miel, y el marco lleva pan de oro de verdad, colocado lámina a lámina."
+    },
+    {
+     "t": 12.18,
+     "text": "Viene con Mysore Palace y Peacock Court."
+    }
+   ]
+  },
+  "item-boards-emerald-ivory": {
+   "text": "Asómate a las casillas verdes. Emerald and Ivory es mármol verde con vetas de jade, frente a una cálida piedra color marfil, así que no hay dos casillas exactamente iguales. Es fresco y elegante, y viene con Great Wall y el juego Jade and Onyx.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Asómate a las casillas verdes."
+    },
+    {
+     "t": 2.3,
+     "text": "Emerald and Ivory es mármol verde con vetas de jade, frente a una cálida piedra color marfil, así que no hay dos casillas exactamente iguales."
+    },
+    {
+     "t": 11.01,
+     "text": "Es fresco y elegante, y viene con Great Wall y el juego Jade and Onyx."
+    }
+   ]
+  },
+  "item-boards-obsidian": {
+   "text": "¡La obsidiana es vidrio hecho por los volcanes! Obsidian Glass es vidrio volcánico negro ahumado con un borde cromado brillante, y cada pieza que colocas se refleja debajo. Es elegante y un poco misterioso. Viene con Crystal Palace y Crystal Jewels.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡La obsidiana es vidrio hecho por los volcanes!"
+    },
+    {
+     "t": 3.2,
+     "text": "Obsidian Glass es vidrio volcánico negro ahumado con un borde cromado brillante, y cada pieza que colocas se refleja debajo."
+    },
+    {
+     "t": 10.78,
+     "text": "Es elegante y un poco misterioso."
+    },
+    {
+     "t": 13.33,
+     "text": "Viene con Crystal Palace y Crystal Jewels."
+    }
+   ]
+  },
+  "item-boards-sakura": {
+   "text": "En Japón, las familias hacen pícnics bajo los cerezos en flor cada primavera. Sakura Lacquer atrapa ese rosa suave en capas de laca brillante, liso como un pétalo. Viene con Tokyo Sky Garden y Robot Squad.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En Japón, las familias hacen pícnics bajo los cerezos en flor cada primavera."
+    },
+    {
+     "t": 4.95,
+     "text": "Sakura Lacquer atrapa ese rosa suave en capas de laca brillante, liso como un pétalo."
+    },
+    {
+     "t": 10.32,
+     "text": "Viene con Tokyo Sky Garden y Robot Squad."
+    }
+   ]
+  },
+  "item-boards-sandstone": {
+   "text": "A Jaipur la llaman la Ciudad Rosa porque sus palacios están construidos con esta piedra. Jaipur Sandstone pone arenisca rosa y color miel una al lado de la otra, brillando como la ciudad al atardecer. Es un pedacito de la India en tu mesa. Viene con Amber Fort y The Royal Army.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "A Jaipur la llaman la Ciudad Rosa porque sus palacios están construidos con esta piedra."
+    },
+    {
+     "t": 5.49,
+     "text": "Jaipur Sandstone pone arenisca rosa y color miel una al lado de la otra, brillando como la ciudad al atardecer."
+    },
+    {
+     "t": 12.26,
+     "text": "Es un pedacito de la India en tu mesa."
+    },
+    {
+     "t": 14.99,
+     "text": "Viene con Amber Fort y The Royal Army."
+    }
+   ]
+  },
+  "item-boards-ruby-truffle": {
+   "text": "¿Te gustan los dulces? Ruby Truffle tiene casillas de brillante laca rubí y praliné claro, separadas por finas uniones de oro, igual que una caja de trufas finas. Es lujoso y alegre, y viene con Fairy-Tale Castle.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Te gustan los dulces?"
+    },
+    {
+     "t": 1.88,
+     "text": "Ruby Truffle tiene casillas de brillante laca rubí y praliné claro, separadas por finas uniones de oro, igual que una caja de trufas finas."
+    },
+    {
+     "t": 10.3,
+     "text": "Es lujoso y alegre, y viene con Fairy-Tale Castle."
+    }
+   ]
+  },
+  "item-boards-gilded-ebony": {
+   "text": "Algunos tableros están hechos para una gran ocasión. Gilded Ebony es laca negra profunda y marfil suave, y cada una de las uniones entre las casillas está dibujada en oro, así que bajo las luces todo el tablero brilla. Viene con Premium.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Algunos tableros están hechos para una gran ocasión."
+    },
+    {
+     "t": 3.5,
+     "text": "Gilded Ebony es laca negra profunda y marfil suave, y cada una de las uniones entre las casillas está dibujada en oro, así que bajo las luces todo el tablero brilla."
+    },
+    {
+     "t": 13.47,
+     "text": "Viene con Premium."
+    }
+   ]
+  },
+  "item-boards-harvest-oak": {
+   "text": "¿Hueles eso? ¡Es tiempo de cosecha! Harvest Oak es roble dorado con una veta cálida color miel, como la mesa de una granja al final del verano. Viene con Harvest Loft y el juego Caramel and Cream.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Hueles eso?"
+    },
+    {
+     "t": 1.36,
+     "text": "¡Es tiempo de cosecha!"
+    },
+    {
+     "t": 3.2,
+     "text": "Harvest Oak es roble dorado con una veta cálida color miel, como la mesa de una granja al final del verano."
+    },
+    {
+     "t": 9.58,
+     "text": "Viene con Harvest Loft y el juego Caramel and Cream."
+    }
+   ]
+  },
+  "item-boards-cacao-pod": {
+   "text": "¿Alguna vez has visto una mazorca de cacao madura? Cacao Pod pinta el tablero con los colores cálidos de la mazorca y de los granos que lleva dentro, los mismos granos que se convierten en chocolate. Es un tablero alegre, y viene con Alpine Chalet y el juego Milk and Dark.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Alguna vez has visto una mazorca de cacao madura?"
+    },
+    {
+     "t": 3.29,
+     "text": "Cacao Pod pinta el tablero con los colores cálidos de la mazorca y de los granos que lleva dentro, los mismos granos que se convierten en chocolate."
+    },
+    {
+     "t": 11.86,
+     "text": "Es un tablero alegre, y viene con Alpine Chalet y el juego Milk and Dark."
+    }
+   ]
+  },
+  "item-boards-nile": {
+   "text": "Los jeroglíficos recorren todo este marco, igual que los muros de un templo egipcio. Sandstone and Lapis pone arenisca dorada del desierto junto a lapislázuli azul intenso, la piedra que adoraban los faraones. Gana a Miu la Gata a orillas del Nilo y será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los jeroglíficos recorren todo este marco, igual que los muros de un templo egipcio."
+    },
+    {
+     "t": 5.17,
+     "text": "Sandstone and Lapis pone arenisca dorada del desierto junto a lapislázuli azul intenso, la piedra que adoraban los faraones."
+    },
+    {
+     "t": 12.81,
+     "text": "Gana a Miu la Gata a orillas del Nilo y será tuyo."
+    }
+   ]
+  },
+  "item-boards-athens": {
+   "text": "A los griegos les encantaba el mármol, y este tablero muestra por qué. Pentelic and Verde pone mármol blanco del Pentélico, la piedra del Partenón, junto a verde antico, con una greca alrededor del borde. Gana a Sophie la Lechuza en Atenas para llevártelo a casa.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "A los griegos les encantaba el mármol, y este tablero muestra por qué."
+    },
+    {
+     "t": 4.29,
+     "text": "Pentelic and Verde pone mármol blanco del Pentélico, la piedra del Partenón, junto a verde antico, con una greca alrededor del borde."
+    },
+    {
+     "t": 12.17,
+     "text": "Gana a Sophie la Lechuza en Atenas para llevártelo a casa."
+    }
+   ]
+  },
+  "item-boards-roma": {
+   "text": "Los romanos construían con piedra que duraba miles de años. Porphyry and Travertine pone travertino cálido junto a mármol gris, con un marco de pórfido imperial y un borde de bronce. Se siente tan sólido como el Coliseo. Gana a Marcus el Lobo en Roma y será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los romanos construían con piedra que duraba miles de años."
+    },
+    {
+     "t": 3.79,
+     "text": "Porphyry and Travertine pone travertino cálido junto a mármol gris, con un marco de pórfido imperial y un borde de bronce."
+    },
+    {
+     "t": 10.92,
+     "text": "Se siente tan sólido como el Coliseo."
+    },
+    {
+     "t": 13.59,
+     "text": "Gana a Marcus el Lobo en Roma y será tuyo."
+    }
+   ]
+  },
+  "item-boards-mughal": {
+   "text": "Mira más de cerca: esas flores no están pintadas, son de piedra. Taj Marble es mármol blanco con incrustaciones de diminutas flores de piedra, como se decoró el Taj Mahal, frente a una cálida arenisca roja. Gana a Moti el Elefante en Agra para llevártelo a casa.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Mira más de cerca: esas flores no están pintadas, son de piedra."
+    },
+    {
+     "t": 4.12,
+     "text": "Taj Marble es mármol blanco con incrustaciones de diminutas flores de piedra, como se decoró el Taj Mahal, frente a una cálida arenisca roja."
+    },
+    {
+     "t": 12.54,
+     "text": "Gana a Moti el Elefante en Agra para llevártelo a casa."
+    }
+   ]
+  },
+  "item-boards-ming": {
+   "text": "Seda, laca y oro, los tesoros del estudio de un emperador. Cinnabar and Gold tiene casillas de laca negra y seda clara con uniones doradas, en un marco de cinabrio rojo tallado. Gana a Bao el Panda en Pekín y será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Seda, laca y oro, los tesoros del estudio de un emperador."
+    },
+    {
+     "t": 3.77,
+     "text": "Cinnabar and Gold tiene casillas de laca negra y seda clara con uniones doradas, en un marco de cinabrio rojo tallado."
+    },
+    {
+     "t": 10.95,
+     "text": "Gana a Bao el Panda en Pekín y será tuyo."
+    }
+   ]
+  },
+  "item-boards-venice": {
+   "text": "Aquí va una historia de buena suerte. Hace mucho tiempo, los vidrieros de Murano cometieron un error y descubrieron la aventurina, un vidrio que brilla con motas de oro. Murano Mirror lo pone junto a vidrio de espejo plateado. Gana a Marco el León Alado en Venecia para conseguirlo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Aquí va una historia de buena suerte."
+    },
+    {
+     "t": 2.48,
+     "text": "Hace mucho tiempo, los vidrieros de Murano cometieron un error y descubrieron la aventurina, un vidrio que brilla con motas de oro."
+    },
+    {
+     "t": 10.2,
+     "text": "Murano Mirror lo pone junto a vidrio de espejo plateado."
+    },
+    {
+     "t": 13.73,
+     "text": "Gana a Marco el León Alado en Venecia para conseguirlo."
+    }
+   ]
+  },
+  "item-boards-belle": {
+   "text": "Este tablero viene de las grandes casas de París. Bleu Turquin and Carrara pone mármol gris azulado junto a mármol blanco de Carrara, en un marco de palisandro violeta, una madera tan fina que se usaba para los muebles reales. Gana a Gaston el Gallo en París para conseguirlo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Este tablero viene de las grandes casas de París."
+    },
+    {
+     "t": 3.15,
+     "text": "Bleu Turquin and Carrara pone mármol gris azulado junto a mármol blanco de Carrara, en un marco de palisandro violeta, una madera tan fina que se usaba para los muebles reales."
+    },
+    {
+     "t": 13.49,
+     "text": "Gana a Gaston el Gallo en París para conseguirlo."
+    }
+   ]
+  },
+  "item-boards-winter": {
+   "text": "Los remolinos verdes de este marco son malaquita, sacada de los montes Urales de Rusia. Malachite and Rhodonite pone rodonita rosa junto a ónice blanco en su interior, como un jardín de palacio bajo la nieve. Gana a Mishka el Oso y será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los remolinos verdes de este marco son malaquita, sacada de los montes Urales de Rusia."
+    },
+    {
+     "t": 5.37,
+     "text": "Malachite and Rhodonite pone rodonita rosa junto a ónice blanco en su interior, como un jardín de palacio bajo la nieve."
+    },
+    {
+     "t": 12.62,
+     "text": "Gana a Mishka el Oso y será tuyo."
+    }
+   ]
+  },
+  "item-boards-deco": {
+   "text": "Entra en un ático de los años 30. Macassar and Chrome tiene ébano de Macasar a rayas, una madera con llamativas rayas oscuras y doradas, junto a cromo reluciente. Es afilado, brillante y muy de Nueva York. Gana a Skye el Águila sobre Manhattan y será tuyo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Entra en un ático de los años 30."
+    },
+    {
+     "t": 2.6,
+     "text": "Macassar and Chrome tiene ébano de Macasar a rayas, una madera con llamativas rayas oscuras y doradas, junto a cromo reluciente."
+    },
+    {
+     "t": 10.5,
+     "text": "Es afilado, brillante y muy de Nueva York."
+    },
+    {
+     "t": 13.47,
+     "text": "Gana a Skye el Águila sobre Manhattan y será tuyo."
+    }
+   ]
+  },
+  "item-places-salon": {
+   "text": "Acerca una silla al fuego. Grand Cocoa Salon es un salón de la Regencia con luz de velas, una lámpara de araña reluciente y un fuego que crepita mientras piensas. Es acogedor, tranquilo y el primer lugar perfecto para jugar. Es tuyo desde el principio.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Acerca una silla al fuego."
+    },
+    {
+     "t": 2.15,
+     "text": "Grand Cocoa Salon es un salón de la Regencia con luz de velas, una lámpara de araña reluciente y un fuego que crepita mientras piensas."
+    },
+    {
+     "t": 10.42,
+     "text": "Es acogedor, tranquilo y el primer lugar perfecto para jugar."
+    },
+    {
+     "t": 14.54,
+     "text": "Es tuyo desde el principio."
+    }
+   ]
+  },
+  "item-places-library": {
+   "text": "Chis, este es mi lugar favorito para pensar. Midnight Library tiene estanterías de libros antiguos que suben hasta arriba del todo, bajo un cielo nocturno azul profundo. Es tranquilo, un poco mágico y perfecto para una partida larga. Es tuyo desde el principio.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Chis, este es mi lugar favorito para pensar."
+    },
+    {
+     "t": 2.98,
+     "text": "Midnight Library tiene estanterías de libros antiguos que suben hasta arriba del todo, bajo un cielo nocturno azul profundo."
+    },
+    {
+     "t": 10.25,
+     "text": "Es tranquilo, un poco mágico y perfecto para una partida larga."
+    },
+    {
+     "t": 14.22,
+     "text": "Es tuyo desde el principio."
+    }
+   ]
+  },
+  "item-places-marble-hall": {
+   "text": "¡Buenos días! Marble Hall es mármol blanco y oro, con la luz del sol entrando a raudales para que todo se sienta luminoso y fresco. Cada paso resuena suavemente en el suelo pulido. Es el tipo de sala donde podría jugar un campeón. Llega al nivel tres para abrir sus puertas.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Buenos días!"
+    },
+    {
+     "t": 1.4,
+     "text": "Marble Hall es mármol blanco y oro, con la luz del sol entrando a raudales para que todo se sienta luminoso y fresco."
+    },
+    {
+     "t": 8.17,
+     "text": "Cada paso resuena suavemente en el suelo pulido."
+    },
+    {
+     "t": 11.52,
+     "text": "Es el tipo de sala donde podría jugar un campeón."
+    },
+    {
+     "t": 14.92,
+     "text": "Llega al nivel tres para abrir sus puertas."
+    }
+   ]
+  },
+  "item-places-harvest-loft": {
+   "text": "¡Sube la escalera hasta el desván! Harvest Loft es una cálida sala de madera en tiempo de cosecha, llena de luz dorada de tarde. Es acogedor y alegre, como un escondite secreto solo para ti. Es un premio del pase de la temporada Cosecha de Cacao.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Sube la escalera hasta el desván!"
+    },
+    {
+     "t": 2.43,
+     "text": "Harvest Loft es una cálida sala de madera en tiempo de cosecha, llena de luz dorada de tarde."
+    },
+    {
+     "t": 7.97,
+     "text": "Es acogedor y alegre, como un escondite secreto solo para ti."
+    },
+    {
+     "t": 11.94,
+     "text": "Es un premio del pase de la temporada Cosecha de Cacao."
+    }
+   ]
+  },
+  "item-places-nile": {
+   "text": "Siente el cálido viento del desierto. Giza Plateau pone tu mesa en una terraza al atardecer, con las pirámides y la Esfinge brillando en naranja justo delante de ti. Está al aire libre, bajo el cielo abierto, y es donde empieza tu viaje, con Miu la Gata.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Siente el cálido viento del desierto."
+    },
+    {
+     "t": 2.7,
+     "text": "Giza Plateau pone tu mesa en una terraza al atardecer, con las pirámides y la Esfinge brillando en naranja justo delante de ti."
+    },
+    {
+     "t": 10.34,
+     "text": "Está al aire libre, bajo el cielo abierto, y es donde empieza tu viaje, con Miu la Gata."
+    }
+   ]
+  },
+  "item-places-athens": {
+   "text": "Ponte entre altas columnas de mármol y mira hacia la colina. Stoa of Athens es una columnata a la sombra donde los pensadores griegos conversaban y discutían, con el Partenón brillando afuera. Está bajo techo, pero lleno de aire y de luz. Sophie la Lechuza te espera aquí.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Ponte entre altas columnas de mármol y mira hacia la colina."
+    },
+    {
+     "t": 3.85,
+     "text": "Stoa of Athens es una columnata a la sombra donde los pensadores griegos conversaban y discutían, con el Partenón brillando afuera."
+    },
+    {
+     "t": 11.64,
+     "text": "Está bajo techo, pero lleno de aire y de luz."
+    },
+    {
+     "t": 14.64,
+     "text": "Sophie la Lechuza te espera aquí."
+    }
+   ]
+  },
+  "item-places-roma": {
+   "text": "¿Oyes al público? Tu mesa está en la arena del Coliseo al anochecer, con antorchas encendidas en cada grada a tu alrededor. Está al aire libre y es muy espectacular. Marcus el Lobo te espera aquí, así que sé valiente.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Oyes al público?"
+    },
+    {
+     "t": 1.72,
+     "text": "Tu mesa está en la arena del Coliseo al anochecer, con antorchas encendidas en cada grada a tu alrededor."
+    },
+    {
+     "t": 8.13,
+     "text": "Está al aire libre y es muy espectacular."
+    },
+    {
+     "t": 10.93,
+     "text": "Marcus el Lobo te espera aquí, así que sé valiente."
+    }
+   ]
+  },
+  "item-places-mughal": {
+   "text": "Respira hondo. Taj Mahal Gardens pone tu mesa en una terraza frente al Taj Mahal, al otro lado del largo estanque, que brilla blanco a la luz de la luna. Está al aire libre, es tranquilo y precioso. Moti el Elefante juega aquí, con amabilidad pero con astucia.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Respira hondo."
+    },
+    {
+     "t": 1.5,
+     "text": "Taj Mahal Gardens pone tu mesa en una terraza frente al Taj Mahal, al otro lado del largo estanque, que brilla blanco a la luz de la luna."
+    },
+    {
+     "t": 9.34,
+     "text": "Está al aire libre, es tranquilo y precioso."
+    },
+    {
+     "t": 12.36,
+     "text": "Moti el Elefante juega aquí, con amabilidad pero con astucia."
+    }
+   ]
+  },
+  "item-places-ming": {
+   "text": "Bienvenido al estudio del emperador. Forbidden City Study es laca roja y oro, y a través de las puertas se ve el Salón de la Armonía Suprema. Está bajo techo, es tranquilo y muy grandioso. Bao el Panda te espera aquí para jugar una partida.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Bienvenido al estudio del emperador."
+    },
+    {
+     "t": 2.55,
+     "text": "Forbidden City Study es laca roja y oro, y a través de las puertas se ve el Salón de la Armonía Suprema."
+    },
+    {
+     "t": 8.9,
+     "text": "Está bajo techo, es tranquilo y muy grandioso."
+    },
+    {
+     "t": 12.0,
+     "text": "Bao el Panda te espera aquí para jugar una partida."
+    }
+   ]
+  },
+  "item-places-venice": {
+   "text": "Escucha el agua chapotear abajo. Palazzo on the Canal pone tu mesa en un balcón sobre el Gran Canal, con góndolas que pasan deslizándose y el puente de Rialto justo delante. Marco el León Alado juega aquí, así que ten cuidado.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Escucha el agua chapotear abajo."
+    },
+    {
+     "t": 2.47,
+     "text": "Palazzo on the Canal pone tu mesa en un balcón sobre el Gran Canal, con góndolas que pasan deslizándose y el puente de Rialto justo delante."
+    },
+    {
+     "t": 10.54,
+     "text": "Marco el León Alado juega aquí, así que ten cuidado."
+    }
+   ]
+  },
+  "item-places-paris": {
+   "text": "Es 1889 y acaban de terminar la torre Eiffel. Champ de Mars pone tu mesa en una terraza ajardinada justo debajo de ella, iluminada para la Exposición Universal. Está al aire libre y lleno de brillo. Gaston el Gallo te espera aquí.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Es 1889 y acaban de terminar la torre Eiffel."
+    },
+    {
+     "t": 4.45,
+     "text": "Champ de Mars pone tu mesa en una terraza ajardinada justo debajo de ella, iluminada para la Exposición Universal."
+    },
+    {
+     "t": 11.5,
+     "text": "Está al aire libre y lleno de brillo."
+    },
+    {
+     "t": 14.13,
+     "text": "Gaston el Gallo te espera aquí."
+    }
+   ]
+  },
+  "item-places-winter": {
+   "text": "Afuera, al otro lado de las ventanas, está nevando. Winter Palace es un salón de baile dorado frente a las coloridas cúpulas de cebolla de la iglesia del Salvador sobre la Sangre Derramada. Está bajo techo, es cálido y brillante. Mishka el Oso te espera aquí para jugar una partida.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Afuera, al otro lado de las ventanas, está nevando."
+    },
+    {
+     "t": 3.32,
+     "text": "Winter Palace es un salón de baile dorado frente a las coloridas cúpulas de cebolla de la iglesia del Salvador sobre la Sangre Derramada."
+    },
+    {
+     "t": 11.44,
+     "text": "Está bajo techo, es cálido y brillante."
+    },
+    {
+     "t": 14.27,
+     "text": "Mishka el Oso te espera aquí para jugar una partida."
+    }
+   ]
+  },
+  "item-places-deco": {
+   "text": "¡Cuántas luces! Times Square Rooftop pone tu mesa muy por encima de Broadway, en un mar de letreros de neón brillantes. Está al aire libre, lleno de vida y emoción, y es el último lugar del viaje. Skye el Águila te espera en lo más alto.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Cuántas luces!"
+    },
+    {
+     "t": 1.54,
+     "text": "Times Square Rooftop pone tu mesa muy por encima de Broadway, en un mar de letreros de neón brillantes."
+    },
+    {
+     "t": 7.66,
+     "text": "Está al aire libre, lleno de vida y emoción, y es el último lugar del viaje."
+    },
+    {
+     "t": 12.11,
+     "text": "Skye el Águila te espera en lo más alto."
+    }
+   ]
+  },
+  "item-sets-sarsen": {
+   "text": "Estas piezas parecen talladas por gigantes. Sarsen Stones es piedra gris tosca, tallada a mano sin ningún pulido: el rey es un pequeño trilito, dos piedras de pie con otra encima. Es el juego de aspecto más antiguo que tenemos, y viene con Stonehenge.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Estas piezas parecen talladas por gigantes."
+    },
+    {
+     "t": 3.04,
+     "text": "Sarsen Stones es piedra gris tosca, tallada a mano sin ningún pulido: el rey es un pequeño trilito, dos piedras de pie con otra encima."
+    },
+    {
+     "t": 11.19,
+     "text": "Es el juego de aspecto más antiguo que tenemos, y viene con Stonehenge."
+    }
+   ]
+  },
+  "item-sets-harappa": {
+   "text": "Hace cinco mil años, los alfareros junto al río Indo hacían juguetes y sellos de barro. Indus Terracotta los trae de vuelta: un rey sacerdote, una diosa madre, un granero y pequeñas vasijas pintadas, en barro rojo cocido con engobe negro. Viene con Mohenjo-daro.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Hace cinco mil años, los alfareros junto al río Indo hacían juguetes y sellos de barro."
+    },
+    {
+     "t": 5.47,
+     "text": "Indus Terracotta los trae de vuelta: un rey sacerdote, una diosa madre, un granero y pequeñas vasijas pintadas, en barro rojo cocido con engobe negro."
+    },
+    {
+     "t": 14.81,
+     "text": "Viene con Mohenjo-daro."
+    }
+   ]
+  },
+  "item-sets-inca": {
+   "text": "En lo alto de las montañas de Perú, los incas encajaban las piedras tan bien que entre ellas no cabe ni una brizna de hierba. Inca Stone es piedra gris y oro, con un rey sol, una reina luna y puertas en forma de trapecio. Viene con Machu Picchu.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En lo alto de las montañas de Perú, los incas encajaban las piedras tan bien que entre ellas no cabe ni una brizna de hierba."
+    },
+    {
+     "t": 7.25,
+     "text": "Inca Stone es piedra gris y oro, con un rey sol, una reina luna y puertas en forma de trapecio."
+    },
+    {
+     "t": 12.99,
+     "text": "Viene con Machu Picchu."
+    }
+   ]
+  },
+  "item-sets-norse": {
+   "text": "Hace mil años, los tallistas nórdicos tallaban sus juegos junto al fuego en las largas noches de invierno. Norse Carved es de abedul y roble oscuro de pantano: el rey sostiene un martillo, los alfiles llevan runas y los peones son pequeñas setas. Viene con Norse Fireside.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Hace mil años, los tallistas nórdicos tallaban sus juegos junto al fuego en las largas noches de invierno."
+    },
+    {
+     "t": 6.24,
+     "text": "Norse Carved es de abedul y roble oscuro de pantano: el rey sostiene un martillo, los alfiles llevan runas y los peones son pequeñas setas."
+    },
+    {
+     "t": 14.66,
+     "text": "Viene con Norse Fireside."
+    }
+   ]
+  },
+  "item-sets-sounion": {
+   "text": "Estas piezas parecen las estatuas de bronce que los griegos sacaban del mar. Gods of Sounion es mármol blanco frente a bronce verde: Poseidón con su tridente, una diosa, olas del mar, columnas y valientes hoplitas. Viene con Temple of Poseidon.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Estas piezas parecen las estatuas de bronce que los griegos sacaban del mar."
+    },
+    {
+     "t": 4.64,
+     "text": "Gods of Sounion es mármol blanco frente a bronce verde: Poseidón con su tridente, una diosa, olas del mar, columnas y valientes hoplitas."
+    },
+    {
+     "t": 12.91,
+     "text": "Viene con Temple of Poseidon."
+    }
+   ]
+  },
+  "item-boards-pearl": {
+   "text": "¡Mira cómo relucen las casillas! Pearl and Coral es nácar de verdad junto a un suave rosa coral, con un marco de laca azul mar profundo. Su lugar está bajo el mar, en el Coral Palace, con el juego Coral Kingdom.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Mira cómo relucen las casillas!"
+    },
+    {
+     "t": 2.4,
+     "text": "Pearl and Coral es nácar de verdad junto a un suave rosa coral, con un marco de laca azul mar profundo."
+    },
+    {
+     "t": 8.78,
+     "text": "Su lugar está bajo el mar, en el Coral Palace, con el juego Coral Kingdom."
+    }
+   ]
+  },
+  "item-boards-lapis": {
+   "text": "Este tablero es un pedacito del cielo nocturno. Lapis and Moonstone pone piedra de luna clara junto a lapislázuli azul intenso, con diminutas estrellas doradas alrededor del marco. Viene con Northern Lights y el juego Celestial Opal.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Este tablero es un pedacito del cielo nocturno."
+    },
+    {
+     "t": 3.32,
+     "text": "Lapis and Moonstone pone piedra de luna clara junto a lapislázuli azul intenso, con diminutas estrellas doradas alrededor del marco."
+    },
+    {
+     "t": 11.44,
+     "text": "Viene con Northern Lights y el juego Celestial Opal."
+    }
+   ]
+  },
+  "item-boards-sarsen": {
+   "text": "Sin pulir, sin oro, solo piedra. Sarsen Stone tiene casillas grises y crema cinceladas a mano, con todas las marcas de las herramientas. Es tosco, antiguo y muy fuerte, y viene con Stonehenge.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Sin pulir, sin oro, solo piedra."
+    },
+    {
+     "t": 2.33,
+     "text": "Sarsen Stone tiene casillas grises y crema cinceladas a mano, con todas las marcas de las herramientas."
+    },
+    {
+     "t": 8.69,
+     "text": "Es tosco, antiguo y muy fuerte, y viene con Stonehenge."
+    }
+   ]
+  },
+  "item-boards-terracotta": {
+   "text": "¿Ves los círculos? Los alfareros del Indo los pintaban en sus vasijas, y aquí están en casillas de barro cocido al sol. Indus Terracotta es cálido, terroso y muy antiguo, y viene con Mohenjo-daro.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Ves los círculos?"
+    },
+    {
+     "t": 1.67,
+     "text": "Los alfareros del Indo los pintaban en sus vasijas, y aquí están en casillas de barro cocido al sol."
+    },
+    {
+     "t": 7.64,
+     "text": "Indus Terracotta es cálido, terroso y muy antiguo, y viene con Mohenjo-daro."
+    }
+   ]
+  },
+  "item-boards-andesite": {
+   "text": "Los incas construían muros con piedras gigantes, cada una tallada para encajar exactamente con sus vecinas. Andesite Block tiene casillas de piedra gris de montaña en un marco de bloques encajados, igual que esos muros. Viene con Machu Picchu.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los incas construían muros con piedras gigantes, cada una tallada para encajar exactamente con sus vecinas."
+    },
+    {
+     "t": 6.69,
+     "text": "Andesite Block tiene casillas de piedra gris de montaña en un marco de bloques encajados, igual que esos muros."
+    },
+    {
+     "t": 13.31,
+     "text": "Viene con Machu Picchu."
+    }
+   ]
+  },
+  "item-boards-runewood": {
+   "text": "¡Pasa la mano por el marco! Runewood es abedul y roble de pantano, tallados toscamente a mano, con un nudo de serpiente tallado alrededor, como los nórdicos decoraban sus barcos y sus salones. Viene con Norse Fireside y el juego Norse Carved.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Pasa la mano por el marco!"
+    },
+    {
+     "t": 2.01,
+     "text": "Runewood es abedul y roble de pantano, tallados toscamente a mano, con un nudo de serpiente tallado alrededor, como los nórdicos decoraban sus barcos y sus salones."
+    },
+    {
+     "t": 11.88,
+     "text": "Viene con Norse Fireside y el juego Norse Carved."
+    }
+   ]
+  },
+  "item-boards-agora": {
+   "text": "Ash and Wenge pone madera clara y oscura en un marco de mármol blanco, con una greca de bronce igual que las de los templos griegos. Es tranquilo y grandioso, y viene con Temple of Poseidon y Gods of Sounion.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Ash and Wenge pone madera clara y oscura en un marco de mármol blanco, con una greca de bronce igual que las de los templos griegos."
+    },
+    {
+     "t": 7.42,
+     "text": "Es tranquilo y grandioso, y viene con Temple of Poseidon y Gods of Sounion."
+    }
+   ]
+  },
+  "item-places-tokyo": {
+   "text": "Muy arriba, en una azotea de Tokio, hay un jardín secreto. Los cerezos florecen en rosa a tu alrededor, las linternas de piedra brillan y toda la ciudad centellea allá abajo, con el monte Fuji en el horizonte. Robot Squad juega aquí, sobre Sakura Lacquer.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Muy arriba, en una azotea de Tokio, hay un jardín secreto."
+    },
+    {
+     "t": 3.62,
+     "text": "Los cerezos florecen en rosa a tu alrededor, las linternas de piedra brillan y toda la ciudad centellea allá abajo, con el monte Fuji en el horizonte."
+    },
+    {
+     "t": 12.52,
+     "text": "Robot Squad juega aquí, sobre Sakura Lacquer."
+    }
+   ]
+  },
+  "item-places-brussels": {
+   "text": "¿Hueles el chocolate? Esta pequeña tienda está en la Grand-Place de Bruselas, una de las plazas más bonitas del mundo, rodeada de casas gremiales doradas y con una alfombra de flores afuera. Cocoa and Gilt juega aquí, sobre Cocoa and Cream.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Hueles el chocolate?"
+    },
+    {
+     "t": 1.83,
+     "text": "Esta pequeña tienda está en la Grand-Place de Bruselas, una de las plazas más bonitas del mundo, rodeada de casas gremiales doradas y con una alfombra de flores afuera."
+    },
+    {
+     "t": 11.55,
+     "text": "Cocoa and Gilt juega aquí, sobre Cocoa and Cream."
+    }
+   ]
+  },
+  "item-places-reef": {
+   "text": "Respira hondo, ¡nos vamos bajo el mar! Coral Palace es un pabellón de perlas en el fondo del mar, con torres de coral, algas que se mecen y bancos de peces por todas partes. Coral Kingdom juega aquí, sobre Pearl and Coral.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Respira hondo, ¡nos vamos bajo el mar!"
+    },
+    {
+     "t": 2.6,
+     "text": "Coral Palace es un pabellón de perlas en el fondo del mar, con torres de coral, algas que se mecen y bancos de peces por todas partes."
+    },
+    {
+     "t": 10.49,
+     "text": "Coral Kingdom juega aquí, sobre Pearl and Coral."
+    }
+   ]
+  },
+  "item-places-amber": {
+   "text": "Bienvenido al Fuerte Amber, en lo alto de una colina sobre Jaipur. El patio brilla color miel dorada, delante hay una puerta pintada y sobre los muros hay pequeños pabellones con cúpulas. The Royal Army juega aquí, sobre Jaipur Sandstone.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Bienvenido al Fuerte Amber, en lo alto de una colina sobre Jaipur."
+    },
+    {
+     "t": 4.12,
+     "text": "El patio brilla color miel dorada, delante hay una puerta pintada y sobre los muros hay pequeños pabellones con cúpulas."
+    },
+    {
+     "t": 11.24,
+     "text": "The Royal Army juega aquí, sobre Jaipur Sandstone."
+    }
+   ]
+  },
+  "item-places-mysore": {
+   "text": "Cada año, durante el Dasara, el palacio de Mysore se ilumina con miles y miles de pequeñas lámparas. Estás en el césped, justo delante, en una cálida noche de fiesta. Peacock Court juega aquí, sobre Rosewood and Gold Leaf.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Cada año, durante el Dasara, el palacio de Mysore se ilumina con miles y miles de pequeñas lámparas."
+    },
+    {
+     "t": 6.26,
+     "text": "Estás en el césped, justo delante, en una cálida noche de fiesta."
+    },
+    {
+     "t": 10.29,
+     "text": "Peacock Court juega aquí, sobre Rosewood and Gold Leaf."
+    }
+   ]
+  },
+  "item-places-greatwall": {
+   "text": "La Gran Muralla china recorre miles de kilómetros sobre las montañas. Estás en lo alto de una torre de vigilancia, con la muralla serpenteando hacia las colinas verdes y farolillos rojos junto a tu mesa. Jade and Onyx juega aquí, sobre Emerald and Ivory.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "La Gran Muralla china recorre miles de kilómetros sobre las montañas."
+    },
+    {
+     "t": 4.27,
+     "text": "Estás en lo alto de una torre de vigilancia, con la muralla serpenteando hacia las colinas verdes y farolillos rojos junto a tu mesa."
+    },
+    {
+     "t": 12.14,
+     "text": "Jade and Onyx juega aquí, sobre Emerald and Ivory."
+    }
+   ]
+  },
+  "item-places-swiss": {
+   "text": "¡Brrr, afuera está nevando! Entra en el cálido chalet de madera. Por el gran ventanal se ve el Cervino, la montaña más famosa de los Alpes, y un pueblecito bajo la nieve. Milk and Dark juega aquí, sobre Cacao Pod.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Brrr, afuera está nevando!"
+    },
+    {
+     "t": 2.55,
+     "text": "Entra en el cálido chalet de madera."
+    },
+    {
+     "t": 5.0,
+     "text": "Por el gran ventanal se ve el Cervino, la montaña más famosa de los Alpes, y un pueblecito bajo la nieve."
+    },
+    {
+     "t": 11.29,
+     "text": "Milk and Dark juega aquí, sobre Cacao Pod."
+    }
+   ]
+  },
+  "item-places-dubai": {
+   "text": "¡Arriba, arriba, arriba! Este salón está en lo alto de Dubái al atardecer, y justo al otro lado de la ventana está el edificio más alto de todo el mundo. Más allá de la ciudad, el desierto brilla rosa. Gold and Platinum juega aquí, sobre Gilded Ebony.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Arriba, arriba, arriba!"
+    },
+    {
+     "t": 1.9,
+     "text": "Este salón está en lo alto de Dubái al atardecer, y justo al otro lado de la ventana está el edificio más alto de todo el mundo."
+    },
+    {
+     "t": 9.59,
+     "text": "Más allá de la ciudad, el desierto brilla rosa."
+    },
+    {
+     "t": 12.78,
+     "text": "Gold and Platinum juega aquí, sobre Gilded Ebony."
+    }
+   ]
+  },
+  "item-places-crystal": {
+   "text": "En 1851, Londres construyó un palacio hecho casi todo de cristal, tan grande que dentro crecían árboles enteros. Bajo su tejado brillante hay palmeras, estatuas y una fuente de cristal. Crystal Jewels juega aquí, sobre Obsidian Glass.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En 1851, Londres construyó un palacio hecho casi todo de cristal, tan grande que dentro crecían árboles enteros."
+    },
+    {
+     "t": 8.26,
+     "text": "Bajo su tejado brillante hay palmeras, estatuas y una fuente de cristal."
+    },
+    {
+     "t": 12.67,
+     "text": "Crystal Jewels juega aquí, sobre Obsidian Glass."
+    }
+   ]
+  },
+  "item-places-aurora": {
+   "text": "¡Mira arriba! En una noche de invierno en Islandia, luces verdes y moradas bailan en el cielo. Se llaman auroras boreales. Estás en un lago helado, con cabañas de cristal iluminadas en la orilla. Celestial Opal juega aquí, sobre Lapis and Moonstone.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Mira arriba!"
+    },
+    {
+     "t": 1.37,
+     "text": "En una noche de invierno en Islandia, luces verdes y moradas bailan en el cielo."
+    },
+    {
+     "t": 6.22,
+     "text": "Se llaman auroras boreales."
+    },
+    {
+     "t": 8.44,
+     "text": "Estás en un lago helado, con cabañas de cristal iluminadas en la orilla."
+    },
+    {
+     "t": 12.96,
+     "text": "Celestial Opal juega aquí, sobre Lapis and Moonstone."
+    }
+   ]
+  },
+  "item-places-castle": {
+   "text": "Érase una vez un rey que construyó un castillo igualito al de un cuento de hadas. Ahí está, blanco con torres azules, en lo alto de su roca sobre el bosque, con los Alpes detrás. Ruby Chocolate juega aquí, sobre Ruby Truffle.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Érase una vez un rey que construyó un castillo igualito al de un cuento de hadas."
+    },
+    {
+     "t": 4.74,
+     "text": "Ahí está, blanco con torres azules, en lo alto de su roca sobre el bosque, con los Alpes detrás."
+    },
+    {
+     "t": 10.46,
+     "text": "Ruby Chocolate juega aquí, sobre Ruby Truffle."
+    }
+   ]
+  },
+  "item-places-stonehenge": {
+   "text": "¡Mira, está saliendo el sol! Estás dentro de Stonehenge, un círculo gigante de piedras que levantó la gente hace más de cuatro mil años. ¡Nadie sabe exactamente cómo lo hacían! Sarsen Stones juega aquí, sobre un tablero de piedra tosca.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Mira, está saliendo el sol!"
+    },
+    {
+     "t": 2.22,
+     "text": "Estás dentro de Stonehenge, un círculo gigante de piedras que levantó la gente hace más de cuatro mil años."
+    },
+    {
+     "t": 8.61,
+     "text": "¡Nadie sabe exactamente cómo lo hacían!"
+    },
+    {
+     "t": 11.33,
+     "text": "Sarsen Stones juega aquí, sobre un tablero de piedra tosca."
+    }
+   ]
+  },
+  "item-places-indus": {
+   "text": "Esto es Mohenjo-daro, una de las primeras ciudades del mundo. Tenía calles rectas, casas de ladrillo, pozos y hasta un gran baño público, justo ahí delante de ti. El juego Indus Terracotta juega aquí, sobre un tablero de barro cocido.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Esto es Mohenjo-daro, una de las primeras ciudades del mundo."
+    },
+    {
+     "t": 3.72,
+     "text": "Tenía calles rectas, casas de ladrillo, pozos y hasta un gran baño público, justo ahí delante de ti."
+    },
+    {
+     "t": 9.61,
+     "text": "El juego Indus Terracotta juega aquí, sobre un tablero de barro cocido."
+    }
+   ]
+  },
+  "item-places-inca": {
+   "text": "Allá arriba, entre las nubes de Perú, está Machu Picchu, una ciudad de piedra que los incas construyeron en la cima de una montaña. Las terrazas verdes bajan escalonadas por las laderas, las llamas pasean por ahí y un pico alto se alza justo delante. El juego Inca Stone juega aquí.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Allá arriba, entre las nubes de Perú, está Machu Picchu, una ciudad de piedra que los incas construyeron en la cima de una montaña."
+    },
+    {
+     "t": 7.35,
+     "text": "Las terrazas verdes bajan escalonadas por las laderas, las llamas pasean por ahí y un pico alto se alza justo delante."
+    },
+    {
+     "t": 14.59,
+     "text": "El juego Inca Stone juega aquí."
+    }
+   ]
+  },
+  "item-places-norse": {
+   "text": "¿Oyes crepitar el fuego? Estás en un claro de un pinar, hace mil años. Detrás de ti brilla una casa larga, junto al camino hay piedras rúnicas y un barco vikingo espera en el fiordo, al pie de las montañas. Norse Carved juega aquí, sobre Runewood.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Oyes crepitar el fuego?"
+    },
+    {
+     "t": 1.98,
+     "text": "Estás en un claro de un pinar, hace mil años."
+    },
+    {
+     "t": 5.06,
+     "text": "Detrás de ti brilla una casa larga, junto al camino hay piedras rúnicas y un barco vikingo espera en el fiordo, al pie de las montañas."
+    },
+    {
+     "t": 12.93,
+     "text": "Norse Carved juega aquí, sobre Runewood."
+    }
+   ]
+  },
+  "item-places-sounion": {
+   "text": "En lo alto de un acantilado del cabo Sunión, los griegos construyeron un templo a Poseidón, dios del mar. Sus columnas blancas brillan al atardecer, los olivos susurran y las islas flotan en el agua dorada allá abajo. Gods of Sounion juega aquí, sobre Ash and Wenge.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En lo alto de un acantilado del cabo Sunión, los griegos construyeron un templo a Poseidón, dios del mar."
+    },
+    {
+     "t": 6.24,
+     "text": "Sus columnas blancas brillan al atardecer, los olivos susurran y las islas flotan en el agua dorada allá abajo."
+    },
+    {
+     "t": 13.0,
+     "text": "Gods of Sounion juega aquí, sobre Ash and Wenge."
+    }
+   ]
+  },
+  "item-sets-astro": {
+   "text": "Tres, dos, uno, ¡despegue! Space Explorers es cerámica blanca frente a azul marino profundo, con aletas rojas y naranjas. Hay una estrella en el rey, ojos de buey en los alfiles y cohetes como torres. Viene con Rings of Saturn.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Tres, dos, uno, ¡despegue!"
+    },
+    {
+     "t": 2.03,
+     "text": "Space Explorers es cerámica blanca frente a azul marino profundo, con aletas rojas y naranjas."
+    },
+    {
+     "t": 8.0,
+     "text": "Hay una estrella en el rey, ojos de buey en los alfiles y cohetes como torres."
+    },
+    {
+     "t": 12.42,
+     "text": "Viene con Rings of Saturn."
+    }
+   ]
+  },
+  "item-sets-falcon": {
+   "text": "En el desierto, los halcones son amigos muy queridos. Falcon and Pearl es perla frente a perla negra, con adornos de oro, caballos halcón, torres velero y una perla en la corona del rey. Viene con Burj Khalifa Summit.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En el desierto, los halcones son amigos muy queridos."
+    },
+    {
+     "t": 3.44,
+     "text": "Falcon and Pearl es perla frente a perla negra, con adornos de oro, caballos halcón, torres velero y una perla en la corona del rey."
+    },
+    {
+     "t": 11.0,
+     "text": "Viene con Burj Khalifa Summit."
+    }
+   ]
+  },
+  "item-boards-meteor": {
+   "text": "¡Algunas de estas casillas vinieron del espacio! Meteorite and Ice pone meteorito de hierro oscuro junto a hielo escarchado, en un marco negro con una línea azul brillante. Viene con Rings of Saturn y Space Explorers.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Algunas de estas casillas vinieron del espacio!"
+    },
+    {
+     "t": 3.12,
+     "text": "Meteorite and Ice pone meteorito de hierro oscuro junto a hielo escarchado, en un marco negro con una línea azul brillante."
+    },
+    {
+     "t": 10.17,
+     "text": "Viene con Rings of Saturn y Space Explorers."
+    }
+   ]
+  },
+  "item-boards-mirage": {
+   "text": "Pearl and Night Sand es blanco nacarado junto a arena oscura como la noche, sellada bajo cristal con un borde dorado. Brilla como el desierto bajo las estrellas, y viene con Burj Khalifa Summit y Falcon and Pearl.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Pearl and Night Sand es blanco nacarado junto a arena oscura como la noche, sellada bajo cristal con un borde dorado."
+    },
+    {
+     "t": 6.83,
+     "text": "Brilla como el desierto bajo las estrellas, y viene con Burj Khalifa Summit y Falcon and Pearl."
+    }
+   ]
+  },
+  "item-places-saturn": {
+   "text": "¡Ponte tu casco espacial! Estamos en una luna helada de Saturno, con agujas de hielo alrededor, una pequeña base lunar y un cohete listo para volar. Mira arriba: Saturno y sus anillos llenan el cielo. Space Explorers juega aquí, sobre Meteorite and Ice.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Ponte tu casco espacial!"
+    },
+    {
+     "t": 2.14,
+     "text": "Estamos en una luna helada de Saturno, con agujas de hielo alrededor, una pequeña base lunar y un cohete listo para volar."
+    },
+    {
+     "t": 9.46,
+     "text": "Mira arriba: Saturno y sus anillos llenan el cielo."
+    },
+    {
+     "t": 12.83,
+     "text": "Space Explorers juega aquí, sobre Meteorite and Ice."
+    }
+   ]
+  },
+  "item-places-burj": {
+   "text": "¡Agárrate fuerte! Esto es lo más alto del Burj Khalifa, el edificio más alto del mundo. Las nubes flotan por debajo de nosotros, las luces de la ciudad centellean allá abajo y el mar brilla hasta el borde del cielo. Falcon and Pearl juegan aquí, sobre Pearl and Night Sand.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Agárrate fuerte!"
+    },
+    {
+     "t": 1.65,
+     "text": "Esto es lo más alto del Burj Khalifa, el edificio más alto del mundo."
+    },
+    {
+     "t": 6.0,
+     "text": "Las nubes flotan por debajo de nosotros, las luces de la ciudad centellean allá abajo y el mar brilla hasta el borde del cielo."
+    },
+    {
+     "t": 13.46,
+     "text": "Falcon and Pearl juegan aquí, sobre Pearl and Night Sand."
+    }
+   ]
+  }
+ }
+}

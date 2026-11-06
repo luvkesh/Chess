@@ -1,0 +1,227 @@
+{
+ "egypt/6855c9d9": {
+  "who": "miu",
+  "voice": "pf_dora",
+  "text": "Bem-vindo ao Egito, há mais de 3.000 anos! O grande rio Nilo corre entre templos e pirâmides, e no palácio o jovem faraó Tutancâmon está jogando um jogo de tabuleiro chamado Senet."
+ },
+ "egypt/d3efd5b5": {
+  "who": "miu",
+  "voice": "pf_dora",
+  "text": "O xadrez ainda não tinha sido inventado. Ele só ia aparecer na Índia uns dois mil anos depois. Mas os egípcios adoravam jogos de habilidade, e Tutancâmon foi enterrado com vários tabuleiros de Senet."
+ },
+ "egypt/4e734a2a": {
+  "who": "miu",
+  "voice": "pf_dora",
+  "text": "Eu sou o Miu. Os gatos eram tratados como tesouros no Egito antigo, sabia? Hoje vou ensinar o cavalo, a peça com forma de cavalo. Os cavalos do faraó puxavam suas bigas douradas!"
+ },
+ "egypt/81859a87": {
+  "who": "miu",
+  "voice": "pf_dora",
+  "text": "Que jogo de tabuleiro Tutancâmon jogava?"
+ },
+ "egypt/b2d05f24": {
+  "who": "miu",
+  "voice": "pf_dora",
+  "text": "O Senet é um dos jogos de tabuleiro mais antigos que conhecemos. O xadrez veio muito depois."
+ },
+ "greece/743f93b1": {
+  "who": "sophie",
+  "voice": "pf_dora",
+  "text": "Bem-vindo a Atenas! Na colina chamada Acrópole, os construtores estão terminando o Partenon, um templo de mármore branco para a deusa Atena."
+ },
+ "greece/65cf0188": {
+  "who": "sophie",
+  "voice": "pf_dora",
+  "text": "Os gregos jogavam um jogo chamado petteia, prendendo as peças do outro lado em uma grade. O filósofo Platão escreveu sobre ele! Os pensadores gregos adoravam números e lógica, igualzinho aos enxadristas."
+ },
+ "greece/c5e77fa4": {
+  "who": "sophie",
+  "voice": "pf_dora",
+  "text": "Eu sou a Sophie. A coruja era a ave de Atena, um sinal de sabedoria. Jogadores sábios contam antes de capturar: um peão vale 1, um cavalo ou um bispo 3, uma torre 5 e uma dama 9."
+ },
+ "greece/169141df": {
+  "who": "sophie",
+  "voice": "pf_dora",
+  "text": "Quantos pontos vale uma torre?"
+ },
+ "greece/670b2234": {
+  "who": "sophie",
+  "voice": "pf_dora",
+  "text": "Uma torre vale 5: mais que um cavalo ou um bispo, menos que uma dama."
+ },
+ "rome/60e4e5a1": {
+  "who": "marcus",
+  "voice": "pm_santa",
+  "text": "Bem-vindo a Roma! O imperador Trajano acabou de terminar uma grande coluna, esculpida com uma espiral de mais de 2.500 figuras que sobe até o topo."
+ },
+ "rome/279a748f": {
+  "who": "marcus",
+  "voice": "pm_santa",
+  "text": "Os soldados romanos jogavam ludus latrunculorum, o jogo dos soldadinhos. Você capturava uma peça inimiga prendendo-a entre duas peças suas."
+ },
+ "rome/a9a39b7a": {
+  "who": "marcus",
+  "voice": "pm_santa",
+  "text": "Eu sou o Marcus. Na lenda mais antiga de Roma, uma loba cuidou dos gêmeos Rômulo e Remo. Uma batalha é vencida quando o líder inimigo é encurralado. No xadrez, chamamos isso de xeque-mate!"
+ },
+ "rome/8e019c17": {
+  "who": "marcus",
+  "voice": "pm_santa",
+  "text": "O que é xeque-mate?"
+ },
+ "rome/682f9283": {
+  "who": "marcus",
+  "voice": "pm_santa",
+  "text": "O xeque-mate acaba a partida: o rei está em xeque e não tem saída."
+ },
+ "mughal/b7356f56": {
+  "who": "moti",
+  "voice": "pm_santa",
+  "text": "Bem-vindo a Agra! O imperador Shah Jahan está construindo o Taj Mahal, um túmulo de mármore branco tão lindo que até hoje as pessoas viajam do mundo todo para vê-lo."
+ },
+ "mughal/02cb8f16": {
+  "who": "moti",
+  "voice": "pm_santa",
+  "text": "O xadrez nasceu na Índia há uns 1.500 anos. Ele se chamava chaturanga, as quatro partes de um exército: soldados a pé, cavalos, elefantes e carros de guerra. Hoje eles são nossos peões, cavalos, bispos e torres."
+ },
+ "mughal/c2a7bb7b": {
+  "who": "moti",
+  "voice": "pm_santa",
+  "text": "Eu sou o Moti. Pois é, o bispo antigamente era um elefante! Como os elefantes numa batalha, as peças de xadrez são mais fortes no meio. Controle o centro e seu exército pode ir a qualquer lugar."
+ },
+ "mughal/ef17cc36": {
+  "who": "moti",
+  "voice": "pm_santa",
+  "text": "Onde o xadrez nasceu?"
+ },
+ "mughal/3e42fba6": {
+  "who": "moti",
+  "voice": "pm_santa",
+  "text": "O xadrez começou na Índia como chaturanga e depois viajou para a Pérsia, o mundo árabe e a Europa."
+ },
+ "ming/563ec60f": {
+  "who": "bao",
+  "voice": "pf_dora",
+  "text": "Bem-vindo a Pequim! A Cidade Proibida acabou de ficar pronta: um palácio de muros vermelhos e telhados dourados, com centenas de prédios, onde o imperador morava."
+ },
+ "ming/71de09ee": {
+  "who": "bao",
+  "voice": "pf_dora",
+  "text": "Na China, as pessoas jogam xiangqi, um primo do xadrez. As peças são discos achatados com caracteres, um rio atravessa o meio do tabuleiro, e os canhões pulam por cima das peças para capturar!"
+ },
+ "ming/2f17a9c1": {
+  "who": "bao",
+  "voice": "pf_dora",
+  "text": "Eu sou o Bao. Os pandas são pacientes, e os jogadores pacientes enxergam espetos: ataque uma peça grande e, quando ela sair, capture a peça que está atrás."
+ },
+ "ming/2c8bba03": {
+  "who": "bao",
+  "voice": "pf_dora",
+  "text": "O que atravessa o meio de um tabuleiro de xiangqi?"
+ },
+ "ming/f8704362": {
+  "who": "bao",
+  "voice": "pf_dora",
+  "text": "O rio divide os dois exércitos. Algumas peças se movem de outro jeito depois de atravessá-lo."
+ },
+ "venice/c8339b30": {
+  "who": "marco",
+  "voice": "pm_santa",
+  "text": "Bem-vindo a Veneza, uma cidade construída sobre a água, onde as pessoas andam de gôndola pelos canais. Na ilha de Murano, os vidreiros sopram o vidro mais fino do mundo."
+ },
+ "venice/9979cd1a": {
+  "who": "marco",
+  "voice": "pm_santa",
+  "text": "Há muito tempo, a dama só podia andar uma casa na diagonal. Então, por volta de 1475, os jogadores da Espanha e da Itália deram a ela novos poderes: ela podia andar qualquer distância, em qualquer direção. O povo chamava isso de xadrez da dama louca!"
+ },
+ "venice/bfbeb060": {
+  "who": "marco",
+  "voice": "pm_santa",
+  "text": "Eu sou o Marco. O leão alado é o símbolo de Veneza. Grandes poderes pedem grande cuidado: coloque sua dama em jogo cedo demais e ela vai ser perseguida pelo tabuleiro inteiro."
+ },
+ "venice/468e4d8f": {
+  "who": "marco",
+  "voice": "pm_santa",
+  "text": "O que a dama ganhou por volta de 1475?"
+ },
+ "venice/0beef9ba": {
+  "who": "marco",
+  "voice": "pm_santa",
+  "text": "Essa mudança fez da dama a peça mais forte e deixou o xadrez muito mais rápido."
+ },
+ "paris/be96441d": {
+  "who": "gaston",
+  "voice": "pm_santa",
+  "text": "Bem-vindo à Paris de 1889! Para a Exposição Universal, a cidade construiu a torre mais alta da Terra, feita de renda de ferro. Ela se chama Torre Eiffel."
+ },
+ "paris/b6926c62": {
+  "who": "gaston",
+  "voice": "pm_santa",
+  "text": "Ali perto fica o Café de la Régence, onde as pessoas jogaram xadrez por mais de cem anos. O grande jogador Philidor aprendeu o jogo lá."
+ },
+ "paris/5b94759c": {
+  "who": "gaston",
+  "voice": "pm_santa",
+  "text": "Eu sou o Gaston. O galo é um símbolo da França. Philidor dizia que os peões são a alma do xadrez. Um peão que ninguém consegue parar pode marchar até o fim e virar dama!"
+ },
+ "paris/33acba88": {
+  "who": "gaston",
+  "voice": "pm_santa",
+  "text": "Como Philidor chamava os peões?"
+ },
+ "paris/ac6be160": {
+  "who": "gaston",
+  "voice": "pm_santa",
+  "text": "Os peões decidem a forma da partida, e um peão que chega ao outro lado vira uma dama."
+ },
+ "russia/a5c536ea": {
+  "who": "mishka",
+  "voice": "pm_santa",
+  "text": "Bem-vindo a São Petersburgo! A neve brilha nas cúpulas douradas, e os joalheiros reais estão fazendo ovos de Páscoa cravejados de joias para a família do czar."
+ },
+ "russia/43b2b702": {
+  "who": "mishka",
+  "voice": "pm_santa",
+  "text": "A Rússia adora xadrez. Ela teve muitos campeões mundiais, e suas escolas de xadrez são famosas por ensinar o final: a última parte da partida, quando sobram só algumas peças."
+ },
+ "russia/628fc739": {
+  "who": "mishka",
+  "voice": "pm_santa",
+  "text": "Eu sou o Mishka. No final, até o rei vira um lutador! Quando dois reis ficam frente a frente com uma casa entre eles, chamamos isso de oposição."
+ },
+ "russia/4a3bf628": {
+  "who": "mishka",
+  "voice": "pm_santa",
+  "text": "No final, o que seu rei deve fazer?"
+ },
+ "russia/8a44939f": {
+  "who": "mishka",
+  "voice": "pm_santa",
+  "text": "Com menos peças no tabuleiro, o rei está seguro o bastante para ajudar, e ele é uma peça forte."
+ },
+ "deco/ec94f019": {
+  "who": "skye",
+  "voice": "pf_dora",
+  "text": "Bem-vindo à Nova York de 1930! O Chrysler Building acabou de virar o prédio mais alto do mundo, com uma coroa brilhante de arcos de aço e uma agulha afiadíssima no topo."
+ },
+ "deco/9dc3d511": {
+  "who": "skye",
+  "voice": "pf_dora",
+  "text": "A cidade está cheia de clubes de xadrez, e o Manhattan Chess Club é um dos mais famosos do mundo. O grande campeão cubano José Raúl Capablanca jogou lá."
+ },
+ "deco/6a62b31a": {
+  "who": "skye",
+  "voice": "pf_dora",
+  "text": "Eu sou a Skye. Lá de cima, uma águia vê o tabuleiro inteiro. Os jogadores fortes sabem de cor seus padrões de xeque-mate, então conseguem enxergá-los num piscar de olhos."
+ },
+ "deco/a51cfdf8": {
+  "who": "skye",
+  "voice": "pf_dora",
+  "text": "Qual campeão mundial de Cuba jogou no Manhattan Chess Club?"
+ },
+ "deco/3b2e4db7": {
+  "who": "skye",
+  "voice": "pf_dora",
+  "text": "Capablanca foi campeão mundial de 1921 a 1927 e ficou famoso pelo seu estilo claro e simples."
+ }
+}
