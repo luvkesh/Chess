@@ -29,7 +29,7 @@ function ChacklateMinis(E, content) {
       levels: [['easy', 'Gentle'], ['fast', 'Speedy']] },
     { id: 'pawns', title: 'Pawn Race', art: 'pawns', colors: ['#8a5a2a', '#3a1e0e'], minutes: '1–3 min', skill: 'Pawn breakthroughs',
       blurb: 'Only pawns are left. Be the first to reach the far side and make a queen.',
-      howTo: ['Only pawns are on the board. Pawns move forward and capture diagonally.', 'Get one of your pawns to the far side first and you win.', 'In the Breakthrough, three pawns face three. There is a clever way through. Can you find it?', 'If nobody can move, it is a draw.'],
+      howTo: ['Only pawns are on the board. Pawns move forward and capture diagonally.', 'Get one of your pawns to the far side first and you win.', 'In the Breakthrough, three pawns face three. There is one clever way through. If a move lets it slip, Rooky lets you take it back.', 'If nobody can move, it is a draw.'],
       levels: [['break', 'Breakthrough'], ['war', 'Pawn war']] },
     { id: 'queen', title: "Queen's Path", art: 'queen', colors: ['#5b4a8a', '#241a44'], minutes: '2–3 min', skill: 'Safe squares',
       blurb: 'Steer the queen to the far side without stopping on a guarded square.',
@@ -151,6 +151,37 @@ function ChacklateMinis(E, content) {
       if (v > bestV || !best) { bestV = v; best = m; }
     }
     return best;
+  }
+  // Breakthrough only (six pawns or fewer, so the search sees to the end): does White still
+  // have a forced win here, whoever is to move? The game uses it to offer a take-back the
+  // moment a move lets the win slip, so the puzzle can always be solved.
+  function pawnWins(st) {
+    if (st.w.length + st.b.length > 6) return null;
+    const res = pawnResult(st);
+    if (res !== null) return res === 1;
+    return pawnSearch(st, 12, -Infinity, Infinity, 0) * st.side > 5000;
+  }
+  // The bot. The Breakthrough is a puzzle with one way through, so there it defends perfectly
+  // (the take-back keeps it fair). In the Pawn war it plays like a child a little ahead of
+  // the player: it always takes a queen it can reach and stops one that is a move away, but
+  // otherwise it picks among its decent moves, and now and then just pushes a pawn.
+  function pawnBot(st, level, rand) {
+    if (level !== 'war') return pawnBest(st);
+    rand = rand || Math.random;
+    const moves = pawnMoves(st);
+    if (!moves.length) return null;
+    const goal = st.side === 1 ? 7 : 0;
+    const win = moves.find((m) => rank(m.to) === goal);
+    if (win) return win;
+    // a pawn of the player's that would queen next move must be taken if it can be
+    const them = st.side === 1 ? st.b : st.w, last = st.side === 1 ? 1 : 6;
+    const danger = them.filter((s) => rank(s) === last);
+    const stop = moves.find((m) => m.cap !== undefined && danger.includes(m.cap));
+    if (stop && rand() < 0.85) return stop;
+    if (rand() < 0.3) return moves[Math.floor(rand() * moves.length)];
+    const scored = moves.map((m) => ({ m, v: -pawnSearch(pawnPlay(st, m), 1, -Infinity, Infinity, 1) + rand() * 120 }));
+    scored.sort((a, b) => b.v - a.v);
+    return scored[Math.min(scored.length - 1, Math.floor(rand() * Math.min(3, scored.length)))].m;
   }
   const pawnScore = (result, myMoves) => result === 1 ? 100 + Math.max(0, 50 - Math.max(0, myMoves - 4) * 5) : result === 0 ? 30 : 0;
 
@@ -287,7 +318,7 @@ function ChacklateMinis(E, content) {
     GAMES, game, rng, name,
     jumps, tourRegion, tourMoves, tourHint, tourCorners, tourScore,
     SPOT_ROUNDS, SPOT_LIVES, spotterRounds, spotTime, spotPoints,
-    PAWN_START, pawnMoves, pawnPlay, pawnResult, pawnBest, pawnScore,
+    PAWN_START, pawnMoves, pawnPlay, pawnResult, pawnBest, pawnBot, pawnWins, pawnScore,
     guardAttacks, queenMoves, queenPar, queenBoard, queenBoardScore, QUEEN_BOARDS,
     MEMORY_SIZES, MEMORY_SECONDS, memoryPosition, memoryCheck, memoryPoints,
     mirrorFen, matingMoves, matePool, RUSH_SECONDS,
