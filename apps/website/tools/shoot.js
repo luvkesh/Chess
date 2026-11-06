@@ -1,5 +1,6 @@
 // Renders the site's era pictures from the built game, so they always match it.
 //   node apps/website/tools/shoot.js [eras]     e.g. node apps/website/tools/shoot.js egypt,venice
+//   node apps/website/tools/shoot.js items room.marble-hall.v1,board.night-marble.v1   (just those items)
 // Writes PNGs to apps/website/tools/out/ (git-ignored); then run python3 apps/website/tools/to-webp.py.
 // Needs Playwright with Chromium. WebGL runs on SwiftShader, so the first picture takes a minute.
 'use strict';
@@ -71,6 +72,7 @@ const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], ro
     const CAT = { pieces: 'sets', board: 'boards', room: 'places' };
     for (const it of catalog.items) {
       const cat = CAT[it.category]; if (!cat) continue;
+      if (process.argv[3] && !process.argv[3].split(',').includes(it.id)) continue;
       const d = it.data, [felt, sheen] = FELT[eraOf[d.set]] || ['#3a2414', '#c8a47a'];
       const spec = cat === 'sets' ? { kind: 'vignette', felt, sheen, items: [
         { set: d.set, type: 'q', side: 'b', x: -0.66, z: -0.2, rot: 0.45 }, { set: d.set, type: 'k', side: 'w', x: 0.02, z: 0.04, rot: 0.1 }, { set: d.set, type: 'n', side: 'w', x: 0.68, z: 0.2, rot: -1.25 }] }

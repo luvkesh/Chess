@@ -1,6 +1,8 @@
 """Records the coach's spoken website guide (guide.json) with Kokoro-82M, offline, into audio/.
 
-    HF_HOME=... python3.12 apps/website/tools/record-guide.py
+    HF_HOME=... python3.12 apps/website/tools/record-guide.py [key,key,...]
+
+With keys, only those lines are recorded again and the rest of audio/index.json is kept.
 
 Needs the `kokoro` package, its weights and ffmpeg; see the setup in tools/voice/record.py. Each clip
 is saved as audio/<key>.mp3, and audio/index.json keeps the exact words and when each sentence starts, so build.py can tell
@@ -11,6 +13,7 @@ import os
 import pathlib
 import re
 import subprocess
+import sys
 import tempfile
 
 os.environ['HF_HUB_OFFLINE'] = '1'
@@ -24,7 +27,19 @@ coach = json.loads((here.parent.parent / 'packages' / 'content' / 'campaign.json
 out = here / 'audio'
 out.mkdir(exist_ok=True)
 pipe = KPipeline(lang_code='a', repo_id='hexgrad/Kokoro-82M')   # American English
+only = set(sys.argv[1].split(',')) if len(sys.argv) > 1 else None
 index = {'voice': guide['voice'], 'lines': {}}
+if only:
+    index['lines'] = json.loads((out / 'index.json').read_text())['lines']
+# Sounds that are not words: Kokoro spells "Shh" out as "S H H", so each is given its sound
+# (misaki phonemes) while the caption keeps the spelling. "Shh" is a long, soft hush ("shoooo").
+SAY = {'Shh': '[Shh](/ʃʃʃʃˈuuu/)', 'Brr': '[Brr](/bɹˈɜɹ/)'}
+
+
+def voiced(text):
+    for word, sound in SAY.items():
+        text = re.sub(r'\b%s\b' % word, sound, text)
+    return text
 # Kokoro reads straight through commas and full stops, so the pauses are put in by hand: each line is
 # spoken whole (for natural tone), then cut at the punctuation's timestamps and silence added there.
 PAUSE = {',': 0.3, ';': 0.35, ':': 0.35, '—': 0.35, '.': 0.4, '!': 0.4, '?': 0.4}
@@ -42,7 +57,7 @@ def quietest(audio, at, reach=0.06):
 def spoken(text):
     """The line as audio, and the second each sentence starts (for the captions)."""
     parts, starts, n = [], [0], 0
-    for r in pipe(text, voice=guide['voice'], speed=guide['speed']):
+    for r in pipe(voiced(text), voice=guide['voice'], speed=guide['speed']):
         audio, start = np.asarray(r.audio), 0
         stops = [(t.end_ts, PAUSE[t.text], t.text in '.!?') for t in r.tokens if t.text in PAUSE and t.end_ts is not None]
         trailing = bool(stops) and stops[-1][0] >= len(audio) / SR - 0.3
@@ -74,6 +89,8 @@ def cues(text, starts):
 
 
 for key, line in guide['lines'].items():
+    if only and key not in only:
+        continue
     text = line.replace('{coach}', coach)
     audio, starts = spoken(text)
     with tempfile.NamedTemporaryFile(suffix='.wav') as wav:

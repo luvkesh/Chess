@@ -162,7 +162,7 @@ function ChacklateWorld(THREE, K) {
   const BOARDS = {
     walnut: { name: 'Walnut & Maple', field: { type: 'wood', light: '#e2c08e', dark: '#5e3824' }, frame: { type: 'wood', color: '#3b2216', grainLight: '#5a3524' }, inlay: '#d9b56a', label: '#f0d9a8', rim: 'gold' },
     regency: { name: 'Gilded Ebony', field: { type: 'lacquer', light: '#eee6d6', dark: '#16110f', seam: 'rgba(0,0,0,0.6)', seamGold: 'rgba(220,180,100,0.55)' }, frame: { type: 'lacquer', color: '#120d0b' }, inlay: '#e8c06a', label: '#f2d08a', rim: 'gold', gloss: 0.18 },
-    marble: { name: 'Carrara & Nero', field: { type: 'marble', light: '#efede8', dark: '#5c5e66', veinLight: '#9a9aa0', veinDark: '#c8c6c0' }, frame: { type: 'marble', color: '#2a2a2e', vein: '#9a968c' }, inlay: '#d8b46a', label: '#f0dcae', rim: 'gold', gloss: 0.12 },
+    marble: { name: 'Carrara & Nero', field: { type: 'marble', light: '#e8e3d8', dark: '#3e4048', veinLight: '#9a9aa0', veinDark: '#c8c6c0' }, frame: { type: 'marble', color: '#2a2a2e', vein: '#9a968c' }, inlay: '#d8b46a', label: '#f0dcae', rim: 'gold', gloss: 0.12 },
     nile: { name: 'Sandstone & Lapis', field: { type: 'lapis', tintDark: ['#4a74e8', 0.3], light: '#e3c99a', dark: '#1d2f7a', veinLight: '#b08850', marbleLight: { cloud: 0.4, strength: 0.25, freq: 1 } }, frame: { type: 'stone', color: '#8a6a3e', speck: '#c8a46a' }, inlay: '#f0c860', label: '#ffe2a0', rim: 'gold', motif: 'egypt' },
     athens: { name: 'Pentelic & Verde Antico', field: { type: 'marble', light: '#e4d7c0', dark: '#3d6b56', veinLight: '#b0a898', veinDark: '#a8d4bc', marbleDark: { cloud: 0.5, strength: 0.6, freq: 3 } }, frame: { type: 'marble', color: '#ddd0b8', vein: '#a89c86' }, inlay: '#b8863b', label: '#4a3420', rim: 'bronze', motif: 'meander' },
     roma: { name: 'Porphyry & Travertine', field: { type: 'marble', light: '#e2d4b6', dark: '#6a7480', veinLight: '#c4ae88', veinDark: '#c8d2dc', marbleLight: { cloud: 0.4, strength: 0.3 }, marbleDark: { cloud: 0.4, strength: 0.45, freq: 3 } }, frame: { type: 'stone', color: '#3a1416', speck: '#a8686a' }, inlay: '#c8954a', label: '#f0d8b0', rim: 'bronze' },
@@ -1696,14 +1696,14 @@ function ChacklateWorld(THREE, K) {
     },
     marble: {
       name: 'Marble Hall', era: 'A hall of white marble on a summer morning',
-      palette: { wall: '#e8e2d6', paper: '#efeae0', paperInk: '#b8b0a0', wood: '#d8d0c0', trim: '#d4a84e', floor: '#f0ece4', floorDark: '#3a3a40', table: '#5a3a22', inlay: '#e0b860',
+      palette: { wall: '#d8cfbf', paper: '#e2dacb', paperInk: '#b8b0a0', wood: '#d8d0c0', trim: '#d4a84e', floor: '#ddd5c6', floorDark: '#34343a', table: '#5a3a22', inlay: '#e0b860',
         rugBorder: '#1e2c5a', rugField: '#efe4cc', rugGold: '#d4a84e', rugAccent: '#7a1e2a', drape: '#e8dcc0', sky: ['#4a7ac8', '#7aa8e0', '#cfe0f0', '#f6e8d0'],
-        paintSky: ['#8ab4e8', '#f0d8b0', '#f8ecd0'], paintLand: '#6a8a5a', fog: '#c8c0b4', hemi: ['#fff8ee', '#a89880'], ceiling: '#e8e0d0', dado: '#cfc8bc' },
+        paintSky: ['#8ab4e8', '#f0d8b0', '#f8ecd0'], paintLand: '#6a8a5a', fog: '#9a907e', hemi: ['#fff4e4', '#6a5e4c'], ceiling: '#d6cdbd', dado: '#bdb4a4' },
       faces: ['window', 'window', 'painting', 'niche', 'painting', 'fire', 'painting', 'niche', 'painting', 'niche', 'painting', 'window'],
       wall: 'marble', column: { kind: 'classic', mat: 'marble', flutes: 20, color: '#f6f2ea', vein: '#b8b0a2' }, window: { kind: 'arch', w: 4.6, h: 9.0, drape: true }, frieze: 'eggdart',
-      light: 'crystal', metal: 'gold', floor: 'octagon', vase: 'urn-gold', lights: { hemi: 1.1, chand: 10, fire: 0.5 },
+      light: 'crystal', metal: 'gold', floor: 'octagon', vase: 'urn-gold', lights: { hemi: 0.55, chand: 7, fire: 0.5 },
       view: { landmark: 'garden', sun: [300, 160, 40, '#fff4d8'], clouds: 9, cloud: '#ffffff', far: '#9ab0c8', dark: '#2e4a2a', lawn: '#6a9a4a', stone: '#f0e8da', water: '#8ab8d8', haze: '#f6e8d0' },
-      env: { wall: '#e8e0d4', floor: '#d8d0c4', ceiling: '#efe8dc', key: '#fffaf0', keyI: 7, window: '#e8f0ff', windowI: 4, rim: '#fff0d8', rimI: 4, lamp: '#ffe0a8', lampI: 6, fill: 1.4 },
+      env: { wall: '#8a8274', floor: '#6a6458', ceiling: '#a8a092', key: '#fff6e8', keyI: 5.5, window: '#e8f0ff', windowI: 3, rim: '#fff0d8', rimI: 4, lamp: '#ffe0a8', lampI: 6, fill: 0.7 },
     },
     harvest: {
       name: 'Harvest Loft', era: 'A farmhouse loft at harvest time',

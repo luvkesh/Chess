@@ -19,7 +19,7 @@ function ChacklateSuites(THREE, K, H) {
   const SUITES = {
     salon: { board: 'walnut', set: 'regency', table: { shape: 'round', top: { kind: 'wood', color: '#4a2a18' }, foot: 'pedestal', metal: 'gold' }, decor: ['candelabra', 'bonbons', 'roses', 'urn'] },
     library: { board: 'tournament', set: 'staunton', table: { shape: 'square', top: { kind: 'leather', color: '#1e3a2a', wood: '#3a2214' }, foot: 'legs', metal: 'brass' }, decor: ['lamp', 'inkwell', 'globe', 'books'] },
-    marble: { board: 'marble', set: 'marble', table: { shape: 'octagon', top: { kind: 'marble', color: '#efece6', vein: '#a8a49c' }, foot: 'column', metal: 'gold' }, decor: ['hourglass', 'grapes', 'bust', 'urn'] },
+    marble: { board: 'marble', set: 'marble', table: { shape: 'octagon', top: { kind: 'marble', color: '#2c2c32', vein: '#a8a49c' }, foot: 'column', metal: 'gold' }, decor: ['hourglass', 'grapes', 'bust', 'urn'] },
     harvest: { board: 'harvest', set: 'caramel-cream', table: { shape: 'round', top: { kind: 'planks', color: '#7a5028' }, foot: 'trestle', metal: 'bronze' }, decor: ['pie', 'apples', 'pumpkins', 'wheat'] },
     nile: { board: 'nile', set: 'pharaoh', table: { shape: 'square', top: { kind: 'stone', color: '#c8a46e', inlay: '#1d2f7a' }, foot: 'lion', metal: 'gold' }, decor: ['ankh', 'dates', 'canopic', 'scarab'] },
     athens: { board: 'athens', set: 'olympian', table: { shape: 'round', top: { kind: 'marble', color: '#e8dcc6', vein: '#b0a48c' }, foot: 'column', metal: 'bronze' }, decor: ['scroll', 'olives', 'amphora', 'owl'] },
