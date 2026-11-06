@@ -83,8 +83,18 @@ parts.append('const CHACKLATE_PITCH = %s;' % json.dumps(pitch, separators=(',', 
 strings = {f.stem: {k: {l: v for l, v in e.items() if l != 'check'} for k, e in json.loads(f.read_text()).items()}
            for f in sorted((content / 'i18n').glob('*.json'))}
 parts.append('const CHACKLATE_STRINGS = %s;' % json.dumps(strings, separators=(',', ':'), ensure_ascii=False))
-# Fonts for non-Latin scripts, added to the page only when such a language is chosen.
-parts.append('const CHACKLATE_SCRIPT_FONTS = %s;' % json.dumps({'deva': (vendor / 'fonts-deva.css').read_text()}))
+# Fonts for non-Latin scripts, added to the page only when such a language is chosen. Only the
+# scripts of the languages on offer (READY in src/i18n.js) are packed, so unused fonts cost nothing.
+ready = re.search(r"const READY = \[([^\]]*)\]", (here / 'src' / 'i18n.js').read_text()).group(1)
+scripts = {'hi': 'deva', 'ar': 'arab', 'ur': 'arab', 'bn': 'beng', 'ru': 'cyrl'}
+packed = sorted({scripts[l] for l in re.findall(r"'(\w+)'", ready) if l in scripts})
+parts.append('const CHACKLATE_SCRIPT_FONTS = %s;' % json.dumps({k: (vendor / ('fonts-%s.css' % k)).read_text() for k in packed}))
+# Longer content (lessons, stories, openings, rules, set stories) in each language, keyed by the
+# English; src/i18n.js text() and watch() read it. Made from tools/i18n-text.js's list.
+text = {f.stem: json.loads(f.read_text()) for f in sorted((content / 'i18n' / 'text').glob('*.json'))}
+for t in text.values():
+    t.pop('_meta', None)
+parts.append('const CHACKLATE_TEXT = %s;' % json.dumps(text, separators=(',', ':'), ensure_ascii=False))
 # The carved names on the Xiangqi pieces and the river: a Noto Serif SC cut of just those 18
 # characters (SIL Open Font License 1.1, (c) Google LLC), loaded by xiangqi3d.js.
 parts.append("const CHACKLATE_XQ_FONT = 'data:font/ttf;base64,%s';" % base64.b64encode((vendor / 'xiangqi-han.ttf').read_bytes()).decode())

@@ -31,5 +31,8 @@
   "question": { "en": "Question", "hi": "सवाल", "check": ["hi"] },
   "yes": { "en": "Yes!", "hi": "हाँ!", "check": ["hi"] },
   "notQuite": { "en": "Not quite.", "hi": "पूरी तरह नहीं।", "check": ["hi"] },
-  "tryAgain": { "en": "Have another look and try again.", "hi": "एक बार और देखें और फिर कोशिश करें।", "check": ["hi"] }
+  "tryAgain": { "en": "Have another look and try again.", "hi": "एक बार और देखें और फिर कोशिश करें।", "check": ["hi"] },
+  "var.eyebrow": { "en": "Variation · {when}", "hi": "खेल का एक रूप · {when}", "check": ["hi"] },
+  "var.play": { "en": "Play {name}, the game of this land", "hi": "{name} खेलें, इस देश का खेल", "check": ["hi"] },
+  "var.learn": { "en": "{tagline}. Learn the rules with {coach}, then play.", "hi": "{tagline}। {coach} के साथ नियम सीखें, फिर खेलें।", "check": ["hi"] }
 }

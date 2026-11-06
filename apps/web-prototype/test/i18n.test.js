@@ -30,9 +30,9 @@ for (const [area, entries] of Object.entries(strings)) {
       if (typeof e[l] !== 'string' || !e[l].trim()) problems.push(key + ': no ' + l);
       else if (holes(e[l]) !== holes(e.en)) problems.push(key + ': ' + l + ' has {' + holes(e[l]) + '}, English has {' + holes(e.en) + '}');
     }
-    for (const l of Object.keys(e)) if (l !== 'check' && !LANGS.includes(l)) problems.push(key + ': unknown language ' + l);
+    for (const l of Object.keys(e)) if (l !== 'check' && !I18N.ALL.some((x) => x.id === l)) problems.push(key + ': unknown language ' + l);
     for (const l of e.check || []) {
-      if (!LANGS.includes(l) || l === 'en') problems.push(key + ': check lists ' + l);
+      if (!I18N.ALL.some((x) => x.id === l) || l === 'en') problems.push(key + ': check lists ' + l);
       else (toCheck[l] = toCheck[l] || []).push(key);
     }
   }
@@ -92,6 +92,37 @@ for (const [k, en] of Object.entries(mentorEN)) {
 }
 for (const k of Object.keys(strings.mentor || {})) if (!(k in mentorEN)) problems.push('mentor.' + k + ': no longer in mentor.js');
 
+// Longer content (lessons, stories, openings, rules, set stories, pitches): every language's
+// text/<lang>.json translates each English string tools/i18n-text.js finds.
+const textEN = require('../tools/i18n-text.js').strings();
+const textDir = path.join(dir, 'text');
+let textN = 0;
+for (const l of LANGS.slice(1)) {
+  const f = path.join(textDir, l + '.json');
+  const tab = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {};
+  const miss = textEN.filter((en) => typeof tab[en] !== 'string' || !tab[en].trim());
+  if (miss.length) problems.push('text/' + l + '.json misses ' + miss.length + ' content strings (node tools/i18n-text.js ' + l + '), e.g. ' + JSON.stringify(miss[0]));
+  for (const en of textEN) if (tab[en] && holes(tab[en]) !== holes(en)) problems.push('text/' + l + '.json: ' + JSON.stringify(en.slice(0, 50)) + ' has {' + holes(tab[en]) + '}');
+  textN = textEN.length;
+}
+// Game calls (check, mate, results) and the words for moves, said in every language.
+const VOICE = require('../../../packages/content/voice.json');
+for (const l of LANGS) {
+  const ev = VOICE.events[l] || {};
+  for (const k of Object.keys(VOICE.events.en)) if (!ev[k]) problems.push('voice.json events.' + l + '.' + k + ': missing');
+  const mv = VOICE.moves[l];
+  if (!mv) problems.push('voice.json moves.' + l + ': missing');
+  else for (const k of ['piece', 'takes', 'file', 'rank', 'castleK', 'castleQ', 'promote', 'check', 'mate']) if (mv[k] === undefined) problems.push('voice.json moves.' + l + '.' + k + ': missing');
+}
+
+// The rule book's sentences: rules.js keeps the English.
+const rulesEN = require('../src/rules.js')(typeof E === 'function' ? E() : E).EN;
+for (const [k, en] of Object.entries(rulesEN)) {
+  if (!(strings.rules || {})[k]) problems.push('rules.' + k + ': missing (English: ' + en + ')');
+  else if (strings.rules[k].en !== en) problems.push('rules.' + k + ': English in rules.js changed to "' + en + '", update the translations');
+}
+for (const k of Object.keys(strings.rules || {})) if (!(k in rulesEN)) problems.push('rules.' + k + ': no longer in rules.js');
+
 assert.ok(problems.length === 0, problems.length + ' string problems:\n  ' + problems.join('\n  '));
 
 // The runtime: fallback, placeholders and the first-run guess.
@@ -100,7 +131,8 @@ const [area, entries] = Object.entries(strings)[0] || [];
 if (area) { const k = Object.keys(entries)[0]; assert.strictEqual(I18N.t(area + '.' + k), entries[k].en); }
 assert.strictEqual(I18N.t('nope.missing'), 'nope.missing');
 assert.strictEqual(I18N.guess(['hi-IN', 'en-US']), LANGS.includes('hi') ? 'hi' : 'en');
-assert.strictEqual(I18N.guess(['fr-FR']), 'en');
+assert.strictEqual(I18N.guess(['de-DE']), 'en');
+assert.strictEqual(I18N.guess(['de-DE', 'fr-FR']), LANGS.includes('fr') ? 'fr' : 'en');
 
-console.log('i18n: ' + n + ' strings in ' + LANGS.join(', ') + ', ' + used + ' t() calls, all present' +
+console.log('i18n: ' + n + ' strings and ' + textN + ' content texts in ' + LANGS.join(', ') + ', ' + used + ' t() calls, all present' +
   Object.entries(toCheck).map(([l, ks]) => '; ' + ks.length + ' ' + l + ' lines await a native speaker\'s check').join(''));
