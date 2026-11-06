@@ -20,10 +20,10 @@ import tempfile
 os.environ['HF_HUB_OFFLINE'] = '1'
 import numpy as np
 import soundfile as sf
-from kokoro import KPipeline
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from pauses import speak, _breath, RATE
+from say import pipeline, KOKORO
 
 root = pathlib.Path(__file__).parent.parent.parent
 jobs = json.loads(pathlib.Path(sys.argv[1]).read_text())
@@ -34,7 +34,7 @@ only = set(sys.argv[2:])
 public = root / 'apps' / 'web-prototype' / 'public'
 dirs = {k: public / k / lang for k in ('guide', 'pitch', 'tale', 'words')}
 dirs['site'] = root / 'apps' / 'website' / 'audio' / lang
-LANG_CODE = {'hi': 'h', 'es': 'e', 'fr': 'f', 'it': 'i', 'pt': 'p', 'ja': 'j', 'zh': 'z'}[lang]
+LANG_CODE = KOKORO[lang]
 pipe = None
 
 
@@ -54,7 +54,7 @@ def encode(audio, mp3):
 
 def say(text, who):
     global pipe
-    pipe = pipe or KPipeline(lang_code=LANG_CODE, repo_id='hexgrad/Kokoro-82M')
+    pipe = pipe or pipeline(LANG_CODE)
     voice, speed = voice_of(who)
     return speak(pipe, text, voice, speed, pause['comma'], pause['stop'])
 
@@ -103,6 +103,10 @@ for kind in ('guide', 'pitch', 'tale', 'words', 'site'):
             index[key] = want
         encode(audio, mp3)
         print(kind, key, round(len(audio) / RATE, 1), 's', flush=True)
+        # saved as it goes, so a stopped run picks up where it left off
+        keep = dict(old, **index)
+        index_path.parent.mkdir(parents=True, exist_ok=True)
+        index_path.write_text(json.dumps({'lang': lang, 'lines': keep} if kind == 'site' else keep, indent=1, ensure_ascii=False) + '\n')
     # clips of lines that are gone are deleted
     for f in out.rglob('*.mp3'):
         if f.relative_to(out).with_suffix('').as_posix() not in index:

@@ -13,10 +13,10 @@ import json, os, sys
 os.environ['HF_HUB_OFFLINE'] = '1'
 import numpy as np
 import soundfile as sf
-from kokoro import KPipeline
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pauses import speak, RATE as SR   # breaths after punctuation, eased into a soft room tone
+from say import pipeline, KOKORO
 
 
 def spoken(pipe, j):
@@ -36,9 +36,11 @@ for i, j in enumerate(jobs):
     path = os.path.join(out, j['voice'], j['key'] + '.wav')
     if os.path.exists(path):
         continue
-    lang = j['engine'][0]  # a: American English, b: British English, h: Hindi
+    # the line's language decides how it is read (a voice can read another language: French Rooky
+    # is a Spanish voice); English goes by the voice's accent, a: American, b: British
+    lang = KOKORO.get(j.get('lang'), j['engine'][0])
     if lang not in pipes:
-        pipes[lang] = KPipeline(lang_code=lang, repo_id='hexgrad/Kokoro-82M')
+        pipes[lang] = pipeline(lang)
     audio = spoken(pipes[lang], j)
     if audio is None:
         print('empty', j['voice'], j['key'], j['text'], flush=True)

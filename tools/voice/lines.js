@@ -112,7 +112,10 @@ function translator(lang) {
   [global.CHACKLATE_STRINGS, global.CHACKLATE_TEXT] = keep;
   I18N.set(lang);
   if (I18N.lang !== lang) throw new Error('the game has no ' + lang);
-  const tr = (en) => { const s = I18N.text(en); return s && s !== en && /[^\x00-\x7f]/.test(s) ? s : null; };
+  // a language in another script must show it (else the line fell back to English); Spanish and the
+  // like may well be plain ASCII
+  const latin = (I18N.ALL.find((l) => l.id === lang) || {}).script === 'latin';
+  const tr = (en) => { const s = I18N.text(en); return s && s !== en && (latin || /[^\x00-\x7f]/.test(s)) ? s : null; };
   tr.I18N = I18N;
   return (translators[lang] = tr);
 }
@@ -167,4 +170,4 @@ if (require.main === module) {
   const job = process.argv[2];
   process.stdout.write(JSON.stringify(job === 'words' ? wordLines() : job === 'coach' ? coachLines() : jobs()));
 }
-module.exports = { voiceKey, spokenEn, fragments, jobs, wordLines, coachLines, translator };
+module.exports = { voiceKey, spokenEn, fragments, jobs, wordLines, coachLines, translator, lessonLines };

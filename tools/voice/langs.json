@@ -1,18 +1,183 @@
 {
-  "note": "Who says what in each other language, for tools/voice/record-lang.py. Kokoro has two female and two male Hindi voices: Rooky is Dev's voice (hm_omega), as in his Hindi lessons; the friends share the other three by who they are.",
+  "note": "Who says what in each other language, for tools/voice/record-lang.py. Rooky's voice in each language is the one his lessons there use (voice.json). Kokoro has few voices per language, so the friends share them by who they are: the men marcus, moti, marco, mishka, gaston; the women miu, bao, sophie, skye. French has one (female) voice, so Rooky and the men in French are Spanish male voices reading French.",
   "hi": {
     "speed": 1.0,
     "speakers": {
-      "rooky": { "engine": "hm_omega", "speed": 1.05 },
-      "marcus": { "engine": "hm_psi" },
-      "moti": { "engine": "hm_psi" },
-      "marco": { "engine": "hm_psi" },
-      "mishka": { "engine": "hm_psi" },
-      "gaston": { "engine": "hm_psi" },
-      "miu": { "engine": "hf_alpha" },
-      "bao": { "engine": "hf_alpha" },
-      "sophie": { "engine": "hf_beta" },
-      "skye": { "engine": "hf_beta" }
+      "rooky": {
+        "engine": "hm_omega",
+        "speed": 1.05
+      },
+      "marcus": {
+        "engine": "hm_psi"
+      },
+      "moti": {
+        "engine": "hm_psi"
+      },
+      "marco": {
+        "engine": "hm_psi"
+      },
+      "mishka": {
+        "engine": "hm_psi"
+      },
+      "gaston": {
+        "engine": "hm_psi"
+      },
+      "miu": {
+        "engine": "hf_alpha"
+      },
+      "bao": {
+        "engine": "hf_alpha"
+      },
+      "sophie": {
+        "engine": "hf_beta"
+      },
+      "skye": {
+        "engine": "hf_beta"
+      }
+    }
+  },
+  "es": {
+    "speed": 1.0,
+    "speakers": {
+      "rooky": {
+        "engine": "em_alex",
+        "speed": 1.05
+      },
+      "marcus": {
+        "engine": "em_santa"
+      },
+      "moti": {
+        "engine": "em_santa"
+      },
+      "marco": {
+        "engine": "em_santa"
+      },
+      "mishka": {
+        "engine": "em_santa"
+      },
+      "gaston": {
+        "engine": "em_santa"
+      },
+      "miu": {
+        "engine": "ef_dora"
+      },
+      "bao": {
+        "engine": "ef_dora"
+      },
+      "sophie": {
+        "engine": "ef_dora"
+      },
+      "skye": {
+        "engine": "ef_dora"
+      }
+    }
+  },
+  "fr": {
+    "speed": 1.0,
+    "speakers": {
+      "rooky": {
+        "engine": "em_alex",
+        "speed": 1.05
+      },
+      "marcus": {
+        "engine": "em_santa"
+      },
+      "moti": {
+        "engine": "em_santa"
+      },
+      "marco": {
+        "engine": "em_santa"
+      },
+      "mishka": {
+        "engine": "em_santa"
+      },
+      "gaston": {
+        "engine": "em_santa"
+      },
+      "miu": {
+        "engine": "ff_siwis"
+      },
+      "bao": {
+        "engine": "ff_siwis"
+      },
+      "sophie": {
+        "engine": "ff_siwis"
+      },
+      "skye": {
+        "engine": "ff_siwis"
+      }
+    }
+  },
+  "pt": {
+    "speed": 1.0,
+    "speakers": {
+      "rooky": {
+        "engine": "pm_alex",
+        "speed": 1.05
+      },
+      "marcus": {
+        "engine": "pm_santa"
+      },
+      "moti": {
+        "engine": "pm_santa"
+      },
+      "marco": {
+        "engine": "pm_santa"
+      },
+      "mishka": {
+        "engine": "pm_santa"
+      },
+      "gaston": {
+        "engine": "pm_santa"
+      },
+      "miu": {
+        "engine": "pf_dora"
+      },
+      "bao": {
+        "engine": "pf_dora"
+      },
+      "sophie": {
+        "engine": "pf_dora"
+      },
+      "skye": {
+        "engine": "pf_dora"
+      }
+    }
+  },
+  "zh": {
+    "speed": 1.0,
+    "speakers": {
+      "rooky": {
+        "engine": "zm_yunxi",
+        "speed": 1.05
+      },
+      "marcus": {
+        "engine": "zm_yunjian"
+      },
+      "moti": {
+        "engine": "zm_yunjian"
+      },
+      "marco": {
+        "engine": "zm_yunjian"
+      },
+      "mishka": {
+        "engine": "zm_yunjian"
+      },
+      "gaston": {
+        "engine": "zm_yunjian"
+      },
+      "miu": {
+        "engine": "zf_xiaoxiao"
+      },
+      "bao": {
+        "engine": "zf_xiaoxiao"
+      },
+      "sophie": {
+        "engine": "zf_xiaoyi"
+      },
+      "skye": {
+        "engine": "zf_xiaoyi"
+      }
     }
   }
 }
