@@ -335,7 +335,8 @@ def build(target):
     ads_dir = game / 'src' / 'ads'
     ads = {'crest': 'data:image/webp;base64,' + base64.b64encode((game / 'src' / 'crest.webp').read_bytes()).decode(),
            'nibbland': 'data:image/webp;base64,' + base64.b64encode((ads_dir / 'nibbland-logo.webp').read_bytes()).decode(),
-           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode()}
+           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode(),
+           'aertrip': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'aertrip-logo.svg').read_bytes()).decode()}
     scene = 'const CHACKLATE_ADS = %s;\n' % json.dumps(ads, separators=(',', ':')) + scene
     assert '</script' not in scene.lower()
     # Tooltips are the game's own, so the site's bubbles look and behave the same.

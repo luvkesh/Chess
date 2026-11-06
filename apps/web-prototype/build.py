@@ -116,7 +116,8 @@ parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')
 # The brands' own artwork for the Times Square billboards (src/billboards.js): the
 # Nibbland logo and the Jong Club wordmark (the crest is CHACKLATE_CREST above).
 ads = {'nibbland': uri(src / 'ads' / 'nibbland-logo.webp'),
-       'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((src / 'ads' / 'jongclub-wordmark.svg').read_bytes()).decode()}
+       'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((src / 'ads' / 'jongclub-wordmark.svg').read_bytes()).decode(),
+       'aertrip': 'data:image/svg+xml;base64,' + base64.b64encode((src / 'ads' / 'aertrip-logo.svg').read_bytes()).decode()}
 parts.append('const CHACKLATE_ADS = %s;' % json.dumps(ads, separators=(',', ':')))
 # The piece sound packs: real recordings, one short MP3 per pack (tools/sfx.py makes them).
 sfx_index = json.loads((here / 'sfx' / 'index.json').read_text())
