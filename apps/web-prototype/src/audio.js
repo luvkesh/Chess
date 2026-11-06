@@ -688,9 +688,24 @@ function ChacklateAudio() {
   const lineClips = new Map();
   const talkers = [];
   function talking(on, what) { for (const fn of talkers) fn(on, what); }
+  // A host that caps how many files a page may serve gets a folder's clips bundled: bundle/index.json
+  // maps each clip's path to [part, start, end] in base64 text parts (tools/voice/bundle.js). Without a
+  // bundle index every clip is fetched on its own.
+  let bundles = null;
+  const bundleParts = new Map();
+  function bundled(url) {
+    if (!bundles) bundles = fetch('bundle/index.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    return bundles.then((b) => {
+      const at = b && b.clips && b.clips[url];
+      if (!at) return null;
+      const p = b.parts[at[0]];
+      if (!bundleParts.has(p)) bundleParts.set(p, fetch(p).then((r) => { if (!r.ok) throw new Error('missing'); return r.text(); }).catch((e) => { bundleParts.delete(p); throw e; }));
+      return bundleParts.get(p).then((t) => unbase64(t.slice(at[1], at[2])));
+    });
+  }
   function lineClip(url) {
     if (!lineClips.has(url)) {
-      lineClips.set(url, fetch(url).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+      lineClips.set(url, bundled(url).then((own) => own || fetch(url).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); }))
         .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch((e) => { lineClips.delete(url); throw e; }));
     }
     return lineClips.get(url);
