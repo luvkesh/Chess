@@ -36,7 +36,7 @@ for key, line in guide['lines'].items():
         continue
     lang = voice[0]   # a: American English, b: British English
     pipe = pipes.get(lang) or pipes.setdefault(lang, KPipeline(lang_code=lang, repo_id='hexgrad/Kokoro-82M'))
-    audio = speak(pipe, line['text'], voice, guide['speed'], guide['pause']['comma'], guide['pause']['stop'])
+    audio = speak(pipe, line['text'], voice, guide['speakers'][line['who']].get('speed', guide['speed']), guide['pause']['comma'], guide['pause']['stop'])
     with tempfile.NamedTemporaryFile(suffix='.wav') as wav:
         sf.write(wav.name, audio, RATE)
         # the same treatment as the game's other clips, keeping the pauses: leading silence trimmed,

@@ -30,13 +30,13 @@ import numpy as np
 import soundfile as sf
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from pauses import RATE, trim, FADE
+from pauses import RATE, _breath, _room
 
 root = pathlib.Path(__file__).parent.parent.parent
 guide = json.loads((root / 'packages' / 'content' / 'guide.json').read_text())
 V = json.loads((root / 'packages' / 'content' / 'voice.json').read_text())
 # (id, name, Kokoro voice, speed): Rooky first, then the extra coach voices
-VOICES = [('rooky', 'Rooky', guide['speakers']['rooky']['engine'], guide['speed'])] + [(v['id'], v['name'], v['engine'], v.get('speed', 1)) for v in V['voices'] if v.get('coach')]
+VOICES = [('rooky', 'Rooky', guide['speakers']['rooky']['engine'], guide['speakers']['rooky'].get('speed', guide['speed']))] + [(v['id'], v['name'], v['engine'], v.get('speed', 1)) for v in V['voices'] if v.get('coach')]
 comma, stop = guide['pause']['comma'], guide['pause']['stop']
 lines = json.loads(subprocess.run(['node', str(root / 'tools' / 'voice' / 'lines.js'), 'coach'], check=True, capture_output=True).stdout)
 cache = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else '/tmp/coach-voice')
@@ -78,8 +78,10 @@ def say(text):
         style = sum(k.get_voice_style(n) for n in names) / len(names)   # a blend is the mean of its voices
         british = voice[0] == 'b'
         g2p = g2ps.get(british) or g2ps.setdefault(british, en.G2P(trf=False, british=british, fallback=None))
-        # kokoro-onnx gives no word timings, so the line is said phrase by phrase and the pauses laid between
+        # kokoro-onnx gives no word timings, so the line is said phrase by phrase, and each phrase eases
+        # into a breath of room tone (pauses.py): nothing is cut off the words
         import re
+        rng = np.random.default_rng(7)
         parts = [p.strip() for p in re.findall(r'[^,;:.!?]+[,;:.!?]*', text) if p.strip()]
         audio = []
         for i, p in enumerate(parts):
@@ -87,14 +89,13 @@ def say(text):
             if '❓' in ph:
                 sys.exit('Kokoro does not know a word in "%s" (%s): add it to SAY' % (p, ph))
             a, sr = k.create(ph, voice=style, speed=speed, lang='en-gb' if british else 'en-us', is_phonemes=True)
-            a = trim(np.asarray(a, dtype=np.float32)).copy()
-            if len(a) > 2 * FADE:
-                a[:FADE] *= np.linspace(0, 1, FADE)
-                a[-FADE:] *= np.linspace(1, 0, FADE)
-            audio.append(a)
-            if i < len(parts) - 1:
-                audio.append(np.zeros(int((stop if p[-1] in '.!?' else comma) * RATE), dtype=np.float32))
-        return np.concatenate(audio) if audio else np.zeros(0, dtype=np.float32)
+            a = np.asarray(a, dtype=np.float32)
+            loud = np.flatnonzero(np.abs(a) > 10 ** (-45 / 20))
+            if len(loud):   # Kokoro's own lead-in and trailing hush, not the words
+                a = a[max(0, int(loud[0]) - int(0.02 * RATE)):min(len(a), int(loud[-1]) + int(0.12 * RATE))]
+            audio.append(_breath(a, stop if p[-1] in '.!?' else comma, rng) if i < len(parts) - 1 else a)
+        out = np.concatenate(audio) if audio else np.zeros(0, dtype=np.float32)
+        return out + _room(len(out), rng) * 0.6
     if engine is None:
         os.environ['HF_HUB_OFFLINE'] = '1'
         engine = {}
