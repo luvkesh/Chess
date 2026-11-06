@@ -130,6 +130,18 @@ function ChacklatePieces(THREE, K) {
       parts.push(sphere(t * 0.9, 0, 0, 0, 12));
       return merge(parts);
     }
+    if (style === 'pearled') {
+      // a slim Greek cross with a pearl at the end of each arm and one at the crossing
+      const w = t * 0.6;
+      return merge([bar(0, -a * 1.1, 0, a * 0.8, w * 2), bar(-a * 0.7, 0, a * 0.7, 0, w * 2), sphere(t * 1.05, 0, a * 0.8 + t * 0.7, 0, 14),
+        sphere(t * 0.9, a * 0.7 + t * 0.6, 0, 0, 12), sphere(t * 0.9, -a * 0.7 - t * 0.6, 0, 0, 12), sphere(t * 0.95, 0, 0, depth * 0.4, 12)]);
+    }
+    if (style === 'orbit') {
+      // a five-pointed star circled by a tilted orbit, for the space set
+      const pts = []; for (let i = 0; i < 10; i++) { const r = i % 2 ? t * 0.85 : a * 0.95, an = (i / 10) * Math.PI * 2; pts.push([Math.sin(an) * r, Math.cos(an) * r]); }
+      const orbitRing = new THREE.TorusGeometry(a * 0.95, t * 0.22, 6, 40); orbitRing.rotateX(1.2); orbitRing.rotateZ(0.5);
+      return merge([extrude(pts, depth, depth * 0.35, { bevelSegments: 2 }), orbitRing]);
+    }
     if (style === 'star4') {
       const pts = [[0, a], [t * 0.7, t * 0.7], [a * 0.8, 0], [t * 0.7, -t * 0.7], [0, -a * 1.2], [-t * 0.7, -t * 0.7], [-a * 0.8, 0], [-t * 0.7, t * 0.7]];
       return merge([extrude(pts, depth, depth * 0.35, { bevelSegments: 2 }), sphere(t * 0.8, 0, 0, 0, 12)]);
@@ -3663,6 +3675,172 @@ function ChacklatePieces(THREE, K) {
     },
   };
 
+
+  // ------------------------------------------------------------------ Space Explorers (Saturn)
+  // Rockets, a space station and astronauts for the table on Saturn's icy moon: gloss white
+  // ceramic against deep space blue, with chrome fins and portholes that glow.
+  function padBase(p, R, top, k) {
+    k = k || 1;
+    // a round launch pad: a low drum with a lip, stepping in to the craft
+    return p.line(R - 0.01, 0).arc(R, 0.012 * k, 0.3).line(R, 0.05 * k).line(R - 0.025, 0.06 * k).line(R - 0.03, 0.085 * k)
+      .line(top + 0.04, 0.1 * k).curve([[top + 0.015, 0.12 * k], [top, 0.15 * k]]);
+  }
+  // three swept fins round a rocket's foot, standing on radius r from y
+  const fins = (n, r, y, h, reach) => around(n, r, y, () => extrude([[0, 0], [0, h], [reach * 0.35, h * 0.62], [reach, 0.0]], 0.014, 0.005, { bevelSegments: 1 }).rotateY(-Math.PI / 2), { phase: Math.PI / 6 });
+  const portholes = (n, r, y, size) => around(n, r, y, () => cabochon(size, 0.45));
+  const ASTRO = {
+    k() {
+      const R = 0.35, P = new Piece();
+      // the great rocket: a slim body swelling at the waist, a ringed collar, a pointed nose
+      const p = padBase(profile(0, 0), R, 0.16);
+      p.curve([[0.15, 0.3], [0.14, 0.52], [0.13, 0.7]]).line(0.162, 0.71).line(0.162, 0.75).line(0.12, 0.76)
+        .curve([[0.118, 0.84], [0.1, 0.92], [0.06, 0.99], [0.03, 1.02]]).line(0, 1.03);
+      P.lathe('body', p);
+      P.add('fin', fins(3, 0.15, 0.13, 0.32, 0.12));
+      P.add('trim', ring(0.163, 0.73, 0.01));
+      P.add('accent', portholes(4, 0.142, 0.5, 0.032));
+      P.add('trim', placeAt(crossOf('orbit', 0.22, 0.04), 0, 0, 1.14));
+      return P;
+    },
+    q() {
+      const R = 0.335, P = new Piece();
+      const p = padBase(profile(0, 0), R, 0.15);
+      p.curve([[0.14, 0.3], [0.122, 0.5], [0.112, 0.66]]).line(0.15, 0.67).line(0.15, 0.7).line(0.1, 0.71)
+        .curve([[0.13, 0.76], [0.14, 0.82], [0.12, 0.87], [0.05, 0.89]]).line(0, 0.89);
+      P.lathe('body', p);
+      // a crown of eight beacons, each tipped with a glowing light
+      P.add('visor', pointedCrown(0.12, 0.84, 8, 0.12, { flare: 0.22, w: 0.7 }));
+      P.add('accent', sphere(0.05, 0, 0.95, 0, 20));
+      P.add('accent', portholes(3, 0.13, 0.46, 0.028));
+      P.add('fin', fins(3, 0.14, 0.13, 0.26, 0.1));
+      return P;
+    },
+    b() {
+      const R = 0.312, P = new Piece();
+      // a nose cone with the bishop's slit and a porthole, and a little antenna on the tip
+      const p = padBase(profile(0, 0), R, 0.13);
+      p.curve([[0.12, 0.28], [0.104, 0.44], [0.098, 0.55]]).line(0.13, 0.56).line(0.13, 0.59).line(0.09, 0.6)
+        .curve([[0.13, 0.67], [0.135, 0.77], [0.11, 0.87], [0.06, 0.95], [0.02, 0.985]]).line(0, 0.99);
+      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.82, 0.6, 0.018, 0.5) });
+      P.add('trim', ring(0.131, 0.575, 0.008));
+      P.add('accent', placeAt(cabochon(0.034, 0.45), 0, 0.128, 0.7));
+      P.add('trim', new THREE.CylinderGeometry(0.006, 0.006, 0.08, 8).translate(0, 1.02, 0));
+      P.add('accent', sphere(0.016, 0, 1.065, 0, 12));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(padBase(profile(0, 0), R, 0.2), 0.2));
+      // a horse ready for space: a short brushed mane and a chrome helmet ring at the neck
+      const h = horse({ base: 0.31, mane: 'roach', seed: 73, form: { tuck: 0.06, neck: 0.11, reach: 0.1, ears: 0.3, girth: 0.92, headW: 1.02 } });
+      P.add('body', h.body); P.add('trim', h.mane);
+      P.add('trim', ring(0.205, 0.33, 0.016));
+      const sp = h.surf([0, h.Y(0.9), 0.08], [0, 0.4, 1], 0.004), s = star(0.028, 0.01, 4); s.rotateX(-0.5); s.translate(sp[0], sp[1], sp[2]); P.add('accent', s);
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      // a space station: a drum with battlements, a docking wheel round its middle
+      const p = padBase(profile(0, 0), R, 0.22);
+      p.curve([[0.224, 0.3], [0.218, 0.45], [0.222, 0.58]]).line(0.244, 0.59).line(0.244, 0.64).line(0.2, 0.64).line(0.2, 0.62).line(0, 0.62);
+      P.lathe('body', p);
+      P.add('body', battlements(5, 0.2, 0.244, 0.635, 0.76, 0.42, 'flat'));
+      P.add('trim', ring(0.29, 0.42, 0.022, { seg: 64 }));
+      for (let i = 0; i < 4; i++) P.add('trim', new THREE.CylinderGeometry(0.008, 0.008, 0.07, 6).rotateZ(Math.PI / 2).translate(0.255, 0.42, 0).rotateY(i * Math.PI / 2 + Math.PI / 4));
+      P.add('accent', portholes(5, 0.222, 0.52, 0.026));
+      P.add('trim', new THREE.CylinderGeometry(0.008, 0.008, 0.16, 8).translate(0, 0.7, 0));
+      P.add('accent', sphere(0.022, 0, 0.79, 0, 12));
+      return P;
+    },
+    p() {
+      const R = 0.27, P = new Piece();
+      // a little astronaut's helmet, its dark visor on the front
+      const p = padBase(profile(0, 0), R, 0.1, 0.85);
+      p.curve([[0.1, 0.22], [0.09, 0.3], [0.072, 0.35]]);
+      ballHead(p, 0.072, 0.46, 0.11);
+      P.lathe('body', p);
+      const v = new THREE.SphereGeometry(0.112, 24, 12, -0.9, 1.8, 0.95, 0.9); v.translate(0, 0.46, 0.001); P.add('visor', v);
+      P.add('trim', ring(0.09, 0.355, 0.012));
+      return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ Falcon & Pearl (Burj Khalifa)
+  // For the table at the top of the Burj Khalifa: pearl against black pearl, in gold, as the
+  // pearl divers of the Gulf once brought up. The king is a stepped tower and its spire, the
+  // knight an Arabian horse in a gold bridle and every pawn a pearl.
+  function dhowBase(p, R, top, k) {
+    k = k || 1;
+    // a stepped foot like the tower's base, three setbacks
+    return p.line(R, 0).line(R, 0.03 * k).line(R - 0.035, 0.035 * k).line(R - 0.035, 0.065 * k).line(R - 0.07, 0.07 * k)
+      .line(R - 0.07, 0.095 * k).line(top + 0.03, 0.1 * k).curve([[top + 0.008, 0.12 * k], [top, 0.15 * k]]);
+  }
+  const FALCON = {
+    k() {
+      const R = 0.35, P = new Piece();
+      // the tower: setbacks narrowing up to a slender spire
+      const p = dhowBase(profile(0, 0), R, 0.16);
+      p.line(0.15, 0.36).line(0.13, 0.37).line(0.13, 0.52).line(0.112, 0.53).line(0.112, 0.66).line(0.094, 0.67).line(0.094, 0.78)
+        .line(0.07, 0.79).curve([[0.05, 0.86], [0.03, 0.93], [0.014, 1.0]]).line(0, 1.0);
+      P.lathe('body', p, { mod: MOD.flutes(3, 0.08, 0.16, 0.78, { fillet: 0.8, end: 0.02 }) });
+      P.add('trim', merge([0.365, 0.525, 0.665, 0.785].map((y, i) => ring([0.14, 0.122, 0.104, 0.082][i], y, 0.008))));
+      P.add('trim', placeAt(crossOf('pearled', 0.22, 0.035), 0, 0, 1.11));
+      return P;
+    },
+    q() {
+      const R = 0.335, P = new Piece();
+      const p = dhowBase(profile(0, 0), R, 0.15);
+      p.curve([[0.14, 0.3], [0.118, 0.5], [0.108, 0.65]]).line(0.145, 0.66).line(0.145, 0.69).line(0.1, 0.7)
+        .curve([[0.13, 0.76], [0.14, 0.82], [0.12, 0.87], [0.05, 0.89]]).line(0, 0.89);
+      P.lathe('body', p);
+      // a tiara of gold points, each tipped with a pearl, and a great pearl on top
+      P.add('trim', pointedCrown(0.12, 0.83, 10, 0.11, { flare: 0.2, w: 0.7 }));
+      P.add('pearl', sphere(0.055, 0, 0.96, 0, 24));
+      P.add('pearl', beadRing(0.146, 0.675, 22, 0.011));
+      return P;
+    },
+    b() {
+      const R = 0.312, P = new Piece();
+      const p = dhowBase(profile(0, 0), R, 0.13);
+      p.curve([[0.12, 0.28], [0.104, 0.44], [0.098, 0.56]]).line(0.13, 0.57).line(0.13, 0.6).line(0.09, 0.61)
+        .curve([[0.125, 0.68], [0.132, 0.78], [0.108, 0.88], [0.05, 0.96], [0.01, 0.99]]).line(0, 0.99);
+      P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, 0.83, 0.6, 0.018, 0.5) });
+      P.add('trim', ring(0.131, 0.585, 0.009));
+      P.add('pearl', sphere(0.03, 0, 1.02, 0, 16));
+      return P;
+    },
+    n() {
+      const R = 0.322, P = new Piece();
+      P.lathe('body', knightBase(dhowBase(profile(0, 0), R, 0.2), 0.2));
+      // an Arabian horse: a fine dished face, high neck and a long flowing mane, in a gold bridle
+      const h = horse({ base: 0.31, mane: 'flow', seed: 79, form: { tuck: -0.22, neck: 0.16, lean: 0.06, reach: 0.02, ears: 0.34, headW: 0.9, nose: 0.018, girth: 0.86 } });
+      P.add('body', h.body); P.add('trim', h.mane);
+      const b = bridle(h, { stud: 0.014 }); P.add('trim', b.straps); P.add('pearl', b.studs);
+      return P;
+    },
+    r() {
+      const R = 0.322, P = new Piece();
+      // a three-winged tower with stepped battlements, like the Burj seen from above
+      const p = dhowBase(profile(0, 0), R, 0.22);
+      p.curve([[0.226, 0.3], [0.22, 0.45], [0.224, 0.58]]).line(0.246, 0.59).line(0.246, 0.64).line(0.2, 0.64).line(0.2, 0.62).line(0, 0.62);
+      P.lathe('body', p, { mod: MOD.flutes(3, 0.07, 0.16, 0.58, { fillet: 0.8, end: 0.02 }) });
+      P.add('body', battlements(6, 0.2, 0.246, 0.635, 0.77, 0.4, 'step'));
+      P.add('trim', ring(0.247, 0.6, 0.009));
+      P.add('pearl', beadRing(0.232, 0.36, 18, 0.012));
+      return P;
+    },
+    p() {
+      const R = 0.27, P = new Piece();
+      // a pearl resting in a gold cup
+      const p = dhowBase(profile(0, 0), R, 0.1, 0.85);
+      p.curve([[0.095, 0.24], [0.085, 0.3], [0.07, 0.35]]).line(0, 0.35);
+      P.lathe('body', p);
+      P.lathe('trim', profile(0, 0.33).line(0.07, 0.33).curve([[0.1, 0.36], [0.104, 0.4]]).line(0.096, 0.4).curve([[0.09, 0.37], [0.06, 0.35]]).line(0, 0.35));
+      P.add('pearl', sphere(0.112, 0, 0.47, 0, 32));
+      return P;
+    },
+  };
+
   // ------------------------------------------------------------------ era materials
   const phys = (key, o) => K.material('p:' + key, () => new THREE.MeshPhysicalMaterial(o));
   const MATS = {
@@ -4088,6 +4266,38 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => (side === 'w'
         ? { body: MAT.stone(TEX.marble('#f4f0e8', '#c8beac', { scale: 2, strength: 0.3 }), { roughness: 0.4, clearcoat: 0.3 }), cloth: MAT.stone(TEX.marble('#ece6da', '#bcb2a0', { scale: 2, strength: 0.3 }), { roughness: 0.45, clearcoat: 0.2 }), trim: MAT.gold('#d8b060'), accent: MAT.gold('#d8b060'), eye: MAT.matte('#8a8478') }
         : { body: phys('verdigris', { map: TEX.stone('#3e7a66', '#8a6a3a', { scale: 5, cloud: 0.5, speckMix: 0.4 }), metalness: 0.55, roughness: 0.5, clearcoat: 0.2 }), cloth: phys('verdigris-2', { map: TEX.stone('#2e6a58', '#6a5a30', { scale: 5, cloud: 0.5, speckMix: 0.4 }), metalness: 0.5, roughness: 0.55 }), trim: MAT.bronze(), accent: MAT.bronze(), eye: MAT.matte('#1a2a24') }),
+    },
+    astro: {
+      id: 'astro', name: 'Space Explorers', era: 'The space age', year: 'Tomorrow', tint: '#1a2a5a',
+      story: 'Made for a game on the icy moon of Saturn: rockets, a space station and little astronauts, in gloss white ceramic against deep space blue, with chrome fins and portholes that glow.',
+      lore: {
+        k: 'The great rocket, ready for lift-off, with a shining star on its nose.',
+        q: 'A rocket crowned with eight beacons that light the way home.',
+        b: 'A nose cone with a porthole and a little antenna on the tip.',
+        n: 'A horse ready for space, with a chrome helmet ring and a star on its brow.',
+        r: 'A space station with a docking wheel round its middle.',
+        p: 'A little astronaut in a round helmet. Wave hello!',
+      },
+      pieces: ASTRO,
+      mats: (side) => (side === 'w'
+        ? { body: phys('astro-white', { color: '#f4f6fa', roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }), trim: MAT.chrome(), accent: phys('astro-glow-c', { color: '#7ae8ff', roughness: 0.1, emissive: '#3ad8ff', emissiveIntensity: 0.9 }), visor: phys('astro-visor', { color: '#d8a040', metalness: 1, roughness: 0.08, envMapIntensity: 1.5 }), fin: phys('astro-fin-r', { color: '#d8343a', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 }) }
+        : { body: phys('astro-navy', { color: '#16204a', roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.06, sheen: 0.4, sheenColor: new THREE.Color('#5a7aff') }), trim: MAT.chrome(), accent: phys('astro-glow-o', { color: '#ffb060', roughness: 0.1, emissive: '#ff8a2a', emissiveIntensity: 0.9 }), visor: phys('astro-visor', { color: '#d8a040', metalness: 1, roughness: 0.08, envMapIntensity: 1.5 }), fin: phys('astro-fin-o', { color: '#f08a2a', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 }) }),
+    },
+    falcon: {
+      id: 'falcon', name: 'Falcon & Pearl', era: 'Dubai today', year: 'Today', tint: '#3a3020',
+      story: 'For the table at the very top of the Burj Khalifa. White is pearl and black is black pearl, set in gold, like the pearls the divers of the Gulf once brought up from the sea.',
+      lore: {
+        k: 'A tower that steps in and in, up to a slender spire, like the Burj itself.',
+        q: 'A gold tiara with a pearl on every point.',
+        b: 'A mitre topped with a single round pearl.',
+        n: 'An Arabian horse with a flowing mane, in a gold bridle.',
+        r: 'A three-winged tower, like the Burj seen from above.',
+        p: 'A pearl resting in a little gold cup.',
+      },
+      pieces: FALCON,
+      mats: (side) => (side === 'w'
+        ? { body: MATS.pearl(), trim: MAT.gold('#e2b860'), pearl: phys('pearl-bright', { color: '#fbf7f0', roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08, sheen: 1, sheenColor: new THREE.Color('#ffe8f0'), sheenRoughness: 0.3, iridescence: 0.6, iridescenceIOR: 1.4 }) }
+        : { body: phys('black-pearl', { color: '#161618', roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05, iridescence: 0.8, iridescenceIOR: 1.6, iridescenceThicknessRange: [300, 800], sheen: 0.4, sheenColor: new THREE.Color('#d8c0ff'), sheenRoughness: 0.4 }), trim: MAT.gold('#e2b860'), pearl: phys('pearl-grey', { color: '#5a5e6a', roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08, iridescence: 0.8, iridescenceIOR: 1.5, sheen: 0.8, sheenColor: new THREE.Color('#c8b0ff'), sheenRoughness: 0.3 }) }),
     },
   });
 

@@ -23,6 +23,8 @@ jobs:
         run: node packages/chess-core/test/xiangqi.test.js
       - name: Coach tests
         run: node packages/chess-core/test/coach.test.js
+      - name: Mentor tests
+        run: node packages/chess-core/test/mentor.test.js
       - name: Content tests (lessons, puzzles, catalog)
         run: node packages/content/test/content.test.js
 
@@ -59,6 +61,8 @@ jobs:
         run: node apps/web-prototype/test/minigames.test.js
       - name: Rule book follows the position
         run: node apps/web-prototype/test/rules.test.js
+      - name: Piece sound packs are real recordings, four takes per weight
+        run: node apps/web-prototype/test/sfx.test.js
       - name: Build single-file game
         run: python3 apps/web-prototype/build.py
       - name: Check committed build is up to date

@@ -46,7 +46,7 @@ LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome':
 FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome': ('#4a1840', '#ff9cd8'), 'mughal': ('#0e5a52', '#9fe0cc'),
         'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'paris': ('#4a1426', '#ffb0c4'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
 # The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
-SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'scene.js')]
+SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'scene.js')]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 # The two items each tab of the details showcase plays, one after the other. None of them is
 # the item on the tab's own medal, and no item shows twice.
@@ -279,13 +279,20 @@ def build(target):
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
+    # the brands' artwork for the Times Square billboards, as the game builds it
+    ads_dir = game / 'src' / 'ads'
+    ads = {'crest': 'data:image/webp;base64,' + base64.b64encode((game / 'src' / 'crest.webp').read_bytes()).decode(),
+           'nibbland': 'data:image/webp;base64,' + base64.b64encode((ads_dir / 'nibbland-logo.webp').read_bytes()).decode(),
+           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode()}
+    scene = 'const CHACKLATE_ADS = %s;\n' % json.dumps(ads, separators=(',', ':')) + scene
     assert '</script' not in scene.lower()
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
     tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
     assert '</script' not in tips.lower()
-    # the sound packs' recipes, so "hear it" on the site knocks exactly like the game
-    packs = re.search(r'^  const PACKS = \{.*?^  \};', (game / 'src' / 'audio.js').read_text(), re.M | re.S).group(0)
-    page = page.replace('/*PACKS*/', packs.strip())
+    # the packs shown, as the game's own recordings, so "Hear it" sounds exactly like the game
+    sfx_index = json.loads((game / 'sfx' / 'index.json').read_text())
+    sfx = {i['data']['pack']: {'mp3': base64.b64encode((game / 'sfx' / (i['data']['pack'] + '.mp3')).read_bytes()).decode(), 'clips': sfx_index[i['data']['pack']]} for i in fx['sound']}
+    page = page.replace('/*SFX*/null', json.dumps(sfx, separators=(',', ':')))
     return fill(page.replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips), img, art, counts, coach, target)
 
 
