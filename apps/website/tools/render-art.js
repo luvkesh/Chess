@@ -27,6 +27,16 @@ out['detail-avatar'] = ART.medalUri(king.art, { from: king.from, to: king.to });
 const knight = item('avatar.knight.v1');
 out['detail-frame'] = ART.medalUri(knight.art, { from: knight.from, to: knight.to });
 out['detail-frame-ring'] = item('frame.gold.v1').ring;
+// The details showcase's demos: avatars for the player card, a rook medal inside the frames,
+// and the game's real gold pieces (rendered from the 3D set) standing on the little board.
+for (const id of ['avatar.ember.v1', 'avatar.bao.v1', 'avatar.rook.v1']) {
+  const a = item(id);
+  out['fx-' + id.split('.')[1]] = ART.medalUri(a.art, { from: a.from, to: a.to });
+}
+const fs = require('fs');
+for (const t of ['k', 'q', 'r', 'b', 'n', 'p']) {
+  out['fx-piece-' + t] = 'data:image/webp;base64,' + fs.readFileSync(path.join(root, 'apps/web-prototype/src/art/piece-' + t + '.webp')).toString('base64');
+}
 // Place badges: each landmark in colour, in its own sky, inside a gold bezel (tools/place-icons.js).
 const ICONS = require('./place-icons.js');
 for (const e of C.eras) out['icon-' + e.id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ICONS.icon(e.id));
