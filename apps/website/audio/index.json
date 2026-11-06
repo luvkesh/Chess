@@ -1763,6 +1763,116 @@
           "text": "The Gods of Sounion play here, on Ash and Wenge."
         }
       ]
+    },
+    "item-sets-astro": {
+      "text": "Three, two, one, blast off! Space Explorers is white ceramic against deep navy, with red and orange fins. There's a star on the king, portholes on the bishops and rockets for rooks. It comes with the Rings of Saturn.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Three, two, one, blast off!"
+        },
+        {
+          "t": 3.54,
+          "text": "Space Explorers is white ceramic against deep navy, with red and orange fins."
+        },
+        {
+          "t": 9.72,
+          "text": "There's a star on the king, portholes on the bishops and rockets for rooks."
+        },
+        {
+          "t": 14.48,
+          "text": "It comes with the Rings of Saturn."
+        }
+      ]
+    },
+    "item-sets-falcon": {
+      "text": "In the desert, falcons are treasured friends. Falcon and Pearl is pearl against black pearl, trimmed in gold, with falcon knights, sailing-boat rooks and a pearl on the king's crown. It comes with the Burj Khalifa Summit.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "In the desert, falcons are treasured friends."
+        },
+        {
+          "t": 3.38,
+          "text": "Falcon and Pearl is pearl against black pearl, trimmed in gold, with falcon knights, sailing-boat rooks and a pearl on the king's crown."
+        },
+        {
+          "t": 13.13,
+          "text": "It comes with the Burj Khalifa Summit."
+        }
+      ]
+    },
+    "item-boards-meteor": {
+      "text": "Some of these squares came from space! Meteorite and Ice sets dark iron meteorite beside frosty ice, in a black frame with a glowing blue line. It comes with the Rings of Saturn and the Space Explorers.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Some of these squares came from space!"
+        },
+        {
+          "t": 2.79,
+          "text": "Meteorite and Ice sets dark iron meteorite beside frosty ice, in a black frame with a glowing blue line."
+        },
+        {
+          "t": 10.57,
+          "text": "It comes with the Rings of Saturn and the Space Explorers."
+        }
+      ]
+    },
+    "item-boards-mirage": {
+      "text": "Pearl and Night Sand is pearly white beside night-dark sand, sealed under glass with a golden rim. It sparkles like the desert under the stars, and it comes with the Burj Khalifa Summit and Falcon and Pearl.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Pearl and Night Sand is pearly white beside night-dark sand, sealed under glass with a golden rim."
+        },
+        {
+          "t": 7.21,
+          "text": "It sparkles like the desert under the stars, and it comes with the Burj Khalifa Summit and Falcon and Pearl."
+        }
+      ]
+    },
+    "item-places-saturn": {
+      "text": "Grab your space helmet! We're on an icy moon of Saturn, with ice spires all around, a little moon base and a rocket ready to fly. Look up, and Saturn and its rings fill the sky. The Space Explorers play here, on Meteorite and Ice.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Grab your space helmet!"
+        },
+        {
+          "t": 1.77,
+          "text": "We're on an icy moon of Saturn, with ice spires all around, a little moon base and a rocket ready to fly."
+        },
+        {
+          "t": 8.99,
+          "text": "Look up, and Saturn and its rings fill the sky."
+        },
+        {
+          "t": 13.03,
+          "text": "The Space Explorers play here, on Meteorite and Ice."
+        }
+      ]
+    },
+    "item-places-burj": {
+      "text": "Hold on tight! This is the very top of the Burj Khalifa, the tallest building in the world. The clouds drift below us, the city lights twinkle far down, and the sea shines all the way to the edge of the sky. Falcon and Pearl play here, on Pearl and Night Sand.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Hold on tight!"
+        },
+        {
+          "t": 1.26,
+          "text": "This is the very top of the Burj Khalifa, the tallest building in the world."
+        },
+        {
+          "t": 6.36,
+          "text": "The clouds drift below us, the city lights twinkle far down, and the sea shines all the way to the edge of the sky."
+        },
+        {
+          "t": 14.29,
+          "text": "Falcon and Pearl play here, on Pearl and Night Sand."
+        }
+      ]
     }
   }
 }

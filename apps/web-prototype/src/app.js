@@ -387,7 +387,7 @@
     const noop = () => {};
     let sets = null;
     return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setElements: noop, playElement: noop, storming: () => false, setQuality: noop, setAnimations: noop,
-      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, setAlt: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
+      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro(done) { if (done) done(); return 0; }, skipIntro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, setAlt: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
       animateMove(info, done) { done(); }, snapshot: () => Promise.resolve(null), boards: () => ({}), rooms: () => ({}),
       sets() { if (!sets) { try { sets = ChacklatePieces(window.THREE, ChacklateKit(window.THREE)).list(); } catch (e) { sets = []; } } return sets; } };
   }
@@ -429,7 +429,7 @@
   function applySettings() {
     const s = state.settings;
     view.setQuality(s.quality);
-    view.setAnimations(s.animations && !window.__SHOT);
+    view.setAnimations(s.animations && (!window.__SHOT || !!window.__ANIM));   // tooling can ask for motion (the opening shot)
     view.setElements(s.elements !== false);
     document.body.classList.toggle('lowfx', s.quality === 'low');
     AU.setSfx(s.sfx, s.sfxVol);
@@ -2912,17 +2912,47 @@
     state.game = game;
     go('game', game);
     view.setView(game.viewSide, state.settings.view, true);
-    if (!g.moves.length && !toss) view.intro();
+    // a new game opens on a tour of the place; the opponent waits for it to land in the seat
+    let toured = !(!g.moves.length && !toss);
+    const afterTour = [];
+    if (!toured) openingShot(game, () => { toured = true; afterTour.splice(0).forEach((f) => f()); });
     save();
     // The opponent says hello across the table.
     if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [[t('play.say.hello'), 'dismiss']], null, who); }
     const begin = () => {
-      if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: toss ? 2600 : 600 });
+      if (state.game !== game) return;
+      if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: toss ? 600 : 600 });
       gameNudge(game);
       if (!g.outcome) maybeComputer();
     };
-    if (toss) colourToss(game, begin); else begin();
+    if (toss) colourToss(game, begin); else if (toured) begin(); else afterTour.push(begin);
     preAnalyse();
+  }
+  // The opening shot: the camera tours the place (scene.js intro) with the screens out of the
+  // way, black bars top and bottom and the place's name, like the start of a film. A tap, a
+  // key or Skip goes straight to the seat. With reduced motion or animations off there is no
+  // tour and the game starts at once.
+  function openingShot(G, then) {
+    const old = document.querySelector('.cine-bars');
+    if (old) old.remove();
+    const rm = (view.rooms() || {})[PG.equipped(state.progress, 'room').data.room] || null;
+    let bars = null;
+    const done = () => {
+      document.body.classList.remove('cinematic');
+      if (bars) { const b = bars; bars = null; b.classList.add('out'); setTimeout(() => b.remove(), 450); }
+      if (state.game === G) then();
+    };
+    const ms = view.intro(done);
+    if (!ms || state.game !== G) return;
+    bars = document.createElement('div');
+    bars.className = 'cine-bars';
+    bars.setAttribute('data-no-tips', '');
+    bars.innerHTML = '<div class="cine-top"></div><div class="cine-bottom"><div class="cine-title">' +
+      (rm ? '<span class="cine-name">' + esc(rm.name) + '</span>' + (rm.era ? '<span class="cine-era">' + esc(rm.era) + '</span>' : '') : '') + '</div>' +
+      '<button class="btn small ghost cine-go" type="button">' + t('play.skip') + '</button></div>';
+    bars.addEventListener('pointerdown', (e) => { e.stopPropagation(); view.skipIntro(); });
+    document.body.appendChild(bars);
+    document.body.classList.add('cinematic');
   }
   // About three seconds: two closed paws, a tap, the paws open, the pawn in the tapped one is
   // the player's colour. Skip (or Escape) goes straight to the game. The colour was drawn at
@@ -2971,11 +3001,10 @@
       G.tossing = false;
       G.viewSide = G.kind === 'local' || G.human === WHITE ? 'white' : 'black';
       view.setView(G.viewSide, state.settings.view, true);
-      view.intro();
       renderCards(); refreshHighlights(); renderHud();
       AU.event(G.human === WHITE ? 'start.white' : 'start.black');
       save();
-      then();
+      openingShot(G, then);
     };
     const pick = (hand) => {
       if (picked) return;
