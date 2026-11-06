@@ -63,6 +63,8 @@ jobs:
         run: node apps/web-prototype/test/rules.test.js
       - name: Piece sound packs are real recordings, four takes per weight
         run: node apps/web-prototype/test/sfx.test.js
+      - name: Rooky's lines in every coach voice
+        run: node apps/web-prototype/test/rooky.test.js
       - name: Build single-file game
         run: python3 apps/web-prototype/build.py
       - name: Check committed build is up to date
