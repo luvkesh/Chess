@@ -323,89 +323,17 @@ function ChacklateLandmarks(THREE, K, H) {
     prism(corners, y, y + h).forEach((g) => P.add(faceM, g));
     P.add(roofM, lid(corners, y + h));
   }
-  // Glowing neon on a dark board: a word, a border of bulbs and a little picture.
-  function neonTex(k, o) {
-    return k.tex(512, 256, (g, w, h) => {
-      g.fillStyle = o.board || '#0c0a14'; g.fillRect(0, 0, w, h);
-      const glowLine = (col, width, draw) => { g.save(); g.shadowColor = col; g.shadowBlur = 18; g.strokeStyle = col; g.fillStyle = col; g.lineWidth = width; draw(); g.restore(); };
-      glowLine(o.edge || o.color, 5, () => { g.strokeRect(12, 12, w - 24, h - 24); });
-      g.fillStyle = '#fff6d8';
-      for (let x = 24; x < w - 12; x += 22) { g.beginPath(); g.arc(x, 24, 4, 0, TAU); g.arc(x, h - 24, 4, 0, TAU); g.fill(); }
-      glowLine(o.color, 4, () => {
-        g.font = '900 ' + (o.size || 72) + 'px "Jost", "Arial Black", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.fillText(o.text, w / 2 + (o.icon ? 50 : 0), h / 2 + (o.sub ? -18 : 4));
-        if (o.sub) { g.font = '700 34px "Jost", sans-serif'; g.fillStyle = o.edge || o.color; g.fillText(o.sub, w / 2 + (o.icon ? 50 : 0), h / 2 + 46); }
-      });
-      if (o.icon) glowLine(o.edge || o.color, 6, () => o.icon(g, 90, h / 2));
-    });
-  }
-  // A giant LED screen: `frames` pictures stacked in one tall texture, bright and saturated, with
-  // the faint grid of its diodes. The vista's update() steps through them, like the adverts
-  // that change every few seconds on Times Square.
-  function ledTex(k, frames, seed) {
-    const FW = 512, FH = 288, t = k.tex(FW, FH * frames.length, (g, w, h) => {
-      frames.forEach((draw, i) => {
-        g.save(); g.translate(0, i * FH); g.beginPath(); g.rect(0, 0, FW, FH); g.clip();
-        draw(g, FW, FH, rng(seed + i * 7));
-        // the diodes: a fine dark grid and a soft sheen across the top
-        g.fillStyle = 'rgba(0,0,0,0.18)';
-        for (let x = 0; x < FW; x += 4) g.fillRect(x, 0, 1, FH);
-        for (let y = 0; y < FH; y += 4) g.fillRect(0, y, FW, 1);
-        g.restore();
-      });
-    });
-    t.repeat.set(1, 1 / frames.length);
-    t.userData.frames = frames.length;
-    return t;
-  }
-  // The adverts: all for invented things (the game, cocoa, a toy shop, a show), never real brands.
-  const LED = {
-    knight(g, w, h) {
-      g.fillStyle = vgrad(g, 0, h, ['#ff2a8a', '#7a2aff', '#1a1aff']); g.fillRect(0, 0, w, h);
-      g.fillStyle = 'rgba(255,255,255,0.12)'; for (let i = 0; i < 8; i++) for (let j = 0; j < 5; j++) if ((i + j) % 2) g.fillRect(i * 64, j * 64 - 24, 64, 64);
-      g.save(); g.translate(130, h / 2 + 10); g.scale(1.6, 1.6); g.fillStyle = '#fff'; g.shadowColor = '#ffd0ff'; g.shadowBlur = 20;
-      g.beginPath(); g.moveTo(-30, 50); g.lineTo(34, 50); g.lineTo(24, 10); g.quadraticCurveTo(40, -20, 10, -52); g.quadraticCurveTo(-40, -40, -34, 4); g.lineTo(-12, -2); g.lineTo(-26, 30); g.closePath(); g.fill(); g.restore();
-      g.fillStyle = '#fff'; g.font = '900 64px "Jost", "Arial Black", sans-serif'; g.textBaseline = 'middle'; g.fillText('CHACKMATE', 220, h / 2 - 24);
-      g.fillStyle = '#ffe060'; g.font = '700 30px "Jost", sans-serif'; g.fillText('YOUR MOVE, NEW YORK!', 224, h / 2 + 34);
-    },
-    cocoa(g, w, h) {
-      g.fillStyle = vgrad(g, 0, h, ['#ffb030', '#ff6a1a', '#c8201a']); g.fillRect(0, 0, w, h);
-      g.fillStyle = 'rgba(255,255,255,0.18)'; for (let i = 0; i < 9; i++) { g.beginPath(); g.arc(60 + i * 56, 40 + (i % 3) * 30, 18, 0, TAU); g.fill(); }
-      g.fillStyle = '#5a2a14'; g.beginPath(); g.moveTo(w - 210, 110); g.lineTo(w - 70, 110); g.quadraticCurveTo(w - 74, 250, w - 140, 256); g.quadraticCurveTo(w - 206, 250, w - 210, 110); g.fill();
-      g.strokeStyle = '#fff'; g.lineWidth = 8; for (const x of [w - 170, w - 140, w - 110]) { g.beginPath(); g.moveTo(x, 96); g.quadraticCurveTo(x + 18, 70, x, 40); g.stroke(); }
-      g.fillStyle = '#fff'; g.font = '900 70px "Jost", "Arial Black", sans-serif'; g.textBaseline = 'middle'; g.fillText('HOT', 36, h / 2 - 40); g.fillText('COCOA', 36, h / 2 + 30);
-      g.fillStyle = '#ffe9a0'; g.font = '700 26px "Jost", sans-serif'; g.fillText("PRALINE'S, ON BROADWAY", 38, h / 2 + 92);
-    },
-    toys(g, w, h) {
-      g.fillStyle = vgrad(g, 0, h, ['#20e0ff', '#2a8aff', '#3a2acc']); g.fillRect(0, 0, w, h);
-      const R = rng(9); for (let i = 0; i < 40; i++) { g.fillStyle = ['#ffe060', '#ff60b0', '#a0ff80', '#ffffff'][i % 4]; g.save(); g.translate(R() * w, R() * h); g.rotate(R() * 6); g.fillRect(-6, -2, 12, 4); g.restore(); }
-      g.fillStyle = '#ffe060'; g.beginPath(); for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5 - Math.PI / 2, r = i % 2 ? 34 : 80; g.lineTo(w - 110 + Math.cos(a) * r, h / 2 + Math.sin(a) * r); } g.closePath(); g.fill();
-      g.fillStyle = '#fff'; g.font = '900 76px "Jost", "Arial Black", sans-serif'; g.textBaseline = 'middle'; g.fillText('TOYS!', 40, h / 2 - 30);
-      g.font = '700 28px "Jost", sans-serif'; g.fillText("TRUFFLE'S TOY SHOP", 44, h / 2 + 46);
-    },
-    show(g, w, h) {
-      g.fillStyle = vgrad(g, 0, h, ['#1a0a3a', '#6a0a5a', '#ff2a5a']); g.fillRect(0, 0, w, h);
-      for (let i = 0; i < 7; i++) { g.fillStyle = 'rgba(255,240,180,' + (0.18 - i * 0.02) + ')'; g.beginPath(); g.moveTo(w / 2, -20); g.lineTo(w / 2 - 260 + i * 80, h); g.lineTo(w / 2 - 220 + i * 80, h); g.closePath(); g.fill(); }
-      g.fillStyle = '#ffe060'; g.shadowColor = '#ffb020'; g.shadowBlur = 16; g.font = '900 60px "Jost", "Arial Black", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText('THE ROYAL GAME', w / 2, h / 2 - 20); g.shadowBlur = 0;
-      g.fillStyle = '#fff'; g.font = '700 28px "Jost", sans-serif'; g.fillText('TONIGHT AT EIGHT', w / 2, h / 2 + 42);
-    },
-    stars(g, w, h, R) {
-      g.fillStyle = vgrad(g, 0, h, ['#00c8a0', '#00a0ff', '#8a2aff']); g.fillRect(0, 0, w, h);
-      for (let i = 0; i < 26; i++) { const x = R() * w, y = R() * h, r = 6 + R() * 18; g.fillStyle = ['#ffffff', '#ffe060', '#ff80c8'][i % 3]; g.beginPath(); for (let j = 0; j < 10; j++) { const a = j * Math.PI / 5 - Math.PI / 2, rr = j % 2 ? r * 0.4 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); g.fill(); }
-      g.fillStyle = '#fff'; g.font = '900 58px "Jost", "Arial Black", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('CHESS CLUB', w / 2, h / 2 - 18);
-      g.font = '700 28px "Jost", sans-serif'; g.fillText('EVERYONE WELCOME', w / 2, h / 2 + 40);
-    },
-    waves(g, w, h) {
-      g.fillStyle = '#0a0a1a'; g.fillRect(0, 0, w, h);
-      ['#ff2a6a', '#ff8a2a', '#ffe02a', '#3aff8a', '#2ad0ff', '#8a5aff'].forEach((c, i) => { g.strokeStyle = c; g.lineWidth = 16; g.beginPath(); for (let x = 0; x <= w; x += 8) g.lineTo(x, 50 + i * 36 + Math.sin(x * 0.02 + i) * 20); g.stroke(); });
-    },
-  };
+  // The billboards on Times Square: LED screens and neon signs for Chackmate, Jong Club,
+  // Nibbland and Aertrip (src/billboards.js).
+  const BB = ChacklateBillboards(THREE, K, H);
+  const neonTex = BB.neonTex;
   // Chess pieces and stars for the signs.
   const SIGN = {
     knight: (g, x, y) => { g.beginPath(); g.moveTo(x - 30, y + 50); g.lineTo(x + 34, y + 50); g.lineTo(x + 24, y + 10); g.quadraticCurveTo(x + 40, y - 20, x + 10, y - 52); g.quadraticCurveTo(x - 40, y - 40, x - 34, y + 4); g.lineTo(x - 12, y - 2); g.lineTo(x - 26, y + 30); g.closePath(); g.stroke(); },
     king: (g, x, y) => { g.beginPath(); g.moveTo(x - 30, y + 50); g.lineTo(x + 30, y + 50); g.lineTo(x + 18, y - 22); g.lineTo(x - 18, y - 22); g.closePath(); g.moveTo(x, y - 22); g.lineTo(x, y - 60); g.moveTo(x - 14, y - 46); g.lineTo(x + 14, y - 46); g.stroke(); },
     star: (g, x, y) => { g.beginPath(); for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5 - Math.PI / 2, r = i % 2 ? 22 : 54; g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } g.closePath(); g.stroke(); },
+    tile: (g, x, y) => { g.beginPath(); g.moveTo(x - 26, y - 44); g.lineTo(x + 26, y - 44); g.quadraticCurveTo(x + 34, y - 44, x + 34, y - 36); g.lineTo(x + 34, y + 36); g.quadraticCurveTo(x + 34, y + 44, x + 26, y + 44); g.lineTo(x - 26, y + 44); g.quadraticCurveTo(x - 34, y + 44, x - 34, y + 36); g.lineTo(x - 34, y - 36); g.quadraticCurveTo(x - 34, y - 44, x - 26, y - 44); g.closePath(); g.moveTo(x + 12, y); g.arc(x, y, 12, 0, TAU); g.moveTo(x - 14, y - 22); g.arc(x - 16, y - 22, 2, 0, TAU); g.moveTo(x + 18, y + 22); g.arc(x + 16, y + 22, 2, 0, TAU); g.stroke(); },
+    plane: (g, x, y) => { g.beginPath(); g.moveTo(x + 44, y - 10); g.lineTo(x - 30, y + 24); g.lineTo(x - 40, y + 14); g.lineTo(x - 6, y - 2); g.lineTo(x - 26, y - 30); g.lineTo(x - 14, y - 32); g.lineTo(x + 18, y - 10); g.closePath(); g.moveTo(x - 50, y + 44); g.quadraticCurveTo(x - 10, y + 60, x + 40, y + 30); g.stroke(); },
     cup: (g, x, y) => { g.beginPath(); g.moveTo(x - 34, y - 20); g.lineTo(x + 26, y - 20); g.quadraticCurveTo(x + 24, y + 40, x - 4, y + 44); g.quadraticCurveTo(x - 32, y + 40, x - 34, y - 20); g.moveTo(x + 26, y - 6); g.quadraticCurveTo(x + 48, y + 2, x + 22, y + 22); g.moveTo(x - 14, y - 32); g.quadraticCurveTo(x - 4, y - 46, x - 12, y - 58); g.moveTo(x + 4, y - 32); g.quadraticCurveTo(x + 14, y - 46, x + 6, y - 58); g.stroke(); },
   };
   // A lattice of iron (Eiffel) or a wooden frame: chords, cross bracing and rails, on a clear ground.
@@ -941,28 +869,32 @@ function ChacklateLandmarks(THREE, K, H) {
         // the buildings: window grids, then signs on every front
         const fronts = ['#3a302e', '#463c34', '#302a36', '#4a4038', '#2a2630'];
         const roofM = k.mat({ color: '#1a1820', roughness: 0.9 });
+        const CINZEL = '"Cinzel", Georgia, serif';
         const SIGNS = [
-          { text: 'CHACKMATE', sub: 'CHESS FOR EVERY AGE', color: '#ffd060', edge: '#ff5a8a', icon: SIGN.knight },
-          { text: 'COCOA', sub: "PRALINE'S HOT CHOCOLATE", color: '#ff8a50', edge: '#ffe0a0', icon: SIGN.cup },
+          { text: 'CHACKMATE', sub: 'CHESS, THROUGH THE AGES', font: '700 #px ' + CINZEL, sp: 10, size: 120, color: '#ffd27a', edge: '#ff5a8a', icon: SIGN.knight },
+          { text: 'JONGCLUB', sub: 'THE TABLE AWAITS', font: '600 #px ' + CINZEL, sp: 14, size: 120, color: '#f0d48e', edge: '#3ae8a0', icon: SIGN.tile },
           { text: 'THEATRE', sub: 'TONIGHT: THE ROYAL GAME', color: '#ff4a6a', edge: '#ffd060', icon: SIGN.star },
-          { text: 'CHESS CLUB', sub: 'ALL WELCOME', color: '#60e0ff', edge: '#ffffff', icon: SIGN.king, size: 60 },
-          { text: 'TOYS', sub: "TRUFFLE'S TOY SHOP", color: '#a0ff80', edge: '#ff80c0', icon: SIGN.star },
+          { text: 'NIBBLAND', sub: 'A TINY 3D PET WORLD', color: '#a0ff80', edge: '#ff80c0', icon: SIGN.star },
+          { text: 'CHESS CLUB', sub: 'ALL WELCOME', color: '#60e0ff', edge: '#ffffff', icon: SIGN.king },
+          { text: 'aertrip', sub: 'WHERE TO NEXT?', color: '#5af0e0', edge: '#ffffff', icon: SIGN.plane, size: 170 },
           { text: 'MOVIES', sub: 'TALKIES IN COLOUR', color: '#ffe060', edge: '#60c0ff', icon: SIGN.star },
-          { text: 'BAKERY', sub: 'PRETZELS & PIES', color: '#ffb060', edge: '#ff6060', icon: SIGN.cup },
-          { text: 'GRAND HOTEL', color: '#ffffff', edge: '#ffb040', icon: SIGN.king, size: 56 },
-        ].map((o) => k.own(new THREE.MeshBasicMaterial({ map: neonTex(k, o), toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.3) })));
+          { text: 'GRAND HOTEL', color: '#ffffff', edge: '#ffb040', icon: SIGN.king },
+        ].map((o) => k.own(new THREE.MeshBasicMaterial({ map: neonTex(k, o), toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.2) })));
         let si = 0, ledAt = 0;
-        // the LED screens: each runs through three adverts in turn
-        const SCREENS = [['knight', 'cocoa', 'show'], ['toys', 'stars', 'knight'], ['cocoa', 'waves', 'toys'], ['show', 'knight', 'stars'], ['stars', 'toys', 'cocoa']].map((list, i) => {
-          const map = ledTex(k, list.map((n) => LED[n]), 30 + i * 11);
-          G.anim.push({ tex: map, every: 3.2 + i * 0.45, phase: i * 0.9 });
-          return k.own(new THREE.MeshBasicMaterial({ map, toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.35) }));
+        // the LED screens: each runs through the four adverts in turn, starting at a different
+        // one, so neighbours never show the same advert at once
+        const adCache = {};
+        const SCREENS = [0, 1, 2, 3, 1].map((first, i) => {
+          const names = BB.NAMES.slice(first).concat(BB.NAMES.slice(0, first));
+          const sc = BB.screen(k, names, { cache: adCache, every: 6 + i * 0.7, phase: i * 1.9 });
+          G.anim.push(sc.anim);
+          return sc.mat;
         });
         const NEON = ['#ff3a9a', '#3ae8ff', '#ffe03a', '#9a5aff', '#5aff8a', '#ff7a2a'];
-        const BLADES = [['HOTEL', '#ffd060'], ['CHESS', '#60e0ff'], ['THEATRE', '#ff5a8a'], ['COCOA', '#ffa050'], ['MOVIES', '#a0ff80']].map(([word, c]) => k.own(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.3), map: k.tex(64, 384, (g, w, h) => {
-          g.fillStyle = '#0c0a14'; g.fillRect(0, 0, w, h); g.save(); g.shadowColor = c; g.shadowBlur = 12; g.strokeStyle = c; g.lineWidth = 4; g.strokeRect(6, 6, w - 12, h - 12);
-          g.fillStyle = c; g.font = '900 44px "Jost", "Arial Black", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-          [...word].forEach((ch, i) => g.fillText(ch, w / 2, 40 + i * (h - 70) / Math.max(1, word.length - 1)));
+        const BLADES = [['HOTEL', '#ffd060'], ['CHESS', '#60e0ff'], ['THEATRE', '#ff5a8a'], ['AERTRIP', '#5af0e0'], ['MOVIES', '#a0ff80']].map(([word, c]) => k.own(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.2), map: k.tex(104, 560, (g, w, h) => {
+          g.fillStyle = '#0c0a14'; g.fillRect(0, 0, w, h); g.save(); g.shadowColor = c; g.shadowBlur = 16; g.strokeStyle = c; g.lineWidth = 5; g.strokeRect(9, 9, w - 18, h - 18);
+          g.fillStyle = c; g.font = '600 ' + Math.min(62, Math.round((h - 80) / word.length * 0.95)) + 'px "Jost", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+          [...word].forEach((ch, i) => g.fillText(ch, w / 2, 52 + i * (h - 104) / Math.max(1, word.length - 1)));
           g.restore();
         }) })));
         for (const s of [-1, 1]) {
@@ -1015,12 +947,15 @@ function ChacklateLandmarks(THREE, K, H) {
         P.add(roofM, lid([[-8, 6], [8, 6], [4, -10], [-4, -10]].map(([x, z]) => [x, z + TZ]), S + 76));
         P.add(tower, lathe([[3, 0], [3, 4], [2, 6], [0.4, 9], [0.1, 14], [0, 14]], 8), { y: S + 76, z: TZ - 1 });
         G.glows.push([0, S + 90, TZ - 1, '#ff6050', 5]);
-        const ticker = k.own(new THREE.MeshBasicMaterial({ map: k.tex(1024, 64, (g, w, h) => { g.fillStyle = '#100808'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffe060'; g.shadowColor = '#ffb020'; g.shadowBlur = 8; g.font = '700 40px "Jost", sans-serif'; g.textBaseline = 'middle'; g.fillText('★ CHACKMATE: THE JOURNEY REACHES NEW YORK ★ CHESS CLUB OPENS ON BROADWAY ★', 10, h / 2 + 2); }), toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.4) }));
+        const ticker = k.own(new THREE.MeshBasicMaterial({ map: k.tex(1536, 131, (g, w, h) => { g.fillStyle = '#100808'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffe060'; g.shadowColor = '#ffb020'; g.shadowBlur = 10; g.textBaseline = 'middle'; g.textAlign = 'center'; const line = '\u2605 CHACKMATE: THE JOURNEY REACHES NEW YORK \u2605 CHESS CLUB OPENS ON BROADWAY \u2605'; let fs = 66; do { g.font = '500 ' + fs + 'px "Jost", sans-serif'; fs -= 2; } while (fs > 20 && g.measureText(line).width > w - 40); g.fillText(line, w / 2, h / 2 + 2); }), toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.2) }));
         P.add(ticker, new THREE.PlaneGeometry(16.4, 1.4), { y: S + 24, z: TZ + 6.1 });
         P.add(SIGNS[0], new THREE.PlaneGeometry(14, 7), { y: S + 30, z: TZ + 6.15 });
         // the giant screen up the front of the tower, the brightest thing in the square
-        P.add(SCREENS[0], new THREE.PlaneGeometry(15.4, 26), { y: S + 49, z: TZ + 6.2 });
-        for (const [x, y, w2, h2] of [[0, S + 36, 16.2, 0.3], [0, S + 62, 16.2, 0.3], [-7.95, S + 49, 0.3, 26.3], [7.95, S + 49, 0.3, 26.3]]) P.add(k.glowMat('#ff3a9a', 2.2), new THREE.BoxGeometry(w2, h2, 0.3), { x, y, z: TZ + 6.3 });
+        // (a tall screen, 9:16, so it gets the adverts' portrait layouts)
+        const tall = BB.screen(k, BB.NAMES, { cache: adCache, portrait: true, every: 7, phase: 0.5 });
+        G.anim.push(tall.anim);
+        P.add(tall.mat, new THREE.PlaneGeometry(14.625, 26), { y: S + 49, z: TZ + 6.2 });
+        for (const [x, y, w2, h2] of [[0, S + 36, 15.4, 0.3], [0, S + 62, 15.4, 0.3], [-7.46, S + 49, 0.3, 26.3], [7.46, S + 49, 0.3, 26.3]]) P.add(k.glowMat('#ff3a9a', 2.2), new THREE.BoxGeometry(w2, h2, 0.3), { x, y, z: TZ + 6.3 });
         P.add(SIGNS[2], new THREE.PlaneGeometry(14, 7), { y: S + 12, z: TZ + 6.15 });
         // the round tower the terrace crowns, lit window by window down to the street
         const drum = k.mat({ map: facadeTex(k, { base: '#d8d0c0', rows: 12, cols: 24, kind: 'rect', lit: 0.6, light: '#ffe0a0', win: '#1a1820', w: 512, h: 512, trim: '#b8b0a0' }), roughness: 0.8, emissive: '#2a2418', emissiveIntensity: 0.4 });
@@ -2249,7 +2184,7 @@ function ChacklateLandmarks(THREE, K, H) {
       group.add(water);
     }
     // moving pictures (the LED screens): each steps to its next frame every few seconds
-    const update = G.anim.length ? (t) => { for (const a of G.anim) { const n = a.tex.userData.frames, f = Math.floor((t + a.phase) / a.every) % n; a.tex.offset.y = 1 - (f + 1) / n; } } : null;
+    const update = G.anim.length ? (t) => BB.step(G.anim, t) : null;
     if (update) update(0);
     return {
       group, outdoor: !!V.outdoor, fog: V.fog, update,

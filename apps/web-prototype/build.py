@@ -21,6 +21,7 @@ SCRIPTS = [
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
     src / 'pieces3d.js',
+    src / 'billboards.js',
     src / 'landmarks3d.js',
     src / 'suites3d.js',
     src / 'world3d.js',
@@ -89,7 +90,7 @@ parts.append('const CHACKLATE_SCRIPT_FONTS = %s;' % json.dumps({'deva': (vendor 
 parts.append("const CHACKLATE_XQ_FONT = 'data:font/ttf;base64,%s';" % base64.b64encode((vendor / 'xiangqi-han.ttf').read_bytes()).decode())
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
-look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
+look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
 parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
 # The crest (the rendered gold knight, shared with the website), inlined so the game stays one file.
 parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
@@ -102,6 +103,11 @@ for f in sorted((src / 'art').glob('*.webp')):
     kind, name = f.stem.split('-', 1)
     art[kind][landmarks.get(name, name) if kind == 'view' else name] = uri(f)
 parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')))
+# The brands' own artwork for the Times Square billboards (src/billboards.js): the
+# Nibbland logo and the Jong Club wordmark (the crest is CHACKLATE_CREST above).
+ads = {'nibbland': uri(src / 'ads' / 'nibbland-logo.webp'),
+       'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((src / 'ads' / 'jongclub-wordmark.svg').read_bytes()).decode()}
+parts.append('const CHACKLATE_ADS = %s;' % json.dumps(ads, separators=(',', ':')))
 # The piece sound packs: real recordings, one short MP3 per pack (tools/sfx.py makes them).
 sfx_index = json.loads((here / 'sfx' / 'index.json').read_text())
 sfx = {k: {'mp3': base64.b64encode((here / 'sfx' / (k + '.mp3')).read_bytes()).decode(), 'clips': v} for k, v in sfx_index.items()}
