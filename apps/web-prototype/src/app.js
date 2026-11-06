@@ -2907,10 +2907,13 @@
     }
     // "Surprise me": the opponent hides a white and a black pawn in two paws and the player picks
     // one. The table waits (no moves, the camera on White's side) until the pawn is shown.
-    // A table with a friend online draws the colours itself, so there the paws only show them.
+    // A table with a friend online draws the colours itself, so there the paws only show them,
+    // and only one of the two friends (drawn at random) picks; the other hid the pawns and watches.
     const toss = !g.moves.length && state.settings.colourToss !== false && (!window.__SHOT || window.__TOSS) &&
       (kind === 'ai' ? setup.color === 'random' && !setup.dojo && !setup.journey && !restore : kind === 'online' && !!setup.tossBy);
     if (toss) { game.tossing = true; game.viewSide = 'white'; }
+    // the picker who skips the paws still picks one, so the friend watching sees it open
+    else if (kind === 'online' && setup.tossRole === 'pick' && !g.moves.length && window.ChacklateNet) ChacklateNet.send({ type: 'toss', hand: Math.random() < 0.5 ? 'left' : 'right' });
     state.game = game;
     go('game', game);
     view.setView(game.viewSide, state.settings.view, true);
@@ -2942,6 +2945,8 @@
   function colourToss(G, then) {
     const host = document.querySelector('#screens .screen');
     const who = G.kind === 'ai' ? rival(G) : null;
+    // watch: a friend online picks and this player only sees which paw they opened
+    const watch = G.kind === 'online' && G.setup.tossRole === 'watch';
     const name = who ? who.name : G.setup.tossBy || t('online.yourFriend');
     const tint = who ? who.colors : ['#2f6f6a', '#173b39'];
     const set = equippedSet(), quick = !state.settings.animations;
@@ -2954,17 +2959,18 @@
     el.style.setProperty('--paw', tint[0]); el.style.setProperty('--paw-2', tint[1]);
     el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', t('play.toss.label'));
     el.innerHTML = '<div class="toss-in">' + (who ? faceImg(who, 'toss-face') : '') +
-      '<div class="eyebrow">' + t('play.toss.eyebrow') + '</div><h2 id="toss-h">' + t('play.toss.title') + '</h2>' +
-      '<p class="sub" id="toss-p">' + t('play.toss.hiding', { name: esc(name) }) + '</p>' +
-      '<div class="toss-hands">' + ['left', 'right'].map((h) => '<button class="toss-hand ' + h + '" data-hand="' + h + '" aria-label="' + t('play.toss.' + h) + '">' +
+      '<div class="eyebrow">' + t('play.toss.eyebrow') + '</div><h2 id="toss-h">' + (watch ? t('play.toss.waitTitle', { name: esc(name) }) : t('play.toss.title')) + '</h2>' +
+      '<p class="sub" id="toss-p">' + (watch ? t('play.toss.youHid', { name: esc(name) }) : t('play.toss.hiding', { name: esc(name) })) + '</p>' +
+      '<div class="toss-hands' + (watch ? ' watching' : '') + '">' + ['left', 'right'].map((h) => '<button class="toss-hand ' + h + '" data-hand="' + h + '" aria-label="' + t('play.toss.' + h) + '"' + (watch ? ' disabled' : '') + '>' +
         '<span class="paw closed">' + PAW_CLOSED + '</span><span class="paw open">' + PAW_OPEN + '</span><span class="toss-slot"></span></button>').join('') + '</div>' +
       '<button class="btn small" id="toss-skip">' + t('play.toss.skip') + '</button></div>';
     host.appendChild(el);
     document.body.classList.add('tossing');
-    let done = false, picked = false;
+    let done = false, picked = false, wait = 0;
     const finish = () => {
       if (done) return;
       done = true;
+      clearTimeout(wait);
       G.toss = null;
       el.classList.add('out');
       setTimeout(() => el.remove(), quick ? 0 : 320);
@@ -2979,21 +2985,26 @@
       save();
       then();
     };
+    // hand: the paw that was tapped (here, or by the friend when watching). The tapped paw holds
+    // the picker's colour, so a watcher finds their own pawn in the other one.
     const pick = (hand) => {
-      if (picked) return;
+      if (picked || done) return;
       picked = true;
-      AU.unlock(); AU.play('tap');
+      clearTimeout(wait);
+      if (!watch) { AU.unlock(); AU.play('tap'); }
+      if (G.kind === 'online' && !watch && window.ChacklateNet) ChacklateNet.send({ type: 'toss', hand });
       el.querySelectorAll('.toss-hand').forEach((b) => {
-        const yours = b.dataset.hand === hand;
+        const tapped = b.dataset.hand === hand, yours = watch ? !tapped : tapped;
         b.querySelector('.toss-slot').appendChild(el.querySelector('.toss-pawn.' + (yours ? mine : other)));
         b.classList.add(yours ? 'yours' : 'theirs');
+        if (tapped) b.classList.add('tapped');
         b.disabled = true;
       });
       el.classList.add('opened');
       $('toss-h').textContent = mine === 'w' ? t('play.toss.white') : t('play.toss.black', { name });
-      $('toss-p').textContent = t(mine === 'w' ? 'play.toss.haveWhite' : 'play.toss.haveBlack');
+      $('toss-p').textContent = (watch ? t(hand === 'left' ? 'play.toss.pickedLeft' : 'play.toss.pickedRight', { name }) + ' ' : '') + t(mine === 'w' ? 'play.toss.haveWhite' : 'play.toss.haveBlack');
       AU.play('move');
-      setTimeout(finish, quick ? 1400 : 1900);
+      setTimeout(finish, quick ? 1400 : watch ? 2600 : 1900);
     };
     // the pawns wait out of sight until a paw opens
     const stash = document.createElement('div');
@@ -3001,9 +3012,17 @@
     stash.querySelectorAll('img').forEach((img, i) => img.classList.add(i ? 'b' : 'w'));
     el.appendChild(stash);
     hydrate(stash);
-    el.querySelectorAll('.toss-hand').forEach((b) => { b.onclick = () => pick(b.dataset.hand); });
-    $('toss-skip').onclick = () => { AU.play('tap'); finish(); };
-    G.toss = { skip: finish };
+    el.querySelectorAll('.toss-hand').forEach((b) => { if (!watch) b.onclick = () => pick(b.dataset.hand); });
+    const randomHand = () => (Math.random() < 0.5 ? 'left' : 'right');
+    let skip = finish;
+    if (G.kind === 'online' && !watch) {
+      // The friend is waiting to see the pick: Skip, or ten quiet seconds, picks a paw at random.
+      skip = () => { pick(randomHand()); setTimeout(finish, 600); };
+      wait = setTimeout(() => pick(randomHand()), 10000);
+    } else if (watch) wait = setTimeout(finish, 14000);  // a friend who never picks does not hold the game up
+    $('toss-skip').onclick = () => { AU.play('tap'); skip(); };
+    G.toss = { skip: () => skip(), reveal: pick };
+    if (watch && G.tossHand) pick(G.tossHand);
   }
   function backToGame() {
     const G = state.game;
@@ -4827,10 +4846,12 @@
       },
     };
   };
-  // Pawn race: you have White; the bot defends the breakthrough perfectly and plays the war a little softer.
+  // Pawn race: you have White. The Breakthrough is a puzzle the bot defends perfectly, so the
+  // moment a move lets the win slip Rooky says so and offers a take-back; the Pawn war bot
+  // plays like a child a little ahead of you, so careful play wins.
   MINI_PLAY.pawns = function (H, level, S) {
     const lv = MINI.PAWN_START[level] ? level : 'break';
-    const T = { st: MINI.PAWN_START[lv](), sel: -1, busy: false, mine: 0, last: null };
+    const T = { st: MINI.PAWN_START[lv](), sel: -1, busy: false, mine: 0, last: null, slip: null };
     H.eyebrow(t(lv === 'break' ? 'minis.pawns.break' : 'minis.pawns.war')); H.title(t('minis.pawns.title'));
     H.body('<p class="say">' + t(lv === 'break' ? 'minis.pawns.sayBreak' : 'minis.pawns.sayWar') + '</p>');
     H.side('white');
@@ -4858,11 +4879,34 @@
     function mine(from, to, animate) {
       const m = MINI.pawnMoves(T.st).find((x) => x.from === from && x.to === to);
       if (!m || T.busy || T.st.side !== 1) return false;
+      // the Breakthrough: did this move throw away a win that was there?
+      const before = { st: T.st, mine: T.mine, last: T.last };
+      const slipped = lv === 'break' && !T.slip && MINI.pawnWins(T.st) && MINI.pawnWins(MINI.pawnPlay(T.st, m)) === false;
       T.mine++; view.setArrows([]); H.fb('', '');
-      play(m, animate, () => { T.busy = true; H.later(() => { T.busy = false; play(MINI.pawnBest(T.st, lv === 'war' ? 3 : undefined), true); }, 450); });
+      if (slipped) { T.slip = before; tools(); }
+      play(m, animate, () => {
+        T.busy = true;
+        H.later(() => {
+          T.busy = false;
+          play(MINI.pawnBot(T.st, lv), true);
+          if (T.slip && T.slip === before && !S.over) { H.fb('hint', t('minis.pawns.slip')); AU.play('coach'); }
+        }, 450);
+      });
       return true;
     }
-    H.tools([['hint', 'hint', t('minis.hint'), () => { if (T.busy || T.st.side !== 1) return; S.used.hints++; const b = MINI.pawnBest(T.st); view.setArrows([{ from: b.from, to: b.to, color: '#2fd8ff' }]); H.fb('hint', t('minis.pawns.hint', { from: MINI.name(b.from), to: MINI.name(b.to) })); AU.play('coach'); }]]);
+    function takeBack() {
+      if (T.busy || !T.slip) return;
+      Object.assign(T, T.slip, { slip: null, sel: -1 });
+      S.used.undos++;
+      view.setArrows([]); H.fb('', t('minis.pawns.again'));
+      tools(); draw();
+    }
+    function tools() {
+      const list = [['hint', 'hint', t('minis.hint'), () => { if (T.busy || T.st.side !== 1) return; S.used.hints++; const b = MINI.pawnBest(T.st); view.setArrows([{ from: b.from, to: b.to, color: '#2fd8ff' }]); H.fb('hint', t('minis.pawns.hint', { from: MINI.name(b.from), to: MINI.name(b.to) })); AU.play('coach'); }]];
+      if (T.slip) list.push(['undo', 'undo', t('minis.pawns.takeBack'), takeBack]);
+      H.tools(list);
+    }
+    tools();
     draw();
     return {
       onSquare(sq) {
@@ -5058,7 +5102,7 @@
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
       // info: { id, color: 'white'|'black', tc, opponent, moves, clock, rating, friend }; friend: a table made with a code
-      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null, tossBy: info.friend ? (info.opponent && info.opponent.name) || t('online.yourFriend') : '' }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
+      startGame({ mode: 'online', color: info.color, level: 0, tc: info.tc, fen: '', online: null, tossBy: info.friend ? (info.opponent && info.opponent.name) || t('online.yourFriend') : '', tossRole: info.friend ? info.toss || 'pick' : '' }, { moves: info.moves || [], human: info.color === 'white' ? WHITE : BLACK });
       const G = state.game;
       G.online = { id: info.id, tc: info.tc, opponent: info.opponent, rating: info.rating, clock: info.clock || { w: 0, b: 0, at: performance.now() },
         clockNow() { const c = this.clock; if (!c) return null; const out = { w: c.w, b: c.b }; if (!G.g.outcome && G.g.moves.length >= 2) { const k = G.g.pos.side === WHITE ? 'w' : 'b'; out[k] = Math.max(0, c[k] - (performance.now() - c.at)); } return out; } };
@@ -5088,6 +5132,8 @@
       endGame();
     },
     onlineEmote(id, mine) { showEmote(id, mine); },
+    // The friend picked a hand: this side watches the same paw open.
+    onlineToss(hand) { const G = state.game; if (!G || G.kind !== 'online') return; G.tossHand = hand; if (G.toss && G.toss.reveal) G.toss.reveal(hand); },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
     drawOffered() {
       const G = state.game; if (!G) return;

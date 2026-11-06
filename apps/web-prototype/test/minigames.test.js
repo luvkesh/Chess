@@ -43,6 +43,30 @@ const ep = M.pawnPlay({ w: [33], b: [48], side: -1, ep: -1 }, { from: 48, to: 32
 assert(M.pawnMoves(ep).some((m) => m.to === 40 && m.cap === 32));
 assert.strictEqual(M.pawnResult({ w: [8], b: [16], side: 1, ep: -1 }), 0, 'blocked pawns draw');
 assert.strictEqual(M.pawnResult({ w: [56], b: [16], side: -1, ep: -1 }), 1, 'a pawn on the last rank wins');
+// The breakthrough can always be won: only b6 keeps the win, and the take-back check sees that.
+assert.strictEqual(M.pawnWins(br), true);
+for (const m of M.pawnMoves(br)) assert.strictEqual(M.pawnWins(M.pawnPlay(br, m)), M.name(m.to) === 'b6', 'only b6 keeps the win');
+// Against the perfect defence, b6 and then the right follow-up always gets through.
+for (const reply of M.pawnMoves(M.pawnPlay(br, best))) {
+  let s2 = M.pawnPlay(M.pawnPlay(br, best), reply);
+  for (let k = 0; k < 30 && M.pawnResult(s2) === null; k++) s2 = M.pawnPlay(s2, s2.side === 1 ? M.pawnBest(s2) : M.pawnBot(s2, 'break'));
+  assert.strictEqual(M.pawnResult(s2), 1, 'b6 wins after ' + M.name(reply.from) + M.name(reply.to));
+}
+// The pawn war bot is beatable: a player who looks two moves ahead wins nearly every game, and
+// even one who just grabs pawns wins some. (Seeded so the test never flickers.)
+function war(pick, n, seed) {
+  const r = M.rng(seed), rand = () => r.next();
+  let wins = 0;
+  for (let g = 0; g < n; g++) {
+    let s3 = M.PAWN_START.war();
+    for (let k = 0; k < 300 && M.pawnResult(s3) === null; k++) s3 = M.pawnPlay(s3, s3.side === 1 ? pick(s3, rand) : M.pawnBot(s3, 'war', rand));
+    if (M.pawnResult(s3) === 1) wins++;
+  }
+  return wins;
+}
+assert(war((s3) => M.pawnBest(s3, 2), 20, 7) >= 17, 'careful play beats the pawn war bot');
+const grab = (s3, rand) => { const ms = M.pawnMoves(s3), c = ms.filter((m) => m.cap !== undefined); const l = c.length ? c : ms; return l[Math.floor(rand() * l.length)]; };
+assert(war(grab, 40, 11) >= 6, 'grabbing pawns wins sometimes');
 
 // Queen's path: every board has a safe way through, of the promised length, from a safe start.
 for (const level of ['easy', 'medium', 'hard']) {

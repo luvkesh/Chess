@@ -48,6 +48,17 @@ FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome
 # The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
 SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'scene.js')]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
+# The two items each tab of the details showcase plays, one after the other. None of them is
+# the item on the tab's own medal, and no item shows twice.
+FX_DEMOS = {
+    'capture': ['capture.frost.v1', 'capture.ruby-petals.v1'],
+    'victory': ['victory.harvest.v1', 'victory.sparks.v1'],
+    'trail': ['trail.mint.v1', 'trail.gold.v1'],
+    'clock': ['clock.ice.v1', 'clock.ruby.v1'],
+    'sound': ['sound.marble.v1', 'sound.glass.v1'],
+    'avatar': ['avatar.ember.v1', 'avatar.bao.v1'],
+    'frame': ['frame.ruby.v1', 'frame.ember.v1'],
+}
 
 LINKS = {
     'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/'},
@@ -104,6 +115,9 @@ def site_data():
         'items': len(catalog['items']), 'sets': cats['pieces'], 'boards': cats['board'], 'rooms': cats['room'],
         'tiers': load('seasons.json')['seasons'][0]['tiers'],
     }
+    # the details showcase: how many of each kind there are to collect ("None" is not one)
+    for c in FX_DEMOS:
+        counts['fx_' + c] = sum(1 for i in catalog['items'] if i['category'] == c and '.none.' not in i['id'])
     return eras, opponents, counts, campaign['coach'], showroom(campaign, catalog)
 
 
@@ -252,11 +266,15 @@ def build(target):
             assert it['key'] in img, 'missing img/%s; run tools/shoot.js items and tools/to-webp.py' % it['key']
     shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-') or k.startswith('item-')}
     lines = guide(coach['name'], collection)
+    catalog = load('catalog.json')
+    fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in catalog['items'] if i['id'] == d] for c, ids in FX_DEMOS.items()}
+    assert all(len(v) == 2 for v in fx.values()), fx
     keep = {coach['name'], coach['full'], 'Chackmate'} | {o['name'] for o in opponents} | {it['name'] for items in collection.values() for it in items}
+    keep |= {i['name'] for v in fx.values() for i in v}
     page = page.replace('/*FONTS*/', fonts + (here / 'vendor' / 'devanagari.css').read_text())
     filled = fill(page, img, art, counts, coach, target)
     langs = i18n(filled, eras, opponents, collection, lines, keep)
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': lines, 'coach': coach['name'], 'collection': collection,
+    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': lines, 'coach': coach['name'], 'collection': collection, 'fx': fx,
                                              'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep)},
                                             separators=(',', ':'), ensure_ascii=False)
     assert '</script' not in data.lower()
@@ -265,6 +283,9 @@ def build(target):
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
     tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
     assert '</script' not in tips.lower()
+    # the sound packs' recipes, so "hear it" on the site knocks exactly like the game
+    packs = re.search(r'^  const PACKS = \{.*?^  \};', (game / 'src' / 'audio.js').read_text(), re.M | re.S).group(0)
+    page = page.replace('/*PACKS*/', packs.strip())
     return fill(page.replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips), img, art, counts, coach, target)
 
 
