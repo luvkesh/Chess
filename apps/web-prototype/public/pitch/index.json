@@ -201,35 +201,51 @@
  },
  "capture.cocoa-dust.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A polite bow, then a little hop to the tray in a puff of cocoa. Good manners, even in battle."
+  "text": "A puff of cocoa dust with every capture. Sweet and simple!"
  },
  "capture.none.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Plain and simple. The taken piece just steps off to the tray."
+  "text": "Plain and simple. No sparkle, just the move."
  },
  "capture.gold-sparks.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A friendly duel with golden sparks, then a twirl and a bow to the winner. So graceful!"
+  "text": "Golden sparks fly with every capture. So shiny!"
  },
  "capture.ruby-petals.v1": {
   "voice": "am_puck,am_liam",
-  "text": "The two pieces dance a waltz around the square, then one twirls away. How lovely."
+  "text": "Ruby petals swirl round every capture. How lovely."
  },
  "capture.ink.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A magic trick! A swirl of ink smoke, and the taken piece pops up safe in the tray."
+  "text": "A swirl of ink smoke, like a magic trick. Ta-da!"
  },
  "capture.frost.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A frosty breath, a shiver of crystals, and the piece skates away across the ice. Brrr!"
+  "text": "Frost crystals glitter with every capture. Brrr!"
  },
  "capture.cocoa-nibs.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Leapfrog! One piece somersaults over, and the other bounces off in a shower of cocoa nibs."
+  "text": "Cocoa nibs scatter with every capture. Crunchy!"
  },
  "capture.caramel-sparks.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Two happy hops, then the piece whooshes up on caramel sparks. Like a little firework."
+  "text": "Caramel sparks shower every capture. Like a little firework."
+ },
+ "capture.fire-burst.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Whoosh! Every capture bursts into flames and flying embers."
+ },
+ "capture.lightning.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Crack! A bolt of lightning lands on every capture."
+ },
+ "capture.petal-burst.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Petals whirl up from every capture and bloom open. So pretty!"
+ },
+ "capture.stone-shatter.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Crunch! The square cracks and stone chips go flying."
  },
  "victory.confetti.v1": {
   "voice": "am_puck,am_liam",
@@ -254,6 +270,22 @@
  "victory.harvest.v1": {
   "voice": "am_puck,am_liam",
   "text": "Golden fireworks for the harvest festival. A win worth cheering for!"
+ },
+ "victory.fire-storm.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A ring of fire round the board, and fire flowers in the sky. You won!"
+ },
+ "victory.lightning-storm.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Thunder clouds swirl, and a bolt of light crowns your king. Hooray!"
+ },
+ "victory.petal-storm.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A whirl of petals dances round the board for your win. Wheee!"
+ },
+ "victory.stone-storm.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Stones and golden dust spin round the board, then gold crowns your king!"
  },
  "clock.classic.v1": {
   "voice": "am_puck,am_liam",
@@ -305,7 +337,7 @@
  },
  "trail.mint.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A cool wisp of mint, light as a breeze."
+  "text": "A cool wisp of mint curls up behind every move, light as a breeze."
  },
  "trail.ruby.v1": {
   "voice": "am_puck,am_liam",
@@ -313,11 +345,39 @@
  },
  "trail.caramel.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A sweet drizzle of caramel behind every move."
+  "text": "Sweet drops of caramel drizzle behind every move."
  },
  "trail.cinnamon.v1": {
   "voice": "am_puck,am_liam",
-  "text": "A spicy cinnamon swirl. Your moves will look so fancy."
+  "text": "Spicy cinnamon sparks crackle behind every move. So fancy!"
+ },
+ "trail.fire.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Your pieces leave a trail of flames. Hot, hot, hot!"
+ },
+ "trail.lightning.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Zap! A crackling bolt follows every move."
+ },
+ "trail.bubbles.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Bubbles float up behind every move. Pop, pop!"
+ },
+ "trail.petals.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Pink petals flutter behind every move. So soft!"
+ },
+ "trail.stardust.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Twinkle, twinkle! Stars sprinkle behind every move."
+ },
+ "trail.frost.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Sparkly frost crystals follow every move. Brrr!"
+ },
+ "trail.rainbow.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A ribbon of every colour streams behind your pieces. Wow!"
  },
  "avatar.knight.v1": {
   "voice": "am_puck,am_liam",

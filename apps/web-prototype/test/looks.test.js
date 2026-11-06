@@ -35,16 +35,30 @@ for (const it of catalog.items) {
   assert.ok(f[1].has(it.data[f[0]]), it.id + ': no ' + it.category + ' called ' + it.data[f[0]]);
   n++;
 }
-// Every capture effect but None plays its own capture scene, 3 to 5 seconds long.
-const scene = src('scene.js'), SCENES = keysOf(scene, 'SCENES'), used = new Set();
-for (const it of catalog.items.filter((x) => x.category === 'capture' && x.data.kind !== 'none')) {
-  assert.ok(SCENES.has(it.data.scene), it.id + ': no capture scene called ' + it.data.scene);
-  assert.ok(!used.has(it.data.scene), it.id + ': scene ' + it.data.scene + ' is already used');
-  used.add(it.data.scene);
+// Captures play one of five sequences by the piece taken: the queen's (4 s), two for a rook,
+// bishop or knight (2 s each) and two for a pawn (1 s each), and every one has its moment of impact.
+const scene = src('scene.js'), SCENES = keysOf(scene, 'SCENES');
+const durs = Object.fromEntries([...scene.slice(scene.indexOf('const SCENES = {')).matchAll(/^ {4}([a-z]+): \{ dur: (\d+), impact: (\d+)/gm)].map((m) => [m[1], [+m[2], +m[3]]]));
+const want = { queen: 4000, clash: 2000, vault: 2000, flick: 1000, pop: 1000 };
+assert.deepStrictEqual([...SCENES].sort(), Object.keys(want).sort(), 'the five capture sequences');
+for (const [k, ms] of Object.entries(want)) { assert.strictEqual(durs[k][0], ms, k + ' lasts ' + durs[k][0] + ' ms'); assert.ok(durs[k][1] > 0 && durs[k][1] < ms / 2, k + ': the hit comes in the first half'); }
+assert.ok(/LEVEL = \{ 1: 3, 2: 2, 3: 2, 4: 2, 5: 1 \}/.test(scene) && /SEQUENCES = \{ 1: \['queen'\], 2: \['clash', 'vault'\], 3: \['flick', 'pop'\] \}/.test(scene), 'queen level 1, rook/bishop/knight level 2, pawn level 3');
+// Capture and victory effects with an element name one elements3d.js can play, and every
+// element has both a capture effect and a victory effect, so captures and wins match.
+const FAMILIES = ['fire', 'lightning', 'petals', 'stone'];
+for (const f of FAMILIES) {
+  assert.ok(catalog.items.some((i) => i.category === 'capture' && i.data.strike === f), 'no capture effect for ' + f);
+  assert.ok(catalog.items.some((i) => i.category === 'victory' && i.data.storm === f), 'no victory effect for ' + f);
 }
-for (const m of scene.slice(scene.indexOf('const SCENES = {')).matchAll(/^ {4}([a-z]+): \{ dur: (\d+)/gm)) {
-  assert.ok(+m[2] >= 3000 && +m[2] <= 5000, 'scene ' + m[1] + ' lasts ' + m[2] + ' ms');
+for (const i of catalog.items) {
+  if (i.data && i.data.strike) assert.ok(FAMILIES.includes(i.data.strike), i.id + ': unknown strike');
+  if (i.data && i.data.storm) assert.ok(FAMILIES.includes(i.data.storm), i.id + ': unknown storm');
 }
+// Every trail has its own style, one scene.js draws.
+const STYLES = [...scene.slice(scene.indexOf('function trailParticle')).slice(0, 4000).matchAll(/case '([a-z]+)':/g)].map((m) => m[1]).concat('dust');
+const styles = catalog.items.filter((i) => i.category === 'trail' && i.data).map((i) => i.data.style);
+for (const st of styles) assert.ok(STYLES.includes(st), 'no trail style ' + st);
+assert.strictEqual(new Set(styles).size, styles.length, 'two trails share a style');
 for (const e of campaign.eras) {
   assert.ok(SETS.has(e.set), e.id + ' set ' + e.set);
   assert.ok(BOARDS.has(e.board), e.id + ' board ' + e.board);
@@ -68,14 +82,14 @@ const EL = require('../src/elements3d.js'), elements = src('elements3d.js');
 for (const id of ROOMS) {
   const e = EL.ROOMS[id];
   assert.ok(e, 'room ' + id + ' has no element');
-  assert.ok(['fire', 'lightning', 'stone'].includes(e.strike), id + ': unknown capture strike ' + e.strike);
+  assert.ok(['fire', 'lightning', 'stone', 'petals'].includes(e.strike), id + ': unknown capture strike ' + e.strike);
   assert.ok(['petals', 'fire', 'lightning'].includes(e.storm), id + ': unknown win storm ' + e.storm);
 }
 for (const k of Object.keys(EL.ROOMS)) assert.ok(ROOMS.has(k), 'element for a room that does not exist: ' + k);
 for (const [name, ms] of [['STRIKES', 3000], ['STORMS', 10000]]) {
   const body = elements.slice(elements.indexOf('const ' + name + ' = {'));
-  const durs = [...body.slice(0, body.indexOf('\n  };')).matchAll(/^ {4}([a-z]+): \{ dur: (\d+)/gm)];
-  assert.strictEqual(durs.length, 3, name + ' has three effects');
+  const durs = [...body.slice(0, body.indexOf('\n  };')).matchAll(/^ {4}([a-z]+): \{ dur: (\d+)/gm), ...elements.matchAll(new RegExp('^  ' + name + '\\.([a-z]+) = \\{ dur: (\\d+)', 'gm'))];
+  assert.deepStrictEqual(durs.map((m) => m[1]).sort(), FAMILIES.slice().sort(), name + ' has one effect per family');
   for (const m of durs) assert.strictEqual(+m[2], ms, name + ' ' + m[1] + ' lasts ' + m[2] + ' ms');
 }
 console.log('looks ok:', n, 'catalog looks,', SETS.size, 'sets,', BOARDS.size, 'boards,', ROOMS.size, 'rooms');

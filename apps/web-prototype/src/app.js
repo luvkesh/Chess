@@ -422,7 +422,7 @@
   function nullView() {
     const noop = () => {};
     let sets = null;
-    return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setElements: noop, playElement: noop, storming: () => false, setQuality: noop, setAnimations: noop,
+    return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setElements: noop, playElement: noop, storming: () => false, calm: noop, setQuality: noop, setAnimations: noop,
       setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro(done) { if (done) done(); return 0; }, skipIntro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, setAlt: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
       animateMove(info, done) { done(); }, snapshot: () => Promise.resolve(null), boards: () => ({}), rooms: () => ({}),
       sets() { if (!sets) { try { sets = ChacklatePieces(window.THREE, ChacklateKit(window.THREE)).list(); } catch (e) { sets = []; } } return sets; } };
@@ -858,23 +858,42 @@
     clock: { pitch: 0.78, zoom: 1.08, lookY: 0.3, lookZ: 0.9 },   // pulled back, so the chess clock beside the board is in view
     other: { zoom: 0.8 },
   };
-  // Capture effects and trails only show on a move, so the preview plays one again and again:
-  // a knight hops in to take a pawn, or the queen sweeps across the board. The next round
-  // starts a second after the last one ends, however long its capture scene runs.
+  // Capture effects and trails only show on a move, so the preview plays them again and again.
+  // A capture effect is shown on each level of capture in turn (a pawn, then a knight, then the
+  // queen), so its 1, 2 and 4 second scenes can all be seen; a trail on the queen, a rook and a
+  // pawn, its three strengths. The next round starts a second after the last one ends.
+  const fxArt = (it) => ART.fxUri(it.category === 'trail' ? (it.data ? 'trail:' + (it.data.style || 'dust') : 'none') : (it.data.art || it.data.kind), it.data ? it.data.colors : []);
   function peekDemo(it) {
     const capture = it.category === 'capture' || it.category === 'sound';
-    const [from, to, piece] = capture ? ['f3', 'e5', 2] : ['d1', 'h5', 5];
+    const rounds = it.category === 'sound' ? [['f3', 'e5', 2, -1]] : capture ? [['e4', 'd5', 1, -1], ['f3', 'e5', 2, -2], ['h2', 'e5', 3, -5]] : [['d1', 'h5', 5], ['a1', 'a6', 4], ['e2', 'e4', 1]];
     const live = () => peeking && peeking.it === it;
+    let n = 0;
     const play = () => {
       if (!live()) return;
+      const [from, to, piece, prey] = rounds[n++ % rounds.length];
       const start = [[sqIndex('e1'), 6], [sqIndex('e8'), -6], [sqIndex(from), piece]];
-      if (capture) start.push([sqIndex(to), -1]);
+      if (prey) start.push([sqIndex(to), prey]);
       view.setBoard(start, null);
       peeking.timers.push(setTimeout(() => {
         if (!live()) return;
-        view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
-          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move', { mover: piece, captured: capture ? -1 : 0 }); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false, elements: false });
+        view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: prey ? sqIndex(to) : -1, mover: piece },
+          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move', { mover: piece, captured: capture ? prey : 0 }); peeking.timers.push(setTimeout(play, 1000)); },
+          { skipHint: false, elements: !!(it.category === 'capture' && it.data && it.data.strike) });
       }, 450));
+    };
+    play();
+    peeking.demo = true;
+  }
+  // A victory effect is shown on a won game's last moment: the beaten king's fall, the
+  // winners' jumps and, for an effect with its own storm, the storm.
+  function peekWin(it) {
+    const live = () => peeking && peeking.it === it, storm = !!(it.data && it.data.storm);
+    const play = () => {
+      if (!live()) return;
+      view.setBoard([[sqIndex('e1'), 6], [sqIndex('d1'), 5], [sqIndex('a1'), 4], [sqIndex('c1'), 3], [sqIndex('g1'), 2], [sqIndex('d2'), 1], [sqIndex('e2'), 1], [sqIndex('f2'), 1],
+        [sqIndex('e8'), -6], [sqIndex('h8'), -4], [sqIndex('f7'), -1], [sqIndex('g7'), -1], [sqIndex('h7'), -1], [sqIndex('c6'), -2]], null);
+      peeking.timers.push(setTimeout(() => { if (live()) view.celebrate('win', sqIndex('e8'), null, sqIndex('e1'), { storm }); }, 400));
+      peeking.timers.push(setTimeout(play, storm ? 14000 : 6000));
     };
     play();
     peeking.demo = true;
@@ -900,10 +919,7 @@
       view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[moving ? 'move' : it.category] || PEEK_FOCUS.other);
     }
     if (it.category === 'capture' || it.category === 'trail' || it.category === 'sound') peekDemo(it);
-    if (it.category === 'victory') {
-      const win = () => view.celebrate('win', -1, null, sqIndex('e1'));
-      peeking.timers.push(setTimeout(win, 500), setInterval(win, 4200));
-    }
+    if (it.category === 'victory') peekWin(it);
     if (it.category === 'sound') AU.play('capture', { mover: 2, captured: -1 });
     // Clocks, pictures and frames are not on the table, so they show on a player card above the bar,
     // the way they look in a game; a clock counts down there and on the chess clock by the board.
@@ -973,6 +989,7 @@
   function endPeek(silent) {
     if (!peeking) return;
     peeking.timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
+    if (view.calm) view.calm();
     peeking.bar.remove();
     if (peeking.back) peeking.back.remove();
     if (peeking.card) { peeking.card.remove(); view.setClock(null); }
@@ -2233,8 +2250,7 @@
     }
     if (it.category === 'avatar') return '<img class="port" src="' + medal(d.art, d.from, d.to) + '" alt="">';
     if (it.category === 'frame') return avatarHtml(big ? 'xl' : 'lg', PG.equipped(state.progress, 'avatar').id, it.id);
-    if (it.category === 'capture' || it.category === 'victory') return '<img class="cover" src="' + ART.fxUri(d.kind, d.colors) + '" alt="">';
-    if (it.category === 'trail') return '<img class="cover" src="' + ART.fxUri(it.data ? 'trail' : 'none', d.colors) + '" alt="">';
+    if (it.category === 'capture' || it.category === 'victory' || it.category === 'trail') return '<img class="cover" src="' + fxArt(it) + '" alt="">';
     if (it.category === 'clock') return '<img class="cover" src="' + ART.clockUri(d) + '" alt="">';
     return '<img class="cover" src="' + soundArt(d.pack) + '" alt="">';
   }
@@ -2636,8 +2652,7 @@
     if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
     if (it.category === 'frame') return '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
-    if (it.category === 'capture' || it.category === 'victory') return '<img src="' + ART.fxUri(d.kind, d.colors) + '" alt="">';
-    if (it.category === 'trail') return '<img src="' + ART.fxUri(it.data ? 'trail' : 'none', d.colors) + '" alt="">';
+    if (it.category === 'capture' || it.category === 'victory' || it.category === 'trail') return '<img src="' + fxArt(it) + '" alt="">';
     return icon(CAT_ICON[it.category] || 'star');
   }
   SCREENS.season = function () {
@@ -4294,7 +4309,7 @@
     const shown = performance.now();
     const showResult = () => {
       if (state.game !== G || state.screen !== 'game') return;
-      if (view.storming() && performance.now() - shown < 10500) { setTimeout(showResult, 250); return; }
+      if (view.storming() && performance.now() - shown < 13500) { setTimeout(showResult, 250); return; }
       if (exploring) view.explore(false);
       const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr), 250); } } });
       setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
