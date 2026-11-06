@@ -153,11 +153,19 @@
     "pieces.inca.v1": {
       "site": "item-sets-inca"
     },
+    "pieces.norse.v1": {
+      "site": "item-sets-norse"
+    },
+    "pieces.sounion.v1": {
+      "site": "item-sets-sounion"
+    },
     "board.pearl.v1": "Real mother of pearl and soft coral pink, framed in sea-blue lacquer. It shimmers like the inside of a shell.",
     "board.lapis.v1": "Pale moonstone and starry blue lapis, with tiny gold stars round the frame. A board for night owls.",
     "board.sarsen.v1": "Rough stone, chiselled by hand, with no polish at all. It's as old-looking as Stonehenge itself.",
     "board.terracotta.v1": "Sun-baked clay, painted with circles like the jars of the Indus potters. Warm, earthy and very, very old.",
     "board.andesite.v1": "Grey mountain stone in a frame of fitted blocks, just like the walls the Inca built.",
+    "board.runewood.v1": "Birch and dark bog oak, cut by hand, with a carved serpent knot running all the way round. It smells of the forest!",
+    "board.agora.v1": "Pale ash and dark wenge wood in a frame of white marble, with a bronze key pattern like the ones on Greek temples.",
     "room.tokyo.v1": "A cherry-blossom garden on a Tokyo rooftop, with Mount Fuji far away. The city twinkles below you.",
     "room.brussels.v1": "A chocolate shop on the Grand-Place of Brussels, with golden guild houses outside. Mmm, smell that cocoa!",
     "room.reef.v1": "A pearl palace on the sea floor, with coral towers and fish swimming by. Don't forget to breathe!",
@@ -171,6 +179,8 @@
     "room.castle.v1": "A meadow above the forest, facing a white castle with blue towers. Just like a fairy tale.",
     "room.stonehenge.v1": "Inside the great stone circle, as the sun comes up. People built this more than four thousand years ago!",
     "room.indus.v1": "A brick courtyard in Mohenjo-daro, one of the first cities ever, right by the Great Bath.",
-    "room.inca.v1": "A grassy terrace in Machu Picchu, the Inca city in the clouds. Say hello to the llamas!"
+    "room.inca.v1": "A grassy terrace in Machu Picchu, the Inca city in the clouds. Say hello to the llamas!",
+    "room.norse.v1": "A plank table by the campfire, deep in a pine forest. Down on the fjord, a longship waits in the moonlight.",
+    "room.sounion.v1": "The temple of Poseidon, high on a cliff above the sea. Watch the sun go down over the islands!"
   }
 }

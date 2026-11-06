@@ -41,6 +41,8 @@
     { "id": "board.sarsen.v1", "category": "board", "name": "Sarsen Stone", "rarity": "rare", "unlock": { "type": "level", "level": 2 }, "desc": "Rough-chiselled grey and cream stone, cut by hand with no polish at all.", "data": { "board": "sarsen" } },
     { "id": "board.terracotta.v1", "category": "board", "name": "Indus Terracotta", "rarity": "rare", "unlock": { "type": "level", "level": 6 }, "desc": "Sun-baked clay squares painted with the circles of the Indus potters.", "data": { "board": "terracotta" } },
     { "id": "board.andesite.v1", "category": "board", "name": "Andesite Block", "rarity": "rare", "unlock": { "type": "level", "level": 8 }, "desc": "Grey mountain stone squares in a frame of fitted blocks, like an Inca wall.", "data": { "board": "andesite" } },
+    { "id": "board.runewood.v1", "category": "board", "name": "Runewood", "rarity": "rare", "unlock": { "type": "level", "level": 4 }, "desc": "Rough-cut birch and bog oak with serpent knots carved round the frame.", "data": { "board": "runewood" } },
+    { "id": "board.agora.v1", "category": "board", "name": "Ash and Wenge", "rarity": "epic", "unlock": { "type": "level", "level": 18 }, "desc": "Pale ash and dark wenge in a white marble frame with a bronze key pattern.", "data": { "board": "agora" } },
     { "id": "pieces.regency.v1", "category": "pieces", "name": "Regency Gilt", "rarity": "common", "unlock": { "type": "free" }, "desc": "Black and white lacquer with crowns and manes in gold leaf.", "data": { "set": "regency" } },
     { "id": "pieces.staunton.v1", "category": "pieces", "name": "Classic Staunton", "rarity": "common", "unlock": { "type": "free" }, "desc": "Boxwood and ebony: the design almost every chess set learned from.", "data": { "set": "staunton" } },
     { "id": "pieces.ruby-pearl.v1", "category": "pieces", "name": "Ruby & Pearl", "rarity": "legendary", "unlock": { "type": "journey", "era": "paris" }, "desc": "Art Nouveau lilies and tulips in pearl and ruby, wound with gold tendrils, from Paris in 1889.", "data": { "set": "ruby-pearl" } },
@@ -68,6 +70,8 @@
     { "id": "pieces.sarsen.v1", "category": "pieces", "name": "Sarsen Stones", "rarity": "rare", "unlock": { "type": "level", "level": 2 }, "desc": "Hand-hewn standing stones: a trilithon king, a holed-stone queen and rough menhir pawns.", "data": { "set": "sarsen" } },
     { "id": "pieces.harappa.v1", "category": "pieces", "name": "Indus Terracotta", "rarity": "rare", "unlock": { "type": "level", "level": 6 }, "desc": "Fired clay from Mohenjo-daro: a priest-king, a mother goddess, granaries and painted jars.", "data": { "set": "harappa" } },
     { "id": "pieces.inca.v1", "category": "pieces", "name": "Inca Stone", "rarity": "rare", "unlock": { "type": "level", "level": 8 }, "desc": "Grey stone and gold: a sun king, a moon queen, tumi knives and trapezoid doorways.", "data": { "set": "inca" } },
+    { "id": "pieces.norse.v1", "category": "pieces", "name": "Norse Carved", "rarity": "rare", "unlock": { "type": "level", "level": 4 }, "desc": "Hand-whittled birch and bog oak: a hammer king, rune bishops and toadstool pawns.", "data": { "set": "norse" } },
+    { "id": "pieces.sounion.v1", "category": "pieces", "name": "Gods of Sounion", "rarity": "epic", "unlock": { "type": "level", "level": 18 }, "desc": "Marble against green bronze: Poseidon, a goddess, ocean waves, columns and hoplites.", "data": { "set": "sounion" } },
     { "id": "room.salon.v1", "category": "room", "name": "Grand Cocoa Salon", "rarity": "common", "unlock": { "type": "free" }, "desc": "A Regency drawing room: candlelight, a chandelier and a crackling fire.", "data": { "room": "salon" } },
     { "id": "room.library.v1", "category": "room", "name": "Midnight Library", "rarity": "common", "unlock": { "type": "free" }, "desc": "Shelves of old books under a blue night sky.", "data": { "room": "library" } },
     { "id": "room.marble-hall.v1", "category": "room", "name": "Marble Hall", "rarity": "epic", "unlock": { "type": "level", "level": 3 }, "desc": "A hall of white marble and gold, bright as morning.", "data": { "room": "marble" } },
@@ -95,6 +99,8 @@
     { "id": "room.stonehenge.v1", "category": "room", "name": "Stonehenge at Dawn", "rarity": "rare", "unlock": { "type": "level", "level": 2 }, "desc": "A rough stone table inside the great stone circle as the sun comes up.", "data": { "room": "stonehenge" } },
     { "id": "room.indus.v1", "category": "room", "name": "Mohenjo-daro", "rarity": "rare", "unlock": { "type": "level", "level": 6 }, "desc": "A brick courtyard by the Great Bath, in one of the first cities ever built.", "data": { "room": "indus" } },
     { "id": "room.inca.v1", "category": "room", "name": "Machu Picchu", "rarity": "rare", "unlock": { "type": "level", "level": 8 }, "desc": "A grassy terrace among the stone houses of the Inca city in the clouds.", "data": { "room": "inca" } },
+    { "id": "room.norse.v1", "category": "room", "name": "Norse Fireside", "rarity": "rare", "unlock": { "type": "level", "level": 4 }, "desc": "A plank table by a campfire in a pine forest above a fjord, with a longship on the water.", "data": { "room": "norse" } },
+    { "id": "room.sounion.v1", "category": "room", "name": "Temple of Poseidon", "rarity": "epic", "unlock": { "type": "level", "level": 18 }, "desc": "A marble table on the clifftop at Cape Sounion, by the temple of the sea god, at sunset.", "data": { "room": "sounion" } },
     { "id": "capture.cocoa-dust.v1", "category": "capture", "name": "Cocoa Dust", "rarity": "common", "unlock": { "type": "free" }, "desc": "A courteous bow: the two pieces bow to each other, then the taken piece hops off to the tray in a puff of cocoa.", "data": { "scene": "bow", "kind": "dust", "colors": ["#c8a27a", "#8a5a3a", "#e8d2b0"] } },
     { "id": "capture.none.v1", "category": "capture", "name": "None", "rarity": "common", "unlock": { "type": "free" }, "desc": "Captured pieces simply step off to the tray.", "data": { "kind": "none", "colors": [] } },
     { "id": "capture.gold-sparks.v1", "category": "capture", "name": "Gold Sparks", "rarity": "rare", "unlock": { "type": "level", "level": 2 }, "desc": "A friendly duel: three gold-spark touches, then the taken piece twirls, bows to the winner and steps aside.", "data": { "scene": "duel", "kind": "sparks", "colors": ["#ffd27a", "#ffb347", "#fff2c8"] } },
@@ -188,6 +194,8 @@
     { "id": "castle", "room": "room.castle.v1", "board": "board.ruby-truffle.v1", "pieces": "pieces.ruby-chocolate.v1" },
     { "id": "stonehenge", "room": "room.stonehenge.v1", "board": "board.sarsen.v1", "pieces": "pieces.sarsen.v1" },
     { "id": "indus", "room": "room.indus.v1", "board": "board.terracotta.v1", "pieces": "pieces.harappa.v1" },
-    { "id": "inca", "room": "room.inca.v1", "board": "board.andesite.v1", "pieces": "pieces.inca.v1" }
+    { "id": "inca", "room": "room.inca.v1", "board": "board.andesite.v1", "pieces": "pieces.inca.v1" },
+    { "id": "norse", "room": "room.norse.v1", "board": "board.runewood.v1", "pieces": "pieces.norse.v1" },
+    { "id": "sounion", "room": "room.sounion.v1", "board": "board.agora.v1", "pieces": "pieces.sounion.v1" }
   ]
 }

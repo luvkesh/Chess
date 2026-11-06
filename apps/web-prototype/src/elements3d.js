@@ -689,6 +689,8 @@ ChacklateElements.ROOMS = {
   stonehenge: { strike: 'stone', storm: 'lightning', dust: '#a8a490', stone: '#9a968a' },
   indus: { strike: 'stone', storm: 'fire', dust: '#c89a6a', stone: '#b8784a' },
   inca: { strike: 'stone', storm: 'lightning', dust: '#b8b4a8', stone: '#8a867e' },
+  norse: { strike: 'fire', storm: 'fire' },
+  sounion: { strike: 'lightning', storm: 'lightning' },
 };
 ChacklateElements.STRIKE_MS = 3000;
 ChacklateElements.STORM_MS = 10000;

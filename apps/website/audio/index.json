@@ -1319,6 +1319,40 @@
         }
       ]
     },
+    "item-sets-norse": {
+      "text": "A thousand years ago, Norse woodcarvers whittled their games by the fire on long winter nights. Norse Carved is birch and dark bog oak: the king holds a hammer, the bishops wear runes, and the pawns are little toadstools. It comes with the Norse Fireside.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "A thousand years ago, Norse woodcarvers whittled their games by the fire on long winter nights."
+        },
+        {
+          "t": 6.47,
+          "text": "Norse Carved is birch and dark bog oak: the king holds a hammer, the bishops wear runes, and the pawns are little toadstools."
+        },
+        {
+          "t": 15.65,
+          "text": "It comes with the Norse Fireside."
+        }
+      ]
+    },
+    "item-sets-sounion": {
+      "text": "These pieces look like the bronze statues the Greeks pulled up from the sea. Gods of Sounion is white marble against green bronze: Poseidon with his trident, a goddess, ocean waves, columns and brave hoplites. It comes with the Temple of Poseidon.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "These pieces look like the bronze statues the Greeks pulled up from the sea."
+        },
+        {
+          "t": 4.84,
+          "text": "Gods of Sounion is white marble against green bronze: Poseidon with his trident, a goddess, ocean waves, columns and brave hoplites."
+        },
+        {
+          "t": 15.52,
+          "text": "It comes with the Temple of Poseidon."
+        }
+      ]
+    },
     "item-boards-pearl": {
       "text": "Look at the squares shimmer! Pearl and Coral is real mother of pearl beside soft coral pink, framed in deep sea-blue lacquer. It belongs under the sea, in the Coral Palace, with the Coral Kingdom set.",
       "cues": [
@@ -1401,6 +1435,36 @@
         {
           "t": 12.93,
           "text": "It comes with Machu Picchu."
+        }
+      ]
+    },
+    "item-boards-runewood": {
+      "text": "Run your hand along the frame! Runewood is birch and bog oak, rough-cut by hand, with a serpent knot carved all the way round, the way the Norse decorated their ships and halls. It comes with the Norse Fireside and the Norse Carved set.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Run your hand along the frame!"
+        },
+        {
+          "t": 2.24,
+          "text": "Runewood is birch and bog oak, rough-cut by hand, with a serpent knot carved all the way round, the way the Norse decorated their ships and halls."
+        },
+        {
+          "t": 12.7,
+          "text": "It comes with the Norse Fireside and the Norse Carved set."
+        }
+      ]
+    },
+    "item-boards-agora": {
+      "text": "Ash and Wenge sets pale and dark wood in a frame of white marble, with a bronze key pattern just like the ones on Greek temples. It's calm and grand, and it comes with the Temple of Poseidon and the Gods of Sounion.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Ash and Wenge sets pale and dark wood in a frame of white marble, with a bronze key pattern just like the ones on Greek temples."
+        },
+        {
+          "t": 8.77,
+          "text": "It's calm and grand, and it comes with the Temple of Poseidon and the Gods of Sounion."
         }
       ]
     },
@@ -1659,6 +1723,44 @@
         {
           "t": 13.74,
           "text": "The Inca Stone set plays here."
+        }
+      ]
+    },
+    "item-places-norse": {
+      "text": "Shh, listen to the fire crackle. You're in a clearing in a pine forest, a thousand years ago. A longhouse glows behind you, runestones stand by the path, and a longship waits on the fjord below the mountains. Norse Carved plays here, on Runewood.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Shh, listen to the fire crackle."
+        },
+        {
+          "t": 3.16,
+          "text": "You're in a clearing in a pine forest, a thousand years ago."
+        },
+        {
+          "t": 7.75,
+          "text": "A longhouse glows behind you, runestones stand by the path, and a longship waits on the fjord below the mountains."
+        },
+        {
+          "t": 15.77,
+          "text": "Norse Carved plays here, on Runewood."
+        }
+      ]
+    },
+    "item-places-sounion": {
+      "text": "High on a cliff at Cape Sounion, the Greeks built a temple to Poseidon, god of the sea. Its white columns glow in the sunset, olive trees rustle, and islands float on the golden water far below. The Gods of Sounion play here, on Ash and Wenge.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "High on a cliff at Cape Sounion, the Greeks built a temple to Poseidon, god of the sea."
+        },
+        {
+          "t": 6.02,
+          "text": "Its white columns glow in the sunset, olive trees rustle, and islands float on the golden water far below."
+        },
+        {
+          "t": 13.99,
+          "text": "The Gods of Sounion play here, on Ash and Wenge."
         }
       ]
     }
