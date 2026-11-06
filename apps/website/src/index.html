@@ -981,7 +981,7 @@ html.nonlatin body { line-height: 1.75; }
     }
     function quiet() { if (hush) hush.pause(); if (tag && !(audio && audio.el)) tag.pause(); }
     // any tap while the tour is on wakes sound that iOS put to sleep
-    ['touchend', 'click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (!on || paused) return; if (held) carryOn(true); else if (actx && actx.state !== 'running') unlock(); }, true); });
+    ['click', 'keydown'].forEach(function (t) { addEventListener(t, function () { if (!on || paused) return; if (held) carryOn(true); else if (!actx || actx.state !== 'running') unlock(); }, true); });
     // An inlined clip is decoded from its base64 text: the page's sandbox may refuse fetch() of a data: URL.
     function bytes(src) {
       if (src.indexOf('data:') === 0) {
@@ -1016,8 +1016,9 @@ html.nonlatin body { line-height: 1.75; }
       nextTo = nx; cueAt = scrollY; nextBtn.hidden = false; requestAnimationFrame(function () { nextBtn.classList.add('show'); });
     }
     nextBtn.addEventListener('click', function () { var nx = nextTo; hideCue(); if (nx) nx.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); });
+    function trace(m) { if (window.__SHOT) (window.__trace = window.__trace || []).push(m); }
     function fadeOut() {
-      if (!audio) return;
+      if (!audio) return; trace('fadeOut ' + audio.key);
       var a = audio; audio = null; live.classList.remove('talking'); clearInterval(capTimer);
       if (a.el) { a.el.onended = a.el.onerror = null; a.el.pause(); }
       if (a.src) { var now = actx.currentTime; a.gain.gain.cancelScheduledValues(now); a.gain.gain.setValueAtTime(a.gain.gain.value, now); a.gain.gain.linearRampToValueAtTime(0, now + 0.35); try { a.src.stop(now + 0.4); } catch (e) {} }
@@ -1027,17 +1028,17 @@ html.nonlatin body { line-height: 1.75; }
       return LABEL[key] + ' · ' + (keys.indexOf(key) + 1) + ' of ' + keys.length;
     }
     // When sound cannot start, the caption says why, so a visitor (and we) can tell what went wrong.
-    function failed(a, why) { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); cap.textContent = 'No sound from ' + D.coach + ' (' + why + '). Check the volume, then tap replay.'; peek(6000); }
-    function speak(key, from) {
-      var L = G[key]; if (!L) return; from = from || 0;
+    function failed(a, why) { trace('failed ' + why); if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); cap.textContent = 'No sound from ' + D.coach + ' (' + why + '). Check the volume, then tap replay.'; peek(6000); }
+    function speak(key, from, retry) {
+      var L = G[key]; if (!L) return; from = from || 0; trace('speak ' + key + ' ' + from);
       fadeOut(); hideCue(); held = null;
-      var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null, now: null }; audio = a; lastKey = key;
+      var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null, now: null, retry: !!retry }; audio = a; lastKey = key;
       if (key.indexOf('item-') !== 0) lastSection = key;
       cap.textContent = L.cues[0].text; where.textContent = label(key);
-      function ended() { if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (key.indexOf('item-') !== 0) showCue(key); }
+      function ended() { trace('ended ' + key + ' ' + (audio === a)); if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (key.indexOf('item-') !== 0) showCue(key); }
       // the caption is the last cue whose time has passed
       function follow(now) {
-        a.now = now;
+        a.now = now; trace('follow ' + key);
         if (!paused) live.classList.add('talking');
         clearInterval(capTimer);
         capTimer = setInterval(function () {
@@ -1047,12 +1048,14 @@ html.nonlatin body { line-height: 1.75; }
         }, 150);
       }
       function viaElement(why) {
-        if (audio !== a) return;
+        trace('via ' + key + ' ' + why + ' ' + (audio === a)); if (audio !== a) return;
         if (!tag) return failed(a, why || 'no audio');
         a.el = tag; tag.loop = false; tag.onended = ended; tag.onerror = function () { failed(a, 'clip would not load'); };
-        tag.src = L.src; try { tag.currentTime = from; } catch (e) {}
+        var seek = function () { if (from > 0) try { tag.currentTime = from; } catch (e) {} };
+        tag.onloadedmetadata = seek; tag.src = L.src; seek();
         var p = tag.play();
-        if (p && p.then) p.then(function () { if (audio === a) follow(function () { return tag.currentTime; }); }, function (e) { failed(a, (e && e.name) || 'blocked'); });
+        var no = function (e) { trace('no ' + key + ' ' + (e && e.name)); if (a.retry) { if (audio === a) { audio = null; held = { key: key, at: from, cap: cap.textContent }; cap.textContent = 'Tap anywhere and I will carry on.'; peek(8000); } } else failed(a, (e && e.name) || 'blocked'); };
+        if (p && p.then) p.then(function () { if (audio === a) follow(function () { return tag.currentTime; }); }, no);
         else follow(function () { return tag.currentTime; });
       }
       if (!actx || actx.state !== 'running') { if (actx && !paused) { var r = actx.resume(); if (r && r.catch) r.catch(function () {}); } return viaElement('sound is asleep'); }
@@ -1073,17 +1076,23 @@ html.nonlatin body { line-height: 1.75; }
     // the caption asks for a tap, and the next tap anywhere carries on.
     var held = null;
     function hold() {
-      if (!audio) return;
+      if (!audio) return; trace('hold ' + audio.key);
       var a = audio; held = { key: a.key, at: a.now ? a.now() : 0, cap: cap.textContent }; audio = null;
       live.classList.remove('talking'); clearInterval(capTimer);
       if (a.el) { a.el.onended = a.el.onerror = null; a.el.pause(); }
       if (a.src) { a.src.onended = null; try { a.src.stop(); } catch (e) {} }
     }
+    function dropContext() {
+      if (!actx) return;
+      var old = actx; actx = null; voice = null; buffers = {};
+      try { var c = old.close(); if (c && c.catch) c.catch(function () {}); } catch (e) {}
+    }
     function carryOn(tapped) {
       var h = held; if (!h || !on || paused) return;
-      if (tapped) { unlock(); held = null; speak(h.key, h.at); return; }
-      var go = function () { if (held !== h || !on || paused) return; if (actx && actx.state === 'running') { held = null; speak(h.key, h.at); } else { cap.textContent = 'Tap anywhere and I will carry on.'; where.textContent = label(h.key); peek(8000); } };
-      if (actx && actx.state !== 'running') { var r = actx.resume(); if (r && r.then) r.then(go, go); setTimeout(go, 600); } else go();
+      held = null; where.textContent = label(h.key);
+      if (tapped) { unlock(); speak(h.key, h.at); return; }
+      dropContext();
+      speak(h.key, h.at, true);
     }
     function onScroll() {
       if (nextTo && Math.abs(scrollY - cueAt) > 24) hideCue();
@@ -1153,9 +1162,9 @@ html.nonlatin body { line-height: 1.75; }
     live.addEventListener('mouseenter', function () { peek(0); }); live.addEventListener('mouseleave', function () { peek(1200); });
     orb.addEventListener('focus', function () { peek(0); }); orb.addEventListener('blur', function () { peek(1200); });
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) setOn(false); });
-    document.addEventListener('visibilitychange', function () { if (paused || !on) return; if (document.hidden) { hold(); quiet(); } else { if (hush) hush.play().catch(function () {}); carryOn(false); } });
+    document.addEventListener('visibilitychange', function () { if (paused || !on) return; if (document.hidden) { hold(); quiet(); dropContext(); } else { if (hush) hush.play().catch(function () {}); carryOn(false); } });
     // iOS also fires these on a lock or a return, sometimes without visibilitychange
-    addEventListener('pagehide', function () { if (on && !paused) { hold(); quiet(); } });
+    addEventListener('pagehide', function () { if (on && !paused) { hold(); quiet(); dropContext(); } });
     addEventListener('pageshow', function () { if (on && !paused) carryOn(false); });
     var saved = store.get(KEY);
     if (saved === '1') {
@@ -1168,7 +1177,7 @@ html.nonlatin body { line-height: 1.75; }
       };
       addEventListener('click', first, true); addEventListener('touchend', first, true); addEventListener('keydown', first, true);
     } else if (saved !== '0') setTimeout(function () { if (!on) invite.hidden = false; }, 1800);
-    if (window.__SHOT) window.__tour = { setOn: setOn, speak: speak, state: function () { return { on: on, paused: paused, last: lastKey, cap: cap.textContent, talking: live.classList.contains('talking'), held: held, at: audio && audio.now ? audio.now() : null }; } };
+    if (window.__SHOT) window.__tour = { setOn: setOn, speak: speak, state: function () { return { on: on, paused: paused, last: lastKey, cap: cap.textContent, talking: live.classList.contains('talking'), held: held, at: audio && audio.now ? audio.now() : null, tag: tag && { src: tag.src.slice(0, 22), paused: tag.paused, t: tag.currentTime, err: tag.error && tag.error.code, ready: tag.readyState }, actx: actx && actx.state }; } };
   })();
 
   // ---------------------------------------------------------------- chrome
