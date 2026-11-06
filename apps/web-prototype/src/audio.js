@@ -287,6 +287,12 @@ function ChacklateAudio() {
     // the lyre in the Dorian mode, over the sea
     sounion: { chords: [[38, 50, 57, 62, 65], [36, 48, 55, 60, 64], [41, 48, 53, 57, 62], [43, 50, 55, 59, 62]],
       scale: [62, 64, 65, 67, 69, 71, 72, 74, 76, 77], voice: 'lyre', every: 8000 },
+    // slow, floating whole-tone bells, far out in space
+    saturn: { chords: [[36, 48, 55, 62, 66], [34, 46, 53, 60, 64], [38, 50, 57, 62, 66], [32, 44, 51, 58, 62]],
+      scale: [66, 68, 70, 72, 74, 76, 78, 80, 82, 84], voice: 'celesta', every: 9500 },
+    // a warm Arabian (Hijaz) tune on a plucked string, above the clouds
+    burj: { chords: [[38, 50, 57, 62, 66], [38, 50, 55, 62, 67], [36, 48, 55, 60, 63], [38, 50, 57, 62, 66]],
+      scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'lyre', every: 8000 },
   };
   let mood = MOODS.salon;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
