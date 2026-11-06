@@ -391,7 +391,7 @@ function ChacklateCoach(E, strings) {
   }
 
   return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, classify, explain, review, threat, line, hintLadder,
-    moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME, NAME_OLD, EN };
+    moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME, NAME_OLD, EN, tr };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateCoach;

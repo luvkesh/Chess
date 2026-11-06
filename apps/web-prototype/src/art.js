@@ -786,7 +786,56 @@ const ChacklateArt = (() => {
     else if (kind === 'dust') for (let i = 0; i < 60; i++) { const a = rnd() * 6.283, r = Math.pow(rnd(), 0.6) * 58; s += C((100 + Math.cos(a) * r).toFixed(1), (84 + Math.sin(a) * r * 0.6).toFixed(1), (1.5 + rnd() * 4.5).toFixed(1), c(i), ' opacity="' + (0.35 + rnd() * 0.5).toFixed(2) + '"'); }
     else if (kind === 'ink') for (let i = 0; i < 7; i++) s += '<path d="M' + (60 + i * 12) + ' 130 C' + (40 + i * 18) + ' 90 ' + (120 + i * 6) + ' 80 ' + (90 + i * 8) + ' 40" fill="none" stroke="' + lit(c(i), 0.25) + '" stroke-width="' + (6 - i * 0.6) + '" stroke-linecap="round" opacity=".6"/>';
     else if (kind === 'frost') for (const [x, y, r] of [[100, 78, 34], [52, 60, 16], [150, 104, 18], [62, 118, 12], [148, 44, 12]]) { for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283; s += '<path d="M' + x + ' ' + y + 'L' + (x + Math.cos(a) * r).toFixed(1) + ' ' + (y + Math.sin(a) * r).toFixed(1) + 'M' + (x + Math.cos(a) * r * 0.6).toFixed(1) + ' ' + (y + Math.sin(a) * r * 0.6).toFixed(1) + 'l' + (Math.cos(a + 0.7) * r * 0.25).toFixed(1) + ' ' + (Math.sin(a + 0.7) * r * 0.25).toFixed(1) + 'M' + (x + Math.cos(a) * r * 0.6).toFixed(1) + ' ' + (y + Math.sin(a) * r * 0.6).toFixed(1) + 'l' + (Math.cos(a - 0.7) * r * 0.25).toFixed(1) + ' ' + (Math.sin(a - 0.7) * r * 0.25).toFixed(1) + '" stroke="' + c(i) + '" stroke-width="2" stroke-linecap="round"/>'; } }
-    else if (kind === 'trail') { s += '<path d="M20 120 C60 120 70 50 110 60 S160 90 180 40" fill="none" stroke="' + c(0) + '" stroke-width="5" stroke-linecap="round" opacity=".85"/>'; for (let i = 0; i < 26; i++) { const t = i / 26; s += C((20 + t * 160 + (rnd() - 0.5) * 10).toFixed(1), (120 - t * 80 + Math.sin(t * 7) * 16 + (rnd() - 0.5) * 12).toFixed(1), (1 + t * 3).toFixed(1), c(i + 1), ' opacity="' + (0.4 + t * 0.6).toFixed(2) + '"'); } s += C(180, 40, 8, p.rad([[0, '#fff'], [0.5, c(0)], [1, c(0), 0]], 0.5, 0.5, 0.5)); }
+    // the element families (capture bursts and win storms share a picture)
+    else if (kind === 'fire') {
+      s += C(100, 92, 62, p.rad([[0, '#ffb050', 0.55], [1, '#ff6a10', 0]], 0.5, 0.6, 0.5));
+      for (const [x, h, w, k] of [[100, 92, 30, 0], [70, 60, 18, 1], [132, 66, 20, 1], [86, 74, 14, 2], [116, 78, 14, 2]]) {
+        const y = 128, col = ['#ff6a10', '#ff9a30', '#ffd860'][k];
+        s += P('M' + (x - w) + ' ' + y + 'C' + (x - w) + ' ' + (y - h * 0.5) + ' ' + (x - w * 0.2) + ' ' + (y - h * 0.6) + ' ' + x + ' ' + (y - h) + 'C' + (x + w * 0.2) + ' ' + (y - h * 0.6) + ' ' + (x + w) + ' ' + (y - h * 0.5) + ' ' + (x + w) + ' ' + y + 'Z', col, ' opacity=".92"');
+      }
+      s += P('M88 128C88 110 96 104 100 92C104 104 112 110 112 128Z', '#fff4c0');
+      for (let i = 0; i < 26; i++) { const a = -Math.PI * (0.1 + rnd() * 0.8), r = 30 + rnd() * 50; s += C((100 + Math.cos(a) * r).toFixed(1), (110 + Math.sin(a) * r * 0.9).toFixed(1), (1 + rnd() * 2.2).toFixed(1), i % 2 ? '#ffd860' : '#ff8a20'); }
+    } else if (kind === 'lightning') {
+      s += '<ellipse cx="100" cy="30" rx="84" ry="22" fill="#3c4864"/><ellipse cx="62" cy="34" rx="40" ry="16" fill="#4a5878"/><ellipse cx="140" cy="28" rx="44" ry="17" fill="#2e3850"/>';
+      s += C(104, 126, 34, p.rad([[0, '#cfe0ff', 0.9], [1, '#5a7aff', 0]], 0.5, 0.5, 0.5));
+      s += '<path d="M96 40L84 78L102 76L90 124L122 70L104 72L116 40Z" fill="#e8f0ff" stroke="#7aa4ff" stroke-width="2.5" stroke-linejoin="round"/>';
+      s += '<path d="M60 44L66 62L56 66L64 86" fill="none" stroke="#9fc0ff" stroke-width="1.8" stroke-linecap="round"/><path d="M148 46L140 64L150 68L142 88" fill="none" stroke="#9fc0ff" stroke-width="1.8" stroke-linecap="round"/>';
+      for (let i = 0; i < 14; i++) { const a = rnd() * 6.283, r0 = 10 + rnd() * 6, r1 = r0 + 10 + rnd() * 20; s += '<path d="M' + (104 + Math.cos(a) * r0).toFixed(1) + ' ' + (126 + Math.sin(a) * r0 * 0.5).toFixed(1) + 'L' + (104 + Math.cos(a) * r1).toFixed(1) + ' ' + (126 + Math.sin(a) * r1 * 0.5).toFixed(1) + '" stroke="#bcd2ff" stroke-width="1.8" stroke-linecap="round"/>'; }
+    } else if (kind === 'blossom') {
+      s += C(100, 82, 40, p.rad([[0, '#fff0f4', 0.7], [1, '#ff9ab8', 0]], 0.5, 0.5, 0.5));
+      for (let i = 0; i < 5; i++) { const a = i / 5 * 360; s += P('M100 82C88 66 92 48 100 44C108 48 112 66 100 82Z', c(i), rot(a, 100, 82) + ' opacity=".95"'); }
+      s += C(100, 82, 6, '#ffe08a');
+      for (let i = 0; i < 24; i++) { const a = rnd() * 6.283, r = 46 + rnd() * 36, x = 100 + Math.cos(a) * r, y = 82 + Math.sin(a) * r * 0.7; s += '<path d="M' + x.toFixed(1) + ' ' + y.toFixed(1) + ' q6 -8 12 0 q-6 8 -12 0z" fill="' + c(i) + '"' + rot((rnd() * 360).toFixed(0), x.toFixed(1), y.toFixed(1)) + ' opacity=".85"/>'; }
+    } else if (kind === 'stone') {
+      s += '<ellipse cx="100" cy="124" rx="70" ry="16" fill="#3a2c20" opacity=".5"/>';
+      s += '<path d="M100 124L72 112M100 124L130 108M100 124L84 138M100 124L124 140M100 124L58 128M100 124L146 126" stroke="#ffd890" stroke-width="2" stroke-linecap="round"/>';
+      for (let i = 0; i < 18; i++) { const a = -Math.PI * (0.1 + rnd() * 0.8), r = 18 + rnd() * 60, x = 100 + Math.cos(a) * r, y = 116 + Math.sin(a) * r, w = 4 + rnd() * 8; s += '<path d="M' + x.toFixed(1) + ' ' + y.toFixed(1) + 'l' + w.toFixed(1) + ' ' + (-w * 0.4).toFixed(1) + 'l' + (w * 0.3).toFixed(1) + ' ' + (w * 0.8).toFixed(1) + 'l' + (-w).toFixed(1) + ' ' + (w * 0.4).toFixed(1) + 'z" fill="' + (i % 3 ? '#bfb2a0' : '#8a7c6a') + '"' + rot((rnd() * 360).toFixed(0), x.toFixed(1), y.toFixed(1)) + '/>'; }
+      for (let i = 0; i < 16; i++) s += C((40 + rnd() * 120).toFixed(1), (40 + rnd() * 70).toFixed(1), (1 + rnd() * 2).toFixed(1), '#f0c060', ' opacity=".9"');
+      for (let i = 0; i < 6; i++) s += C((60 + rnd() * 80).toFixed(1), (96 + rnd() * 20).toFixed(1), (10 + rnd() * 10).toFixed(1), '#d8ccb8', ' opacity=".35"');
+    }
+    // a move trail: the same sweep, drawn in the trail's own style
+    else if (kind.startsWith('trail')) {
+      const st = kind.split(':')[1] || 'dust';
+      const at = (t) => [20 + t * 160, 120 - t * 80 + Math.sin(t * 7) * 16];
+      const line = (w, op, col) => '<path d="M20 120 C60 120 70 50 110 60 S160 90 180 40" fill="none" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round" opacity="' + op + '"/>';
+      if (st === 'ribbon') cols.forEach((col, i) => { s += '<path d="M20 ' + (114 + i * 3) + ' C60 ' + (114 + i * 3) + ' 70 ' + (44 + i * 3) + ' 110 ' + (54 + i * 3) + ' S160 ' + (84 + i * 3) + ' 180 ' + (34 + i * 3) + '" fill="none" stroke="' + col + '" stroke-width="3.4" stroke-linecap="round"/>'; });
+      else if (st === 'bolt') { let d = 'M20 120'; for (let i = 1; i <= 16; i++) { const [x, y] = at(i / 16); d += 'L' + (x + (rnd() - 0.5) * 8).toFixed(1) + ' ' + (y + (rnd() - 0.5) * 14).toFixed(1); } s += '<path d="' + d + '" fill="none" stroke="' + c(0) + '" stroke-width="6" stroke-linejoin="round" opacity=".5"/><path d="' + d + '" fill="none" stroke="' + c(2) + '" stroke-width="2.2" stroke-linejoin="round"/>'; }
+      else if (st === 'comet') s += line(9, 0.35, c(0)) + line(4, 0.95, c(0));
+      else if (st === 'wisp') s += line(10, 0.25, c(1)) + line(5, 0.6, c(0));
+      else s += line(st === 'dust' ? 5 : 3, st === 'dust' ? 0.85 : 0.5, c(0));
+      for (let i = 0; i < 26; i++) {
+        const t = i / 26, [x0, y0] = at(t), x = x0 + (rnd() - 0.5) * 10, y = y0 + (rnd() - 0.5) * 12, r = 1 + t * 3, op = (0.4 + t * 0.6).toFixed(2), col = c(i + 1);
+        if (st === 'flame') s += P('M' + (x - r).toFixed(1) + ' ' + y.toFixed(1) + 'Q' + x.toFixed(1) + ' ' + (y - r * 4).toFixed(1) + ' ' + (x + r).toFixed(1) + ' ' + y.toFixed(1) + 'Z', c(i % 3), ' opacity="' + op + '"');
+        else if (st === 'bubbles') s += C(x.toFixed(1), (y - 6).toFixed(1), (r + 1.5).toFixed(1), 'none', ' stroke="' + col + '" stroke-width="1.4" opacity="' + op + '"');
+        else if (st === 'petals') s += '<path d="M' + x.toFixed(1) + ' ' + y.toFixed(1) + ' q' + (r * 1.5).toFixed(1) + ' ' + (-r * 2).toFixed(1) + ' ' + (r * 3).toFixed(1) + ' 0 q' + (-r * 1.5).toFixed(1) + ' ' + (r * 2).toFixed(1) + ' ' + (-r * 3).toFixed(1) + ' 0z" fill="' + col + '"' + rot((rnd() * 360).toFixed(0), x.toFixed(1), y.toFixed(1)) + ' opacity="' + op + '"/>';
+        else if (st === 'stars') s += P('M' + x.toFixed(1) + ' ' + (y - r * 1.6).toFixed(1) + 'L' + (x + r * 0.4).toFixed(1) + ' ' + (y - r * 0.4).toFixed(1) + 'L' + (x + r * 1.6).toFixed(1) + ' ' + y.toFixed(1) + 'L' + (x + r * 0.4).toFixed(1) + ' ' + (y + r * 0.4).toFixed(1) + 'L' + x.toFixed(1) + ' ' + (y + r * 1.6).toFixed(1) + 'L' + (x - r * 0.4).toFixed(1) + ' ' + (y + r * 0.4).toFixed(1) + 'L' + (x - r * 1.6).toFixed(1) + ' ' + y.toFixed(1) + 'L' + (x - r * 0.4).toFixed(1) + ' ' + (y - r * 0.4).toFixed(1) + 'Z', col, ' opacity="' + op + '"');
+        else if (st === 'frost') s += '<path d="M' + (x - r).toFixed(1) + ' ' + y.toFixed(1) + 'h' + (2 * r).toFixed(1) + 'M' + x.toFixed(1) + ' ' + (y - r).toFixed(1) + 'v' + (2 * r).toFixed(1) + 'M' + (x - r * 0.7).toFixed(1) + ' ' + (y - r * 0.7).toFixed(1) + 'l' + (1.4 * r).toFixed(1) + ' ' + (1.4 * r).toFixed(1) + 'M' + (x + r * 0.7).toFixed(1) + ' ' + (y - r * 0.7).toFixed(1) + 'l' + (-1.4 * r).toFixed(1) + ' ' + (1.4 * r).toFixed(1) + '" stroke="' + col + '" stroke-width="1.3" stroke-linecap="round" opacity="' + op + '"/>';
+        else if (st === 'sparks') s += '<path d="M' + x.toFixed(1) + ' ' + y.toFixed(1) + 'l' + ((rnd() - 0.5) * 10).toFixed(1) + ' ' + (4 + rnd() * 8).toFixed(1) + '" stroke="' + col + '" stroke-width="1.8" stroke-linecap="round" opacity="' + op + '"/>';
+        else if (st === 'drip') s += P('M' + x.toFixed(1) + ' ' + (y - r * 1.8).toFixed(1) + 'Q' + (x + r).toFixed(1) + ' ' + y.toFixed(1) + ' ' + x.toFixed(1) + ' ' + (y + r).toFixed(1) + 'Q' + (x - r).toFixed(1) + ' ' + y.toFixed(1) + ' ' + x.toFixed(1) + ' ' + (y - r * 1.8).toFixed(1) + 'Z', col, ' opacity="' + op + '"');
+        else if (st !== 'ribbon') s += C(x.toFixed(1), y.toFixed(1), r.toFixed(1), col, ' opacity="' + op + '"');
+      }
+      s += C(180, 40, st === 'comet' ? 12 : 8, p.rad([[0, '#fff'], [0.5, c(0)], [1, c(0), 0]], 0.5, 0.5, 0.5));
+    }
     else s += C(100, 80, 30, 'none', ' stroke="#8e7865" stroke-width="2" stroke-dasharray="4 6"');
     return svg(p, '0 0 200 160', s);
   }

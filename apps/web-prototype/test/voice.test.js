@@ -88,6 +88,21 @@ for (const x of wlines) {
 }
 const shipped = fs.readdirSync(wdir).filter((d) => !d.includes('.')).flatMap((d) => fs.readdirSync(path.join(wdir, d)).map((f) => d + '/' + f.replace(/\.mp3$/, ''))).sort();
 assert.deepStrictEqual(shipped, wlines.map((x) => x.who + '/' + x.key).sort(), 'one words clip per line, nothing extra');
+// The coach library: every piece a coach line is cut into is recorded in Rooky's voice and in each
+// voice marked "coach", with today's words, and each pack holds exactly those pieces in order.
+const clines = lines.coachLines();
+const crec = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../tools/voice/coach-recorded.json'), 'utf8'));
+const cindex = JSON.parse(fs.readFileSync(path.join(__dirname, '../public/coach/index.json'), 'utf8'));
+const coachVoices = [['rooky', G.speakers.rooky.engine, G.speakers.rooky.speed === undefined ? G.speed : G.speakers.rooky.speed]].concat(V.voices.filter((v) => v.coach).map((v) => [v.id, v.engine, v.speed === undefined ? 1 : v.speed]));
+assert.deepStrictEqual(cindex.keys, clines.map((x) => x.key), 'the coach packs hold every piece, in order');
+assert.deepStrictEqual(Object.keys(cindex.voices).sort(), coachVoices.map((v) => v[0]).sort(), 'one coach pack per coach voice');
+for (const [id, engine, speed] of coachVoices) {
+  for (const x of clines) {
+    const r = crec[id + '/' + x.key];
+    assert(r && r.voice === engine && r.speed === speed && r.text === x.text && r.spoken === x.spoken, id + ': coach piece "' + x.text + '" was recorded with other words or another voice: run tools/voice/record-coach.py');
+  }
+  assert.strictEqual(fs.statSync(path.join(__dirname, '../public/coach/' + id + '.mp3')).size, cindex.voices[id].sizes.reduce((a, b) => a + b, 0), id + ': the coach pack is whole');
+}
 // Rooky's own voice is the default coach.
 assert(/voiceCoach: 'toby'/.test(fs.readFileSync(path.join(__dirname, '../src/app.js'), 'utf8')), 'Toby is the default coach voice');
 console.log('voice tests passed:', V.voices.length, 'voices,', Object.values(want).reduce((a, k) => a + k.length, 0), 'clips');

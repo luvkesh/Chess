@@ -339,6 +339,68 @@ function ChacklateLandmarks(THREE, K, H) {
       if (o.icon) glowLine(o.edge || o.color, 6, () => o.icon(g, 90, h / 2));
     });
   }
+  // A giant LED screen: `frames` pictures stacked in one tall texture, bright and saturated, with
+  // the faint grid of its diodes. The vista's update() steps through them, like the adverts
+  // that change every few seconds on Times Square.
+  function ledTex(k, frames, seed) {
+    const FW = 512, FH = 288, t = k.tex(FW, FH * frames.length, (g, w, h) => {
+      frames.forEach((draw, i) => {
+        g.save(); g.translate(0, i * FH); g.beginPath(); g.rect(0, 0, FW, FH); g.clip();
+        draw(g, FW, FH, rng(seed + i * 7));
+        // the diodes: a fine dark grid and a soft sheen across the top
+        g.fillStyle = 'rgba(0,0,0,0.18)';
+        for (let x = 0; x < FW; x += 4) g.fillRect(x, 0, 1, FH);
+        for (let y = 0; y < FH; y += 4) g.fillRect(0, y, FW, 1);
+        g.restore();
+      });
+    });
+    t.repeat.set(1, 1 / frames.length);
+    t.userData.frames = frames.length;
+    return t;
+  }
+  // The adverts: all for invented things (the game, cocoa, a toy shop, a show), never real brands.
+  const LED = {
+    knight(g, w, h) {
+      g.fillStyle = vgrad(g, 0, h, ['#ff2a8a', '#7a2aff', '#1a1aff']); g.fillRect(0, 0, w, h);
+      g.fillStyle = 'rgba(255,255,255,0.12)'; for (let i = 0; i < 8; i++) for (let j = 0; j < 5; j++) if ((i + j) % 2) g.fillRect(i * 64, j * 64 - 24, 64, 64);
+      g.save(); g.translate(130, h / 2 + 10); g.scale(1.6, 1.6); g.fillStyle = '#fff'; g.shadowColor = '#ffd0ff'; g.shadowBlur = 20;
+      g.beginPath(); g.moveTo(-30, 50); g.lineTo(34, 50); g.lineTo(24, 10); g.quadraticCurveTo(40, -20, 10, -52); g.quadraticCurveTo(-40, -40, -34, 4); g.lineTo(-12, -2); g.lineTo(-26, 30); g.closePath(); g.fill(); g.restore();
+      g.fillStyle = '#fff'; g.font = '900 64px "Jost", "Arial Black", sans-serif'; g.textBaseline = 'middle'; g.fillText('CHACKMATE', 220, h / 2 - 24);
+      g.fillStyle = '#ffe060'; g.font = '700 30px "Jost", sans-serif'; g.fillText('YOUR MOVE, NEW YORK!', 224, h / 2 + 34);
+    },
+    cocoa(g, w, h) {
+      g.fillStyle = vgrad(g, 0, h, ['#ffb030', '#ff6a1a', '#c8201a']); g.fillRect(0, 0, w, h);
+      g.fillStyle = 'rgba(255,255,255,0.18)'; for (let i = 0; i < 9; i++) { g.beginPath(); g.arc(60 + i * 56, 40 + (i % 3) * 30, 18, 0, TAU); g.fill(); }
+      g.fillStyle = '#5a2a14'; g.beginPath(); g.moveTo(w - 210, 110); g.lineTo(w - 70, 110); g.quadraticCurveTo(w - 74, 250, w - 140, 256); g.quadraticCurveTo(w - 206, 250, w - 210, 110); g.fill();
+      g.strokeStyle = '#fff'; g.lineWidth = 8; for (const x of [w - 170, w - 140, w - 110]) { g.beginPath(); g.moveTo(x, 96); g.quadraticCurveTo(x + 18, 70, x, 40); g.stroke(); }
+      g.fillStyle = '#fff'; g.font = '900 70px "Jost", "Arial Black", sans-serif'; g.textBaseline = 'middle'; g.fillText('HOT', 36, h / 2 - 40); g.fillText('COCOA', 36, h / 2 + 30);
+      g.fillStyle = '#ffe9a0'; g.font = '700 26px "Jost", sans-serif'; g.fillText("PRALINE'S, ON BROADWAY", 38, h / 2 + 92);
+    },
+    toys(g, w, h) {
+      g.fillStyle = vgrad(g, 0, h, ['#20e0ff', '#2a8aff', '#3a2acc']); g.fillRect(0, 0, w, h);
+      const R = rng(9); for (let i = 0; i < 40; i++) { g.fillStyle = ['#ffe060', '#ff60b0', '#a0ff80', '#ffffff'][i % 4]; g.save(); g.translate(R() * w, R() * h); g.rotate(R() * 6); g.fillRect(-6, -2, 12, 4); g.restore(); }
+      g.fillStyle = '#ffe060'; g.beginPath(); for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5 - Math.PI / 2, r = i % 2 ? 34 : 80; g.lineTo(w - 110 + Math.cos(a) * r, h / 2 + Math.sin(a) * r); } g.closePath(); g.fill();
+      g.fillStyle = '#fff'; g.font = '900 76px "Jost", "Arial Black", sans-serif'; g.textBaseline = 'middle'; g.fillText('TOYS!', 40, h / 2 - 30);
+      g.font = '700 28px "Jost", sans-serif'; g.fillText("TRUFFLE'S TOY SHOP", 44, h / 2 + 46);
+    },
+    show(g, w, h) {
+      g.fillStyle = vgrad(g, 0, h, ['#1a0a3a', '#6a0a5a', '#ff2a5a']); g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 7; i++) { g.fillStyle = 'rgba(255,240,180,' + (0.18 - i * 0.02) + ')'; g.beginPath(); g.moveTo(w / 2, -20); g.lineTo(w / 2 - 260 + i * 80, h); g.lineTo(w / 2 - 220 + i * 80, h); g.closePath(); g.fill(); }
+      g.fillStyle = '#ffe060'; g.shadowColor = '#ffb020'; g.shadowBlur = 16; g.font = '900 60px "Jost", "Arial Black", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText('THE ROYAL GAME', w / 2, h / 2 - 20); g.shadowBlur = 0;
+      g.fillStyle = '#fff'; g.font = '700 28px "Jost", sans-serif'; g.fillText('TONIGHT AT EIGHT', w / 2, h / 2 + 42);
+    },
+    stars(g, w, h, R) {
+      g.fillStyle = vgrad(g, 0, h, ['#00c8a0', '#00a0ff', '#8a2aff']); g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 26; i++) { const x = R() * w, y = R() * h, r = 6 + R() * 18; g.fillStyle = ['#ffffff', '#ffe060', '#ff80c8'][i % 3]; g.beginPath(); for (let j = 0; j < 10; j++) { const a = j * Math.PI / 5 - Math.PI / 2, rr = j % 2 ? r * 0.4 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); g.fill(); }
+      g.fillStyle = '#fff'; g.font = '900 58px "Jost", "Arial Black", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('CHESS CLUB', w / 2, h / 2 - 18);
+      g.font = '700 28px "Jost", sans-serif'; g.fillText('EVERYONE WELCOME', w / 2, h / 2 + 40);
+    },
+    waves(g, w, h) {
+      g.fillStyle = '#0a0a1a'; g.fillRect(0, 0, w, h);
+      ['#ff2a6a', '#ff8a2a', '#ffe02a', '#3aff8a', '#2ad0ff', '#8a5aff'].forEach((c, i) => { g.strokeStyle = c; g.lineWidth = 16; g.beginPath(); for (let x = 0; x <= w; x += 8) g.lineTo(x, 50 + i * 36 + Math.sin(x * 0.02 + i) * 20); g.stroke(); });
+    },
+  };
   // Chess pieces and stars for the signs.
   const SIGN = {
     knight: (g, x, y) => { g.beginPath(); g.moveTo(x - 30, y + 50); g.lineTo(x + 34, y + 50); g.lineTo(x + 24, y + 10); g.quadraticCurveTo(x + 40, y - 20, x + 10, y - 52); g.quadraticCurveTo(x - 40, y - 40, x - 34, y + 4); g.lineTo(x - 12, y - 2); g.lineTo(x - 26, y + 30); g.closePath(); g.stroke(); },
@@ -889,7 +951,14 @@ function ChacklateLandmarks(THREE, K, H) {
           { text: 'BAKERY', sub: 'PRETZELS & PIES', color: '#ffb060', edge: '#ff6060', icon: SIGN.cup },
           { text: 'GRAND HOTEL', color: '#ffffff', edge: '#ffb040', icon: SIGN.king, size: 56 },
         ].map((o) => k.own(new THREE.MeshBasicMaterial({ map: neonTex(k, o), toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.3) })));
-        let si = 0;
+        let si = 0, ledAt = 0;
+        // the LED screens: each runs through three adverts in turn
+        const SCREENS = [['knight', 'cocoa', 'show'], ['toys', 'stars', 'knight'], ['cocoa', 'waves', 'toys'], ['show', 'knight', 'stars'], ['stars', 'toys', 'cocoa']].map((list, i) => {
+          const map = ledTex(k, list.map((n) => LED[n]), 30 + i * 11);
+          G.anim.push({ tex: map, every: 3.2 + i * 0.45, phase: i * 0.9 });
+          return k.own(new THREE.MeshBasicMaterial({ map, toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.35) }));
+        });
+        const NEON = ['#ff3a9a', '#3ae8ff', '#ffe03a', '#9a5aff', '#5aff8a', '#ff7a2a'];
         const BLADES = [['HOTEL', '#ffd060'], ['CHESS', '#60e0ff'], ['THEATRE', '#ff5a8a'], ['COCOA', '#ffa050'], ['MOVIES', '#a0ff80']].map(([word, c]) => k.own(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.3), map: k.tex(64, 384, (g, w, h) => {
           g.fillStyle = '#0c0a14'; g.fillRect(0, 0, w, h); g.save(); g.shadowColor = c; g.shadowBlur = 12; g.strokeStyle = c; g.lineWidth = 4; g.strokeRect(6, 6, w - 12, h - 12);
           g.fillStyle = c; g.font = '900 44px "Jost", "Arial Black", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -916,6 +985,26 @@ function ChacklateLandmarks(THREE, K, H) {
               P.add(k.mat({ color: '#5a3a24', roughness: 0.9 }), new THREE.CylinderGeometry(1.6, 1.6, 3, 10), { x: x + s * 3, y: S + h + 3.4, z: z - w / 2 });
               P.add(roofM, new THREE.ConeGeometry(1.8, 1.4, 10), { x: x + s * 3, y: S + h + 5.6, z: z - w / 2 });
             }
+            // the square's big LED screens, up level with the rooftop table and above it, where
+            // the players can see them, each framed in a ring of neon
+            if (z < 46 && z > -110) {
+              const top = S + h;
+              for (const sy of [B - 9, B + 4, B + 15]) {
+                if (sy + 8 > top - 1 || R() < 0.25) continue;
+                const lw = Math.min(w - 1.2, 13.5), lh = lw * 0.5625, scr = SCREENS[ledAt++ % SCREENS.length];
+                P.add(scr, new THREE.PlaneGeometry(lw, lh), { x: fx - s * 0.12, y: sy + lh / 2, z: z - w / 2, ry: -s * Math.PI / 2 });
+                const nc = NEON[ledAt % NEON.length];
+                for (const [dy, dz, ly, lz] of [[0, 0, 0.18, lw + 0.4], [lh, 0, 0.18, lw + 0.4], [lh / 2, lw / 2 + 0.1, lh, 0.18], [lh / 2, -lw / 2 - 0.1, lh, 0.18]]) {
+                  P.add(k.glowMat(nc, 2.2), new THREE.BoxGeometry(0.16, ly, lz), { x: fx - s * 0.2, y: sy + dy, z: z - w / 2 + dz });
+                }
+                for (let d = -lw / 2; d <= lw / 2; d += 2.2) G.glows.push([fx - s * 1.2, sy + lh + 0.2, z - w / 2 + d, nc, 3]);
+              }
+              // neon tubes up the corners and along the roofline
+              const nc = NEON[(ledAt + 2) % NEON.length];
+              for (const dz of [0, -w]) P.add(k.glowMat(nc, 2), new THREE.BoxGeometry(0.22, Math.min(h, 60), 0.22), { x: fx - s * 0.15, y: S + Math.min(h, 60) / 2, z: z + dz });
+              P.add(k.glowMat(nc, 2), new THREE.BoxGeometry(0.22, 0.22, w), { x: fx - s * 0.15, y: top - 0.4, z: z - w / 2 });
+              G.glows.push([fx - s * 0.6, top, z - w / 2, nc, 6]);
+            }
             z -= w + 0.5;
           }
         }
@@ -929,6 +1018,9 @@ function ChacklateLandmarks(THREE, K, H) {
         const ticker = k.own(new THREE.MeshBasicMaterial({ map: k.tex(1024, 64, (g, w, h) => { g.fillStyle = '#100808'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffe060'; g.shadowColor = '#ffb020'; g.shadowBlur = 8; g.font = '700 40px "Jost", sans-serif'; g.textBaseline = 'middle'; g.fillText('★ CHACKMATE: THE JOURNEY REACHES NEW YORK ★ CHESS CLUB OPENS ON BROADWAY ★', 10, h / 2 + 2); }), toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.4) }));
         P.add(ticker, new THREE.PlaneGeometry(16.4, 1.4), { y: S + 24, z: TZ + 6.1 });
         P.add(SIGNS[0], new THREE.PlaneGeometry(14, 7), { y: S + 30, z: TZ + 6.15 });
+        // the giant screen up the front of the tower, the brightest thing in the square
+        P.add(SCREENS[0], new THREE.PlaneGeometry(15.4, 26), { y: S + 49, z: TZ + 6.2 });
+        for (const [x, y, w2, h2] of [[0, S + 36, 16.2, 0.3], [0, S + 62, 16.2, 0.3], [-7.95, S + 49, 0.3, 26.3], [7.95, S + 49, 0.3, 26.3]]) P.add(k.glowMat('#ff3a9a', 2.2), new THREE.BoxGeometry(w2, h2, 0.3), { x, y, z: TZ + 6.3 });
         P.add(SIGNS[2], new THREE.PlaneGeometry(14, 7), { y: S + 12, z: TZ + 6.15 });
         // the round tower the terrace crowns, lit window by window down to the street
         const drum = k.mat({ map: facadeTex(k, { base: '#d8d0c0', rows: 12, cols: 24, kind: 'rect', lit: 0.6, light: '#ffe0a0', win: '#1a1820', w: 512, h: 512, trim: '#b8b0a0' }), roughness: 0.8, emissive: '#2a2418', emissiveIntensity: 0.4 });
@@ -939,6 +1031,8 @@ function ChacklateLandmarks(THREE, K, H) {
         P.add(k.mat({ color: '#e8ecf2', metalness: 1, roughness: 0.15 }), K.ring(13.4, B + 2.2 + 0.6, 0.12, { seg: 160 }));
         // searchlights sweep up from the roofs
         for (const [x, z] of [[-40, -60], [44, -90], [-30, -150]]) G.glows.push([x, S + 70, z, '#d8e4ff', 7]);
+        // the coloured light the screens and neon throw across the street far below
+        for (let z = 30; z > -150; z -= 9) for (const x of [-9, 0, 9]) G.glows.push([x, S + 2, z, NEON[Math.abs(Math.round(z + x)) % NEON.length], 9]);
       },
     },
     // Paris, 1889: a garden on the Champ de Mars at dusk, the new Eiffel Tower in its first
@@ -1496,11 +1590,11 @@ function ChacklateLandmarks(THREE, K, H) {
     // The Crystal Palace, 1851: a vaulted hall of glass and iron, elms and palms growing
     // inside, a crystal fountain in the transept and flags of every nation overhead.
     crystal: {
-      outdoor: true, fog: { color: '#a8bccc', density: 0.0016 },
+      outdoor: true, fog: { color: '#8aa0b4', density: 0.0009 },
       sky: { stops: ['#5a8ac8', '#8ab4e0', '#d8e8f4', '#f4f4f0'], haze: '#e8eef0', below: '#a8b8a8', clouds: 14, cloud: '#ffffff', sun: { az: 30, el: 46, size: 9, color: '#ffffff' } },
       build(k, P, G) {
         const B = G.y, R = rng(59);
-        P.add(k.mat({ map: k.tile(256, 256, (g, w, h) => { courses(g, w, h, '#e8e0d0', 'rgba(120,110,90,0.4)', 2, 2, 3, 0.06); }), roughness: 0.6 }), ground(k, null, 165, B, 8));
+        P.add(k.mat({ map: k.tile(256, 256, (g, w, h) => { courses(g, w, h, '#c4bcac', 'rgba(90,80,64,0.45)', 2, 2, 3, 0.06); }), roughness: 0.7 }), ground(k, null, 165, B, 8));
         // the nave runs away from us; the transept crosses here, under the great arched roof
         const iron = k.mat({ color: '#3a5a7a', roughness: 0.5, metalness: 0.6 });
         const glassM = k.own(new THREE.MeshStandardMaterial({ color: '#9ac0e0', roughness: 0.1, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false }));
@@ -1973,6 +2067,162 @@ function ChacklateLandmarks(THREE, K, H) {
         P.add(k.mat({ color: '#fff8ec', roughness: 0.9 }), K.extrude([[0, 0], [3, 0], [0, 5]], 0.05, 0), { x: 50, y: B - 34, z: -90 });
       },
     },
+
+    // Saturn: a landing pad on an icy moon, ice spires and craters all round, a little moon
+    // base and a rocket on its pad, and Saturn itself with its rings filling the sky ahead.
+    saturn: {
+      outdoor: true, fog: { color: '#070a16', density: 0.0022 },
+      sky: { stops: ['#000005', '#02040e', '#060c20', '#0e1830'], haze: '#14203a', below: '#141c2e', stars: 1400, sun: { az: 70, el: 16, size: 4, color: '#fff6e0', glow: '#a8c0ff' },
+        far(g, W, HY) {
+          // a faint band of the Milky Way, and low icy ridges on the moon's horizon
+          const R = rng(23);
+          for (let i = 0; i < 2600; i++) { const x = R() * W, y = HY - 60 - Math.sin(x / W * TAU * 2) * 140 + (R() + R() + R() - 1.5) * 70; g.fillStyle = rgba(R() < 0.8 ? '#c8d0ff' : '#ffd8f0', 0.04 + R() * 0.08); g.fillRect(x, y, 1 + R() * 1.5, 1 + R() * 1.5); }
+          g.fillStyle = '#2a3448'; g.beginPath(); g.moveTo(0, HY + 2); for (let x = 0; x <= W; x += 12) g.lineTo(x, HY - 4 - Math.abs(Math.sin(x * 0.011) * 10 + Math.sin(x * 0.037) * 5)); g.lineTo(W, HY + 2); g.fill();
+        } },
+      build(k, P, G, group) {
+        const B = G.y, R = rng(131);
+        // the moon's surface: blue-grey ice, pocked with craters
+        const ice = k.mat({ map: k.tile(512, 512, (g, w, h) => {
+          speckle(g, w, h, '#8a98b0', '#5a667e', '#c8d4e8', 7000, 6);
+          for (let i = 0; i < 26; i++) { const x = (i * 131) % w, y = (i * 211) % h, r = 8 + (i * 7) % 26; g.strokeStyle = 'rgba(220,232,255,0.35)'; g.lineWidth = 3; g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke(); g.fillStyle = 'rgba(40,50,70,0.25)'; g.beginPath(); g.arc(x + 2, y + 2, r * 0.8, 0, TAU); g.fill(); }
+        }), roughness: 0.75, metalness: 0.05 });
+        P.add(ice, ground(k, null, 165, B - 0.05, 16));
+        // crater rims and ice spires on every side, so turning round never shows an empty plain
+        const rimM = k.mat({ color: '#7a889e', roughness: 0.9, flatShading: true });
+        for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU + R() * 0.3, r = 30 + R() * 70, cr = 5 + R() * 9; P.add(rimM, new THREE.TorusGeometry(cr, 1.4 + R() * 1.2, 6, 24).rotateX(Math.PI / 2).scale(1, 0.32, 1), { x: Math.sin(a) * r, y: B, z: -Math.cos(a) * r }); }
+        const spire = k.own(new THREE.MeshStandardMaterial({ color: '#9ad8ff', roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85, emissive: '#2a6a9a', emissiveIntensity: 0.5, flatShading: true }));
+        for (let i = 0; i < 46; i++) {
+          const a = (i / 46) * TAU + R() * 0.12, r = 22 + R() * 60, h = 3 + R() * 12;
+          if (Math.abs(Math.sin(a)) < 0.12 && Math.cos(a) > 0 && r < 50) continue;   // keep the view to Saturn clear
+          P.add(spire, new THREE.ConeGeometry(0.8 + R() * 1.6, h, 5), { x: Math.sin(a) * r, y: B + h / 2, z: -Math.cos(a) * r, rx: (R() - 0.5) * 0.4, rz: (R() - 0.5) * 0.4 });
+        }
+        const ridge = k.mat({ color: '#4a566c', roughness: 1, flatShading: true });
+        for (let i = 0; i < 14; i++) { const a = (i / 14) * TAU, r = 130 + R() * 20; mountain(P, ridge, Math.sin(a) * r, B, -Math.cos(a) * r, 22 + R() * 16, 8 + R() * 10, i + 140, { sides: 7, rough: 0.4, s: [1.5, 1, 1] }); }
+        // the moon base off to the right: glass domes glowing warm, a path of landing lights
+        const domeM = k.own(new THREE.MeshPhysicalMaterial({ color: '#cfe8ff', roughness: 0.05, metalness: 0, transparent: true, opacity: 0.45, emissive: '#ffb860', emissiveIntensity: 0.35 }));
+        const baseM = k.mat({ color: '#d8dce4', roughness: 0.4, metalness: 0.5 });
+        for (const [x, z, r] of [[38, -10, 5], [46, 4, 3.4], [31, 6, 2.6]]) { P.add(baseM, new THREE.CylinderGeometry(r * 1.02, r * 1.05, 0.8, 32), { x, y: B + 0.4, z }); P.add(domeM, new THREE.SphereGeometry(r, 32, 12, 0, TAU, 0, Math.PI / 2), { x, y: B + 0.8, z }); G.glows.push([x, B + r * 0.6, z, '#ffc070', r * 1.6]); }
+        for (let i = 0; i < 9; i++) G.glows.push([14 + i * 2.6, B + 0.3, -2 - i * 0.6, i % 2 ? '#7ae8ff' : '#ffffff', 1.4]);
+        // a rocket on its pad off to the left, ready for the trip home
+        const hull = k.mat({ color: '#f2f4f8', roughness: 0.3, metalness: 0.2 }), red = k.mat({ color: '#d8343a', roughness: 0.35 });
+        const RX = -34, RZ = -26;
+        P.add(baseM, new THREE.CylinderGeometry(6, 6.4, 1, 32), { x: RX, y: B + 0.5, z: RZ });
+        P.add(hull, lathe([[0, 0], [2.2, 0.4], [2.4, 6], [2.3, 14], [1.6, 18.5], [0.6, 21], [0, 21.8]], 24, 40), { x: RX, y: B + 1, z: RZ });
+        for (let i = 0; i < 3; i++) P.add(red, new THREE.BoxGeometry(0.3, 5, 2.6).translate(0, 2.6, 3.2), { x: RX, y: B + 1, z: RZ, ry: i * TAU / 3 });
+        for (const y of [7, 12]) P.add(k.glowMat('#7ae8ff', 1.4), new THREE.SphereGeometry(0.55, 12, 8), { x: RX, y: B + 1 + y, z: RZ + 2.3 });
+        G.glows.push([RX, B + 23, RZ, '#ff5a4a', 3], [RX, B + 1.2, RZ, '#ffb060', 6]);
+        // Saturn: a great banded globe, tilted, with its rings, and a moon or two beside it
+        const SD = 150, SA = -12 * DEG, SE = 23 * DEG, SR = 40;
+        const at = new THREE.Vector3(Math.sin(SA) * Math.cos(SE) * SD, Math.sin(SE) * SD, -Math.cos(SA) * Math.cos(SE) * SD);
+        const bands = k.tex(64, 512, (g, w, h) => {
+          const cols = ['#e8d8b0', '#d8c090', '#c8a878', '#f0e2c0', '#b89868', '#e0c898', '#a88a60', '#ecdcb8', '#d0b080', '#f4e8cc'];
+          let y = 0; const R2 = rng(7);
+          while (y < h) { const bh = 6 + R2() * 30; g.fillStyle = cols[Math.floor(R2() * cols.length)]; g.fillRect(0, y, w, bh + 1); y += bh; }
+          g.fillStyle = 'rgba(255,255,255,0.08)'; for (let i = 0; i < 40; i++) g.fillRect(0, R2() * h, w, 1 + R2() * 3);
+        });
+        const planet = new THREE.Mesh(new THREE.SphereGeometry(SR, 64, 40), k.own(new THREE.MeshStandardMaterial({ map: bands, emissive: '#ffffff', emissiveMap: bands, emissiveIntensity: 0.55, roughness: 1, fog: false })));
+        planet.renderOrder = -7;
+        // the night side: a shadow cap facing away from the sun
+        const night = new THREE.Mesh(new THREE.SphereGeometry(SR * 1.004, 64, 40, 0, TAU, 0, Math.PI * 0.55), k.own(new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.55, fog: false, depthWrite: false })));
+        night.rotation.set(0, 0, -2.2); night.renderOrder = -6;
+        const ringTex = k.tex(512, 8, (g, w, h) => {
+          g.clearRect(0, 0, w, h);
+          const R3 = rng(19);
+          for (let x = 0; x < w; x++) {
+            const t = x / w, gap = (t > 0.58 && t < 0.63) || (t > 0.86 && t < 0.875);
+            const a = gap ? 0.04 : (0.35 + 0.5 * Math.abs(Math.sin(t * 40 + R3()))) * (t < 0.08 ? t / 0.08 : 1) * (t > 0.95 ? (1 - t) / 0.05 : 1);
+            const c = t < 0.35 ? [200, 180, 150] : t < 0.6 ? [236, 222, 196] : [210, 196, 170];
+            g.fillStyle = 'rgba(' + c.join(',') + ',' + a.toFixed(3) + ')'; g.fillRect(x, 0, 1, h);
+          }
+        });
+        const rg = new THREE.RingGeometry(SR * 1.25, SR * 2.35, 160, 1), rp = rg.attributes.position, ruv = rg.attributes.uv;
+        for (let i = 0; i < rp.count; i++) { const r = Math.hypot(rp.getX(i), rp.getY(i)); ruv.setXY(i, (r - SR * 1.25) / (SR * 1.1), 0.5); }
+        const rings = new THREE.Mesh(rg, k.own(new THREE.MeshBasicMaterial({ map: ringTex, transparent: true, side: THREE.DoubleSide, fog: false, depthWrite: false, toneMapped: true, color: new THREE.Color('#ffffff').multiplyScalar(0.9) })));
+        rings.renderOrder = -5;
+        const sat = new THREE.Group();
+        sat.add(planet, night, rings);
+        rings.rotation.x = -Math.PI / 2;
+        sat.rotation.set(0.42, 0.3, 0.38);
+        sat.position.copy(at);
+        group.add(sat);
+        for (const [az, el, r, c] of [[24, 34, 4.2, '#d8a060'], [-48, 12, 2.4, '#c8d0e0'], [6, 48, 1.6, '#e8e0d0']]) {
+          const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), k.own(new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.4, roughness: 1, fog: false })));
+          m.position.copy(dir(az, el, 155)); m.renderOrder = -7; group.add(m);
+        }
+      },
+    },
+
+    // The very top of the Burj Khalifa at sunset: the table on an open platform beside the
+    // spire, clouds drifting below, and the city, the desert and the sea with its palm-shaped
+    // island far, far down.
+    summit: {
+      outdoor: true, fog: { color: '#c88a80', density: 0.0012 },
+      sky: { stops: ['#1a2050', '#4a4a84', '#e8885a', '#ffc890'], haze: '#f4b890', below: '#b88a6a', clouds: 16, cloud: '#ffe0c8', sun: { az: -64, el: 5, size: 14, color: '#ffb060', glow: '#ff9a50' },
+        far(g, W, HY, u) {
+          // looking down from 800 metres: haze at the horizon, then the city's lights spread
+          // over the desert, and the Gulf on the sea side catching the sunset. 30 degrees down
+          // is about 170 pixels below the horizon, so the picture is packed into that band.
+          const H = g.canvas.height, R = rng(37), D = 200;
+          g.fillStyle = vgrad(g, HY, HY + D, ['#d8a494', '#8a6468', '#3a2c3c', '#221c2c']); g.fillRect(0, HY, W, H - HY);
+          const sx0 = Math.min(u(-70), u(70)), sx1 = Math.max(u(-70), u(70)), sea = vgrad(g, HY, HY + D, ['#c8a0a8', '#5a78a4', '#24406a', '#142440']);
+          for (let x = sx0 - 80; x < sx1 + 80; x += 4) {
+            g.globalAlpha = Math.max(0, Math.min(1, (x - sx0 + 80) / 160, (sx1 + 80 - x) / 160));
+            g.fillStyle = sea; g.fillRect(x, HY, 4, H - HY);
+          }
+          g.globalAlpha = 1;
+          const sun = u(-64);
+          for (const dx of [-W, 0, W]) { const grd = g.createRadialGradient(sun + dx, HY, 0, sun + dx, HY, 260); grd.addColorStop(0, 'rgba(255,190,120,0.6)'); grd.addColorStop(1, 'rgba(255,190,120,0)'); g.fillStyle = grd; g.fillRect(sun + dx - 260, HY, 520, 160); }
+          for (let i = 0; i < 14000; i++) {
+            const x = R() * W, d = Math.pow(R(), 1.3), y = HY + 3 + d * (H - HY - 3);
+            if (x > sx0 && x < sx1 && R() < 0.92) continue;
+            const s = 0.8 + d * 2.6;
+            g.fillStyle = rgba(R() < 0.75 ? '#ffd8a0' : R() < 0.5 ? '#ffffff' : '#ff8a5a', 0.35 + R() * 0.6); g.fillRect(x, y, s, s * 0.7);
+          }
+          g.fillStyle = vgrad(g, HY - 3, HY + 18, ['rgba(232,176,150,0.95)', 'rgba(232,176,150,0)']); g.fillRect(0, HY - 3, W, 21);
+        } },
+      build(k, P, G, group) {
+        const B = G.y, S = B - 210, R = rng(151);
+        // the land and the sea far below are painted on the lower half of the sky; the city
+        // towers stand on it
+        // the palm-shaped island: a trunk and fronds of sand with a crescent round them
+        const isle = k.mat({ color: '#e0c49a', roughness: 1 });
+        P.add(isle, box(4, 0.4, 26, -50, S + 0.2, -120));
+        for (let i = 0; i < 9; i++) { const a = -1.1 + i * 0.275; P.add(isle, box(1.6, 0.4, 16, 0, S + 0.2, 0), { x: -50 + Math.sin(a) * 8, z: -133 - Math.cos(a) * 8, ry: -a }); }
+        P.add(isle, new THREE.TorusGeometry(24, 1.1, 4, 48, Math.PI * 1.2).rotateX(Math.PI / 2).rotateY(-Math.PI * 0.1), { x: -50, y: S + 0.2, z: -138 });
+        // the city: towers of glass with lit windows, thinning out into the desert
+        const glass = ['#3a4a6a', '#4a5a7a', '#5a5a6a', '#3a5a6a'].map((b, i) => { const m = k.mat({ map: facadeTex(k, { base: b, rows: 40, cols: 8, kind: 'rect', lit: 0.55, seed: i * 7 + 2, light: '#ffe8c0', win: '#1a2030', w: 128, h: 1024 }), roughness: 0.3, metalness: 0.4, emissive: '#ffffff', emissiveIntensity: 0.55 }); m.emissiveMap = m.map; m.color.set('#6a7a9a'); return m; });
+        const roofM = k.mat({ color: '#2a2a34', roughness: 0.5 });
+        for (let i = 0; i < 150; i++) {
+          const a = R() * TAU, r = 18 + Math.pow(R(), 0.7) * 120, x = Math.sin(a) * r, z = -Math.cos(a) * r, h = (14 + R() * 46) * (r < 60 ? 1 : 0.6), w = 4 + R() * 6;
+          if (z < -60 && Math.abs(x + 50) < 40) continue;   // not out on the water
+          if (R() < 0.35) P.add(glass[i % 4], new THREE.CylinderGeometry(w * 0.5, w * 0.55, h, 10, 1, true), { x, y: S + h / 2, z });
+          else block(P, glass[i % 4], roofM, x, S, z, w, h, w, R());
+          if (R() < 0.4) G.glows.push([x, S + h + 1, z, R() < 0.5 ? '#ff5a4a' : '#ffe0a0', 2.4]);
+        }
+        for (let i = 0; i < 160; i++) { const a = R() * TAU, r = 10 + R() * 130; G.glows.push([Math.sin(a) * r, S + 0.6, -Math.cos(a) * r, '#ffd8a0', 2.2]); }
+        // the tower itself below the platform: glass and steel, stepping out as it goes down
+        const towerM = k.mat({ map: facadeTex(k, { base: '#8aa0b8', rows: 80, cols: 10, kind: 'rect', lit: 0.5, light: '#fff0d0', win: '#2a3448', w: 128, h: 1024, trim: '#c8d4e0' }), roughness: 0.25, metalness: 0.6, emissive: '#ffffff', emissiveIntensity: 0.3 });
+        towerM.emissiveMap = towerM.map;
+        let y = B - 0.6, rad = 13.6;
+        for (let i = 0; i < 7; i++) {
+          const h = 16 + i * 6;
+          P.add(towerM, new THREE.CylinderGeometry(rad, rad * 1.04, h, 48, 1, true), { y: y - h / 2 });
+          for (let w = 0; w < 3; w++) { const a = w / 3 * TAU + 0.5; P.add(towerM, new THREE.CylinderGeometry(rad * 0.6, rad * 0.62, h * 0.8, 24, 1, true), { x: Math.sin(a) * rad * 0.75, y: y - h * 0.6, z: Math.cos(a) * rad * 0.75 }); }
+          y -= h; rad *= 1.22;
+          if (y < S + 10) break;
+        }
+        // the spire, rising behind the table: a silver needle with a red light at its tip
+        const steel = k.mat({ color: '#d8e0e8', metalness: 0.9, roughness: 0.2 });
+        P.add(steel, new THREE.CylinderGeometry(0.25, 2.2, 46, 16), { y: B + 23, x: -10, z: -26 });
+        P.add(steel, new THREE.CylinderGeometry(2.6, 2.8, 2, 16), { y: B + 1, x: -10, z: -26 });
+        P.add(towerM, new THREE.CylinderGeometry(2.8, 7, 90, 24, 1, true), { y: B - 45, x: -10, z: -26 });
+        for (let i = 1; i < 6; i++) P.add(steel, new THREE.TorusGeometry(2.2 - i * 0.34, 0.12, 6, 24).rotateX(Math.PI / 2), { y: B + i * 7, x: -10, z: -26 });
+        G.glows.push([-10, B + 46.5, -26, '#ff4a3a', 4], [-10, B + 30, -26, '#fff0d0', 2]);
+        // clouds drifting below the platform, lit gold by the low sun
+        const puff = k.own(new THREE.MeshBasicMaterial({ map: k.tex(256, 256, (g, w, h) => { const R4 = rng(5); for (let i = 0; i < 30; i++) { const x = 40 + R4() * 176, yy = 70 + R4() * 116, r = 30 + R4() * 50; const grd = g.createRadialGradient(x, yy, 0, x, yy, r); grd.addColorStop(0, 'rgba(255,236,214,0.5)'); grd.addColorStop(1, 'rgba(255,220,190,0)'); g.fillStyle = grd; g.fillRect(0, 0, w, h); } }), transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false, color: new THREE.Color('#ffe8d8').multiplyScalar(0.95) }));
+        for (let i = 0; i < 34; i++) { const a = (i / 34) * TAU + R() * 0.2, r = 30 + R() * 90, s2 = 26 + R() * 40; P.add(puff, new THREE.PlaneGeometry(s2, s2 * 0.7).rotateX(-Math.PI / 2), { x: Math.sin(a) * r, y: B - 30 - R() * 50, z: -Math.cos(a) * r, ry: R() * TAU }); }
+      },
+    },
   });
 
   // Builds the vista for a room. Returns its group (already merged), the meshes or sprites
@@ -1980,7 +2230,7 @@ function ChacklateLandmarks(THREE, K, H) {
   function build(id, o) {
     const V = VISTAS[id];
     if (!V) return null;
-    const k = Kit(o), P = Parts(), group = new THREE.Group(), G = { y: o.groundY, glows: [] };
+    const k = Kit(o), P = Parts(), group = new THREE.Group(), G = { y: o.groundY, glows: [], anim: [] };
     sky(k, V.sky, group);
     V.build(k, P, G, group);
     P.build(group);
@@ -1998,8 +2248,11 @@ function ChacklateLandmarks(THREE, K, H) {
       water.renderOrder = 1;
       group.add(water);
     }
+    // moving pictures (the LED screens): each steps to its next frame every few seconds
+    const update = G.anim.length ? (t) => { for (const a of G.anim) { const n = a.tex.userData.frames, f = Math.floor((t + a.phase) / a.every) % n; a.tex.offset.y = 1 - (f + 1) / n; } } : null;
+    if (update) update(0);
     return {
-      group, outdoor: !!V.outdoor, fog: V.fog,
+      group, outdoor: !!V.outdoor, fog: V.fog, update,
       dispose() { k.owned.forEach((t) => t.dispose()); group.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); },
     };
   }

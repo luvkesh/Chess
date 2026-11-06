@@ -81,7 +81,7 @@ function ChacklateProgress(catalog, extras) {
 
   function fresh() {
     return {
-      v: 1, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
+      v: 1, lessonsV: 2, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, variants: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {}, placement: null, variantLessons: {},
@@ -94,6 +94,7 @@ function ChacklateProgress(catalog, extras) {
     const f = fresh();
     if (!s || s.v !== 1) return f;
     const out = Object.assign(f, s);
+    out.lessonsV = s.lessonsV || 1;   // saved before Learn was regrouped
     out.stats = Object.assign(f.stats, s.stats || {});
     out.stats.puzzles = Object.assign(fresh().stats.puzzles, (s.stats || {}).puzzles || {});
     out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
@@ -325,6 +326,26 @@ function ChacklateProgress(catalog, extras) {
     return out;
   }
 
+  // Learn was regrouped into longer lessons: each one names the lessons it grew from ("replaces").
+  // A regrouped lesson counts as done only when every part of it was done (lowest stars, earliest
+  // reviews); otherwise it waits to be played. Records of lessons that no longer exist are dropped,
+  // so no review points at a missing lesson. XP, coins and badges already earned stay.
+  function mergeLessons(state, allLessons) {
+    if (state.lessonsV >= 2) return state;   // runs once, on the first start after the regrouping
+    state.lessonsV = 2;
+    const known = new Set(allLessons.map((l) => l.id));
+    for (const l of allLessons) {
+      if (!l.replaces || !l.replaces.length) continue;
+      const parts = [l.id].concat(l.replaces).map((id) => state.lessons[id]);
+      if (!parts.some(Boolean)) continue;
+      if (parts.every(Boolean)) {
+        state.lessons[l.id] = Object.assign({}, state.lessons[l.id], { stars: Math.min(...parts.map((r) => r.stars || 1)), mastered: parts.every((r) => r.mastered) });
+      } else delete state.lessons[l.id];
+    }
+    for (const id of Object.keys(state.lessons)) if (!known.has(id)) delete state.lessons[id];
+    return state;
+  }
+
   // Lesson results: stars by first-try accuracy; mastery at 80%, with spaced reviews at 1, 7 and 30 days.
   function lessonFinished(state, lesson, firstTry, total, allLessons, now) {
     const out = result();
@@ -552,7 +573,7 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
-    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished,
     setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 

@@ -15,6 +15,7 @@ vendor = here / 'vendor'
 SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
+    core / 'mentor.js',
     core / 'xiangqi.js',
     src / 'i18n.js',
     vendor / 'three.bundle.js',
@@ -103,6 +104,10 @@ for f in sorted((src / 'art').glob('*.webp')):
     kind, name = f.stem.split('-', 1)
     art[kind][landmarks.get(name, name) if kind == 'view' else name] = uri(f)
 parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')))
+# The piece sound packs: real recordings, one short MP3 per pack (tools/sfx.py makes them).
+sfx_index = json.loads((here / 'sfx' / 'index.json').read_text())
+sfx = {k: {'mp3': base64.b64encode((here / 'sfx' / (k + '.mp3')).read_bytes()).decode(), 'clips': v} for k, v in sfx_index.items()}
+parts.append('const CHACKLATE_SFX = %s;' % json.dumps(sfx, separators=(',', ':')))
 for path in SCRIPTS:
     parts.append('// ---- %s ----\n%s' % (path.name, EXPORTS.sub('', path.read_text())))
 # The build id on the version line in Settings: a hash of everything inlined above.

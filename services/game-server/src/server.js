@@ -198,11 +198,13 @@ function createServer(opts) {
       res.writeHead(302, Object.assign({ Location: account.verifyPage(db, url.searchParams.get('token')), 'Cache-Control': 'no-store' }, SECURITY_HEADERS));
       return res.end();
     }
-    // Recorded voices: one pack per voice plus the index. The game asks for one clip at a time as a
-    // byte range. Pack URLs carry a hash of their contents (?v=), so a pack can be cached for good.
-    const vm = url.pathname.match(/^\/voice\/(?:index\.json|([a-z]+)\.mp3)$/);
+    // Recorded voices: one pack per voice plus the index, and Rooky's coach pack (coach/pack.mp3 and
+    // coach/index.json) laid out the same way. The game asks for one clip at a time as a byte range.
+    // Pack URLs carry a hash of their contents (?v=), so a pack can be cached for good.
+    const vmatch = url.pathname.match(/^\/(voice|coach)\/(?:index\.json|([a-z]+)\.mp3)$/);
+    const vm = vmatch && [vmatch[0], vmatch[2]];
     if (vm && req.method === 'GET') {
-      const vf = path.join(PUBLIC, 'voice', vm[1] ? vm[1] + '.mp3' : 'index.json');
+      const vf = path.join(PUBLIC, vmatch[1], vm[1] ? vm[1] + '.mp3' : 'index.json');
       if (fs.existsSync(vf)) {
         const head = Object.assign({ 'Content-Type': vm[1] ? 'audio/mpeg' : 'application/json', 'Cache-Control': vm[1] && url.searchParams.has('v') ? 'public, max-age=31536000, immutable' : 'no-cache' }, SECURITY_HEADERS);
         const size = fs.statSync(vf).size;

@@ -27,7 +27,7 @@ root = pathlib.Path(__file__).parent.parent.parent
 content = root / 'packages' / 'content'
 guide = json.loads((content / 'guide.json').read_text())
 voices = {v['id']: v for v in json.loads((content / 'voice.json').read_text())['voices']}
-engines = {'rooky': (guide['speakers']['rooky']['engine'], guide['speed']), 'priya': (voices['priya']['engine'], 0.9)}
+engines = {'rooky': (guide['speakers']['rooky']['engine'], guide['speakers']['rooky'].get('speed', guide['speed'])), 'priya': (voices['priya']['engine'], 0.9)}
 lines = json.loads(subprocess.run(['node', str(root / 'tools' / 'voice' / 'lines.js'), 'words'], check=True, capture_output=True).stdout)
 out = root / 'apps' / 'web-prototype' / 'public' / 'words'
 index_path = out / 'index.json'
