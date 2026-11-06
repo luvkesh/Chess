@@ -43,7 +43,6 @@ for (const id of ['avatar.ember.v1', 'avatar.bao.v1', 'avatar.rook.v1']) {
   const a = item(id);
   out['fx-' + id.split('.')[1]] = ART.medalUri(a.art, { from: a.from, to: a.to });
 }
-const fs = require('fs');
 for (const t of ['k', 'q', 'r', 'b', 'n', 'p']) {
   out['fx-piece-' + t] = 'data:image/webp;base64,' + fs.readFileSync(path.join(root, 'apps/web-prototype/src/art/piece-' + t + '.webp')).toString('base64');
 }
