@@ -1,6 +1,6 @@
-// Chackmate sound: every effect and the ambient score are synthesised with the
-// Web Audio API. Four sound packs change the material (wood, marble, glass, soft)
-// of the piece sounds. The only audio files are the recorded voices.
+// Chackmate sound: the pieces meeting the board are real recordings (the four sound packs,
+// made by tools/sfx.py from CC0 recordings, see sfx/SOURCES.md); the chimes and the ambient
+// score are synthesised with the Web Audio API; the coach's lines are recorded voices.
 function ChacklateAudio() {
   'use strict';
   let ctx = null, master = null, sfxBus = null, musicBus = null, verb = null, verbSend = null;
@@ -35,6 +35,7 @@ function ChacklateAudio() {
   function ready() {
     if (!init()) return false;
     if (ctx.state === 'suspended') ctx.resume();
+    bank(pack);   // decode the chosen sound pack ahead of the first move
     return true;
   }
 
@@ -95,13 +96,79 @@ function ChacklateAudio() {
     for (const [hz, g, d] of p.body) partial(t, hz * k, d * (0.8 + weight * 0.4), g * p.gain * weight, 'sine', lp, 0.0015);
   }
 
+  // ------------------------------------------------- recorded piece sounds
+  // Each pack is one short MP3 holding four takes for each weight: L1 king and queen, L2 rook,
+  // bishop and knight, L3 pawn. A pack is decoded the first time it is needed; until then (or
+  // where decoding fails) the synthesised knock above stands in.
+  const SFX = (typeof CHACKLATE_SFX !== 'undefined') ? CHACKLATE_SFX : null;
+  const banks = {};
+  const TIER = { 1: 'L3', 2: 'L2', 3: 'L2', 4: 'L2', 5: 'L1', 6: 'L1' };
+  const tierOf = (piece) => TIER[Math.abs(piece | 0)] || 'L2';
+  function bank(id) {
+    if (!SFX || !SFX[id] || !ctx) return null;
+    let b = banks[id];
+    if (!b) {
+      b = banks[id] = { buf: null, last: {} };
+      try {
+        const bin = atob(SFX[id].mp3), bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const done = (buf) => { b.buf = buf; b.at = onsets(buf, SFX[id].clips); };
+        const p = ctx.decodeAudioData(bytes.buffer, done, () => { b.failed = true; });
+        if (p && p.catch) p.catch(() => { b.failed = true; });
+      } catch (e) { b.failed = true; }
+    }
+    return b.buf ? b : null;
+  }
+  // Where each take really starts: the encoder may shift the audio by a few ms, so look for the
+  // strike near where the index says it is.
+  function onsets(buf, clips) {
+    const d = buf.getChannelData(0), sr = buf.sampleRate, at = {};
+    for (const [tier, list] of Object.entries(clips)) {
+      at[tier] = list.map(([ms, len]) => {
+        const a = Math.max(0, Math.floor((ms - 30) / 1000 * sr)), b = Math.min(d.length, Math.floor((ms + len) / 1000 * sr));
+        let pk = 0;
+        for (let i = a; i < b; i++) pk = Math.max(pk, Math.abs(d[i]));
+        let i = a;
+        while (i < b && Math.abs(d[i]) < pk * 0.08) i++;
+        const start = Math.max(0, i - Math.floor(0.0015 * sr)) / sr;
+        return [start, len / 1000];
+      });
+    }
+    return at;
+  }
+  // One take of a tier: never the same take twice running, with a touch of pitch and level.
+  function sample(t, tier, gain, rate) {
+    const b = bank(pack);
+    if (!b) return false;
+    const takes = b.at[tier] || b.at.L2;
+    let i = Math.floor(Math.random() * takes.length);
+    if (takes.length > 1 && i === b.last[tier]) i = (i + 1 + Math.floor(Math.random() * (takes.length - 1))) % takes.length;
+    b.last[tier] = i;
+    const [start, len] = takes[i];
+    const s = ctx.createBufferSource(); s.buffer = b.buf;
+    s.playbackRate.value = (rate || 1) * (0.97 + Math.random() * 0.06);
+    const g = ctx.createGain(); g.gain.value = (gain || 1) * (0.86 + Math.random() * 0.14);
+    s.connect(g).connect(sfxBus);
+    // close and dry, as if the board were right by your ear, with only a breath of the room
+    const send = ctx.createGain(); send.gain.value = 0.12; g.connect(send).connect(verbSend);
+    s.start(t, start, len + 0.02);
+    return true;
+  }
+  // A piece landing: a recorded take for its weight, or the synthesised knock until the pack is ready.
+  function land(t, piece, gain, rate) {
+    const tier = tierOf(piece);
+    if (sample(t, tier, gain, rate)) return;
+    knock(t, ({ L1: 1.15, L2: 0.9, L3: 0.7 })[tier] * (gain || 1), ({ L1: 0.85, L2: 1, L3: 1.15 })[tier] * (rate || 1));
+  }
+
   // ----------------------------------------------------------------- effects
   const FX = {
-    move(t) { knock(t, 0.9, 1); },
-    capture(t) { knock(t, 0.6, 1.25); knock(t + 0.07, 1.25, 0.85); noise(t + 0.07, 0.12, 300, 0.7, 0.18, 'lowpass'); },
-    castle(t) { knock(t, 0.8, 1); knock(t + 0.11, 0.8, 0.92); },
-    check(t) { this.move(t); bell(t + 0.05, 1046.5, 0.9, 0.09, 3.5, 1.5); bell(t + 0.05, 1568, 0.7, 0.04, 2, 1); },
-    promote(t) { this.move(t); [1046.5, 1318.5, 1568, 2093].forEach((hz, i) => bell(t + 0.06 + i * 0.07, hz, 0.8, 0.07, 3, 1.2)); },
+    move(t, o) { land(t, o.mover); },
+    // the captured piece is nudged aside with a light tap, then the capturer sets down firmly
+    capture(t, o) { land(t, o.captured || 1, 0.38, 1.12); land(t + 0.085, o.mover, 1.05, 0.97); },
+    castle(t) { land(t, 6); land(t + 0.13, 4, 0.85); },
+    check(t, o) { this.move(t, o); bell(t + 0.05, 1046.5, 0.9, 0.09, 3.5, 1.5); bell(t + 0.05, 1568, 0.7, 0.04, 2, 1); },
+    promote(t, o) { this.move(t, o); [1046.5, 1318.5, 1568, 2093].forEach((hz, i) => bell(t + 0.06 + i * 0.07, hz, 0.8, 0.07, 3, 1.2)); },
     select(t) { noise(t, 0.018, 5200, 2, 0.12, 'bandpass'); },
     illegal(t) { partial(t, 110, 0.18, 0.25, 'sine'); noise(t, 0.05, 400, 1, 0.12, 'lowpass'); },
     tap(t) { noise(t, 0.012, 3800, 1.5, 0.15, 'bandpass'); partial(t, 1800, 0.03, 0.04, 'sine'); },
@@ -125,9 +192,10 @@ function ChacklateAudio() {
     low(t) { partial(t, 1760, 0.06, 0.08, 'square'); },
   };
 
-  function play(kind) {
+  // info: the move (its mover and captured piece), so each piece sounds its own weight.
+  function play(kind, info) {
     if (!sfxOn || !ready() || !FX[kind]) return;
-    try { FX[kind].call(FX, ctx.currentTime + 0.005); } catch (e) { /* audio is optional */ }
+    try { FX[kind].call(FX, ctx.currentTime + 0.005, info || {}); } catch (e) { /* audio is optional */ }
   }
 
   // ---------------------------------------------------------- ambient score
@@ -219,6 +287,12 @@ function ChacklateAudio() {
     // the lyre in the Dorian mode, over the sea
     sounion: { chords: [[38, 50, 57, 62, 65], [36, 48, 55, 60, 64], [41, 48, 53, 57, 62], [43, 50, 55, 59, 62]],
       scale: [62, 64, 65, 67, 69, 71, 72, 74, 76, 77], voice: 'lyre', every: 8000 },
+    // slow, floating whole-tone bells, far out in space
+    saturn: { chords: [[36, 48, 55, 62, 66], [34, 46, 53, 60, 64], [38, 50, 57, 62, 66], [32, 44, 51, 58, 62]],
+      scale: [66, 68, 70, 72, 74, 76, 78, 80, 82, 84], voice: 'celesta', every: 9500 },
+    // a warm Arabian (Hijaz) tune on a plucked string, above the clouds
+    burj: { chords: [[38, 50, 57, 62, 66], [38, 50, 55, 62, 67], [36, 48, 55, 60, 63], [38, 50, 57, 62, 66]],
+      scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'lyre', every: 8000 },
   };
   let mood = MOODS.salon;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
@@ -485,6 +559,14 @@ function ChacklateAudio() {
     return true;
   }
   const voiceInfo = (id) => V.voices.find((v) => v.id === id) || null;
+  // The device's own voice stands in only where no recorded voice can play at all (the page opened
+  // as a file) or when the player picked it. Once the recorded voices are in, a line that has no
+  // recording stays unspoken (its words are still on screen) instead of a stranger's voice cutting in.
+  const recorded = () => !!(index && Object.keys(index).length);
+  const mayUseDevice = (id) => deviceFallback && (id === 'device' || !recorded());
+  // In a language with no recording yet, the device's voice for that language is the only way to
+  // hear it, so it always stands in there.
+  const mayUseDeviceIn = (id, lang) => mayUseDevice(id) || (deviceFallback && !!lang && lang !== 'en');
   // Lesson and coach lines (English text from the content files, or the coach's own words, which
   // are already in the player's language). In another language: the voice recorded in that
   // language for lessons, else the device's voice.
@@ -499,7 +581,7 @@ function ChacklateAudio() {
     }
     const id = coachVoice;
     if (id !== 'device' && await playKeys(id, [voiceKey(text)])) return true;
-    return deviceFallback ? device(text, rate, 'en') : false;
+    return mayUseDevice(id) ? device(text, rate, 'en') : false;
   }
   // A game call such as "check" or "mate.win", in the language of the chosen call voice.
   async function event(key) {
@@ -512,7 +594,7 @@ function ChacklateAudio() {
     if (!text) return false;
     stopSpeech();
     if (v && await playKeys(v.id, [voiceKey(text)])) return true;
-    return deviceFallback ? device(text, 1, lang) : false;
+    return mayUseDeviceIn(callVoice, lang) ? device(text, 1, lang) : false;
   }
   // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
   // old: an old variation (Chaturanga), whose pieces keep their old names (Mantri, Gaja...).
@@ -541,7 +623,7 @@ function ChacklateAudio() {
     if (!words.length) return false;
     stopSpeech();
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
-    return deviceFallback ? device(words.join(' '), 1.1, lang) : false;
+    return mayUseDeviceIn(callVoice, lang) ? device(words.join(' '), 1.1, lang) : false;
   }
   // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
   // says the line) and Rooky's word on each Collection item (pitch/...). onTalk(fn) hears
@@ -566,7 +648,7 @@ function ChacklateAudio() {
       const end = () => { if (my === queueId) talking(false, what); done(); };
       if (!canTalk() || !ready()) return done();
       talking(true, what);
-      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, lang || 'en', end))) end(); };
+      const viaDevice = () => loadIndex().then(() => { if (my !== queueId) return done(); if (!(mayUseDeviceIn(null, lang) && device(text, 0.95, lang || 'en', end))) end(); });
       if (typeof fetch === 'undefined' || location.protocol === 'file:' || !url) return viaDevice();
       lineClip(url).then((b) => {
         if (my !== queueId) return done();
@@ -599,7 +681,7 @@ function ChacklateAudio() {
 
   return {
     play,
-    setPack(p) { if (PACKS[p]) pack = p; },
+    setPack(p) { if (PACKS[p]) { pack = p; if (ctx) bank(p); } },
     setMood,
     setSfx(on, vol) { sfxOn = on; if (vol !== undefined) sfxVol = vol; if (sfxBus) sfxBus.gain.value = sfxVol; },
     setMusic(on, vol) {

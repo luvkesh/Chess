@@ -46,6 +46,8 @@ function ChacklateSuites(THREE, K, H) {
     inca: { board: 'andesite', set: 'inca', table: { shape: 'polygon', top: { kind: 'raw', color: '#8e8a80', speck: '#4e4a44' }, foot: 'stones', raw: true }, decor: ['corn', 'jar', 'llama', 'basket'] },
     norse: { board: 'runewood', set: 'norse', table: { shape: 'slab', top: { kind: 'planks', color: '#5a3a20' }, foot: 'trestle', metal: 'bronze', raw: true }, decor: ['norsehelm', 'nuts', 'candles', 'horn'] },
     sounion: { board: 'agora', set: 'sounion', table: { shape: 'round', top: { kind: 'marble', color: '#ece6da', vein: '#b8ae9c' }, foot: 'column', metal: 'bronze' }, decor: ['lyre', 'figs', 'amphora', 'trident'] },
+    saturn: { board: 'meteor', set: 'astro', table: { shape: 'round', top: { kind: 'marble', color: '#1a1e2e', vein: '#6ac8e8' }, foot: 'drum', metal: 'chrome' }, decor: ['rocket', 'moonrock', 'satellite', 'starjar'] },
+    burj: { board: 'mirage', set: 'falcon', table: { shape: 'hex', top: { kind: 'marble', color: '#efe8dc', vein: '#c8a860' }, foot: 'column', metal: 'gold' }, decor: ['oyster', 'binocs', 'burner', 'teaglass'] },
   };
   const byBoard = {}, bySet = {};
   for (const [room, s] of Object.entries(SUITES)) { byBoard[s.board] = room; bySet[s.set] = room; }
@@ -439,6 +441,57 @@ function ChacklateSuites(THREE, K, H) {
     ]),
     olives: () => { const p = [bowl(C('olivewood', '#a8804a', { roughness: 0.5 }), 0.48, 0.16)]; fruit(p, C('olive', '#3a4a1a', { roughness: 0.25, clearcoat: 0.8 }), 0.06, { y: 0.16, r: 0.22, n: 10, top: 6 }, 7); return group(p); },
     scroll: () => group([[new THREE.CylinderGeometry(0.1, 0.1, 0.7, 20).rotateZ(Math.PI / 2).translate(0, 0.1, 0), MATTE('papyrus', '#e8d8b0')], ...[-0.38, 0.38].map((x) => [new THREE.CylinderGeometry(0.03, 0.03, 0.26, 10).rotateX(Math.PI / 2).translate(x, 0.1, 0), MAT.gold()]), [new THREE.BoxGeometry(0.03, 0.21, 0.21).translate(0.1, 0.1, 0), C('seal', '#8a1a1a')]]),
+    // Rings of Saturn: a toy rocket, a glowing moon rock, a little satellite and a jar of stars
+    rocket: () => group([
+      [smoothLathe([[0, 0], [0.12, 0.02], [0.15, 0.2], [0.15, 0.6], [0.12, 0.8], [0.06, 0.95], [0, 1.0]], 32), C('rocket-w', '#f4f6fa', { roughness: 0.2, clearcoat: 1 })],
+      ...[0, 1, 2].map((i) => [new THREE.BoxGeometry(0.02, 0.26, 0.14).translate(0, 0.13, 0.17).rotateY(i * TAU / 3), C('rocket-fin', '#d8343a', { roughness: 0.25, clearcoat: 1 })]),
+      [ball(0.05, 0, 0.62, 0.135, 16).scale(1, 1, 0.5), C('rocket-port', '#7ae8ff', { emissive: '#3ad8ff', emissiveIntensity: 0.8, roughness: 0.1 })],
+      [new THREE.ConeGeometry(0.08, 0.16, 16).rotateX(Math.PI).translate(0, -0.02, 0), C('rocket-flame', '#ffb040', { emissive: '#ff8a20', emissiveIntensity: 1.2, roughness: 0.4 })],
+    ]),
+    moonrock: () => {
+      const g = new THREE.IcosahedronGeometry(0.26, 2), p = g.attributes.position, R = rng(61);
+      for (let i = 0; i < p.count; i++) { const k = 0.85 + R() * 0.3; p.setXYZ(i, p.getX(i) * k, p.getY(i) * k * 0.8, p.getZ(i) * k); }
+      g.computeVertexNormals(); g.translate(0, 0.2, 0);
+      return group([[new THREE.CylinderGeometry(0.3, 0.34, 0.06, 32).translate(0, 0.03, 0), MAT.chrome()], [g, C('moonrock', '#8a96aa', { roughness: 0.9, clearcoat: 0, emissive: '#2a6a8a', emissiveIntensity: 0.25, flatShading: true })]]);
+    },
+    satellite: () => group([
+      [new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8).translate(0, 0.2, 0), MAT.chrome()],
+      [new THREE.BoxGeometry(0.2, 0.2, 0.2).translate(0, 0.5, 0), MAT.gold()],
+      ...[-1, 1].map((s2) => [new THREE.BoxGeometry(0.42, 0.18, 0.015).translate(s2 * 0.33, 0.5, 0), C('panel', '#1a3a8a', { roughness: 0.2, metalness: 0.5, clearcoat: 1 })]),
+      [new THREE.SphereGeometry(0.14, 20, 8, 0, TAU, 0, Math.PI / 3).rotateX(-Math.PI / 2).translate(0, 0.52, 0.16), MAT.chrome()],
+      [new THREE.CylinderGeometry(0.22, 0.24, 0.04, 24).translate(0, 0.02, 0), MAT.lacquer('#14182a')],
+    ]),
+    starjar: () => {
+      const parts = [[lathe([[0, 0], [0.2, 0], [0.22, 0.04], [0.22, 0.5], [0.16, 0.56], [0.16, 0.6], [0, 0.6]], 32), glassM('#e8f4ff')], [new THREE.CylinderGeometry(0.17, 0.17, 0.08, 24).translate(0, 0.64, 0), MAT.chrome()]];
+      const R = rng(67), st = C('jarstar', '#fff4b0', { emissive: '#ffe070', emissiveIntensity: 1.4, roughness: 0.3 });
+      for (let i = 0; i < 14; i++) { const a = R() * TAU, r = R() * 0.14; parts.push([new THREE.OctahedronGeometry(0.028 + R() * 0.02).translate(Math.cos(a) * r, 0.06 + R() * 0.4, Math.sin(a) * r), st]); }
+      return group(parts);
+    },
+    // Burj Khalifa: an oyster with its pearl, binoculars for the view, an incense burner and tea
+    oyster: () => group([
+      [new THREE.SphereGeometry(0.3, 28, 10, 0, TAU, Math.PI / 2, Math.PI / 2).scale(1, 0.35, 0.85).translate(0, 0.1, 0), C('shell-in', '#efe6f0', { roughness: 0.2, iridescence: 0.8, sheen: 0.6, sheenColor: new THREE.Color('#ffe0f0') })],
+      [new THREE.SphereGeometry(0.3, 28, 10, 0, TAU, Math.PI / 2, Math.PI / 2).scale(1, 0.3, 0.85).rotateX(Math.PI + 1.1).translate(0, 0.22, -0.22), C('shell-out', '#8a8070', { roughness: 0.8 })],
+      [ball(0.08, 0, 0.14, 0.02, 24), C('pearl-big', '#fbf7f0', { roughness: 0.15, clearcoat: 1, iridescence: 0.6, sheen: 1, sheenColor: new THREE.Color('#ffe8f0') })],
+    ]),
+    binocs: () => group([
+      ...[-1, 1].map((s2) => [new THREE.CylinderGeometry(0.075, 0.09, 0.34, 20).rotateX(Math.PI / 2).translate(s2 * 0.1, 0.1, 0), MAT.lacquer('#1a1a1e')]),
+      ...[-1, 1].map((s2) => [K.ring(0.088, 0, 0.012).rotateX(Math.PI / 2).translate(s2 * 0.1, 0.1, 0.17), MAT.gold()]),
+      [new THREE.BoxGeometry(0.08, 0.05, 0.12).translate(0, 0.12, 0), MAT.gold()],
+    ]),
+    burner: (ctx) => {
+      const g = group([
+        [smoothLathe([[0, 0], [0.16, 0], [0.12, 0.08], [0.1, 0.2], [0.22, 0.26], [0.24, 0.36], [0.2, 0.4], [0, 0.4]], 32), MAT.gold()],
+        ...[0, 1, 2, 3].map((i) => [new THREE.BoxGeometry(0.03, 0.18, 0.03).translate(0.13, 0.48, 0).rotateY(i * Math.PI / 2 + Math.PI / 4), MAT.gold()]),
+        [new THREE.ConeGeometry(0.2, 0.2, 4).rotateY(Math.PI / 4).translate(0, 0.66, 0), MAT.gold()],
+        [ball(0.08, 0, 0.44, 0, 12), C('ember', '#ff8a3a', { emissive: '#ff5a10', emissiveIntensity: 1.4, roughness: 0.6 })],
+      ]);
+      return g;
+    },
+    teaglass: () => group([
+      [new THREE.CylinderGeometry(0.34, 0.34, 0.03, 32).translate(0, 0.015, 0), MAT.gold()],
+      ...[-1, 1].map((s2) => [smoothLathe([[0, 0], [0.07, 0], [0.06, 0.08], [0.05, 0.12], [0.07, 0.2], [0, 0.2]], 20), glassM('#e8b070')]).map(([g, m], i) => [g.translate(i ? 0.14 : -0.14, 0.03, 0), m]),
+      [smoothLathe([[0, 0], [0.09, 0], [0.11, 0.08], [0.07, 0.18], [0.05, 0.24], [0, 0.26]], 24).translate(0, 0.03, -0.16), MAT.gold()],
+    ]),
     // Norse Fireside: an iron helmet with a nose guard, a drinking horn, nuts in a wooden bowl
     // and fat candles on a plank
     norsehelm: () => group([

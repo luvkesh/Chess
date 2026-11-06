@@ -57,5 +57,8 @@
   "coins": { "en": "Choco Coins", "hi": "चॉको सिक्के", "check": ["hi"] },
   "coin": { "en": "Choco Coin", "hi": "चॉको सिक्का", "check": ["hi"] },
   "nav.club": { "en": "Club", "hi": "क्लब", "check": ["hi"] },
-  "whatIsThis": {"en": "What does this do?", "hi": "यह क्या करता है?", "check": ["hi"]}
+  "whatIsThis": {"en": "What does this do?", "hi": "यह क्या करता है?", "check": ["hi"]},
+  "guide.ccShow": { "en": "Show subtitles", "hi": "उपशीर्षक दिखाएँ", "check": ["hi"] },
+  "guide.ccHide": { "en": "Hide subtitles", "hi": "उपशीर्षक छिपाएँ", "check": ["hi"] },
+  "guide.face": { "en": "{who}: tap to hear again, or to stop", "hi": "{who}: फिर से सुनने या रोकने के लिए टैप करें", "check": ["hi"] }
 }

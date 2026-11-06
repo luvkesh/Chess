@@ -1,6 +1,7 @@
 'use strict';
 // Turns the recorded WAV files into the voice packs the game ships, and writes voice/index.json.
-//   node tools/voice/encode.js /tmp/voice/wav
+//   node tools/voice/encode.js /tmp/voice/wav [toby,heart]
+// With voice ids, only those packs are rebuilt and every other pack is kept as it is.
 // A pack is one MP3 per voice: every clip encoded on its own, then joined in the order of the
 // voice's key list. Joined MP3 files still play as one file, and clip i is the byte range
 // sizes[0..i-1] .. +sizes[i], so the game fetches (or slices) only the clip it needs.
@@ -14,7 +15,9 @@ const V = require('../../packages/content/voice.json');
 const wavDir = process.argv[2];
 const cache = path.join(wavDir, '.mp3');
 const out = path.join(__dirname, '..', '..', 'apps', 'web-prototype', 'public', 'voice');
+const only = process.argv[3] ? new Set(process.argv[3].split(',')) : null;
 const index = { version: 2, engine: 'Kokoro-82M (Apache-2.0)', keys: {}, voices: {} };
+if (only) Object.assign(index.voices, JSON.parse(fs.readFileSync(path.join(out, 'index.json'), 'utf8')).voices);
 
 const want = new Map();
 for (const j of jobs()) {
@@ -32,6 +35,7 @@ fs.mkdirSync(out, { recursive: true });
 let made = 0;
 const missing = [];
 for (const v of V.voices) {
+  if (only && !only.has(v.id)) continue;
   const parts = [];
   for (const key of index.keys[v.lang]) {
     const wav = path.join(wavDir, v.id, key + '.wav');
