@@ -364,6 +364,9 @@ def main():
         (out / 'audio').mkdir(exist_ok=True)
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
+        for clip in (here / 'audio').glob('*/item-*.mp3'):   # the same pitches in other languages
+            (out / 'audio' / clip.parent.name).mkdir(exist_ok=True)
+            (out / 'audio' / clip.parent.name / clip.name).write_bytes(clip.read_bytes())
         for name in ('privacy', 'terms'):
             text = (here / (name + '.html')).read_text()
             text = text.replace('href="/"', 'href="index.html"').replace('href="/parent"', 'href="privacy.html#rights"')
