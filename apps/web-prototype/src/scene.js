@@ -293,16 +293,29 @@ function ChacklateScene(canvas, options) {
       .concat([-1, 1].map((k) => { const b = new THREE.BoxGeometry(0.028, 0.028, 5.4); b.translate(k * 0.72, 0.158, 0); return b; })));
     return { wood, velvet, frameG, bedG, rimG };
   })();
+  // On wide screens the chess clock stands in the middle of one side, between the two players,
+  // as it does at a real board; the tray on that side is cut into two short trays either side of it.
+  const clockSign = () => (labelSide === 'black' ? -1 : 1);
+  const shortTray = (() => {
+    const frameG = W.slab(W.roundedSquare(1, 0.1), 0, 0.15, 0.025); frameG.scale(0.8, 1, 1.1);
+    const bedG = new THREE.PlaneGeometry(1.38, 2.0); bedG.rotateX(-Math.PI / 2); bedG.translate(0, 0.152, 0);
+    const rimG = K.merge([-1, 1].map((k) => { const b = new THREE.BoxGeometry(1.5, 0.028, 0.028); b.translate(0, 0.158, k * 1.04); return b; })
+      .concat([-1, 1].map((k) => { const b = new THREE.BoxGeometry(0.028, 0.028, 2.08); b.translate(k * 0.72, 0.158, 0); return b; })));
+    return { frameG, bedG, rimG };
+  })();
   function placeTrays() {
     if (trays) scene.remove(trays);
     trays = new THREE.Group();
     for (const s of [-1, 1]) {
-      const t = new THREE.Group();
-      const frame = new THREE.Mesh(trayParts.frameG, trayParts.wood); frame.castShadow = true; frame.receiveShadow = true;
-      const bed = new THREE.Mesh(trayParts.bedG, trayParts.velvet); bed.receiveShadow = true;
-      t.add(frame, bed, new THREE.Mesh(trayParts.rimG, K.MAT.gold()));
-      if (layoutPortrait) { t.rotation.y = Math.PI / 2; t.position.set(0, TABLE_Y, s * 6.3); } else t.position.set(s * 6.1, TABLE_Y, 0);
-      trays.add(t);
+      const split = !layoutPortrait && s === clockSign();
+      for (const z of split ? [-1.85, 1.85] : [0]) {
+        const t = new THREE.Group(), P = split ? shortTray : trayParts;
+        const frame = new THREE.Mesh(P.frameG, trayParts.wood); frame.castShadow = true; frame.receiveShadow = true;
+        const bed = new THREE.Mesh(P.bedG, trayParts.velvet); bed.receiveShadow = true;
+        t.add(frame, bed, new THREE.Mesh(P.rimG, K.MAT.gold()));
+        if (layoutPortrait) { t.rotation.y = Math.PI / 2; t.position.set(0, TABLE_Y, s * 6.3); } else t.position.set(s * 6.1, TABLE_Y, z);
+        trays.add(t);
+      }
     }
     scene.add(trays);
     dirtyShadows();
@@ -311,6 +324,11 @@ function ChacklateScene(canvas, options) {
   function gravePos(capturer, i) {
     const col = Math.floor(i / 8), row = i % 8;
     if (layoutPortrait) return capturer > 0 ? [-2.31 + row * 0.66, 5.98 + col * 0.64] : [2.31 - row * 0.66, -5.98 - col * 0.64];
+    if (capturer === clockSign()) {
+      // the clock's side: three places in each short tray, the near one filled first
+      const c = Math.floor(i / 6), r = i % 6, z = [2.62, 1.96, 1.3, -1.3, -1.96, -2.62][r];
+      return capturer > 0 ? [5.78 + c * 0.64, z] : [-5.78 - c * 0.64, -z];
+    }
     return capturer > 0 ? [5.78 + col * 0.64, 2.31 - row * 0.66] : [-5.78 - col * 0.64, -2.31 + row * 0.66];
   }
   const graveYaw = (capturer) => (layoutPortrait ? (capturer > 0 ? 0 : Math.PI) : capturer > 0 ? -Math.PI / 2 : Math.PI / 2);
@@ -322,9 +340,12 @@ function ChacklateScene(canvas, options) {
   }
   function placeClock() {
     if (!clock) return;
-    const black = labelSide === 'black';
-    clock.rotation.y = black ? Math.PI - 0.35 : -0.35;
-    clock.position.set(black ? -6.1 : 6.1, TABLE_Y, black ? -3.7 : 3.7);
+    // in the middle of the side, its long side along the board's edge so each player has a face
+    // and a button at their end, turned a little toward the player watching
+    const k = clockSign();
+    clock.rotation.y = k > 0 ? -Math.PI / 2 + 0.85 : Math.PI / 2 + 0.85;
+    clock.position.set(k * 6.1, TABLE_Y, 0);
+    clock.scale.setScalar(0.8);
     clock.visible = !!clockState && !layoutPortrait;
     dirtyShadows();
   }
@@ -346,26 +367,36 @@ function ChacklateScene(canvas, options) {
     g.visible = false;
     return g;
   }
+  // Two faces that never look alike: White's is ivory with dark figures, Black's is ebony with
+  // gold ones. The face whose time is running lights up with a gold ring and a glowing dot; the
+  // one waiting dims. Each player's face is at their own end of the clock.
   function drawClock() {
     if (!clockState) return;
     const fmt = (ms) => { const s = Math.max(0, ms) / 1000; if (s < 10) return s.toFixed(1); const m = Math.floor(s / 60); return m + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
-    const left = clockState.blackMs, right = clockState.whiteMs;
-    const k = fmt(left) + '|' + fmt(right) + '|' + clockState.active + '|' + (clockSkin && clockSkin.id);
+    const flip = labelSide === 'black';
+    const k = fmt(clockState.blackMs) + '|' + fmt(clockState.whiteMs) + '|' + clockState.active + '|' + (clockSkin && clockSkin.id) + '|' + flip;
     if (k === clockKey) return;
     clockKey = k;
     const g = clockCanvas.getContext('2d');
     const sk = clockSkin || { face: '#f4ead8', ink: '#2a1a10', glow: '#b8862e', accent: '#d2466f' };
+    const FACE = { w: { face: sk.face, ink: sk.ink }, b: { face: '#231510', ink: '#f1cf86' } };
     g.fillStyle = '#1a0e08'; g.fillRect(0, 0, 1024, 384);
     for (let i = 0; i < 2; i++) {
-      const cx = 256 + i * 512, on = clockState.active === (i === 0 ? 'b' : 'w');
-      const grd = g.createRadialGradient(cx, 170, 20, cx, 192, 170);
-      grd.addColorStop(0, sk.face); grd.addColorStop(1, W.shade(sk.face, -0.18));
-      g.fillStyle = grd; g.beginPath(); g.arc(cx, 192, 150, 0, TAU); g.fill();
-      g.fillStyle = on ? sk.glow : sk.ink; g.globalAlpha = on ? 1 : 0.7;
+      const who = (i === 0) !== flip ? 'b' : 'w', f = FACE[who];
+      const cx = 256 + i * 512, on = clockState.active === who, idle = clockState.active && !on;
+      if (on) { g.fillStyle = 'rgba(255, 214, 130, 0.35)'; g.beginPath(); g.arc(cx, 192, 182, 0, TAU); g.fill(); }
+      g.lineWidth = on ? 16 : 8; g.strokeStyle = on ? '#ffd982' : '#7a5a2e';
+      g.beginPath(); g.arc(cx, 192, 160, 0, TAU); g.stroke();
+      const grd = g.createRadialGradient(cx, 170, 20, cx, 192, 156);
+      grd.addColorStop(0, W.shade(f.face, who === 'b' ? 0.12 : 0)); grd.addColorStop(1, W.shade(f.face, -0.18));
+      g.fillStyle = grd; g.beginPath(); g.arc(cx, 192, 152, 0, TAU); g.fill();
+      g.globalAlpha = idle ? 0.55 : 1;
+      g.fillStyle = f.ink;
       g.font = '600 92px "Cinzel", Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(fmt(i === 0 ? left : right), cx, 196);
+      g.fillText(fmt(who === 'b' ? clockState.blackMs : clockState.whiteMs), cx, 196);
       g.globalAlpha = 1;
-      if (on) { g.fillStyle = sk.accent; g.beginPath(); g.arc(cx, 292, 10, 0, TAU); g.fill(); }
+      if (on) { g.fillStyle = sk.accent; g.beginPath(); g.arc(cx, 292, 12, 0, TAU); g.fill(); }
+      if (idle) { g.fillStyle = 'rgba(0, 0, 0, 0.28)'; g.beginPath(); g.arc(cx, 192, 152, 0, TAU); g.fill(); }
     }
     clockTex.needsUpdate = true;
   }
@@ -2108,7 +2139,7 @@ function ChacklateScene(canvas, options) {
     // side: 'white' | 'black'; preset: 'player' | 'top' | 'low'
     setView(side, preset, instant) {
       stopFly(true);
-      if (side !== labelSide) { labelSide = side; if (boardMesh) boardMesh.userData.relabel(side); placeClock(); placeLights(side); }
+      if (side !== labelSide) { labelSide = side; if (boardMesh) boardMesh.userData.relabel(side); placeTrays(); relayoutGrave(); placeClock(); clockKey = ''; placeLights(side); }
       attract = false; cam.tLookY = 0; cam.tLookZ = 0; cam.tZoom = 1;
       let yaw = side === 'black' ? Math.PI : 0;
       while (yaw - cam.yaw > Math.PI) yaw -= TAU;

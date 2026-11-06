@@ -87,6 +87,13 @@
     rotate: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
     shield: '<path d="M12 3L5 6v5.5c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z"/><path d="M9 12l2 2 4-4"/>',
     coin: '<circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="3.6" ry="5.4" transform="rotate(30 12 12)"/><path d="M10.2 7.8c1.4 1.6 1.4 6.8 3.6 8.4"/>',
+    cc: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6"/>',
+    ccOff: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6M3 3l18 18"/>',
+    flask: '<path d="M9 3h6M10 3v6.2L4.6 18.4A1.7 1.7 0 0 0 6.1 21h11.8a1.7 1.7 0 0 0 1.5-2.6L14 9.2V3"/><path d="M7.2 14h9.6"/><circle cx="10.5" cy="17.3" r=".8"/><circle cx="13.8" cy="16.6" r=".6"/>',
+    board: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18M7.5 3v4.5H3M16.5 21v-4.5H21"/>',
+    access: '<circle cx="12" cy="4.5" r="2"/><path d="M4 8.5l8 1.5 8-1.5M12 10v5M12 15l-3.5 6M12 15l3.5 6"/>',
+    family: '<circle cx="8" cy="6" r="2.6"/><circle cx="16.5" cy="8.5" r="2"/><path d="M3 20c.6-4 2.6-6.5 5-6.5s4.4 2.5 5 6.5M13.5 20c.4-2.8 1.6-4.6 3-4.6s2.6 1.8 3 4.6"/>',
+    app: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10.5 18.5h3"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
   // The options of a question in a fresh order each time, so the right answer is never always in the same place.
@@ -121,7 +128,7 @@
   // ------------------------------------------------------------ persistence
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
-    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, elements: true, colourToss: true,
+    settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, captions: false, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, elements: true, colourToss: true,
       legal: true, turnBoard: true, view: 'player', evalBar: false, server: '', name: 'You', lang: I18N.guess(navigator.languages || [navigator.language]) }, saved.settings || {}),
     setup: Object.assign({ mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false }, saved.setup || {}),
     progress: PG.migrate(saved.progress),
@@ -151,6 +158,12 @@
   }
   const callsFor = (lang, cur) => (cur === 'off' ? cur : lang === 'hi' ? 'priya' : AU.voices().some((v) => v.id === cur && v.lang === 'en') ? cur : CALLS_DEFAULT);
   if (!(saved.settings && saved.settings.lang)) state.settings.voiceCalls = callsFor(state.settings.lang, state.settings.voiceCalls);
+  // One voice: in English the game calls are said in the voice picked for Rooky, so the game never
+  // switches between two voices. (Hindi keeps Priya for the calls.) Players with two different
+  // voices from before move over once.
+  const englishVoice = (id) => AU.voices().some((v) => v.id === id && v.lang === 'en');
+  function oneVoice(s) { if (s.lang !== 'hi' && s.voiceCalls !== 'off' && englishVoice(s.voiceCoach)) s.voiceCalls = s.voiceCoach; }
+  if (state.settings.voiceRev < 2) { oneVoice(state.settings); state.settings.voiceRev = 2; }
   I18N.set(state.settings.lang);
   if (I18N.lang !== 'en') C = ChacklateCoach(E, coachStrings());
   const myName = () => (state.settings.name === 'You' ? t('common.you') : state.settings.name);
@@ -385,7 +398,7 @@
   if (!view) { $('nogl').hidden = false; view = nullView(); }
   else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
-  if (state.settings.dev && state.settings.devFps) setTimeout(() => fpsMeter(true), 0);
+  if (state.settings.devFps) setTimeout(() => fpsMeter(true), 0);
   function nullView() {
     const noop = () => {};
     let sets = null;
@@ -566,27 +579,57 @@
   for (const e of CAMPAIGN.eras) GUIDE_WHO[e.coach.id] = eraCoach(e);
   const GUIDE_AGAIN = 120000;   // a screen's line is said again only after two minutes
   const guideSt = { key: null, said: {}, idle: null, run: 0 };
+  // Like the website's tour: Rooky's round face sits in the bottom right corner. While he talks a
+  // ring pulses round it and a small bubble opens beside it with Hear that again, subtitles on or
+  // off, and his voice on or off. Subtitles are off unless the player turns them on (or turns the
+  // voice off, when the words are the only way to hear him). A tap on the face stops him while he
+  // talks, and says the line again when he is quiet. Hovering or focusing the face opens the bubble.
+  const captionsOn = () => !!state.settings.captions || !state.settings.narration;
   function guideCard() {
     let el = $('guide');
     if (el.dataset.ready) return el;
     el.dataset.ready = '1';
-    el.innerHTML = '<button class="narrator" id="gd-show" tabindex="-1" aria-label="' + t('common.guide.show') + '" title="' + t('common.guide.show') + '"><img alt=""></button>' +
-      '<div class="gd-body"><div class="gd-head"><p class="gd-who" id="gd-who"></p>' +
-      '<button class="gd-btn" id="gd-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button>' +
-      '<button class="gd-btn" id="gd-voice"></button>' +
-      '<button class="gd-btn" id="gd-hide" aria-label="' + t('common.guide.hide') + '" title="' + t('common.guide.hide') + '">' + icon('down') + '</button></div>' +
-      '<p class="gd-text" id="gd-text"></p><p class="gd-extra" id="gd-extra"></p></div>';
+    el.innerHTML = '<div class="gd-bubble" id="gd-bubble" role="status"><div class="gd-words"><p class="gd-who" id="gd-who"></p><p class="gd-text" id="gd-text"></p><p class="gd-extra" id="gd-extra"></p></div>' +
+      '<div class="gd-tools"><button class="gd-btn" id="gd-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button>' +
+      '<button class="gd-btn" id="gd-cc"></button><button class="gd-btn" id="gd-voice"></button></div></div>' +
+      '<button class="narrator" id="gd-show" aria-describedby="gd-text"><img alt=""><i class="ring" aria-hidden="true"></i></button>';
     $('gd-again').onclick = () => { AU.unlock(); if (guideSt.key) { if (!state.settings.narration) setVoice(true, true); guideSay(guideSt.key, { force: true }); } };
-    $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); };
-    $('gd-hide').onclick = (e) => { e.stopPropagation(); state.settings.guide = false; save(); guideTuck(); };
-    $('gd-show').onclick = () => { if (!state.settings.guide) { state.settings.guide = true; save(); guideTuck(); } };
-    AU.onTalk((on, what) => el.classList.toggle('speaking', on && what !== 'pitch' && what !== 'tale'));
+    $('gd-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration); guidePeek(4000); };
+    $('gd-cc').onclick = () => { state.settings.captions = !state.settings.captions; save(); guideCaptions(); guidePeek(4000); };
+    $('gd-show').onclick = () => {
+      AU.unlock();
+      if (el.classList.contains('speaking')) { AU.hush(); guidePeek(2500); return; }
+      if (guideSt.key) { if (!state.settings.narration) guidePeek(6000); else guideSay(guideSt.key, { force: true }); }
+    };
+    el.addEventListener('mouseenter', () => guidePeek(0)); el.addEventListener('mouseleave', () => guidePeek(1200));
+    el.addEventListener('focusin', () => guidePeek(0)); el.addEventListener('focusout', () => guidePeek(1200));
+    AU.onTalk((on, what) => {
+      const mine = on && what !== 'pitch' && what !== 'tale';
+      el.classList.toggle('speaking', mine);
+      if (!on) guidePeek(captionsOn() ? 2500 : 600);
+    });
+    el.classList.toggle('off', !state.settings.guide);
+    guideCaptions();
     return el;
+  }
+  // the bubble shows for a while (ms), or until the pointer or focus leaves (0)
+  function guidePeek(ms) {
+    const el = guideCard();
+    clearTimeout(guideSt.peekT);
+    el.classList.add('open');
+    if (ms) guideSt.peekT = setTimeout(() => { if (!el.matches(':hover') && !el.contains(document.activeElement)) el.classList.remove('open'); }, ms);
+  }
+  function guideCaptions() {
+    const el = guideCard(), on = !!state.settings.captions, b = $('gd-cc');
+    el.classList.toggle('nocap', !captionsOn());
+    b.innerHTML = icon(on ? 'cc' : 'ccOff');
+    b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', t(on ? 'common.guide.ccHide' : 'common.guide.ccShow'));
+    b.title = b.getAttribute('aria-label');
   }
   function guideTuck() {
     const el = guideCard();
-    el.classList.toggle('tucked', !state.settings.guide);
-    $('gd-show').tabIndex = state.settings.guide ? -1 : 0;
+    el.classList.toggle('off', !state.settings.guide);
     applyInsets();
   }
   function voiceIcon(btn, who) {
@@ -603,6 +646,7 @@
     document.querySelectorAll('[data-voice]').forEach((b) => voiceIcon(b, b.dataset.voice));
     const el = guideCard();
     voiceIcon($('gd-voice'), (GUIDE_WHO[(GUIDE.lines[guideSt.key] || {}).who] || COACH).name);
+    guideCaptions();
     if (guideSt.key) guideShow(guideSt.key);
     if (on && !quiet && guideSt.key && !document.querySelector('.modal')) guideSay(guideSt.key, { force: true });
     return el;
@@ -618,9 +662,10 @@
     $('gd-text').textContent = t('guide.' + key);
     $('gd-extra').textContent = !state.settings.narration ? t('common.guide.tapSpeaker', { who: who.name }) : AU.canTalk() ? '' : t('common.guide.tapAnywhere', { who: who.name });
     voiceIcon($('gd-voice'), who.name);
-    if (guideSt.key !== key) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    if (guideSt.key !== key) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); if (captionsOn()) guidePeek(7000); }
     guideSt.key = key;
-    if (KIND[state.screen] === 'hud' && el.offsetHeight !== guideSt.h) { guideSt.h = el.offsetHeight; applyInsets(); }
+    $('gd-show').setAttribute('aria-label', t('common.guide.face', { who: who.name }));
+    $('gd-show').title = $('gd-show').getAttribute('aria-label');
   }
   // Show a line and say it. opts.force says it even if it was said a moment ago; opts.delay waits
   // first (to let a sound or a game call finish); opts.then runs once it has been said.
@@ -692,6 +737,7 @@
       '<nav class="links" aria-label="Main">' + NAV.map(([k]) => '<button data-nav="' + k + '"' + (k === secId ? ' aria-current="page"' : '') + '>' + navName(k) + '</button>').join('') + '</nav>' +
       '<div class="tools">' + (state.progress.premium ? '' : '<button class="prem-btn" data-nav="store" aria-label="' + t('common.premium') + '">' + icon('crown') + '<span>' + t('common.premium') + '</span></button>') +
       '<button class="round" id="nv-music" aria-pressed="' + !!state.settings.music + '" aria-label="' + t('settings.music') + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
+      labsBtn('nv-labs') +
       '<button class="round" id="nv-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button>' +
       '<button class="mepill" data-nav="profile" aria-label="' + t('common.nav.yourProfile') + '">' + avatarHtml('sm') + '<span class="who"><b>' + esc(myName()) + '</b><small>' + t('common.level', { n: lv.level }) + '</small></span></button></div>';
     const tab = TAB_OF[secId] || secId;
@@ -699,6 +745,7 @@
     document.querySelectorAll('#topnav [data-nav], #tabbar [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     $('nv-music').onclick = () => { state.settings.music = !state.settings.music; AU.unlock(); applySettings(); save(); renderNav(); };
     $('nv-set').onclick = () => { AU.play('tap'); settingsModal(); };
+    if ($('nv-labs')) $('nv-labs').onclick = () => { AU.play('tap'); labsModal(); };
   }
   function go(name, arg) {
     if (name === 'improve') name = 'puzzles';
@@ -746,16 +793,16 @@
         if (r.width && r.bottom < H * 0.5 && (sheet || r.left < W * 0.5)) top = Math.max(top, r.bottom);
       });
       ins.top = top + 8;
-      // The guide card: above the sheet on phones, top left elsewhere. The board makes room for it.
-      const gd = $('guide'), gdOn = gd && !gd.hidden && !gd.classList.contains('tucked');
+      // Rooky's face: bottom right of the table, clear of the side panel (above the sheet on phones)
+      const gd = $('guide'), gdOn = gd && !gd.hidden && !gd.classList.contains('off');
       document.body.style.setProperty('--sheet-top', (sheet ? H - side.top + 8 : 0) + 'px');
-      if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? gd.offsetHeight + 8 : 0);
+      document.body.style.setProperty('--gd-right', (side && !sheet ? W - side.left + 14 : 16) + 'px');
+      if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? 64 : 0);
       else {
         if (side) ins.right = W - side.left + 12;
         ins.bottom = bar ? H - bar.top + 10 : 16;
         const eb = rect('.evalbar');
         ins.left = eb ? eb.right + 10 : 10;
-        if (gdOn) ins.top = Math.max(ins.top, gd.getBoundingClientRect().bottom + 8);
       }
     }
     view.setInsets(ins, kind !== 'hud');
@@ -847,10 +894,16 @@
       '<div class="pk-name"><small>' + t(un ? 'collection.trying' : 'collection.preview') + (many ? ' · ' + t('collection.count', { n: at + 1, of: list.length }) : '') + '</small><b>' + esc(it.name) + '</b></div>' +
       (many ? '<button class="round sm pk-nav" id="pk-next" aria-label="' + esc(t('collection.nextItem')) + '">' + icon('next') + '</button>' : '') +
       (un ? (on ? '<span class="pill gold">' + icon('check') + ' ' + t('collection.equipped') + '</span>' : '<button class="btn primary small" id="pk-eq">' + t('collection.equip') + '</button>') : '<span class="pill lock">' + icon('lock') + ' ' + esc(unlockText(it)) + '</span>') +
-      '<button class="btn small" id="pk-back" aria-label="' + esc(t('common.back')) + '">' + icon('back') + '<span class="bk-t"> ' + t('common.back') + '</span></button>';
+      '';
     document.body.appendChild(bar);
     peeking.bar = bar;
-    bar.querySelector('#pk-back').onclick = () => endPeek();
+    // Back sits top left, where every other screen keeps it
+    const back = document.createElement('button');
+    back.className = 'backbtn pk-back'; back.id = 'pk-back';
+    back.innerHTML = icon('back') + '<span>' + t('common.back') + '</span>';
+    document.body.appendChild(back);
+    peeking.back = back;
+    back.onclick = () => endPeek();
     if (many) {
       bar.querySelector('#pk-prev').onclick = () => peekStep(-1);
       bar.querySelector('#pk-next').onclick = () => peekStep(1);
@@ -899,6 +952,7 @@
     if (!peeking) return;
     peeking.timers.forEach((t) => { clearTimeout(t); clearInterval(t); });
     peeking.bar.remove();
+    if (peeking.back) peeking.back.remove();
     if (peeking.card) { peeking.card.remove(); view.setClock(null); }
     const demo = peeking.demo;
     peeking = null;
@@ -1107,9 +1161,10 @@
       lux({ id: 'p-world', art: worldArt(), title: t('play.world'), text: t('play.worldText') }) +
       lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: t('play.custom'), text: t('play.customText') }) +
       '</div>' +
+      '<div class="play-more">' +
       '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>' + t('home.minis') + '</small><b>' + t('play.minis') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
       variationsTile() +
-      '<button class="strip glass mini-strip" data-nav="club"><span class="sg gold">' + icon('trophy') + '</span><span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
+      '<button class="strip glass mini-strip" data-nav="club"><span class="sg gold">' + icon('trophy') + '</span><span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button></div>' +
       sec('users', t('play.choose'), t('play.friends', { n: OPP.length })) +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
@@ -1529,11 +1584,12 @@
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(v.name) + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(COACH) + '" alt=""><span>' + esc(v.name) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(COACH.name) + '"></button>' +
-      '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
+      labsBtn('ls-labs') + '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(COACH) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
     $('ls-back').onclick = () => { AU.play('tap'); go('variant', 'xiangqi'); };
     $('ls-set').onclick = () => settingsModal();
+    if ($('ls-labs')) $('ls-labs').onclick = () => labsModal();
     voiceIcon($('ls-voice'), COACH.name);
     $('ls-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) speak(true); };
     $('ls-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); speak(true); };
@@ -1869,8 +1925,8 @@
       pageHead(t('learn.eyebrow'), t('learn.title'), t('learn.sub', { n: done, of: total }),
         due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + t(due.length > 1 ? 'learn.reviewsDue' : 'learn.reviewDue', { n: due.length }) + '</button>' : '') +
       '<div class="bar path-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></div>' +
-      placementTile() +
-      (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">' + t('learn.now', { n: nl.chapter }) + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') +
+      '<div class="learn-next">' + placementTile() +
+      (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">' + t('learn.now', { n: nl.chapter }) + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') + '</div>' +
       '<div class="chapters">' + LESSONS.chapters.map((ch) => {
         const ls = LESSONS.lessons.filter((l) => l.chapter === ch.n);
         const n = ls.filter((l) => P.lessons[l.id]).length;
@@ -2399,7 +2455,7 @@
   }
   const leagueName = (n) => (I18N.has('club.lg.' + n) ? t('club.lg.' + n) : n);
   const poolName = (p) => t('club.pool.' + p);
-  const placeText = (country, city) => (country ? ChacklateClub.flag(country) + ' ' : '') + esc(city || (country ? ChacklateClub.countryName(country) : ''));
+  const placeText = (country, city) => esc(city || (country ? ChacklateClub.countryName(country) : ''));
   const clubView = { pool: 'blitz', scope: 'global' };
   SCREENS.club = function () {
     idleBoard();
@@ -2428,7 +2484,7 @@
     }
     function renderFilters() {
       const p = C.place();
-      const label = { country: p.country ? ChacklateClub.flag(p.country) + ' ' + esc(C.countryName(p.country)) : t('club.country'), city: esc(p.city || t('club.city')) };
+      const label = { country: p.country ? esc(C.countryName(p.country)) : t('club.country'), city: esc(p.city || t('club.city')) };
       $('cl-filters').innerHTML = SCOPES.map(([k, ic]) => '<button role="radio" aria-checked="' + (k === clubView.scope) + '" class="' + (k === clubView.scope ? 'on' : '') + '" data-scope="' + k + '">' +
         icon(ic) + '<span>' + (label[k] || t('club.scope.' + k)) + '</span></button>').join('');
       $('cl-filters').querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { AU.play('tap'); clubView.scope = b.dataset.scope; renderFilters(); loadBoard(); }; });
@@ -2518,9 +2574,9 @@
       const p = C.place();
       const NOTE = { tz: t('club.note.tz'), manual: t('club.note.manual'), gps: t('club.note.gps') };
       $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="' + t('club.country') + '">' + (p.country ? '' : '<option value="">' + t('club.chooseCountry') + '</option>') +
-        C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + C.flag(cc) + ' ' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
+        C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
         (p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="' + t('club.city') + '">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
-        ('<button class="round" id="cl-gps" aria-label="' + t('club.useLoc') + '" title="' + t('club.useLoc') + '"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
+        (!C.gpsAllowed() ? '' : '<button class="round" id="cl-gps" aria-label="' + t('club.useLoc') + '" title="' + t('club.useLoc') + '"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
         '<p class="fine">' + (busy ? t('club.finding') : msg || (p.source ? NOTE[p.source] : t('club.chooseLocal'))) +
         (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">' + t('club.guessTz') + '</button>' : '') + '</p>';
       $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
@@ -2688,38 +2744,67 @@
     return '<div class="label set-h">' + t('settings.voices') + '</div>' +
       '<label class="toggle" data-tk="settings.narr">' + t('settings.narration') + TIP_I + ' <input type="checkbox" id="s-narr"' + (s.narration ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.guide">' + t('settings.guideCard') + TIP_I + ' <input type="checkbox" id="s-guide"' + (s.guide ? ' checked' : '') + '></label>' +
+      '<label class="toggle" data-tk="settings.captions">' + t('settings.captions') + TIP_I + ' <input type="checkbox" id="s-cc"' + (s.captions ? ' checked' : '') + '></label>' +
       '<label class="toggle" data-tk="settings.vcoach">' + t('settings.coachVoice') + TIP_I + ' <span class="voice-pick"><select id="s-vcoach">' + groups(s.voiceCoach, (v) => v.lessons) + '<option value="device"' + (s.voiceCoach === 'device' ? ' selected' : '') + '>' + t('settings.deviceVoice') + '</option></select>' + tryBtn('s-vcoach-try') + '</span></label>' +
       '<label class="toggle" data-tk="settings.vcalls">' + t('settings.calls') + TIP_I + ' <span class="voice-pick"><select id="s-vcalls">' + groups(s.voiceCalls, () => true) + hindi(s.voiceCalls) + '<option value="off"' + (s.voiceCalls === 'off' ? ' selected' : '') + '>' + t('settings.off') + '</option></select>' + tryBtn('s-vcalls-try') + '</span></label>' +
       '<label class="toggle" data-tk="settings.announce">' + t('settings.announce') + TIP_I + ' <input type="checkbox" id="s-announce"' + (s.announce ? ' checked' : '') + '></label>';
   }
-  function settingsModal() {
+  // Settings come in sections, as on Jong Club: a list of sections on the left (each with a drawn
+  // icon and a short note), the chosen section on the right. On a phone the list comes first and a
+  // section opens over it, with a way back to the list. Labs (testing tools) has its own button.
+  const SET_SECTIONS = [['play', 'board'], ['sound', 'speaker'], ['look', 'sparkle'], ['lang', 'globe'], ['app', 'app']];
+  function settingsModal(sec) {
     const s = state.settings;
-    const m = modal('<div class="eyebrow">' + t('settings.title') + '</div><h2>' + t('settings.title') + '</h2><p class="sub">' + t('settings.sub') + '</p>' +
-      '<div class="label set-h">' + t('settings.language') + '</div>' +
-      '<label class="toggle">' + t('settings.languageLabel') + ' <select id="s-lang">' + I18N.LANGS.map((l) => '<option value="' + l.id + '" lang="' + l.id + '"' + (s.lang === l.id ? ' selected' : '') + '>' + esc(l.native === l.name ? l.native : l.native + ' · ' + l.name) + '</option>').join('') + '</select></label>' +
-      '<div class="label set-h" data-tk="settings.quality" data-radio="q">' + t('settings.graphics') + TIP_I + '</div><div class="seg"><label data-tk="settings.quality.high"><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>' + t('settings.high') + '</span></label><label data-tk="settings.quality.low"><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>' + t('settings.low') + '</span></label></div>' +
-      '<label class="toggle" data-tk="settings.anim">' + t('settings.anim') + TIP_I + ' <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
-      '<label class="toggle" data-tk="settings.cine">' + t('settings.cine') + TIP_I + ' <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
-      '<label class="toggle" data-tk="settings.elements">' + t('settings.elements') + TIP_I + ' <input type="checkbox" id="s-elements"' + (s.elements !== false ? ' checked' : '') + '></label>' +
-      '<label class="toggle" data-tk="settings.toss">' + t('settings.toss') + TIP_I + ' <input type="checkbox" id="s-toss"' + (s.colourToss !== false ? ' checked' : '') + '></label>' +
-      '<div class="label set-h">' + t('settings.sound') + '</div>' +
-      '<label class="toggle" data-tk="settings.sfx">' + t('settings.sfx') + TIP_I + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="' + t('settings.sfxVol') + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="' + t('settings.sfxOn') + '"></label>' +
-      '<label class="toggle" data-tk="settings.music">' + t('settings.music') + TIP_I + ' <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="' + t('settings.musicVol') + '"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="' + t('settings.musicOn') + '"></label>' +
-      voiceSection(s) +
-      '<div class="label set-h">' + t('settings.coaching') + '</div>' +
-      '<label class="toggle" data-tk="settings.coach">' + t('settings.comments') + TIP_I + ' <select id="s-coach">' + ['off', 'quiet', 'normal', 'chatty'].map((v) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t('settings.coach.' + v) + '</option>').join('') + '</select></label>' +
-      '<label class="toggle" data-tk="settings.eval">' + t('settings.eval') + TIP_I + ' <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>' +
-      '<label class="toggle" data-tk="settings.legal">' + t('settings.legal') + TIP_I + ' <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
-      '<label class="toggle" data-tk="settings.turn">' + t('settings.turn') + TIP_I + ' <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
-      appSection() +
-      '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">' + t('settings.server') + TIP_I + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>' +
-      (s.dev ? devSection() : '') +
-      '<div class="row"><button class="btn warn" id="s-reset" data-tk="settings.reset">' + t('settings.reset') + '</button><button class="btn primary" data-close>' + t('common.done') + '</button></div>' +
-      '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · ' + t('settings.build') + ' ' + BUILD + (s.dev ? ' · developer mode' : '') + '</button>', { x: true });
+    let cur = sec || (() => { try { return sessionStorage.getItem('chackmate.settings.sec'); } catch (e) { return null; } })() || 'play';
+    if (!SET_SECTIONS.some(([k]) => k === cur)) cur = 'play';
+    const page = (k, body) => '<section class="set-page" data-sec="' + k + '"><div class="set-page-head"><button type="button" class="set-back">' + icon('back') + '<span>' + t('settings.all') + '</span></button><h3>' + t('settings.sec.' + k) + '</h3></div>' + body + '</section>';
+    const pages =
+      page('play',
+        '<label class="toggle" data-tk="settings.toss">' + t('settings.toss') + TIP_I + ' <input type="checkbox" id="s-toss"' + (s.colourToss !== false ? ' checked' : '') + '></label>' +
+        '<label class="toggle" data-tk="settings.legal">' + t('settings.legal') + TIP_I + ' <input type="checkbox" id="s-legal"' + (s.legal ? ' checked' : '') + '></label>' +
+        '<label class="toggle" data-tk="settings.turn">' + t('settings.turn') + TIP_I + ' <input type="checkbox" id="s-turn"' + (s.turnBoard ? ' checked' : '') + '></label>' +
+        '<div class="label set-h">' + t('settings.coaching') + '</div>' +
+        '<label class="toggle" data-tk="settings.coach">' + t('settings.comments') + TIP_I + ' <select id="s-coach">' + ['off', 'quiet', 'normal', 'chatty'].map((v) => '<option value="' + v + '"' + (s.coach === v ? ' selected' : '') + '>' + t('settings.coach.' + v) + '</option>').join('') + '</select></label>' +
+        '<label class="toggle" data-tk="settings.eval">' + t('settings.eval') + TIP_I + ' <input type="checkbox" id="s-eval"' + (s.evalBar ? ' checked' : '') + '></label>') +
+      page('sound',
+        '<label class="toggle" data-tk="settings.sfx">' + t('settings.sfx') + TIP_I + ' <input type="range" id="s-sfxv" min="0" max="1" step="0.05" value="' + s.sfxVol + '" aria-label="' + t('settings.sfxVol') + '"><input type="checkbox" id="s-sfx"' + (s.sfx ? ' checked' : '') + ' aria-label="' + t('settings.sfxOn') + '"></label>' +
+        '<label class="toggle" data-tk="settings.music">' + t('settings.music') + TIP_I + ' <input type="range" id="s-musv" min="0" max="1" step="0.05" value="' + s.musicVol + '" aria-label="' + t('settings.musicVol') + '"><input type="checkbox" id="s-mus"' + (s.music ? ' checked' : '') + ' aria-label="' + t('settings.musicOn') + '"></label>' +
+        voiceSection(s)) +
+      page('look',
+        '<div class="label set-h" data-tk="settings.quality" data-radio="q">' + t('settings.graphics') + TIP_I + '</div><div class="seg"><label data-tk="settings.quality.high"><input type="radio" name="q" value="high"' + (s.quality === 'high' ? ' checked' : '') + '><span>' + t('settings.high') + '</span></label><label data-tk="settings.quality.low"><input type="radio" name="q" value="low"' + (s.quality === 'low' ? ' checked' : '') + '><span>' + t('settings.low') + '</span></label></div>' +
+        '<label class="toggle" data-tk="settings.anim">' + t('settings.anim') + TIP_I + ' <input type="checkbox" id="s-anim"' + (s.animations ? ' checked' : '') + '></label>' +
+        '<label class="toggle" data-tk="settings.cine">' + t('settings.cine') + TIP_I + ' <input type="checkbox" id="s-cine"' + (s.captureScenes ? ' checked' : '') + '></label>' +
+        '<label class="toggle" data-tk="settings.elements">' + t('settings.elements') + TIP_I + ' <input type="checkbox" id="s-elements"' + (s.elements !== false ? ' checked' : '') + '></label>') +
+      page('lang',
+        '<label class="toggle">' + t('settings.languageLabel') + ' <select id="s-lang">' + I18N.LANGS.map((l) => '<option value="' + l.id + '" lang="' + l.id + '"' + (s.lang === l.id ? ' selected' : '') + '>' + esc(l.native === l.name ? l.native : l.native + ' · ' + l.name) + '</option>').join('') + '</select></label>') +
+      page('app',
+        appSection() +
+        '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">' + t('settings.server') + TIP_I + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>' +
+        '<div class="label set-h">' + t('settings.startAgain') + '</div>' +
+        '<div class="row set-reset"><button class="btn warn" id="s-reset" data-tk="settings.reset">' + t('settings.reset') + '</button></div>' +
+        '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · ' + t('settings.build') + ' ' + BUILD + '</button>');
+    const nav = SET_SECTIONS.map(([k, ic]) => '<button type="button" class="set-cat" data-sec="' + k + '"><span class="set-ic">' + icon(ic) + '</span><span class="set-cat-t"><b>' + t('settings.sec.' + k) + '</b><small>' + t('settings.sec.' + k + '.note') + '</small></span><span class="set-chev">' + icon('next') + '</span></button>').join('') +
+      (labsOn() ? '<button type="button" class="set-cat set-labs" id="s-labs"><span class="set-ic">' + icon('flask') + '</span><span class="set-cat-t"><b>Labs</b><small>Testing tools for this device</small></span><span class="set-chev">' + icon('next') + '</span></button>' : '');
+    const m = modal('<div class="set-shell" data-view="list"><div class="set-head"><h2>' + t('settings.title') + '</h2></div>' +
+      '<div class="set-body"><nav class="set-nav" aria-label="' + t('settings.title') + '">' + nav + '</nav><div class="set-panel">' + pages + '</div></div>' +
+      '<div class="set-foot"><button class="btn primary" data-close>' + t('common.done') + '</button></div></div>', { x: true, cls: 'wide settings-card' });
+    const shell = m.querySelector('.set-shell');
+    const show = (k, open) => {
+      cur = k;
+      try { sessionStorage.setItem('chackmate.settings.sec', k); } catch (e) { /* private mode */ }
+      m.querySelectorAll('.set-cat[data-sec]').forEach((b) => { const on = b.dataset.sec === k; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'true' : 'false'); });
+      m.querySelectorAll('.set-page').forEach((p) => { p.hidden = p.dataset.sec !== k; });
+      m.querySelector('.set-panel').scrollTop = 0;
+      if (open) shell.dataset.view = 'panel';
+    };
+    m.querySelectorAll('.set-cat[data-sec]').forEach((b) => { b.onclick = () => { AU.play('tap'); show(b.dataset.sec, true); }; });
+    m.querySelectorAll('.set-back').forEach((b) => { b.onclick = () => { shell.dataset.view = 'list'; }; });
+    if (m.querySelector('#s-labs')) m.querySelector('#s-labs').onclick = () => { m.close(); labsModal(); };
+    show(cur, !!sec);
     const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     // A new language: Hindi brings Priya for the game calls; the coach voice stays. The menus redraw.
-    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); applySettings(); save(); m.close(); relocalise(); settingsModal(); });
+    on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); if (s.lang !== 'hi') oneVoice(s); applySettings(); save(); m.close(); relocalise(); settingsModal('lang'); });
     on('#s-anim', 'change', (e) => { s.animations = e.target.checked; applySettings(); save(); });
     on('#s-cine', 'change', (e) => { s.captureScenes = e.target.checked; save(); });
     on('#s-elements', 'change', (e) => { s.elements = e.target.checked; applySettings(); save(); });
@@ -2730,7 +2815,8 @@
     on('#s-musv', 'input', (e) => { s.musicVol = +e.target.value; applySettings(); save(); });
     on('#s-narr', 'change', (e) => { setVoice(e.target.checked, true); });
     on('#s-guide', 'change', (e) => { s.guide = e.target.checked; save(); guideTuck(); });
-    on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
+    on('#s-cc', 'change', (e) => { s.captions = e.target.checked; save(); guideCaptions(); });
+    on('#s-vcoach', 'change', (e) => { s.voiceCoach = e.target.value; oneVoice(s); const c = m.querySelector('#s-vcalls'); if (c) c.value = s.voiceCalls; applySettings(); save(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls', 'change', (e) => { s.voiceCalls = e.target.value; applySettings(); save(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
     on('#s-vcoach-try', 'click', (e) => { e.preventDefault(); AU.unlock(); AU.preview(s.voiceCoach); });
     on('#s-vcalls-try', 'click', (e) => { e.preventDefault(); AU.unlock(); if (s.voiceCalls !== 'off') AU.preview(s.voiceCalls); });
@@ -2742,8 +2828,8 @@
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
     wireAppSection(m);
     on('#s-ver', 'click', () => versionTap(m));
-    if (s.dev) wireDevSection(m);
     on('#s-reset', 'click', () => { if (confirm(t('settings.resetConfirm'))) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+    return m;
   }
 
   // Redraw everything a player reads in the new language. A game, lesson or puzzle in progress
@@ -2755,55 +2841,116 @@
     if (guideSt.key) guideShow(guideSt.key);
   }
 
-  // ---------------------------------------------------------------- developer mode
-  // Seven taps on the version line in Settings show the developer tools; seven more hide them.
-  // Players never see them otherwise. Everything here stays on this device.
+  // ---------------------------------------------------------------- Labs
+  // Testing tools, as in Jong Club's Labs and Nibbland's tester tools: coins, levels, unlocks, a
+  // faster computer, a frame-rate meter and ways to start parts of the game again. Labs has its own
+  // flask button by Settings. It is on while the game is in testing (LABS_DEFAULT); Hide Labs turns
+  // it off, and seven taps on the version line in Settings bring it back. Everything changes this
+  // device only: nothing here reaches the server, the rating board or another player.
+  const LABS_DEFAULT = true;
+  const labsOn = () => (state.settings.labs === undefined ? LABS_DEFAULT : !!state.settings.labs);
   let verTaps = 0, verAt = 0;
   function versionTap(m) {
     const now = Date.now();
     verTaps = now - verAt > 1500 ? 1 : verTaps + 1;
     verAt = now;
-    const on = !!state.settings.dev;
+    if (labsOn()) { if (verTaps >= 3) toast('Labs is already on.'); return; }
     if (verTaps >= 7) {
       verTaps = 0;
-      state.settings.dev = !on; save();
-      fpsMeter(!on && state.settings.devFps);
-      m.close(); settingsModal();
-      toast(on ? 'Developer mode is off.' : 'Developer mode is on.');
-    } else if (verTaps >= 4) toast((7 - verTaps) + (7 - verTaps === 1 ? ' more tap' : ' more taps') + (on ? ' to turn developer mode off.' : ' to turn on developer mode.'));
+      state.settings.labs = true; save(); renderNav(); refreshScreenTools();
+      m.close(); labsModal();
+    } else if (verTaps >= 4) toast((7 - verTaps) + (7 - verTaps === 1 ? ' more tap' : ' more taps') + ' to Labs.');
   }
-  function devSection() {
-    const G = state.game, P = state.progress;
-    const fen = G && state.screen === 'game' ? G.g.pos.fen() : E.START_FEN;
-    const cats = [...new Set(CATALOG.items.map((i) => i.category))];
-    const locked = CATALOG.items.filter((i) => !PG.isUnlocked(P, i));
-    const opts = cats.map((c) => { const list = locked.filter((i) => i.category === c); return list.length ? '<optgroup label="' + esc(c) + '">' + list.map((i) => '<option value="' + esc(i.id) + '">' + esc(i.name) + '</option>').join('') + '</optgroup>' : ''; }).join('');
-    return '<div class="label set-h">Developer tools</div>' +
-      '<div class="field"><label for="d-fen">Set any position (FEN)</label><div class="dev-row"><input class="text-in" id="d-fen" spellcheck="false" autocapitalize="off" value="' + esc(fen) + '"><button class="btn small" id="d-fen-go" type="button">Play it</button></div></div>' +
-      '<div class="field"><label for="d-item">Grant items</label><div class="dev-row">' + (opts ? '<select id="d-item">' + opts + '</select><button class="btn small" id="d-grant" type="button">Grant</button><button class="btn small" id="d-grant-all" type="button">Grant all</button>' : '<span class="faint">Every item is already unlocked.</span>') + '</div></div>' +
-      '<div class="field"><label>Streak</label><div class="dev-row"><span class="grow">' + P.streak.count + (P.streak.count === 1 ? ' day' : ' days') + '</span><button class="btn small" id="d-streak" type="button">Reset streak</button></div></div>' +
-      '<label class="toggle">Show frame rate <input type="checkbox" id="d-fps"' + (state.settings.devFps ? ' checked' : '') + '></label>' +
-      '<p class="sub faint" style="margin:8px 0 0">Tap the version line seven times to hide these tools.</p>';
+  // the flask button in the bar at the top, in games and lessons too
+  const labsBtn = (id) => (labsOn() ? '<button class="round labs-btn" id="' + id + '" aria-label="Labs" title="Labs: testing tools">' + icon('flask') + '</button>' : '');
+  function refreshScreenTools() {
+    for (const [id, gear] of [['g-labs', 'g-settings'], ['ls-labs', 'ls-set']]) {
+      const g = $(gear); if (!g) continue;
+      const b = $(id);
+      if (labsOn() && !b) { g.insertAdjacentHTML('beforebegin', labsBtn(id)); $(id).onclick = () => labsModal(); }
+      else if (!labsOn() && b) b.remove();
+    }
   }
-  function wireDevSection(m) {
+  function labsModal() {
+    const P = state.progress, s = state.settings;
+    const G = state.game && state.screen === 'game' ? state.game : null;
+    const fen = G ? G.g.pos.fen() : E.START_FEN;
+    const lv = PG.levelFor(P.xp).level;
+    const season = PG.activeSeason();
+    const btn = (id, label, cls) => '<button type="button" class="btn small' + (cls ? ' ' + cls : '') + '" id="' + id + '">' + label + '</button>';
+    const seg = (name, cur, opts) => '<div class="seg">' + opts.map(([v, l]) => '<label><input type="radio" name="' + name + '" value="' + v + '"' + (String(cur) === String(v) ? ' checked' : '') + '><span>' + l + '</span></label>').join('') + '</div>';
+    const m = modal('<div class="eyebrow">' + icon('flask') + ' Labs</div><h2>Testing tools</h2>' +
+      '<p class="sub">Changes apply to this device only. Nothing here reaches the server, the Club or another player.</p>' +
+      '<div class="labs-stats"><span><b>' + P.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + lv + '</b></span><span>Puzzle rating <b>' + Math.round(P.stats.puzzles.rating) + '</b></span>' + (P.premium ? '<span><b>Premium</b> on</span>' : '') + '</div>' +
+      '<div class="dev-row labs-big">' + btn('lb-all', 'Unlock everything', 'primary') + btn('lb-c100k', '+100,000 ' + esc(PG.COIN_NAME), 'primary') + '</div>' +
+      '<div class="label set-h">Coins and levels</div>' +
+      '<div class="dev-row">' + btn('lb-c100', '+100') + btn('lb-c1k', '+1,000') + btn('lb-c0', 'Zero coins', 'ghost') + '</div>' +
+      '<div class="dev-row">' + btn('lb-l1', '+1 level') + btn('lb-l10', 'Level 10') + btn('lb-l50', 'Level 50') + '</div>' +
+      '<div class="dev-row"><label class="labs-inline" for="lb-rating">Puzzle rating</label><input class="text-in labs-num" id="lb-rating" type="number" min="100" max="3000" step="50" value="' + Math.round(P.stats.puzzles.rating) + '">' + btn('lb-rate', 'Set') + '</div>' +
+      '<div class="label set-h">Unlocks</div>' +
+      '<div class="dev-row">' + btn('lb-items', 'All collection items') + btn('lb-lessons', 'All lessons') + btn('lb-journey', 'Every Journey era') + btn('lb-ach', 'All achievements') + (season ? btn('lb-season', 'Whole season track') : '') + '</div>' +
+      '<label class="toggle">Premium preview <input type="checkbox" id="lb-prem"' + (s.previewPremium ? ' checked' : '') + '></label>' +
+      '<div class="field"><label for="lb-item">One item</label><div class="dev-row"><select id="lb-item">' + [...new Set(CATALOG.items.map((i) => i.category))].map((c) => { const list = CATALOG.items.filter((i) => i.category === c && !PG.isUnlocked(P, i)); return list.length ? '<optgroup label="' + esc(catName(c)) + '">' + list.map((i) => '<option value="' + esc(i.id) + '">' + esc(i.name) + '</option>').join('') + '</optgroup>' : ''; }).join('') + '</select>' + btn('lb-grant', 'Grant') + '</div></div>' +
+      '<div class="label set-h">At the table</div>' +
+      '<div class="field"><label for="lb-fen">Play any position (FEN)</label><div class="dev-row"><input class="text-in" id="lb-fen" spellcheck="false" autocapitalize="off" value="' + esc(fen) + '">' + btn('lb-fen-go', 'Play it') + '</div></div>' +
+      '<div class="toggle"><span>Computer speed</span>' + seg('lb-speed', s.labsFast ? 'fast' : 'normal', [['normal', 'Normal'], ['fast', 'Instant']]) + '</div>' +
+      '<div class="toggle"><span>Graphics</span>' + seg('lb-q', s.quality, [['high', 'High'], ['low', 'Low']]) + '</div>' +
+      '<label class="toggle">Frame rate meter <input type="checkbox" id="lb-fps"' + (s.devFps ? ' checked' : '') + '></label>' +
+      '<div class="dev-row">' + btn('lb-quick', 'Quick test game') + '</div>' +
+      '<div class="label set-h">Start again</div>' +
+      '<div class="dev-row">' + btn('lb-missions', 'Replay today\'s missions', 'ghost') + btn('lb-streak', 'Reset streak', 'ghost') + btn('lb-learn', 'Reset Learn', 'ghost') + btn('lb-place', 'Retake the placement test', 'ghost') + btn('lb-journey0', 'Reset the Journey', 'ghost') + btn('lb-wipe', 'Reset profile', 'ghost warn') + '</div>' +
+      '<p class="labs-note" id="lb-note" aria-live="polite"></p>' +
+      '<div class="row">' + btn('lb-hide', 'Hide Labs', 'ghost') + '<button class="btn" id="lb-set" type="button">' + icon('gear') + ' ' + t('settings.title') + '</button><button class="btn primary" data-close>' + t('common.done') + '</button></div>', { x: true, cls: 'wide labs-card' });
     const q = (sel) => m.querySelector(sel);
-    q('#d-fen-go').onclick = () => {
-      const fen = q('#d-fen').value.trim(), err = new E.Pos().load(fen);
-      if (err) { toast('That FEN does not load: ' + esc(err), 'bad'); return; }
+    const note = (text) => { q('#lb-note').textContent = text; };
+    // apply a change, save, redraw what shows it, and say what happened
+    const did = (text, fn) => () => { fn(); save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
+    const p = () => state.progress;
+    const items = () => CATALOG.items.forEach((i) => { if (!PG.isUnlocked(p(), i)) p().granted[i.id] = true; });
+    const lessons = () => LESSONS.lessons.forEach((l) => { if (!p().lessons[l.id]) p().lessons[l.id] = { stars: 3, attempts: 1, mastered: true, completed: PG.today(), reviews: [] }; });
+    const journey = () => CAMPAIGN.eras.forEach((e) => { p().journey[e.id] = { stages: e.stages.map(() => true), done: true }; });
+    const ach = () => PG.ACHIEVEMENTS.forEach((x) => { if (!p().achievements[x.id]) p().achievements[x.id] = PG.today(); });
+    const seasonAll = () => { if (season) p().seasons[season.id] = Math.max(p().seasons[season.id] || 0, season.tiers * PG.SEASONS.tierXp); };
+    const levelTo = (n) => { p().xp = Math.max(p().xp, PG.xpFor(n)); };
+    q('#lb-all').onclick = did('Everything unlocked: every item, lesson, Journey era, achievement and the season track, level 50 and 100,000 ' + PG.COIN_NAME + '.', () => { items(); lessons(); journey(); ach(); seasonAll(); levelTo(50); p().coins += 100000; });
+    q('#lb-c100k').onclick = did('Added 100,000 ' + PG.COIN_NAME + '.', () => { p().coins += 100000; });
+    q('#lb-c100').onclick = did('Added 100 ' + PG.COIN_NAME + '.', () => { p().coins += 100; });
+    q('#lb-c1k').onclick = did('Added 1,000 ' + PG.COIN_NAME + '.', () => { p().coins += 1000; });
+    q('#lb-c0').onclick = did(PG.COIN_NAME + ' set to 0, to test prices you cannot afford.', () => { p().coins = 0; });
+    q('#lb-l1').onclick = did('Level raised by one.', () => { p().xp = PG.xpFor(PG.levelFor(p().xp).level + 1); });
+    q('#lb-l10').onclick = did('Level set to 10.', () => { p().xp = PG.xpFor(10); });
+    q('#lb-l50').onclick = did('Level set to 50.', () => { p().xp = PG.xpFor(50); });
+    q('#lb-rate').onclick = did('Puzzle rating set.', () => { p().stats.puzzles.rating = Math.max(100, Math.min(3000, Math.round(+q('#lb-rating').value || 800))); });
+    q('#lb-items').onclick = did('Every set, board, room and other item is now in your collection.', items);
+    q('#lb-lessons').onclick = did('Every lesson is marked done with three stars.', lessons);
+    q('#lb-journey').onclick = did('Every Journey era is open and finished.', journey);
+    q('#lb-ach').onclick = did('Every achievement is unlocked.', ach);
+    if (q('#lb-season')) q('#lb-season').onclick = did('Every step of this season\'s track is reached. Claim the rewards on the Season page.', seasonAll);
+    q('#lb-prem').onchange = (e) => { s.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); did(e.target.checked ? 'Premium preview is on.' : 'Premium preview is off.', () => {})(); };
+    q('#lb-grant').onclick = () => { const it = CATALOG.items.find((i) => i.id === q('#lb-item').value); if (!it) return; did('Granted ' + it.name + '.', () => { p().granted[it.id] = true; })(); const o = q('#lb-item option:checked'); if (o) o.remove(); };
+    q('#lb-fen-go').onclick = () => {
+      const f = q('#lb-fen').value.trim(), err = new E.Pos().load(f);
+      if (err) { note('That FEN does not load: ' + err); return; }
       m.close();
       const mode = state.setup.mode === 'online' ? 'ai' : state.setup.mode;
-      startGame(Object.assign({}, state.setup, { mode, fen, dev: true, color: fen.split(' ')[1] === 'b' ? 'black' : 'white' }));
+      startGame(Object.assign({}, state.setup, { mode, fen: f, dev: true, color: f.split(' ')[1] === 'b' ? 'black' : 'white' }));
     };
-    const grant = (items) => {
-      items.forEach((i) => { state.progress.granted[i.id] = true; });
-      save();
-      toast('Granted ' + (items.length === 1 ? esc(items[0].name) : items.length + ' items') + '.');
-      m.close(); settingsModal();
+    m.querySelectorAll('input[name=lb-speed]').forEach((r) => r.addEventListener('change', () => { s.labsFast = r.value === 'fast'; save(); note(s.labsFast ? 'The computer now answers at once.' : 'The computer takes its usual time.'); }));
+    m.querySelectorAll('input[name=lb-q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); note('Graphics set to ' + r.value + '.'); }));
+    q('#lb-fps').onchange = (e) => { s.devFps = e.target.checked; save(); fpsMeter(e.target.checked); };
+    q('#lb-quick').onclick = () => { m.close(); s.labsFast = true; save(); startGame({ mode: 'ai', color: 'white', level: 0, tc: 'none', fen: '', dev: true }); };
+    q('#lb-missions').onclick = did('Today\'s missions start again.', () => { p().missions = { date: '', list: [], bonus: false }; });
+    q('#lb-streak').onclick = did('Streak reset.', () => { p().streak = { count: 0, last: '' }; });
+    q('#lb-learn').onclick = did('Every lesson is marked not done, so Learn starts from the first lesson.', () => { p().lessons = {}; });
+    q('#lb-place').onclick = did('The placement test and its offer are back.', () => { p().placement = null; delete p().seen.placementOffer; });
+    q('#lb-journey0').onclick = did('The Journey starts again from the first era.', () => { p().journey = {}; });
+    let wipe = false;
+    q('#lb-wipe').onclick = () => {
+      if (!wipe) { wipe = true; q('#lb-wipe').textContent = 'Tap again to reset'; return; }
+      state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); toast('Profile reset to a new player.');
     };
-    if (q('#d-grant')) q('#d-grant').onclick = () => grant(CATALOG.items.filter((i) => i.id === q('#d-item').value));
-    if (q('#d-grant-all')) q('#d-grant-all').onclick = () => grant(CATALOG.items.filter((i) => !PG.isUnlocked(state.progress, i)));
-    q('#d-streak').onclick = () => { state.progress.streak = { count: 0, last: '' }; save(); renderNav(); toast('Streak reset.'); m.close(); settingsModal(); };
-    q('#d-fps').onchange = (e) => { state.settings.devFps = e.target.checked; save(); fpsMeter(e.target.checked); };
+    q('#lb-hide').onclick = () => { s.labs = false; save(); m.close(); renderNav(); refreshScreenTools(); toast('Labs is hidden. Tap the version line in Settings seven times to bring it back.'); };
+    q('#lb-set').onclick = () => { m.close(); settingsModal(); };
   }
   // The frame-rate readout: frames the table drew in the last second (it draws only when
   // something moves, so a still table reads low), the average time per frame and the detail level.
@@ -3059,7 +3206,7 @@
       '<div class="title" id="g-mode"></div><div class="status-chip glass" id="g-chip" role="status"></div><span class="spacer"></span>' +
       '<button class="round rb" id="g-rules" aria-label="' + t('play.rules.title') + '" aria-expanded="false"><img src="' + ART.ruleBookUri() + '" alt=""></button>' +
       '<button class="round" id="g-music" aria-label="' + t('settings.music') + '" aria-pressed="' + !!state.settings.music + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
-      '<button class="round" id="g-settings" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      labsBtn('g-labs') + '<button class="round" id="g-settings" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<div class="player-card glass top" id="p-top"></div><div class="player-card glass bottom" id="p-bottom"></div>' +
       '<div class="evalbar" id="evalbar" hidden><i id="evalfill" style="height:50%"></i></div>' +
       '<aside class="side glass" id="side"><header><b id="side-title">' + esc(dojo ? dojo.name : t('play.hud.moves')) + '</b><button class="btn small ghost" id="g-copy" title="' + t('play.hud.copyPgn') + '">PGN</button></header>' +
@@ -3088,6 +3235,7 @@
       $('g-music').innerHTML = icon(state.settings.music ? 'music' : 'musicOff'); $('g-music').setAttribute('aria-pressed', String(!!state.settings.music));
     };
     $('g-settings').onclick = () => settingsModal();
+    if ($('g-labs')) $('g-labs').onclick = () => labsModal();
     $('g-rules').onclick = () => { AU.play('tap'); ruleBook(!G.rulebook); };
     $('g-copy').onclick = () => copy(pgn(), 'PGN');
     if ($('g-undo')) $('g-undo').onclick = undo;
@@ -3408,13 +3556,14 @@
     const level = LEVELS[G.setup.level];
     let timeMs = level.timeMs;
     if (G.clock) { const left = G.clock[g.pos.side === WHITE ? 'w' : 'b']; timeMs = Math.max(120, Math.min(timeMs, left / 30 + G.clock.inc * 0.6)); }
+    if (state.settings.labsFast) timeMs = Math.min(timeMs, 80);   // Labs: the computer answers at once
     G.thinking = true;
     renderHud();
     const started = performance.now();
     const id = ++G.request;
     job('play', { type: 'search', fen: g.startFen, moves: g.uciMoves(), opts: Object.assign({}, level, { timeMs }) }, (r) => {
       if (id !== G.request || state.game !== G) return;
-      const delay = Math.max(0, 420 - (performance.now() - started));
+      const delay = state.settings.labsFast ? 0 : Math.max(0, 420 - (performance.now() - started));
       setTimeout(() => {
         if (id !== G.request || state.game !== G) return;
         G.thinking = false;
@@ -4062,12 +4211,13 @@
     mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? 'Back to the game' : era ? era.name : vr ? vr.name : 'Learn') + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (test ? 'Learn' : own ? esc(era.name) : vr ? esc(vr.name) : 'Chapter ' + L.chapter) + ' · ' + esc(L.title) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
-      '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
+      labsBtn('ls-labs') + '<button class="round" id="ls-set" aria-label="Settings" title="Settings">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(L.title) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="Back">' + icon('prev') + '</button><button class="btn primary" id="ls-next">Next</button></footer></aside>');
     const leaveTo = () => (toGame && state.game === toGame ? backToGame() : era ? go('era', era.id) : test && arg.from === 'home' ? go('home') : vr ? go('variant', vr.id) : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
+    if ($('ls-labs')) $('ls-labs').onclick = () => labsModal();
     voiceIcon($('ls-voice'), guide.name);
     $('ls-voice').onclick = () => { AU.unlock(); setVoice(!state.settings.narration, true); if (state.settings.narration) speak(true); };
     $('ls-again').onclick = () => { AU.unlock(); if (!state.settings.narration) setVoice(true, true); speak(true); };
@@ -5172,7 +5322,7 @@
   applySettings();
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
-  if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; }   // tooling answers board questions through the hooks
+  if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; window.__start = startGame; window.__settings = settingsModal; }   // tooling answers board questions through the hooks
   const bonus = PG.dailyBonus(state.progress);
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);

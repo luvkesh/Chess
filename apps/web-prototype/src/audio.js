@@ -468,12 +468,17 @@ function ChacklateAudio() {
     return true;
   }
   const voiceInfo = (id) => V.voices.find((v) => v.id === id) || null;
+  // The device's own voice stands in only where no recorded voice can play at all (the page opened
+  // as a file) or when the player picked it. Once the recorded voices are in, a line that has no
+  // recording stays unspoken (its words are still on screen) instead of a stranger's voice cutting in.
+  const recorded = () => !!(index && Object.keys(index).length);
+  const mayUseDevice = (id) => deviceFallback && (id === 'device' || !recorded());
   // Lesson and coach lines (English text from the content files).
   async function say(text, rate) {
     stopSpeech();
     const id = coachVoice;
     if (id !== 'device' && await playKeys(id, [voiceKey(text)])) return true;
-    return deviceFallback ? device(text, rate, 'en') : false;
+    return mayUseDevice(id) ? device(text, rate, 'en') : false;
   }
   // A game call such as "check" or "mate.win", in the language of the chosen call voice.
   async function event(key) {
@@ -484,7 +489,7 @@ function ChacklateAudio() {
     if (!text) return false;
     stopSpeech();
     if (v && await playKeys(v.id, [voiceKey(text)])) return true;
-    return deviceFallback ? device(text, 1, lang) : false;
+    return mayUseDevice(callVoice) ? device(text, 1, lang) : false;
   }
   // The words for a move in SAN, e.g. "Nxe5+" becomes Knight, takes, ee five, check.
   // old: an old variation (Chaturanga), whose pieces keep their old names (Mantri, Gaja...).
@@ -512,7 +517,7 @@ function ChacklateAudio() {
     if (!words.length) return false;
     stopSpeech();
     if (v && await playKeys(v.id, words.map(voiceKey), 0.02)) return true;
-    return deviceFallback ? device(words.join(' '), 1.1, lang) : false;
+    return mayUseDevice(callVoice) ? device(words.join(' '), 1.1, lang) : false;
   }
   // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
   // says the line) and Rooky's word on each Collection item (pitch/...). onTalk(fn) hears
@@ -537,7 +542,7 @@ function ChacklateAudio() {
       const end = () => { if (my === queueId) talking(false, what); done(); };
       if (!canTalk() || !ready()) return done();
       talking(true, what);
-      const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 0.95, lang || 'en', end))) end(); };
+      const viaDevice = () => loadIndex().then(() => { if (my !== queueId) return done(); if (!(mayUseDevice(null) && device(text, 0.95, lang || 'en', end))) end(); });
       if (typeof fetch === 'undefined' || location.protocol === 'file:' || !url) return viaDevice();
       lineClip(url).then((b) => {
         if (my !== queueId) return done();

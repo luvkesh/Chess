@@ -31,9 +31,10 @@ only = set(sys.argv[1].split(',')) if len(sys.argv) > 1 else None
 index = {'voice': guide['voice'], 'lines': {}}
 if only:
     index['lines'] = json.loads((out / 'index.json').read_text())['lines']
-# Sounds that are not words: Kokoro spells "Shh" out as "S H H", so each is given its sound
-# (misaki phonemes) while the caption keeps the spelling. "Shh" is a long, soft hush ("shoooo").
-SAY = {'Shh': '[Shh](/ʃʃʃʃˈuuu/)', 'Brr': '[Brr](/bɹˈɜɹ/)'}
+# Sounds that are not words: Kokoro spells "Brr" out as "B R R", so it is given its sound
+# (misaki phonemes) while the caption keeps the spelling. A line that opens with "Shh," gets a
+# soft whispered hush instead (see hush()), since any voiced "shoo" comes out too loud.
+SAY = {'Brr': '[Brr](/bɹˈɜɹ/)'}
 
 
 def voiced(text):
@@ -54,8 +55,33 @@ def quietest(audio, at, reach=0.06):
     return min(frames)[1] if frames else int(at * SR)
 
 
+def hush(level, seconds=1.0):
+    """A soft, breathy "shhh": unvoiced noise shaped like the sh sound (most of its energy around
+    2.5 to 5 kHz), fading in and out, at `level` RMS so it sits well under the speaking voice."""
+    rng = np.random.default_rng(7)
+    n = int(seconds * SR)
+    spec = np.fft.rfft(rng.standard_normal(n))
+    f = np.fft.rfftfreq(n, 1 / SR)
+    spec *= np.exp(-((np.log(np.maximum(f, 1) / 3400)) ** 2) / (2 * 0.38 ** 2))   # the sh band
+    noise = np.fft.irfft(spec, n)
+    t = np.arange(n) / SR
+    env = np.minimum(1, t / 0.18) * np.minimum(1, (seconds - t) / 0.45) ** 1.6   # breath in, long fade
+    env *= 1 + 0.08 * np.sin(2 * np.pi * 3.1 * t)                                  # a little unsteady, like breath
+    out = noise * np.clip(env, 0, None)
+    return (out * level / np.sqrt(np.mean(out[int(0.18 * SR):int(0.5 * SR)] ** 2))).astype(np.float32)
+
+
 def spoken(text):
     """The line as audio, and the second each sentence starts (for the captions)."""
+    if text.startswith('Shh, '):
+        # the hush, a short breath, then the rest of the line in Rooky's voice
+        audio, starts = spoken_words(text[5:])
+        lead = np.concatenate([hush(0.22 * float(np.sqrt(np.mean(audio ** 2)))), np.zeros(int(0.3 * SR), dtype=np.float32)])
+        return np.concatenate([lead, audio.astype(np.float32)]), [0] + [s + len(lead) / SR for s in starts[1:]]
+    return spoken_words(text)
+
+
+def spoken_words(text):
     parts, starts, n = [], [0], 0
     for r in pipe(voiced(text), voice=guide['voice'], speed=guide['speed']):
         audio, start = np.asarray(r.audio), 0
