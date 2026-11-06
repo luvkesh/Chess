@@ -2,7 +2,7 @@
 
 Game content as data, so clients and the server can ship new items without code changes.
 
-- `lessons.json`: 75 voice-guided lessons in 10 chapters (1–3 free). Each lesson has narration steps and on-board exercises with checked solutions.
+- `lessons.json`: 39 voice-guided lessons in 10 chapters (1–3 free), each 6 to 10 steps and exercises, with a drawn icon (`icon`). Lessons that grew from older, shorter ones name them in `replaces`, so players keep their progress. Nothing repeats anywhere in Learn: every exercise has its own board, every puzzle (`type: "puzzle"`, by id) and question is used once; `test/content.test.js` checks it.
 - `puzzles.json`: engine-verified tactics puzzles (`fen`, `moves` starting with the opponent's move, `themes`, `rating`).
 - `openings.json`: Opening lab lines (moves in UCI, per-move notes, key ideas, free or premium).
 - `endgames.json`: Endgame dojo positions with a goal (mate, promote or draw) and a par.

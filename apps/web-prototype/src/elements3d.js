@@ -691,6 +691,8 @@ ChacklateElements.ROOMS = {
   inca: { strike: 'stone', storm: 'lightning', dust: '#b8b4a8', stone: '#8a867e' },
   norse: { strike: 'fire', storm: 'fire' },
   sounion: { strike: 'lightning', storm: 'lightning' },
+  saturn: { strike: 'lightning', storm: 'petals', petals: ['#ffffff', '#d8ecff', '#f4e0b0', '#a8c8ff'] },
+  burj: { strike: 'fire', storm: 'petals', petals: ['#f4d27a', '#ffe8b0', '#ffffff', '#e8c06a'] },
 };
 ChacklateElements.STRIKE_MS = 3000;
 ChacklateElements.STORM_MS = 10000;

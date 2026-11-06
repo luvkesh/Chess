@@ -40,7 +40,7 @@
   "freeStatus": { "en": "Free", "hi": "मुफ़्त", "check": ["hi"] },
   "yourPlan": { "en": "Your plan", "hi": "आपका प्लान", "check": ["hi"] },
   "perk0": { "en": "All eight computer personalities, including Grandmaster mode", "hi": "कंप्यूटर के सभी आठ स्वभाव, ग्रैंडमास्टर मोड समेत", "check": ["hi"] },
-  "perk1": { "en": "The full 10-chapter campaign: 74 lessons", "hi": "पूरा 10 अध्याय वाला अभियान: 74 पाठ", "check": ["hi"] },
+  "perk1": { "en": "The full 10-chapter campaign: 39 lessons", "hi": "पूरा 10 अध्याय वाला अभियान: 39 पाठ", "check": ["hi"] },
   "perk2": { "en": "Every opening in the Opening lab and every dojo endgame", "hi": "ओपनिंग लैब की हर ओपनिंग और डोजो का हर अंतिम खेल", "check": ["hi"] },
   "perk3": { "en": "Deep game reviews and the full hint ladder", "hi": "खेलों की गहरी समीक्षा और संकेतों की पूरी सीढ़ी", "check": ["hi"] },
   "perk4": { "en": "Every season pass included while you are subscribed", "hi": "सदस्यता रहने तक हर सीज़न पास शामिल", "check": ["hi"] },
