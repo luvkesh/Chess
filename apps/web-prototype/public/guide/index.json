@@ -119,6 +119,201 @@
   "voice": "am_puck,am_liam",
   "text": "Let's learn! Listen, and watch the board. Then tap Next, when you're ready."
  },
+ "lesson.open.board": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Hello, explorer! Every chess adventure starts on the board. Listen, then tap Next to move on."
+ },
+ "lesson.open.setup": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Time to wake the army up! Let's put every piece in its home."
+ },
+ "lesson.open.rook-bishop": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Straight lines, slanty lines, and one very careful king. Ready? Here we go!"
+ },
+ "lesson.open.knight": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Boing! The knight is the only piece that jumps. Watch it hop!"
+ },
+ "lesson.open.pawns": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Little pawns, big dreams! Reach the far side, and you become a queen."
+ },
+ "lesson.open.values": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Which piece is worth the most? Let's weigh them up, like treasure."
+ },
+ "lesson.open.check": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Uh oh, the king is in danger! Let's learn three ways to save him."
+ },
+ "lesson.open.checkmate": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "This is the big one! Checkmate wins the whole game."
+ },
+ "lesson.open.castling": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "A secret move for the king and rook! Let's see how it works."
+ },
+ "lesson.open.stalemate": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Not every game has a winner. Let's find out why!"
+ },
+ "lesson.open.centre": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "The middle of the board is the best spot in town. Let's grab it!"
+ },
+ "lesson.open.king-safety": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Tuck the king in safe, and watch out for a sneaky queen!"
+ },
+ "lesson.open.traps": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Some games end super fast! Let's learn the traps, so they never catch you."
+ },
+ "lesson.open.forks": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "One piece, two targets! Forks are my favourite trick."
+ },
+ "lesson.open.pins": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Some pieces get stuck, and can't move! Let's pin and skewer."
+ },
+ "lesson.open.discovered": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Move one piece, and surprise! Another one attacks."
+ },
+ "lesson.open.mates": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Let's collect some famous checkmates, like shiny stickers!"
+ },
+ "lesson.open.scan": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Detective time! What is your opponent planning?"
+ },
+ "lesson.open.blocking": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Put up a wall, and keep your king cosy and safe!"
+ },
+ "lesson.open.counter": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Under attack? Sometimes the best answer is a bigger attack!"
+ },
+ "lesson.open.pawn-islands": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Pawns like to stick together. Let's see which ones get lonely."
+ },
+ "lesson.open.passed": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "A pawn with a clear road ahead is a superstar. Let's push!"
+ },
+ "lesson.open.outposts": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Let's find a perfect home for your knight, where nobody can chase it."
+ },
+ "lesson.open.open-files": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Rooks love open roads, and bishops love open skies!"
+ },
+ "lesson.open.when-to-trade": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Swap or keep? Let's learn when a trade helps you win."
+ },
+ "lesson.open.three-questions": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Every great player has a plan. Let's make yours!"
+ },
+ "lesson.open.initiative": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Keep the threats coming, and march on the king!"
+ },
+ "lesson.open.activity": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Happy pieces work as a team. Let's give them room to play!"
+ },
+ "lesson.open.king-activity": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Surprise! In the endgame, the king turns into a hero."
+ },
+ "lesson.open.opposition": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Two kings, face to face! Who blinks first?"
+ },
+ "lesson.open.lucena": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Rook endings are tricky, but I know two magic positions!"
+ },
+ "lesson.open.candidates": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Before you move, pick a few ideas, then test them."
+ },
+ "lesson.open.visualise": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Close your eyes, and picture the board. Let's see ahead!"
+ },
+ "lesson.open.blunder-check": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "One quick look before you move can save the whole game!"
+ },
+ "lesson.open.combinations": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Now let's mix tricks together, for some real fireworks!"
+ },
+ "lesson.open.clock": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Tick tock! Let's learn to use your time wisely."
+ },
+ "lesson.open.repertoire": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Pick your favourite openings, and learn from every game!"
+ },
+ "lesson.open.etiquette": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Good players are good friends too. Let's play fair and stay calm."
+ },
+ "lesson.open.table-words": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Let's learn the special words chess players say, all around the world!"
+ },
  "lesson.ex": {
   "who": "rooky",
   "voice": "am_puck,am_liam",

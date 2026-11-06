@@ -14,19 +14,19 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/') || url.pathname === '/ws') return;
-  if (/^\/voice\/[a-z]+\.mp3$/.test(url.pathname)) {
+  if (/^\/(voice|coach)\/[a-z]+\.mp3$/.test(url.pathname)) {
     e.respondWith(voice(e.request, url));
     return;
   }
   // Guide lines, era stories, item pitches and lesson words can be recorded again, so like the pages they load from the network first.
-  if (!SHELL.includes(url.pathname) && url.pathname !== '/voice/index.json' && !/^\/(guide\/[a-z0-9.-]+|pitch\/(site\/)?[a-z0-9.-]+|(words|tale)\/[a-z]+\/[0-9a-f]{8})\.mp3$/.test(url.pathname)) return;
+  if (!SHELL.includes(url.pathname) && url.pathname !== '/voice/index.json' && url.pathname !== '/coach/index.json' && !/^\/(guide\/[a-z0-9.-]+|pitch\/(site\/)?[a-z0-9.-]+|(words|tale)\/[a-z]+\/[0-9a-f]{8})\.mp3$/.test(url.pathname)) return;
   e.respondWith(fetch(e.request).then((res) => {
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(url.pathname, copy)); }
     return res;
   }).catch(() => caches.match(url.pathname)));
 });
 
-// A voice pack (/voice/<id>.mp3?v=<hash>) is asked for one clip at a time as a byte range. Each clip
+// A voice pack (/voice/<id>.mp3?v=<hash>, or a coach pack /coach/<id>.mp3) is asked for one clip at a time as a byte range. Each clip
 // is kept once heard (under its range), so lessons a child has heard talk offline too.
 async function voice(req, url) {
   const range = /^bytes=(\d+)-(\d+)$/.exec(req.headers.get('range') || '');

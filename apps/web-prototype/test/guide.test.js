@@ -45,6 +45,13 @@ for (const q of PL.questions) {
   asked.add('placement.' + q.id);
 }
 for (const b of PL.bands) { assert(G.lines[b.say] && G.lines[b.say].who === 'rooky', b.say); asked.add(b.say); }
+// Every Learn lesson opens with its own line from Rooky.
+const LS = require('../../../packages/content/lessons.json');
+for (const l of LS.lessons) {
+  const k = 'lesson.open.' + l.id.split('.').pop();
+  assert(G.lines[k] && G.lines[k].who === 'rooky', l.id + ' has an opening line from Rooky');
+  asked.add(k);
+}
 const menus = [...app.matchAll(/SCREENS\.([a-z]+) = function/g)].map((m) => m[1]).filter((n) => !['era', 'lesson', 'puzzle', 'game', 'drill', 'home', 'xiangqi', 'xqlesson'].includes(n));
 for (const n of menus) assert(G.lines[n], 'the ' + n + ' screen has a line');
 for (const k of Object.keys(G.lines)) {

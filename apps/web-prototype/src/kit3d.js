@@ -703,12 +703,27 @@ function ChacklateKit(THREE) {
     return d;
   }
   const texAniso = () => TEXB.aniso;
+  // A cached canvas can lose its picture: the browser may drop a 2D canvas's memory (a GPU
+  // reset, memory pressure on a long session), leaving it blank. Everything later cut from it
+  // (the board squares, the frames) then came out blank too, so a lost canvas is painted again
+  // before it is used.
   function canvasTex(key, w, h, draw, o) {
-    if (texCache.has(key)) return texCache.get(key);
-    const c = document.createElement('canvas'); c.width = w; c.height = h || w;
-    const ctx = c.getContext('2d');
-    draw(ctx, c.width, c.height);
-    const t = new THREE.CanvasTexture(fitCanvas(c));
+    const hit = texCache.get(key);
+    if (hit && !hit.userData.lost()) return hit;
+    let c, ctx, lost = false;
+    const paintNew = () => {
+      c = document.createElement('canvas'); c.width = w; c.height = h || w;
+      ctx = c.getContext('2d'); lost = false;
+      c.addEventListener('contextlost', () => { lost = true; });
+      c.addEventListener('contextrestored', () => { lost = true; });   // back, but blank
+      draw(ctx, c.width, c.height);
+      const img = fitCanvas(c);
+      if (img !== c) for (const ev of ['contextlost', 'contextrestored']) img.addEventListener(ev, () => { lost = true; });
+      return img;
+    };
+    if (hit) { hit.image = paintNew(); hit.userData.lost = () => lost || !!(ctx.isContextLost && ctx.isContextLost()); hit.needsUpdate = true; return hit; }
+    const t = new THREE.CanvasTexture(paintNew());
+    t.userData.lost = () => lost || !!(ctx.isContextLost && ctx.isContextLost());
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     t.anisotropy = TEXB.aniso;
@@ -963,7 +978,39 @@ function ChacklateKit(THREE) {
     return merged;
   }
 
-  return { DETAIL, batchStatic, setTextureBudget, fitCanvas, texAniso, TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
+  // Glass in a room (chandelier drops, goblets, a glass table top, a fountain) is drawn as
+  // clear lacquered glass that lets the room show through, not with real refraction. One
+  // refracting surface anywhere in view makes three draw every solid thing in the scene a
+  // second time each frame into a full-size buffer, and in the glass rooms that doubled the
+  // cost of the whole table. At their size on screen the drops and goblets look the same; the
+  // glass piece sets keep their real refraction.
+  const glassCache = new WeakMap();
+  function clearGlass(root) {
+    let n = 0;
+    const swap = (src) => {
+      if (!(src && src.transmission > 0)) return src;
+      if (!glassCache.has(src)) {
+        const g = src.clone();
+        g.transmission = 0;
+        g.transparent = true;
+        g.depthWrite = false;
+        g.opacity = Math.min(src.transparent ? src.opacity : 1, 1 - 0.6 * src.transmission);
+        g.envMapIntensity = (src.envMapIntensity || 1) * 1.25;
+        g.specularIntensity = 1;
+        if (!g.clearcoat) { g.clearcoat = 0.6; g.clearcoatRoughness = 0.05; }
+        glassCache.set(src, g);
+      }
+      n++;
+      return glassCache.get(src);
+    };
+    root.traverse((m) => {
+      if (!m.isMesh) return;
+      m.material = Array.isArray(m.material) ? m.material.map(swap) : swap(m.material);
+    });
+    return n;
+  }
+
+  return { DETAIL, batchStatic, clearGlass, setTextureBudget, fitCanvas, texAniso, TAU, clamp, mix, smooth, rng, noise2, fbm, profile, Profile, MOD, mods, revolve, frame, alongProfile, SD, strand, strandsDist, strandField, field2, blendMap, spline, sdfGeometry,
     beadRing, ring, extrude, closedCurve, mirrorOutline, tube, scroll, wrap, canvasTex, paint, hex, lerpC, TEX, MAT, material, merge };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateKit;

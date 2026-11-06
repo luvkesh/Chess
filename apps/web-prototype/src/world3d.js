@@ -99,8 +99,11 @@ function ChacklateWorld(THREE, K) {
     const tiles = [PAINT[f.type](f, false), PAINT[f.type](f, true)];
     for (let r = 0; r < 8; r++) for (let fl = 0; fl < 8; fl++) {
       const light = (r + fl) % 2 === 1, img = tiles[light ? 1 : 0];
-      if (f.type === 'clay' && light) { const x = fl * S, y = (7 - r) * S; g.drawImage(img, R() * (img.width - S), R() * (img.height - S), S, S, x, y, S, S); intersecting(g, x, y, S, R); continue; }
+      if (f.type === 'clay' && light) { const x = fl * S, y = (7 - r) * S; g.fillStyle = f.light; g.fillRect(x, y, S, S); g.drawImage(img, R() * (img.width - S), R() * (img.height - S), S, S, x, y, S, S); intersecting(g, x, y, S, R); continue; }
       const x = fl * S, y = (7 - r) * S;
+      // the square's own colour goes down first, so a tile that comes out blank (a canvas the
+      // browser dropped) still leaves a true checker, never a see-through square
+      g.fillStyle = light ? f.light : f.dark; g.fillRect(x, y, S, S);
       g.save(); g.beginPath(); g.rect(x, y, S, S); g.clip();
       const ox = R() * (img.width - S), oy = R() * (img.height - S);
       if (f.type === 'wood' && light !== ((fl + r) % 4 < 2)) { g.translate(x + S / 2, y + S / 2); g.rotate(Math.PI / 2); g.drawImage(img, ox, oy, S, S, -S / 2, -S / 2, S, S); }
@@ -203,6 +206,7 @@ function ChacklateWorld(THREE, K) {
     const N = 2048, c = canvas(N), g = c.getContext('2d');
     const half = 4.9, px = (u) => ((u + half) / (half * 2)) * N;
     const f = b.frame;
+    g.fillStyle = f.color; g.fillRect(0, 0, N, N);   // under everything, in case a tile comes out blank
     // base paint
     if (f.type === 'wood') {
       // mitred rails: the grain runs along each side and meets at the corners
@@ -2284,6 +2288,7 @@ function ChacklateWorld(THREE, K) {
     grp.traverse((m) => { if (m.isMesh && !m.material.transparent) { m.receiveShadow = true; } });
     // the chandelier steps aside for the camera and the flames flicker; the rest stands still
     K.batchStatic(grp, [ch, vista && vista.group].concat(flames.map((f) => f.m)));
+    K.clearGlass(grp);
     return {
       group: grp, def, flames, floorY: FLOOR, tableY: TOP, chandelier: ch, chandelierY: 7.8, vista: !!vista, outdoor,
       // where a free camera may go: inside the walls, clear of what stands against them, and

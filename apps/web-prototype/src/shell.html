@@ -395,11 +395,13 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .chapter .meta { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
 .chapter header .bar { width: 160px; margin-left: auto; }
 .lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
-.node { position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; text-align: left; padding: 13px 15px; border-radius: 14px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.04); transition: border-color .25s, background .25s, transform .25s var(--ease); }
+.node { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; text-align: left; padding: 13px 15px; border-radius: 14px; border: 1px solid var(--line); background: rgba(232, 194, 122, 0.04); transition: border-color .25s, background .25s, transform .25s var(--ease); }
 .node:hover:not(:disabled) { border-color: var(--line-3); background: rgba(232, 194, 122, 0.08); transform: translateY(-2px); }
 .node.done { border-color: rgba(232, 194, 122, 0.35); }
 .node.next { border-color: rgba(232, 194, 122, 0.75); background: rgba(232, 194, 122, 0.1); box-shadow: var(--glow); }
 .node:disabled { opacity: 0.5; cursor: default; }
+.node-art { width: 64px; height: 64px; flex: none; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
+.node-art img { width: 64px; height: 64px; object-fit: cover; display: block; }
 .node b { display: block; font-weight: 500; font-size: 15px; }
 .node small { color: var(--muted); font-size: 12.5px; line-height: 1.35; display: block; margin-top: 2px; }
 .stars { color: var(--gold); letter-spacing: 2px; font-size: 14px; white-space: nowrap; }
@@ -778,7 +780,9 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .side.wide { top: calc(var(--safe-t) + 70px); bottom: calc(var(--safe-b) + 16px); width: calc(var(--col) + 20px); }
 .side header { display: flex; align-items: center; gap: 8px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
 .side header b { font: 600 12px/1 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-2); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rv-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.rv-body { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.side > header, .rv-body > :not(.moves-wrap) { flex-shrink: 0; }
+.rv-body > .moves-wrap { min-height: 96px; }
 .round.rb { padding: 0; overflow: hidden; border-color: rgba(232, 194, 122, 0.55); background: transparent; }
 .round.rb img { width: 100%; height: 100%; display: block; transition: transform .3s var(--ease); }
 .round.rb:hover img, .round.rb.on img { transform: scale(1.08) rotate(-4deg); }
@@ -868,14 +872,124 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .cls { font: 700 10px/1 var(--body); padding: 3px 5px; border-radius: 5px; letter-spacing: 0.02em; }
 .cls.brilliant { background: #1fb5c9; color: #04252a; } .cls.best { background: #7fd6a4; color: #0b2a18; } .cls.excellent { background: #9ad58a; color: #13290d; }
 .cls.good { background: rgba(232, 194, 122, 0.16); color: var(--muted); } .cls.inaccuracy { background: #f0c26a; color: #2a1a05; } .cls.mistake { background: #f08a4b; color: #2a1205; } .cls.blunder { background: #e5484d; color: #fff; }
-.coach { margin: 12px; padding: 14px; border-radius: 16px; background: linear-gradient(135deg, rgba(232, 194, 122, 0.12), rgba(194, 57, 95, 0.1)); border: 1px solid rgba(232, 194, 122, 0.35); display: grid; grid-template-columns: 52px 1fr; gap: 12px; animation: rise .45s var(--ease) both; }
+/* The five move grades (and the coach's own notes), used on the coach card, the review and the report. */
+.cls.g-excellent { background: #7fd6a4; color: #0b2a18; } .cls.g-good { background: rgba(232, 194, 122, 0.18); color: var(--gold-2); }
+.cls.g-inaccurate { background: #f0c26a; color: #2a1a05; } .cls.g-mistake { background: #f08a4b; color: #2a1205; } .cls.g-blunder { background: #e5484d; color: #fff; }
+.cls.g-mentor { background: rgba(122, 76, 150, 0.35); color: #f1dcff; border: 1px solid rgba(200, 160, 230, 0.35); }
+/* Rooky's card: compact by default (one line), tap the words or the arrow to read more. */
+#coach-slot { flex: none; max-height: 72%; overflow: auto; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
+.coach { margin: 12px; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, rgba(232, 194, 122, 0.12), rgba(194, 57, 95, 0.1)); border: 1px solid rgba(232, 194, 122, 0.35); display: grid; grid-template-columns: 46px 1fr; gap: 10px; animation: rise .45s var(--ease) both; }
+.coach.g-excellent { border-color: rgba(127, 214, 164, 0.55); } .coach.g-inaccurate { border-color: rgba(240, 194, 106, 0.55); }
+.coach.g-mistake { border-color: rgba(240, 138, 75, 0.6); } .coach.g-blunder { border-color: rgba(229, 72, 77, 0.7); background: linear-gradient(135deg, rgba(229, 72, 77, 0.14), rgba(194, 57, 95, 0.08)); }
 .coach.rival { background: linear-gradient(135deg, rgba(120, 160, 220, 0.1), rgba(232, 194, 122, 0.08)); }
-.coach .face { width: 52px; height: 52px; }
+.coach .face { width: 46px; height: 46px; }
 .coach .face img { width: 100%; height: 100%; }
-.coach b { font: 600 10.5px/1.3 var(--caps); letter-spacing: 0.16em; color: var(--gold-2); text-transform: uppercase; }
-.coach p { margin: 4px 0 10px; font-size: 14.5px; line-height: 1.5; }
-.coach.rival p { font: italic 500 17px/1.4 var(--serif); }
-.coach .row { justify-content: flex-start; gap: 6px; margin: 0; }
+.coach .cbody { min-width: 0; }
+.coach .chead { display: flex; align-items: center; gap: 8px; min-height: 30px; }
+.coach .chead b { font: 600 10.5px/1.3 var(--caps); letter-spacing: 0.16em; color: var(--gold-2); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.coach .chead .cls { flex: none; }
+.ctools { display: flex; gap: 2px; margin-left: auto; flex: none; }
+.cbtn { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; border: 0; background: transparent; color: var(--gold-2); cursor: pointer; padding: 0; }
+.cbtn:hover { background: rgba(232, 194, 122, 0.12); } .cbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.cbtn .ico { width: 17px; height: 17px; }
+.coach .ctext { display: block; width: 100%; text-align: left; margin: 4px 0 8px; padding: 0; border: 0; background: none; color: var(--ink); font: 14.5px/1.5 var(--body); cursor: pointer; }
+.coach .ctext[tabindex="-1"] { cursor: default; }
+.coach .ctext strong { font-weight: 600; color: #fff3dc; }
+.coach:not(.open) .ctext { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.coach.slim .chead { margin-bottom: 4px; }
+.coach.rival .ctext { font: italic 500 17px/1.4 var(--serif); }
+.cwords { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; }
+.cwords small { font: 600 9.5px/1.2 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+.cwords .chip { padding: 4px 10px; font-size: 12.5px; border-style: dashed; }
+.coach .row { justify-content: flex-start; gap: 6px; margin: 0; flex-wrap: wrap; }
+.coach .row:empty { display: none; }
+/* A chess word, explained where it was tapped. */
+.term-pop { position: fixed; z-index: 70; width: min(320px, calc(100vw - 24px)); padding: 14px 16px; border-radius: 16px; animation: rise .3s var(--ease) both; }
+.term-pop b { font: 600 22px/1.15 var(--serif); color: var(--gold-2); }
+.term-pop p { margin: 6px 0 10px; font-size: 14px; line-height: 1.5; }
+.term-pop .row { justify-content: flex-start; gap: 6px; margin: 0; }
+/* The coach menu, opening above the Coach button. */
+.coach-pop { position: fixed; z-index: 60; width: min(340px, calc(100vw - 20px)); max-height: min(78vh, 620px); overflow: auto; padding: 8px; border-radius: 18px; animation: rise .3s var(--ease) both; scrollbar-width: thin; }
+.coach-pop header { display: flex; gap: 10px; align-items: center; padding: 6px 8px 10px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.coach-pop header img { width: 40px; height: 40px; flex: none; }
+.coach-pop header b { display: block; font: 600 12px/1.2 var(--caps); letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-2); }
+.coach-pop header small { display: block; font-size: 12.5px; line-height: 1.35; color: var(--muted); margin-top: 2px; }
+.cm-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.cm-item:hover:not(:disabled), .cm-item:focus-visible { background: rgba(232, 194, 122, 0.1); outline: none; }
+.cm-item:disabled { opacity: 0.4; cursor: default; }
+.cm-item .ico { width: 20px; height: 20px; flex: none; color: var(--gold); }
+.cm-item b { display: block; font: 600 14px/1.25 var(--body); }
+.cm-item small { display: block; font-size: 12px; line-height: 1.3; color: var(--muted); }
+.actionbar .btn.coach-btn img { width: 26px; height: 26px; margin: -4px 2px -4px -6px; }
+/* Coach settings. */
+.cm-modes span { min-width: 92px; text-align: center; }
+.cm-note { margin: 8px 0 2px; font-size: 13px; line-height: 1.45; color: var(--muted); }
+/* Move analysis, the glossary, the end-of-game report box and the profile. */
+.card.wide-card { width: min(720px, 100%); }
+.detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 14px 0 6px; }
+.detail section { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(14, 9, 6, 0.4); }
+.detail h3 { margin: 0 0 6px; font: 600 11px/1.2 var(--caps); letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.detail p { margin: 0 0 4px; font-size: 14px; line-height: 1.5; }
+.gloss { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; margin: 10px 0; }
+.gl { position: relative; padding: 12px 44px 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(14, 9, 6, 0.4); }
+.gl.seen { border-color: rgba(232, 194, 122, 0.4); }
+.gl b { font: 600 19px/1.2 var(--serif); color: var(--gold-2); }
+.gl p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+.gl .cbtn { position: absolute; top: 8px; right: 8px; }
+.rc { margin: 12px 0 4px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(232, 194, 122, 0.3); background: rgba(14, 9, 6, 0.4); text-align: left; }
+.rc:empty { display: none; }
+.rc-head { display: flex; align-items: center; gap: 10px; }
+.rc-head img { width: 40px; height: 40px; flex: none; }
+.rc-head > div { flex: 1; min-width: 0; }
+.rc-head b { display: block; font: 600 18px/1.2 var(--serif); }
+.rc-head small { color: var(--muted); font-size: 12.5px; }
+.rc p { margin: 8px 0 0; font-size: 14px; line-height: 1.5; }
+.rc .progress-ring { padding: 8px; } .rc .progress-ring img { width: 44px; height: 44px; }
+.rc-grades { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.rc-grades .cls { font-size: 11px; padding: 4px 7px; }
+.pf-lines p { margin: 0 0 6px; font-size: 14.5px; line-height: 1.5; }
+.pf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0; }
+.pf-stats > div { padding: 10px 6px; border-radius: 12px; border: 1px solid var(--line); text-align: center; background: rgba(14, 9, 6, 0.4); min-width: 0; }
+.pf-stats small { display: block; font: 600 9px/1.2 var(--caps); letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); overflow: hidden; text-overflow: ellipsis; }
+.pf-stats b { display: block; font: 500 24px/1.2 var(--serif); margin-top: 4px; }
+.spark { display: block; width: 100%; height: 50px; color: var(--gold); margin: 4px 0 8px; }
+.pf-recs { display: grid; gap: 6px; margin: 6px 0 4px; }
+.pf-recs .btn { justify-content: flex-start; text-align: left; white-space: normal; }
+/* The review: Moves and Summary tabs, the report, and the practice board's list. */
+.rv-tabs { display: flex; gap: 4px; flex: 1; min-width: 0; }
+.rv-tabs button { border: 0; background: transparent; color: var(--muted); font: 600 11.5px/1 var(--caps); letter-spacing: 0.16em; text-transform: uppercase; padding: 8px 10px; border-radius: 9px; cursor: pointer; }
+.rv-tabs button[aria-selected="true"] { color: var(--gold-2); background: rgba(232, 194, 122, 0.12); }
+.rv-tabs button[hidden] { display: none; }
+.rv-acts { flex-wrap: wrap; justify-content: flex-start; gap: 6px; margin: 8px 0 0; }
+.rp { flex: 1; overflow: auto; padding: 12px 16px 16px; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
+.rp h3 { margin: 16px 0 8px; font: 600 11px/1.2 var(--caps); letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.rp-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rp-top b { font: 500 20px/1.2 var(--serif); }
+.rp-top .cbtn { margin-left: auto; }
+.rp-jump { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; width: 100%; margin-top: 6px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(14, 9, 6, 0.4); color: var(--ink); text-align: left; cursor: pointer; }
+.rp-jump:hover { border-color: rgba(232, 194, 122, 0.45); }
+.rp-jump b { font: 600 9.5px/1.2 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.rp-jump span { grid-column: 1; font-size: 13.5px; line-height: 1.4; }
+.rp-jump .ico { grid-column: 2; grid-row: 1 / span 2; width: 16px; height: 16px; color: var(--gold); }
+.rp-table { width: 100%; border-collapse: collapse; }
+.rp-table th { text-align: left; font: 600 14px/1.3 var(--body); padding: 7px 0; border-bottom: 1px solid var(--line); }
+.rp-table th small { display: block; font: 400 12px/1.35 var(--body); color: var(--muted); }
+.rp-table td { text-align: right; padding: 7px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.rate { display: inline-block; font: 600 11px/1 var(--body); padding: 5px 8px; border-radius: 999px; }
+.rate.strong { background: rgba(127, 214, 164, 0.18); color: #a8eac4; } .rate.solid { background: rgba(232, 194, 122, 0.16); color: var(--gold-2); }
+.rate.work { background: rgba(240, 138, 75, 0.18); color: #ffc29c; } .rate.na { color: var(--faint); }
+.rp-words p { margin: 0 0 6px; font-size: 14px; line-height: 1.5; }
+.rp-words .focus { padding: 8px 10px; border-left: 2px solid var(--gold); background: rgba(232, 194, 122, 0.08); border-radius: 0 10px 10px 0; }
+.rp-key { display: flex; flex-wrap: wrap; gap: 6px; }
+.rp > .btn { margin-top: 14px; }
+.explore-side { flex: 1; overflow: auto; padding: 12px 14px; }
+.ex-line { margin: 0; padding: 0 0 0 1.4em; display: grid; gap: 6px; font-size: 14px; }
+.ex-line li b { font: 600 14px/1.4 var(--mono); margin-right: 6px; }
+.ex-line li small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+.ex-eval { margin: 10px 0 0; color: var(--gold-2); font-size: 13.5px; }
+.actionbar .toggle-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.actionbar .toggle-btn input { width: 16px; height: 16px; accent-color: var(--gold-3); margin: 0; }
+@media (prefers-reduced-motion: reduce) { .coach, .coach-pop, .term-pop { animation: none; } }
 .actionbar { position: absolute; bottom: calc(var(--safe-b) + 16px); left: calc((100% - var(--col) - 32px) / 2); transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 7px; border-radius: 999px; z-index: 7; max-width: calc(100% - var(--col) - 64px); overflow-x: auto; scrollbar-width: none; }
 .actionbar .btn { border-radius: 999px; border-color: transparent; background: transparent; min-height: 44px; padding: 0 16px; font: 500 13.5px/1 var(--body); flex: none; }
 .actionbar .btn:hover:not(:disabled) { background: rgba(232, 194, 122, 0.1); }
@@ -1327,6 +1441,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .lesson header { padding: 8px 12px; } .lesson header img { width: 38px; height: 38px; } .lesson header h3 { font-size: 18px; }
   .lesson .content { padding: 10px 14px; } .lesson .say { font-size: 16px; } .lesson .prompt { font-size: 17px; }
   .coach { margin: 8px; padding: 10px; }
+  #coach-slot { max-height: 80%; }
   .evalbar { height: 40vh; }
   .actionbar { bottom: calc(var(--safe-b) + 8px); padding: 4px; } .actionbar .btn { min-height: 38px; padding: 0 11px; }
   .actionbar .btn span.lbl { display: none; }
