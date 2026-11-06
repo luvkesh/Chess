@@ -692,5 +692,16 @@
  "White: knight to f3": "सफ़ेद: घोड़ा f3 पर",
  "Black: knight to c6": "काला: घोड़ा c6 पर",
  "White: bishop to c4": "सफ़ेद: ऊँट c4 पर",
- "Black: bishop to c5": "काला: ऊँट c5 पर"
+ "Black: bishop to c5": "काला: ऊँट c5 पर",
+ "A burst of colour over the board when you win.": "जीतने पर बोर्ड के ऊपर रंगों की बौछार।",
+ "A face for your player card.": "आपके प्लेयर कार्ड के लिए एक चेहरा।",
+ "A ring of metal or enamel around your avatar.": "आपके अवतार के चारों ओर धातु या मीनाकारी का घेरा।",
+ "Every piece leaves a subtle trail while it moves.": "हर मोहरा चलते समय एक हल्की-सी लकीर छोड़ता है।",
+ "Hear it": "सुनिए",
+ "The details": "बारीकियाँ",
+ "The sound each piece makes as it meets the board.": "बोर्ड पर रखते समय हर मोहरे की आवाज़।",
+ "There are {0} to collect.": "इकट्ठा करने को {0} हैं।",
+ "Your game clock, from glacier glass to ruby lacquer.": "आपकी खेल घड़ी, ग्लेशियर काँच से रूबी लाख तक।",
+ "Demo 1 of 2": "डेमो 1, 2 में से",
+ "Demo 2 of 2": "डेमो 2, 2 में से"
 }
