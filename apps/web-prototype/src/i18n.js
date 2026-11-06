@@ -28,7 +28,7 @@ const ChacklateI18n = (function () {
   ];
   // The languages on offer: a language joins once every string and content text is translated
   // (test/i18n.test.js checks each one listed here).
-  const READY = ['en', 'hi'];
+  const READY = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ru', 'ur'];
   const LANGS = ALL.filter((l) => READY.includes(l.id));
   const STRINGS = typeof CHACKLATE_STRINGS !== 'undefined' ? CHACKLATE_STRINGS : {};
   const TEXT = typeof CHACKLATE_TEXT !== 'undefined' ? CHACKLATE_TEXT : {};

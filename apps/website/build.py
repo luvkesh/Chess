@@ -197,7 +197,7 @@ def guide(coach, collection):
 # packages/content/i18n/text/<code>.json; i18n/<code>.json holds the site's own text and wins.
 ALL_LANGS = [('en', 'English'), ('zh', '中文'), ('hi', 'हिन्दी'), ('es', 'Español'), ('fr', 'Français'), ('ar', 'العربية'),
              ('bn', 'বাংলা'), ('pt', 'Português'), ('ru', 'Русский'), ('ur', 'اردو')]
-READY = ['en', 'hi']   # as in the game: a language joins once it is fully translated
+READY = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ru', 'ur']   # as in the game: a language joins once it is fully translated
 LANGS = [l for l in ALL_LANGS if l[0] in READY]
 META = {
     'zh': {'dir': 'ltr', 'script': 'Han', 'speech': 'zh-CN'},
