@@ -61,7 +61,7 @@ for key, want in lines.items():
     voice = want['voice']
     lang = voice[0]   # a: American English, b: British English
     pipe = pipes.get(lang) or pipes.setdefault(lang, KPipeline(lang_code=lang, repo_id='hexgrad/Kokoro-82M'))
-    audio = speak(pipe, want['text'], voice, guide['speed'], guide['pause']['comma'], guide['pause']['stop'])
+    audio = speak(pipe, want['text'], voice, guide['speakers'][want['who']].get('speed', guide['speed']), guide['pause']['comma'], guide['pause']['stop'])
     mp3.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(suffix='.wav') as wav:
         sf.write(wav.name, audio, RATE)

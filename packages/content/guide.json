@@ -1,14 +1,15 @@
 {
-  "note": "The in-game audio guide. On every screen one short line tells the child what to do next; on an era page the era's friend says it, everywhere else Rooky does. Lines are recorded offline with Kokoro-82M by tools/voice/record-guide.py into apps/web-prototype/public/guide/, each sentence and clause on its own, joined with pauses (commas short, full stops longer). After changing a line, record again: test/guide.test.js checks every clip matches its words.",
+  "note": "The in-game audio guide. On every screen one short line tells the child what to do next; on an era page the era's friend says it, everywhere else Rooky does. Lines are recorded offline with Kokoro-82M by tools/voice/record-guide.py into apps/web-prototype/public/guide/, each sentence and clause on its own, with a breath after each comma and a longer one after each full stop, eased into a soft room tone so the voice never cuts out (tools/voice/pauses.py). After changing a line, record again: test/guide.test.js checks every clip matches its words.",
   "pause": {
-    "comma": 0.3,
-    "stop": 0.65
+    "comma": 0.14,
+    "stop": 0.4
   },
   "speed": 0.95,
   "speakers": {
     "rooky": {
-      "engine": "am_puck,am_michael",
-      "note": "Rooky the red panda: \"Toby\", young, soft and calm, excited at times"
+      "engine": "am_puck,am_liam",
+      "speed": 1.05,
+      "note": "Rooky: \"Toby\", about thirty, sweet and upbeat, often excited"
     },
     "miu": {
       "engine": "af_bella",

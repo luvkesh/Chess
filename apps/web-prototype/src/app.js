@@ -107,7 +107,7 @@
   // every era of the journey. Portraits are drawn by art.js.
   const OPP = CAMPAIGN.opponents, COACH = CAMPAIGN.coach;
   const persona = (lv) => OPP[lv] || OPP[0];
-  const species = (p) => (p.full || '').replace(p.name, '').trim().replace(/^the /, '');
+  const species = (p) => (p.species || (p.full || '').replace(p.name, '')).trim().replace(/^the /, '');
   const face = (who, o) => ART.portraitUri(who.animal, Object.assign({ from: who.colors[0], to: who.colors[1] }, o || {}));
   const faceImg = (who, cls) => '<img class="portrait ' + (cls || '') + '" src="' + face(who) + '" alt="' + esc(who.full || who.name) + '">';
   const eraById = (id) => CAMPAIGN.eras.find((e) => e.id === id) || null;
@@ -403,7 +403,7 @@
     const noop = () => {};
     let sets = null;
     return { setBoard: noop, setHighlights: noop, setArrows: noop, setTheme: noop, setRoom: noop, setFx: noop, setCaptureEffects: noop, setElements: noop, playElement: noop, storming: () => false, setQuality: noop, setAnimations: noop,
-      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, setAlt: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
+      setAttract: noop, setInsets: noop, setView: noop, setPaused: noop, intro(done) { if (done) done(); return 0; }, skipIntro: noop, celebrate: noop, setClock: noop, showcase: noop, setFullDetail: noop, setFocus: noop, setAlt: noop, stage: () => null, cancelDrag: noop, requestRender: noop, resize: noop,
       animateMove(info, done) { done(); }, snapshot: () => Promise.resolve(null), boards: () => ({}), rooms: () => ({}),
       sets() { if (!sets) { try { sets = ChacklatePieces(window.THREE, ChacklateKit(window.THREE)).list(); } catch (e) { sets = []; } } return sets; } };
   }
@@ -445,7 +445,7 @@
   function applySettings() {
     const s = state.settings;
     view.setQuality(s.quality);
-    view.setAnimations(s.animations && !window.__SHOT);
+    view.setAnimations(s.animations && (!window.__SHOT || !!window.__ANIM));   // tooling can ask for motion (the opening shot)
     view.setElements(s.elements !== false);
     document.body.classList.toggle('lowfx', s.quality === 'low');
     AU.setSfx(s.sfx, s.sfxVol);
@@ -851,7 +851,7 @@
       peeking.timers.push(setTimeout(() => {
         if (!live()) return;
         view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: capture ? sqIndex(to) : -1, mover: piece },
-          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move'); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false, elements: false });
+          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move', { mover: piece, captured: capture ? -1 : 0 }); peeking.timers.push(setTimeout(play, 1000)); }, { skipHint: false, elements: false });
       }, 450));
     };
     play();
@@ -882,7 +882,7 @@
       const win = () => view.celebrate('win', -1, null, sqIndex('e1'));
       peeking.timers.push(setTimeout(win, 500), setInterval(win, 4200));
     }
-    if (it.category === 'sound') AU.play('capture');
+    if (it.category === 'sound') AU.play('capture', { mover: 2, captured: -1 });
     // Clocks, pictures and frames are not on the table, so they show on a player card above the bar,
     // the way they look in a game; a clock counts down there and on the chess clock by the board.
     if (['clock', 'avatar', 'frame'].includes(it.category)) peekCard(it);
@@ -1455,7 +1455,7 @@
       for (const id of ['x-top', 'x-bottom']) { const el = $(id); if (el) el.classList.toggle('to-move', !g.outcome && g.pos.side === +el.dataset.side); }
     }
     function after(info) {
-      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
       Q.selected = -1; marks(); hud();
       if (Q.g.outcome) { end(); return; }
       if (Q.kind === 'ai' && Q.g.pos.side !== Q.human) think();
@@ -1692,7 +1692,7 @@
       else if (x.type === 'win') { const tg = new X.Game(x.fen); tg.play(m); ok = !!(tg.outcome && tg.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1')); msg = ok ? x.yes : x.no; }
       if (ok) {
         const info = g.play(m);
-        AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+        AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
         if (T) T.move(info, () => T.setMarks({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? g.pos.kingSq(g.pos.side) : -1 }));
         answer(S.tries === 0, msg);
       } else { S.tries++; AU.play('wrong'); fb('bad', msg); if (T) T.setMarks({}); }
@@ -3076,17 +3076,47 @@
     state.game = game;
     go('game', game);
     view.setView(game.viewSide, state.settings.view, true);
-    if (!g.moves.length && !toss) view.intro();
+    // a new game opens on a tour of the place; the opponent waits for it to land in the seat
+    let toured = !(!g.moves.length && !toss);
+    const afterTour = [];
+    if (!toured) openingShot(game, () => { toured = true; afterTour.splice(0).forEach((f) => f()); });
     save();
     // The opponent says hello across the table.
     if (kind === 'ai' && !setup.dojo && !g.moves.length) { const who = rival(game); coachSay(sayLine(who, 'hello'), [[t('play.say.hello'), 'dismiss']], null, who); }
     const begin = () => {
-      if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: toss ? 2600 : 600 });
+      if (state.game !== game) return;
+      if (!setup.dojo && !g.moves.length) guideSay(kind === 'local' || human === WHITE ? 'game.white' : 'game.black', { delay: toss ? 600 : 600 });
       gameNudge(game);
       if (!g.outcome) maybeComputer();
     };
-    if (toss) colourToss(game, begin); else begin();
+    if (toss) colourToss(game, begin); else if (toured) begin(); else afterTour.push(begin);
     preAnalyse();
+  }
+  // The opening shot: the camera tours the place (scene.js intro) with the screens out of the
+  // way, black bars top and bottom and the place's name, like the start of a film. A tap, a
+  // key or Skip goes straight to the seat. With reduced motion or animations off there is no
+  // tour and the game starts at once.
+  function openingShot(G, then) {
+    const old = document.querySelector('.cine-bars');
+    if (old) old.remove();
+    const rm = (view.rooms() || {})[PG.equipped(state.progress, 'room').data.room] || null;
+    let bars = null;
+    const done = () => {
+      document.body.classList.remove('cinematic');
+      if (bars) { const b = bars; bars = null; b.classList.add('out'); setTimeout(() => b.remove(), 450); }
+      if (state.game === G) then();
+    };
+    const ms = view.intro(done);
+    if (!ms || state.game !== G) return;
+    bars = document.createElement('div');
+    bars.className = 'cine-bars';
+    bars.setAttribute('data-no-tips', '');
+    bars.innerHTML = '<div class="cine-top"></div><div class="cine-bottom"><div class="cine-title">' +
+      (rm ? '<span class="cine-name">' + esc(rm.name) + '</span>' + (rm.era ? '<span class="cine-era">' + esc(rm.era) + '</span>' : '') : '') + '</div>' +
+      '<button class="btn small ghost cine-go" type="button">' + t('play.skip') + '</button></div>';
+    bars.addEventListener('pointerdown', (e) => { e.stopPropagation(); view.skipIntro(); });
+    document.body.appendChild(bars);
+    document.body.classList.add('cinematic');
   }
   // About three seconds: two closed paws, a tap, the paws open, the pawn in the tapped one is
   // the player's colour. Skip (or Escape) goes straight to the game. The colour was drawn at
@@ -3138,11 +3168,10 @@
       G.tossing = false;
       G.viewSide = G.kind === 'local' || G.human === WHITE ? 'white' : 'black';
       view.setView(G.viewSide, state.settings.view, true);
-      view.intro();
       renderCards(); refreshHighlights(); renderHud();
       AU.event(G.human === WHITE ? 'start.white' : 'start.black');
       save();
-      then();
+      openingShot(G, then);
     };
     // hand: the paw that was tapped (here, or by the friend when watching). The tapped paw holds
     // the picker's colour, so a watcher finds their own pawn in the other one.
@@ -3489,7 +3518,7 @@
     // Captures and castling play a short scene, except online, where the server's clock keeps running.
     const cinema = !!(info.captured || info.rook) && !quick && state.settings.captureScenes && G.kind !== 'online';
     const sound = info.check && !g.outcome ? 'check' : info.promo ? 'promote' : cinema ? 'move' : info.rook ? 'castle' : info.captured ? 'capture' : 'move';
-    setTimeout(() => AU.play(sound), dropped ? 0 : 140);
+    setTimeout(() => AU.play(sound, info), dropped ? 0 : 140);
     if (!g.outcome) setTimeout(() => AU.announce(info.san, !!g.pos.ch).then((said) => { if (!said && info.check) AU.event('check'); }), dropped ? 120 : 260);
     renderHud();
     G.cinema = view.animateMove(info, () => {
@@ -3508,7 +3537,7 @@
       if (G.setup.dojo && dojoCheck(G, info)) return;
       if (g.outcome) endGame();
       else { maybeComputer(); gameNudge(G); }
-    }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture') });
+    }, { quick, cinema, onImpact: () => AU.play(info.rook ? 'castle' : 'capture', info) });
     // the clocks wait while a capture scene plays (local games; see clockRunning)
     if (G.cinema && G.clock) G.clock.since = 0;
     refreshHighlights();
@@ -4253,7 +4282,7 @@
           const g = new E.Game(S.pos.fen());
           const info = g.playText(playMoves[k++]);
           if (!info) return;
-          quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to }); AU.play(info.captured ? 'capture' : 'move'); setTimeout(stepPlay, 650); });
+          quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to }); AU.play(info.captured ? 'capture' : 'move', info); setTimeout(stepPlay, 650); });
         };
         setTimeout(stepPlay, 700);
       } else if (cb) cb();
@@ -4395,20 +4424,20 @@
           msg = ok ? 'Correct!' : 'Not the best move. Try again.';
           if (ok && S.pz * 2 + 2 < x.puzzle.moves.length) {
             const info = g.play(m);
-            AU.play(info.captured ? 'capture' : 'move');
+            AU.play(info.captured ? 'capture' : 'move', info);
             quickMove(info, () => {
               S.pos = g.pos; view.setBoard(piecesOf(g.pos), null);
               const reply = g.playText(x.puzzle.moves[S.pz * 2 + 2]);
               S.pz++;
               fb('ok', 'Good. Keep going.');
-              setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play('move'); }), 350);
+              setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move', reply); }), 350);
             });
             return;
           }
         }
         if (ok) {
           const info = g.play(m);
-          AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+          AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
           quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); });
           answer(S.tries === 0, msg);
         } else if (test) {
@@ -4556,7 +4585,7 @@
         const info = S.g.playText(o.moves[S.i]);
         const note = o.notes[S.i];
         S.i++;
-        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move'); if (note) fb('hint', t('learn.dr.theyPlay', { san: info.san, note })); advance(); });
+        quickMove(info, () => { S.busy = false; show(info); AU.play(info.captured ? 'capture' : 'move', info); if (note) fb('hint', t('learn.dr.theyPlay', { san: info.san, note })); advance(); });
       }, 450);
     }
     function finish() {
@@ -4677,7 +4706,7 @@
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move'); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
+        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move', info); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
@@ -4723,7 +4752,7 @@
         return true;
       }
       const info = g.play(m);
-      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
+      AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
         if (S.step * 2 + 2 >= S.cur.moves.length || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }

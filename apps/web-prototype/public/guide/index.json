@@ -1,352 +1,352 @@
 {
  "home.first": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Hi, I'm Rooky! Tap The Journey to travel through time with me, or tap Quick Play for a game with an animal friend."
  },
  "home": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Welcome back! Tap The Journey to carry on your adventure, or tap Quick Play for a fun game."
  },
  "home.resume": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Your game is waiting for you! Tap Resume Game, and carry on where you left off."
  },
  "play": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Pick an animal friend to play with. If you're new, start with Truffle the bunny. Each friend is a little stronger than the last."
  },
  "journey": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Every era is a new adventure! Tap an open era, and meet the friend who lives there."
  },
  "learn": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Pick a lesson, and I'll teach you, step by step. Start at the top, and work your way down."
  },
  "puzzles": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Puzzles are little treasure hunts. Pick one, then find the best move."
  },
  "training": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Let's practise! Pick a skill, and we'll work on it together."
  },
  "minis": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Mini-games are quick! Pick one, and beat your best score."
  },
  "mini": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tap the scroll if you need the rules. Have fun!"
  },
  "openings": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Openings are the first moves of a game. Pick one, and try it on the board."
  },
  "dojo": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Endgames are the end of a game, when only a few pieces are left. Pick one, and win it, step by step."
  },
  "collection": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "This is your collection! Tap anything to see it up close, and I will tell you all about it. Then tap Equip, to put it on your table."
  },
  "profile": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "This is you! Here you can see your level, your games, and your badges."
  },
  "club": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Welcome to the Club! See how you rank, climb the leagues, and find the friends you play with a code."
  },
  "season": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Play games, learn, and solve puzzles to climb the season. Every tier has a prize!"
  },
  "store": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "This part is for grown-ups. Please ask a grown-up before you buy anything."
  },
  "review": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Let's look back at your game. Tap the arrows, and step through it, one move at a time."
  },
  "game.white": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "You go first! Tap one of your pieces, then tap the square where you want it to go."
  },
  "game.black": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Your friend moves first. Watch their move, and then it's your turn!"
  },
  "game.check": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Uh oh, your king is in check! Move it to safety, block the attack, or take the attacker."
  },
  "game.idle": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Take your time. If you're stuck, tap Hint, and I'll show you a good idea."
  },
  "game.over": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Good game! Tap Review with Rooky to see your best moves, or play again."
  },
  "lesson.steps": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Let's learn! Listen, and watch the board. Then tap Next, when you're ready."
  },
  "lesson.open.board": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Hello, explorer! Every chess adventure starts on the board. Listen, then tap Next to move on."
  },
  "lesson.open.setup": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Time to wake the army up! Let's put every piece in its home."
  },
  "lesson.open.rook-bishop": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Straight lines, slanty lines, and one very careful king. Ready? Here we go!"
  },
  "lesson.open.knight": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Boing! The knight is the only piece that jumps. Watch it hop!"
  },
  "lesson.open.pawns": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Little pawns, big dreams! Reach the far side, and you become a queen."
  },
  "lesson.open.values": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Which piece is worth the most? Let's weigh them up, like treasure."
  },
  "lesson.open.check": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Uh oh, the king is in danger! Let's learn three ways to save him."
  },
  "lesson.open.checkmate": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "This is the big one! Checkmate wins the whole game."
  },
  "lesson.open.castling": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "A secret move for the king and rook! Let's see how it works."
  },
  "lesson.open.stalemate": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Not every game has a winner. Let's find out why!"
  },
  "lesson.open.centre": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "The middle of the board is the best spot in town. Let's grab it!"
  },
  "lesson.open.king-safety": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tuck the king in safe, and watch out for a sneaky queen!"
  },
  "lesson.open.traps": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Some games end super fast! Let's learn the traps, so they never catch you."
  },
  "lesson.open.forks": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "One piece, two targets! Forks are my favourite trick."
  },
  "lesson.open.pins": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Some pieces get stuck, and can't move! Let's pin and skewer."
  },
  "lesson.open.discovered": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Move one piece, and surprise! Another one attacks."
  },
  "lesson.open.mates": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Let's collect some famous checkmates, like shiny stickers!"
  },
  "lesson.open.scan": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Detective time! What is your opponent planning?"
  },
  "lesson.open.blocking": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Put up a wall, and keep your king cosy and safe!"
  },
  "lesson.open.counter": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Under attack? Sometimes the best answer is a bigger attack!"
  },
  "lesson.open.pawn-islands": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Pawns like to stick together. Let's see which ones get lonely."
  },
  "lesson.open.passed": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "A pawn with a clear road ahead is a superstar. Let's push!"
  },
  "lesson.open.outposts": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Let's find a perfect home for your knight, where nobody can chase it."
  },
  "lesson.open.open-files": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Rooks love open roads, and bishops love open skies!"
  },
  "lesson.open.when-to-trade": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Swap or keep? Let's learn when a trade helps you win."
  },
  "lesson.open.three-questions": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Every great player has a plan. Let's make yours!"
  },
  "lesson.open.initiative": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Keep the threats coming, and march on the king!"
  },
  "lesson.open.activity": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Happy pieces work as a team. Let's give them room to play!"
  },
  "lesson.open.king-activity": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Surprise! In the endgame, the king turns into a hero."
  },
  "lesson.open.opposition": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Two kings, face to face! Who blinks first?"
  },
  "lesson.open.lucena": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Rook endings are tricky, but I know two magic positions!"
  },
  "lesson.open.candidates": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Before you move, pick a few ideas, then test them."
  },
  "lesson.open.visualise": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Close your eyes, and picture the board. Let's see ahead!"
  },
  "lesson.open.blunder-check": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "One quick look before you move can save the whole game!"
  },
  "lesson.open.combinations": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Now let's mix tricks together, for some real fireworks!"
  },
  "lesson.open.clock": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tick tock! Let's learn to use your time wisely."
  },
  "lesson.open.repertoire": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Pick your favourite openings, and learn from every game!"
  },
  "lesson.open.etiquette": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Good players are good friends too. Let's play fair and stay calm."
  },
  "lesson.open.table-words": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Let's learn the special words chess players say, all around the world!"
  },
  "lesson.ex": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Now it's your turn! Move a piece on the board, to answer."
  },
  "lesson.idle": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Need some help? Tap Hint, and I'll give you a clue."
  },
  "lesson.done": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Well done, you finished the lesson! Tap the gold button to carry on."
  },
  "puzzle.start": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Find the best move! Look for checks, captures, and threats."
  },
  "puzzle.wrong": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Good try! Have another look, or tap Hint for a clue."
  },
  "puzzle.idle": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Stuck? Tap Hint, and I'll give you a clue."
  },
  "puzzle.solved": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "You did it! Tap Next puzzle, to keep going."
  },
  "era.egypt.tale": {
@@ -576,342 +576,342 @@
  },
  "placement.offer": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Have you played chess before? Take my short test, and I'll pick your first lesson and a friend to play. Or skip it, and we'll start at the beginning."
  },
  "placement.q01": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tap every square the rook can reach. Remember, it can take a black piece, but not jump over one."
  },
  "placement.q02": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Now the knight. Tap every square it can jump to."
  },
  "placement.q03": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Your knight can take a piece. Take the one that nobody guards."
  },
  "placement.q04": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Give check with your queen, on a square where she cannot be taken."
  },
  "placement.q05": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Find checkmate in one move."
  },
  "placement.q06": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "The black king is stuck behind his pawns. Find checkmate in one move."
  },
  "placement.q07": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Find a knight move that attacks the king and the rook at once."
  },
  "placement.q08": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "White moves first. Can the black king catch the pawn before it becomes a queen?"
  },
  "placement.q09": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Your opponent has just moved. Find the best move, then keep going."
  },
  "placement.q10": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Last one, and the hardest. Find the best move, then keep going."
  },
  "placement.r1": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Thanks for trying! We'll start at the very beginning, with how the pieces move. You'll pick it up in no time!"
  },
  "placement.r2": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Nice work! You know how the pieces move, so we'll start with check and checkmate."
  },
  "placement.r3": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Great job! You know the rules, so your path starts with opening ideas."
  },
  "placement.r4": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Wow, you spotted the fork! You're ready for tactics, like forks and pins."
  },
  "placement.r5": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Amazing, you found nearly everything! You're ready to learn defence and king safety."
  },
  "variants": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Chess has cousins from all over the world! Pick one to learn its rules, then play it."
  },
  "variant": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Here are the rules on one page. The gold ones are not like chess. Try my short lesson, then pick a friend to play."
  },
  "variant.chaturanga.hello": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Long ago in India, chess had another name: chaturanga. It means the four parts of an army. Let's play it the old way!"
  },
  "variant.chaturanga.same": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "The king, the horse and the chariot move just like our king, knight and rook. The foot soldiers are the pawns."
  },
  "variant.chaturanga.mantri": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Next to the king stands the Mantri, his wise counsellor. He takes one small step, on a slant. Much later, he grew into the queen!"
  },
  "variant.chaturanga.gaja": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "The Gaja is a war elephant. It jumps exactly two squares on a slant, right over anything in the way. It grew into the bishop."
  },
  "variant.chaturanga.soldier": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Foot soldiers march one square at a time, even on their first move. A soldier who reaches the far side becomes a Mantri."
  },
  "variant.chaturanga.castle": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "There is no castling in chaturanga. Walk your king to safety, one step at a time."
  },
  "variant.chaturanga.win": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Checkmate still wins. You also win if you capture every enemy piece except the king. And a king with no move at all loses too!"
  },
  "variant.chaturanga.ex.mantri": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tap every square the Mantri can step to."
  },
  "variant.chaturanga.ex.gaja": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tap every square the Gaja can jump to."
  },
  "variant.chaturanga.ex.bare": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Capture Black's last piece, and leave the king all alone."
  },
  "variant.chaturanga.ex.promote": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "This foot soldier is about to reach the far side. What will he become?"
  },
  "variant.chaturanga.ex.stuck": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Find a move that leaves Black with no move at all. In chaturanga, that wins!"
  },
  "variant.chess960.hello": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "A world champion called Bobby Fischer had a fun idea: shuffle the back row before every game! It is called Chess960."
  },
  "variant.chess960.mirror": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Look closely. Black's pieces copy White's, file by file, like a mirror. The pawns stay right where they always are."
  },
  "variant.chess960.order": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "There are only two rules for the shuffle. The bishops stand on different colours, and the king stands between the rooks."
  },
  "variant.chess960.castle": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Castling ends just like in chess: the king on the g-file or the c-file, the rook right beside it. To castle, move your king onto your rook."
  },
  "variant.chess960.think": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Nobody knows the openings here, so think from your very first move. Bring out your pieces and keep your king safe."
  },
  "variant.chess960.ex.short": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Castle on the king's side. Put your king on the rook on h1."
  },
  "variant.chess960.ex.long": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Now castle on the queen's side, towards the a-file."
  },
  "variant.chess960.ex.land": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "If White castles on the king's side here, where does the king land?"
  },
  "variant.chess960.ex.rule": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Which rule is always true in Chess960?"
  },
  "variant.koth.hello": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Welcome to King of the Hill! The four squares in the middle are the hill. Get your king up there and you win."
  },
  "variant.koth.hill": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "See the glowing squares? d4, e4, d5 and e5. One step onto any of them wins the game at once."
  },
  "variant.koth.safe": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "But a king can never step onto a square an enemy guards. This rook guards the fourth row, so those hill squares are closed."
  },
  "variant.koth.block": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "So watch the enemy king too! If it gets close to the hill, guard the hill squares before it climbs."
  },
  "variant.koth.same": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Checkmate still wins, and every piece moves just like in chess. Now, let's climb!"
  },
  "variant.koth.ex.climb": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Walk your king onto the hill."
  },
  "variant.koth.ex.stop": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Black's king wants the hill. Stop it with one rook move."
  },
  "variant.koth.ex.guarded": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "The bishop guards one hill square. Find the safe one and climb."
  },
  "variant.threecheck.hello": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "In Three-check, every check counts! Give check three times and you win, even without checkmate."
  },
  "variant.threecheck.count": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "White's bishop just gave check, so White's counter shows one. The counters sit beside the players' names."
  },
  "variant.threecheck.safe": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "So keep your king tucked away. Don't open lines toward it too early, or the checks pile up fast."
  },
  "variant.threecheck.same": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Checkmate still wins, and every piece moves just like in chess. Let's practise!"
  },
  "variant.threecheck.ex.third": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "You have given two checks. Give the third and win."
  },
  "variant.threecheck.ex.knight": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Two checks done. Can your knight give the third?"
  },
  "variant.threecheck.ex.what": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "What happens when you give your third check?"
  },
  "variant.xiangqi.hello": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Welcome to the Ming court! This is xiangqi, Chinese chess. Red moves first, and every piece has its name carved on top."
  },
  "variant.xiangqi.points": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Look closely: the pieces stand on the points where the lines cross, not in the squares. The band across the middle is the river."
  },
  "variant.xiangqi.palace": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "These nine points with the cross are the palace. The general and his two advisors never leave it. The general steps along the lines, the advisors on the slant."
  },
  "variant.xiangqi.horse": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "The horse moves like a knight: one step along a line, then one on a slant. But a piece right next to it blocks that way. See how the soldier below stops two moves?"
  },
  "variant.xiangqi.elephant": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "The elephant jumps exactly two points on a slant. It is a home guard: it can never cross the river."
  },
  "variant.xiangqi.cannon": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Here is a piece chess doesn't have: the cannon! It moves like a chariot, but to capture it must jump over exactly one piece, called the screen."
  },
  "variant.xiangqi.soldier": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Soldiers march one step forward. Once they cross the river, they may also step sideways. They never move back."
  },
  "variant.xiangqi.generals": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "A special rule: the two generals may never face each other on an open line. So your general guards his whole line, all the way up the board!"
  },
  "variant.xiangqi.win": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Checkmate wins. And a side with no legal move at all loses too. Let's practise!"
  },
  "variant.xiangqi.ex.horse": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tap every point this horse can reach."
  },
  "variant.xiangqi.ex.elephant": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Tap every point this elephant can reach."
  },
  "variant.xiangqi.ex.cannon": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Use the cannon to capture Black's chariot."
  },
  "variant.xiangqi.ex.mate": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Checkmate in one move. Your general can help!"
  },
  "variant.xiangqi.ex.river": {
   "who": "rooky",
-  "voice": "am_puck,am_michael",
+  "voice": "am_puck,am_liam",
   "text": "Which piece can cross the river?"
  }
 }

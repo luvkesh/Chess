@@ -33,23 +33,12 @@ out.mkdir(parents=True, exist_ok=True)
 index_path = out / 'index.json'
 index = json.loads(index_path.read_text()) if index_path.exists() else {}
 only = set(sys.argv[1:])
-# Sounds that are not words: Kokoro spells "Brrr" out as "B R R R", so it is given its sound
-# (misaki phonemes) and the caption keeps the spelling.
-SAY = {'Brrr': '[Brrr](/bɹɹˈɜɹ/)'}
-
-
-def voiced(text):
-    for word, sound in SAY.items():
-        text = re.sub(r'\b%s\b' % word, sound, text)
-    return text
-
-
 pipe = KPipeline(lang_code=voice[0], repo_id='hexgrad/Kokoro-82M')
 for key, text in lines.items():
     want = {'voice': voice, 'text': text}
     if (only and key not in only) or (not only and index.get(key) == want and (out / (key + '.mp3')).exists()):
         continue
-    audio = speak(pipe, voiced(text), voice, guide['speed'], guide['pause']['comma'], guide['pause']['stop'])
+    audio = speak(pipe, text, voice, guide['speakers'][pitches['who']].get('speed', guide['speed']), guide['pause']['comma'], guide['pause']['stop'])
     with tempfile.NamedTemporaryFile(suffix='.wav') as wav:
         sf.write(wav.name, audio, RATE)
         # the guide's treatment: leading silence trimmed, even loudness, mono 24 kHz at 40 kb/s

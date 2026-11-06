@@ -31,33 +31,16 @@ only = set(sys.argv[1].split(',')) if len(sys.argv) > 1 else None
 index = {'voice': guide['voice'], 'lines': {}}
 if only:
     index['lines'] = json.loads((out / 'index.json').read_text())['lines']
-# Sounds that are not words: Kokoro spells "Brr" out as "B R R", so it is given its sound
-# (misaki phonemes) while the caption keeps the spelling. A line that opens with "Shh," gets a
-# soft whispered hush instead (see hush()), since any voiced "shoo" comes out too loud.
-SAY = {'Brr': '[Brr](/bɹˈɜɹ/)'}
-
-
-def voiced(text):
-    for word, sound in SAY.items():
-        text = re.sub(r'\b%s\b' % word, sound, text)
-    return text
-# Kokoro reads straight through commas and full stops, so the pauses are put in by hand: each line is
-# spoken whole (for natural tone), then cut at the punctuation's timestamps and silence added there.
-PAUSE = {',': 0.3, ';': 0.35, ':': 0.35, '—': 0.35, '.': 0.4, '!': 0.4, '?': 0.4}
-SR = 24000
-
-
-def quietest(audio, at, reach=0.06):
-    """The quietest 10 ms near `at` seconds, so a cut never clips a word."""
-    lo, hi = max(0, int((at - reach) * SR)), min(len(audio), int((at + reach) * SR))
-    step = SR // 100
-    frames = [(float(np.sqrt(np.mean(audio[i:i + step] ** 2))), i + step // 2) for i in range(lo, max(lo + 1, hi - step), step // 4)]
-    return min(frames)[1] if frames else int(at * SR)
+# Words and sounds Kokoro gets wrong are respelled in tools/voice/say.py (the caption keeps the spelling),
+# and the breaths after punctuation come from tools/voice/pauses.py, the same as in the game.
+sys.path.insert(0, str(here.parent.parent / 'tools' / 'voice'))
+from pauses import speak, RATE as SR
 
 
 def hush(level, seconds=1.0):
     """A soft, breathy "shhh": unvoiced noise shaped like the sh sound (most of its energy around
-    2.5 to 5 kHz), fading in and out, at `level` RMS so it sits well under the speaking voice."""
+    2.5 to 5 kHz), fading in and out, at `level` RMS so it sits well under the speaking voice.
+    Any voiced "shoo" from Kokoro comes out too loud (user, 2026-11-06: a soft whisper, not a loud shoo)."""
     rng = np.random.default_rng(7)
     n = int(seconds * SR)
     spec = np.fft.rfft(rng.standard_normal(n))
@@ -74,37 +57,11 @@ def hush(level, seconds=1.0):
 def spoken(text):
     """The line as audio, and the second each sentence starts (for the captions)."""
     if text.startswith('Shh, '):
-        # the hush, a short breath, then the rest of the line in Rooky's voice
-        audio, starts = spoken_words(text[5:])
+        # the whispered hush, a short breath, then the rest of the line in Rooky's voice
+        audio, starts = speak(pipe, text[5:], guide['voice'], guide['speed'], starts=True)
         lead = np.concatenate([hush(0.22 * float(np.sqrt(np.mean(audio ** 2)))), np.zeros(int(0.3 * SR), dtype=np.float32)])
         return np.concatenate([lead, audio.astype(np.float32)]), [0] + [s + len(lead) / SR for s in starts[1:]]
-    return spoken_words(text)
-
-
-def spoken_words(text):
-    parts, starts, n = [], [0], 0
-    for r in pipe(voiced(text), voice=guide['voice'], speed=guide['speed']):
-        audio, start = np.asarray(r.audio), 0
-        stops = [(t.end_ts, PAUSE[t.text], t.text in '.!?') for t in r.tokens if t.text in PAUSE and t.end_ts is not None]
-        trailing = bool(stops) and stops[-1][0] >= len(audio) / SR - 0.3
-        for at, gap, end in stops[:-1] if trailing else stops:
-            cut = quietest(audio, at)
-            parts += [audio[start:cut], np.zeros(int(gap * SR), dtype=audio.dtype)]
-            n += cut - start + int(gap * SR)
-            start = cut
-            if end:
-                starts.append(n)
-        gap = int(PAUSE['.'] * SR)   # between Kokoro's chunks too
-        parts += [audio[start:], np.zeros(gap, dtype=audio.dtype)]
-        n += len(audio) - start + gap
-        if trailing and stops[-1][2]:
-            starts.append(n)
-    audio = np.concatenate(parts[:-1])
-    if len(starts) > 1 and starts[-1] >= len(audio):
-        starts.pop()
-    # trim the silence before the first word here rather than in ffmpeg, so the times stay true
-    lead = int(np.argmax(np.abs(audio) > 10 ** (-50 / 20)))
-    return audio[lead:], [max(0, s - lead) / SR for s in starts]
+    return speak(pipe, text, guide['voice'], guide['speed'], starts=True)
 
 
 def cues(text, starts):
