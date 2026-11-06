@@ -623,8 +623,10 @@ img.snap.in { animation: snapIn .7s var(--ease) both; }
 /* hidden, not just see-through: the cards under the table must not take clicks (.screen > * turns them back on) */
 body.peeking #screens, body.peeking .tabbar { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .45s var(--ease), visibility 0s linear .45s; }
 body.peeking #screens * { pointer-events: none !important; }
-body.peeking #stage canvas { filter: none; transform: none; pointer-events: auto; }
-body.peeking .shade { background: radial-gradient(ellipse 85% 75% at 50% 42%, transparent 50%, rgba(6, 3, 2, 0.62) 100%); }
+/* an item on show is drawn at full brightness: nothing dims or veils the table, whatever the quality level
+   (the low-quality page dimming used to win here and left the preview murky) */
+body.peeking #stage canvas { filter: none !important; transform: none !important; pointer-events: auto; }
+body.peeking .shade, body.peeking .grain { display: none; }
 .peekbar { position: fixed; left: 0; right: 0; margin: 0 auto; width: max-content; max-width: calc(100% - 24px); bottom: calc(var(--safe-b) + 24px); z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 22px; border-radius: 999px; animation: rise .5s var(--ease) both; }
 .pk-back { position: fixed; z-index: 31; top: calc(var(--nav-h) + var(--safe-t) + 14px); left: max(16px, var(--safe-l)); color: var(--ink); }
 .peekbar.still { animation: none; }
