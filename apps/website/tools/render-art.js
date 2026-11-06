@@ -3,6 +3,16 @@
 'use strict';
 const path = require('path');
 const root = path.resolve(__dirname, '../../..');
+const fs = require('fs');
+// The game's pictures rendered from 3D (apps/web-prototype/src/art, made by tools/shoot-art.js):
+// the sculpted animal busts and emblems, and the gold pieces, so the site's portraits and medals
+// match the game's. (The era views stay out: the site draws its own banners.)
+const artDir = path.join(root, 'apps/web-prototype/src/art');
+global.CHACKLATE_ART = { piece: {}, view: {}, avatar: {} };
+for (const f of fs.readdirSync(artDir).filter((f) => /^(piece|avatar)-.+\.webp$/.test(f))) {
+  const [kind, name] = f.slice(0, -5).split(/-(.+)/);
+  global.CHACKLATE_ART[kind][name] = 'data:image/webp;base64,' + fs.readFileSync(path.join(artDir, f)).toString('base64');
+}
 const ART = require(path.join(root, 'apps/web-prototype/src/art.js'));
 const C = require(path.join(root, 'packages/content/campaign.json'));
 

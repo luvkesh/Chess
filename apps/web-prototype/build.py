@@ -20,6 +20,7 @@ SCRIPTS = [
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
     src / 'pieces3d.js',
+    src / 'avatars3d.js',
     src / 'landmarks3d.js',
     src / 'suites3d.js',
     src / 'world3d.js',
@@ -93,10 +94,11 @@ parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
 # The crest (the rendered gold knight, shared with the website), inlined so the game stays one file.
 parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
 # Menu pictures rendered from the game's 3D pieces and era paintings (tools/shoot-art.js, then
-# tools/art-webp.py): the gold pieces for the medals and each era's view, keyed by its landmark.
+# tools/art-webp.py): the gold pieces for the medals, each era's view, keyed by its landmark, and the
+# 3D avatars (animal busts and emblems), keyed by their art name.
 uri = lambda f: 'data:image/webp;base64,' + base64.b64encode(f.read_bytes()).decode()
 landmarks = {e['id']: e['landmark'] for e in json.loads((content / 'campaign.json').read_text())['eras']}
-art = {'piece': {}, 'view': {}}
+art = {'piece': {}, 'view': {}, 'avatar': {}}
 for f in sorted((src / 'art').glob('*.webp')):
     kind, name = f.stem.split('-', 1)
     art[kind][landmarks.get(name, name) if kind == 'view' else name] = uri(f)

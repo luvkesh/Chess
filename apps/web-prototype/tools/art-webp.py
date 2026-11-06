@@ -1,4 +1,4 @@
-"""Make the small WebP files in src/art/ (needs Pillow): the medal pieces from tools/shoot-art.js
+"""Make the small WebP files in src/art/ (needs Pillow): the medal pieces and 3D avatars from tools/shoot-art.js
 and the era views from the website's era pictures.
 build.py inlines them as CHACKLATE_ART, so the game stays one file."""
 import pathlib
@@ -19,6 +19,12 @@ for t in 'kqrbnp':
     im = im.crop(im.getbbox())
     im = im.resize((round(im.width * 360 / im.height), 360), Image.LANCZOS)
     im.save(dest / ('piece-%s.webp' % t), quality=84, method=6)
+
+# The 3D avatars: each animal's bust framed as a portrait, and the emblems, 360 px square on
+# transparency (the medal around them is drawn by art.js, in each friend's own colours).
+for f in sorted(out.glob('avatar-*.png')):
+    im = Image.open(f).convert('RGBA').resize((360, 360), Image.LANCZOS)
+    im.save(dest / (f.stem + '.webp'), quality=82, method=6)
 
 # Each era's room and landmark for the Journey banners and portholes, cropped wide from the
 # website's era pictures (apps/website/tools/shoot.js), which are rendered from the live table.

@@ -2115,6 +2115,14 @@
     if (it.category === 'pieces') { const t = setTint(d.set); return Object.assign(VIGN.trio(d.set, ART.dim(t, 0.3), ART.lit(t, 0.55)), { r: 1.32 }); }
     if (it.category === 'board') return { kind: 'board', board: d.board };
     if (it.category === 'room' && view.rooms()[d.room]) return { kind: 'room', room: d.room };
+    // an avatar turns on the stage as the sculpted bust (or emblem) on a velvet plinth in its colours;
+    // phones build it a little coarser so it opens quickly
+    if (it.category === 'avatar' && /^(animal|emblem):/.test(d.art || '')) {
+      const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      return { kind: 'avatar', art: d.art, felt: d.to, sheen: d.from, detail: touch ? 'play' : 'stage' };
+    }
+    // a piece avatar is the medal's gold piece itself
+    if (it.category === 'avatar' && /^piece:[kqrbnp]$/.test(d.art || '')) return { kind: 'piece', set: 'regency', type: d.art.slice(6), side: 'w', gild: '#ffd27a' };
     return null;
   }
   // The grid's pictures use the pieces' table detail: at card size it looks the same, and the
