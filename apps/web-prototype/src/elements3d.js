@@ -654,7 +654,7 @@ function ChacklateElements(THREE, o) {
   function shell(x, y, z, cols, count, speed, life) {
     for (let i = 0; i < n(count); i++) {
       const a = rnd(0, TAU), b = Math.acos(rnd(-1, 1)), s = speed * rnd(0.75, 1.05), c = pick(cols, i);
-      emit({ x, y, z, vx: Math.sin(b) * Math.cos(a) * s, vy: Math.cos(b) * s + 0.4, vz: Math.sin(b) * Math.sin(a) * s, life: rnd(life * 0.75, life * 1.1), s0: 0.2, s1: 0.06, shape: 3,
+      emit({ x, y, z, vx: Math.sin(b) * Math.cos(a) * s, vy: Math.cos(b) * s + 0.4, vz: Math.sin(b) * Math.sin(a) * s, life: rnd(life * 0.75, life * 1.1), s0: 0.28, s1: 0.08, shape: 3,
         c0: tone('#ffffff'), c1: tone(c), c2: tone(c), g: 1.5, drag: 0.45, rot: rnd(0, 1) });
     }
     // and a crackle of glitter a moment later
@@ -672,7 +672,7 @@ function ChacklateElements(THREE, o) {
     }
   }
   // a glossy drop (chocolate, caramel) that arcs and lands
-  const drop = (x, y, z, vx, vy, vz, color, size, life) => emit({ x, y, z, vx, vy, vz, life, s0: size, s1: size * 0.8, shape: 0, add: false, a: 1, hdr: 1.1,
+  const drop = (x, y, z, vx, vy, vz, color, size, life) => emit({ x, y, z, vx, vy, vz, life, s0: size * 1.7, s1: size * 1.3, shape: 0, add: false, a: 1, hdr: 1.1,
     c0: tone(color), c1: tone(color), c2: tone(color), g: 9, drag: 0.8, floor: true, fadeIn: 0.01 });
   const glint = (x, y, z, c, s, life, vy) => emit({ x, y, z, vy: vy || 0, life, s0: s, s1: s * 0.2, c0: tone('#ffffff'), c1: tone(c), c2: tone(c) });
   const CHOC = ['#4a2412', '#6a3a1e', '#8a5230'], CARAMEL = ['#c8843a', '#e0a050', '#f4c27a'], ICE = ['#e8f8ff', '#bfe6ff', '#9fd4ff', '#ffffff'];
@@ -695,7 +695,7 @@ function ChacklateElements(THREE, o) {
     });
     once(e, 'crown', 280, t, () => { for (let i = 0; i < n(36); i++) { const a = (i / 36) * TAU; drop(x + Math.cos(a) * 0.5, 0.1, z + Math.sin(a) * 0.5, Math.cos(a) * 0.9, rnd(3.6, 4.6), Math.sin(a) * 0.9, pick(CHOC), 0.09, 1400); } });
     if (t < 2200) for (let i = rate(e, 'steam', 14, dt); i > 0; i--) smoke(x + rnd(-0.6, 0.6), 0.1, z + rnd(-0.6, 0.6), '#f4e4d4', 0.22, 0.3, 1.4, rnd(1200, 1800), 0.15);
-    e.light = { point: [x, 0.9, z], color: '#ffb070', power: 18 * Math.exp(-t / 700), expo: 0.08 * Math.exp(-t / 200), tint: '#ffc890', dim: 0.1 * (1 - smooth(500, 1600, t)) };
+    e.light = { point: [x, 1.2, z], color: '#ffb070', power: 8 * Math.exp(-t / 700), expo: 0.04 * Math.exp(-t / 200), tint: '#ffc890', dim: 0.14 * (1 - smooth(500, 1600, t)) };
     e.shake = 0.03 * Math.exp(-t / 200);
   } };
   // Freeze: a blast of cold. Frost races across the board in a web, ice shards leap, snow
@@ -718,11 +718,11 @@ function ChacklateElements(THREE, o) {
   // another (never more than two bursts a second), with a glittering crackle.
   STRIKES.fireworks = { dur: 3000, run(e, t, dt) {
     const { x, z } = e, pal = cols(e, PARTY);
-    const R = e.rk || (e.rk = [[0, 0, 0, 3.6], [520, -1.1, 0.4, 3.0], [1040, 1.1, -0.4, 3.2]]);
+    const R = e.rk || (e.rk = [[0, 0, 0, 1.9], [520, -1.2, 0.5, 1.5], [1040, 1.2, -0.3, 1.7]]);
     for (const [at, ox, oz, h] of R) {
       const k = (t - at) / 420;
       if (k >= 0 && k < 1) { const ry = 0.2 + h * (1 - Math.pow(1 - k, 2)), rx = x + ox * k, rz = z + oz * k; for (let i = rate(e, 'rk' + at, 260, dt); i > 0; i--) emit({ x: rx, y: ry, z: rz, vx: rnd(-0.3, 0.3), vy: rnd(-1.6, -0.6), vz: rnd(-0.3, 0.3), life: rnd(250, 500), s0: 0.14, s1: 0.04, c0: tone('#fff4c0'), c1: tone('#ffb040'), c2: tone('#ff6a20'), g: 2 }); }
-      once(e, 'b' + at, at + 420, t, () => { shell(x + ox, 0.2 + h, z + oz, pal, at ? 90 : 130, at ? 3 : 3.8, 1400); e.flash = { at: clock, p: [x + ox, h, z + oz], k: at ? 0.6 : 1 }; });
+      once(e, 'b' + at, at + 420, t, () => { shell(x + ox, 0.2 + h, z + oz, pal, at ? 120 : 170, at ? 3.2 : 4, 1500); e.flash = { at: clock, p: [x + ox, h, z + oz], k: at ? 0.6 : 1 }; });
       once(e, 'l' + at, at, t, () => ring(x + ox * 0.2, 0.03, z + oz * 0.2, '#ffe0a0', 1.2, 400));
     }
     const f = e.flash ? Math.exp(-(clock - e.flash.at) / 160) * e.flash.k : 0;
@@ -741,11 +741,11 @@ function ChacklateElements(THREE, o) {
     if (t < 1900) {
       const k = 1 - smooth(1300, 1900, t);
       for (let i = rate(e, 'fount', 330 * k, dt); i > 0; i--) { const a = rnd(0, TAU), s = rnd(0.5, 3.6); emit({ x, y: 0.35, z, vx: Math.cos(a) * s, vy: rnd(1.6, 5.2), vz: Math.sin(a) * s, life: rnd(500, 1100), s0: 0.13, s1: 0.05, shape: 3, c0: tone('#ffffff'), c1: tone(pick(pal)), c2: tone('#ff6a10'), g: 9, drag: 0.6, floor: true, rot: rnd(0, 1) }); }
-      for (let i = rate(e, 'core', 40 * k, dt); i > 0; i--) emit({ x: x + rnd(-0.05, 0.05), y: 0.35, z: z + rnd(-0.05, 0.05), life: 110, s0: rnd(0.5, 0.8), s1: 0.3, c0: tone('#ffffff'), c1: tone('#dce8ff'), c2: tone('#9ab8ff'), a: 0.8 });
+      for (let i = rate(e, 'core', 40 * k, dt); i > 0; i--) emit({ x: x + rnd(-0.05, 0.05), y: 0.35, z: z + rnd(-0.05, 0.05), life: 110, s0: rnd(0.3, 0.5), s1: 0.2, c0: tone('#ffffff'), c1: tone('#dce8ff'), c2: tone('#9ab8ff'), a: 0.7 });
     }
     if (t > 600 && t < 2400) for (let i = rate(e, 'smoke', 8, dt); i > 0; i--) smoke(x, 0.3, z, '#6a625a', 0.25, 0.3, 1.4, rnd(1200, 1700), 0.15);
     const k = t < 1900 ? 1 - smooth(1300, 1900, t) : 0;
-    e.light = { point: [x, 0.6, z], color: '#dce8ff', power: k * (28 + 4 * Math.sin(t * 0.03)) + 8 * Math.exp(-t / 900), expo: 0.06 * k, tint: '#c8d8ff', dim: 0.16 * k };
+    e.light = { point: [x, 0.6, z], color: '#dce8ff', power: k * (28 + 4 * Math.sin(t * 0.03)) + 8 * Math.exp(-t / 900), expo: 0.035 * k, tint: '#c8d8ff', dim: 0.16 * k };
   } };
   // Vortex: a pool of ink opens and a whirlpool of ink and violet light spins inward, faster
   // and faster, until it snaps shut with a burst of stars.
@@ -795,7 +795,7 @@ function ChacklateElements(THREE, o) {
       for (let i = 0; i < n(60); i++) { const a = rnd(0, TAU), s = rnd(1, 2.8); petal(x, 1.6, z, Math.cos(a) * s, rnd(0.5, 2), Math.sin(a) * s, pick(pal, i), rnd(0.14, 0.22), 2000); }
       for (let i = 0; i < n(30); i++) glint(x + rnd(-0.5, 0.5), rnd(1.2, 2), z + rnd(-0.5, 0.5), '#ffd0e0', 0.14, rnd(500, 1000));
     });
-    e.light = { point: [x, 1.2, z], color: '#ff8ab0', power: 26 * Math.exp(-t / 800), expo: 0.08 * Math.exp(-t / 300), tint: '#ffb0c8', dim: 0 };
+    e.light = { point: [x, 1.6, z], color: '#ff8ab0', power: 9 * Math.exp(-t / 800), expo: 0.03 * Math.exp(-t / 300), tint: '#ffb0c8', dim: 0.1 * (1 - smooth(600, 1800, t)) };
   } };
 
   // the storms: each 10 s, centred on the winner's king, with a crown for the winner at 8 s

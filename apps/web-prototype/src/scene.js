@@ -935,10 +935,12 @@ function ChacklateScene(canvas, options) {
   function uncoat(s) { if (s.coatMeshes) for (const c of s.coatMeshes) if (c.parent) c.parent.remove(c); s.coatMeshes = null; s.coat = null; }
   // how thick the coat is as the effect takes hold (k from 0 to 1); lightning's shimmers gently
   const coatK = (kind, k) => (kind === 'lightning' ? (0.7 + 0.3 * Math.sin(performance.now() / 70)) * Math.min(1, k * 3) : Math.min(1, k * (kind === 'stone' || kind === 'freeze' ? 1.8 : 1.3)));
-  // where the piece is pushed: a step on past its square, else to one side, kept on the board
+  // where the piece is pushed: a square's width to the side, away from the attacker and a little
+  // toward the camera, so nothing stands in front of it; kept on the board
   function fateSpot(c) {
-    for (const [ux, uz] of [[c.dx, c.dz], [-c.dz, c.dx], [c.dz, -c.dx], [-c.dx, -c.dz]]) {
-      const x = c.vx + ux * 0.95, z = c.vz + uz * 0.95;
+    const side = Math.sign(c.vx - c.sx) || (c.vx > 0 ? -1 : 1), near = Math.sign(camera.position.z) || 1;
+    for (const [ox, oz] of [[side * 1.15, near * 0.35], [-side * 1.15, near * 0.35], [0, near * 1.15], [side * 1.15, -near * 0.5]]) {
+      const x = c.vx + ox, z = c.vz + oz;
       if (Math.abs(x) < 3.6 && Math.abs(z) < 3.6) return [x, z];
     }
     return [c.vx, c.vz];
@@ -952,7 +954,7 @@ function ChacklateScene(canvas, options) {
       case 'stone': v.squash = k > 0.7 ? 0.5 * seg(k, 0.7, 1) : 0; v.tilt = k > 0.55 ? 0.03 * Math.sin(t / 20) : 0; break;
       case 'melt': v.squash = 0.85 * easeIn(k); v.y -= 0.04 * k; v.tilt = 0.04 * Math.sin(t / 90) * k; break;
       case 'freeze': v.tilt = k > 0.7 ? 0.035 * Math.sin(t / 18) : 0; break;
-      case 'fireworks': { const r = seg(k, 0.25, 1); v.squash = k < 0.25 ? 0.3 * Math.sin(Math.PI * k / 0.25) : -0.15 * (1 - r); v.y += 3.2 * easeIn(r); v.yaw += TAU * 3 * r * r; break; }
+      case 'fireworks': { const r = seg(k, 0.25, 1); v.squash = k < 0.25 ? 0.3 * Math.sin(Math.PI * k / 0.25) : -0.15 * (1 - r); v.y += 2 * easeIn(r); v.yaw += TAU * 3 * r * r; break; }
       case 'weld': v.x += (Math.random() - 0.5) * 0.025 * k; v.z += (Math.random() - 0.5) * 0.025 * k; v.tilt = 0.03 * Math.sin(t / 15) * k; break;
       case 'vortex': v.yaw += TAU * 5 * k * k; v.scale = Math.max(0.02, 1 - easeIn(k)); v.y += 0.3 * Math.sin(Math.PI * k); v.tilt = 0.15 * k; break;
       case 'burst': v.scale = 1 + 0.75 * easeIn(k); v.squash = 0.14 * Math.sin(k * TAU * 4) * k; v.y += 0.1 * k; break;
@@ -974,13 +976,13 @@ function ChacklateScene(canvas, options) {
     if (t < f0) return;
     const W = f1 - f0, A = f0 + W * 0.18, B = f0 + W * 0.78;
     if (!c.f) { const [ax, az] = fateSpot(c); c.f = { x: v.x, y: worldY(v), z: v.z, yaw: v.yaw, scale: v.scale || 1, ax, az }; }
-    const F = c.f, rocket = kind === 'fireworks';
+    const F = c.f;
     v.bow = 0; v.tilt = 0; v.squash = 0; v.grave = false;
     if (t < B) {
-      const a = rocket ? 1 : easeInOut(seg(t, f0, A));
-      v.x = rocket ? F.x : lerp(F.x, F.ax, a); v.z = rocket ? F.z : lerp(F.z, F.az, a);
-      v.y = rocket ? F.y : lerp(F.y, 0, a) + (F.y < 0.3 ? Math.sin(Math.PI * a) * 0.35 : 0);
-      v.scale = lerp(F.scale, 1, a); v.yaw = F.yaw + (rocket ? 0 : Math.PI * a);
+      const a = easeInOut(seg(t, f0, A));
+      v.x = lerp(F.x, F.ax, a); v.z = lerp(F.z, F.az, a);
+      v.y = lerp(F.y, 0, a) + (F.y < 0.3 ? Math.sin(Math.PI * a) * 0.35 : 0);
+      v.scale = lerp(F.scale, 1, a); v.yaw = F.yaw + Math.PI * a;
       const k = seg(t, A, B);
       if (t >= A) { pose(v, kind, k, t); EL.fate(kind, 'hold', v.x, worldY(v), v.z, k, dt); }
       coat(v, kind, coatK(kind, t < A ? seg(t, f0, A) * 0.3 : k));
