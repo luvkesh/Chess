@@ -399,9 +399,27 @@ def main():
         (out / 'audio').mkdir(exist_ok=True)
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
-        for clip in (here / 'audio').glob('*/item-*.mp3'):   # the same pitches in other languages
-            (out / 'audio' / clip.parent.name).mkdir(exist_ok=True)
-            (out / 'audio' / clip.parent.name / clip.name).write_bytes(clip.read_bytes())
+        # The same pitches in other languages, joined per language into base64 parts of about 4 MB of
+        # sound (the preview's host caps how many files a page may serve); the page plays
+        # "audio/<lang>/part-<n>.txt#start-end" as that clip's slice of the part.
+        page = (out / 'index.html').read_text()
+        for d in sorted(x for x in (here / 'audio').iterdir() if x.is_dir()):
+            clips = sorted(d.glob('item-*.mp3'))
+            if not clips:
+                continue
+            (out / 'audio' / d.name).mkdir(exist_ok=True)
+            text, n = '', 0
+            for i, clip in enumerate(clips):
+                b64 = base64.b64encode(clip.read_bytes()).decode()
+                name = 'audio/%s/part-%d.txt' % (d.name, n)
+                url = '%s#%d-%d' % (name, len(text), len(text) + len(b64))
+                assert page.count('"audio/%s/%s"' % (d.name, clip.name)) == 1, clip
+                page = page.replace('"audio/%s/%s"' % (d.name, clip.name), '"%s"' % url)
+                text += b64
+                if len(text) > 5.5 * 1024 * 1024 or i == len(clips) - 1:
+                    (out / name).write_text(text)
+                    text, n = '', n + 1
+        (out / 'index.html').write_text(page)
         (out / 'fx').mkdir(exist_ok=True)
         for clip in (here / 'fx').glob('*.*'):
             if clip.suffix in ('.mp4', '.jpg'):
