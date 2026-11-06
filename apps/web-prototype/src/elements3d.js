@@ -1,7 +1,8 @@
-// Element effects for the 3D table. Each room has an element: when a piece is taken, a burst
-// of fire, a lightning strike or a stone shatter plays on its square (3 s); when a game is
-// won, a petal, fire or lightning storm sweeps the table (10 s). They play on top of the
-// capture scenes and the equipped victory effect, and never change them.
+// Element effects for the 3D table, in four families: fire, lightning, petals and stone. When
+// a piece is taken, a burst of fire, a lightning strike, a petal burst or a stone shatter plays
+// on its square (3 s, sized to the piece); when a game is won, a fire, lightning, petal or
+// stone storm sweeps the table (10 s). Capture and victory effects in the Collection name
+// their element (each family has both); effects without one use the room's own element.
 //
 // Kid-gentle by design: nothing is hurt or broken. The taken piece still bows and goes to
 // its tray; the fire is a festival burst, the lightning a crown of light for the winner.
@@ -21,7 +22,9 @@ function ChacklateElements(THREE, o) {
   const col = (h) => new THREE.Color(h);
   // how much of each effect to draw: 1 at full detail, about 0.4 on Low or a slow phone
   const amount = () => { const l = o.level(), r = o.rich(); return (r ? 1 : 0.5) * (l >= 4 ? 0.45 : l >= 3 ? 0.6 : l >= 1 ? 0.8 : 1); };
-  const n = (v) => Math.max(1, Math.round(v * amount()));
+  // pw: the power of the effect being run (a strike for a pawn is smaller than the queen's)
+  let pw = 1;
+  const n = (v) => Math.max(1, Math.round(v * amount() * pw));
   const group = new THREE.Group(); group.name = 'elements';
   scene.add(group);
 
@@ -384,7 +387,7 @@ function ChacklateElements(THREE, o) {
   const effects = [];
   const once = (e, key, at, t, fn) => { if (t >= at && !e.fired.has(key)) { e.fired.add(key); fn(); } };
   // emitting n per second, carried over between frames
-  const rate = (e, key, perSec, dt) => { e.acc[key] = (e.acc[key] || 0) + perSec * amount() * dt; const k = Math.floor(e.acc[key]); e.acc[key] -= k; return k; };
+  const rate = (e, key, perSec, dt) => { e.acc[key] = (e.acc[key] || 0) + perSec * amount() * pw * dt; const k = Math.floor(e.acc[key]); e.acc[key] -= k; return k; };
   // a tongue of flame: a vivid body that holds its colour on a bright board, and now and then
   // a hot glowing heart
   const flame = (x, y, z, vy, sz, life) => {
@@ -470,6 +473,31 @@ function ChacklateElements(THREE, o) {
       e.shake = 0.09 * Math.exp(-t / 260) * Math.abs(Math.cos(t / 28));
     } },
   };
+
+  // A burst of petals: they whirl up from the square in a little column, burst open at the
+  // top and drift down around it, with a pink glow and glints of light.
+  STRIKES.petals = { dur: 3000, run(e, t, dt) {
+    const { x, z } = e, pal = e.petals || ['#ff9fb8', '#ffc4d4', '#ffe4ec', '#e86a8a'];
+    once(e, 'burst', 0, t, () => {
+      ring(x, 0.03, z, '#ffc0d0', 2.4, 650);
+      for (let i = 0; i < n(80); i++) { const a = rnd(0, TAU), s = rnd(0.5, 2.2); petal(x + rnd(-0.2, 0.2), rnd(0.1, 0.5), z + rnd(-0.2, 0.2), Math.cos(a) * s, rnd(2, 5), Math.sin(a) * s, pal[i % pal.length], rnd(0.12, 0.2), 2900); }
+      for (let i = 0; i < n(40); i++) emit({ x, y: rnd(0.2, 0.8), z, vx: rnd(-2, 2), vy: rnd(1, 3.5), vz: rnd(-2, 2), life: rnd(800, 1500), s0: 0.14, s1: 0.04, c0: tone('#fff4d8'), c1: tone('#ffd0e0'), c2: tone('#ff9ab8'), g: 0.8, drag: 0.5 });
+    });
+    once(e, 'bloom', 1100, t, () => {
+      ring(x, 1.6, z, '#ffd6e2', 1.8, 600);
+      for (let i = 0; i < n(50); i++) { const a = rnd(0, TAU), s = rnd(1, 2.6); petal(x, 1.7, z, Math.cos(a) * s, rnd(0.5, 2), Math.sin(a) * s, pal[i % pal.length], rnd(0.12, 0.2), 1850); }
+    });
+    if (t < 1600) for (let i = rate(e, 'glint', 40, dt); i > 0; i--) { const a = rnd(0, TAU), r = rnd(0.2, 0.9); emit({ x: x + Math.cos(a) * r, y: rnd(0.2, 1.8), z: z + Math.sin(a) * r, life: rnd(400, 900), s0: 0.1, s1: 0.02, c0: tone('#fff2d0'), c1: tone('#ffd6e4'), c2: tone('#ffb0c8') }); }
+    // the air: a whirl that lifts them round the square, then lets them float down
+    const whirl = 1 - smooth(900, 1400, t);
+    e.wind = (p) => {
+      const dx = p.x - x, dz = p.z - z, r = Math.hypot(dx, dz) || 0.001, ux = dx / r, uz = dz / r;
+      p.wx = whirl * (-uz * 3.4 + ux * (0.7 - r) * 2) + (1 - whirl) * ux * 0.5;
+      p.wz = whirl * (ux * 3.4 + uz * (0.7 - r) * 2) + (1 - whirl) * uz * 0.5;
+      p.wy = whirl * 1.8 - (1 - whirl) * 0.45;
+    };
+    e.light = { point: [x, 1.2, z], color: '#ff9ab8', power: 20 * Math.exp(-t / 700), expo: 0.06 * Math.exp(-t / 300), tint: '#ffb8c8', dim: 0 };
+  } };
 
   const STORMS = {
     // A gust of petals blows across the table, whirls into a ring around the board, bursts up
@@ -557,6 +585,38 @@ function ChacklateElements(THREE, o) {
     } },
   };
 
+  // A whirlwind of stone and golden dust: the ground rumbles and cracks under the winner's
+  // king, dust and stone chips wheel round the board, pillars of stone burst up around it, and
+  // at the end the chips gather into a golden crown of light over the winner.
+  STORMS.stone = { dur: 10000, run(e, t, dt) {
+    const dust = e.dust || '#c8b08a', stone = e.stone || '#bfb2a0', live = t < 8000;
+    once(e, 'rumble', 0, t, () => { crackAt(e.x, e.z, '#ffd890', '#241a12', 2.6, 3600); ring(e.x, 0.03, e.z, '#e8cc90', 3.2, 800); });
+    if (live) for (let i = rate(e, 'dust', 46, dt); i > 0; i--) emit({ y: rnd(0.1, 1.6), vy: rnd(0.1, 0.5), life: rnd(2200, 3200), s0: rnd(0.6, 1), s1: rnd(1.6, 2.6), shape: 2, add: false, a: 0.45,
+      c0: tone(dust), c1: tone(dust), c2: tone(dust), rot: rnd(0, 6), spin: rnd(-0.6, 0.6), fadeIn: 0.15, orb: { cx: 0, cz: 0, th: rnd(0, TAU), r: rnd(4.4, 6.6), w: rnd(0.9, 1.4), vr: rnd(-0.2, 0.1) } });
+    if (live) for (let i = rate(e, 'chips', 60, dt); i > 0; i--) emit({ y: rnd(0.1, 0.5), vy: rnd(0.3, 1.1), life: rnd(2400, 3400), s0: rnd(0.07, 0.13), s1: 0.06, shape: 4, add: false,
+      c0: tone(i % 3 ? stone : '#8a7c6a'), c1: tone(stone), c2: tone('#8a7c6a'), rot: rnd(0, 6), spin: rnd(-6, 6), fadeIn: 0.05, orb: { cx: 0, cz: 0, th: rnd(0, TAU), r: rnd(3.2, 6), w: rnd(1, 1.8), vr: rnd(-0.15, 0.1) } });
+    if (live) for (let i = rate(e, 'glint', 26, dt); i > 0; i--) { const a = rnd(0, TAU), r = rnd(3, 6); emit({ x: Math.cos(a) * r, y: rnd(0.3, 3), z: Math.sin(a) * r, life: rnd(600, 1200), s0: 0.09, s1: 0.02, c0: tone('#fff2c0'), c1: tone('#f0c060'), c2: tone('#c89030') }); }
+    for (const [key, when] of [['p1', 2200], ['p2', 3600], ['p3', 5000], ['p4', 6400]]) once(e, key, when, t, () => {
+      const a = rnd(0, TAU), r = rnd(5.2, 6.2), px = Math.cos(a) * r, pz = Math.sin(a) * r, py = o.floorY(px, pz) + 0.05;
+      ring(px, py, pz, '#e8cc90', 1.8, 600);
+      for (let i = 0; i < n(36); i++) chip(px + rnd(-0.3, 0.3), py + 0.1, pz + rnd(-0.3, 0.3), rnd(-1, 1), rnd(4, 8), rnd(-1, 1), rnd(0.07, 0.16), i % 3 ? stone : '#8a7c6a', rnd(2200, 2800));
+      for (let i = 0; i < n(18); i++) smoke(px, py + 0.2, pz, dust, 0.6, 0.5, 2.2, rnd(1400, 2200), 0.5);
+      for (let i = 0; i < n(20); i++) spark(px, py + 0.3, pz, 3, 5, '#f0c060', rnd(600, 1200));
+      e.thump = clock;
+    });
+    // the finale: a golden crown of light over the winner
+    once(e, 'crown', 8000, t, () => {
+      ring(e.x, 0.04, e.z, '#ffe0a0', 4, 900);
+      for (let i = 0; i < n(90); i++) spark(e.x, 1.2, e.z, 5, 6, i % 2 ? '#f0c060' : '#fff2c0', rnd(600, 1500));
+      for (let i = 0; i < n(36); i++) emit({ x: e.x, y: 1.5, z: e.z, vy: rnd(0.2, 0.8), life: rnd(1200, 1700), s0: 0.16, s1: 0.06, c0: tone('#ffffff'), c1: tone('#fff0b0'), c2: tone('#ffd060'), orb: { cx: e.x, cz: e.z, th: (i / 36) * TAU, r: 0.42, w: 2.4, vr: 0.1 } });
+      e.thump = clock;
+      if (e.onCrown) e.onCrown();
+    });
+    const glow = smooth(0, 900, t) * (1 - smooth(8200, 9600, t)), th = e.thump ? Math.exp(-(clock - e.thump) / 220) : 0;
+    e.light = { point: [e.x, 1.6, e.z], color: '#ffc880', power: 14 * glow + 40 * th, expo: 0.05 * glow + 0.15 * th, tint: '#e8c890', dim: 0.16 * glow };
+    e.shake = 0.03 * Math.exp(-t / 400) + 0.04 * th;
+  } };
+
   // ------------------------------------------------------------------ lighting the table
   // The table's lights are lent to the effect for a frame: scene.js asks light() before it
   // draws and puts everything back after. The storm's darkness eases in and out; flashes are sharp.
@@ -591,9 +651,10 @@ function ChacklateElements(THREE, o) {
     return e;
   }
   return {
-    // a capture: 'fire', 'lightning' or 'stone' on square (x, z); o.dust, o.stone recolour the stone shatter
+    // a capture: 'fire', 'lightning', 'petals' or 'stone' on square (x, z); o.dust, o.stone recolour
+    // the stone shatter, o.petals the petals; o.power sizes it (1 normal, 0.5 small, 1.5 grand)
     strike(kind, x, z, opt) { return start(STRIKES, kind, x, z, opt); },
-    // a win: 'petals', 'fire' or 'lightning', centred on the winner's king (x, z);
+    // a win: 'petals', 'fire', 'lightning' or 'stone', centred on the winner's king (x, z);
     // o.petals: colours; o.onCrown: called when the lightning storm crowns the king
     storm(kind, x, z, opt) {
       for (const e of effects) if (STORMS[e.kind] && e.S === STORMS[e.kind]) e.calm = clock;
@@ -633,7 +694,11 @@ function ChacklateElements(THREE, o) {
           e.shake = 0;
           continue;
         }
+        pw = e.power || 1;
         e.S.run(e, t, dt);
+        pw = 1;
+        if (e.light && e.power && e.power !== 1) e.light = Object.assign({}, e.light, { power: (e.light.power || 0) * Math.min(1.5, e.power), expo: (e.light.expo || 0) * Math.min(1.3, e.power) });
+        if (e.shake) e.shake *= Math.min(1.4, e.power || 1);
         if (e.wind) wind.push(e.wind);
       }
       shakeNow = 0;

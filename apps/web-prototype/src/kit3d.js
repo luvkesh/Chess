@@ -703,12 +703,27 @@ function ChacklateKit(THREE) {
     return d;
   }
   const texAniso = () => TEXB.aniso;
+  // A cached canvas can lose its picture: the browser may drop a 2D canvas's memory (a GPU
+  // reset, memory pressure on a long session), leaving it blank. Everything later cut from it
+  // (the board squares, the frames) then came out blank too, so a lost canvas is painted again
+  // before it is used.
   function canvasTex(key, w, h, draw, o) {
-    if (texCache.has(key)) return texCache.get(key);
-    const c = document.createElement('canvas'); c.width = w; c.height = h || w;
-    const ctx = c.getContext('2d');
-    draw(ctx, c.width, c.height);
-    const t = new THREE.CanvasTexture(fitCanvas(c));
+    const hit = texCache.get(key);
+    if (hit && !hit.userData.lost()) return hit;
+    let c, ctx, lost = false;
+    const paintNew = () => {
+      c = document.createElement('canvas'); c.width = w; c.height = h || w;
+      ctx = c.getContext('2d'); lost = false;
+      c.addEventListener('contextlost', () => { lost = true; });
+      c.addEventListener('contextrestored', () => { lost = true; });   // back, but blank
+      draw(ctx, c.width, c.height);
+      const img = fitCanvas(c);
+      if (img !== c) for (const ev of ['contextlost', 'contextrestored']) img.addEventListener(ev, () => { lost = true; });
+      return img;
+    };
+    if (hit) { hit.image = paintNew(); hit.userData.lost = () => lost || !!(ctx.isContextLost && ctx.isContextLost()); hit.needsUpdate = true; return hit; }
+    const t = new THREE.CanvasTexture(paintNew());
+    t.userData.lost = () => lost || !!(ctx.isContextLost && ctx.isContextLost());
     t.colorSpace = o && o.linear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     t.anisotropy = TEXB.aniso;

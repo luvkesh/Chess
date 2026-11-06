@@ -18,7 +18,8 @@ for (const k of used) assert(tips[k], 'missing tip ' + k);
 for (const k of Object.keys(tips).filter((x) => x.startsWith('control.'))) assert(app.includes('id="' + k.slice(8) + '"'), 'no button ' + k);
 
 // Every option inside a settings menu has its own tip.
-for (const v of ['off', 'quiet', 'normal', 'chatty']) assert(tips['settings.coach.' + v], 'coaching level ' + v);
+for (const v of ['silent', 'learning', 'mentor']) assert(tips['settings.cm.mode.' + v], 'coach mode ' + v);
+for (const v of ['on', 'auto', 'freq', 'depth', 'audio', 'text', 'mentor', 'think', 'prevent', 'post', 'time', 'style', 'level']) assert(tips['settings.cm.' + v], 'coach setting ' + v);
 for (const v of voices.map((x) => x.id).concat(['device', 'off'])) assert(tips['voice.' + v], 'voice ' + v);
 for (const v of ['high', 'low']) assert(tips['settings.quality.' + v], 'graphics ' + v);
 
