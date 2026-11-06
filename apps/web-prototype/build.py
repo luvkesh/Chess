@@ -96,10 +96,10 @@ parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
 parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
 # Menu pictures rendered from the game's 3D pieces and era paintings (tools/shoot-art.js, then
 # tools/art-webp.py): the gold pieces for the medals, each era's view, keyed by its landmark, and the
-# 3D avatars (animal busts and emblems), keyed by their art name.
+# 3D avatars (animal busts and emblems), keyed by their art name, and the 3D avatar frames.
 uri = lambda f: 'data:image/webp;base64,' + base64.b64encode(f.read_bytes()).decode()
 landmarks = {e['id']: e['landmark'] for e in json.loads((content / 'campaign.json').read_text())['eras']}
-art = {'piece': {}, 'view': {}, 'avatar': {}}
+art = {'piece': {}, 'view': {}, 'avatar': {}, 'frame': {}}
 for f in sorted((src / 'art').glob('*.webp')):
     kind, name = f.stem.split('-', 1)
     art[kind][landmarks.get(name, name) if kind == 'view' else name] = uri(f)

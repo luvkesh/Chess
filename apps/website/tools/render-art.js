@@ -8,8 +8,8 @@ const fs = require('fs');
 // the sculpted animal busts and emblems, and the gold pieces, so the site's portraits and medals
 // match the game's. (The era views stay out: the site draws its own banners.)
 const artDir = path.join(root, 'apps/web-prototype/src/art');
-global.CHACKLATE_ART = { piece: {}, view: {}, avatar: {} };
-for (const f of fs.readdirSync(artDir).filter((f) => /^(piece|avatar)-.+\.webp$/.test(f))) {
+global.CHACKLATE_ART = { piece: {}, view: {}, avatar: {}, frame: {} };
+for (const f of fs.readdirSync(artDir).filter((f) => /^(piece|avatar|frame)-.+\.webp$/.test(f))) {
   const [kind, name] = f.slice(0, -5).split(/-(.+)/);
   global.CHACKLATE_ART[kind][name] = 'data:image/webp;base64,' + fs.readFileSync(path.join(artDir, f)).toString('base64');
 }
@@ -36,7 +36,8 @@ const king = item('avatar.king.v1');
 out['detail-avatar'] = ART.medalUri(king.art, { from: king.from, to: king.to });
 const knight = item('avatar.knight.v1');
 out['detail-frame'] = ART.medalUri(knight.art, { from: knight.from, to: knight.to });
-out['detail-frame-ring'] = item('frame.gold.v1').ring;
+// the game's 3D gold frame, laid over the knight medal on the Frames tab
+out['detail-frame-bezel'] = ART.frameUri('frame.gold.v1');
 // The details showcase's demos: avatars for the player card, a rook medal inside the frames,
 // and the game's real gold pieces (rendered from the 3D set) standing on the little board.
 for (const id of ['avatar.ember.v1', 'avatar.bao.v1', 'avatar.rook.v1']) {

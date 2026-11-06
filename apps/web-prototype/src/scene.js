@@ -2039,6 +2039,13 @@ function ChacklateScene(canvas, options) {
       c2.position.set(0, 1.3 + tall * 0.55, 6.8);
       look.set(0, tall * 0.45 - 0.1, 0);
       s2.background = null;
+    } else if (spec.kind === 'frame' && AV) {
+      // a frame for the player's avatar, face on, for the menus (tools/shoot-art.js)
+      s2.environment = envFor(AV.STUDIO);
+      const f = AV.frame(spec.frame); s2.add(f); disposeList.push(f);
+      c2.fov = 18; const d = 1.06 / Math.tan((c2.fov * Math.PI) / 360);
+      c2.position.set(0, 0, d); look.set(0, 0, 0);
+      s2.background = null;
     } else if (spec.kind === 'avatar' && AV) {
       // An avatar: an animal friend's bust (head and shoulders) or an emblem, lit in a warm
       // studio. floor: false is the menus' picture (tools/shoot-art.js): the bust framed like a

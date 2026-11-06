@@ -6,7 +6,7 @@ const ChacklateArt = (() => {
   'use strict';
 
   // Pictures rendered from the 3D game (build.py inlines CHACKLATE_ART); drawn art stands in without them.
-  const ART_IMG = Object.assign({ piece: {}, view: {}, avatar: {} }, typeof CHACKLATE_ART !== 'undefined' ? CHACKLATE_ART : {});
+  const ART_IMG = Object.assign({ piece: {}, view: {}, avatar: {}, frame: {} }, typeof CHACKLATE_ART !== 'undefined' ? CHACKLATE_ART : {});
 
   // ------------------------------------------------------------ colour helpers
   const rgb = (c) => {
@@ -944,6 +944,8 @@ const ChacklateArt = (() => {
     crestUri: () => memo('crest', () => crest()),
     miniUri: (kind, o) => memo('mini' + kind + JSON.stringify(o || {}), () => miniMedal(kind, o)),
     // an era's own painted view (as seen from its room's window) where the build has it
+    // the 3D gold frame for an avatar (frame.<name>.v1), rendered from avatars3d.js; null if not built
+    frameUri: (id) => ART_IMG.frame[String(id || '').replace(/^frame\./, '').replace(/\.v\d+$/, '')] || null,
     bannerUri: (id, o) => ART_IMG.view[id] || memo('b' + id + JSON.stringify(o || {}), () => banner(id, o)),
     pieceUri: (type, o) => memo('s' + type + JSON.stringify(o || {}), () => pieceSvg(type, o)),
     fxUri: (kind, colors) => memo('f' + kind + (colors || []).join(), () => fx(kind, colors)),

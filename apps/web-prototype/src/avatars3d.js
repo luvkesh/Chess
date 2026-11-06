@@ -1060,6 +1060,68 @@ function ChacklateAvatars(THREE, K) {
   // The studio the busts are lit in: a warm room bright enough that gold reads as gold.
   const STUDIO = { wall: '#6a4a32', floor: '#3a2618', ceiling: '#4a3424', key: '#fff4e4', keyI: 7, window: '#e8eeff', windowI: 3.5, rim: '#ffe2b8', rimI: 5, lamp: '#ffd8a0', lampI: 9, fill: 1.1 };
 
+  // ------------------------------------------------------------------ frames
+  // The rings round a player's avatar, seen face on (radius 1, facing +z): real metal, enamel
+  // and jewels. Each builds into the group; the avatar sits inside, drawn by the menus.
+  function band(g, mat, rIn, rOut, lift) {
+    const m = new THREE.Mesh(new THREE.TorusGeometry((rIn + rOut) / 2, (rOut - rIn) / 2, 28, 200), mat);
+    m.scale.z = (lift || (rOut - rIn) * 0.45) / ((rOut - rIn) / 2);
+    m.castShadow = true; g.add(m); return m;
+  }
+  function edges(g, mat, r0, r1, t) { torus(g, r0, t, mat); torus(g, r1, t, mat); }
+  function ringOf(g, n, r, z, fn) { for (let i = 0; i < n; i++) { const a = (i / n) * TAU; fn([Math.sin(a) * r, Math.cos(a) * r, z], a); } }
+  const enamel = (c) => once('frameEnamel' + c, () => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.2 }));
+  const FRAMES = {
+    bronze(g) {
+      band(g, MAT.bronze(), 0.86, 1.0);
+      ringOf(g, 48, 0.93, 0.055, (p) => ball(g, 0.012, MAT.bronze(), p));
+    },
+    silver(g) {
+      band(g, MAT.silver(), 0.86, 1.0);
+      edges(g, MAT.silver(), 0.865, 0.995, 0.012);
+      ringOf(g, 36, 0.93, 0.05, (p) => ball(g, 0.026, MATS.pearl(), p));
+    },
+    gold(g) {
+      band(g, MATS.gold(), 0.86, 1.0);
+      edges(g, MATS.gold(), 0.862, 0.998, 0.014);
+      ringOf(g, 72, 0.93, 0.056, (p) => ball(g, 0.009, MATS.paleGold(), p));
+    },
+    ruby(g) {
+      band(g, MATS.gold(), 0.86, 1.0);
+      edges(g, MATS.gold(), 0.862, 0.998, 0.014);
+      ringOf(g, 8, 0.93, 0.05, (p) => jewel(g, 0.05, '#c8103a', p));
+      for (let i = 0; i < 8; i++) { const a = ((i + 0.5) / 8) * TAU; ball(g, 0.018, MATS.pearl(), [Math.sin(a) * 0.93, Math.cos(a) * 0.93, 0.05]); }
+    },
+    harvest(g) {
+      band(g, MATS.gold(), 0.88, 0.98, 0.03);
+      for (let i = 0; i < 44; i++) {
+        const a = (i / 44) * TAU, side = i % 2 ? 1 : -1, r = 0.93 + side * 0.035;
+        const tx = Math.cos(a), ty = -Math.sin(a);
+        leaf(g, [Math.sin(a) * r, Math.cos(a) * r, 0.05], [tx + Math.sin(a) * side * 0.6, ty + Math.cos(a) * side * 0.6, 0.15], 0.11, MATS.paleGold(), 0.045).scale.z = 0.02;
+      }
+      ringOf(g, 6, 0.93, 0.07, (p) => ball(g, 0.024, MATS.gem('#b8325a'), p));
+    },
+    'cocoa-gold'(g) {
+      band(g, MATS.gold(), 0.85, 1.0);
+      band(g, enamel('#5a3220'), 0.88, 0.97, 0.08);
+      ringOf(g, 12, 0.925, 0.085, (p) => ball(g, 0.016, MATS.gold(), p));
+    },
+    ember(g) {
+      band(g, MATS.gold(), 0.85, 1.0);
+      band(g, enamel('#9a1834'), 0.88, 0.97, 0.08);
+      ringOf(g, 16, 0.925, 0.085, (p, a) => { const f = leaf(g, p, [Math.sin(a), Math.cos(a), 0.4], 0.07, MATS.gem('#ffb040'), 0.03); f.scale.z = 0.012; });
+      ringOf(g, 4, 0.925, 0.09, (p) => jewel(g, 0.04, '#ffd27a', p));
+    },
+  };
+  function frame(id) {
+    CELL = 0.01; SHELLS = 0;
+    const g = new THREE.Group();
+    const name = String(id || '').replace(/^frame\./, '').replace(/\.v\d+$/, '');
+    if (FRAMES[name]) FRAMES[name](g);
+    g.userData.dispose = () => g.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
+    return g;
+  }
+
   // ------------------------------------------------------------------ public
   // make('animal:redpanda' | 'emblem:crown', { detail: 'show' | 'play' }) -> THREE.Group
   // userData.portrait: true for busts (framed head and shoulders), false for emblems (fit to view).
@@ -1077,6 +1139,6 @@ function ChacklateAvatars(THREE, K) {
     g.userData.dispose = () => g.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
     return g;
   }
-  return { make, ANIMALS: Object.keys(ANIMALS), EMBLEMS: Object.keys(EMBLEMS), BUST_Y, STUDIO };
+  return { make, frame, FRAMES: Object.keys(FRAMES), ANIMALS: Object.keys(ANIMALS), EMBLEMS: Object.keys(EMBLEMS), BUST_Y, STUDIO };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateAvatars;

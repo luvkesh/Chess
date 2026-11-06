@@ -38,5 +38,13 @@ const SET = process.env.ART_SET || 'regency', SIDE = process.env.ART_SIDE || 'w'
     save('avatar-' + name, url);
     console.log('avatar', name);
   }
+  // the avatar frames: each 3D bezel face on, on transparency (app.js lays it over the avatar)
+  const F = await page.evaluate(() => ChacklateAvatars(THREE, ChacklateKit(THREE)).FRAMES);
+  for (const name of F) {
+    if (!want('frame') && !want('frame-' + name)) continue;
+    const url = await page.evaluate((id) => window.__view.snapshot({ kind: 'frame', frame: id }, 640, 640), 'frame.' + name + '.v1');
+    save('frame-' + name, url);
+    console.log('frame', name);
+  }
   await browser.close();
 })();

@@ -226,7 +226,8 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 @media (hover: hover) { .fx-tabs button:hover { color: var(--ink); border-color: rgba(232, 192, 112, 0.55); } }
 .fx-ic { flex: none; position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, #f6dc9a, #8a6326 55%, #e9c77d); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45); }
 .fx-ic img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a2416, #120a07); }
-.fx-ic img.framed { padding: 4px; background: var(--ring); }
+.fx-ic.fr { background: none; padding: 5px; box-shadow: none; }
+.fx-ic img.bz { position: absolute; inset: -4%; width: 108%; height: 108%; border-radius: 0; background: none; object-fit: contain; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45)); }
 .fx-ic.snd { color: var(--gold-2); }
 .fx-ic.snd svg { width: 100%; height: 100%; padding: 13px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a2416, #120a07); }
 .fx-panel { min-width: 0; padding: 24px 26px 26px; border: 1px solid var(--line); border-radius: 22px; background: linear-gradient(180deg, rgba(42, 27, 20, 0.88), rgba(20, 13, 10, 0.92)); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); }
@@ -609,7 +610,7 @@ html.nonlatin body { line-height: 1.75; }
         <button type="button" role="tab" id="fxt-clock" data-fx="clock" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-clock@@" alt=""></span><span class="fx-tl">Clock skins</span></button>
         <button type="button" role="tab" id="fxt-sound" data-fx="sound" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic snd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></span><span class="fx-tl">Sound packs</span></button>
         <button type="button" role="tab" id="fxt-avatar" data-fx="avatar" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-avatar@@" alt=""></span><span class="fx-tl">Avatars</span></button>
-        <button type="button" role="tab" id="fxt-frame" data-fx="frame" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic"><img src="@@ART:detail-frame@@" alt="" class="framed" style="--ring: @@ART:detail-frame-ring@@"></span><span class="fx-tl">Frames</span></button>
+        <button type="button" role="tab" id="fxt-frame" data-fx="frame" aria-controls="fx-panel" aria-selected="false" tabindex="-1"><span class="fx-ic fr"><img src="@@ART:detail-frame@@" alt=""><img class="bz" src="@@ART:detail-frame-bezel@@" alt=""></span><span class="fx-tl">Frames</span></button>
       </div>
       <div class="fx-panel" id="fx-panel" role="tabpanel" aria-labelledby="fxt-capture">
         <div class="fx-copy" data-fx="capture"><h4>Capture effects</h4><p>A little show each time a piece is taken. <span class="fx-n">There are @@N:fx_capture@@ to collect.</span></p></div>

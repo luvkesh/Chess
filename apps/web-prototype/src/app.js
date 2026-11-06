@@ -835,7 +835,10 @@
     const a = (avatarId && PG.item(avatarId)) || PG.equipped(state.progress, 'avatar') || PG.item(CATALOG.defaults.avatar);
     const f = (frameId && PG.item(frameId)) || (avatarId ? null : PG.equipped(state.progress, 'frame')) || PG.item(CATALOG.defaults.frame);
     const ring = !!(f && f.data.ring !== 'transparent');
-    return '<div class="avatar ' + (cls || '') + (ring ? ' ringed" style="--ring:' + f.data.ring : '') + '"><img src="' + medal(a.data.art, a.data.from, a.data.to, { ring: !ring }) + '" alt=""></div>';
+    // the frame is the 3D gold bezel picture where the build has it, else the flat gradient ring
+    const img = ring && ART.frameUri(f.id);
+    const bezel = img ? '<img class="frame3d" src="' + img + '" alt="">' : '';
+    return '<div class="avatar ' + (cls || '') + (ring && !img ? ' ringed" style="--ring:' + f.data.ring : '') + (img ? ' framed' : '') + '"><img src="' + medal(a.data.art, a.data.from, a.data.to, { ring: !ring }) + '" alt="">' + bezel + '</div>';
   }
 
   // A calm table behind the menus: the start position, slowly circling.
@@ -2658,7 +2661,7 @@
     const d = it.data || {};
     if (it.category === 'avatar') return '<img src="' + medal(d.art, d.from, d.to) + '" alt="">';
     if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
-    if (it.category === 'frame') return '<span class="ringdot" style="background:' + d.ring + '"></span>';
+    if (it.category === 'frame') return ART.frameUri(it.id) ? '<img src="' + ART.frameUri(it.id) + '" alt="">' : '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
     if (it.category === 'capture' || it.category === 'victory' || it.category === 'trail') return '<img src="' + fxArt(it) + '" alt="">';
     return icon(CAT_ICON[it.category] || 'star');

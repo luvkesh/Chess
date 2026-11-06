@@ -26,6 +26,11 @@ for f in sorted(out.glob('avatar-*.png')):
     im = Image.open(f).convert('RGBA').resize((400, 400), Image.LANCZOS)
     im.save(dest / (f.stem + '.webp'), quality=84, method=6)
 
+# The 3D avatar frames: 320 px square on transparency, laid over the avatar by app.js.
+for f in sorted(out.glob('frame-*.png')):
+    im = Image.open(f).convert('RGBA').resize((320, 320), Image.LANCZOS)
+    im.save(dest / (f.stem + '.webp'), quality=86, method=6)
+
 # Each era's room and landmark for the Journey banners and portholes, cropped wide from the
 # website's era pictures (apps/website/tools/shoot.js), which are rendered from the live table.
 for f in sorted((here.parent.parent / 'website' / 'img').glob('*-hero.webp')):
