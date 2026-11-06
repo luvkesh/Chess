@@ -44,8 +44,8 @@
     { "id": "edward", "name": "Edward", "lang": "en", "engine": "bm_george,bm_daniel", "speed": 1.0, "accent": "UK", "gender": "M", "blurb": "Steady and formal. British English, male.", "lessons": true },
     { "id": "lewis", "name": "Lewis", "lang": "en", "engine": "bm_lewis", "speed": 1.0, "accent": "UK", "gender": "M", "blurb": "Deep and serious. British English, male.", "lessons": true },
     { "id": "daniel", "name": "Daniel", "lang": "en", "engine": "bm_daniel", "speed": 1.0, "accent": "UK", "gender": "M", "blurb": "Formal newsreader style. British English, male.", "lessons": true },
-    { "id": "priya", "name": "Priya", "lang": "hi", "engine": "hf_alpha", "speed": 1.0, "blurb": "Game calls and moves in Hindi.", "lessons": false },
-    { "id": "dev", "name": "Dev", "lang": "hi", "engine": "hm_omega", "speed": 1.0, "blurb": "Game calls and moves in Hindi.", "lessons": false }
+    { "id": "dev", "name": "Dev", "lang": "hi", "engine": "hm_omega", "speed": 1.05, "blurb": "Rooky's voice in Hindi: lessons, game calls and moves.", "lessons": true },
+    { "id": "priya", "name": "Priya", "lang": "hi", "engine": "hf_alpha", "speed": 1.0, "blurb": "Lessons, game calls and moves in Hindi.", "lessons": true }
   ],
   "events": {
     "en": {

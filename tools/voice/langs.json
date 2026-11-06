@@ -1,0 +1,18 @@
+{
+  "note": "Who says what in each other language, for tools/voice/record-lang.py. Kokoro has two female and two male Hindi voices: Rooky is Dev's voice (hm_omega), as in his Hindi lessons; the friends share the other three by who they are.",
+  "hi": {
+    "speed": 1.0,
+    "speakers": {
+      "rooky": { "engine": "hm_omega", "speed": 1.05 },
+      "marcus": { "engine": "hm_psi" },
+      "moti": { "engine": "hm_psi" },
+      "marco": { "engine": "hm_psi" },
+      "mishka": { "engine": "hm_psi" },
+      "gaston": { "engine": "hm_psi" },
+      "miu": { "engine": "hf_alpha" },
+      "bao": { "engine": "hf_alpha" },
+      "sophie": { "engine": "hf_beta" },
+      "skye": { "engine": "hf_beta" }
+    }
+  }
+}
