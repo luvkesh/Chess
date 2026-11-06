@@ -374,6 +374,9 @@ def main():
         (out / 'audio').mkdir(exist_ok=True)
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
+        for clip in (here / 'audio').glob('*/item-*.mp3'):   # the same pitches in other languages
+            (out / 'audio' / clip.parent.name).mkdir(exist_ok=True)
+            (out / 'audio' / clip.parent.name / clip.name).write_bytes(clip.read_bytes())
         (out / 'fx').mkdir(exist_ok=True)
         for clip in (here / 'fx').glob('*.*'):
             if clip.suffix in ('.mp4', '.jpg'):

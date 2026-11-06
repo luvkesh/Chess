@@ -90,6 +90,33 @@ function wordLines() {
   return out;
 }
 
+// Translates content text the way the game does on screen (src/i18n.js text()), or null when the
+// language has no translation for it.
+const translators = {};
+function translator(lang) {
+  if (translators[lang]) return translators[lang];
+  const dir = path.join(__dirname, '..', '..', 'packages', 'content', 'i18n');
+  const strings = {}, text = {};
+  for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.json')).sort()) strings[f.slice(0, -5)] = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+  for (const f of fs.readdirSync(path.join(dir, 'text')).filter((f) => f.endsWith('.json'))) {
+    text[f.slice(0, -5)] = JSON.parse(fs.readFileSync(path.join(dir, 'text', f), 'utf8'));
+    delete text[f.slice(0, -5)]._meta;
+  }
+  const keep = [global.CHACKLATE_STRINGS, global.CHACKLATE_TEXT];
+  global.CHACKLATE_STRINGS = strings; global.CHACKLATE_TEXT = text;
+  const file = require.resolve(path.join(__dirname, '..', '..', 'apps', 'web-prototype', 'src', 'i18n.js'));
+  const cached = require.cache[file];
+  delete require.cache[file];
+  const I18N = require(file);
+  if (cached) require.cache[file] = cached; else delete require.cache[file];
+  [global.CHACKLATE_STRINGS, global.CHACKLATE_TEXT] = keep;
+  I18N.set(lang);
+  if (I18N.lang !== lang) throw new Error('the game has no ' + lang);
+  const tr = (en) => { const s = I18N.text(en); return s && s !== en && /[^\x00-\x7f]/.test(s) ? s : null; };
+  tr.I18N = I18N;
+  return (translators[lang] = tr);
+}
+
 // [{ voice, key, text, spoken }] for every voice. Duplicates are dropped.
 function jobs() {
   const V = load('voice.json');
@@ -105,7 +132,11 @@ function jobs() {
     };
     for (const t of Object.values(V.events[v.lang])) add(t);
     for (const t of fragments(M)) add(t, M.old && M.old.say && M.old.say[t]);   // say: how the speech engine should hear an old name
-    if (v.lessons) for (const t of lessonLines()) add(t, v.lang === 'en' ? spokenEn(t, M) : t);
+    // In another language a lesson line is said (and keyed) as the player reads it, translated.
+    if (v.lessons) for (const t of lessonLines()) {
+      if (v.lang === 'en') add(t, spokenEn(t, M));
+      else { const s = translator(v.lang)(t); if (s) add(s, spokenEn(s, M)); }
+    }
   }
   return out;
 }
@@ -136,4 +167,4 @@ if (require.main === module) {
   const job = process.argv[2];
   process.stdout.write(JSON.stringify(job === 'words' ? wordLines() : job === 'coach' ? coachLines() : jobs()));
 }
-module.exports = { voiceKey, spokenEn, fragments, jobs, wordLines, coachLines };
+module.exports = { voiceKey, spokenEn, fragments, jobs, wordLines, coachLines, translator };
