@@ -21,6 +21,7 @@
 html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) *:not(.wordmark):not(.wordmark *) { letter-spacing: 0 !important; text-transform: none !important; }
 html[data-script="deva"] body, html[data-script="beng"] body, html[data-script="arab"] body { line-height: 1.6; }
 html[data-script="hans"] body { line-height: 1.6; }
+html[dir="rtl"] .ico-dir { transform: scaleX(-1); }
 /* Devanagari has no true italic: a slanted Latin face reads badly, so quotes stand upright. */
 html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) em, html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) i:not(:empty), html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) .quote, html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) .say { font-style: normal; }
 html[data-script="deva"] :is(h1, h2, h3), html[data-script="beng"] :is(h1, h2, h3), html[data-script="arab"] :is(h1, h2, h3), html[data-script="hans"] :is(h1, h2, h3) { line-height: 1.4; }

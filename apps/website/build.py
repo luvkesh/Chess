@@ -51,9 +51,9 @@ EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \
 # The two items each tab of the details showcase plays, one after the other. None of them is
 # the item on the tab's own medal, and no item shows twice.
 FX_DEMOS = {
-    'capture': ['capture.frost.v1', 'capture.ruby-petals.v1'],
-    'victory': ['victory.harvest.v1', 'victory.sparks.v1'],
-    'trail': ['trail.mint.v1', 'trail.gold.v1'],
+    'capture': ['capture.fire-burst.v1', 'capture.frost.v1'],
+    'victory': ['victory.lightning-storm.v1', 'victory.harvest.v1'],
+    'trail': ['trail.rainbow.v1', 'trail.mint.v1'],
     'clock': ['clock.ice.v1', 'clock.ruby.v1'],
     'sound': ['sound.marble.v1', 'sound.glass.v1'],
     'avatar': ['avatar.ember.v1', 'avatar.bao.v1'],
@@ -61,9 +61,9 @@ FX_DEMOS = {
 }
 
 LINKS = {
-    'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/'},
+    'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/', 'FX': '/fx/'},
     'preview': {'PLAY': 'https://claude.ai/artifact/LPXvesS3kLgtjYFDkxGJFL', 'PARENT': 'privacy.html#rights',
-                'PRIVACY': 'privacy.html', 'TERMS': 'terms.html', 'PITCHES': 'audio/'},
+                'PRIVACY': 'privacy.html', 'TERMS': 'terms.html', 'PITCHES': 'audio/', 'FX': 'fx/'},
 }
 
 
@@ -197,7 +197,7 @@ def guide(coach, collection):
 # packages/content/i18n/text/<code>.json; i18n/<code>.json holds the site's own text and wins.
 ALL_LANGS = [('en', 'English'), ('zh', '中文'), ('hi', 'हिन्दी'), ('es', 'Español'), ('fr', 'Français'), ('ar', 'العربية'),
              ('bn', 'বাংলা'), ('pt', 'Português'), ('ru', 'Русский'), ('ur', 'اردو')]
-READY = ['en', 'hi']   # as in the game: a language joins once it is fully translated
+READY = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ru', 'ur']   # as in the game: a language joins once it is fully translated
 LANGS = [l for l in ALL_LANGS if l[0] in READY]
 META = {
     'zh': {'dir': 'ltr', 'script': 'Han', 'speech': 'zh-CN'},
@@ -306,6 +306,16 @@ def build(target):
     lines = guide(coach['name'], collection)
     catalog = load('catalog.json')
     fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in catalog['items'] if i['id'] == d] for c, ids in FX_DEMOS.items()}
+    # clips recorded from the game's own table (tools/record-fx.js): fx/<id>.mp4, its poster
+    # fx/<id>.jpg, and for sound packs fx/<id>.lands.json, when each piece lands in the clip
+    for items in fx.values():
+        for i in items:
+            if (here / 'fx' / (i['id'] + '.mp4')).exists():
+                assert (here / 'fx' / (i['id'] + '.jpg')).exists(), 'missing fx/%s.jpg' % i['id']
+                i['clip'] = i['id']
+                lands = here / 'fx' / (i['id'] + '.lands.json')
+                if lands.exists():
+                    i['lands'] = json.loads(lands.read_text())
     assert all(len(v) == 2 for v in fx.values()), fx
     # Names stay as they are in every language: the characters, the game, the studio and the
     # names of the sets, boards and rooms (like product names; the approved Hindi keeps them too).
@@ -325,7 +335,8 @@ def build(target):
     ads_dir = game / 'src' / 'ads'
     ads = {'crest': 'data:image/webp;base64,' + base64.b64encode((game / 'src' / 'crest.webp').read_bytes()).decode(),
            'nibbland': 'data:image/webp;base64,' + base64.b64encode((ads_dir / 'nibbland-logo.webp').read_bytes()).decode(),
-           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode()}
+           'jongclub': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode(),
+           'aertrip': 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'aertrip-logo.svg').read_bytes()).decode()}
     scene = 'const CHACKLATE_ADS = %s;\n' % json.dumps(ads, separators=(',', ':')) + scene
     assert '</script' not in scene.lower()
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
@@ -364,6 +375,13 @@ def main():
         (out / 'audio').mkdir(exist_ok=True)
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
+        for clip in (here / 'audio').glob('*/item-*.mp3'):   # the same pitches in other languages
+            (out / 'audio' / clip.parent.name).mkdir(exist_ok=True)
+            (out / 'audio' / clip.parent.name / clip.name).write_bytes(clip.read_bytes())
+        (out / 'fx').mkdir(exist_ok=True)
+        for clip in (here / 'fx').glob('*.*'):
+            if clip.suffix in ('.mp4', '.jpg'):
+                (out / 'fx' / clip.name).write_bytes(clip.read_bytes())
         for name in ('privacy', 'terms'):
             text = (here / (name + '.html')).read_text()
             text = text.replace('href="/"', 'href="index.html"').replace('href="/parent"', 'href="privacy.html#rights"')

@@ -54,7 +54,7 @@ def speak(pipe, text, voice, speed=1.0, comma=0.12, stop=0.38, starts=False):
     With starts=True it also returns the second each sentence starts (for captions)."""
     rng = np.random.default_rng(7)
     out, begins, n = [], [0.0], 0
-    for r in pipe(voiced(text), voice=voice, speed=speed):
+    for r in pipe(voiced(text, getattr(pipe, 'lang_code', 'a')), voice=voice, speed=speed):
         audio = np.asarray(r.audio, dtype=np.float32)
         if out:   # between Kokoro's chunks (each ends a sentence): a full breath
             prev = out.pop()
