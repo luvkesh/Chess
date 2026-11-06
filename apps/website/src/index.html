@@ -235,6 +235,9 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .fx-copy .fx-n { color: var(--ink); }
 .fx-stage { position: relative; margin-top: 18px; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; border: 1px solid rgba(232, 192, 112, 0.4); background: radial-gradient(ellipse 80% 70% at 50% 30%, #3a2618, #140c09 75%); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 -40px 60px rgba(0, 0, 0, 0.35); }
 .fx-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.fx-stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; background: #120c0a; }
+.fx-stage.vid video { display: block; }
+.fx-stage.vid canvas { display: none; }
 .fx-foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 30px 16px 12px; background: linear-gradient(0deg, rgba(14, 9, 7, 0.85), transparent); pointer-events: none; }
 .fx-name { font: italic 600 19px/1.2 var(--serif); color: var(--ink); transition: opacity 0.35s; }
 .fx-pips { display: flex; gap: 4px; pointer-events: auto; }
@@ -619,7 +622,7 @@ html.nonlatin body { line-height: 1.75; }
         <div class="fx-copy" data-fx="sound" hidden><h4>Sound packs</h4><p>The sound each piece makes as it meets the board. <span class="fx-n">There are @@N:fx_sound@@ to collect.</span></p></div>
         <div class="fx-copy" data-fx="avatar" hidden><h4>Avatars</h4><p>A face for your player card. <span class="fx-n">There are @@N:fx_avatar@@ to collect.</span></p></div>
         <div class="fx-copy" data-fx="frame" hidden><h4>Frames</h4><p>A ring of metal or enamel around your avatar. <span class="fx-n">There are @@N:fx_frame@@ to collect.</span></p></div>
-        <div class="fx-stage" id="fx-stage"><canvas id="fx-cv" aria-hidden="true"></canvas>
+        <div class="fx-stage" id="fx-stage"><video id="fx-vid" muted playsinline preload="metadata" disablepictureinpicture aria-hidden="true"></video><canvas id="fx-cv" aria-hidden="true"></canvas>
           <button type="button" class="fx-hear" id="fx-hear" hidden aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg><span>Hear it</span></button>
           <div class="fx-foot"><span class="fx-name" id="fx-name" aria-live="polite"></span><span class="fx-pips" id="fx-pips"><button type="button" aria-label="Demo 1 of 2"></button><button type="button" aria-label="Demo 2 of 2"></button></span></div>
         </div>
@@ -1050,26 +1053,26 @@ html.nonlatin body { line-height: 1.75; }
   }
 
   // ---------------------------------------------------------------- the details
-  // A tab for each kind of extra; the chosen tab's two demos play one after the other. They are
-  // drawn in 2D on a little board with the game's own gold pieces, in each item's colours from the
-  // catalog, and "Hear it" plays the game's own recorded sound packs. Nothing plays while
-  // the section is off screen. With reduced motion each demo is one still frame and the pips switch.
+  // A tab for each kind of extra; the chosen tab's two demos play one after the other. Effects,
+  // trails, clocks and sounds are clips recorded from the game itself (its real 3D table, lighting
+  // and particles, frame by frame: tools/record-fx.js); avatars and frames are the game's own medal
+  // art, drawn here. "Hear it" plays the game's recorded sound packs as each piece lands in the clip.
+  // Nothing plays while the section is off screen. With reduced motion a clip shows its poster and
+  // plays only when tapped.
   (function () {
     var root = $('fx');
     if (!root) return;
-    var cv = $('fx-cv'), g = cv.getContext('2d'), stageEl = $('fx-stage'), hear = $('fx-hear'), nameEl = $('fx-name');
+    var cv = $('fx-cv'), g = cv.getContext('2d'), vid = $('fx-vid'), stageEl = $('fx-stage'), hear = $('fx-hear'), nameEl = $('fx-name');
     var tabs = [].slice.call(root.querySelectorAll('[role="tab"]'));
     var copies = [].slice.call(root.querySelectorAll('.fx-copy'));
     var pips = [].slice.call($('fx-pips').children);
-    var DUR = 5.4, FADE = 0.45, STEP = 1 / 60;
-    var cat = 'capture', idx = 0, t = 0, visible = false, raf = 0, last = 0, W = 640, H = 400, S = 1, scene = null, parts = [];
-    var seed = 1;
-    function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+    var FXDIR = '@@FX@@', DUR = 5.4, FADE = 0.45;
+    var cat = 'capture', idx = 0, t = 0, visible = false, raf = 0, last = 0, W = 640, H = 400, S = 1, scene = null, clip = null, landed = 0;
     function hex(c, a) { var n = parseInt(c.slice(1), 16); return 'rgba(' + (n >> 16) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; }
     function ease(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
     function span(a, b) { return ease((t - a) / (b - a)); }
 
-    // pictures: the gold pieces, an ebony copy of each, and the avatar medals
+    // the avatar medals
     var pics = {};
     function pic(key, dark) {
       var id = key + (dark ? ':d' : '');
@@ -1092,260 +1095,7 @@ html.nonlatin body { line-height: 1.75; }
       return null;
     }
 
-    // ------------------------------------------------ the board, seen from the player's chair
-    // u runs 0..6 across, v 0..4 from the far edge to the near one, y is height in squares.
-    function P(u, v, y) {
-      var d = 7 - v, k = 300 * S / d;
-      return { x: W / 2 + (u - 3) * k, y: 256 + ((-84 + 1428 / d) - 256) * S - (y || 0) * k * 0.62, k: k };
-    }
-    function quad(u0, v0, u1, v1) {
-      var a = P(u0, v0), b = P(u1, v0), c = P(u1, v1), d = P(u0, v1);
-      g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.lineTo(c.x, c.y); g.lineTo(d.x, d.y); g.closePath();
-    }
-    function board() {
-      var glow = g.createRadialGradient(W / 2, 250, 20, W / 2, 250, 380);
-      glow.addColorStop(0, 'rgba(255,210,150,.16)'); glow.addColorStop(1, 'rgba(255,210,150,0)');
-      g.fillStyle = glow; g.fillRect(0, 0, W, H);
-      quad(-0.28, -0.28, 6.28, 4.6); g.fillStyle = '#2c1a10'; g.fill();
-      g.strokeStyle = 'rgba(232,192,112,.75)'; g.lineWidth = 1.5; g.stroke();
-      for (var v = 0; v < 4; v++) for (var u = 0; u < 6; u++) {
-        quad(u, v, u + 1, v + 1);
-        g.fillStyle = (u + v) % 2 ? '#6a4026' : '#e0c294';
-        g.fill();
-      }
-      quad(0, 0, 6, 4); g.strokeStyle = 'rgba(232,192,112,.6)'; g.lineWidth = 1; g.stroke();
-      // the far edge fades into the room
-      var f = g.createLinearGradient(0, P(0, -0.3).y - 4, 0, P(0, 1.4).y);
-      f.addColorStop(0, 'rgba(20,12,9,.85)'); f.addColorStop(1, 'rgba(20,12,9,0)');
-      g.fillStyle = f; g.fillRect(0, 0, W, P(0, 1.4).y);
-    }
-    // A piece standing on square (u, v): o.y lifts it, o.tilt tips it over, o.spin turns it, o.a fades it.
-    function piece(p) {
-      var o = P(p.u + 0.5, p.v + 0.5), base = P(p.u + 0.5, p.v + 0.5, p.y || 0), a = p.a === undefined ? 1 : p.a;
-      if (a <= 0) return;
-      g.save();
-      g.globalAlpha *= a;
-      g.fillStyle = 'rgba(0,0,0,' + (0.5 / (1 + (p.y || 0) * 2)) + ')';
-      g.beginPath(); g.ellipse(o.x, o.y + o.k * 0.04, o.k * 0.34, o.k * 0.12, 0, 0, Math.PI * 2); g.fill();
-      var im = pic('fx-piece-' + p.t, p.dark);
-      if (im) {
-        var h = o.k * (p.t === 'k' || p.t === 'q' ? 1.5 : p.t === 'p' ? 1.08 : 1.28), w = h * 200 / 360;
-        g.translate(base.x, base.y + o.k * 0.06);
-        if (p.tilt) g.rotate(p.tilt);
-        if (p.spin) g.scale(Math.cos(p.spin) || 0.001, 1);
-        g.drawImage(im, -w / 2, -h, w, h);
-      }
-      g.restore();
-    }
-    function pieces(list) {
-      list.slice().sort(function (a, b) { return a.v - b.v; }).forEach(piece);
-    }
-    // a move from square a to square b between times t0 and t1, hopping when hop is set
-    function move(p, a, b, t0, t1, hop) {
-      var f = span(t0, t1);
-      p.u = a[0] + (b[0] - a[0]) * f; p.v = a[1] + (b[1] - a[1]) * f;
-      p.y = hop ? Math.sin(Math.PI * f) * hop : 0;
-      return t > t0 && t < t1;
-    }
-
-    // ------------------------------------------------ particles
-    function burst(n, at, make) { for (var i = 0; i < n; i++) parts.push(make(i, at)); }
-    function spark(at, col, speed, life, add) {
-      var a = rnd() * Math.PI * 2, s = speed * (0.4 + rnd() * 0.6);
-      return { x: at.x, y: at.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.8 - speed * 0.25, g: 220, drag: 1.6, life: life * (0.6 + rnd() * 0.4), age: 0, size: 1.6 + rnd() * 1.6, c: col, shape: 'spark', add: add !== false };
-    }
-    function tick(dt) {
-      for (var i = parts.length - 1; i >= 0; i--) {
-        var p = parts[i];
-        p.age += dt;
-        if (p.age >= p.life) { parts.splice(i, 1); continue; }
-        var k = Math.max(0, 1 - p.drag * dt);
-        p.vx *= k; p.vy = p.vy * k + p.g * dt;
-        p.x += p.vx * dt + (p.sway ? Math.sin(p.age * p.sway + p.ph) * 26 * dt : 0); p.y += p.vy * dt;
-        p.rot = (p.rot || 0) + (p.vr || 0) * dt;
-      }
-    }
-    function drawParts() {
-      parts.forEach(function (p) {
-        var life = 1 - p.age / p.life, a = Math.min(1, life * 1.6) * (p.alpha || 1) * Math.min(1, p.age / 0.06 + 0.2);
-        g.save();
-        g.globalCompositeOperation = p.add ? 'lighter' : 'source-over';
-        g.globalAlpha *= a;
-        g.translate(p.x, p.y);
-        var s = p.size * S;
-        if (p.shape === 'spark') {
-          var len = Math.min(18, Math.hypot(p.vx, p.vy) * 0.035) * S + s;
-          var ang = Math.atan2(p.vy, p.vx);
-          g.rotate(ang);
-          g.strokeStyle = p.c; g.lineWidth = s; g.lineCap = 'round';
-          g.beginPath(); g.moveTo(-len, 0); g.lineTo(0, 0); g.stroke();
-          g.fillStyle = '#fff'; g.beginPath(); g.arc(0, 0, s * 0.55, 0, 7); g.fill();
-        } else if (p.shape === 'glow') {
-          var r = g.createRadialGradient(0, 0, 0, 0, 0, s * 3);
-          r.addColorStop(0, hex(p.c, 1)); r.addColorStop(0.35, hex(p.c, 0.55)); r.addColorStop(1, hex(p.c, 0));
-          g.fillStyle = r; g.beginPath(); g.arc(0, 0, s * 3, 0, 7); g.fill();
-        } else if (p.shape === 'petal') {
-          g.rotate(p.rot); g.scale(1, 0.55 + 0.45 * Math.sin(p.age * 5 + p.ph));
-          g.fillStyle = p.c; g.beginPath(); g.moveTo(-s * 1.6, 0); g.quadraticCurveTo(0, -s * 1.3, s * 1.6, 0); g.quadraticCurveTo(0, s * 1.3, -s * 1.6, 0); g.fill();
-        } else if (p.shape === 'flake') {
-          g.rotate(p.rot); g.strokeStyle = p.c; g.lineWidth = Math.max(1, s * 0.22); g.lineCap = 'round';
-          g.beginPath();
-          for (var i = 0; i < 6; i++) {
-            var c = Math.cos(i * Math.PI / 3), n = Math.sin(i * Math.PI / 3);
-            g.moveTo(0, 0); g.lineTo(c * s * 2.2, n * s * 2.2);
-            g.moveTo(c * s * 1.3, n * s * 1.3); g.lineTo(c * s * 1.3 + Math.cos(i * Math.PI / 3 + 0.8) * s * 0.6, n * s * 1.3 + Math.sin(i * Math.PI / 3 + 0.8) * s * 0.6);
-            g.moveTo(c * s * 1.3, n * s * 1.3); g.lineTo(c * s * 1.3 + Math.cos(i * Math.PI / 3 - 0.8) * s * 0.6, n * s * 1.3 + Math.sin(i * Math.PI / 3 - 0.8) * s * 0.6);
-          }
-          g.stroke();
-        } else if (p.shape === 'ring') {
-          var f = p.age / p.life;
-          g.strokeStyle = p.c; g.lineWidth = 2.2 * S * (1 - f) + 0.6;
-          g.beginPath(); g.ellipse(0, 0, p.size * (0.3 + f * 1.5), p.size * (0.3 + f * 1.5) * 0.36, 0, 0, Math.PI * 2); g.stroke();
-        } else {
-          g.fillStyle = p.c; g.beginPath(); g.arc(0, 0, s, 0, 7); g.fill();
-        }
-        g.restore();
-      });
-    }
-
-    // ------------------------------------------------ the demos, one maker per kind of extra
-    var fired = {};
-    function at(key, when) { if (t >= when && !fired[key]) { fired[key] = 1; return true; } return false; }
     var MAKE = {
-      capture: function (it) {
-        var d = it.data, cols = d.colors, kn = { t: 'n', u: 2, v: 3 }, pawn = { t: 'p', dark: true, u: 3, v: 1 };
-        var still = [{ t: 'p', u: 0, v: 3 }, { t: 'b', dark: true, u: 1, v: 0 }, { t: 'r', dark: true, u: 5, v: 0 }, { t: 'k', u: 4, v: 3 }];
-        return {
-          still: 1.75,
-          step: function () {
-            move(kn, [2, 3], [3, 1], 0.7, 1.5, 0.9);
-            var hit = P(3.5, 1.5, 0.4);
-            if (at('hit', 1.45)) {
-              if (d.kind === 'frost') {
-                burst(8, hit, function (i) { var a = i / 8 * Math.PI * 2 + 0.3; return { x: hit.x, y: hit.y, vx: Math.cos(a) * 110, vy: Math.sin(a) * 60 - 25, g: 8, drag: 1.7, life: 2.4, age: 0, size: 6 + rnd() * 5, c: cols[i % 2], shape: 'flake', rot: rnd() * 3, vr: (rnd() - 0.5) * 1.6 }; });
-                burst(14, hit, function (i) { return spark(hit, cols[1], 150, 0.9); });
-              } else if (d.kind === 'petals') {
-                burst(26, hit, function (i) { var a = rnd() * Math.PI * 2, s = 50 + rnd() * 70; return { x: hit.x, y: hit.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.6 - 40, g: 26, drag: 1.1, life: 2.6, age: 0, size: 4 + rnd() * 2.5, c: cols[i % cols.length], shape: 'petal', rot: rnd() * 6, vr: (rnd() - 0.5) * 5, ph: rnd() * 6, sway: 3 }; });
-              } else burst(40, hit, function (i) { return spark(hit, cols[i % cols.length], 260, 1); });
-            }
-            if (d.kind === 'frost') {
-              // the taken piece skates off across the board to the tray
-              var f = span(1.9, 3.1);
-              pawn.u = 3 + f * 4.2; pawn.v = 1 + f * 0.6; pawn.y = 0; pawn.a = 1 - span(2.8, 3.1);
-              if (t > 1.9 && t < 3.1 && rnd() < 0.5) { var q = P(pawn.u + 0.5, pawn.v + 0.5); parts.push({ x: q.x, y: q.y, vx: (rnd() - 0.5) * 20, vy: -10, g: 0, drag: 1, life: 0.7, age: 0, size: 1.4, c: cols[1], shape: 'glow', add: true }); }
-            } else {
-              // it twirls, then hops away to the tray
-              pawn.spin = span(1.6, 2.4) * Math.PI * 4;
-              var h = span(2.4, 3.3);
-              pawn.u = 3 + h * 4; pawn.v = 1 + h * 0.4; pawn.y = Math.sin(Math.PI * h) * 1.3; pawn.a = 1 - span(3.0, 3.3);
-            }
-            pawn.a = t < 1.45 ? 1 : pawn.a;
-          },
-          draw: function () { board(); pieces(still.concat([pawn, kn])); drawParts(); }
-        };
-      },
-      victory: function (it) {
-        var d = it.data, cols = d.colors, q = { t: 'q', u: 1, v: 3 }, bk = { t: 'k', dark: true, u: 5, v: 0 };
-        var still = [{ t: 'k', u: 4, v: 2 }, { t: 'p', u: 2, v: 3 }, { t: 'p', dark: true, u: 1, v: 1 }];
-        return {
-          still: 2.9,
-          step: function () {
-            move(q, [1, 3], [4, 0], 0.4, 1.2);
-            bk.tilt = span(1.3, 1.75) * 1.35;
-            if (d.kind === 'fireworks') {
-              [1.6, 2.2, 2.8, 3.4, 3.9].forEach(function (when, i) {
-                var x = W * (0.22 + ((i * 0.37) % 1) * 0.56), y = 70 + (i % 3) * 30, col = cols[i % cols.length];
-                if (at('up' + i, when - 0.55)) parts.push({ x: x, y: H * 0.95, vx: 0, vy: -(H * 0.95 - y) / 0.55, g: 0, drag: 0, life: 0.55, age: 0, size: 2, c: '#fff2c8', shape: 'glow', add: true, trail: true });
-                if (at('pop' + i, when)) burst(56, { x: x, y: y }, function (j) { var a = j / 56 * Math.PI * 2, s = 120 + rnd() * 40; return { x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, g: 60, drag: 1.5, life: 1.5, age: 0, size: 1.4 + rnd(), c: j % 4 ? col : cols[(i + 1) % cols.length], shape: 'spark', add: true }; });
-              });
-            } else if (t > 1.6 && t < 4.2) {
-              // a shower of sparks falling over the board
-              if (rnd() < 0.7) parts.push({ x: W * (0.2 + rnd() * 0.6), y: 20 + rnd() * 40, vx: (rnd() - 0.5) * 50, vy: 20 + rnd() * 40, g: 120, drag: 0.6, life: 1.4 + rnd() * 0.6, age: 0, size: 1.4 + rnd() * 1.6, c: cols[rnd() < 0.7 ? 0 : 1], shape: rnd() < 0.5 ? 'glow' : 'dot', add: true, alpha: 0.9 });
-            }
-            parts.forEach(function (p) { if (p.trail && rnd() < 0.8) parts.push({ x: p.x, y: p.y, vx: 0, vy: 30, g: 0, drag: 0, life: 0.35, age: 0, size: 1, c: '#ffd27a', shape: 'dot', add: true }); });
-          },
-          draw: function () { board(); pieces(still.concat([q, bk])); drawParts(); }
-        };
-      },
-      trail: function (it) {
-        var cols = it.data.colors, b = { t: 'b', u: 0, v: 3 }, r = { t: 'r', u: 5, v: 3 }, n = { t: 'n', u: 1, v: 3 };
-        var still = [{ t: 'p', dark: true, u: 2, v: 0 }, { t: 'k', dark: true, u: 4, v: 0 }];
-        function wake(p) { var q = P(p.u + 0.5, p.v + 0.5, (p.y || 0) + 0.28); for (var i = 0; i < 2; i++) parts.push({ x: q.x + (rnd() - 0.5) * 8 * S, y: q.y + (rnd() - 0.5) * 8 * S, vx: (rnd() - 0.5) * 12, vy: -8 - rnd() * 10, g: 0, drag: 0.5, life: 0.7 + rnd() * 0.4, age: 0, size: 1.6 + rnd() * 1.8, c: cols[i ? 0 : 1], shape: 'glow', add: false, alpha: 0.5 }); }
-        return {
-          still: 1.45,
-          step: function () {
-            if (move(b, [0, 3], [3, 0], 0.5, 1.7)) wake(b);
-            if (move(r, [5, 3], [5, 1], 2.1, 3.0)) wake(r);
-            if (move(n, [1, 3], [2, 1], 3.4, 4.2, 0.9)) wake(n);
-          },
-          draw: function () { board(); drawParts(); pieces(still.concat([b, r, n])); }
-        };
-      },
-      clock: function (it) {
-        var d = it.data;
-        function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
-        function shade(c, k) { var n = parseInt(c.slice(1), 16), f = function (v) { return Math.max(0, Math.min(255, Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k)))); }; return 'rgb(' + f(n >> 16) + ',' + f(n >> 8 & 255) + ',' + f(n & 255) + ')'; }
-        function time(s) { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
-        return {
-          still: 1.2,
-          step: function () {},
-          draw: function () {
-            var cx = W / 2, w = 400 * S, h = 200 * S, x = cx - w / 2, y = 120 + (1 - S) * 40;
-            // the table it stands on
-            var tb = g.createLinearGradient(0, y + h * 0.7, 0, H);
-            tb.addColorStop(0, '#3a2416'); tb.addColorStop(1, '#1a0f0a');
-            g.fillStyle = tb; g.fillRect(0, y + h * 0.78, W, H);
-            g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.ellipse(cx, y + h + 6, w * 0.55, 16 * S, 0, 0, 7); g.fill();
-            // which side is running: the left until it is pressed at 2.4 s
-            var press = t >= 2.4, dip = Math.max(0, 1 - Math.abs(t - 2.45) / 0.15);
-            var L = 180 - Math.min(t, 2.4), R = 180 - Math.max(0, t - 2.4);
-            // buttons
-            [[x + w * 0.2, !press ? 0 : 1], [x + w * 0.66, press ? 0 : 1]].forEach(function (bt, i) {
-              var down = (i === 0 ? dip : 0) * 8 * S + bt[1] * 6 * S;
-              var bg = g.createLinearGradient(0, y - 22 * S, 0, y);
-              bg.addColorStop(0, shade(d.metal, 0.45)); bg.addColorStop(1, shade(d.metal, -0.3));
-              g.fillStyle = bg; rr(bt[0], y - 22 * S + down, w * 0.14, 30 * S, 6 * S); g.fill();
-            });
-            var body = g.createLinearGradient(0, y, 0, y + h);
-            body.addColorStop(0, shade(d.body, 0.28)); body.addColorStop(0.5, d.body); body.addColorStop(1, shade(d.body, -0.4));
-            g.fillStyle = body; rr(x, y, w, h, 26 * S); g.fill();
-            g.strokeStyle = shade(d.metal, 0.2); g.lineWidth = 2; g.stroke();
-            [[x + w * 0.08, L, !press], [x + w * 0.52, R, press]].forEach(function (f) {
-              var fx = f[0], fw = w * 0.4, fy = y + h * 0.2, fh = h * 0.46;
-              g.fillStyle = d.face; rr(fx, fy, fw, fh, 12 * S); g.fill();
-              g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 1.5; g.stroke();
-              g.save();
-              g.font = '600 ' + Math.round(50 * S) + 'px Jost, sans-serif';
-              g.textAlign = 'center'; g.textBaseline = 'middle';
-              g.fillStyle = f[2] ? d.glow : d.ink; g.globalAlpha = f[2] ? 1 : 0.7;
-              if (f[2]) { g.shadowColor = d.glow; g.shadowBlur = 16 * S; }
-              g.fillText(time(f[1]), fx + fw / 2, fy + fh / 2 + 2 * S);
-              g.restore();
-              if (f[2]) { g.fillStyle = d.accent; g.beginPath(); g.arc(fx + fw / 2, fy + fh + 18 * S, 5 * S, 0, 7); g.fill(); }
-            });
-            g.fillStyle = d.metal; g.globalAlpha = 0.7; rr(x + w * 0.1, y + h * 0.86, w * 0.8, 6 * S, 3 * S); g.fill(); g.globalAlpha = 1;
-          }
-        };
-      },
-      sound: function (it) {
-        var pack = it.data.pack, col = pack === 'glass' ? '#bfe8ff' : '#f2ede4';
-        var p1 = { t: 'p', u: 2, v: 3 }, kn = { t: 'n', u: 4, v: 3 }, bp = { t: 'p', dark: true, u: 1, v: 0 };
-        var still = [{ t: 'k', u: 3, v: 3 }, { t: 'r', dark: true, u: 5, v: 0 }];
-        function land(p) {
-          var o = P(p.u + 0.5, p.v + 0.5);
-          for (var i = 0; i < 3; i++) parts.push({ x: o.x, y: o.y, vx: 0, vy: 0, g: 0, drag: 0, life: 1.1 + i * 0.25, age: -i * 0.12, size: o.k, c: col, shape: 'ring', add: true, alpha: 0.9 });
-          if (sound && visible && !reduce && scene && scene.live) knock(pack, p.t);
-        }
-        return {
-          still: 1.35,
-          step: function () {
-            move(p1, [2, 3], [2, 2], 0.6, 1.15, 0.6); if (at('a', 1.15)) land(p1);
-            move(kn, [4, 3], [3, 1], 2.0, 2.75, 0.9); if (at('b', 2.75)) land(kn);
-            move(bp, [1, 0], [1, 1], 3.5, 4.05, 0.6); if (at('c', 4.05)) land(bp);
-          },
-          draw: function () { board(); drawParts(); pieces(still.concat([p1, kn, bp])); }
-        };
-      },
       avatar: function (it) {
         var key = 'fx-' + it.id.split('.')[1], from = it.data.from;
         return { still: 3, step: function () {}, draw: function () { medal(key, from, null); } };
@@ -1449,21 +1199,30 @@ html.nonlatin body { line-height: 1.75; }
       }
     });
 
+
     // ------------------------------------------------ playing them
     function FX_ITEMS() { return D.fx[cat]; }
     function start(i) {
-      idx = i; t = 0; parts = []; fired = {}; seed = 7 + i * 31 + cat.length;
+      idx = i; t = 0;
       var it = FX_ITEMS()[i];
-      scene = MAKE[cat](it);
-      scene.live = !reduce;
       nameEl.textContent = it.name;
       pips.forEach(function (p, k) { if (k === i) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current'); });
-      if (reduce) {
-        // one still frame: everything up to that moment, without drawing
-        while (t < scene.still) { t += STEP; scene.step(); tick(STEP); }
-      }
+      clip = it.clip ? it : null;
+      scene = clip ? null : MAKE[cat](it);
+      stageEl.classList.toggle('vid', !!clip);
+      if (clip) {
+        landed = 0;
+        vid.poster = FXDIR + clip.clip + '.jpg';
+        if (vid.dataset.src !== clip.clip) { vid.dataset.src = clip.clip; vid.src = FXDIR + clip.clip + '.mp4'; }
+        try { vid.currentTime = 0; } catch (e) {}
+        if (!reduce && visible) { var pr = vid.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      } else { vid.pause(); if (reduce) t = scene.still; }
       draw();
+      play();
     }
+    vid.addEventListener('ended', function () { if (!reduce) start((idx + 1) % 2); });
+    // with reduced motion, a tap on the picture plays the clip once
+    stageEl.addEventListener('click', function (e) { if (reduce && clip && !e.target.closest('button')) { vid.currentTime = 0; vid.play(); } });
     function size() {
       var r = stageEl.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
       if (!r.width) return;
@@ -1473,10 +1232,10 @@ html.nonlatin body { line-height: 1.75; }
       draw();
     }
     function draw() {
-      if (!scene) return;
       g.save();
       g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
       g.restore();
+      if (!scene) return;
       g.save();
       g.globalAlpha = reduce ? 1 : Math.max(0, Math.min(1, t / FADE, (DUR - t) / FADE));
       scene.draw();
@@ -1487,14 +1246,21 @@ html.nonlatin body { line-height: 1.75; }
       if (!visible || document.hidden) return;
       var dt = Math.min(0.05, (now - (last || now)) / 1000);
       last = now;
-      // fixed steps, so the particles move the same at any frame rate
-      for (var acc = dt; acc > 1e-6; acc -= STEP) { var h = Math.min(STEP, acc); t += h; scene.step(); tick(h); }
-      if (t >= DUR) start((idx + 1) % 2);
-      draw();
+      if (clip) {
+        // each piece's landing in the clip, heard when "Hear it" is on
+        var lands = clip.lands || [];
+        while (landed < lands.length && vid.currentTime >= lands[landed][0]) { if (sound) knock(clip.data.pack, lands[landed][1]); landed++; }
+        if (vid.currentTime < 0.05) landed = 0;
+      } else {
+        t += dt;
+        if (t >= DUR) { start((idx + 1) % 2); return; }
+        draw();
+      }
       raf = requestAnimationFrame(frame);
     }
     function play() { if (!reduce && visible && !document.hidden && !raf) { last = 0; raf = requestAnimationFrame(frame); } }
-    function pause() { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    function pause() { if (raf) cancelAnimationFrame(raf); raf = 0; vid.pause(); }
+    function resume() { if (reduce) return; if (clip) { var pr = vid.play(); if (pr && pr.catch) pr.catch(function () {}); } play(); }
     function choose(k, focus) {
       cat = k;
       tabs.forEach(function (b) { var on = b.dataset.fx === k; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
@@ -1514,14 +1280,12 @@ html.nonlatin body { line-height: 1.75; }
     pips.forEach(function (p, i) { p.addEventListener('click', function () { start(i); }); });
     if ('ResizeObserver' in window) new ResizeObserver(size).observe(stageEl); else window.addEventListener('resize', size);
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) play(); else pause(); }, { threshold: 0.15 }).observe(stageEl);
+      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) resume(); else pause(); }, { threshold: 0.15 }).observe(stageEl);
     } else { visible = true; }
-    document.addEventListener('visibilitychange', function () { if (document.hidden) pause(); else play(); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) pause(); else if (visible) resume(); });
     choose('capture');
     size();
-    play();
-    if (window.__SHOT) window.__fx = { choose: choose, start: start, seek: function (s) { pause(); visible = false; start(idx); while (t < s) { t += STEP; scene.step(); tick(STEP); } draw(); } };
+    if (window.__SHOT) window.__fx = { choose: choose, start: start, vid: vid, seek: function (s) { pause(); visible = false; if (clip) { vid.currentTime = s; } else { t = s; draw(); } } };
   })();
 
   // ---------------------------------------------------------------- friends
