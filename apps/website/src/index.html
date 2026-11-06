@@ -92,7 +92,20 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .wordmark { font: 700 15px/1 var(--caps); letter-spacing: 0.6em; color: var(--gold-2); text-transform: uppercase; margin: 0 0 18px; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9); padding-left: 0.6em; }
 .hero h1 { font: 500 clamp(52px, 8.4vw, 118px)/0.98 var(--serif); letter-spacing: -0.01em; margin: 0 0 22px; text-shadow: 0 4px 40px rgba(0, 0, 0, 0.7); }
 .hero h1 em { font-style: italic; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 0.05em 0.16em 0; }
-.hero .lede { font-size: clamp(18px, 1.6vw, 21px); color: #f1e4d6; max-width: 640px; margin: 0 auto 34px; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95); }
+.hero .inner { position: relative; }
+.hero .inner::before { content: ''; position: absolute; z-index: -1; inset: -40px -120px -30px; background: radial-gradient(closest-side, rgba(10, 8, 20, 0.62), rgba(10, 8, 20, 0.34) 60%, transparent); pointer-events: none; }
+.hero h1 { margin-bottom: 18px; }
+.hero-rule { display: block; width: min(520px, 70vw); height: 1px; margin: 0 auto 18px; background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-2) 50%, var(--gold) 70%, transparent); box-shadow: 0 0 12px rgba(232, 192, 112, 0.45); }
+.hero .lede { font: 500 clamp(22px, 2.2vw, 30px)/1.3 var(--serif); color: #f6ead8; max-width: 640px; margin: 0 auto 30px; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95); }
+.feats { list-style: none; display: flex; justify-content: center; margin: 0 auto 34px; padding: 0; }
+.feats li { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 150px; padding: 2px 22px; color: #f6ead8; font: 500 16px/1.2 var(--sans); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95); }
+.feats li + li { border-left: 1px solid rgba(232, 192, 112, 0.35); }
+.feats svg { width: 40px; height: 40px; fill: none; stroke: var(--gold-2); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(232, 192, 112, 0.45)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8)); }
+.feats svg .fill { fill: rgba(246, 220, 156, 0.35); stroke: none; }
+.feats li:first-child svg .fill { fill: var(--gold-2); }
+.feats b { font: 600 17px/1 var(--caps); color: var(--gold-2); }
+.btn.big { min-height: 60px; padding: 0 44px; font-size: 15px; }
+.btn.big svg { width: 20px; height: 20px; }
 .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 .place { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 9px 16px; font: 500 12px/1.2 var(--caps); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .place b { color: var(--gold-2); font-weight: 600; }
@@ -113,10 +126,15 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 
 /* ---------- numbers ---------- */
 .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 54px; }
-.nums .lux { padding: 28px 24px; }
-.nums .medal3d { position: absolute; top: 18px; right: 18px; width: 84px; height: 84px; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5)); }
-.nums b { display: block; font: 600 52px/1 var(--caps); font-variant-numeric: lining-nums tabular-nums; font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.12em; margin-bottom: 8px; }
-.nums p { margin: 8px 0 0; color: var(--muted); font-size: 15.5px; }
+.nums .lux { padding: 34px 22px 30px; text-align: center; overflow: hidden; background: radial-gradient(120% 80% at 50% 0%, rgba(232, 192, 112, 0.14), transparent 60%), linear-gradient(180deg, rgba(56, 36, 27, 0.78), rgba(22, 13, 10, 0.92)); transition: transform .35s, box-shadow .35s, border-color .35s; }
+.nums .lux::before { content: ''; position: absolute; inset: 7px; border: 1px solid rgba(232, 192, 112, 0.16); border-radius: calc(var(--r) - 5px); pointer-events: none; }
+.nums .lux:hover { transform: translateY(-4px); border-color: rgba(232, 192, 112, 0.5); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45), 0 0 40px rgba(232, 192, 112, 0.12); }
+.nums .medal3d { display: block; width: 96px; height: 96px; margin: 0 auto 14px; border-radius: 50%; filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 18px rgba(232, 192, 112, 0.22)); transition: transform .5s; }
+.nums .lux:hover .medal3d { transform: translateY(-3px) rotate(-4deg) scale(1.04); }
+.nums b { display: block; font: 600 54px/1 var(--caps); font-variant-numeric: lining-nums; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.1em; margin-bottom: 6px; }
+.nums h3 { margin: 0; }
+.nums h3::after { content: ''; display: block; width: 36px; height: 1px; margin: 12px auto 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.nums p { margin: 12px 0 0; color: var(--muted); font-size: 15.5px; }
 
 /* ---------- wonders ---------- */
 #wonders { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 130px 0 40px; }
@@ -249,11 +267,6 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .safe p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
 .links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
 
-/* ---------- interlude ---------- */
-.interlude { position: relative; z-index: 1; height: clamp(260px, 42vw, 460px); overflow: hidden; display: grid; place-items: center; border-block: 1px solid var(--line-2); }
-.il-pic { position: absolute; inset: -60px 0; background-size: cover; background-position: center 40%; will-change: transform; filter: brightness(0.7) saturate(1.15) hue-rotate(-12deg); }
-.interlude::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(18, 12, 10, 0.85), rgba(70, 22, 48, 0.42) 48%, rgba(18, 12, 10, 0.9)); }
-.il-quote { position: relative; z-index: 2; margin: 0; padding: 0 24px; max-width: 900px; text-align: center; font: italic 600 clamp(26px, 4vw, 48px)/1.2 var(--serif); color: var(--ink); text-shadow: 0 2px 24px rgba(0, 0, 0, 0.8); }
 /* ---------- pricing ---------- */
 .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 46px; align-items: stretch; }
 .plan { padding: 30px 28px; display: flex; flex-direction: column; }
@@ -408,6 +421,11 @@ html.nonlatin body { line-height: 1.75; }
   section { padding: 90px 0; }
   .sub { font-size: 17px; }
   .crest.big { width: 104px; height: 104px; }
+  .feats { display: grid; grid-template-columns: repeat(2, 1fr); row-gap: 18px; max-width: 360px; }
+  .feats li { min-width: 0; padding: 2px 10px; font-size: 15px; }
+  .feats li:nth-child(3) { border-left: 0; }
+  .feats svg { width: 34px; height: 34px; }
+  .btn.big { min-height: 54px; padding: 0 36px; }
   .wordmark { font-size: 13px; letter-spacing: 0.5em; }
   .btn { width: 100%; max-width: 360px; }
   .btn.small { width: auto; }
@@ -426,9 +444,9 @@ html.nonlatin body { line-height: 1.75; }
   .placeinfo img { width: 46px; height: 46px; }
   .placeinfo p { font-size: 16px; }
   .nums { gap: 10px; }
-  .nums .lux { padding: 20px 16px; }
-  .nums b { font-size: 42px; }
-  .nums .medal3d { top: 14px; right: 12px; width: 58px; height: 58px; }
+  .nums .lux { padding: 22px 12px 20px; }
+  .nums b { font-size: 40px; }
+  .nums .medal3d { width: 66px; height: 66px; margin-bottom: 10px; }
   .nums p { font-size: 14px; }
   .safe { grid-template-columns: 1fr; }
   .friends { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -479,11 +497,17 @@ html.nonlatin body { line-height: 1.75; }
   <div class="inner">
     <span class="crest big"><img src="@@IMG:crest@@" alt="" width="122" height="122"></span>
     <p class="wordmark">Chackmate</p>
-    <h1>Chess, for <em>every age.</em></h1>
-    <p class="lede">Learn with an AI coach. Play in front of the world's wonders. Collect it all.</p>
+    <h1>Chess <em>for all ages.</em></h1>
+    <span class="hero-rule" aria-hidden="true"></span>
+    <p class="lede">From the timeless game to today.</p>
+    <ul class="feats">
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 9.5A3.5 3.5 0 0 1 8.5 6h15A3.5 3.5 0 0 1 27 9.5v9a3.5 3.5 0 0 1-3.5 3.5H15l-5.5 4.5V22h-1A3.5 3.5 0 0 1 5 18.5z"/><path class="fill" d="M16 8.6l1.3 3.9 3.9 1.3-3.9 1.3-1.3 3.9-1.3-3.9-3.9-1.3 3.9-1.3z"/><path class="fill" d="M22.3 9.2l.5 1.4 1.4.5-1.4.5-.5 1.4-.5-1.4-1.4-.5 1.4-.5z"/></svg><span>AI coach</span></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8c4-1.8 8-1.8 12 1v16c-4-2.8-8-2.8-12-1z"/><path d="M16 9c4-2.8 8-2.8 12-1v16c-4-1.8-8-1.8-12 1"/><path d="M7.5 12.5c1.9-.6 3.8-.5 5.5.3M7.5 16.5c1.9-.6 3.8-.5 5.5.3M19 12.8c1.7-.8 3.6-.9 5.5-.3"/></svg><span><b>@@N:lessons@@</b> lessons</span></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><path d="M5 16h22M16 5c3.2 3 4.6 6.6 4.6 11S19.2 24 16 27c-3.2-3-4.6-6.6-4.6-11S12.8 8 16 5z"/></svg><span>Play online</span></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="5" width="22" height="22" rx="2"/><path d="M5 12.3h22M5 19.7h22M12.3 5v22M19.7 5v22"/><path class="fill" d="M5.6 5.6h6.7v6.7H5.6zM19.7 5.6h6.7v6.7h-6.7zM12.3 12.3h7.4v7.4h-7.4zM5.6 19.7h6.7v6.7H5.6zM19.7 19.7h6.7v6.7h-6.7z"/></svg><span><b>@@N:boards@@</b> boards</span></li>
+    </ul>
     <div class="cta">
-      <a class="btn gold" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a>
-      <a class="btn" href="#learn">See how it works</a>
+      <a class="btn gold big" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a>
     </div>
   </div>
   <div class="place glass" aria-live="polite"><span id="heroplace">Mughal India · <b>The Taj Mahal</b></span></div>
@@ -622,7 +646,6 @@ html.nonlatin body { line-height: 1.75; }
   <div class="links reveal"><a class="btn small" href="@@PARENT@@" target="_top">Parent page</a><a class="btn small" href="@@PRIVACY@@" target="_top">Privacy for families</a></div>
 </div></section>
 
-<div class="interlude"><div class="il-pic" id="il-pic" style="background-image: url(@@IMG:egypt-hero@@)"></div><p class="il-quote">One game, played in front of every wonder.</p></div>
 
 <section class="solid" id="pricing"><div class="wrap">
   <div class="center reveal">
@@ -1721,19 +1744,6 @@ html.nonlatin body { line-height: 1.75; }
     var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }); }, { threshold: 0.08 });
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   } else document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
-  // ---------------------------------------------------------------- interlude
-  // The picture band drifts about 60 px slower than the page over one screen.
-  var ilPic = $('il-pic');
-  if (!reduce) {
-    var drift = function () {
-      var r = ilPic.parentNode.getBoundingClientRect(), h = innerHeight;
-      if (r.bottom < 0 || r.top > h) return;
-      var k = (r.top + r.height / 2 - h / 2) / h;
-      ilPic.style.transform = 'translate3d(0,' + (k * -60).toFixed(1) + 'px,0)';
-    };
-    addEventListener('scroll', function () { requestAnimationFrame(drift); }, { passive: true }); drift();
-  }
-
   // ---------------------------------------------------------------- preloading
   // Pictures in the sections ahead are decoded well before they scroll in, so nothing pops.
   if ('IntersectionObserver' in window) {
@@ -1744,7 +1754,7 @@ html.nonlatin body { line-height: 1.75; }
         [].forEach.call(en.target.querySelectorAll('img'), function (im) { im.loading = 'eager'; if (im.decode) im.decode().catch(function () {}); });
       });
     }, { rootMargin: '1500px 0px' });
-    document.querySelectorAll('main section, .interlude').forEach(function (el) { ioP.observe(el); });
+    document.querySelectorAll('main section').forEach(function (el) { ioP.observe(el); });
   }
 
   // ---------------------------------------------------------------- numbers

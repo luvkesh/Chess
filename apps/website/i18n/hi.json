@@ -351,7 +351,6 @@
  "Passport": "पासपोर्ट",
  "Beat each champion to stamp your passport.": "हर चैंपियन को हराकर अपने पासपोर्ट पर मुहर लगवाएँ।",
  "Thebes": "थीब्स",
- "One game, played in front of every wonder.": "एक खेल, हर अजूबे के सामने।",
  "Every great collection starts somewhere, and yours starts here.": "हर बड़ा संग्रह कहीं से शुरू होता है, और आपका यहीं से शुरू होता है।",
  "Regency Gilt is glossy black and white lacquer, and the crowns and horses' manes are brushed with real gold leaf, the way furniture makers worked two hundred years ago.": "Regency Gilt चमकदार काली और सफ़ेद लाख का है, और मुकुटों और घोड़ों के अयाल पर असली सोने का वर्क लगा है, ठीक वैसे जैसे दो सौ साल पहले फ़र्नीचर बनाने वाले करते थे।",
  "It's waiting for you from your very first game.": "यह आपके पहले ही खेल से आपका इंतज़ार कर रहा है।",
@@ -703,5 +702,11 @@
  "There are {0} to collect.": "इकट्ठा करने को {0} हैं।",
  "Your game clock, from glacier glass to ruby lacquer.": "आपकी खेल घड़ी, ग्लेशियर काँच से रूबी लाख तक।",
  "Demo 1 of 2": "डेमो 1, 2 में से",
- "Demo 2 of 2": "डेमो 2, 2 में से"
+ "Demo 2 of 2": "डेमो 2, 2 में से",
+ "Chess": "शतरंज",
+ "for all ages.": "हर उम्र के लिए।",
+ "From the timeless game to today.": "सदियों पुराने खेल से आज तक।",
+ "AI coach": "AI कोच",
+ "lessons": "पाठ",
+ "Play online": "ऑनलाइन खेलें"
 }
