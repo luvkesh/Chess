@@ -820,8 +820,12 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .lesson .content { flex: 1; overflow: auto; overflow-wrap: break-word; padding: 18px 20px; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
 .lesson .say { font: 500 19px/1.55 var(--serif); margin: 0 0 12px; }
 .lesson .prompt { font: 500 22px/1.35 var(--serif); margin: 0 0 12px; }
-.lesson footer { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); align-items: center; flex-wrap: wrap; }
+.lesson footer { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); align-items: center; flex-wrap: nowrap; }
 .lesson footer .grow { flex: 1; }
+.lesson footer .dots { flex: 0 1 auto; min-width: 0; flex-wrap: nowrap; overflow: hidden; }
+.lesson footer .dots i { flex: 0 0 auto; }
+.lesson footer .btn { flex: 0 0 auto; }
+.lesson footer .btn.labelled { padding: 10px 14px; gap: 6px; }
 /* Words at the table: the English word beside the Hindi, each a button that says it */
 .tw { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 12px; }
 .tw button { display: grid; grid-template-columns: auto 1fr; column-gap: 9px; align-items: center; text-align: left; min-height: 56px; padding: 9px 12px; border-radius: 14px; border: 1px solid rgba(232, 194, 122, 0.35); background: rgba(232, 194, 122, 0.07); color: var(--ink); cursor: pointer; }
@@ -1202,7 +1206,9 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .lesson { bottom: calc(var(--safe-b) + 10px); height: 42vh; }
   .lesson header { padding: 10px 14px 9px; gap: 12px; } .lesson header img { width: 42px; height: 42px; } .lesson header h3 { font-size: 20px; margin-top: 4px; }
   .lesson .content { padding: 12px 14px; } .lesson .say { font-size: 17px; } .lesson .prompt { font-size: 19px; }
-  .lesson footer { padding: 10px 12px; }
+  .lesson footer { padding: 10px 12px; gap: 6px; }
+  .lesson footer .dots { gap: 4px; } .lesson footer .dots i { width: 7px; height: 7px; }
+  .lesson footer .btn { padding: 10px 13px; } .lesson footer .btn.primary { letter-spacing: 0.1em; }
   .player-card { top: calc(var(--safe-t) + 62px); bottom: auto; width: calc(50% - 15px); height: 52px; max-width: none; padding: 5px 8px 5px 5px; gap: 8px; }
   .player-card.top { top: calc(var(--safe-t) + 62px); left: max(10px, var(--safe-l)); right: auto; }
   .player-card.bottom { right: max(10px, var(--safe-r)); bottom: auto; }

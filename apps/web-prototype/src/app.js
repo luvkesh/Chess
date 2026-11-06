@@ -89,6 +89,8 @@
     coin: '<circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="3.6" ry="5.4" transform="rotate(30 12 12)"/><path d="M10.2 7.8c1.4 1.6 1.4 6.8 3.6 8.4"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
+  // The options of a question in a fresh order each time, so the right answer is never always in the same place.
+  const shuffled = (a) => { const o = a.slice(); for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; };
   const icon = (k, cls) => '<svg class="ico ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[k] || '') + '</svg>';
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const netOn = () => !!(window.ChacklateNet && ChacklateNet.available());
@@ -1562,7 +1564,7 @@
       $('ls-content').innerHTML = (st.differs ? differs() : '') + '<p class="say">' + esc(st.say) + '</p>' +
         (S.i === 0 ? '<div class="objectives"><small>In this lesson</small>' + L.objectives.map((o) => '<span>' + icon('check') + esc(o) + '</span>').join('') + '</div>' : '');
       $('ls-prev').disabled = S.i === 0;
-      $('ls-next').textContent = S.i === steps.length - 1 ? 'Start the exercises' : 'Next';
+      $('ls-next').textContent = S.i === steps.length - 1 ? 'Practise' : 'Next';
       setPos(st.fen);
       if (T) { T.onPoint(null); T.setMarks({ spots: (st.marks || []).map((m) => ({ sq: pt(m), pulse: true })) }); }
       dots(); speak();
@@ -1576,7 +1578,7 @@
       setPos(x.fen);
       if (T) T.setMarks({});
       if (x.type === 'choice') {
-        $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.say) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
+        $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.say) + '</p><div class="choices">' + shuffled(x.options.map((o, k) => k)).map((k) => '<button class="btn" data-opt="' + k + '">' + esc(x.options[k]) + '</button>').join('') + '</div><div id="ls-fb"></div>';
         document.querySelectorAll('[data-opt]').forEach((b) => {
           b.onclick = () => {
             if (S.answered) return;
@@ -4121,7 +4123,7 @@
         b.onclick = () => { AU.unlock(); S.talk++; AU.words(b.dataset.word, b.dataset.text); };
       });
       $('ls-prev').disabled = S.i === 0;
-      $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Start the exercises' : 'Next';
+      $('ls-next').textContent = S.i === L.steps.length - 1 ? 'Practise' : 'Next';
       setHooks({});
       view.setHighlights({ marks: hillMarks(st.fen), spots: (st.marks || []).map((m) => ({ sq: sqIndex(m) })) });
       view.setArrows((st.arrows || []).map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#2fd8ff' })));
@@ -4137,7 +4139,7 @@
       $('ls-next').textContent = test ? 'I don\'t know' : 'Skip';
       view.setArrows([]); view.setHighlights({ marks: hillMarks(x.fen || '') });
       if (x.type === 'choice') {
-        $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.prompt) + '</p><div class="choices">' + x.options.map((o, k) => '<button class="btn" data-opt="' + k + '">' + esc(o) + '</button>').join('') + '</div><div id="ls-fb"></div>';
+        $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(x.prompt) + '</p><div class="choices">' + shuffled(x.options.map((o, k) => k)).map((k) => '<button class="btn" data-opt="' + k + '">' + esc(x.options[k]) + '</button>').join('') + '</div><div id="ls-fb"></div>';
         document.querySelectorAll('[data-opt]').forEach((b) => {
           b.onclick = () => {
             if (S.answered) return;
@@ -4284,6 +4286,7 @@
         if (S.i < ex.length - 1) { S.i++; renderEx(); } else finish();
         return;
       }
+      if (S.nx) { go('lesson', S.nx.id); return; }
       leaveTo();
     }
     function finish() {
@@ -4305,9 +4308,15 @@
         '<p class="prompt">' + (pct >= 80 ? 'Mastered!' : 'Lesson complete') + '</p><p class="say">' + first + ' of ' + ex.length + ' right first time (' + pct + '%). ' + (own ? (pct >= 80 ? 'Well done! ' : 'Play it again any time to beat your score. ') + esc(guide.name) + ' is waiting for you back in ' + esc(era.name) + '.' : vr ? 'Now you know the rules. Pick a friend and play ' + esc(vr.name) + '!' : pct >= 80 ? 'Rooky will ask you to practise it again tomorrow, next week and next month, so you never forget it.' : 'Score 80% to master it. Try again any time.') + '</p>' +
         (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
       $('ls-next').textContent = toGame ? 'Back to the game' : era ? 'Back to ' + era.name : vr ? 'Play ' + vr.name : 'Back to Learn';
+      // The next lesson is the main button; going back to Learn is the quiet one beside it.
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
-      if (!era && !vr && !toGame && nx && lessonOpen(nx)) { $('ls-prev').disabled = false; $('ls-prev').textContent = 'Next lesson'; $('ls-prev').onclick = () => go('lesson', nx.id); }
-      else $('ls-prev').hidden = true;
+      if (!era && !vr && !toGame && nx && lessonOpen(nx)) {
+        S.nx = nx;
+        $('ls-next').textContent = 'Next lesson';
+        $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
+        $('ls-prev').innerHTML = icon('back') + '<span>Learn</span>';
+        $('ls-prev').onclick = () => { AU.play('tap'); go('learn'); };
+      } else $('ls-prev').hidden = true;
       AU.play('win');
       AU.event('lesson.passed');
       guideIdle(null);
@@ -4488,7 +4497,7 @@
     function load() {
       const pz = pickNext();
       if (!pz) { $('pz-content').innerHTML = '<p class="say">' + t('learn.pz.noMore') + '</p>'; $('pz-next').hidden = true; return; }
-      S.cur = pz; S.step = 0; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0;
+      S.cur = pz; S.step = 0; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0; S.busy = false;
       const pre = E.positionFrom(pz.fen, []);
       S.pos = pre;
       const solverSide = -pre.side;
@@ -4540,18 +4549,22 @@
       const m = g.find(from, to, promo || 0);
       if (m === null) return false;
       const want = S.cur.moves[S.step * 2 + 1];
-      const t = new E.Game(S.pos.fen()); t.play(m);
-      const ok = E.uci(m) === want || (t.outcome && t.outcome.reason === 'checkmate');
+      // (named tg, not t: t is the translator, and shadowing it froze the puzzle after any move)
+      const tg = new E.Game(S.pos.fen()); tg.play(m);
+      const ok = E.uci(m) === want || (tg.outcome && tg.outcome.reason === 'checkmate');
       if (!ok) {
-        S.failed = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', t('learn.pz.wrong'));
-        view.setBoard(piecesOf(S.pos), null);
+        // The wrong move is played on the board for a moment, then taken back, so the player sees it was a real move.
+        S.failed = true; S.busy = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', t('learn.pz.wrong'));
+        const back = S.pos, cur = S.cur;
+        view.setBoard(piecesOf(tg.pos), null); view.setHighlights({ spots: [{ sq: to, color: '#ff4a40', pulse: false }] });
+        setTimeout(() => { if (state.screen !== 'puzzle' || S.cur !== cur) return; S.busy = false; view.setBoard(piecesOf(back), null); view.setHighlights({}); }, 900);
         return true;
       }
       const info = g.play(m);
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move');
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
-        if (S.step * 2 + 2 >= S.cur.moves.length || (t.outcome && t.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
+        if (S.step * 2 + 2 >= S.cur.moves.length || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.cur.moves[S.step * 2 + 2]);
         S.step++;
         fb('ok', t('learn.pz.keepGoing'));
@@ -4561,13 +4574,13 @@
     }
     setHooks({
       onSquare(sq) {
-        if (!S.pos || S.solved) return;
+        if (!S.pos || S.solved || S.busy) return;
         const g = new E.Game(S.pos.fen());
         if (S.selected >= 0 && g.targets(S.selected).includes(sq)) { const f = S.selected; S.selected = -1; if (g.needsPromotion(f, sq)) choosePromotion(S.pos.side, (k) => k && tryMove(f, sq, k)); else tryMove(f, sq); return; }
         const p = E.pieceAt(S.pos, sq);
         if (p && Math.sign(p) === S.pos.side) { S.selected = sq; AU.play('select'); const t = g.targets(sq); view.setHighlights(Object.assign({ selected: sq, marks: hillMarks(S.pos.fen()) }, splitTargets(S.pos, t))); }
       },
-      canDrag: (sq) => S.pos && !S.solved && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
+      canDrag: (sq) => S.pos && !S.solved && !S.busy && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
       onDrop(from, to) {
         const g = new E.Game(S.pos.fen());
         if (!g.targets(from).includes(to)) return false;
