@@ -51,8 +51,8 @@ EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \
 # The two items each tab of the details showcase plays, one after the other. None of them is
 # the item on the tab's own medal, and no item shows twice.
 FX_DEMOS = {
-    'capture': ['capture.fire-burst.v1', 'capture.frost.v1'],
-    'victory': ['victory.lightning-storm.v1', 'victory.harvest.v1'],
+    'capture': ['capture.cocoa-nibs.v1', 'capture.frost.v1'],
+    'victory': ['victory.lightning-storm.v1', 'victory.fireworks.v1'],
     'trail': ['trail.rainbow.v1', 'trail.mint.v1'],
     'clock': ['clock.ice.v1', 'clock.ruby.v1'],
     'sound': ['sound.marble.v1', 'sound.glass.v1'],
