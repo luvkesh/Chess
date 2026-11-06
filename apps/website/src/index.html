@@ -1508,8 +1508,17 @@ html.nonlatin body { line-height: 1.75; }
         try { var bin = atob(src.slice(src.indexOf(',') + 1)), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return Promise.resolve(u.buffer); }
         catch (e) { return Promise.reject(e); }
       }
+      // a host that caps how many files it serves gets a language's clips joined into base64 parts:
+      // "part.txt#start-end" is that clip's slice of the part's text
+      var at = src.indexOf('#');
+      if (at > 0) {
+        var part = src.slice(0, at), span = src.slice(at + 1).split('-');
+        if (!parts[part]) parts[part] = fetch(part).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }).catch(function (e) { delete parts[part]; throw e; });
+        return parts[part].then(function (t) { return bytes('data:,' + t.slice(+span[0], +span[1])); });
+      }
       return fetch(src).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); });
     }
+    var parts = {};
     // The device's own voice for the page's language (used until Rooky is recorded in it).
     var voices = {};
     function speechVoice() {
@@ -1597,7 +1606,7 @@ html.nonlatin body { line-height: 1.75; }
         if (!tag) return failed(a, why || 'no audio');
         a.el = tag; tag.loop = false; tag.onended = ended; tag.onerror = function () { failed(a, 'clip would not load'); };
         var seek = function () { if (from > 0) try { tag.currentTime = from; } catch (e) {} };
-        tag.onloadedmetadata = seek; tag.src = L.src; seek();
+        tag.onloadedmetadata = seek; if (L.src.indexOf('#') > 0 && L.src.indexOf('data:') !== 0) bytes(L.src).then(function (ab) { if (audio === a) { tag.src = URL.createObjectURL(new Blob([ab], { type: 'audio/mpeg' })); seek(); } }, function () { failed(a, 'clip would not load'); }); else tag.src = L.src; seek();
         var p = tag.play();
         var no = function (e) { trace('no ' + key + ' ' + (e && e.name)); if (a.retry) { if (audio === a) { audio = null; held = { key: key, at: from, cap: cap.textContent }; cap.textContent = 'Tap anywhere and I will carry on.'; peek(8000); } } else failed(a, (e && e.name) || 'blocked'); };
         if (p && p.then) p.then(function () { if (audio === a) follow(function () { return tag.currentTime; }); }, no);
