@@ -1202,12 +1202,14 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .rulebook .mini i img { width: 18px; height: 18px; }
 .rulebook .mini i.dot::after { width: 6px; height: 6px; }
 @media (max-width: 1100px) { .rulesheet { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { #nv-music { display: none; } .brand { gap: 10px; } .brand span { letter-spacing: 0.14em; font-size: 13px; } }
 @media (max-width: 600px) { .rs-pieces { grid-template-columns: 1fr; } .rs-card { padding: 16px; } }
 
 /* ------------------------------------------------------------ responsive */
 /* Must stay above the phone rules below, or it puts three squeezed cards in a row on phones. */
 @media (max-width: 1300px) { .hero .lux-row { grid-template-columns: repeat(3, 1fr); width: min(1060px, 100%); } }
-@media (max-width: 1240px) { .links button { padding: 0 8px; letter-spacing: 0.12em; font-size: 12px; } .brand span { display: none; } }
+@media (max-width: 1560px) { .mepill .who { display: none; } .mepill { padding: 2px; border-radius: 50%; } }
+@media (max-width: 1240px) { .links button { padding: 0 8px; letter-spacing: 0.12em; font-size: 12px; } .brand span { display: none; } .prem-btn span { display: none; } .prem-btn { width: 38px; padding: 0; justify-content: center; border-radius: 50%; } #nv-music { display: none; } }
 @media (max-width: 1100px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
   .hero .lux-row { grid-template-columns: repeat(3, 1fr); }
   .personas { grid-template-columns: repeat(2, 1fr); }
