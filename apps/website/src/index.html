@@ -183,6 +183,8 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .strip-arrow:disabled { opacity: .35; cursor: default; }
 @media (prefers-reduced-motion: reduce) { .stage { transform: none !important; transition: none; } .stage .glint { display: none; } .strip { scroll-behavior: auto; } }
 .counts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line-2); color: var(--muted); font-size: 15px; }
+.counts .total { margin-left: auto; }
+@media (max-width: 560px) { .counts .total { margin-left: 0; flex-basis: 100%; } }
 .counts b { color: var(--ink); font: 600 21px/1 var(--caps); font-variant-numeric: lining-nums tabular-nums; margin-right: 6px; }
 .minihead { display: flex; flex-direction: column; align-items: center; text-align: center; margin: 72px 0 30px; }
 .minihead h3 { margin: 0; font: 600 clamp(26px, 3vw, 34px)/1.15 var(--serif); color: var(--ink); }
@@ -512,7 +514,7 @@ html.nonlatin body { line-height: 1.75; }
     <div class="strip" id="strip" role="tablist" aria-label="Pieces"></div>
     <button type="button" class="strip-arrow next" id="snext" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
   </div>
-  <div class="counts"><span><b data-count>@@N:sets@@</b>chess sets</span><span><b data-count>@@N:boards@@</b>boards</span><span><b data-count>@@N:rooms@@</b>places</span></div>
+  <div class="counts"><span><b data-count>@@N:sets@@</b>chess sets</span><span><b data-count>@@N:boards@@</b>boards</span><span><b data-count>@@N:rooms@@</b>places</span><span class="total"><b data-count>@@N:items@@</b>things to collect</span></div>
 
   <div class="earn">
     <div class="minihead reveal"><h3>Play for it</h3><span class="grule" aria-hidden="true"></span></div>
