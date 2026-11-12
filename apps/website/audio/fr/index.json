@@ -1994,6 +1994,160 @@
      "text": "Falcon and Pearl jouent ici, sur Pearl and Night Sand."
     }
    ]
+  },
+  "item-sets-galactic": {
+   "text": "Deux flottes stellaires s'affrontent sur le plateau ! La Flotte Bleue est blanche aux lumières bleues, et la Flotte Rouge noire aux lumières rouges. Les cavaliers sont des vaisseaux, les fous des cristaux lumineux et les pions des cadets de l'espace. Il va avec Starship Deck.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Deux flottes stellaires s'affrontent sur le plateau !"
+    },
+    {
+     "t": 2.62,
+     "text": "La Flotte Bleue est blanche aux lumières bleues, et la Flotte Rouge noire aux lumières rouges."
+    },
+    {
+     "t": 6.98,
+     "text": "Les cavaliers sont des vaisseaux, les fous des cristaux lumineux et les pions des cadets de l'espace."
+    },
+    {
+     "t": 11.55,
+     "text": "Il va avec Starship Deck."
+    }
+   ]
+  },
+  "item-sets-sunshadow": {
+   "text": "Il était une fois, dans les nuages ! Le Royaume du Soleil a un roi jovial, une princesse, un magicien et des villageois en chapeau de tournesol. La Légion des Ombres a un roi cornu, une sorcière, un bébé dragon et de petits diablotins grognons. Il va avec Floating Isles.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Il était une fois, dans les nuages !"
+    },
+    {
+     "t": 2.21,
+     "text": "Le Royaume du Soleil a un roi jovial, une princesse, un magicien et des villageois en chapeau de tournesol."
+    },
+    {
+     "t": 7.79,
+     "text": "La Légion des Ombres a un roi cornu, une sorcière, un bébé dragon et de petits diablotins grognons."
+    },
+    {
+     "t": 13.06,
+     "text": "Il va avec Floating Isles."
+    }
+   ]
+  },
+  "item-sets-elves": {
+   "text": "Deux armées des vieux contes de fées ! Orcs and Elves oppose des elfes en blanc, bleu et or à des orques en vert, cuir rouge et fer. Le cavalier elfe est un cerf blanc, le cavalier orque un grand loup gris. Il va avec Twin Realms.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Deux armées des vieux contes de fées !"
+    },
+    {
+     "t": 2.28,
+     "text": "Orcs and Elves oppose des elfes en blanc, bleu et or à des orques en vert, cuir rouge et fer."
+    },
+    {
+     "t": 7.14,
+     "text": "Le cavalier elfe est un cerf blanc, le cavalier orque un grand loup gris."
+    },
+    {
+     "t": 11.08,
+     "text": "Il va avec Twin Realms."
+    }
+   ]
+  },
+  "item-boards-stargrid": {
+   "text": "Star Grid, c'est l'acier brillant du sol d'un vaisseau, avec une lumière bleue tout autour du cadre. Il va avec Starship Deck.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Star Grid, c'est l'acier brillant du sol d'un vaisseau, avec une lumière bleue tout autour du cadre."
+    },
+    {
+     "t": 4.94,
+     "text": "Il va avec Starship Deck."
+    }
+   ]
+  },
+  "item-boards-sunbrick": {
+   "text": "Sunstone and Brick, c'est une pierre crémeuse et une brique rouge chaude, comme le chemin d'un château de conte. Il va avec Floating Isles.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Sunstone and Brick, c'est une pierre crémeuse et une brique rouge chaude, comme le chemin d'un château de conte."
+    },
+    {
+     "t": 5.29,
+     "text": "Il va avec Floating Isles."
+    }
+   ]
+  },
+  "item-boards-moonslate": {
+   "text": "Moonstone and Slate associe une pierre de lune claire veinée d'or à une ardoise grise, dans un cadre de vieux chêne sculpté de nœuds. Il va avec Twin Realms.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Slate associe une pierre de lune claire veinée d'or à une ardoise grise, dans un cadre de vieux chêne sculpté de nœuds."
+    },
+    {
+     "t": 6.51,
+     "text": "Il va avec Twin Realms."
+    }
+   ]
+  },
+  "item-places-starbridge": {
+   "text": "Joue sur le pont ouvert d'un vaisseau, tout là-haut au-dessus d'une planète bleue. Une station en anneau tourne au loin, et deux flottes stellaires passent.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Joue sur le pont ouvert d'un vaisseau, tout là-haut au-dessus d'une planète bleue."
+    },
+    {
+     "t": 3.85,
+     "text": "Une station en anneau tourne au loin, et deux flottes stellaires passent."
+    }
+   ]
+  },
+  "item-places-skyisles": {
+   "text": "Joue sur une île qui flotte dans les nuages ! Il y a un château aux toits bleus, un moulin, une montgolfière et un arc-en-ciel, et là-bas, la tour sombre de la Légion des Ombres.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Joue sur une île qui flotte dans les nuages !"
+    },
+    {
+     "t": 2.6,
+     "text": "Il y a un château aux toits bleus, un moulin, une montgolfière et un arc-en-ciel, et là-bas, la tour sombre de la Légion des Ombres."
+    }
+   ]
+  },
+  "item-places-twinrealms": {
+   "text": "Tiens-toi sur une crête au coucher du soleil, entre deux royaumes. D'un côté, la cité blanche des elfes se dresse près d'une cascade. De l'autre, la forteresse des orques brille dans les collines en feu.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Tiens-toi sur une crête au coucher du soleil, entre deux royaumes."
+    },
+    {
+     "t": 3.4,
+     "text": "D'un côté, la cité blanche des elfes se dresse près d'une cascade."
+    },
+    {
+     "t": 7.04,
+     "text": "De l'autre, la forteresse des orques brille dans les collines en feu."
+    }
+   ]
   }
  }
 }
