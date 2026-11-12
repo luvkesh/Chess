@@ -199,6 +199,12 @@ function ChacklateWorld(THREE, K) {
     agora: { name: 'Ash and Wenge', field: { type: 'wood', light: '#e8dcc4', dark: '#3e2e28', woodDark: { lines: 40, contrast: 0.5 }, woodLight: { lines: 50, contrast: 0.25 } }, frame: { type: 'marble', color: '#ece6da', vein: '#b8ae9c' }, inlay: '#a8763a', label: '#4a3420', rim: 'bronze', motif: 'meander' },
     // Space Explorers': icy moonstone against dark meteorite iron, in a black lacquer frame with a cyan line
     meteor: { name: 'Meteorite & Ice', field: { type: 'marble', light: '#dce8f4', dark: '#2e3038', veinLight: '#8ab0d8', veinDark: '#8a8c98', marbleDark: { cloud: 0.35, strength: 0.55, freq: 4 } }, frame: { type: 'lacquer', color: '#0a0c18' }, inlay: '#7ae0ff', label: '#bfefff', rim: 'chrome', gloss: 0.15 },
+    // Orcs & Elves': pale moonstone with gold veins against blue-grey slate, in a frame of old oak
+    moonslate: { name: 'Moonstone & Slate', field: { type: 'marble', light: '#ece6d6', dark: '#5a6470', veinLight: '#d0b070', veinDark: '#8a96a4', marbleDark: { cloud: 0.4, strength: 0.35, freq: 3 } }, frame: { type: 'wood', color: '#3a2a1e', grainLight: '#6a4a30' }, inlay: '#d8b060', label: '#f2e2b8', rim: 'gold', gloss: 0.08, motif: 'knot' },
+    // Sun Kingdom & Shadow Legion's: cream sun-stone and terracotta brick, in a frame of pale castle stone
+    sunbrick: { name: 'Sunstone & Brick', field: { type: 'stone', light: '#f2e4c4', dark: '#b85a40' }, frame: { type: 'stone', color: '#c8bca4', speck: '#8a7e68' }, inlay: '#2a4ab8', label: '#2a3a7a', rim: 'gold', gloss: 0.06 },
+    // Galactic Blue & Red's: brushed steel and deep blue-grey plates, in black lacquer with a blue line
+    stargrid: { name: 'Star Grid', field: { type: 'lacquer', light: '#d4d8e0', dark: '#4e5a74' }, frame: { type: 'lacquer', color: '#0e1018' }, inlay: '#5ab8ff', label: '#c8e8ff', rim: 'chrome', gloss: 0.12 },
     // Falcon & Pearl's: pearl white and night-sand blue with gold veins, in black lacquer and gold
     mirage: { name: 'Pearl & Night Sand', field: { type: 'marble', light: '#f2eadc', dark: '#1e2834', veinLight: '#d8c8a8', veinDark: '#c8a050' }, frame: { type: 'lacquer', color: '#0e0c0a' }, inlay: '#e0c070', label: '#f0dcae', rim: 'gold', gloss: 0.15 },
     // Dino Kingdom's: fossil sandstone and dark basalt with veins of glowing amber, in a frame of lava stone pressed with ferns and ammonites
@@ -2033,6 +2039,33 @@ function ChacklateWorld(THREE, K) {
       faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
       metal: 'chrome', floor: 'octagon', lights: { hemi: 0.6, chand: 10, color: '#e0ecff' },
       env: { wall: '#3a4458', floor: '#3a4050', ceiling: '#0e1830', key: '#f0f4ff', keyI: 6, window: '#c8d8ff', windowI: 3.5, rim: '#9ad8ff', rimI: 5, lamp: '#ffe0b0', lampI: 6, fill: 0.7 },
+    },
+    twinrealms: {
+      name: 'The Twin Realms', era: 'A ridge between two kingdoms of the old tales at dusk: the elves\' white city by a waterfall on one side, the orcs\' fortress in the burning hills on the other', vista: 'twinrealms', terrace: { r: 12.4, step: 0.5, edge: '#6a6458' }, raw: true,
+      palette: { wall: '#2a2a30', paper: '#8a8478', paperInk: '#5a564e', wood: '#3a2a1e', trim: '#d8b060', floor: '#7a7468', floorDark: '#3a3630', table: '#4a3424', inlay: '#d8b060',
+        rugBorder: '#1e2a4a', rugField: '#4a3a2a', rugGold: '#d8b060', rugAccent: '#8a2a1e', drape: '#24449a', sky: ['#121a34', '#3a3a6a', '#c8705a', '#f0a870'],
+        paintSky: ['#3a3a6a', '#c8705a', '#f0a870'], paintLand: '#2a3a2a', fog: '#6a5a6a', hemi: ['#ffe0c8', '#2a2a2a'], ceiling: '#3a3a6a', dado: '#2a2a30' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 0.75, chand: 9, color: '#ffd8b0' },
+      env: { wall: '#5a5048', floor: '#5a5448', ceiling: '#3a3a6a', key: '#ffe8d0', keyI: 6, window: '#ffb890', windowI: 4, rim: '#9ab8ff', rimI: 5, lamp: '#ffa860', lampI: 7, fill: 0.85 },
+    },
+    skyisles: {
+      name: 'The Floating Isles', era: 'A storybook island floating in the clouds on a sunny morning, with the Sun Kingdom\'s castle on one side and the Shadow Legion\'s dark tower on the other', vista: 'skyisles', terrace: { r: 12.4, step: 0.5, edge: '#c8bca4' },
+      palette: { wall: '#4a6ab8', paper: '#f2e4c4', paperInk: '#c8b088', wood: '#7a4a2a', trim: '#f0c050', floor: '#d8c8a4', floorDark: '#9a8868', table: '#7a4a2a', inlay: '#2a4ab8',
+        rugBorder: '#2a4ab8', rugField: '#f2e4c4', rugGold: '#f0c050', rugAccent: '#c8202a', drape: '#2a4ab8', sky: ['#3a7ad8', '#6aa8f0', '#b8dcff', '#eef6ff'],
+        paintSky: ['#6aa8f0', '#b8dcff', '#eef6ff'], paintLand: '#5aa84a', fog: '#a8ccf0', hemi: ['#fff8ec', '#5a7a4a'], ceiling: '#6aa8f0', dado: '#4a6ab8' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 0.75, chand: 8 },
+      env: { wall: '#c8d8f0', floor: '#a8a088', ceiling: '#6aa8f0', key: '#fffaf0', keyI: 5.5, window: '#e8f4ff', windowI: 3.5, rim: '#fff0d8', rimI: 3.5, lamp: '#ffe0a0', lampI: 4.5, fill: 0.9 },
+    },
+    starbridge: {
+      name: 'Starship Deck', era: 'The open deck of a great starship far out in space, above a blue planet, with its moon, a ringed space station and two star fleets passing by', vista: 'orbit', terrace: { r: 12.4, step: 0.4, edge: '#5a6a8a' },
+      palette: { wall: '#14182a', paper: '#3a4458', paperInk: '#1e2638', wood: '#1a1e2a', trim: '#5ab8ff', floor: '#5a6274', floorDark: '#1e2230', floorLine: 'rgba(90,184,255,0.5)', table: '#1a1e2a', inlay: '#5ab8ff',
+        rugBorder: '#0e1428', rugField: '#1a2238', rugGold: '#5ab8ff', rugAccent: '#ff3a2a', drape: '#1c2c6a', sky: ['#000004', '#02040c', '#060a1e', '#0a1430'],
+        paintSky: ['#02040c', '#060a1e', '#0a1430'], paintLand: '#2a4a8a', fog: '#05081a', hemi: ['#c8d8ff', '#14182a'], ceiling: '#02040c', dado: '#14182a' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'chrome', floor: 'octagon', lights: { hemi: 0.6, chand: 10, color: '#d8e4ff' },
+      env: { wall: '#2a3448', floor: '#2a3040', ceiling: '#0a1430', key: '#e8f0ff', keyI: 6, window: '#9ac0ff', windowI: 3.5, rim: '#5ab8ff', rimI: 5.5, lamp: '#ff9a8a', lampI: 5, fill: 0.7 },
     },
     burj: {
       name: 'Burj Khalifa Summit', era: 'An open platform at the very top of the Burj Khalifa, the tallest tower in the world, Dubai, at sunset', vista: 'summit', terrace: { r: 12.2, step: 0.5, edge: '#c8ccd4' },

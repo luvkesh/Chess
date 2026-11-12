@@ -2087,6 +2087,229 @@ function ChacklateLandmarks(THREE, K, H) {
       },
     },
 
+    // The Twin Realms at dusk: a grassy ridge between two kingdoms of the old tales. To the left
+    // the orcs' fortress of black stone in the burning hills, its windows and lava glowing red;
+    // to the right the elves' white city with blue spires, beside a tall waterfall in the forest.
+    twinrealms: {
+      outdoor: true, fog: { color: '#5a4a5a', density: 0.0036 },
+      sky: { stops: ['#141c3a', '#3a3a6c', '#b86a5a', '#f0a070'], haze: '#d8907a', below: '#2a2a2a', clouds: 12, cloud: '#ffc8a8', stars: 160, moon: { az: 40, el: 30, size: 5, color: '#fff2d8', glow: '#c8d8ff', crescent: true },
+        far(g, W, HY, U) {
+          // far peaks: red-lit to the left, blue-grey to the right
+          for (let x = 0; x <= W; x += 4) { const u = x / W, left = Math.cos((u - U(-40) / W) * TAU) > 0.4; g.fillStyle = left ? '#3a2228' : '#2e3446'; g.fillRect(x, HY - 18 - Math.abs(Math.sin(x * 0.009) * 40 + Math.sin(x * 0.031) * 9), 4, 80); }
+        } },
+      build(k, P, G) {
+        const B = G.y, R = rng(211);
+        const grass = k.mat({ map: k.tile(512, 512, (g, w, h) => { speckle(g, w, h, '#3a5a2e', '#26401e', '#5a7a3a', 6000, 4); for (let i = 0; i < 70; i++) { g.fillStyle = rgba(i % 2 ? '#c8a8e8' : '#f0e0a0', 0.8); g.fillRect((i * 71) % w, (i * 43) % h, 4, 4); } }), roughness: 1 });
+        P.add(grass, ground(k, null, 165, B, 14));
+        // the orc side: black rock with cracks of lava, to the left
+        const ash = k.mat({ map: k.tile(256, 256, (g, w, h) => { speckle(g, w, h, '#2a2422', '#161210', '#4a3a32', 3000, 4); g.strokeStyle = '#ff6a1a'; g.lineWidth = 2; for (let i = 0; i < 12; i++) { g.beginPath(); let x = (i * 53) % w, y = (i * 97) % h; g.moveTo(x, y); for (let j = 0; j < 5; j++) { x += (R() - 0.5) * 40; y += 14; g.lineTo(x, y); } g.stroke(); } }), roughness: 0.9, emissive: '#3a0a00', emissiveIntensity: 0.6 });
+        { const g = new THREE.CircleGeometry(70, 40, Math.PI * 0.6, Math.PI * 0.75).rotateX(-Math.PI / 2); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 6, uv.getY(i) * 6); P.add(ash, g.translate(-4, B + 0.04, -10)); }
+        const rockM = k.mat({ color: '#2a2224', roughness: 0.95, flatShading: true });
+        const blackStone = k.mat({ map: k.tile(128, 128, (g, w, h) => courses(g, w, h, '#2e2a2c', '#141214', 8, 4, 7)), roughness: 0.9 });
+        const banner = k.mat({ color: '#b0261c', roughness: 0.8, side: THREE.DoubleSide });
+        const spikeM = k.mat({ color: '#4a3a2a', roughness: 0.9 });
+        const FX = -62, FZ = -70;
+        mountain(P, rockM, FX - 10, B - 2, FZ - 30, 34, 40, 301, { sides: 8, rough: 0.4 });
+        P.add(blackStone, new THREE.BoxGeometry(40, 9, 2.4), { x: FX, y: B + 4.5, z: FZ + 12, ry: 0.5 });
+        for (const [dx, dz, h, r] of [[-18, 4, 26, 3.6], [-2, 0, 34, 4.6], [14, 10, 22, 3.2], [6, -14, 40, 5], [-12, -12, 30, 4]]) {
+          const x = FX + dx, z = FZ + dz;
+          P.add(blackStone, new THREE.CylinderGeometry(r * 0.8, r, h, 8), { x, y: B + h / 2, z });
+          P.add(spikeM, new THREE.ConeGeometry(r * 1.2, r * 1.6, 8), { x, y: B + h + r * 0.8, z });
+          for (let i = 0; i < 6; i++) P.add(spikeM, new THREE.ConeGeometry(0.4, 3, 5).rotateZ(-0.5), { x: x + Math.cos(i) * r, y: B + h + 0.4, z: z + Math.sin(i) * r, ry: -i });
+          for (let i = 0; i < 3; i++) { const yy = B + h * (0.35 + i * 0.2); P.add(k.glowMat('#ff7a2a', 1.6), new THREE.PlaneGeometry(0.9, 1.6), { x: x + 0.1, y: yy, z: z + r * 0.95 }); G.glows.push([x, yy, z + r + 0.6, '#ff7a2a', 2.2]); }
+          P.add(banner, new THREE.PlaneGeometry(2.4, 6), { x: x + r + 0.2, y: B + h * 0.7, z, ry: Math.PI / 2 + 0.6 });
+        }
+        for (let i = 0; i < 14; i++) { const x = -26 - R() * 50, z = -20 - R() * 60; G.glows.push([x, B + 0.4, z, i % 3 ? '#ff5a10' : '#ffb040', 2 + R() * 3]); }
+        for (let i = 0; i < 8; i++) P.add(k.glowMat('#ff6a1a', 1.8), new THREE.CircleGeometry(1.4 + R() * 2, 12).rotateX(-Math.PI / 2), { x: -24 - R() * 46, y: B + 0.08, z: -18 - R() * 50 });
+        // the elf side: a white city with tall blue-roofed spires, gold tips and lit windows
+        const white = k.mat({ map: k.tile(128, 128, (g, w, h) => courses(g, w, h, '#ece6d8', '#c8bea8', 10, 4, 9)), roughness: 0.6, emissive: '#2a2010', emissiveIntensity: 0.2 });
+        const blueRoof = k.mat({ color: '#2a4a9a', roughness: 0.4, metalness: 0.3 });
+        const gold = k.mat({ color: '#e8c060', roughness: 0.3, metalness: 1 });
+        const EX = 62, EZ = -66;
+        for (const [dx, dz, h, r] of [[-14, 8, 22, 2.2], [0, 0, 36, 3], [10, -8, 28, 2.6], [20, 6, 18, 2], [-6, -16, 30, 2.4], [26, -12, 24, 2.2]]) {
+          const x = EX + dx, z = EZ + dz;
+          P.add(white, new THREE.CylinderGeometry(r * 0.85, r, h, 12), { x, y: B + h / 2, z });
+          P.add(blueRoof, new THREE.ConeGeometry(r * 1.25, r * 4, 12), { x, y: B + h + r * 2, z });
+          P.add(gold, new THREE.ConeGeometry(0.3, 2.4, 6), { x, y: B + h + r * 4 + 1, z });
+          for (let i = 0; i < 2; i++) { const yy = B + h * (0.5 + i * 0.25); P.add(k.glowMat('#9ad8ff', 1.4), new THREE.PlaneGeometry(0.8, 1.6), { x, y: yy, z: z + r * 0.95 }); G.glows.push([x, yy, z + r + 0.5, '#8ac8ff', 1.8]); }
+        }
+        P.add(white, new THREE.BoxGeometry(36, 6, 2), { x: EX + 4, y: B + 3, z: EZ + 14, ry: -0.4 });
+        // the cliff and its waterfall behind the city, falling into a pool
+        const cliff = k.mat({ map: k.tile(128, 256, (g, w, h) => speckle(g, w, h, '#4a4e5a', '#2a2e38', '#6a7080', 2400, 5)), roughness: 1, flatShading: true });
+        mountain(P, cliff, EX + 30, B - 2, EZ - 34, 30, 54, 302, { sides: 8, rough: 0.3 });
+        const fall = k.mat({ map: k.tile(64, 256, (g, w, h) => { g.fillStyle = '#c8e4ff'; g.fillRect(0, 0, w, h); for (let i = 0; i < 90; i++) { g.fillStyle = rgba('#ffffff', 0.4 + R() * 0.5); g.fillRect(R() * w, R() * h, 2, 20 + R() * 40); } }, [1, 3]), roughness: 0.3, emissive: '#5a8ac8', emissiveIntensity: 0.6, side: THREE.DoubleSide });
+        P.add(fall, new THREE.PlaneGeometry(9, 46), { x: EX + 16, y: B + 23, z: EZ - 20, ry: -0.5 });
+        P.add(k.mat({ color: '#6aa0d8', roughness: 0.15, metalness: 0.2, emissive: '#1a3a6a', emissiveIntensity: 0.5 }), new THREE.CircleGeometry(12, 32).rotateX(-Math.PI / 2), { x: EX + 14, y: B + 0.06, z: EZ - 10 });
+        // silver-green trees round the elf city and dark pines behind us, flowers in the grass
+        const leafM = k.mat({ color: '#3a6a4a', roughness: 1, flatShading: true, emissive: '#0a1a10', emissiveIntensity: 0.4 });
+        const silverM = k.mat({ color: '#9ab8a8', roughness: 1, flatShading: true });
+        const bark = k.mat({ color: '#4a3a2e', roughness: 1 });
+        for (let i = 0; i < 180; i++) {
+          const a = R() * TAU, r = 28 + R() * 110, x = Math.sin(a) * r, z = -Math.cos(a) * r;
+          if (x < -18 && z < -10 && z > -120) continue;            // the burnt hills stay bare
+          if (Math.hypot(x - EX, z - EZ) < 30) continue;
+          if (x > 0 && z < -20) { P.add(bark, new THREE.CylinderGeometry(0.3, 0.4, 5, 6), { x, y: B + 2.5, z }); P.add(i % 2 ? silverM : leafM, new THREE.IcosahedronGeometry(2.4 + R() * 1.4, 0), { x, y: B + 6 + R(), z, s: [1, 1.2, 1] }); }
+          else pine(P, leafM, x, B, z, 8 + R() * 8);
+        }
+        const pebble = k.mat({ color: '#6a665e', roughness: 1, flatShading: true });
+        for (let i = 0; i < 26; i++) { const a = R() * TAU, r = 16 + R() * 24, x = Math.sin(a) * r, z = -Math.cos(a) * r; if (x < -10 && z < 0) continue; P.add(pebble, new THREE.DodecahedronGeometry(0.6 + R() * 1.2, 0), { x, y: B + 0.3, z, s: [1.2, 0.6, 1] }); }
+        // a ring of old standing stones on the ridge where the realms meet
+        const grey = k.mat({ color: '#7a766c', roughness: 1, flatShading: true });
+        for (let i = 0; i < 9; i++) { const a = i / 9 * TAU; P.add(grey, new THREE.BoxGeometry(1, 3 + R(), 0.7), { x: Math.sin(a) * 22, y: B + 1.6, z: 18 - Math.cos(a) * 6, ry: a }); }
+        // far mountains all round
+        const far = peakMat(k, '#2a2a36', '#8a90a8', 0.25, { envMapIntensity: 0.05, emissive: '#0a0a14', emissiveIntensity: 0.4 });
+        for (let i = 0; i < 12; i++) { const a = (i / 12) * TAU, r = 140 + R() * 16; mountain(P, far, Math.sin(a) * r, B - 4, -Math.cos(a) * r, 30 + R() * 14, 40 + R() * 30, i + 320, { sides: 9, rough: 0.3 }); }
+      },
+    },
+
+    // The Floating Isles: a storybook island in the clouds on a sunny morning. The Sun Kingdom's
+    // castle with blue roofs and golden flags floats on one side; the Shadow Legion's dark tower
+    // with its glowing violet portal on the other; little islands, a windmill, a balloon and a rainbow.
+    skyisles: {
+      outdoor: true, fog: { color: '#a8ccf0', density: 0.0012 },
+      sky: { stops: ['#2a6ad0', '#4a90e8', '#8ac0f4', '#c8e2fa'], haze: '#c8e2fa', below: '#e8f2fc', clouds: 26, cloud: '#ffffff', sun: { az: 30, el: 40, size: 9, color: '#fff6c8', glow: '#fff0a0' } },
+      build(k, P, G) {
+        const B = G.y, R = rng(223);
+        const grass = k.mat({ map: k.tile(512, 512, (g, w, h) => { speckle(g, w, h, '#6ab84a', '#4a9a3a', '#8ad05a', 5000, 4); for (let i = 0; i < 120; i++) { g.fillStyle = ['#ffffff', '#ffe04a', '#ff8ab0'][i % 3]; g.beginPath(); g.arc((i * 71) % w, (i * 43) % h, 3, 0, TAU); g.fill(); } }), roughness: 1 });
+        const dirt = k.mat({ map: k.tile(128, 256, (g, w, h) => { speckle(g, w, h, '#a8784a', '#7a5030', '#c89a6a', 2400, 5); for (let y = 0; y < h; y += 18) { g.fillStyle = 'rgba(90,60,30,0.3)'; g.fillRect(0, y, w, 3); } }), roughness: 1, flatShading: true });
+        // an island: a round lawn on a cone of earth and rock hanging below
+        const island = (x, y, z, r, depth, seed) => {
+          const top = new THREE.CircleGeometry(r, 32), uv = top.attributes.uv, tp = top.attributes.position;
+          for (let i = 0; i < uv.count; i++) uv.setXY(i, tp.getX(i) / 8, tp.getY(i) / 8);
+          P.add(grass, top.rotateX(-Math.PI / 2), { x, y, z });
+          const c = new THREE.ConeGeometry(r, depth, 12, 3, true), cp = c.attributes.position, RR = rng(seed);
+          for (let i = 0; i < cp.count; i++) { const t = (cp.getY(i) + depth / 2) / depth; if (t < 0.98) { const f = 0.85 + RR() * 0.3; cp.setX(i, cp.getX(i) * f); cp.setZ(i, cp.getZ(i) * f); } }
+          c.rotateX(Math.PI); c.computeVertexNormals();
+          P.add(dirt, c, { x, y: y - depth / 2, z });
+        };
+        island(0, B, -6, 44, 30, 1);
+        // islands round about; the Sun castle's to the left, the Shadow tower's to the right
+        for (const [x, y, z, r] of [[-70, B + 6, -70, 18], [74, B + 4, -76, 16], [-40, B + 16, -120, 9], [30, B + 22, -130, 8], [100, B - 4, -10, 10], [-104, B + 2, 10, 11], [-60, B - 8, 70, 12], [60, B + 10, 80, 9], [0, B + 28, 120, 10]]) island(x, y, z, r, r * 1.4, x + z);
+        // the Sun Kingdom castle: cream walls and round towers with blue cone roofs and gold flags
+        const cream = k.mat({ map: k.tile(128, 128, (g, w, h) => courses(g, w, h, '#f4e8cc', '#d8c8a4', 8, 4, 3)), roughness: 0.7 });
+        const blue = k.mat({ color: '#2a4ab8', roughness: 0.35, clearcoat: 1 });
+        const gold = k.mat({ color: '#f0c050', roughness: 0.3, metalness: 1 });
+        const CX = -70, CY = B + 6, CZ = -70;
+        P.add(cream, new THREE.BoxGeometry(18, 8, 12), { x: CX, y: CY + 4, z: CZ });
+        for (const [dx, dz, h, r] of [[-9, 6, 14, 2.6], [9, 6, 14, 2.6], [-9, -6, 12, 2.4], [9, -6, 12, 2.4], [0, 0, 20, 3.4]]) {
+          P.add(cream, new THREE.CylinderGeometry(r, r, h, 16), { x: CX + dx, y: CY + h / 2, z: CZ + dz });
+          P.add(blue, new THREE.ConeGeometry(r * 1.25, r * 2.6, 16), { x: CX + dx, y: CY + h + r * 1.3, z: CZ + dz });
+          P.add(gold, new THREE.CylinderGeometry(0.1, 0.1, 2.4, 6), { x: CX + dx, y: CY + h + r * 2.6 + 1.2, z: CZ + dz });
+          P.add(k.mat({ color: '#f0c050', roughness: 0.6, side: THREE.DoubleSide }), new THREE.PlaneGeometry(1.6, 1), { x: CX + dx + 0.8, y: CY + h + r * 2.6 + 2, z: CZ + dz });
+        }
+        for (let i = 0; i < 6; i++) G.glows.push([CX - 7 + i * 2.8, CY + 5, CZ + 6.2, '#ffd870', 1.4]);
+        // a windmill and a little village on the near islands
+        const red = k.mat({ color: '#c8402a', roughness: 0.6 });
+        P.add(cream, new THREE.CylinderGeometry(1.6, 2.2, 8, 12), { x: -104, y: B + 6, z: 10 });
+        P.add(red, new THREE.ConeGeometry(2.4, 3, 12), { x: -104, y: B + 11.5, z: 10 });
+        const sail = k.mat({ color: '#fff8ec', roughness: 0.8 });
+        for (let i = 0; i < 4; i++) P.add(sail, new THREE.BoxGeometry(0.8, 7, 0.1).translate(0, 3.5, 0).rotateZ(i * Math.PI / 2 + 0.3), { x: -104, y: B + 10, z: 12.4 });
+        for (const [x, z] of [[-54, 64], [-66, 72], [-58, 78]]) { P.add(cream, new THREE.BoxGeometry(3, 2.6, 3), { x, y: B - 8 + 1.3, z }); P.add(red, new THREE.ConeGeometry(2.6, 2.2, 4).rotateY(Math.PI / 4), { x, y: B - 8 + 3.7, z }); }
+        // the Shadow Legion's tower: black stone, purple banners and a glowing portal ring
+        const dark = k.mat({ map: k.tile(128, 128, (g, w, h) => courses(g, w, h, '#2e2638', '#16121c', 8, 4, 5)), roughness: 0.6 });
+        const purple = k.mat({ color: '#5a1e8a', roughness: 0.5, side: THREE.DoubleSide });
+        const TX = 74, TY = B + 4, TZ = -76;
+        P.add(dark, new THREE.CylinderGeometry(3, 4.4, 26, 6), { x: TX, y: TY + 13, z: TZ });
+        P.add(dark, new THREE.ConeGeometry(4.2, 8, 6), { x: TX, y: TY + 30, z: TZ });
+        for (const [dx, dz, h] of [[-7, 4, 14], [7, 5, 12]]) { P.add(dark, new THREE.CylinderGeometry(1.6, 2.2, h, 6), { x: TX + dx, y: TY + h / 2, z: TZ + dz }); P.add(dark, new THREE.ConeGeometry(2, 5, 6), { x: TX + dx, y: TY + h + 2.5, z: TZ + dz }); }
+        P.add(purple, new THREE.PlaneGeometry(2.6, 8), { x: TX - 3.2, y: TY + 18, z: TZ + 1.6, ry: 0.3 });
+        P.add(k.glowMat('#b060ff', 1.6), new THREE.TorusGeometry(4, 0.6, 10, 32), { x: TX - 12, y: TY + 5, z: TZ + 8, ry: -0.6 });
+        P.add(k.glowMat('#5a1aaa', 1.2), new THREE.CircleGeometry(3.6, 32), { x: TX - 12, y: TY + 5, z: TZ + 8, ry: -0.6 });
+        G.glows.push([TX - 12, TY + 5, TZ + 9, '#b060ff', 9], [TX, TY + 22, TZ + 3.2, '#c880ff', 3]);
+        for (let i = 0; i < 4; i++) { const yy = TY + 8 + i * 4.5; P.add(k.glowMat('#c880ff', 1.6), new THREE.PlaneGeometry(0.8, 1.4), { x: TX, y: yy, z: TZ + 3.6 }); }
+        // a hot-air balloon and a rainbow arching between the isles
+        P.add(blue, new THREE.SphereGeometry(4, 20, 14).scale(1, 1.2, 1), { x: -20, y: B + 34, z: -60 });
+        P.add(gold, new THREE.TorusGeometry(4, 0.3, 6, 24).rotateX(Math.PI / 2), { x: -20, y: B + 33, z: -60 });
+        P.add(k.mat({ color: '#a8642a', roughness: 0.8 }), new THREE.CylinderGeometry(1.2, 1, 1.4, 10), { x: -20, y: B + 27, z: -60 });
+        const rainbow = ['#ff4a4a', '#ff9a2a', '#ffe04a', '#5ad04a', '#4a8aff', '#8a5aff'];
+        rainbow.forEach((c, i) => P.add(k.own(new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.45, fog: false, depthWrite: false })), new THREE.TorusGeometry(70 - i * 2, 1, 6, 64, Math.PI), { x: 10, y: B - 30, z: -150 }));
+        // trees and flowers on our island, a fence of posts round the edge
+        const leafM = k.mat({ color: '#4aa83a', roughness: 0.8, flatShading: true });
+        const bark = k.mat({ color: '#8a5a30', roughness: 1 });
+        for (let i = 0; i < 40; i++) { const a = R() * TAU, r = 22 + R() * 18, x = Math.sin(a) * r, z = -6 - Math.cos(a) * r; P.add(bark, new THREE.CylinderGeometry(0.3, 0.4, 3, 6), { x, y: B + 1.5, z }); P.add(leafM, new THREE.IcosahedronGeometry(1.8 + R(), 1), { x, y: B + 4.2, z }); }
+        const post = k.mat({ color: '#d8b070', roughness: 0.6 });
+        for (let i = 0; i < 48; i++) { const a = i / 48 * TAU; P.add(post, new THREE.CylinderGeometry(0.18, 0.2, 1.6, 6), { x: Math.sin(a) * 42, y: B + 0.8, z: -6 - Math.cos(a) * 42 }); }
+        // a sea of clouds far below
+        const cloudM = k.mat({ color: '#ffffff', roughness: 1, emissive: '#c8d8f0', emissiveIntensity: 0.15 });
+        for (let i = 0; i < 70; i++) { const a = R() * TAU, r = 30 + R() * 120; P.add(cloudM, new THREE.IcosahedronGeometry(6 + R() * 10, 1), { x: Math.sin(a) * r, y: B - 40 - R() * 10, z: -Math.cos(a) * r, s: [1.6, 0.6, 1.2] }); }
+      },
+    },
+
+    // The open deck of a great starship, far out in space: a blue planet fills the view below
+    // with its moon beside it, a ringed space station turns off to one side, and the two star
+    // fleets, blue and red, pass in the distance.
+    orbit: {
+      outdoor: true, fog: { color: '#05081a', density: 0.0014 },
+      sky: { stops: ['#000004', '#01030a', '#030616', '#050a1e'], haze: '#060c22', below: '#010208', stars: 1600,
+        far(g, W, HY) {
+          // a faint band of the galaxy above, and stars below the deck's edge too: open space all round
+          const R = rng(29);
+          for (let i = 0; i < 2200; i++) { const x = R() * W, y = HY - 80 - Math.sin(x / W * TAU) * 120 + (R() + R() + R() - 1.5) * 60; g.fillStyle = rgba(R() < 0.7 ? '#a8b8ff' : '#ff9ad8', 0.04 + R() * 0.08); g.fillRect(x, y, 1.5, 1.5); }
+          for (let i = 0; i < 1400; i++) { const x = R() * W, y = HY + R() * HY; g.fillStyle = rgba('#e8eeff', 0.25 + R() * 0.6); g.fillRect(x, y, R() < 0.9 ? 1.5 : 2.5, R() < 0.9 ? 1.5 : 2.5); }
+        } },
+      build(k, P, G, group) {
+        const B = G.y, R = rng(239);
+        // the deck: dark plates with glowing seams, a rail round the edge
+        const deck = k.mat({ map: k.tile(256, 256, (g, w, h) => { g.fillStyle = '#2a3040'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 64) for (let y = 0; y < h; y += 64) { g.fillStyle = shade('#2e3446', (R() - 0.5) * 0.2); g.fillRect(x + 2, y + 2, 60, 60); } g.fillStyle = '#5ab8ff'; g.fillRect(0, 0, w, 2); g.fillRect(0, 0, 2, h); }), roughness: 0.45, metalness: 0.6, emissive: '#0a1a3a', emissiveIntensity: 0.5 });
+        P.add(deck, ground(k, null, 46, B, 8));
+        const hullM = k.mat({ color: '#3a4256', roughness: 0.5, metalness: 0.7 });
+        { const g = new THREE.CylinderGeometry(46, 30, 10, 48, 1, true); P.add(k.own(new THREE.MeshStandardMaterial({ color: '#2a3244', roughness: 0.5, metalness: 0.7, side: THREE.DoubleSide })), g, { y: B - 5 }); }
+        P.add(k.glowMat('#5ab8ff', 1.4), new THREE.TorusGeometry(46, 0.25, 6, 96).rotateX(Math.PI / 2), { y: B + 0.1 });
+        for (let i = 0; i < 64; i++) { const a = i / 64 * TAU; P.add(hullM, new THREE.CylinderGeometry(0.15, 0.15, 2.2, 6), { x: Math.sin(a) * 44.5, y: B + 1.1, z: -Math.cos(a) * 44.5 }); }
+        P.add(hullM, new THREE.TorusGeometry(44.5, 0.18, 6, 96).rotateX(Math.PI / 2), { y: B + 2.2 });
+        // the ship's towers and antennas behind us, with lit windows, and lights in the deck
+        for (const [x, z, w, h, d] of [[-30, 26, 10, 14, 8], [30, 24, 12, 18, 9], [0, 38, 22, 24, 10], [-38, -8, 6, 8, 6], [38, -12, 6, 10, 6]]) {
+          P.add(hullM, new THREE.BoxGeometry(w, h, d), { x, y: B + h / 2, z });
+          for (let i = 0; i < 3; i++) P.add(k.glowMat(i % 2 ? '#9ad8ff' : '#ffd8a0', 1.2), new THREE.PlaneGeometry(w * 0.7, 0.4), { x, y: B + h * (0.4 + i * 0.18), z: z - d / 2 - 0.05, ry: Math.PI });
+          P.add(hullM, new THREE.CylinderGeometry(0.15, 0.15, 6, 6), { x, y: B + h + 3, z });
+          G.glows.push([x, B + h + 6.2, z, i2c(x), 2]);
+        }
+        function i2c(x) { return x < 0 ? '#ff3a2a' : '#5ab8ff'; }
+        for (let i = 0; i < 16; i++) { const a = i / 16 * TAU; G.glows.push([Math.sin(a) * 40, B + 0.2, -Math.cos(a) * 40, i % 2 ? '#5ab8ff' : '#ffffff', 1.2]); }
+        // the blue planet below, its clouds and a thin bright rim of air
+        const planetTex = k.tex(1024, 512, (g, w, h) => {
+          g.fillStyle = vgrad(g, 0, h, ['#e8f4ff', '#2a6ad0', '#1a4ab0', '#1a4ab0', '#2a6ad0', '#e8f4ff']); g.fillRect(0, 0, w, h);
+          const R2 = rng(41);
+          // continents: clusters of soft green and sand blobs
+          for (let c = 0; c < 7; c++) {
+            const cx = R2() * w, cy = h * 0.25 + R2() * h * 0.5, n = 10 + Math.floor(R2() * 14);
+            for (let i = 0; i < n; i++) { g.fillStyle = rgba(R2() < 0.7 ? '#3a8a4a' : '#b89a5a', 0.9); g.beginPath(); g.ellipse(cx + (R2() - 0.5) * 120, cy + (R2() - 0.5) * 70, 8 + R2() * 26, 6 + R2() * 18, R2() * 3, 0, TAU); g.fill(); }
+          }
+          // thin streaks of cloud
+          for (let i = 0; i < 260; i++) { g.fillStyle = rgba('#ffffff', 0.12 + R2() * 0.25); g.beginPath(); g.ellipse(R2() * w, R2() * h, 6 + R2() * 30, 1.5 + R2() * 3, (R2() - 0.5) * 0.3, 0, TAU); g.fill(); }
+        });
+        const planet = new THREE.Mesh(new THREE.SphereGeometry(80, 64, 40), k.own(new THREE.MeshStandardMaterial({ map: planetTex, emissive: '#ffffff', emissiveMap: planetTex, emissiveIntensity: 0.55, roughness: 1, fog: false })));
+        planet.position.copy(dir(10, -18, 200)); planet.rotation.set(0.3, 0.8, 0.2); planet.renderOrder = -7; group.add(planet);
+        const air = new THREE.Mesh(new THREE.SphereGeometry(83, 64, 40), k.own(new THREE.MeshBasicMaterial({ color: '#6ab8ff', transparent: true, opacity: 0.3, side: THREE.BackSide, fog: false, depthWrite: false, blending: THREE.AdditiveBlending })));
+        air.position.copy(planet.position); air.renderOrder = -6; group.add(air);
+        const moon = new THREE.Mesh(new THREE.SphereGeometry(10, 32, 20), k.own(new THREE.MeshStandardMaterial({ color: '#c8c8d0', emissive: '#a8a8b8', emissiveIntensity: 0.35, roughness: 1, fog: false })));
+        moon.position.copy(dir(-30, 26, 160)); moon.renderOrder = -7; group.add(moon);
+        // a ring station off to the right: a wheel on spokes round a hub
+        const st = new THREE.Group();
+        st.add(new THREE.Mesh(new THREE.TorusGeometry(14, 1.6, 10, 64), k.own(new THREE.MeshStandardMaterial({ color: '#c8ccd8', metalness: 0.6, roughness: 0.4, fog: false }))));
+        for (let i = 0; i < 6; i++) st.add(new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 28, 6).rotateZ(i * Math.PI / 6 * 2), k.own(new THREE.MeshStandardMaterial({ color: '#8a90a0', metalness: 0.6, roughness: 0.5, fog: false }))));
+        st.add(new THREE.Mesh(new THREE.SphereGeometry(3.4, 20, 14), k.own(new THREE.MeshStandardMaterial({ color: '#d8dce4', metalness: 0.5, roughness: 0.4, emissive: '#2a5a9a', emissiveIntensity: 0.4, fog: false }))));
+        st.add(new THREE.Mesh(new THREE.TorusGeometry(14, 0.3, 6, 64), k.own(new THREE.MeshBasicMaterial({ color: '#7ac8ff', fog: false }))).translateZ(1.7));
+        st.position.copy(dir(58, 14, 140)); st.rotation.set(0.5, -0.9, 0.2); st.renderOrder = -6; group.add(st);
+        // the two fleets passing in the distance: little ships with glowing engines
+        // each fleet is one hull mesh and one engine mesh, so the many little ships cost two draw calls
+        const fleet = (az, el, col, n, hullCol) => {
+          const hm = k.own(new THREE.MeshStandardMaterial({ color: hullCol, metalness: 0.5, roughness: 0.4, fog: false })), gm = k.own(new THREE.MeshBasicMaterial({ color: col, fog: false }));
+          const hulls = [], engines = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, az < 0 ? 0 : Math.PI, 0)), one = new THREE.Vector3(1, 1, 1);
+          for (let i = 0; i < n; i++) {
+            const c = dir(az + (i % 4) * 4 - 6, el + Math.floor(i / 4) * 3, 130), sz = i === 0 ? 3 : 1.2;
+            m4.compose(c, q, one);
+            hulls.push(new THREE.ConeGeometry(sz * 0.5, sz * 3, 8).rotateZ(-Math.PI / 2).toNonIndexed().applyMatrix4(m4));
+            hulls.push(new THREE.BoxGeometry(sz * 0.8, sz * 0.08, sz * 2.4).toNonIndexed().applyMatrix4(m4));
+            engines.push(new THREE.SphereGeometry(sz * 0.32, 8, 6).translate(-sz * 1.5, 0, 0).applyMatrix4(m4));
+          }
+          for (const [geos, m] of [[hulls, hm], [engines, gm]]) { const mesh = new THREE.Mesh(THREE.mergeGeometries(geos), m); mesh.renderOrder = -6; group.add(mesh); geos.forEach((g) => g.dispose()); }
+        };
+        fleet(-40, 8, '#5ab8ff', 9, '#e8ecf4');
+        fleet(30, 30, '#ff3a2a', 7, '#2a2c34');
+      },
+    },
+
     // The very top of the Burj Khalifa at sunset: the table on an open platform beside the
     // spire, clouds drifting below, and the city, the desert and the sea with its palm-shaped
     // island far, far down.

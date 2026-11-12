@@ -229,6 +229,21 @@
     "room.dinoval.v1": "A green valley at the dawn of time, below a smoking volcano. Look, the long-necks are wading in the lake!",
     "room.forest.v1": "A mossy glade where the trees glow and the toadstools shine. Can you spot the stag made of light?",
     "room.fjord.v1": "A snowy shore on a deep blue fjord, with waterfalls all around. Here comes a longship, sailing home!",
-    "room.longhouse.v1": "The dragon gate of a great Viking hall, just as the sun comes up. The torches are still burning!"
+    "room.longhouse.v1": "The dragon gate of a great Viking hall, just as the sun comes up. The torches are still burning!",
+    "pieces.elves.v1": {
+      "site": "item-sets-elves"
+    },
+    "pieces.sunshadow.v1": {
+      "site": "item-sets-sunshadow"
+    },
+    "pieces.galactic.v1": {
+      "site": "item-sets-galactic"
+    },
+    "board.stargrid.v1": "Shiny steel squares from a starship floor, with a blue light glowing all round the frame.",
+    "board.sunbrick.v1": "Creamy sunstone and warm red brick, like a path to a castle. It's a storybook board!",
+    "board.moonslate.v1": "Pale moonstone with golden veins, next to cool grey slate. The old oak frame is carved with knots.",
+    "room.starbridge.v1": "The deck of a starship, high above a blue planet. Look, two fleets are flying past!",
+    "room.skyisles.v1": "You're on an island floating in the clouds! Wave to the castle, and keep an eye on that dark tower.",
+    "room.twinrealms.v1": "Elves on one side, orcs on the other, and you right in the middle! Can you see the waterfall and the glowing fortress?"
   }
 }

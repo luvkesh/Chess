@@ -2214,6 +2214,160 @@
      "text": "O Runecarved joga aqui, no Carved Oak."
     }
    ]
+  },
+  "item-sets-galactic": {
+   "text": "Duas frotas estelares se enfrentam no tabuleiro! A Frota Azul é branca com luzes azuis, e a Frota Vermelha é preta com luzes vermelhas. Os cavalos são naves estelares, os bispos são cristais brilhantes e os peões são cadetes espaciais. Ele vem com o Starship Deck.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Duas frotas estelares se enfrentam no tabuleiro!"
+    },
+    {
+     "t": 3.23,
+     "text": "A Frota Azul é branca com luzes azuis, e a Frota Vermelha é preta com luzes vermelhas."
+    },
+    {
+     "t": 8.84,
+     "text": "Os cavalos são naves estelares, os bispos são cristais brilhantes e os peões são cadetes espaciais."
+    },
+    {
+     "t": 15.26,
+     "text": "Ele vem com o Starship Deck."
+    }
+   ]
+  },
+  "item-sets-sunshadow": {
+   "text": "Era uma vez, nas nuvens! O Reino do Sol tem um rei alegre, uma princesa, um mago e aldeões de chapéu de girassol. A Legião das Sombras tem um rei com chifres, uma feiticeira, um dragãozinho e diabinhos rabugentos. Ele vem com o Floating Isles.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Era uma vez, nas nuvens!"
+    },
+    {
+     "t": 1.97,
+     "text": "O Reino do Sol tem um rei alegre, uma princesa, um mago e aldeões de chapéu de girassol."
+    },
+    {
+     "t": 7.35,
+     "text": "A Legião das Sombras tem um rei com chifres, uma feiticeira, um dragãozinho e diabinhos rabugentos."
+    },
+    {
+     "t": 13.37,
+     "text": "Ele vem com o Floating Isles."
+    }
+   ]
+  },
+  "item-sets-elves": {
+   "text": "Dois exércitos dos velhos contos de fantasia! Orcs and Elves coloca elfos em branco, azul e ouro contra orcs em verde, couro vermelho e ferro. O cavalo elfo é um cervo branco; o cavalo orc, um grande lobo cinza. Ele vem com o Twin Realms.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Dois exércitos dos velhos contos de fantasia!"
+    },
+    {
+     "t": 3.19,
+     "text": "Orcs and Elves coloca elfos em branco, azul e ouro contra orcs em verde, couro vermelho e ferro."
+    },
+    {
+     "t": 9.04,
+     "text": "O cavalo elfo é um cervo branco; o cavalo orc, um grande lobo cinza."
+    },
+    {
+     "t": 13.45,
+     "text": "Ele vem com o Twin Realms."
+    }
+   ]
+  },
+  "item-boards-stargrid": {
+   "text": "Star Grid é aço brilhante do chão de uma nave estelar, com uma luz azul em volta da moldura. Ele vem com o Starship Deck.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Star Grid é aço brilhante do chão de uma nave estelar, com uma luz azul em volta da moldura."
+    },
+    {
+     "t": 5.46,
+     "text": "Ele vem com o Starship Deck."
+    }
+   ]
+  },
+  "item-boards-sunbrick": {
+   "text": "Sunstone and Brick é pedra cremosa e tijolo vermelho quentinho, como o caminho até um castelo de conto. Ele vem com o Floating Isles.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Sunstone and Brick é pedra cremosa e tijolo vermelho quentinho, como o caminho até um castelo de conto."
+    },
+    {
+     "t": 6.22,
+     "text": "Ele vem com o Floating Isles."
+    }
+   ]
+  },
+  "item-boards-moonslate": {
+   "text": "Moonstone and Slate junta pedra-da-lua clara com veios dourados e ardósia cinza, numa moldura de carvalho antigo entalhada com nós. Ele vem com o Twin Realms.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Slate junta pedra-da-lua clara com veios dourados e ardósia cinza, numa moldura de carvalho antigo entalhada com nós."
+    },
+    {
+     "t": 8.09,
+     "text": "Ele vem com o Twin Realms."
+    }
+   ]
+  },
+  "item-places-starbridge": {
+   "text": "Jogue no convés aberto de uma nave estelar, bem acima de um planeta azul. Uma estação em anel gira ao longe, e duas frotas estelares passam voando.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Jogue no convés aberto de uma nave estelar, bem acima de um planeta azul."
+    },
+    {
+     "t": 4.53,
+     "text": "Uma estação em anel gira ao longe, e duas frotas estelares passam voando."
+    }
+   ]
+  },
+  "item-places-skyisles": {
+   "text": "Jogue numa ilha flutuando nas nuvens! Tem um castelo de telhados azuis, um moinho, um balão e um arco-íris, e lá adiante, a torre escura da Legião das Sombras.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Jogue numa ilha flutuando nas nuvens!"
+    },
+    {
+     "t": 2.64,
+     "text": "Tem um castelo de telhados azuis, um moinho, um balão e um arco-íris, e lá adiante, a torre escura da Legião das Sombras."
+    }
+   ]
+  },
+  "item-places-twinrealms": {
+   "text": "Fique numa serra ao pôr do sol, entre dois reinos. De um lado, a cidade branca dos elfos fica junto a uma cascata. Do outro, a fortaleza dos orcs brilha nas colinas em chamas.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Fique numa serra ao pôr do sol, entre dois reinos."
+    },
+    {
+     "t": 3.16,
+     "text": "De um lado, a cidade branca dos elfos fica junto a uma cascata."
+    },
+    {
+     "t": 7.01,
+     "text": "Do outro, a fortaleza dos orcs brilha nas colinas em chamas."
+    }
+   ]
   }
  }
 }
