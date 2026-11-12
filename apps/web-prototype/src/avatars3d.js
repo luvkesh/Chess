@@ -668,32 +668,61 @@ function ChacklateAvatars(THREE, K) {
       // a puff of smoke
       for (const [x, y, r] of [[0.62, -0.1, 0.05], [0.7, -0.02, 0.07], [0.8, 0.06, 0.05]]) ball(g, r, once('smoke', () => new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.9, transparent: true, opacity: 0.55 })), [x, y, 0.3]);
     },
-    // Rooky: the red panda guide, with white face markings, cheek ruffs and a ruby scarf.
-    redpanda(g) {
-      const f = '#c4561f', w = '#fbf3e6', d = '#3a1a10';
+    // Rooky: the coach, a cheerful chestnut horse with a white blaze, a big golden mane and
+    // forelock, a wide grin and his ruby scarf.
+    horse(g) {
+      const f = '#c06a2c', w = '#fbf1e2', mz = '#f2cba2', mane = '#f6d27c', maneD = '#dca444';
       const fur = Sculpt('fur');
-      fur.add(E(0, 0, 0, 0.52, 0.45, 0.46), f);
-      fur.add(M(R(Cone([0.3, -0.1, 0.06], [0.64, -0.2, -0.02], 0.2, 0.025), [0.3, -0.1, 0.06], 0, 0, 0)), f, 0.12);
-      fur.add(E(0, -0.16, 0.37, 0.17, 0.12, 0.15), w, 0.08);
-      fur.paint(M(R(E(0.3, -0.12, 0.28, 0.24, 0.13, 0.3), [0.3, -0.12, 0.28], 0, 0, -0.15)), w, 0.04);
-      fur.paint(M(E(0.17, 0.2, 0.38, 0.07, 0.045, 0.2)), w, 0.02);
-      fur.paint(M(R(Cap([0.17, -0.04, 0.42], [0.22, -0.26, 0.38], 0.04), [0.17, -0.04, 0.42], 0, 0, 0)), '#8a2e14', 0.02);
-      // big rounded ears, white-rimmed, dark inside
-      fur.add(M(T(E(0, 0, 0, 0.15, 0.17, 0.07), [0.33, 0.36, -0.04], -0.1, -0.25, -0.5)), f, 0.08);
-      fur.paint(M(T(Shell(E(0, 0, 0, 0.15, 0.17, 0.07), 0.025), [0.33, 0.36, -0.04], -0.1, -0.25, -0.5)), w, 0.02);
-      fur.sub(M(T(E(0, -0.01, 0.06, 0.1, 0.12, 0.045), [0.33, 0.36, -0.04], -0.1, -0.25, -0.5)), 0.02, d);
-      fur.sub(M(S(0.19, 0.03, 0.39, 0.09)), 0.03);
-      fur.sub(M(Curve([[0, -0.23, 0.5], [0.028, -0.258, 0.49], [0.069, -0.238, 0.468]], 6, 0.012)), 0.008).paint(M(Curve([[0, -0.23, 0.5], [0.028, -0.258, 0.49], [0.069, -0.238, 0.468]], 6, 0.016)), '#5a2a1a', 0.006);
-      fur.add(Cap([0, -0.17, 0.51], [0, -0.23, 0.5], 0.006), w, 0.01);
-      fur.add(bodyFur(), f, 0.12);
-      fur.paint(Box(0, -1.25, 0, 1, 0.22, 1, 0), d, 0.15);
+      // the round crown of the head, full cheeks, and a soft muzzle reaching forward
+      fur.add(E(0, 0.1, -0.04, 0.4, 0.4, 0.4), f);
+      fur.add(M(E(0.2, -0.04, 0.1, 0.2, 0.24, 0.24)), f, 0.14);
+      fur.add(Cone([0, 0.04, 0.18], [0, -0.2, 0.42], 0.27, 0.25), f, 0.14);
+      fur.add(E(0, -0.26, 0.44, 0.27, 0.2, 0.22), mz, 0.1);
+      fur.paint(E(0, -0.3, 0.48, 0.28, 0.19, 0.22), mz, 0.05);
+      // the white blaze from the brow down the nose, widening onto the muzzle
+      fur.paint(Cone([0, 0.34, 0.36], [0, -0.1, 0.62], 0.045, 0.11), w, 0.03);
+      // pointed ears, pricked up and a little out, dark inside
+      fur.add(M(T(Cone([0, -0.05, 0], [0, 0.21, 0.0], 0.085, 0.02), [0.23, 0.42, -0.08], -0.1, -0.35, -0.42)), f, 0.07);
+      fur.sub(M(T(E(0, 0.06, 0.05, 0.045, 0.12, 0.03), [0.23, 0.42, -0.08], -0.1, -0.35, -0.42)), 0.02, '#8a3e1e');
+      // eye sockets, round nostrils
+      fur.sub(M(S(0.22, 0.13, 0.3, 0.108)), 0.03);
+      fur.sub(M(R(E(0.11, -0.22, 0.645, 0.038, 0.05, 0.04), [0.11, -0.22, 0.645], 0, 0, -0.35)), 0.016, '#6a3020');
+      // a big open grin: a smiling mouth with a pink tongue, cheeks pushed up at its corners
+      const grin = withBB((x, y, z) => Math.max(y - (-0.33 + 1.6 * x * x), (-0.41 + 2.2 * x * x) - y, Math.abs(x) - 0.2, 0.53 - z), [-0.2, -0.42, 0.5, 0.2, -0.26, 0.72]);
+      fur.sub(grin, 0.01);
+      fur.add(M(S(0.195, -0.265, 0.575, 0.034)), mz, 0.04);
+      // a strong neck into the shoulders
+      fur.add(Cone([0, -0.18, -0.16], [0, -0.86, -0.12], 0.33, 0.44), f, 0.18);
+      fur.add(bodyFur(0.84), f, 0.12);
       mesh(g, fur);
-      mesh(g, Sculpt('gloss').add(R(E(0, -0.1, 0.5, 0.06, 0.04, 0.038), [0, -0.1, 0.5], -0.2, 0, 0), '#1e100a'));
-      eyes(g, 0.19, 0.03, 0.36, 0.088, { iris: '#5a3218' });
+      mesh(g, Sculpt('skin').add(E(0, -0.36, 0.545, 0.2, 0.08, 0.03), '#4a1418', 0));
+      const tongue = Sculpt('gloss').add(E(0, -0.395, 0.585, 0.08, 0.03, 0.05), '#e2607a', 0.02);
+      mesh(g, tongue);
+      const teeth = Sculpt('enamel').add(Curve([[-0.12, -0.31, 0.62], [0, -0.338, 0.645], [0.12, -0.31, 0.62]], 10, 0.017), '#fffdf8', 0.01);
+      mesh(g, teeth);
+      eyes(g, 0.225, 0.13, 0.3, 0.106, { iris: '#5a3216', size: 0.5 }, 0.46, 0.08);
+      // the mane: a big swept forelock over the brow, and a crest of locks down the neck,
+      // falling to one side
+      const hair = Sculpt('fur');
+      // the forelock: a soft, fluffy quiff swept forward from the poll
+      [[0.0, 0.6, 0.12, 0.2, 0.36, 0.36, 0.14], [-0.12, 0.58, 0.06, -0.2, 0.38, 0.3, 0.11], [0.12, 0.62, 0.02, 0.3, 0.44, 0.2, 0.11]].forEach(([mx, my, mz2, ex, ey, ez, r]) => {
+        hair.add(Curve([[mx * 0.3, 0.42, -0.1], [mx, my, mz2], [(mx + ex) * 0.6, (my + ey) * 0.5 + 0.05, (mz2 + ez) * 0.55], [ex, ey, ez]], 14, (t) => r * (1 - t * 0.65)), mane, 0.09);
+      });
+      // the mane: a thick, wavy crest along the neck, falling over to one side
+      for (let i = 0; i < 10; i++) {
+        const y = 0.38 - i * 0.12, zc = -0.16 - (0.32 + (0.38 - y) * 0.1), wv = Math.sin(i * 1.3) * 0.03;
+        hair.add(T(E(0, 0, 0, 0.1, 0.17, 0.13), [-0.13 + wv, y - 0.06, zc + 0.05], 0.15, -0.5, 0.55), i % 2 ? mane : maneD, 0.1);
+      }
+      hair.paint(Box(0, -0.7, -0.3, 1, 0.45, 1, 0), maneD, 0.3);
+      hair.cut(-1.05);
+      mesh(g, hair);
+      // the ruby scarf Rooky always wears
       const scarf = Sculpt('velvet');
-      scarf.add(Wrap(-0.54, 0.35, 0.1), '#b8325a', 0.04).add(R(Cone([0.18, -0.56, 0.3], [0.3, -0.98, 0.38], 0.08, 0.035), [0.18, -0.56, 0.3], 0, 0, 0.18), '#a02a4e', 0.05);
+      scarf.add(Wrap(-0.7, 0.41, 0.1), '#b8325a', 0.04).add(R(Cone([0.18, -0.72, 0.34], [0.3, -1.1, 0.4], 0.08, 0.035), [0.18, -0.72, 0.34], 0, 0, 0.18), '#a02a4e', 0.05);
       mesh(g, scarf);
-      jewel(g, 0.035, '#d0103a', [-0.15, -0.56, 0.33], [-0.3, -0.1, 1]);
+      jewel(g, 0.035, '#d0103a', [-0.17, -0.72, 0.38], [-0.3, -0.1, 1]);
+      // a long face: the whole bust sits a touch smaller so the ears stay in the medal
+      g.scale.setScalar(0.9); g.position.y = -0.05;
     },
     // Miu: the black cat of the Nile, kohl-eyed, with a gold scarab and a usekh collar.
     cat(g) {
@@ -1123,18 +1152,18 @@ function ChacklateAvatars(THREE, K) {
   }
 
   // ------------------------------------------------------------------ public
-  // make('animal:redpanda' | 'emblem:crown', { detail: 'show' | 'play' }) -> THREE.Group
+  // make('animal:horse' | 'emblem:crown', { detail: 'show' | 'play' }) -> THREE.Group
   // userData.portrait: true for busts (framed head and shoulders), false for emblems (fit to view).
   function make(art, o) {
     o = o || {};
-    const [kind, name] = String(art || 'animal:redpanda').split(':');
+    const [kind, name] = String(art || 'animal:horse').split(':');
     // pictures: the finest sculpt and full fur; the live stage: lighter, and no fur shells on phones
     CELL = o.detail === 'play' ? 0.02 : o.detail === 'stage' ? 0.015 : 0.009;
     SHELLS = o.detail === 'play' ? 0 : o.detail === 'stage' ? 6 : 16;
     BUILD.head = null; BUILD.eyes = [];
     const g = new THREE.Group();
     if (kind === 'emblem') (EMBLEMS[name] || EMBLEMS.crown)(g);
-    else { (ANIMALS[name] || ANIMALS.redpanda)(g); lids(); }
+    else { (ANIMALS[name] || ANIMALS.horse)(g); lids(); }
     g.userData.portrait = kind !== 'emblem';
     g.userData.dispose = () => g.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
     return g;

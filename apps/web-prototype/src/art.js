@@ -270,19 +270,22 @@ const ChacklateArt = (() => {
         '<g opacity=".5" fill="#fff"><circle cx="150" cy="112" r="5"/><circle cx="158" cy="104" r="7"/><circle cx="168" cy="96" r="5"/></g>' +
         crown(p, 100, 60, 34);
     },
-    redpanda(p) {
-      const f = '#c85a28', w = '#fbf3e6', d = '#3a1a10';
-      return bust(p, d) + P('M30 214 C34 176 60 160 100 158 C140 160 166 176 170 214Z', p.sh(f, { cy: 0.1 })) +
-        // ruby scarf with a gold pin
+    // Rooky the horse (the 3D render in src/art/ is used when the build has it; this is the fallback)
+    horse(p) {
+      const f = '#c06a2c', w = '#fbf1e2', mz = '#f0c8a0', mane = '#f4cf7a';
+      return bust(p, '#3a1a10') + P('M30 214 C34 176 60 160 100 158 C140 160 166 176 170 214Z', p.sh(f, { cy: 0.1 })) +
         P('M64 156 Q100 176 136 156 L138 170 Q100 190 62 170Z', p.sh('#b8325a'), ol('#b8325a', 1.4)) + P('M120 168 l12 26 l-14 2Z', p.sh('#a02a4e'), ol('#b8325a', 1.2)) +
         C(80, 170, 6, p.gold(), ol('#c08a36', 1.2)) +
-        sym(G(P('M50 94 Q40 46 70 40 Q90 50 88 70Z', p.sh(f), ol(f)) + P('M56 86 Q50 54 70 50 Q82 58 82 70Z', p.sh(d)) + P('M50 94 Q40 46 70 40 Q66 46 60 50 Q50 64 56 90Z', w, ' opacity=".95"'))) +
-        P('M100 56 C134 56 152 78 154 102 L166 116 L150 118 C144 138 124 150 100 150 C76 150 56 138 50 118 L34 116 L46 102 C48 78 66 56 100 56Z', p.sh(f), ol(f)) +
-        sym(E(78, 76, 9, 6, w)) +
-        P('M58 110 Q62 94 80 102 Q92 108 100 106 Q108 108 120 102 Q138 94 142 110 Q140 140 100 146 Q60 140 58 110Z', p.sh(w), '') +
-        sym(P('M74 100 Q70 116 62 126 Q72 122 80 108Z', p.sh('#8a2e14'))) +
-        nose(p, 112, 7.5, '#1e100a') + smile(121, 7, '#5a2a1a', 2.2) +
-        eyes(p, 21, 94, 8.5) + blush(p, 33, 118, 8);
+        // pricked ears
+        sym(G(P('M64 66 L56 22 Q74 34 82 58Z', p.sh(f), ol(f)) + P('M66 60 L61 32 Q72 40 77 56Z', p.sh('#8a3e1e')))) +
+        // the long head and the soft muzzle
+        P('M100 40 C130 40 146 62 144 92 C143 110 138 118 138 130 C138 150 122 160 100 160 C78 160 62 150 62 130 C62 118 57 110 56 92 C54 62 70 40 100 40Z', p.sh(f), ol(f)) +
+        P('M66 124 C66 110 134 110 134 124 C136 148 120 160 100 160 C80 160 64 148 66 124Z', p.sh(mz), ol(mz, 1.4)) +
+        P('M96 58 L104 58 L112 116 L88 116Z', p.sh(w), ' opacity=".95"') +
+        sym(E(86, 132, 4, 6, '#6a3020', rot(-20, 86, 132))) + smile(146, 14, '#5a2418', 2.4) +
+        // the golden forelock
+        P('M74 54 Q92 30 122 40 Q134 50 128 70 Q118 54 104 56 Q96 70 84 74 Q86 60 74 54Z', p.sh(mane), ol(mane, 1.4)) +
+        eyes(p, 24, 92, 9) + blush(p, 36, 112, 8);
     },
     cat(p) {
       const f = '#2c2834', gold = p.gold(), lapis = '#2a4aa8', turq = '#3ab0a0', carn = '#c8442e';
