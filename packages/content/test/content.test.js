@@ -399,3 +399,61 @@ const placement = require('../placement.json');
   for (const lv of f.byScore.concat(f.perfect.map((p) => p[1]))) assert.ok(campaign.opponents.some((o) => o.level === lv), 'friend level ' + lv);
   console.log('placement ok:', placement.questions.length, 'questions,', bands.length, 'bands');
 }
+
+// Checkmate in 1 to 5: an exact mate search (chess-core/src/mates.js, not the engine's score) proves
+// that after the opponent's move the solver mates in exactly N, the first move is the only one that
+// does, the opponent's replies are the longest defence, and the line ends in checkmate.
+{
+  const M = require('../../chess-core/src/mates.js')(E);
+  const sets = {};
+  for (const pz of puzzles) {
+    const t = pz.themes.find((x) => /^mateIn[1-5]$/.test(x));
+    if (!t || !pz.id.startsWith('puzzle.m')) continue;
+    const n = +t.slice(6);
+    sets[n] = (sets[n] || 0) + 1;
+    assert.strictEqual(pz.moves.length, 2 * n, pz.id + ' has ' + n + ' solver moves');
+    const p = E.positionFrom(pz.fen, pz.moves.slice(0, 1));
+    assert.strictEqual(M.shortest(p, n, 4e6), n, pz.id + ' is a mate in exactly ' + n);
+    assert.deepStrictEqual(M.matingMoves(p, n, 4e6), [pz.moves[1]], pz.id + ' has one first move');
+    for (let i = 1; i < pz.moves.length; i++) {
+      const m = p.parseMove(pz.moves[i]);
+      assert.ok(m !== null && m !== undefined, pz.id + ' move ' + pz.moves[i] + ' is legal');
+      p.make(m);
+    }
+    assert.ok(M.isMate(p), pz.id + ' ends in checkmate');
+    M.clear();
+  }
+  for (let n = 1; n <= 5; n++) assert.ok(sets[n] >= 10, 'at least 10 mates in ' + n);
+  console.log('checkmate in N ok:', JSON.stringify(sets));
+}
+
+// Skill trainers: each trainer names a lesson and a pool with enough positions for a round, and every
+// position loads, every answer, option and played move is legal, and the played move is not an answer.
+{
+  const T = require('../trainers.json');
+  const ids = new Set();
+  for (const tr of T.trainers) {
+    assert.ok(!ids.has(tr.id), 'duplicate trainer ' + tr.id); ids.add(tr.id);
+    assert.ok(tr.name && tr.line, tr.id + ' text');
+    assert.ok(lessons.lessons.some((l) => l.id === tr.lesson), tr.id + ' lesson ' + tr.lesson);
+    const pool = T.items[tr.pool] || [];
+    assert.ok(pool.length >= tr.round, tr.id + ' has ' + pool.length + ' positions for a round of ' + tr.round);
+  }
+  let n = 0;
+  for (const [name, pool] of Object.entries(T.items)) {
+    const seen = new Set();
+    for (const x of pool) {
+      const where = 'trainer ' + name + ' ' + x.id;
+      assert.ok(!seen.has(x.id), where + ' twice'); seen.add(x.id);
+      const p = load(x.fen, where);
+      const legal = p.legalMoves();
+      for (const u of (x.answers || []).concat(x.options || [], x.played ? [x.played] : [])) assert.ok(p.parseMove(u, legal) !== null && p.parseMove(u, legal) !== undefined, where + ' move ' + u + ' is legal');
+      assert.ok((x.answers || []).length, where + ' answers');
+      if (x.options) assert.ok(x.options.length === 3 && x.options.includes(x.answers[0]), where + ' options');
+      if (x.played) assert.ok(!x.answers.includes(x.played), where + ' played move is not an answer');
+      if (x.mate) for (const u of x.answers) { const m = p.parseMove(u, legal); p.make(m); assert.ok(!p.legalMoves().length && p.inCheck(), where + ' ' + u + ' mates'); p.unmake(); }
+      n++;
+    }
+  }
+  console.log('trainers ok:', T.trainers.length, 'trainers,', n, 'positions');
+}

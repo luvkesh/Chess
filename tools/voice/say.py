@@ -14,6 +14,7 @@ SAY = {
     'Verde Onyx': '[Verde Onyx](/vˈɛɹdA ˈɑnɪks/)',              # VER-day, not "verd"
     'Xiangqi': '[Xiangqi](/ʃjˈɑŋʧi/)',                         # shyang-chee
     'Chaturanga': '[Chaturanga](/ʧˌʌtəɹˈʌŋɡə/)',               # chuh-tuh-RUNG-guh
+    'Runecarved': '[Runecarved](/ɹˈunkˌɑɹvd/)',               # ROON-carved, not "roong"
     # Sounds that are not words: Kokoro spells these out as letters
     'Brrr': '[Brrr](/bɹɹˈɜɹ/)',
     'Brr': '[Brr](/bɹˈɜɹ/)',

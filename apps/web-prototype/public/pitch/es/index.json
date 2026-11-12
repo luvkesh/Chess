@@ -704,35 +704,45 @@
   "voice": "em_alex",
   "text": "Un meteorito oscuro que cayó del espacio, junto a hielo escarchado. Una línea azul brillante rodea el marco."
  },
+ "cf0e8c9c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Casillas de acero brillante del suelo de una nave estelar, con una luz azul que brilla alrededor del marco."
+ },
+ "7067717c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Piedra solar cremosa y ladrillo rojo cálido, como un camino hacia un castillo. ¡Es un tablero de cuento!"
+ },
+ "c7c49d9a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Piedra lunar clara con vetas doradas, junto a una pizarra gris y fresca. El marco de roble viejo está tallado con nudos."
+ },
  "81dc99f9": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Arena blanca nacarada y arena oscura como la noche, sellada bajo cristal con un borde dorado. Brilla como el desierto de noche."
  },
- "9351af76": {
+ "4c758497": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Mármol negro con vetas doradas junto a mármol blanco como la nieve. ¡Hay arcos de oro alrededor de todo el marco!"
+  "text": "Piedra fósil color crema junto a basalto oscuro, con grietas de ámbar que brillan como lava. ¡Busca los helechos tallados en el marco!"
  },
- "ceac4034": {
+ "38154ddb": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Lapislázuli azul intenso y marfil cálido, con pequeños escudos dorados alrededor del marco. Parece un tesoro real."
+  "text": "Piedra lunar pálida y ágata musgosa verde, en un marco de madera oscura. Unas enredaderas doradas lo rodean entero."
  },
- "0b250858": {
+ "dbf851cf": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Marfil y azul medianoche en un marco de brillante madera de barco, rodeado por una cuerda dorada con anclas diminutas."
+  "text": "Piedra pálida escarchada y pizarra azul, fría como un fiordo en invierno. Una banda de runas doradas rodea el marco."
  },
- "6259addd": {
+ "4df4e4cb": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Mármol verde y ónix cremoso, con esmeraldas brillantes engastadas en un marco oscuro de nogal."
- },
- "b0a4b99f": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "Marfil y laca negra en un marco rojo pintado con nubes rizadas, montañas entre la niebla y cuatro soles pequeños."
+  "text": "Roble claro y roble oscuro, cortados a mano. Hay runas talladas por todo el marco, como en una gran sala vikinga."
  },
  "d9a6f6e0": {
   "who": "rooky",
@@ -819,10 +829,70 @@
   "voice": "em_alex",
   "text": "Una luna helada de Saturno, con un cohete esperando en su plataforma. ¡Mira arriba, los anillos llenan todo el cielo!"
  },
+ "035bf5bc": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La cubierta de una nave estelar, muy por encima de un planeta azul. ¡Mira, pasan dos flotas volando!"
+ },
+ "865d62c1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Estás en una isla que flota entre las nubes! Saluda al castillo y no pierdas de vista esa torre oscura."
+ },
+ "5c4d371a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Elfos a un lado, orcos al otro y tú justo en medio! ¿Ves la cascada y la fortaleza que brilla?"
+ },
  "8443803b": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Lo más alto del Burj Khalifa, el edificio más alto del mundo. ¡Estamos por encima de las nubes!"
+ },
+ "4402d2a5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un valle verde en el amanecer de los tiempos, bajo un volcán humeante. ¡Mira, los cuellilargos están vadeando el lago!"
+ },
+ "9ad09374": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un claro de musgo donde los árboles brillan y las setas relucen. ¿Ves el ciervo hecho de luz?"
+ },
+ "a23c9ed1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Una orilla nevada en un fiordo azul profundo, con cascadas por todas partes. ¡Ahí viene un barco vikingo, navegando a casa!"
+ },
+ "41855ae8": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La puerta del dragón de una gran sala vikinga, justo cuando sale el sol. ¡Las antorchas todavía arden!"
+ },
+ "9351af76": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mármol negro con vetas doradas junto a mármol blanco como la nieve. ¡Hay arcos de oro alrededor de todo el marco!"
+ },
+ "ceac4034": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Lapislázuli azul intenso y marfil cálido, con pequeños escudos dorados alrededor del marco. Parece un tesoro real."
+ },
+ "0b250858": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marfil y azul medianoche en un marco de brillante madera de barco, rodeado por una cuerda dorada con anclas diminutas."
+ },
+ "6259addd": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mármol verde y ónix cremoso, con esmeraldas brillantes engastadas en un marco oscuro de nogal."
+ },
+ "b0a4b99f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marfil y laca negra en un marco rojo pintado con nubes rizadas, montañas entre la niebla y cuatro soles pequeños."
  },
  "6b344e63": {
   "who": "rooky",

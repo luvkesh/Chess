@@ -16,6 +16,7 @@ SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
     core / 'mentor.js',
+    core / 'mates.js',
     core / 'xiangqi.js',
     src / 'i18n.js',
     vendor / 'three.bundle.js',
@@ -62,6 +63,7 @@ parts = [
     data('CHACKLATE_GUIDE', 'guide.json'),
     data('CHACKLATE_VARIANTS', 'variants.json'),
     data('CHACKLATE_PLACEMENT', 'placement.json'),
+    data('CHACKLATE_TRAINERS', 'trainers.json'),
 ]
 # What Rooky says about each Collection item. A chess set from an era plays the website's recording of
 # its pitch (pitch/site/<key>.mp3, served from apps/website/audio), so each pitch is recorded once.

@@ -2,8 +2,9 @@
 
 Game content as data, so clients and the server can ship new items without code changes.
 
-- `lessons.json`: 39 voice-guided lessons in 10 chapters (1–3 free), each 6 to 10 steps and exercises, with a drawn icon (`icon`). Lessons that grew from older, shorter ones name them in `replaces`, so players keep their progress. Nothing repeats anywhere in Learn: every exercise has its own board, every puzzle (`type: "puzzle"`, by id) and question is used once; `test/content.test.js` checks it.
-- `puzzles.json`: engine-verified tactics puzzles (`fen`, `moves` starting with the opponent's move, `themes`, `rating`).
+- `lessons.json`: 52 voice-guided lessons in 11 chapters (1–3 free; chapter 11 holds the lessons of the 13 skill trainers), each 6 to 10 steps and exercises, with a drawn icon (`icon`). Lessons that grew from older, shorter ones name them in `replaces`, so players keep their progress. Nothing repeats anywhere in Learn: every exercise has its own board, every puzzle (`type: "puzzle"`, by id) and question is used once; `test/content.test.js` checks it.
+- `puzzles.json`: engine-verified tactics puzzles (`fen`, `moves` starting with the opponent's move, `themes`, `rating`). Ids starting `puzzle.m` are the Checkmate in 1 to 5 sets (theme `mateInN`), each proved by the exact mate search in `chess-core/src/mates.js`.
+- `trainers.json`: the 13 skill trainers (Openings to Chess Patterns): name, line, their lesson, the item pool a round of six is drawn from, and options such as `seconds` (a clock per position) or `blind` (seconds to look before the pieces hide). `items` holds the positions, found in engine self-play by the `chess-core/tools/generate-*.js` scripts: `answers`, the opponent's `last` move, `options` (three arrows, intuition), `threat` (360 trainer), `played` (a slip to improve on) or `note` (openings).
 - `openings.json`: Opening lab lines (moves in UCI, per-move notes, key ideas, free or premium).
 - `endgames.json`: Endgame dojo positions with a goal (mate, promote or draw) and a par.
 - `catalog.json`: cosmetics (boards, pieces, rooms, clocks, effects, avatars, frames) with stable ids, rarity and unlock rules (free, level, achievement, premium, or a season tier on the free or pass track).

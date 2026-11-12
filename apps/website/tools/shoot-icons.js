@@ -1,7 +1,7 @@
 // Renders the website's feature icons (tools/icons3d.js) with the game's own renderer: each icon
 // is a small 3D object lit in a studio and saved on a transparent background.
 //   node apps/website/tools/shoot-icons.js [names]      e.g. node apps/website/tools/shoot-icons.js coach,trophy
-// Writes img/ic-<name>.webp (360 px) and a contact sheet, tools/out/icons/sheet.png, to look over.
+// Writes img/ic-<name>.webp (440 px) and a contact sheet, tools/out/icons/sheet.png, to look over.
 // Needs Playwright with Chromium (WebGL on SwiftShader, about 15 seconds an icon) and Pillow.
 'use strict';
 const fs = require('fs');
@@ -14,7 +14,7 @@ const root = path.resolve(__dirname, '../../..');
 const game = path.join(root, 'apps/web-prototype');
 const out = path.join(__dirname, 'out', 'icons');
 const img = path.join(root, 'apps/website/img');
-const S = 800, FINAL = 360;   // rendered at 800 px, then shrunk to 360 px for the page
+const S = 960, FINAL = 440;   // rendered at 960 px, then shrunk to 440 px for the page
 const only = process.argv[2] ? process.argv[2].split(',') : null;
 
 (async () => {
@@ -78,33 +78,65 @@ function studio(S) {
   function shoot(name) {
     const scene = new THREE.Scene();
     scene.environment = env;
-    const { group, up, yaw, pitch, flat } = I.build(name);
+    const { group, up, yaw, pitch, flat, fit } = I.build(name);
     scene.add(group);
     const box = new THREE.Box3().setFromObject(group), size = box.getSize(new THREE.Vector3()), R = Math.max(size.x, size.y, size.z);
     const look = new THREE.Vector3((box.min.x + box.max.x) / 2, box.min.y + size.y * (up === undefined ? 0.5 : up), (box.min.z + box.max.z) / 2);
     const ya = yaw === undefined ? (flat ? 0 : -0.5) : yaw, pa = pitch === undefined ? (flat ? 0.08 : 0.38) : pitch;
-    // the floor: catches the icon's soft shadow and nothing else
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(R * 3, 64), new THREE.ShadowMaterial({ opacity: 0.38, transparent: true }));
-    floor.rotation.x = -Math.PI / 2; floor.position.y = box.min.y - 0.002; floor.receiveShadow = true; scene.add(floor);
     const light = (color, i, x, y, z, shadow) => {
       const l = new THREE.DirectionalLight(color, i); l.position.set(look.x + x * R, look.y + y * R, look.z + z * R); l.target.position.copy(look); scene.add(l, l.target);
-      if (shadow) { l.castShadow = true; l.shadow.mapSize.set(2048, 2048); l.shadow.radius = 6; l.shadow.bias = -0.0004; l.shadow.normalBias = 0.02; const c = l.shadow.camera; c.left = c.bottom = -R * 1.2; c.right = c.top = R * 1.2; c.near = 0.1; c.far = R * 12; }
+      if (shadow) { l.castShadow = true; l.shadow.mapSize.set(2048, 2048); l.shadow.radius = 9; l.shadow.bias = -0.0004; l.shadow.normalBias = 0.02; const c = l.shadow.camera; c.left = c.bottom = -R * 2.2; c.right = c.top = R * 2.2; c.near = 0.1; c.far = R * 14; }
       return l;
     };
-    light('#fff3e2', 3.0, -1.6, 2.6, 2.2, true);   // key, upper left, in front
+    light('#fff3e2', 3.0, -1.5, 2.2, 2.6, true);   // key, upper left, in front: drops the icon's shadow onto its medallion
     light('#dce8ff', 1.0, 2.2, 1.2, 1.6, false);   // fill from the right
     light('#ffd8a8', 1.8, 0.8, 2.0, -2.4, false);  // rim from behind
     scene.add(new THREE.HemisphereLight('#fff6ea', '#4a3020', 0.8));
-    // fit: every vertex must land inside 88% of the frame
+    // fit: every vertex must land inside FIT of the frame, so the icon stands a little proud of its medallion
+    const FIT = fit || 0.9;
     const pts = [], v = new THREE.Vector3();
-    group.traverse((o) => { if (!o.isMesh || o === floor) return; const a = o.geometry.attributes.position, step = Math.max(1, Math.floor(a.count / 4000)); for (let i = 0; i < a.count; i += step) pts.push(v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld).clone()); });
+    group.traverse((o) => { if (!o.isMesh) return; const a = o.geometry.attributes.position, step = Math.max(1, Math.floor(a.count / 4000)); for (let i = 0; i < a.count; i += step) pts.push(v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld).clone()); });
     let d = R * 2.2;
     for (let pass = 0; pass < 5; pass++) {
       camera.position.set(look.x + Math.sin(ya) * Math.cos(pa) * d, look.y + Math.sin(pa) * d, look.z + Math.cos(ya) * Math.cos(pa) * d);
       camera.lookAt(look); camera.updateMatrixWorld(true); camera.updateProjectionMatrix();
       let m = 0;
       for (const c of pts) { const p = c.clone().project(camera); m = Math.max(m, Math.abs(p.x), Math.abs(p.y)); }
-      d *= m / 0.88;
+      d *= m / FIT;
+    }
+    // the medallion: a disc of coloured enamel in a gold rim, facing the camera just behind the icon,
+    // so every icon shares one round silhouette and its own jewel colour
+    {
+      const f = look.clone().sub(camera.position).normalize();
+      let back = 0; for (const c of pts) back = Math.max(back, c.clone().sub(look).dot(f));
+      const centre = look.clone().addScaledVector(f, back + R * 0.06);
+      const dist = centre.distanceTo(camera.position);
+      const r = Math.tan((camera.fov * Math.PI) / 360) * dist * 0.82;
+      const [c1, c2, c3] = I.tint(name);
+      const face = document.createElement('canvas'); face.width = face.height = 512;
+      const x = face.getContext('2d');
+      let gr = x.createRadialGradient(256, 190, 30, 256, 256, 262);
+      gr.addColorStop(0, c1); gr.addColorStop(0.62, c2); gr.addColorStop(1, c3); x.fillStyle = gr; x.fillRect(0, 0, 512, 512);
+      // fine rays, like guilloche under enamel
+      x.save(); x.translate(256, 256); x.globalAlpha = 0.07; x.fillStyle = '#ffffff';
+      for (let i = 0; i < 24; i++) { x.rotate(Math.PI / 12); x.beginPath(); x.moveTo(0, 0); x.lineTo(-9, -262); x.lineTo(9, -262); x.closePath(); x.fill(); }
+      x.restore();
+      // a soft sheen across the top
+      gr = x.createLinearGradient(0, 0, 0, 300); gr.addColorStop(0, 'rgba(255,255,255,0.26)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = gr; x.beginPath(); x.ellipse(256, 110, 250, 150, 0, 0, Math.PI * 2); x.fill();
+      const t = new THREE.CanvasTexture(face); t.colorSpace = THREE.SRGBColorSpace;
+      const med = new THREE.Group();
+      // mostly its own colour (emissive), so the studio lights cannot wash the enamel out; lit just enough to take the icon's shadow
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(r * 0.94, 96), new THREE.MeshPhysicalMaterial({ map: t, color: '#6a6a6a', emissive: '#ffffff', emissiveMap: t, emissiveIntensity: 0.5, roughness: 0.5, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.2, envMapIntensity: 0.25 }));
+      disc.receiveShadow = true;
+      const gold = new THREE.MeshPhysicalMaterial({ color: '#ffd37c', metalness: 1, roughness: 0.22, clearcoat: 0.5, envMapIntensity: 1.7 });
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(r * 0.95, r * 0.05, 24, 128), gold); rim.receiveShadow = true;
+      const inner = new THREE.Mesh(new THREE.TorusGeometry(r * 0.845, r * 0.009, 12, 128), new THREE.MeshBasicMaterial({ color: '#ffe9b0', transparent: true, opacity: 0.4 }));
+      inner.position.z = 0.001;
+      med.add(disc, rim, inner);
+      med.position.copy(centre).addScaledVector(camera.up.clone().applyQuaternion(new THREE.Quaternion()), 0);
+      med.position.copy(centre); med.lookAt(camera.position);
+      scene.add(med);
     }
     renderer.render(scene, camera);
     const url = canvas.toDataURL('image/png');

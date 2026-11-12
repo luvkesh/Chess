@@ -290,9 +290,30 @@ function ChacklateAudio() {
     // slow, floating whole-tone bells, far out in space
     saturn: { chords: [[36, 48, 55, 62, 66], [34, 46, 53, 60, 64], [38, 50, 57, 62, 66], [32, 44, 51, 58, 62]],
       scale: [66, 68, 70, 72, 74, 76, 78, 80, 82, 84], voice: 'celesta', every: 9500 },
+    // a heroic tune on the horn in D minor, between the two kingdoms
+    twinrealms: { chords: [[26, 38, 45, 50, 53], [22, 34, 41, 46, 50], [24, 36, 43, 48, 52], [21, 33, 40, 45, 49]],
+      scale: [50, 52, 53, 55, 57, 58, 60, 62, 64, 65], voice: 'horn', every: 8500 },
+    // a bouncy storybook tune on the harp in C major, among the clouds
+    skyisles: { chords: [[36, 48, 55, 60, 64], [41, 48, 53, 57, 60], [43, 50, 55, 59, 62], [33, 45, 52, 57, 60]],
+      scale: [60, 62, 64, 65, 67, 69, 71, 72, 74, 76], voice: 'harp', every: 6500 },
+    // wide, shining chords on the electric piano, out among the star fleets
+    starbridge: { chords: [[33, 45, 52, 59, 64], [29, 41, 48, 55, 60], [36, 48, 55, 62, 67], [31, 43, 50, 57, 62]],
+      scale: [57, 59, 60, 62, 64, 67, 69, 71, 72, 76], voice: 'ep', every: 8500 },
     // a warm Arabian (Hijaz) tune on a plucked string, above the clouds
     burj: { chords: [[38, 50, 57, 62, 66], [38, 50, 55, 62, 67], [36, 48, 55, 60, 63], [38, 50, 57, 62, 66]],
       scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'lyre', every: 8000 },
+    // deep drums of fifths and a slow, wondering tune on the horn, in the valley of giants
+    dinoval: { chords: [[29, 41, 48, 53, 57], [27, 39, 46, 51, 55], [32, 44, 51, 56, 60], [29, 41, 48, 53, 60]],
+      scale: [53, 55, 57, 60, 62, 65, 67, 69, 72, 74], voice: 'horn', every: 9500 },
+    // a fairy-tale harp in E Lydian, soft and sparkling
+    forest: { chords: [[28, 40, 47, 52, 56], [30, 42, 49, 54, 58], [33, 45, 52, 56, 61], [28, 40, 47, 51, 56]],
+      scale: [64, 66, 68, 70, 71, 73, 75, 76, 78, 80], voice: 'harp', every: 7000 },
+    // open fifths and a bright folk tune on the lyre, over the water
+    fjord: { chords: [[31, 43, 50, 55, 62], [29, 41, 48, 53, 60], [34, 46, 53, 58, 62], [31, 43, 50, 55, 59]],
+      scale: [55, 57, 58, 60, 62, 65, 67, 69, 70, 72], voice: 'lyre', every: 8000 },
+    // a horn call at sunrise over a low drone, in the Dorian mode
+    longhouse: { chords: [[26, 38, 45, 50, 57], [24, 36, 43, 48, 55], [26, 38, 45, 50, 53], [29, 41, 48, 53, 57]],
+      scale: [50, 52, 53, 55, 57, 59, 60, 62, 64, 65], voice: 'horn', every: 8500 },
     // a bright Lydian air on the celesta, among white marble
     studio: { chords: [[41, 53, 60, 65, 69], [43, 55, 62, 67, 71], [41, 53, 60, 64, 69], [36, 48, 55, 60, 64]],
       scale: [65, 67, 69, 71, 72, 74, 76, 77, 79, 81], voice: 'celesta', every: 8500 },
