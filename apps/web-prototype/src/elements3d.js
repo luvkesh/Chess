@@ -1163,6 +1163,9 @@ ChacklateElements.ROOMS = {
   sounion: { strike: 'lightning', storm: 'lightning' },
   saturn: { strike: 'lightning', storm: 'petals', petals: ['#ffffff', '#d8ecff', '#f4e0b0', '#a8c8ff'] },
   burj: { strike: 'fire', storm: 'petals', petals: ['#f4d27a', '#ffe8b0', '#ffffff', '#e8c06a'] },
+  twinrealms: { strike: 'lightning', storm: 'fire' },
+  skyisles: { strike: 'petals', storm: 'petals', petals: ['#ffd84a', '#ffffff', '#8ab0ff', '#c890ff'] },
+  starbridge: { strike: 'lightning', storm: 'lightning' },
 };
 // every family has a capture strike and a win storm
 ChacklateElements.FAMILIES = ['fire', 'lightning', 'petals', 'stone', 'melt', 'freeze', 'fireworks', 'weld', 'vortex', 'burst', 'bloom'];

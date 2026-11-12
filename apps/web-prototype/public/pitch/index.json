@@ -563,6 +563,18 @@
   "voice": "am_puck,am_liam",
   "text": "Dark meteorite that fell from space, next to frosty ice. A glowing blue line runs round the frame."
  },
+ "board.stargrid.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Shiny steel squares from a starship floor, with a blue light glowing all round the frame."
+ },
+ "board.sunbrick.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Creamy sunstone and warm red brick, like a path to a castle. It's a storybook board!"
+ },
+ "board.moonslate.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Pale moonstone with golden veins, next to cool grey slate. The old oak frame is carved with knots."
+ },
  "board.mirage.v1": {
   "voice": "am_puck,am_liam",
   "text": "Pearly white and night-dark sand, sealed under glass with a gold rim. It sparkles like the desert at night."
@@ -634,6 +646,18 @@
  "room.saturn.v1": {
   "voice": "am_puck,am_liam",
   "text": "An icy moon of Saturn, with a rocket waiting on its pad. Look up, the rings fill the whole sky!"
+ },
+ "room.starbridge.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "The deck of a starship, high above a blue planet. Look, two fleets are flying past!"
+ },
+ "room.skyisles.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "You're on an island floating in the clouds! Wave to the castle, and keep an eye on that dark tower."
+ },
+ "room.twinrealms.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Elves on one side, orcs on the other, and you right in the middle! Can you see the waterfall and the glowing fortress?"
  },
  "room.burj.v1": {
   "voice": "am_puck,am_liam",

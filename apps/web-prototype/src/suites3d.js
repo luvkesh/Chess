@@ -47,6 +47,9 @@ function ChacklateSuites(THREE, K, H) {
     norse: { board: 'runewood', set: 'norse', table: { shape: 'slab', top: { kind: 'planks', color: '#5a3a20' }, foot: 'trestle', metal: 'bronze', raw: true }, decor: ['norsehelm', 'nuts', 'candles', 'horn'] },
     sounion: { board: 'agora', set: 'sounion', table: { shape: 'round', top: { kind: 'marble', color: '#ece6da', vein: '#b8ae9c' }, foot: 'column', metal: 'bronze' }, decor: ['lyre', 'figs', 'amphora', 'trident'] },
     saturn: { board: 'meteor', set: 'astro', table: { shape: 'round', top: { kind: 'marble', color: '#1a1e2e', vein: '#6ac8e8' }, foot: 'drum', metal: 'chrome' }, decor: ['rocket', 'moonrock', 'satellite', 'starjar'] },
+    twinrealms: { board: 'moonslate', set: 'elves', table: { shape: 'slab', top: { kind: 'planks', color: '#4a3424' }, foot: 'trestle', metal: 'gold', raw: true }, decor: ['elflamp', 'berries', 'orchelm', 'antler'] },
+    skyisles: { board: 'sunbrick', set: 'sunshadow', table: { shape: 'quatrefoil', top: { kind: 'stone', color: '#efe2c6', speck: '#c8b088', inlay: '#2a4ab8' }, foot: 'pedestal', metal: 'gold' }, decor: ['balloon', 'cakes', 'shadoworb', 'crown'] },
+    starbridge: { board: 'stargrid', set: 'galactic', table: { shape: 'hex', top: { kind: 'glass', color: '#1a2438' }, foot: 'deco', metal: 'chrome' }, decor: ['hologlobe', 'satellite', 'modelship', 'starjar'] },
     burj: { board: 'mirage', set: 'falcon', table: { shape: 'hex', top: { kind: 'marble', color: '#efe8dc', vein: '#c8a860' }, foot: 'column', metal: 'gold' }, decor: ['oyster', 'binocs', 'burner', 'teaglass'] },
   };
   const byBoard = {}, bySet = {};
@@ -494,6 +497,46 @@ function ChacklateSuites(THREE, K, H) {
     ]),
     // Norse Fireside: an iron helmet with a nose guard, a drinking horn, nuts in a wooden bowl
     // and fat candles on a plank
+    // the Twin Realms: an elven crystal lamp and an orc's horned iron helmet
+    elflamp: () => group([
+      [smoothLathe([[0, 0], [0.22, 0], [0.18, 0.06], [0.06, 0.14], [0.04, 0.5], [0.08, 0.56], [0, 0.58]], 32), MAT.gold('#e8c060')],
+      ...[0, 1, 2].map((i) => [K.tube([[0, 0.5, 0], [0.1, 0.62, 0], [0.06, 0.82, 0]], 0.012, { segs: 10 }).rotateY(i * TAU / 3), MAT.gold('#e8c060')]),
+      [new THREE.OctahedronGeometry(1, 0).scale(0.09, 0.2, 0.09).translate(0, 0.76, 0), C('elfcrystal', '#7ac8ff', { emissive: '#2a8aff', emissiveIntensity: 1.2, roughness: 0.05, clearcoat: 1 })],
+    ]),
+    orchelm: () => group([
+      [new THREE.SphereGeometry(0.3, 28, 14, 0, TAU, 0, Math.PI / 2).scale(1, 1.1, 1.05).translate(0, 0.04, 0), C('orciron', '#4a4c52', { metalness: 0.85, roughness: 0.45 })],
+      [K.ring(0.31, 0.06, 0.03), MAT.bronze()],
+      ...[-1, 1].map((x) => [K.tube([[x * 0.26, 0.2, 0], [x * 0.42, 0.34, 0.02], [x * 0.46, 0.56, -0.04], [x * 0.4, 0.66, -0.08]], 0.05, { segs: 16, radiusAt: (t) => 1 - t * 0.85 }), C('orchorn', '#e8dcc0', { roughness: 0.35, clearcoat: 0.6 })]),
+      ...[0, 1, 2].map((i) => [new THREE.ConeGeometry(0.035, 0.12, 6).translate((i - 1) * 0.1, 0.38, 0.0), C('orciron', '#4a4c52', { metalness: 0.85, roughness: 0.45 })]),
+    ]),
+    // the Floating Isles: a toy hot-air balloon and a shadow orb on a claw stand
+    balloon: () => group([
+      [new THREE.CylinderGeometry(0.2, 0.24, 0.04, 24).translate(0, 0.02, 0), MAT.gold('#f0c050')],
+      [new THREE.CylinderGeometry(0.012, 0.012, 0.3, 8).translate(0, 0.17, 0), MAT.gold('#f0c050')],
+      [new THREE.CylinderGeometry(0.1, 0.08, 0.09, 12).translate(0, 0.38, 0), C('basket', '#a8642a', { roughness: 0.7 })],
+      ...[0, 1, 2, 3].map((i) => [new THREE.CylinderGeometry(0.005, 0.005, 0.18, 4).translate(0.08, 0.5, 0).rotateY(i * Math.PI / 2), MAT.gold('#f0c050')]),
+      [smoothLathe([[0.04, 0.58], [0.16, 0.66], [0.28, 0.84], [0.28, 1.0], [0.18, 1.14], [0, 1.18]], 12), C('balloon', '#2a4ab8', { roughness: 0.3, clearcoat: 1 })],
+      [K.ring(0.28, 0.92, 0.02, { seg: 40 }), C('balloonstripe', '#f0c050', { roughness: 0.3, clearcoat: 1 })],
+    ]),
+    shadoworb: () => group([
+      [new THREE.CylinderGeometry(0.2, 0.24, 0.06, 6).translate(0, 0.03, 0), C('shadowstone', '#2a2232', { roughness: 0.5, clearcoat: 0.5 })],
+      ...[0, 1, 2].map((i) => [K.tube([[0.16, 0.06, 0], [0.18, 0.24, 0], [0.08, 0.36, 0]], 0.02, { segs: 10, radiusAt: (t) => 1 - t * 0.6 }).rotateY(i * TAU / 3), C('shadowclaw', '#e8dcc8', { roughness: 0.35, clearcoat: 0.6 })]),
+      [ball(0.16, 0, 0.36, 0, 24), C('shadoworb', '#c890ff', { emissive: '#8a20ff', emissiveIntensity: 1.1, roughness: 0.1, clearcoat: 1 })],
+    ]),
+    // the Starship Deck: a glowing globe of a planet and a little model starship on its stand
+    hologlobe: () => group([
+      [new THREE.CylinderGeometry(0.22, 0.26, 0.08, 6).translate(0, 0.04, 0), MAT.chrome()],
+      [K.ring(0.2, 0.085, 0.012), C('holoring', '#5ab8ff', { emissive: '#1a8aff', emissiveIntensity: 1.4, roughness: 0.3 })],
+      [ball(0.22, 0, 0.42, 0, 28), C('holoplanet', '#3a8aff', { emissive: '#1a5aff', emissiveIntensity: 0.6, roughness: 0.2, transparent: true, opacity: 0.75 })],
+      [K.ring(0.34, 0, 0.012, { seg: 48 }).rotateX(0.4).translate(0, 0.42, 0), C('holoring', '#5ab8ff', { emissive: '#1a8aff', emissiveIntensity: 1.4, roughness: 0.3 })],
+    ]),
+    modelship: () => group([
+      [new THREE.CylinderGeometry(0.2, 0.22, 0.04, 6).translate(0, 0.02, 0), MAT.lacquer('#14182a')],
+      [new THREE.CylinderGeometry(0.012, 0.012, 0.36, 8).translate(0, 0.2, 0), MAT.chrome()],
+      [new THREE.ConeGeometry(0.07, 0.6, 16).rotateX(Math.PI / 2).rotateY(0.6).translate(0, 0.42, 0), C('shiphull', '#f2f4f8', { roughness: 0.2, clearcoat: 1 })],
+      [new THREE.BoxGeometry(0.5, 0.012, 0.18).rotateY(0.6).translate(0, 0.41, 0), C('shipwing', '#1c2c6a', { roughness: 0.25, clearcoat: 1 })],
+      [ball(0.045, 0, 0, 0, 12).translate(-Math.sin(0.6) * 0.3, 0.42, -Math.cos(0.6) * 0.3), C('shipglow', '#7ac8ff', { emissive: '#2a8aff', emissiveIntensity: 1.6, roughness: 0.3 })],
+    ]),
     norsehelm: () => group([
       [new THREE.SphereGeometry(0.32, 32, 16, 0, TAU, 0, Math.PI / 2).scale(1, 1.15, 1.05).translate(0, 0.06, 0), C('iron', '#5a5a5e', { metalness: 0.85, roughness: 0.45 })],
       [K.ring(0.33, 0.07, 0.03), MAT.bronze()],

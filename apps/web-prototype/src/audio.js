@@ -290,6 +290,15 @@ function ChacklateAudio() {
     // slow, floating whole-tone bells, far out in space
     saturn: { chords: [[36, 48, 55, 62, 66], [34, 46, 53, 60, 64], [38, 50, 57, 62, 66], [32, 44, 51, 58, 62]],
       scale: [66, 68, 70, 72, 74, 76, 78, 80, 82, 84], voice: 'celesta', every: 9500 },
+    // a heroic tune on the horn in D minor, between the two kingdoms
+    twinrealms: { chords: [[26, 38, 45, 50, 53], [22, 34, 41, 46, 50], [24, 36, 43, 48, 52], [21, 33, 40, 45, 49]],
+      scale: [50, 52, 53, 55, 57, 58, 60, 62, 64, 65], voice: 'horn', every: 8500 },
+    // a bouncy storybook tune on the harp in C major, among the clouds
+    skyisles: { chords: [[36, 48, 55, 60, 64], [41, 48, 53, 57, 60], [43, 50, 55, 59, 62], [33, 45, 52, 57, 60]],
+      scale: [60, 62, 64, 65, 67, 69, 71, 72, 74, 76], voice: 'harp', every: 6500 },
+    // wide, shining chords on the electric piano, out among the star fleets
+    starbridge: { chords: [[33, 45, 52, 59, 64], [29, 41, 48, 55, 60], [36, 48, 55, 62, 67], [31, 43, 50, 57, 62]],
+      scale: [57, 59, 60, 62, 64, 67, 69, 71, 72, 76], voice: 'ep', every: 8500 },
     // a warm Arabian (Hijaz) tune on a plucked string, above the clouds
     burj: { chords: [[38, 50, 57, 62, 66], [38, 50, 55, 62, 67], [36, 48, 55, 60, 63], [38, 50, 57, 62, 66]],
       scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'lyre', every: 8000 },

@@ -1893,6 +1893,151 @@
           "text": "Falcon and Pearl play here, on Pearl and Night Sand."
         }
       ]
+    },
+    "item-sets-galactic": {
+      "text": "Two star fleets meet on the board! The Blue Fleet is white with blue lights, and the Red Fleet is black with red lights. Knights are starships, bishops are glowing crystals, and the pawns are space cadets. It comes with the Starship Deck.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Two star fleets meet on the board!"
+        },
+        {
+          "t": 2.03,
+          "text": "The Blue Fleet is white with blue lights, and the Red Fleet is black with red lights."
+        },
+        {
+          "t": 6.96,
+          "text": "Knights are starships, bishops are glowing crystals, and the pawns are space cadets."
+        },
+        {
+          "t": 11.95,
+          "text": "It comes with the Starship Deck."
+        }
+      ]
+    },
+    "item-sets-sunshadow": {
+      "text": "Once upon a time, in the clouds! The Sun Kingdom has a jolly king, a princess, a wizard and villagers in sunflower hats. The Shadow Legion has a horned king, a sorceress, a baby dragon and grumpy little imps. It comes with the Floating Isles.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Once upon a time, in the clouds!"
+        },
+        {
+          "t": 2.23,
+          "text": "The Sun Kingdom has a jolly king, a princess, a wizard and villagers in sunflower hats."
+        },
+        {
+          "t": 8.1,
+          "text": "The Shadow Legion has a horned king, a sorceress, a baby dragon and grumpy little imps."
+        },
+        {
+          "t": 13.54,
+          "text": "It comes with the Floating Isles."
+        }
+      ]
+    },
+    "item-sets-elves": {
+      "text": "Two armies from the old fantasy tales! Orcs and Elves puts elves in white, blue and gold against orcs in green, red leather and iron. The elf knight is a white stag, the orc knight a big grey wolf. It comes with the Twin Realms.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Two armies from the old fantasy tales!"
+        },
+        {
+          "t": 2.57,
+          "text": "Orcs and Elves puts elves in white, blue and gold against orcs in green, red leather and iron."
+        },
+        {
+          "t": 8.56,
+          "text": "The elf knight is a white stag, the orc knight a big grey wolf."
+        },
+        {
+          "t": 12.42,
+          "text": "It comes with the Twin Realms."
+        }
+      ]
+    },
+    "item-boards-stargrid": {
+      "text": "Star Grid is shiny steel from a starship floor, with a blue light glowing round the frame. It comes with the Starship Deck.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Star Grid is shiny steel from a starship floor, with a blue light glowing round the frame."
+        },
+        {
+          "t": 5.16,
+          "text": "It comes with the Starship Deck."
+        }
+      ]
+    },
+    "item-boards-sunbrick": {
+      "text": "Sunstone and Brick is creamy stone and warm red brick, like the path up to a storybook castle. It comes with the Floating Isles.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Sunstone and Brick is creamy stone and warm red brick, like the path up to a storybook castle."
+        },
+        {
+          "t": 5.74,
+          "text": "It comes with the Floating Isles."
+        }
+      ]
+    },
+    "item-boards-moonslate": {
+      "text": "Moonstone and Slate puts pale moonstone with gold veins next to cool grey slate, in an old oak frame carved with knots. It comes with the Twin Realms.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Moonstone and Slate puts pale moonstone with gold veins next to cool grey slate, in an old oak frame carved with knots."
+        },
+        {
+          "t": 7.32,
+          "text": "It comes with the Twin Realms."
+        }
+      ]
+    },
+    "item-places-starbridge": {
+      "text": "Play on the open deck of a starship, high above a blue planet. A ring station turns in the distance, and two star fleets fly past.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Play on the open deck of a starship, high above a blue planet."
+        },
+        {
+          "t": 3.92,
+          "text": "A ring station turns in the distance, and two star fleets fly past."
+        }
+      ]
+    },
+    "item-places-skyisles": {
+      "text": "Play on an island floating in the clouds! There's a castle with blue roofs, a windmill, a balloon and a rainbow, and over there, the Shadow Legion's dark tower.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Play on an island floating in the clouds!"
+        },
+        {
+          "t": 2.37,
+          "text": "There's a castle with blue roofs, a windmill, a balloon and a rainbow, and over there, the Shadow Legion's dark tower."
+        }
+      ]
+    },
+    "item-places-twinrealms": {
+      "text": "Stand on a ridge at sunset between two kingdoms. On one side, the elves' white city sits by a waterfall. On the other, the orcs' fortress glows in the burning hills.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Stand on a ridge at sunset between two kingdoms."
+        },
+        {
+          "t": 3.17,
+          "text": "On one side, the elves' white city sits by a waterfall."
+        },
+        {
+          "t": 7.08,
+          "text": "On the other, the orcs' fortress glows in the burning hills."
+        }
+      ]
     }
   }
 }
