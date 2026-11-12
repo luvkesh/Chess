@@ -79,6 +79,19 @@ function ChacklateWorld(THREE, K) {
       for (let i = 0; i < 500; i++) { g.fillStyle = rgba(R() < 0.5 ? '#000000' : '#fff4e0', 0.06); g.fillRect(R() * 512, R() * 512, 2 + R() * 4, 1 + R() * 2); }
       return c;
     },
+    // smoked or frosted glass: a soft cloud with a little sparkle
+    glass: (f, light) => {
+      const c = canvas(512), g = c.getContext('2d'), R = rng(light ? 71 : 72);
+      g.drawImage(TEX.mottle(light ? f.light : f.dark, { amount: light ? 0.05 : 0.12 }).image, 0, 0, 512, 512);
+      for (let i = 0; i < 40; i++) { g.fillStyle = rgba(light ? '#ffffff' : (f.haze || '#6a7aa8'), light ? 0.05 : 0.07); g.beginPath(); g.ellipse(R() * 512, R() * 512, 40 + R() * 120, 20 + R() * 60, R() * 3, 0, TAU); g.fill(); }
+      return c;
+    },
+    // glacier ice for the light squares, basalt for the dark
+    glacier: (f, light) => (light ? marbleTile(f.light, f.veinLight || '#ffffff', { cloud: 0.5, strength: 0.35, freq: 2 })
+      : TEX.stone(f.dark, shade(f.dark, 0.18), { size: 512, scale: 4, cloud: 0.4, speckMix: 0.4 }).image),
+    // cream marble for the light squares, burr walnut for the dark
+    gearwork: (f, light) => (light ? marbleTile(f.light, f.veinLight || '#c8b08a', { cloud: 0.3, strength: 0.25 })
+      : woodTile(f.dark, shade(f.dark, -0.5), 9, { contrast: 0.75, figure: 0.3, lines: 26, warp: 3 })),
     // Murano aventurine: amber glass full of copper sparkles (light squares are mirror glass)
     aventurine: (f, light) => {
       if (light) return TEX.mottle(f.light, { amount: 0.06 }).image;
@@ -114,14 +127,79 @@ function ChacklateWorld(THREE, K) {
       g.fillStyle = R() > 0.5 ? 'rgba(255,255,255,' + (R() * 0.05) + ')' : 'rgba(0,0,0,' + (R() * 0.06) + ')';
       g.fillRect(x, y, S, S);
       if (f.motif && light) f.motif(g, x, y, S, R);
+      if (f.deco) { g.save(); g.beginPath(); g.rect(x, y, S, S); g.clip(); SQUARE_DECO[f.deco](g, x, y, S, light, rng(900 + r * 8 + fl), false); g.restore(); }
     }
     // inlay seams
     g.strokeStyle = f.seam || 'rgba(20,10,5,0.55)'; g.lineWidth = 2;
     for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(i * S, 0); g.lineTo(i * S, S * 8); g.moveTo(0, i * S); g.lineTo(S * 8, i * S); g.stroke(); }
+    if (f.seamGlow) { g.strokeStyle = f.seamGlow; g.lineWidth = 4; for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(i * S, 0); g.lineTo(i * S, S * 8); g.moveTo(0, i * S); g.lineTo(S * 8, i * S); g.stroke(); } }
     if (f.seamGold) {
       g.strokeStyle = f.seamGold; g.lineWidth = 3;
       for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(i * S, 0); g.lineTo(i * S, S * 8); g.moveTo(0, i * S); g.lineTo(S * 8, i * S); g.stroke(); }
     }
+    return c;
+  }
+  // ------------------------------------------------------------------ boards that glow
+  // A few boards carry lines that glow: lava in the cracks, neon in the seams, stars, lamps in
+  // the frame. A decorator draws onto a square (or the frame) twice from the same seed: once
+  // in colour onto the board, once as light onto a black canvas that becomes the emissive map,
+  // so what glows lines up exactly with what is painted.
+  const SQUARE_DECO = {
+    // Celestial Monolith: stars and faint star-chart arcs in the black glass; the frosted
+    // squares get a few silver arcs only
+    stars(g, x, y, S, light, R, glow) {
+      if (light) { if (!glow) { g.strokeStyle = 'rgba(160,170,200,0.35)'; g.lineWidth = 1.5; for (let i = 0; i < 2; i++) { g.beginPath(); g.arc(x + R() * S, y + R() * S, S * (0.4 + R() * 0.8), R() * TAU, R() * TAU + 1.2); g.stroke(); } } return; }
+      for (let i = 0; i < 26; i++) { const sx = x + R() * S, sy = y + R() * S, r = 0.6 + Math.pow(R(), 3) * 3; g.fillStyle = glow ? rgba('#c8d8ff', 0.4 + R() * 0.6) : rgba('#e8eeff', 0.5 + R() * 0.5); g.beginPath(); g.arc(sx, sy, r, 0, TAU); g.fill(); }
+      if (!glow) { g.strokeStyle = 'rgba(200,180,120,0.3)'; g.lineWidth = 1.4; g.beginPath(); g.arc(x + R() * S, y + R() * S, S * (0.5 + R() * 0.6), 0, TAU); g.stroke(); }
+    },
+    // Lava and Glacier: glowing lava in the cracks of the basalt, white cracks in the ice
+    lava(g, x, y, S, light, R, glow) {
+      // one or two long cracks that cross the square and fork once, smooth, with a hot core
+      const n = light ? 1 : 2;
+      for (let i = 0; i < n; i++) {
+        const side = R() < 0.5, t0 = R(), t1 = R();
+        const pts = [side ? [x, y + t0 * S] : [x + t0 * S, y]];
+        const end = side ? [x + S, y + t1 * S] : [x + t1 * S, y + S];
+        for (let k = 1; k < 5; k++) { const u = k / 5; pts.push([pts[0][0] + (end[0] - pts[0][0]) * u + (R() - 0.5) * S * 0.14, pts[0][1] + (end[1] - pts[0][1]) * u + (R() - 0.5) * S * 0.14]); }
+        pts.push(end);
+        const fk = pts[2], fe = [fk[0] + (R() - 0.5) * S * 0.6, fk[1] + (R() - 0.5) * S * 0.6];
+        const draw = (col, w) => {
+          g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.lineJoin = 'round';
+          g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+          for (let k = 1; k < pts.length - 1; k++) g.quadraticCurveTo(pts[k][0], pts[k][1], (pts[k][0] + pts[k + 1][0]) / 2, (pts[k][1] + pts[k + 1][1]) / 2);
+          g.lineTo(end[0], end[1]); g.stroke();
+          g.lineWidth = w * 0.6; g.beginPath(); g.moveTo(fk[0], fk[1]); g.quadraticCurveTo((fk[0] + fe[0]) / 2 + (R() - 0.5) * 20, (fk[1] + fe[1]) / 2, fe[0], fe[1]); g.stroke();
+        };
+        if (light) { if (!glow) draw('rgba(255,255,255,0.6)', 2); continue; }
+        if (glow) { draw(rgba('#ff5a08', 0.7), 9); draw(rgba('#ffd060', 1), 3); }
+        else { draw(rgba('#c83a08', 0.95), 7); draw(rgba('#ffc040', 1), 2.5); }
+      }
+    },
+    // Walnut and Brass: a fine engraved gear in the corner of every square
+    gears(g, x, y, S, light, R, glow) {
+      if (glow) return;
+      const cx = x + S * (0.25 + R() * 0.5), cy = y + S * (0.25 + R() * 0.5), r = S * (0.18 + R() * 0.12);
+      g.strokeStyle = light ? 'rgba(150,110,50,0.28)' : 'rgba(230,190,110,0.22)'; g.lineWidth = 2;
+      g.beginPath();
+      for (let i = 0; i <= 64; i++) { const a = (i / 64) * TAU, tooth = Math.floor(i / 2) % 2; const rr = r * (tooth ? 1 : 0.86); i ? g.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr) : g.moveTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
+      g.stroke(); g.beginPath(); g.arc(cx, cy, r * 0.3, 0, TAU); g.stroke();
+      for (let i = 0; i < 4; i++) { const a = (i / 4) * TAU + 0.4; g.beginPath(); g.moveTo(cx + Math.cos(a) * r * 0.3, cy + Math.sin(a) * r * 0.3); g.lineTo(cx + Math.cos(a) * r * 0.8, cy + Math.sin(a) * r * 0.8); g.stroke(); }
+    },
+    // Light and Void: a thin line of light along one edge of each dark square
+    edge(g, x, y, S, light, R, glow) {
+      if (light || !glow) return;
+      g.fillStyle = rgba('#3a8aff', 0.55); g.fillRect(x + 4, y + S - 9, S - 8, 5);
+    },
+  };
+  // the emissive map of a glowing field: black, with the decorators' light and glowing seams
+  function paintGlowField(f) {
+    const S = 256, c = canvas(S * 8), g = c.getContext('2d');
+    g.fillStyle = '#000000'; g.fillRect(0, 0, S * 8, S * 8);
+    for (let r = 0; r < 8; r++) for (let fl = 0; fl < 8; fl++) {
+      const light = (r + fl) % 2 === 1, x = fl * S, y = (7 - r) * S;
+      if (f.deco) { g.save(); g.beginPath(); g.rect(x, y, S, S); g.clip(); SQUARE_DECO[f.deco](g, x, y, S, light, rng(900 + r * 8 + fl), true); g.restore(); }
+    }
+    if (f.seamGlow) { g.strokeStyle = f.seamGlow; g.lineWidth = 7; for (let i = 0; i <= 8; i++) { g.beginPath(); g.moveTo(i * S, 0); g.lineTo(i * S, S * 8); g.moveTo(0, i * S); g.lineTo(S * 8, i * S); g.stroke(); } }
     return c;
   }
   // The Indus potters' pattern: four circles that overlap into a flower, in black slip.
@@ -201,7 +279,112 @@ function ChacklateWorld(THREE, K) {
     meteor: { name: 'Meteorite & Ice', field: { type: 'marble', light: '#dce8f4', dark: '#2e3038', veinLight: '#8ab0d8', veinDark: '#8a8c98', marbleDark: { cloud: 0.35, strength: 0.55, freq: 4 } }, frame: { type: 'lacquer', color: '#0a0c18' }, inlay: '#7ae0ff', label: '#bfefff', rim: 'chrome', gloss: 0.15 },
     // Falcon & Pearl's: pearl white and night-sand blue with gold veins, in black lacquer and gold
     mirage: { name: 'Pearl & Night Sand', field: { type: 'marble', light: '#f2eadc', dark: '#1e2834', veinLight: '#d8c8a8', veinDark: '#c8a050' }, frame: { type: 'lacquer', color: '#0e0c0a' }, inlay: '#e0c070', label: '#f0dcae', rim: 'gold', gloss: 0.15 },
+    // Astral Glass's: frosted moon-glass against black star-glass, a star chart in the frame
+    starglass: { name: 'Celestial Monolith', field: { type: 'glass', light: '#d8dce6', dark: '#3a3e56', haze: '#5a6aa8', deco: 'stars' }, frame: { type: 'lacquer', color: '#0c0e18', stars: true }, inlay: '#c8ccd8', label: '#eef0f8', rim: 'chrome', gloss: 0.06, glass: true, motif: 'orbits', glowField: 0.9 },
+    // Fire and Ice's: glacier ice against basalt with lava glowing in its cracks; the frame is
+    // ice on White's side and fire on Black's
+    lavaice: { name: 'Lava and Glacier', field: { type: 'glacier', light: '#a8c8e6', dark: '#4a3a36', veinLight: '#f4fbff', deco: 'lava' }, frame: { type: 'lacquer', color: '#1e1a1e' }, inlay: '#d8dce4', label: '#f4f6fa', rim: 'silver', gloss: 0.12, motif: 'fireice', glowField: 1.2, glowFrame: 1 },
+    // Clockwork Brass's: cream marble and burr walnut engraved with gears, a clock in the frame
+    gearwood: { name: 'Walnut and Brass', field: { type: 'gearwork', light: '#ece2cc', dark: '#6a3e26', deco: 'gears' }, frame: { type: 'wood', color: '#3a2214', grainLight: '#6a3e22' }, inlay: '#d6a748', label: '#f4e0b0', rim: 'brass', motif: 'clock' },
+    // Neon City's: smoked glass with cyan light in the seams, circuit lines glowing in the frame
+    neongrid: { name: 'Neon Grid', field: { type: 'glass', light: '#9aa2b2', dark: '#3a3e4c', haze: '#5a3a7a', seam: 'rgba(40,230,255,0.75)', seamGlow: 'rgba(30,220,255,0.9)' }, frame: { type: 'lacquer', color: '#121418' }, inlay: '#38e0ff', label: '#c8f6ff', rim: 'chrome', gloss: 0.05, glass: true, motif: 'circuit', glowField: 1.3, glowFrame: 1.4 },
+    // Light and Void's: pearl marble veined in gold against black glass veined in blue, with
+    // strips of light in a white marble frame
+    voidmarble: { name: 'Light and Void Marble', field: { type: 'marble', light: '#f2eee6', dark: '#454e68', veinLight: '#d0a850', veinDark: '#7aa8f8', marbleDark: { cloud: 0.3, strength: 0.5, freq: 3 }, deco: 'edge' }, frame: { type: 'marble', color: '#e8e4dc', vein: '#c8a860' }, inlay: '#d0a850', label: '#4a3a20', rim: 'gold', gloss: 0.08, motif: 'strips', glowField: 1, glowFrame: 1.2 },
   };
+  // Frame ornaments for the glowing boards, drawn in colour onto the frame (glow false) and
+  // as light onto its emissive map (glow true). Corner pieces replace the gold rosettes; bands
+  // run near the inner and outer edges, clear of the coordinates in the middle of the frame.
+  const CORNER_MOTIFS = new Set(['orbits', 'fireice', 'clock', 'circuit', 'strips']);
+  function frameMotif(g, b, px, N, glow) {
+    const m = b.motif, corners = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+    if (m === 'fireice') {
+      // Black's half is dark rock with lava in its cracks, White's half frosted ice
+      if (!glow) {
+        const grd = g.createLinearGradient(0, 0, 0, N);
+        grd.addColorStop(0, '#2a1410'); grd.addColorStop(0.42, '#3a1c14'); grd.addColorStop(0.58, '#9ab4c8'); grd.addColorStop(1, '#c8dcea');
+        g.fillStyle = grd; g.fillRect(0, 0, N, N);
+        g.globalAlpha = 0.35; g.drawImage(TEX.stone('#3a2018', '#6a3a28', { size: 1024, scale: 5 }).image, 0, 0, N, N / 2); g.globalAlpha = 1;
+      }
+      const R = rng(77);
+      for (let i = 0; i < 70; i++) {
+        let x = R() * N, y = R() * N * 0.48; const top = y < N * 0.46;
+        if (!top) continue;
+        g.strokeStyle = glow ? rgba('#ff5a10', 0.9) : rgba('#ff8a2a', 0.9); g.lineWidth = glow ? 5 : 3; g.beginPath(); g.moveTo(x, y);
+        for (let k = 0; k < 5; k++) { x += (R() - 0.5) * 60; y += (R() - 0.5) * 40; g.lineTo(x, y); } g.stroke();
+      }
+      if (!glow) { const R2 = rng(78); g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 2; for (let i = 0; i < 50; i++) { let x = R2() * N, y = N * 0.55 + R2() * N * 0.45; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 4; k++) { x += (R2() - 0.5) * 50; y += (R2() - 0.5) * 40; g.lineTo(x, y); } g.stroke(); } }
+      for (const [sx, sy] of corners) {
+        g.save(); g.translate(px(sx * 4.45), px(sy * 4.45));
+        if (sy < 0) { g.fillStyle = glow ? '#ff7a20' : '#ffa040'; g.beginPath(); g.moveTo(0, -26); g.quadraticCurveTo(18, -4, 10, 16); g.quadraticCurveTo(0, 24, -10, 16); g.quadraticCurveTo(-18, -4, 0, -26); g.fill(); }
+        else { g.strokeStyle = glow ? '#4ab0ff' : '#ffffff'; g.lineWidth = 4; for (let i = 0; i < 6; i++) { g.rotate(TAU / 6); g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -24); g.moveTo(0, -14); g.lineTo(7, -20); g.moveTo(0, -14); g.lineTo(-7, -20); g.stroke(); } }
+        g.restore();
+      }
+    }
+    if (m === 'orbits' && !glow) {
+      // a star chart: thin gold orbits round each corner star, a ringed planet in the middle of each
+      for (const [sx, sy] of corners) {
+        g.save(); g.translate(px(sx * 4.45), px(sy * 4.45)); g.strokeStyle = b.inlay; g.lineWidth = 2.5;
+        g.beginPath(); g.ellipse(0, 0, 34, 12, 0.5, 0, TAU); g.stroke(); g.beginPath(); g.ellipse(0, 0, 34, 12, -0.5, 0, TAU); g.stroke();
+        g.fillStyle = '#f4f0ff'; g.beginPath(); for (let i = 0; i < 8; i++) { const a = (i / 8) * TAU, r = i % 2 ? 5 : 16; g.lineTo(Math.sin(a) * r, -Math.cos(a) * r); } g.closePath(); g.fill();
+        g.restore();
+      }
+      g.strokeStyle = rgba('#d8c890', 0.5); g.lineWidth = 2;
+      for (const sy of [-1, 1]) { g.beginPath(); g.moveTo(px(-3.9), px(sy * 4.2)); g.lineTo(px(3.9), px(sy * 4.2)); g.stroke(); g.beginPath(); g.moveTo(px(sy * 4.2), px(-3.9)); g.lineTo(px(sy * 4.2), px(3.9)); g.stroke(); }
+    }
+    if (m === 'orbits' && glow) for (const [sx, sy] of corners) { g.fillStyle = '#c8d8ff'; g.beginPath(); g.arc(px(sx * 4.45), px(sy * 4.45), 7, 0, TAU); g.fill(); }
+    if (m === 'clock' && !glow) {
+      // a brass clock face at each corner, its roman ticks and two hands
+      for (const [sx, sy] of corners) {
+        g.save(); g.translate(px(sx * 4.45), px(sy * 4.45));
+        g.fillStyle = '#f4ead4'; g.beginPath(); g.arc(0, 0, 30, 0, TAU); g.fill();
+        g.strokeStyle = b.inlay; g.lineWidth = 6; g.stroke();
+        g.strokeStyle = '#2a1a10'; g.lineWidth = 2.5;
+        for (let i = 0; i < 12; i++) { const a = (i / 12) * TAU; g.beginPath(); g.moveTo(Math.sin(a) * 20, -Math.cos(a) * 20); g.lineTo(Math.sin(a) * 25, -Math.cos(a) * 25); g.stroke(); }
+        g.lineWidth = 3.5; g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -16); g.moveTo(0, 0); g.lineTo(11, 4); g.stroke();
+        g.restore();
+      }
+      // a fine brass rule with rivets near each edge of the frame
+      g.strokeStyle = rgba(b.inlay, 0.7); g.lineWidth = 3; g.fillStyle = b.inlay;
+      for (const sy of [-1, 1]) for (const horiz of [true, false]) {
+        const at = (u, v) => (horiz ? [px(u), px(v)] : [px(v), px(u)]);
+        g.beginPath(); g.moveTo(...at(-3.85, sy * 4.68)); g.lineTo(...at(3.85, sy * 4.68)); g.stroke();
+        for (let u = -3.6; u <= 3.61; u += 0.4) { const [x, y] = at(u, sy * 4.68); g.beginPath(); g.arc(x, y, 3.5, 0, TAU); g.fill(); }
+      }
+    }
+    if (m === 'circuit') {
+      // circuit traces near the inner and outer edges, in cyan and pink, with little pads
+      for (const sy of [-1, 1]) for (const horiz of [true, false]) {
+        const at = (u, v) => (horiz ? [px(u), px(v)] : [px(v), px(u)]);
+        for (const [v0, col] of [[4.16, '#28e0ff'], [4.76, sy < 0 ? '#ff2ad0' : '#28e0ff']]) {
+          g.strokeStyle = glow ? col : rgba(col, 0.8); g.lineWidth = glow ? 5 : 3; g.beginPath();
+          let u = -3.9; g.moveTo(...at(u, sy * v0));
+          const R = rng(Math.round(v0 * 100) + (horiz ? 1 : 2) + sy);
+          while (u < 3.9) { const len = 0.3 + R() * 0.6, up = (R() < 0.5 ? 1 : -1) * 0.06; u = Math.min(3.9, u + len); g.lineTo(...at(u, sy * v0)); if (u < 3.8) { g.lineTo(...at(u + 0.06, sy * (v0 + up))); u += 0.06; g.lineTo(...at(u + 0.2, sy * (v0 + up))); u += 0.2; g.lineTo(...at(u + 0.06, sy * v0)); u += 0.06; } }
+          g.stroke();
+        }
+      }
+      for (const [sx, sy] of corners) { g.save(); g.translate(px(sx * 4.45), px(sy * 4.45)); g.rotate(Math.PI / 4); g.strokeStyle = glow ? '#ff2ad0' : '#ff5ad8'; g.lineWidth = glow ? 6 : 4; g.strokeRect(-18, -18, 36, 36); g.fillStyle = glow ? '#28e0ff' : '#5ae8ff'; g.fillRect(-7, -7, 14, 14); g.restore(); }
+    }
+    if (m === 'strips') {
+      // a strip of light all round, amber on Light's side and blue on Void's
+      for (const [v, horiz] of [[4.8, true], [-4.8, true], [4.8, false], [-4.8, false]]) {
+        const grd = horiz ? g.createLinearGradient(px(-4.6), 0, px(4.6), 0) : g.createLinearGradient(0, px(-4.6), 0, px(4.6));
+        const amber = glow ? '#ff9a20' : '#ffc860', blue = glow ? '#2a7aff' : '#6aa8ff';
+        if (horiz) { grd.addColorStop(0, v < 0 ? blue : amber); grd.addColorStop(1, v < 0 ? blue : amber); }
+        else { grd.addColorStop(0, blue); grd.addColorStop(0.5, glow ? '#000000' : '#c8c0b0'); grd.addColorStop(1, amber); }
+        g.fillStyle = grd;
+        if (horiz) g.fillRect(px(-4.6), px(v) - 5, px(4.6) - px(-4.6), 10); else g.fillRect(px(v) - 5, px(-4.6), 10, px(4.6) - px(-4.6));
+      }
+      for (const [sx, sy] of corners) { g.save(); g.translate(px(sx * 4.45), px(sy * 4.45)); g.rotate(Math.PI / 4); g.fillStyle = glow ? (sy < 0 ? '#2a7aff' : '#ff9a20') : (sy < 0 ? '#6aa8ff' : '#ffc860'); g.fillRect(-11, -11, 22, 22); if (!glow) { g.strokeStyle = b.inlay; g.lineWidth = 3; g.strokeRect(-16, -16, 32, 32); } g.restore(); }
+    }
+  }
+  function frameGlowTexture(b) {
+    const N = 2048, c = canvas(N), g = c.getContext('2d'), half = 4.9, px = (u) => ((u + half) / (half * 2)) * N;
+    g.fillStyle = '#000000'; g.fillRect(0, 0, N, N);
+    frameMotif(g, b, px, N, true);
+    return c;
+  }
   function frameTexture(b, side) {
     const N = 2048, c = canvas(N), g = c.getContext('2d');
     const half = 4.9, px = (u) => ((u + half) / (half * 2)) * N;
@@ -264,12 +447,14 @@ function ChacklateWorld(THREE, K) {
       const R = rng(29);
       for (let i = 0; i < 260; i++) { const x = R() * N, y = R() * N, u = x / N * 9.8 - 4.9, v = y / N * 9.8 - 4.9; if (Math.max(Math.abs(u), Math.abs(v)) < 4.2) continue; g.fillStyle = rgba('#f0d890', 0.4 + R() * 0.6); g.beginPath(); g.arc(x, y, 1 + R() * 2.6, 0, TAU); g.fill(); }
     }
+    if (b.motif === 'fireice') frameMotif(g, b, px, N, false);
     // inner and outer gold lines (raw boards have a cut groove instead, and no rosettes)
     g.strokeStyle = b.raw ? 'rgba(20,16,10,0.5)' : b.inlay; g.lineWidth = 5;
     const box = (u, w) => { g.lineWidth = w; g.strokeRect(px(-u), px(-u), px(u) - px(-u), px(u) - px(-u)); };
     box(4.1, b.raw ? 4 : 6); if (!b.raw) { box(4.16, 2); box(4.78, 3); }
     // corner rosettes
-    if (!b.raw) for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+    if (CORNER_MOTIFS.has(b.motif) && b.motif !== 'fireice') frameMotif(g, b, px, N, false);
+    if (!b.raw && !CORNER_MOTIFS.has(b.motif)) for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
       const cx = px(sx * 4.45), cy = px(sy * 4.45);
       g.save(); g.translate(cx, cy); g.fillStyle = b.inlay; g.strokeStyle = b.inlay; g.lineWidth = 3;
       for (let i = 0; i < 8; i++) { g.rotate(TAU / 8); g.beginPath(); g.ellipse(0, -18, 7, 16, 0, 0, TAU); g.fill(); }
@@ -347,6 +532,8 @@ function ChacklateWorld(THREE, K) {
     if (b.pearly) { fieldMat.iridescence = 0.7; fieldMat.iridescenceIOR = 1.4; fieldMat.sheen = 0.4; fieldMat.sheenColor = new THREE.Color('#ffe8f0'); }
     // raw stone and clay: matt, no lacquer
     if (b.raw) { fieldMat.roughness = 0.92; fieldMat.clearcoat = 0; fieldMat.envMapIntensity = 0.4; }
+    let glowTex = null, frameGlow = null;
+    if (b.glowField) { glowTex = texFrom(paintGlowField(b.field)); fieldMat.emissive = new THREE.Color('#ffffff'); fieldMat.emissiveMap = glowTex; fieldMat.emissiveIntensity = b.glowField; }
     const field = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), fieldMat);
     field.rotation.x = -Math.PI / 2; field.receiveShadow = true;
     field.userData.role = 'field';
@@ -360,6 +547,7 @@ function ChacklateWorld(THREE, K) {
     topTex.repeat.set(1 / 9.8, 1 / 9.8); topTex.offset.set(0.5, 0.5); topTex.wrapS = topTex.wrapT = THREE.ClampToEdgeWrapping;
     const frameTop = new THREE.MeshPhysicalMaterial({ map: topTex, roughness: 0.36, clearcoat: 1, clearcoatRoughness: 0.3, envMapIntensity: 0.9 });
     const frameSide = new THREE.MeshPhysicalMaterial({ color: b.frame.color, roughness: 0.36, clearcoat: 1, clearcoatRoughness: 0.22 });
+    if (b.glowFrame) { frameGlow = texFrom(frameGlowTexture(b)); frameGlow.repeat.copy(topTex.repeat); frameGlow.offset.copy(topTex.offset); frameGlow.wrapS = frameGlow.wrapT = THREE.ClampToEdgeWrapping; frameTop.emissive = new THREE.Color('#ffffff'); frameTop.emissiveMap = frameGlow; frameTop.emissiveIntensity = b.glowFrame; }
     if (b.raw) { for (const m of [frameTop, frameSide]) { m.roughness = 0.95; m.clearcoat = 0; m.envMapIntensity = 0.35; } frameSide.map = topTex; frameSide.color.set('#ffffff'); }
     const frame = new THREE.Mesh(b.raw ? roughGeometry(fg, 0.035, 3) : fg, [frameTop, frameSide]);
     frame.receiveShadow = true; frame.castShadow = true;
@@ -389,7 +577,7 @@ function ChacklateWorld(THREE, K) {
       const t = texFrom(frameTexture(b, s)); t.repeat.copy(topTex.repeat); t.offset.copy(topTex.offset); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
       frameTop.map.dispose(); frameTop.map = t; frameTop.needsUpdate = true;
     };
-    grp.userData.dispose = () => { gone = true; fieldTex.dispose(); frameTop.map.dispose(); fieldMat.dispose(); frameTop.dispose(); frameSide.dispose(); grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); };
+    grp.userData.dispose = () => { gone = true; fieldTex.dispose(); if (glowTex) glowTex.dispose(); if (frameGlow) frameGlow.dispose(); frameTop.map.dispose(); fieldMat.dispose(); frameTop.dispose(); frameSide.dispose(); grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); };
     // The letters are painted in Cinzel. If it is still loading, paint them again once it is in.
     const LABEL_FONT = '600 64px "Cinzel"';
     if (typeof document !== 'undefined' && document.fonts && !document.fonts.check(LABEL_FONT)) document.fonts.load(LABEL_FONT).then(() => { if (!gone) grp.userData.relabel(labelSide); }, () => {});
@@ -1990,6 +2178,51 @@ function ChacklateWorld(THREE, K) {
       faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
       metal: 'gold', floor: 'octagon', lights: { hemi: 0.7, chand: 9, color: '#ffe0c0' },
       env: { wall: '#8a7a70', floor: '#7a7068', ceiling: '#4a4a84', key: '#fff0e0', keyI: 6.5, window: '#ffc8a0', windowI: 4, rim: '#ffb880', rimI: 5, lamp: '#ffc070', lampI: 6, fill: 0.9 },
+    },
+    observatory: {
+      name: 'Star Observatory', era: 'A mountain top above the clouds on a clear night, beside an observatory, a glass monolith and a sphere of gold turning among the stars', vista: 'observatory', terrace: { r: 12.4, step: 0.4, edge: '#8a90b8' },
+      palette: { wall: '#1a1a34', paper: '#c8cce4', paperInk: '#8a90b8', wood: '#14142a', trim: '#e8c070', floor: '#4a4c66', floorDark: '#1e2036', floorLine: 'rgba(232,192,112,0.45)', table: '#14142a', inlay: '#e8c070',
+        rugBorder: '#0e0e24', rugField: '#1e2048', rugGold: '#e8c070', rugAccent: '#9ab8ff', drape: '#1e2048', sky: ['#020310', '#070a26', '#16123e', '#2e2452'],
+        paintSky: ['#070a26', '#16123e', '#2e2452'], paintLand: '#1e2242', fog: '#0c0c24', hemi: ['#c8ccff', '#14142a'], ceiling: '#070a26', dado: '#1a1a34' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 0.6, chand: 10, color: '#e8e4ff' },
+      env: { wall: '#3a3c58', floor: '#34364e', ceiling: '#16123e', key: '#e8ecff', keyI: 6, window: '#b8c0ff', windowI: 3.5, rim: '#c8b8ff', rimI: 5, lamp: '#ffe0b0', lampI: 6, fill: 0.7 },
+    },
+    rift: {
+      name: 'Fire and Ice Rift', era: 'A canyon split in two: glaciers and a palace of ice under the northern lights on one side, a volcano and rivers of lava on the other', vista: 'rift', terrace: { r: 12.4, step: 0.4, edge: '#8aa0b8' },
+      palette: { wall: '#1e1a24', paper: '#d8e4f0', paperInk: '#8aa0b8', wood: '#1a1418', trim: '#ff8a3a', floor: '#6a6e7a', floorDark: '#241c20', floorLine: 'rgba(255,138,58,0.45)', table: '#1a1418', inlay: '#9ad0f4',
+        rugBorder: '#140e12', rugField: '#2a2430', rugGold: '#ff8a3a', rugAccent: '#9ad0f4', drape: '#2a2430', sky: ['#04060e', '#0c1430', '#24203e', '#4a2a3a'],
+        paintSky: ['#0c1430', '#24203e', '#4a2a3a'], paintLand: '#1a1420', fog: '#1a1424', hemi: ['#c8e0ff', '#3a1a10'], ceiling: '#0c1430', dado: '#1e1a24' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'silver', floor: 'stone', lights: { hemi: 0.65, chand: 10, color: '#ffd0b0' },
+      env: { wall: '#3a3440', floor: '#3a3438', ceiling: '#24203e', key: '#e8f0ff', keyI: 6, window: '#9ad0ff', windowI: 3.5, rim: '#ff8a3a', rimI: 6, lamp: '#ff9a50', lampI: 7, fill: 0.75 },
+    },
+    clocktower: {
+      name: 'Clockwork Tower', era: 'The top of a clock tower in a city of brass and brick at sunset, with great gears turning and airships drifting by', vista: 'clocktower', terrace: { r: 12.4, step: 0.5, edge: '#c8964a' },
+      palette: { wall: '#3a2418', paper: '#f0e2c4', paperInk: '#b8966a', wood: '#3a2414', trim: '#c8964a', floor: '#8a6a4a', floorDark: '#3a2618', floorLine: 'rgba(200,150,74,0.5)', table: '#3a2414', inlay: '#c8964a',
+        rugBorder: '#2a1810', rugField: '#6a2a1e', rugGold: '#e0b060', rugAccent: '#2a4a3a', drape: '#6a2a1e', sky: ['#2a2048', '#7a4a6a', '#e8865a', '#ffd298'],
+        paintSky: ['#7a4a6a', '#e8865a', '#ffd298'], paintLand: '#8a5a4a', fog: '#c8906a', hemi: ['#ffe0c0', '#3a2418'], ceiling: '#7a4a6a', dado: '#3a2418' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'brass', floor: 'planks', lights: { hemi: 0.75, chand: 9, color: '#ffd8a8' },
+      env: { wall: '#7a5a48', floor: '#6a5040', ceiling: '#7a4a6a', key: '#fff0d8', keyI: 6.5, window: '#ffc890', windowI: 4, rim: '#ffb070', rimI: 5, lamp: '#ffc070', lampI: 6, fill: 0.9 },
+    },
+    neonroof: {
+      name: 'Neon Rooftop', era: 'A rooftop high in a city of towers on a rainy night, with signs glowing pink and blue and a train gliding round on its high track', vista: 'neonroof', terrace: { r: 12.2, step: 0.4, edge: '#3ae0ff' },
+      palette: { wall: '#140e22', paper: '#d8d4e8', paperInk: '#8a84a8', wood: '#120e18', trim: '#3ae0ff', floor: '#3a3448', floorDark: '#14101c', floorLine: 'rgba(255,58,184,0.55)', table: '#120e18', inlay: '#3ae0ff',
+        rugBorder: '#0a0812', rugField: '#1e1830', rugGold: '#ff3ab8', rugAccent: '#3ae0ff', drape: '#1e1830', sky: ['#05040e', '#0e0a24', '#2a1640', '#4a2050'],
+        paintSky: ['#0e0a24', '#2a1640', '#4a2050'], paintLand: '#120c22', fog: '#1a1030', hemi: ['#d8c8ff', '#140e1a'], ceiling: '#0e0a24', dado: '#140e22' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'chrome', floor: 'octagon', lights: { hemi: 0.55, chand: 10, color: '#e8d8ff' },
+      env: { wall: '#2a2440', floor: '#2a2436', ceiling: '#2a1640', key: '#f0e8ff', keyI: 5.5, window: '#ff8ad8', windowI: 4, rim: '#3ae0ff', rimI: 6, lamp: '#ff5ac8', lampI: 6, fill: 0.7 },
+    },
+    citadel: {
+      name: 'Floating Citadel', era: 'An island floating in the sky between day and night, with waterfalls pouring off its neighbours and a great ring of light turning ahead', vista: 'citadel', terrace: { r: 12.4, step: 0.4, edge: '#f0e8d8' },
+      palette: { wall: '#2a2440', paper: '#f4f0e8', paperInk: '#c8bca8', wood: '#2a2034', trim: '#e8c070', floor: '#e8e2d6', floorDark: '#4a4460', floorLine: 'rgba(232,192,112,0.5)', table: '#2a2034', inlay: '#e8c070',
+        rugBorder: '#1e1830', rugField: '#f0e8d8', rugGold: '#e8c070', rugAccent: '#7a4aff', drape: '#2a2440', sky: ['#0a0820', '#2a2a6a', '#8a7ab8', '#f0d8b0'],
+        paintSky: ['#2a2a6a', '#8a7ab8', '#f0d8b0'], paintLand: '#4a3a6a', fog: '#6a5a8a', hemi: ['#fff0e0', '#2a2440'], ceiling: '#2a2a6a', dado: '#2a2440' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'parquet', lights: { hemi: 0.85, chand: 9, color: '#fff0d8' },
+      env: { wall: '#8a8098', floor: '#8a8494', ceiling: '#2a2a6a', key: '#fff8e8', keyI: 6.5, window: '#ffe8c0', windowI: 4, rim: '#b88aff', rimI: 5, lamp: '#ffd890', lampI: 6, fill: 1.0 },
     },
   };
   // A flat outline as a mesh with 0..1 UVs (or the given ranges).

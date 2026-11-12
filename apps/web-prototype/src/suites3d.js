@@ -48,6 +48,11 @@ function ChacklateSuites(THREE, K, H) {
     sounion: { board: 'agora', set: 'sounion', table: { shape: 'round', top: { kind: 'marble', color: '#ece6da', vein: '#b8ae9c' }, foot: 'column', metal: 'bronze' }, decor: ['lyre', 'figs', 'amphora', 'trident'] },
     saturn: { board: 'meteor', set: 'astro', table: { shape: 'round', top: { kind: 'marble', color: '#1a1e2e', vein: '#6ac8e8' }, foot: 'drum', metal: 'chrome' }, decor: ['rocket', 'moonrock', 'satellite', 'starjar'] },
     burj: { board: 'mirage', set: 'falcon', table: { shape: 'hex', top: { kind: 'marble', color: '#efe8dc', vein: '#c8a860' }, foot: 'column', metal: 'gold' }, decor: ['oyster', 'binocs', 'burner', 'teaglass'] },
+    observatory: { board: 'starglass', set: 'astral', table: { shape: 'round', top: { kind: 'glass', color: '#3a3e66' }, foot: 'drum', metal: 'gold' }, decor: ['orrery', 'crystalorb', 'starchart', 'moonlamp'] },
+    rift: { board: 'lavaice', set: 'elemental', table: { shape: 'hex', top: { kind: 'stone', color: '#2a2224', speck: '#c8501a' }, foot: 'drum', metal: 'silver' }, decor: ['icecluster', 'lavastone', 'flamebowl', 'frostgoblet'] },
+    clocktower: { board: 'gearwood', set: 'clockwork', table: { shape: 'octagon', top: { kind: 'wood', color: '#5a3018', inlay: '#c8964a' }, foot: 'iron', metal: 'brass' }, decor: ['pocketwatch', 'gearstack', 'oilcan', 'goggles'] },
+    neonroof: { board: 'neongrid', set: 'neon', table: { shape: 'square', top: { kind: 'lacquer', color: '#120e18', inlay: '#3ae0ff' }, foot: 'deco', metal: 'chrome' }, decor: ['holocube', 'noodles', 'headphones', 'drone'] },
+    citadel: { board: 'voidmarble', set: 'lumen', table: { shape: 'quatrefoil', top: { kind: 'marble', color: '#f2eee6', vein: '#8a7ab8' }, foot: 'column', metal: 'gold' }, decor: ['prism', 'sunorb', 'voidshard', 'chalice'] },
   };
   const byBoard = {}, bySet = {};
   for (const [room, s] of Object.entries(SUITES)) { byBoard[s.board] = room; bySet[s.set] = room; }
@@ -731,6 +736,67 @@ function ChacklateSuites(THREE, K, H) {
       parts.push([new THREE.BoxGeometry(0.3, 0.04, 0.3).translate(0, 0.58, 0), C('blanket', '#c8201a', { roughness: 0.9 })]);
       return group(parts);
     },
+    // Star Observatory: a little orrery, a crystal ball of stars, a rolled star chart and a moon lamp
+    orrery: () => group([
+      [new THREE.CylinderGeometry(0.2, 0.26, 0.08, 32).translate(0, 0.04, 0), MAT.lacquer('#14142a')],
+      [new THREE.CylinderGeometry(0.02, 0.02, 0.34, 8).translate(0, 0.25, 0), MAT.gold()],
+      [ball(0.08, 0, 0.44, 0, 20), C('orrery-sun', '#ffd060', { emissive: '#ffb020', emissiveIntensity: 1.2 })],
+      ...[[0.2, 0.3, '#5a8ae8'], [0.32, 2.2, '#e86a4a'], [0.42, 4.1, '#e8d0a0']].flatMap(([r, a, c], i) => [
+        [new THREE.BoxGeometry(r, 0.012, 0.012).translate(r / 2, 0.44, 0).rotateY(a), MAT.gold()],
+        [ball(0.03 + i * 0.008, Math.cos(a) * r, 0.44, -Math.sin(a) * r, 14), C('orrery-p' + i, c, { roughness: 0.3 })],
+      ]),
+    ]),
+    crystalorb: () => {
+      const parts = [[smoothLathe([[0, 0], [0.18, 0], [0.12, 0.06], [0.08, 0.14], [0.14, 0.2], [0, 0.2]], 24), MAT.gold()], [ball(0.2, 0, 0.38, 0, 32), glassM('#d8e0ff')]];
+      const R = rng(71), st = C('orbstar', '#e8e8ff', { emissive: '#a8b0ff', emissiveIntensity: 1.6 });
+      for (let i = 0; i < 12; i++) { const a = R() * TAU, r = R() * 0.12; parts.push([new THREE.OctahedronGeometry(0.018 + R() * 0.012).translate(Math.cos(a) * r, 0.3 + R() * 0.16, Math.sin(a) * r), st]); }
+      return group(parts);
+    },
+    starchart: () => group([
+      [new THREE.CylinderGeometry(0.09, 0.09, 0.66, 24).rotateZ(Math.PI / 2).translate(0, 0.09, 0), C('chart', '#1e2050', { roughness: 0.6, emissive: '#3a3a8a', emissiveIntensity: 0.3 })],
+      ...[-0.35, 0.35].map((x) => [new THREE.CylinderGeometry(0.03, 0.03, 0.24, 10).rotateX(Math.PI / 2).translate(x, 0.09, 0), MAT.gold()]),
+      [K.ring(0.092, 0, 0.012).rotateZ(Math.PI / 2).translate(0, 0.09, 0), MAT.gold()],
+    ]),
+    moonlamp: () => group([[new THREE.CylinderGeometry(0.12, 0.16, 0.06, 24).translate(0, 0.03, 0), MAT.gold()], [new THREE.CylinderGeometry(0.015, 0.015, 0.2, 8).translate(0, 0.16, 0), MAT.gold()], [ball(0.17, 0, 0.42, 0, 28), C('moonglow', '#f4f0e0', { roughness: 0.9, clearcoat: 0, emissive: '#e8e0c8', emissiveIntensity: 0.7 })]]),
+    // Fire and Ice: ice crystals, a glowing lava stone, a bowl of flame and a frosted goblet
+    icecluster: () => {
+      const parts = [[new THREE.CylinderGeometry(0.26, 0.3, 0.05, 6).translate(0, 0.025, 0), MAT.silver()]], R = rng(73), ice = C('icecrys', '#b8e4ff', { roughness: 0.05, transmission: 0.2, emissive: '#3a8ac8', emissiveIntensity: 0.35, flatShading: true });
+      for (let i = 0; i < 7; i++) { const a = R() * TAU, r = i ? 0.08 + R() * 0.1 : 0, h = i ? 0.2 + R() * 0.2 : 0.5; parts.push([new THREE.CylinderGeometry(0, 0.05 + R() * 0.03, h, 6).translate(0, h / 2, 0).rotateZ(i ? (R() - 0.5) * 0.8 : 0).translate(Math.cos(a) * r, 0.04, Math.sin(a) * r), ice]); }
+      return group(parts);
+    },
+    lavastone: () => {
+      const g = new THREE.IcosahedronGeometry(0.22, 1), p = g.attributes.position, R = rng(79);
+      for (let i = 0; i < p.count; i++) { const k = 0.8 + R() * 0.35; p.setXYZ(i, p.getX(i) * k, p.getY(i) * k * 0.75, p.getZ(i) * k); }
+      g.computeVertexNormals(); g.translate(0, 0.17, 0);
+      return group([[g, C('lavastone', '#2a1e1c', { roughness: 0.85, clearcoat: 0, emissive: '#ff4a0a', emissiveIntensity: 0.35, flatShading: true })], [new THREE.CylinderGeometry(0.28, 0.3, 0.04, 24).translate(0, 0.02, 0), MAT.bronze()]]);
+    },
+    flamebowl: () => group([[smoothLathe([[0, 0], [0.1, 0], [0.08, 0.1], [0.24, 0.2], [0.26, 0.24], [0, 0.22]], 32), C('obsid', '#1a1416', { roughness: 0.15, clearcoat: 1 })], [new THREE.ConeGeometry(0.12, 0.3, 16).translate(0, 0.38, 0), MAT.emissive('#ff8a2a', 2)], [new THREE.ConeGeometry(0.06, 0.2, 12).translate(0, 0.36, 0), MAT.emissive('#ffe080', 2.4)]]),
+    frostgoblet: () => group([[smoothLathe([[0, 0], [0.14, 0], [0.04, 0.06], [0.03, 0.2], [0.14, 0.28], [0.15, 0.44], [0, 0.44]], 32), glassM('#d8f0ff')], [K.ring(0.15, 0.44, 0.012), MAT.silver()]]),
+    // Clockwork Tower: a pocket watch, a stack of gears, an oil can and brass goggles
+    pocketwatch: () => group([[new THREE.CylinderGeometry(0.24, 0.24, 0.06, 40).translate(0, 0.03, 0), MAT.brass()], [new THREE.CylinderGeometry(0.21, 0.21, 0.005, 40).translate(0, 0.063, 0), C('watchface', '#f4ead0', { roughness: 0.5 })], [new THREE.BoxGeometry(0.012, 0.004, 0.14).translate(0, 0.068, -0.06), MAT.lacquer('#1a1a1a')], [new THREE.BoxGeometry(0.1, 0.004, 0.012).translate(0.045, 0.068, 0), MAT.lacquer('#1a1a1a')], [K.ring(0.04, 0.03, 0.012).rotateX(Math.PI / 2).translate(0, 0, -0.28), MAT.brass()]]),
+    gearstack: () => {
+      const parts = [];
+      [[0.26, 18, 0, MAT.brass()], [0.18, 12, 0.07, MAT.copper ? MAT.copper() : MAT.bronze()], [0.11, 8, 0.14, MAT.brass()]].forEach(([r, n, y, m]) => {
+        const s2 = new THREE.Shape();
+        for (let i = 0; i < n * 4; i++) { const a = (i / (n * 4)) * TAU, rr = i % 4 < 2 ? r : r * 0.86; i ? s2.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : s2.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+        const h = new THREE.Path(); h.absarc(0, 0, r * 0.25, 0, TAU, true); s2.holes.push(h);
+        parts.push([new THREE.ExtrudeGeometry(s2, { depth: 0.05, bevelEnabled: false, curveSegments: 4 }).rotateX(-Math.PI / 2).translate(0, y, 0), m]);
+      });
+      parts.push([new THREE.CylinderGeometry(0.03, 0.03, 0.3, 10).translate(0, 0.15, 0), MAT.chrome()]);
+      return group(parts);
+    },
+    oilcan: () => group([[smoothLathe([[0, 0], [0.16, 0], [0.17, 0.04], [0.16, 0.16], [0.08, 0.24], [0.03, 0.26], [0, 0.26]], 28), MAT.copper ? MAT.copper() : MAT.bronze()], [new THREE.CylinderGeometry(0.012, 0.025, 0.4, 8).rotateZ(-0.9).translate(0.16, 0.36, 0), MAT.brass()], [new THREE.TorusGeometry(0.08, 0.015, 6, 20, Math.PI).rotateZ(Math.PI / 2).translate(-0.17, 0.12, 0), MAT.brass()]]),
+    goggles: () => group([...[-1, 1].flatMap((s2) => [[new THREE.CylinderGeometry(0.09, 0.1, 0.08, 24).rotateX(Math.PI / 2).translate(s2 * 0.12, 0.1, 0), MAT.brass()], [new THREE.CylinderGeometry(0.075, 0.075, 0.01, 24).rotateX(Math.PI / 2).translate(s2 * 0.12, 0.1, 0.045), glassM('#ffd8a0')]]), [new THREE.TorusGeometry(0.26, 0.02, 6, 32, Math.PI).rotateX(Math.PI / 2).translate(0, 0.08, -0.02), C('strap', '#5a3018', { roughness: 0.7 })]]),
+    // Neon Rooftop: a glowing cube, a bowl of noodles, headphones and a little drone
+    holocube: () => group([[new THREE.CylinderGeometry(0.18, 0.2, 0.06, 6).translate(0, 0.03, 0), MAT.chrome()], [new THREE.BoxGeometry(0.22, 0.22, 0.22).rotateY(0.6).rotateX(0.6).translate(0, 0.3, 0), C('holo', '#ff6ad8', { emissive: '#ff3ab8', emissiveIntensity: 1.2, transparent: true, opacity: 0.75, roughness: 0.1 })], [ball(0.06, 0, 0.3, 0, 12), MAT.emissive('#3ae0ff', 2)]]),
+    noodles: () => group([[smoothLathe([[0, 0], [0.1, 0], [0.12, 0.03], [0.24, 0.16], [0.25, 0.2], [0, 0.18]], 32), C('noodlebowl', '#e8eaf2', { roughness: 0.2, clearcoat: 1 })], [new THREE.CylinderGeometry(0.22, 0.22, 0.02, 28).translate(0, 0.17, 0), MATTE('noodle', '#f0d890')], ...[-0.02, 0.02].map((z) => [new THREE.CylinderGeometry(0.008, 0.01, 0.5, 6).rotateZ(1.1).translate(0.08, 0.3, z), MATTE('stick', '#1a1a1a')])]),
+    headphones: () => group([[new THREE.TorusGeometry(0.2, 0.025, 8, 32, Math.PI).translate(0, 0.1, 0), C('hp', '#1a1824', { roughness: 0.3 })], ...[-1, 1].flatMap((s2) => [[new THREE.CylinderGeometry(0.09, 0.09, 0.06, 24).rotateZ(Math.PI / 2).translate(s2 * 0.2, 0.08, 0), C('hp', '#1a1824', { roughness: 0.3 })], [K.ring(0.09, 0, 0.01).rotateZ(Math.PI / 2).translate(s2 * 0.235, 0.08, 0), MAT.emissive(s2 < 0 ? '#ff3ab8' : '#3ae0ff', 2)]])]),
+    drone: () => group([[new THREE.BoxGeometry(0.16, 0.05, 0.16).translate(0, 0.08, 0), C('dronebody', '#e8eaf2', { roughness: 0.25 })], ...[[1, 1], [1, -1], [-1, 1], [-1, -1]].flatMap(([a, b]) => [[new THREE.BoxGeometry(0.2, 0.015, 0.02).rotateY(Math.atan2(b, a)).translate(a * 0.08, 0.09, b * 0.08), MAT.chrome()], [new THREE.CylinderGeometry(0.07, 0.07, 0.006, 16).translate(a * 0.15, 0.11, b * 0.15), C('prop', '#3ae0ff', { transparent: true, opacity: 0.5, emissive: '#3ae0ff', emissiveIntensity: 0.6 })]]), [ball(0.02, 0, 0.07, 0.085, 8), MAT.emissive('#ff3a3a', 2)], [new THREE.BoxGeometry(0.02, 0.06, 0.12).translate(0.07, 0.03, 0), MAT.chrome()], [new THREE.BoxGeometry(0.02, 0.06, 0.12).translate(-0.07, 0.03, 0), MAT.chrome()]]),
+    // Floating Citadel: a glass prism, an orb of light, a shard of the void and a white chalice
+    prism: () => group([[new THREE.CylinderGeometry(0.16, 0.16, 0.4, 3).translate(0, 0.24, 0), glassM('#f4f8ff')], [new THREE.CylinderGeometry(0.2, 0.22, 0.04, 24).translate(0, 0.02, 0), MAT.gold()], [new THREE.BoxGeometry(0.3, 0.004, 0.04).translate(0.2, 0.045, 0.05), MAT.emissive('#ff8a8a', 1.6)], [new THREE.BoxGeometry(0.3, 0.004, 0.04).translate(0.2, 0.045, 0.1), MAT.emissive('#8aff9a', 1.6)], [new THREE.BoxGeometry(0.3, 0.004, 0.04).translate(0.2, 0.045, 0.15), MAT.emissive('#8a9aff', 1.6)]]),
+    sunorb: () => group([[smoothLathe([[0, 0], [0.14, 0], [0.06, 0.08], [0.1, 0.16], [0, 0.16]], 24), MAT.gold()], [ball(0.14, 0, 0.3, 0, 28), MAT.emissive('#fff0c0', 1.6)], [new THREE.TorusGeometry(0.2, 0.01, 6, 40).rotateX(1.2).translate(0, 0.3, 0), MAT.gold()]]),
+    voidshard: () => group([[new THREE.OctahedronGeometry(0.12, 0).scale(1, 2.6, 1).translate(0, 0.36, 0), C('voidshard', '#14101e', { roughness: 0.08, metalness: 0.4, emissive: '#7a3aff', emissiveIntensity: 0.45, flatShading: true })], [new THREE.CylinderGeometry(0.16, 0.2, 0.06, 6).translate(0, 0.03, 0), MAT.lacquer('#14101e')]]),
+    chalice: () => group([[smoothLathe([[0, 0], [0.15, 0], [0.12, 0.03], [0.04, 0.08], [0.035, 0.24], [0.16, 0.32], [0.18, 0.46], [0, 0.42]], 36), C('whiteglaze', '#f6f2ea', { roughness: 0.15, clearcoat: 1 })], [K.ring(0.18, 0.46, 0.012), MAT.gold()], [K.ring(0.15, 0.02, 0.012), MAT.gold()]]),
     corn: () => { const p = []; for (let i = 0; i < 3; i++) { p.push([ball(0.07, 0, 0, 0, 12).scale(1, 3.6, 1).rotateZ(Math.PI / 2 - 0.2 + i * 0.2).translate(-0.1 + i * 0.1, 0.08 + (i === 1 ? 0.08 : 0), (i - 1) * 0.15), MATTE('corn' + i, ['#e8c040', '#a8401a', '#5a2a5a'][i])]); } return group(p); },
   };
   function fruitBasket(c1, c2) {

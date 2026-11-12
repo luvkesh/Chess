@@ -2489,7 +2489,7 @@ function ChacklateScene(canvas, options) {
       try {
         if (look.room && look.room !== roomId) W.room(look.room).dispose();
         if (look.board && look.board !== boardId) W.board(look.board, labelSide).userData.dispose();
-        if (look.set && P.SETS[look.set]) for (const t of ['k', 'q', 'r', 'b', 'n', 'p']) P.geometry(look.set, t, fullDetail ? 'show' : 'play');
+        if (look.set && P.SETS[look.set]) for (const t of ['k', 'q', 'r', 'b', 'n', 'p']) for (const sd of P.SETS[look.set].bySide ? ['w', 'b'] : ['w']) P.geometry(look.set, t, fullDetail ? 'show' : 'play', sd);
       } catch (e) { /* a look that fails here fails again, visibly, when it is shown */ }
     },
     setRoom(r) { if (r && EL && (r.room || 'salon') !== roomId) EL.clear(); if (r) loadRoom(r.room || 'salon'); particles = particles.filter((p) => p.kind !== 'mote'); requestRender(); },

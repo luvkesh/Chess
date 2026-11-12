@@ -293,6 +293,21 @@ function ChacklateAudio() {
     // a warm Arabian (Hijaz) tune on a plucked string, above the clouds
     burj: { chords: [[38, 50, 57, 62, 66], [38, 50, 55, 62, 67], [36, 48, 55, 60, 63], [38, 50, 57, 62, 66]],
       scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'lyre', every: 8000 },
+    // slow Lydian bells under the stars
+    observatory: { chords: [[38, 50, 57, 64, 68], [40, 52, 59, 64, 68], [36, 48, 55, 62, 66], [38, 50, 57, 62, 69]],
+      scale: [62, 64, 66, 68, 69, 71, 73, 74, 76, 78], voice: 'celesta', every: 9000 },
+    // a dark minor drone with a horn call between the fire and the ice
+    rift: { chords: [[28, 40, 47, 52, 55], [29, 41, 48, 53, 57], [26, 38, 45, 50, 53], [28, 40, 47, 52, 59]],
+      scale: [52, 55, 57, 59, 60, 62, 64, 67, 69, 71], voice: 'horn', every: 8500 },
+    // a music box in a bright major, ticking along
+    clocktower: { chords: [[36, 48, 55, 60, 64], [41, 48, 53, 57, 60], [43, 50, 55, 59, 62], [36, 48, 55, 60, 64]],
+      scale: [60, 62, 64, 67, 69, 72, 74, 76, 79, 81], voice: 'celesta', every: 6500 },
+    // soft synth chords in the rain, minor ninths
+    neonroof: { chords: [[33, 45, 52, 55, 59], [29, 41, 48, 52, 55], [36, 48, 55, 59, 62], [31, 43, 50, 53, 57]],
+      scale: [57, 59, 60, 62, 64, 67, 69, 71, 72, 76], voice: 'ep', every: 7500 },
+    // wide, floating fifths between light and dark
+    citadel: { chords: [[38, 50, 57, 62, 69], [34, 46, 53, 58, 65], [36, 48, 55, 60, 67], [41, 53, 60, 65, 72]],
+      scale: [62, 64, 65, 67, 69, 72, 74, 76, 77, 79], voice: 'harp', every: 9000 },
   };
   let mood = MOODS.salon;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
