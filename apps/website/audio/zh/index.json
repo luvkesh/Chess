@@ -1994,6 +1994,280 @@
      "text": "Falcon and Pearl 在这里登场，配 Pearl and Night Sand 棋盘。"
     }
    ]
+  },
+  "item-sets-astral": {
+   "text": "对着流星许个愿吧！ Astral Glass 是磨砂月光玻璃对午夜蓝玻璃，银色丝带像行星轨道一样缠绕，每颗棋子里都有一颗小星星在发光。 它和 Star Observatory 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "对着流星许个愿吧！"
+    },
+    {
+     "t": 1.68,
+     "text": "Astral Glass 是磨砂月光玻璃对午夜蓝玻璃，银色丝带像行星轨道一样缠绕，每颗棋子里都有一颗小星星在发光。"
+    },
+    {
+     "t": 9.77,
+     "text": "它和 Star Observatory 配套。"
+    }
+   ]
+  },
+  "item-sets-elemental": {
+   "text": "两个王国，一块棋盘！ 冰之宫廷用冰川的冰雕成，有霜狼马。 火之宫廷像烧红的石头一样发光，有巨龙马。 它和 Fire and Ice Rift 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "两个王国，一块棋盘！"
+    },
+    {
+     "t": 2.03,
+     "text": "冰之宫廷用冰川的冰雕成，有霜狼马。"
+    },
+    {
+     "t": 5.35,
+     "text": "火之宫廷像烧红的石头一样发光，有巨龙马。"
+    },
+    {
+     "t": 8.98,
+     "text": "它和 Fire and Ice Rift 配套。"
+    }
+   ]
+  },
+  "item-sets-clockwork": {
+   "text": "滴答，滴答，该你走了！ Clockwork Brass 是象牙色珐琅对深色青铜，镶在闪亮的黄铜里，满是齿轮。 仔细看，白方的马是一只带翅膀的独角兽！ 它和 Clockwork Tower 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "滴答，滴答，该你走了！"
+    },
+    {
+     "t": 1.86,
+     "text": "Clockwork Brass 是象牙色珐琅对深色青铜，镶在闪亮的黄铜里，满是齿轮。"
+    },
+    {
+     "t": 7.47,
+     "text": "仔细看，白方的马是一只带翅膀的独角兽！"
+    },
+    {
+     "t": 10.77,
+     "text": "它和 Clockwork Tower 配套。"
+    }
+   ]
+  },
+  "item-sets-neon": {
+   "text": "欢迎来到明天的城市！ Neon City 是亮着电光蓝的铬对亮着霓虹粉的黑铬，有披斗篷的皇帝、赛博马和一队小机器人。 它和 Neon Rooftop 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "欢迎来到明天的城市！"
+    },
+    {
+     "t": 2.04,
+     "text": "Neon City 是亮着电光蓝的铬对亮着霓虹粉的黑铬，有披斗篷的皇帝、赛博马和一队小机器人。"
+    },
+    {
+     "t": 8.72,
+     "text": "它和 Neon Rooftop 配套。"
+    }
+   ]
+  },
+  "item-sets-lumen": {
+   "text": "光明对虚空！ 一支军队是带金色纹理的珍珠白大理石，另一支是亮着电光蓝的黑玻璃，每颗棋子脚下都有一颗发光的钻石。 它和 Floating Citadel 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "光明对虚空！"
+    },
+    {
+     "t": 1.52,
+     "text": "一支军队是带金色纹理的珍珠白大理石，另一支是亮着电光蓝的黑玻璃，每颗棋子脚下都有一颗发光的钻石。"
+    },
+    {
+     "t": 9.69,
+     "text": "它和 Floating Citadel 配套。"
+    }
+   ]
+  },
+  "item-boards-starglass": {
+   "text": "这块棋盘是一扇通往夜空的窗！ Celestial Monolith 把满是小星星的黑玻璃放在磨砂玻璃旁边，四角有金色轨道。 它和 Star Observatory、Astral Glass 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "这块棋盘是一扇通往夜空的窗！"
+    },
+    {
+     "t": 2.79,
+     "text": "Celestial Monolith 把满是小星星的黑玻璃放在磨砂玻璃旁边，四角有金色轨道。"
+    },
+    {
+     "t": 8.69,
+     "text": "它和 Star Observatory、Astral Glass 配套。"
+    }
+   ]
+  },
+  "item-boards-lavaice": {
+   "text": "小心，又烫又冰！ Lava and Glacier 把蓝色冰川冰放在黑色石头旁边，裂缝里闪着熔岩。 它和 Fire and Ice Rift、Fire and Ice 棋子配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "小心，又烫又冰！"
+    },
+    {
+     "t": 1.7,
+     "text": "Lava and Glacier 把蓝色冰川冰放在黑色石头旁边，裂缝里闪着熔岩。"
+    },
+    {
+     "t": 6.77,
+     "text": "它和 Fire and Ice Rift、Fire and Ice 棋子配套。"
+    }
+   ]
+  },
+  "item-boards-gearwood": {
+   "text": "Walnut and Brass 是温暖的胡桃木和浅色枫木，格子里刻着小小的齿轮，四角有时钟。 它和 Clockwork Tower、Clockwork Brass 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Walnut and Brass 是温暖的胡桃木和浅色枫木，格子里刻着小小的齿轮，四角有时钟。"
+    },
+    {
+     "t": 5.88,
+     "text": "它和 Clockwork Tower、Clockwork Brass 配套。"
+    }
+   ]
+  },
+  "item-boards-neongrid": {
+   "text": "Neon Grid 是烟色玻璃，每个格子都亮着电光蓝，就像夜里从天上看到的城市。 它和 Neon Rooftop、Neon City 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Neon Grid 是烟色玻璃，每个格子都亮着电光蓝，就像夜里从天上看到的城市。"
+    },
+    {
+     "t": 5.74,
+     "text": "它和 Neon Rooftop、Neon City 配套。"
+    }
+   ]
+  },
+  "item-boards-voidmarble": {
+   "text": "Light and Void Marble 是带金色纹理的白色大理石，旁边是夜蓝色大理石，每个深色格子的边上都有一道光。 它和 Floating Citadel、Light and Void 配套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Light and Void Marble 是带金色纹理的白色大理石，旁边是夜蓝色大理石，每个深色格子的边上都有一道光。"
+    },
+    {
+     "t": 7.74,
+     "text": "它和 Floating Citadel、Light and Void 配套。"
+    }
+   ]
+  },
+  "item-places-observatory": {
+   "text": "嘘，抬头看！ 我们在云层之上的山顶，旁边是一座小天文台。 一块玻璃巨碑闪着星座的图案，一个金色球体在天空中慢慢转动。 Astral Glass 在这里下棋，用的是 Celestial Monolith。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "嘘，抬头看！"
+    },
+    {
+     "t": 1.38,
+     "text": "我们在云层之上的山顶，旁边是一座小天文台。"
+    },
+    {
+     "t": 5.08,
+     "text": "一块玻璃巨碑闪着星座的图案，一个金色球体在天空中慢慢转动。"
+    },
+    {
+     "t": 10.45,
+     "text": "Astral Glass 在这里下棋，用的是 Celestial Monolith。"
+    }
+   ]
+  },
+  "item-places-rift": {
+   "text": "穿暖和点，保持冷静！ 峡谷的一边，冰宫在极光下闪闪发光。 另一边，火山发着红光，熔岩河在流淌。 Fire and Ice 在这里下棋，用的是 Lava and Glacier。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "穿暖和点，保持冷静！"
+    },
+    {
+     "t": 2.02,
+     "text": "峡谷的一边，冰宫在极光下闪闪发光。"
+    },
+    {
+     "t": 5.24,
+     "text": "另一边，火山发着红光，熔岩河在流淌。"
+    },
+    {
+     "t": 8.63,
+     "text": "Fire and Ice 在这里下棋，用的是 Lava and Glacier。"
+    }
+   ]
+  },
+  "item-places-clocktower": {
+   "text": "我们在日落时的钟楼顶上！ 像房子一样大的齿轮在我们身边转动，大钟报着时，飞艇从城市上空飘过。 Clockwork Brass 在这里下棋，用的是 Walnut and Brass。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "我们在日落时的钟楼顶上！"
+    },
+    {
+     "t": 2.12,
+     "text": "像房子一样大的齿轮在我们身边转动，大钟报着时，飞艇从城市上空飘过。"
+    },
+    {
+     "t": 8.06,
+     "text": "Clockwork Brass 在这里下棋，用的是 Walnut and Brass。"
+    }
+   ]
+  },
+  "item-places-neonroof": {
+   "text": "戴上兜帽，下雨啦！ 我们在高楼之城的一个屋顶上，粉色和蓝色的招牌闪闪发光，一列火车在高架轨道上滑行。 Neon City 在这里下棋，用的是 Neon Grid。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "戴上兜帽，下雨啦！"
+    },
+    {
+     "t": 1.64,
+     "text": "我们在高楼之城的一个屋顶上，粉色和蓝色的招牌闪闪发光，一列火车在高架轨道上滑行。"
+    },
+    {
+     "t": 8.56,
+     "text": "Neon City 在这里下棋，用的是 Neon Grid。"
+    }
+   ]
+  },
+  "item-places-citadel": {
+   "text": "我们在一座漂浮在天空中的岛上！ 瀑布从我们周围的岛上倾泻而下，光明那一边的白塔闪闪发亮，前方有一个巨大的光环在转动。 Light and Void 在这里下棋，用的是 Light and Void Marble。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "我们在一座漂浮在天空中的岛上！"
+    },
+    {
+     "t": 2.84,
+     "text": "瀑布从我们周围的岛上倾泻而下，光明那一边的白塔闪闪发亮，前方有一个巨大的光环在转动。"
+    },
+    {
+     "t": 10.13,
+     "text": "Light and Void 在这里下棋，用的是 Light and Void Marble。"
+    }
+   ]
   }
  }
 }

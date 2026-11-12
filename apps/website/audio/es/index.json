@@ -1994,6 +1994,280 @@
      "text": "Falcon and Pearl juegan aquí, sobre Pearl and Night Sand."
     }
    ]
+  },
+  "item-sets-astral": {
+   "text": "¡Pide un deseo a una estrella fugaz! Astral Glass es cristal de luna esmerilado contra cristal azul medianoche, con cintas de plata que se enrollan como las órbitas de los planetas y una estrellita que brilla dentro de cada pieza. Viene con Star Observatory.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Pide un deseo a una estrella fugaz!"
+    },
+    {
+     "t": 2.47,
+     "text": "Astral Glass es cristal de luna esmerilado contra cristal azul medianoche, con cintas de plata que se enrollan como las órbitas de los planetas y una estrellita que brilla dentro de cada pieza."
+    },
+    {
+     "t": 13.96,
+     "text": "Viene con Star Observatory."
+    }
+   ]
+  },
+  "item-sets-elemental": {
+   "text": "¡Dos reinos, un tablero! La Corte de Hielo está tallada en hielo de glaciar, con caballos lobo de escarcha. La Corte de Fuego brilla como piedra al rojo vivo, con caballos dragón. Viene con Fire and Ice Rift.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Dos reinos, un tablero!"
+    },
+    {
+     "t": 2.02,
+     "text": "La Corte de Hielo está tallada en hielo de glaciar, con caballos lobo de escarcha."
+    },
+    {
+     "t": 6.69,
+     "text": "La Corte de Fuego brilla como piedra al rojo vivo, con caballos dragón."
+    },
+    {
+     "t": 11.07,
+     "text": "Viene con Fire and Ice Rift."
+    }
+   ]
+  },
+  "item-sets-clockwork": {
+   "text": "¡Tic, tac, te toca! Clockwork Brass es esmalte marfil contra bronce oscuro, engastado en latón brillante y lleno de engranajes. ¡Mira bien, el caballo blanco es un unicornio alado! Viene con Clockwork Tower.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Tic, tac, te toca!"
+    },
+    {
+     "t": 1.77,
+     "text": "Clockwork Brass es esmalte marfil contra bronce oscuro, engastado en latón brillante y lleno de engranajes."
+    },
+    {
+     "t": 8.26,
+     "text": "¡Mira bien, el caballo blanco es un unicornio alado!"
+    },
+    {
+     "t": 11.68,
+     "text": "Viene con Clockwork Tower."
+    }
+   ]
+  },
+  "item-sets-neon": {
+   "text": "¡Bienvenido a la ciudad del mañana! Neon City es cromo con luz azul eléctrica contra cromo negro con luz rosa neón, con un emperador de capa, cibercaballos y un escuadrón de robotitos. Viene con Neon Rooftop.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Bienvenido a la ciudad del mañana!"
+    },
+    {
+     "t": 2.47,
+     "text": "Neon City es cromo con luz azul eléctrica contra cromo negro con luz rosa neón, con un emperador de capa, cibercaballos y un escuadrón de robotitos."
+    },
+    {
+     "t": 11.49,
+     "text": "Viene con Neon Rooftop."
+    }
+   ]
+  },
+  "item-sets-lumen": {
+   "text": "¡La Luz contra el Vacío! Un ejército es mármol blanco perla con vetas doradas, el otro es cristal negro con luz azul eléctrica, y cada pieza lleva un diamante brillante a sus pies. Viene con Floating Citadel.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡La Luz contra el Vacío!"
+    },
+    {
+     "t": 1.96,
+     "text": "Un ejército es mármol blanco perla con vetas doradas, el otro es cristal negro con luz azul eléctrica, y cada pieza lleva un diamante brillante a sus pies."
+    },
+    {
+     "t": 11.45,
+     "text": "Viene con Floating Citadel."
+    }
+   ]
+  },
+  "item-boards-starglass": {
+   "text": "¡Este tablero es una ventana al cielo nocturno! Celestial Monolith pone cristal negro lleno de estrellitas junto a cristal esmerilado, con órbitas doradas en las esquinas. Viene con Star Observatory y Astral Glass.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Este tablero es una ventana al cielo nocturno!"
+    },
+    {
+     "t": 3.2,
+     "text": "Celestial Monolith pone cristal negro lleno de estrellitas junto a cristal esmerilado, con órbitas doradas en las esquinas."
+    },
+    {
+     "t": 10.64,
+     "text": "Viene con Star Observatory y Astral Glass."
+    }
+   ]
+  },
+  "item-boards-lavaice": {
+   "text": "¡Cuidado, quema y congela! Lava and Glacier pone hielo azul de glaciar junto a piedra negra, con lava brillando en las grietas. Viene con Fire and Ice Rift y el juego Fire and Ice.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Cuidado, quema y congela!"
+    },
+    {
+     "t": 2.02,
+     "text": "Lava and Glacier pone hielo azul de glaciar junto a piedra negra, con lava brillando en las grietas."
+    },
+    {
+     "t": 7.82,
+     "text": "Viene con Fire and Ice Rift y el juego Fire and Ice."
+    }
+   ]
+  },
+  "item-boards-gearwood": {
+   "text": "Walnut and Brass es nogal cálido y arce claro, con engranajes diminutos grabados en las casillas y relojes en las esquinas. Viene con Clockwork Tower y Clockwork Brass.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Walnut and Brass es nogal cálido y arce claro, con engranajes diminutos grabados en las casillas y relojes en las esquinas."
+    },
+    {
+     "t": 7.76,
+     "text": "Viene con Clockwork Tower y Clockwork Brass."
+    }
+   ]
+  },
+  "item-boards-neongrid": {
+   "text": "Neon Grid es cristal ahumado con cada casilla iluminada en azul eléctrico, como una ciudad vista desde el cielo de noche. Viene con Neon Rooftop y Neon City.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Neon Grid es cristal ahumado con cada casilla iluminada en azul eléctrico, como una ciudad vista desde el cielo de noche."
+    },
+    {
+     "t": 7.17,
+     "text": "Viene con Neon Rooftop y Neon City."
+    }
+   ]
+  },
+  "item-boards-voidmarble": {
+   "text": "Light and Void Marble es mármol blanco con vetas doradas junto a mármol azul noche, y cada casilla oscura tiene una línea de luz en el borde. Viene con Floating Citadel y Light and Void.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Light and Void Marble es mármol blanco con vetas doradas junto a mármol azul noche, y cada casilla oscura tiene una línea de luz en el borde."
+    },
+    {
+     "t": 8.29,
+     "text": "Viene con Floating Citadel y Light and Void."
+    }
+   ]
+  },
+  "item-places-observatory": {
+   "text": "¡Chis, mira arriba! Estamos en una cima de montaña sobre las nubes, junto a un pequeño observatorio. Un monolito de cristal brilla con las formas de las estrellas, y una esfera dorada gira despacio en el cielo. Astral Glass juega aquí, sobre Celestial Monolith.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Chis, mira arriba!"
+    },
+    {
+     "t": 1.66,
+     "text": "Estamos en una cima de montaña sobre las nubes, junto a un pequeño observatorio."
+    },
+    {
+     "t": 6.46,
+     "text": "Un monolito de cristal brilla con las formas de las estrellas, y una esfera dorada gira despacio en el cielo."
+    },
+    {
+     "t": 12.77,
+     "text": "Astral Glass juega aquí, sobre Celestial Monolith."
+    }
+   ]
+  },
+  "item-places-rift": {
+   "text": "¡Abrígate bien y mantén la calma! A un lado del cañón, un palacio de hielo centellea bajo la aurora boreal. Al otro, un volcán brilla y corren ríos de lava. Fire and Ice juega aquí, sobre Lava and Glacier.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Abrígate bien y mantén la calma!"
+    },
+    {
+     "t": 2.5,
+     "text": "A un lado del cañón, un palacio de hielo centellea bajo la aurora boreal."
+    },
+    {
+     "t": 6.88,
+     "text": "Al otro, un volcán brilla y corren ríos de lava."
+    },
+    {
+     "t": 10.05,
+     "text": "Fire and Ice juega aquí, sobre Lava and Glacier."
+    }
+   ]
+  },
+  "item-places-clocktower": {
+   "text": "¡Estamos en lo alto de una torre del reloj al atardecer! Engranajes grandes como casas giran a nuestro lado, el gran reloj marca la hora y los dirigibles flotan sobre la ciudad. Clockwork Brass juega aquí, sobre Walnut and Brass.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Estamos en lo alto de una torre del reloj al atardecer!"
+    },
+    {
+     "t": 3.62,
+     "text": "Engranajes grandes como casas giran a nuestro lado, el gran reloj marca la hora y los dirigibles flotan sobre la ciudad."
+    },
+    {
+     "t": 10.82,
+     "text": "Clockwork Brass juega aquí, sobre Walnut and Brass."
+    }
+   ]
+  },
+  "item-places-neonroof": {
+   "text": "¡Ponte la capucha, que llueve! Estamos en una azotea en una ciudad de torres, con letreros que brillan en rosa y azul y un tren que se desliza por su vía elevada. Neon City juega aquí, sobre Neon Grid.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Ponte la capucha, que llueve!"
+    },
+    {
+     "t": 2.14,
+     "text": "Estamos en una azotea en una ciudad de torres, con letreros que brillan en rosa y azul y un tren que se desliza por su vía elevada."
+    },
+    {
+     "t": 10.13,
+     "text": "Neon City juega aquí, sobre Neon Grid."
+    }
+   ]
+  },
+  "item-places-citadel": {
+   "text": "¡Estamos en una isla que flota en el cielo! Las cascadas caen de las islas que nos rodean, las torres blancas brillan del lado de la luz y un gran anillo de luz gira enfrente. Light and Void juega aquí, sobre Light and Void Marble.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Estamos en una isla que flota en el cielo!"
+    },
+    {
+     "t": 2.97,
+     "text": "Las cascadas caen de las islas que nos rodean, las torres blancas brillan del lado de la luz y un gran anillo de luz gira enfrente."
+    },
+    {
+     "t": 10.59,
+     "text": "Light and Void juega aquí, sobre Light and Void Marble."
+    }
+   ]
   }
  }
 }
