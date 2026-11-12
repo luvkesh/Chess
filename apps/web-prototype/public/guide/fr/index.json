@@ -39,6 +39,11 @@
   "voice": "em_alex",
   "text": "On s'entraîne ! Choisis une compétence, et on va la travailler ensemble."
  },
+ "progress": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Voici tes progrès ! Chaque partie que tu joues fait avancer ces lignes. Touche S'entraîner sur une compétence pour la rendre plus forte."
+ },
  "minis": {
   "who": "rooky",
   "voice": "em_alex",

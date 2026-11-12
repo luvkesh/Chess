@@ -359,3 +359,55 @@ console.log('progress ok');
   assert(!m.lessons['lesson.c01.l03.c'] && m.lessonsV === 2, 'a saved game from before is regrouped after loading');
   console.log('lesson regrouping ok');
 }
+
+// Performance over time: one entry per game against a friend or online, a practice rating that
+// moves by Elo against the friend's strength, and eight skills from Rooky's review of the game.
+{
+  const E = require('../../../packages/chess-core/src/engine.js')();
+  const C = require('../../../packages/chess-core/src/coach.js')(E);
+  const M = require('../../../packages/chess-core/src/mentor.js')(E, C);
+  const P2 = ChacklateProgress(catalog);
+  const st = P2.fresh();
+  assert.deepStrictEqual(P2.perfView(st, 0).games, [], 'no games yet');
+  assert.strictEqual(P2.perfView(st, 0).ratingNow, P2.FRIEND_RATING[0], 'a new player starts at Truffle');
+  const g = (o) => Object.assign({ mode: 'ai', level: 2, plies: 40, sans: [], firstIsMine: true, reason: 'checkmate' }, o);
+  const r0 = P2.perfOf(st).r;
+  const e1 = P2.gameFinished(st, g({ won: true }), day(1)).perf;
+  assert(e1 && e1.res === 'w' && e1.r > r0, 'a win against a stronger friend raises the rating');
+  assert.strictEqual(P2.gameFinished(st, g({ mode: 'local', won: true }), day(1)).perf, null, 'games at one table are not tracked');
+  assert.strictEqual(P2.gameFinished(st, g({ won: true, plies: 4 }), day(1)).perf, null, 'nor quick resignations');
+  assert.strictEqual(P2.gameFinished(st, g({ won: true, variant: 'chess960' }), day(1)).perf, null, 'nor variations');
+  const e2 = P2.gameFinished(st, g({ lost: true, level: 0 }), day(2)).perf;
+  assert(e2.r < e1.r, 'losing to Truffle lowers it');
+  P2.gameFinished(st, g({ online: true, mode: 'online', drawn: true, oppRating: 1500 }), day(3));
+  assert.deepStrictEqual(P2.perfView(st, 0, day(3)).wdl, { w: 1, d: 1, l: 1 });
+  // a real game, reviewed: a quick Scholar's mate for White
+  const ucis = ['e2e4', 'e7e5', 'f1c4', 'b8c6', 'd1h5', 'g8f6', 'h5f7'];
+  const rv = C.review(E.START_FEN, ucis, { timeMs: 40 });
+  for (const side of [1, -1]) {
+    const rep = M.report(rv, E.START_FEN, ucis, { side, result: '1-0' });
+    const sc = P2.skillScores(rv, rep, side, { trouble: false, rushed: 1, slowEasy: 0 });
+    for (const [k, v] of Object.entries(sc)) { assert(P2.SKILLS.includes(k), k); assert(v >= 0 && v <= 100 && Number.isInteger(v), k + ' ' + v); }
+    assert('defence' in sc && 'blunders' in sc && sc.time === 90, 'every game scores defence, blunders and (with a clock) time');
+    if (side === -1) assert(sc.defence < 100 && sc.blunders < 100, 'walking into mate shows up');
+  }
+  const sc = P2.skillScores(rv, M.report(rv, E.START_FEN, ucis, { side: -1, result: '1-0' }), -1, null);
+  assert(!('time' in sc) && !('endgame' in sc), 'untested skills are left out, not guessed');
+  assert(P2.perfSkills(st, e1.t, sc) && !P2.perfSkills(st, e1.t, sc), 'scores are added once');
+  const v = P2.perfView(st, 0, day(3));
+  assert.strictEqual(v.skills.defence.pts.length, 1);
+  assert.strictEqual(P2.perfView(st, 1, day(3) + 1).games.length, 1, 'the period filters games');
+  // Practice points at a lesson that exists (or took that id over), a page, or a trainer.
+  const lessonIds = new Set(lessons.flatMap((l) => [l.id].concat(l.replaces || [])));
+  for (const id of P2.SKILLS) {
+    const p = P2.PRACTICE_FOR[id];
+    assert(p && (p.trainer || p.screen || p.lesson), id + ' has practice');
+    if (p.lesson) assert(lessonIds.has(p.lesson), id + ': ' + p.lesson);
+  }
+  // saves from before keep working, and the log stays small
+  const old = JSON.parse(JSON.stringify(st)); delete old.perf;
+  assert.deepStrictEqual(P2.migrate(old).perf.games, []);
+  for (let i = 0; i < 450; i++) P2.gameFinished(st, g({ won: i % 2 === 0, lost: i % 2 === 1 }), day(4) + i);
+  assert(P2.perfOf(st).games.length <= 400, 'at most 400 games kept');
+  console.log('performance over time ok');
+}
