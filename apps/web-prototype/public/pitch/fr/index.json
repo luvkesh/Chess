@@ -704,35 +704,45 @@
   "voice": "em_alex",
   "text": "De la météorite foncée tombée de l'espace, à côté de la glace givrée. Une ligne bleue lumineuse fait le tour du cadre."
  },
+ "dc50d649": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des cases d'acier brillant tirées du sol d'un vaisseau, avec une lumière bleue tout autour du cadre."
+ },
+ "a45883f5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une pierre de soleil crémeuse et une brique rouge chaude, comme le chemin d'un château. C'est un plateau de conte !"
+ },
+ "a7d0b4b0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une pierre de lune claire veinée d'or, à côté d'une ardoise grise et fraîche. Le cadre de vieux chêne est sculpté de nœuds."
+ },
  "3295c047": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Du sable blanc nacré et du sable noir comme la nuit, scellés sous verre avec un bord doré. Il scintille comme le désert la nuit."
  },
- "f118e456": {
+ "73408823": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Du verre noir plein de petites étoiles, à côté de verre dépoli. Des orbites dorées brillent à chaque coin."
+  "text": "De la pierre fossile crème à côté du basalte sombre, avec des fissures d'ambre qui brillent comme la lave. Cherche les fougères sculptées sur le cadre !"
  },
- "48807318": {
+ "bf91082d": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "De la glace bleue de glacier à côté de pierre noire, avec de la lave qui brille dans les fissures. Chaud et froid à la fois !"
+  "text": "De la pierre de lune pâle et de l'agate mousse verte, dans un cadre de bois sombre. Des vignes dorées s'enroulent tout autour."
  },
- "36b2fcce": {
+ "382057f7": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Noyer et érable, avec de minuscules engrenages gravés dans les cases. Cherchez les horloges aux coins !"
+  "text": "Pierre pâle givrée et ardoise bleue, froides comme un fjord en hiver. Une bande de runes dorées fait le tour du cadre."
  },
- "8fc78793": {
+ "9f0a663c": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Des cases en verre fumé, chaque bord éclairé en bleu électrique. Comme une ville la nuit, vue du ciel."
- },
- "25bb14d0": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "Du marbre blanc veiné d'or à côté de marbre bleu nuit. Chaque case sombre a une ligne de lumière."
+  "text": "Du chêne clair et du chêne foncé, taillés à la main. Des runes sont sculptées tout autour du cadre, comme dans une grande salle viking."
  },
  "e89f15b1": {
   "who": "rooky",
@@ -819,10 +829,70 @@
   "voice": "em_alex",
   "text": "Une lune glacée de Saturne, avec une fusée qui attend sur son pas de tir. Regarde en l'air, les anneaux remplissent tout le ciel !"
  },
+ "015c2c93": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le pont d'un vaisseau, tout là-haut au-dessus d'une planète bleue. Regarde, deux flottes passent !"
+ },
+ "fb826aec": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu es sur une île qui flotte dans les nuages ! Fais coucou au château, et garde un œil sur cette tour sombre."
+ },
+ "3e74a80b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les elfes d'un côté, les orques de l'autre, et toi au beau milieu ! Tu vois la cascade et la forteresse qui brille ?"
+ },
  "4691725a": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Tout en haut de la Burj Khalifa, le plus haut bâtiment du monde. On est au-dessus des nuages !"
+ },
+ "d4d94593": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une vallée verte à l'aube des temps, sous un volcan fumant. Regarde, les longs cous marchent dans le lac !"
+ },
+ "ee64000b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une clairière moussue où les arbres brillent et les champignons luisent. Tu vois le cerf fait de lumière ?"
+ },
+ "25a6b1f2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une rive enneigée sur un fjord bleu profond, avec des cascades tout autour. Voici un drakkar qui rentre à la maison !"
+ },
+ "0ec45a0c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La porte aux dragons d'une grande salle viking, juste au lever du soleil. Les torches brûlent encore !"
+ },
+ "f118e456": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du verre noir plein de petites étoiles, à côté de verre dépoli. Des orbites dorées brillent à chaque coin."
+ },
+ "48807318": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la glace bleue de glacier à côté de pierre noire, avec de la lave qui brille dans les fissures. Chaud et froid à la fois !"
+ },
+ "36b2fcce": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Noyer et érable, avec de minuscules engrenages gravés dans les cases. Cherchez les horloges aux coins !"
+ },
+ "8fc78793": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des cases en verre fumé, chaque bord éclairé en bleu électrique. Comme une ville la nuit, vue du ciel."
+ },
+ "25bb14d0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre blanc veiné d'or à côté de marbre bleu nuit. Chaque case sombre a une ligne de lumière."
  },
  "8320eb90": {
   "who": "rooky",

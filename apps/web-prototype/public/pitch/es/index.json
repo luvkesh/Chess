@@ -704,35 +704,45 @@
   "voice": "em_alex",
   "text": "Un meteorito oscuro que cayó del espacio, junto a hielo escarchado. Una línea azul brillante rodea el marco."
  },
+ "cf0e8c9c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Casillas de acero brillante del suelo de una nave estelar, con una luz azul que brilla alrededor del marco."
+ },
+ "7067717c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Piedra solar cremosa y ladrillo rojo cálido, como un camino hacia un castillo. ¡Es un tablero de cuento!"
+ },
+ "c7c49d9a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Piedra lunar clara con vetas doradas, junto a una pizarra gris y fresca. El marco de roble viejo está tallado con nudos."
+ },
  "81dc99f9": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Arena blanca nacarada y arena oscura como la noche, sellada bajo cristal con un borde dorado. Brilla como el desierto de noche."
  },
- "2b2033a1": {
+ "4c758497": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Cristal negro lleno de estrellitas junto a cristal esmerilado. Órbitas doradas brillan en cada esquina."
+  "text": "Piedra fósil color crema junto a basalto oscuro, con grietas de ámbar que brillan como lava. ¡Busca los helechos tallados en el marco!"
  },
- "1636dc45": {
+ "38154ddb": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Hielo azul de glaciar junto a piedra negra, con lava brillando en las grietas. ¡Frío y calor a la vez!"
+  "text": "Piedra lunar pálida y ágata musgosa verde, en un marco de madera oscura. Unas enredaderas doradas lo rodean entero."
  },
- "555f0bf3": {
+ "dbf851cf": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Nogal y arce, con engranajes diminutos tallados en las casillas. ¡Busca los relojes de las esquinas!"
+  "text": "Piedra pálida escarchada y pizarra azul, fría como un fiordo en invierno. Una banda de runas doradas rodea el marco."
  },
- "eb64122c": {
+ "4df4e4cb": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Casillas de cristal ahumado, cada borde iluminado en azul eléctrico. Como una ciudad de noche vista desde el cielo."
- },
- "7a19b038": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "Mármol blanco con vetas doradas junto a mármol azul noche. Cada casilla oscura tiene una línea de luz."
+  "text": "Roble claro y roble oscuro, cortados a mano. Hay runas talladas por todo el marco, como en una gran sala vikinga."
  },
  "d9a6f6e0": {
   "who": "rooky",
@@ -819,10 +829,70 @@
   "voice": "em_alex",
   "text": "Una luna helada de Saturno, con un cohete esperando en su plataforma. ¡Mira arriba, los anillos llenan todo el cielo!"
  },
+ "035bf5bc": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La cubierta de una nave estelar, muy por encima de un planeta azul. ¡Mira, pasan dos flotas volando!"
+ },
+ "865d62c1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Estás en una isla que flota entre las nubes! Saluda al castillo y no pierdas de vista esa torre oscura."
+ },
+ "5c4d371a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Elfos a un lado, orcos al otro y tú justo en medio! ¿Ves la cascada y la fortaleza que brilla?"
+ },
  "8443803b": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Lo más alto del Burj Khalifa, el edificio más alto del mundo. ¡Estamos por encima de las nubes!"
+ },
+ "4402d2a5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un valle verde en el amanecer de los tiempos, bajo un volcán humeante. ¡Mira, los cuellilargos están vadeando el lago!"
+ },
+ "9ad09374": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un claro de musgo donde los árboles brillan y las setas relucen. ¿Ves el ciervo hecho de luz?"
+ },
+ "a23c9ed1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Una orilla nevada en un fiordo azul profundo, con cascadas por todas partes. ¡Ahí viene un barco vikingo, navegando a casa!"
+ },
+ "41855ae8": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La puerta del dragón de una gran sala vikinga, justo cuando sale el sol. ¡Las antorchas todavía arden!"
+ },
+ "2b2033a1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Cristal negro lleno de estrellitas junto a cristal esmerilado. Órbitas doradas brillan en cada esquina."
+ },
+ "1636dc45": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Hielo azul de glaciar junto a piedra negra, con lava brillando en las grietas. ¡Frío y calor a la vez!"
+ },
+ "555f0bf3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Nogal y arce, con engranajes diminutos tallados en las casillas. ¡Busca los relojes de las esquinas!"
+ },
+ "eb64122c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Casillas de cristal ahumado, cada borde iluminado en azul eléctrico. Como una ciudad de noche vista desde el cielo."
+ },
+ "7a19b038": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mármol blanco con vetas doradas junto a mármol azul noche. Cada casilla oscura tiene una línea de luz."
  },
  "bd47c90e": {
   "who": "rooky",

@@ -328,6 +328,9 @@ def build(target):
         for it in items:
             assert it['key'] in img, 'missing img/%s; run tools/shoot.js items and tools/to-webp.py' % it['key']
     shown = {k: v for k, v in img.items() if k.endswith('-hero') or k.startswith('set-') or k.startswith('item-')}
+    if target == 'preview':
+        # the preview's host caps a page at 16 MB, so the collection's pictures sit beside it (--preview copies img/item-*)
+        shown.update({p.stem: 'img/' + p.name for p in (here / 'img').glob('item-*.*') if p.stem in shown})
     lines = guide(coach['name'], collection)
     catalog = load('catalog.json')
     fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in catalog['items'] if i['id'] == d] for c, ids in FX_DEMOS.items()}
@@ -398,6 +401,9 @@ def main():
         out.mkdir(parents=True, exist_ok=True)
         (out / 'index.html').write_text(build('preview'))
         (out / 'audio').mkdir(exist_ok=True)
+        (out / 'img').mkdir(exist_ok=True)
+        for pic in (here / 'img').glob('item-*.webp'):
+            (out / 'img' / pic.name).write_bytes(pic.read_bytes())
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
         # The same pitches in other languages, joined per language into base64 parts of about 4 MB of

@@ -3986,7 +3986,7 @@ function ChacklatePieces(THREE, K) {
     return curl(g, -1.4);
   }
   // an ice shard: a long six-sided crystal with a pointed tip, standing up +y
-  const shard = (r, h) => { const g = new THREE.CylinderGeometry(r * 0.75, r, h * 0.8, 6).translate(0, h * 0.4, 0); return merge([g, new THREE.ConeGeometry(r * 0.75, h * 0.25, 6).translate(0, h * 0.8 + h * 0.125, 0)]); };
+  const iceShard = (r, h) => { const g = new THREE.CylinderGeometry(r * 0.75, r, h * 0.8, 6).translate(0, h * 0.4, 0); return merge([g, new THREE.ConeGeometry(r * 0.75, h * 0.25, 6).translate(0, h * 0.8 + h * 0.125, 0)]); };
   // a six-armed snowflake facing +z
   function snowflake(r, depth) {
     const parts = [];
@@ -4017,7 +4017,7 @@ function ChacklatePieces(THREE, K) {
       // a crown: icicle points or flame points
       const cy = y0 + 0.905 * s, cr = 0.066 * s;
       P.add('trim', revolve(profile(cr - 0.006, cy).line(cr + 0.004, cy).line(cr + 0.006, cy + 0.03).line(cr - 0.004, cy + 0.03).line(cr - 0.006, cy), { segs: 32 }));
-      if (ice) P.add('accent', around(9, cr, cy + 0.02, (i) => shard(0.012 * s, (i % 2 ? 0.07 : 0.11) * s), { tilt: 0.12 }));
+      if (ice) P.add('accent', around(9, cr, cy + 0.02, (i) => iceShard(0.012 * s, (i % 2 ? 0.07 : 0.11) * s), { tilt: 0.12 }));
       else P.add('accent', around(9, cr, cy + 0.02, (i) => flameTongue(0.05 * s, (i % 2 ? 0.08 : 0.12) * s, 0.008), { tilt: 0.1 }));
       P.add('glow', placeAt(brilliant(0.016 * s), 0, cr + 0.004, cy + 0.015));
       // the staff, tipped with a snowflake or a flame
@@ -4051,7 +4051,7 @@ function ChacklatePieces(THREE, K) {
       // a tall crown of icicles or flames, a jewel at its front
       const cy = y0 + 0.772 * s, cr = 0.05 * s;
       P.add('trim', revolve(profile(cr - 0.006, cy).line(cr + 0.004, cy).line(cr + 0.006, cy + 0.026).line(cr - 0.004, cy + 0.026).line(cr - 0.006, cy), { segs: 32 }));
-      if (ice) P.add('accent', around(7, cr, cy + 0.02, (i) => shard(0.01 * s, (i === 0 ? 0.13 : i % 2 ? 0.07 : 0.1) * s), { tilt: 0.16 }));
+      if (ice) P.add('accent', around(7, cr, cy + 0.02, (i) => iceShard(0.01 * s, (i === 0 ? 0.13 : i % 2 ? 0.07 : 0.1) * s), { tilt: 0.16 }));
       else P.add('accent', around(7, cr, cy + 0.02, (i) => flameTongue(0.04 * s, (i === 0 ? 0.13 : i % 2 ? 0.07 : 0.1) * s, 0.007), { tilt: 0.14 }));
       P.add('glow', placeAt(brilliant(0.013 * s), 0, cr + 0.004, cy + 0.013));
       P.add('trim', ring(0.054 * s, y0 + 0.41 * s, 0.008 * s));
@@ -4066,7 +4066,7 @@ function ChacklatePieces(THREE, K) {
       P.lathe('body', p, { mod: MOD.slit(Math.PI * 0.25, y0 + 0.62, 0.6, 0.02, 0.5) });
       P.add('glow', placeAt(brilliant(0.05), 0, 0.085, y0 + 0.52));
       P.add('trim', ring(0.081, y0 + 0.345, 0.008));
-      if (ice) P.add('accent', around(6, 0.06, y0 + 0.02, (i) => shard(0.016, i % 2 ? 0.2 : 0.28), { tilt: 0.28, phase: Math.PI / 6 }));
+      if (ice) P.add('accent', around(6, 0.06, y0 + 0.02, (i) => iceShard(0.016, i % 2 ? 0.2 : 0.28), { tilt: 0.28, phase: Math.PI / 6 }));
       else P.add('accent', around(6, 0.06, y0 + 0.02, (i) => flameTongue(0.07, i % 2 ? 0.22 : 0.3, 0.01), { tilt: 0.22, phase: Math.PI / 6 }));
       if (ice) P.add('glow', snowflake(0.035, 0.007).translate(0, y0 + 0.82, 0));
       else P.add('glow', flameTongue(0.05, 0.09, 0.01).translate(0, y0 + 0.77, 0));
@@ -4094,7 +4094,7 @@ function ChacklatePieces(THREE, K) {
         const up = (g) => g.translate(0, -0.3, 0).scale(1.12, 1.24, 1.12).translate(0, 0.3, 0);
         P.add('body', up(S.mesh()));
         P.add('eye', up(merge([-1, 1].map((x) => sphere(0.013, x * 0.04, 0.755, 0.1, 10)))));
-        P.add('accent', up(around(9, 0.12, 0.5, (k) => shard(0.016, k % 2 ? 0.09 : 0.13), { tilt: -1.1, phase: Math.PI * 0.62 }).rotateY(Math.PI).translate(0, 0, -0.04)));
+        P.add('accent', up(around(9, 0.12, 0.5, (k) => iceShard(0.016, k % 2 ? 0.09 : 0.13), { tilt: -1.1, phase: Math.PI * 0.62 }).rotateY(Math.PI).translate(0, 0, -0.04)));
         P.add('glow', up(sphere(0.012, 0, 0.72, 0.252, 10)));
       } else {
         // a fire dragon: a long snout, swept horns and a flaming mane
@@ -4124,7 +4124,7 @@ function ChacklatePieces(THREE, K) {
       const ice = o.side === 'w', P = new Piece(), y0 = runeBase(P, 0.265, 0.08);
       // an orb held up by ice crystals or by tongues of flame
       P.lathe('body', profile(0, y0).line(0.09, y0).curve([[0.08, y0 + 0.08], [0.055, y0 + 0.16], [0.05, y0 + 0.22]]).line(0, y0 + 0.22));
-      if (ice) P.add('accent', around(5, 0.05, y0 + 0.08, (i) => shard(0.014, i % 2 ? 0.16 : 0.2), { tilt: 0.42 }));
+      if (ice) P.add('accent', around(5, 0.05, y0 + 0.08, (i) => iceShard(0.014, i % 2 ? 0.16 : 0.2), { tilt: 0.42 }));
       else P.add('accent', around(5, 0.05, y0 + 0.06, (i) => flameTongue(0.05, i % 2 ? 0.16 : 0.2, 0.008), { tilt: 0.36 }));
       P.add('glow', sphere(0.095, 0, y0 + 0.31, 0, 24));
       if (ice) P.add('trim', snowflake(0.05, 0.004).translate(0, y0 + 0.31, 0.093));
@@ -4430,6 +4430,1557 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', merge([ring(0.1, 0.36, 0.007), ring(R - 0.004, 0.04, 0.007)]));
       P.add('glow', lumenGem(R - 0.03, 0.06, 0.018));
       return P;
+    },
+  };
+
+  // ------------------------------------------------------------------ two-army sets (figures)
+  // Sets where the two sides are different armies, each with its own figures: white plays the
+  // `pieces` module and black its `piecesB` module (see geometry()). Every figure still carries
+  // its piece's cue: the king is the tallest and crowned, the queen wears a coronet, the bishop
+  // holds a staff or wears a pointed hood, the knight is a beast or a craft, the rook a tower
+  // and the pawn the smallest.
+  // A figure's plinth: a lathe in the 'base' slot, a metal ring and, for some sets, a lit ring.
+  function armyPlinth(P, R, h, o) {
+    o = o || {};
+    const p = profile(0, 0).line(R - 0.012, 0).arc(R, 0.014, 0.3);
+    if (o.rough) p.line(R + 0.004, h * 0.45).line(R - 0.01, h * 0.62).line(R - 0.004, h - 0.02).arc(R - 0.03, h, 0.35);
+    else if (o.hex) p.line(R, h - 0.02).arc(R - 0.02, h, 0.3);
+    else p.line(R, 0.03).arc(R - 0.016, 0.05, 0.35).line(R - 0.028, h - 0.016).arc(R - 0.04, h, 0.35);
+    p.line(0, h);
+    P.lathe('base', p, o.hex ? { segs: 6 } : (o.rough ? { mod: MOD.facets(11, 0.01, h, 0.4) } : undefined));
+    P.add('trim', ring(R - (o.hex ? 0.03 : 0.004), o.hex ? h * 0.55 : 0.032, 0.008, o.hex ? { seg: 6 } : undefined));
+    if (o.glow) P.add('glow', ring(R - 0.05, h + 0.001, 0.006, o.hex ? { seg: 6 } : undefined));
+    if (o.studs) P.add('accent', around(o.studs, R - 0.003, h * 0.55, () => cabochon(0.014, 0.6), { phase: Math.PI / o.studs }));
+    return h;
+  }
+  const hexBase = (P, R, h) => armyPlinth(P, R, h, { hex: true, glow: true });
+  // A standing figure facing +z with feet at y0, about 0.9 * s tall to the crown of the head.
+  // o.kind: 'human', 'orc' (broad, heavy brow, tusks), 'elf' (slender, long ears) or 'chibi'
+  // (a big round head on a short body, for the storybook sets). o.dress: 'robe', 'gown' or
+  // 'legs' (a tunic over two legs and boots). o.hands: the two hands in figure units.
+  function person(P, y0, s, o) {
+    o = o || {};
+    const kind = o.kind || 'human', chibi = kind === 'chibi', B = o.bulk || (kind === 'orc' ? 1.3 : kind === 'elf' ? 0.88 : 1);
+    const A = at([0, y0, 0], s), coarse = o.coarse || (chibi ? 1.4 : s > 1.1 ? 1.15 : 1);
+    const skin = new Sculpt(0.016, coarse), cloth = new Sculpt(0.02, 1.25 * coarse);
+    cloth.floor = y0 - 0.004; skin.floor = y0 - 0.004;
+    const hy = chibi ? 0.6 : 0.8, hr = (chibi ? 0.15 : kind === 'orc' ? 0.068 : 0.06) * s;
+    const shY = chibi ? 0.4 : 0.66, shX = (chibi ? 0.085 : 0.082) * B, waist = chibi ? 0.24 : 0.42;
+    const chestY = chibi ? 0.33 : 0.56;
+    if (o.dress === 'gown') {
+      const r0 = (chibi ? 0.17 : 0.16) * s * (o.flare || 1);
+      P.lathe(o.gownSlot || 'cloth', profile(0, y0).line(r0, y0).curve([[r0 * 0.98, y0 + waist * 0.15 * s], [r0 * 0.8, y0 + waist * 0.5 * s], [r0 * 0.5, y0 + waist * 0.85 * s], [0.055 * s, y0 + waist * 1.05 * s]]).line(0, y0 + waist * 1.05 * s), { mod: o.frills ? MOD.lobes(o.frills, 0.1, y0, y0 + waist * 0.5 * s, { shape: 0.7, end: 0.02 }) : undefined });
+    } else if (o.dress === 'robe') {
+      cloth.cone(A(0, 0, 0), A(0, waist + 0.04, 0), 0.13 * B * s, 0.075 * B * s, 0.03);
+    } else {
+      const legR = (chibi ? 0.034 : 0.028) * B * s, hipY = chibi ? 0.17 : 0.34, sp = (chibi ? 0.045 : 0.042) * B;
+      cloth.pair((x) => {
+        cloth.chain([[x * sp * s, y0 + hipY * s, 0, legR * 1.2], [x * (sp + 0.006) * s, y0 + hipY * 0.5 * s, 0.01 * s, legR], [x * (sp + 0.01) * s, y0 + 0.05 * s, 0, legR * 0.9]], 0.014);
+        cloth.ell(A(x * (sp + 0.012), 0.03, 0.022), [legR * 1.15, 0.032 * s, legR * 1.7], 0.012);      // boots
+      });
+      cloth.cone(A(0, hipY - 0.06, 0), A(0, waist + 0.05, 0), (chibi ? 0.1 : 0.088) * B * s, 0.07 * B * s, 0.025);   // the tunic's skirt
+    }
+    cloth.ell(A(0, chestY, 0.006), [(chibi ? 0.085 : 0.078) * B * s, (chibi ? 0.1 : 0.12) * s, (chibi ? 0.075 : 0.06) * B * s], 0.035);   // chest
+    if (o.belly) cloth.ell(A(0, waist + 0.06, 0.03), [0.085 * B * s, 0.08 * s, 0.07 * B * s], 0.04);
+    cloth.pair((x) => cloth.ell(A(x * shX, shY, -0.004), [0.042 * B * s, 0.038 * s, 0.042 * B * s], 0.03));
+    if (o.cape) { const cape = new Sculpt(0.02, 1.3 * coarse); cape.floor = y0 - 0.004; cape.cone(A(0, shY + 0.02, -0.05 * B), A(0, 0.02, -0.08 * B), 0.088 * B * s, 0.145 * B * s, 0.03); cape.ell(A(0, shY + 0.005, -0.02 * B), [0.11 * B * s, 0.035 * s, 0.06 * B * s], 0.03); cape.box(A(0, 0.4, 0.13 * B), [0.3 * s, 0.5 * s, 0.11 * B * s], 0, 0.02, true); P.add(o.capeSlot || 'cloth2', cape.mesh()); }
+    // neck and head
+    const H = A(0, hy, chibi ? 0.01 : 0.008);
+    skin.cone(A(0, shY, 0), [H[0], H[1] - hr * 0.7, H[2] - hr * 0.1], 0.03 * B * s, 0.027 * B * s, 0.01);
+    const hd = chibi ? { c: H, r: hr, eyes: [-1, 1].map((x) => [H[0] + x * hr * 0.36, H[1] - hr * 0.02, H[2] + hr * 0.86]) } : head(skin, H, hr, { beard: o.beard, moustache: o.moustache });
+    if (chibi) {
+      skin.ell(H, [hr, hr * 0.94, hr * 0.94], 0.01);
+      skin.ell([H[0], H[1] - hr * 0.22, H[2] + hr * 0.9], [hr * 0.17, hr * 0.13, hr * 0.13], 0.01);     // a button nose
+      skin.pair((x) => skin.ell([H[0] + x * hr * 0.55, H[1] - hr * 0.28, H[2] + hr * 0.72], [hr * 0.2, hr * 0.14, hr * 0.1], 0.02));   // round cheeks
+      if (o.beard) { const bd = new Sculpt(0.02); bd.ell([H[0], H[1] - hr * 0.62, H[2] + hr * 0.5], [hr * 0.75, hr * 0.5 * (1 + o.beard), hr * 0.5], 0.04); bd.pair((x) => bd.ell([H[0] + x * hr * 0.3, H[1] - hr * 0.3, H[2] + hr * 0.92], [hr * 0.3, hr * 0.12, hr * 0.12], 0.02)); P.add(o.beardSlot || 'hair', bd.mesh()); }
+    }
+    if (kind === 'orc') {
+      skin.ell([H[0], H[1] + hr * 0.32, H[2] + hr * 0.72], [hr * 0.78, hr * 0.2, hr * 0.26], 0.02);      // a heavy brow
+      skin.ell([H[0], H[1] - hr * 0.52, H[2] + hr * 0.3], [hr * 0.8, hr * 0.5, hr * 0.66], 0.03);        // a big jaw
+      skin.pair((x) => skin.cone([H[0] + x * hr * 0.85, H[1], H[2] - hr * 0.1], [H[0] + x * hr * 1.45, H[1] + hr * 0.25, H[2] - hr * 0.25], hr * 0.2, hr * 0.04, 0.01));   // ears
+      P.add('tusk', merge([-1, 1].map((x) => new THREE.ConeGeometry(hr * 0.11, hr * 0.42, 8).rotateX(-0.25).translate(H[0] + x * hr * 0.36, H[1] - hr * 0.42, H[2] + hr * 0.86))));
+    }
+    if (kind === 'elf') skin.pair((x) => skin.cone([H[0] + x * hr * 0.82, H[1] - hr * 0.05, H[2] - hr * 0.05], [H[0] + x * hr * 1.75, H[1] + hr * 0.75, H[2] - hr * 0.55], hr * 0.18, hr * 0.03, 0.012));
+    // arms to the hands
+    const hands = (o.hands || [[-0.1, 0.42, 0.06], [0.1, 0.42, 0.06]]).map((h) => A(h[0] * B, h[1], h[2]));
+    [-1, 1].forEach((x, i) => {
+      const sh = A(x * (shX + 0.012 * B), shY - 0.01, 0), ha = hands[i];
+      const el = [mix(sh[0], ha[0], 0.5) + x * 0.03 * B * s, mix(sh[1], ha[1], 0.5) - 0.02 * s, mix(sh[2], ha[2], 0.4) - 0.01 * s];
+      arm(cloth, skin, sh, el, ha, (chibi ? 0.03 : 0.022) * B * s);
+    });
+    // hair: long down the back, a bun, a braid or a topknot
+    if (o.hair) {
+      const hs = new Sculpt(0.012, coarse);
+      hs.ell([H[0], H[1] + hr * 0.18, H[2] - hr * 0.12], [hr * 1.04, hr * 0.92, hr * 1.02], 0.012);
+      hs.ell([H[0], H[1] + hr * 0.3, H[2] + hr * 0.5], [hr * 0.9, hr * 0.5, hr * 0.5], 0.012, true);   // the face stays clear
+      if (o.hair === 'long') hs.chain([[H[0], H[1], H[2] - hr * 0.7, hr * 0.75], [H[0], H[1] - hr * 1.6, H[2] - hr * 1.05, hr * 0.72], [H[0], H[1] - hr * 3.2, H[2] - hr * 1.2, hr * 0.5]], 0.02, 4);
+      if (o.hair === 'bun') hs.ell([H[0], H[1] + hr * 0.7, H[2] - hr * 0.7], [hr * 0.45, hr * 0.42, hr * 0.42], 0.01);
+      if (o.hair === 'braid') hs.chain([[H[0], H[1] + hr * 0.6, H[2] - hr * 0.6, hr * 0.3], [H[0], H[1] - hr * 0.6, H[2] - hr * 1.2, hr * 0.28], [H[0], H[1] - hr * 2.6, H[2] - hr * 1.1, hr * 0.2]], 0.01, 4);
+      if (o.hair === 'curls') { for (let i = 0; i < 7; i++) { const a = mix(-1.3, 1.3, i / 6); hs.ell([H[0] + Math.sin(a) * hr * 0.95, H[1] - hr * 0.7, H[2] - Math.cos(a) * hr * 0.6], [hr * 0.3, hr * 0.45, hr * 0.3], 0.02); } }
+      P.add('hair', hs.mesh());
+    }
+    if (o.hood) {
+      const hood = new Sculpt(0.014, coarse);
+      hood.ell([H[0], H[1] + hr * 0.1, H[2] - hr * 0.15], [hr * 1.28, hr * 1.3, hr * 1.25], 0.014);
+      hood.cone([H[0], H[1] + hr * 0.9, H[2] - hr * 0.4], [H[0], H[1] + hr * (o.hood === 'tall' ? 2.6 : 1.5), H[2] - hr * 1.1], hr * 0.6, hr * 0.08, 0.03);
+      hood.cone([H[0], H[1] - hr * 0.6, H[2] - hr * 0.6], A(0, shY - 0.02, -0.02), hr * 1.1, 0.07 * B * s, 0.03);
+      hood.ell([H[0], H[1] - hr * 0.05, H[2] + hr * 1.0], [hr * 0.8, hr * 0.95, hr * 0.9], 0.014, true);
+      P.add(o.hoodSlot || 'cloth2', hood.mesh());
+    }
+    P.add(o.clothSlot || 'cloth', cloth.mesh()); P.add('skin', skin.mesh());
+    if (!o.noEyes) P.add(o.eyeSlot || 'eye', merge(hd.eyes.map((e) => sphere(hr * (chibi ? 0.16 : 0.15), 0, 0, 0, 10).scale(1, chibi ? 1.35 : 1, 0.7).translate(e[0], e[1], e[2]))));
+    return { A, s, B, H, hr, hands, top: H[1] + hr, shY: A(0, shY, 0)[1], cf: cloth.field() };
+  }
+  // props, built round the origin standing up +y
+  const rod = (x, y0, y1, z, r) => new THREE.CylinderGeometry(r, r, y1 - y0, 8).translate(x, (y0 + y1) / 2, z);
+  // a crystal point: a long octahedron
+  const shard = (r, h) => new THREE.OctahedronGeometry(1, 0).scale(r, h / 2, r);
+  // an axe: a haft and a curved blade on one side
+  function axe(len, w) {
+    const blade = extrude([[0, 0], [w, -w * 0.55], [w * 1.15, 0], [w, w * 0.55]], 0.012, 0.004, { bevelSegments: 1 }); blade.rotateY(Math.PI / 2).translate(0, len * 0.86, 0);
+    return { haft: rod(0, 0, len, 0, 0.008), blade };
+  }
+  // a kite shield facing +z, point down
+  function kite(w, h, d) {
+    const face = extrude([[0, -h * 0.5], [w * 0.5, -h * 0.05], [w * 0.5, h * 0.4], [w * 0.36, h * 0.5], [-w * 0.36, h * 0.5], [-w * 0.5, h * 0.4], [-w * 0.5, -h * 0.05]], d, d * 0.4, { bevelSegments: 2 });
+    return face;
+  }
+  // a flag hanging from a crossbar, its foot cut into a swallowtail
+  function armyBanner(w, h) {
+    return extrude([[-w / 2, 0], [w / 2, 0], [w / 2, -h], [0, -h * 0.82], [-w / 2, -h]], 0.006, 0.002, { bevelSegments: 1 });
+  }
+  // a leaf, the elves' emblem
+  const leafBadge = (s) => extrude(K.mirrorOutline([[0, s], [s * 0.42, s * 0.5], [s * 0.38, -s * 0.1], [0, -s * 0.55]]), s * 0.12, s * 0.05, { bevelSegments: 1 });
+  // a boar's tusk crossed with a tusk, the orcs' emblem: two crescents back to back
+  function tuskBadge(s) {
+    const a = crescent(s * 0.5, s * 0.12); a.rotateZ(0.5).translate(-s * 0.14, 0, 0);
+    const b = crescent(s * 0.5, s * 0.12); b.rotateZ(-0.5).translate(s * 0.14, 0, 0);
+    return merge([a, b]);
+  }
+
+  // ------------------------------------------------------------------ Orcs & Elves
+  // White: the elves of the silver forest, in white and gold with blue crystals. Black: the orc
+  // clans of the burning hills, green-skinned, in red leather and iron, with wolves for knights.
+  const ELVES = {
+    k() {
+      const P = new Piece(), y0 = armyPlinth(P, 0.34, 0.11, { studs: 6 });
+      const f = person(P, y0, 1.22, { kind: 'elf', dress: 'legs', cape: true, hair: 'long', clothSlot: 'cloth', hands: [[-0.035, 0.44, 0.09], [0.035, 0.44, 0.09]] });
+      // pauldrons and a breastplate in gold over the blue
+      P.add('trim', merge([-1, 1].map((x) => new THREE.SphereGeometry(0.05 * f.s, 18, 10, 0, TAU, 0, Math.PI / 2).scale(1.1, 0.8, 1).translate(...f.A(x * 0.09 * f.B, 0.665, -0.004)))));
+      P.add('trim', ring(0.07 * f.s, f.A(0, 0.44, 0)[1], 0.008));
+      // a sword point-down before him, both hands on the hilt
+      const sw = sword(0.36, 0.024); for (const g of [sw.blade, sw.hilt]) { g.rotateX(Math.PI); g.translate(...f.A(0, 0.46, 0.1)); }
+      P.add('steel', sw.blade); P.add('trim', sw.hilt);
+      // a tall crown of leaves rising to a crystal
+      const cy = f.top - f.hr * 0.45;
+      P.add('trim', around(7, f.hr * 0.95, cy, () => leaf(0.03, 0.09, 0.006), { tilt: -0.12 }));
+      P.add('trim', ring(f.hr * 0.96, cy + 0.01, 0.007));
+      P.add('crystal', shard(0.022, 0.11).translate(0, cy + 0.12, f.H[2] + f.hr * 0.3));
+      P.add('crystal', merge([-1, 1].map((x) => shard(0.012, 0.06).translate(x * f.hr * 0.6, cy + 0.08, f.H[2] + f.hr * 0.4))));
+      P.add('accent', leafBadge(0.05).translate(...f.A(0, 0.56, 0.072)));
+      return turnPiece(P, 0.35);
+    },
+    q() {
+      const P = new Piece(), y0 = armyPlinth(P, 0.33, 0.1, { studs: 6 });
+      const f = person(P, y0, 1.12, { kind: 'elf', dress: 'gown', hair: 'long', flare: 1.05, cape: true, hands: [[-0.13, 0.5, 0.05], [0.06, 0.4, 0.08]] });
+      P.add('trim', ring(0.06 * f.s, f.A(0, 0.43, 0)[1], 0.007));
+      P.add('trim', merge([0.06, 0.2].map((y) => ring(mix(0.16, 0.11, y / 0.3) * f.s, f.A(0, y, 0)[1], 0.006))));
+      // a slender tiara of leaves and a crystal at her brow
+      const cy = f.top - f.hr * 0.5;
+      P.add('trim', around(9, f.hr * 0.98, cy, () => leaf(0.016, 0.06, 0.005), { tilt: -0.2 }));
+      P.add('crystal', shard(0.014, 0.05).translate(0, cy + 0.035, f.H[2] + f.hr * 0.95));
+      // a flower held up in her left hand
+      const h = f.hands[0];
+      P.add('accent', around(5, 0.008, h[1] + 0.03, () => petal(0.018, 0.04, 0.005), { tilt: 0.6 }).translate(h[0], 0, h[2]));
+      P.add('crystal', sphere(0.01, h[0], h[1] + 0.035, h[2], 8));
+      return turnPiece(P, 0.35);
+    },
+    b() {
+      const P = new Piece(), y0 = armyPlinth(P, 0.31, 0.1, { studs: 6 });
+      const f = person(P, y0, 1.02, { kind: 'elf', dress: 'robe', hood: 'tall', hands: [[-0.1, 0.5, 0.07], [0.08, 0.4, 0.07]] });
+      // a staff topped with a blue crystal in golden prongs
+      const h = f.hands[0];
+      P.add('trim', rod(h[0], y0, h[1] + 0.34, h[2], 0.008));
+      P.add('trim', around(3, 0.018, h[1] + 0.33, () => ray(0.012, 0.06, 0.004), { tilt: -0.3 }).translate(h[0], 0, h[2]));
+      P.add('crystal', shard(0.022, 0.1).translate(h[0], h[1] + 0.4, h[2]));
+      P.add('trim', ring(0.074 * f.s, f.A(0, 0.4, 0)[1], 0.007));
+      P.add('accent', leafBadge(0.04).translate(...f.A(0, 0.3, 0.1)));
+      return turnPiece(P, 0.35);
+    },
+    n() {
+      // a white stag with great golden antlers and a blue caparison
+      const P = new Piece(), y0 = armyPlinth(P, 0.322, 0.1, { studs: 6 });
+      const st = new Sculpt(0.02, 1.2);
+      st.floor = y0 - 0.004;
+      st.ell([0, y0 + 0.36, -0.01], [0.062, 0.07, 0.13], 0.03);
+      st.ell([0, y0 + 0.37, 0.08], [0.06, 0.075, 0.06], 0.035);
+      st.ell([0, y0 + 0.38, -0.1], [0.064, 0.07, 0.065], 0.035);
+      st.pair((x) => {
+        leg(st, [x * 0.036, y0 + 0.33, 0.09], [x * 0.04, y0 + 0.17, 0.1], [x * 0.04, y0, 0.1], 0.026, 0.015, 0.017);
+        leg(st, [x * 0.036, y0 + 0.33, -0.11], [x * 0.04, y0 + 0.17, -0.15], [x * 0.04, y0, -0.12], 0.03, 0.015, 0.017);
+      });
+      st.chain([[0, y0 + 0.4, 0.1, 0.042], [0, y0 + 0.5, 0.14, 0.034], [0, y0 + 0.6, 0.16, 0.028]], 0.02, 4);
+      st.cone([0, y0 + 0.63, 0.16], [0, y0 + 0.6, 0.24], 0.034, 0.016, 0.02);       // head and slim muzzle
+      st.pair((x) => st.cone([x * 0.02, y0 + 0.65, 0.15], [x * 0.065, y0 + 0.68, 0.13], 0.012, 0.004, 0.006));   // ears
+      st.ell([0, y0 + 0.4, -0.16], [0.018, 0.024, 0.014], 0.01);                    // a white scut of a tail
+      const sf = st.field();
+      P.add('skin', st.mesh());
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.007, x * 0.026, y0 + 0.64, 0.19, 8))));
+      P.add('cloth', sdfGeometry(drape(sf, 0.012, (x, y, z) => Math.max(y0 + 0.36 - y, Math.abs(z + 0.01) - 0.1)), [-0.09, y0 + 0.3, -0.13, 0.09, y0 + 0.46, 0.11], Q.cell * 1.3));
+      P.add('accent', merge([-1, 1].map((x) => leafBadge(0.04).rotateY(x * Math.PI / 2).translate(x * 0.075, y0 + 0.38, -0.01))));
+      // antlers: a beam rising and curving back on each side, with tines
+      const ant = [];
+      for (const x of [-1, 1]) {
+        const beam = [[x * 0.016, y0 + 0.665, 0.15], [x * 0.05, y0 + 0.73, 0.14], [x * 0.08, y0 + 0.8, 0.11], [x * 0.09, y0 + 0.88, 0.07], [x * 0.085, y0 + 0.94, 0.03]];
+        ant.push(K.tube(beam, 0.007, { segs: 24, radial: 6, radiusAt: (t) => 1 - t * 0.5 }));
+        for (const [i, len] of [[1, 0.05], [2, 0.06], [3, 0.05]]) { const b = beam[i]; ant.push(K.tube([b, [b[0] + x * 0.012, b[1] + len * 0.6, b[2] + len * 0.6], [b[0] + x * 0.01, b[1] + len, b[2] + len * 0.5]], 0.005, { segs: 10, radial: 5, radiusAt: (t) => 1 - t * 0.6 })); }
+      }
+      P.add('trim', merge(ant));
+      return turnPiece(P, 0.2);
+    },
+    r() {
+      // a slender white tower with a glowing arched window, gold trim and a crystal spire
+      const P = new Piece(), y0 = armyPlinth(P, 0.335, 0.1, { studs: 6 });
+      P.lathe('stone', profile(0, y0).line(0.21, y0).curve([[0.2, y0 + 0.16], [0.17, y0 + 0.36], [0.16, y0 + 0.44]]).line(0.2, y0 + 0.46).line(0.2, y0 + 0.5).line(0, y0 + 0.5), { mod: MOD.facets(8, y0, y0 + 0.46, 0.2) });
+      P.add('trim', merge([0.02, 0.24, 0.46].map((y, i) => ring([0.21, 0.19, 0.2][i], y0 + y, 0.009, { seg: 8 }))));
+      // a pointed arch window on the front, lit from inside
+      const win = extrude([[-0.045, 0], [0.045, 0], [0.045, 0.12], [0, 0.19], [-0.045, 0.12]], 0.01, 0.003, { bevelSegments: 1 });
+      P.add('glow', win.translate(0, y0 + 0.16, 0.19));
+      P.add('trim', merge([-1, 1].map((x) => rod(x * 0.055, y0 + 0.15, y0 + 0.29, 0.188, 0.006))));
+      // four little spires round a central spire tipped with a crystal
+      P.add('stone', around(4, 0.155, y0 + 0.5, () => new THREE.ConeGeometry(0.035, 0.11, 8).translate(0, 0.055, 0), { phase: Math.PI / 4 }));
+      P.add('trim', around(4, 0.155, y0 + 0.615, () => sphere(0.01, 0, 0, 0, 8), { phase: Math.PI / 4 }));
+      P.lathe('stone', profile(0, y0 + 0.5).line(0.08, y0 + 0.5).line(0.06, y0 + 0.58).line(0, y0 + 0.68));
+      P.add('crystal', shard(0.034, 0.13).translate(0, y0 + 0.72, 0));
+      P.add('accent', leafBadge(0.05).translate(0, y0 + 0.37, 0.178));
+      // ivy climbing up one side
+      const ivy = []; for (let i = 0; i < 14; i++) { const t = i / 13, a = -1.9 + t * 1.2, r = mix(0.215, 0.17, t); ivy.push(placeAt(leaf(0.016, 0.03, 0.004), a, r, y0 + 0.03 + t * 0.4, { tilt: 0.3, spin: (i % 2 ? 0.6 : -0.6) })); }
+      P.add('leaf', merge(ivy));
+      return P;
+    },
+    p() {
+      // a sentinel with a tall spear and a kite shield carrying the leaf
+      const P = new Piece(), y0 = armyPlinth(P, 0.27, 0.08, { studs: 5 });
+      const f = person(P, y0, 0.74, { kind: 'elf', dress: 'legs', cape: true, hands: [[-0.1, 0.42, 0.06], [0.09, 0.4, 0.09]] });
+      // a winged helmet that covers the hair
+      const hm = helmet(f.H, f.hr, { tall: 1.25 }); P.add('trim', hm.metal);
+      P.add('trim', merge([-1, 1].map((x) => leaf(0.02, 0.06, 0.004).rotateZ(-x * 0.9).translate(f.H[0] + x * f.hr * 1.05, f.H[1] + f.hr * 0.3, f.H[2]))));
+      const sp = spear(0.52, 0.0065); const h = f.hands[0];
+      P.add('trim', sp.shaft.translate(h[0], y0, h[2])); P.add('steel', sp.head.translate(h[0], y0, h[2]));
+      const sh = kite(0.13, 0.17, 0.012); sh.rotateY(0.25).translate(...f.hands[1]).translate(0.01, 0, 0.02);
+      P.add('cloth2', sh);
+      P.add('trim', leafBadge(0.06).rotateY(0.25).translate(f.hands[1][0] + 0.013, f.hands[1][1] + 0.01, f.hands[1][2] + 0.036));
+      return turnPiece(P, 0.35);
+    },
+  };
+  const ORCS = {
+    k() {
+      // the warchief: a huge orc in a fur mantle with a war hammer and a crown of tusks
+      const P = new Piece(), y0 = armyPlinth(P, 0.35, 0.11, { rough: true });
+      const f = person(P, y0, 1.2, { kind: 'orc', dress: 'legs', belly: true, cape: true, bulk: 1.4, hands: [[-0.1, 0.42, 0.1], [0.12, 0.5, 0.06]], hair: 'braid' });
+      // a fur mantle over the shoulders and iron pauldrons with spikes
+      const fur = new Sculpt(0.02);
+      for (let i = 0; i < 11; i++) { const a = mix(-2.2, 2.2, i / 10); fur.ell([Math.sin(a) * 0.11 * f.s * f.B, f.shY + 0.01, -0.01 + Math.cos(a) * 0.05 * f.s * f.B], [0.04 * f.s, 0.035 * f.s, 0.04 * f.s], 0.025); }
+      P.add('fur', fur.mesh());
+      for (const x of [-1, 1]) {
+        const c = f.A(x * 0.12 * f.B, 0.68, -0.005);
+        P.add('steel', new THREE.SphereGeometry(0.05 * f.s, 16, 8, 0, TAU, 0, Math.PI / 2).scale(1.1, 0.75, 1).translate(...c));
+        P.add('tusk', merge([-0.4, 0.4].map((z) => new THREE.ConeGeometry(0.011, 0.06, 8).rotateZ(-x * 0.5).translate(c[0] + x * 0.02, c[1] + 0.04, c[2] + z * 0.05))));
+      }
+      P.add('steel', new THREE.SphereGeometry(0.1 * f.s, 20, 12, Math.PI / 2 - 1.1, 2.2, 0.5, 1.4).scale(1.2, 1.1, 0.75).translate(...f.A(0, 0.56, 0.02)));   // an iron breastplate
+      P.add('trim', ring(0.098 * f.s, f.A(0, 0.44, 0.02)[1], 0.012).scale(1, 1, 0.9).translate(0, 0, 0.02));
+      P.add('accent', tuskBadge(0.06).translate(...f.A(0, 0.44, 0.12)));
+      // the war hammer, resting on its head on the ground
+      const h = f.hands[1];
+      P.add('wood', rod(h[0], y0 + 0.11, h[1] + 0.06, h[2], 0.011));
+      P.add('steel', new THREE.BoxGeometry(0.11, 0.08, 0.08).translate(h[0], y0 + 0.07, h[2]));
+      P.add('glow', merge([-1, 1].map((x) => new THREE.BoxGeometry(0.004, 0.05, 0.05).translate(h[0] + x * 0.056, y0 + 0.07, h[2]))));
+      // a crown of tusks and iron spikes
+      const cy = f.top - f.hr * 0.6;
+      P.add('steel', ring(f.hr * 1.02, cy, 0.012));
+      P.add('tusk', around(7, f.hr * 1.0, cy + 0.01, (i) => new THREE.ConeGeometry(0.014, i % 2 ? 0.08 : 0.13, 8).translate(0, i % 2 ? 0.04 : 0.065, 0), { tilt: -0.12 }));
+      P.add('accent', placeAt(brilliant(0.014), 0, f.hr * 1.03, cy).translate(0, 0, f.H[2]));
+      return turnPiece(P, 0.35);
+    },
+    q() {
+      // a warrior queen in red leather and iron, a curved blade at her side
+      const P = new Piece(), y0 = armyPlinth(P, 0.33, 0.1, { rough: true });
+      const f = person(P, y0, 1.04, { kind: 'orc', dress: 'gown', gownSlot: 'cloth2', bulk: 1.05, flare: 0.95, frills: 9, hair: 'long', hands: [[-0.11, 0.42, 0.07], [0.12, 0.44, 0.04]] });
+      P.add('trim', ring(0.07 * f.s, f.A(0, 0.43, 0)[1], 0.01));
+      P.add('steel', merge([-1, 1].map((x) => new THREE.SphereGeometry(0.036 * f.s, 14, 8, 0, TAU, 0, Math.PI / 2).scale(1.1, 0.7, 1).translate(...f.A(x * 0.085, 0.665, -0.004)))));
+      // a curved blade held low
+      const h = f.hands[0];
+      P.add('steel', extrude([[0, 0], [0.018, 0.02], [0.03, 0.14], [0.0, 0.22], [-0.006, 0.12]], 0.006, 0.002, { bevelSegments: 1 }).rotateY(Math.PI / 2).rotateX(0.3).translate(h[0], h[1], h[2]));
+      P.add('wood', rod(h[0], h[1] - 0.05, h[1] + 0.01, h[2], 0.008));
+      // a coronet of iron points with red stones
+      const cy = f.top - f.hr * 0.6;
+      P.add('steel', pointedCrown(f.hr * 1.0, cy, 6, 0.07, { flare: 0.2, w: 0.55 }));
+      P.add('accent', gemRing(6, f.hr * 1.06, cy + 0.012, 0.009, { phase: Math.PI / 6 }));
+      P.add('tusk', around(10, 0.03 * f.s, f.A(0, 0.71, 0)[1], () => new THREE.ConeGeometry(0.006, 0.024, 6).rotateX(Math.PI), { tilt: 0 }).translate(0, 0, 0.01));
+      return turnPiece(P, 0.35);
+    },
+    b() {
+      // a shaman in a red hood with a totem staff topped by horns and a crackling blue orb
+      const P = new Piece(), y0 = armyPlinth(P, 0.31, 0.1, { rough: true });
+      const f = person(P, y0, 1.0, { kind: 'orc', dress: 'robe', hood: 'tall', bulk: 1.15, hands: [[-0.12, 0.5, 0.07], [0.08, 0.38, 0.07]] });
+      const h = f.hands[0];
+      P.add('wood', rod(h[0], y0, h[1] + 0.32, h[2], 0.009));
+      // a pair of ram's horns curling out from the top of the staff
+      for (const x of [-1, 1]) { const pts = []; for (let i = 0; i <= 12; i++) { const a = i / 12 * 4.2; pts.push([h[0] + x * (0.012 + Math.sin(a) * 0.03 + i * 0.002), h[1] + 0.33 + (1 - Math.cos(a)) * 0.022, h[2] + Math.cos(a) * 0.012]); } P.add('tusk', K.tube(pts, 0.008, { segs: 24, radial: 6, radiusAt: (t) => 1 - t * 0.6 })); }
+      P.add('glow', sphere(0.028, h[0], h[1] + 0.4, h[2], 14));
+      P.add('accent', around(8, 0.03 * f.s, f.A(0, 0.64, 0)[1], () => sphere(0.008, 0, 0, 0, 8)).translate(0, 0, 0.012));   // a bead necklace
+      P.add('tusk', new THREE.ConeGeometry(0.008, 0.03, 6).rotateX(Math.PI).translate(...f.A(0, 0.6, 0.075)));
+      P.add('trim', ring(0.09 * f.s, f.A(0, 0.42, 0)[1], 0.009));
+      return turnPiece(P, 0.35);
+    },
+    n() {
+      // a great grey wolf, its front paws up on a rock, snarling, in a spiked iron collar
+      const P = new Piece(), y0 = armyPlinth(P, 0.322, 0.1, { rough: true });
+      const w = new Sculpt(0.022, 1.15), ruff = new Sculpt(0.014);
+      w.floor = y0 - 0.004;
+      P.add('stone', new THREE.DodecahedronGeometry(0.1, 1).scale(1.5, 0.9, 1.0).translate(0, y0 + 0.07, 0.11));
+      w.ell([0, y0 + 0.3, -0.04], [0.075, 0.085, 0.15], 0.04);                       // body, rising to the front
+      w.ell([0, y0 + 0.37, 0.08], [0.085, 0.1, 0.085], 0.05);                         // deep chest
+      w.ell([0, y0 + 0.28, -0.14], [0.072, 0.08, 0.07], 0.04);                        // haunches
+      w.pair((x) => {
+        leg(w, [x * 0.05, y0 + 0.3, 0.1], [x * 0.055, y0 + 0.22, 0.14], [x * 0.055, y0 + 0.155, 0.15], 0.032, 0.02, 0.026);   // front legs on the rock
+        w.ell([x * 0.06, y0 + 0.2, -0.15], [0.038, 0.085, 0.07], 0.03);               // thighs
+        leg(w, [x * 0.06, y0 + 0.17, -0.18], [x * 0.055, y0 + 0.08, -0.2], [x * 0.055, y0, -0.15], 0.026, 0.017, 0.022);
+      });
+      w.chain([[0, y0 + 0.42, 0.11, 0.06], [0, y0 + 0.5, 0.16, 0.05]], 0.03, 3);
+      w.ell([0, y0 + 0.54, 0.2], [0.06, 0.055, 0.062], 0.03);                         // head
+      w.cone([0, y0 + 0.53, 0.22], [0, y0 + 0.5, 0.31], 0.036, 0.022, 0.02);           // muzzle
+      w.ell([0, y0 + 0.49, 0.27], [0.024, 0.012, 0.04], 0.006, true);                 // the open mouth
+      w.pair((x) => w.cone([x * 0.034, y0 + 0.58, 0.18], [x * 0.05, y0 + 0.66, 0.16], 0.019, 0.004, 0.008));   // ears up
+      w.chain([[0, y0 + 0.32, -0.2, 0.03], [0.02, y0 + 0.24, -0.27, 0.034], [0.05, y0 + 0.13, -0.26, 0.022]], 0.02, 4);   // a bushy tail
+      // a pale ruff round the neck
+      for (let i = 0; i < 11; i++) { const a = mix(-2.5, 2.5, i / 10); ruff.cone([Math.sin(a) * 0.07, y0 + 0.47, 0.13 + Math.cos(a) * 0.045], [Math.sin(a) * 0.1, y0 + 0.4, 0.11 + Math.cos(a) * 0.035], 0.024, 0.006, 0.012); }
+      for (let i = 0; i < 6; i++) ruff.cone([0, y0 + 0.4 - i * 0.012, 0.04 - i * 0.04], [0, y0 + 0.44 - i * 0.012, 0.01 - i * 0.04], 0.018, 0.004, 0.01);
+      P.add('fur', w.mesh()); P.add('fur2', ruff.mesh());
+      P.add('glow', merge([-1, 1].map((x) => sphere(0.009, x * 0.028, y0 + 0.555, 0.245, 8))));
+      P.add('tusk', merge([-1, 1].map((x) => new THREE.ConeGeometry(0.005, 0.02, 6).rotateX(Math.PI).translate(x * 0.016, y0 + 0.495, 0.29))));
+      const col = merge([ring(0.065, 0, 0.011), around(7, 0.075, 0, () => new THREE.ConeGeometry(0.008, 0.026, 6).rotateX(Math.PI / 2).translate(0, 0, 0.01))]);
+      P.add('steel', col.rotateX(0.6).translate(0, y0 + 0.455, 0.125));
+      return turnPiece(P, 0.15);
+    },
+    r() {
+      // a watchtower of rough stone and timber, ringed with sharpened stakes, a red banner and a fire inside
+      const P = new Piece(), y0 = armyPlinth(P, 0.335, 0.1, { rough: true });
+      P.lathe('stone', profile(0, y0).line(0.22, y0).line(0.2, y0 + 0.28).line(0.17, y0 + 0.3).line(0.17, y0 + 0.48).line(0, y0 + 0.48), { mod: MOD.facets(9, y0, y0 + 0.3, 0.5) });
+      // a timber top on beams, wider than the stone
+      P.lathe('wood', profile(0, y0 + 0.47).line(0.23, y0 + 0.47).line(0.23, y0 + 0.56).line(0.21, y0 + 0.57).line(0, y0 + 0.57), { mod: MOD.flutes(18, 0.08, y0 + 0.47, y0 + 0.56, { fillet: 0.3 }) });
+      P.add('wood', around(9, 0.2, y0 + 0.57, () => new THREE.CylinderGeometry(0.012, 0.016, 0.13, 6).translate(0, 0.065, 0), { tilt: -0.25 }));
+      P.add('steel', around(9, 0.2, y0 + 0.57, () => new THREE.ConeGeometry(0.014, 0.05, 6).translate(0, 0.15, -0.03), { tilt: -0.25 }));
+      P.add('wood', around(4, 0.22, y0 + 0.47, () => new THREE.CylinderGeometry(0.01, 0.01, 0.1, 6).rotateX(0.7).translate(0, -0.03, -0.03)));
+      // a roof cone of bound stakes with a big spike, and the banner on the front
+      P.add('wood', new THREE.ConeGeometry(0.15, 0.14, 9).translate(0, y0 + 0.64, 0));
+      P.add('tusk', merge([-1, 1].map((x) => new THREE.ConeGeometry(0.014, 0.1, 6).rotateZ(-x * 0.7).translate(x * 0.13, y0 + 0.62, 0.0))));
+      P.add('steel', new THREE.ConeGeometry(0.02, 0.12, 6).translate(0, y0 + 0.76, 0));
+      P.add('banner', armyBanner(0.1, 0.22).translate(0, y0 + 0.44, 0.205));
+      P.add('wood', rod(0, -0.06, 0.06, 0, 0.006).rotateZ(Math.PI / 2).translate(0, y0 + 0.445, 0.208));
+      P.add('accent', tuskBadge(0.06).translate(0, y0 + 0.36, 0.214));
+      // the fire glowing through a doorway
+      P.add('glow', extrude([[-0.035, 0], [0.035, 0], [0.035, 0.07], [0, 0.1], [-0.035, 0.07]], 0.01, 0.003, { bevelSegments: 1 }).rotateY(Math.PI * 0.6).translate(Math.sin(Math.PI * 0.6) * 0.2, y0 + 0.02, Math.cos(Math.PI * 0.6) * 0.2));
+      return P;
+    },
+    p() {
+      // a grunt with an axe and a round wooden shield
+      const P = new Piece(), y0 = armyPlinth(P, 0.27, 0.08, { rough: true });
+      const f = person(P, y0, 0.7, { kind: 'orc', dress: 'legs', bulk: 1.4, hands: [[-0.1, 0.36, 0.1], [0.1, 0.38, 0.08]], hair: 'bun' });
+      P.add('steel', merge([-1, 1].map((x) => new THREE.SphereGeometry(0.05 * f.s, 14, 8, 0, TAU, 0, Math.PI / 2).scale(1.1, 0.7, 1).translate(...f.A(x * 0.12, 0.665, -0.004)))));
+      P.add('trim', ring(0.095 * f.s, f.A(0, 0.44, 0)[1], 0.008));
+      const ax = axe(0.24, 0.05); const h = f.hands[0];
+      for (const g of [ax.haft, ax.blade]) { g.rotateX(0.5); g.translate(h[0], h[1] - 0.06, h[2]); }
+      P.add('wood', ax.haft); P.add('steel', ax.blade);
+      const sh = shield(0.075, 0.018);
+      for (const g of [sh.face, sh.rim, sh.boss]) { g.rotateY(0.45); g.translate(...f.hands[1]); g.translate(0.012, 0, 0.02); }
+      P.add('wood', sh.face); P.add('steel', sh.rim); P.add('banner', sh.boss);
+      return turnPiece(P, 0.35);
+    },
+  };
+
+  // ------------------------------------------------------------------ Sun Kingdom & Shadow Legion
+  // A storybook set: round, cheerful figures with big heads. White is the Sun Kingdom, cream,
+  // royal blue and gold under a smiling sun; black is the Shadow Legion, in midnight purple
+  // with glowing violet magic. Both are our own characters.
+  const sunBadge = (r) => merge([sphere(r * 0.5, 0, 0, 0, 14).scale(1, 1, 0.4), around(8, r * 0.62, 0, () => ray(r * 0.3, r * 0.4, r * 0.12).rotateX(-Math.PI / 2), { tilt: 0 }).rotateX(Math.PI / 2)]);
+  const SUNKING = {
+    k() {
+      // the jolly king: a round belly, a red cape lined with ermine, a big crown and a sun sceptre
+      const P = new Piece(), y0 = armyPlinth(P, 0.34, 0.11, { studs: 8 });
+      const f = person(P, y0, 1.42, { kind: 'chibi', dress: 'legs', belly: true, bulk: 1.25, cape: true, capeSlot: 'cape', beard: 0.5, beardSlot: 'fur', hands: [[-0.1, 0.27, 0.08], [0.12, 0.33, 0.04]] });
+      P.add('fur', ring(0.07 * f.s * f.B, f.shY + 0.01, 0.016).translate(0, 0, -0.01));
+      P.add('trim', ring(0.11 * f.s, f.A(0, 0.2, 0.02)[1], 0.012).scale(1, 1, 0.95).translate(0, 0, 0.02));
+      const cy = f.top - f.hr * 0.42;
+      P.add('trim', pointedCrown(f.hr * 0.72, cy, 5, 0.12, { flare: 0.2, w: 0.7 }));
+      P.add('accent', gemRing(5, f.hr * 0.78, cy + 0.02, 0.014, { phase: Math.PI / 5 }));
+      P.add('cape', sphere(f.hr * 0.66, 0, 0, 0, 18).scale(1, 0.7, 1).translate(0, cy + 0.04, f.H[2]));
+      P.add('trim', sphere(0.022, 0, cy + 0.18, f.H[2], 12));
+      const h = f.hands[0];
+      P.add('trim', rod(h[0], h[1] - 0.06, h[1] + 0.3, h[2], 0.009));
+      P.add('trim', sunBadge(0.05).translate(h[0], h[1] + 0.34, h[2] + 0.004));
+      return turnPiece(P, 0.3);
+    },
+    q() {
+      // the princess: a golden gown with frills, rosy curls and a crown, waving hello
+      const P = new Piece(), y0 = armyPlinth(P, 0.33, 0.1, { studs: 8 });
+      const f = person(P, y0, 1.38, { kind: 'chibi', dress: 'gown', gownSlot: 'cloth2', frills: 8, flare: 1.05, hair: 'curls', hands: [[-0.12, 0.47, 0.03], [0.06, 0.25, 0.08]] });
+      P.add('hair', sphere(f.hr * 0.98, 0, 0, 0, 20).scale(1, 0.8, 1).translate(f.H[0], f.H[1] + f.hr * 0.25, f.H[2] - f.hr * 0.12));
+      const cy = f.top - f.hr * 0.25;
+      P.add('trim', pointedCrown(f.hr * 0.5, cy, 5, 0.09, { flare: 0.15, w: 0.6 }));
+      P.add('accent', placeAt(brilliant(0.016), 0, f.hr * 0.55, cy + 0.03).translate(0, 0, f.H[2]));
+      P.add('trim', ring(0.06 * f.s, f.A(0, 0.25, 0)[1], 0.01));
+      P.add('trim', sunBadge(0.035).translate(...f.A(0, 0.33, 0.075)));
+      return turnPiece(P, 0.3);
+    },
+    b() {
+      // the old court wizard: a star-spangled pointed hat, a long white beard and a star on his staff
+      const P = new Piece(), y0 = armyPlinth(P, 0.31, 0.1, { studs: 8 });
+      const f = person(P, y0, 1.1, { kind: 'chibi', dress: 'robe', clothSlot: 'cloth2', beard: 0.9, beardSlot: 'fur', hands: [[-0.11, 0.33, 0.06], [0.08, 0.25, 0.08]] });
+      const by = f.top - f.hr * 0.55;
+      P.lathe('cloth2', profile(0, by).line(f.hr * 1.35, by).line(f.hr * 1.3, by + 0.015).line(f.hr * 0.8, by + 0.03).curve([[f.hr * 0.6, by + 0.12], [f.hr * 0.3, by + 0.24], [0.006, by + 0.33]]).line(0, by + 0.33), { mod: MOD.slit(Math.PI * 0.25, by + 0.15, 0.6, 0.016, 0.4) });
+      P.add('trim', merge([[0.05, 0.1, 0.4], [-0.04, 0.17, 1.6], [0.02, 0.24, 3.0]].map(([x, y, a]) => star(0.018, 0.006, 5).rotateY(a).translate(Math.sin(a) * f.hr * mix(0.8, 0.3, y / 0.3), by + y, f.H[2] + Math.cos(a) * f.hr * mix(0.8, 0.3, y / 0.3)))));
+      P.add('trim', ring(f.hr * 0.85, by + 0.03, 0.008));
+      const h = f.hands[0];
+      P.add('wood', rod(h[0], y0, h[1] + 0.32, h[2], 0.009));
+      P.add('glow', star(0.045, 0.016, 5).translate(h[0], h[1] + 0.37, h[2]));
+      P.add('trim', ring(0.085 * f.s, f.A(0, 0.27, 0)[1], 0.008));
+      return turnPiece(P, 0.3);
+    },
+    n() {
+      // a round, friendly pony with a mane of golden sun rays and a blue saddle
+      const P = new Piece(), y0 = armyPlinth(P, 0.322, 0.1, { studs: 8 });
+      const h = new Sculpt(0.026, 1.15);
+      h.floor = y0 - 0.004;
+      h.ell([0, y0 + 0.28, -0.02], [0.1, 0.1, 0.15], 0.04);                          // a round body
+      h.pair((x) => {
+        h.cone([x * 0.06, y0 + 0.22, 0.08], [x * 0.06, y0 + 0.03, 0.09], 0.036, 0.034, 0.02);
+        h.cone([x * 0.06, y0 + 0.22, -0.11], [x * 0.06, y0 + 0.03, -0.11], 0.038, 0.034, 0.02);
+      });
+      h.chain([[0, y0 + 0.33, 0.08, 0.06], [0, y0 + 0.44, 0.12, 0.05]], 0.03, 3);
+      h.ell([0, y0 + 0.53, 0.14], [0.085, 0.09, 0.085], 0.03);                       // a big head
+      h.ell([0, y0 + 0.48, 0.22], [0.06, 0.05, 0.05], 0.03);                         // soft muzzle
+      h.pair((x) => h.cone([x * 0.05, y0 + 0.6, 0.12], [x * 0.07, y0 + 0.67, 0.1], 0.02, 0.006, 0.01));
+      P.add('cloth', h.mesh());
+      P.add('hoof', merge([-1, 1].flatMap((x) => [0.09, -0.11].map((z) => new THREE.CylinderGeometry(0.036, 0.04, 0.03, 16).translate(x * 0.06, y0 + 0.015, z)))));
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.016, 0, 0, 0, 10).scale(1, 1.3, 0.6).translate(x * 0.042, y0 + 0.55, 0.205))));
+      P.add('skin', merge([-1, 1].map((x) => sphere(0.014, 0, 0, 0, 8).scale(1, 0.7, 0.5).translate(x * 0.06, y0 + 0.5, 0.2))));
+      // the sun-ray mane, from the forelock down the neck, and a tail
+      const rays = [];
+      for (let i = 0; i < 9; i++) { const t = i / 8; rays.push(placeAt(ray(0.03, 0.075, 0.012), 0, 0, 0, { tilt: -0.6 - t * 0.5 }).translate(0, y0 + mix(0.64, 0.36, t), mix(0.12, 0.02, t) - 0.02)); }
+      rays.push(K.tube([[0, y0 + 0.33, -0.16], [0, y0 + 0.28, -0.22], [0, y0 + 0.17, -0.2]], 0.022, { segs: 14, radial: 8, radiusAt: (t) => 1 - t * 0.5 }));
+      P.add('trim', merge(rays));
+      P.add('cloth2', sdfGeometry(drape(h.field(), 0.014, (x, y, z) => Math.max(y0 + 0.31 - y, Math.abs(z + 0.02) - 0.09)), [-0.12, y0 + 0.26, -0.13, 0.12, y0 + 0.42, 0.1], Q.cell * 1.3));
+      P.add('trim', sunBadge(0.03).rotateY(Math.PI / 2).translate(0.11, y0 + 0.31, -0.02));
+      return turnPiece(P, 0.35);
+    },
+    r() {
+      // a round castle turret: cream stone, a blue cone roof, lit windows and the sun banner
+      const P = new Piece(), y0 = armyPlinth(P, 0.335, 0.1, { studs: 8 });
+      P.lathe('stone', profile(0, y0).line(0.21, y0).line(0.2, y0 + 0.4).line(0.23, y0 + 0.42).line(0.23, y0 + 0.47).line(0, y0 + 0.47), { mod: MOD.lobes(12, 0.03, y0, y0 + 0.4, { shape: 0.5, end: 0.01 }) });
+      P.add('stone', battlements(6, 0.19, 0.235, y0 + 0.465, y0 + 0.53, 0.42, 'flat'));
+      P.lathe('cloth2', profile(0, y0 + 0.5).line(0.19, y0 + 0.5).curve([[0.12, y0 + 0.58], [0.05, y0 + 0.68], [0.008, y0 + 0.76]]).line(0, y0 + 0.76));
+      P.add('trim', rod(0, y0 + 0.74, y0 + 0.86, 0, 0.005));
+      P.add('banner', extrude([[0, 0], [0.07, -0.02], [0, -0.045]], 0.004, 0.001).translate(0.004, y0 + 0.86, 0));
+      P.add('glow', merge([[0, 0.24], [Math.PI * 0.6, 0.12], [-Math.PI * 0.6, 0.12]].map(([a, y]) => placeAt(extrude([[-0.025, 0], [0.025, 0], [0.025, 0.05], [0, 0.07], [-0.025, 0.05]], 0.008, 0.002, { bevelSegments: 1 }), a, 0.203, y0 + y))));
+      P.add('banner', armyBanner(0.11, 0.17).translate(0, y0 + 0.44, 0.215).rotateY(0.9));
+      P.add('trim', sunBadge(0.035).rotateY(0.9).translate(Math.sin(0.9) * 0.222, y0 + 0.36, Math.cos(0.9) * 0.222));
+      return P;
+    },
+    p() {
+      // a villager in a sunflower hat, smiling
+      const P = new Piece(), y0 = armyPlinth(P, 0.27, 0.08, { studs: 6 });
+      const f = person(P, y0, 0.78, { kind: 'chibi', dress: 'legs', clothSlot: 'cloth2', hands: [[-0.12, 0.42, 0.04], [0.1, 0.24, 0.08]] });
+      P.add('hair', sphere(f.hr * 1.0, 0, 0, 0, 20).scale(1, 0.75, 1).translate(f.H[0], f.H[1] + f.hr * 0.2, f.H[2] - f.hr * 0.12));
+      const hy = f.top - f.hr * 0.25;
+      P.add('wood', new THREE.CylinderGeometry(f.hr * 0.6, f.hr * 0.75, 0.035, 20).translate(0, hy, f.H[2] - 0.004));
+      P.add('trim', around(12, f.hr * 0.7, hy, () => petal(0.045, 0.08, 0.008), { tilt: Math.PI / 2 - 0.3 }).translate(0, 0, f.H[2] - 0.004));
+      P.add('cloth', ring(0.07 * f.s, f.A(0, 0.25, 0)[1], 0.012));
+      return turnPiece(P, 0.3);
+    },
+  };
+  const SHADOW = {
+    k() {
+      // the Shadow King: armour, a purple cape, a horned crown and violet fire in his hand
+      const P = new Piece(), y0 = armyPlinth(P, 0.35, 0.11, { studs: 8 });
+      const f = person(P, y0, 1.48, { kind: 'chibi', dress: 'legs', bulk: 1.35, cape: true, capeSlot: 'cloth2', hands: [[-0.12, 0.38, 0.06], [0.12, 0.25, 0.08]], noEyes: true });
+      P.add('glow', merge(f.hands.slice(0, 1).map((h) => new THREE.ConeGeometry(0.035, 0.09, 8).translate(h[0], h[1] + 0.06, h[2]))));
+      P.add('glow', merge([-1, 1].map((x) => sphere(f.hr * 0.15, 0, 0, 0, 10).scale(1, 0.8, 0.6).translate(x * f.hr * 0.36, f.H[1] - f.hr * 0.02, f.H[2] + f.hr * 0.86))));
+      P.add('steel', merge([-1, 1].map((x) => new THREE.SphereGeometry(0.055 * f.s, 16, 8, 0, TAU, 0, Math.PI / 2).scale(1.1, 0.8, 1).translate(...f.A(x * 0.12, 0.42, -0.004)))));
+      P.add('steel', new THREE.SphereGeometry(0.09 * f.s, 20, 12, Math.PI / 2 - 1.1, 2.2, 0.5, 1.5).scale(1.2, 1.0, 0.8).translate(...f.A(0, 0.32, 0.02)));
+      // a helm-crown with two great horns
+      P.add('steel', new THREE.SphereGeometry(f.hr * 1.06, 24, 12, 0, TAU, 0, Math.PI * 0.42).translate(f.H[0], f.H[1] + f.hr * 0.05, f.H[2]));
+      P.add('trim', pointedCrown(f.hr * 0.95, f.H[1] + f.hr * 0.25, 7, 0.1, { flare: 0.15, w: 0.6 }));
+      for (const x of [-1, 1]) { const pts = []; for (let i = 0; i <= 10; i++) { const t = i / 10; pts.push([f.H[0] + x * f.hr * (0.9 + t * 0.7), f.H[1] + f.hr * (0.3 + Math.sin(t * 2.2) * 0.9), f.H[2] - f.hr * 0.1 + t * 0.03]); } P.add('horn', K.tube(pts, f.hr * 0.18, { segs: 20, radial: 8, radiusAt: (t) => 1 - t * 0.85 })); }
+      P.add('accent', gemRing(7, f.hr * 1.0, f.H[1] + f.hr * 0.3, 0.012, { phase: Math.PI / 7 }));
+      return turnPiece(P, 0.3);
+    },
+    q() {
+      // the sorceress: a purple gown, long dark hair, a horned tiara and a violet flame in her palm
+      const P = new Piece(), y0 = armyPlinth(P, 0.33, 0.1, { studs: 8 });
+      const f = person(P, y0, 1.38, { kind: 'chibi', dress: 'gown', gownSlot: 'cloth2', flare: 1.0, frills: 6, hair: 'long', hands: [[-0.12, 0.4, 0.07], [0.07, 0.24, 0.08]] });
+      P.add('hair', sphere(f.hr * 1.0, 0, 0, 0, 20).scale(1, 0.85, 1).translate(f.H[0], f.H[1] + f.hr * 0.22, f.H[2] - f.hr * 0.14));
+      const h = f.hands[0];
+      P.add('glow', new THREE.ConeGeometry(0.03, 0.08, 8).translate(h[0], h[1] + 0.06, h[2]));
+      P.add('glow', sphere(0.022, h[0], h[1] + 0.035, h[2], 10));
+      const cy = f.top - f.hr * 0.3;
+      P.add('trim', pointedCrown(f.hr * 0.6, cy, 5, 0.1, { flare: 0.25, w: 0.55 }));
+      P.add('horn', merge([-1, 1].map((x) => new THREE.ConeGeometry(0.014, 0.08, 8).rotateZ(-x * 0.5).translate(x * f.hr * 0.62, cy + 0.06, f.H[2]))));
+      P.add('accent', placeAt(brilliant(0.016), 0, f.hr * 0.66, cy + 0.03).translate(0, 0, f.H[2]));
+      P.add('trim', ring(0.06 * f.s, f.A(0, 0.25, 0)[1], 0.01));
+      return turnPiece(P, 0.3);
+    },
+    b() {
+      // a hooded mage: only two glowing eyes under the hood, and an orb on a crooked staff
+      const P = new Piece(), y0 = armyPlinth(P, 0.31, 0.1, { studs: 8 });
+      const f = person(P, y0, 1.12, { kind: 'chibi', dress: 'robe', clothSlot: 'cloth2', hood: true, hoodSlot: 'cloth2', noEyes: true, hands: [[-0.11, 0.35, 0.06], [0.08, 0.24, 0.08]] });
+      P.add('void', sphere(f.hr * 0.96, f.H[0], f.H[1], f.H[2] + f.hr * 0.06, 20));
+      P.add('glow', merge([-1, 1].map((x) => sphere(f.hr * 0.14, 0, 0, 0, 10).scale(1, 0.75, 0.5).translate(x * f.hr * 0.34, f.H[1] + f.hr * 0.05, f.H[2] + f.hr * 0.95))));
+      const h = f.hands[0], pts = [];
+      for (let i = 0; i <= 8; i++) { const t = i / 8; pts.push([h[0] + Math.sin(t * 9) * 0.006, mix(y0, h[1] + 0.3, t), h[2]]); }
+      pts.push([h[0] + 0.03, h[1] + 0.34, h[2]], [h[0] + 0.05, h[1] + 0.31, h[2]]);
+      P.add('wood', K.tube(pts, 0.009, { segs: 30, radial: 6 }));
+      P.add('glow', sphere(0.034, h[0] + 0.006, h[1] + 0.385, h[2], 14));
+      P.add('trim', ring(0.085 * f.s, f.A(0, 0.27, 0)[1], 0.008));
+      return turnPiece(P, 0.3);
+    },
+    n() {
+      // a little shadow dragon on its haunches, wings up, two horns and a curling tail
+      const P = new Piece(), y0 = armyPlinth(P, 0.322, 0.1, { studs: 8 });
+      const d = new Sculpt(0.024, 1.15), belly = new Sculpt(0.02);
+      d.floor = y0 - 0.004;
+      d.ell([0, y0 + 0.2, -0.03], [0.1, 0.13, 0.11], 0.04);                          // sitting body
+      belly.ell([0, y0 + 0.22, 0.03], [0.07, 0.1, 0.06], 0.03);
+      d.pair((x) => {
+        d.ell([x * 0.075, y0 + 0.12, -0.02], [0.05, 0.07, 0.08], 0.03);              // haunches
+        d.ell([x * 0.075, y0 + 0.025, 0.06], [0.03, 0.025, 0.05], 0.015);            // feet
+        d.chain([[x * 0.06, y0 + 0.28, 0.05, 0.022], [x * 0.065, y0 + 0.21, 0.1, 0.018], [x * 0.05, y0 + 0.2, 0.13, 0.018]], 0.012);   // little arms
+      });
+      d.chain([[0, y0 + 0.3, 0.0, 0.06], [0, y0 + 0.4, 0.04, 0.05]], 0.03, 3);
+      d.ell([0, y0 + 0.48, 0.07], [0.085, 0.08, 0.085], 0.03);                       // a big head
+      d.ell([0, y0 + 0.45, 0.15], [0.055, 0.045, 0.05], 0.03);                       // snout
+      d.pair((x) => d.ell([x * 0.022, y0 + 0.47, 0.195], [0.008, 0.006, 0.006], 0.004, true));   // nostrils
+      d.chain([[0, y0 + 0.08, -0.12, 0.04], [0.08, y0 + 0.03, -0.16, 0.03], [0.15, y0 + 0.03, -0.08, 0.02], [0.17, y0 + 0.06, 0.0, 0.012]], 0.02, 4);   // tail curled round
+      P.add('cloth', d.mesh()); P.add('cloth2', belly.mesh());
+      P.add('glow', merge([-1, 1].map((x) => sphere(0.017, 0, 0, 0, 10).scale(1, 1.3, 0.6).translate(x * 0.04, y0 + 0.5, 0.14))));
+      P.add('horn', merge([-1, 1].map((x) => new THREE.ConeGeometry(0.016, 0.08, 8).rotateX(-0.7).rotateZ(-x * 0.3).translate(x * 0.045, y0 + 0.56, 0.03))));
+      P.add('horn', around(5, 0, 0, (i) => new THREE.ConeGeometry(0.012, 0.03, 6).translate(0, y0 + 0.31 - i * 0.04, -0.05 - i * 0.02 - 0.03 * (i > 2 ? 1 : 0)), { phase: 0 }).rotateY(0));
+      const wing = (x) => { const g = extrude([[0, 0], [0.04, 0.16], [0.11, 0.2], [0.09, 0.13], [0.13, 0.1], [0.08, 0.05], [0.1, 0.0]], 0.006, 0.002, { bevelSegments: 1 }); g.rotateY(x > 0 ? 0.6 : Math.PI - 0.6); if (x < 0) g.rotateZ(0); return g.translate(x * 0.04, y0 + 0.28, -0.08); };
+      P.add('wing', merge([wing(1), wing(-1)]));
+      return turnPiece(P, 0.35);
+    },
+    r() {
+      // a dark spire: black stone, spiked crenels, a violet window and a dark banner
+      const P = new Piece(), y0 = armyPlinth(P, 0.335, 0.1, { studs: 8 });
+      P.lathe('stone', profile(0, y0).line(0.22, y0).line(0.18, y0 + 0.36).line(0.23, y0 + 0.4).line(0.23, y0 + 0.46).line(0, y0 + 0.46), { mod: MOD.facets(6, y0, y0 + 0.46, 0.15) });
+      P.add('horn', around(6, 0.215, y0 + 0.46, () => new THREE.ConeGeometry(0.03, 0.12, 6).translate(0, 0.06, 0), { tilt: -0.2 }));
+      P.lathe('stone', profile(0, y0 + 0.46).line(0.11, y0 + 0.46).line(0.07, y0 + 0.62).line(0, y0 + 0.78), { segs: 6 });
+      P.add('glow', sphere(0.025, 0, y0 + 0.68, 0.06, 10));
+      P.add('glow', extrude([[-0.035, 0], [0.035, 0], [0.035, 0.08], [0, 0.13], [-0.035, 0.08]], 0.01, 0.003, { bevelSegments: 1 }).translate(0, y0 + 0.17, 0.19));
+      P.add('banner', armyBanner(0.1, 0.18).translate(0, y0 + 0.39, 0.205).rotateY(-0.9));
+      P.add('glow', star(0.022, 0.006, 4).rotateY(-0.9).translate(Math.sin(-0.9) * 0.21, y0 + 0.31, Math.cos(-0.9) * 0.21));
+      return P;
+    },
+    p() {
+      // a shadow imp: a round purple puff with two little horns, glowing eyes and bat wings
+      const P = new Piece(), y0 = armyPlinth(P, 0.27, 0.08, { studs: 6 });
+      const b = new Sculpt(0.03);
+      b.floor = y0 - 0.004;
+      b.ell([0, y0 + 0.27, 0], [0.13, 0.15, 0.12], 0.04);
+      b.cone([0, y0 + 0.16, 0], [0, y0 + 0.02, 0], 0.08, 0.065, 0.04);                   // a wisp of mist to stand on
+      b.pair((x) => b.ell([x * 0.12, y0 + 0.23, 0.05], [0.03, 0.035, 0.03], 0.03));      // stubby hands
+      b.pair((x) => b.ell([x * 0.045, y0 + 0.32, 0.115], [0.035, 0.012, 0.02], 0.01));   // a grumpy brow
+      P.add('cloth', b.mesh());
+      P.add('glow', merge([-1, 1].map((x) => sphere(0.024, 0, 0, 0, 12).scale(1, 0.75, 0.5).translate(x * 0.045, y0 + 0.29, 0.105))));
+      P.add('horn', merge([-1, 1].map((x) => new THREE.ConeGeometry(0.02, 0.07, 8).rotateZ(-x * 0.35).translate(x * 0.06, y0 + 0.43, 0.0))));
+      P.add('wing', merge([-1, 1].map((x) => extrude([[0, 0], [0.04, 0.07], [0.09, 0.08], [0.07, 0.04], [0.1, 0.02], [0.06, -0.01]], 0.005, 0.002, { bevelSegments: 1 }).rotateY(x > 0 ? 0.5 : Math.PI - 0.5).translate(x * 0.07, y0 + 0.29, -0.07))));
+      P.add('trim', ring(0.075, y0 + 0.12, 0.009));
+      return turnPiece(P, 0.3);
+    },
+  };
+
+  // ------------------------------------------------------------------ Galactic Blue & Red
+  // Two star fleets of our own, out among the planets. White is the Blue Fleet, in white
+  // ceramic with blue light; black is the Red Fleet, in black armour with red light. Kings and
+  // queens are commanders, knights are starships, bishops are glowing crystal beacons, rooks are
+  // towers of light and pawns are space cadets. Every figure stands on a lit hexagonal pad.
+  // a starship along +z, built at the origin: a hull, wings, engines and a canopy
+  function starship(P, o) {
+    const g = { hull: [], wing: [], glow: [], glass: [] };
+    const L = o.len, R = o.r;
+    const hull = revolve(profile(0, -L * 0.5).line(R * 0.8, -L * 0.48).line(R, -L * 0.3).curve([[R * 0.95, L * 0.1], [R * 0.6, L * 0.35], [R * 0.12, L * 0.5]]).line(0, L * 0.52), { segs: 24 });
+    g.hull.push(hull.rotateX(Math.PI / 2).scale(1, 0.7, 1));
+    const W = o.wing;
+    const wing = extrude(W, 0.012, 0.004, { bevelSegments: 1 }); wing.rotateX(Math.PI / 2);
+    g.wing.push(wing);
+    for (const x of [-1, 1]) {
+      const ex = x * (o.engines || 0.06);
+      g.hull.push(new THREE.CylinderGeometry(R * 0.38, R * 0.45, L * 0.32, 14).rotateX(Math.PI / 2).translate(ex, 0, -L * 0.3));
+      g.glow.push(new THREE.CylinderGeometry(R * 0.32, R * 0.32, 0.01, 14).rotateX(Math.PI / 2).translate(ex, 0, -L * 0.465));
+    }
+    g.glass.push(sphere(R * 0.62, 0, 0, 0, 16).scale(0.8, 0.6, 1.5).translate(0, R * 0.45, L * 0.12));
+    return g;
+  }
+  function placeShip(P, g, y, tilt, slots) {
+    for (const k of Object.keys(g)) for (const geo of g[k]) P.add(slots[k] || k, geo.rotateX(-tilt).translate(0, y, 0));
+  }
+  const GALBLUE = {
+    k() {
+      // the Fleet Commander: a white uniform, a navy cape, gold shoulders and a star circlet
+      const P = new Piece(), y0 = hexBase(P, 0.34, 0.11);
+      const f = person(P, y0, 1.24, { dress: 'legs', cape: true, hands: [[-0.1, 0.44, 0.08], [0.1, 0.42, 0.04]], hair: 'bun' });
+      P.add('trim', merge([-1, 1].map((x) => new THREE.SphereGeometry(0.045 * f.s, 16, 8, 0, TAU, 0, Math.PI / 2).scale(1.1, 0.6, 1).translate(...f.A(x * 0.09, 0.67, -0.004)))));
+      P.add('cloth2', new THREE.BoxGeometry(0.03 * f.s, 0.3 * f.s, 0.012).rotateZ(0.5).translate(...f.A(0, 0.55, 0.068)));
+      P.add('trim', ring(0.07 * f.s, f.A(0, 0.44, 0)[1], 0.009));
+      const cy = f.top - f.hr * 0.55;
+      P.add('trim', ring(f.hr * 1.0, cy, 0.008));
+      P.add('trim', pointedCrown(f.hr * 0.98, cy, 6, 0.07, { flare: 0.1, w: 0.4 }));
+      P.add('glow', star(0.034, 0.01, 5).translate(0, cy + 0.06, f.H[2] + f.hr * 0.95));
+      const h = f.hands[0];
+      P.add('steel', rod(h[0], h[1] - 0.05, h[1] + 0.22, h[2], 0.008));
+      P.add('glow', star(0.03, 0.01, 4).translate(h[0], h[1] + 0.25, h[2]));
+      P.add('trim', merge([0.6, 0.53, 0.46].map((y) => sphere(0.008, 0, 0, 0, 8).translate(...f.A(-0.04, y, 0.065)))));
+      return turnPiece(P, 0.3);
+    },
+    q() {
+      // the Admiral: a long white coat, a high navy collar and a star staff
+      const P = new Piece(), y0 = hexBase(P, 0.33, 0.1);
+      const f = person(P, y0, 1.14, { dress: 'gown', flare: 0.9, cape: true, hair: 'long', hands: [[-0.1, 0.48, 0.08], [0.08, 0.4, 0.07]] });
+      P.add('cloth2', new THREE.CylinderGeometry(0.06 * f.s, 0.045 * f.s, 0.07 * f.s, 18, 1, true, Math.PI / 2 + 0.7, TAU - 1.4).translate(...f.A(0, 0.72, -0.01)));
+      P.add('trim', ring(0.06 * f.s, f.A(0, 0.43, 0)[1], 0.009));
+      const cy = f.top - f.hr * 0.5;
+      P.add('trim', pointedCrown(f.hr * 0.95, cy, 5, 0.08, { flare: 0.2, w: 0.5 }));
+      P.add('glow', gemRing(5, f.hr * 1.0, cy + 0.015, 0.009, { phase: Math.PI / 5 }));
+      const h = f.hands[0];
+      P.add('trim', rod(h[0], y0, h[1] + 0.32, h[2], 0.008));
+      P.add('trim', ring(0.04, 0, 0.006).rotateX(Math.PI / 2).translate(h[0], h[1] + 0.36, h[2]));
+      P.add('glow', star(0.032, 0.012, 4).translate(h[0], h[1] + 0.36, h[2]));
+      return turnPiece(P, 0.3);
+    },
+    b() {
+      // a beacon: a white pedestal holding up a tall blue crystal with a gold star in its heart
+      const P = new Piece(), y0 = hexBase(P, 0.31, 0.1);
+      P.lathe('body', profile(0, y0).line(0.16, y0).curve([[0.12, y0 + 0.12], [0.08, y0 + 0.3], [0.1, y0 + 0.4]]).line(0.13, y0 + 0.42).line(0.12, y0 + 0.45).line(0, y0 + 0.45), { segs: 6 });
+      P.add('glow', merge([0, 1, 2, 3, 4, 5].map((i) => new THREE.BoxGeometry(0.012, 0.24, 0.006).translate(0, y0 + 0.2, 0.105).rotateY(i * Math.PI / 3 + Math.PI / 6))));
+      P.add('crystal', shard(0.1, 0.56).translate(0, y0 + 0.7, 0).rotateY(Math.PI / 4));
+      P.add('steel', around(4, 0.08, y0 + 0.47, () => new THREE.BoxGeometry(0.02, 0.14, 0.02).translate(0, 0.05, 0), { tilt: -0.25, phase: Math.PI / 4 }));
+      P.add('trim', star(0.04, 0.014, 5).translate(0, y0 + 0.66, 0.072));
+      return P;
+    },
+    n() {
+      // a starfighter with swept delta wings and blue engines, climbing off its stand
+      const P = new Piece(), y0 = hexBase(P, 0.322, 0.1);
+      P.add('steel', rod(0, y0, y0 + 0.46, -0.02, 0.016));
+      const g = starship(P, { len: 0.54, r: 0.064, engines: 0.08, wing: [[0, 0.14], [0.27, -0.18], [0.23, -0.23], [0.05, -0.16], [-0.05, -0.16], [-0.23, -0.23], [-0.27, -0.18]] });
+      g.wing.push(merge([-1, 1].map((x) => extrude([[0, 0], [0.06, 0], [0.02, 0.1]], 0.01, 0.003).rotateY(Math.PI / 2).translate(x * 0.22, 0, -0.16))));
+      g.glow.push(merge([-1, 1].map((x) => new THREE.BoxGeometry(0.12, 0.004, 0.012).translate(x * 0.12, 0.008, -0.1))));
+      placeShip(P, g, y0 + 0.52, 0.45, { hull: 'body', wing: 'body', glow: 'glow', glass: 'glass' });
+      P.add('trim', star(0.03, 0.008, 5).rotateX(-Math.PI / 2 - 0.45).translate(0.12, y0 + 0.53, -0.04));
+      return turnPiece(P, 0.9);
+    },
+    r() {
+      // a tower of light: a white drum with blue light strips, a gold band and a domed top
+      const P = new Piece(), y0 = hexBase(P, 0.335, 0.1);
+      P.lathe('body', profile(0, y0).line(0.21, y0).line(0.2, y0 + 0.4).line(0.235, y0 + 0.42).line(0.235, y0 + 0.48).line(0.19, y0 + 0.48).curve([[0.17, y0 + 0.55], [0.1, y0 + 0.6], [0, y0 + 0.62]]));
+      P.add('body', battlements(6, 0.19, 0.235, y0 + 0.475, y0 + 0.55, 0.42, 'flat'));
+      P.add('glow', merge([0, 1, 2, 3, 4, 5, 6, 7].map((i) => new THREE.BoxGeometry(0.018, 0.28, 0.008).translate(0, y0 + 0.2, 0.205).rotateY(i * Math.PI / 4))));
+      P.add('trim', ring(0.212, y0 + 0.05, 0.01));
+      P.add('trim', ring(0.2, y0 + 0.37, 0.008));
+      P.add('steel', rod(0, y0 + 0.6, y0 + 0.72, 0, 0.006));
+      P.add('glow', sphere(0.018, 0, y0 + 0.73, 0, 10));
+      P.add('trim', star(0.04, 0.012, 5).translate(0, y0 + 0.28, 0.212));
+      return P;
+    },
+    p() {
+      // a space cadet in a round white helmet with a blue visor
+      const P = new Piece(), y0 = hexBase(P, 0.27, 0.08);
+      const f = person(P, y0, 0.72, { dress: 'legs', bulk: 1.15, hands: [[-0.1, 0.4, 0.05], [0.1, 0.4, 0.05]], noEyes: true });
+      P.add('body', sphere(f.hr * 1.35, 0, 0, 0, 22).scale(1, 1.02, 1).translate(f.H[0], f.H[1] + f.hr * 0.12, f.H[2] - f.hr * 0.05));
+      P.add('glow', new THREE.SphereGeometry(f.hr * 1.38, 22, 8, Math.PI / 2 - 0.85, 1.7, 1.2, 0.5).translate(f.H[0], f.H[1] + f.hr * 0.12, f.H[2] - f.hr * 0.05));
+      P.add('steel', merge([-1, 1].map((x) => new THREE.SphereGeometry(0.045 * f.s, 14, 8, 0, TAU, 0, Math.PI / 2).scale(1.1, 0.7, 1).translate(...f.A(x * 0.1, 0.665, -0.004)))));
+      P.add('trim', ring(0.085 * f.s, f.A(0, 0.44, 0)[1], 0.009));
+      P.add('trim', star(0.022, 0.008, 5).translate(...f.A(0, 0.55, 0.072)));
+      return turnPiece(P, 0.3);
+    },
+  };
+  const GALRED = {
+    k() {
+      // the Red Warlord: black armour, a red cape and a crested helm crowned with spikes
+      const P = new Piece(), y0 = hexBase(P, 0.35, 0.11);
+      const f = person(P, y0, 1.24, { dress: 'legs', bulk: 1.15, cape: true, hands: [[-0.1, 0.42, 0.08], [0.1, 0.42, 0.06]], noEyes: true });
+      P.add('steel', merge([-1, 1].map((x) => new THREE.SphereGeometry(0.052 * f.s, 16, 8, 0, TAU, 0, Math.PI / 2).scale(1.2, 0.8, 1).translate(...f.A(x * 0.1, 0.67, -0.004)))));
+      P.add('steel', new THREE.SphereGeometry(0.1 * f.s, 20, 12, Math.PI / 2 - 1.1, 2.2, 0.5, 1.3).scale(1.1, 1.0, 0.75).translate(...f.A(0, 0.56, 0.02)));
+      const hm = helmet(f.H, f.hr * 1.08, { crest: true, tall: 1.15 }); P.add('steel', hm.metal); P.add('cloth2', hm.crest);
+      P.add('steel', sphere(f.hr * 1.08, 0, 0, 0, 20).scale(1, 0.75, 0.95).translate(f.H[0], f.H[1] - f.hr * 0.2, f.H[2] + f.hr * 0.06));
+      P.add('glow', new THREE.BoxGeometry(f.hr * 1.3, f.hr * 0.16, 0.012).translate(f.H[0], f.H[1] + f.hr * 0.05, f.H[2] + f.hr * 1.0));
+      const cy = f.H[1] + f.hr * 0.55;
+      P.add('trim', around(5, f.hr * 1.12, cy, (i) => new THREE.ConeGeometry(0.012, i === 2 ? 0.11 : 0.07, 6).translate(0, i === 2 ? 0.055 : 0.035, 0), { phase: -Math.PI / 2 + 0.1, tilt: -0.15 }).rotateY(Math.PI));
+      const h = f.hands[0];
+      P.add('steel', rod(h[0], y0, h[1] + 0.26, h[2], 0.009));
+      P.add('glow', shard(0.02, 0.08).translate(h[0], h[1] + 0.3, h[2]));
+      return turnPiece(P, 0.3);
+    },
+    q() {
+      // the Red Commander: a crimson gown, a tall fan collar and a crescent headpiece
+      const P = new Piece(), y0 = hexBase(P, 0.33, 0.1);
+      const f = person(P, y0, 1.14, { dress: 'gown', gownSlot: 'cloth2', flare: 1.0, frills: 7, hair: 'bun', hands: [[-0.07, 0.42, 0.08], [0.07, 0.42, 0.08]] });
+      P.add('steel', new THREE.CylinderGeometry(0.075 * f.s, 0.04 * f.s, 0.12 * f.s, 20, 1, true, Math.PI / 2 + 0.8, TAU - 1.6).translate(...f.A(0, 0.75, -0.015)));
+      const cy = f.top - f.hr * 0.2;
+      P.add('trim', crescent(f.hr * 1.15, 0.012).translate(0, cy + 0.02, f.H[2] - f.hr * 0.2));
+      P.add('glow', sphere(0.014, 0, cy + 0.0, f.H[2] + f.hr * 0.7, 10));
+      P.add('glow', merge([0.1, 0.2, 0.3].map((y) => ring(mix(0.16, 0.08, y / 0.42) * f.s, f.A(0, y, 0)[1], 0.004))));
+      return turnPiece(P, 0.3);
+    },
+    b() {
+      // a beacon: an angular black pillar holding a jagged red crystal
+      const P = new Piece(), y0 = hexBase(P, 0.31, 0.1);
+      P.lathe('body', profile(0, y0).line(0.15, y0).line(0.08, y0 + 0.36).line(0.13, y0 + 0.4).line(0.12, y0 + 0.44).line(0, y0 + 0.44), { segs: 4 });
+      P.add('glow', merge([0, 1, 2, 3].map((i) => new THREE.BoxGeometry(0.01, 0.26, 0.006).translate(0, y0 + 0.18, 0.083).rotateX(-0.19).rotateY(i * Math.PI / 2 + Math.PI / 4))));
+      P.add('crystal', shard(0.09, 0.5).translate(0, y0 + 0.68, 0));
+      P.add('crystal', merge([-1, 1].map((x) => shard(0.04, 0.2).rotateZ(-x * 0.5).translate(x * 0.07, y0 + 0.55, 0))));
+      P.add('steel', around(4, 0.1, y0 + 0.44, () => new THREE.ConeGeometry(0.02, 0.1, 4).translate(0, 0.05, 0), { tilt: -0.4 }));
+      return P;
+    },
+    n() {
+      // an interceptor with forward-swept wings like a crescent, red engines glowing
+      const P = new Piece(), y0 = hexBase(P, 0.322, 0.1);
+      P.add('steel', rod(0, y0, y0 + 0.46, -0.02, 0.016));
+      const g = starship(P, { len: 0.48, r: 0.07, engines: 0.06, wing: [[0.03, -0.14], [0.18, -0.09], [0.28, 0.12], [0.24, 0.14], [0.14, 0.0], [0.05, 0.02], [-0.05, 0.02], [-0.14, 0.0], [-0.24, 0.14], [-0.28, 0.12], [-0.18, -0.09], [-0.03, -0.14]] });
+      g.wing.push(merge([-1, 1].map((x) => new THREE.ConeGeometry(0.012, 0.09, 6).rotateX(Math.PI / 2).translate(x * 0.23, 0, 0.16))));
+      g.glow.push(merge([-1, 1].map((x) => new THREE.BoxGeometry(0.004, 0.006, 0.1).translate(x * 0.2, 0.008, 0.06).rotateY(x * 0.4))));
+      placeShip(P, g, y0 + 0.52, 0.45, { hull: 'body', wing: 'cloth2', glow: 'glow', glass: 'glass' });
+      return turnPiece(P, 0.9);
+    },
+    r() {
+      // a black hexagonal tower with red light slits and spikes at every corner
+      const P = new Piece(), y0 = hexBase(P, 0.335, 0.1);
+      P.lathe('body', profile(0, y0).line(0.22, y0).line(0.19, y0 + 0.4).line(0.24, y0 + 0.43).line(0.24, y0 + 0.5).line(0.19, y0 + 0.5).line(0.19, y0 + 0.48).line(0, y0 + 0.48), { segs: 6 });
+      P.add('steel', around(6, 0.23, y0 + 0.5, () => new THREE.ConeGeometry(0.028, 0.1, 4).translate(0, 0.05, 0), { tilt: -0.15 }));
+      P.add('glow', merge([0, 1, 2, 3, 4, 5].map((i) => new THREE.BoxGeometry(0.06, 0.012, 0.008).translate(0, y0 + 0.3, 0.17).rotateY(i * Math.PI / 3 + Math.PI / 6))));
+      P.add('glow', merge([0, 1, 2, 3, 4, 5].map((i) => new THREE.BoxGeometry(0.012, 0.2, 0.008).translate(0, y0 + 0.14, 0.185).rotateY(i * Math.PI / 3 + Math.PI / 6))));
+      P.add('steel', new THREE.ConeGeometry(0.1, 0.16, 6).translate(0, y0 + 0.56, 0));
+      P.add('glow', sphere(0.02, 0, y0 + 0.66, 0, 10));
+      return P;
+    },
+    p() {
+      // a cadet of the Red Fleet: black armour and an angled helmet with a red eye slit
+      const P = new Piece(), y0 = hexBase(P, 0.27, 0.08);
+      const f = person(P, y0, 0.72, { dress: 'legs', bulk: 1.15, hands: [[-0.1, 0.4, 0.05], [0.1, 0.4, 0.05]], noEyes: true });
+      P.add('body', new THREE.CylinderGeometry(f.hr * 1.1, f.hr * 1.3, f.hr * 2.3, 6).translate(f.H[0], f.H[1] + f.hr * 0.1, f.H[2] - f.hr * 0.05));
+      P.add('steel', new THREE.ConeGeometry(f.hr * 1.15, f.hr * 0.7, 6).translate(f.H[0], f.H[1] + f.hr * 1.6, f.H[2] - f.hr * 0.05));
+      P.add('glow', new THREE.BoxGeometry(f.hr * 1.4, f.hr * 0.22, 0.01).translate(f.H[0], f.H[1] + f.hr * 0.2, f.H[2] + f.hr * 1.18));
+      P.add('steel', merge([-1, 1].map((x) => new THREE.BoxGeometry(0.06 * f.s, 0.03 * f.s, 0.07 * f.s).rotateZ(-x * 0.3).translate(...f.A(x * 0.1, 0.68, 0)))));
+      P.add('glow', ring(0.085 * f.s, f.A(0, 0.44, 0)[1], 0.006));
+      return turnPiece(P, 0.3);
+    },
+  };
+
+  // ------------------------------------------------------------------ storybook figures
+  // Shared by the four storybook sets (Dino Kingdom, Forest Guardians, Jarls of the Fjord and
+  // Runecarved). Their two sides are different characters, so each piece is built with the side
+  // it is for (ctx.side) and the geometry is cached per side.
+  // A round plinth with a carved band; slot 'base' takes the set's own plinth finish.
+  function plinth(P, R, h, o) {
+    o = o || {};
+    P.lathe('base', profile(0, 0).line(R - 0.012, 0).arc(R, 0.014, 0.3).line(R, 0.036).line(R - 0.014, 0.046).line(R - 0.022, h - 0.014).arc(R - 0.034, h, 0.35).line(0, h), o.mod ? { mod: o.mod } : undefined);
+    P.add(o.bandSlot || 'trim', ring(R - 0.003, 0.041, 0.0075));
+    return h;
+  }
+  // Everything added after the plinth (mark = Piece.mark()) scaled up by k from the plinth top.
+  Piece.prototype.mark = function () { const m = {}; for (const k of Object.keys(this.parts)) m[k] = this.parts[k].length; return m; };
+  function grow(P, mark, y0, k) {
+    for (const slot of Object.keys(P.parts)) P.parts[slot].forEach((g, i) => { if (i >= (mark[slot] || 0)) g.translate(0, -y0, 0).scale(k, k, k).translate(0, y0, 0); });
+    return P;
+  }
+  // A standing figure in a long robe, facing +z, on a plinth top at y0 and at scale s.
+  //   pose: 'sword' (both hands on a sword's pommel, point down), 'staff' (right hand on a tall
+  //   staff), 'clasp' (hands together at the waist), 'shield' (a shield on the left arm, a spear
+  //   in the right hand). hair: 'long' | 'braids' | 'short' | 'none'. beard: its length (0 for
+  //   none). cloak: a cape down the back. fur: a ring of fur round the shoulders. hood: a hood
+  //   over the head. skirt: the robe's radius at the hem. armour: a breastplate shell.
+  // Returns the sculpts (skin, robe, hair, cape) still open for more parts, the head and the
+  // anchor points; call done() to mesh them.
+  function figure(P, y0, s, o) {
+    o = o || {};
+    const A = at([0, y0, 0], s), r = (v) => v * s;
+    // o.coarse: a coarser mesh for the small, many pieces (the pawns), to keep a full board light
+    const cs = o.coarse || 1, skin = new Sculpt(0.016, 1.1 * cs), robe = new Sculpt(0.022, 1.3 * cs), hair = new Sculpt(0.014, 1.2 * cs), cape = new Sculpt(0.026, 1.4 * cs);
+    robe.floor = y0 - 0.004; cape.floor = y0 - 0.004; hair.floor = y0 - 0.004;
+    const sk = o.skirt || 0.15;
+    P.lathe('cloth', profile(0, y0).line(r(sk), y0).curve([[r(sk * 0.97), y0 + r(0.06)], [r(sk * 0.78), y0 + r(0.22)], [r(0.084), y0 + r(0.4)], [r(0.07), y0 + r(0.47)]]).line(0, y0 + r(0.47)),
+      o.robeMod ? { mod: o.robeMod } : undefined);
+    robe.ell(A(0, 0.54, 0.002), [r(0.078), r(0.11), r(0.058)], 0.03);                     // chest
+    robe.pair((x) => robe.ell(A(x * 0.076, 0.63, 0), [r(0.038), r(0.034), r(0.038)], 0.025));   // shoulders
+    if (o.armour) {
+      const c = A(0, 0.56, 0.006);
+      const f = (x, y, z) => { const d = SD.ellipsoid(x, y, z, c[0], c[1], c[2], r(0.084), r(0.1), r(0.064)); return Math.max(Math.max(d - r(0.008), -d), c[1] - r(0.075) - y, y - (c[1] + r(0.07)), -z); };
+      P.add('trim', sdfGeometry(f, [r(-0.1), c[1] - r(0.09), r(-0.02), r(0.1), c[1] + r(0.09), r(0.09)], Q.cell * 1.2));
+    }
+    skin.cone(A(0, 0.64, 0), A(0, 0.7, 0.004), r(0.027), r(0.025), 0.01);
+    const hd = head(skin, A(0, 0.76, 0.008), r(0.058), { beard: o.beard || 0, moustache: !!o.beard });
+    if (o.beard) skin.cone(A(0, 0.7, 0.04), A(0, 0.76 - 0.058 * (1.05 + o.beard), 0.045), r(0.042), r(0.02), 0.02);
+    // hair
+    if (o.hair && o.hair !== 'none') {
+      hair.ell(A(0, 0.775, -0.01), [r(0.062), r(0.064), r(0.06)], 0.012);
+      hair.ell(A(0, 0.805, 0.02), [r(0.055), r(0.03), r(0.05)], 0.012);
+      if (o.hair === 'long') hair.chain([[0, y0 + r(0.75), r(-0.04), r(0.05)], [0, y0 + r(0.66), r(-0.06), r(0.052)], [0, y0 + r(0.55), r(-0.065), r(0.046)], [0, y0 + r(0.44), r(-0.06), r(0.03)]], 0.02, 4);
+      if (o.hair === 'braids') hair.pair((x) => hair.chain([[x * r(0.05), y0 + r(0.76), r(0.0), r(0.02)], [x * r(0.06), y0 + r(0.68), r(0.035), r(0.017)], [x * r(0.055), y0 + r(0.58), r(0.05), r(0.014)], [x * r(0.05), y0 + r(0.5), r(0.05), r(0.01)]], 0.008, 4));
+    }
+    if (o.cloak) { cape.cone(A(0, 0.65, -0.05), A(0, 0.02, -0.1), r(0.072), r(0.13), 0.03); cape.ell(A(0, 0.4, -0.06), [r(0.1), r(0.3), r(0.05)], 0.04); }
+    if (o.hood) {
+      robe.ell(A(0, 0.775, -0.006), [r(0.072), r(0.078), r(0.074)], 0.016);
+      robe.cone(A(0, 0.8, -0.04), A(0, 0.79, -0.1), r(0.05), r(0.012), 0.02);
+      robe.ell(A(0, 0.75, 0.062), [r(0.05), r(0.07), r(0.05)], 0.008, true);            // the face shows
+      robe.cone(A(0, 0.7, -0.03), A(0, 0.6, -0.06), r(0.07), r(0.085), 0.03);           // falling to the shoulders
+    }
+    // arms
+    let hands;
+    const R = 0.022;
+    if (o.pose === 'sword') {
+      hands = [A(-0.022, 0.475, 0.1), A(0.022, 0.475, 0.1)];
+      arm(robe, skin, A(-0.076, 0.62, 0), A(-0.105, 0.52, 0.045), hands[0], r(R));
+      arm(robe, skin, A(0.076, 0.62, 0), A(0.105, 0.52, 0.045), hands[1], r(R));
+    } else if (o.pose === 'staff') {
+      hands = [A(-0.02, 0.45, 0.08), A(0.125, 0.56, 0.075)];
+      arm(robe, skin, A(-0.076, 0.62, 0), A(-0.092, 0.5, 0.04), hands[0], r(R));
+      arm(robe, skin, A(0.076, 0.62, 0), A(0.13, 0.52, 0.02), hands[1], r(R));
+    } else if (o.pose === 'shield') {
+      hands = [A(-0.085, 0.44, 0.075), A(0.105, 0.5, 0.07)];
+      arm(robe, skin, A(-0.076, 0.62, 0), A(-0.11, 0.5, 0.03), hands[0], r(R));
+      arm(robe, skin, A(0.076, 0.62, 0), A(0.12, 0.5, 0.02), hands[1], r(R));
+    } else {
+      hands = [A(-0.018, 0.45, 0.08), A(0.018, 0.45, 0.08)];
+      arm(robe, skin, A(-0.076, 0.62, 0), A(-0.092, 0.5, 0.04), hands[0], r(R));
+      arm(robe, skin, A(0.076, 0.62, 0), A(0.092, 0.5, 0.04), hands[1], r(R));
+    }
+    if (o.fur) P.add('fur', around(14, r(0.074), y0 + r(0.655), (i) => sphere(r(0.02 + (i % 3) * 0.003), 0, 0, 0, 7)));
+    const top = y0 + r(0.76 + 0.058);
+    return {
+      A, r, skin, robe, hair, cape, hd, hands, top, s, y0,
+      done() {
+        P.add('body', skin.mesh()); P.add('cloth', robe.mesh()); P.add('hair', hair.mesh()); P.add('cape', cape.mesh()); eyes(P, hd);
+        return P;
+      },
+    };
+  }
+  // A sword standing point down, its pommel held at p (two hands on it).
+  function swordDown(P, p, len, w) {
+    const sw = sword(len, w);
+    for (const g of [sw.blade, sw.hilt]) { g.rotateZ(Math.PI); g.translate(p[0], p[1] + 0.012, p[2]); }
+    P.add('steel', sw.blade); P.add('trim', sw.hilt);
+  }
+  // A tall staff from the plinth top up through the hand at h, with its head at the top.
+  function staffAt(P, h, y0, len, rad, slot) {
+    P.add(slot || 'trim', new THREE.CylinderGeometry(rad, rad * 1.1, len, 8).translate(h[0], y0 + len / 2, h[2]));
+    return [h[0], y0 + len, h[2]];
+  }
+  // A long thin tapering curve (a horn, a claw, an antler tine) through points.
+  const horn = (pts, r0, r1) => K.tube(pts, r0, { segs: 14, radial: 7, radiusAt: (t) => mix(1, r1 / r0, t) });
+  // Antlers growing up and out from (x, y, z): a main beam with tines, on both sides.
+  function antlers(c, size, o) {
+    o = o || {};
+    const parts = [];
+    for (const sd of [-1, 1]) {
+      const b = (u, v, w) => [c[0] + sd * u * size, c[1] + v * size, c[2] + w * size];
+      const beam = [b(0.2, 0, 0), b(0.5, 0.35, -0.1), b(0.75, 0.75, -0.15), b(0.85, 1.15, -0.05), b(0.8, 1.45, 0.05)];
+      parts.push(horn(beam, size * 0.07, size * 0.025));
+      for (const [i, du, dv, dw] of [[1, 0.1, 0.35, 0.25], [2, 0.25, 0.3, 0.2], [2, -0.2, 0.35, 0.1], [3, 0.2, 0.3, 0.1], [3, -0.25, 0.25, -0.05]].slice(0, o.tines || 5)) {
+        const p0 = beam[i], p1 = [p0[0] + sd * du * size, p0[1] + dv * size, p0[2] + dw * size];
+        parts.push(horn([p0, [mix(p0[0], p1[0], 0.5), mix(p0[1], p1[1], 0.6), mix(p0[2], p1[2], 0.5)], p1], size * 0.045, size * 0.015));
+      }
+    }
+    return merge(parts);
+  }
+  // A banner on a pole: a cloth hanging from a crossbar, with a swallowtail foot.
+  function banner(P, x, y, z, w, h, ry, slot) {
+    const flag = extrude([[-w / 2, 0], [w / 2, 0], [w / 2, -h], [0, -h * 0.82], [-w / 2, -h]], 0.006, 0.002, { bevelSegments: 1 });
+    flag.rotateY(ry || 0); flag.translate(x, y, z);
+    P.add(slot || 'cloth', flag);
+    const bar = new THREE.CylinderGeometry(0.005, 0.005, w * 1.2, 6).rotateZ(Math.PI / 2); bar.rotateY(ry || 0); bar.translate(x, y + 0.006, z);
+    P.add('trim', bar);
+  }
+
+  // ------------------------------------------------------------------ Dino Kingdom
+  // From the user's picture of a dinosaur set beside a volcano: white is carved fossil bone
+  // with amber, black is dark lava stone with glowing cracks. A crowned T. rex king, a crested
+  // queen, amber crystal bishops, a triceratops and a raptor for the knights, castle towers,
+  // and eggs for pawns: a baby hatching on the light side, amber eggs held in claws on the dark.
+  const fernBand = (r, y, n, size) => around(n, r, y, (i) => { const g = leaf(size * 0.5, size, size * 0.12); g.rotateZ(i % 2 ? 0.25 : -0.25); return g; }, { phase: 0.2 });
+  function teeth(n, a, b, size, down) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const t = (i + 0.5) / n, p = [mix(a[0], b[0], t), mix(a[1], b[1], t), mix(a[2], b[2], t)];
+      for (const sd of [-1, 1]) { const c = new THREE.ConeGeometry(size * 0.45, size, 5); if (down) c.rotateX(Math.PI); c.translate(p[0] + sd * size * 0.0, p[1] - (down ? size / 2 : -size / 2), p[2]); c.translate(sd * (a[3] || 0) * (1 - t * 0.4), 0, 0); out.push(c); }
+    }
+    return merge(out);
+  }
+  const DINO = {
+    k(ctx) {
+      // a crowned tyrant lizard king, standing tall in a cape, roaring
+      const P = new Piece(), y0 = plinth(P, 0.34, 0.1), Y = y0, mark = P.mark();
+      const S = new Sculpt(0.03, 1.2), cape = new Sculpt(0.03, 1.3);
+      S.floor = y0 - 0.004;
+      S.cone([0, Y + 0.3, -0.1], [0, Y + 0.55, 0.07], 0.145, 0.09, 0.05);                       // a big body, leaning forward
+      S.ell([0, Y + 0.42, 0.03], [0.11, 0.13, 0.11], 0.05);                                     // belly
+      S.pair((x) => {
+        S.ell([x * 0.1, Y + 0.27, -0.02], [0.07, 0.11, 0.1], 0.03);                              // thighs
+        S.cone([x * 0.105, Y + 0.2, -0.06], [x * 0.105, Y + 0.035, 0.0], 0.045, 0.034, 0.02);    // shins
+        S.ell([x * 0.105, Y + 0.024, 0.055], [0.048, 0.026, 0.085], 0.015);                      // feet
+        S.cone([x * 0.1, Y + 0.52, 0.11], [x * 0.11, Y + 0.46, 0.165], 0.024, 0.016, 0.012);     // little arms
+      });
+      S.chain([[0, Y + 0.3, -0.16, 0.095], [0.03, Y + 0.24, -0.27, 0.068], [0.1, Y + 0.17, -0.34, 0.045], [0.19, Y + 0.12, -0.35, 0.026], [0.25, Y + 0.1, -0.3, 0.012]], 0.03, 4);   // a long tail sweeping out behind
+      S.cone([0, Y + 0.52, 0.05], [0, Y + 0.64, 0.13], 0.1, 0.085, 0.04);                        // a thick neck
+      S.ell([0, Y + 0.71, 0.17], [0.1, 0.086, 0.135], 0.03);                                    // a big skull
+      S.cone([0, Y + 0.72, 0.21], [0, Y + 0.7, 0.37], 0.078, 0.056, 0.025);                      // a long upper jaw
+      S.cone([0, Y + 0.635, 0.16], [0, Y + 0.585, 0.32], 0.064, 0.04, 0.02);                    // lower jaw, wide open
+      S.ell([0, Y + 0.655, 0.29], [0.06, 0.04, 0.1], 0.01, true);                               // the open mouth
+      S.pair((x) => S.ell([x * 0.066, Y + 0.775, 0.215], [0.026, 0.018, 0.045], 0.012));            // brows
+      const sf = S.field();
+      P.add('body', S.mesh());
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.017, x * 0.08, Y + 0.75, 0.23, 10))));
+      P.add('mouth', sdfGeometry((x, y, z) => SD.ellipsoid(x, y, z, 0, Y + 0.655, 0.26, 0.044, 0.03, 0.07), [-0.05, Y + 0.615, 0.18, 0.05, Y + 0.695, 0.34], Q.cell));
+      P.add('tooth', merge([teeth(6, [0, Y + 0.683, 0.21, 0.056], [0, Y + 0.678, 0.34], 0.02, true), teeth(5, [0, Y + 0.618, 0.2, 0.046], [0, Y + 0.6, 0.29], 0.016, false)]));
+      P.add('tooth', merge([-1, 1].flatMap((x) => [0, 1, 2].map((i) => horn([[x * 0.11, Y + 0.014, 0.12 + i * 0.006], [x * (0.09 + i * 0.016), Y + 0.016, 0.155], [x * (0.085 + i * 0.022), Y + 0.004, 0.172]], 0.009, 0.002)))));   // toe claws
+      // a royal cape over his back, with a collar of claws and an amber pendant
+      P.add('cape', sdfGeometry(drape(sf, 0.016, (x, y, z) => Math.max(z + 0.01, Y + 0.1 - y, y - (Y + 0.63), Math.abs(x) - 0.17)), [-0.19, Y + 0.08, -0.22, 0.19, Y + 0.67, 0.05], Q.cell * 1.3));
+      P.add('tooth', around(11, 0.1, Y + 0.57, () => { const c = new THREE.ConeGeometry(0.011, 0.05, 5); c.rotateX(Math.PI); return c; }, { phase: -Math.PI * 0.45, tilt: 0.4 }).translate(0, 0, 0.03));
+      P.add('accent', placeAt(cabochon(0.03, 0.7), 0, 0.17, Y + 0.5));
+      P.add('trim', ring(0.12, Y + 0.55, 0.008).translate(0, 0, 0.04));
+      // a spiked crown on his head
+      const cr = pointedCrown(0.06, Y + 0.77, 7, 0.08, { flare: 0.25, w: 0.6 }); cr.translate(0, 0, 0.15); P.add('trim', cr);
+      P.add('accent', gemRing(7, 0.066, Y + 0.79, 0.008).translate(0, 0, 0.15));
+      grow(P, mark, y0, 1.22);
+      if (ctx.side === 'w') P.add('leaf', fernBand(0.318, 0.072, 12, 0.05));
+      else P.add('lava', ring(0.32, 0.075, 0.006));
+      return turnPiece(P, 0.6);
+    },
+    q(ctx) {
+      // a crested duck-billed queen in a gown, her crest swept back and a fan of plumes behind it
+      const P = new Piece(), y0 = plinth(P, 0.33, 0.1), Y = y0, mark = P.mark();
+      const S = new Sculpt(0.022), gown = new Sculpt(0.025, 1.2);
+      gown.floor = y0 - 0.004;
+      P.lathe('cloth', profile(0, Y).line(0.16, Y).curve([[0.158, Y + 0.06], [0.13, Y + 0.22], [0.088, Y + 0.38], [0.066, Y + 0.45]]).line(0, Y + 0.45), { mod: MOD.flutes(14, 0.1, Y + 0.01, Y + 0.4, { soft: true, end: 0.03 }) });
+      gown.ell([0, Y + 0.5, 0.0], [0.07, 0.1, 0.056], 0.03);
+      gown.pair((x) => gown.ell([x * 0.065, Y + 0.57, 0], [0.032, 0.03, 0.032], 0.025));
+      S.chain([[0, Y + 0.56, 0.005, 0.048], [0, Y + 0.66, 0.02, 0.04], [0, Y + 0.76, 0.03, 0.034], [0, Y + 0.82, 0.035, 0.032]], 0.02, 4);   // a long neck
+      S.ell([0, Y + 0.86, 0.06], [0.044, 0.042, 0.068], 0.02);                                    // head
+      S.cone([0, Y + 0.85, 0.09], [0, Y + 0.82, 0.16], 0.03, 0.026, 0.015);                     // the duck bill
+      S.ell([0, Y + 0.815, 0.165], [0.03, 0.014, 0.026], 0.01);
+      S.chain([[0.02, Y + 0.1, -0.13, 0.03], [0.09, Y + 0.04, -0.17, 0.022], [0.16, Y + 0.03, -0.12, 0.012]], 0.02, 3);   // tail from under the gown
+      arm(gown, S, [-0.065, Y + 0.56, 0], [-0.085, Y + 0.47, 0.04], [-0.016, Y + 0.44, 0.075], 0.019);
+      arm(gown, S, [0.065, Y + 0.56, 0], [0.085, Y + 0.47, 0.04], [0.016, Y + 0.44, 0.075], 0.019);
+      P.add('body', S.mesh()); P.add('cloth', gown.mesh());
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.01, x * 0.038, Y + 0.875, 0.09, 10))));
+      // the long tube crest
+      P.add('crest', horn([[0, Y + 0.885, 0.05], [0, Y + 0.93, 0.0], [0, Y + 0.96, -0.07], [0, Y + 0.965, -0.13]], 0.02, 0.012));
+      // a fan of plumes behind the crest
+      P.add('crest', merge([-3, -2, -1, 0, 1, 2, 3].map((i) => { const f = petal(0.035, 0.13, 0.008); f.rotateZ(i * 0.32); f.translate(0, Y + 0.88, -0.02); return f; })));
+      // an amber held at her heart, a necklace and a little coronet
+      P.add('accent', sphere(0.024, 0, Y + 0.455, 0.1, 16));
+      P.add('trim', around(14, 0.05, Y + 0.585, () => sphere(0.008, 0, 0, 0, 8)).translate(0, 0, 0.008));
+      P.add('accent', placeAt(cabochon(0.016, 0.7), 0, 0.058, Y + 0.56));
+      const cr = pointedCrown(0.04, Y + 0.895, 6, 0.055, { flare: 0.2, w: 0.6 }); cr.translate(0, 0, 0.055); P.add('trim', cr);
+      P.add('trim', ring(0.158, Y + 0.03, 0.008));
+      grow(P, mark, y0, 1.25);
+      if (ctx.side === 'w') P.add('leaf', fernBand(0.308, 0.072, 12, 0.05));
+      else P.add('lava', ring(0.31, 0.075, 0.006));
+      return turnPiece(P, 0.4);
+    },
+    b(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.31, 0.09), Y = y0;
+      if (ctx.side === 'w') {
+        // a six-sided amber crystal standing in a cup of bone claws, an ammonite inside it
+        P.lathe('base', profile(0, Y).line(0.15, Y).curve([[0.12, Y + 0.08], [0.11, Y + 0.16]]).line(0.135, Y + 0.19).line(0.135, Y + 0.21).line(0, Y + 0.21));
+        P.lathe('crystal', profile(0, Y + 0.18).line(0.105, Y + 0.18).line(0.1, Y + 0.6).line(0.0, Y + 0.86), { mod: MOD.facets(6, Y + 0.15, Y + 0.9, 1), segs: 48 });
+        P.add('tooth', around(6, 0.13, Y + 0.2, () => horn([[0, 0, 0], [0, 0.07, 0.03], [0, 0.13, 0.0]], 0.022, 0.004), { phase: Math.PI / 6 }));
+        P.add('trim', placeAt(ammonite(0.1), 0, 0.106, Y + 0.42));
+        P.add('leaf', fernBand(0.288, 0.066, 11, 0.046));
+      } else {
+        // a dark obelisk with an amber window and an ammonite, ringed by claws pointing up
+        P.lathe('body', profile(0, Y).line(0.15, Y).line(0.13, Y + 0.08).line(0.12, Y + 0.09).line(0.1, Y + 0.6).line(0, Y + 0.84), { mod: MOD.facets(4, Y + 0.08, Y + 0.9, 1), segs: 48 });
+        P.add('tooth', around(8, 0.115, Y + 0.12, () => horn([[0, 0, 0], [0, 0.08, 0.035], [0, 0.16, 0.02]], 0.02, 0.004)));
+        P.add('trim', placeAt(ammonite(0.09), Math.PI / 4, 0.09, Y + 0.38));
+        P.add('lava', placeAt(new THREE.OctahedronGeometry(0.035, 0).scale(0.8, 1.4, 0.5), Math.PI / 4, 0.06, Y + 0.68));
+        P.add('lava', ring(0.288, 0.07, 0.006));
+      }
+      return P;
+    },
+    n(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.322, 0.09), Y = y0;
+      const rock = new Sculpt(0.04, 1.4), S = new Sculpt(0.024, 1.15);
+      rock.floor = y0 - 0.004; S.floor = y0 - 0.004;
+      if (ctx.side === 'w') {
+        // a triceratops standing on a fern-covered rock
+        rock.ell([0, Y + 0.03, 0.0], [0.2, 0.07, 0.22]); rock.ell([0.05, Y + 0.06, -0.06], [0.1, 0.06, 0.1]);
+        const B = Y + 0.07;
+        S.ell([0, B + 0.2, -0.03], [0.1, 0.095, 0.16], 0.04);                                    // body
+        S.ell([0, B + 0.24, -0.1], [0.095, 0.09, 0.09], 0.04);                                   // hips
+        S.pair((x) => {
+          S.cone([x * 0.07, B + 0.17, 0.07], [x * 0.075, B + 0.0, 0.08], 0.034, 0.03, 0.02);
+          S.cone([x * 0.075, B + 0.19, -0.13], [x * 0.08, B + 0.0, -0.13], 0.04, 0.032, 0.02);
+        });
+        S.chain([[0, B + 0.22, -0.19, 0.045], [0.02, B + 0.15, -0.26, 0.03], [0.05, B + 0.05, -0.28, 0.016]], 0.02, 3);
+        S.ell([0, B + 0.26, 0.15], [0.065, 0.065, 0.075], 0.03);                                // head
+        S.cone([0, B + 0.25, 0.18], [0, B + 0.2, 0.27], 0.05, 0.022, 0.02);                      // face to the beak
+        const sf = S.field();
+        P.add('body', S.mesh());
+        // the great frill behind the head, scalloped, with knobs round its edge
+        const fr = new THREE.CircleGeometry(0.13, 28, 0, Math.PI); fr.rotateX(-0.5); fr.translate(0, B + 0.3, 0.1);
+        const back = fr.clone(); { const idx = back.index.array; for (let i = 0; i < idx.length; i += 3) { const t = idx[i]; idx[i] = idx[i + 2]; idx[i + 2] = t; } back.translate(0, 0, -0.006); }
+        P.add('body', merge([fr, back]));
+        const knobs = []; for (let i = 0; i <= 10; i++) { const a = (i / 10) * Math.PI, p = new THREE.Vector3(Math.cos(a) * 0.13, Math.sin(a) * 0.13, 0); p.applyAxisAngle(new THREE.Vector3(1, 0, 0), -0.5); knobs.push(sphere(0.016, p.x, p.y + B + 0.3, p.z + 0.1, 8)); }
+        P.add('trim', merge(knobs));
+        // three horns: two long brow horns and one on the nose, and a beak
+        P.add('tooth', merge([-1, 1].map((x) => horn([[x * 0.035, B + 0.3, 0.17], [x * 0.045, B + 0.36, 0.23], [x * 0.04, B + 0.39, 0.3]], 0.014, 0.003))
+          .concat([horn([[0, B + 0.24, 0.23], [0, B + 0.27, 0.26], [0, B + 0.29, 0.27]], 0.01, 0.002), horn([[0, B + 0.21, 0.25], [0, B + 0.19, 0.285], [0, B + 0.165, 0.29]], 0.016, 0.004)])));
+        P.add('eye', merge([-1, 1].map((x) => sphere(0.011, x * 0.055, B + 0.28, 0.18, 10))));
+        P.add('cloth', sdfGeometry(drape(sf, 0.012, (x, y, z) => Math.max(B + 0.21 - y, Math.abs(z + 0.04) - 0.08)), [-0.13, B + 0.18, -0.14, 0.13, B + 0.32, 0.07], Q.cell * 1.3));
+        P.add('accent', placeAt(cabochon(0.014, 0.6), 0, 0.0, 0).rotateX(-Math.PI / 2).translate(0, B + 0.31, -0.04));
+        P.add('base', rock.mesh());
+        P.add('leaf', merge([[-0.13, 0.12], [0.14, 0.1], [0.1, -0.16]].map(([x, z], i) => { const g = curl(leaf(0.05, 0.11, 0.006), 2); g.rotateY(Math.atan2(x, z)); g.rotateX(0.3); g.translate(x, Y + 0.05, z); return g; })));
+        return turnPiece(P, 0.15);
+      }
+      // a raptor on a rock, one foot up, tail out behind and a crest of red quills
+      rock.ell([0, Y + 0.06, 0.0], [0.19, 0.1, 0.2]); rock.ell([0.02, Y + 0.14, 0.08], [0.09, 0.09, 0.08]);
+      const B = Y + 0.1;
+      S.cone([0, B + 0.3, -0.06], [0, B + 0.4, 0.08], 0.075, 0.055, 0.03);                      // body, leaning forward
+      S.pair((x) => S.ell([x * 0.05, B + 0.27, -0.05], [0.04, 0.075, 0.065], 0.025));             // thighs
+      S.chain([[0.05, B + 0.24, -0.06, 0.03], [0.055, B + 0.13, -0.1, 0.022], [0.05, B + 0.03, -0.06, 0.017], [0.05, B + 0.0, 0.0, 0.016]], 0.014, 3);   // standing leg
+      S.chain([[-0.05, B + 0.24, -0.04, 0.03], [-0.055, B + 0.16, 0.02, 0.022], [-0.05, B + 0.12, 0.06, 0.017], [-0.05, B + 0.105, 0.11, 0.015]], 0.014, 3);   // the foot up on the rock
+      S.chain([[0, B + 0.32, -0.12, 0.05], [0, B + 0.34, -0.22, 0.035], [0.02, B + 0.33, -0.31, 0.02], [0.05, B + 0.3, -0.37, 0.01]], 0.02, 4);   // tail
+      S.chain([[0, B + 0.4, 0.08, 0.042], [0, B + 0.49, 0.1, 0.034], [0, B + 0.56, 0.11, 0.03]], 0.02, 3);   // neck
+      S.ell([0, B + 0.59, 0.14], [0.038, 0.04, 0.06], 0.02);                                       // head
+      S.cone([0, B + 0.59, 0.16], [0, B + 0.575, 0.23], 0.03, 0.02, 0.012);                      // snout
+      S.cone([0, B + 0.555, 0.15], [0, B + 0.53, 0.21], 0.022, 0.014, 0.01);                     // jaw
+      S.ell([0, B + 0.555, 0.215], [0.026, 0.012, 0.05], 0.008, true);
+      S.pair((x) => S.chain([[x * 0.05, B + 0.42, 0.08, 0.016], [x * 0.07, B + 0.36, 0.13, 0.013], [x * 0.06, B + 0.35, 0.17, 0.011]], 0.01, 3));   // arms
+      P.add('body', S.mesh()); P.add('base', rock.mesh());
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.009, x * 0.033, B + 0.605, 0.17, 10))));
+      P.add('tooth', merge([teeth(4, [0, B + 0.57, 0.17, 0.022], [0, B + 0.565, 0.225], 0.01, true), ...[-1, 1].map((x) => horn([[x * 0.06, B + 0.35, 0.17], [x * 0.062, B + 0.33, 0.19], [x * 0.06, B + 0.31, 0.19]], 0.006, 0.0015)),
+        ...[-1, 1].map((x) => horn([[x * 0.05, B + 0.12, 0.1], [x * 0.05, B + 0.15, 0.13], [x * 0.05, B + 0.13, 0.15]], 0.007, 0.002))]));
+      P.add('crest', merge([0, 1, 2, 3, 4, 5, 6].map((i) => { const c = new THREE.ConeGeometry(0.012, 0.075 - i * 0.006, 5); c.rotateX(-1.0 - i * 0.12); c.translate(0, B + 0.62 - i * 0.02, 0.12 - i * 0.03); return c; })));
+      P.add('lava', ring(0.3, 0.07, 0.006));
+      return turnPiece(P, 0.15);
+    },
+    r(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.322, 0.09), Y = y0;
+      const p = profile(0, Y).line(0.24, Y).curve([[0.215, Y + 0.12], [0.205, Y + 0.32], [0.215, Y + 0.52]]).line(0.25, Y + 0.54).line(0.25, Y + 0.6).line(0.2, Y + 0.6).line(0.2, Y + 0.58).line(0, Y + 0.58);
+      if (ctx.side === 'w') {
+        // a castle of fossil stone with an arched door, amber windows and a band of ferns
+        P.lathe('body', p, { mod: MOD.facets(10, Y + 0.02, Y + 0.6, 0.18) });
+        P.add('body', battlements(6, 0.2, 0.25, Y + 0.595, Y + 0.72, 0.4, 'flat'));
+        P.add('eye', placeAt(new THREE.CircleGeometry(0.06, 20, 0, Math.PI).translate(0, 0, 0).scale(1, 1.4, 1), 0, 0.212, Y + 0.12).translate(0, 0, 0));
+        P.add('eye', placeAt(new THREE.PlaneGeometry(0.12, 0.12), 0, 0.212, Y + 0.06));
+        P.add('trim', placeAt(K.tube(Array.from({ length: 13 }, (_, i) => { const a = (i / 12) * Math.PI; return [Math.cos(a) * 0.066, Math.sin(a) * 0.088 + 0.12, 0]; }), 0.008, { segs: 20, radial: 6 }), 0, 0.214, Y));
+        P.add('accent', around(4, 0.212, Y + 0.38, () => new THREE.BoxGeometry(0.03, 0.06, 0.012), { phase: Math.PI / 4 }));
+        P.add('leaf', fernBand(0.222, Y + 0.25, 10, 0.06));
+        P.add('leaf', fernBand(0.3, 0.066, 11, 0.046));
+      } else {
+        // a tower of dark lava stone with glowing cracks and a red banner with a footprint
+        P.lathe('body', p, { mod: MOD.facets(9, Y + 0.02, Y + 0.6, 0.25) });
+        P.add('body', battlements(5, 0.2, 0.25, Y + 0.595, Y + 0.73, 0.38, 'point'));
+        const cracks = [];
+        for (let i = 0; i < 7; i++) { const th = i * 0.9 + 0.3, y = Y + 0.08 + (i * 0.37 % 1) * 0.42; cracks.push(placeAt(K.tube([[0, 0, 0], [0.02, 0.03, 0], [0.0, 0.06, 0], [0.025, 0.1, 0]], 0.005, { segs: 8, radial: 4 }), th, 0.215, y)); }
+        P.add('lava', merge(cracks));
+        P.add('lava', ring(0.3, 0.07, 0.006));
+        banner(P, 0, Y + 0.48, 0.225, 0.13, 0.26, 0, 'cloth');
+        P.add('trim', merge([0, 1, 2].map((i) => { const t = new THREE.ConeGeometry(0.012, 0.06, 5); t.rotateZ((i - 1) * 0.45); t.translate((i - 1) * 0.022, Y + 0.36, 0.232); return t; }).concat([sphere(0.024, 0, Y + 0.32, 0.23, 10).scale(1, 0.8, 0.4)])));
+      }
+      return P;
+    },
+    p(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.27, 0.08), Y = y0;
+      if (ctx.side === 'w') {
+        // a baby dinosaur hatching, its egg cracked open round it
+        const p = profile(0, Y).line(0.07, Y).curve([[0.12, Y + 0.04], [0.135, Y + 0.12], [0.13, Y + 0.2]]).line(0.122, Y + 0.2).curve([[0.122, Y + 0.12], [0.11, Y + 0.05], [0, Y + 0.03]]);
+        P.lathe('egg', p);
+        P.add('egg', around(9, 0.126, Y + 0.2, (i) => { const g = new THREE.ConeGeometry(0.03, 0.05 + (i % 3) * 0.02, 3); g.scale(1, 1, 0.25); g.translate(0, 0.02, 0); return g; }));
+        const S = new Sculpt(0.018);
+        S.chain([[0, Y + 0.12, 0, 0.07], [0, Y + 0.24, 0.01, 0.05], [0, Y + 0.31, 0.02, 0.04]], 0.03, 3);
+        S.ell([0, Y + 0.35, 0.04], [0.06, 0.055, 0.065], 0.02);                                  // a big baby head
+        S.cone([0, Y + 0.34, 0.07], [0, Y + 0.32, 0.12], 0.04, 0.03, 0.015);
+        S.pair((x) => S.chain([[x * 0.045, Y + 0.23, 0.04, 0.016], [x * 0.08, Y + 0.22, 0.08, 0.012], [x * 0.1, Y + 0.21, 0.1, 0.011]], 0.01, 3));
+        P.add('body', S.mesh());
+        P.add('eye', merge([-1, 1].map((x) => sphere(0.014, x * 0.04, Y + 0.37, 0.085, 10))));
+        P.add('accent', around(5, 0.13, Y + 0.12, () => cabochon(0.012, 0.6), { phase: 0.3 }));
+        P.add('leaf', fernBand(0.248, 0.062, 10, 0.04));
+        return turnPiece(P, 0.4);
+      }
+      // an amber egg held in three bone claws
+      P.lathe('body', profile(0, Y).line(0.12, Y).curve([[0.1, Y + 0.04], [0.07, Y + 0.07]]).line(0, Y + 0.07));
+      P.lathe('egg', ovalHead(profile(0, Y + 0.05).line(0.05, Y + 0.05), 0.05, Y + 0.2, 0.1, 0.14, 0.15));
+      P.add('tooth', around(3, 0.095, Y + 0.04, () => horn([[0, 0, 0], [0, 0.1, 0.03], [0, 0.2, -0.0], [0, 0.24, -0.04]], 0.024, 0.005), { phase: Math.PI / 3 }));
+      P.add('lava', ring(0.25, 0.062, 0.005));
+      return P;
+    },
+  };
+  // An ammonite shell, facing +z: a flat spiral of ribbed coils.
+  function ammonite(size) {
+    const pts = [];
+    for (let i = 0; i <= 60; i++) { const t = i / 60, a = t * TAU * 2.4, r = size * 0.08 + size * 0.42 * t; pts.push([Math.cos(a) * r, Math.sin(a) * r, 0]); }
+    const coil = K.tube(pts, size * 0.06, { segs: 90, radial: 8, radiusAt: (t) => mix(0.6, 2.2, t) });
+    const disc = new THREE.CylinderGeometry(size * 0.48, size * 0.48, size * 0.06, 28).rotateX(Math.PI / 2).translate(0, 0, -size * 0.04);
+    return merge([coil, disc]);
+  }
+
+  // ------------------------------------------------------------------ Forest Guardians
+  // From the user's pictures of an enchanted forest set: white are the elves of the glade in
+  // ivory and gold with green cloaks and glowing blue gems; black are the forest folk, carved
+  // in bark and moss with glowing green eyes: an antlered Oak King, a dryad queen, druids, a
+  // friendly moss bear, a hollow tree tower and little moss sprites for pawns.
+  function elfEars(f) {
+    const { hd, skin } = f, c = hd.c, r = hd.r;
+    skin.pair((x) => skin.cone([c[0] + x * r * 0.85, c[1] - r * 0.02, c[2] - r * 0.05], [c[0] + x * r * 1.32, c[1] + r * 0.45, c[2] - r * 0.3], r * 0.13, r * 0.03, 0.008));
+  }
+  // a little star flower facing +z
+  const flower = (size) => merge([0, 1, 2, 3, 4].map((i) => { const g = petal(size * 0.6, size, size * 0.2); g.rotateZ(i * TAU / 5); return g; }));
+  function flowersOn(field, box, n, size, seed) {
+    // little flowers scattered on the surface of a sculpt, found by stepping in from outside
+    const R = rng(seed || 3), out = [];
+    for (let i = 0; i < n * 6 && out.length < n; i++) {
+      const x = mix(box[0], box[3], R()), y = mix(box[1], box[4], R()), dir = R() < 0.5 ? 1 : -1;
+      let z = dir * 0.4; while (Math.abs(z) > 0 && field(x, y, z) > 0) z -= dir * 0.004;
+      if (Math.abs(z) < 0.004) continue;
+      const g = flower(size); if (dir < 0) g.rotateY(Math.PI); g.translate(x, y, z + dir * 0.004); out.push(g);
+    }
+    return out.length ? merge(out) : null;
+  }
+  const FOREST = {
+    k(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.34, 0.1);
+      if (ctx.side === 'w') {
+        // the elf king: armour, a green cloak, a great sword held point down, a crown of leaves
+        const f = figure(P, y0, 1.42, { pose: 'sword', hair: 'long', cloak: true, skirt: 0.155 });
+        elfEars(f); f.done();
+        swordDown(P, [0, f.hands[0][1], f.hands[0][2]], 0.4 * f.s, 0.028 * f.s);
+        P.add('trim', merge([f.A(0, 0.615, 0.03)].map((p) => around(2, 0.09 * f.s, p[1], () => cabochon(0.034 * f.s, 0.5), { phase: Math.PI / 2 }))));   // shoulder guards
+        const cy = f.top - 0.018;
+        P.add('trim', around(9, 0.06 * f.s, cy, () => { const g = leaf(0.032, 0.075, 0.006); return g; }, { tilt: -0.25 }).translate(0, 0, 0.008 * f.s));
+        P.add('trim', ring(0.06 * f.s, cy, 0.006).translate(0, 0, 0.008 * f.s));
+        P.add('accent', placeAt(brilliant(0.014), 0, 0.068 * f.s, cy + 0.025));
+        P.add('accent', placeAt(cabochon(0.02, 0.6), 0, 0.075 * f.s, y0 + 0.57 * f.s));
+        return turnPiece(P, 0.3);
+      }
+      // the Oak King: a bearded tree-giant with great antlers, a mossy cloak and a glowing staff
+      const f = figure(P, y0, 1.44, { pose: 'staff', beard: 0.9, hair: 'short', cloak: true, fur: true, skirt: 0.16 });
+      f.done();
+      const top = staffAt(P, f.hands[1], y0, 0.86 * f.s, 0.012, 'base');
+      P.add('base', horn([[top[0], top[1], top[2]], [top[0] - 0.03, top[1] + 0.06, top[2] + 0.02], [top[0] + 0.01, top[1] + 0.12, top[2]]], 0.012, 0.004));
+      P.add('base', horn([[top[0], top[1], top[2]], [top[0] + 0.04, top[1] + 0.05, top[2] - 0.01], [top[0] + 0.02, top[1] + 0.11, top[2]]], 0.01, 0.004));
+      P.add('accent', new THREE.OctahedronGeometry(0.03, 0).scale(1, 1.5, 1).translate(top[0], top[1] + 0.06, top[2]));
+      P.add('base', antlers([0, f.top - 0.03, -0.01], 0.16));
+      P.add('accent', placeAt(cabochon(0.022, 0.6), 0, 0.074 * f.s, y0 + 0.57 * f.s));
+      return turnPiece(P, 0.35);
+    },
+    q(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.33, 0.1);
+      if (ctx.side === 'w') {
+        // the elf queen: long golden hair, a flowing gown and a circlet with a star of light
+        const f = figure(P, y0, 1.34, { pose: 'clasp', hair: 'long', skirt: 0.165, robeMod: MOD.flutes(16, 0.12, y0 + 0.01, y0 + 0.45, { soft: true, end: 0.03 }) });
+        elfEars(f); f.done();
+        const cy = f.top - 0.022;
+        P.add('trim', ring(0.062 * f.s, cy, 0.006).translate(0, 0, 0.006));
+        P.add('accent', placeAt(new THREE.OctahedronGeometry(0.018, 0).scale(0.8, 1.4, 0.6), 0, 0.072 * f.s, cy + 0.02));
+        P.add('accent', placeAt(flower(0.03), 0, 0.09 * f.s, f.hands[0][1] + 0.02));
+        P.add('trim', ring(0.165 * f.s, y0 + 0.03, 0.008));
+        P.add('trim', around(14, 0.05 * f.s, y0 + 0.64 * f.s, () => sphere(0.007, 0, 0, 0, 8)).translate(0, 0, 0.01));
+        return turnPiece(P, 0.4);
+      }
+      // the dryad queen: leafy hair, a gown of moss, a crown of branches with flowers
+      const f = figure(P, y0, 1.34, { pose: 'clasp', hair: 'long', skirt: 0.165, robeMod: MOD.lobes(9, 0.08, y0, y0 + 0.4) });
+      f.done();
+      P.add('base', antlers([0, f.top - 0.02, -0.005], 0.1, { tines: 3 }));
+      P.add('flower', around(7, 0.062 * f.s, f.top - 0.012, () => flower(0.024), { tilt: -0.3 }));
+      P.add('accent', placeAt(sphere(0.022, 0, 0, 0, 14), 0, 0.09 * f.s, f.hands[0][1] + 0.015));
+      P.add('fur', around(12, 0.16 * f.s, y0 + 0.03, (i) => sphere(0.02 + (i % 3) * 0.004, 0, 0, 0, 8)));
+      return turnPiece(P, 0.4);
+    },
+    b(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.31, 0.09);
+      if (ctx.side === 'w') {
+        // an elf mage in a white hood, with a staff of gold holding a blue crystal
+        const f = figure(P, y0, 1.18, { pose: 'staff', hood: true, cloak: true, skirt: 0.145 });
+        f.done();
+        const top = staffAt(P, f.hands[1], y0, 0.86 * f.s, 0.01);
+        P.add('trim', merge([-1, 1].map((sd) => horn([[top[0], top[1] - 0.02, top[2]], [top[0] + sd * 0.04, top[1] + 0.03, top[2]], [top[0] + sd * 0.02, top[1] + 0.1, top[2]]], 0.008, 0.003))));
+        P.add('accent', new THREE.OctahedronGeometry(0.03, 0).scale(1, 1.7, 1).translate(top[0], top[1] + 0.05, top[2]));
+        P.add('trim', ring(0.145, y0 + 0.03, 0.007));
+        return turnPiece(P, 0.3);
+      }
+      // a druid in a hood of leaves, with a staff of twisted branches round a green light
+      const f = figure(P, y0, 1.18, { pose: 'staff', hood: true, cloak: true, beard: 0.5, skirt: 0.145 });
+      f.done();
+      const top = staffAt(P, f.hands[1], y0, 0.86 * f.s, 0.011, 'base');
+      P.add('base', merge([0, 1, 2].map((i) => { const a = i * TAU / 3; return horn([[top[0], top[1] - 0.03, top[2]], [top[0] + Math.sin(a) * 0.04, top[1] + 0.04, top[2] + Math.cos(a) * 0.04], [top[0] + Math.sin(a + 1) * 0.015, top[1] + 0.1, top[2] + Math.cos(a + 1) * 0.015]], 0.008, 0.003); })));
+      P.add('accent', sphere(0.028, top[0], top[1] + 0.045, top[2], 14));
+      P.add('fur', around(10, 0.145, y0 + 0.03, (i) => sphere(0.018 + (i % 2) * 0.004, 0, 0, 0, 8)));
+      return turnPiece(P, 0.3);
+    },
+    n(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.322, 0.09), B = y0;
+      if (ctx.side === 'w') {
+        // a white stag with golden antlers, one forefoot raised, a green cloth on his back
+        const S = new Sculpt(0.02, 1.1), moss = new Sculpt(0.03, 1.3);
+        S.floor = B - 0.004; moss.floor = B - 0.004;
+        moss.ell([0, B + 0.03, 0], [0.18, 0.05, 0.2]);
+        S.ell([0, B + 0.34, -0.02], [0.065, 0.07, 0.14], 0.03);
+        S.ell([0, B + 0.36, 0.08], [0.06, 0.075, 0.065], 0.035);
+        S.ell([0, B + 0.36, -0.11], [0.062, 0.07, 0.065], 0.035);
+        S.pair((x) => S.chain([[x * 0.038, B + 0.32, -0.12, 0.03], [x * 0.04, B + 0.2, -0.165, 0.018], [x * 0.04, B + 0.1, -0.13, 0.012], [x * 0.04, B + 0.03, -0.12, 0.012]], 0.012, 3));
+        S.chain([[0.036, B + 0.32, 0.09, 0.028], [0.038, B + 0.18, 0.1, 0.014], [0.038, B + 0.03, 0.1, 0.012]], 0.012, 3);
+        S.chain([[-0.036, B + 0.32, 0.09, 0.028], [-0.038, B + 0.24, 0.16, 0.014], [-0.038, B + 0.15, 0.14, 0.012]], 0.012, 3);
+        S.chain([[0, B + 0.39, 0.1, 0.042], [0, B + 0.48, 0.14, 0.033], [0, B + 0.56, 0.16, 0.028]], 0.02, 3);
+        S.ell([0, B + 0.6, 0.18], [0.03, 0.034, 0.05], 0.015);
+        S.cone([0, B + 0.595, 0.2], [0, B + 0.565, 0.255], 0.022, 0.013, 0.01);
+        S.pair((x) => S.cone([x * 0.025, B + 0.62, 0.17], [x * 0.06, B + 0.64, 0.15], 0.012, 0.005, 0.006));
+        S.chain([[0, B + 0.38, -0.17, 0.012], [0, B + 0.37, -0.19, 0.008]], 0.008);
+        const sf = S.field();
+        P.add('body', S.mesh()); P.add('fur', moss.mesh());
+        P.add('trim', antlers([0, B + 0.63, 0.165], 0.13));
+        P.add('eye', merge([-1, 1].map((x) => sphere(0.008, x * 0.028, B + 0.61, 0.2, 8))));
+        P.add('cloth', sdfGeometry(drape(sf, 0.012, (x, y, z) => Math.max(B + 0.33 - y, Math.abs(z + 0.01) - 0.09)), [-0.1, B + 0.3, -0.12, 0.1, B + 0.44, 0.1], Q.cell * 1.3));
+        P.add('trim', K.tube([[0, B + 0.575, 0.24], [0.026, B + 0.58, 0.19], [0.03, B + 0.55, 0.12], [0.028, B + 0.47, 0.08]], 0.004, { segs: 16, radial: 5 }));
+        P.add('accent', placeAt(cabochon(0.014, 0.6), 0, 0, 0).rotateX(-Math.PI / 2).translate(0, B + 0.435, 0.0));
+        P.add('flower', merge([[-0.12, 0.1], [0.13, -0.06], [0.08, 0.14]].map(([x, z]) => flower(0.025).rotateX(-Math.PI / 2).translate(x, B + 0.075, z))));
+        return turnPiece(P, 0.1);
+      }
+      // a friendly moss bear standing up on his hind legs, flowers growing on his back
+      const S = new Sculpt(0.03, 1.2);
+      S.floor = B - 0.004;
+      S.cone([0, B + 0.2, -0.03], [0, B + 0.46, 0.02], 0.115, 0.09, 0.05);
+      S.ell([0, B + 0.3, 0.03], [0.1, 0.12, 0.09], 0.05);
+      S.pair((x) => {
+        S.ell([x * 0.075, B + 0.12, 0.0], [0.055, 0.09, 0.07], 0.03);
+        S.ell([x * 0.08, B + 0.025, 0.04], [0.045, 0.028, 0.065], 0.02);
+        S.chain([[x * 0.09, B + 0.45, 0.02, 0.04], [x * 0.12, B + 0.39, 0.09, 0.032], [x * 0.09, B + 0.38, 0.15, 0.03]], 0.02, 3);   // paws held out
+      });
+      S.ell([0, B + 0.56, 0.05], [0.075, 0.07, 0.07], 0.04);
+      S.cone([0, B + 0.55, 0.09], [0, B + 0.53, 0.14], 0.038, 0.026, 0.02);
+      S.pair((x) => S.ell([x * 0.055, B + 0.62, 0.03], [0.024, 0.024, 0.014], 0.012));
+      const sf = S.field();
+      P.add('body', S.mesh());
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.011, x * 0.03, B + 0.57, 0.11, 10))));
+      P.add('trim', sphere(0.014, 0, B + 0.535, 0.145, 10));
+      P.add('fur', sdfGeometry(drape(sf, 0.01, (x, y, z) => Math.max(z + 0.05, B + 0.3 - y, y - (B + 0.62), Math.abs(x) - 0.09)), [-0.15, B + 0.28, -0.16, 0.15, B + 0.66, 0.06], Q.cell * 1.3));
+      const fl = flowersOn(sf, [-0.08, B + 0.25, 0, 0.08, B + 0.58, 0], 7, 0.024, 9); if (fl) P.add('flower', fl);
+      return turnPiece(P, 0.3);
+    },
+    r(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.322, 0.09), Y = y0;
+      if (ctx.side === 'w') {
+        // a slender elven tower of white stone and gold, its windows lit, a crystal on top
+        P.lathe('body', profile(0, Y).line(0.22, Y).curve([[0.17, Y + 0.08], [0.155, Y + 0.2], [0.15, Y + 0.44]]).line(0.19, Y + 0.48).line(0.19, Y + 0.52).line(0.15, Y + 0.53).line(0, Y + 0.53));
+        P.add('trim', pointedCrown(0.175, Y + 0.52, 8, 0.15, { flare: 0.12, w: 0.55 }));
+        P.add('accent', new THREE.OctahedronGeometry(0.06, 0).scale(1, 1.7, 1).translate(0, Y + 0.66, 0));
+        P.add('accent', around(4, 0.153, Y + 0.3, () => { const g = new THREE.CapsuleGeometry(0.022, 0.07, 4, 8); g.scale(1, 1, 0.3); return g; }, { phase: Math.PI / 4 }));
+        P.add('trim', around(8, 0.158, Y + 0.25, () => new THREE.BoxGeometry(0.008, 0.36, 0.008)));
+        P.add('trim', ring(0.19, Y + 0.5, 0.008));
+        P.add('leaf', around(10, 0.2, Y + 0.06, (i) => { const g = curl(leaf(0.04, 0.09, 0.005), 3); g.rotateZ(i % 2 ? 0.4 : -0.4); return g; }, { tilt: 0.3 }));
+        return P;
+      }
+      // a hollow tree stump with roots, a glowing door and windows, and toadstools
+      P.lathe('body', profile(0, Y).line(0.25, Y).curve([[0.21, Y + 0.08], [0.2, Y + 0.3], [0.21, Y + 0.5]]).line(0.245, Y + 0.53).line(0.245, Y + 0.57).line(0.19, Y + 0.57).line(0.19, Y + 0.55).line(0, Y + 0.55), { mod: MOD.lobes(9, 0.1, Y, Y + 0.57) });
+      P.add('body', battlements(5, 0.19, 0.245, Y + 0.565, Y + 0.7, 0.42, 'round', 0.04));
+      P.add('fur', around(10, 0.22, Y + 0.57, (i) => sphere(0.03 + (i % 3) * 0.006, 0, 0, 0, 8).scale(1, 0.6, 1)));
+      P.add('body', around(6, 0.2, Y + 0.02, () => horn([[0, 0.12, -0.02], [0, 0.04, 0.05], [0, 0.0, 0.1]], 0.04, 0.012), { phase: 0.4 }));
+      P.add('accent', placeAt(new THREE.CircleGeometry(0.06, 20, 0, Math.PI).scale(1, 1.4, 1).translate(0, 0.06, 0), 0, 0.212, Y + 0.08));
+      P.add('accent', placeAt(new THREE.PlaneGeometry(0.12, 0.07).translate(0, 0.035, 0), 0, 0.212, Y + 0.06));
+      P.add('accent', around(2, 0.21, Y + 0.38, () => new THREE.CircleGeometry(0.026, 14), { phase: Math.PI * 0.75 }));
+      P.add('trim', placeAt(K.tube(Array.from({ length: 13 }, (_, i) => { const a = (i / 12) * Math.PI; return [Math.cos(a) * 0.066, Math.sin(a) * 0.088 + 0.14, 0]; }), 0.009, { segs: 20, radial: 6 }), 0, 0.216, Y));
+      for (const [th, y, sz] of [[1.9, 0.22, 1], [2.3, 0.14, 0.7], [-2.1, 0.3, 0.8]]) {
+        P.add('trim', placeAt(new THREE.CylinderGeometry(0.01 * sz, 0.012 * sz, 0.04 * sz, 8).translate(0, 0, 0.03 * sz), th, 0.205, Y + y));
+        P.add('flower', placeAt(new THREE.SphereGeometry(0.035 * sz, 14, 6, 0, TAU, 0, Math.PI / 2).scale(1, 0.6, 1).translate(0, 0.02 * sz, 0.05 * sz), th, 0.205, Y + y));
+      }
+      return P;
+    },
+    p(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.27, 0.08);
+      if (ctx.side === 'w') {
+        // an elf sentinel with a leaf shield and a spear
+        const f = figure(P, y0, 0.84, { pose: 'shield', hair: 'short', cloak: true, skirt: 0.135 , coarse: 1.4 });
+        elfEars(f); f.done();
+        const hc = f.hd.c, hr = f.hd.r;
+        P.add('trim', merge([new THREE.SphereGeometry(hr * 1.1, 20, 10, 0, TAU, 0, Math.PI / 2).scale(1, 1.25, 1).translate(hc[0], hc[1] + hr * 0.1, hc[2]), new THREE.ConeGeometry(hr * 0.35, hr * 0.9, 10).translate(hc[0], hc[1] + hr * 1.7, hc[2])]));
+        const shf = extrude(K.mirrorOutline([[0, 0.1], [0.05, 0.075], [0.065, 0.02], [0.045, -0.05], [0, -0.1]]), 0.012, 0.004, { bevelSegments: 2 });
+        shf.rotateY(-0.35); shf.translate(f.hands[0][0] - 0.01, f.hands[0][1], f.hands[0][2] + 0.03); P.add('cloth', shf);
+        const tree = merge([new THREE.BoxGeometry(0.008, 0.06, 0.006).translate(0, -0.02, 0), new THREE.CircleGeometry(0.028, 12).translate(0, 0.025, 0)]);
+        tree.rotateY(-0.35); tree.translate(f.hands[0][0] - 0.01 + 0.006, f.hands[0][1], f.hands[0][2] + 0.042); P.add('trim', tree);
+        const sp = spear(0.78 * f.s, 0.006);
+        for (const g of [sp.shaft, sp.head]) g.translate(f.hands[1][0], y0, f.hands[1][2]);
+        P.add('trim', sp.shaft); P.add('steel', sp.head);
+        return turnPiece(P, 0.4);
+      }
+      // a little moss sprite: a round body, a big head with leaf ears and glowing eyes
+      const S = new Sculpt(0.02), Y = y0;
+      S.floor = Y - 0.004;
+      S.ell([0, Y + 0.1, 0], [0.085, 0.095, 0.08], 0.03);
+      S.pair((x) => {
+        S.ell([x * 0.045, Y + 0.02, 0.03], [0.035, 0.022, 0.045], 0.015);
+        S.chain([[x * 0.07, Y + 0.15, 0.0, 0.022], [x * 0.1, Y + 0.1, 0.04, 0.018], [x * 0.085, Y + 0.08, 0.075, 0.017]], 0.012, 3);
+      });
+      S.ell([0, Y + 0.25, 0.01], [0.09, 0.082, 0.082], 0.03);
+      S.ell([0, Y + 0.23, 0.08], [0.03, 0.022, 0.02], 0.012);
+      const sf = S.field();
+      P.add('body', S.mesh());
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.019, x * 0.035, Y + 0.27, 0.072, 12))));
+      P.add('leaf', merge([-1, 1].map((x) => { const g = curl(leaf(0.05, 0.11, 0.006), 2); g.rotateZ(-x * 1.15); g.translate(x * 0.075, Y + 0.27, 0); return g; })));
+      P.add('fur', sdfGeometry(drape(sf, 0.012, (x, y, z) => Math.max(Y + 0.29 - y, -(Y + 0.0))), [-0.1, Y + 0.27, -0.1, 0.1, Y + 0.34, 0.1], Q.cell * 1.2));
+      P.add('leaf', around(5, 0.02, Y + 0.33, () => { const g = curl(leaf(0.03, 0.07, 0.005), 2); return g; }, { tilt: -0.5 }));
+      P.add('flower', placeAt(flower(0.022), 0.6, 0.07, Y + 0.31, { tilt: -0.6 }));
+      return turnPiece(P, 0.35);
+    },
+  };
+
+  // ------------------------------------------------------------------ Jarls of the Fjord
+  // From the user's picture of a Viking set: white is gold and ivory with deep blue cloaks and
+  // white fur, black is dark iron and leather with grey fur and red banners, and both carry
+  // runestones that glow ice blue. A jarl with a sword for the king, a shieldmaiden queen, a
+  // seer with a rune staff, a wolf for the knight, a watchtower with banners and shield
+  // warriors for pawns.
+  function vikingHelm(P, hd, o) {
+    o = o || {};
+    const c = hd.c, r = hd.r;
+    P.add('steel', merge([
+      new THREE.SphereGeometry(r * 1.1, 20, 10, 0, TAU, 0, Math.PI / 2).scale(1, o.tall || 1.1, 1).translate(c[0], c[1] + r * 0.08, c[2]),
+      ring(r * 1.1, c[1] + r * 0.1, r * 0.1, { seg: 28 }).translate(c[0], 0, c[2]),
+      new THREE.BoxGeometry(r * 0.16, r * 0.62, r * 0.12).translate(c[0], c[1] - r * 0.12, c[2] + r * 1.08),   // nose guard
+    ]));
+    if (o.spike) P.add('trim', new THREE.ConeGeometry(r * 0.22, r * 0.55, 10).translate(c[0], c[1] + r * 1.35, c[2]));
+    if (o.horns) P.add('tooth', merge([-1, 1].map((x) => horn([[c[0] + x * r * 0.95, c[1] + r * 0.5, c[2]], [c[0] + x * r * 1.6, c[1] + r * 0.75, c[2] + r * 0.1], [c[0] + x * r * 1.85, c[1] + r * 1.4, c[2] + r * 0.25], [c[0] + x * r * 1.7, c[1] + r * 1.9, c[2] + r * 0.3]], r * 0.24, r * 0.05))));
+    if (o.wings) P.add('trim', merge([-1, 1].flatMap((x) => [0, 1, 2].map((i) => { const f = petal(r * 0.42, r * (1.5 - i * 0.25), r * 0.08); f.rotateZ(-x * (0.35 + i * 0.32)); f.rotateY(x * Math.PI / 2); f.translate(c[0] + x * r * 1.05, c[1] + r * 0.45, c[2] - r * 0.1 - i * r * 0.08); return f; }))));
+  }
+  // A round shield on the left arm, facing out, with a boss and (o.sun) a sun of rays.
+  function roundShield(P, at2, rad, o) {
+    o = o || {};
+    const sh = shield(rad, rad * 0.22), parts = [sh.face];
+    for (const g of [sh.face, sh.rim, sh.boss]) { g.rotateY(o.turn || -0.35); g.translate(at2[0], at2[1], at2[2]); }
+    P.add(o.slot || 'cloth', sh.face); P.add('trim', sh.rim); P.add('trim', sh.boss);
+    if (o.sun) {
+      const rays = around(8, 0, 0, () => ray(rad * 0.16, rad * 0.62, rad * 0.04).translate(0, rad * 0.26, 0), { phase: 0 });
+      // around() stands parts round y; turn the ring so it lies on the shield's face
+      const st = merge([0, 1, 2, 3, 4, 5, 6, 7].map((i) => { const g = ray(rad * 0.16, rad * 0.6, rad * 0.04); g.translate(0, rad * 0.28, 0); g.rotateZ(i * TAU / 8); return g; }));
+      st.translate(0, 0, rad * 0.17); st.rotateY(o.turn || -0.35); st.translate(at2[0], at2[1], at2[2]);
+      P.add('trim', st); void rays; void parts;
+    }
+    if (o.spokes) {
+      const sp = merge([0, 1, 2, 3].map((i) => new THREE.BoxGeometry(rad * 1.8, rad * 0.07, rad * 0.04).rotateZ(i * Math.PI / 4)));
+      sp.translate(0, 0, rad * 0.14); sp.rotateY(o.turn || -0.35); sp.translate(at2[0], at2[1], at2[2]);
+      P.add('trim', sp);
+    }
+  }
+  // A wolf sitting up on a rock, head raised, its ruff thick round the neck.
+  function wolf(P, B, o) {
+    o = o || {};
+    const S = new Sculpt(0.024, 1.15), rock = new Sculpt(0.04, 1.4);
+    S.floor = B - 0.004; rock.floor = B - 0.004;
+    rock.ell([0, B + 0.04, 0], [0.19, 0.07, 0.2]); rock.ell([0.04, B + 0.1, 0.06], [0.1, 0.08, 0.09]);
+    S.cone([0, B + 0.18, -0.08], [0, B + 0.4, 0.04], 0.1, 0.085, 0.04);                       // body, sitting up
+    S.pair((x) => {
+      S.ell([x * 0.075, B + 0.15, -0.06], [0.05, 0.08, 0.09], 0.03);                          // haunches
+      S.ell([x * 0.075, B + 0.08, 0.03], [0.03, 0.02, 0.06], 0.015);                          // hind paws
+      S.chain([[x * 0.05, B + 0.34, 0.07, 0.03], [x * 0.05, B + 0.24, 0.1, 0.022], [x * 0.05, B + 0.14, 0.12, 0.02]], 0.015, 3);   // forelegs
+      S.ell([x * 0.05, B + 0.13, 0.14], [0.024, 0.016, 0.034], 0.01);
+    });
+    S.ell([0, B + 0.45, 0.04], [0.09, 0.08, 0.08], 0.04);                                       // the ruff
+    S.ell([0, B + 0.55, 0.07], [0.058, 0.055, 0.062], 0.03);                                    // head
+    S.cone([0, B + 0.535, 0.1], [0, B + 0.51, 0.18], 0.036, 0.02, 0.015);                      // muzzle
+    if (o.snarl) { S.cone([0, B + 0.495, 0.08], [0, B + 0.47, 0.15], 0.022, 0.014, 0.01); S.ell([0, B + 0.495, 0.16], [0.02, 0.012, 0.04], 0.006, true); }
+    S.pair((x) => S.cone([x * 0.034, B + 0.59, 0.05], [x * 0.045, B + 0.65, 0.03], 0.022, 0.006, 0.01));   // ears
+    S.chain([[0, B + 0.12, -0.17, 0.035], [0.07, B + 0.05, -0.2, 0.03], [0.16, B + 0.04, -0.12, 0.02]], 0.02, 3);   // tail round the rock
+    const sf = S.field();
+    P.add('body', S.mesh()); P.add('rock', rock.mesh());
+    P.add('eye', merge([-1, 1].map((x) => sphere(0.011, x * 0.03, B + 0.565, 0.115, 10))));
+    P.add('trim', sphere(0.012, 0, B + 0.515, 0.183, 10));
+    // tufts of fur standing out round the ruff
+    P.add('fur', around(12, 0.085, B + 0.45, (i) => { const c = new THREE.ConeGeometry(0.02, 0.06 + (i % 3) * 0.012, 5); c.rotateX(Math.PI / 2); return c; }, { tilt: 0.4 }).translate(0, 0, 0.03));
+    return sf;
+  }
+  const VIKING = {
+    k(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.34, 0.1), w = ctx.side === 'w';
+      // a jarl in a fur cloak, both hands on his sword; a gold crown on white, a horned helm on black
+      const f = figure(P, y0, 1.42, { pose: 'sword', beard: 1.0, hair: 'long', cloak: true, fur: true, skirt: 0.155 });
+      f.done();
+      swordDown(P, [0, f.hands[0][1], f.hands[0][2]], 0.4 * f.s, 0.028 * f.s);
+      if (w) {
+        P.add('trim', pointedCrown(0.062 * f.s, f.top - 0.03, 6, 0.08, { flare: 0.18, w: 0.65 }).translate(0, 0, 0.006));
+        P.add('accent', gemRing(6, 0.068 * f.s, f.top - 0.012, 0.009, { phase: Math.PI / 6 }).translate(0, 0, 0.006));
+      } else vikingHelm(P, f.hd, { horns: true });
+      P.add('accent', placeAt(cabochon(0.022, 0.6), 0, 0.075 * f.s, y0 + 0.57 * f.s));
+      P.add('trim', ring(0.155 * f.s, y0 + 0.03, 0.008));
+      return turnPiece(P, 0.3);
+    },
+    q(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.33, 0.1), w = ctx.side === 'w';
+      // a shieldmaiden queen with long braids and a fur collar; a winged helm on white, a
+      // circlet with curling horns on black
+      const f = figure(P, y0, 1.34, { pose: 'clasp', hair: 'braids', cloak: true, fur: true, skirt: 0.16, robeMod: MOD.flutes(14, 0.1, y0 + 0.01, y0 + 0.45, { soft: true, end: 0.03 }) });
+      f.done();
+      if (w) vikingHelm(P, f.hd, { wings: true, tall: 1.0 });
+      else {
+        const c = f.hd.c, r = f.hd.r;
+        P.add('trim', ring(r * 1.05, c[1] + r * 0.45, r * 0.12, { seg: 28 }).translate(c[0], 0, c[2]));
+        P.add('tooth', merge([-1, 1].map((x) => horn([[c[0] + x * r * 0.8, c[1] + r * 0.7, c[2] - r * 0.1], [c[0] + x * r * 1.3, c[1] + r * 1.3, c[2] - r * 0.4], [c[0] + x * r * 1.0, c[1] + r * 1.7, c[2] - r * 0.8], [c[0] + x * r * 0.7, c[1] + r * 1.5, c[2] - r * 1.0]], r * 0.16, r * 0.04))));
+      }
+      P.add('accent', placeAt(cabochon(0.02, 0.6), 0, 0.072 * f.s, y0 + 0.575 * f.s));
+      P.add('trim', merge([-1, 1].map((x) => sphere(0.014, f.hd.c[0] + x * f.hd.r * 0.95, y0 + 0.5 * f.s, 0.05 * f.s, 10))));
+      P.add('trim', ring(0.16 * f.s, y0 + 0.03, 0.008));
+      return turnPiece(P, 0.4);
+    },
+    b(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.31, 0.09), w = ctx.side === 'w';
+      // a seer with a long beard and a rune staff crowned with a glowing ice-blue stone
+      const f = figure(P, y0, 1.18, { pose: 'staff', hood: true, beard: 1.1, cloak: true, fur: !w, skirt: 0.145 });
+      f.done();
+      const top = staffAt(P, f.hands[1], y0, 0.86 * f.s, 0.011, w ? 'trim' : 'base');
+      if (w) {
+        P.add('trim', ring(0.04, 0, 0.007, { seg: 24 }).rotateX(Math.PI / 2).translate(top[0], top[1] + 0.04, top[2]));
+        P.add('accent', sphere(0.026, top[0], top[1] + 0.04, top[2], 14));
+      } else {
+        P.add('tooth', merge([-1, 1].map((x) => horn([[top[0], top[1] - 0.01, top[2]], [top[0] + x * 0.05, top[1] + 0.03, top[2]], [top[0] + x * 0.035, top[1] + 0.1, top[2] + 0.01]], 0.01, 0.003))));
+        P.add('accent', sphere(0.026, top[0], top[1] + 0.05, top[2], 14));
+        const c = f.hd.c, r = f.hd.r;
+        P.add('tooth', merge([-1, 1].map((x) => horn([[c[0] + x * r * 0.9, c[1] + r * 0.8, c[2] - r * 0.2], [c[0] + x * r * 1.4, c[1] + r * 1.3, c[2] - r * 0.3], [c[0] + x * r * 1.3, c[1] + r * 1.8, c[2] - r * 0.1]], r * 0.2, r * 0.05))));
+      }
+      // runes cut down the front of the robe
+      P.add('accent', merge([0, 1, 2, 3].map((i) => new THREE.BoxGeometry(0.008, 0.03, 0.006).rotateZ(i % 2 ? 0.5 : -0.5).translate(0, y0 + (0.12 + i * 0.07) * f.s, (0.15 - i * 0.017) * f.s))));
+      return turnPiece(P, 0.3);
+    },
+    n(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.322, 0.09), w = ctx.side === 'w';
+      // a great wolf: white with gold armour on white, dark with glowing eyes on black
+      const sf = wolf(P, y0, { snarl: !w });
+      if (w) {
+        P.add('cloth', sdfGeometry(drape(sf, 0.012, (x, y, z) => Math.max(z - 0.0, y0 + 0.26 - y, y - (y0 + 0.5))), [-0.14, y0 + 0.24, -0.16, 0.14, y0 + 0.52, 0.05], Q.cell * 1.3));
+        P.add('trim', ring(0.072, y0 + 0.43, 0.009).translate(0, 0, 0.045));
+        P.add('accent', placeAt(cabochon(0.016, 0.6), 0, 0.13, y0 + 0.42));
+      }
+      return turnPiece(P, 0.1);
+    },
+    r(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.322, 0.09), Y = y0, w = ctx.side === 'w';
+      // a watchtower with a round shield on its face and two banners flying from the top
+      P.lathe('body', profile(0, Y).line(0.235, Y).curve([[0.21, Y + 0.1], [0.2, Y + 0.3], [0.205, Y + 0.46]]).line(0.245, Y + 0.48).line(0.245, Y + 0.54).line(0.2, Y + 0.54).line(0.2, Y + 0.52).line(0, Y + 0.52),
+        { mod: MOD.facets(12, Y + 0.02, Y + 0.54, 0.1) });
+      P.add('body', battlements(6, 0.2, 0.245, Y + 0.535, Y + 0.66, 0.42, w ? 'flat' : 'point'));
+      P.add('trim', merge([ring(0.212, Y + 0.12, 0.008), ring(0.205, Y + 0.44, 0.008)]));
+      roundShield(P, [0, Y + 0.28, 0.21], 0.1, { turn: 0, sun: w, spokes: !w, slot: 'cloth' });
+      for (const sd of [-1, 1]) {
+        P.add('trim', new THREE.CylinderGeometry(0.006, 0.006, 0.36, 6).translate(sd * 0.13, Y + 0.66, -0.1));
+        banner(P, sd * 0.13 + sd * 0.045, Y + 0.82, -0.1, 0.08, 0.15, 0, 'banner');
+      }
+      P.add('accent', placeAt(new THREE.CircleGeometry(0.024, 12), Math.PI, 0.207, Y + 0.36));
+      return P;
+    },
+    p(ctx) {
+      const P = new Piece(), y0 = plinth(P, 0.27, 0.08), w = ctx.side === 'w';
+      // a warrior with a round shield and a spear, in a nose-guard helmet
+      const f = figure(P, y0, 0.84, { pose: 'shield', beard: w ? 0.3 : 0.6, cloak: true, fur: !w, skirt: 0.135 , coarse: 1.4 });
+      f.done();
+      vikingHelm(P, f.hd, { spike: w });
+      roundShield(P, [f.hands[0][0] - 0.01, f.hands[0][1], f.hands[0][2] + 0.03], 0.085, { sun: w, spokes: !w });
+      const sp = spear(0.8 * f.s, 0.006);
+      for (const g of [sp.shaft, sp.head]) g.translate(f.hands[1][0], y0, f.hands[1][2]);
+      P.add('trim', sp.shaft); P.add('steel', sp.head);
+      return turnPiece(P, 0.4);
+    },
+  };
+
+  // ------------------------------------------------------------------ Runecarved
+  // From the user's picture of a carved wooden Viking set on a board of runes: whittled
+  // figures standing on drums of knotwork, pale birch with blue cloaks against dark oak with
+  // red. A king leaning on his sword, a queen with a drinking horn, a skald with a sun-wheel
+  // staff, a wolf's head for the knight, a round watchtower under a shingled roof and spearmen.
+  const knot = (y0, y1, n) => MOD.rope(n || 10, 0.1, y0, y1, 1.6);
+  function knotDrum(P, R, h) {
+    P.lathe('base', profile(0, 0).line(R - 0.01, 0).arc(R, 0.012, 0.3).line(R, h - 0.012).arc(R - 0.012, h, 0.3).line(0, h), { mod: knot(0.02, h - 0.02, Math.round(R * 60)) });
+    P.add('trim', merge([ring(R + 0.002, 0.006, 0.005), ring(R + 0.002, h - 0.006, 0.005)]));
+    return h;
+  }
+  // a carved finish: the sculpted parts nudged by a little knife-cut noise
+  function carve(P, seed) {
+    for (const slot of ['body', 'cloth', 'hair', 'cape']) if (P.parts[slot]) P.parts[slot] = P.parts[slot].map((g, i) => hewn(g, 0.0018, seed + i));
+    return P;
+  }
+  const RUNE = {
+    k() {
+      const P = new Piece(), y0 = knotDrum(P, 0.33, 0.13);
+      const f = figure(P, y0, 1.34, { pose: 'sword', beard: 1.1, hair: 'long', cloak: true, skirt: 0.15, robeMod: MOD.flutes(10, 0.08, y0 + 0.02, y0 + 0.4, { end: 0.03 }) });
+      f.done();
+      swordDown(P, [0, f.hands[0][1], f.hands[0][2]], 0.4 * f.s, 0.028 * f.s);
+      P.add('trim', pointedCrown(0.06 * f.s, f.top - 0.03, 5, 0.07, { flare: 0.1, w: 0.8 }).translate(0, 0, 0.006));
+      P.add('trim', placeAt(sphere(0.02, 0, 0, 0, 12), 0, 0.07 * f.s, y0 + 0.57 * f.s));
+      return turnPiece(carve(P, 11), 0.3);
+    },
+    q() {
+      const P = new Piece(), y0 = knotDrum(P, 0.32, 0.12);
+      const f = figure(P, y0, 1.3, { pose: 'clasp', hair: 'braids', cloak: true, skirt: 0.155, robeMod: MOD.flutes(12, 0.08, y0 + 0.02, y0 + 0.42, { end: 0.03 }) });
+      f.done();
+      // a drinking horn held in both hands
+      const h = f.hands[0];
+      P.add('tooth', horn([[h[0] + 0.07, h[1] + 0.08, h[2] + 0.01], [h[0] + 0.02, h[1] + 0.01, h[2] + 0.03], [h[0] - 0.04, h[1] - 0.02, h[2] + 0.01], [h[0] - 0.07, h[1] + 0.02, h[2] - 0.01]], 0.026, 0.006));
+      P.add('trim', ring(0.026, 0, 0.005, { seg: 16 }).rotateZ(0.9).translate(h[0] + 0.07, h[1] + 0.08, h[2] + 0.01));
+      P.add('trim', ring(0.062 * f.s, f.top - 0.026, 0.008).translate(0, 0, 0.006));
+      P.add('trim', placeAt(sphere(0.016, 0, 0, 0, 10), 0, 0.068 * f.s, f.top - 0.02));
+      return turnPiece(carve(P, 13), 0.4);
+    },
+    b() {
+      const P = new Piece(), y0 = knotDrum(P, 0.3, 0.11);
+      const f = figure(P, y0, 1.16, { pose: 'staff', hood: true, beard: 1.0, skirt: 0.14 });
+      f.done();
+      const top = staffAt(P, f.hands[1], y0, 0.88 * f.s, 0.011, 'body');
+      // a sun wheel on the staff: a ring with four spokes
+      P.add('trim', merge([ring(0.045, 0, 0.007, { seg: 24 }).rotateX(Math.PI / 2), new THREE.BoxGeometry(0.09, 0.008, 0.008), new THREE.BoxGeometry(0.008, 0.09, 0.008), sphere(0.014, 0, 0, 0, 10)]).translate(top[0], top[1] + 0.04, top[2]));
+      // runes carved down his robe
+      P.add('trim', merge([0, 1, 2, 3, 4].map((i) => new THREE.BoxGeometry(0.006, 0.026, 0.005).rotateZ(i % 2 ? 0.6 : 0).translate(0, y0 + (0.1 + i * 0.065) * f.s, (0.147 - i * 0.014) * f.s))));
+      return turnPiece(carve(P, 17), 0.3);
+    },
+    n() {
+      const P = new Piece(), y0 = knotDrum(P, 0.312, 0.12), B = y0;
+      // a wolf's head on a carved neck, mouth open, with spirals cut into the neck
+      const S = new Sculpt(0.026, 1.15);
+      S.floor = B - 0.004;
+      S.chain([[0, B, -0.02, 0.15], [0, B + 0.16, 0.0, 0.13], [0, B + 0.32, 0.03, 0.105], [0, B + 0.44, 0.06, 0.09]], 0.04, 4);
+      S.ell([0, B + 0.5, 0.08], [0.085, 0.08, 0.09], 0.04);
+      S.cone([0, B + 0.5, 0.12], [0, B + 0.47, 0.26], 0.055, 0.03, 0.02);                       // muzzle
+      S.cone([0, B + 0.43, 0.1], [0, B + 0.4, 0.22], 0.04, 0.022, 0.015);                        // jaw
+      S.ell([0, B + 0.435, 0.24], [0.03, 0.02, 0.07], 0.008, true);
+      S.pair((x) => S.cone([x * 0.05, B + 0.56, 0.05], [x * 0.065, B + 0.66, 0.0], 0.03, 0.008, 0.012));
+      S.ell([0, B + 0.3, -0.07], [0.11, 0.2, 0.06], 0.05);                                       // a mane down the back of the neck
+      P.add('body', S.mesh());
+      P.add('trim', merge([-1, 1].map((x) => sphere(0.014, x * 0.05, B + 0.525, 0.15, 10))));
+      P.add('tooth', merge([teeth(3, [0, B + 0.455, 0.18, 0.03], [0, B + 0.45, 0.25], 0.012, true)]));
+      const spirals = [];
+      for (const x of [-1, 1]) for (const [y, rr] of [[0.18, 0.05], [0.32, 0.04]]) {
+        const pts = []; for (let i = 0; i <= 30; i++) { const t = i / 30, a = t * TAU * 1.6; pts.push([x * (0.112 - y * 0.06), B + y + Math.sin(a) * rr * (0.3 + t * 0.7), 0.0 + Math.cos(a) * rr * (0.3 + t * 0.7)]); }
+        spirals.push(K.tube(pts, 0.006, { segs: 40, radial: 5 }));
+      }
+      P.add('trim', merge(spirals));
+      return turnPiece(carve(P, 19), 0.1);
+    },
+    r() {
+      const P = new Piece(), y0 = knotDrum(P, 0.315, 0.12), Y = y0;
+      // a round watchtower of planks under a shingled cone roof, a banner hanging on its face
+      P.lathe('body', profile(0, Y).line(0.2, Y).line(0.19, Y + 0.42).line(0.205, Y + 0.43).line(0.205, Y + 0.46).line(0, Y + 0.46), { mod: MOD.flutes(16, 0.06, Y + 0.01, Y + 0.42, { end: 0.02 }) });
+      P.lathe('cloth', profile(0, Y + 0.45).line(0.27, Y + 0.45).line(0.25, Y + 0.48).line(0.02, Y + 0.72).line(0, Y + 0.73), { mod: MOD.rope(24, 0.25, Y + 0.46, Y + 0.7, 0) });
+      P.add('trim', merge([new THREE.CylinderGeometry(0.008, 0.008, 0.08, 6).translate(0, Y + 0.76, 0), sphere(0.018, 0, Y + 0.81, 0, 10)]));
+      P.add('cloth', around(6, 0.19, Y + 0.38, () => new THREE.BoxGeometry(0.03, 0.05, 0.02), { phase: Math.PI / 6 }));
+      banner(P, 0, Y + 0.34, 0.205, 0.12, 0.22, 0, 'cape');
+      P.add('trim', merge([0, 1, 2].map((i) => ring(0.022, 0, 0.004, { seg: 16 }).rotateX(Math.PI / 2).translate(Math.sin(i * TAU / 3) * 0.018, Y + 0.24 + Math.cos(i * TAU / 3) * 0.018, 0.214))));
+      P.add('trim', merge([ring(0.196, Y + 0.12, 0.008), ring(0.193, Y + 0.3, 0.008)]));
+      return carve(P, 23);
+    },
+    p() {
+      const P = new Piece(), y0 = knotDrum(P, 0.26, 0.1);
+      const f = figure(P, y0, 0.82, { pose: 'shield', beard: 0.5, cloak: true, skirt: 0.13 , coarse: 1.4 });
+      f.done();
+      const c = f.hd.c, r = f.hd.r;
+      P.add('steel', merge([new THREE.ConeGeometry(r * 1.12, r * 1.4, 16).translate(c[0], c[1] + r * 0.72, c[2]), new THREE.BoxGeometry(r * 0.16, r * 0.6, r * 0.12).translate(c[0], c[1] - r * 0.1, c[2] + r * 1.05)]));
+      roundShield(P, [f.hands[0][0] - 0.01, f.hands[0][1], f.hands[0][2] + 0.03], 0.085, { spokes: true });
+      const sp = spear(0.8 * f.s, 0.006);
+      for (const g of [sp.shaft, sp.head]) g.translate(f.hands[1][0], y0, f.hands[1][2]);
+      P.add('body', sp.shaft); P.add('steel', sp.head);
+      return turnPiece(carve(P, 29), 0.4);
     },
   };
 
@@ -4971,6 +6522,168 @@ function ChacklatePieces(THREE, K) {
         ? { body: MAT.stone(TEX.marble('#f6f2ea', '#d0a850', { scale: 2, sharp: 10, strength: 0.4 }), { roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.05 }), trim: MAT.gold('#e8b860'), glow: phys('lumen-amber', { color: '#ffe0a0', roughness: 0.2, emissive: '#ffa830', emissiveIntensity: 1.7 }) }
         : { body: phys('void-glass', { color: '#0e1220', roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.03, sheen: 0.4, sheenColor: new THREE.Color('#3a6aff'), iridescence: 0.3, iridescenceIOR: 1.5 }), trim: MAT.silver(), glow: phys('void-blue', { color: '#9ac8ff', roughness: 0.2, emissive: '#2a7aff', emissiveIntensity: 1.9 }) }),
     },
+    elves: {
+      id: 'elves', name: 'Orcs & Elves', era: 'A fantasy realm', year: 'Once upon a time', tint: '#1e3a6a',
+      story: 'Two armies of the old fantasy tales meet across the board. The elves of the silver forest come in white and gold with blue crystals; the orc clans of the burning hills come in green, red leather and iron, riding great grey wolves.',
+      lore: {
+        k: 'White: the elf king, his sword point down and a crown of golden leaves. Black: the orc warchief in a fur mantle, with a war hammer and a crown of tusks.',
+        q: 'White: the elf queen with a flower in her hand. Black: the orc warrior queen with a curved blade.',
+        b: 'White: an elf mage with a blue crystal staff. Black: an orc shaman whose staff crackles with blue light.',
+        n: 'White: a white stag with golden antlers. Black: a great grey wolf, snarling on its rock.',
+        r: 'White: a slender tower with a crystal spire. Black: a watchtower of stone and stakes with a fire inside.',
+        p: 'White: an elf guard with spear and leaf shield. Black: an orc grunt with axe and wooden shield.',
+      },
+      pieces: ELVES, piecesB: ORCS,
+      mats: (side) => (side === 'w'
+        ? { body: MATS.ivoryEnamel(), base: phys('elf-base', { map: TEX.marble('#f2eee6', '#c8bca0', { scale: 2, strength: 0.3 }), roughness: 0.3, clearcoat: 0.6 }), stone: phys('elf-stone', { map: TEX.marble('#f6f2ea', '#d0c6b0', { scale: 2, strength: 0.25 }), roughness: 0.35, clearcoat: 0.4 }), skin: phys('elf-skin', { color: '#eec4a6', roughness: 0.45, sheen: 0.4, sheenColor: new THREE.Color('#ffe8e0') }), cloth: phys('elf-white', { color: '#f4f0e8', roughness: 0.32, clearcoat: 0.6, clearcoatRoughness: 0.2, sheen: 0.6, sheenColor: new THREE.Color('#ffffff') }), cloth2: lacquer('elf-blue', '#24449a', { sheen: 0.5, sheenColor: new THREE.Color('#8ab0ff') }), hair: phys('elf-hair', { color: '#f0d68a', roughness: 0.4, metalness: 0.2, sheen: 0.8, sheenColor: new THREE.Color('#fff0b0') }), trim: MAT.gold('#e8c060'), steel: MAT.silver(), accent: MAT.gold('#e8c060'), crystal: phys('elf-crystal', { color: '#7ac8ff', roughness: 0.05, emissive: '#2a8aff', emissiveIntensity: 0.9, clearcoat: 1 }), glow: phys('elf-glow', { color: '#9ad8ff', emissive: '#4aa8ff', emissiveIntensity: 1.4, roughness: 0.3 }), leaf: phys('elf-ivy', { color: '#4a8a3a', roughness: 0.6 }), eye: MAT.lacquer('#1e2a4a') }
+        : { body: phys('orc-skin-b', { color: '#6a8a3a', roughness: 0.5 }), base: phys('orc-base', { map: TEX.stone('#3a3430', '#5a5048', { scale: 4, cloud: 0.4, speckMix: 0.5 }), roughness: 0.85 }), stone: phys('orc-stone', { map: TEX.stone('#4a4440', '#6a6058', { scale: 4, cloud: 0.4, speckMix: 0.5 }), roughness: 0.9 }), skin: phys('orc-skin', { color: '#6f9a3c', roughness: 0.48, sheen: 0.3, sheenColor: new THREE.Color('#c8f080') }), cloth: phys('orc-leather', { color: '#4e2e1c', roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.35, sheen: 0.3, sheenColor: new THREE.Color('#c08050') }), cloth2: phys('orc-hood', { color: '#a02a1e', roughness: 0.7, sheen: 0.4, sheenColor: new THREE.Color('#ff7050') }), hair: phys('orc-hair', { color: '#1a1410', roughness: 0.6 }), fur: phys('orc-fur', { color: '#5e5c5a', roughness: 0.75, sheen: 0.6, sheenColor: new THREE.Color('#c8c8c8') }), fur2: phys('orc-fur2', { color: '#b8b4ac', roughness: 0.8, sheen: 0.6, sheenColor: new THREE.Color('#ffffff') }), wood: phys('orc-wood', { map: TEX.wood('#6a4428', '#3a2414', { lines: 18, contrast: 0.5, seed: 31 }), roughness: 0.75 }), trim: MAT.bronze(), steel: phys('orc-iron', { color: '#5a5c62', metalness: 0.9, roughness: 0.42 }), tusk: MATS.ivoryEnamel(), banner: phys('orc-banner', { color: '#b0261c', roughness: 0.7, sheen: 0.4, sheenColor: new THREE.Color('#ff6040') }), accent: MAT.gem('#d0201a'), glow: phys('orc-glow', { color: '#ffb060', emissive: '#ff6a1a', emissiveIntensity: 1.6, roughness: 0.4 }), eye: MAT.lacquer('#1a0e08') }),
+    },
+    sunshadow: {
+      id: 'sunshadow', name: 'Sun Kingdom & Shadow Legion', era: 'A storybook land in the clouds', year: 'Once upon a time', tint: '#3a2a6a',
+      story: 'A storybook set from the floating isles. The Sun Kingdom comes in cream, royal blue and gold: a jolly king, a princess, a wizard and sunny villagers. The Shadow Legion comes in midnight purple, with glowing violet magic and grumpy little imps.',
+      lore: {
+        k: 'White: the jolly Sun King with his sun sceptre. Black: the Shadow King in a horned crown, violet fire in his hand.',
+        q: 'White: the princess in a golden gown, waving hello. Black: the shadow sorceress with a flame in her palm.',
+        b: 'White: the court wizard in a hat full of stars. Black: a hooded mage with glowing eyes.',
+        n: 'White: a round pony with a mane of sun rays. Black: a little shadow dragon with bat wings.',
+        r: 'White: a castle turret with a blue roof. Black: a dark spire with spikes.',
+        p: 'White: a villager in a sunflower hat. Black: a grumpy shadow imp.',
+      },
+      pieces: SUNKING, piecesB: SHADOW,
+      mats: (side) => (side === 'w'
+        ? { body: MATS.cream(), base: lacquer('sun-base', '#f4ead6'), stone: phys('sun-stone', { map: TEX.stone('#f2e6cc', '#d8c8a4', { scale: 3, cloud: 0.5, speckMix: 0.2 }), roughness: 0.6 }), skin: phys('sun-skin', { color: '#f8c8a0', roughness: 0.4, sheen: 0.5, sheenColor: new THREE.Color('#ffd8c8') }), cloth: lacquer('sun-cream', '#fbf2de'), cloth2: lacquer('sun-blue', '#2a4ab8', { sheen: 0.4, sheenColor: new THREE.Color('#8aa8ff') }), cape: lacquer('sun-red', '#c8202a', { sheen: 0.5, sheenColor: new THREE.Color('#ff8a8a') }), fur: phys('sun-ermine', { color: '#fbfaf6', roughness: 0.7, sheen: 1, sheenColor: new THREE.Color('#ffffff') }), hair: lacquer('sun-hair', '#e8906a'), wood: lacquer('sun-wood', '#a8642a'), hoof: MAT.gold('#e8b850'), trim: MAT.gold('#f0c050'), accent: MAT.gem('#e8304a'), glow: phys('sun-glow', { color: '#ffe070', emissive: '#ffb020', emissiveIntensity: 1.3, roughness: 0.3 }), banner: lacquer('sun-banner', '#2a4ab8'), eye: MAT.lacquer('#2a1a14') }
+        : { body: lacquer('shadow-body', '#2a1a40'), base: lacquer('shadow-base', '#1e1428'), stone: phys('shadow-stone', { map: TEX.stone('#2a2232', '#4a3a58', { scale: 4, cloud: 0.4, speckMix: 0.4 }), roughness: 0.55, clearcoat: 0.4 }), skin: phys('shadow-skin', { color: '#b8a8d8', roughness: 0.4, sheen: 0.5, sheenColor: new THREE.Color('#e0d0ff') }), cloth: lacquer('shadow-cloth', '#3a2458', { sheen: 0.5, sheenColor: new THREE.Color('#a070ff') }), cloth2: lacquer('shadow-purple', '#4a1e78', { sheen: 0.6, sheenColor: new THREE.Color('#c890ff') }), hair: lacquer('shadow-hair', '#1a1024'), wood: lacquer('shadow-wood', '#2a1a1a'), horn: lacquer('shadow-horn', '#e8dcc8'), wing: lacquer('shadow-wing', '#5a2a8a', { side: THREE.DoubleSide }), void: MAT.matte('#05030a'), steel: phys('shadow-steel', { color: '#3a3a4a', metalness: 0.9, roughness: 0.3 }), trim: MAT.gold('#c8a0e8'), accent: MAT.gem('#a020f0'), glow: phys('shadow-glow', { color: '#e0a0ff', emissive: '#a030ff', emissiveIntensity: 1.8, roughness: 0.3 }), banner: lacquer('shadow-banner', '#5a1a7a'), eye: MAT.lacquer('#2a1040') }),
+    },
+    galactic: {
+      id: 'galactic', name: 'Galactic Blue & Red', era: 'Far out among the stars', year: 'The far future', tint: '#1a2050',
+      story: 'Two star fleets meet on a lit grid above a blue planet. The Blue Fleet comes in white ceramic with blue light; the Red Fleet in black armour with red light. Their starships jump like knights, and their crystal beacons shine down the diagonals.',
+      lore: {
+        k: 'White: the Fleet Commander with a star circlet. Black: the Red Warlord in a crested helm with a red visor.',
+        q: 'White: the Admiral with her star staff. Black: the Red Commander in a crimson gown and a crescent headpiece.',
+        b: 'White: a beacon with a blue crystal and a gold star. Black: a beacon of jagged red crystal.',
+        n: 'White: a starfighter with swept delta wings. Black: an interceptor with crescent wings.',
+        r: 'White: a tower of blue light. Black: a hexagonal tower with spikes.',
+        p: 'White: a space cadet with a blue visor. Black: a cadet of the Red Fleet with a red eye slit.',
+      },
+      pieces: GALBLUE, piecesB: GALRED,
+      mats: (side) => (side === 'w'
+        ? { body: phys('gal-white', { color: '#f2f4f8', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06 }), base: phys('gal-base-w', { color: '#b8c0cc', metalness: 0.85, roughness: 0.3 }), skin: phys('gal-skin', { color: '#f2c8a8', roughness: 0.45, sheen: 0.4, sheenColor: new THREE.Color('#ffe0d0') }), cloth: phys('gal-uniform', { color: '#eef0f4', roughness: 0.35, clearcoat: 0.5, sheen: 0.4, sheenColor: new THREE.Color('#ffffff') }), cloth2: lacquer('gal-navy', '#1c2c6a', { sheen: 0.5, sheenColor: new THREE.Color('#6a8aff') }), hair: lacquer('gal-hair', '#4a2c1a'), steel: MAT.chrome(), trim: MAT.gold('#e8c060'), glass: phys('gal-glass', { color: '#5ab8ff', roughness: 0.05, metalness: 0.3, emissive: '#1a5aaa', emissiveIntensity: 0.4, clearcoat: 1 }), crystal: phys('gal-crystal-b', { color: '#2a7aff', roughness: 0.05, emissive: '#0a4aff', emissiveIntensity: 1.1, clearcoat: 1 }), glow: phys('gal-glow-b', { color: '#2a7aff', emissive: '#1a5aff', emissiveIntensity: 1.0, roughness: 0.3 }), eye: MAT.lacquer('#1e2a4a') }
+        : { body: phys('gal-black', { color: '#1a1c22', roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.06, metalness: 0.2 }), base: phys('gal-base-b', { color: '#2a2c34', metalness: 0.85, roughness: 0.32 }), skin: phys('gal-skin-r', { color: '#e8c0a8', roughness: 0.45 }), cloth: phys('gal-armour', { color: '#24262e', roughness: 0.3, clearcoat: 0.8, metalness: 0.3 }), cloth2: lacquer('gal-crimson', '#8a121c', { sheen: 0.5, sheenColor: new THREE.Color('#ff6a6a') }), hair: lacquer('gal-hair-r', '#120c0a'), steel: phys('gal-gunmetal', { color: '#3a3c46', metalness: 0.9, roughness: 0.3 }), trim: MAT.gold('#d8a050'), glass: phys('gal-glass-r', { color: '#ff5a4a', roughness: 0.05, metalness: 0.3, emissive: '#aa1a1a', emissiveIntensity: 0.5, clearcoat: 1 }), crystal: phys('gal-crystal-r', { color: '#e8201a', roughness: 0.05, emissive: '#c80a0a', emissiveIntensity: 1.1, clearcoat: 1 }), glow: phys('gal-glow-r', { color: '#ff2a1a', emissive: '#e8100a', emissiveIntensity: 1.0, roughness: 0.3 }), eye: MAT.lacquer('#1a0e0a') }),
+    },
+    dino: {
+      id: 'dino', name: 'Dino Kingdom', era: 'Long, long ago', year: '66 million years ago', tint: '#6a3a12', sided: true,
+      story: 'Made for the table in Dinosaur Valley, under the smoking volcano. White is carved from fossil bone with amber and ferns, and black is dark lava stone with glowing cracks.',
+      lore: {
+        k: 'A crowned tyrant lizard king in a royal cape, roaring as loud as he can.',
+        q: 'A crested queen in a long gown, with a fan of plumes behind her crest.',
+        b: 'A tall amber crystal with an ammonite shell inside, held in claws of bone.',
+        n: 'A triceratops on a fern rock for white, and a quick raptor on a lava rock for black.',
+        r: 'A castle of fossil stone, or a lava tower flying a banner with a dinosaur footprint.',
+        p: 'A baby dinosaur hatching from its egg, or an amber egg held safe in three claws.',
+      },
+      pieces: DINO,
+      mats: (side) => (side === 'w'
+        ? { body: phys('dino-bone', { map: TEX.stone('#efe2c6', '#cdb894', { scale: 4, cloud: 0.4, speckMix: 0.3 }), roughness: 0.42, clearcoat: 0.35, clearcoatRoughness: 0.2, sheen: 0.3, sheenColor: new THREE.Color('#fff4dc') }),
+          base: phys('dino-bone-base', { map: TEX.stone('#e6d6b6', '#bfa680', { scale: 5, cloud: 0.5, speckMix: 0.4 }), roughness: 0.5, clearcoat: 0.25 }),
+          cloth: phys('dino-sand', { map: TEX.stone('#e8d4ac', '#c0a070', { scale: 4, cloud: 0.5 }), roughness: 0.5, clearcoat: 0.2, sheen: 0.4, sheenColor: new THREE.Color('#fff0d0') }),
+          cape: phys('dino-sand', { map: TEX.stone('#e8d4ac', '#c0a070', { scale: 4, cloud: 0.5 }), roughness: 0.5, clearcoat: 0.2, sheen: 0.4, sheenColor: new THREE.Color('#fff0d0') }),
+          trim: MAT.gold('#d9a24c'), accent: phys('amber-glow', { color: '#ffae3a', roughness: 0.12, clearcoat: 1, emissive: '#ff8a10', emissiveIntensity: 0.55 }),
+          crystal: phys('amber-crystal', { color: '#ffc46a', roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03, emissive: '#ff9a20', emissiveIntensity: 0.45, sheen: 0.5, sheenColor: new THREE.Color('#fff0c0') }),
+          egg: phys('dino-egg', { map: TEX.stone('#f2e6cc', '#d8c4a0', { scale: 3, cloud: 0.3 }), roughness: 0.35, clearcoat: 0.6 }),
+          crest: phys('dino-crest-w', { color: '#d8a868', roughness: 0.4, clearcoat: 0.5 }), tooth: MATS.ivoryEnamel(), leaf: phys('fern', { color: '#7f9a56', roughness: 0.5, clearcoat: 0.3 }), mouth: phys('dino-mouth', { color: '#6a2420', roughness: 0.5, clearcoat: 0.4 }),
+          lava: phys('amber-glow', { color: '#ffae3a', roughness: 0.12, clearcoat: 1, emissive: '#ff8a10', emissiveIntensity: 0.55 }), eye: MAT.lacquer('#2a1a10') }
+        : { body: phys('dino-lava', { map: TEX.stone('#3a3230', '#1c1816', { scale: 6, cloud: 0.4, speckMix: 0.5 }), roughness: 0.5, clearcoat: 0.4, clearcoatRoughness: 0.2 }),
+          base: phys('dino-lava-base', { map: TEX.stone('#2a2422', '#141010', { scale: 7, cloud: 0.4, speckMix: 0.5 }), roughness: 0.55, clearcoat: 0.3 }),
+          cloth: phys('dino-red', { color: '#7a1e14', roughness: 0.6, sheen: 0.8, sheenColor: new THREE.Color('#ff7a5a'), sheenRoughness: 0.5 }),
+          cape: phys('dino-red', { color: '#7a1e14', roughness: 0.6, sheen: 0.8, sheenColor: new THREE.Color('#ff7a5a'), sheenRoughness: 0.5 }),
+          trim: MAT.gold('#c8903a'), accent: phys('amber-glow', { color: '#ffae3a', roughness: 0.12, clearcoat: 1, emissive: '#ff8a10', emissiveIntensity: 0.55 }),
+          crystal: phys('amber-glow', { color: '#ffae3a', roughness: 0.12, clearcoat: 1, emissive: '#ff8a10', emissiveIntensity: 0.55 }),
+          egg: phys('amber-egg', { color: '#e8902a', roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.03, emissive: '#c85a08', emissiveIntensity: 0.6 }),
+          crest: phys('dino-crest-b', { color: '#a8301e', roughness: 0.45, clearcoat: 0.5 }), tooth: MATS.ivoryEnamel(), leaf: phys('fern', { color: '#7f9a56', roughness: 0.5, clearcoat: 0.3 }), mouth: phys('dino-mouth', { color: '#6a2420', roughness: 0.5, clearcoat: 0.4 }),
+          lava: MAT.emissive('#ff6a1a', 1.6), eye: phys('dino-eye-b', { color: '#ffb040', emissive: '#ff8a10', emissiveIntensity: 0.9, roughness: 0.2 }) }),
+    },
+    forest: {
+      id: 'forest', name: 'Forest Guardians', era: 'Once upon a time', year: 'In the enchanted forest', tint: '#2a5a2e', sided: true,
+      story: 'Made for the table deep in the Enchanted Forest. White are the elves of the glade in ivory and gold with green cloaks, and black are the forest folk of bark and moss, whose eyes glow green.',
+      lore: {
+        k: 'The elf king with his great sword, or the antlered Oak King with his glowing staff.',
+        q: 'The elf queen with her golden hair, or the dryad queen crowned with branches and flowers.',
+        b: 'An elf mage with a blue crystal, or a druid whose staff holds a green light.',
+        n: 'A white stag with golden antlers, or a friendly moss bear with flowers on his back.',
+        r: 'A slender elven tower with lit windows, or a hollow tree stump with a glowing door.',
+        p: 'An elf sentinel with a leaf shield, or a little moss sprite with leafy ears.',
+      },
+      pieces: FOREST,
+      mats: (side) => (side === 'w'
+        ? { body: phys('elf-ivory', { color: '#f3eee4', roughness: 0.3, clearcoat: 0.8, clearcoatRoughness: 0.12, sheen: 0.4, sheenColor: new THREE.Color('#fff8ec') }),
+          base: phys('elf-base', { map: TEX.marble('#f2ede2', '#c8bca0', { scale: 2, strength: 0.3 }), roughness: 0.3, clearcoat: 0.7 }),
+          cloth: phys('elf-green', { color: '#24603c', roughness: 0.55, sheen: 0.9, sheenColor: new THREE.Color('#7ad8a0'), sheenRoughness: 0.45 }),
+          cape: phys('elf-green-2', { color: '#1c4a30', roughness: 0.6, sheen: 0.9, sheenColor: new THREE.Color('#6ac890'), sheenRoughness: 0.45 }),
+          hair: MAT.gold('#ecc874'), fur: phys('elf-moss', { color: '#6a8a3a', roughness: 0.9 }), trim: MAT.gold('#e6b85c'), steel: MAT.silver(),
+          accent: phys('elf-gem', { color: '#8ad8ff', roughness: 0.05, clearcoat: 1, emissive: '#3aa8ff', emissiveIntensity: 0.8 }),
+          leaf: phys('elf-leaf', { color: '#4a8a4a', roughness: 0.4, clearcoat: 0.6 }), flower: phys('elf-flower', { color: '#f4f0ff', roughness: 0.4, emissive: '#c8b8ff', emissiveIntensity: 0.2 }), eye: MAT.lacquer('#1e2a24') }
+        : { body: phys('bark', { map: TEX.wood('#6a5236', '#3a2a1a', { lines: 18, contrast: 0.6, figure: 0.2, seed: 21 }), roughness: 0.65, clearcoat: 0.2 }),
+          base: phys('forest-stone', { map: TEX.stone('#3a3a2e', '#24261c', { scale: 6, cloud: 0.4, speckMix: 0.4 }), roughness: 0.6, clearcoat: 0.2 }),
+          cloth: phys('moss-cloth', { color: '#3e5a22', roughness: 0.8, sheen: 1, sheenColor: new THREE.Color('#9ad860'), sheenRoughness: 0.5 }),
+          cape: phys('moss-cloth-2', { color: '#2e4618', roughness: 0.85, sheen: 1, sheenColor: new THREE.Color('#8ac850'), sheenRoughness: 0.5 }),
+          hair: phys('leaf-hair', { color: '#3a5a1a', roughness: 0.6, clearcoat: 0.3 }), fur: phys('moss', { color: '#5a7e26', roughness: 0.95, sheen: 1, sheenColor: new THREE.Color('#b8f070') }),
+          trim: MAT.gold('#b48a42'), steel: MAT.bronze(),
+          accent: phys('green-glow', { color: '#9aff6a', roughness: 0.1, emissive: '#5aff3a', emissiveIntensity: 1.1 }),
+          leaf: phys('folk-leaf', { color: '#5a8a2a', roughness: 0.5, clearcoat: 0.4 }), flower: phys('folk-flower', { color: '#b67ae8', roughness: 0.4, emissive: '#8a4ad8', emissiveIntensity: 0.35 }),
+          eye: phys('folk-eye', { color: '#b8ff7a', emissive: '#7aff3a', emissiveIntensity: 1.2, roughness: 0.2 }) }),
+    },
+    jarl: {
+      id: 'jarl', name: 'Jarls of the Fjord', era: 'The Viking age', year: 'About 900', tint: '#1e2e5a', sided: true,
+      story: 'Made for a table by the fjord where the longships come home. White is gold and ivory with deep blue cloaks and white fur, black is dark iron and leather with grey fur, and on both sides the runestones glow ice blue.',
+      lore: {
+        k: 'A jarl in a fur cloak with both hands on his sword: a gold crown for white, a horned helm for black.',
+        q: 'A shieldmaiden queen with long braids, in a winged helm or a circlet of curling horns.',
+        b: 'A wise seer with a long beard and a rune staff that glows ice blue.',
+        n: 'A great wolf sitting up on a rock: white with gold armour, or dark with glowing eyes.',
+        r: 'A watchtower with a round shield on its face and two banners flying from the top.',
+        p: 'A warrior with a round shield and a spear, ready to guard the shore.',
+      },
+      pieces: VIKING,
+      mats: (side) => (side === 'w'
+        ? { body: phys('jarl-ivory', { color: '#efe4cc', roughness: 0.35, clearcoat: 0.7, clearcoatRoughness: 0.14, sheen: 0.3, sheenColor: new THREE.Color('#fff4dc') }),
+          base: MAT.gold('#d8aa52'), rock: phys('fjord-rock-w', { map: TEX.stone('#c8c4bc', '#8a8680', { scale: 5, cloud: 0.5, speckMix: 0.4 }), roughness: 0.6, clearcoat: 0.2 }), cloth: phys('jarl-navy', { color: '#1e2c58', roughness: 0.55, sheen: 0.9, sheenColor: new THREE.Color('#7a9aff'), sheenRoughness: 0.45 }),
+          cape: phys('jarl-navy-2', { color: '#18234a', roughness: 0.6, sheen: 0.9, sheenColor: new THREE.Color('#6a8aee'), sheenRoughness: 0.45 }),
+          hair: phys('jarl-hair-w', { color: '#d8b878', roughness: 0.5, clearcoat: 0.4 }), fur: phys('fur-white', { color: '#f2ece2', roughness: 0.95, sheen: 1, sheenColor: new THREE.Color('#ffffff') }),
+          trim: MAT.gold('#e2b458'), steel: MAT.gold('#e8c06a'), tooth: MATS.ivoryEnamel(), banner: phys('jarl-banner-w', { color: '#22346a', roughness: 0.6, sheen: 0.8, sheenColor: new THREE.Color('#8aa8ff') }),
+          accent: phys('ice-glow', { color: '#9ae0ff', roughness: 0.05, clearcoat: 1, emissive: '#3ab8ff', emissiveIntensity: 0.9 }), eye: MAT.lacquer('#1e2430') }
+        : { body: phys('jarl-iron', { color: '#4a3c32', roughness: 0.45, clearcoat: 0.5, clearcoatRoughness: 0.2, sheen: 0.3, sheenColor: new THREE.Color('#c8a888') }),
+          base: MAT.bronze(), rock: phys('fjord-rock-b', { map: TEX.stone('#4a4a4e', '#2a2a2e', { scale: 5, cloud: 0.5, speckMix: 0.4 }), roughness: 0.6, clearcoat: 0.2 }), cloth: phys('jarl-teal', { color: '#1c3640', roughness: 0.6, sheen: 0.9, sheenColor: new THREE.Color('#5ac8d8'), sheenRoughness: 0.45 }),
+          cape: phys('jarl-leather', { color: '#3a2a20', roughness: 0.65, clearcoat: 0.2, sheen: 0.5, sheenColor: new THREE.Color('#a87a5a') }),
+          hair: phys('jarl-hair-b', { color: '#2a201a', roughness: 0.5, clearcoat: 0.3 }), fur: phys('fur-grey', { color: '#8a8478', roughness: 0.95, sheen: 1, sheenColor: new THREE.Color('#d8d0c0') }),
+          trim: MAT.bronze(), steel: phys('dark-iron', { color: '#5a5c62', metalness: 1, roughness: 0.32, envMapIntensity: 1.1 }), tooth: MATS.ivoryEnamel(), banner: phys('jarl-banner-b', { color: '#8a1c16', roughness: 0.6, sheen: 0.8, sheenColor: new THREE.Color('#ff7a5a') }),
+          accent: phys('ice-glow', { color: '#9ae0ff', roughness: 0.05, clearcoat: 1, emissive: '#3ab8ff', emissiveIntensity: 0.9 }), eye: phys('wolf-eye', { color: '#aef0ff', emissive: '#5ad8ff', emissiveIntensity: 1.2, roughness: 0.2 }) }),
+    },
+    rune: {
+      id: 'rune', name: 'Runecarved', era: 'The Viking age', year: 'About 950', tint: '#5a3a1e',
+      story: 'Whittled by hand for the table at the gate of a great hall, where dragons are carved on the doorposts. White is pale birch with blue cloaks, black is dark oak with red, and every piece stands on a drum of knotwork.',
+      lore: {
+        k: 'A carved king leaning on his sword, with a long beard and a simple crown.',
+        q: 'A queen with long braids, holding a drinking horn in both hands.',
+        b: 'A hooded skald, the teller of sagas, with a sun wheel on his staff and runes on his robe.',
+        n: 'The head of a wolf with its mouth open and spirals cut into its neck.',
+        r: 'A round watchtower of planks under a shingled roof, with a banner on its face.',
+        p: 'A spearman in a pointed helmet with a round shield.',
+      },
+      pieces: RUNE,
+      mats: (side) => (side === 'w'
+        ? { body: phys('birch', { map: TEX.wood('#ead8b4', '#c8a878', { lines: 30, contrast: 0.32, figure: 0.12, seed: 31 }), roughness: 0.55, clearcoat: 0.25, clearcoatRoughness: 0.3 }),
+          base: phys('birch-2', { map: TEX.wood('#e2cca4', '#bc9a68', { lines: 24, contrast: 0.4, figure: 0.15, seed: 33 }), roughness: 0.55, clearcoat: 0.25 }),
+          cloth: phys('birch-blue', { map: TEX.wood('#3a4c70', '#24324e', { lines: 26, contrast: 0.3, seed: 35 }), roughness: 0.65, clearcoat: 0.15 }),
+          cape: phys('birch-blue', { map: TEX.wood('#3a4c70', '#24324e', { lines: 26, contrast: 0.3, seed: 35 }), roughness: 0.65, clearcoat: 0.15 }),
+          hair: phys('birch', { map: TEX.wood('#ead8b4', '#c8a878', { lines: 30, contrast: 0.32, figure: 0.12, seed: 31 }), roughness: 0.55, clearcoat: 0.25, clearcoatRoughness: 0.3 }),
+          trim: MAT.bronze(), steel: MAT.bronze(), tooth: MATS.ivoryEnamel(), eye: MAT.lacquer('#2a1a10') }
+        : { body: phys('oak', { map: TEX.wood('#6e4c2e', '#3a2414', { lines: 22, contrast: 0.5, figure: 0.2, seed: 37 }), roughness: 0.55, clearcoat: 0.3, clearcoatRoughness: 0.3 }),
+          base: phys('oak-2', { map: TEX.wood('#5e3e24', '#301c0e', { lines: 20, contrast: 0.55, figure: 0.2, seed: 39 }), roughness: 0.55, clearcoat: 0.3 }),
+          cloth: phys('oak-red', { map: TEX.wood('#8a2a1e', '#5a1610', { lines: 24, contrast: 0.3, seed: 41 }), roughness: 0.6, clearcoat: 0.2 }),
+          cape: phys('oak-red', { map: TEX.wood('#8a2a1e', '#5a1610', { lines: 24, contrast: 0.3, seed: 41 }), roughness: 0.6, clearcoat: 0.2 }),
+          hair: phys('oak', { map: TEX.wood('#6e4c2e', '#3a2414', { lines: 22, contrast: 0.5, figure: 0.2, seed: 37 }), roughness: 0.55, clearcoat: 0.3, clearcoatRoughness: 0.3 }),
+          trim: MAT.bronze(), steel: MAT.bronze(), tooth: MATS.ivoryEnamel(), eye: MAT.lacquer('#f0e4cc') }),
+    },
   });
 
   // ------------------------------------------------------------------ collection sets
@@ -5019,32 +6732,59 @@ function ChacklatePieces(THREE, K) {
     play: { around: 0.4, along: 0.34, tube: 0.45, cell: 0.012, mane: 0.0095 },
   };
   const geomCache = new Map();
+  // A set whose two armies are different figures (Orcs & Elves) gives black its own module, piecesB.
+  // Sets whose two sides are different characters (set.sided) build each piece for its side.
   function geometry(setId, type, detail, side) {
     const set = SETS[setId] || SETS.regency;
     const shape = set.shape || set.id;
     const lod = LOD[detail] ? detail : 'show';
-    // a set carved differently for each side (Fire and Ice) builds each side's own pieces
-    const bs = SETS[shape].bySide, bySide = bs === true || (Array.isArray(bs) && bs.includes(type)), key = shape + type + lod + (bySide ? side || 'w' : '');
+    const two = side === 'b' && !!SETS[shape].piecesB;
+    // a set carved differently for each side builds each side's own pieces: the whole set (sided, or
+    // bySide: true, as Fire and Ice) or only some pieces (bySide: ['n'], as Clockwork Brass's knights)
+    const bs = SETS[shape].bySide, per = set.sided || bs === true || (Array.isArray(bs) && bs.includes(type));
+    const sd = per ? (side === 'b' ? 'b' : 'w') : '';
+    const key = shape + (two ? '~b' : '') + type + lod + sd;
     if (!geomCache.has(key)) {
       const t0 = performance.now();
       const L = LOD[lod], keep = { around: DETAIL.around, along: DETAIL.along, tube: DETAIL.tube, cell: Q.cell, mane: Q.mane };
       Object.assign(DETAIL, { around: L.around, along: L.along, tube: L.tube }); Q.cell = L.cell; Q.mane = L.mane;
-      try { geomCache.set(key, SETS[shape].pieces[type]({ Q, side: side || 'w' }).geoms()); }
+      try { geomCache.set(key, (two ? SETS[shape].piecesB : SETS[shape].pieces)[type]({ Q, side: sd || 'w' }).geoms()); }
       finally { Object.assign(DETAIL, { around: keep.around, along: keep.along, tube: keep.tube }); Q.cell = keep.cell; Q.mane = keep.mane; }
       if (typeof window !== 'undefined' && window.__PIECE_TIMES) window.__PIECE_TIMES.push([shape, type, lod, Math.round(performance.now() - t0)]);
     }
     return geomCache.get(key);
   }
   // A ready-to-place group for one piece: meshes share geometry and materials.
+  // Slots that share a material are drawn as one mesh: a figure with a dozen parts in five
+  // materials costs five draw calls, not twelve. The merged geometry is kept with the slot ones.
+  const MERGED = new WeakMap();
+  function byMaterial(g, mats, side) {
+    let per = MERGED.get(g);
+    if (!per) MERGED.set(g, (per = {}));
+    if (per[side]) return per[side].map(([geo, name]) => [geo, mats[name] || mats.body]);
+    const groups = new Map();
+    for (const slot of Object.keys(g)) {
+      const mat = mats[slot] || mats.body;
+      if (!groups.has(mat)) groups.set(mat, { name: mats[slot] ? slot : 'body', geos: [] });
+      groups.get(mat).geos.push(g[slot]);
+    }
+    const out = [];
+    for (const { name, geos } of groups.values()) {
+      const same = geos.every((x) => !!x.index === !!geos[0].index && Object.keys(x.attributes).sort().join() === Object.keys(geos[0].attributes).sort().join());
+      const one = geos.length > 1 && same && THREE.mergeGeometries ? THREE.mergeGeometries(geos) : null;
+      if (one) out.push([one, name]); else geos.forEach((x) => out.push([x, name]));
+    }
+    per[side] = out;
+    return out.map(([geo, name]) => [geo, mats[name] || mats.body]);
+  }
   function make(setId, type, side, detail) {
     const set = SETS[setId] || SETS.regency;
     const g = geometry(set.id, type, detail, side);
     const mats = set.mats(side);
     const grp = new THREE.Group();
-    for (const slot of Object.keys(g)) {
-      const m = new THREE.Mesh(g[slot], mats[slot] || mats.body);
+    for (const [geo, mat] of byMaterial(g, mats, side)) {
+      const m = new THREE.Mesh(geo, mat);
       m.castShadow = true; m.receiveShadow = true;
-      m.userData.slot = slot;
       grp.add(m);
     }
     grp.userData = { set: set.id, type, side };
