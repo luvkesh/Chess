@@ -101,6 +101,8 @@ header.top .wrap { display: flex; align-items: center; gap: 28px; height: 76px; 
 .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; font: 600 15px/1 var(--caps); letter-spacing: 0.3em; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8); }
 .logo .crest { width: 42px; height: 42px; }
 header nav { display: flex; gap: 30px; margin: 0 auto; }
+header nav a { white-space: nowrap; }
+@media (max-width: 1360px) { header nav { gap: 18px; } header nav a { letter-spacing: 0.12em; } header.top .wrap { gap: 20px; } }
 header nav a { position: relative; text-decoration: none; font: 500 12px/1 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); padding: 10px 0; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8); }
 header nav a:hover, header nav a.on { color: var(--ink); }
 header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2px; width: 22px; height: 1px; background: var(--gold); transform: translateX(-50%); box-shadow: 0 0 8px var(--gold); }
@@ -157,6 +159,72 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .nums h3 { margin: 0; }
 .nums h3::after, .safe h3::after, .earn-cards h4::after, .plan h3::after { content: ''; display: block; width: 44px; height: 1px; margin: 14px auto 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 .nums p { margin: 12px 0 0; color: var(--muted); font-size: 15.5px; }
+
+/* ---------- train: the thirteen trainers, the checkmate ladder and the progress charts ---------- */
+.trainers { list-style: none; padding: 0; margin: 54px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--u); }
+.trainers li { flex: 0 0 calc((100% - 4 * var(--u)) / 5); min-width: 0; padding: 18px 16px 22px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.trainers .ic3d { width: 116px; height: 116px; margin: -4px 0 6px; }
+.trainers h3 { font: 600 21px/1.15 var(--serif); letter-spacing: 0; text-transform: none; color: var(--ink); overflow-wrap: anywhere; hyphens: auto; }
+.trainers h3::after { content: ''; display: block; width: 36px; height: 1px; margin: 10px auto 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.trainers p { margin: 10px 0 0; color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+#mates { min-height: 100vh; display: flex; align-items: center; }
+.mates-copy { padding-right: 30px; }
+.ladder-steps { margin-top: var(--u); max-width: 600px; padding: 12px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: end; }
+.ladder-steps button { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; padding: 10px 4px 10px; border-radius: 14px; border: 1px solid var(--line-2); background: linear-gradient(180deg, rgba(232, 192, 112, 0.08), rgba(232, 192, 112, 0.02)); color: var(--muted); cursor: pointer; transition: border-color .2s, background .2s, color .2s, transform .2s; }
+.ladder-steps button:nth-child(1) { min-height: 76px; } .ladder-steps button:nth-child(2) { min-height: 88px; } .ladder-steps button:nth-child(3) { min-height: 100px; } .ladder-steps button:nth-child(4) { min-height: 112px; } .ladder-steps button:nth-child(5) { min-height: 124px; }
+.ladder-steps b { font: 600 30px/1 var(--caps); background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 0.04em 0.06em; }
+.ladder-steps span { font-size: 12.5px; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
+.ladder-steps button[aria-pressed="true"] { border-color: var(--gold); background: linear-gradient(180deg, rgba(232, 192, 112, 0.24), rgba(232, 192, 112, 0.06)); color: var(--ink); box-shadow: 0 0 22px rgba(232, 192, 112, 0.22); }
+@media (hover: hover) { .ladder-steps button:hover { border-color: var(--gold-3); color: var(--ink); transform: translateY(-2px); } }
+.mate-card { margin-top: var(--u); max-width: 600px; min-height: 96px; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+.mate-state { font: 600 22px/1.2 var(--serif); font-variant-numeric: lining-nums; }
+.mate-state.won { background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.mate-moves { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+.mate-moves li { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line-2); font: 500 14px/1.3 var(--sans); color: var(--faint); font-variant-numeric: tabular-nums; transition: color .3s, border-color .3s, background .3s; }
+.mate-moves li.w { color: var(--ink); }
+.mate-moves li.done { border-color: var(--gold-3); }
+.mate-moves li.now { border-color: var(--gold); background: rgba(232, 192, 112, 0.16); color: var(--gold-2); }
+.dash { margin-top: 54px; padding: 22px; }
+.dash-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: var(--u); }
+.periods { display: inline-flex; padding: 4px; border-radius: 999px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.25); }
+.periods button { min-height: 38px; padding: 0 18px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 500 14px/1 var(--sans); cursor: pointer; }
+.periods button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1608; }
+.sample { font: 600 11px/1.2 var(--caps); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); padding: 8px 14px; border: 1px dashed var(--line); border-radius: 999px; }
+.dash-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--u); }
+.dcard { border-radius: 16px; border: 1px solid var(--line-2); background: rgba(10, 6, 4, 0.35); padding: 14px 16px 12px; min-width: 0; }
+.dhead { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.dhead img { width: 40px; height: 40px; flex: none; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)); }
+.dhead h4 { flex: 1; min-width: 0; font: 600 19px/1.15 var(--serif); }
+.delta { flex: none; font: 600 13px/1 var(--sans); padding: 5px 9px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.delta.up { color: #7fe3c4; background: rgba(60, 200, 160, 0.14); }
+.delta.down { color: #ffb0a0; background: rgba(240, 110, 90, 0.14); }
+.chart { margin-top: 6px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; direction: ltr; }
+.chart text { font: 500 11px var(--sans); fill: var(--faint); }
+.chart .you { fill: none; stroke: var(--gold-2); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.chart .area { fill: url(#dashfill); opacity: .5; }
+.chart .ref { stroke-width: 1.3; stroke-dasharray: 5 5; }
+.chart .ref.hi { stroke: #5fd4c0; } .chart .ref.lo { stroke: #e8869a; }
+.chart .grid { stroke: rgba(255, 235, 215, 0.07); }
+.chart .dot { fill: var(--gold-2); stroke: #120c0a; stroke-width: 2; }
+.chart .last { font: 600 12px var(--sans); fill: var(--gold-2); }
+.dash.drawn .chart .you { animation: drawline 1.4s ease-out both; }
+@keyframes drawline { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.legend span::before { content: ''; display: inline-block; width: 16px; height: 0; margin-right: 7px; vertical-align: middle; border-top: 2.4px solid var(--gold-2); }
+.legend .lo::before, .legend .solid-l::before { border-top: 1.5px dashed #e8869a; }
+.legend .hi::before, .legend .strong::before { border-top: 1.5px dashed #5fd4c0; }
+.legend.foot { justify-content: center; margin-top: var(--u); }
+.dcard.games { display: flex; flex-direction: column; }
+.ringwrap { flex: 1; display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 10px; flex-wrap: wrap; }
+.ringwrap svg { width: 156px; height: 156px; flex: none; }
+.ringwrap dl { margin: 0; display: grid; gap: 8px; }
+.ringwrap dl div { display: flex; align-items: baseline; gap: 10px; }
+.ringwrap dt { color: var(--muted); font-size: 15px; min-width: 60px; }
+.ringwrap dd { margin: 0; font: 600 24px/1 var(--caps); font-variant-numeric: lining-nums; }
+#g-w { color: #7fe3c4; } #g-d { color: var(--muted); } #g-l { color: #ffb0a0; }
+.skills { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--u); margin-top: var(--u); }
+.skills .dhead h4 { font-size: 17px; overflow-wrap: anywhere; hyphens: auto; }
 
 /* ---------- wonders ---------- */
 #wonders { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 126px 0 40px; }
@@ -390,6 +458,15 @@ footer .quiet { width: 100%; margin-top: 2px; font-size: 13.5px; }
 .menu-btn { display: none; width: 42px; height: 42px; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(18, 12, 10, 0.6); color: var(--gold-2); cursor: pointer; }
 .menu-btn svg { width: 20px; height: 20px; }
 .menu-btn[aria-expanded="true"] { border-color: var(--gold-3); }
+/* a language whose section names do not fit on one line folds them into the menu button, as on iPads */
+header.top.cramped nav { display: none; }
+header.top.cramped .wrap { justify-content: space-between; }
+header.top.cramped .menu-btn { display: grid; }
+header.top.cramped.menu-open { background: rgba(18, 12, 10, 0.97); border-color: var(--line-2); }
+header.top.cramped.menu-open nav { display: flex; flex-direction: column; gap: 0; position: absolute; top: 100%; left: 0; right: 0; margin: 0; padding: 8px 36px 18px; background: rgba(18, 12, 10, 0.97); border-bottom: 1px solid var(--line-2); }
+header.top.cramped.menu-open nav a { padding: 15px 4px; font-size: 13px; border-bottom: 1px solid var(--line-2); }
+header.top.cramped.menu-open nav a:last-child { border-bottom: 0; }
+header.top.cramped.menu-open nav a.on::after { left: auto; right: 4px; top: 50%; bottom: auto; transform: none; }
 .lang { position: relative; }
 .lang-btn { width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(18, 12, 10, 0.6); color: var(--gold-2); cursor: pointer; transition: border-color .2s; }
 .lang-btn:hover, .lang-btn[aria-expanded="true"] { border-color: var(--gold-3); }
@@ -494,6 +571,8 @@ html.nonlatin body { line-height: 1.75; }
   .car-tabs button .ic3d { width: 78px; height: 78px; }
   .car-tabs button small { font-size: 28px; }
   .pillars .ic3d { width: 90px; height: 90px; }
+  .trainers li { flex-basis: calc((100% - 3 * var(--u)) / 4); }
+  .skills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
   body { font-size: 16px; }
@@ -524,6 +603,26 @@ html.nonlatin body { line-height: 1.75; }
   .learn-copy { padding: 22px 18px 22px; }
   .learn-copy .peek { width: 86px; height: 86px; top: -30px; right: 14px; }
   .learn-copy .peek::before { display: none; }
+  .trainers { gap: 10px; margin-top: 36px; }
+  .trainers li { flex-basis: calc((100% - 10px) / 2); padding: 14px 10px 16px; }
+  .trainers .ic3d { width: 88px; height: 88px; }
+  .trainers h3 { font-size: 18px; }
+  .trainers p { font-size: 13.5px; }
+  #mates { align-items: flex-end; padding-bottom: 60px; }
+  .ladder-steps { gap: 6px; padding: 10px; }
+  .ladder-steps span { font-size: 11px; }
+  .ladder-steps b { font-size: 24px; }
+  .mate-state { font-size: 19px; }
+  .dash { padding: 14px 12px; margin-top: 36px; }
+  .dash-row { grid-template-columns: 1fr; gap: 10px; }
+  .skills { gap: 10px; margin-top: 10px; }
+  .dcard { padding: 12px 10px 10px; }
+  .skills .dhead { gap: 6px; align-items: flex-start; flex-wrap: wrap; }
+  .skills .dhead img { width: 32px; height: 32px; }
+  .skills .dhead h4 { font-size: 15px; flex-basis: calc(100% - 38px); order: 0; }
+  .skills .delta { order: 1; font-size: 12px; }
+  .ringwrap svg { width: 110px; height: 110px; }
+  .periods button { padding: 0 14px; }
   .learn-copy h2 { padding-right: 70px; }
   .coach-card p { font-size: 18px; }
   .coach-card .crest { width: 60px; height: 60px; }
@@ -600,6 +699,7 @@ html.nonlatin body { line-height: 1.75; }
   .reveal { opacity: 1; transform: none; transition: none; }
   #world canvas, #world .poster { transition: none; }
   .ic3d, .friend .bust, .strip button .thumb, .fx-th { transition: none; transform: none !important; }
+  .dash.drawn .chart .you { animation: none; }
 }
 </style>
 </head>
@@ -609,7 +709,7 @@ html.nonlatin body { line-height: 1.75; }
 
 <header class="top" id="top"><div class="wrap">
   <a class="logo" href="#main" data-tip="Back to the top"><span class="crest"><img src="@@IMG:crest@@" alt="" width="36" height="36"></span><span>Chackmate</span></a>
-  <nav aria-label="Sections" id="nav"><a href="#learn" data-tip="How @@COACH@@ teaches chess, one small step at a time">Learn</a><a href="#wonders" data-tip="The famous places where you play">Wonders</a><a href="#collect" data-tip="The chess sets you can win and collect">Collect</a><a href="#families" data-tip="Safety and privacy, for grown-ups">Families</a><a href="#pricing" data-tip="What is free and what Premium adds">Pricing</a><a href="#about" data-tip="Who makes Chackmate, and how to reach us">About</a></nav>
+  <nav aria-label="Sections" id="nav"><a href="#learn" data-tip="How @@COACH@@ teaches chess, one small step at a time">Learn</a><a href="#train" data-tip="Trainers, checkmate puzzles and your progress">Train</a><a href="#wonders" data-tip="The famous places where you play">Wonders</a><a href="#collect" data-tip="The chess sets you can win and collect">Collect</a><a href="#families" data-tip="Safety and privacy, for grown-ups">Families</a><a href="#pricing" data-tip="What is free and what Premium adds">Pricing</a><a href="#about" data-tip="Who makes Chackmate, and how to reach us">About</a></nav>
   <div class="htools">
     <button type="button" class="menu-btn" id="menu-btn" aria-controls="nav" aria-expanded="false" aria-label="Sections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
     <div class="lang" data-no-i18n><button type="button" class="lang-btn" id="lang-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Language / भाषा" data-tip="Language / भाषा"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg></button><div class="lang-menu" id="lang-menu" role="menu" aria-label="Language" hidden></div></div>
@@ -668,6 +768,77 @@ html.nonlatin body { line-height: 1.75; }
     <div class="lux reveal" style="--tint: #3a1040"><img class="ic3d" src="@@IMG:ic-learn-puzzles@@" alt="" width="168" height="168"><b data-count>@@N:puzzles@@</b><h3>Puzzles</h3><p>A new one every day.</p></div>
     <div class="lux reveal" style="--tint: #0f2a4a"><img class="ic3d" src="@@IMG:ic-learn-openings@@" alt="" width="168" height="168"><b data-count>@@N:openings@@</b><h3>Openings</h3><p>Learn the famous ones.</p></div>
     <div class="lux reveal" style="--tint: #3a1050"><img class="ic3d" src="@@IMG:ic-learn-endgames@@" alt="" width="168" height="168"><b data-count>@@N:endgames@@</b><h3>Endgames</h3><p>Win them every time.</p></div>
+  </div>
+</div></section>
+
+<section class="solid" id="train" data-guide="train"><div class="wrap">
+  <div class="center reveal">
+    <div class="eyebrow">Train</div>
+    <h2>Train every part <em>of your game.</em></h2>
+    <p class="sub">Thirteen trainers. Each is a short lesson with @@COACH@@, then a practice round with a score.</p>
+  </div>
+  <ul class="trainers">
+    <li class="lux reveal" data-k="openings"><img class="ic3d" src="@@IMG:ic-tr-openings@@" alt="" width="116" height="116"><h3>Openings</h3><p>Start strong with the famous first moves.</p></li>
+    <li class="lux reveal" data-k="time"><img class="ic3d" src="@@IMG:ic-tr-time@@" alt="" width="116" height="116"><h3>Time Management</h3><p>Use your clock wisely, never in a rush.</p></li>
+    <li class="lux reveal" data-k="resource"><img class="ic3d" src="@@IMG:ic-tr-resource@@" alt="" width="116" height="116"><h3>Resourcefulness</h3><p>Find the saving move when things look bad.</p></li>
+    <li class="lux reveal" data-k="advantage"><img class="ic3d" src="@@IMG:ic-tr-advantage@@" alt="" width="116" height="116"><h3>Advantage Capitalization</h3><p>Turn a lead into a win.</p></li>
+    <li class="lux reveal" data-k="endgame"><img class="ic3d" src="@@IMG:ic-tr-endgame@@" alt="" width="116" height="116"><h3>End Game</h3><p>Finish the game with few pieces left.</p></li>
+    <li class="lux reveal" data-k="tactics"><img class="ic3d" src="@@IMG:ic-tr-tactics@@" alt="" width="116" height="116"><h3>Tactics</h3><p>Forks, pins and skewers.</p></li>
+    <li class="lux reveal" data-k="blunder"><img class="ic3d" src="@@IMG:ic-tr-blunder@@" alt="" width="116" height="116"><h3>Blunder Prevention</h3><p>Look twice before you move.</p></li>
+    <li class="lux reveal" data-k="intuition"><img class="ic3d" src="@@IMG:ic-tr-intuition@@" alt="" width="116" height="116"><h3>Intuition Trainer</h3><p>Pick the best move at a glance.</p></li>
+    <li class="lux reveal" data-k="360"><img class="ic3d" src="@@IMG:ic-tr-360@@" alt="" width="116" height="116"><h3>360 Trainer</h3><p>A bit of everything, picked for what you need.</p></li>
+    <li class="lux reveal" data-k="retry"><img class="ic3d" src="@@IMG:ic-tr-retry@@" alt="" width="116" height="116"><h3>Retry Mistakes</h3><p>Try again the moves you missed in your games.</p></li>
+    <li class="lux reveal" data-k="defences"><img class="ic3d" src="@@IMG:ic-tr-defences@@" alt="" width="116" height="116"><h3>Defences</h3><p>Hold firm when you are attacked.</p></li>
+    <li class="lux reveal" data-k="blindfold"><img class="ic3d" src="@@IMG:ic-tr-blindfold@@" alt="" width="116" height="116"><h3>Blindfold Tactics</h3><p>See the board in your head.</p></li>
+    <li class="lux reveal" data-k="patterns"><img class="ic3d" src="@@IMG:ic-tr-patterns@@" alt="" width="116" height="116"><h3>Chess Patterns</h3><p>Spot the shapes that win games.</p></li>
+  </ul>
+</div></section>
+
+<section id="mates" class="see" data-mode="mates" data-guide="mates"><div class="wrap learn">
+  <div>
+    <div class="learn-copy mates-copy glass">
+      <div class="eyebrow left">Puzzles</div>
+      <h2>Find the checkmate, <em>in one move or five.</em></h2>
+      <p class="sub">Five ladders of checkmate puzzles. Watch @@COACH@@ solve one on the table.</p>
+    </div>
+    <div class="ladder-steps glass" role="group" aria-label="Checkmate puzzles">
+      <button type="button" data-n="1" aria-pressed="true"><b>1</b><span>Checkmate in 1</span></button>
+      <button type="button" data-n="2" aria-pressed="false"><b>2</b><span>Checkmate in 2</span></button>
+      <button type="button" data-n="3" aria-pressed="false"><b>3</b><span>Checkmate in 3</span></button>
+      <button type="button" data-n="4" aria-pressed="false"><b>4</b><span>Checkmate in 4</span></button>
+      <button type="button" data-n="5" aria-pressed="false"><b>5</b><span>Checkmate in 5</span></button>
+    </div>
+    <div class="mate-card glass" aria-live="polite"><span class="mate-state" id="mstate">White to move</span><ol class="mate-moves" id="mmoves" data-no-i18n></ol></div>
+  </div>
+  <div></div>
+</div></section>
+
+<section class="solid" id="progress" data-guide="progress"><div class="wrap">
+  <div class="center reveal">
+    <div class="eyebrow">Progress</div>
+    <h2>See yourself <em>get better.</em></h2>
+    <p class="sub">@@COACH@@ grades eight skills from your games and charts them over time. It all stays on your device.</p>
+  </div>
+  <div class="dash lux reveal" id="dash">
+    <div class="dash-top">
+      <div class="periods" role="group" aria-label="Period"><button type="button" data-p="7" aria-pressed="false">7 days</button><button type="button" data-p="30" aria-pressed="true">30 days</button><button type="button" data-p="all" aria-pressed="false">All</button></div>
+      <span class="sample">Example charts</span>
+    </div>
+    <div class="dash-row">
+      <div class="dcard rating"><div class="dhead"><h4>Practice rating</h4><span class="delta" id="d-rating"></span></div><div class="chart" id="c-rating"></div><div class="legend"><span class="you">You</span><span class="lo" id="lg-lo"></span><span class="hi" id="lg-hi"></span></div></div>
+      <div class="dcard games"><div class="dhead"><h4>Games</h4></div><div class="ringwrap"><svg viewBox="0 0 120 120" id="ring" aria-hidden="true"></svg><dl><div><dt>Won</dt><dd id="g-w"></dd></div><div><dt>Drawn</dt><dd id="g-d"></dd></div><div><dt>Lost</dt><dd id="g-l"></dd></div></dl></div></div>
+    </div>
+    <div class="skills" id="skills">
+      <div class="dcard" data-k="openings"><div class="dhead"><img alt="" width="40" height="40"><h4>Openings</h4><span class="delta"></span></div><div class="chart"></div></div>
+      <div class="dcard" data-k="tactics"><div class="dhead"><img alt="" width="40" height="40"><h4>Tactics</h4><span class="delta"></span></div><div class="chart"></div></div>
+      <div class="dcard" data-k="endgame"><div class="dhead"><img alt="" width="40" height="40"><h4>End Game</h4><span class="delta"></span></div><div class="chart"></div></div>
+      <div class="dcard" data-k="advantage"><div class="dhead"><img alt="" width="40" height="40"><h4>Advantage Capitalization</h4><span class="delta"></span></div><div class="chart"></div></div>
+      <div class="dcard" data-k="resource"><div class="dhead"><img alt="" width="40" height="40"><h4>Resourcefulness</h4><span class="delta"></span></div><div class="chart"></div></div>
+      <div class="dcard" data-k="defences"><div class="dhead"><img alt="" width="40" height="40"><h4>Defences</h4><span class="delta"></span></div><div class="chart"></div></div>
+      <div class="dcard" data-k="blunder"><div class="dhead"><img alt="" width="40" height="40"><h4>Blunder Prevention</h4><span class="delta"></span></div><div class="chart"></div></div>
+      <div class="dcard" data-k="time"><div class="dhead"><img alt="" width="40" height="40"><h4>Time Management</h4><span class="delta"></span></div><div class="chart"></div></div>
+    </div>
+    <div class="legend foot"><span class="you">You</span><span class="strong">Strong</span><span class="solid-l">Solid</span></div>
   </div>
 </div></section>
 
@@ -967,7 +1138,7 @@ html.nonlatin body { line-height: 1.75; }
     for (var k = 1; k <= ids.length && !next; k++) { var e = D.eras[(at + k) % ids.length]; if (!prepared[e.id]) next = e; }
     if (!next) return;
     var go = function () {
-      if (Date.now() - scrolledAt < 900 || mode === 'learn' || document.hidden) { prepT = setTimeout(prepareNext, 1000); return; }
+      if (Date.now() - scrolledAt < 900 || mode === 'learn' || mode === 'mates' || document.hidden) { prepT = setTimeout(prepareNext, 1000); return; }
       prepared[next.id] = true;
       view.prepare({ room: next.room.id, board: next.board, set: next.set.id });
       prepT = setTimeout(prepareNext, 1200);
@@ -977,7 +1148,7 @@ html.nonlatin body { line-height: 1.75; }
   addEventListener('scroll', function () { scrolledAt = Date.now(); }, { passive: true });
   function insetsFor(mode) {
     var W = window.innerWidth, H = window.innerHeight, phone = W <= 760;
-    if (mode === 'learn') return phone ? { top: 80, bottom: H * 0.5, left: 8, right: 8 } : { top: 90, bottom: 60, left: W * 0.5, right: 40 };
+    if (mode === 'learn' || mode === 'mates') return phone ? { top: 80, bottom: H * 0.5, left: 8, right: 8 } : { top: 90, bottom: 60, left: W * 0.5, right: 40 };
     // phones: the camera comes in close (see setMode), past the benches, so the wonder fills the window
     if (phone) return { top: H * 0.36 };
     if (mode === 'wonders') return { top: H * 0.5, bottom: 150, left: W * 0.12, right: W * 0.12 };
@@ -988,14 +1159,15 @@ html.nonlatin body { line-height: 1.75; }
     if (!view || m === mode) return;
     mode = m;
     stopLesson();
+    stopMates();
     // The lesson is a still camera on a board that is read closely, so it draws at full detail
     // and up to twice the screen's resolution, as the game does when an item is tried on the table.
-    if (view.setFullDetail) view.setFullDetail(m === 'learn');
-    if (m === 'learn') {
+    if (view.setFullDetail) view.setFullDetail(m === 'learn' || m === 'mates');
+    if (m === 'learn' || m === 'mates') {
       place(HERO);
       view.setInsets(insetsFor(m));
       view.setView('white', 'player');
-      startLesson();
+      if (m === 'learn') startLesson(); else startMates();
     } else {
       if (m === 'hero' || m === 'close') place(HERO);
       if (m === 'wonders' && wonder) place(wonder);
@@ -1003,7 +1175,7 @@ html.nonlatin body { line-height: 1.75; }
       view.setAttract(true);
       if (window.innerWidth <= 760) view.setFocus({ zoom: 0.6 });
     }
-    world.style.setProperty('--shade', m === 'learn' ? (window.innerWidth <= 760 ? 'linear-gradient(0deg, rgba(18,12,10,.92) 0%, rgba(18,12,10,.6) 38%, transparent 60%)' : 'linear-gradient(90deg, rgba(18,12,10,.85) 0%, rgba(18,12,10,.4) 45%, transparent 60%)') : m === 'wonders' ? 'linear-gradient(180deg, rgba(18,12,10,.7) 0%, transparent 35%, transparent 65%, rgba(18,12,10,.8) 100%)' : 'radial-gradient(ellipse 70% 60% at 50% 42%, rgba(18,12,10,.45), rgba(18,12,10,.75) 80%)');
+    world.style.setProperty('--shade', m === 'learn' || m === 'mates' ? (window.innerWidth <= 760 ? 'linear-gradient(0deg, rgba(18,12,10,.92) 0%, rgba(18,12,10,.6) 38%, transparent 60%)' : 'linear-gradient(90deg, rgba(18,12,10,.85) 0%, rgba(18,12,10,.4) 45%, transparent 60%)') : m === 'wonders' ? 'linear-gradient(180deg, rgba(18,12,10,.7) 0%, transparent 35%, transparent 65%, rgba(18,12,10,.8) 100%)' : 'radial-gradient(ellipse 70% 60% at 50% 42%, rgba(18,12,10,.45), rgba(18,12,10,.75) 80%)');
   }
   window.addEventListener('resize', function () { if (view && mode) view.setInsets(insetsFor(mode), true); });
 
@@ -1039,6 +1211,162 @@ html.nonlatin body { line-height: 1.75; }
     lessonT = setTimeout(next, 1400);
   }
   function stopLesson() { if (lessonT) clearTimeout(lessonT); lessonT = null; }
+
+  // The checkmate ladder: a real puzzle for each step, from mate in one to mate in five, each
+  // checked with the game's own engine (every one has exactly one first move that mates in time).
+  // The coach plays the answer on the live table, then the beaten king falls.
+  var MATES = [
+    { fen: 'r1bqkb1r/1ppppppp/p7/6N1/2Q1P1n1/8/PPPP1PPP/RNB1K2R', line: ['c4f7'], san: ['Qxf7#'] },
+    { fen: '1r5r/4p1bk/4Q2p/p4P2/7R/6P1/2P2P2/4K3', line: ['h4h6', 'g7h6', 'e6g6'], san: ['Rxh6+', 'Bxh6', 'Qg6#'] },
+    { fen: 'r3r2k/2p2p1p/p7/3p4/8/2PP4/PP3B1P/6RK', line: ['f2d4', 'e8e5', 'd4e5', 'f7f6', 'e5f6'], san: ['Bd4+', 'Re5', 'Bxe5+', 'f6', 'Bxf6#'] },
+    { fen: 'r1b1rk2/1p1pqp1p/p2p1p2/4pN2/3PP3/4R3/PPP2PPP/R1B3K1', line: ['e3g3', 'e8d8', 'c1h6', 'f8e8', 'g3g8', 'e7f8', 'g8f8'], san: ['Rg3', 'Rd8', 'Bh6+', 'Ke8', 'Rg8+', 'Qf8', 'Rxf8#'] },
+    { fen: 'k7/3B3r/p4p2/2p5/8/1P6/4PK1Q/6N1', line: ['d7c6', 'a8a7', 'h2h7', 'a7b6', 'h7b7', 'b6a5', 'b3b4', 'c5b4', 'b7c7'], san: ['Bc6+', 'Ka7', 'Qxh7+', 'Kb6', 'Qb7+', 'Ka5', 'b4+', 'cxb4', 'Qc7#'] }
+  ];
+  var MATE_STATE = ['White to move. Checkmate in 1.', 'White to move. Checkmate in 2.', 'White to move. Checkmate in 3.', 'White to move. Checkmate in 4.', 'White to move. Checkmate in 5.'];
+  var PCODE = { p: 1, n: 2, b: 3, r: 4, q: 5, k: 6 };
+  function fenPieces(fen) {
+    var out = [], rows = fen.split('/');
+    rows.forEach(function (row, i) {
+      var f = 0, r = 7 - i;
+      for (var k = 0; k < row.length; k++) {
+        var ch = row[k];
+        if (/\d/.test(ch)) f += +ch;
+        else { var lo = ch.toLowerCase(); out.push([r * 8 + f, ch === lo ? -PCODE[lo] : PCODE[lo]]); f++; }
+      }
+    });
+    return out;
+  }
+  var sqOf = function (n) { return (n.charCodeAt(1) - 49) * 8 + (n.charCodeAt(0) - 97); };
+  var mateN = 1, mateT = null, mateTouched = false, mateRun = 0;
+  var steps = [].slice.call(document.querySelectorAll('.ladder-steps button'));
+  function pickStep(n) { mateN = n; steps.forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.n === n)); }); }
+  function listMoves(m, upto) {
+    var ol = $('mmoves'), html = '';
+    m.san.forEach(function (x, i) {
+      var cls = (i % 2 ? '' : 'w') + (i < upto ? ' done' : '') + (i === upto - 1 ? ' now' : '');
+      html += '<li class="' + cls.trim() + '">' + (i % 2 ? '' : (i / 2 + 1) + '. ') + (i < upto ? x : '…') + '</li>';
+    });
+    ol.innerHTML = html;
+  }
+  function startMates() {
+    stopMates();
+    var run = ++mateRun, m = MATES[mateN - 1], pieces = fenPieces(m.fen);
+    view.setBoard(pieces, null);
+    view.setHighlights({});
+    var st = $('mstate'); st.classList.remove('won'); st.textContent = MATE_STATE[mateN - 1];
+    listMoves(m, 0);
+    var i = 0, board = {};
+    pieces.forEach(function (p) { board[p[0]] = p[1]; });
+    var next = function () {
+      if (mode !== 'mates' || run !== mateRun) return;
+      if (i >= m.line.length) {
+        var wk = -1, bk = -1;
+        for (var q in board) { if (board[q] === 6) wk = +q; if (board[q] === -6) bk = +q; }
+        st.classList.add('won'); st.textContent = 'Checkmate!';
+        if (view.celebrate) view.celebrate('win', bk, null, wk);
+        // then the next step of the ladder, unless the visitor has chosen one
+        mateT = setTimeout(function () { if (!mateTouched) pickStep(mateN % 5 + 1); startMates(); }, 5200);
+        return;
+      }
+      var u = m.line[i], from = sqOf(u.slice(0, 2)), to = sqOf(u.slice(2, 4)), mover = board[from];
+      var took = board[to] !== undefined;
+      i++;
+      listMoves(m, i);
+      view.animateMove({ from: from, to: to, mover: mover, capturedSq: took ? to : -1 }, function () {
+        if (run !== mateRun) return;
+        board[to] = mover; delete board[from];
+        view.setHighlights({ lastFrom: from, lastTo: to });
+        mateT = setTimeout(next, i % 2 ? 1300 : 2100);
+      });
+    };
+    mateT = setTimeout(next, 2600);
+  }
+  function stopMates() { if (mateT) clearTimeout(mateT); mateT = null; mateRun++; }
+  steps.forEach(function (b) {
+    b.addEventListener('click', function () { mateTouched = true; pickStep(+b.dataset.n); if (mode === 'mates') startMates(); });
+  });
+  if (!view) {
+    // no 3D table: the answer is simply written out
+    var still = function () { var m = MATES[mateN - 1]; $('mstate').textContent = MATE_STATE[mateN - 1]; listMoves(m, m.san.length); };
+    steps.forEach(function (b) { b.addEventListener('click', still); });
+    still();
+  }
+
+  // ---------------------------------------------------------------- progress charts
+  // An example of the charts the game draws from a child's own games, on the device. The lines
+  // are made up here (and the panel says so); the shapes, grades and comparison lines are the game's.
+  (function () {
+    var dash = $('dash');
+    if (!dash) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    var seed = 1;
+    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    // a gentle climb with ups and downs, n points from a to about b
+    function walk(n, a, b, wob, s) {
+      seed = s; var out = [], v = a;
+      for (var i = 0; i < n; i++) { var aim = a + (b - a) * (i / (n - 1)); v += (aim - v) * 0.35 + (rnd() - 0.5) * wob; out.push(v); }
+      return out;
+    }
+    var LEN = { 7: 7, 30: 30, all: 60 };
+    var SKILLS = { openings: [58, 74], tactics: [52, 71], endgame: [44, 60], advantage: [55, 68], resource: [40, 47], defences: [61, 58], blunder: [50, 66], time: [63, 77] };
+    var START = { 7: 'A week ago', 30: '30 days ago', all: 'First game' };
+    function chart(el, data, lo, hi, ticks, h, last) {
+      var W = Math.max(160, Math.round(el.clientWidth || 320)), H = h, L = ticks[ticks.length - 1] >= 1000 ? 38 : 28, R = 10, T = 14, B = 22, min = ticks[0], max = ticks[ticks.length - 1];
+      var x = function (i) { return L + (W - L - R) * (i / (data.length - 1)); };
+      var y = function (v) { return T + (H - T - B) * (1 - (v - min) / (max - min)); };
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-hidden="true"><defs><linearGradient id="dashfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dc9c" stop-opacity=".35"/><stop offset="1" stop-color="#f6dc9c" stop-opacity="0"/></linearGradient></defs>';
+      for (var g = 0; g < ticks.length; g++) { var gv = ticks[g], gy = y(gv); svg += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + gy + '" y2="' + gy + '"/><text x="' + (L - 6) + '" y="' + (gy + 3.5) + '" text-anchor="end">' + Math.round(gv) + '</text>'; }
+      svg += '<line class="ref lo" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(lo) + '" y2="' + y(lo) + '"/><line class="ref hi" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(hi) + '" y2="' + y(hi) + '"/>';
+      // a smooth line through the points
+      var d = 'M' + x(0) + ' ' + y(data[0]);
+      for (var i = 1; i < data.length; i++) { var x0 = x(i - 1), x1 = x(i), mx = (x0 + x1) / 2; d += ' C' + mx + ' ' + y(data[i - 1]) + ' ' + mx + ' ' + y(data[i]) + ' ' + x1 + ' ' + y(data[i]); }
+      svg += '<path class="area" d="' + d + ' L' + x(data.length - 1) + ' ' + (H - B) + ' L' + x(0) + ' ' + (H - B) + 'Z"/>';
+      svg += '<path class="you" d="' + d + '"/>';
+      var lx = x(data.length - 1), ly = y(data[data.length - 1]);
+      svg += '<circle class="dot" cx="' + lx + '" cy="' + ly + '" r="4.5"/><text class="last" x="' + (lx - 8) + '" y="' + (ly - 9) + '" text-anchor="end">' + Math.round(last) + '</text>';
+      svg += '<text x="' + L + '" y="' + (H - 4) + '">' + START[period] + '</text><text x="' + (W - R) + '" y="' + (H - 4) + '" text-anchor="end">Today</text></svg>';
+      el.innerHTML = svg;
+      var path = el.querySelector('.you');
+      if (path && path.getTotalLength) { var len = path.getTotalLength(); path.style.setProperty('--len', len); path.style.strokeDasharray = len; }
+    }
+    function delta(el, d, unit) { el.className = 'delta ' + (d >= 0 ? 'up' : 'down'); el.textContent = (d >= 0 ? '+' : '−') + Math.abs(Math.round(d)) + (unit || ''); }
+    var period = '30';
+    function draw() {
+      var n = LEN[period], k = period === 'all' ? 1 : period === '30' ? 0.55 : 0.2;
+      var r = walk(n, 1290 - 230 * k, 1312, 40, 7 + n);
+      chart($('c-rating'), r, 1100, 1400, [900, 1100, 1300, 1500], 210, r[n - 1]);
+      delta($('d-rating'), r[n - 1] - r[0]);
+      $('lg-lo').textContent = 'Shelly · 1100'; $('lg-hi').textContent = 'Rocco · 1400';
+      var games = { 7: [9, 1, 4], 30: [31, 4, 17], all: [64, 9, 41] }[period], tot = games[0] + games[1] + games[2];
+      $('g-w').textContent = games[0]; $('g-d').textContent = games[1]; $('g-l').textContent = games[2];
+      var C = 2 * Math.PI * 46, at = 0, ring = '';
+      [[games[0], '#3cc8a0'], [games[1], '#9c8776'], [games[2], '#f07a64']].forEach(function (g) { var len = C * g[0] / tot; ring += '<circle cx="60" cy="60" r="46" fill="none" stroke="' + g[1] + '" stroke-width="16" stroke-dasharray="' + Math.max(0, len - 2) + ' ' + C + '" stroke-dashoffset="' + (-at) + '" transform="rotate(-90 60 60)"/>'; at += len; });
+      ring += '<text x="60" y="58" text-anchor="middle" font-size="22" font-weight="600" fill="#f6ece2">' + Math.round(100 * games[0] / tot) + '%</text><text x="60" y="76" text-anchor="middle" font-size="10" fill="#9c8776" letter-spacing="1" style="text-transform: uppercase">Won</text>';
+      $('ring').innerHTML = ring;
+      [].forEach.call(document.querySelectorAll('#skills .dcard'), function (c, j) {
+        var ic = c.querySelector('.dhead img'), from = document.querySelector('.trainers li[data-k="' + c.dataset.k + '"] img');
+        if (from && !ic.src) ic.src = from.src;
+        var sk = SKILLS[c.dataset.k], a = sk[0] + (sk[1] - sk[0]) * (1 - k), v = walk(n, a, sk[1], 9, 31 * (j + 1) + n);
+        v = v.map(function (q) { return Math.max(5, Math.min(98, q)); });
+        chart(c.querySelector('.chart'), v, 65, 85, [0, 50, 100], 120, v[n - 1]);
+        delta(c.querySelector('.delta'), v[n - 1] - v[0]);
+      });
+    }
+    [].forEach.call(dash.querySelectorAll('.periods button'), function (b) {
+      b.addEventListener('click', function () {
+        period = b.dataset.p;
+        [].forEach.call(dash.querySelectorAll('.periods button'), function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+        dash.classList.remove('drawn'); draw(); void dash.offsetWidth; if (!reduce) dash.classList.add('drawn');
+      });
+    });
+    draw();
+    var rw = innerWidth;
+    addEventListener('resize', function () { if (innerWidth !== rw) { rw = innerWidth; draw(); } });
+    if ('IntersectionObserver' in window && !reduce) {
+      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { dash.classList.add('drawn'); io.disconnect(); } }, { threshold: 0.25 });
+      io.observe(dash);
+    }
+  })();
 
   // Which clear section is on screen decides what the table shows; when none is, it rests.
   var seen = new Map();
@@ -1778,6 +2106,18 @@ html.nonlatin body { line-height: 1.75; }
   var menuBtn = $('menu-btn');
   function menu(v) { top.classList.toggle('menu-open', v); menuBtn.setAttribute('aria-expanded', v ? 'true' : 'false'); }
   menuBtn.addEventListener('click', function () { menu(!top.classList.contains('menu-open')); });
+  // folds the section names into the menu button when they do not fit on one line (long languages)
+  var navEl = $('nav'), toolsEl = document.querySelector('.htools');
+  function fitNav() {
+    top.classList.remove('cramped');
+    if (getComputedStyle(navEl).display === 'none') return;
+    var bar = top.querySelector('.wrap'), t = toolsEl.getBoundingClientRect();
+    if (bar.scrollWidth > bar.clientWidth + 1 || t.right > innerWidth + 1 || t.left < -1) top.classList.add('cramped');
+  }
+  addEventListener('resize', fitNav);
+  new MutationObserver(function () { requestAnimationFrame(fitNav); }).observe(navEl, { subtree: true, characterData: true, childList: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+  fitNav();
   links.forEach(function (a) { a.addEventListener('click', function () { menu(false); }); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && top.classList.contains('menu-open')) { menu(false); menuBtn.focus(); } });
   document.addEventListener('click', function (e) { if (top.classList.contains('menu-open') && !e.target.closest('header.top')) menu(false); });
