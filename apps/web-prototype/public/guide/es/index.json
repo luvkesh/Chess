@@ -39,6 +39,11 @@
   "voice": "em_alex",
   "text": "¡Vamos a practicar! Elige una habilidad y la trabajaremos juntos."
  },
+ "progress": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Aquí está tu progreso! Cada partida que juegas suma a estas líneas. Toca Practicar en una habilidad para hacerla más fuerte."
+ },
  "minis": {
   "who": "rooky",
   "voice": "em_alex",
