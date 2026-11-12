@@ -709,6 +709,26 @@
   "voice": "pm_alex",
   "text": "Areia branca perolada e areia escura como a noite, seladas sob vidro com borda dourada. Brilha como o deserto à noite."
  },
+ "95168841": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra fóssil creme ao lado de basalto escuro, com rachaduras de âmbar que brilham como lava. Procure as samambaias esculpidas na moldura!"
+ },
+ "c9ddfc96": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra da lua clara e ágata musgo verde, numa moldura de madeira escura. Trepadeiras douradas se enrolam por toda a volta."
+ },
+ "758add3a": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra clara congelada e ardósia azul, frias como um fiorde no inverno. Uma faixa de runas douradas contorna a moldura."
+ },
+ "d3196cd6": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Carvalho claro e carvalho escuro, cortados à mão. Há runas entalhadas em toda a moldura, como num salão viking."
+ },
  "5397a269": {
   "who": "rooky",
   "voice": "pm_alex",
@@ -798,5 +818,25 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "O topo do Burj Khalifa, o prédio mais alto do mundo. Estamos acima das nuvens!"
+ },
+ "a4e0f53c": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Um vale verde no começo dos tempos, sob um vulcão fumegante. Olha, os pescoçudos estão andando no lago!"
+ },
+ "fed45c57": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Uma clareira de musgo onde as árvores brilham e os cogumelos reluzem. Você consegue ver o cervo feito de luz?"
+ },
+ "586a3003": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Uma margem nevada num fiorde azul profundo, com cascatas por todo lado. Lá vem um barco viking, voltando para casa!"
+ },
+ "698e80ad": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "O portão do dragão de um grande salão viking, bem quando o sol nasce. As tochas ainda estão acesas!"
  }
 }
