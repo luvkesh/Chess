@@ -567,6 +567,26 @@
   "voice": "am_puck,am_liam",
   "text": "Pearly white and night-dark sand, sealed under glass with a gold rim. It sparkles like the desert at night."
  },
+ "board.nero.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Black marble with golden veins, next to snowy white marble. Gold arcs run all the way round the frame!"
+ },
+ "board.sapphire.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Deep blue lapis and warm ivory, with little golden shields all round the frame. It feels like a royal treasure."
+ },
+ "board.admiralty.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Ivory and midnight blue in a frame of shiny ship's wood, wrapped in a golden rope with tiny anchors."
+ },
+ "board.verdant.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Green marble and creamy onyx, with sparkling emeralds set into a dark walnut frame."
+ },
+ "board.scroll.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Ivory and black lacquer in a red frame painted with curly clouds, misty mountains and four little suns."
+ },
  "room.tokyo.v1": {
   "voice": "am_puck,am_liam",
   "text": "A cherry-blossom garden on a Tokyo rooftop, with Mount Fuji far away. The city twinkles below you."
@@ -638,5 +658,25 @@
  "room.burj.v1": {
   "voice": "am_puck,am_liam",
   "text": "The very top of the Burj Khalifa, the tallest building in the world. We're above the clouds!"
+ },
+ "room.studio.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A sculptor's studio full of light, high above the white marble mountains. Look, a little statue is waiting to be finished!"
+ },
+ "room.keep.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A blue and gold throne room in a castle on a mountain. The towers are lighting up for the evening!"
+ },
+ "room.admiral.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "The captain's cabin at the back of a great sailing ship. Can you see the lighthouse blinking across the bay?"
+ },
+ "room.observatory.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A green marble room on a hilltop, made for watching the stars. The first ones are coming out right now!"
+ },
+ "room.pavilion.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A red pavilion facing a roaring waterfall, with cherry blossom all around. Listen to the water!"
  }
 }

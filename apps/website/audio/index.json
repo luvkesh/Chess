@@ -1893,6 +1893,225 @@
           "text": "Falcon and Pearl play here, on Pearl and Night Sand."
         }
       ]
+    },
+    "item-sets-fantasy": {
+      "text": "Some chess sets look like they came out of a fairy tale. Fantasy Marble is snowy white marble against black, wrapped in golden ribbons, with tulip crowns, a bishop holding a pearl and rooks with tiny arches. It comes with the Sculptor's Studio.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Some chess sets look like they came out of a fairy tale."
+        },
+        {
+          "t": 3.16,
+          "text": "Fantasy Marble is snowy white marble against black, wrapped in golden ribbons, with tulip crowns, a bishop holding a pearl and rooks with tiny arches."
+        },
+        {
+          "t": 12.26,
+          "text": "It comes with the Sculptor's Studio."
+        }
+      ]
+    },
+    "item-sets-sapphire": {
+      "text": "Kings and queens kept their sapphires for the most special days. Royal Ivory and Sapphire is ivory against deep blue, with closed golden crowns, shield rooks and a blue gem on every piece. It comes with the Sapphire Throne Room.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Kings and queens kept their sapphires for the most special days."
+        },
+        {
+          "t": 3.66,
+          "text": "Royal Ivory and Sapphire is ivory against deep blue, with closed golden crowns, shield rooks and a blue gem on every piece."
+        },
+        {
+          "t": 11.52,
+          "text": "It comes with the Sapphire Throne Room."
+        }
+      ]
+    },
+    "item-sets-navy": {
+      "text": "Ahoy! Royal Navy is ivory against navy blue, wrapped in golden rope and dotted with rubies. The kings wear an anchor on their crowns, the knights wear sashes and the rooks have round portholes. It comes with the Admiral's Cabin.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Ahoy!"
+        },
+        {
+          "t": 0.67,
+          "text": "Royal Navy is ivory against navy blue, wrapped in golden rope and dotted with rubies."
+        },
+        {
+          "t": 5.97,
+          "text": "The kings wear an anchor on their crowns, the knights wear sashes and the rooks have round portholes."
+        },
+        {
+          "t": 11.41,
+          "text": "It comes with the Admiral's Cabin."
+        }
+      ]
+    },
+    "item-sets-opulent": {
+      "text": "Emeralds are the green treasure of kings. Opulent Emerald is cream against deep green, with many-sided kings, onion-dome bishops and rooks whose windows glow gold at night. It comes with the Emerald Observatory.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Emeralds are the green treasure of kings."
+        },
+        {
+          "t": 2.67,
+          "text": "Opulent Emerald is cream against deep green, with many-sided kings, onion-dome bishops and rooks whose windows glow gold at night."
+        },
+        {
+          "t": 10.67,
+          "text": "It comes with the Emerald Observatory."
+        }
+      ]
+    },
+    "item-sets-pagoda": {
+      "text": "This set tells a story from the misty mountains of the East. Dragon and Pagoda has kings and queens in long silk robes, lotus bishops, dragon knights with golden horns and little pagoda rooks with glowing windows. It comes with the Waterfall Pavilion.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This set tells a story from the misty mountains of the East."
+        },
+        {
+          "t": 3.35,
+          "text": "Dragon and Pagoda has kings and queens in long silk robes, lotus bishops, dragon knights with golden horns and little pagoda rooks with glowing windows."
+        },
+        {
+          "t": 12.71,
+          "text": "It comes with the Waterfall Pavilion."
+        }
+      ]
+    },
+    "item-boards-nero": {
+      "text": "Nero and Gold Vein sets black marble with golden veins next to snowy white marble, with gold arcs running all the way round the frame. It comes with the Sculptor's Studio and Fantasy Marble.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Nero and Gold Vein sets black marble with golden veins next to snowy white marble, with gold arcs running all the way round the frame."
+        },
+        {
+          "t": 8.14,
+          "text": "It comes with the Sculptor's Studio and Fantasy Marble."
+        }
+      ]
+    },
+    "item-boards-sapphire": {
+      "text": "Lapis and Ivory Gilt is deep blue stone and warm ivory, with little golden shields all round a royal blue frame. It comes with the Sapphire Throne Room and Royal Ivory and Sapphire.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Lapis and Ivory Gilt is deep blue stone and warm ivory, with little golden shields all round a royal blue frame."
+        },
+        {
+          "t": 7.22,
+          "text": "It comes with the Sapphire Throne Room and Royal Ivory and Sapphire."
+        }
+      ]
+    },
+    "item-boards-admiralty": {
+      "text": "Admiralty Blue is ivory and midnight blue in a frame of shiny ship's wood, with a golden rope and tiny anchors. It comes with the Admiral's Cabin and the Royal Navy set.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Admiralty Blue is ivory and midnight blue in a frame of shiny ship's wood, with a golden rope and tiny anchors."
+        },
+        {
+          "t": 6.74,
+          "text": "It comes with the Admiral's Cabin and the Royal Navy set."
+        }
+      ]
+    },
+    "item-boards-verdant": {
+      "text": "Verde Onyx is green marble and creamy onyx, with sparkling emeralds set into a dark walnut frame. It comes with the Emerald Observatory and Opulent Emerald.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Verde Onyx is green marble and creamy onyx, with sparkling emeralds set into a dark walnut frame."
+        },
+        {
+          "t": 6.64,
+          "text": "It comes with the Emerald Observatory and Opulent Emerald."
+        }
+      ]
+    },
+    "item-boards-scroll": {
+      "text": "Mountain Scroll is ivory and black lacquer in a red frame painted with curly clouds, misty peaks and four little suns. It comes with the Waterfall Pavilion and Dragon and Pagoda.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Mountain Scroll is ivory and black lacquer in a red frame painted with curly clouds, misty peaks and four little suns."
+        },
+        {
+          "t": 7.32,
+          "text": "It comes with the Waterfall Pavilion and Dragon and Pagoda."
+        }
+      ]
+    },
+    "item-places-studio": {
+      "text": "High above the white marble mountains, a sculptor's studio fills with morning light. Marble blocks wait on the road below, a little statue waits to be finished, and Fantasy Marble plays here on Nero and Gold Vein.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "High above the white marble mountains, a sculptor's studio fills with morning light."
+        },
+        {
+          "t": 4.84,
+          "text": "Marble blocks wait on the road below, a little statue waits to be finished, and Fantasy Marble plays here on Nero and Gold Vein."
+        }
+      ]
+    },
+    "item-places-keep": {
+      "text": "In a castle on a snowy mountain, the blue and gold throne room glows as the towers light up for the evening. A sceptre rests on its cushion, and Royal Ivory and Sapphire plays here on Lapis and Ivory Gilt.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "In a castle on a snowy mountain, the blue and gold throne room glows as the towers light up for the evening."
+        },
+        {
+          "t": 6.33,
+          "text": "A sceptre rests on its cushion, and Royal Ivory and Sapphire plays here on Lapis and Ivory Gilt."
+        }
+      ]
+    },
+    "item-places-admiral": {
+      "text": "At the back of a great sailing ship sits the captain's cabin. The moon shines on the sea, a lighthouse blinks across the bay, and the Royal Navy set plays here on Admiralty Blue.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "At the back of a great sailing ship sits the captain's cabin."
+        },
+        {
+          "t": 3.49,
+          "text": "The moon shines on the sea, a lighthouse blinks across the bay, and the Royal Navy set plays here on Admiralty Blue."
+        }
+      ]
+    },
+    "item-places-observatory": {
+      "text": "On a green hilltop stands a marble room made for watching the stars. A brass telescope points at the sky, ivy hangs at the windows, and Opulent Emerald plays here on Verde Onyx.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "On a green hilltop stands a marble room made for watching the stars."
+        },
+        {
+          "t": 4.17,
+          "text": "A brass telescope points at the sky, ivy hangs at the windows, and Opulent Emerald plays here on Verde Onyx."
+        }
+      ]
+    },
+    "item-places-pavilion": {
+      "text": "A red pavilion looks out at a roaring waterfall between misty mountains, with cherry blossom all around. A stone lantern glows, koi swim in a bowl, and Dragon and Pagoda plays here on Mountain Scroll.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "A red pavilion looks out at a roaring waterfall between misty mountains, with cherry blossom all around."
+        },
+        {
+          "t": 6.09,
+          "text": "A stone lantern glows, koi swim in a bowl, and Dragon and Pagoda plays here on Mountain Scroll."
+        }
+      ]
     }
   }
 }
