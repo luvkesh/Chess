@@ -1995,6 +1995,226 @@
     }
    ]
   },
+  "item-sets-dino": {
+   "text": "¡Grrr! Dino Kingdom es hueso fósil y ámbar contra piedra de lava oscura con grietas que brillan. Un T-rex es el rey, un tricerátops y un raptor son los caballos, y los peones son dinosaurios bebé saliendo del huevo. Viene con Dinosaur Valley.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Grrr!"
+    },
+    {
+     "t": 1.49,
+     "text": "Dino Kingdom es hueso fósil y ámbar contra piedra de lava oscura con grietas que brillan."
+    },
+    {
+     "t": 6.85,
+     "text": "Un T-rex es el rey, un tricerátops y un raptor son los caballos, y los peones son dinosaurios bebé saliendo del huevo."
+    },
+    {
+     "t": 13.92,
+     "text": "Viene con Dinosaur Valley."
+    }
+   ]
+  },
+  "item-sets-forest": {
+   "text": "Érase una vez, los elfos del claro conocieron a la gente del bosque. Forest Guardians es marfil y oro contra corteza y musgo, con un rey elfo, un mago con un cristal, un Rey Roble con astas y un gran oso de musgo. Viene con Enchanted Forest.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Érase una vez, los elfos del claro conocieron a la gente del bosque."
+    },
+    {
+     "t": 4.22,
+     "text": "Forest Guardians es marfil y oro contra corteza y musgo, con un rey elfo, un mago con un cristal, un Rey Roble con astas y un gran oso de musgo."
+    },
+    {
+     "t": 13.02,
+     "text": "Viene con Enchanted Forest."
+    }
+   ]
+  },
+  "item-sets-jarl": {
+   "text": "¡Los barcos vikingos han vuelto a casa! Jarls of the Fjord es oro y marfil con capas azules, contra hierro oscuro y cuero con estandartes rojos. Hay jarls, doncellas escuderas, sabios videntes con bastones de runas y lobos como caballos. Viene con Fjord of the Longships.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Los barcos vikingos han vuelto a casa!"
+    },
+    {
+     "t": 2.82,
+     "text": "Jarls of the Fjord es oro y marfil con capas azules, contra hierro oscuro y cuero con estandartes rojos."
+    },
+    {
+     "t": 9.17,
+     "text": "Hay jarls, doncellas escuderas, sabios videntes con bastones de runas y lobos como caballos."
+    },
+    {
+     "t": 15.01,
+     "text": "Viene con Fjord of the Longships."
+    }
+   ]
+  },
+  "item-sets-rune": {
+   "text": "Cada pieza de Runecarved parece tallada a mano, en abedul pálido y roble oscuro. La reina sostiene un cuerno para beber, el escaldo cuenta historias y los caballos son cabezas de lobo. Viene con Longhouse Gate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Cada pieza de Runecarved parece tallada a mano, en abedul pálido y roble oscuro."
+    },
+    {
+     "t": 5.04,
+     "text": "La reina sostiene un cuerno para beber, el escaldo cuenta historias y los caballos son cabezas de lobo."
+    },
+    {
+     "t": 10.97,
+     "text": "Viene con Longhouse Gate."
+    }
+   ]
+  },
+  "item-boards-fossil": {
+   "text": "Fossil and Basalt pone piedra fósil color crema junto a basalto oscuro, con grietas de ámbar que brillan como lava. Hay helechos tallados alrededor del marco. Viene con Dinosaur Valley y Dino Kingdom.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Fossil and Basalt pone piedra fósil color crema junto a basalto oscuro, con grietas de ámbar que brillan como lava."
+    },
+    {
+     "t": 6.82,
+     "text": "Hay helechos tallados alrededor del marco."
+    },
+    {
+     "t": 9.67,
+     "text": "Viene con Dinosaur Valley y Dino Kingdom."
+    }
+   ]
+  },
+  "item-boards-glade": {
+   "text": "Moonstone and Moss Agate es piedra lunar pálida junto a ágata musgosa verde, en un marco de madera oscura con enredaderas doradas. Viene con Enchanted Forest y Forest Guardians.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Moss Agate es piedra lunar pálida junto a ágata musgosa verde, en un marco de madera oscura con enredaderas doradas."
+    },
+    {
+     "t": 7.87,
+     "text": "Viene con Enchanted Forest y Forest Guardians."
+    }
+   ]
+  },
+  "item-boards-fjord": {
+   "text": "Frost Ash and Slate es piedra pálida escarchada junto a pizarra azul, fría como un fiordo en invierno, con runas doradas alrededor del marco. Viene con Fjord of the Longships y Jarls of the Fjord.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Frost Ash and Slate es piedra pálida escarchada junto a pizarra azul, fría como un fiordo en invierno, con runas doradas alrededor del marco."
+    },
+    {
+     "t": 8.39,
+     "text": "Viene con Fjord of the Longships y Jarls of the Fjord."
+    }
+   ]
+  },
+  "item-boards-runeoak": {
+   "text": "Carved Oak es roble claro y oscuro, cortado a mano, con runas talladas alrededor de todo el marco. Viene con Longhouse Gate y Runecarved.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Carved Oak es roble claro y oscuro, cortado a mano, con runas talladas alrededor de todo el marco."
+    },
+    {
+     "t": 6.06,
+     "text": "Viene con Longhouse Gate y Runecarved."
+    }
+   ]
+  },
+  "item-places-dinoval": {
+   "text": "¡Bienvenido al mundo de los dinosaurios! Delante humea un volcán, las cascadas caen al lago, y los dinosaurios de cuello largo vadean el agua mientras los pterosaurios planean por encima. Dino Kingdom juega aquí, sobre Fossil and Basalt.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Bienvenido al mundo de los dinosaurios!"
+    },
+    {
+     "t": 2.7,
+     "text": "Delante humea un volcán, las cascadas caen al lago, y los dinosaurios de cuello largo vadean el agua mientras los pterosaurios planean por encima."
+    },
+    {
+     "t": 11.49,
+     "text": "Dino Kingdom juega aquí, sobre Fossil and Basalt."
+    }
+   ]
+  },
+  "item-places-forest": {
+   "text": "Entra de puntillas. Los árboles gigantes brillan en verde y morado, las setas relucen, las luciérnagas bailan y una cascada de luz azul cae en el estanque. ¡Mira, un ciervo hecho de luz sobre la roca! Forest Guardians juegan aquí, sobre Moonstone and Moss Agate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Entra de puntillas."
+    },
+    {
+     "t": 1.67,
+     "text": "Los árboles gigantes brillan en verde y morado, las setas relucen, las luciérnagas bailan y una cascada de luz azul cae en el estanque."
+    },
+    {
+     "t": 9.84,
+     "text": "¡Mira, un ciervo hecho de luz sobre la roca!"
+    },
+    {
+     "t": 12.72,
+     "text": "Forest Guardians juegan aquí, sobre Moonstone and Moss Agate."
+    }
+   ]
+  },
+  "item-places-fjord": {
+   "text": "¡Respira ese aire frío y fresco! Los acantilados nevados salen directo del agua, las cascadas caen y un barco vikingo de vela azul se desliza hasta el muelle. Jarls of the Fjord juegan aquí, sobre Frost Ash and Slate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Respira ese aire frío y fresco!"
+    },
+    {
+     "t": 2.47,
+     "text": "Los acantilados nevados salen directo del agua, las cascadas caen y un barco vikingo de vela azul se desliza hasta el muelle."
+    },
+    {
+     "t": 9.92,
+     "text": "Jarls of the Fjord juegan aquí, sobre Frost Ash and Slate."
+    }
+   ]
+  },
+  "item-places-longhouse": {
+   "text": "El sol está saliendo sobre los picos nevados. Cruza la puerta de dragones tallados, pasa las piedras rúnicas y las antorchas, y llega a la gran sala. Un barco vikingo espera en la bahía. Runecarved juega aquí, sobre Carved Oak.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "El sol está saliendo sobre los picos nevados."
+    },
+    {
+     "t": 3.17,
+     "text": "Cruza la puerta de dragones tallados, pasa las piedras rúnicas y las antorchas, y llega a la gran sala."
+    },
+    {
+     "t": 9.09,
+     "text": "Un barco vikingo espera en la bahía."
+    },
+    {
+     "t": 11.62,
+     "text": "Runecarved juega aquí, sobre Carved Oak."
+    }
+   ]
+  },
   "item-sets-galactic": {
    "text": "¡Dos flotas estelares se enfrentan en el tablero! La Flota Azul es blanca con luces azules, y la Flota Roja es negra con luces rojas. Los caballos son naves estelares, los alfiles son cristales brillantes y los peones son cadetes espaciales. Viene con Starship Deck.",
    "voice": "em_alex",

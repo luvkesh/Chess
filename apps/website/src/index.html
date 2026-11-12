@@ -51,7 +51,7 @@ main, footer, header.top { position: relative; z-index: 1; }
 .solid { background: var(--bg); }
 .see { background: transparent; }
 /* the solid sections carry a faint warm glow top centre, like lamplight on the wall */
-.solid::before { content: ''; position: absolute; inset: 0 0 auto; height: 520px; pointer-events: none; background: radial-gradient(60% 100% at 50% 0%, rgba(232, 160, 80, 0.1), transparent 70%); }
+.solid::before { content: ''; position: absolute; inset: 0 0 auto; height: 640px; pointer-events: none; background: radial-gradient(60% 100% at 50% 0%, rgba(var(--glow, 232, 160, 80), 0.13), transparent 70%); }
 .solid > .wrap { position: relative; }
 
 /* ---------- type ---------- */
@@ -124,7 +124,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .feats { list-style: none; display: flex; justify-content: center; margin: 0 auto 36px; padding: 0; }
 .feats li { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 156px; padding: 2px 22px; color: #f6ead8; font: 500 16.5px/1.2 var(--sans); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95); }
 .feats li + li { border-left: 1px solid rgba(232, 192, 112, 0.35); }
-.feats .ic3d { width: 78px; height: 78px; margin: -8px 0 -4px; }
+.feats .ic3d { width: 96px; height: 96px; margin: -8px 0 -2px; }
 .feats b { font: 600 17px/1 var(--caps); color: var(--gold-2); }
 .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 .place { position: relative; display: inline-flex; align-items: center; gap: 14px; margin: 34px auto 0; padding: 10px 22px; border-radius: 999px; font: 600 12px/1.2 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-2); white-space: nowrap; }
@@ -148,7 +148,7 @@ header nav a.on::after { content: ''; position: absolute; left: 50%; bottom: -2p
 .coach-card p { margin: 0; font: 500 20px/1.35 var(--serif); transition: opacity .35s; }
 .ticks { list-style: none; padding: 0; margin: var(--u) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; max-width: 600px; }
 .ticks li { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px 14px; border-radius: 18px; font-size: 14px; line-height: 1.3; color: #eadccd; text-align: center; text-wrap: balance; }
-.ticks .ic3d { width: 74px; height: 74px; margin: -6px 0 0; }
+.ticks .ic3d { width: 84px; height: 84px; margin: -6px 0 0; }
 
 /* ---------- numbers ---------- */
 .nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--u); margin-top: 54px; }
@@ -326,9 +326,9 @@ html[dir="rtl"] .strip-arrow svg, html[dir="rtl"] .chev { transform: scaleX(-1);
 .fx-tabs button[aria-selected="true"] { color: var(--ink); background: linear-gradient(90deg, rgba(120, 30, 70, 0.75), rgba(60, 20, 40, 0.3)) padding-box, var(--gold-grad) border-box; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 24px rgba(232, 192, 112, 0.2); }
 .fx-tabs button:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 3px; }
 @media (hover: hover) { .fx-tabs button:hover { color: var(--ink); } }
-.fx-ic { flex: none; position: relative; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; padding: 2px; background: var(--ring); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45); }
-.fx-ic span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a2416, #120a07); overflow: hidden; }
-.fx-ic img { width: 86%; height: 86%; object-fit: contain; }
+.fx-ic { flex: none; position: relative; display: grid; place-items: center; width: 60px; height: 60px; filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.45)); }
+.fx-ic span { display: grid; place-items: center; width: 100%; height: 100%; }
+.fx-ic img { width: 100%; height: 100%; object-fit: contain; }
 .fx-panel { min-width: 0; padding: 24px 26px 26px; }
 .fx-copy h4 { margin: 0; font: 600 clamp(22px, 2.4vw, 30px)/1.15 var(--caps); letter-spacing: 0.06em; color: var(--gold-2); }
 .fx-copy p { margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: var(--muted); }
@@ -450,6 +450,55 @@ footer .grow { flex: 1; }
 footer .studio { width: min(100%, 260px); height: auto; opacity: 0.95; }
 footer nav { display: flex; flex-wrap: wrap; gap: 6px 26px; font-size: 15px; }
 footer .quiet { width: 100%; margin-top: 2px; font-size: 13.5px; }
+
+/* ---------- the story: chapters, the thread between them, and a rail to follow it ---------- */
+/* a chapter's number in a gold seal, and its name */
+.chapter { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: var(--u); font: 600 12.5px/1.3 var(--caps); letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8); }
+.chapter b { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; font: 700 17px/1 var(--caps); letter-spacing: 0.02em; color: #2a1608; text-shadow: none; background: var(--gold-grad); box-shadow: 0 0 0 5px rgba(232, 192, 112, 0.13), 0 0 0 6px rgba(232, 192, 112, 0.3), 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.65); }
+.chapter.left { flex-direction: row; gap: 14px; }
+.chapter.left b { width: 44px; height: 44px; font-size: 15px; }
+/* the thread: one line that carries the reader from a chapter into the next */
+.bridge { display: flex; flex-direction: column; align-items: center; gap: 18px; margin: 0 auto 22px; max-width: 760px; text-align: center; font: italic 500 clamp(23px, 2.5vw, 32px)/1.25 var(--serif); color: var(--gold-2); text-wrap: balance; }
+.bridge::before, .bridge::after { content: ''; flex: none; width: 1px; height: 84px; background: linear-gradient(180deg, transparent, var(--gold)); box-shadow: 0 0 10px rgba(232, 192, 112, 0.35); }
+.bridge::after { height: 44px; background: linear-gradient(180deg, var(--gold), rgba(232, 192, 112, 0.25)); }
+.bridge.out { margin: 70px auto -70px; }
+.bridge.out::after { height: 84px; background: linear-gradient(180deg, var(--gold), transparent); }
+.solid.led { padding-top: 34px; }
+/* where the lit room meets a dark chapter, one fades into the other */
+.solid + .see::before, .see:has(+ .solid)::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 180px; pointer-events: none; background: linear-gradient(180deg, var(--bg), rgba(18, 12, 10, 0)); }
+.see:has(+ .solid)::after { top: auto; bottom: 0; background: linear-gradient(0deg, var(--bg), rgba(18, 12, 10, 0)); }
+.see > .wrap { z-index: 1; }
+.begin { position: absolute; left: 50%; top: calc(100vh - 72px); top: calc(100svh - 72px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; font: 600 11.5px/1 var(--caps); letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-2); text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9); white-space: nowrap; }
+.begin svg { width: 22px; height: 22px; animation: r-bob 1.6s ease-in-out infinite; }
+/* the rail: seven chapters down the side of wide screens, lit as far as the reader has come */
+.rail { position: fixed; z-index: 20; left: max(18px, calc((100vw - 1240px) / 2 - 86px)); top: 50%; transform: translateY(-50%); display: none; flex-direction: column; gap: 14px; padding: 6px 0; opacity: 0; pointer-events: none; transition: opacity .4s; }
+.rail.show { opacity: 1; pointer-events: auto; }
+.rail-line { position: absolute; left: 50%; top: 20px; bottom: 20px; width: 1px; margin-left: -0.5px; background: rgba(232, 192, 112, 0.22); }
+.rail-line i { position: absolute; inset: 0; background: var(--gold); box-shadow: 0 0 8px rgba(232, 192, 112, 0.6); transform-origin: 50% 0; transform: scaleY(0); }
+.rail a { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(232, 192, 112, 0.35); background: #1a110e; color: var(--faint); text-decoration: none; transition: color .3s, border-color .3s, background .3s, box-shadow .3s, transform .3s; }
+.rail a b { font: 600 11.5px/1 var(--caps); letter-spacing: 0.02em; }
+.rail a.done { color: var(--gold-2); border-color: var(--gold-3); }
+.rail a.on { color: #2a1608; background: var(--gold-grad); border-color: #f6dc9c; box-shadow: 0 0 0 4px rgba(232, 192, 112, 0.16), 0 0 22px rgba(232, 192, 112, 0.4); transform: scale(1.12); }
+@media (hover: hover) { .rail a:hover { color: var(--ink); border-color: var(--gold); } .rail a.on:hover { color: #2a1608; } }
+@media (min-width: 1440px) and (min-height: 620px) { .rail { display: flex; } }
+/* on smaller screens the same progress is a fine gold line under the top bar */
+.story-bar { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: linear-gradient(90deg, var(--gold-3), var(--gold-2)); box-shadow: 0 0 10px rgba(232, 192, 112, 0.5); transform-origin: 0 50%; transform: scaleX(0); }
+html[dir="rtl"] .story-bar { transform-origin: 100% 50%; }
+html[dir="rtl"] .rail { left: auto; right: max(18px, calc((100vw - 1240px) / 2 - 86px)); }
+@media (min-width: 1440px) and (min-height: 620px) { .story-bar { display: none; } }
+@media (max-height: 800px), (max-width: 1100px) { .begin { display: none; } }
+@media (max-width: 760px) {
+  .begin { display: none; }
+  .bridge { gap: 12px; margin-bottom: 18px; }
+  .bridge::before { height: 54px; } .bridge::after { height: 30px; }
+  .bridge.out { margin: 44px auto -50px; } .bridge.out::after { height: 54px; }
+  .solid.led { padding-top: 24px; }
+  .chapter b { width: 46px; height: 46px; font-size: 15px; }
+  .chapter { letter-spacing: 0.22em; font-size: 11.5px; }
+  .chapter.left b { width: 38px; height: 38px; font-size: 13px; }
+  .solid + .see::before, .see:has(+ .solid)::after { height: 110px; }
+}
+@media (prefers-reduced-motion: reduce) { .begin svg { animation: none; } .rail, .rail a { transition: none; } }
 
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
 .reveal.in { opacity: 1; transform: none; }
@@ -716,8 +765,18 @@ html.nonlatin body { line-height: 1.75; }
     <button type="button" class="rooky-tool" id="r-btn" aria-pressed="false" aria-label="Guided tour with @@COACH@@" data-tip="Let @@COACH@@ show you around, out loud"><img src="@@ART:coach@@" alt=""></button>
     <a class="btn gold small" href="@@PLAY@@" target="_top">Play now</a>
   </div>
-</div></header>
+</div><i class="story-bar" id="story-bar" aria-hidden="true"></i></header>
 
+<nav class="rail" id="rail" aria-label="The story">
+  <span class="rail-line" aria-hidden="true"><i id="rail-fill"></i></span>
+  <a href="#learn" data-tip="Meet your coach" aria-label="Meet your coach"><b data-no-i18n>I</b></a>
+  <a href="#lessons" data-tip="Learn the game" aria-label="Learn the game"><b data-no-i18n>II</b></a>
+  <a href="#train" data-tip="Train your skills" aria-label="Train your skills"><b data-no-i18n>III</b></a>
+  <a href="#wonders" data-tip="Travel the world" aria-label="Travel the world"><b data-no-i18n>IV</b></a>
+  <a href="#ages" data-tip="Friends to play" aria-label="Friends to play"><b data-no-i18n>V</b></a>
+  <a href="#collect" data-tip="Win your treasures" aria-label="Win your treasures"><b data-no-i18n>VI</b></a>
+  <a href="#families" data-tip="For grown-ups" aria-label="For grown-ups"><b data-no-i18n>VII</b></a>
+</nav>
 <main id="main">
 <section class="hero see" data-mode="hero" data-guide="hero">
   <div class="inner">
@@ -737,12 +796,13 @@ html.nonlatin body { line-height: 1.75; }
     </div>
     <div class="place glass" aria-live="polite"><span id="heroplace">Mughal India · <b>The Taj Mahal</b></span></div>
   </div>
+  <a class="begin" href="#learn"><span>Begin the story</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
 </section>
 
 <section id="learn" class="see" data-mode="learn" data-guide="learn"><div class="wrap learn">
   <div>
     <div class="learn-copy glass">
-      <div class="eyebrow">Learn</div>
+      <div class="chapter left"><b data-no-i18n>I</b><span>Meet your coach</span></div>
       <h2>Meet @@COACH@@, <em>your AI chess coach.</em></h2>
       <p class="sub">After every move, @@COACH@@ tells you why it was played, in one short sentence, out loud. Watch him coach this game.</p>
       <span class="peek" aria-hidden="true"><img src="@@ART:coach@@" alt="" width="150" height="150"></span>
@@ -758,9 +818,10 @@ html.nonlatin body { line-height: 1.75; }
   <div></div>
 </div></section>
 
-<section class="solid" id="lessons" data-guide="lessons"><div class="wrap">
+<section class="solid led" id="lessons" data-guide="lessons" style="--glow: 46, 150, 120"><div class="wrap">
+  <p class="bridge reveal"><span>First, you learn the moves.</span></p>
   <div class="center reveal">
-    <div class="eyebrow">Learn like never before</div>
+    <div class="chapter"><b data-no-i18n>II</b><span>Learn the game</span></div>
     <h2>From your first move <em>to your first tournament.</em></h2>
   </div>
   <div class="nums">
@@ -771,9 +832,10 @@ html.nonlatin body { line-height: 1.75; }
   </div>
 </div></section>
 
-<section class="solid" id="train" data-guide="train"><div class="wrap">
+<section class="solid led" id="train" data-guide="train" style="--glow: 120, 90, 220"><div class="wrap">
+  <p class="bridge reveal"><span>Then you train, one skill at a time.</span></p>
   <div class="center reveal">
-    <div class="eyebrow">Train</div>
+    <div class="chapter"><b data-no-i18n>III</b><span>Train your skills</span></div>
     <h2>Train every part <em>of your game.</em></h2>
     <p class="sub">Thirteen trainers. Each is a short lesson with @@COACH@@, then a practice round with a score.</p>
   </div>
@@ -813,7 +875,7 @@ html.nonlatin body { line-height: 1.75; }
   <div></div>
 </div></section>
 
-<section class="solid" id="progress" data-guide="progress"><div class="wrap">
+<section class="solid" id="progress" data-guide="progress" style="--glow: 60, 150, 200"><div class="wrap">
   <div class="center reveal">
     <div class="eyebrow">Progress</div>
     <h2>See yourself <em>get better.</em></h2>
@@ -840,11 +902,12 @@ html.nonlatin body { line-height: 1.75; }
     </div>
     <div class="legend foot"><span class="you">You</span><span class="strong">Strong</span><span class="solid-l">Solid</span></div>
   </div>
+  <p class="bridge out reveal"><span>Now you are ready to travel.</span></p>
 </div></section>
 
 <section id="wonders" class="see" data-mode="wonders" data-guide="wonders">
   <div class="wrap">
-    <div class="eyebrow left">Play</div>
+    <div class="chapter left"><b data-no-i18n>IV</b><span>Travel the world</span></div>
     <h2>Play in front of <em>the world's wonders.</em></h2>
     <p class="sub">Beat each champion to stamp your passport and win their set.</p>
   </div>
@@ -860,9 +923,21 @@ html.nonlatin body { line-height: 1.75; }
   </div>
 </section>
 
-<section class="solid" id="collect" data-guide="collect"><div class="wrap">
+<section class="solid led" id="ages" data-guide="ages" style="--glow: 220, 120, 60"><div class="wrap">
+  <p class="bridge reveal"><span>Wherever you play, a friend is ready for a game.</span></p>
+  <div class="center reveal">
+    <div class="chapter"><b data-no-i18n>V</b><span>Friends to play</span></div>
+    <h2>From first move <em>to full strength.</em></h2>
+    <p class="sub">Eight animal friends, each playing at a different level.</p>
+  </div>
+  <div class="friends reveal" id="friends"></div>
+  <div class="ladder reveal" aria-hidden="true"><span>Beginner</span><span class="track"><i style="left: 20%"></i><i style="left: 40%"></i><i style="left: 60%"></i><i style="left: 80%"></i></span><span class="end"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 8l4 4 4.5-7 4.5 7 4-4-1.8 10H5.3z"/><path d="M5.5 20.5h13v1.5h-13z"/></svg>Grandmaster</span></div>
+</div></section>
+
+<section class="solid led" id="collect" data-guide="collect" style="--glow: 200, 60, 100"><div class="wrap">
+  <p class="bridge reveal"><span>Every win brings a treasure home.</span></p>
   <div class="collect-head reveal">
-    <div class="eyebrow">Collect</div>
+    <div class="chapter"><b data-no-i18n>VI</b><span>Win your treasures</span></div>
     <h2>Every piece. Every board. <em>Everything.</em></h2>
     <p class="sub">@@N:items@@ chess sets, boards and places to win, and a table to try them on.</p>
   </div>
@@ -930,19 +1005,10 @@ html.nonlatin body { line-height: 1.75; }
   </div>
 </div></section>
 
-<section class="solid" id="ages" data-guide="ages"><div class="wrap">
+<section class="solid led" id="families" data-guide="families" style="--glow: 70, 170, 110"><div class="wrap">
+  <p class="bridge reveal"><span>And for the grown-ups, a promise.</span></p>
   <div class="center reveal">
-    <div class="eyebrow">For every age</div>
-    <h2>From first move <em>to full strength.</em></h2>
-    <p class="sub">Eight animal friends, each playing at a different level.</p>
-  </div>
-  <div class="friends reveal" id="friends"></div>
-  <div class="ladder reveal" aria-hidden="true"><span>Beginner</span><span class="track"><i style="left: 20%"></i><i style="left: 40%"></i><i style="left: 60%"></i><i style="left: 80%"></i></span><span class="end"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 8l4 4 4.5-7 4.5 7 4-4-1.8 10H5.3z"/><path d="M5.5 20.5h13v1.5h-13z"/></svg>Grandmaster</span></div>
-</div></section>
-
-<section class="solid" id="families" data-guide="families"><div class="wrap">
-  <div class="center reveal">
-    <div class="eyebrow">For families</div>
+    <div class="chapter"><b data-no-i18n>VII</b><span>For grown-ups</span></div>
     <h2>Safe for children, <em>by design.</em></h2>
   </div>
   <div class="safe">
@@ -2129,6 +2195,32 @@ html.nonlatin body { line-height: 1.75; }
     var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }); }, { threshold: 0.08 });
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   } else document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+  // ---------------------------------------------------------------- the story rail
+  // Seven chapters: the rail (wide screens) and the line under the top bar (smaller ones) show how far the reader has come.
+  (function () {
+    var rail = $('rail'), fill = $('rail-fill'), bar = $('story-bar');
+    var marks = [].slice.call(rail.querySelectorAll('a')), secs = marks.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    var tick = 0;
+    function draw() {
+      tick = 0;
+      var y = window.scrollY, h = window.innerHeight, mid = y + h * 0.5, now = -1;
+      secs.forEach(function (s2, i) { if (s2.getBoundingClientRect().top + y <= mid) now = i; });
+      marks.forEach(function (a, i) { a.classList.toggle('on', i === now); a.classList.toggle('done', i < now); if (i === now) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+      var k = 0;
+      if (now >= 0) {
+        var a = secs[now].getBoundingClientRect().top + y, b = now + 1 < secs.length ? secs[now + 1].getBoundingClientRect().top + y : document.documentElement.scrollHeight - h * 0.5;
+        k = (now + Math.max(0, Math.min(1, (mid - a) / Math.max(1, b - a)))) / (secs.length - 1);
+      }
+      fill.style.transform = 'scaleY(' + Math.min(1, k).toFixed(4) + ')';
+      var max = document.documentElement.scrollHeight - h;
+      bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, y / max) : 0).toFixed(4) + ')';
+      rail.classList.toggle('show', y > h * 0.55);
+    }
+    function ask() { if (!tick) tick = requestAnimationFrame(draw); }
+    window.addEventListener('scroll', ask, { passive: true }); window.addEventListener('resize', ask);
+    draw();
+  })();
+
   // ---------------------------------------------------------------- preloading
   // Pictures in the sections ahead are decoded well before they scroll in, so nothing pops.
   if ('IntersectionObserver' in window) {

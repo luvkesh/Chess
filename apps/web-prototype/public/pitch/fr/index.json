@@ -724,6 +724,26 @@
   "voice": "em_alex",
   "text": "Du sable blanc nacré et du sable noir comme la nuit, scellés sous verre avec un bord doré. Il scintille comme le désert la nuit."
  },
+ "73408823": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre fossile crème à côté du basalte sombre, avec des fissures d'ambre qui brillent comme la lave. Cherche les fougères sculptées sur le cadre !"
+ },
+ "bf91082d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre de lune pâle et de l'agate mousse verte, dans un cadre de bois sombre. Des vignes dorées s'enroulent tout autour."
+ },
+ "382057f7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Pierre pâle givrée et ardoise bleue, froides comme un fjord en hiver. Une bande de runes dorées fait le tour du cadre."
+ },
+ "9f0a663c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du chêne clair et du chêne foncé, taillés à la main. Des runes sont sculptées tout autour du cadre, comme dans une grande salle viking."
+ },
  "e89f15b1": {
   "who": "rooky",
   "voice": "em_alex",
@@ -828,5 +848,25 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "Tout en haut de la Burj Khalifa, le plus haut bâtiment du monde. On est au-dessus des nuages !"
+ },
+ "d4d94593": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une vallée verte à l'aube des temps, sous un volcan fumant. Regarde, les longs cous marchent dans le lac !"
+ },
+ "ee64000b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une clairière moussue où les arbres brillent et les champignons luisent. Tu vois le cerf fait de lumière ?"
+ },
+ "25a6b1f2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une rive enneigée sur un fjord bleu profond, avec des cascades tout autour. Voici un drakkar qui rentre à la maison !"
+ },
+ "0ec45a0c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La porte aux dragons d'une grande salle viking, juste au lever du soleil. Les torches brûlent encore !"
  }
 }

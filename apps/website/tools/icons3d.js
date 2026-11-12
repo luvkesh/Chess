@@ -103,6 +103,7 @@ function ChacklateIcons(THREE, K, P) {
   // A round display plinth: dark velvet top in a gold rim, on a gold foot.
   function plinth(R, color) {
     const g = new THREE.Group();
+    return g;   // every icon now stands in front of its own enamel medallion (tools/shoot-icons.js), so the plinths are gone
     const top = cyl(R, R, 0.1, M.velvet(color || '#3a1420'), 0, -0.05, 0);
     const rim = torus(R, 0.045, M.gold()); rim.rotation.x = PI / 2;
     const foot = cyl(R + 0.05, R * 0.9, 0.16, M.gold(), 0, -0.18, 0);
@@ -255,13 +256,21 @@ function ChacklateIcons(THREE, K, P) {
   // icon's centre of interest), as a fraction of its height.
   const ICONS = {
     // ---- the hero row
+    // the coach: a golden knight in a scholar's cap, with something bright to say
     coach() {
       const g = new THREE.Group();
-      const b = bubble(2.3, 1.5, 0.62, M.lacquer('#1b9c8e'), -1); g.add(b);
-      const c = crown(0.6, ['#ff3b5c', '#2fd4ff', '#ffd23b']); c.position.set(0, 0.62, 0.36); c.rotation.x = 0.12; g.add(c);
-      const gold = M.gold();
-      const l1 = laurel(-1, 0.42, M.goldBright()), l2 = laurel(1, 0.42, M.goldBright()); l1.position.set(-0.42, 0.62, 0.5); l2.position.set(0.42, 0.62, 0.5); l1.scale.setScalar(0.8); l2.scale.setScalar(0.8); g.add(l1, l2);
-      return { group: g, up: 0.55 };
+      const n = piece('n', 'w', 1.0, true); n.rotation.y = -0.5; g.add(n);
+      const top = new THREE.Box3().setFromObject(n).max.y;
+      const cap = new THREE.Group(), blue = M.lacquer('#2a3fa8');
+      cap.add(cyl(0.2, 0.24, 0.16, blue, 0, 0.08, 0));
+      const board = rbox(0.74, 0.05, 0.74, 0.02, blue, 0, 0.19, 0); board.rotation.y = PI / 4; cap.add(board);
+      cap.add(sph(0.045, M.goldBright(), 0, 0.23, 0));
+      cap.add(tube([[0, 0.23, 0], [0.2, 0.22, 0.12], [0.36, 0.18, 0.2], [0.4, 0.02, 0.22]], 0.014, M.goldBright()));
+      cap.add(cyl(0.035, 0.05, 0.14, M.goldBright(), 0.4, -0.05, 0.22));
+      cap.position.set(0.02, top - 0.07, 0); cap.rotation.set(0.08, 0, -0.14); g.add(cap);
+      const b = bubble(0.95, 0.66, 0.3, M.lacquer('#19b8a6'), -1); b.scale.setScalar(0.9); b.position.set(0.86, top * 0.52, 0.1); g.add(b);
+      [-0.2, 0, 0.2].forEach((x) => g.add(sph(0.062, M.white(), 0.86 + x * 0.9, top * 0.52 + 0.3, 0.26)));
+      return { group: g, up: 0.52 };
     },
     lessons() {
       const g = new THREE.Group();
@@ -338,9 +347,9 @@ function ChacklateIcons(THREE, K, P) {
     },
     offline() {
       const g = new THREE.Group(), greens = ['#8ae86a', '#4fcf52', '#23a94a'];
-      [0.55, 1.0, 1.45].forEach((R, i) => { const arc = torus(R, 0.1, M.lacquer(greens[i]), PI * 0.5); arc.rotation.z = PI * 0.25; arc.position.set(0, 0.22, 0); g.add(arc); });
+      [0.55, 1.0, 1.45].forEach((R, i) => { const arc = torus(R, 0.13, M.lacquer(greens[i]), PI * 0.5); arc.rotation.z = PI * 0.25; arc.position.set(0, 0.22, 0); g.add(arc); });
       const dot = sph(0.16, M.lacquer(greens[0]), 0, 0.22, 0); g.add(dot);
-      const slash = rbox(2.5, 0.2, 0.22, 0.08, M.gold(), 0, 0.9, 0.12); slash.rotation.z = PI / 4; g.add(slash);
+      const slash = rbox(2.5, 0.2, 0.22, 0.08, M.lacquer('#ff4a4a'), 0, 0.9, 0.16); slash.rotation.z = PI / 4; g.add(slash);
       return { group: g, up: 0.5 };
     },
     progress() {
@@ -743,8 +752,31 @@ function ChacklateIcons(THREE, K, P) {
   function build(name) {
     const r = ICONS[name]();
     r.group.updateMatrixWorld(true);
+    if (FIT[name]) r.fit = FIT[name];
     return r;
   }
-  return { ICONS, build };
+  // each icon's medallion: a jewel colour, light centre to deep edge
+  const JEWEL = {
+    ruby: ['#f0506e', '#b01a3c', '#5c0a20'], sapphire: ['#4f8cf0', '#1c48b0', '#0c2060'], emerald: ['#34c890', '#0e7a58', '#06402e'],
+    amethyst: ['#a070f0', '#5a2cb0', '#2c1260'], teal: ['#30c4d0', '#0c7a8c', '#063e4a'], amber: ['#ffb040', '#d06a10', '#7a3606'],
+    rose: ['#ff7cb0', '#c8306e', '#6a1238'], indigo: ['#7078f0', '#3238b0', '#161a60'], plum: ['#c060d0', '#7a2488', '#3c0e46'], night: ['#4a5cb0', '#1e2870', '#0a0e30'],
+  };
+  const TINT = {
+    coach: 'indigo', lessons: 'ruby', online: 'sapphire', boards: 'amber',
+    explain: 'teal', aloud: 'amethyst', offline: 'indigo', progress: 'emerald',
+    'learn-lessons': 'amber', 'learn-puzzles': 'indigo', 'learn-openings': 'emerald', 'learn-endgames': 'ruby',
+    'tr-openings': 'emerald', 'tr-time': 'amethyst', 'tr-resource': 'teal', 'tr-advantage': 'amber', 'tr-endgame': 'rose', 'tr-tactics': 'indigo', 'tr-blunder': 'night',
+    'tr-intuition': 'plum', 'tr-360': 'sapphire', 'tr-retry': 'teal', 'tr-defences': 'amber', 'tr-blindfold': 'emerald', 'tr-patterns': 'amethyst',
+    sets: 'ruby', 'boards-tile': 'sapphire', places: 'amethyst',
+    'fx-capture': 'amber', 'fx-victory': 'rose', 'fx-trail': 'indigo', 'fx-clock': 'emerald', 'fx-sound': 'teal', 'fx-avatar': 'plum', 'fx-frame': 'ruby',
+    trophy: 'sapphire', pass: 'amber', daily: 'teal', crown: 'plum',
+    nochat: 'amber', noads: 'indigo', parents: 'plum', healthy: 'teal',
+    free: 'emerald', premium: 'amethyst', lifetime: 'sapphire',
+    'pillar-play': 'ruby', 'pillar-learn': 'sapphire', 'pillar-friends': 'emerald',
+  };
+  // icons broad enough to hide their medallion are framed a little smaller
+  const FIT = { 'tr-blunder': 0.7, parents: 0.74, 'fx-frame': 0.76, 'tr-retry': 0.78, 'learn-lessons': 0.8, explain: 0.8, 'fx-clock': 0.84, daily: 0.84, pass: 0.84, 'tr-time': 0.84, healthy: 0.84, 'learn-openings': 0.84 };
+  function tint(name) { return JEWEL[TINT[name]] || JEWEL.ruby; }
+  return { ICONS, build, tint };
 }
 if (typeof module !== 'undefined') module.exports = ChacklateIcons;

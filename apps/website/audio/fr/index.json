@@ -1995,6 +1995,226 @@
     }
    ]
   },
+  "item-sets-dino": {
+   "text": "Grrr ! Dino Kingdom, c'est de l'os fossile et de l'ambre contre de la pierre de lave sombre aux fissures lumineuses. Un T-rex est le roi, un tricératops et un raptor sont les cavaliers, et les pions sont des bébés dinosaures qui sortent de l'œuf. Il va avec Dinosaur Valley.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Grrr !"
+    },
+    {
+     "t": 1.31,
+     "text": "Dino Kingdom, c'est de l'os fossile et de l'ambre contre de la pierre de lave sombre aux fissures lumineuses."
+    },
+    {
+     "t": 6.6,
+     "text": "Un T-rex est le roi, un tricératops et un raptor sont les cavaliers, et les pions sont des bébés dinosaures qui sortent de l'œuf."
+    },
+    {
+     "t": 13.39,
+     "text": "Il va avec Dinosaur Valley."
+    }
+   ]
+  },
+  "item-sets-forest": {
+   "text": "Il était une fois les elfes de la clairière qui rencontrèrent le peuple de la forêt. Forest Guardians, c'est l'ivoire et l'or contre l'écorce et la mousse, avec un roi elfe, un mage au cristal, un Roi Chêne aux bois de cerf et un gros ours de mousse. Il va avec l'Enchanted Forest.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Il était une fois les elfes de la clairière qui rencontrèrent le peuple de la forêt."
+    },
+    {
+     "t": 4.31,
+     "text": "Forest Guardians, c'est l'ivoire et l'or contre l'écorce et la mousse, avec un roi elfe, un mage au cristal, un Roi Chêne aux bois de cerf et un gros ours de mousse."
+    },
+    {
+     "t": 12.18,
+     "text": "Il va avec l'Enchanted Forest."
+    }
+   ]
+  },
+  "item-sets-jarl": {
+   "text": "Les drakkars sont rentrés ! Jarls of the Fjord, c'est l'or et l'ivoire aux capes bleues, contre le fer sombre et le cuir aux bannières rouges. Il y a des jarls, des guerrières, de sages devins aux bâtons de runes et des loups pour cavaliers. Il va avec le Fjord of the Longships.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Les drakkars sont rentrés !"
+    },
+    {
+     "t": 2.01,
+     "text": "Jarls of the Fjord, c'est l'or et l'ivoire aux capes bleues, contre le fer sombre et le cuir aux bannières rouges."
+    },
+    {
+     "t": 7.3,
+     "text": "Il y a des jarls, des guerrières, de sages devins aux bâtons de runes et des loups pour cavaliers."
+    },
+    {
+     "t": 12.06,
+     "text": "Il va avec le Fjord of the Longships."
+    }
+   ]
+  },
+  "item-sets-rune": {
+   "text": "Chaque pièce de Runecarved semble taillée à la main, dans du bouleau pâle et du chêne sombre. La reine tient une corne à boire, le scalde raconte des histoires, et les cavaliers sont des têtes de loup. Il va avec le Longhouse Gate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Chaque pièce de Runecarved semble taillée à la main, dans du bouleau pâle et du chêne sombre."
+    },
+    {
+     "t": 4.67,
+     "text": "La reine tient une corne à boire, le scalde raconte des histoires, et les cavaliers sont des têtes de loup."
+    },
+    {
+     "t": 9.77,
+     "text": "Il va avec le Longhouse Gate."
+    }
+   ]
+  },
+  "item-boards-fossil": {
+   "text": "Fossil and Basalt met de la pierre fossile crème à côté du basalte sombre, avec des fissures d'ambre qui brillent comme la lave. Des fougères sont sculptées tout autour du cadre. Il va avec Dinosaur Valley et Dino Kingdom.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Fossil and Basalt met de la pierre fossile crème à côté du basalte sombre, avec des fissures d'ambre qui brillent comme la lave."
+    },
+    {
+     "t": 6.34,
+     "text": "Des fougères sont sculptées tout autour du cadre."
+    },
+    {
+     "t": 9.02,
+     "text": "Il va avec Dinosaur Valley et Dino Kingdom."
+    }
+   ]
+  },
+  "item-boards-glade": {
+   "text": "Moonstone and Moss Agate, c'est de la pierre de lune pâle à côté de l'agate mousse verte, dans un cadre de bois sombre aux vignes dorées. Il va avec l'Enchanted Forest et les Forest Guardians.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Moss Agate, c'est de la pierre de lune pâle à côté de l'agate mousse verte, dans un cadre de bois sombre aux vignes dorées."
+    },
+    {
+     "t": 6.61,
+     "text": "Il va avec l'Enchanted Forest et les Forest Guardians."
+    }
+   ]
+  },
+  "item-boards-fjord": {
+   "text": "Frost Ash and Slate, c'est de la pierre pâle givrée à côté de l'ardoise bleue, froide comme un fjord en hiver, avec des runes dorées autour du cadre. Il va avec le Fjord of the Longships et les Jarls of the Fjord.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Frost Ash and Slate, c'est de la pierre pâle givrée à côté de l'ardoise bleue, froide comme un fjord en hiver, avec des runes dorées autour du cadre."
+    },
+    {
+     "t": 7.22,
+     "text": "Il va avec le Fjord of the Longships et les Jarls of the Fjord."
+    }
+   ]
+  },
+  "item-boards-runeoak": {
+   "text": "Carved Oak, c'est du chêne clair et foncé, taillé à la main, avec des runes sculptées tout autour du cadre. Il va avec le Longhouse Gate et Runecarved.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Carved Oak, c'est du chêne clair et foncé, taillé à la main, avec des runes sculptées tout autour du cadre."
+    },
+    {
+     "t": 5.22,
+     "text": "Il va avec le Longhouse Gate et Runecarved."
+    }
+   ]
+  },
+  "item-places-dinoval": {
+   "text": "Bienvenue dans le monde des dinosaures ! Devant, un volcan fume, des cascades tombent dans le lac, et des dinosaures au long cou marchent dans l'eau pendant que des ptérosaures planent au-dessus. Dino Kingdom joue ici, sur Fossil and Basalt.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Bienvenue dans le monde des dinosaures !"
+    },
+    {
+     "t": 2.35,
+     "text": "Devant, un volcan fume, des cascades tombent dans le lac, et des dinosaures au long cou marchent dans l'eau pendant que des ptérosaures planent au-dessus."
+    },
+    {
+     "t": 9.32,
+     "text": "Dino Kingdom joue ici, sur Fossil and Basalt."
+    }
+   ]
+  },
+  "item-places-forest": {
+   "text": "Entre sur la pointe des pieds. Les arbres géants brillent en vert et en violet, les champignons luisent, les lucioles dansent, et une cascade de lumière bleue tombe dans le bassin. Regarde, un cerf fait de lumière sur le rocher ! Forest Guardians jouent ici, sur Moonstone and Moss Agate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Entre sur la pointe des pieds."
+    },
+    {
+     "t": 1.91,
+     "text": "Les arbres géants brillent en vert et en violet, les champignons luisent, les lucioles dansent, et une cascade de lumière bleue tombe dans le bassin."
+    },
+    {
+     "t": 8.71,
+     "text": "Regarde, un cerf fait de lumière sur le rocher !"
+    },
+    {
+     "t": 11.55,
+     "text": "Forest Guardians jouent ici, sur Moonstone and Moss Agate."
+    }
+   ]
+  },
+  "item-places-fjord": {
+   "text": "Respire cet air frais et froid ! Des falaises enneigées sortent tout droit de l'eau, des cascades dévalent, et un drakkar à voile bleue glisse jusqu'au ponton. Jarls of the Fjord jouent ici, sur Frost Ash and Slate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Respire cet air frais et froid !"
+    },
+    {
+     "t": 2.2,
+     "text": "Des falaises enneigées sortent tout droit de l'eau, des cascades dévalent, et un drakkar à voile bleue glisse jusqu'au ponton."
+    },
+    {
+     "t": 7.97,
+     "text": "Jarls of the Fjord jouent ici, sur Frost Ash and Slate."
+    }
+   ]
+  },
+  "item-places-longhouse": {
+   "text": "Le soleil se lève sur les sommets enneigés. Passe la porte aux dragons sculptés, longe les pierres runiques et les torches, jusqu'à la grande salle. Un drakkar attend dans la baie. Runecarved joue ici, sur Carved Oak.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Le soleil se lève sur les sommets enneigés."
+    },
+    {
+     "t": 2.62,
+     "text": "Passe la porte aux dragons sculptés, longe les pierres runiques et les torches, jusqu'à la grande salle."
+    },
+    {
+     "t": 7.32,
+     "text": "Un drakkar attend dans la baie."
+    },
+    {
+     "t": 9.5,
+     "text": "Runecarved joue ici, sur Carved Oak."
+    }
+   ]
+  },
   "item-sets-galactic": {
    "text": "Deux flottes stellaires s'affrontent sur le plateau ! La Flotte Bleue est blanche aux lumières bleues, et la Flotte Rouge noire aux lumières rouges. Les cavaliers sont des vaisseaux, les fous des cristaux lumineux et les pions des cadets de l'espace. Il va avec Starship Deck.",
    "voice": "em_alex",

@@ -1166,6 +1166,10 @@ ChacklateElements.ROOMS = {
   twinrealms: { strike: 'lightning', storm: 'fire' },
   skyisles: { strike: 'petals', storm: 'petals', petals: ['#ffd84a', '#ffffff', '#8ab0ff', '#c890ff'] },
   starbridge: { strike: 'lightning', storm: 'lightning' },
+  dinoval: { strike: 'stone', storm: 'fire', dust: '#a89070', stone: '#6a5a48' },
+  forest: { strike: 'lightning', storm: 'petals', petals: ['#8af0ff', '#ff9ae8', '#e8ff8a', '#ffffff'] },
+  fjord: { strike: 'stone', storm: 'petals', petals: ['#ffffff', '#f4f8ff', '#e8eef8', '#dce6f4'], dust: '#e8eef4', stone: '#7a8490' },
+  longhouse: { strike: 'fire', storm: 'lightning' },
 };
 // every family has a capture strike and a win storm
 ChacklateElements.FAMILIES = ['fire', 'lightning', 'petals', 'stone', 'melt', 'freeze', 'fireworks', 'weld', 'vortex', 'burst', 'bloom'];

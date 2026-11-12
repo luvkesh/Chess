@@ -207,6 +207,14 @@ function ChacklateWorld(THREE, K) {
     stargrid: { name: 'Star Grid', field: { type: 'lacquer', light: '#d4d8e0', dark: '#4e5a74' }, frame: { type: 'lacquer', color: '#0e1018' }, inlay: '#5ab8ff', label: '#c8e8ff', rim: 'chrome', gloss: 0.12 },
     // Falcon & Pearl's: pearl white and night-sand blue with gold veins, in black lacquer and gold
     mirage: { name: 'Pearl & Night Sand', field: { type: 'marble', light: '#f2eadc', dark: '#1e2834', veinLight: '#d8c8a8', veinDark: '#c8a050' }, frame: { type: 'lacquer', color: '#0e0c0a' }, inlay: '#e0c070', label: '#f0dcae', rim: 'gold', gloss: 0.15 },
+    // Dino Kingdom's: fossil sandstone and dark basalt with veins of glowing amber, in a frame of lava stone pressed with ferns and ammonites
+    fossil: { name: 'Fossil & Basalt', field: { type: 'marble', light: '#eadcbe', dark: '#2e2826', veinLight: '#c4a878', veinDark: '#e8782a', marbleLight: { cloud: 0.5, strength: 0.3, freq: 2 }, marbleDark: { cloud: 0.3, strength: 0.7, freq: 3 } }, frame: { type: 'stone', color: '#3a302a', speck: '#6a5444' }, inlay: '#e8a85a', label: '#f8dcae', rim: 'bronze', motif: 'ferns' },
+    // Forest Guardians': cream moonstone and deep green moss agate, in a frame of dark wood with a gold vine
+    glade: { name: 'Moonstone & Moss Agate', field: { type: 'marble', light: '#efe8d6', dark: '#2e4a32', veinLight: '#c8bc98', veinDark: '#8ac07a', marbleDark: { cloud: 0.5, strength: 0.6, freq: 3 } }, frame: { type: 'wood', color: '#3a2a18', grainLight: '#5a4428' }, inlay: '#e2bc62', label: '#f4e4b8', rim: 'gold', motif: 'vines' },
+    // Jarls of the Fjord's: frosted ash and slate, in a frame of dark iron-grey with gold runes
+    fjord: { name: 'Frost Ash & Slate', field: { type: 'marble', light: '#e6e6e2', dark: '#3a4250', veinLight: '#b8c0c8', veinDark: '#7a8aa0', marbleDark: { cloud: 0.4, strength: 0.4, freq: 3 } }, frame: { type: 'stone', color: '#2a2e36', speck: '#4a505c' }, inlay: '#e0b860', label: '#f2deb0', rim: 'gold', motif: 'runes' },
+    // Runecarved's: weathered oak planks, light and dark, in a thick carved frame of runes and iron studs
+    runeoak: { name: 'Carved Oak', field: { type: 'wood', light: '#cfae80', dark: '#5a3c22', woodDark: { lines: 18, contrast: 0.75, warp: 2.6 }, woodLight: { lines: 26, contrast: 0.55, warp: 1.6 } }, frame: { type: 'wood', color: '#4a3018', grainLight: '#7a5430' }, inlay: '#c89a5a', label: '#f0d8b0', rim: 'bronze', raw: true, motif: 'runes' },
   };
   function frameTexture(b, side) {
     const N = 2048, c = canvas(N), g = c.getContext('2d');
@@ -300,6 +308,50 @@ function ChacklateWorld(THREE, K) {
       }
       for (const sx of [-1, 1]) for (const sy of [-1, 1]) { g.strokeStyle = 'rgba(20,10,4,0.75)'; g.lineWidth = 9; g.beginPath(); g.arc(px(sx * 4.45), px(sy * 4.45), 30, 0, TAU); g.stroke(); g.beginPath(); g.arc(px(sx * 4.45), px(sy * 4.45), 14, 0, TAU); g.stroke(); }
     }
+    // fossil fern fronds and little ammonites pressed into the stone (Dino Kingdom)
+    if (b.motif === 'ferns') {
+      for (const s2 of [-1, 1]) for (const horiz of [true, false]) for (let i = 0; i < 7; i++) {
+        const u = -3.2 + i * 1.07, [x, y] = horiz ? [px(u), px(s2 * 4.45)] : [px(s2 * 4.45), px(u)];
+        g.save(); g.translate(x, y); if (!horiz) g.rotate(Math.PI / 2);
+        g.strokeStyle = b.inlay; g.fillStyle = b.inlay; g.lineWidth = 3;
+        if (i % 2) {
+          g.beginPath(); for (let k2 = 0; k2 <= 60; k2++) { const a = k2 / 60 * TAU * 2.4, r = 2 + k2 * 0.4; k2 ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(r, 0); } g.stroke();
+        } else {
+          g.beginPath(); g.moveTo(-44, 0); g.lineTo(44, 0); g.stroke();
+          for (let k2 = 0; k2 < 9; k2++) { const xx = -38 + k2 * 9.5, l = 20 - Math.abs(k2 - 4) * 3; for (const sd of [-1, 1]) { g.beginPath(); g.ellipse(xx + 3, sd * l * 0.5, 3.5, l * 0.5, sd * 0.5, 0, TAU); g.fill(); } }
+        }
+        g.restore();
+      }
+    }
+    // a gold vine winding along the frame with leaves and little flowers (Forest Guardians)
+    if (b.motif === 'vines') {
+      for (const s2 of [-1, 1]) for (const horiz of [true, false]) {
+        const at2 = (u, w) => (horiz ? [px(u), px(s2 * 4.45) + w] : [px(s2 * 4.45) + w, px(u)]);
+        g.strokeStyle = b.inlay; g.lineWidth = 4; g.beginPath();
+        for (let k2 = 0; k2 <= 200; k2++) { const u = -3.7 + k2 / 200 * 7.4, [x, y] = at2(u, Math.sin(u * 4) * 16); k2 ? g.lineTo(x, y) : g.moveTo(x, y); }
+        g.stroke();
+        for (let k2 = 0; k2 < 30; k2++) {
+          const u = -3.6 + k2 * 0.25, w = Math.sin(u * 4) * 16, [x, y] = at2(u, w + (k2 % 2 ? 12 : -12));
+          g.save(); g.translate(x, y); g.rotate(k2 * 1.3); g.fillStyle = k2 % 5 === 0 ? '#c8b0ff' : b.inlay;
+          g.beginPath(); g.ellipse(0, 0, k2 % 5 === 0 ? 6 : 4, k2 % 5 === 0 ? 6 : 10, 0, 0, TAU); g.fill(); g.restore();
+        }
+      }
+    }
+    // runes cut along every side, between bands of knotwork (Runecarved and Jarls of the Fjord)
+    if (b.motif === 'runes') {
+      const RUNES = [[[0, -1, 0, 1], [0, -0.2, 0.6, -0.7], [0, 0.3, 0.6, -0.2]], [[0, -1, 0, 1], [0, -1, 0.6, -0.4], [0.6, -0.4, 0, 0.1]], [[-0.4, -1, -0.4, 1], [0.4, -1, 0.4, 1], [-0.4, -0.2, 0.4, 0.3]], [[0, -1, 0, 1], [0, -0.4, -0.5, -1], [0, -0.4, 0.5, -1]], [[-0.5, -1, 0.5, 1], [0.5, -1, -0.5, 1]], [[0, -1, 0, 1], [-0.5, -0.5, 0, -1], [0.5, -0.5, 0, -1]], [[-0.4, 1, -0.4, -1], [-0.4, -1, 0.4, 0], [0.4, 0, -0.4, 1]]];
+      g.lineCap = 'round';
+      for (const s2 of [-1, 1]) for (const horiz of [true, false]) {
+        for (const off of [-26, 26]) { g.strokeStyle = 'rgba(20,10,4,0.6)'; g.lineWidth = 3; g.beginPath(); const [x0, y0] = horiz ? [px(-3.7), px(s2 * 4.45) + off] : [px(s2 * 4.45) + off, px(-3.7)]; const [x1, y1] = horiz ? [px(3.7), y0] : [x0, px(3.7)]; g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
+        for (let i = 0; i < 22; i++) {
+          const u = -3.55 + i * 0.338, [x, y] = horiz ? [px(u), px(s2 * 4.45)] : [px(s2 * 4.45), px(u)], R2 = RUNES[(i * 3 + (s2 > 0 ? 1 : 0) + (horiz ? 0 : 2)) % RUNES.length];
+          if (Math.abs(((u + 3.5) % 1) - 0.5) < 0.18) continue;
+          g.save(); g.translate(x, y); if (!horiz) g.rotate(Math.PI / 2);
+          for (const [lw, col, dy] of [[7, 'rgba(20,10,4,0.75)', 0], [2, b.inlay, -2]]) { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); for (const [a1, b1, a2, b2] of R2) { g.moveTo(a1 * 14, b1 * 16 + dy); g.lineTo(a2 * 14, b2 * 16 + dy); } g.stroke(); }
+          g.restore();
+        }
+      }
+    }
     if (b.motif === 'egypt') {
       g.fillStyle = b.inlay;
       for (let i = 0; i < 26; i++) for (const s of [-1, 1]) {
@@ -316,7 +368,7 @@ function ChacklateWorld(THREE, K) {
     for (let i = 0; i < 8; i++) {
       const write = (t, u, v, rot) => {
         g.save(); g.translate(px(u), px(v)); g.rotate(rot);
-        if (b.motif === 'meander' || b.motif === 'egypt' || b.motif === 'knot' || f.type === 'malachite') {
+        if (b.motif === 'meander' || b.motif === 'egypt' || b.motif === 'knot' || b.motif === 'ferns' || b.motif === 'vines' || b.motif === 'runes' || f.type === 'malachite') {
           roundRect(g, -36, -36, 72, 72, 12); g.fillStyle = f.color; g.fill();
           g.strokeStyle = b.inlay; g.lineWidth = 3; g.stroke();
         }
@@ -2023,6 +2075,42 @@ function ChacklateWorld(THREE, K) {
       faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
       metal: 'gold', floor: 'octagon', lights: { hemi: 0.7, chand: 9, color: '#ffe0c0' },
       env: { wall: '#8a7a70', floor: '#7a7068', ceiling: '#4a4a84', key: '#fff0e0', keyI: 6.5, window: '#ffc8a0', windowI: 4, rim: '#ffb880', rimI: 5, lamp: '#ffc070', lampI: 6, fill: 0.9 },
+    },
+    dinoval: {
+      name: 'Dinosaur Valley', era: 'A fern valley below a smoking volcano, where long-necked dinosaurs wade, in the age of the dinosaurs', vista: 'dinoval', terrace: { r: 12.4, step: 0.5, edge: '#7a6a52' }, raw: true,
+      palette: { wall: '#4a4030', paper: '#c8b890', paperInk: '#8a7a58', wood: '#4a3420', trim: '#d89a3a', floor: '#9a8a6a', floorDark: '#4a4234', table: '#3a3028', inlay: '#e8a040',
+        rugBorder: '#3a2a1a', rugField: '#6a7a3a', rugGold: '#e8a040', rugAccent: '#b0401a', drape: '#5a6a2a', sky: ['#4a74a0', '#88a8c0', '#e4cc9c', '#f2d8a8'],
+        paintSky: ['#88a8c0', '#e4cc9c', '#f2d8a8'], paintLand: '#5a7a30', fog: '#d8c8a0', hemi: ['#fff4dc', '#4a5a2a'], ceiling: '#88a8c0', dado: '#4a4030' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'bronze', floor: 'stone', lights: { hemi: 1.0, chand: 8 },
+      env: { wall: '#7a7058', floor: '#6a6050', ceiling: '#88a8c0', key: '#fff4e0', keyI: 7, window: '#ffe8c0', windowI: 4.5, rim: '#ffd8a0', rimI: 4.5, lamp: '#ffb060', lampI: 6, fill: 1.2 },
+    },
+    forest: {
+      name: 'Enchanted Forest', era: 'A mossy glade among giant glowing trees at dusk, by a waterfall of blue light, in the world of fairy tales', vista: 'enchanted', terrace: { r: 12.4, step: 0.4, edge: '#3a5a4a' }, raw: true,
+      palette: { wall: '#1a2a24', paper: '#a8c8b0', paperInk: '#5a8a6a', wood: '#3a2a1e', trim: '#c8b060', floor: '#5a6a5a', floorDark: '#1e2a24', floorLine: 'rgba(138,240,200,0.4)', table: '#3a2a1e', inlay: '#8af0c8',
+        rugBorder: '#14241e', rugField: '#2a4a3a', rugGold: '#c8e080', rugAccent: '#a86ad8', drape: '#2a4a3a', sky: ['#0a0a24', '#1a1a48', '#2a3a6a', '#3a5a7a'],
+        paintSky: ['#1a1a48', '#2a3a6a', '#3a5a7a'], paintLand: '#0e1e22', fog: '#1a2a3a', hemi: ['#c8f0e8', '#0e1a14'], ceiling: '#1a1a48', dado: '#1a2a24' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'stone', lights: { hemi: 0.7, chand: 9, color: '#d8fff0' },
+      env: { wall: '#2a3a34', floor: '#2a3430', ceiling: '#1a1a48', key: '#e8fff4', keyI: 5.5, window: '#8ae8ff', windowI: 3.5, rim: '#c88aff', rimI: 5, lamp: '#ffe08a', lampI: 6, fill: 0.8 },
+    },
+    fjord: {
+      name: 'Fjord of the Longships', era: 'A snowy shore by a wooden dock on a deep fjord, as a longship sails home, Norway, about 950', vista: 'fjord', terrace: { r: 12.4, step: 0.4, edge: '#7a8490' }, raw: true,
+      palette: { wall: '#3a4450', paper: '#e8eef4', paperInk: '#a8b4c0', wood: '#4a3420', trim: '#c8a040', floor: '#8a7058', floorDark: '#3a2a1e', table: '#4a3420', inlay: '#c8a040',
+        rugBorder: '#1a2a4a', rugField: '#2a5aa8', rugGold: '#e8d8a0', rugAccent: '#b02a24', drape: '#2a5aa8', sky: ['#2a5a9a', '#5a8ac0', '#a8c8e4', '#dce8f2'],
+        paintSky: ['#5a8ac0', '#a8c8e4', '#dce8f2'], paintLand: '#3a4450', fog: '#c8d8e8', hemi: ['#f4f8ff', '#3a4450'], ceiling: '#5a8ac0', dado: '#3a4450' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'gold', floor: 'planks', lights: { hemi: 1.05, chand: 8 },
+      env: { wall: '#8a96a4', floor: '#6a5a4a', ceiling: '#5a8ac0', key: '#fffaf4', keyI: 7, window: '#e8f4ff', windowI: 4.5, rim: '#e8f0ff', rimI: 4, lamp: '#ffd8a0', lampI: 5, fill: 1.3 },
+    },
+    longhouse: {
+      name: 'Longhouse Gate', era: 'The road through the carved dragon gate of a great Viking hall, at sunrise in winter, about 950', vista: 'gate', terrace: { r: 12.4, step: 0.5, edge: '#6a5a48' }, raw: true,
+      palette: { wall: '#3a2a20', paper: '#e8d8c0', paperInk: '#a88a6a', wood: '#4a3020', trim: '#d8a848', floor: '#8a847a', floorDark: '#4a463e', table: '#4a3020', inlay: '#d8a848',
+        rugBorder: '#2a1a10', rugField: '#b02a24', rugGold: '#e8c870', rugAccent: '#2a4a7a', drape: '#b02a24', sky: ['#2a3a6a', '#7a6a9a', '#f0a090', '#ffd8a8'],
+        paintSky: ['#7a6a9a', '#f0a090', '#ffd8a8'], paintLand: '#8a7a9a', fog: '#e8b8a8', hemi: ['#ffe0d0', '#3a3030'], ceiling: '#7a6a9a', dado: '#3a2a20' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      metal: 'bronze', floor: 'stone', lights: { hemi: 0.9, chand: 9, color: '#ffe0c8' },
+      env: { wall: '#7a6a60', floor: '#6a645a', ceiling: '#7a6a9a', key: '#fff0e0', keyI: 6.5, window: '#ffc8a8', windowI: 4, rim: '#ffb080', rimI: 5, lamp: '#ff9a40', lampI: 7, fill: 1.0 },
     },
   };
   // A flat outline as a mesh with 0..1 UVs (or the given ranges).

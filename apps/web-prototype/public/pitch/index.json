@@ -579,6 +579,22 @@
   "voice": "am_puck,am_liam",
   "text": "Pearly white and night-dark sand, sealed under glass with a gold rim. It sparkles like the desert at night."
  },
+ "board.fossil.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Cream fossil stone next to dark basalt, with amber cracks that glow like lava. Look for the ferns carved round the frame!"
+ },
+ "board.glade.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Pale moonstone and green moss agate, in a dark wooden frame. Golden vines curl all the way round."
+ },
+ "board.fjord.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Frosty pale stone and blue slate, cold as a winter fjord. A band of golden runes runs round the frame."
+ },
+ "board.runeoak.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Light oak and dark oak, cut by hand. Runes are carved all round the frame, like on a Viking hall."
+ },
  "room.tokyo.v1": {
   "voice": "am_puck,am_liam",
   "text": "A cherry-blossom garden on a Tokyo rooftop, with Mount Fuji far away. The city twinkles below you."
@@ -662,5 +678,21 @@
  "room.burj.v1": {
   "voice": "am_puck,am_liam",
   "text": "The very top of the Burj Khalifa, the tallest building in the world. We're above the clouds!"
+ },
+ "room.dinoval.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A green valley at the dawn of time, below a smoking volcano. Look, the long-necks are wading in the lake!"
+ },
+ "room.forest.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A mossy glade where the trees glow and the toadstools shine. Can you spot the stag made of light?"
+ },
+ "room.fjord.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A snowy shore on a deep blue fjord, with waterfalls all around. Here comes a longship, sailing home!"
+ },
+ "room.longhouse.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "The dragon gate of a great Viking hall, just as the sun comes up. The torches are still burning!"
  }
 }
