@@ -303,7 +303,7 @@ function ChacklateAudio() {
     admiral: { chords: [[33, 45, 52, 57, 60], [38, 50, 57, 62, 65], [40, 52, 56, 59, 64], [33, 45, 52, 57, 60]],
       scale: [57, 59, 60, 62, 64, 65, 67, 69, 71, 72], voice: 'horn', every: 9000 },
     // soft star-gazing bells in E minor
-    observatory: { chords: [[28, 40, 47, 52, 55], [36, 48, 55, 59, 64], [31, 43, 50, 55, 59], [35, 47, 54, 59, 63]],
+    emeraldhall: { chords: [[28, 40, 47, 52, 55], [36, 48, 55, 59, 64], [31, 43, 50, 55, 59], [35, 47, 54, 59, 63]],
       scale: [64, 66, 67, 69, 71, 72, 74, 76, 78, 79], voice: 'harp', every: 9500 },
     // a pentatonic tune on a plucked string by the falls
     pavilion: { chords: [[31, 43, 50, 55, 62], [36, 48, 55, 60, 64], [33, 45, 52, 57, 64], [31, 43, 50, 55, 59]],

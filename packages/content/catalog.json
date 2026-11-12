@@ -120,7 +120,7 @@
     { "id": "room.studio.v1", "category": "room", "name": "Sculptor's Studio", "rarity": "epic", "unlock": { "type": "level", "level": 20 }, "desc": "A white marble studio above the quarries, with a little statue, a clay model and a dish of lemons.", "data": { "room": "studio" } },
     { "id": "room.keep.v1", "category": "room", "name": "Sapphire Throne Room", "rarity": "legendary", "unlock": { "type": "premium" }, "desc": "A blue and gold throne room in a mountain castle at dusk, with a sceptre, an orb and a jewelled box.", "data": { "room": "keep" } },
     { "id": "room.admiral.v1", "category": "room", "name": "Admiral's Cabin", "rarity": "epic", "unlock": { "type": "level", "level": 22 }, "desc": "The great cabin of a flagship at anchor by moonlight, with a sextant, a spyglass and a ship in a bottle.", "data": { "room": "admiral" } },
-    { "id": "room.observatory.v1", "category": "room", "name": "Emerald Observatory", "rarity": "epic", "unlock": { "type": "level", "level": 24 }, "desc": "A green marble observatory on a hilltop at nightfall, with a brass telescope and a golden sky globe.", "data": { "room": "observatory" } },
+    { "id": "room.emeraldhall.v1", "category": "room", "name": "Emerald Observatory", "rarity": "epic", "unlock": { "type": "level", "level": 24 }, "desc": "A green marble observatory on a hilltop at nightfall, with a brass telescope and a golden sky globe.", "data": { "room": "emeraldhall" } },
     { "id": "room.pavilion.v1", "category": "room", "name": "Waterfall Pavilion", "rarity": "legendary", "unlock": { "type": "premium" }, "desc": "A red lacquer pavilion facing a mountain waterfall in cherry-blossom time, with a stone lantern and a koi bowl.", "data": { "room": "pavilion" } },
     { "id": "capture.cocoa-dust.v1", "category": "capture", "name": "Cocoa Burst", "rarity": "common", "unlock": { "type": "free" }, "desc": "The taken piece puffs up and bursts in a cloud of cocoa and confetti. Pairs with Gold Confetti.", "data": { "kind": "dust", "colors": ["#e3b25a", "#d2466f", "#f4ebe3", "#c8a27a"], "strike": "burst", "art": "burst"  } },
     { "id": "capture.none.v1", "category": "capture", "name": "None", "rarity": "common", "unlock": { "type": "free" }, "desc": "Captures play with no sparkle at all.", "data": { "kind": "none", "colors": [] } },
@@ -241,7 +241,7 @@
     { "id": "studio", "room": "room.studio.v1", "board": "board.nero.v1", "pieces": "pieces.fantasy.v1" },
     { "id": "keep", "room": "room.keep.v1", "board": "board.sapphire.v1", "pieces": "pieces.sapphire.v1" },
     { "id": "admiral", "room": "room.admiral.v1", "board": "board.admiralty.v1", "pieces": "pieces.navy.v1" },
-    { "id": "observatory", "room": "room.observatory.v1", "board": "board.verdant.v1", "pieces": "pieces.opulent.v1" },
+    { "id": "emeraldhall", "room": "room.emeraldhall.v1", "board": "board.verdant.v1", "pieces": "pieces.opulent.v1" },
     { "id": "pavilion", "room": "room.pavilion.v1", "board": "board.scroll.v1", "pieces": "pieces.pagoda.v1" }
   ]
 }

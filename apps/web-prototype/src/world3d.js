@@ -1352,7 +1352,7 @@ function ChacklateWorld(THREE, K) {
       },
     },
     // An alpine citadel at dusk: snow peaks, a white castle with blue spires and a gilded bridge.
-    citadel: {
+    alpkeep: {
       back(g, v, R) {
         hills(g, HZ - 120, 220, v.far, 51, 64);
         for (const [x, h] of [[200, 330], [520, 400], [1180, 360], [1420, 300]]) { poly(g, [[x - 260, HZ], [x, HZ - h], [x + 260, HZ]], shade(v.far, -0.1)); poly(g, [[x - 70, HZ - h + 80], [x, HZ - h], [x + 70, HZ - h + 80], [x + 30, HZ - h + 66], [x, HZ - h + 90], [x - 30, HZ - h + 66]], v.snow); }
@@ -2219,7 +2219,7 @@ function ChacklateWorld(THREE, K) {
       faces: ['window', 'window', 'mirror', 'painting', 'niche', 'fire', 'niche', 'painting', 'mirror', 'painting', 'mirror', 'window'],
       wall: 'damask', column: { kind: 'classic', mat: 'marble', flutes: 16, color: '#f2ece0', vein: '#c8b898' }, window: { kind: 'pointed', w: 4.4, h: 8.8, drape: true }, frieze: 'floral',
       light: 'crystal', metal: 'gold', floor: 'octagon', vase: 'porcelain', mirror: 'venetian', lights: { hemi: 0.55, chand: 14 },
-      view: { landmark: 'citadel', moon: [300, 150, 26, true], stars: 120, far: '#3a4a7a', snow: '#eef2fa', stone: '#e8e8f0', roof: '#1e3488', gold: '#e8c46a', glow: '#ffc870', dark: '#0a1024', haze: '#e8b8a0' },
+      view: { landmark: 'alpkeep', moon: [300, 150, 26, true], stars: 120, far: '#3a4a7a', snow: '#eef2fa', stone: '#e8e8f0', roof: '#1e3488', gold: '#e8c46a', glow: '#ffc870', dark: '#0a1024', haze: '#e8b8a0' },
       env: { wall: '#2a3468', floor: '#5a5a6a', ceiling: '#1a2450', key: '#f0f4ff', keyI: 6, window: '#c8c8ff', windowI: 3, rim: '#ffe0b8', rimI: 5, lamp: '#ffc070', lampI: 9, fill: 0.7 },
     },
     admiral: {
@@ -2232,7 +2232,7 @@ function ChacklateWorld(THREE, K) {
       view: { landmark: 'harbour', moon: [1000, 170, 34, false], moonX: 1000, stars: 280, far: '#0a1428', stone: '#e8e4dc', red: '#a82a22', dark: '#04060c', glow: '#ffd890', lit: '#fff0c8', water: '#0a1a34', hull: '#5a3018', sail: '#e8e0cc', gold: '#d8b060', haze: '#1a2a50' },
       env: { wall: '#3a2216', floor: '#2a1a10', ceiling: '#2a160c', key: '#e8eeff', keyI: 5, window: '#a8b8ff', windowI: 2.8, rim: '#ffd8a8', rimI: 4.5, lamp: '#ffb050', lampI: 10, fill: 0.55 },
     },
-    observatory: {
+    emeraldhall: {
       name: 'Emerald Observatory', era: 'A green marble observatory on a hilltop, as the first stars come out',
       palette: { wall: '#123a2c', paper: '#18463a', paperInk: '#c8a860', wood: '#2a1a10', trim: '#dcb466', floor: '#e8e0cc', floorDark: '#1d5a44', floorLine: 'rgba(220,180,102,0.5)', table: '#24160e', inlay: '#dcb466',
         rugBorder: '#0c2a20', rugField: '#1d5a44', rugGold: '#dcb466', rugAccent: '#7a1a2a', drape: '#0f3a2c', sky: ['#0a0e24', '#2a2a5a', '#8a6a8a', '#e8a888'],

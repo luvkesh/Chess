@@ -52,7 +52,7 @@ function ChacklateSuites(THREE, K, H) {
     studio: { board: 'nero', set: 'fantasy', table: { shape: 'octagon', top: { kind: 'marble', color: '#18181c', vein: '#c8a050' }, foot: 'column', metal: 'gold' }, decor: ['statuette', 'claymodel', 'mallet', 'lemons'] },
     keep: { board: 'sapphire', set: 'sapphire', table: { shape: 'quatrefoil', top: { kind: 'marble', color: '#f0e8d8', vein: '#c8b898', inlay: '#1e3488' }, foot: 'pedestal', metal: 'gold' }, decor: ['globus', 'casket', 'sceptre', 'plums'] },
     admiral: { board: 'admiralty', set: 'navy', table: { shape: 'round', top: { kind: 'wood', color: '#3a1a10', inlay: '#e2b860' }, foot: 'legs', metal: 'brass' }, decor: ['shipbottle', 'sextant', 'spyglass', 'compass'] },
-    observatory: { board: 'verdant', set: 'opulent', table: { shape: 'hex', top: { kind: 'malachite', color: '#13563a' }, foot: 'pedestal', metal: 'gold' }, decor: ['armillary', 'telescope', 'ivypot', 'starbook'] },
+    emeraldhall: { board: 'verdant', set: 'opulent', table: { shape: 'hex', top: { kind: 'malachite', color: '#13563a' }, foot: 'pedestal', metal: 'gold' }, decor: ['armillary', 'brassscope', 'ivypot', 'starbook'] },
     pavilion: { board: 'scroll', set: 'pagoda', table: { shape: 'round', top: { kind: 'lacquer', color: '#141012' }, foot: 'ming', metal: 'gold' }, decor: ['stonelantern', 'incense', 'fan', 'koibowl'] },
   };
   const byBoard = {}, bySet = {};
@@ -416,7 +416,7 @@ function ChacklateSuites(THREE, K, H) {
       [ball(0.07, 0, 0.58, 0, 16), MAT.gem('#18a066')],
       [new THREE.CylinderGeometry(0.008, 0.008, 0.66, 6).rotateZ(0.4).translate(0, 0.58, 0), MAT.gold()],
     ]),
-    telescope: () => group([
+    brassscope: () => group([
       ...[0, 1, 2].map((i) => [new THREE.CylinderGeometry(0.012, 0.012, 0.6, 6).rotateX(0.25).rotateY(i * TAU / 3).translate(Math.cos(i * TAU / 3 + Math.PI / 2) * 0.06, 0.28, Math.sin(i * TAU / 3 + Math.PI / 2) * -0.06), MAT.brass()]),
       [new THREE.CylinderGeometry(0.045, 0.065, 0.62, 16).rotateZ(1.1).translate(0, 0.62, 0), MAT.brass()],
       [K.ring(0.066, 0, 0.012).rotateZ(1.1 - Math.PI / 2).translate(-0.26, 0.75, 0), MAT.gold()],
@@ -812,7 +812,7 @@ function ChacklateSuites(THREE, K, H) {
       return group(parts);
     },
     cloche: () => group([[lathe([[0, 0], [0.32, 0], [0.34, 0.04], [0, 0.04]], 32), MAT.silver()], [ball(0.12, 0, 0.16, 0, 12).scale(1.6, 0.8, 1.6), MATTE('moss', '#4a6a2a')], [new THREE.SphereGeometry(0.3, 32, 16, 0, TAU, 0, Math.PI / 2).scale(1, 1.5, 1).translate(0, 0.04, 0), glassM()], [ball(0.03, 0, 0.5, 0, 8), MAT.silver()]]),
-    telescope: () => group([
+    brassscope: () => group([
       ...[0, 1, 2].map((i) => [new THREE.CylinderGeometry(0.02, 0.02, 0.9, 8).rotateZ((i - 1) * 0.35).rotateX(i === 1 ? 0.35 : 0).translate((i - 1) * 0.15, 0.42, i === 1 ? -0.15 : 0.05), MAT.lacquer('#3a2214')]),
       [new THREE.CylinderGeometry(0.07, 0.09, 0.9, 20).rotateZ(1.1).translate(0.05, 0.95, 0), MAT.brass()],
       [K.ring(0.09, 0, 0.015).rotateZ(1.1 + Math.PI / 2).translate(0.05, 0.95, 0), MAT.lacquer('#1a1a1a')],
