@@ -48,6 +48,10 @@ function ChacklateSuites(THREE, K, H) {
     sounion: { board: 'agora', set: 'sounion', table: { shape: 'round', top: { kind: 'marble', color: '#ece6da', vein: '#b8ae9c' }, foot: 'column', metal: 'bronze' }, decor: ['lyre', 'figs', 'amphora', 'trident'] },
     saturn: { board: 'meteor', set: 'astro', table: { shape: 'round', top: { kind: 'marble', color: '#1a1e2e', vein: '#6ac8e8' }, foot: 'drum', metal: 'chrome' }, decor: ['rocket', 'moonrock', 'satellite', 'starjar'] },
     burj: { board: 'mirage', set: 'falcon', table: { shape: 'hex', top: { kind: 'marble', color: '#efe8dc', vein: '#c8a860' }, foot: 'column', metal: 'gold' }, decor: ['oyster', 'binocs', 'burner', 'teaglass'] },
+    dinoval: { board: 'fossil', set: 'dino', table: { shape: 'slab', top: { kind: 'raw', color: '#6a5a4a', speck: '#3a2e26' }, foot: 'stones', raw: true }, decor: ['nest', 'fern', 'ammonite', 'amberlamp'] },
+    forest: { board: 'glade', set: 'forest', table: { shape: 'round', top: { kind: 'wood', color: '#4a3220' }, foot: 'pedestal', metal: 'gold' }, decor: ['mushrooms', 'berries', 'fairylamp', 'acorns'] },
+    fjord: { board: 'fjord', set: 'jarl', table: { shape: 'octagon', top: { kind: 'stone', color: '#4a4e58', speck: '#2a2e36' }, foot: 'drum', metal: 'gold' }, decor: ['longship', 'horn', 'runestone', 'shieldprop'] },
+    longhouse: { board: 'runeoak', set: 'rune', table: { shape: 'slab', top: { kind: 'planks', color: '#6a4a2a' }, foot: 'trestle', metal: 'bronze', raw: true }, decor: ['dragonhead', 'bread', 'candles', 'nuts'] },
   };
   const byBoard = {}, bySet = {};
   for (const [room, s] of Object.entries(SUITES)) { byBoard[s.board] = room; bySet[s.set] = room; }
@@ -491,6 +495,84 @@ function ChacklateSuites(THREE, K, H) {
       [new THREE.CylinderGeometry(0.34, 0.34, 0.03, 32).translate(0, 0.015, 0), MAT.gold()],
       ...[-1, 1].map((s2) => [smoothLathe([[0, 0], [0.07, 0], [0.06, 0.08], [0.05, 0.12], [0.07, 0.2], [0, 0.2]], 20), glassM('#e8b070')]).map(([g, m], i) => [g.translate(i ? 0.14 : -0.14, 0.03, 0), m]),
       [smoothLathe([[0, 0], [0.09, 0], [0.11, 0.08], [0.07, 0.18], [0.05, 0.24], [0, 0.26]], 24).translate(0, 0.03, -0.16), MAT.gold()],
+    ]),
+    // Dinosaur Valley: a nest of eggs, an ammonite fossil and a lamp of glowing amber
+    nest: () => {
+      const p = [[new THREE.TorusGeometry(0.34, 0.1, 10, 28).rotateX(Math.PI / 2).scale(1, 0.6, 1).translate(0, 0.07, 0), MATTE('twigs', '#7a5a34')], [new THREE.CylinderGeometry(0.3, 0.28, 0.06, 24).translate(0, 0.03, 0), MATTE('twigs2', '#6a4a2a')]];
+      for (const [x, z, r] of [[-0.1, 0.05, 1], [0.12, -0.04, 0.95], [0.0, -0.14, 0.9]]) p.push([ball(0.12 * r, x, 0.17, z, 20).scale(1, 1.3, 1).translate(0, -0.05, 0), C('eggshell', '#f0e4cc', { roughness: 0.5 })]);
+      return group(p);
+    },
+    ammonite: () => {
+      const pts = []; for (let i = 0; i <= 60; i++) { const t = i / 60, a = t * TAU * 2.4, r = 0.03 + 0.24 * t; pts.push([Math.cos(a) * r, Math.sin(a) * r + 0.33, 0]); }
+      return group([[new THREE.BoxGeometry(0.62, 0.08, 0.36).translate(0, 0.04, 0), C('ammo-stone', '#8a7a64', { roughness: 0.9 })],
+        [K.tube(pts, 0.03, { segs: 90, radial: 8, radiusAt: (t) => K.mix(0.5, 2, t) }).rotateX(-0.25), C('ammo', '#c8a878', { roughness: 0.4, clearcoat: 0.6 })],
+        [new THREE.CylinderGeometry(0.2, 0.22, 0.04, 20).translate(0, 0.1, 0), C('ammo-stone', '#8a7a64', { roughness: 0.9 })]]);
+    },
+    amberlamp: () => group([
+      [lathe([[0, 0], [0.2, 0], [0.18, 0.06], [0.08, 0.1], [0, 0.1]], 24), MAT.bronze()],
+      [new THREE.OctahedronGeometry(0.16, 1).scale(1, 1.6, 1).translate(0, 0.32, 0), C('amberlamp', '#ffb040', { roughness: 0.1, emissive: '#ff8a10', emissiveIntensity: 1.1 })],
+      ...[0, 1, 2].map((i) => [K.tube([[0.16, 0.06, 0], [0.12, 0.3, 0.02], [0.02, 0.52, 0.0]], 0.02, { segs: 10, radial: 6 }).rotateY(i * TAU / 3), MATTE('bonecl', '#efe2c6')]),
+    ]),
+    // Enchanted Forest: toadstools, a fairy lantern and a little pile of acorns
+    mushrooms: () => {
+      const p = [[new THREE.CylinderGeometry(0.4, 0.42, 0.06, 20).translate(0, 0.03, 0), MATTE('mossbed', '#4a6a24')]];
+      for (const [x, z, h, r, c] of [[-0.14, 0.05, 0.3, 0.17, '#c83a2a'], [0.14, -0.05, 0.22, 0.13, '#a858d8'], [0.04, 0.17, 0.15, 0.09, '#c83a2a']]) {
+        p.push([new THREE.CylinderGeometry(r * 0.3, r * 0.4, h, 12).translate(x, h / 2 + 0.05, z), C('stem', '#f2ead8')]);
+        p.push([new THREE.SphereGeometry(r, 20, 10, 0, TAU, 0, Math.PI / 2).scale(1, 0.7, 1).translate(x, h + 0.04, z), C('cap' + c, c, { emissive: c, emissiveIntensity: 0.25 })]);
+        for (let i = 0; i < 5; i++) p.push([ball(r * 0.13, x + Math.cos(i * 1.3) * r * 0.6, h + 0.04 + r * 0.45, z + Math.sin(i * 1.3) * r * 0.6, 8), C('spot', '#ffffff')]);
+      }
+      return group(p);
+    },
+    fairylamp: () => group([
+      [lathe([[0, 0], [0.16, 0], [0.12, 0.05], [0.1, 0.06], [0, 0.06]], 20), MAT.gold()],
+      [new THREE.CylinderGeometry(0.12, 0.12, 0.34, 6, 1, true).translate(0, 0.23, 0), glassM('#f0fff0')],
+      [new THREE.ConeGeometry(0.16, 0.16, 6).translate(0, 0.48, 0), MAT.gold()],
+      [K.ring(0.05, 0.6, 0.012).rotateX(Math.PI / 2), MAT.gold()],
+      ...[[0, 0.2, 0], [0.04, 0.27, 0.03], [-0.04, 0.16, -0.02]].map(([x, y, z]) => [ball(0.022, x, y, z, 10), C('firefly', '#d8ff8a', { emissive: '#aaff4a', emissiveIntensity: 2 })]),
+    ]),
+    acorns: () => {
+      const p = [[lathe([[0, 0], [0.34, 0], [0.38, 0.06], [0, 0.06]], 24), C('leafdish', '#5a8a2a', { roughness: 0.5 })]];
+      const R = rng(29);
+      for (let i = 0; i < 6; i++) { const a = i * 1.1, r = 0.06 + (i % 3) * 0.08, x = Math.cos(a) * r, z = Math.sin(a) * r; p.push([ball(0.06, x, 0.12, z, 14).scale(1, 1.25, 1).translate(0, -0.03, 0), C('acorn', '#a8703a', { roughness: 0.45 })]); p.push([new THREE.SphereGeometry(0.065, 14, 6, 0, TAU, 0, Math.PI / 2).translate(x, 0.15 + R() * 0.01, z), MATTE('acorncap', '#6a4a2a')]); }
+      return group(p);
+    },
+    // Fjord of the Longships: a toy longship, a little runestone and a round shield
+    longship: () => {
+      const hull = new THREE.CylinderGeometry(0.16, 0.16, 0.9, 16, 4, true, Math.PI / 2, Math.PI), hp = hull.attributes.position;
+      for (let i = 0; i < hp.count; i++) { const t = hp.getY(i) / 0.45, f = Math.cos(t * Math.PI / 2) * 0.9 + 0.1; hp.setX(i, hp.getX(i) * f); hp.setZ(i, hp.getZ(i) * f); }
+      hull.rotateZ(Math.PI / 2); hull.computeVertexNormals(); hull.translate(0, 0.2, 0);
+      return group([
+        [hull, C('shipwood', '#6a4626', { roughness: 0.6, side: THREE.DoubleSide })],
+        ...[-1, 1].map((sd) => [K.tube([[sd * 0.43, 0.2, 0], [sd * 0.5, 0.33, 0], [sd * 0.46, 0.42, 0], [sd * 0.4, 0.4, 0]], 0.02, { segs: 10, radial: 6 }), C('shipwood', '#6a4626', { roughness: 0.6, side: THREE.DoubleSide })]),
+        [new THREE.CylinderGeometry(0.012, 0.012, 0.5, 6).translate(0, 0.42, 0), MATTE('mast', '#5a3a1e')],
+        [new THREE.PlaneGeometry(0.4, 0.3).translate(0, 0.5, 0.01), C('sail', '#e8dcc0', { side: THREE.DoubleSide, roughness: 0.8, map: TEX.stone('#c83a2a', '#e8dcc0', { scale: 1 }) })],
+        ...[-0.24, -0.08, 0.08, 0.24].map((x) => [new THREE.CylinderGeometry(0.045, 0.045, 0.012, 12).rotateX(Math.PI / 2).translate(x, 0.24, 0.12), MAT.gold()]),
+      ]);
+    },
+    runestone: () => group([
+      [new THREE.CylinderGeometry(0.16, 0.22, 0.6, 6).scale(1, 1, 0.5).translate(0, 0.3, 0), MATTE('rstone', '#7a7a76')],
+      ...[0, 1, 2, 3].map((i) => [new THREE.BoxGeometry(0.02, 0.07, 0.01).rotateZ(i % 2 ? 0.5 : 0).translate(0, 0.14 + i * 0.1, 0.11), C('runeglow', '#9ae0ff', { emissive: '#3ab8ff', emissiveIntensity: 1.4 })]),
+    ]),
+    shieldprop: () => {
+      const g = new THREE.CylinderGeometry(0.34, 0.34, 0.05, 32).translate(0, 0.03, 0);
+      return group([[g, C('shieldblue', '#22346a', { roughness: 0.5 })], [K.ring(0.34, 0.055, 0.02), MAT.gold()], [ball(0.08, 0, 0.06, 0, 16).scale(1, 0.5, 1), MAT.gold()],
+        ...[0, 1, 2, 3].map((i) => [new THREE.BoxGeometry(0.62, 0.012, 0.03).rotateY(i * Math.PI / 4).translate(0, 0.06, 0), MAT.gold()])]);
+    },
+    // Longhouse Gate: a carved dragon head from a ship's prow, and a loaf of bread on a board
+    dragonhead: () => {
+      const neck = []; for (let i = 0; i <= 12; i++) { const t = i / 12; neck.push([0, 0.08 + t * 0.5, Math.sin(t * 2.4) * 0.16]); }
+      return group([
+        [new THREE.BoxGeometry(0.44, 0.08, 0.3).translate(0, 0.04, 0), C('dwood', '#6a4626', { roughness: 0.6 })],
+        [K.tube(neck, 0.09, { segs: 24, radial: 10, radiusAt: (t) => K.mix(1, 0.75, t) }), C('dwood', '#6a4626', { roughness: 0.6 })],
+        [ball(0.11, 0, 0.62, 0.22, 16).scale(0.9, 0.9, 1.4).translate(0, 0.06, 0.1), C('dwood', '#6a4626', { roughness: 0.6 })],
+        ...[-1, 1].map((sd) => [new THREE.ConeGeometry(0.03, 0.14, 6).rotateX(-0.6).translate(sd * 0.06, 0.76, 0.18), C('dwood', '#6a4626', { roughness: 0.6 })]),
+        ...[-1, 1].map((sd) => [ball(0.02, sd * 0.07, 0.7, 0.33, 8), MAT.gold()]),
+      ]);
+    },
+    bread: () => group([
+      [new THREE.BoxGeometry(0.62, 0.05, 0.36).translate(0, 0.025, 0), C('breadboard', '#8a5a30', { roughness: 0.7 })],
+      [ball(0.2, -0.04, 0.1, 0, 20).scale(1.3, 0.55, 0.9), C('loaf', '#c88a48', { roughness: 0.6 })],
+      [ball(0.07, 0.2, 0.08, 0.08, 12).scale(1, 0.6, 1), C('cheesewheel', '#f0d070', { roughness: 0.5 })],
     ]),
     // Norse Fireside: an iron helmet with a nose guard, a drinking horn, nuts in a wooden bowl
     // and fat candles on a plank
