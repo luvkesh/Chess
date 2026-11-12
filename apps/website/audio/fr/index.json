@@ -2368,6 +2368,240 @@
      "text": "De l'autre, la forteresse des orques brille dans les collines en feu."
     }
    ]
+  },
+  "item-sets-fantasy": {
+   "text": "Certains jeux d'échecs semblent sortis d'un conte de fées. Fantasy Marble, c'est du marbre blanc comme la neige face au noir, entouré de rubans dorés, avec des couronnes tulipes, un fou qui tient une perle et des tours aux petites arcades. Il va avec Sculptor's Studio.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Certains jeux d'échecs semblent sortis d'un conte de fées."
+    },
+    {
+     "t": 3.02,
+     "text": "Fantasy Marble, c'est du marbre blanc comme la neige face au noir, entouré de rubans dorés, avec des couronnes tulipes, un fou qui tient une perle et des tours aux petites arcades."
+    },
+    {
+     "t": 11.54,
+     "text": "Il va avec Sculptor's Studio."
+    }
+   ]
+  },
+  "item-sets-sapphire": {
+   "text": "Les rois et les reines gardaient leurs saphirs pour les jours les plus spéciaux. Royal Ivory and Sapphire, c'est l'ivoire face au bleu profond, avec des couronnes dorées fermées, des tours à blason et une pierre bleue sur chaque pièce. Il va avec Sapphire Throne Room.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Les rois et les reines gardaient leurs saphirs pour les jours les plus spéciaux."
+    },
+    {
+     "t": 3.65,
+     "text": "Royal Ivory and Sapphire, c'est l'ivoire face au bleu profond, avec des couronnes dorées fermées, des tours à blason et une pierre bleue sur chaque pièce."
+    },
+    {
+     "t": 10.79,
+     "text": "Il va avec Sapphire Throne Room."
+    }
+   ]
+  },
+  "item-sets-navy": {
+   "text": "Ohé du bateau ! Royal Navy, c'est l'ivoire face au bleu marine, entouré de corde dorée et parsemé de rubis. Les rois portent une ancre sur leur couronne, les cavaliers portent des écharpes et les tours ont des hublots ronds. Il va avec Admiral's Cabin.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Ohé du bateau !"
+    },
+    {
+     "t": 1.45,
+     "text": "Royal Navy, c'est l'ivoire face au bleu marine, entouré de corde dorée et parsemé de rubis."
+    },
+    {
+     "t": 6.43,
+     "text": "Les rois portent une ancre sur leur couronne, les cavaliers portent des écharpes et les tours ont des hublots ronds."
+    },
+    {
+     "t": 11.83,
+     "text": "Il va avec Admiral's Cabin."
+    }
+   ]
+  },
+  "item-sets-opulent": {
+   "text": "Les émeraudes sont le trésor vert des rois. Opulent Emerald, c'est le crème face au vert profond, avec des rois à facettes, des fous à dôme en bulbe et des tours dont les fenêtres brillent d'or la nuit. Il va avec Emerald Observatory.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Les émeraudes sont le trésor vert des rois."
+    },
+    {
+     "t": 2.69,
+     "text": "Opulent Emerald, c'est le crème face au vert profond, avec des rois à facettes, des fous à dôme en bulbe et des tours dont les fenêtres brillent d'or la nuit."
+    },
+    {
+     "t": 9.96,
+     "text": "Il va avec Emerald Observatory."
+    }
+   ]
+  },
+  "item-sets-pagoda": {
+   "text": "Ce jeu raconte une histoire des montagnes brumeuses d'Orient. Dragon and Pagoda a des rois et des reines en longues robes de soie, des fous lotus, des cavaliers dragons aux cornes dorées et de petites tours pagodes aux fenêtres lumineuses. Il va avec Waterfall Pavilion.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Ce jeu raconte une histoire des montagnes brumeuses d'Orient."
+    },
+    {
+     "t": 3.27,
+     "text": "Dragon and Pagoda a des rois et des reines en longues robes de soie, des fous lotus, des cavaliers dragons aux cornes dorées et de petites tours pagodes aux fenêtres lumineuses."
+    },
+    {
+     "t": 11.71,
+     "text": "Il va avec Waterfall Pavilion."
+    }
+   ]
+  },
+  "item-boards-nero": {
+   "text": "Nero and Gold Vein met du marbre noir veiné d'or à côté d'un marbre blanc comme la neige, avec des arcs dorés tout autour du cadre. Il va avec Sculptor's Studio et Fantasy Marble.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Nero and Gold Vein met du marbre noir veiné d'or à côté d'un marbre blanc comme la neige, avec des arcs dorés tout autour du cadre."
+    },
+    {
+     "t": 6.94,
+     "text": "Il va avec Sculptor's Studio et Fantasy Marble."
+    }
+   ]
+  },
+  "item-boards-sapphire": {
+   "text": "Lapis and Ivory Gilt, c'est une pierre bleu profond et un ivoire chaud, avec de petits boucliers dorés tout autour d'un cadre bleu roi. Il va avec Sapphire Throne Room et Royal Ivory and Sapphire.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Lapis and Ivory Gilt, c'est une pierre bleu profond et un ivoire chaud, avec de petits boucliers dorés tout autour d'un cadre bleu roi."
+    },
+    {
+     "t": 6.79,
+     "text": "Il va avec Sapphire Throne Room et Royal Ivory and Sapphire."
+    }
+   ]
+  },
+  "item-boards-admiralty": {
+   "text": "Admiralty Blue, c'est l'ivoire et le bleu nuit dans un cadre de bois de navire brillant, avec une corde dorée et de minuscules ancres. Il va avec Admiral's Cabin et le jeu Royal Navy.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Admiralty Blue, c'est l'ivoire et le bleu nuit dans un cadre de bois de navire brillant, avec une corde dorée et de minuscules ancres."
+    },
+    {
+     "t": 6.52,
+     "text": "Il va avec Admiral's Cabin et le jeu Royal Navy."
+    }
+   ]
+  },
+  "item-boards-verdant": {
+   "text": "Verde Onyx, c'est du marbre vert et de l'onyx crémeux, avec des émeraudes étincelantes serties dans un cadre de noyer foncé. Il va avec Emerald Observatory et Opulent Emerald.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Verde Onyx, c'est du marbre vert et de l'onyx crémeux, avec des émeraudes étincelantes serties dans un cadre de noyer foncé."
+    },
+    {
+     "t": 6.31,
+     "text": "Il va avec Emerald Observatory et Opulent Emerald."
+    }
+   ]
+  },
+  "item-boards-scroll": {
+   "text": "Mountain Scroll, c'est l'ivoire et la laque noire dans un cadre rouge peint de nuages bouclés, de sommets dans la brume et de quatre petits soleils. Il va avec Waterfall Pavilion et Dragon and Pagoda.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Mountain Scroll, c'est l'ivoire et la laque noire dans un cadre rouge peint de nuages bouclés, de sommets dans la brume et de quatre petits soleils."
+    },
+    {
+     "t": 6.79,
+     "text": "Il va avec Waterfall Pavilion et Dragon and Pagoda."
+    }
+   ]
+  },
+  "item-places-studio": {
+   "text": "Tout en haut des montagnes de marbre blanc, l'atelier d'un sculpteur se remplit de la lumière du matin. Des blocs de marbre attendent sur la route en contrebas, une petite statue attend d'être finie, et Fantasy Marble joue ici sur Nero and Gold Vein.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Tout en haut des montagnes de marbre blanc, l'atelier d'un sculpteur se remplit de la lumière du matin."
+    },
+    {
+     "t": 5.07,
+     "text": "Des blocs de marbre attendent sur la route en contrebas, une petite statue attend d'être finie, et Fantasy Marble joue ici sur Nero and Gold Vein."
+    }
+   ]
+  },
+  "item-places-keep": {
+   "text": "Dans un château sur une montagne enneigée, la salle du trône bleu et or s'illumine quand les tours s'allument pour la soirée. Un sceptre repose sur son coussin, et Royal Ivory and Sapphire joue ici sur Lapis and Ivory Gilt.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Dans un château sur une montagne enneigée, la salle du trône bleu et or s'illumine quand les tours s'allument pour la soirée."
+    },
+    {
+     "t": 5.94,
+     "text": "Un sceptre repose sur son coussin, et Royal Ivory and Sapphire joue ici sur Lapis and Ivory Gilt."
+    }
+   ]
+  },
+  "item-places-admiral": {
+   "text": "À l'arrière d'un grand voilier se trouve la cabine du capitaine. La lune brille sur la mer, un phare clignote de l'autre côté de la baie, et le jeu Royal Navy joue ici sur Admiralty Blue.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "À l'arrière d'un grand voilier se trouve la cabine du capitaine."
+    },
+    {
+     "t": 3.37,
+     "text": "La lune brille sur la mer, un phare clignote de l'autre côté de la baie, et le jeu Royal Navy joue ici sur Admiralty Blue."
+    }
+   ]
+  },
+  "item-places-emeraldhall": {
+   "text": "Sur une colline verte se dresse une salle de marbre faite pour regarder les étoiles. Une lunette en laiton vise le ciel, le lierre pend aux fenêtres, et Opulent Emerald joue ici sur Verde Onyx.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Sur une colline verte se dresse une salle de marbre faite pour regarder les étoiles."
+    },
+    {
+     "t": 4.49,
+     "text": "Une lunette en laiton vise le ciel, le lierre pend aux fenêtres, et Opulent Emerald joue ici sur Verde Onyx."
+    }
+   ]
+  },
+  "item-places-pavilion": {
+   "text": "Un pavillon rouge fait face à une cascade qui gronde entre des montagnes brumeuses, avec des cerisiers en fleurs tout autour. Une lanterne de pierre brille, des carpes koï nagent dans un bol, et Dragon and Pagoda joue ici sur Mountain Scroll.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Un pavillon rouge fait face à une cascade qui gronde entre des montagnes brumeuses, avec des cerisiers en fleurs tout autour."
+    },
+    {
+     "t": 6.27,
+     "text": "Une lanterne de pierre brille, des carpes koï nagent dans un bol, et Dragon and Pagoda joue ici sur Mountain Scroll."
+    }
+   ]
   }
  }
 }
