@@ -754,8 +754,8 @@
     ['puzzles', 'puzzle'], ['training', 'improve'], ['collection', 'collection'], ['club', 'users'], ['profile', 'profile']];
   const navName = (k) => t('common.nav.' + k);
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
-  const SECTION = { era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play' };
-  const TAB_OF = { puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
+  const SECTION = { progress: 'training', era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play' };
+  const TAB_OF = { progress: 'learn', puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
   const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud', xiangqi: 'hud', xqlesson: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
@@ -2053,6 +2053,13 @@
       };
     });
   }
+  // The Training page's way into Progress: the rating now, its little line, and the record.
+  function progressTeaser() {
+    const V = PG.perfView(state.progress, 0), r = V.rating.slice(-20);
+    const spark = r.length >= 2 ? (() => { const lo = Math.min(...r.map((p) => p.v)), hi = Math.max(...r.map((p) => p.v)); return '<svg class="spark" viewBox="0 0 200 50" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" points="' + r.map((p, i) => (i / (r.length - 1) * 200).toFixed(1) + ',' + (46 - (p.v - lo) / Math.max(1, hi - lo) * 42).toFixed(1)).join(' ') + '"/></svg>'; })() : '';
+    return '<button class="pg-teaser glass" id="t-progress">' + skillIcon('advantage', 'pg-ic big') + '<span class="tx"><b>' + t('learn.pg.title') + '</b><small>' + t('learn.pg.teaser') + '</small></span>' +
+      '<span class="nums"><span><small>' + t('learn.pg.rating') + '</small><b>' + I18N.num(V.ratingNow) + '</b></span><span><small>' + t('learn.pg.games') + '</small><b>' + I18N.num(V.wdl.w) + '–' + I18N.num(V.wdl.d) + '–' + I18N.num(V.wdl.l) + '</b></span></span>' + spark + '<span class="go">' + icon('arrow') + '</span></button>';
+  }
   SCREENS.training = function () {
     idleBoard();
     const P = state.progress, set = equippedSet();
@@ -2060,6 +2067,7 @@
     const dojoStars = ENDGAMES.reduce((a, d) => a + (P.dojo[d.id] ? P.dojo[d.id].stars : 0), 0);
     mount('<div class="page"><div class="page-in">' + subnav('training') +
       pageHead(t('learn.sub.training'), t('learn.sub.training'), t('learn.trainingSub')) +
+      progressTeaser() +
       sec('play', t('learn.train')) +
       '<div class="lux-row three">' +
       lux({ id: 't-open', art: snap(VIGN.opening(set), 240, 150, medal('piece:b', '#2f4f8a', '#14243e')), title: t('learn.lab'), text: t('learn.labText', { n: OPENINGS.length, m: mastered }) }) +
@@ -2081,9 +2089,136 @@
     $('t-dojo').onclick = () => { AU.unlock(); AU.play('tap'); go('dojo'); };
     $('t-review').onclick = () => { AU.play('tap'); go('profile', 'games'); };
     $('t-coach').onclick = () => { AU.unlock(); AU.play('tap'); profileModal(); };
+    $('t-progress').onclick = () => { AU.unlock(); AU.play('tap'); go('progress'); };
     $('t-words').onclick = () => { AU.unlock(); AU.play('tap'); glossaryModal(); };
     return {};
   };
+
+  // ---------------------------------------------------------------- Progress over time
+  // The player's own dashboard: the practice rating, won / drawn / lost, and eight skills scored
+  // from Rooky's review of each game (progress.js perfView). Kept on this device; the dashed
+  // lines are the animal friends' strengths and Rooky's grade bars, never other players.
+  const SKILL_ART = { opening: ['n', '#2f4f8a', '#14243e'], tactics: ['q', '#7a3f9a', '#2e1440'], endgame: ['k', '#2f7a52', '#0f2e1d'], advantage: ['r', '#b07a22', '#4a2c08'],
+    resourcefulness: ['b', '#1f7f86', '#0b3236'], defence: ['p', '#4a5a8a', '#1a2140'], blunders: ['q', '#a8344e', '#3e0f1c'], time: ['k', '#8a6a2a', '#33240a'] };
+  const skillName = (id) => t('learn.pg.sk.' + id);
+  const skillIcon = (id, cls) => { const a = SKILL_ART[id]; return '<img class="' + (cls || 'pg-ic') + '" src="' + medal('piece:' + a[0], a[1], a[2]) + '" alt="">'; };
+  const signed = (n) => (n > 0 ? '+' : n < 0 ? '−' : '±') + I18N.num(Math.abs(n));
+  // A smooth line chart: pts [{v}], lines [{v, cls, label}]. Points are spread evenly by game.
+  function lineChart(pts, o) {
+    // past eight games the line is a three-game running average, so one odd game does not spike it
+    if (pts.length > 8) pts = pts.map((p, i) => { const w = pts.slice(Math.max(0, i - 1), i + 2); return { t: p.t, v: Math.round(w.reduce((a, q) => a + q.v, 0) / w.length) }; });
+    const W = o.w || 320, H = 150, L = 34, R = 30, T = 12, B = 24;
+    const vals = pts.map((p) => p.v).concat((o.lines || []).map((l) => l.v));
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    if (o.min !== undefined) lo = Math.min(lo, o.min);
+    if (o.max !== undefined) hi = Math.max(hi, o.max);
+    // four round grid lines: a tick that is a whole number of steps, covering the values with a margin
+    const step = o.step || 5, pad = (hi - lo) * 0.08 + step / 2;
+    const tick = step * Math.max(1, Math.ceil((hi - lo + 2 * pad) / 3 / step));
+    lo = Math.floor((lo - pad) / tick) * tick;
+    if (o.clamp) lo = Math.max(o.clamp[0], Math.min(lo, o.clamp[1] - 3 * tick));
+    hi = lo + 3 * tick;
+    const x = (i) => L + (pts.length < 2 ? (W - L - R) / 2 : i / (pts.length - 1) * (W - L - R));
+    const y = (v) => T + (1 - (v - lo) / Math.max(1, hi - lo)) * (H - T - B);
+    let grid = '';
+    for (let k = 0; k <= 3; k++) { const v = lo + (hi - lo) * k / 3, yy = y(v).toFixed(1); grid += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '"/><text class="ax" x="' + (L - 6) + '" y="' + (+yy + 3.5) + '" text-anchor="end">' + I18N.num(Math.round(v)) + '</text>'; }
+    const refs = (o.lines || []).map((l) => '<line class="ref ' + l.cls + '" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(l.v).toFixed(1) + '" y2="' + y(l.v).toFixed(1) + '"/>').join('');
+    let path = '';
+    if (pts.length >= 2) {
+      const P = pts.map((p, i) => [x(i), y(p.v)]);
+      path = 'M' + P[0][0].toFixed(1) + ' ' + P[0][1].toFixed(1);
+      for (let i = 0; i < P.length - 1; i++) {   // Catmull-Rom as cubic Béziers, kept inside the chart
+        const p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || p2;
+        const c1y = Math.max(T, Math.min(H - B, p1[1] + (p2[1] - p0[1]) / 6)), c2y = Math.max(T, Math.min(H - B, p2[1] - (p3[1] - p1[1]) / 6));
+        path += ' C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+      }
+    }
+    const last = pts[pts.length - 1], lx = x(pts.length - 1), ly = y(last.v);
+    const d0 = I18N.date(new Date(pts[0].t), { day: 'numeric', month: 'short' }), d1 = I18N.date(new Date(last.t), { day: 'numeric', month: 'short' });
+    return '<svg class="pg-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(o.label || '') + '">' + grid + refs +
+      (path ? '<path class="you" d="' + path + '"/>' : '') + '<circle class="dot" cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="4"/>' +
+      '<text class="val" x="' + Math.min(W - 4, lx + 6).toFixed(1) + '" y="' + (ly - 8).toFixed(1) + '" text-anchor="' + (lx > W - R - 2 ? 'end' : 'start') + '">' + I18N.num(last.v) + '</text>' +
+      '<text class="ax" x="' + L + '" y="' + (H - 6) + '">' + esc(d0) + '</text>' + (pts.length > 1 ? '<text class="ax" x="' + (W - R) + '" y="' + (H - 6) + '" text-anchor="end">' + esc(d1) + '</text>' : '') + '</svg>';
+  }
+  const legend = (items) => '<div class="pg-legend">' + items.map(([cls, text]) => '<span class="' + cls + '"><i></i>' + esc(text) + '</span>').join('') + '</div>';
+  // Won / drawn / lost as a ring with the total in the middle.
+  function wdlRing(w) {
+    const n = w.w + w.d + w.l, r = 46, C = 2 * Math.PI * r;
+    let at = 0;
+    const arc = (v, cls) => { if (!v) return ''; const len = v / n * C, gap = n > v ? 2 : 0; const s = '<circle class="' + cls + '" cx="60" cy="60" r="' + r + '" stroke-dasharray="' + Math.max(0.1, len - gap).toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-at).toFixed(2) + '"/>'; at += len; return s; };
+    return '<svg class="pg-ring" viewBox="0 0 120 120" aria-hidden="true"><g transform="rotate(-90 60 60)"><circle class="bg" cx="60" cy="60" r="' + r + '"/>' + arc(w.w, 'w') + arc(w.d, 'd') + arc(w.l, 'l') + '</g>' +
+      '<text x="60" y="62" text-anchor="middle" class="n">' + I18N.num(n) + '</text><text x="60" y="80" text-anchor="middle" class="u">' + esc(t('learn.pg.gamesWord')) + '</text></svg>';
+  }
+  // Practice for a skill: its trainer when the game has trainers, else its lesson or page.
+  function skillPractice(id) {
+    const p = PG.PRACTICE_FOR[id];
+    AU.unlock(); AU.play('tap');
+    if (p.trainer && SCREENS.trainer) return go('trainer', p.trainer);
+    if (p.screen) return go(p.screen);
+    if (p.lesson && lessonFor(p.lesson)) go('lesson', lessonFor(p.lesson));
+  }
+  const PERIODS = [7, 30, 0];
+  SCREENS.progress = function (arg) {
+    idleBoard();
+    const P = state.progress;
+    const days = PERIODS.includes(arg) ? arg : PERIODS.includes(state.settings.pgDays) ? state.settings.pgDays : 30;
+    const V = PG.perfView(P, days);
+    const periodBtns = '<div class="pg-period" role="group" aria-label="' + t('learn.pg.period') + '">' + PERIODS.map((d) => '<button data-days="' + d + '"' + (d === days ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>' + t('learn.pg.days.' + (d || 'all')) + '</button>').join('') + '</div>';
+    let body;
+    if (!PG.perfOf(P).games.length) {
+      body = '<section class="panel glass pg-empty">' + skillIcon('opening', 'pg-ic big') + '<p>' + t('learn.pg.none') + '</p><button class="btn primary" data-nav="play">' + icon('play') + ' ' + t('learn.pg.play') + '</button></section>';
+    } else {
+      const friend = (b) => b && t('learn.pg.friend', { name: persona(b.level).name, n: I18N.num(b.r) });
+      const rLines = [V.below && { v: V.below.r, cls: 'lo' }, V.above && { v: V.above.r, cls: 'hi' }].filter(Boolean);
+      const rPts = V.rating.length ? V.rating : [{ t: Date.now(), v: V.ratingNow }];
+      const badge = (n) => (n === null || n === undefined ? '' : '<span class="pg-badge ' + (n > 0 ? 'up' : n < 0 ? 'down' : '') + '" aria-label="' + t('learn.pg.change', { n: signed(n) }) + '">' + signed(n) + '</span>');
+      const top = '<div class="pg-top">' +
+        '<section class="pg-card glass pg-rating"><header><h3>' + t('learn.pg.rating') + '</h3>' + badge(V.rating.length ? V.ratingChange : null) + '</header>' +
+        lineChart(rPts, { w: innerWidth > 760 ? 520 : 320, lines: rLines, step: 50, label: t('learn.pg.rating') }) +
+        legend([['you', t('learn.pg.you', { n: I18N.num(V.ratingNow) })], V.below && ['lo', friend(V.below)], V.above && ['hi', friend(V.above)]].filter(Boolean)) +
+        '<p class="fine">' + t('learn.pg.ratingNote') + '</p></section>' +
+        '<section class="pg-card glass pg-games"><header><h3>' + t('learn.pg.games') + '</h3></header><div class="pg-wdl">' + wdlRing(V.wdl) +
+        '<dl><div class="w"><dt>' + t('learn.pg.won') + '</dt><dd>' + I18N.num(V.wdl.w) + '</dd></div><div class="d"><dt>' + t('learn.pg.drawn') + '</dt><dd>' + I18N.num(V.wdl.d) + '</dd></div><div class="l"><dt>' + t('learn.pg.lost') + '</dt><dd>' + I18N.num(V.wdl.l) + '</dd></div></dl></div>' +
+        (V.games.length ? '' : '<p class="fine">' + t('learn.pg.quiet') + '</p>') + '</section></div>';
+      const focus = V.focus ? '<section class="pg-focus glass">' + faceImg(COACH) + '<p>' + t('learn.pg.focus', { coach: esc(COACH.name), skill: '<b>' + esc(skillName(V.focus)) + '</b>' }) + '</p><button class="btn primary small" data-practice="' + V.focus + '">' + t('learn.pg.practice') + '</button></section>' : '';
+      const card = (k) => {
+        const lines = [{ v: PG.SKILL_LINES.strong, cls: 'hi' }, { v: PG.SKILL_LINES.solid, cls: 'lo' }];
+        const chart = k.pts.length ? lineChart(k.pts, { lines, step: 10, clamp: [0, 100], label: skillName(k.id) }) + legend([['you', t('learn.pg.you', { n: I18N.num(k.avg) })], ['hi', t('learn.pg.strong', { n: I18N.num(PG.SKILL_LINES.strong) })], ['lo', t('learn.pg.solid', { n: I18N.num(PG.SKILL_LINES.solid) })]])
+          : '<div class="pg-wait"><p>' + t(k.id === 'time' ? 'learn.pg.noClock' : 'learn.pg.noScore') + '</p></div>';
+        return '<section class="pg-card glass pg-skill"><header>' + skillIcon(k.id) + '<h3>' + esc(skillName(k.id)) + '</h3>' + badge(k.change) + '</header>' + chart +
+          '<div class="pg-acts"><button class="btn small" data-details="' + k.id + '">' + t('learn.pg.details') + '</button><button class="btn small primary" data-practice="' + k.id + '">' + t('learn.pg.practice') + '</button></div></section>';
+      };
+      body = top + focus + sec('chart', t('learn.pg.skills')) + '<p class="fine pg-sub">' + t('learn.pg.skillsSub') + '</p>' + '<div class="pg-grid">' + PG.SKILLS.map((id) => card(V.skills[id])).join('') + '</div>';
+    }
+    mount('<div class="page"><div class="page-in pg">' +
+      '<button class="backlink" data-nav="training">' + icon('back') + ' ' + t('learn.sub.training') + '</button>' +
+      pageHead(t('learn.sub.training'), t('learn.pg.title'), t('learn.pg.sub'), periodBtns) + body +
+      '<p class="fine pg-private">' + icon('lock') + ' ' + t('learn.pg.private') + '</p></div></div>');
+    wireLinks();
+    document.querySelectorAll('[data-days]').forEach((b) => { b.onclick = () => { AU.play('tap'); state.settings.pgDays = +b.dataset.days; save(); go('progress', +b.dataset.days); }; });
+    document.querySelectorAll('[data-practice]').forEach((b) => { b.onclick = () => skillPractice(b.dataset.practice); });
+    document.querySelectorAll('[data-details]').forEach((b) => { b.onclick = () => { AU.play('tap'); skillDetails(V.skills[b.dataset.details], days); }; });
+    return {};
+  };
+  // One skill up close: what it measures, the numbers, and the games behind it.
+  function skillDetails(k, days) {
+    const stat = (label, v) => '<div><small>' + label + '</small><b>' + (v === null || v === undefined ? '–' : I18N.num(v)) + '</b></div>';
+    const games = PG.perfOf(state.progress).games;
+    const recent = k.pts.slice(-6).reverse().map((p) => {
+      const e = games.find((x) => x.t === p.t) || {};
+      const who = e.m === 'a' ? persona(e.lv || 0) : null;
+      return '<li><span class="res ' + ({ w: 'win', d: 'draw', l: 'loss' }[e.res] || '') + '">' + t('learn.result.' + ({ w: 'win', d: 'draw', l: 'loss' }[e.res] || 'draw')) + '</span><span class="gr">' +
+        (who ? t('learn.vs', { name: esc(oppFull(who)) }) : t('learn.online')) + '<small>' + esc(I18N.date(new Date(p.t))) + '</small></span><b>' + I18N.num(p.v) + '</b></li>';
+    }).join('');
+    const tlog = PG.trainerLog && PG.PRACTICE_FOR[k.id].trainer ? PG.trainerLog(state.progress, PG.PRACTICE_FOR[k.id].trainer) : null;
+    const tBest = tlog && typeof tlog.best === 'number' ? '<p class="fine">' + t('learn.pg.trainerBest', { n: I18N.num(tlog.best) }) + '</p>' : '';
+    const m = modal('<div class="pg-det-h">' + skillIcon(k.id, 'pg-ic big') + '<div><div class="eyebrow">' + t('learn.pg.days.' + (days || 'all')) + '</div><h2>' + esc(skillName(k.id)) + '</h2></div></div>' +
+      '<p>' + t('learn.pg.what.' + k.id) + '</p>' +
+      '<div class="pf-stats">' + stat(t('learn.pg.avg'), k.avg) + stat(t('learn.pg.best'), k.best) + stat(t('learn.pg.last'), k.last) + stat(t('learn.pg.count'), k.pts.length) + '</div>' + tBest +
+      (recent ? '<div class="label set-h">' + t('learn.pg.recent') + '</div><ul class="pg-recent">' + recent + '</ul>' : '<p class="muted">' + t(k.id === 'time' ? 'learn.pg.noClock' : 'learn.pg.noScore') + '</p>') +
+      '<div class="row"><button class="btn" data-close>' + t('common.done') + '</button><button class="btn primary" id="pg-go">' + t('learn.pg.practice') + '</button></div>', { x: true, cls: 'narrow' });
+    m.querySelector('#pg-go').onclick = () => { m.close(); skillPractice(k.id); };
+  }
 
   // Endgame dojo: play known endgames against full-strength defence, scored against a par.
   SCREENS.dojo = function () {
@@ -2458,6 +2593,7 @@
       stat('swords', t('profile.stat.games'), st.games) + stat('trophy', t('profile.stat.wins'), st.wins) + stat('percent', t('profile.stat.rate'), rate) + stat('flame', t('profile.stat.streak'), P.streak.count) +
       stat('learn', t('profile.stat.lessons'), Object.keys(P.lessons).length) + stat('puzzle', t('profile.stat.puzzles'), st.puzzles.solved) + stat('chart', t('profile.stat.accuracy'), acc) + stat('collection', t('profile.stat.collected'), CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length) +
       '</section>' +
+      '<div class="row pg-link"><button class="btn" data-nav="progress">' + icon('chart') + ' ' + t('learn.pg.title') + '</button></div>' +
       sec('medal', t('profile.achievements'), t('collection.count', { n: got, of: PG.ACHIEVEMENTS.length })) +
       '<div class="ach">' + PG.ACHIEVEMENTS.map((a) => '<div class="badge' + (P.achievements[a.id] ? ' got' : '') + '"><i>' + (P.achievements[a.id] ? '★' : '☆') + '</i><div><b>' + esc(achName(a)) + '</b><small>' + esc(achDesc(a)) + '</small></div></div>').join('') + '</div>' +
       '<h2 class="sec" id="games">' + icon('refresh') + '<span>' + t('learn.recent') + '</span></h2>' +
@@ -4143,6 +4279,7 @@
     const meta = { side, result: G.g.outcome.result, timeTrouble: !!(G.clock && G.clock.base && G.timeStats.low) };
     const [rep, repE] = both('report', rv, G.g.startFen, G.g.uciMoves(), meta);
     G.report = rep; G.reportEn = repE;
+    perfFromReview(G, rv, rep, side);
     if (!G.profiled) {
       G.profiled = true;
       const mem = coachMem();
@@ -4151,6 +4288,26 @@
     }
     const box = document.getElementById('r-coach');
     if (box) fillReportBox(box, G);
+  }
+  // Performance over time: once a reviewed game's report is in, its eight skill scores are kept.
+  const timeOf = (G) => (G.clock && G.clock.base ? { trouble: !!G.timeStats.low, rushed: G.timeStats.rushed, slowEasy: G.timeStats.slowEasy } : null);
+  function perfFromReview(G, rv, rep, side) {
+    if (!G.perfAt || G.perfDone) return;
+    G.perfDone = true;
+    if (PG.perfSkills(state.progress, G.perfAt, PG.skillScores(rv, rep, side, timeOf(G)))) save();
+  }
+  // Games the coach does not review (coach off, online games) are still reviewed for the Progress
+  // page, quietly in the analysis worker once the game is over. Without workers it is skipped,
+  // so the table never stutters.
+  function perfReview(G) {
+    const g = G.g;
+    if (!workers.analysis || g.variant !== 'standard' || g.moves.length < 6) return;
+    if (coachOn(G) && CFG().post && g.moves.length >= 4) return;   // postGame reviews it
+    const side = G.human, fen = g.startFen, ucis = g.uciMoves();
+    job('analysis', { type: 'review', fen, moves: ucis, timeMs: 120 }, (r) => {
+      if (r.error || !r.review) return;
+      perfFromReview(G, r.review, M.report(r.review, fen, ucis, { side, result: g.outcome.result }), side);
+    });
   }
   // The coach's few lines on the result card.
   function fillReportBox(box, G) {
@@ -4188,8 +4345,10 @@
   function practiceGo(rec) {
     AU.unlock();
     if (rec.theme && PUZZLES.some((p) => p.themes.includes(rec.theme))) go('puzzle', { theme: rec.theme, rated: true, title: rec.text });
-    else if (rec.lesson && LESSONS.lessons.some((l) => l.id === rec.lesson)) go('lesson', rec.lesson);
+    else if (rec.lesson && lessonFor(rec.lesson)) go('lesson', lessonFor(rec.lesson));
   }
+  // A lesson id, or the lesson that took it over when Learn was regrouped (its "replaces" list).
+  const lessonFor = (id) => { const l = LESSONS.lessons.find((x) => x.id === id) || LESSONS.lessons.find((x) => (x.replaces || []).includes(id)); return l ? l.id : null; };
   // Online reactions: a short preset list, never typed text.
   const EMOTES = { hello: '👋', luck: '🍀', nice: '👍', wow: '😮', think: '🤔', gg: '🤝' };
   const emoteText = (k) => t('play.emote.' + k);
@@ -4283,8 +4442,10 @@
         mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
         plies: g.moves.length, sans: g.sans, firstIsMine: G.kind === 'local' ? true : (E.positionFrom(g.startFen, []).side === G.human), startFen: g.startFen, ucis: g.uciMoves(),
         enPassant: g.moves.some((m, i) => (E.mFlags(m) & E.F_EP) && (G.kind === 'local' || (i % 2 === 0) === (E.positionFrom(g.startFen, []).side === G.human))),
-        pgn: pgn(), color: G.human, variant: g.variant,
+        pgn: pgn(), color: G.human, variant: g.variant, oppRating: G.online && G.online.opponent ? G.online.opponent.rating : undefined,
       });
+      // Progress over time: the skills come from Rooky's review of the game, in the background.
+      if (res && res.perf) { G.perfAt = res.perf.t; perfReview(G); }
     }
     // Beating an era's champion completes that stage of the journey.
     const j = G.setup.journey, era = j && eraById(j.era);
