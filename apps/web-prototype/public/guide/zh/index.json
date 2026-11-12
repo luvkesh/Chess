@@ -39,6 +39,11 @@
   "voice": "zm_yunxi",
   "text": "我们来练习吧！选一项技能，我们一起练。"
  },
+ "trainers": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "十三个训练器，每个练一项国际象棋技能。选一个，来一轮快速练习吧！"
+ },
  "minis": {
   "who": "rooky",
   "voice": "zm_yunxi",
@@ -913,5 +918,70 @@
   "who": "rooky",
   "voice": "zm_yunxi",
   "text": "哪个棋子能过河？"
+ },
+ "lesson.open.openings": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "预备，出动！让我们像冠军一样开始每一盘棋。"
+ },
+ "lesson.open.time": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "滴答，滴答！我们来和棋钟交朋友吧。"
+ },
+ "lesson.open.resourcefulness": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "永不放弃！我们去找找困境里的秘密出口。"
+ },
+ "lesson.open.advantage": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "你领先了？太棒了！现在我们把胜利拿下。"
+ },
+ "lesson.open.endgame": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "只剩几个棋子了。这正是王变成英雄的时候！"
+ },
+ "lesson.open.tactics": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "妙招时间！我们用捉双、牵制和串击来抓棋子。"
+ },
+ "lesson.open.blunders": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来造一面魔法盾牌，挡住粗心的失误。"
+ },
+ "lesson.open.intuition": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们来训练你的国际象棋第六感！"
+ },
+ "lesson.open.three-sixty": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "我们把棋盘转一圈，偷看对手的计划。"
+ },
+ "lesson.open.retry": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "出错的时刻就是学习的时刻。我们一起来改正吧！"
+ },
+ "lesson.open.defences": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "举起盾牌！我们来学习在进攻下稳稳守住。"
+ },
+ "lesson.open.blindfold": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "闭上眼睛……开玩笑的！我们来训练你的棋局记忆力。"
+ },
+ "lesson.open.patterns": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "有些将杀太有名了，都有自己的名字。我们去认识它们吧！"
  }
 }

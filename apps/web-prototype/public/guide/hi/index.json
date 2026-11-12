@@ -39,6 +39,11 @@
   "voice": "hm_omega",
   "text": "चलिए अभ्यास करें! एक हुनर चुनें, और हम साथ मिलकर उस पर काम करेंगे।"
  },
+ "trainers": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "तेरह ट्रेनर, शतरंज के हर हुनर के लिए एक। एक चुनें और एक झटपट राउंड खेलें!"
+ },
  "minis": {
   "who": "rooky",
   "voice": "hm_omega",
@@ -913,5 +918,70 @@
   "who": "rooky",
   "voice": "hm_omega",
   "text": "कौन-सा मोहरा नदी पार कर सकता है?"
+ },
+ "lesson.open.openings": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "तैयार, निकलो! चलिए हर खेल चैंपियन की तरह शुरू करें।"
+ },
+ "lesson.open.time": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "टिक, टिक! चलिए घड़ी से दोस्ती करें।"
+ },
+ "lesson.open.resourcefulness": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कभी हार मत मानिए! चलिए मुश्किल हालात में छिपा रास्ता ढूँढें।"
+ },
+ "lesson.open.advantage": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आप जीत रहे हैं? शानदार! अब काम पूरा करते हैं।"
+ },
+ "lesson.open.endgame": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "बस कुछ मोहरे बचे हैं। यहीं राजा हीरो बनते हैं!"
+ },
+ "lesson.open.tactics": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चालाकी का समय! चलिए फ़ोर्क, पिन और स्क्यूअर से मोहरे पकड़ें।"
+ },
+ "lesson.open.blunders": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए छोटी-छोटी भूलों से बचने की जादुई ढाल बनाएँ।"
+ },
+ "lesson.open.intuition": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए आपकी शतरंज वाली छठी इंद्रिय को तेज़ करें!"
+ },
+ "lesson.open.three-sixty": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "चलिए बोर्ड घुमाएँ और विरोधी की योजना में झाँकें।"
+ },
+ "lesson.open.retry": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "उफ़ वाले पल सीखने के पल हैं। चलिए मिलकर उन्हें ठीक करें!"
+ },
+ "lesson.open.defences": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "ढाल ऊपर! चलिए हमले में मज़बूती से टिकना सीखें।"
+ },
+ "lesson.open.blindfold": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "आँखें बंद कीजिए... मज़ाक कर रहा हूँ! चलिए आपकी शतरंज याददाश्त तेज़ करें।"
+ },
+ "lesson.open.patterns": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "कुछ शह-मात इतनी मशहूर हैं कि उनके नाम हैं। चलिए उनसे मिलें!"
  }
 }

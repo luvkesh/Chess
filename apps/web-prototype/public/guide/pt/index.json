@@ -39,6 +39,11 @@
   "voice": "pm_alex",
   "text": "Vamos praticar! Escolha uma habilidade, e a gente treina junto."
  },
+ "trainers": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Treze treinos, um para cada habilidade do xadrez. Escolha um e jogue uma rodada rápida!"
+ },
  "minis": {
   "who": "rooky",
   "voice": "pm_alex",
@@ -913,5 +918,70 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Qual peça pode atravessar o rio?"
+ },
+ "lesson.open.openings": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Preparar, desenvolver! Vamos começar cada partida como campeões."
+ },
+ "lesson.open.time": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Tique, taque! Vamos fazer amizade com o relógio."
+ },
+ "lesson.open.resourcefulness": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Nunca desista! Vamos achar a saída secreta nas horas difíceis."
+ },
+ "lesson.open.advantage": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Está ganhando? Que demais! Agora vamos terminar o serviço."
+ },
+ "lesson.open.endgame": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Só restam algumas peças. É aqui que os reis viram heróis!"
+ },
+ "lesson.open.tactics": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Hora dos truques! Vamos pegar peças com garfos, cravadas e espetos."
+ },
+ "lesson.open.blunders": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Vamos construir um escudo mágico contra os deslizes bobos."
+ },
+ "lesson.open.intuition": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Vamos treinar seu sexto sentido no xadrez!"
+ },
+ "lesson.open.three-sixty": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Vamos girar o tabuleiro e espiar os planos do adversário."
+ },
+ "lesson.open.retry": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Momentos de ops são momentos de aprender. Vamos consertá-los juntos!"
+ },
+ "lesson.open.defences": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Escudos ao alto! Vamos aprender a resistir ao ataque."
+ },
+ "lesson.open.blindfold": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Feche os olhos... brincadeira! Vamos treinar sua memória de xadrez."
+ },
+ "lesson.open.patterns": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Alguns mates são tão famosos que têm nome. Vamos conhecê-los!"
  }
 }
