@@ -39,6 +39,11 @@
   "voice": "zm_yunxi",
   "text": "我们来练习吧！选一项技能，我们一起练。"
  },
+ "progress": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "这是你的进步！你下的每一局都会让这些线条更长。点一项技能上的“练习”，让它变得更强。"
+ },
  "minis": {
   "who": "rooky",
   "voice": "zm_yunxi",

@@ -81,6 +81,10 @@
       "who": "rooky",
       "text": "Let's practise! Pick a skill, and we'll work on it together."
     },
+    "progress": {
+      "who": "rooky",
+      "text": "Here is your progress! Every game you play adds to these lines. Tap Practice on a skill to make it stronger."
+    },
     "minis": {
       "who": "rooky",
       "text": "Mini-games are quick! Pick one, and beat your best score."
