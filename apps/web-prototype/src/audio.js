@@ -293,6 +293,21 @@ function ChacklateAudio() {
     // a warm Arabian (Hijaz) tune on a plucked string, above the clouds
     burj: { chords: [[38, 50, 57, 62, 66], [38, 50, 55, 62, 67], [36, 48, 55, 60, 63], [38, 50, 57, 62, 66]],
       scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'lyre', every: 8000 },
+    // a bright Lydian air on the celesta, among white marble
+    studio: { chords: [[41, 53, 60, 65, 69], [43, 55, 62, 67, 71], [41, 53, 60, 64, 69], [36, 48, 55, 60, 64]],
+      scale: [65, 67, 69, 71, 72, 74, 76, 77, 79, 81], voice: 'celesta', every: 8500 },
+    // a stately court air in D major, under the blue vaults
+    keep: { chords: [[38, 50, 57, 62, 66], [43, 55, 59, 62, 67], [45, 57, 61, 64, 69], [38, 50, 57, 62, 66]],
+      scale: [62, 64, 66, 67, 69, 71, 73, 74, 76, 78], voice: 'harpsichord', every: 8000 },
+    // a slow sea shanty in A minor, the ship rocking at anchor
+    admiral: { chords: [[33, 45, 52, 57, 60], [38, 50, 57, 62, 65], [40, 52, 56, 59, 64], [33, 45, 52, 57, 60]],
+      scale: [57, 59, 60, 62, 64, 65, 67, 69, 71, 72], voice: 'horn', every: 9000 },
+    // soft star-gazing bells in E minor
+    observatory: { chords: [[28, 40, 47, 52, 55], [36, 48, 55, 59, 64], [31, 43, 50, 55, 59], [35, 47, 54, 59, 63]],
+      scale: [64, 66, 67, 69, 71, 72, 74, 76, 78, 79], voice: 'harp', every: 9500 },
+    // a pentatonic tune on a plucked string by the falls
+    pavilion: { chords: [[31, 43, 50, 55, 62], [36, 48, 55, 60, 64], [33, 45, 52, 57, 64], [31, 43, 50, 55, 59]],
+      scale: [62, 64, 67, 69, 71, 74, 76, 79, 81, 83], voice: 'guzheng', every: 8000 },
   };
   let mood = MOODS.salon;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);

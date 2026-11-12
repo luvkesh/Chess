@@ -1163,6 +1163,11 @@ ChacklateElements.ROOMS = {
   sounion: { strike: 'lightning', storm: 'lightning' },
   saturn: { strike: 'lightning', storm: 'petals', petals: ['#ffffff', '#d8ecff', '#f4e0b0', '#a8c8ff'] },
   burj: { strike: 'fire', storm: 'petals', petals: ['#f4d27a', '#ffe8b0', '#ffffff', '#e8c06a'] },
+  studio: { strike: 'stone', storm: 'petals', petals: ['#ffffff', '#f2eee6', '#e8c06a', '#d8d4cc'], dust: '#f0ece4', stone: '#e8e4dc' },
+  keep: { strike: 'lightning', storm: 'petals', petals: ['#3a5ad8', '#8aa8ff', '#ffffff', '#e8c46a'] },
+  admiral: { strike: 'fire', storm: 'lightning' },
+  observatory: { strike: 'lightning', storm: 'petals', petals: ['#18a066', '#7cc4a0', '#ffe8a0', '#ffffff'] },
+  pavilion: { strike: 'fire', storm: 'petals', petals: ['#f4b8c8', '#ffd8e0', '#ffffff', '#e86a8a'] },
 };
 // every family has a capture strike and a win storm
 ChacklateElements.FAMILIES = ['fire', 'lightning', 'petals', 'stone', 'melt', 'freeze', 'fireworks', 'weld', 'vortex', 'burst', 'bloom'];

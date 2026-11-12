@@ -160,6 +160,59 @@ function ChacklateWorld(THREE, K) {
     g.stroke();
   }
 
+  // The newer bands, painted along all four sides of the frame between the gold lines:
+  // arcs (gold scallops), fleur (gilt shields), rope (a twisted gold rope with anchors),
+  // gems (emerald cabochons in gold collets) and clouds (cloud scrolls over little peaks).
+  function bandMotif(g, b, px) {
+    const ink = b.inlay, lo = shade(ink, -0.35), hi = shade(ink, 0.35);
+    const along = (fn, n) => { for (const s of [-1, 1]) for (const horiz of [true, false]) for (let i = 0; i < n; i++) { const u = -3.6 + (i + 0.5) * 7.2 / n; const [x, y] = horiz ? [px(u), px(s * 4.45)] : [px(s * 4.45), px(u)]; g.save(); g.translate(x, y); g.rotate(horiz ? (s > 0 ? Math.PI : 0) : (s > 0 ? Math.PI / 2 : -Math.PI / 2)); fn(i); g.restore(); } };
+    const gem = (r, col) => { const gr = g.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r); gr.addColorStop(0, shade(col, 0.6)); gr.addColorStop(0.5, col); gr.addColorStop(1, shade(col, -0.5)); g.beginPath(); g.arc(0, 0, r + 4, 0, TAU); g.fillStyle = ink; g.fill(); g.strokeStyle = lo; g.lineWidth = 2; g.stroke(); g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fillStyle = gr; g.fill(); g.beginPath(); g.arc(-r * 0.35, -r * 0.35, r * 0.22, 0, TAU); g.fillStyle = 'rgba(255,255,255,0.7)'; g.fill(); };
+    if (b.motif === 'arcs') {
+      g.strokeStyle = ink; g.lineWidth = 4;
+      along(() => { g.beginPath(); g.arc(0, 14, 22, Math.PI, TAU); g.stroke(); g.beginPath(); g.arc(0, 14, 12, Math.PI, TAU); g.stroke(); g.beginPath(); g.arc(0, -18, 4, 0, TAU); g.fillStyle = ink; g.fill(); }, 16);
+    }
+    if (b.motif === 'fleur') {
+      along((i) => {
+        if (i % 2) { g.beginPath(); g.arc(0, 0, 5, 0, TAU); g.fillStyle = ink; g.fill(); return; }
+        g.beginPath(); g.moveTo(-20, -24); g.lineTo(20, -24); g.lineTo(20, 2); g.quadraticCurveTo(20, 20, 0, 28); g.quadraticCurveTo(-20, 20, -20, 2); g.closePath();
+        g.fillStyle = ink; g.fill(); g.strokeStyle = lo; g.lineWidth = 2; g.stroke();
+        g.fillStyle = '#1c2c78'; g.beginPath(); g.moveTo(-14, -18); g.lineTo(14, -18); g.lineTo(14, 2); g.quadraticCurveTo(14, 14, 0, 21); g.quadraticCurveTo(-14, 14, -14, 2); g.closePath(); g.fill();
+        g.fillStyle = hi; g.beginPath(); g.moveTo(0, -14); g.quadraticCurveTo(6, -6, 0, 6); g.quadraticCurveTo(-6, -6, 0, -14); g.fill();
+        g.beginPath(); g.ellipse(-7, 0, 3, 7, 0.5, 0, TAU); g.ellipse(7, 0, 3, 7, -0.5, 0, TAU); g.fill(); g.fillRect(-9, 6, 18, 3);
+      }, 14);
+    }
+    if (b.motif === 'rope') {
+      along((i) => {
+        if (i % 6 === 3) {
+          g.strokeStyle = ink; g.lineWidth = 5; g.fillStyle = ink;
+          g.beginPath(); g.moveTo(0, -20); g.lineTo(0, 22); g.stroke(); g.beginPath(); g.moveTo(-10, -12); g.lineTo(10, -12); g.stroke();
+          g.beginPath(); g.arc(0, -25, 5, 0, TAU); g.stroke(); g.beginPath(); g.arc(0, 8, 16, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
+          return;
+        }
+        for (let k = -2; k <= 2; k++) { g.save(); g.translate(k * 9, 0); g.rotate(0.6); g.beginPath(); g.ellipse(0, 0, 4, 11, 0, 0, TAU); g.fillStyle = ink; g.fill(); g.strokeStyle = lo; g.lineWidth = 1.5; g.stroke(); g.restore(); }
+      }, 30);
+    }
+    if (b.motif === 'gems') {
+      along((i) => { if (i % 2) { g.beginPath(); g.moveTo(0, -8); g.lineTo(6, 0); g.lineTo(0, 8); g.lineTo(-6, 0); g.closePath(); g.fillStyle = ink; g.fill(); } else gem(12, '#1a9a62'); }, 14);
+      for (const sx of [-1, 1]) for (const sy of [-1, 1]) { g.save(); g.translate(px(sx * 4.45), px(sy * 4.45)); gem(20, '#18a066'); g.restore(); }
+    }
+    if (b.motif === 'clouds') {
+      along((i) => {
+        if (i % 2) {
+          g.fillStyle = rgba(ink, 0.55); g.beginPath(); g.moveTo(-26, 18); g.lineTo(-12, -6); g.lineTo(-4, 6); g.lineTo(8, -16); g.lineTo(26, 18); g.closePath(); g.fill();
+          return;
+        }
+        g.strokeStyle = ink; g.lineWidth = 4; g.lineCap = 'round';
+        g.beginPath(); g.arc(-10, 0, 10, Math.PI * 0.2, Math.PI * 1.9); g.stroke();
+        g.beginPath(); g.arc(-10, 0, 4, 0, TAU); g.stroke();
+        g.beginPath(); g.arc(10, 0, 10, Math.PI * 1.1, Math.PI * 0.8, true); g.stroke();
+        g.beginPath(); g.arc(10, 0, 4, 0, TAU); g.stroke();
+        g.lineCap = 'butt';
+      }, 14);
+      // a gold sun at each corner, as on a painted screen
+      for (const sx of [-1, 1]) for (const sy of [-1, 1]) { g.save(); g.translate(px(sx * 4.45), px(sy * 4.45)); g.beginPath(); g.arc(0, 0, 20, 0, TAU); g.fillStyle = '#c8301c'; g.fill(); g.strokeStyle = ink; g.lineWidth = 4; g.stroke(); g.restore(); }
+    }
+  }
   // ------------------------------------------------------------------ boards
   // field: how squares are painted; frame: the border's paint; inlay: line and lettering colour.
   const BOARDS = {
@@ -201,6 +254,16 @@ function ChacklateWorld(THREE, K) {
     meteor: { name: 'Meteorite & Ice', field: { type: 'marble', light: '#dce8f4', dark: '#2e3038', veinLight: '#8ab0d8', veinDark: '#8a8c98', marbleDark: { cloud: 0.35, strength: 0.55, freq: 4 } }, frame: { type: 'lacquer', color: '#0a0c18' }, inlay: '#7ae0ff', label: '#bfefff', rim: 'chrome', gloss: 0.15 },
     // Falcon & Pearl's: pearl white and night-sand blue with gold veins, in black lacquer and gold
     mirage: { name: 'Pearl & Night Sand', field: { type: 'marble', light: '#f2eadc', dark: '#1e2834', veinLight: '#d8c8a8', veinDark: '#c8a050' }, frame: { type: 'lacquer', color: '#0e0c0a' }, inlay: '#e0c070', label: '#f0dcae', rim: 'gold', gloss: 0.15 },
+    // Fantasy Marble's: Nero Marquina and statuary white, in a black marble frame laced with gold arcs
+    nero: { name: 'Nero & Gold Vein', field: { type: 'marble', light: '#f0ece4', dark: '#202024', veinLight: '#b4b0a8', veinDark: '#d8b468', marbleDark: { cloud: 0.4, strength: 0.6, freq: 3 } }, frame: { type: 'marble', color: '#18181c', vein: '#c8a050' }, inlay: '#e2bc6a', label: '#f4e0b0', rim: 'gold', gloss: 0.1, motif: 'arcs' },
+    // Royal Ivory & Sapphire's: lapis and ivory, with gilt shields along a deep blue frame
+    sapphire: { name: 'Lapis & Ivory Gilt', field: { type: 'lapis', light: '#f2ead8', dark: '#1e3488', veinLight: '#c8b898', marbleLight: { cloud: 0.4, strength: 0.18, freq: 1 } }, frame: { type: 'lacquer', color: '#0e1a4a' }, inlay: '#e8c46a', label: '#f6e6bc', rim: 'gold', gloss: 0.08, motif: 'fleur' },
+    // Royal Navy's: ivory and midnight blue, in a mahogany frame with a gold rope and anchors
+    admiralty: { name: 'Admiralty Blue', field: { type: 'lacquer', light: '#efe6d2', dark: '#16224a', seamGold: 'rgba(226,186,100,0.6)' }, frame: { type: 'wood', color: '#3a1a10', grainLight: '#6a3420' }, inlay: '#e2b860', label: '#f4e2b4', rim: 'gold', gloss: 0.12, motif: 'rope' },
+    // Opulent Emerald's: green marble and cream onyx, emerald cabochons set into a dark walnut frame
+    verdant: { name: 'Verde Onyx', field: { type: 'marble', light: '#efe6d0', dark: '#1d5a44', veinLight: '#c4b28e', veinDark: '#7cc4a0', marbleDark: { cloud: 0.45, strength: 0.65, freq: 3 } }, frame: { type: 'wood', color: '#24160e', grainLight: '#4a2e1c' }, inlay: '#dcb466', label: '#f2e2ba', rim: 'gold', gloss: 0.1, motif: 'gems' },
+    // Dragon & Pagoda's: ivory and black lacquer in a red frame with cloud scrolls and misty peaks
+    scroll: { name: 'Mountain Scroll', field: { type: 'lacquer', light: '#f0e6cc', dark: '#141012', seamGold: 'rgba(230,190,90,0.6)' }, frame: { type: 'lacquer', color: '#6e1410' }, inlay: '#e8c068', label: '#f6dc98', rim: 'gold', gloss: 0.1, motif: 'clouds' },
   };
   function frameTexture(b, side) {
     const N = 2048, c = canvas(N), g = c.getContext('2d');
@@ -302,6 +365,7 @@ function ChacklateWorld(THREE, K) {
         glyph(px(u), px(s * 4.45)); glyph(px(s * 4.45), px(u));
       }
     }
+    if (b.motif === 'arcs' || b.motif === 'fleur' || b.motif === 'rope' || b.motif === 'gems' || b.motif === 'clouds') bandMotif(g, b, px);
     // coordinates, as the player sees them; where a band or a busy stone runs under them each
     // one sits on a little tablet of its own, so the letters never get lost in the pattern
     g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -310,7 +374,7 @@ function ChacklateWorld(THREE, K) {
     for (let i = 0; i < 8; i++) {
       const write = (t, u, v, rot) => {
         g.save(); g.translate(px(u), px(v)); g.rotate(rot);
-        if (b.motif === 'meander' || b.motif === 'egypt' || b.motif === 'knot' || f.type === 'malachite') {
+        if (b.motif || f.type === 'malachite') {
           roundRect(g, -36, -36, 72, 72, 12); g.fillStyle = f.color; g.fill();
           g.strokeStyle = b.inlay; g.lineWidth = 3; g.stroke();
         }
@@ -1263,6 +1327,150 @@ function ChacklateWorld(THREE, K) {
         void R;
       },
     },
+    // ---- the five newer painted views (Fantasy Marble, Ivory & Sapphire, Royal Navy, Opulent Emerald, Dragon & Pagoda)
+    // White marble mountains above a quarry: cut terraces, blocks, and a cypress lane down to a sculptor's yard.
+    quarry: {
+      back(g, v, R) {
+        const peak = (pts, col, lit) => { poly(g, pts, col); if (lit) { g.globalAlpha = 0.35; poly(g, pts.slice(0, Math.ceil(pts.length / 2)).concat([[pts[Math.ceil(pts.length / 2) - 1][0], HZ]]), lit); g.globalAlpha = 1; } };
+        peak([[0, HZ], [0, HZ - 180], [180, HZ - 300], [330, HZ - 250], [520, HZ - 420], [700, HZ - 300], [880, HZ - 380], [1080, HZ - 260], [1260, HZ - 350], [1536, HZ - 200], [1536, HZ]], v.far, v.stone);
+        g.fillStyle = vgrad(g, HZ - 200, HZ, [rgba(v.haze, 0), rgba(v.haze, 0.5)]); g.fillRect(0, HZ - 200, VW, 200);
+        // the cut face: pale stepped terraces in the near mountain
+        poly(g, [[300, HZ], [420, HZ - 240], [620, HZ - 300], [880, HZ - 240], [1020, HZ]], shade(v.stone, -0.18));
+        for (let k = 0; k < 7; k++) { const y = HZ - 260 + k * 36, w = 200 + k * 60; g.fillStyle = shade(v.stone, 0.1 - (k % 2) * 0.12); g.fillRect(660 - w / 2, y, w, 30); g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(660 - w / 2, y + 26, w, 4); }
+        void R;
+      },
+      front(g, v, R) {
+        g.fillStyle = vgrad(g, HZ, VH, [shade(v.lawn, 0.1), shade(v.lawn, -0.4)]); g.fillRect(0, HZ, VW, VH - HZ);
+        // a white road and squared marble blocks waiting to be carved
+        poly(g, [[700, HZ], [836, HZ], [1100, VH], [440, VH]], shade(v.stone, -0.08));
+        for (let i = 0; i < 16; i++) {
+          const t = R(), y = HZ + 20 + t * t * 300, s = 14 + t * 60, x = R() < 0.5 ? 120 + R() * 420 : 1000 + R() * 420;
+          g.fillStyle = shade(v.stone, 0.05); g.fillRect(x, y - s, s * 1.4, s); g.fillStyle = shade(v.stone, -0.25); g.fillRect(x + s * 1.4, y - s, s * 0.4, s); g.fillStyle = shade(v.stone, 0.2); g.fillRect(x, y - s - s * 0.2, s * 1.4, s * 0.2);
+        }
+        for (let k = 0; k < 6; k++) { const t = k / 5, y = HZ + 20 + t * t * 260, h = 80 + t * 240, off = 160 + t * 360; cypress(g, 768 - off, y, h, v.dark, shade(v.dark, 0.25)); cypress(g, 768 + off, y, h, v.dark, shade(v.dark, 0.25)); }
+        void R;
+      },
+    },
+    // An alpine citadel at dusk: snow peaks, a white castle with blue spires and a gilded bridge.
+    citadel: {
+      back(g, v, R) {
+        hills(g, HZ - 120, 220, v.far, 51, 64);
+        for (const [x, h] of [[200, 330], [520, 400], [1180, 360], [1420, 300]]) { poly(g, [[x - 260, HZ], [x, HZ - h], [x + 260, HZ]], shade(v.far, -0.1)); poly(g, [[x - 70, HZ - h + 80], [x, HZ - h], [x + 70, HZ - h + 80], [x + 30, HZ - h + 66], [x, HZ - h + 90], [x - 30, HZ - h + 66]], v.snow); }
+        g.fillStyle = vgrad(g, HZ - 160, HZ, [rgba(v.haze, 0), rgba(v.haze, 0.6)]); g.fillRect(0, HZ - 160, VW, 170);
+        // the citadel on its rock
+        poly(g, [[560, HZ], [640, HZ - 140], [900, HZ - 150], [980, HZ]], shade(v.far, -0.35));
+        const tower = (x, w, h, y) => { g.fillStyle = v.stone; g.fillRect(x - w / 2, y - h, w, h); g.fillStyle = shade(v.stone, -0.3); g.fillRect(x + w * 0.2, y - h, w * 0.3, h); poly(g, [[x - w / 2 - 6, y - h], [x, y - h - w * 1.8], [x + w / 2 + 6, y - h]], v.roof); g.fillStyle = v.gold; g.fillRect(x - 1.5, y - h - w * 1.8 - 14, 3, 14); for (let k = 1; k < h / 30; k++) { g.fillStyle = rgba(v.glow, 0.85); g.fillRect(x - 3, y - h + k * 30 - 12, 6, 12); } };
+        g.fillStyle = v.stone; g.fillRect(640, HZ - 230, 260, 90);
+        for (let x = 650; x < 900; x += 26) { g.fillStyle = rgba(v.glow, 0.8); g.fillRect(x, HZ - 200, 8, 16); }
+        for (const [x, w, h, y] of [[660, 36, 150, HZ - 140], [770, 54, 230, HZ - 140], [880, 36, 140, HZ - 140], [715, 26, 120, HZ - 230], [830, 26, 110, HZ - 230]]) tower(x, w, h, y);
+        void R;
+      },
+      front(g, v, R) {
+        g.fillStyle = vgrad(g, HZ, VH, [shade(v.far, -0.3), v.dark]); g.fillRect(0, HZ, VW, VH - HZ);
+        for (let i = 0; i < 40; i++) { const t = R(), y = HZ + 20 + t * 300, x = R() * VW; if (Math.abs(x - 768) < 200 + t * 300) continue; cypress(g, x, y, 40 + t * 120, shade(v.dark, 0.1), shade(v.dark, 0.3)); }
+        // a gilded bridge across the gorge
+        const by = HZ + 120; g.strokeStyle = v.gold; g.lineWidth = 6;
+        for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(560 + k * 210, by + 110, 100, Math.PI, 0); g.stroke(); }
+        g.fillStyle = v.stone; g.fillRect(440, by - 6, 660, 14);
+        for (let x = 450; x < 1100; x += 40) disc(g, x, by - 14, 4, rgba(v.glow, 0.9));
+        void R;
+      },
+    },
+    // The harbour at night: a moonlit sea, a lighthouse, and a tall ship with its lanterns lit.
+    harbour: {
+      back(g, v, R) {
+        hills(g, HZ, 40, v.far, 61, 56);
+        // the lighthouse on its headland
+        poly(g, [[1060, HZ], [1140, HZ - 60], [1300, HZ - 70], [1400, HZ]], shade(v.far, -0.25));
+        g.fillStyle = v.stone; poly(g, [[1200, HZ - 66], [1210, HZ - 240], [1244, HZ - 240], [1254, HZ - 66]], v.stone);
+        for (let k = 0; k < 3; k++) { g.fillStyle = v.red; g.fillRect(1206 + k * 1.2, HZ - 210 + k * 52, 44 - k * 2.4, 20); }
+        g.fillStyle = v.dark; g.fillRect(1196, HZ - 262, 62, 22); poly(g, [[1196, HZ - 262], [1227, HZ - 290], [1258, HZ - 262]], v.dark);
+        disc(g, 1227, HZ - 251, 9, v.glow); glow(g, 1227, HZ - 251, 120, v.glow, 0.45);
+        g.fillStyle = rgba(v.glow, 0.14); poly(g, [[1227, HZ - 251], [700, HZ - 330], [700, HZ - 220]], rgba(v.glow, 0.12));
+        void R;
+      },
+      front(g, v, R) {
+        reflect(g, HZ, VH, v.water, 0.45);
+        // the moon's road on the water
+        for (let i = 0; i < 70; i++) { const y = HZ + 6 + Math.pow(R(), 1.5) * (VH - HZ), w = 10 + (y - HZ) * 0.3; g.fillStyle = rgba(v.lit, 0.35 * R()); g.fillRect(v.moonX - w / 2 + (R() - 0.5) * (y - HZ) * 0.3, y, w, 2 + (y - HZ) / 140); }
+        // a tall ship: hull, three masts, square sails, lit stern windows
+        const sx = 480, sy = HZ + 6;
+        poly(g, [[sx - 210, sy - 40], [sx + 230, sy - 46], [sx + 190, sy + 10], [sx - 170, sy + 10]], v.hull);
+        g.fillStyle = v.gold; g.fillRect(sx - 200, sy - 30, 420, 4);
+        for (let x = sx - 170; x < sx + 180; x += 26) { g.fillStyle = rgba(v.glow, 0.9); g.fillRect(x, sy - 22, 8, 7); }
+        for (const [mx, h] of [[sx - 120, 230], [sx, 270], [sx + 120, 220]]) {
+          g.fillStyle = v.hull; g.fillRect(mx - 3, sy - 40 - h, 6, h);
+          for (let k = 0; k < 3; k++) { const w = 120 - k * 26, y = sy - 70 - k * (h / 3.4); g.fillStyle = shade(v.sail, -k * 0.06); g.beginPath(); g.moveTo(mx - w / 2, y - 50); g.quadraticCurveTo(mx, y - 40, mx + w / 2, y - 50); g.lineTo(mx + w / 2 - 6, y); g.quadraticCurveTo(mx, y + 10, mx - w / 2 + 6, y); g.closePath(); g.fill(); }
+        }
+        g.strokeStyle = rgba(v.sail, 0.5); g.lineWidth = 1.2; g.beginPath(); g.moveTo(sx + 230, sy - 46); g.lineTo(sx + 120, sy - 260); g.moveTo(sx - 210, sy - 40); g.lineTo(sx - 120, sy - 270); g.stroke();
+        disc(g, sx + 236, sy - 50, 6, v.glow); glow(g, sx + 236, sy - 50, 40, v.glow, 0.5);
+        void R;
+      },
+    },
+    // Dusk over green hills from a hilltop observatory: a crescent moon, a dome on the next hill, ivy and lamps.
+    ivyhills: {
+      back(g, v, R) {
+        hills(g, HZ - 70, 150, v.far, 71, 60);
+        g.fillStyle = vgrad(g, HZ - 150, HZ, [rgba(v.haze, 0), rgba(v.haze, 0.55)]); g.fillRect(0, HZ - 150, VW, 160);
+        hills(g, HZ - 10, 90, shade(v.far, -0.25), 73, 54);
+        // an observatory dome on the next hill
+        const cx = 1100, y = HZ - 80;
+        g.fillStyle = v.stone; g.fillRect(cx - 60, y - 50, 120, 50);
+        const gr = g.createRadialGradient(cx - 20, y - 90, 4, cx, y - 60, 80); gr.addColorStop(0, shade(v.copper, 0.35)); gr.addColorStop(1, shade(v.copper, -0.3));
+        g.fillStyle = gr; g.beginPath(); g.ellipse(cx, y - 50, 64, 56, 0, Math.PI, 0); g.fill();
+        g.fillStyle = v.dark; g.fillRect(cx - 8, y - 104, 16, 54);
+        for (const dx of [-40, 0, 40]) { g.fillStyle = rgba(v.glow, 0.85); g.fillRect(cx + dx - 6, y - 36, 12, 20); }
+        void R;
+      },
+      front(g, v, R) {
+        g.fillStyle = vgrad(g, HZ, VH, [shade(v.far, -0.4), v.dark]); g.fillRect(0, HZ, VW, VH - HZ);
+        for (let i = 0; i < 26; i++) { const t = R(); blobTree(g, R() * VW, HZ + 40 + t * 260, 18 + t * 40, shade(v.dark, 0.12 + R() * 0.1), R); }
+        // a lamplit path winding down
+        g.strokeStyle = rgba(v.stone, 0.5); g.lineWidth = 10; g.beginPath(); g.moveTo(1100, HZ - 20); g.bezierCurveTo(900, HZ + 80, 1100, HZ + 200, 760, VH); g.stroke();
+        for (const [x, y] of [[1040, HZ + 30], [960, HZ + 100], [1000, HZ + 170], [900, HZ + 260]]) { disc(g, x, y, 5, v.glow); glow(g, x, y, 34, v.glow, 0.5); }
+        // ivy hanging into the top of the view
+        for (let i = 0; i < 40; i++) { const x = R() * VW, len = 60 + R() * 140; for (let k = 0; k < len; k += 12) { g.fillStyle = shade(v.ivy, (R() - 0.5) * 0.3); g.beginPath(); g.ellipse(x + Math.sin(k * 0.1) * 6, k, 7, 5, R(), 0, TAU); g.fill(); } }
+        void R;
+      },
+    },
+    // A waterfall between misty peaks: pagodas on the cliffs, cherry blossom and a moon bridge.
+    falls: {
+      back(g, v, R) {
+        // far karst peaks, tall and round-topped, fading into the mist
+        const karst = (x, w, h, col) => { g.fillStyle = col; g.beginPath(); g.moveTo(x - w, HZ + 10); g.bezierCurveTo(x - w * 0.9, HZ - h * 0.7, x - w * 0.6, HZ - h, x, HZ - h); g.bezierCurveTo(x + w * 0.6, HZ - h, x + w * 0.9, HZ - h * 0.7, x + w, HZ + 10); g.fill(); };
+        const r = rng(81);
+        for (let k = 0; k < 14; k++) karst(r() * VW, 50 + r() * 60, 160 + r() * 200, shade(v.far, 0.1 + r() * 0.15));
+        g.fillStyle = vgrad(g, HZ - 220, HZ, [rgba(v.mist, 0), rgba(v.mist, 0.85)]); g.fillRect(0, HZ - 220, VW, 230);
+        for (let k = 0; k < 10; k++) karst(r() * VW, 60 + r() * 70, 120 + r() * 160, shade(v.far, -0.15 - r() * 0.1));
+        g.fillStyle = vgrad(g, HZ - 120, HZ, [rgba(v.mist, 0), rgba(v.mist, 0.7)]); g.fillRect(0, HZ - 120, VW, 130);
+        // two great green cliffs with the falls between them
+        const cliff = (x0, x1, top, lean) => {
+          const grd = g.createLinearGradient(x0, 0, x1, 0); grd.addColorStop(0, shade(v.cliff, 0.25)); grd.addColorStop(1, shade(v.cliff, -0.25));
+          g.fillStyle = grd; g.beginPath(); g.moveTo(x0, HZ + 10); g.bezierCurveTo(x0 - 20, HZ - top * 0.5, x0 + lean, HZ - top, (x0 + x1) / 2, HZ - top - 20); g.bezierCurveTo(x1 - lean, HZ - top, x1 + 20, HZ - top * 0.5, x1, HZ + 10); g.fill();
+          for (let k = 0; k < 40; k++) { const t = r(), x = x0 + 10 + r() * (x1 - x0 - 20), y = HZ - t * top * 0.9; if (y < HZ - top + 30) continue; g.globalAlpha = 0.55; disc(g, x, y, 3 + r() * 5, shade(v.pine, 0.2 + (r() - 0.5) * 0.2)); g.globalAlpha = 1; }
+        };
+        cliff(430, 730, 400, 40); cliff(810, 1120, 440, 30);
+        g.fillStyle = vgrad(g, HZ - 400, HZ, [rgba(v.water, 0.95), rgba('#ffffff', 0.98)]);
+        g.beginPath(); g.moveTo(724, HZ - 400); g.lineTo(816, HZ - 410); g.lineTo(830, HZ + 10); g.lineTo(712, HZ + 10); g.closePath(); g.fill();
+        g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 2; for (let x = 728; x < 822; x += 8) { g.beginPath(); g.moveTo(x, HZ - 400); g.lineTo(x + (x - 770) * 0.12, HZ); g.stroke(); }
+        glow(g, 770, HZ - 10, 200, '#ffffff', 0.6);
+        // little pagodas on the cliff tops
+        const pag = (cx, y, n, s) => { for (let k = 0; k < n; k++) { const w = (60 - k * 12) * s; g.fillStyle = v.body; g.fillRect(cx - w / 2, y - 18 * s, w, 18 * s); g.fillStyle = rgba(v.glow, 0.85); g.fillRect(cx - 3 * s, y - 14 * s, 6 * s, 10 * s); g.fillStyle = v.roof; g.beginPath(); g.moveTo(cx - w / 2 - 14 * s, y - 16 * s); g.quadraticCurveTo(cx, y - 34 * s, cx + w / 2 + 14 * s, y - 16 * s); g.lineTo(cx + w / 2, y - 22 * s); g.lineTo(cx - w / 2, y - 22 * s); g.closePath(); g.fill(); y -= 26 * s; } g.fillStyle = v.roof; g.fillRect(cx - 1.5 * s, y - 20 * s, 3 * s, 20 * s); };
+        pag(580, HZ - 392, 4, 1); pag(965, HZ - 432, 5, 1.1);
+        void R;
+      },
+      front(g, v, R) {
+        reflect(g, HZ, VH, v.pool, 0.4);
+        // a red moon bridge across the pool
+        const by = HZ + 160; g.strokeStyle = v.body; g.lineWidth = 14; g.beginPath(); g.ellipse(768, by, 300, 120, 0, Math.PI, 0); g.stroke();
+        g.strokeStyle = shade(v.body, 0.2); g.lineWidth = 4; g.beginPath(); g.ellipse(768, by - 26, 300, 120, 0, Math.PI, 0); g.stroke();
+        for (let k = -6; k <= 6; k++) { const a = Math.PI / 2 + k * 0.2, x = 768 - Math.cos(a) * 300, y = by - Math.sin(a) * 120; g.fillStyle = v.body; g.fillRect(x - 2, y - 26, 4, 26); }
+        // cherry blossom boughs at both sides
+        for (const side of [0, 1]) for (let i = 0; i < 90; i++) { const x = side ? VW - Math.pow(R(), 1.6) * 420 : Math.pow(R(), 1.6) * 420, y = HZ - 260 + R() * 360; g.fillStyle = rgba(R() < 0.5 ? v.blossom : shade(v.blossom, 0.3), 0.75); g.beginPath(); g.arc(x, y, 6 + R() * 12, 0, TAU); g.fill(); }
+        g.strokeStyle = v.dark; g.lineWidth = 9; for (const [x0, x1] of [[0, 380], [VW, VW - 380]]) { g.beginPath(); g.moveTo(x0, HZ + 120); g.quadraticCurveTo((x0 + x1) / 2, HZ - 60, x1, HZ - 200); g.stroke(); }
+        void R;
+      },
+    },
   };
 
   // Water below the horizon: the sky and landmark mirrored, darkened and rippled.
@@ -1990,6 +2198,61 @@ function ChacklateWorld(THREE, K) {
       faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
       metal: 'gold', floor: 'octagon', lights: { hemi: 0.7, chand: 9, color: '#ffe0c0' },
       env: { wall: '#8a7a70', floor: '#7a7068', ceiling: '#4a4a84', key: '#fff0e0', keyI: 6.5, window: '#ffc8a0', windowI: 4, rim: '#ffb880', rimI: 5, lamp: '#ffc070', lampI: 6, fill: 0.9 },
+    },
+    // ---- five more painted-view rooms (each with its own board, set and table in suites3d.js)
+    studio: {
+      name: "Sculptor's Studio", era: 'A marble sculptor\'s studio above the white quarries of Carrara, about 1500',
+      palette: { wall: '#e4ddd0', paper: '#ece6da', paperInk: '#bdb4a2', wood: '#cfc6b4', trim: '#d0a450', floor: '#e2dbcf', floorDark: '#2a2a2e', floorLine: 'rgba(208,164,80,0.45)', table: '#1c1c20', inlay: '#e2bc6a',
+        rugBorder: '#18181c', rugField: '#efe8da', rugGold: '#d0a450', rugAccent: '#3a3a42', drape: '#e8e0d0', sky: ['#5a8ac8', '#8ab4e0', '#dce8f2', '#f6eee0'],
+        paintSky: ['#8ab4e0', '#dce8f2', '#f6eee0'], paintLand: '#6a7a5a', fog: '#a8a090', hemi: ['#fff6ea', '#6a6252'], ceiling: '#d8d0c2', dado: '#2a2a2e' },
+      faces: ['window', 'window', 'niche', 'painting', 'niche', 'fire', 'niche', 'painting', 'niche', 'painting', 'niche', 'window'],
+      wall: 'marble', column: { kind: 'classic', mat: 'marble', flutes: 20, color: '#1e1e22', vein: '#c8a050' }, window: { kind: 'arch', w: 4.6, h: 9.0, drape: true }, frieze: 'eggdart',
+      light: 'crystal', metal: 'gold', floor: 'octagon', vase: 'urn-gold', lights: { hemi: 0.6, chand: 8, fire: 0.6 }, fogDensity: 0.008,
+      view: { landmark: 'quarry', sun: [1200, 170, 40, '#fff4d8'], clouds: 7, cloud: '#ffffff', far: '#9aa4b4', stone: '#f2eee6', lawn: '#7a8a5a', dark: '#2e4a2a', haze: '#f6eee0' },
+      env: { wall: '#9a948a', floor: '#7a746a', ceiling: '#b0a898', key: '#fff6ea', keyI: 6, window: '#eaf2ff', windowI: 3.2, rim: '#fff0d8', rimI: 4, lamp: '#ffe0a8', lampI: 6, fill: 0.8 },
+    },
+    keep: {
+      name: 'Sapphire Throne Room', era: 'The blue throne room of a mountain citadel, at dusk',
+      palette: { wall: '#16245a', paper: '#1c2c6a', paperInk: '#c8a860', wood: '#f0e8d8', trim: '#e8c46a', floor: '#efe8da', floorDark: '#1c2e78', floorLine: 'rgba(232,196,106,0.5)', table: '#f0e8d8', inlay: '#e8c46a',
+        rugBorder: '#0e1a4a', rugField: '#1e3488', rugGold: '#e8c46a', rugAccent: '#f0e8d8', drape: '#1e3488', sky: ['#0e1638', '#2a3a7a', '#8a7aa8', '#e8b8a0'],
+        paintSky: ['#2a3a7a', '#8a7aa8', '#e8b8a0'], paintLand: '#2a3a4a', fog: '#0c1028', hemi: ['#e0e8ff', '#0c1028'], ceiling: '#0e1a4a', dado: '#f0e8d8' },
+      faces: ['window', 'window', 'mirror', 'painting', 'niche', 'fire', 'niche', 'painting', 'mirror', 'painting', 'mirror', 'window'],
+      wall: 'damask', column: { kind: 'classic', mat: 'marble', flutes: 16, color: '#f2ece0', vein: '#c8b898' }, window: { kind: 'pointed', w: 4.4, h: 8.8, drape: true }, frieze: 'floral',
+      light: 'crystal', metal: 'gold', floor: 'octagon', vase: 'porcelain', mirror: 'venetian', lights: { hemi: 0.55, chand: 14 },
+      view: { landmark: 'citadel', moon: [300, 150, 26, true], stars: 120, far: '#3a4a7a', snow: '#eef2fa', stone: '#e8e8f0', roof: '#1e3488', gold: '#e8c46a', glow: '#ffc870', dark: '#0a1024', haze: '#e8b8a0' },
+      env: { wall: '#2a3468', floor: '#5a5a6a', ceiling: '#1a2450', key: '#f0f4ff', keyI: 6, window: '#c8c8ff', windowI: 3, rim: '#ffe0b8', rimI: 5, lamp: '#ffc070', lampI: 9, fill: 0.7 },
+    },
+    admiral: {
+      name: "Admiral's Cabin", era: 'The great cabin at the stern of a flagship, at anchor on a moonlit night, about 1800',
+      palette: { wall: '#3a1e12', paper: '#4a2616', paperInk: '#5a3020', wood: '#3a1a10', trim: '#e2b860', floor: '#8a5a34', floorDark: '#2a160c', table: '#16224a', inlay: '#e2b860',
+        rugBorder: '#16224a', rugField: '#7a1a22', rugGold: '#e2b860', rugAccent: '#efe6d2', drape: '#16224a', sky: ['#02040e', '#0a1430', '#1a2a50', '#2a3a5a'],
+        paintSky: ['#0a1430', '#1a2a50', '#3a4a6a'], paintLand: '#0e1a2a', fog: '#0a0806', hemi: ['#d8e0ff', '#1a0e08'], ceiling: '#2a160c', dado: '#16224a' },
+      faces: ['window', 'window', 'window', 'painting', 'books', 'fire', 'books', 'painting', 'books', 'mirror', 'books', 'window'],
+      wall: 'panel', window: { kind: 'rect', w: 4.2, h: 6.8, drape: true, wood: true }, light: 'brass', metal: 'brass', floor: 'planks', vase: 'glass', mirror: 'venetian', lights: { hemi: 0.45, chand: 13, color: '#ffc080' },
+      view: { landmark: 'harbour', moon: [1000, 170, 34, false], moonX: 1000, stars: 280, far: '#0a1428', stone: '#e8e4dc', red: '#a82a22', dark: '#04060c', glow: '#ffd890', lit: '#fff0c8', water: '#0a1a34', hull: '#5a3018', sail: '#e8e0cc', gold: '#d8b060', haze: '#1a2a50' },
+      env: { wall: '#3a2216', floor: '#2a1a10', ceiling: '#2a160c', key: '#e8eeff', keyI: 5, window: '#a8b8ff', windowI: 2.8, rim: '#ffd8a8', rimI: 4.5, lamp: '#ffb050', lampI: 10, fill: 0.55 },
+    },
+    observatory: {
+      name: 'Emerald Observatory', era: 'A green marble observatory on a hilltop, as the first stars come out',
+      palette: { wall: '#123a2c', paper: '#18463a', paperInk: '#c8a860', wood: '#2a1a10', trim: '#dcb466', floor: '#e8e0cc', floorDark: '#1d5a44', floorLine: 'rgba(220,180,102,0.5)', table: '#24160e', inlay: '#dcb466',
+        rugBorder: '#0c2a20', rugField: '#1d5a44', rugGold: '#dcb466', rugAccent: '#7a1a2a', drape: '#0f3a2c', sky: ['#0a0e24', '#2a2a5a', '#8a6a8a', '#e8a888'],
+        paintSky: ['#2a2a5a', '#8a6a8a', '#e8a888'], paintLand: '#1a3a2a', fog: '#0a120e', hemi: ['#e8f0e0', '#0a120e'], ceiling: '#0c2a20', dado: '#24160e' },
+      faces: ['window', 'window', 'books', 'painting', 'books', 'fire', 'books', 'painting', 'books', 'painting', 'books', 'window'],
+      wall: 'marble', column: { kind: 'classic', mat: 'malachite' }, window: { kind: 'moon', w: 5.6, h: 5.6, y: 2.4 }, frieze: 'eggdart',
+      light: 'brass', metal: 'gold', floor: 'parquet', vase: 'urn-malachite', lights: { hemi: 0.5, chand: 13 },
+      view: { landmark: 'ivyhills', moon: [380, 160, 30, true], stars: 220, far: '#3a4a5a', stone: '#e8e0cc', copper: '#4a9a7a', glow: '#ffc870', ivy: '#1e5a34', dark: '#0a160e', haze: '#e8a888' },
+      env: { wall: '#1e4a3a', floor: '#4a4234', ceiling: '#0c2a20', key: '#f0fff4', keyI: 6, window: '#d8c8ff', windowI: 3, rim: '#ffe0b0', rimI: 4.5, lamp: '#ffc070', lampI: 9, fill: 0.65 },
+    },
+    pavilion: {
+      name: 'Waterfall Pavilion', era: 'A lacquered pavilion facing a mountain waterfall, in cherry-blossom time',
+      palette: { wall: '#efe6d6', paper: '#f0e8da', paperInk: '#d8c8a8', wood: '#3a0c08', trim: '#c8302a', floor: '#8a5a3a', floorDark: '#2a160c', table: '#141012', inlay: '#e8c068',
+        rugBorder: '#141012', rugField: '#e8c068', rugGold: '#7a1a14', rugAccent: '#1a3a5a', drape: '#e8c068', sky: ['#4a6a9a', '#a8c0d8', '#f0d8d8', '#f8ece4'],
+        paintSky: ['#a8c0d8', '#f0d8d8', '#f8ece4'], paintLand: '#4a5a4a', fog: '#1a0a08', hemi: ['#fff0e8', '#2a0a06'], ceiling: '#1a3a3a', dado: '#141012' },
+      faces: ['window', 'window', 'screen', 'niche', 'painting', 'fire', 'painting', 'niche', 'painting', 'niche', 'screen', 'window'],
+      wall: 'plaster', column: { kind: 'pillar', color: '#8a1a14' }, window: { kind: 'rect', w: 5.8, h: 8.6, bars: 'none' }, frieze: 'lotus', fire: 'brazier',
+      light: 'bronze', metal: 'gold', floor: 'planks', vase: 'porcelain', lights: { hemi: 0.75, chand: 12, color: '#ffd8b0' },
+      view: { landmark: 'falls', sun: [300, 180, 34, '#fff0e0'], clouds: 6, cloud: '#ffffff', far: '#8aa4b4', cliff: '#4a6a58', pine: '#1e3a2a', mist: '#f0e8f0', water: '#c8e0f0', pool: '#3a5a7a', body: '#a8241a', roof: '#2a1a14', glow: '#ffc060', blossom: '#f4b8c8', dark: '#2a1a14', haze: '#f8ece4' },
+      env: { wall: '#a89a88', floor: '#4a3020', ceiling: '#1a3a3a', key: '#fff4ec', keyI: 6.5, window: '#f0e0f0', windowI: 3.5, rim: '#ffd8c8', rimI: 4.5, lamp: '#ffa860', lampI: 9, fill: 0.75 },
     },
   };
   // A flat outline as a mesh with 0..1 UVs (or the given ranges).
