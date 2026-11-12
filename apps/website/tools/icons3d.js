@@ -232,6 +232,19 @@ function ChacklateIcons(THREE, K, P) {
     [-1, 1].forEach((d) => { const t = rbox(r * 0.42, r * 1.3, r * 0.14, r * 0.04, rib, d * r * 0.3, -r * 1.1, -r * 0.05); t.rotation.z = d * -0.22; g.add(t); });
     return g;
   }
+  // a small chequered board of n x m tiles in a gold frame, top at y = 0.12
+  function tiles(n, m, s, light, dark) {
+    const g = new THREE.Group();
+    g.add(rbox(n * s + 0.14, 0.08, m * s + 0.14, 0.03, M.gold(), 0, 0.04, 0));
+    for (let r = 0; r < m; r++) for (let c = 0; c < n; c++) g.add(rbox(s * 0.98, 0.05, s * 0.98, 0.015, M.enamel((r + c) % 2 ? dark : light), (c - (n - 1) / 2) * s, 0.095, (r - (m - 1) / 2) * s));
+    return g;
+  }
+  // a thick arrow pointing up its y axis
+  function arrowUp(mat, len) {
+    const s = new THREE.Shape(), w = 0.12, hw = 0.3, hl = 0.36;
+    s.moveTo(-w, 0); s.lineTo(w, 0); s.lineTo(w, len - hl); s.lineTo(hw, len - hl); s.lineTo(0, len); s.lineTo(-hw, len - hl); s.lineTo(-w, len - hl); s.closePath();
+    return extrude(s, 0.12, 0.03, mat);
+  }
   function sparkle(size, mat) {
     const s = extrude(star(4, size, size * 0.3), size * 0.3, size * 0.06, mat);
     return s;
@@ -576,6 +589,146 @@ function ChacklateIcons(THREE, K, P) {
       const gold = M.gold(), note = sph(0.13, gold, 0.95, 1.75, 0), stemN = rbox(0.05, 0.55, 0.05, 0.012, gold, 1.05, 2.0, 0), flag = rbox(0.24, 0.07, 0.05, 0.012, gold, 1.15, 2.24, 0); flag.rotation.z = -0.5; note.scale.set(1.2, 0.9, 1); note.rotation.z = 0.4;
       g.add(note, stemN, flag);
       return { group: g, up: 0.5 };
+    },
+    // ---- the Train section: one object per trainer, each in its own colour
+    'tr-openings'() {
+      // a pawn stepping forward off a little board corner, a gold arrow showing the way
+      const g = new THREE.Group();
+      g.add(tiles(3, 3, 0.5, '#f3e3c2', '#2f7a5a'));
+      const p = piece('p', 'w', 1.2, false); p.position.set(-0.1, 0.12, -0.05); g.add(p);
+      const a = arrowUp(M.lacquer('#ffb43a'), 0.9); a.position.set(0.55, 0.14, 0.32); a.rotation.set(-PI / 2, 0, 0); g.add(a);
+      const sp = sparkle(0.14, M.glow('#ffe08a', 1.3)); sp.position.set(-0.55, 1.1, 0.2); g.add(sp);
+      return { group: g, up: 0.42 };
+    },
+    'tr-time'() {
+      // an hourglass in a gold frame, teal sand running through
+      const g = new THREE.Group(), gold = M.gold();
+      g.add(cyl(0.72, 0.76, 0.16, gold, 0, 0.08, 0), cyl(0.72, 0.68, 0.16, gold, 0, 2.02, 0));
+      [0, 1, 2].forEach((i) => { const a = (i / 3) * TAU + 0.5; g.add(cyl(0.05, 0.05, 1.8, M.lacquer('#7a1424'), Math.cos(a) * 0.58, 1.05, Math.sin(a) * 0.58)); });
+      const bulb = lathe([[0.02, 0.18], [0.42, 0.24], [0.5, 0.5], [0.3, 0.86], [0.06, 1.05], [0.3, 1.24], [0.5, 1.6], [0.42, 1.86], [0.02, 1.92]], M.glass('#e8f6ff'));
+      g.add(bulb);
+      g.add(lathe([[0, 0.2], [0.4, 0.26], [0.44, 0.42], [0.2, 0.46], [0, 0.6]], M.lacquer('#2bc4b0')));
+      g.add(lathe([[0, 1.5], [0.36, 1.62], [0.44, 1.78], [0, 1.84]], M.lacquer('#2bc4b0')));
+      g.add(cyl(0.02, 0.02, 0.9, M.glow('#7ff0e0', 1.2), 0, 0.98, 0));
+      return { group: g, up: 0.5, pitch: 0.2 };
+    },
+    'tr-resource'() {
+      // a glowing bulb with a small gold knight inside: a bright idea when things look hard
+      const g = new THREE.Group();
+      g.add(cyl(0.34, 0.3, 0.4, M.gold(), 0, 0.2, 0));
+      [0.1, 0.22, 0.34].forEach((y) => { const r = torus(0.345, 0.03, M.goldBright()); r.rotation.x = PI / 2; r.position.y = y; g.add(r); });
+      const glass = lathe([[0.3, 0.4], [0.36, 0.55], [0.7, 1.0], [0.78, 1.35], [0.64, 1.75], [0.32, 1.95], [0.02, 2.0]], M.glass('#ffe9a8'));
+      g.add(glass);
+      const n = piece('n', 'w', 1.0, true); n.position.set(0, 0.42, 0); n.rotation.y = -0.6; g.add(n);
+      [[-0.95, 1.7], [0.95, 1.6], [-0.75, 2.15], [0.8, 2.1]].forEach(([x, y], i) => { const s = sparkle(i < 2 ? 0.14 : 0.09, M.glow('#ffe08a', 1.4)); s.position.set(x, y, 0.1); g.add(s); });
+      return { group: g, up: 0.5 };
+    },
+    'tr-advantage'() {
+      // steps climbing to a gold king: turn a lead into a win
+      const g = new THREE.Group();
+      const cols = ['#e8407a', '#b84fd8', '#3a7cf0', '#2bc4b0'];
+      cols.forEach((c, i) => { const h = 0.3 + i * 0.32; g.add(rbox(0.5, h, 0.8, 0.06, M.lacquer(c), -0.8 + i * 0.52, h / 2, 0)); });
+      const k = piece('k', 'w', 0.8, true); k.position.set(0.76, 1.26, 0); g.add(k);
+      const p = piece('p', 'b', 0.5, false); p.position.set(-0.8, 0.3, 0.05); g.add(p);
+      return { group: g, up: 0.5 };
+    },
+    'tr-endgame'() {
+      // a king walks his last pawn up the board, a little crown waiting above it
+      const g = new THREE.Group();
+      g.add(tiles(3, 3, 0.56, '#f6e7c8', '#7a3a8a'));
+      const k = piece('k', 'w', 1.05, false); k.position.set(-0.5, 0.12, 0.1); g.add(k);
+      const p = piece('p', 'w', 1.0, false); p.position.set(0.5, 0.12, -0.25); g.add(p);
+      const top = new THREE.Box3().setFromObject(p).max.y;
+      const c = crown(0.42, ['#ff3b5c', '#2fd4ff', '#ffd23b']); c.position.set(0.5, top + 0.12, -0.25); g.add(c);
+      const sp = sparkle(0.12, M.glow('#ffe08a', 1.3)); sp.position.set(0.95, top + 0.3, 0); g.add(sp);
+      return { group: g, up: 0.42 };
+    },
+    'tr-tactics'() {
+      // a gold knight struck by a lacquer lightning bolt
+      const g = new THREE.Group();
+      g.add(plinth(0.95, '#1d2f7a'));
+      const n = piece('n', 'w', 1.5, true); n.position.set(-0.2, 0.02, 0); n.rotation.y = -0.4; g.add(n);
+      const s = new THREE.Shape(); s.moveTo(0.1, 1); s.lineTo(-0.35, 0.05); s.lineTo(-0.02, 0.05); s.lineTo(-0.2, -0.9); s.lineTo(0.38, 0.22); s.lineTo(0.04, 0.22); s.lineTo(0.3, 1); s.closePath();
+      const bolt = extrude(s, 0.16, 0.04, M.lacquer('#ffc21a', { emissive: '#ff9a00', emissiveIntensity: 0.25 })); bolt.position.set(0.72, 1.35, 0.2); bolt.rotation.z = -0.12; g.add(bolt);
+      return { group: g, up: 0.5 };
+    },
+    'tr-blunder'() {
+      // a red lacquer shield with a gold check: look twice before you move
+      const g = new THREE.Group();
+      const sh = extrude(shield(), 0.22, 0.06, M.lacquer('#c4182e')); sh.position.y = 1.1; g.add(sh);
+      const rim = extrude(shield(), 0.12, 0.03, M.gold()); rim.scale.setScalar(1.08); rim.position.set(0, 1.1, -0.08); g.add(rim);
+      const ck = checkMark(M.gold(), 0.9); ck.position.set(0, 1.08, 0.2); g.add(ck);
+      g.add(rbox(1.4, 0.12, 0.6, 0.05, M.dark(), 0, 0.06, 0));
+      return { group: g, up: 0.5, flat: true };
+    },
+    'tr-intuition'() {
+      // a crystal ball on a gold stand, a gold knight inside and a violet glow
+      const g = new THREE.Group();
+      g.add(lathe([[0, 0], [0.6, 0], [0.62, 0.08], [0.42, 0.2], [0.3, 0.42], [0.46, 0.52], [0, 0.56]], M.gold()));
+      g.add(sph(0.78, M.glass('#c8a8ff'), 0, 1.25, 0));
+      const n = piece('n', 'w', 0.85, true); n.position.set(0, 0.62, 0); n.rotation.y = -0.4; g.add(n);
+      const halo = torus(0.5, 0.025, M.glow('#b890ff', 1.4)); halo.rotation.x = PI / 2 - 0.25; halo.position.y = 1.35; g.add(halo);
+      [[-0.95, 1.8], [0.9, 1.6], [0.62, 2.15]].forEach(([x, y], i) => { const s = sparkle(i ? 0.09 : 0.14, M.glow('#e8d8ff', 1.5)); s.position.set(x, y, 0.2); g.add(s); });
+      return { group: g, up: 0.5 };
+    },
+    'tr-360'() {
+      // a gold pawn inside two crossing orbit rings: see the board from every side
+      const g = new THREE.Group();
+      g.add(plinth(1.0, '#0e5a52'));
+      const p = piece('p', 'w', 1.35, true); p.position.y = 0.02; g.add(p);
+      const r1 = torus(0.92, 0.055, M.lacquer('#2bc4b0')); r1.position.y = 0.72; r1.rotation.set(PI / 2 - 0.42, 0, 0); g.add(r1);
+      const r2 = torus(0.92, 0.055, M.lacquer('#ff8a3a')); r2.position.y = 0.72; r2.rotation.set(PI / 2 + 0.42, 0, 0); r2.rotation.order = 'YXZ'; r2.rotation.y = PI / 2; g.add(r2);
+      g.add(sph(0.1, M.glow('#fff0b0', 1.4), 0.92, 0.72, 0), sph(0.08, M.glow('#fff0b0', 1.4), -0.3, 1.5, 0.3));
+      return { group: g, up: 0.45 };
+    },
+    'tr-retry'() {
+      // a curved arrow going round a pawn: try your mistakes again
+      const g = new THREE.Group();
+      g.add(plinth(0.9, '#4a1040'));
+      const p = piece('p', 'b', 1.3, false); p.position.y = 0.02; g.add(p);
+      const arc = torus(0.85, 0.09, M.lacquer('#e8407a'), PI * 1.55); arc.position.y = 0.95; arc.rotation.set(0, 0, 0.5); g.add(arc);
+      const head = cone(0.22, 0.4, M.lacquer('#e8407a')); const a = 0.5 + PI * 1.55; head.position.set(Math.cos(a) * 0.85, 0.95 + Math.sin(a) * 0.85, 0); head.rotation.z = a; g.add(head);
+      return { group: g, up: 0.5, flat: true, pitch: 0.18 };
+    },
+    'tr-defences'() {
+      // a gold rook behind a low wall of lacquer stones
+      const g = new THREE.Group();
+      const r = piece('r', 'w', 1.15, true); r.position.set(0, 0, -0.35); g.add(r);
+      const cols = ['#3a7cf0', '#2f5ac8', '#4a8af8'];
+      for (let i = 0; i < 4; i++) g.add(rbox(0.44, 0.3, 0.32, 0.06, M.lacquer(cols[i % 3]), -0.69 + i * 0.46, 0.15, 0.35));
+      for (let i = 0; i < 3; i++) g.add(rbox(0.44, 0.3, 0.32, 0.06, M.lacquer(cols[(i + 1) % 3]), -0.46 + i * 0.46, 0.46, 0.35));
+      return { group: g, up: 0.45 };
+    },
+    'tr-blindfold'() {
+      // a gold knight with a red velvet blindfold tied round its head: play it in your head
+      const g = new THREE.Group();
+      g.add(plinth(0.95, '#2a2a46'));
+      const n = piece('n', 'w', 1.45, true); n.rotation.y = -1.1; g.add(n); n.updateMatrixWorld(true);
+      // where the head is: the points in the top part of the knight
+      const top = new THREE.Box3().setFromObject(n).max.y, v = new THREE.Vector3(), hb = new THREE.Box3();
+      n.traverse((o) => { if (!o.isMesh) return; const a = o.geometry.attributes.position; for (let k = 0; k < a.count; k += 3) { v.fromBufferAttribute(a, k).applyMatrix4(o.matrixWorld); if (v.y > top * 0.66 && v.y < top * 0.8) hb.expandByPoint(v); } });
+      const c = hb.getCenter(new THREE.Vector3()), sz = hb.getSize(new THREE.Vector3());
+      const red = phys({ color: '#c8102e', roughness: 0.75, sheen: 1, sheenRoughness: 0.4, sheenColor: new THREE.Color('#ff9aa8'), side: THREE.DoubleSide });
+      const tie = new THREE.Group(); tie.position.set(c.x, top * 0.75, c.z); tie.rotation.z = -0.14; g.add(tie);
+      const rx = sz.x * 0.56, rz = sz.z * 0.56;
+      const band = mesh(new THREE.CylinderGeometry(1, 1, 1, 48, 1, true), red); band.scale.set(rx * 0.92, top * 0.09, rz * 0.92); tie.add(band);
+      [1, -1].forEach((d) => { const t = torus(1, 0.012, M.goldBright()); t.rotation.x = PI / 2; t.scale.set(rx * 0.92, rz * 0.92, 1); t.position.y = d * top * 0.045; tie.add(t); });
+      const bx = rx * 0.92, bz = rz * 0.3;
+      tie.add(tube([[bx, 0, bz], [bx + 0.16, -0.2, bz - 0.05], [bx + 0.1, -0.42, bz]], 0.04, red));
+      tie.add(tube([[bx, 0, bz], [bx + 0.26, -0.1, bz + 0.08], [bx + 0.32, -0.34, bz + 0.05]], 0.04, red));
+      return { group: g, up: 0.55 };
+    },
+    'tr-patterns'() {
+      // a little board whose squares light up in a mating pattern
+      const g = new THREE.Group();
+      g.add(rbox(1.9, 0.14, 1.9, 0.05, M.gold(), 0, 0.07, 0));
+      const lit = new Set([0, 4, 8, 6, 2]);
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+        const i = r * 3 + c, on = lit.has(i);
+        g.add(rbox(0.56, on ? 0.2 : 0.12, 0.56, 0.06, on ? M.lacquer(['#e8407a', '#b84fd8', '#2bc4b0', '#ffb43a', '#3a7cf0'][[0, 2, 4, 6, 8].indexOf(i)]) : M.enamel((r + c) % 2 ? '#3a2418' : '#f3e3c2'), -0.6 + c * 0.6, 0.14 + (on ? 0.1 : 0.06), -0.6 + r * 0.6));
+      }
+      const q = piece('q', 'w', 0.7, true); q.position.set(0, 0.34, 0); g.add(q);
+      return { group: g, up: 0.35 };
     },
     'fx-avatar'() { const g = new THREE.Group(); const k = piece('k', 'w', 1.3, true); k.rotation.y = -0.3; g.add(k); return { group: g, up: 0.5 }; },
     'fx-frame'() {
