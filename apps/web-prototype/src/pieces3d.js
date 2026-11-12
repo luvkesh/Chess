@@ -1043,7 +1043,7 @@ function ChacklatePieces(THREE, K) {
     p() {
       // a spearman in the striped headcloth, with a round shield marked with an ankh
       const P = new Piece(), y0 = templeBase(P, 0.27, 0.1), s = 0.64, A = at([0, y0, 0], s);
-      const body = new Sculpt(0.016, 1.1);
+      const body = new Sculpt(0.016, 1.45);
       body.floor = y0 - 0.004;
       body.pair((x) => body.cone(A(x * 0.05, 0, 0), A(x * 0.045, 0.3, 0), 0.04 * s, 0.05 * s, 0.02));
       body.ell(A(0, 0.55, 0.01), [0.1 * s, 0.14 * s, 0.07 * s], 0.04);
@@ -1056,7 +1056,7 @@ function ChacklatePieces(THREE, K) {
       P.lathe('body', profile(0, y0 + 0.2 * s).line(0.1 * s, y0 + 0.2 * s).line(0.11 * s, y0 + 0.24 * s).line(0.09 * s, y0 + 0.44 * s).line(0, y0 + 0.44 * s), { mod: MOD.flutes(16, 0.12, y0 + 0.21 * s, y0 + 0.42 * s, { end: 0.01 }) });
       P.add('trim', ring(0.09 * s, y0 + 0.44 * s, 0.012 * s));
       usekh(P, 0.035 * s, y0 + 0.69 * s, 0.065 * s);
-      nemes(P, c, 0.064 * s, { fine: 0.7 });
+      nemes(P, c, 0.064 * s, { fine: 1.05 });   // sixteen of them: coarser than the court's
       const sh = shield(0.17 * s, 0.03);
       for (const g of [sh.face, sh.rim, sh.boss]) g.translate(-0.1 * s, y0 + 0.5 * s, 0.14 * s);
       P.add('trim', merge([sh.face, sh.rim]));
@@ -3646,7 +3646,7 @@ function ChacklatePieces(THREE, K) {
       P.add('trim', ring(0.18, dy + 0.1, 0.007));
       const up = scallop(0.2, 1.15, 12); up.rotateX(-0.5); up.translate(0, dy + 0.07, -0.13);
       P.add('body', up);
-      P.add('pearl', sphere(0.105, 0, dy + 0.15, 0, 32));
+      P.add('pearl', sphere(0.105, 0, dy + 0.15, 0, 24));
       P.add('accent', placeAt(cabochon(0.016, 0.6), 0, 0.17, dy + 0.075));
       return P;
     },
