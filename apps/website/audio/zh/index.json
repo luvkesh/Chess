@@ -1994,6 +1994,240 @@
      "text": "Falcon and Pearl 在这里登场，配 Pearl and Night Sand 棋盘。"
     }
    ]
+  },
+  "item-sets-fantasy": {
+   "text": "有些棋子看起来就像从童话里走出来的。 Fantasy Marble 是雪白大理石对黑色，缠着金色丝带，有郁金香王冠、托着珍珠的象和带小拱门的车。 它和 Sculptor's Studio 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "有些棋子看起来就像从童话里走出来的。"
+    },
+    {
+     "t": 3.33,
+     "text": "Fantasy Marble 是雪白大理石对黑色，缠着金色丝带，有郁金香王冠、托着珍珠的象和带小拱门的车。"
+    },
+    {
+     "t": 10.97,
+     "text": "它和 Sculptor's Studio 是一套。"
+    }
+   ]
+  },
+  "item-sets-sapphire": {
+   "text": "国王和王后会把蓝宝石留到最特别的日子。 Royal Ivory and Sapphire 是象牙白对深蓝，有闭合的金色王冠、盾牌车，每枚棋子上都有一颗蓝宝石。 它和 Sapphire Throne Room 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "国王和王后会把蓝宝石留到最特别的日子。"
+    },
+    {
+     "t": 3.58,
+     "text": "Royal Ivory and Sapphire 是象牙白对深蓝，有闭合的金色王冠、盾牌车，每枚棋子上都有一颗蓝宝石。"
+    },
+    {
+     "t": 10.62,
+     "text": "它和 Sapphire Throne Room 是一套。"
+    }
+   ]
+  },
+  "item-sets-navy": {
+   "text": "船上的朋友们，你们好！ Royal Navy 是象牙白对海军蓝，缠着金绳，点缀着红宝石。 国王的王冠上有一只锚，马系着饰带，车上有圆圆的舷窗。 它和 Admiral's Cabin 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "船上的朋友们，你们好！"
+    },
+    {
+     "t": 1.97,
+     "text": "Royal Navy 是象牙白对海军蓝，缠着金绳，点缀着红宝石。"
+    },
+    {
+     "t": 6.47,
+     "text": "国王的王冠上有一只锚，马系着饰带，车上有圆圆的舷窗。"
+    },
+    {
+     "t": 11.02,
+     "text": "它和 Admiral's Cabin 是一套。"
+    }
+   ]
+  },
+  "item-sets-opulent": {
+   "text": "祖母绿是国王们的绿色珍宝。 Opulent Emerald 是奶白对深绿，有多面的国王、洋葱顶的象，还有窗户在夜里闪着金光的车。 它和 Emerald Observatory 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "祖母绿是国王们的绿色珍宝。"
+    },
+    {
+     "t": 2.41,
+     "text": "Opulent Emerald 是奶白对深绿，有多面的国王、洋葱顶的象，还有窗户在夜里闪着金光的车。"
+    },
+    {
+     "t": 9.12,
+     "text": "它和 Emerald Observatory 是一套。"
+    }
+   ]
+  },
+  "item-sets-pagoda": {
+   "text": "这套棋讲述了一个来自东方雾中群山的故事。 Dragon and Pagoda 有身穿长长丝袍的国王和王后、莲花象、长着金角的龙马，还有窗户发光的小宝塔车。 它和 Waterfall Pavilion 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "这套棋讲述了一个来自东方雾中群山的故事。"
+    },
+    {
+     "t": 3.82,
+     "text": "Dragon and Pagoda 有身穿长长丝袍的国王和王后、莲花象、长着金角的龙马，还有窗户发光的小宝塔车。"
+    },
+    {
+     "t": 11.43,
+     "text": "它和 Waterfall Pavilion 是一套。"
+    }
+   ]
+  },
+  "item-boards-nero": {
+   "text": "Nero and Gold Vein 把带金纹的黑色大理石和雪白大理石放在一起，金拱一圈围满整个边框。 它和 Sculptor's Studio 以及 Fantasy Marble 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Nero and Gold Vein 把带金纹的黑色大理石和雪白大理石放在一起，金拱一圈围满整个边框。"
+    },
+    {
+     "t": 6.6,
+     "text": "它和 Sculptor's Studio 以及 Fantasy Marble 是一套。"
+    }
+   ]
+  },
+  "item-boards-sapphire": {
+   "text": "Lapis and Ivory Gilt 是深蓝宝石和暖象牙色，皇家蓝边框四周有小小的金色盾牌。 它和 Sapphire Throne Room 以及 Royal Ivory and Sapphire 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Lapis and Ivory Gilt 是深蓝宝石和暖象牙色，皇家蓝边框四周有小小的金色盾牌。"
+    },
+    {
+     "t": 6.19,
+     "text": "它和 Sapphire Throne Room 以及 Royal Ivory and Sapphire 是一套。"
+    }
+   ]
+  },
+  "item-boards-admiralty": {
+   "text": "Admiralty Blue 是象牙白和午夜蓝，装在闪亮的船木边框里，配金绳和小小的锚。 它和 Admiral's Cabin 以及 Royal Navy 棋子是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Admiralty Blue 是象牙白和午夜蓝，装在闪亮的船木边框里，配金绳和小小的锚。"
+    },
+    {
+     "t": 5.93,
+     "text": "它和 Admiral's Cabin 以及 Royal Navy 棋子是一套。"
+    }
+   ]
+  },
+  "item-boards-verdant": {
+   "text": "Verde Onyx 是绿色大理石和奶油色缟玛瑙，深色胡桃木边框里镶着闪亮的祖母绿。 它和 Emerald Observatory 以及 Opulent Emerald 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Verde Onyx 是绿色大理石和奶油色缟玛瑙，深色胡桃木边框里镶着闪亮的祖母绿。"
+    },
+    {
+     "t": 6.14,
+     "text": "它和 Emerald Observatory 以及 Opulent Emerald 是一套。"
+    }
+   ]
+  },
+  "item-boards-scroll": {
+   "text": "Mountain Scroll 是红色边框里的象牙白和黑漆，画着卷卷的云、雾中的山峰和四个小太阳。 它和 Waterfall Pavilion 以及 Dragon and Pagoda 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Mountain Scroll 是红色边框里的象牙白和黑漆，画着卷卷的云、雾中的山峰和四个小太阳。"
+    },
+    {
+     "t": 6.68,
+     "text": "它和 Waterfall Pavilion 以及 Dragon and Pagoda 是一套。"
+    }
+   ]
+  },
+  "item-places-studio": {
+   "text": "在白色大理石山的高处，一间雕塑工作室洒满了晨光。 大理石块在下面的路上等着，一座小雕像等着完工，Fantasy Marble 在这里登场，配 Nero and Gold Vein 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "在白色大理石山的高处，一间雕塑工作室洒满了晨光。"
+    },
+    {
+     "t": 4.26,
+     "text": "大理石块在下面的路上等着，一座小雕像等着完工，Fantasy Marble 在这里登场，配 Nero and Gold Vein 棋盘。"
+    }
+   ]
+  },
+  "item-places-keep": {
+   "text": "在雪山上的城堡里，塔楼为夜晚亮起灯火，蓝金相间的王座大厅闪闪发光。 一根权杖放在软垫上，Royal Ivory and Sapphire 在这里登场，配 Lapis and Ivory Gilt 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "在雪山上的城堡里，塔楼为夜晚亮起灯火，蓝金相间的王座大厅闪闪发光。"
+    },
+    {
+     "t": 5.86,
+     "text": "一根权杖放在软垫上，Royal Ivory and Sapphire 在这里登场，配 Lapis and Ivory Gilt 棋盘。"
+    }
+   ]
+  },
+  "item-places-admiral": {
+   "text": "大帆船的船尾是船长的船舱。 月光洒在海面上，海湾对面的灯塔一闪一闪，Royal Navy 棋子在这里登场，配 Admiralty Blue 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "大帆船的船尾是船长的船舱。"
+    },
+    {
+     "t": 2.62,
+     "text": "月光洒在海面上，海湾对面的灯塔一闪一闪，Royal Navy 棋子在这里登场，配 Admiralty Blue 棋盘。"
+    }
+   ]
+  },
+  "item-places-observatory": {
+   "text": "绿色山顶上有一间专门用来看星星的大理石房间。 黄铜望远镜指向天空，常春藤垂在窗边，Opulent Emerald 在这里登场，配 Verde Onyx 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "绿色山顶上有一间专门用来看星星的大理石房间。"
+    },
+    {
+     "t": 4.17,
+     "text": "黄铜望远镜指向天空，常春藤垂在窗边，Opulent Emerald 在这里登场，配 Verde Onyx 棋盘。"
+    }
+   ]
+  },
+  "item-places-pavilion": {
+   "text": "一座红色楼阁望着雾中群山间轰鸣的瀑布，四周开满樱花。 石灯笼亮着，锦鲤在碗里游，Dragon and Pagoda 在这里登场，配 Mountain Scroll 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "一座红色楼阁望着雾中群山间轰鸣的瀑布，四周开满樱花。"
+    },
+    {
+     "t": 4.73,
+     "text": "石灯笼亮着，锦鲤在碗里游，Dragon and Pagoda 在这里登场，配 Mountain Scroll 棋盘。"
+    }
+   ]
   }
  }
 }

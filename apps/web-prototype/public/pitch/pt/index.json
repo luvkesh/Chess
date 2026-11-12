@@ -709,6 +709,31 @@
   "voice": "pm_alex",
   "text": "Areia branca perolada e areia escura como a noite, seladas sob vidro com borda dourada. Brilha como o deserto à noite."
  },
+ "d6619c9b": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Mármore preto com veios dourados ao lado de mármore branco como a neve. Arcos de ouro dão a volta em toda a moldura!"
+ },
+ "6da04235": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Lápis-lazúli azul profundo e marfim quente, com pequenos escudos dourados em volta da moldura. Parece um tesouro real."
+ },
+ "76f1811c": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Marfim e azul-meia-noite numa moldura de madeira de navio brilhante, envolta numa corda dourada com âncoras minúsculas."
+ },
+ "94d9e25e": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Mármore verde e ônix cremoso, com esmeraldas cintilantes cravadas numa moldura escura de nogueira."
+ },
+ "ba9f13c4": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Marfim e laca preta numa moldura vermelha pintada com nuvens encaracoladas, montanhas na névoa e quatro sóis pequenos."
+ },
  "5397a269": {
   "who": "rooky",
   "voice": "pm_alex",
@@ -798,5 +823,30 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "O topo do Burj Khalifa, o prédio mais alto do mundo. Estamos acima das nuvens!"
+ },
+ "799d9db4": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Um ateliê de escultor cheio de luz, no alto das montanhas de mármore branco. Olhe, uma estatueta está esperando para ser terminada!"
+ },
+ "b186a810": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Uma sala do trono azul e dourada num castelo na montanha. As torres estão se acendendo para a noite!"
+ },
+ "d2411cb8": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "A cabine do capitão, na popa de um grande veleiro. Você vê o farol piscando do outro lado da baía?"
+ },
+ "c2d986b6": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Uma sala de mármore verde numa colina, feita para olhar as estrelas. As primeiras estão aparecendo agora mesmo!"
+ },
+ "bc0d647d": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Um pavilhão vermelho diante de uma cascata que ruge, com cerejeiras em flor por todo lado. Escute a água!"
  }
 }

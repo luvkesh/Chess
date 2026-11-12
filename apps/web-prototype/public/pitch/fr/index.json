@@ -709,6 +709,31 @@
   "voice": "em_alex",
   "text": "Du sable blanc nacré et du sable noir comme la nuit, scellés sous verre avec un bord doré. Il scintille comme le désert la nuit."
  },
+ "820abd3f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre noir veiné d'or, à côté d'un marbre blanc comme la neige. Des arcs d'or font tout le tour du cadre !"
+ },
+ "9fd8447b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Lapis-lazuli bleu profond et ivoire chaud, avec de petits boucliers dorés tout autour du cadre. On dirait un trésor royal."
+ },
+ "16900de5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ivoire et bleu nuit dans un cadre de bois de navire brillant, entouré d'une corde dorée avec de minuscules ancres."
+ },
+ "46b23cb0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marbre vert et onyx crémeux, avec des émeraudes étincelantes serties dans un cadre de noyer foncé."
+ },
+ "f2bc0a89": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ivoire et laque noire dans un cadre rouge peint de nuages bouclés, de montagnes dans la brume et de quatre petits soleils."
+ },
  "e89f15b1": {
   "who": "rooky",
   "voice": "em_alex",
@@ -798,5 +823,30 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "Tout en haut de la Burj Khalifa, le plus haut bâtiment du monde. On est au-dessus des nuages !"
+ },
+ "45220027": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un atelier de sculpteur plein de lumière, tout en haut des montagnes de marbre blanc. Regarde, une petite statue attend d'être finie !"
+ },
+ "94c01274": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une salle du trône bleu et or dans un château de montagne. Les tours s'illuminent pour la soirée !"
+ },
+ "29f249f7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La cabine du capitaine, à l'arrière d'un grand voilier. Tu vois le phare qui clignote de l'autre côté de la baie ?"
+ },
+ "65d106f1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une salle de marbre vert sur une colline, faite pour regarder les étoiles. Les premières apparaissent en ce moment !"
+ },
+ "20f7dbda": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un pavillon rouge face à une cascade qui gronde, avec des cerisiers en fleurs tout autour. Écoute l'eau !"
  }
 }
