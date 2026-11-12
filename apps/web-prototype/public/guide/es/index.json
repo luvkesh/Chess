@@ -39,10 +39,10 @@
   "voice": "em_alex",
   "text": "¡Vamos a practicar! Elige una habilidad y la trabajaremos juntos."
  },
- "trainers": {
+ "progress": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Trece entrenadores, uno para cada habilidad del ajedrez. ¡Elige uno y juega una ronda rápida!"
+  "text": "¡Aquí está tu progreso! Cada partida que juegas suma a estas líneas. Toca Practicar en una habilidad para hacerla más fuerte."
  },
  "minis": {
   "who": "rooky",
@@ -918,6 +918,11 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "¿Qué pieza puede cruzar el río?"
+ },
+ "trainers": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trece entrenadores, uno para cada habilidad del ajedrez. ¡Elige uno y juega una ronda rápida!"
  },
  "lesson.open.openings": {
   "who": "rooky",

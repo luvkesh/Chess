@@ -39,10 +39,10 @@
   "voice": "em_alex",
   "text": "On s'entraîne ! Choisis une compétence, et on va la travailler ensemble."
  },
- "trainers": {
+ "progress": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Treize entraîneurs, un pour chaque compétence des échecs. Choisis-en un et joue une manche rapide !"
+  "text": "Voici tes progrès ! Chaque partie que tu joues fait avancer ces lignes. Touche S'entraîner sur une compétence pour la rendre plus forte."
  },
  "minis": {
   "who": "rooky",
@@ -918,6 +918,11 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "Quelle pièce peut traverser la rivière ?"
+ },
+ "trainers": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Treize entraîneurs, un pour chaque compétence des échecs. Choisis-en un et joue une manche rapide !"
  },
  "lesson.open.openings": {
   "who": "rooky",

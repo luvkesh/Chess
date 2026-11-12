@@ -704,10 +704,45 @@
   "voice": "pm_alex",
   "text": "Meteorito escuro que caiu do espaço, ao lado de gelo congelado. Uma linha azul brilhante dá a volta na moldura."
  },
+ "45ee3694": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Casas de aço brilhante do chão de uma nave estelar, com uma luz azul brilhando em volta da moldura."
+ },
+ "ebc25120": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra-do-sol cremosa e tijolo vermelho quentinho, como um caminho até um castelo. É um tabuleiro de conto!"
+ },
+ "a28c8a8e": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra-da-lua clara com veios dourados, ao lado de uma ardósia cinza e fresca. A moldura de carvalho antigo é entalhada com nós."
+ },
  "51746d66": {
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Areia branca perolada e areia escura como a noite, seladas sob vidro com borda dourada. Brilha como o deserto à noite."
+ },
+ "95168841": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra fóssil creme ao lado de basalto escuro, com rachaduras de âmbar que brilham como lava. Procure as samambaias esculpidas na moldura!"
+ },
+ "c9ddfc96": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra da lua clara e ágata musgo verde, numa moldura de madeira escura. Trepadeiras douradas se enrolam por toda a volta."
+ },
+ "758add3a": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra clara congelada e ardósia azul, frias como um fiorde no inverno. Uma faixa de runas douradas contorna a moldura."
+ },
+ "d3196cd6": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Carvalho claro e carvalho escuro, cortados à mão. Há runas entalhadas em toda a moldura, como num salão viking."
  },
  "5397a269": {
   "who": "rooky",
@@ -794,9 +829,44 @@
   "voice": "pm_alex",
   "text": "Uma lua gelada de Saturno, com um foguete esperando na plataforma. Olhe para cima, os anéis enchem o céu inteiro!"
  },
+ "00cc7b11": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "O convés de uma nave estelar, bem acima de um planeta azul. Olhe, duas frotas estão passando!"
+ },
+ "cf7c86c7": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Você está numa ilha flutuando nas nuvens! Acene para o castelo e fique de olho naquela torre escura."
+ },
+ "78120a04": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Elfos de um lado, orcs do outro, e você bem no meio! Consegue ver a cascata e a fortaleza brilhando?"
+ },
  "ecc7793b": {
   "who": "rooky",
   "voice": "pm_alex",
   "text": "O topo do Burj Khalifa, o prédio mais alto do mundo. Estamos acima das nuvens!"
+ },
+ "a4e0f53c": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Um vale verde no começo dos tempos, sob um vulcão fumegante. Olha, os pescoçudos estão andando no lago!"
+ },
+ "fed45c57": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Uma clareira de musgo onde as árvores brilham e os cogumelos reluzem. Você consegue ver o cervo feito de luz?"
+ },
+ "586a3003": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Uma margem nevada num fiorde azul profundo, com cascatas por todo lado. Lá vem um barco viking, voltando para casa!"
+ },
+ "698e80ad": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "O portão do dragão de um grande salão viking, bem quando o sol nasce. As tochas ainda estão acesas!"
  }
 }

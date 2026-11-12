@@ -39,10 +39,10 @@
   "voice": "zm_yunxi",
   "text": "我们来练习吧！选一项技能，我们一起练。"
  },
- "trainers": {
+ "progress": {
   "who": "rooky",
   "voice": "zm_yunxi",
-  "text": "十三个训练器，每个练一项国际象棋技能。选一个，来一轮快速练习吧！"
+  "text": "这是你的进步！你下的每一局都会让这些线条更长。点一项技能上的“练习”，让它变得更强。"
  },
  "minis": {
   "who": "rooky",
@@ -918,6 +918,11 @@
   "who": "rooky",
   "voice": "zm_yunxi",
   "text": "哪个棋子能过河？"
+ },
+ "trainers": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "十三个训练器，每个练一项国际象棋技能。选一个，来一轮快速练习吧！"
  },
  "lesson.open.openings": {
   "who": "rooky",

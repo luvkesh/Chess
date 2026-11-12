@@ -1994,6 +1994,380 @@
      "text": "O Falcon and Pearl joga aqui, no Pearl and Night Sand."
     }
    ]
+  },
+  "item-sets-dino": {
+   "text": "Grrr! O Dino Kingdom é osso fóssil e âmbar contra pedra de lava escura com rachaduras que brilham. Um T-rex é o rei, um tricerátops e um raptor são os cavalos, e os peões são dinossauros bebês saindo do ovo. Ele vem com o Dinosaur Valley.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Grrr!"
+    },
+    {
+     "t": 1.63,
+     "text": "O Dino Kingdom é osso fóssil e âmbar contra pedra de lava escura com rachaduras que brilham."
+    },
+    {
+     "t": 7.22,
+     "text": "Um T-rex é o rei, um tricerátops e um raptor são os cavalos, e os peões são dinossauros bebês saindo do ovo."
+    },
+    {
+     "t": 13.95,
+     "text": "Ele vem com o Dinosaur Valley."
+    }
+   ]
+  },
+  "item-sets-forest": {
+   "text": "Era uma vez, os elfos da clareira conheceram o povo da floresta. O Forest Guardians é marfim e ouro contra casca e musgo, com um rei elfo, um mago com um cristal, um Rei Carvalho de galhadas e um grande urso de musgo. Ele vem com o Enchanted Forest.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Era uma vez, os elfos da clareira conheceram o povo da floresta."
+    },
+    {
+     "t": 4.23,
+     "text": "O Forest Guardians é marfim e ouro contra casca e musgo, com um rei elfo, um mago com um cristal, um Rei Carvalho de galhadas e um grande urso de musgo."
+    },
+    {
+     "t": 12.96,
+     "text": "Ele vem com o Enchanted Forest."
+    }
+   ]
+  },
+  "item-sets-jarl": {
+   "text": "Os barcos vikings voltaram para casa! O Jarls of the Fjord é ouro e marfim com capas azuis, contra ferro escuro e couro com estandartes vermelhos. Tem jarls, guerreiras, sábios videntes com cajados de runas e lobos como cavalos. Ele vem com o Fjord of the Longships.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Os barcos vikings voltaram para casa!"
+    },
+    {
+     "t": 2.82,
+     "text": "O Jarls of the Fjord é ouro e marfim com capas azuis, contra ferro escuro e couro com estandartes vermelhos."
+    },
+    {
+     "t": 9.6,
+     "text": "Tem jarls, guerreiras, sábios videntes com cajados de runas e lobos como cavalos."
+    },
+    {
+     "t": 14.98,
+     "text": "Ele vem com o Fjord of the Longships."
+    }
+   ]
+  },
+  "item-sets-rune": {
+   "text": "Cada peça do Runecarved parece entalhada à mão, em bétula clara e carvalho escuro. A rainha segura um chifre de beber, o escaldo conta histórias, e os cavalos são cabeças de lobo. Ele vem com o Longhouse Gate.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Cada peça do Runecarved parece entalhada à mão, em bétula clara e carvalho escuro."
+    },
+    {
+     "t": 5.26,
+     "text": "A rainha segura um chifre de beber, o escaldo conta histórias, e os cavalos são cabeças de lobo."
+    },
+    {
+     "t": 11.04,
+     "text": "Ele vem com o Longhouse Gate."
+    }
+   ]
+  },
+  "item-boards-fossil": {
+   "text": "O Fossil and Basalt põe pedra fóssil creme ao lado de basalto escuro, com rachaduras de âmbar que brilham como lava. Há samambaias entalhadas em volta da moldura. Ele vem com o Dinosaur Valley e o Dino Kingdom.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "O Fossil and Basalt põe pedra fóssil creme ao lado de basalto escuro, com rachaduras de âmbar que brilham como lava."
+    },
+    {
+     "t": 6.91,
+     "text": "Há samambaias entalhadas em volta da moldura."
+    },
+    {
+     "t": 9.87,
+     "text": "Ele vem com o Dinosaur Valley e o Dino Kingdom."
+    }
+   ]
+  },
+  "item-boards-glade": {
+   "text": "O Moonstone and Moss Agate é pedra da lua clara ao lado de ágata musgo verde, numa moldura de madeira escura com trepadeiras douradas. Ele vem com o Enchanted Forest e o Forest Guardians.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "O Moonstone and Moss Agate é pedra da lua clara ao lado de ágata musgo verde, numa moldura de madeira escura com trepadeiras douradas."
+    },
+    {
+     "t": 8.11,
+     "text": "Ele vem com o Enchanted Forest e o Forest Guardians."
+    }
+   ]
+  },
+  "item-boards-fjord": {
+   "text": "O Frost Ash and Slate é pedra clara congelada ao lado de ardósia azul, fria como um fiorde no inverno, com runas douradas em volta da moldura. Ele vem com o Fjord of the Longships e o Jarls of the Fjord.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "O Frost Ash and Slate é pedra clara congelada ao lado de ardósia azul, fria como um fiorde no inverno, com runas douradas em volta da moldura."
+    },
+    {
+     "t": 8.43,
+     "text": "Ele vem com o Fjord of the Longships e o Jarls of the Fjord."
+    }
+   ]
+  },
+  "item-boards-runeoak": {
+   "text": "O Carved Oak é carvalho claro e escuro, cortado à mão, com runas entalhadas em toda a volta da moldura. Ele vem com o Longhouse Gate e o Runecarved.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "O Carved Oak é carvalho claro e escuro, cortado à mão, com runas entalhadas em toda a volta da moldura."
+    },
+    {
+     "t": 6.29,
+     "text": "Ele vem com o Longhouse Gate e o Runecarved."
+    }
+   ]
+  },
+  "item-places-dinoval": {
+   "text": "Bem-vindo ao mundo dos dinossauros! Lá na frente um vulcão solta fumaça, cascatas caem no lago, e dinossauros de pescoço longo andam na água enquanto pterossauros planam lá em cima. O Dino Kingdom joga aqui, no Fossil and Basalt.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Bem-vindo ao mundo dos dinossauros!"
+    },
+    {
+     "t": 2.51,
+     "text": "Lá na frente um vulcão solta fumaça, cascatas caem no lago, e dinossauros de pescoço longo andam na água enquanto pterossauros planam lá em cima."
+    },
+    {
+     "t": 10.99,
+     "text": "O Dino Kingdom joga aqui, no Fossil and Basalt."
+    }
+   ]
+  },
+  "item-places-forest": {
+   "text": "Entre na ponta dos pés. As árvores gigantes brilham em verde e roxo, os cogumelos reluzem, os vaga-lumes dançam, e uma cascata de luz azul cai no lago. Olha, um cervo feito de luz em cima da rocha! O Forest Guardians joga aqui, no Moonstone and Moss Agate.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Entre na ponta dos pés."
+    },
+    {
+     "t": 1.98,
+     "text": "As árvores gigantes brilham em verde e roxo, os cogumelos reluzem, os vaga-lumes dançam, e uma cascata de luz azul cai no lago."
+    },
+    {
+     "t": 9.92,
+     "text": "Olha, um cervo feito de luz em cima da rocha!"
+    },
+    {
+     "t": 12.88,
+     "text": "O Forest Guardians joga aqui, no Moonstone and Moss Agate."
+    }
+   ]
+  },
+  "item-places-fjord": {
+   "text": "Respire esse ar frio e fresquinho! Penhascos nevados saem direto da água, cascatas despencam, e um barco viking de vela azul desliza até o cais. O Jarls of the Fjord joga aqui, no Frost Ash and Slate.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Respire esse ar frio e fresquinho!"
+    },
+    {
+     "t": 2.42,
+     "text": "Penhascos nevados saem direto da água, cascatas despencam, e um barco viking de vela azul desliza até o cais."
+    },
+    {
+     "t": 9.41,
+     "text": "O Jarls of the Fjord joga aqui, no Frost Ash and Slate."
+    }
+   ]
+  },
+  "item-places-longhouse": {
+   "text": "O sol está nascendo sobre os picos nevados. Passe pelo portão de dragões entalhados, pelas pedras rúnicas e pelas tochas, até o grande salão. Um barco viking espera na baía. O Runecarved joga aqui, no Carved Oak.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "O sol está nascendo sobre os picos nevados."
+    },
+    {
+     "t": 2.92,
+     "text": "Passe pelo portão de dragões entalhados, pelas pedras rúnicas e pelas tochas, até o grande salão."
+    },
+    {
+     "t": 8.71,
+     "text": "Um barco viking espera na baía."
+    },
+    {
+     "t": 11.26,
+     "text": "O Runecarved joga aqui, no Carved Oak."
+    }
+   ]
+  },
+  "item-sets-galactic": {
+   "text": "Duas frotas estelares se enfrentam no tabuleiro! A Frota Azul é branca com luzes azuis, e a Frota Vermelha é preta com luzes vermelhas. Os cavalos são naves estelares, os bispos são cristais brilhantes e os peões são cadetes espaciais. Ele vem com o Starship Deck.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Duas frotas estelares se enfrentam no tabuleiro!"
+    },
+    {
+     "t": 3.23,
+     "text": "A Frota Azul é branca com luzes azuis, e a Frota Vermelha é preta com luzes vermelhas."
+    },
+    {
+     "t": 8.84,
+     "text": "Os cavalos são naves estelares, os bispos são cristais brilhantes e os peões são cadetes espaciais."
+    },
+    {
+     "t": 15.26,
+     "text": "Ele vem com o Starship Deck."
+    }
+   ]
+  },
+  "item-sets-sunshadow": {
+   "text": "Era uma vez, nas nuvens! O Reino do Sol tem um rei alegre, uma princesa, um mago e aldeões de chapéu de girassol. A Legião das Sombras tem um rei com chifres, uma feiticeira, um dragãozinho e diabinhos rabugentos. Ele vem com o Floating Isles.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Era uma vez, nas nuvens!"
+    },
+    {
+     "t": 1.97,
+     "text": "O Reino do Sol tem um rei alegre, uma princesa, um mago e aldeões de chapéu de girassol."
+    },
+    {
+     "t": 7.35,
+     "text": "A Legião das Sombras tem um rei com chifres, uma feiticeira, um dragãozinho e diabinhos rabugentos."
+    },
+    {
+     "t": 13.37,
+     "text": "Ele vem com o Floating Isles."
+    }
+   ]
+  },
+  "item-sets-elves": {
+   "text": "Dois exércitos dos velhos contos de fantasia! Orcs and Elves coloca elfos em branco, azul e ouro contra orcs em verde, couro vermelho e ferro. O cavalo elfo é um cervo branco; o cavalo orc, um grande lobo cinza. Ele vem com o Twin Realms.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Dois exércitos dos velhos contos de fantasia!"
+    },
+    {
+     "t": 3.19,
+     "text": "Orcs and Elves coloca elfos em branco, azul e ouro contra orcs em verde, couro vermelho e ferro."
+    },
+    {
+     "t": 9.04,
+     "text": "O cavalo elfo é um cervo branco; o cavalo orc, um grande lobo cinza."
+    },
+    {
+     "t": 13.45,
+     "text": "Ele vem com o Twin Realms."
+    }
+   ]
+  },
+  "item-boards-stargrid": {
+   "text": "Star Grid é aço brilhante do chão de uma nave estelar, com uma luz azul em volta da moldura. Ele vem com o Starship Deck.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Star Grid é aço brilhante do chão de uma nave estelar, com uma luz azul em volta da moldura."
+    },
+    {
+     "t": 5.46,
+     "text": "Ele vem com o Starship Deck."
+    }
+   ]
+  },
+  "item-boards-sunbrick": {
+   "text": "Sunstone and Brick é pedra cremosa e tijolo vermelho quentinho, como o caminho até um castelo de conto. Ele vem com o Floating Isles.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Sunstone and Brick é pedra cremosa e tijolo vermelho quentinho, como o caminho até um castelo de conto."
+    },
+    {
+     "t": 6.22,
+     "text": "Ele vem com o Floating Isles."
+    }
+   ]
+  },
+  "item-boards-moonslate": {
+   "text": "Moonstone and Slate junta pedra-da-lua clara com veios dourados e ardósia cinza, numa moldura de carvalho antigo entalhada com nós. Ele vem com o Twin Realms.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Slate junta pedra-da-lua clara com veios dourados e ardósia cinza, numa moldura de carvalho antigo entalhada com nós."
+    },
+    {
+     "t": 8.09,
+     "text": "Ele vem com o Twin Realms."
+    }
+   ]
+  },
+  "item-places-starbridge": {
+   "text": "Jogue no convés aberto de uma nave estelar, bem acima de um planeta azul. Uma estação em anel gira ao longe, e duas frotas estelares passam voando.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Jogue no convés aberto de uma nave estelar, bem acima de um planeta azul."
+    },
+    {
+     "t": 4.53,
+     "text": "Uma estação em anel gira ao longe, e duas frotas estelares passam voando."
+    }
+   ]
+  },
+  "item-places-skyisles": {
+   "text": "Jogue numa ilha flutuando nas nuvens! Tem um castelo de telhados azuis, um moinho, um balão e um arco-íris, e lá adiante, a torre escura da Legião das Sombras.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Jogue numa ilha flutuando nas nuvens!"
+    },
+    {
+     "t": 2.64,
+     "text": "Tem um castelo de telhados azuis, um moinho, um balão e um arco-íris, e lá adiante, a torre escura da Legião das Sombras."
+    }
+   ]
+  },
+  "item-places-twinrealms": {
+   "text": "Fique numa serra ao pôr do sol, entre dois reinos. De um lado, a cidade branca dos elfos fica junto a uma cascata. Do outro, a fortaleza dos orcs brilha nas colinas em chamas.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Fique numa serra ao pôr do sol, entre dois reinos."
+    },
+    {
+     "t": 3.16,
+     "text": "De um lado, a cidade branca dos elfos fica junto a uma cascata."
+    },
+    {
+     "t": 7.01,
+     "text": "Do outro, a fortaleza dos orcs brilha nas colinas em chamas."
+    }
+   ]
   }
  }
 }

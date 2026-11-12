@@ -1994,6 +1994,380 @@
      "text": "Falcon and Pearl 在这里登场，配 Pearl and Night Sand 棋盘。"
     }
    ]
+  },
+  "item-sets-dino": {
+   "text": "吼！ Dino Kingdom 是化石骨和琥珀，对阵带发光裂纹的深色熔岩石。 霸王龙是国王，三角龙和迅猛龙是骑士，兵是正在破壳而出的小恐龙。 它和 Dinosaur Valley 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "吼！"
+    },
+    {
+     "t": 0.85,
+     "text": "Dino Kingdom 是化石骨和琥珀，对阵带发光裂纹的深色熔岩石。"
+    },
+    {
+     "t": 5.56,
+     "text": "霸王龙是国王，三角龙和迅猛龙是骑士，兵是正在破壳而出的小恐龙。"
+    },
+    {
+     "t": 11.18,
+     "text": "它和 Dinosaur Valley 是一套。"
+    }
+   ]
+  },
+  "item-sets-forest": {
+   "text": "从前从前，林间空地的精灵遇见了森林之民。 Forest Guardians 是象牙和金色对阵树皮和苔藓，有精灵国王、拿水晶的法师、长着鹿角的橡树王和一只大苔藓熊。 它和 Enchanted Forest 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "从前从前，林间空地的精灵遇见了森林之民。"
+    },
+    {
+     "t": 3.7,
+     "text": "Forest Guardians 是象牙和金色对阵树皮和苔藓，有精灵国王、拿水晶的法师、长着鹿角的橡树王和一只大苔藓熊。"
+    },
+    {
+     "t": 12.12,
+     "text": "它和 Enchanted Forest 是一套。"
+    }
+   ]
+  },
+  "item-sets-jarl": {
+   "text": "长船回家啦！ Jarls of the Fjord 是披蓝斗篷的金色和象牙，对阵挂红旗的暗铁和皮革。 有雅尔、盾女、拿如尼文手杖的智慧先知，骑士是狼。 它和 Fjord of the Longships 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "长船回家啦！"
+    },
+    {
+     "t": 1.49,
+     "text": "Jarls of the Fjord 是披蓝斗篷的金色和象牙，对阵挂红旗的暗铁和皮革。"
+    },
+    {
+     "t": 6.71,
+     "text": "有雅尔、盾女、拿如尼文手杖的智慧先知，骑士是狼。"
+    },
+    {
+     "t": 10.62,
+     "text": "它和 Fjord of the Longships 是一套。"
+    }
+   ]
+  },
+  "item-sets-rune": {
+   "text": "Runecarved 的每颗棋子都像是用浅色白桦木和深色橡木手工雕成的。 王后捧着饮酒角杯，吟游诗人讲着故事，骑士是狼头。 它和 Longhouse Gate 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Runecarved 的每颗棋子都像是用浅色白桦木和深色橡木手工雕成的。"
+    },
+    {
+     "t": 5.19,
+     "text": "王后捧着饮酒角杯，吟游诗人讲着故事，骑士是狼头。"
+    },
+    {
+     "t": 9.59,
+     "text": "它和 Longhouse Gate 是一套。"
+    }
+   ]
+  },
+  "item-boards-fossil": {
+   "text": "Fossil and Basalt 把奶油色化石石头和深色玄武岩放在一起，琥珀裂纹像熔岩一样发光。 边框四周刻着蕨叶。 它和 Dinosaur Valley、Dino Kingdom 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Fossil and Basalt 把奶油色化石石头和深色玄武岩放在一起，琥珀裂纹像熔岩一样发光。"
+    },
+    {
+     "t": 6.47,
+     "text": "边框四周刻着蕨叶。"
+    },
+    {
+     "t": 8.38,
+     "text": "它和 Dinosaur Valley、Dino Kingdom 是一套。"
+    }
+   ]
+  },
+  "item-boards-glade": {
+   "text": "Moonstone and Moss Agate 是浅色月光石挨着绿色苔纹玛瑙，镶在带金色藤蔓的深色木框里。 它和 Enchanted Forest、Forest Guardians 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Moss Agate 是浅色月光石挨着绿色苔纹玛瑙，镶在带金色藤蔓的深色木框里。"
+    },
+    {
+     "t": 6.19,
+     "text": "它和 Enchanted Forest、Forest Guardians 是一套。"
+    }
+   ]
+  },
+  "item-boards-fjord": {
+   "text": "Frost Ash and Slate 是霜白的浅色石头挨着蓝色板岩，冷得像冬天的峡湾，边框四周有金色如尼文。 它和 Fjord of the Longships、Jarls of the Fjord 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Frost Ash and Slate 是霜白的浅色石头挨着蓝色板岩，冷得像冬天的峡湾，边框四周有金色如尼文。"
+    },
+    {
+     "t": 7.22,
+     "text": "它和 Fjord of the Longships、Jarls of the Fjord 是一套。"
+    }
+   ]
+  },
+  "item-boards-runeoak": {
+   "text": "Carved Oak 是手工切割的浅色和深色橡木，边框四周刻满了如尼文。 它和 Longhouse Gate、Runecarved 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Carved Oak 是手工切割的浅色和深色橡木，边框四周刻满了如尼文。"
+    },
+    {
+     "t": 5.13,
+     "text": "它和 Longhouse Gate、Runecarved 是一套。"
+    }
+   ]
+  },
+  "item-places-dinoval": {
+   "text": "欢迎来到恐龙的世界！ 前方火山冒着烟，瀑布落进湖里，长脖子恐龙在水里蹚行，翼龙在头顶滑翔。 Dino Kingdom 在这里登场，配 Fossil and Basalt 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "欢迎来到恐龙的世界！"
+    },
+    {
+     "t": 2.01,
+     "text": "前方火山冒着烟，瀑布落进湖里，长脖子恐龙在水里蹚行，翼龙在头顶滑翔。"
+    },
+    {
+     "t": 8.18,
+     "text": "Dino Kingdom 在这里登场，配 Fossil and Basalt 棋盘。"
+    }
+   ]
+  },
+  "item-places-forest": {
+   "text": "踮着脚尖进来吧。 巨大的树发出绿色和紫色的光，蘑菇闪闪发亮，萤火虫在跳舞，一道蓝光瀑布倾泻进水池。 看，岩石上有一只由光组成的雄鹿！ Forest Guardians 在这里登场，配 Moonstone and Moss Agate 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "踮着脚尖进来吧。"
+    },
+    {
+     "t": 1.7,
+     "text": "巨大的树发出绿色和紫色的光，蘑菇闪闪发亮，萤火虫在跳舞，一道蓝光瀑布倾泻进水池。"
+    },
+    {
+     "t": 8.79,
+     "text": "看，岩石上有一只由光组成的雄鹿！"
+    },
+    {
+     "t": 11.68,
+     "text": "Forest Guardians 在这里登场，配 Moonstone and Moss Agate 棋盘。"
+    }
+   ]
+  },
+  "item-places-fjord": {
+   "text": "深吸一口这清冷新鲜的空气！ 积雪的悬崖直接从水中升起，瀑布倾泻而下，一艘挂着蓝帆的长船缓缓驶向码头。 Jarls of the Fjord 在这里登场，配 Frost Ash and Slate 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "深吸一口这清冷新鲜的空气！"
+    },
+    {
+     "t": 2.65,
+     "text": "积雪的悬崖直接从水中升起，瀑布倾泻而下，一艘挂着蓝帆的长船缓缓驶向码头。"
+    },
+    {
+     "t": 9.21,
+     "text": "Jarls of the Fjord 在这里登场，配 Frost Ash and Slate 棋盘。"
+    }
+   ]
+  },
+  "item-places-longhouse": {
+   "text": "太阳正从雪山上升起。 穿过雕龙的大门，经过如尼石和火把，走向大厅。 一艘长船在海湾里等着。 Runecarved 在这里登场，配 Carved Oak 棋盘。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "太阳正从雪山上升起。"
+    },
+    {
+     "t": 2.29,
+     "text": "穿过雕龙的大门，经过如尼石和火把，走向大厅。"
+    },
+    {
+     "t": 6.34,
+     "text": "一艘长船在海湾里等着。"
+    },
+    {
+     "t": 8.56,
+     "text": "Runecarved 在这里登场，配 Carved Oak 棋盘。"
+    }
+   ]
+  },
+  "item-sets-galactic": {
+   "text": "两支星际舰队在棋盘上相遇！ 蓝色舰队是白色配蓝灯，红色舰队是黑色配红灯。 马是星舰，象是发光的水晶，兵是太空学员。 它和 Starship Deck 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "两支星际舰队在棋盘上相遇！"
+    },
+    {
+     "t": 2.58,
+     "text": "蓝色舰队是白色配蓝灯，红色舰队是黑色配红灯。"
+    },
+    {
+     "t": 6.64,
+     "text": "马是星舰，象是发光的水晶，兵是太空学员。"
+    },
+    {
+     "t": 10.34,
+     "text": "它和 Starship Deck 是一套。"
+    }
+   ]
+  },
+  "item-sets-sunshadow": {
+   "text": "很久很久以前，在云端！ 太阳王国有快乐的国王、公主、巫师和戴向日葵帽子的村民。 暗影军团有长角的国王、女巫、小龙和爱发脾气的小鬼。 它和 Floating Isles 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "很久很久以前，在云端！"
+    },
+    {
+     "t": 2.18,
+     "text": "太阳王国有快乐的国王、公主、巫师和戴向日葵帽子的村民。"
+    },
+    {
+     "t": 6.86,
+     "text": "暗影军团有长角的国王、女巫、小龙和爱发脾气的小鬼。"
+    },
+    {
+     "t": 11.35,
+     "text": "它和 Floating Isles 是一套。"
+    }
+   ]
+  },
+  "item-sets-elves": {
+   "text": "来自古老奇幻故事的两支军队！ Orcs and Elves 让白、蓝、金色的精灵对阵绿色、红皮革和铁甲的兽人。 精灵的马是一头白色雄鹿，兽人的马是一只大灰狼。 它和 Twin Realms 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "来自古老奇幻故事的两支军队！"
+    },
+    {
+     "t": 2.75,
+     "text": "Orcs and Elves 让白、蓝、金色的精灵对阵绿色、红皮革和铁甲的兽人。"
+    },
+    {
+     "t": 7.72,
+     "text": "精灵的马是一头白色雄鹿，兽人的马是一只大灰狼。"
+    },
+    {
+     "t": 11.55,
+     "text": "它和 Twin Realms 是一套。"
+    }
+   ]
+  },
+  "item-boards-stargrid": {
+   "text": "Star Grid 是来自星舰地板的闪亮钢材，边框四周闪着蓝光。 它和 Starship Deck 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Star Grid 是来自星舰地板的闪亮钢材，边框四周闪着蓝光。"
+    },
+    {
+     "t": 4.59,
+     "text": "它和 Starship Deck 是一套。"
+    }
+   ]
+  },
+  "item-boards-sunbrick": {
+   "text": "Sunstone and Brick 是奶油般的石头和温暖的红砖，就像通往童话城堡的小路。 它和 Floating Isles 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Sunstone and Brick 是奶油般的石头和温暖的红砖，就像通往童话城堡的小路。"
+    },
+    {
+     "t": 5.6,
+     "text": "它和 Floating Isles 是一套。"
+    }
+   ]
+  },
+  "item-boards-moonslate": {
+   "text": "Moonstone and Slate 把带金色纹路的浅色月光石和清凉的灰色板岩放在一起，配雕着绳结的老橡木边框。 它和 Twin Realms 是一套。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Slate 把带金色纹路的浅色月光石和清凉的灰色板岩放在一起，配雕着绳结的老橡木边框。"
+    },
+    {
+     "t": 7.24,
+     "text": "它和 Twin Realms 是一套。"
+    }
+   ]
+  },
+  "item-places-starbridge": {
+   "text": "在蓝色星球上方高高的星舰露天甲板上下棋吧。 远处一座环形空间站缓缓转动，两支星际舰队飞过。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "在蓝色星球上方高高的星舰露天甲板上下棋吧。"
+    },
+    {
+     "t": 4.14,
+     "text": "远处一座环形空间站缓缓转动，两支星际舰队飞过。"
+    }
+   ]
+  },
+  "item-places-skyisles": {
+   "text": "在飘浮于云中的小岛上下棋吧！ 这里有蓝色屋顶的城堡、风车、热气球和彩虹，那边还有暗影军团的黑色高塔。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "在飘浮于云中的小岛上下棋吧！"
+    },
+    {
+     "t": 2.68,
+     "text": "这里有蓝色屋顶的城堡、风车、热气球和彩虹，那边还有暗影军团的黑色高塔。"
+    }
+   ]
+  },
+  "item-places-twinrealms": {
+   "text": "日落时分，站在两个王国之间的山脊上。 一边，精灵的白色城市坐落在瀑布旁。 另一边，兽人的要塞在燃烧的山丘中闪着光。",
+   "voice": "zm_yunxi",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "日落时分，站在两个王国之间的山脊上。"
+    },
+    {
+     "t": 3.21,
+     "text": "一边，精灵的白色城市坐落在瀑布旁。"
+    },
+    {
+     "t": 6.38,
+     "text": "另一边，兽人的要塞在燃烧的山丘中闪着光。"
+    }
+   ]
   }
  }
 }

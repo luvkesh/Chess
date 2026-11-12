@@ -563,9 +563,37 @@
   "voice": "am_puck,am_liam",
   "text": "Dark meteorite that fell from space, next to frosty ice. A glowing blue line runs round the frame."
  },
+ "board.stargrid.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Shiny steel squares from a starship floor, with a blue light glowing all round the frame."
+ },
+ "board.sunbrick.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Creamy sunstone and warm red brick, like a path to a castle. It's a storybook board!"
+ },
+ "board.moonslate.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Pale moonstone with golden veins, next to cool grey slate. The old oak frame is carved with knots."
+ },
  "board.mirage.v1": {
   "voice": "am_puck,am_liam",
   "text": "Pearly white and night-dark sand, sealed under glass with a gold rim. It sparkles like the desert at night."
+ },
+ "board.fossil.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Cream fossil stone next to dark basalt, with amber cracks that glow like lava. Look for the ferns carved round the frame!"
+ },
+ "board.glade.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Pale moonstone and green moss agate, in a dark wooden frame. Golden vines curl all the way round."
+ },
+ "board.fjord.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Frosty pale stone and blue slate, cold as a winter fjord. A band of golden runes runs round the frame."
+ },
+ "board.runeoak.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Light oak and dark oak, cut by hand. Runes are carved all round the frame, like on a Viking hall."
  },
  "room.tokyo.v1": {
   "voice": "am_puck,am_liam",
@@ -635,8 +663,36 @@
   "voice": "am_puck,am_liam",
   "text": "An icy moon of Saturn, with a rocket waiting on its pad. Look up, the rings fill the whole sky!"
  },
+ "room.starbridge.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "The deck of a starship, high above a blue planet. Look, two fleets are flying past!"
+ },
+ "room.skyisles.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "You're on an island floating in the clouds! Wave to the castle, and keep an eye on that dark tower."
+ },
+ "room.twinrealms.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Elves on one side, orcs on the other, and you right in the middle! Can you see the waterfall and the glowing fortress?"
+ },
  "room.burj.v1": {
   "voice": "am_puck,am_liam",
   "text": "The very top of the Burj Khalifa, the tallest building in the world. We're above the clouds!"
+ },
+ "room.dinoval.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A green valley at the dawn of time, below a smoking volcano. Look, the long-necks are wading in the lake!"
+ },
+ "room.forest.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A mossy glade where the trees glow and the toadstools shine. Can you spot the stag made of light?"
+ },
+ "room.fjord.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A snowy shore on a deep blue fjord, with waterfalls all around. Here comes a longship, sailing home!"
+ },
+ "room.longhouse.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "The dragon gate of a great Viking hall, just as the sun comes up. The torches are still burning!"
  }
 }

@@ -39,10 +39,10 @@
   "voice": "am_puck,am_liam",
   "text": "Let's practise! Pick a skill, and we'll work on it together."
  },
- "trainers": {
+ "progress": {
   "who": "rooky",
   "voice": "am_puck,am_liam",
-  "text": "Thirteen trainers, one for each chess skill. Pick one and play a quick round!"
+  "text": "Here is your progress! Every game you play adds to these lines. Tap Practice on a skill to make it stronger."
  },
  "minis": {
   "who": "rooky",
@@ -918,6 +918,11 @@
   "who": "rooky",
   "voice": "am_puck,am_liam",
   "text": "Which piece can cross the river?"
+ },
+ "trainers": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Thirteen trainers, one for each chess skill. Pick one and play a quick round!"
  },
  "lesson.open.openings": {
   "who": "rooky",

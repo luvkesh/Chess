@@ -183,6 +183,18 @@
     "pieces.falcon.v1": {
       "site": "item-sets-falcon"
     },
+    "pieces.dino.v1": {
+      "site": "item-sets-dino"
+    },
+    "pieces.forest.v1": {
+      "site": "item-sets-forest"
+    },
+    "pieces.jarl.v1": {
+      "site": "item-sets-jarl"
+    },
+    "pieces.rune.v1": {
+      "site": "item-sets-rune"
+    },
     "board.pearl.v1": "Real mother of pearl and soft coral pink, framed in sea-blue lacquer. It shimmers like the inside of a shell.",
     "board.lapis.v1": "Pale moonstone and starry blue lapis, with tiny gold stars round the frame. A board for night owls.",
     "board.sarsen.v1": "Rough stone, chiselled by hand, with no polish at all. It's as old-looking as Stonehenge itself.",
@@ -192,6 +204,10 @@
     "board.agora.v1": "Pale ash and dark wenge wood in a frame of white marble, with a bronze key pattern like the ones on Greek temples.",
     "board.meteor.v1": "Dark meteorite that fell from space, next to frosty ice. A glowing blue line runs round the frame.",
     "board.mirage.v1": "Pearly white and night-dark sand, sealed under glass with a gold rim. It sparkles like the desert at night.",
+    "board.fossil.v1": "Cream fossil stone next to dark basalt, with amber cracks that glow like lava. Look for the ferns carved round the frame!",
+    "board.glade.v1": "Pale moonstone and green moss agate, in a dark wooden frame. Golden vines curl all the way round.",
+    "board.fjord.v1": "Frosty pale stone and blue slate, cold as a winter fjord. A band of golden runes runs round the frame.",
+    "board.runeoak.v1": "Light oak and dark oak, cut by hand. Runes are carved all round the frame, like on a Viking hall.",
     "room.tokyo.v1": "A cherry-blossom garden on a Tokyo rooftop, with Mount Fuji far away. The city twinkles below you.",
     "room.brussels.v1": "A chocolate shop on the Grand-Place of Brussels, with golden guild houses outside. Mmm, smell that cocoa!",
     "room.reef.v1": "A pearl palace on the sea floor, with coral towers and fish swimming by. Don't forget to breathe!",
@@ -209,6 +225,25 @@
     "room.norse.v1": "A plank table by the campfire, deep in a pine forest. Down on the fjord, a longship waits in the moonlight.",
     "room.sounion.v1": "The temple of Poseidon, high on a cliff above the sea. Watch the sun go down over the islands!",
     "room.saturn.v1": "An icy moon of Saturn, with a rocket waiting on its pad. Look up, the rings fill the whole sky!",
-    "room.burj.v1": "The very top of the Burj Khalifa, the tallest building in the world. We're above the clouds!"
+    "room.burj.v1": "The very top of the Burj Khalifa, the tallest building in the world. We're above the clouds!",
+    "room.dinoval.v1": "A green valley at the dawn of time, below a smoking volcano. Look, the long-necks are wading in the lake!",
+    "room.forest.v1": "A mossy glade where the trees glow and the toadstools shine. Can you spot the stag made of light?",
+    "room.fjord.v1": "A snowy shore on a deep blue fjord, with waterfalls all around. Here comes a longship, sailing home!",
+    "room.longhouse.v1": "The dragon gate of a great Viking hall, just as the sun comes up. The torches are still burning!",
+    "pieces.elves.v1": {
+      "site": "item-sets-elves"
+    },
+    "pieces.sunshadow.v1": {
+      "site": "item-sets-sunshadow"
+    },
+    "pieces.galactic.v1": {
+      "site": "item-sets-galactic"
+    },
+    "board.stargrid.v1": "Shiny steel squares from a starship floor, with a blue light glowing all round the frame.",
+    "board.sunbrick.v1": "Creamy sunstone and warm red brick, like a path to a castle. It's a storybook board!",
+    "board.moonslate.v1": "Pale moonstone with golden veins, next to cool grey slate. The old oak frame is carved with knots.",
+    "room.starbridge.v1": "The deck of a starship, high above a blue planet. Look, two fleets are flying past!",
+    "room.skyisles.v1": "You're on an island floating in the clouds! Wave to the castle, and keep an eye on that dark tower.",
+    "room.twinrealms.v1": "Elves on one side, orcs on the other, and you right in the middle! Can you see the waterfall and the glowing fortress?"
   }
 }

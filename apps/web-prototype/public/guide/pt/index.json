@@ -39,10 +39,10 @@
   "voice": "pm_alex",
   "text": "Vamos praticar! Escolha uma habilidade, e a gente treina junto."
  },
- "trainers": {
+ "progress": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Treze treinos, um para cada habilidade do xadrez. Escolha um e jogue uma rodada rápida!"
+  "text": "Aqui está o seu progresso! Cada partida que você joga soma nestas linhas. Toque em Praticar numa habilidade para deixá-la mais forte."
  },
  "minis": {
   "who": "rooky",
@@ -918,6 +918,11 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Qual peça pode atravessar o rio?"
+ },
+ "trainers": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Treze treinos, um para cada habilidade do xadrez. Escolha um e jogue uma rodada rápida!"
  },
  "lesson.open.openings": {
   "who": "rooky",
