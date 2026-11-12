@@ -837,112 +837,234 @@ function ChacklatePieces(THREE, K) {
   };
 
   // ------------------------------------------------------------------ Pharaoh's Treasure (Egypt)
-  // Alabaster and basalt papyrus columns bound in gold, crowns of lapis lazuli.
-  function egyptBase(p, R, top, k) {
-    k = k || 1;
-    return p.line(R - 0.01, 0).arc(R, 0.012 * k, 0.3).line(R, 0.042 * k)
-      .line(R - 0.018, 0.046 * k)
-      .curve([[R - 0.024, 0.06 * k], [R - 0.05, 0.08 * k], [R - 0.08, 0.088 * k]])
-      .line(R - 0.09, 0.092 * k).arc(R - 0.1, 0.122 * k, 0.45)
-      .line(top + 0.012, 0.128 * k).line(top, 0.15 * k);
+  // Figures from a pharaoh's tomb in alabaster and basalt: the pharaoh with his ankh staff, his
+  // queen under the sun disc, a jackal guardian, crystals held up on falcon wings, temple towers
+  // with fire burning on top and spearmen with ankh shields. Every piece stands on a gold drum
+  // set with lapis and a gem, and wears a collar of gold, lapis and carnelian.
+  // Splits a mesh into stripes across y, for the striped nemes headcloth: [even, odd].
+  function stripes(g, period, y0) {
+    g = g.index ? g.toNonIndexed() : g;
+    if (!g.attributes.normal) g.computeVertexNormals();
+    const p = g.attributes.position.array, n = g.attributes.normal.array, out = [[[], []], [[], []]];
+    for (let i = 0; i < p.length; i += 9) {
+      const cy = (p[i + 1] + p[i + 4] + p[i + 7]) / 3, k = Math.floor((cy - y0) / period) & 1;
+      for (let j = 0; j < 9; j++) { out[k][0].push(p[i + j]); out[k][1].push(n[i + j]); }
+    }
+    return out.map(([pp, nn]) => {
+      const r = new THREE.BufferGeometry();
+      r.setAttribute('position', new THREE.Float32BufferAttribute(pp, 3)); r.setAttribute('normal', new THREE.Float32BufferAttribute(nn, 3));
+      return pp.length ? r : null;
+    });
   }
-  const papyrus = (y0, y1, n) => MOD.lobes(n || 8, 0.16, y0, y1, { shape: 0.55, end: 0.05 });
-  const sepals = (n, r, y, h) => around(n, r, y, () => curl(petal(h * 0.5, h, 0.006), 2.2), { tilt: 0.42 });
+  function templeBase(P, R, h) {
+    P.lathe('trim', profile(0, 0).line(R - 0.01, 0).arc(R, 0.012, 0.3).line(R, 0.032).line(R - 0.012, 0.036).line(R - 0.012, h - 0.04).line(R - 0.004, h - 0.036)
+      .line(R - 0.004, h - 0.02).line(R - 0.03, h - 0.016).line(R - 0.03, h).line(0, h));
+    P.add('accent', new THREE.CylinderGeometry(R - 0.009, R - 0.009, h - 0.09, Math.round(Q.segs * DETAIL.around), 1, true).translate(0, (h - 0.004) / 2 + 0.002, 0));
+    P.add('trim', beadRing(R - 0.008, 0.044, Math.round(R * 110), 0.005)); P.add('trim', beadRing(R - 0.008, h - 0.046, Math.round(R * 110), 0.005));
+    P.add('gem', around(4, R - 0.006, h / 2 - 0.002, () => { const d = brilliant(0.02); d.rotateZ(Math.PI / 4); return d; }));
+    P.add('trim', around(8, R - 0.007, h / 2 - 0.002, () => rbox(0.008, h - 0.1, 0.006, 0.002), { phase: Math.PI / 8 }));
+    return h;
+  }
+  // the broad collar: a flat ring of gold, lapis and carnelian round a neck of radius r at y
+  function usekh(P, r, y, w, tilt) {
+    w = w || 0.06; tilt = tilt === undefined ? 0.35 : tilt;
+    const band = (r0, r1, dy) => revolve(profile(r0, y + dy).line(r1, y + dy - (r1 - r0) * tilt).line(r1, y + dy - (r1 - r0) * tilt - 0.008).line(r0, y + dy - 0.008), { segs: Q.segs });
+    P.add('trim', band(r, r + w * 0.34, 0)); P.add('accent', band(r + w * 0.3, r + w * 0.68, -w * 0.3 * tilt)); P.add('trim', band(r + w * 0.64, r + w, -w * 0.64 * tilt));
+    P.add('accent2', around(Math.round((r + w) * 160), r + w + 0.004, y - w * tilt - 0.008, () => sphere(0.0062, 0, 0, 0, 8)));
+  }
+  // the nemes headcloth over a head at c of radius r: a cap that flares behind the cheeks and
+  // falls in two lappets on the chest, in gold and lapis stripes, with a cobra at the brow
+  function nemes(P, c, r, o) {
+    o = o || {};
+    const S = new Sculpt(0.014);
+    S.ell([c[0], c[1] + r * 0.28, c[2] - r * 0.1], [r * 1.08, r * 0.86, r * 1.06], 0.02);
+    S.pair((x) => S.cone([c[0] + x * r * 0.95, c[1] + r * 0.2, c[2] - r * 0.25], [c[0] + x * r * 1.3, c[1] - r * 1.25, c[2] - r * 0.1], r * 0.4, r * 0.5, 0.03));
+    S.pair((x) => S.cone([c[0] + x * r * 1.2, c[1] - r * 1.0, c[2] - r * 0.05], [c[0] + x * r * 1.05, c[1] - r * 2.2, c[2] + r * 0.35], r * 0.3, r * 0.32, 0.02));
+    S.cone([c[0], c[1] + r * 0.2, c[2] - r * 0.6], [c[0], c[1] - r * 1.4, c[2] - r * 0.9], r * 0.7, r * 0.45, 0.03);
+    S._push((x, y, z) => SD.ellipsoid(x, y, z, c[0], c[1] - r * 0.35, c[2] + r * 0.5, r * 0.8, r * 0.88, r * 0.8), c[0], c[1] - r * 0.35, c[2] + r * 0.5, r * 0.9, 0.01, true);   // the face shows through
+    const [a, b] = stripes(S.mesh(Q.cell * (o.fine || 0.8)), r * 0.24, c[1]);
+    P.add('trim', a); P.add('accent', b);
+    P.add('trim', ring(r * 1.04, c[1] + r * 0.4, r * 0.08).translate(0, 0, -r * 0.08));
+    // the uraeus: a rearing cobra at the brow
+    P.add('trim', K.tube([[c[0], c[1] + r * 0.4, c[2] + r * 0.9], [c[0], c[1] + r * 0.62, c[2] + r * 1.02], [c[0], c[1] + r * 0.82, c[2] + r * 0.98]], r * 0.09, { segs: 12, radial: 6 }));
+    P.add('gem', sphere(r * 0.12, c[0], c[1] + r * 0.88, c[2] + r * 1.0, 10));
+  }
+  function egyptFlame(P, y, r) {
+    const parts = [];
+    for (let i = 0; i < 7; i++) {
+      const th = i * 2.4, rr = i ? r * 0.55 : 0, h = (i ? 0.1 : 0.16) * (r / 0.1);
+      const f = new THREE.ConeGeometry(r * (i ? 0.3 : 0.45), h, 8); f.translate(Math.sin(th) * rr, y + h / 2, Math.cos(th) * rr);
+      parts.push(f);
+    }
+    P.add('flame', merge(parts));
+    P.add('flame2', sphere(r * 0.6, 0, y + 0.02, 0, 12).scale(1, 0.6, 1));
+  }
   const EGYPT = {
     k() {
-      const R = 0.35, P = new Piece();
-      const p = egyptBase(profile(0, 0), R, 0.16);
-      p.curve([[0.168, 0.2], [0.17, 0.3], [0.158, 0.45], [0.14, 0.6], [0.128, 0.68]])
-        .line(0.128, 0.72)
-        .curve([[0.14, 0.75], [0.17, 0.8], [0.205, 0.86], [0.222, 0.9]])
-        .arc(0.212, 0.914, 0.4).line(0.16, 0.92).line(0.16, 0.95).line(0.12, 0.955).line(0, 0.955);
-      P.lathe('body', p, { mod: mods([papyrus(0.16, 0.7), MOD.flutes(24, 0.04, 0.76, 0.905, { end: 0.02 })]) });
-      for (const y of [0.69, 0.705, 0.72]) P.add('trim', ring(0.13, y, 0.0062));
-      P.add('trim', sepals(12, 0.132, 0.726, 0.1));
-      P.add('trim', ring(0.216, 0.908, 0.0075));
-      // the blue crown (khepresh) studded with gold, a uraeus at the brow, an ankh above
-      P.lathe('accent', profile(0, 0.955).line(0.135, 0.955).curve([[0.152, 1.0], [0.16, 1.08], [0.152, 1.16], [0.126, 1.24], [0.086, 1.29], [0.04, 1.31]]).line(0, 1.312));
-      P.add('trim', ring(0.138, 0.962, 0.011));
-      const rows = [[1.02, 0.157, 26], [1.07, 0.16, 26], [1.12, 0.157, 26], [1.17, 0.148, 24], [1.22, 0.134, 20], [1.26, 0.112, 16]];
-      rows.forEach(([y, r, n], i) => P.add('trim', beadRing(r, y, n, 0.0062, { phase: i % 2 ? Math.PI / n : 0 })));
-      P.add('trim', K.tube([[0, 0.975, 0.14], [0, 1.01, 0.158], [0, 1.05, 0.162], [0, 1.08, 0.158]], 0.009, { segs: 20 }));
-      P.add('trim', placeAt(petal(0.045, 0.06, 0.009), 0, 0.16, 1.07, { tilt: -0.1 }));
-      P.add('trim', placeAt(ankh(0.27, 0.045), 0, 0, 1.44));
-      return P;
+      // the pharaoh, in the nemes and a pleated kilt, holding a tall staff crowned with an ankh
+      const P = new Piece(), y0 = templeBase(P, 0.35, 0.13), s = 1.12, A = at([0, y0, 0], s);
+      P.lathe('body', profile(0, y0).line(0.155 * s, y0).curve([[0.15 * s, y0 + 0.1 * s], [0.12 * s, y0 + 0.3 * s], [0.088 * s, y0 + 0.47 * s]]).line(0.085 * s, y0 + 0.5 * s).line(0, y0 + 0.5 * s),
+        { mod: MOD.flutes(26, 0.1, y0 + 0.01, y0 + 0.44 * s, { soft: true, end: 0.03 }) });
+      const skin = new Sculpt(0.018, 1.1);
+      skin.floor = y0 + 0.4 * s;
+      skin.ell(A(0, 0.57, 0.004), [0.095 * s, 0.12 * s, 0.07 * s], 0.035);
+      skin.pair((x) => skin.ell(A(x * 0.09, 0.67, 0), [0.046 * s, 0.042 * s, 0.046 * s], 0.03));
+      skin.cone(A(0, 0.69, 0), A(0, 0.76, 0.004), 0.034 * s, 0.031 * s, 0.01);
+      const hd = head(skin, A(0, 0.83, 0.008), 0.062 * s);
+      arm(skin, skin, A(-0.1, 0.66, 0), A(-0.16, 0.56, 0.03), A(-0.15, 0.6, 0.1), 0.027 * s);     // staff hand
+      arm(skin, skin, A(0.1, 0.66, 0), A(0.12, 0.55, 0.06), A(0.02, 0.6, 0.08), 0.027 * s);       // hand on his heart
+      P.add('body', skin.mesh()); eyes(P, hd);
+      P.add('trim', ring(0.088 * s, y0 + 0.5 * s, 0.014 * s));                                       // belt
+      P.add('trim', rbox(0.07 * s, 0.22 * s, 0.014, 0.006, 0, y0 + 0.38 * s, 0.11 * s).rotateX(-0.12));   // the apron of gold
+      P.add('accent', merge([0, 1, 2, 3].map((i) => rbox(0.05 * s, 0.012 * s, 0.006, 0.002, 0, y0 + (0.32 + i * 0.04) * s, 0.121 * s))).rotateX(-0.12));
+      usekh(P, 0.04 * s, y0 + 0.725 * s, 0.075 * s);
+      nemes(P, A(0, 0.83, 0.008), 0.064 * s);
+      P.add('accent', cyl(0.012 * s, 0.009 * s, 0.07 * s, 0, y0 + 0.745 * s, 0.05 * s, 10));        // the royal beard
+      const t = A(-0.15, 0.6, 0.1);
+      P.add('trim', cyl(0.009 * s, 0.009 * s, 0.86 * s, t[0], y0 + 0.43 * s, t[2], 10));
+      P.add('trim', placeAt(ankh(0.26 * s, 0.03), 0, 0, y0 + 0.86 * s).translate(t[0], 0, t[2]));
+      P.add('gem', sphere(0.016 * s, t[0], y0 + 0.86 * s + 0.13 * s * 0.5, t[2] + 0.02, 10));
+      return turnPiece(P, 0.35);
     },
     q() {
-      const R = 0.335, P = new Piece();
-      const p = egyptBase(profile(0, 0), R, 0.152);
-      p.curve([[0.16, 0.2], [0.162, 0.29], [0.15, 0.42], [0.134, 0.55], [0.122, 0.62]])
-        .line(0.122, 0.66)
-        .curve([[0.13, 0.69], [0.158, 0.73], [0.19, 0.78], [0.205, 0.82]])
-        .arc(0.196, 0.834, 0.4).line(0.15, 0.84).line(0.15, 0.868).line(0.1, 0.872).line(0, 0.872);
-      P.lathe('body', p, { mod: mods([papyrus(0.16, 0.64), MOD.flutes(20, 0.04, 0.7, 0.825, { end: 0.02 })]) });
-      for (const y of [0.63, 0.645, 0.66]) P.add('trim', ring(0.124, y, 0.006));
-      P.add('trim', sepals(12, 0.126, 0.668, 0.09));
-      P.add('trim', ring(0.2, 0.828, 0.007));
-      // modius of lapis ringed with golden uraei, then Hathor's horns cradling the sun
-      P.lathe('accent', profile(0, 0.87).line(0.122, 0.87).line(0.13, 0.98).line(0, 0.98));
-      P.add('trim', ring(0.124, 0.874, 0.009)); P.add('trim', ring(0.131, 0.976, 0.009));
-      P.add('trim', around(12, 0.122, 0.98, () => petal(0.034, 0.075, 0.009), { tilt: 0.14 }));
-      for (const s of [-1, 1]) P.add('trim', K.tube([[s * 0.035, 0.978, 0], [s * 0.1, 1.03, 0], [s * 0.14, 1.12, 0], [s * 0.138, 1.21, 0], [s * 0.112, 1.29, 0], [s * 0.078, 1.33, 0]], 0.02, { segs: 48, radial: 12, radiusAt: (t) => mix(1, 0.2, t) }));
-      const disc = new THREE.CylinderGeometry(0.1, 0.1, 0.03, 48); disc.rotateX(Math.PI / 2); disc.translate(0, 1.19, 0);
+      // the queen in a pleated gown, a lapis wig, and the sun disc between golden horns
+      const P = new Piece(), y0 = templeBase(P, 0.335, 0.13), s = 1.08, A = at([0, y0, 0], s);
+      P.lathe('body', profile(0, y0).line(0.15 * s, y0).curve([[0.14 * s, y0 + 0.12 * s], [0.095 * s, y0 + 0.32 * s], [0.06 * s, y0 + 0.5 * s]]).line(0, y0 + 0.5 * s),
+        { mod: MOD.flutes(22, 0.12, y0 + 0.01, y0 + 0.46 * s, { soft: true, end: 0.03 }) });
+      const skin = new Sculpt(0.016, 1.05), wig = new Sculpt(0.016, 1.05);
+      skin.floor = y0 + 0.4 * s;
+      skin.ell(A(0, 0.55, 0.004), [0.06 * s, 0.1 * s, 0.046 * s], 0.03);
+      skin.pair((x) => skin.ell(A(x * 0.066, 0.62, 0), [0.03 * s, 0.028 * s, 0.03 * s], 0.025));
+      skin.cone(A(0, 0.63, 0.004), A(0, 0.69, 0.008), 0.024 * s, 0.022 * s, 0.01);
+      const c = A(0, 0.745, 0.012), hd = head(skin, c, 0.055 * s);
+      arm(skin, skin, A(-0.066, 0.61, 0), A(-0.09, 0.51, 0.03), A(-0.07, 0.43, 0.07), 0.019 * s);
+      arm(skin, skin, A(0.066, 0.61, 0), A(0.09, 0.52, 0.04), A(0.02, 0.57, 0.075), 0.019 * s);
+      wig.ell([c[0], c[1] + 0.02 * s, c[2] - 0.012 * s], [0.066 * s, 0.062 * s, 0.064 * s], 0.012);
+      wig.pair((x) => wig.cone([c[0] + x * 0.05 * s, c[1], c[2] - 0.01 * s], [c[0] + x * 0.058 * s, c[1] - 0.11 * s, c[2] + 0.0], 0.03 * s, 0.032 * s, 0.02));
+      wig.cone([c[0], c[1], c[2] - 0.04 * s], [c[0], c[1] - 0.12 * s, c[2] - 0.05 * s], 0.05 * s, 0.05 * s, 0.02);
+      wig._push((x, y, z) => SD.ellipsoid(x, y, z, c[0], c[1] - 0.012 * s, c[2] + 0.02 * s, 0.046 * s, 0.058 * s, 0.05 * s), c[0], c[1], c[2] + 0.02 * s, 0.06 * s, 0.01, true);
+      P.add('body', skin.mesh()); P.add('hair', wig.mesh()); eyes(P, hd);
+      usekh(P, 0.03 * s, y0 + 0.66 * s, 0.06 * s);
+      P.add('trim', ring(0.065 * s, y0 + 0.5 * s, 0.01 * s));
+      P.add('accent2', placeAt(cabochon(0.014 * s, 0.6), 0, 0.068 * s, y0 + 0.5 * s));
+      // the crown: a band with a cobra, a modius, and the sun between two horns
+      P.add('trim', ring(0.064 * s, c[1] + 0.035 * s, 0.009 * s).translate(0, 0, -0.012 * s));
+      P.add('trim', K.tube([[c[0], c[1] + 0.035 * s, c[2] + 0.05 * s], [c[0], c[1] + 0.06 * s, c[2] + 0.062 * s], [c[0], c[1] + 0.075 * s, c[2] + 0.056 * s]], 0.005 * s, { segs: 10, radial: 6 }));
+      const my = c[1] + 0.06 * s;
+      P.lathe('trim', profile(0, my).line(0.045 * s, my).line(0.05 * s, my + 0.05 * s).line(0, my + 0.05 * s), { mod: MOD.flutes(12, 0.12, my + 0.005, my + 0.045 * s) });
+      for (const x of [-1, 1]) P.add('trim', K.tube([[x * 0.012 * s, my + 0.05 * s, 0], [x * 0.06 * s, my + 0.08 * s, 0], [x * 0.08 * s, my + 0.15 * s, 0], [x * 0.065 * s, my + 0.22 * s, 0], [x * 0.042 * s, my + 0.245 * s, 0]], 0.011 * s, { segs: 30, radial: 8, radiusAt: (t) => mix(1, 0.3, t) }));
+      const disc = new THREE.CylinderGeometry(0.055 * s, 0.055 * s, 0.018 * s, 40); disc.rotateX(Math.PI / 2); disc.translate(0, my + 0.15 * s, 0);
       P.add('accent2', disc);
-      P.add('trim', ring(0.1, 0, 0.008, { seg: 64 }).rotateX(Math.PI / 2).translate(0, 1.19, 0));
-      return P;
+      P.add('trim', ring(0.055 * s, 0, 0.005 * s, { seg: 48 }).rotateX(Math.PI / 2).translate(0, my + 0.15 * s, 0.002));
+      return turnPiece(P, -0.35);
     },
     b() {
-      const R = 0.312, P = new Piece();
-      const p = egyptBase(profile(0, 0), R, 0.14);
-      p.curve([[0.148, 0.2], [0.15, 0.27], [0.138, 0.38], [0.122, 0.48], [0.112, 0.53]])
-        .line(0.112, 0.57)
-        .curve([[0.12, 0.6], [0.145, 0.635], [0.168, 0.665]])
-        .arc(0.16, 0.676, 0.4).line(0.11, 0.68)
-        .curve([[0.124, 0.73], [0.13, 0.8], [0.118, 0.88], [0.09, 0.96], [0.064, 1.03], [0.054, 1.07]])
-        .curve([[0.076, 1.11], [0.08, 1.16], [0.058, 1.205], [0.0, 1.222]]);
-      P.lathe('body', p, { mod: mods([papyrus(0.16, 0.55, 6), MOD.flutes(16, 0.04, 0.6, 0.67, { end: 0.015 }), MOD.slit(Math.PI * 0.25, 0.92, 0.6, 0.016, 0.45)]) });
-      for (const y of [0.55, 0.565]) P.add('trim', ring(0.114, y, 0.0058));
-      P.add('trim', ring(0.114, 0.69, 0.0095));
-      P.add('accent', beadRing(0.118, 0.708, 22, 0.0068));
-      P.add('trim', K.tube([[0, 0.7, 0.122], [0, 0.73, 0.134], [0, 0.77, 0.136]], 0.008, { segs: 16 }));
-      P.add('trim', placeAt(petal(0.04, 0.05, 0.008), 0, 0.134, 0.765, { tilt: -0.12 }));
+      // a great crystal held up on a falcon's golden wings, on a slim column with a collar
+      const P = new Piece(), y0 = templeBase(P, 0.312, 0.12);
+      P.lathe('body', profile(0, y0).line(0.13, y0).curve([[0.11, y0 + 0.05], [0.085, y0 + 0.2], [0.07, y0 + 0.42]]).line(0.068, y0 + 0.5).line(0, y0 + 0.5), { mod: MOD.facets(8, y0 + 0.02, y0 + 0.5, 0.2) });
+      for (const y of [y0 + 0.03, y0 + 0.2, y0 + 0.38]) P.add('trim', ring(mix(0.12, 0.072, (y - y0) / 0.42), y, 0.008));
+      P.add('trim', placeAt(ankh(0.12, 0.012), 0, 0.094, y0 + 0.24));
+      usekh(P, 0.066, y0 + 0.5, 0.05, 0.6);
+      const cy = y0 + 0.5;
+      P.lathe('trim', profile(0, cy).line(0.06, cy).curve([[0.07, cy + 0.03], [0.1, cy + 0.07]]).line(0.092, cy + 0.08).line(0, cy + 0.05));
+      // the wings: feathers fanned up and out on both sides
+      for (const x of [-1, 1]) {
+        const fs = [];
+        for (let i = 0; i < 7; i++) {
+          const t = i / 6, len = mix(0.13, 0.26, Math.sin(t * Math.PI * 0.8 + 0.3)), f = petal(0.05, len, 0.01);
+          f.rotateZ(-x * mix(0.15, 1.3, t)); f.translate(x * (0.05 + t * 0.03), cy + 0.05 + t * 0.02, -0.01 - t * 0.008); fs.push(f);
+        }
+        P.add('trim', merge(fs));
+      }
+      // the crystal: a long eight-sided gem that glows from inside
+      const pts = [[0, -0.06], [0.06, 0.04], [0.068, 0.11], [0.04, 0.2], [0, 0.27]].map(([r, y]) => new THREE.Vector2(r, y));
+      let gem = new THREE.LatheGeometry(pts, 8); gem = gem.toNonIndexed(); gem.computeVertexNormals(); gem.translate(0, cy + 0.15, 0);
+      P.add('crystal', gem);
+      P.add('trim', ring(0.06, cy + 0.19, 0.008, { seg: 8 }));
       return P;
     },
     n() {
-      const R = 0.322, P = new Piece();
-      P.lathe('body', knightBase(egyptBase(profile(0, 0), R, 0.2), 0.2));
-      P.add('trim', ring(0.214, 0.298, 0.0085));
-      const h = horse({ base: 0.31, mane: 'roach', seed: 5, form: { tuck: -0.2, neck: 0.1, girth: 0.82, reach: 0.2, ears: 0.3, headW: 0.9 } });
-      P.add('body', h.body);
-      const br = bridle(h, {}), pl = plume(h, { count: 5, len: 0.21 });
-      P.add('trim', br.straps); P.add('accent', br.studs);
-      P.add('trim', pl.feathers); P.add('accent', pl.holder);
-      return P;
+      // a jackal guardian sitting up, ears high, in a striped headcloth and a broad collar
+      const P = new Piece(), y0 = templeBase(P, 0.322, 0.12);
+      P.lathe('trim', profile(0, y0).line(0.2, y0).line(0.19, y0 + 0.05).line(0, y0 + 0.05));
+      const b = y0 + 0.05, S = new Sculpt(0.02, 1.05);
+      S.floor = b - 0.004;
+      S.ell([0, b + 0.1, -0.06], [0.1, 0.1, 0.13], 0.04);                                        // haunches
+      S.pair((x) => S.ell([x * 0.07, b + 0.06, -0.04], [0.04, 0.07, 0.1], 0.03));              // back legs folded
+      S.cone([0, b + 0.13, -0.05], [0, b + 0.36, 0.03], 0.1, 0.075, 0.05);                     // body and chest
+      S.pair((x) => S.cone([x * 0.045, b + 0.28, 0.06], [x * 0.045, b + 0.02, 0.1], 0.03, 0.024, 0.02));   // front legs
+      S.pair((x) => S.ell([x * 0.045, b + 0.015, 0.13], [0.028, 0.016, 0.04], 0.012));           // paws
+      S.cone([0, b + 0.36, 0.03], [0, b + 0.52, 0.04], 0.06, 0.048, 0.03);                     // neck
+      S.ell([0, b + 0.56, 0.04], [0.055, 0.055, 0.07], 0.03);                                   // head
+      S.cone([0, b + 0.55, 0.08], [0, b + 0.52, 0.2], 0.036, 0.016, 0.02);                      // long snout
+      S.pair((x) => S.cone([x * 0.03, b + 0.6, 0.02], [x * 0.045, b + 0.74, -0.0], 0.024, 0.004, 0.012));  // tall ears
+      S.chain([[0, b + 0.05, -0.17, 0.026], [0.08, b + 0.02, -0.15, 0.02], [0.14, b + 0.02, -0.04, 0.014], [0.15, b + 0.02, 0.06, 0.008]], 0.02, 3);   // tail curled round
+      P.add('body', S.mesh());
+      P.add('gem', merge([-1, 1].map((x) => sphere(0.011, x * 0.035, b + 0.575, 0.085, 10))));
+      P.add('trim', merge([-1, 1].map((x) => { const e = petal(0.024, 0.09, 0.006); e.rotateX(-0.12); e.translate(x * 0.037, b + 0.63, 0.032); return e; })));   // gold inside the ears
+      usekh(P, 0.055, b + 0.42, 0.06, 0.7);
+      // striped lappets of the headcloth behind the head
+      const lap = new Sculpt(0.012);
+      lap.pair((x) => lap.cone([x * 0.05, b + 0.58, -0.01], [x * 0.07, b + 0.42, 0.0], 0.024, 0.03, 0.02));
+      lap.cone([0, b + 0.6, -0.03], [0, b + 0.44, -0.07], 0.05, 0.04, 0.02);
+      const [la, lb] = stripes(lap.mesh(), 0.018, b);
+      P.add('trim', la); P.add('accent', lb);
+      return turnPiece(P, 0.5);
     },
     r() {
-      const R = 0.322, P = new Piece();
-      const p = egyptBase(profile(0, 0), R, 0.24);
-      p.curve([[0.248, 0.2], [0.24, 0.35], [0.23, 0.5], [0.222, 0.64]])
-        .line(0.222, 0.66).arc(0.232, 0.684, 0.45)
-        .curve([[0.238, 0.7], [0.252, 0.73], [0.268, 0.76]])
-        .line(0.268, 0.772).line(0.215, 0.772).line(0.215, 0.75).line(0, 0.75);
-      P.lathe('body', p, { mod: MOD.flutes(8, 0.035, 0.2, 0.62, { fillet: 0.7, end: 0.02 }) });
-      P.add('body', battlements(6, 0.215, 0.262, 0.768, 0.89, 0.36, 'round', 0.04));
-      P.add('trim', ring(0.234, 0.672, 0.008));
-      P.add('accent', ring(0.27, 0.766, 0.0085));
+      // a temple tower: a tapering pylon with a cornice and battlements, a figure in gold relief
+      // on the front, and fire burning in a bowl on top
+      const P = new Piece(), y0 = templeBase(P, 0.33, 0.12), top = y0 + 0.55, keep = DETAIL.around;
+      DETAIL.around = 1;
+      const tower = revolve(profile(0, y0).line(0.24, y0).line(0.24, y0 + 0.03).line(0.2, y0 + 0.04).line(0.17, top - 0.06).curve([[0.19, top - 0.03], [0.215, top]]).line(0.215, top + 0.02).line(0, top + 0.02),
+        { segs: 4, mod: MOD.flutes(4, 0.02, y0 + 0.06, top - 0.07, { end: 0.01, phase: 0.5 }) });
+      DETAIL.around = keep;
+      const tw = tower.toNonIndexed(); tw.rotateY(Math.PI / 4); tw.computeVertexNormals(); P.add('body', tw);
+      // merlons along the four edges of the roof
+      const ml = [];
+      for (let side = 0; side < 4; side++) for (let i = 0; i < 3; i++) { const m = rbox(0.06, 0.08, 0.05, 0.008, -0.1 + i * 0.1, top + 0.06, 0.125); m.rotateY(side * Math.PI / 2); ml.push(m); }
+      P.add('body', merge(ml));
+      P.add('trim', merge([0, 1, 2, 3].map((k) => rbox(0.3, 0.018, 0.012, 0.004, 0, top - 0.004, 0.151).rotateY(k * Math.PI / 2))));
+      P.add('accent', merge([0, 1, 2, 3].map((k) => rbox(0.25, 0.012, 0.012, 0.004, 0, top - 0.035, 0.136).rotateY(k * Math.PI / 2))));
+      // the relief: a figure with a staff, under a band of gold, on each of the four faces
+      const fig = [];
+      for (let k = 0; k < 4; k++) {
+        const g = extrude([[-0.03, 0], [0.03, 0], [0.026, 0.13], [0.04, 0.18], [0.03, 0.24], [0.018, 0.26], [0.02, 0.3], [0, 0.33], [-0.02, 0.3], [-0.018, 0.26], [-0.03, 0.24], [-0.04, 0.18], [-0.026, 0.13]], 0.008, 0.002, { bevelSegments: 1 });
+        const st = rbox(0.008, 0.3, 0.008, 0.003, 0.055, 0.15, 0);
+        const f = merge([g, st]); f.rotateX(-0.06); f.translate(0, y0 + 0.11, 0.137); f.rotateY(k * Math.PI / 2); fig.push(f);
+      }
+      P.add('trim', merge(fig));
+      P.add('gem', merge([0, 1, 2, 3].map((k) => { const d = brilliant(0.018); d.rotateZ(Math.PI / 4); d.translate(0, top - 0.06, 0.135); d.rotateY(k * Math.PI / 2); return d; })));
+      // the fire bowl
+      P.lathe('trim', profile(0, top + 0.02).line(0.04, top + 0.02).line(0.05, top + 0.06).curve([[0.1, top + 0.08], [0.115, top + 0.12]]).line(0.1, top + 0.125).line(0, top + 0.1));
+      egyptFlame(P, top + 0.09, 0.08);
       return P;
     },
     p() {
-      const R = 0.272, P = new Piece();
-      const p = egyptBase(profile(0, 0), R, 0.12, 0.85);
-      p.curve([[0.124, 0.17], [0.122, 0.25], [0.108, 0.32], [0.098, 0.35]])
-        .curve([[0.112, 0.37], [0.14, 0.395]]).arc(0.132, 0.405, 0.4).line(0.07, 0.41);
-      ovalHead(p, 0.065, 0.52, 0.112, 0.118, 0.7);
-      P.lathe('body', p, { mod: mods([papyrus(0.13, 0.35, 6), MOD.lobes(6, 0.14, 0.43, 0.7, { shape: 0.8, end: 0.06 })]) });
-      for (const y of [0.33, 0.345]) P.add('trim', ring(0.1, y, 0.0055));
-      P.add('trim', beadRing(0.1, 0.428, 16, 0.009));
-      P.add('accent', beadRing(0.094, 0.444, 16, 0.0072, { phase: Math.PI / 16 }));
-      return P;
+      // a spearman in the striped headcloth, with a round shield marked with an ankh
+      const P = new Piece(), y0 = templeBase(P, 0.27, 0.1), s = 0.64, A = at([0, y0, 0], s);
+      const body = new Sculpt(0.016, 1.1);
+      body.floor = y0 - 0.004;
+      body.pair((x) => body.cone(A(x * 0.05, 0, 0), A(x * 0.045, 0.3, 0), 0.04 * s, 0.05 * s, 0.02));
+      body.ell(A(0, 0.55, 0.01), [0.1 * s, 0.14 * s, 0.07 * s], 0.04);
+      body.cone(A(0, 0.69, 0), A(0, 0.75, 0.004), 0.034 * s, 0.032 * s, 0.01);
+      const c = A(0, 0.82, 0.008), hd = head(body, c, 0.064 * s);
+      arm(body, body, A(0.1, 0.66, 0), A(0.15, 0.55, 0.04), A(0.13, 0.62, 0.1), 0.026 * s);
+      arm(body, body, A(-0.1, 0.66, 0), A(-0.15, 0.55, 0.04), A(-0.14, 0.5, 0.1), 0.026 * s);
+      P.add('body', body.mesh()); eyes(P, hd);
+      // a pleated kilt and a belt
+      P.lathe('body', profile(0, y0 + 0.2 * s).line(0.1 * s, y0 + 0.2 * s).line(0.11 * s, y0 + 0.24 * s).line(0.09 * s, y0 + 0.44 * s).line(0, y0 + 0.44 * s), { mod: MOD.flutes(16, 0.12, y0 + 0.21 * s, y0 + 0.42 * s, { end: 0.01 }) });
+      P.add('trim', ring(0.09 * s, y0 + 0.44 * s, 0.012 * s));
+      usekh(P, 0.035 * s, y0 + 0.69 * s, 0.065 * s);
+      nemes(P, c, 0.064 * s, { fine: 0.7 });
+      const sh = shield(0.17 * s, 0.03);
+      for (const g of [sh.face, sh.rim, sh.boss]) g.translate(-0.1 * s, y0 + 0.5 * s, 0.14 * s);
+      P.add('trim', merge([sh.face, sh.rim]));
+      P.add('accent', placeAt(ankh(0.15 * s, 0.01), 0, 0, 0).translate(-0.1 * s, y0 + 0.5 * s - 0.075 * s, 0.14 * s + 0.032));
+      const sp = spear(0.9 * s, 0.006);
+      for (const g of [sp.shaft, sp.head]) g.translate(0.13 * s, y0 + 0.08 * s, 0.1 * s);
+      P.add('trim', merge([sp.shaft, sp.head]));
+      return turnPiece(P, 0.3);
     },
   };
 
@@ -1684,79 +1806,185 @@ function ChacklatePieces(THREE, K) {
     }
     return { geom: merge(parts), top: y };
   }
+  // The people of the jazz-age city, on stepped octagonal plinths of gold: a tycoon in a long
+  // coat and cape with a skyscraper crown, a dancer under a golden sunburst with a fur stole,
+  // a lamplighter in a fedora carrying a street lamp, a horse with a fan-shaped mane, a
+  // skyscraper with lit windows, and a pawn like a lamp globe over a sunburst fan.
+  function decoPlinth(P, R, h) {
+    cutLathe(P, 'trim', profile(0, 0).line(R, 0).line(R, h * 0.3).line(R - 0.02, h * 0.32).line(0, h * 0.32), 8, { mod: null });
+    cutLathe(P, 'body', profile(0, h * 0.3).line(R - 0.022, h * 0.3).line(R - 0.022, h * 0.72).line(0, h * 0.72), 8);
+    cutLathe(P, 'trim', profile(0, h * 0.7).line(R - 0.035, h * 0.7).line(R - 0.035, h * 0.8).line(R - 0.05, h * 0.82).line(R - 0.05, h).line(0, h), 8);
+    const a = TAU / 16;
+    P.add('gem', around(4, (R - 0.022) * Math.cos(a / 1) + 0.002, h * 0.51, () => rbox(0.034, 0.03, 0.01, 0.004), { phase: a }));
+    P.add('trim', around(8, (R - 0.022) * Math.cos(TAU / 16) + 0.001, h * 0.51, () => rbox(0.006, h * 0.36, 0.006, 0.002)));
+    return h;
+  }
+  // a fan of rays in the plane facing +z, spreading over `spread` either side of straight up
+  function sunfan(r0, r1, n, spread, depth) {
+    const parts = [];
+    for (let i = 0; i < n; i++) {
+      const a = mix(-spread, spread, n === 1 ? 0.5 : i / (n - 1)), len = (r1 - r0) * (i % 2 ? 0.72 : 1);
+      const g = ray(TAU * r0 / n * 1.6 + 0.012, len, depth); g.translate(0, r0, 0); g.rotateZ(a); parts.push(g);
+    }
+    return merge(parts);
+  }
   const DECO = {
     k() {
-      const R = 0.35, P = new Piece();
-      const p = decoBase(profile(0, 0), R, 0.15);
-      p.line(0.142, 0.64).line(0.168, 0.645).line(0.168, 0.69).line(0.128, 0.695)
-        .line(0.12, 0.86).line(0.142, 0.865).line(0.142, 0.895).line(0.105, 0.9).line(0.1, 0.94).line(0, 0.94);
-      P.lathe('body', p, { mod: mods([octo(0, 0.135), ribs(16, 0.14, 0.635), ribs(12, 0.7, 0.855)]) });
-      P.add('trim', ring(0.169, 0.667, 0.007)); P.add('trim', ring(0.143, 0.88, 0.006));
-      const c = chryslerCrown(0.94, 0.11, 4);
+      // the tycoon: a long coat and a cape, hands resting on a cane, a skyscraper crown and a cross
+      const P = new Piece(), y0 = decoPlinth(P, 0.35, 0.13), s = 1.12, A = at([0, y0, 0], s);
+      P.lathe('body', profile(0, y0).line(0.14 * s, y0).curve([[0.13 * s, y0 + 0.2 * s], [0.1 * s, y0 + 0.42 * s], [0.088 * s, y0 + 0.52 * s]]).line(0, y0 + 0.52 * s),
+        { mod: MOD.flutes(10, 0.08, y0 + 0.01, y0 + 0.46 * s, { soft: true, end: 0.03 }) });
+      const sk = new Sculpt(0.018, 1.1), cape = new Sculpt(0.022, 1.25), hair = new Sculpt(0.012);
+      sk.floor = y0 + 0.42 * s; cape.floor = y0 - 0.004;
+      sk.ell(A(0, 0.6, 0.004), [0.1 * s, 0.13 * s, 0.072 * s], 0.035);
+      sk.pair((x) => sk.ell(A(x * 0.1, 0.705, 0), [0.052 * s, 0.045 * s, 0.05 * s], 0.03));      // broad shoulders
+      sk.cone(A(0, 0.72, 0), A(0, 0.79, 0.006), 0.034 * s, 0.031 * s, 0.01);
+      const hd = head(sk, A(0, 0.855, 0.01), 0.062 * s);
+      arm(sk, sk, A(-0.11, 0.69, 0), A(-0.14, 0.56, 0.05), A(-0.02, 0.48, 0.11), 0.028 * s);
+      arm(sk, sk, A(0.11, 0.69, 0), A(0.14, 0.56, 0.05), A(0.02, 0.48, 0.11), 0.028 * s);
+      cape.cone(A(0, 0.72, -0.05), A(0, 0.02, -0.08), 0.12 * s, 0.17 * s, 0.03);
+      cape.pair((x) => cape.cone(A(x * 0.1, 0.72, -0.01), A(x * 0.15, 0.05, -0.02), 0.03 * s, 0.05 * s, 0.03));
+      cape._push((x, y, z) => SD.ellipsoid(x, y, z, 0, y0 + 0.4 * s, 0.06 * s, 0.12 * s, 0.5 * s, 0.1 * s), 0, y0 + 0.4 * s, 0.06 * s, 0.5 * s, 0.02, true);   // open at the front
+      hair.ell(A(0, 0.885, -0.008), [0.066 * s, 0.05 * s, 0.064 * s], 0.012);
+      P.add('body', sk.mesh()); P.add('cloth', cape.mesh()); P.add('hair', hair.mesh()); eyes(P, hd);
+      // lapels, a gem tie pin, a belt, gold edging on the cape, the cane
+      P.add('trim', merge([-1, 1].map((x) => rbox(0.012 * s, 0.14 * s, 0.01, 0.004, x * 0.03 * s, y0 + 0.64 * s, 0.07 * s).rotateZ(x * 0.35))));
+      P.add('gem', rbox(0.02 * s, 0.1 * s, 0.012, 0.005, 0, y0 + 0.62 * s, 0.072 * s));
+      P.add('trim', ring(0.091 * s, y0 + 0.52 * s, 0.012 * s));
+      P.add('trim', merge([-1, 1].map((x) => K.tube([[x * 0.1 * s, y0 + 0.72 * s, 0.0], [x * 0.13 * s, y0 + 0.4 * s, 0.01 * s], [x * 0.16 * s, y0 + 0.05 * s, 0.0]], 0.008 * s, { segs: 20, radial: 6 }))));
+      P.add('trim', cyl(0.008 * s, 0.008 * s, 0.48 * s, 0, y0 + 0.24 * s, 0.12 * s, 10));
+      P.add('trim', sphere(0.022 * s, 0, y0 + 0.48 * s + 0.012, 0.12 * s, 12));
+      // the crown: stacked arches like the top of a skyscraper, a spire and a stepped cross
+      const c = chryslerCrown(y0 + 0.9 * s, 0.07 * s, 3);
       P.add('trim', c.geom);
-      P.lathe('trim', profile(0, c.top).line(0.02, c.top).line(0.004, c.top + 0.16).line(0, c.top + 0.162), { segs: 24 });
-      P.add('trim', placeAt(crossOf('stepped', 0.18, 0.036), 0, 0, c.top + 0.27));
-      return P;
+      P.add('gem', gemRing(8, 0.071 * s, y0 + 0.93 * s, 0.009, { phase: Math.PI / 8 }));
+      P.lathe('trim', profile(0, c.top).line(0.014, c.top).line(0.003, c.top + 0.1).line(0, c.top + 0.102), { segs: 20 });
+      P.add('trim', placeAt(crossOf('stepped', 0.15, 0.03), 0, 0, c.top + 0.18));
+      return turnPiece(P, 0.3);
     },
     q() {
-      const R = 0.335, P = new Piece();
-      const p = decoBase(profile(0, 0), R, 0.142);
-      p.line(0.134, 0.6).line(0.16, 0.605).line(0.16, 0.65).line(0.12, 0.655)
-        .line(0.112, 0.8).line(0.14, 0.805).line(0.14, 0.835).line(0.1, 0.84)
-        .curve([[0.11, 0.9], [0.1, 0.98], [0.07, 1.04], [0.035, 1.07]]).line(0, 1.072);
-      P.lathe('body', p, { mod: mods([octo(0, 0.13), ribs(16, 0.135, 0.595), ribs(12, 0.66, 0.795)]) });
-      P.add('trim', ring(0.161, 0.627, 0.0068)); P.add('trim', ring(0.141, 0.82, 0.006));
-      // sunburst: rays fanning up and out from the crown
-      P.add('trim', around(16, 0.104, 0.842, (i) => ray(0.072, i % 2 ? 0.15 : 0.235, 0.012), { tilt: 0.42 }));
-      P.add('trim', ring(0.106, 0.846, 0.012));
-      P.add('trim', sphere(0.04, 0, 1.11, 0, 20));
-      P.lathe('trim', profile(0, 1.14).line(0.012, 1.142).line(0.003, 1.22).line(0, 1.222), { segs: 20 });
-      return P;
+      // the dancer: a beaded gown, a fur stole, a bobbed head and a sunburst of gold rays
+      const P = new Piece(), y0 = decoPlinth(P, 0.335, 0.13), s = 1.1, A = at([0, y0, 0], s);
+      P.lathe('body', profile(0, y0).line(0.15 * s, y0).curve([[0.13 * s, y0 + 0.08 * s], [0.08 * s, y0 + 0.2 * s], [0.07 * s, y0 + 0.36 * s], [0.06 * s, y0 + 0.5 * s]]).line(0, y0 + 0.5 * s),
+        { mod: MOD.flutes(24, 0.1, y0 + 0.01, y0 + 0.2 * s, { soft: true, end: 0.02 }) });
+      for (const y of [0.16, 0.25, 0.34]) P.add('trim', beadRing(mix(0.085, 0.066, (y - 0.16) / 0.2) * s, y0 + y * s, 40, 0.005));
+      const sk = new Sculpt(0.016, 1.05), fur = new Sculpt(0.02, 1.2), hair = new Sculpt(0.012);
+      sk.floor = y0 + 0.4 * s;
+      sk.ell(A(0, 0.55, 0.004), [0.058 * s, 0.1 * s, 0.045 * s], 0.03);
+      sk.cone(A(0, 0.63, 0.004), A(0, 0.69, 0.008), 0.024 * s, 0.022 * s, 0.01);
+      const c = A(0, 0.745, 0.012), hd = head(sk, c, 0.055 * s);
+      arm(sk, sk, A(-0.064, 0.61, 0), A(-0.11, 0.53, 0.02), A(-0.07, 0.47, 0.05), 0.018 * s);   // hand on her hip
+      arm(sk, sk, A(0.064, 0.61, 0), A(0.1, 0.66, 0.03), A(0.08, 0.76, 0.05), 0.018 * s);
+      for (let i = 0; i < 12; i++) { const th = (i / 12) * TAU, r = 0.07 * s; fur.ell([Math.sin(th) * r, y0 + 0.62 * s + Math.cos(th * 2) * 0.006, Math.cos(th) * r * 0.85], [0.034 * s, 0.03 * s, 0.034 * s], 0.025); }
+      fur.pair((x) => fur.chain([[x * 0.07 * s, y0 + 0.6 * s, 0.03 * s, 0.03 * s], [x * 0.1 * s, y0 + 0.45 * s, 0.05 * s, 0.026 * s], [x * 0.1 * s, y0 + 0.32 * s, 0.04 * s, 0.02 * s]], 0.02, 2));
+      hair.ell([c[0], c[1] + 0.014 * s, c[2] - 0.01 * s], [0.062 * s, 0.056 * s, 0.062 * s], 0.012);
+      hair.pair((x) => hair.ell([c[0] + x * 0.05 * s, c[1] - 0.02 * s, c[2] + 0.005 * s], [0.02 * s, 0.04 * s, 0.03 * s], 0.012));
+      P.add('body', sk.mesh()); P.add('fur', fur.mesh()); P.add('hair', hair.mesh()); eyes(P, hd);
+      // a beaded headband with a gem, and the sunburst behind her head
+      P.add('trim', ring(0.06 * s, c[1] + 0.025 * s, 0.006 * s));
+      P.add('gem', placeAt(brilliant(0.012 * s), 0, 0.064 * s, c[1] + 0.03 * s));
+      const fan = sunfan(0.07 * s, 0.24 * s, 15, 1.35, 0.012); fan.translate(c[0], c[1] - 0.01 * s, c[2] - 0.05 * s);
+      P.add('trim', fan);
+      P.add('trim', ring(0.07 * s, 0, 0.007, { seg: 48 }).rotateX(Math.PI / 2).translate(c[0], c[1] - 0.01 * s, c[2] - 0.05 * s));
+      P.add('pearl', around(18, 0.04 * s, y0 + 0.655 * s, () => sphere(0.0065 * s, 0, 0, 0, 8)));
+      return turnPiece(P, -0.3);
     },
     b() {
-      const R = 0.312, P = new Piece();
-      const p = decoBase(profile(0, 0), R, 0.13);
-      p.line(0.122, 0.54).line(0.148, 0.545).line(0.148, 0.59).line(0.1, 0.596)
-        .curve([[0.118, 0.64], [0.136, 0.72], [0.138, 0.81], [0.126, 0.9], [0.1, 0.98], [0.066, 1.04], [0.03, 1.08]])
-        .line(0.018, 1.086).line(0, 1.087);
-      P.lathe('body', p, { mod: mods([octo(0, 0.125), ribs(12, 0.13, 0.535), MOD.facets(8, 0.6, 1.1, 0), MOD.slit(Math.PI * 0.25, 0.9, 0.6, 0.017, 0.5)]) });
-      P.add('trim', ring(0.149, 0.567, 0.0066));
-      for (const [y, r] of [[0.64, 0.12], [0.665, 0.126], [0.69, 0.131]]) P.add('trim', ring(r, y, 0.0048));
-      P.add('trim', sphere(0.03, 0, 1.11, 0, 20));
-      return P;
+      // the lamplighter: a long belted coat, a fedora, and a street lamp on a tall gold post
+      const P = new Piece(), y0 = decoPlinth(P, 0.312, 0.12), s = 0.98, A = at([0, y0, 0], s);
+      P.lathe('body', profile(0, y0).line(0.13 * s, y0).curve([[0.125 * s, y0 + 0.2 * s], [0.1 * s, y0 + 0.42 * s], [0.09 * s, y0 + 0.55 * s]]).line(0, y0 + 0.55 * s),
+        { mod: MOD.flutes(8, 0.07, y0 + 0.01, y0 + 0.5 * s, { soft: true, end: 0.03 }) });
+      const sk = new Sculpt(0.018, 1.1);
+      sk.floor = y0 + 0.44 * s;
+      sk.ell(A(0, 0.6, 0.004), [0.09 * s, 0.12 * s, 0.066 * s], 0.035);
+      sk.pair((x) => sk.ell(A(x * 0.09, 0.695, 0), [0.045 * s, 0.04 * s, 0.045 * s], 0.03));
+      sk.cone(A(0, 0.71, 0), A(0, 0.79, 0.006), 0.034 * s, 0.031 * s, 0.01);
+      const hd = head(sk, A(0, 0.85, 0.01), 0.06 * s);
+      arm(sk, sk, A(0.1, 0.68, 0), A(0.15, 0.6, 0.03), A(0.14, 0.7, 0.09), 0.026 * s);     // the lamp hand
+      arm(sk, sk, A(-0.1, 0.68, 0), A(-0.13, 0.55, 0.03), A(-0.1, 0.46, 0.06), 0.026 * s);
+      sk.pair((x) => sk.cone(A(x * 0.05, 0.69, 0.06), A(x * 0.02, 0.5, 0.075), 0.02 * s, 0.014 * s, 0.01));   // coat lapels
+      P.add('body', sk.mesh()); eyes(P, hd);
+      P.add('trim', ring(0.098 * s, y0 + 0.47 * s, 0.012 * s));
+      P.add('gem', placeAt(rbox(0.026 * s, 0.022 * s, 0.01, 0.004), 0, 0.104 * s, y0 + 0.47 * s));
+      P.add('trim', merge([0, 1, 2].map((i) => sphere(0.008 * s, 0, y0 + (0.62 - i * 0.06) * s, 0.072 * s, 8))));
+      // the fedora
+      const hy = A(0, 0.895, 0)[1];
+      P.lathe('hair', profile(0, hy).line(0.11 * s, hy).line(0.112 * s, hy + 0.008).line(0.066 * s, hy + 0.012).curve([[0.07 * s, hy + 0.06 * s], [0.055 * s, hy + 0.09 * s]]).line(0, hy + 0.08 * s), { mod: MOD.slit(0, hy + 0.09 * s, 0, 0.02, 0.3) });
+      P.add('trim', ring(0.068 * s, hy + 0.025 * s, 0.008 * s));
+      // the street lamp: a gold post with a glowing globe in a crown of rays
+      const lp = A(0.14, 0.7, 0.09);
+      P.add('trim', cyl(0.008 * s, 0.011 * s, 1.0 * s, lp[0], y0 + 0.5 * s, lp[2], 10));
+      P.add('trim', sphere(0.018 * s, lp[0], y0 + 0.02, lp[2], 10));
+      const gy = y0 + 1.06 * s;
+      P.lathe('trim', profile(0, gy - 0.07 * s).line(0.03 * s, gy - 0.06 * s).line(0.045 * s, gy - 0.04 * s).line(0, gy - 0.04 * s), { segs: 32 });
+      P.add('glow', sphere(0.05 * s, lp[0], gy, lp[2], 24));
+      P.add('trim', around(8, 0.052 * s, gy, () => rbox(0.005, 0.1 * s, 0.005, 0.002)).translate(lp[0], 0, lp[2]));
+      P.add('trim', sphere(0.014 * s, lp[0], gy + 0.06 * s, lp[2], 10));
+      return turnPiece(P, -0.4);
     },
     n() {
       const R = 0.322, P = new Piece();
-      const p = decoBase(profile(0, 0), R, 0.2);
-      p.line(0.2, 0.2).line(0.222, 0.205).line(0.222, 0.3).line(0.205, 0.318).line(0, 0.318);
-      P.lathe('body', p, { mod: octo(0, 0.32) });
-      P.add('trim', ring(0.223, 0.25, 0.006));
+      const y0 = decoPlinth(P, R, 0.13);
+      cutLathe(P, 'body', profile(0, y0).line(0.22, y0).line(0.22, 0.29).line(0.2, 0.31).line(0, 0.31), 8);
+      P.add('trim', around(8, 0.22 * Math.cos(TAU / 16) + 0.002, 0.21, () => rbox(0.05, 0.012, 0.006, 0.003), { phase: TAU / 16 }));
       const h = horse({ base: 0.31, mane: 'none', seed: 5, form: { facet: 0.018, lean: 0.18, reach: 0.16, girth: 0.86, ears: 0.35 } });
       P.add('body', h.body);
       const br = bridle(h, { stud: 0.014 });
-      P.add('trim', br.straps); P.add('trim', br.studs);
+      P.add('trim', br.straps); P.add('gem', br.studs);
+      // a fan-shaped mane of stepped gold fins down the crest
+      const crest = [[-0.03, 0.97], [-0.07, 0.93], [-0.1, 0.87], [-0.122, 0.79], [-0.136, 0.7], [-0.144, 0.6], [-0.146, 0.5]];
+      const fins = [];
+      for (let i = 0; i < 12; i++) {
+        const t = i / 11, u = t * (crest.length - 1), j = Math.min(crest.length - 2, Math.floor(u)), w = u - j;
+        const z = mix(crest[j][0], crest[j + 1][0], w), y = mix(crest[j][1], crest[j + 1][1], w), len = mix(0.085, 0.05, t) * (i % 2 ? 0.8 : 1);
+        const f = extrude([[0, 0], [len, 0.012], [len * 1.06, 0.026], [len * 0.82, 0.032], [len * 0.86, 0.042], [0, 0.04]], 0.008, 0.002, { bevelSegments: 1 });
+        f.rotateY(Math.PI / 2); f.rotateX(-0.35 - t * 1.0); f.translate(0, h.Y(y) - 0.022, z + 0.012);
+        fins.push(f);
+      }
+      P.add('trim', merge(fins));
       return P;
     },
     r() {
-      const R = 0.322, P = new Piece();
-      const p = decoBase(profile(0, 0), R, 0.228);
-      p.line(0.222, 0.56).line(0.25, 0.565).line(0.25, 0.62).line(0.2, 0.625).line(0.2, 0.6).line(0, 0.6);
-      P.lathe('body', p, { mod: mods([octo(0, 0.63), ribs(16, 0.14, 0.55)]) });
-      P.add('body', battlements(8, 0.2, 0.248, 0.618, 0.76, 0.3, 'step', 0.07));
-      P.add('trim', ring(0.252, 0.59, 0.0065));
+      // a skyscraper: setbacks, gold piers between rows of lit windows, gems up the corners,
+      // stepped battlements and a short spire
+      const P = new Piece(), y0 = decoPlinth(P, 0.33, 0.12);
+      const tiers = [[0.2, y0, y0 + 0.42], [0.168, y0 + 0.42, y0 + 0.62], [0.13, y0 + 0.62, y0 + 0.74]];
+      for (const [r, a, b] of tiers) {
+        cutLathe(P, 'body', profile(0, a).line(r, a).line(r, b).line(0, b), 4, { mod: null });
+        P.add('trim', rbox(r * 1.44, 0.014, r * 1.44, 0.004, 0, b, 0).rotateY(Math.PI / 4));
+        const f = r * Math.SQRT1_2, wins = [], piers = [];
+        for (let k = 0; k < 4; k++) for (let i = -2; i <= 2; i++) {
+          const x = i * f * 0.34;
+          piers.push(rbox(0.008, b - a - 0.05, 0.008, 0.003, x + f * 0.17, (a + b) / 2, f + 0.002).rotateY(k * Math.PI / 2 + Math.PI / 4));
+          if (i < 2) wins.push(rbox(f * 0.2, b - a - 0.08, 0.006, 0.002, x + f * 0.34 * 0.5 + f * 0.0, (a + b) / 2, f + 0.0).rotateY(k * Math.PI / 2 + Math.PI / 4));
+        }
+        P.add('trim', merge(piers)); P.add('glow', merge(wins));
+      }
+      // gems up the corners of the lowest tier
+      P.add('gem', merge([0, 1, 2, 3].map((k) => merge([0, 1, 2, 3].map((i) => { const d = brilliant(0.012); d.translate(0, y0 + 0.08 + i * 0.09, 0.198); d.rotateY(k * Math.PI / 2); return d; })))));
+      // stepped battlements round the top tier, then the spire
+      const tb = y0 + 0.74, tf = 0.13 * Math.SQRT1_2;
+      const ml = [];
+      for (let k = 0; k < 4; k++) for (let i = -1; i <= 1; i++) { const m = rbox(0.045, i ? 0.07 : 0.1, 0.03, 0.006, i * 0.06, tb + (i ? 0.035 : 0.05), tf - 0.012); m.rotateY(k * Math.PI / 2 + Math.PI / 4); ml.push(m); }
+      P.add('body', merge(ml));
+      P.lathe('trim', profile(0, tb).line(0.04, tb).line(0.03, tb + 0.06).line(0.012, tb + 0.08).line(0.003, tb + 0.2).line(0, tb + 0.2), { segs: 16 });
       return P;
     },
     p() {
-      const R = 0.272, P = new Piece();
-      const p = decoBase(profile(0, 0), R, 0.1, 0.85);
-      p.line(0.094, 0.3).line(0.122, 0.305).line(0.122, 0.345).line(0.064, 0.35);
-      ballHead(p, 0.06, 0.47, 0.118);
-      P.lathe('body', p, { mod: mods([octo(0, 0.35), ribs(10, 0.115, 0.295), MOD.facets(8, 0.36, 0.6, 0)]) });
-      P.add('trim', ring(0.123, 0.325, 0.0058));
-      P.add('trim', ring(0.122, 0.47, 0.006, { seg: 8 }).rotateY(Math.PI / 8));
+      // a round head like a lamp globe, on a stepped column with a sunburst fan at the front
+      const P = new Piece(), y0 = decoPlinth(P, 0.272, 0.1);
+      cutLathe(P, 'body', profile(0, y0).line(0.12, y0).line(0.12, y0 + 0.04).line(0.095, y0 + 0.045).line(0.095, y0 + 0.08).line(0.072, y0 + 0.085)
+        .line(0.062, y0 + 0.25).line(0.09, y0 + 0.26).line(0.09, y0 + 0.29).line(0, y0 + 0.29), 8);
+      P.add('trim', ring(0.09, y0 + 0.275, 0.008, { seg: 8 }).rotateY(Math.PI / 8));
+      const fan = sunfan(0.03, 0.15, 9, 1.2, 0.01); fan.translate(0, y0 + 0.07, 0.085); P.add('trim', fan);
+      P.add('gem', placeAt(brilliant(0.014), 0, 0.096, y0 + 0.11));
+      P.add('body', sphere(0.11, 0, y0 + 0.39, 0, 32));
+      P.add('trim', ring(0.11, y0 + 0.39, 0.007, { seg: 48 }));
+      P.add('trim', ring(0.11, 0, 0.006, { seg: 48 }).rotateX(Math.PI / 2).translate(0, y0 + 0.39, 0));
       return P;
     },
   };
+
 
   // ------------------------------------------------------------------ shared by the newer sets
   // A lathe cut into flat facets like a gemstone: a fixed number of sides at every level of
@@ -3165,161 +3393,262 @@ function ChacklatePieces(THREE, K) {
     },
   };
 
-  // ------------------------------------------------------------------ Coral Kingdom (novelty)
-  // An undersea court in mother-of-pearl: a merman king with a trident, a mermaid queen, an
-  // octopus bishop whose head makes the mitre, a seahorse knight, a coral castle and a shoal
-  // of pufferfish pawns.
-  function reefBase(P, R, h) {
-    P.lathe('body', profile(0, 0).line(R - 0.015, 0).arc(R, 0.015, 0.3).line(R - 0.006, h - 0.02).arc(R - 0.026, h, 0.4).line(0, h), { mod: MOD.lobes(9, 0.06, 0, h) });
-    P.add('accent', around(9, R - 0.012, h * 0.55, () => sphere(0.011, 0, 0, 0, 8), { phase: Math.PI / 9 }));
+  // ------------------------------------------------------------------ Coral Kingdom (sunken Atlantis)
+  // The court of a sunken city in pearl and gold: a sea king with his trident, a mermaid queen,
+  // jellyfish bishops that glow from inside, spiny seahorse knights, lighthouse rooks and pearl
+  // pawns cupped in open scallop shells. Every piece stands on a gold drum set with sea-blue gems.
+  // A surface with two faces: f(u, v) gives a point on the front; the back is the same surface
+  // pushed `thick` along -z of its own normal, so thin shells and fins read from both sides.
+  function sheet(nu, nv, f, thick) {
+    const W = nu + 1, pos = [], idx = [];
+    for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) pos.push(...f(i / nu, j / nv));
+    for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = j * W + i, b = a + 1, c = a + W, d = c + 1; idx.push(a, b, d, a, d, c); }
+    const front = new THREE.BufferGeometry();
+    front.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); front.setIndex(idx); front.computeVertexNormals();
+    const n = front.attributes.normal, back = pos.slice(), bidx = [];
+    for (let i = 0; i < n.count; i++) { back[i * 3] -= n.getX(i) * thick; back[i * 3 + 1] -= n.getY(i) * thick; back[i * 3 + 2] -= n.getZ(i) * thick; }
+    for (let k = 0; k < idx.length; k += 3) bidx.push(idx[k], idx[k + 2], idx[k + 1]);
+    const bg = new THREE.BufferGeometry();
+    bg.setAttribute('position', new THREE.Float32BufferAttribute(back, 3)); bg.setIndex(bidx); bg.computeVertexNormals();
+    return merge([front, bg]);
+  }
+  // A scallop shell: a fan of ribs from the hinge at the origin, opening up +y and bulging
+  // toward +z, with a frilled edge where the ribs end.
+  function scallop(r, open, ribs) {
+    const n = ribs || 11, a0 = open || 1.15;
+    const g = sheet(Math.round(n * 6 * DETAIL.around) + 6, Math.max(5, Math.round(10 * DETAIL.along)), (u, v) => {
+      const a = (u * 2 - 1) * a0, rib = Math.cos(u * n * TAU), rr = r * (0.1 + 0.9 * v) * (1 + 0.035 * rib * v);
+      const z = r * 0.3 * Math.sin(v * Math.PI * 0.85) * (1 - 0.45 * Math.pow(u * 2 - 1, 2)) + rib * r * 0.035 * v;
+      return [Math.sin(a) * rr, Math.cos(a) * rr, z];
+    }, r * 0.05);
+    // the two little ears at the hinge
+    const ears = extrude([[-r * 0.3, 0], [r * 0.3, 0], [r * 0.22, r * 0.2], [-r * 0.22, r * 0.2]], r * 0.05, r * 0.012, { bevelSegments: 1 });
+    return merge([g, ears]);
+  }
+  // A gold drum: a rolled foot and lip round a band of nacre set with sea-blue gems and pearls.
+  function tideBase(P, R, h) {
+    P.lathe('trim', profile(0, 0).line(R - 0.012, 0).arc(R, 0.012, 0.3).line(R, 0.03).line(R - 0.014, 0.038).line(R - 0.014, h - 0.036)
+      .line(R + 0.002, h - 0.03).arc(R - 0.01, h - 0.004, 0.35).line(R - 0.04, h).line(0, h));
+    P.add('body', new THREE.CylinderGeometry(R - 0.008, R - 0.008, h - 0.084, Math.round(Q.segs * DETAIL.around), 1, true).translate(0, h / 2 + 0.001, 0));
+    P.add('accent', around(8, R - 0.007, h / 2, () => cabochon(0.019, 0.6)));
+    P.add('pearl', around(8, R - 0.008, h / 2, () => sphere(0.0115, 0, 0, 0, 10), { phase: Math.PI / 8 }));
+    P.add('trim', beadRing(R - 0.03, h + 0.002, Math.round(R * 90), 0.0075));
     return h;
   }
-  // a fish tail from the waist w, swinging round to a fluke lying on the base
-  function fishTail(S, w, r, side, y0) {
-    const sd = side || 1, dy = w[1] - y0;
-    S.chain([[w[0], w[1], w[2], r], [w[0] + 0.01 * sd, y0 + dy * 0.62, w[2] + 0.03, r * 0.95], [w[0] + 0.03 * sd, y0 + dy * 0.3, w[2] + 0.0, r * 0.75],
-      [w[0] + 0.08 * sd, y0 + 0.04, w[2] - 0.05, r * 0.5], [w[0] + 0.15 * sd, y0 + 0.035, w[2] - 0.02, r * 0.36], [w[0] + 0.2 * sd, y0 + 0.06, w[2] + 0.05, r * 0.26]], 0.03, 4);
-    // the fluke curls up at the tip
-    const f = [w[0] + 0.22 * sd, y0 + 0.08, w[2] + 0.09];
-    S.pair((s) => S.ell([f[0] + s * 0.035, f[1] + 0.01, f[2] + 0.025], [0.045, 0.012, 0.035], 0.016));
-    return f;
+  // a fish tail from the waist w down to a fluke at f, which spreads and curls up
+  function merTail(S, pts, fluke, r) {
+    S.chain(pts, 0.03, 4);
+    const [fx, fy, fz] = fluke;
+    S.pair((s) => S.cone([fx, fy, fz], [fx + s * 0.075, fy + 0.05, fz - 0.03], r * 0.32, r * 0.12, 0.02));
+    S.pair((s) => S.ell([fx + s * 0.06, fy + 0.035, fz - 0.02], [0.05, 0.03, 0.012], 0.02));
+  }
+  // flowing hair: strands from the crown of the head down the back
+  function hairFall(S, c, r, len, n, spread) {
+    for (let i = 0; i < n; i++) {
+      const t = n === 1 ? 0.5 : i / (n - 1), x = (t * 2 - 1) * r * (spread || 0.8), sway = Math.sin(t * 5.1) * 0.012;
+      S.chain([[c[0] + x * 0.6, c[1] + r * 0.5, c[2] - r * 0.3, r * 0.42], [c[0] + x, c[1] - r * 0.4, c[2] - r * 0.85, r * 0.36],
+        [c[0] + x * 1.15 + sway, c[1] - len * 0.55, c[2] - r * 1.15, r * 0.3], [c[0] + x * 1.1 - sway, c[1] - len, c[2] - r * 1.0, r * 0.12]], 0.02, 3);
+    }
+  }
+  function trident(t, len, s) {
+    const fork = [new THREE.CylinderGeometry(0.0075 * s, 0.0075 * s, len, 10).translate(t[0], t[1] + len * 0.2, t[2])];
+    const top = t[1] + len * 0.7;
+    fork.push(K.tube([[t[0] - 0.045 * s, top + 0.07 * s, t[2]], [t[0] - 0.045 * s, top + 0.012 * s, t[2]], [t[0], top, t[2]], [t[0] + 0.045 * s, top + 0.012 * s, t[2]], [t[0] + 0.045 * s, top + 0.07 * s, t[2]]], 0.0065 * s, { segs: 24, radial: 6 }));
+    for (const dx of [-0.045, 0, 0.045]) {
+      const tip = new THREE.ConeGeometry(0.013 * s, 0.05 * s, 6); tip.translate(t[0] + dx * s, top + (dx ? 0.095 : 0.11) * s, t[2]);
+      fork.push(tip);
+      if (!dx) fork.push(new THREE.CylinderGeometry(0.0065 * s, 0.0065 * s, 0.08 * s, 8).translate(t[0], top + 0.045 * s, t[2]));
+    }
+    fork.push(sphere(0.014 * s, t[0], top - 0.012 * s, t[2], 10));
+    return merge(fork);
   }
   const OCEAN = {
     k() {
-      const P = new Piece(), y0 = reefBase(P, 0.34, 0.09), s = 1.12, A = at([0, y0, 0], s);
-      const skin = new Sculpt(), tail = new Sculpt(0.025, 1.25);
-      tail.floor = y0 - 0.004;
-      fishTail(tail, A(0, 0.5, 0), 0.08 * s, 1, y0);
-      skin.ell(A(0, 0.62, 0.005), [0.095 * s, 0.12 * s, 0.07 * s], 0.035);                         // chest
-      skin.pair((x) => skin.ell(A(x * 0.085, 0.71, 0), [0.045 * s, 0.04 * s, 0.045 * s], 0.03));
-      skin.cone(A(0, 0.73, 0), A(0, 0.79, 0.004), 0.032 * s, 0.03 * s, 0.01);
-      const hd = head(skin, A(0, 0.85, 0.008), 0.062 * s, { beard: 0.9, moustache: true });
-      skin.ell(A(0, 0.87, -0.02), [0.064 * s, 0.07 * s, 0.06 * s], 0.012);                           // hair
-      arm(skin, skin, A(-0.1, 0.7, 0), A(-0.14, 0.58, 0.03), A(-0.11, 0.6, 0.1), 0.026 * s);       // trident hand
-      arm(skin, skin, A(0.1, 0.7, 0), A(0.15, 0.58, 0.02), A(0.1, 0.52, 0.06), 0.026 * s);
-      P.add('cloth', tail.mesh()); P.add('body', skin.mesh()); eyes(P, hd);
-      P.add('trim', ring(0.088 * s, y0 + 0.5 * s, 0.012 * s));                                      // a belt of gold where scales begin
-      P.add('accent', around(12, 0.075 * s, y0 + 0.74 * s, () => sphere(0.012 * s, 0, 0, 0, 8)));  // a pearl collar
-      P.add('trim', pointedCrown(0.064 * s, y0 + 0.9 * s, 7, 0.12 * s, { flare: 0.2, w: 0.55 }));
-      P.add('accent', gemRing(7, 0.072 * s, y0 + 0.915 * s, 0.009 * s, { phase: Math.PI / 7 }));
-      // the trident
-      const t = A(-0.11, 0.6, 0.1);
-      P.add('trim', cyl(0.007 * s, 0.007 * s, 0.62 * s, t[0], t[1] + 0.12 * s, t[2], 10));
-      const fork = [];
-      for (const k of [-1, 0, 1]) {
-        fork.push(K.tube([[t[0], t[1] + 0.42 * s, t[2]], [t[0] + k * 0.035 * s, t[1] + 0.45 * s, t[2]], [t[0] + k * 0.04 * s, t[1] + 0.54 * s, t[2]]], 0.006 * s, { segs: 10, radial: 6 }));
-        const tip = new THREE.ConeGeometry(0.012 * s, 0.04 * s, 8); tip.translate(t[0] + k * 0.04 * s, t[1] + 0.56 * s, t[2]); fork.push(tip);
-      }
-      P.add('trim', merge(fork));
-      return turnPiece(P, 0.45);
+      // the sea king rises from a coiled tail over a wave, trident raised, a great scallop at his feet
+      const P = new Piece(), y0 = tideBase(P, 0.35, 0.12), s = 1.14, A = at([0, y0, 0], s);
+      const skin = new Sculpt(0.018, 1.1), tail = new Sculpt(0.025, 1.25), wave = new Sculpt(0.04, 1.4), hair = new Sculpt(0.02, 1.2);
+      tail.floor = y0 - 0.004; wave.floor = y0 - 0.004;
+      wave.ell(A(0, 0.03, -0.01), [0.25 * s, 0.07 * s, 0.22 * s]); wave.ell(A(-0.08, 0.08, -0.07), [0.1 * s, 0.09 * s, 0.1 * s]);
+      merTail(tail, [[0, y0 + 0.5 * s, 0, 0.085 * s], [0.01, y0 + 0.36 * s, 0.03, 0.082 * s], [0.04, y0 + 0.2 * s, 0.02, 0.07 * s], [0.1, y0 + 0.1 * s, -0.05, 0.05 * s],
+        [0.15, y0 + 0.1 * s, -0.12, 0.034 * s], [0.13, y0 + 0.2 * s, -0.18, 0.022 * s]], [0.12, y0 + 0.24 * s, -0.19], 0.08);
+      skin.ell(A(0, 0.6, 0.004), [0.1 * s, 0.13 * s, 0.072 * s], 0.035);                                // chest
+      skin.pair((x) => skin.ell(A(x * 0.045, 0.64, 0.04), [0.048 * s, 0.04 * s, 0.03 * s], 0.02));     // pectorals
+      skin.ell(A(0, 0.5, 0.02), [0.075 * s, 0.07 * s, 0.055 * s], 0.03);                                // belly
+      skin.pair((x) => skin.ell(A(x * 0.095, 0.715, 0), [0.05 * s, 0.045 * s, 0.05 * s], 0.03));       // shoulders
+      skin.cone(A(0, 0.73, 0), A(0, 0.8, 0.006), 0.036 * s, 0.032 * s, 0.01);
+      const hd = head(skin, A(0, 0.865, 0.01), 0.064 * s, { beard: 0.5, moustache: true });
+      arm(skin, skin, A(-0.11, 0.7, 0), A(-0.17, 0.62, 0.04), A(-0.15, 0.72, 0.1), 0.03 * s);         // trident hand, raised
+      arm(skin, skin, A(0.11, 0.7, 0), A(0.16, 0.58, 0.02), A(0.11, 0.5, 0.07), 0.03 * s);             // hand on his hip
+      // hair and a long beard in waves
+      hair.ell(A(0, 0.9, -0.012), [0.07 * s, 0.07 * s, 0.066 * s], 0.014);
+      hairFall(hair, A(0, 0.88, 0), 0.07 * s, 0.24 * s, 5, 0.9);
+      hair.ell(A(0, 0.81, 0.04), [0.062 * s, 0.06 * s, 0.04 * s], 0.02); hair.ell(A(0, 0.755, 0.05), [0.046 * s, 0.05 * s, 0.034 * s], 0.02); hair.pair((x) => hair.ell(A(x * 0.025, 0.71, 0.055), [0.022 * s, 0.035 * s, 0.022 * s], 0.015));
+      P.add('cloth', tail.mesh()); P.add('body', skin.mesh()); P.add('body', hair.mesh()); P.add('body', wave.mesh()); eyes(P, hd);
+      // gold: a belt of scales where the tail begins, shells on his shoulders, a collar of pearls
+      P.add('trim', ring(0.09 * s, y0 + 0.47 * s, 0.014 * s));
+      P.add('accent', placeAt(cabochon(0.02 * s, 0.6), 0, 0.1 * s, y0 + 0.47 * s));
+      P.add('trim', merge([-1, 1].map((x) => { const sh = scallop(0.05 * s, 1.3, 9); sh.rotateX(-1.2); sh.rotateZ(-x * 0.5); sh.translate(x * 0.105 * s, y0 + 0.74 * s, 0.0); return sh; })));
+      P.add('pearl', around(14, 0.07 * s, y0 + 0.755 * s, () => sphere(0.011 * s, 0, 0, 0, 8)));
+      // a tall crown of seven points, each tipped with a pearl, and gems round its band
+      P.add('trim', pointedCrown(0.064 * s, y0 + 0.91 * s, 7, 0.14 * s, { flare: 0.22, w: 0.5 }));
+      P.add('accent', gemRing(7, 0.073 * s, y0 + 0.93 * s, 0.01 * s, { phase: Math.PI / 7 }));
+      P.add('trim', trident(A(-0.15, 0.72, 0.1), 0.88 * s, s));
+      // a great scallop shell rising at his feet
+      const big = scallop(0.15, 1.2, 13); big.rotateX(-0.25); big.translate(0.02, y0 + 0.02, 0.17);
+      P.add('trim', big);
+      P.add('pearl', sphere(0.028, 0.02, y0 + 0.05, 0.2, 14));
+      return turnPiece(P, 0.4);
     },
     q() {
-      const P = new Piece(), y0 = reefBase(P, 0.33, 0.09), s = 1.06, A = at([0, y0, 0], s);
-      const skin = new Sculpt(), tail = new Sculpt(0.025, 1.25), rock = new Sculpt(0.04, 1.4);
+      // the mermaid queen on a coral rock, her tail curling round to the front
+      const P = new Piece(), y0 = tideBase(P, 0.335, 0.12), s = 1.2, A = at([0, y0, 0], s);
+      const skin = new Sculpt(0.016, 1.05), tail = new Sculpt(0.025, 1.2), rock = new Sculpt(0.04, 1.4), hair = new Sculpt(0.02, 1.15);
       rock.floor = y0 - 0.004; tail.floor = y0 - 0.004;
-      rock.ell(A(-0.02, 0.06, -0.02), [0.15 * s, 0.1 * s, 0.13 * s]); rock.ell(A(0.06, 0.12, -0.04), [0.08 * s, 0.09 * s, 0.08 * s]);
-      fishTail(tail, A(0, 0.46, 0), 0.066 * s, -1, y0 + 0.15 * s);
-      skin.ell(A(0, 0.55, 0), [0.06 * s, 0.09 * s, 0.045 * s], 0.03);
-      skin.pair((x) => skin.ell(A(x * 0.066, 0.62, 0), [0.03 * s, 0.028 * s, 0.03 * s], 0.025));
-      skin.cone(A(0, 0.63, 0.004), A(0, 0.68, 0.006), 0.025 * s, 0.024 * s, 0.01);
-      const hd = head(skin, A(0, 0.735, 0.01), 0.055 * s);
-      // long hair flowing down her back
-      skin.ell(A(0, 0.75, -0.012), [0.06 * s, 0.06 * s, 0.058 * s], 0.012);
-      skin.chain([[0, y0 + 0.72 * s, -0.04 * s, 0.036 * s], [0.015 * s, y0 + 0.62 * s, -0.064 * s, 0.032 * s], [0.025 * s, y0 + 0.52 * s, -0.06 * s, 0.026 * s], [0.01 * s, y0 + 0.44 * s, -0.07 * s, 0.014 * s]], 0.016, 4);
-      arm(skin, skin, A(-0.066, 0.61, 0), A(-0.09, 0.5, 0.03), A(-0.02, 0.48, 0.07), 0.019 * s);
-      arm(skin, skin, A(0.066, 0.61, 0), A(0.09, 0.5, 0.03), A(0.02, 0.48, 0.07), 0.019 * s);
-      P.add('cloth', tail.mesh()); P.add('body', skin.mesh()); P.add('rock', rock.mesh()); eyes(P, hd);
-      // a top of two scallop shells, a pearl in her hands, a coronet of shells and pearls
-      P.add('trim', merge([-1, 1].map((x) => { const sh = cabochon(0.026 * s, 0.5); sh.translate(x * 0.026 * s, y0 + 0.575 * s, 0.04 * s); return sh; })));
-      P.add('accent', sphere(0.022 * s, 0, y0 + 0.5 * s, 0.085 * s, 16));
-      P.add('trim', ring(0.072 * s, y0 + 0.465 * s, 0.01 * s));
-      P.add('trim', pointedCrown(0.052 * s, y0 + 0.78 * s, 5, 0.1 * s, { flare: 0.14, w: 0.6 }));
-      P.add('accent', around(10, 0.057 * s, y0 + 0.79 * s, () => sphere(0.007 * s, 0, 0, 0, 8)));
-      P.add('accent', placeAt(sphere(0.016 * s, 0, 0, 0, 12), 0, 0.062 * s, y0 + 0.83 * s));
-      return turnPiece(P, 0.45);
+      rock.ell(A(-0.03, 0.08, -0.04), [0.16 * s, 0.12 * s, 0.13 * s]); rock.ell(A(0.07, 0.15, -0.06), [0.08 * s, 0.1 * s, 0.08 * s]);
+      rock.chain([[-0.12, y0 + 0.12, -0.08, 0.02], [-0.16, y0 + 0.26, -0.1, 0.014], [-0.15, y0 + 0.36, -0.06, 0.008]], 0.012, 3);   // coral branches
+      rock.chain([[-0.15, y0 + 0.22, -0.09, 0.012], [-0.21, y0 + 0.3, -0.06, 0.007]], 0.01, 2);
+      merTail(tail, [[0, y0 + 0.46 * s, 0, 0.068 * s], [0.03, y0 + 0.35 * s, 0.06, 0.07 * s], [0.06, y0 + 0.2 * s, 0.12, 0.058 * s], [0.03, y0 + 0.08 * s, 0.18, 0.042 * s],
+        [-0.06, y0 + 0.05 * s, 0.2, 0.03 * s], [-0.13, y0 + 0.08 * s, 0.15, 0.02 * s]], [-0.16, y0 + 0.11 * s, 0.12], 0.07);
+      skin.ell(A(0, 0.55, 0), [0.058 * s, 0.09 * s, 0.044 * s], 0.03);
+      skin.pair((x) => skin.ell(A(x * 0.064, 0.62, 0), [0.03 * s, 0.028 * s, 0.03 * s], 0.025));
+      skin.cone(A(0, 0.63, 0.004), A(0, 0.69, 0.008), 0.024 * s, 0.022 * s, 0.01);
+      const hd = head(skin, A(0, 0.745, 0.012), 0.055 * s);
+      arm(skin, skin, A(-0.064, 0.61, 0), A(-0.1, 0.52, 0.03), A(-0.03, 0.49, 0.075), 0.019 * s);
+      arm(skin, skin, A(0.064, 0.61, 0), A(0.11, 0.66, 0.02), A(0.09, 0.78, 0.04), 0.019 * s);        // hand raised to her hair
+      hair.ell(A(0, 0.77, -0.012), [0.062 * s, 0.062 * s, 0.06 * s], 0.012);
+      hairFall(hair, A(0, 0.76, 0.0), 0.06 * s, 0.36 * s, 6, 1.05);
+      P.add('cloth', tail.mesh()); P.add('body', skin.mesh()); P.add('rock', rock.mesh()); P.add('hair', hair.mesh()); eyes(P, hd);
+      // two scallop shells for a top, a pearl in her hand, a belt of pearls where her scales begin
+      P.add('trim', merge([-1, 1].map((x) => { const sh = scallop(0.03 * s, 1.1, 7); sh.rotateX(-0.2); sh.translate(x * 0.027 * s, y0 + 0.555 * s, 0.035 * s); return sh; })));
+      P.add('pearl', sphere(0.026 * s, -0.025 * s, y0 + 0.5 * s, 0.09 * s, 16));
+      P.add('pearl', around(14, 0.064 * s, y0 + 0.465 * s, () => sphere(0.009 * s, 0, 0, 0, 8)));
+      // a tall crown: shells and points, a pearl at the front
+      P.add('trim', pointedCrown(0.05 * s, y0 + 0.79 * s, 5, 0.16 * s, { flare: 0.26, w: 0.62 }));
+      P.add('accent', gemRing(5, 0.056 * s, y0 + 0.805 * s, 0.008 * s, { phase: Math.PI / 5 }));
+      P.add('pearl', placeAt(sphere(0.016 * s, 0, 0, 0, 12), 0, 0.064 * s, y0 + 0.845 * s));
+      return turnPiece(P, -0.4);
     },
     b() {
-      // an octopus: the mantle is the mitre, slit and all
-      const P = new Piece(), y0 = reefBase(P, 0.31, 0.09);
-      const S = new Sculpt(0.025);
-      S.floor = y0 - 0.004;
-      S.ell([0, y0 + 0.34, 0], [0.1, 0.09, 0.1], 0.04);
-      for (let i = 0; i < 8; i++) {
-        const th = ((i + 0.5) / 8) * TAU, c = Math.cos(th), sn = Math.sin(th), curl = i % 2 ? 1 : -1;
-        const P2 = (r, y, side) => [sn * r + c * side, y, c * r - sn * side];
-        S.chain([[...P2(0.07, y0 + 0.3, 0), 0.034], [...P2(0.14, y0 + 0.16, 0.0), 0.026], [...P2(0.2, y0 + 0.03, 0.02 * curl), 0.019], [...P2(0.25, y0 + 0.02, 0.05 * curl), 0.013],
-          [...P2(0.27, y0 + 0.05, 0.08 * curl), 0.009], [...P2(0.245, y0 + 0.08, 0.09 * curl), 0.006]], 0.012, 3);
+      // a jellyfish: its glowing bell makes the mitre, slit and all; frilled arms and long
+      // tentacles drift down to a nest of pearls and coral
+      const P = new Piece(), y0 = tideBase(P, 0.31, 0.11);
+      const bellY = y0 + 0.6, R = 0.185;
+      P.lathe('jelly', profile(0, bellY - 0.03).line(R * 0.55, bellY - 0.02).curve([[R * 0.85, bellY - 0.03], [R * 1.02, bellY - 0.01]])
+        .curve([[R * 1.05, bellY + 0.07], [R * 0.98, bellY + 0.17], [R * 0.78, bellY + 0.27], [R * 0.42, bellY + 0.34], [0, bellY + 0.36]]),
+      { mod: mods([MOD.lobes(12, 0.08, bellY - 0.04, bellY + 0.05, { end: 0.03 }), MOD.slit(Math.PI * 0.25, bellY + 0.22, 0.5, 0.02, 0.4)]) });
+      P.add('trim', ring(R * 1.0, bellY + 0.035, 0.009));
+      P.add('accent', around(12, R * 1.02, bellY + 0.035, () => cabochon(0.011, 0.6), { phase: Math.PI / 12 }));
+      P.add('trim', around(6, R * 0.8, bellY + 0.2, () => K.tube([[0, -0.12, 0], [0, 0, 0.012], [0, 0.11, 0]], 0.005, { segs: 12, radial: 5 }), { tilt: -0.55 }));   // gold veins up the bell
+      P.add('pearl', sphere(0.026, 0, bellY + 0.38, 0, 14));
+      // tentacles and four frilled arms
+      const tent = [];
+      for (let i = 0; i < 10; i++) {
+        const th = (i / 10) * TAU + 0.2, r0 = R * 0.85, pts = [];
+        for (let k = 0; k <= 8; k++) { const t = k / 8, r = r0 * (1 - t * 0.35) + Math.sin(t * 7 + i) * 0.018, y = bellY - 0.02 - t * (bellY - y0 - 0.12); pts.push([Math.sin(th + Math.sin(t * 4 + i) * 0.25) * r, y, Math.cos(th + Math.sin(t * 4 + i) * 0.25) * r]); }
+        tent.push(K.tube(pts, 0.01, { segs: 30, radial: 6, radiusAt: (t) => mix(1, 0.45, t) }));
       }
-      const ey = y0 + 0.37;
-      P.add('body', S.mesh());
-      P.add('eye', merge([-1, 1].map((x) => sphere(0.028, x * 0.05, ey, 0.072, 14))));
-      P.add('trim', merge([-1, 1].map((x) => ring(0.03, 0, 0.005, { seg: 24 }).rotateX(Math.PI / 2).translate(x * 0.05, ey, 0.074))));
-      P.lathe('body', profile(0, y0 + 0.38).line(0.098, y0 + 0.38).curve([[0.115, y0 + 0.5], [0.11, y0 + 0.64], [0.075, y0 + 0.76], [0.03, y0 + 0.83], [0, y0 + 0.845]]),
-        { mod: MOD.slit(Math.PI * 0.25, 0.86, 0.6, 0.016, 0.5) });
-      P.add('accent', pave(3, 4, (y) => mix(0.11, 0.08, (y - (y0 + 0.45)) / 0.25), y0 + 0.45, y0 + 0.7, 0.01, 0.15));
-      P.add('trim', sphere(0.022, 0, y0 + 0.87, 0, 14));
+      for (let i = 0; i < 4; i++) {
+        const th = (i / 4) * TAU + Math.PI / 4, pts = [];
+        for (let k = 0; k <= 10; k++) { const t = k / 10, r = 0.06 + Math.sin(t * 9 + i) * 0.03, y = bellY - 0.02 - t * (bellY - y0 - 0.1); pts.push([Math.sin(th + t * 1.4) * r, y, Math.cos(th + t * 1.4) * r]); }
+        tent.push(K.tube(pts, 0.026, { segs: 48, radial: 8, radiusAt: (t) => mix(1, 0.5, t) * (0.75 + 0.4 * Math.sin(t * 46)) }));
+      }
+      P.add('jelly', merge(tent));
+      // the nest: pearls and a little coral where the tentacles end
+      P.add('pearl', merge([[0.06, 0.03], [-0.07, 0.02], [0.0, -0.08], [0.09, -0.07], [-0.05, 0.09], [0.03, 0.1]].map(([x, z], i) => sphere(0.026 + (i % 3) * 0.006, x, y0 + 0.025, z, 12))));
+      P.add('trim', around(5, 0.15, y0, () => curl(petal(0.05, 0.08, 0.008), 3), { tilt: 0.5, phase: 0.3 }));
       return P;
     },
     n() {
-      // a seahorse, tail curled round a coral stalk
-      const P = new Piece(), y0 = reefBase(P, 0.322, 0.09);
-      const S = new Sculpt(0.02), coral = new Sculpt(0.02);
-      coral.floor = y0 - 0.004;
-      coral.chain([[0, y0, -0.06, 0.03], [0.01, y0 + 0.1, -0.07, 0.022], [-0.01, y0 + 0.22, -0.05, 0.016]], 0.02, 3);
-      coral.chain([[0.01, y0 + 0.08, -0.07, 0.016], [0.07, y0 + 0.16, -0.08, 0.012], [0.08, y0 + 0.24, -0.06, 0.008]], 0.012, 3);
-      coral.chain([[0, y0 + 0.05, -0.06, 0.018], [-0.08, y0 + 0.12, -0.04, 0.012], [-0.1, y0 + 0.19, -0.02, 0.008]], 0.012, 3);
-      // the tail coils round the stalk, then the body rises in an S with a round belly
-      const coil = [];
-      for (let i = 0; i <= 10; i++) { const t = i / 10, a = t * TAU * 0.9; coil.push([Math.sin(a) * 0.035, y0 + 0.13 + t * 0.12, -0.06 + Math.cos(a) * 0.035, mix(0.012, 0.03, t)]); }
-      S.chain(coil, 0.01);
-      S.chain([[0, y0 + 0.25, -0.04, 0.03], [0, y0 + 0.34, 0.02, 0.05], [0, y0 + 0.46, 0.05, 0.066], [0, y0 + 0.58, 0.02, 0.058], [0, y0 + 0.68, -0.03, 0.046], [0, y0 + 0.76, -0.02, 0.04]], 0.03, 4);
-      S.ell([0, y0 + 0.79, 0.03], [0.045, 0.05, 0.07], 0.03);                                       // head
-      S.cone([0, y0 + 0.79, 0.07], [0, y0 + 0.75, 0.18], 0.026, 0.017, 0.015);                    // snout
-      S.ell([0, y0 + 0.75, 0.185], [0.022, 0.02, 0.012], 0.008);
-      for (let i = 0; i < 6; i++) S.ell([0, y0 + 0.34 + i * 0.05, 0.088 + 0.02 * Math.sin((i / 5) * Math.PI) - i * 0.018], [0.042, 0.008, 0.014], 0.01);   // belly ridges
-      P.add('body', S.mesh()); P.add('rock', coral.mesh());
-      P.add('eye', merge([-1, 1].map((x) => sphere(0.014, x * 0.04, y0 + 0.805, 0.05, 12))));
-      // a crown (seahorses really have one: the coronet) and a fin on the back
-      P.add('trim', merge([0, 1, 2, 3, 4].map((i) => { const c = new THREE.ConeGeometry(0.012, 0.05, 6); c.rotateX(-0.3 - i * 0.12); c.translate(0, y0 + 0.84 + Math.sin(i * 0.6) * 0.01, 0.02 - i * 0.022); return c; })));
-      const fin = petal(0.12, 0.1, 0.008); fin.rotateY(Math.PI / 2); fin.rotateX(-2.0); fin.translate(0, y0 + 0.56, -0.02); P.add('trim', fin);
+      // a seahorse: an S of ringed segments, a spiny crest and coronet, its tail curled into a spiral
+      const P = new Piece(), y0 = tideBase(P, 0.322, 0.11);
+      const S = new Sculpt(0.02, 1.0);
+      S.floor = y0 - 0.004;
+      // the spine: tail spiral on the base, belly swelling forward, neck arching back to the head
+      const spine = [];
+      for (let i = 0; i <= 14; i++) { const t = i / 14, a = Math.PI * 0.4 + t * TAU * 1.05, rr = mix(0.085, 0.02, t); spine.push([0, y0 + 0.09 + Math.cos(a) * rr * 0.9, -0.04 + Math.sin(a) * rr, mix(0.046, 0.016, t)]); }
+      spine.reverse();
+      const body = [[0, y0 + 0.16, -0.125, 0.048], [0, y0 + 0.27, -0.075, 0.068], [0, y0 + 0.39, 0.01, 0.092], [0, y0 + 0.5, 0.035, 0.094], [0, y0 + 0.62, 0.005, 0.078], [0, y0 + 0.72, -0.045, 0.064], [0, y0 + 0.8, -0.055, 0.058]];
+      S.chain(spine.concat(body), 0.016, 3);
+      S.ell([0, y0 + 0.845, -0.015], [0.062, 0.068, 0.088], 0.03);                                  // head
+      S.cone([0, y0 + 0.835, 0.04], [0, y0 + 0.795, 0.18], 0.036, 0.02, 0.016);                   // snout
+      S.ell([0, y0 + 0.792, 0.188], [0.026, 0.024, 0.014], 0.008);
+      S.pair((x) => S.ell([x * 0.052, y0 + 0.862, 0.01], [0.018, 0.022, 0.022], 0.012));            // brow ridges
+      P.add('body', S.mesh());
+      P.add('eye', merge([-1, 1].map((x) => sphere(0.016, x * 0.056, y0 + 0.862, 0.024, 12))));
+      // gold rings along the body, as a seahorse's armour of plates
+      const crv = new THREE.CatmullRomCurve3(spine.concat(body).map((p) => new THREE.Vector3(p[0], p[1], p[2])));
+      const rings = [], rad = spine.concat(body).map((p) => p[3]);
+      for (let i = 2; i < 23; i++) {
+        const t = i / 24, p = crv.getPointAt(t), tg = crv.getTangentAt(t), r = rad[Math.min(rad.length - 1, Math.round(t * (rad.length - 1)))] * 1.02;
+        const tr = new THREE.TorusGeometry(r, 0.0065, 6, Math.max(12, Math.round(28 * DETAIL.around)));
+        tr.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), tg)); tr.translate(p.x, p.y, p.z);
+        rings.push(tr);
+      }
+      P.add('trim', merge(rings));
+      // the coronet, a crest of spines down the neck and a fan-shaped back fin
+      P.add('trim', merge([0, 1, 2, 3, 4].map((i) => { const c = new THREE.ConeGeometry(0.016, 0.08, 6); c.rotateX(-0.35 - i * 0.2); c.translate(0, y0 + 0.92 + Math.sin(i * 0.7) * 0.014, 0.01 - i * 0.026); return c; })));
+      P.add('trim', merge([0, 1, 2, 3, 4, 5, 6, 7].map((i) => { const t = i / 7, c = new THREE.ConeGeometry(0.014, 0.085 - t * 0.03, 5); c.rotateX(-1.7 + t * 0.5); c.translate(0, y0 + mix(0.84, 0.44, t), mix(-0.12, -0.06, t) - 0.035); return c; })));
+      const fin = sheet(Math.round(16 * DETAIL.around) + 4, 4, (u, v) => { const a = mix(-1.0, 0.7, u), r = 0.04 + v * (0.13 + 0.016 * Math.cos(u * 9 * TAU)); return [0, y0 + 0.56 + Math.cos(a) * r, -0.07 - Math.sin(a + 1.6) * r * 0.9 - 0.03]; }, 0.007);
+      P.add('fin', fin);
+      // little fins at the cheeks
+      P.add('fin', merge([-1, 1].map((x) => { const f = scallop(0.045, 1.0, 5); f.rotateY(x * 1.3); f.rotateZ(x * 0.6); f.translate(x * 0.062, y0 + 0.82, -0.03); return f; })));
+      P.add('pearl', sphere(0.022, 0.0, y0 + 0.03, 0.13, 12));
       return P;
     },
     r() {
-      // a coral castle with shells and a starfish
-      const P = new Piece(), y0 = reefBase(P, 0.322, 0.09);
-      P.lathe('rock', profile(0, y0).line(0.22, y0).curve([[0.2, y0 + 0.2], [0.19, y0 + 0.4], [0.2, y0 + 0.5]]).line(0.235, y0 + 0.52).line(0.235, y0 + 0.57).line(0.19, y0 + 0.57).line(0.19, y0 + 0.55).line(0, y0 + 0.55),
-        { mod: MOD.lobes(7, 0.08, y0, y0 + 0.57) });
-      P.add('rock', battlements(5, 0.19, 0.235, y0 + 0.565, y0 + 0.68, 0.4, 'round', 0.03));
-      P.add('cloth', around(3, 0.198, y0 + 0.3, () => { const g = new THREE.SphereGeometry(0.05, 16, 8, 0, TAU, 0, Math.PI / 2); g.scale(1, 1.1, 0.4); g.rotateX(Math.PI / 2); return g; }, { phase: 0.4 }));   // arched doorways
-      P.add('trim', placeAt(star(0.06, 0.016), 2.2, 0.205, y0 + 0.36));
-      P.add('accent', around(5, 0.215, y0 + 0.12, () => cabochon(0.018, 0.7), { phase: 0.2 }));
-      P.add('trim', placeAt(merge([0, 1, 2, 3, 4, 5].map((i) => { const r = petal(0.022, 0.06, 0.008); r.rotateZ((i - 2.5) * 0.3); return r; })), -1.2, 0.2, y0 + 0.2));   // a scallop
+      // a lighthouse on a rock in the waves: a striped tower, a gallery with battlements and a
+      // lantern that glows
+      const P = new Piece(), y0 = tideBase(P, 0.33, 0.11);
+      const rock = new Sculpt(0.035, 1.35);
+      rock.floor = y0 - 0.004;
+      rock.ell([0, y0 + 0.02, 0], [0.25, 0.07, 0.24]); rock.ell([0.12, y0 + 0.06, 0.08], [0.09, 0.07, 0.08]); rock.ell([-0.13, y0 + 0.05, -0.06], [0.1, 0.07, 0.09]);
+      P.add('body', rock.mesh());
+      const top = y0 + 0.5;
+      P.lathe('body', profile(0, y0 + 0.04).line(0.175, y0 + 0.04).line(0.17, y0 + 0.08).curve([[0.155, y0 + 0.25], [0.138, top - 0.04]]).line(0.135, top).line(0, top));
+      for (const [y, r] of [[y0 + 0.13, 0.166], [y0 + 0.25, 0.155], [y0 + 0.37, 0.146]]) P.add('trim', ring(r, y, 0.012));
+      // an arched door with a gold frame and little lit windows
+      const door = new THREE.SphereGeometry(0.045, 16, 8, 0, TAU, 0, Math.PI / 2); door.scale(1, 1.4, 0.35); door.rotateX(Math.PI / 2); door.rotateX(-Math.PI / 2);
+      P.add('glow', placeAt(rbox(0.06, 0.075, 0.02, 0.008), 0, 0.165, y0 + 0.15));
+      P.add('trim', placeAt(K.tube([[-0.036, -0.045, 0], [-0.036, 0.02, 0], [0, 0.05, 0], [0.036, 0.02, 0], [0.036, -0.045, 0]], 0.006, { segs: 20, radial: 6 }), 0, 0.17, y0 + 0.16));
+      P.add('glow', around(3, 0.148, y0 + 0.31, () => rbox(0.028, 0.045, 0.02, 0.007), { phase: Math.PI / 3 }));
+      // the gallery: a deck with battlements round it, and pearls along its rim
+      P.lathe('trim', profile(0, top).line(0.2, top).line(0.21, top + 0.02).line(0.2, top + 0.035).line(0, top + 0.035));
+      P.add('body', battlements(8, 0.168, 0.2, top + 0.034, top + 0.12, 0.42, 'round', 0.03));
+      P.add('pearl', around(16, 0.212, top + 0.015, () => sphere(0.008, 0, 0, 0, 8)));
+      // the lantern: glowing panes between gold mullions, under a dome with a pearl on top
+      const ly = top + 0.04;
+      P.add('glow', cyl(0.095, 0.095, 0.15, 0, ly + 0.075, 0, 24));
+      P.add('trim', around(8, 0.097, ly + 0.075, () => rbox(0.012, 0.16, 0.012, 0.004)));
+      P.add('trim', ring(0.1, ly + 0.002, 0.009)); P.add('trim', ring(0.1, ly + 0.15, 0.009));
+      P.lathe('body', profile(0, ly + 0.15).line(0.118, ly + 0.15).curve([[0.11, ly + 0.2], [0.075, ly + 0.25], [0.02, ly + 0.275]]).line(0, ly + 0.276), { mod: MOD.flutes(8, 0.05, ly + 0.16, ly + 0.27, { end: 0.01 }) });
+      P.add('pearl', sphere(0.022, 0, ly + 0.3, 0, 14));
+      // coral and shells at the foot
+      const coral = new Sculpt(0.012);
+      for (let i = 0; i < 3; i++) {
+        const th = 2.2 + i * 1.6, r = 0.2;
+        coral.chain([[Math.sin(th) * r, y0 + 0.03, Math.cos(th) * r, 0.016], [Math.sin(th) * r * 1.05, y0 + 0.12, Math.cos(th) * r * 1.05, 0.011], [Math.sin(th + 0.12) * r * 1.1, y0 + 0.19, Math.cos(th + 0.12) * r * 1.1, 0.006]], 0.01, 2);
+        coral.chain([[Math.sin(th) * r * 1.03, y0 + 0.09, Math.cos(th) * r * 1.03, 0.009], [Math.sin(th - 0.2) * r * 1.12, y0 + 0.16, Math.cos(th - 0.2) * r * 1.12, 0.005]], 0.008, 2);
+      }
+      P.add('rock', coral.mesh());
+      P.add('trim', placeAt(scallop(0.05, 1.2, 9), 0.6, 0.21, y0 + 0.02, { tilt: -0.5 }));
+      P.add('trim', placeAt(star(0.04, 0.012), -0.7, 0.22, y0 + 0.07, { tilt: -0.9 }));
       return P;
     },
     p() {
-      // a pufferfish, puffed up and proud
-      const P = new Piece(), y0 = reefBase(P, 0.27, 0.08);
-      const S = new Sculpt(0.02);
-      S.ell([0, y0 + 0.2, 0], [0.12, 0.112, 0.124], 0.02);
-      S.ell([0, y0 + 0.18, 0.095], [0.06, 0.05, 0.05], 0.03);                                       // lips
-      P.add('body', S.mesh());
-      P.add('rock', cyl(0.04, 0.06, 0.08, 0, y0 + 0.04, 0, 16));
-      const spikes = [];
-      for (let i = 0; i < 34; i++) {
-        const yv = 1 - (i + 0.5) / 34 * 2, rr = Math.sqrt(1 - yv * yv), th = i * 2.39996;
-        const n = [Math.sin(th) * rr, yv, Math.cos(th) * rr];
-        if (n[2] > 0.75 || n[1] < -0.8) continue;
-        const c = new THREE.ConeGeometry(0.01, 0.035, 5); c.translate(0, 0.0175, 0);
-        c.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(...n)));
-        c.translate(n[0] * 0.118, y0 + 0.2 + n[1] * 0.112, n[2] * 0.122);
-        spikes.push(c);
-      }
-      P.add('body', merge(spikes));
-      P.add('eye', merge([-1, 1].map((x) => sphere(0.022, x * 0.06, y0 + 0.24, 0.085, 12))));
-      P.add('trim', ring(0.02, 0, 0.007, { seg: 20 }).rotateX(Math.PI / 2).translate(0, y0 + 0.185, 0.135));   // an O of a mouth
-      const tailFin = petal(0.09, 0.08, 0.008); tailFin.rotateX(Math.PI / 2 + 0.3); tailFin.translate(0, y0 + 0.2, -0.11); P.add('trim', tailFin);
-      P.add('trim', merge([-1, 1].map((x) => { const f = petal(0.04, 0.05, 0.006); f.rotateY(x * 1.2); f.rotateZ(x * 0.6); f.translate(x * 0.12, y0 + 0.18, 0.01); return f; })));
-      return turnPiece(P, 0.5);
+      // a pearl in an open scallop shell, on a stem of gold coral
+      const P = new Piece(), y0 = tideBase(P, 0.27, 0.095);
+      P.lathe('trim', profile(0, y0).line(0.1, y0).curve([[0.06, y0 + 0.05], [0.04, y0 + 0.12], [0.05, y0 + 0.17]]).line(0.07, y0 + 0.18).line(0, y0 + 0.18));
+      P.add('trim', around(5, 0.05, y0 + 0.1, () => curl(petal(0.04, 0.09, 0.007), 4), { tilt: 0.35 }));
+      // the lower shell, a fluted dish, and the upper shell standing open behind
+      const dy = y0 + 0.17;
+      P.lathe('body', profile(0, dy).line(0.05, dy).curve([[0.12, dy + 0.02], [0.17, dy + 0.06], [0.185, dy + 0.1]]).line(0.175, dy + 0.105).curve([[0.15, dy + 0.065], [0.08, dy + 0.05]]).line(0, dy + 0.05),
+        { mod: MOD.lobes(12, 0.1, dy + 0.02, dy + 0.11, { end: 0.01 }) });
+      P.add('trim', ring(0.18, dy + 0.1, 0.007));
+      const up = scallop(0.2, 1.15, 12); up.rotateX(-0.5); up.translate(0, dy + 0.07, -0.13);
+      P.add('body', up);
+      P.add('pearl', sphere(0.105, 0, dy + 0.15, 0, 32));
+      P.add('accent', placeAt(cabochon(0.016, 0.6), 0, 0.17, dy + 0.075));
+      return P;
     },
   };
 
@@ -3970,18 +4299,21 @@ function ChacklatePieces(THREE, K) {
     },
     pharaoh: {
       id: 'pharaoh', name: "Pharaoh's Treasure", era: 'Ancient Egypt', year: 'c. 1330 BC', tint: '#1d2f7a',
-      story: 'Inspired by the treasures of the boy king Tutankhamun: alabaster that glows like moonlight, black basalt from the desert, and collars of gold and blue lapis lazuli. Every piece stands on a papyrus column, the plant that gave the world paper.',
+      story: 'Inspired by the treasures of the boy king Tutankhamun: alabaster that glows like moonlight, black basalt from the desert, and collars of gold, blue lapis lazuli and red carnelian. Every piece stands on a drum of gold set with a gem.',
       lore: {
-        k: 'He wears the Blue Crown and carries an ankh, the Egyptian sign of life, in place of a cross.',
-        q: 'Her crown holds the sun between two horns, like the goddess Hathor, above a ring of golden cobras.',
-        b: 'He wears the tall White Crown of Upper Egypt, cut with a slit like every bishop.',
-        n: 'A royal chariot horse with a feather plume and a golden bridle.',
-        r: 'A temple gateway, like the great pylons of Karnak, with rounded battlements.',
-        p: 'A little papyrus column with a collar of gold and lapis.',
+        k: 'The pharaoh wears the striped nemes headcloth with a cobra at his brow, and holds a staff crowned with an ankh, the Egyptian sign of life.',
+        q: 'The queen wears a crown of golden horns holding the sun, like the goddess Hathor, over a wig of blue lapis.',
+        b: 'A great crystal held up on a falcon\'s golden wings. It glows blue for white and red for black.',
+        n: 'A jackal guardian sitting up, ears high, like Anubis, who watched over the tombs.',
+        r: 'A temple tower with a figure carved on every side, and a fire burning in a bowl on top.',
+        p: 'A spearman in a striped headcloth, with a round shield marked with an ankh.',
       },
       pieces: EGYPT,
-      mats: (side) => Object.assign(side === 'w' ? { body: MATS.alabaster() } : { body: MATS.basalt() }, { trim: MAT.gold('#ebb84f'), accent: MATS.lapis(), accent2: MATS.carnelian() }),
+      mats: (side) => Object.assign(side === 'w' ? { body: MATS.alabaster(), gem: MAT.gem('#2a6af0'), crystal: phys('crystal-blue', { color: '#5a9aff', roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02, emissive: '#1e5cff', emissiveIntensity: 0.9, envMapIntensity: 2.2, iridescence: 0.3 }), eye: MAT.lacquer('#1a1a24') }
+        : { body: MATS.basalt(), gem: MAT.gem('#e01830'), crystal: phys('crystal-red', { color: '#ff4a4a', roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02, emissive: '#e01020', emissiveIntensity: 0.9, envMapIntensity: 2.2, iridescence: 0.3 }), eye: MAT.lacquer('#f4ecdc') },
+      { trim: MAT.gold('#ebb84f'), accent: MATS.lapis(), accent2: MATS.carnelian(), hair: MATS.lapis(), flame: MAT.emissive('#ff7a1e', 2.2), flame2: MAT.emissive('#ffd060', 2.4) }),
     },
+
     olympian: {
       id: 'olympian', name: 'Olympian Marble', era: 'Ancient Greece', year: 'c. 440 BC', tint: '#2a5a7a',
       story: 'Carved in the spirit of the Parthenon in Athens: white marble from Mount Pentelicus, dark marble from Eleusis, and bronze that shines like the shields of Olympia. Look for the Greek key that runs round every base like a little maze.',
@@ -4083,18 +4415,21 @@ function ChacklatePieces(THREE, K) {
     },
     manhattan: {
       id: 'manhattan', name: 'Manhattan Deco', era: 'New York', year: '1930', tint: '#2a2a36',
-      story: 'Made in the year the Chrysler Building reached for the clouds: cream enamel and black onyx, trimmed with polished nickel and gold, stepped like skyscrapers, with a sunburst on the queen and a spire on the king.',
+      story: 'Made in the year the Chrysler Building reached for the clouds: cream enamel and black onyx with gold, standing on stepped plinths like skyscrapers. The people of the jazz-age city are the pieces, with emeralds for white and rubies for black.',
       lore: {
-        k: 'A skyscraper with setbacks and a crown of stacked arches, topped by a spire and a cross.',
-        q: 'A golden sunburst fans out from her crown.',
-        b: 'A streamlined mitre with speed lines and a slit.',
-        n: 'A sleek horse on an octagonal base.',
-        r: 'An octagonal tower with stepped battlements, like a ziggurat.',
-        p: 'A round head on a ribbed column and stepped base.',
+        k: 'A tycoon in a long coat and cape, his hands on a cane, wearing a crown of arches like the top of a skyscraper, with a spire and a cross.',
+        q: 'A dancer with a fur stole and a beaded gown, under a sunburst of golden rays.',
+        b: 'A lamplighter in a fedora, carrying a street lamp that glows on a tall gold post.',
+        n: 'A sleek horse with a fan-shaped mane of stepped gold fins.',
+        r: 'A skyscraper with lit windows between gold piers, stepping back to battlements and a spire.',
+        p: 'A round head like a lamp globe, over a golden sunburst fan.',
       },
       pieces: DECO,
-      mats: (side) => (side === 'w' ? { body: MATS.cream(), trim: MATS.nickel() } : { body: MATS.onyx(), trim: MAT.gold('#e8b75a') }),
+      mats: (side) => (side === 'w'
+        ? { body: MATS.cream(), trim: MAT.gold('#e8b75a'), gem: MAT.gem('#0f9a5a'), cloth: MAT.velvet('#e2d4b8'), fur: MAT.velvet('#f4ece0'), hair: MAT.lacquer('#2a1e16'), pearl: MATS.pearl(), eye: MAT.lacquer('#1a1a1e'), glow: MAT.emissive('#ffd890', 1.7) }
+        : { body: MATS.onyx(), trim: MAT.gold('#e8b75a'), gem: MAT.gem('#d0142e'), cloth: MAT.velvet('#7a1020'), fur: MAT.velvet('#1c1a1e'), hair: MAT.lacquer('#0a0a0c'), pearl: MATS.pearl(), eye: MAT.lacquer('#f0ece4'), glow: MAT.emissive('#ffc870', 1.7) }),
     },
+
     crystal: {
       id: 'crystal', name: 'Crystal Jewels', era: 'The jeweller\'s window', year: 'Today', tint: '#3a2a6a',
       story: 'Cut like the crystal ornaments in a jeweller\'s window: clear crystal against jet black, every facet catching the light. Each kind of piece wears its own colour of gem, so you can tell them apart at a glance.',
@@ -4171,19 +4506,25 @@ function ChacklatePieces(THREE, K) {
     },
     ocean: {
       id: 'ocean', name: 'Coral Kingdom', era: 'Under the sea', year: 'Long ago, down deep', tint: '#0e5a6e',
-      story: 'Far below the waves, a royal court carved in mother-of-pearl: merfolk with tails that shimmer like fish scales, an octopus, a seahorse and a coral castle, guarded by a shoal of pufferfish.',
+      story: 'The court of a city that sank beneath the waves, carved in mother-of-pearl and gold: a sea king and a mermaid queen, glowing jellyfish, spiny seahorses, lighthouses that still shine, and pearls resting in open shells.',
       lore: {
-        k: 'The merman king, with a beard like seaweed, a tall crown and a golden trident.',
-        q: 'The mermaid queen sits on a rock in a crown of shells and pearls, holding a pearl of her own.',
-        b: 'An octopus whose head makes the bishop\'s mitre, slit and all, with eight curling arms.',
-        n: 'A seahorse, its tail curled round a branch of coral. Seahorses really do wear a little crown.',
-        r: 'A coral castle with arched doors, a starfish and a scallop shell.',
-        p: 'A pufferfish, puffed up and proud. Pawns are small, but they can grow.',
+        k: 'The sea king rises from the waves with a long beard, a tall crown and a golden trident.',
+        q: 'The mermaid queen sits on a coral rock, her shining tail curled round to the front, holding a pearl.',
+        b: 'A jellyfish that glows from inside. Its bell makes the bishop\'s mitre, slit and all.',
+        n: 'A seahorse with a spiny crest, its tail curled into a spiral. Seahorses really do wear a little crown.',
+        r: 'A lighthouse on a rock in the waves, with battlements round its gallery and a lantern that glows.',
+        p: 'A pearl resting in an open scallop shell. Pawns are small, but they can grow.',
       },
       pieces: OCEAN,
       mats: (side) => (side === 'w'
-        ? { body: MATS.pearl(), cloth: MATS.scalesLight(), rock: lacquer('coral-w', '#f2c6b8', { roughness: 0.5 }), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#e8506e'), eye: MAT.lacquer('#1c2230') }
-        : { body: MATS.nacreDark(), cloth: MATS.scalesDark(), rock: lacquer('coral-b', '#5a2030', { roughness: 0.5 }), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#2fb8a0'), eye: MAT.lacquer('#f0f4f6') }),
+        ? { body: MATS.pearl(), cloth: phys('scales-pearl', { color: '#c8ece4', roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05, iridescence: 1, iridescenceIOR: 1.6, iridescenceThicknessRange: [300, 900], sheen: 0.6, sheenColor: new THREE.Color('#ffd0e8') }), fin: MAT.gold('#f0c878'), rock: lacquer('coral-w', '#f2b6a6', { roughness: 0.45 }), hair: MAT.gold('#e8c27a'), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#22c8c0'), eye: MAT.lacquer('#1c2230'),
+          pearl: phys('pearl-bright', { color: '#fbf7f0', roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08, sheen: 1, sheenColor: new THREE.Color('#ffe8f0'), sheenRoughness: 0.3, iridescence: 0.6, iridescenceIOR: 1.4 }),
+          jelly: phys('jelly-w', { color: '#ffe4ee', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, iridescence: 0.7, iridescenceIOR: 1.4, emissive: '#ffb0d0', emissiveIntensity: 0.45, sheen: 1, sheenColor: new THREE.Color('#b8f0ff') }),
+          glow: MAT.emissive('#ffe2a8', 1.6) }
+        : { body: MATS.nacreDark(), cloth: MATS.scalesDark(), fin: MAT.gold('#e8b85a'), rock: lacquer('coral-b', '#6a2236', { roughness: 0.45 }), hair: phys('hair-nacre', { color: '#141c2a', roughness: 0.25, clearcoat: 1, iridescence: 0.8, iridescenceIOR: 1.5 }), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#22c8c0'), eye: MAT.lacquer('#f0f4f6'),
+          pearl: phys('pearl-grey', { color: '#5a5e6a', roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08, iridescence: 0.8, iridescenceIOR: 1.5, sheen: 0.8, sheenColor: new THREE.Color('#c8b0ff'), sheenRoughness: 0.3 }),
+          jelly: phys('jelly-b', { color: '#3a2a6a', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, iridescence: 0.9, iridescenceIOR: 1.5, emissive: '#7a50ff', emissiveIntensity: 0.55, sheen: 1, sheenColor: new THREE.Color('#ff9ae8') }),
+          glow: MAT.emissive('#ffd890', 1.6) }),
     },
   };
 
