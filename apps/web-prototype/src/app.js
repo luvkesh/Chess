@@ -2510,9 +2510,9 @@
     if (it.category === 'pieces') { const t = setTint(d.set); return Object.assign(VIGN.trio(d.set, ART.dim(t, 0.3), ART.lit(t, 0.55)), { r: 1.32 }); }
     if (it.category === 'board') return { kind: 'board', board: d.board };
     if (it.category === 'room' && view.rooms()[d.room]) return { kind: 'room', room: d.room };
-    // an avatar turns on the stage as the sculpted bust (or emblem) on a velvet plinth in its colours;
-    // phones build it a little coarser so it opens quickly
-    if (it.category === 'avatar' && /^(animal|emblem):/.test(d.art || '')) {
+    // an emblem avatar turns on the stage on a velvet plinth in its colours (phones build it a little
+    // coarser so it opens quickly); the animal friends show their Blender portrait instead
+    if (it.category === 'avatar' && /^emblem:/.test(d.art || '')) {
       const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
       return { kind: 'avatar', art: d.art, felt: d.to, sheen: d.from, detail: touch ? 'play' : 'stage' };
     }
