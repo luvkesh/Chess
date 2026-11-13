@@ -57,7 +57,7 @@ def _embed(img):
     return _cache[key]
 
 
-def cut(img, pos, neg=(), pick=None):
+def cut(img, pos, neg=(), pick=None, keep_all=False):
     """binary mask (uint8 0/255) of the object at the positive points, away from the negative ones."""
     emb, pe, s, nh, nw = _embed(img)
     _, dec = _models()
@@ -71,6 +71,6 @@ def cut(img, pos, neg=(), pick=None):
     lo = cv2.resize(lo, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_LINEAR)
     mk = np.where(lo > 0, 255, 0).astype(np.uint8)
     n, lab_, st, _ = cv2.connectedComponentsWithStats(mk)
-    if n > 1:
+    if n > 1 and not keep_all:
         mk = np.where(lab_ == 1 + np.argmax(st[1:, cv2.CC_STAT_AREA]), 255, 0).astype(np.uint8)
     return mk

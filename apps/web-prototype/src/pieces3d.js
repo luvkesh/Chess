@@ -7011,6 +7011,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => (side === 'w' ? { body: MATS.boxwood() } : { body: MATS.ebony() }),
     },
     pharaoh: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.5 } },
       id: 'pharaoh', name: "Pharaoh's Treasure", era: 'Ancient Egypt', year: 'c. 1330 BC', tint: '#1d2f7a',
       story: 'Inspired by the treasures of the boy king Tutankhamun: alabaster that glows like moonlight, black basalt from the desert, and collars of gold, blue lapis lazuli and red carnelian. Every piece stands on a drum of gold set with a gem.',
       lore: {
@@ -7127,6 +7128,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.enamel() } : { body: MATS.malachite() }, { trim: MATS.roseGold(), accent: MATS.diamond(), accent2: MATS.spinel(), accent3: MATS.pearl() }),
     },
     manhattan: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.55 } },
       id: 'manhattan', name: 'Manhattan Deco', era: 'New York', year: '1930', tint: '#2a2a36',
       story: 'Made in the year the Chrysler Building reached for the clouds: cream enamel and black onyx with gold, standing on stepped plinths like skyscrapers. The people of the jazz-age city are the pieces, with emeralds for white and rubies for black.',
       lore: {
@@ -7218,6 +7220,7 @@ function ChacklatePieces(THREE, K) {
         : { body: lacquer('robot-b', '#2a2e36', { roughness: 0.24 }), trim: MAT.chrome(), joint: lacquer('robot-joint-b', '#12141a', { roughness: 0.4 }), accent: MAT.emissive('#ff9a2e', 1.6) }),
     },
     ocean: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.6 } },
       id: 'ocean', name: 'Coral Kingdom', era: 'Under the sea', year: 'Long ago, down deep', tint: '#0e5a6e',
       story: 'The court of a city that sank beneath the waves, carved in mother-of-pearl and gold: a sea king and a mermaid queen, glowing jellyfish, spiny seahorses, lighthouses that still shine, and pearls resting in open shells.',
       lore: {
@@ -7483,6 +7486,7 @@ function ChacklatePieces(THREE, K) {
     },
     dino: {
       id: 'dino', name: 'Dino Kingdom', era: 'Long, long ago', year: '66 million years ago', tint: '#6a3a12', sided: true,
+      mesh: 'figures2', meshLook: { b: { clearcoat: 0.15 } },
       story: 'Made for the table in Dinosaur Valley, under the smoking volcano. White is carved from fossil bone with amber and ferns, and black is dark lava stone with glowing cracks.',
       lore: {
         k: 'A crowned tyrant lizard king in a royal cape, roaring as loud as he can.',
@@ -7515,6 +7519,7 @@ function ChacklatePieces(THREE, K) {
     },
     forest: {
       id: 'forest', name: 'Forest Guardians', era: 'Once upon a time', year: 'In the enchanted forest', tint: '#2a5a2e', sided: true,
+      mesh: 'figures2', meshLook: { b: { clearcoat: 0.2 } },
       story: 'Made for the table deep in the Enchanted Forest. White are the elves of the glade in ivory and gold with green cloaks, and black are the forest folk of bark and moss, whose eyes glow green.',
       lore: {
         k: 'The elf king with his great sword, or the antlered Oak King with his glowing staff.',
@@ -7545,6 +7550,7 @@ function ChacklatePieces(THREE, K) {
     },
     jarl: {
       id: 'jarl', name: 'Jarls of the Fjord', era: 'The Viking age', year: 'About 900', tint: '#1e2e5a', sided: true,
+      mesh: 'figures2', meshLook: { b: { clearcoat: 0.3 } },
       story: 'Made for a table by the fjord where the longships come home. White is gold and ivory with deep blue cloaks and white fur, black is dark iron and leather with grey fur, and on both sides the runestones glow ice blue.',
       lore: {
         k: 'A jarl in a fur cloak with both hands on his sword: a gold crown for white, a horned helm for black.',
@@ -7571,6 +7577,7 @@ function ChacklatePieces(THREE, K) {
     },
     rune: {
       id: 'rune', name: 'Runecarved', era: 'The Viking age', year: 'About 950', tint: '#5a3a1e',
+      mesh: 'figures2', meshLook: { b: { clearcoat: 0.1 } },
       story: 'Whittled by hand for the table at the gate of a great hall, where dragons are carved on the doorposts. White is pale birch with blue cloaks, black is dark oak with red, and every piece stands on a drum of knotwork.',
       lore: {
         k: 'A carved king leaning on his sword, with a long beard and a simple crown.',

@@ -46,7 +46,7 @@ def cell_uv(t, x, z):
 class Ref:
     """One piece cut from a reference picture. unit = game units per pixel."""
 
-    def __init__(self, path, box, unit=None, height=None, pad=14, iters=8, flip=False, mask=None, foot=0.12, seg='grabcut', thresh=10, core=None, sym=False, pos=None, neg=None):
+    def __init__(self, path, box, unit=None, height=None, pad=14, iters=8, flip=False, mask=None, foot=0.12, seg='grabcut', thresh=10, core=None, sym=False, pos=None, neg=None, add=None):
         self.sym = sym
         img = cv2.imread(path)
         x0, y0, x1, y1 = box
@@ -66,6 +66,10 @@ class Ref:
             N = [(x - X0, y - Y0) for x, y in (neg or [])]
             votes = sum((sam.cut(crop, [(x - X0, y - Y0) for x, y in P], N) > 0).astype(np.int32) for P in sets_)
             m = np.where(votes * 2 > len(sets_), 255, 0).astype(np.uint8)
+            # held things SAM keeps apart from the figure (a staff, a trident): cut each on its
+            # own points and add it
+            for P in (add or []):
+                m = np.maximum(m, sam.cut(crop, [(x - X0, y - Y0) for x, y in P], N, keep_all=True))
             m[:, :max(0, x0 - X0 - 2)] = 0
             m[:, x1 - X0 + 2:] = 0
         elif mask is None and seg == 'diff':
@@ -430,6 +434,7 @@ def set_uv(ob, t, fold=2, mode='fold', ox=0.0, at=(0.0, 0.5), inner=None, top=No
     if not me.uv_layers:
         me.uv_layers.new(name='uv')
     uvl = me.uv_layers[0].data
+    bpy.context.view_layer.update()   # a just-placed part (a ball set at a height) has a stale matrix
     mw = ob.matrix_world
     nm = mw.to_3x3()
     for poly in me.polygons:
@@ -725,6 +730,8 @@ def relief(name, ref, z0, z1=None, thick=0.36, power=0.55, res=0.006, smooth=6, 
     mm = cv2.remap(m, mx, my, cv2.INTER_LINEAR, borderValue=0) > 127
     dt = distance_transform_edt(mm) * res
     half = thick / 2 * (dt / max(dt.max(), 1e-6)) ** power
+    # thin parts (a trident's prongs, a staff) keep a little round body instead of vanishing
+    half = np.where(mm, np.maximum(half, np.minimum(dt * 1.0, 0.0) + 1.6 * res), half)
     if taper is not None:
         half = half * taper(X, Z)
     gy = np.arange(-thick / 2 - 0.02, thick / 2 + 0.02, res)
@@ -816,3 +823,52 @@ def ball_slice(ref):
     top = ws[0][0]
     widest = max(ws[:len(ws) // 2], key=lambda p: p[1])
     return top - 2 * widest[1], top
+
+
+def compose(name, top, cut_y, base, base_w, recolour=None, top_kw=None, base_kw=None, pad=14, bg=(40, 40, 40)):
+    """a piece whose foot is hidden in its picture (pieces standing behind pawns on a board):
+    the visible figure down to row cut_y, set on a plinth cut from another piece's picture,
+    scaled to base_w picture pixels wide and optionally recoloured ((mul_bgr, add_bgr)).
+    top and base are (picture, box). Returns (path, box, mask) for Ref(path, box, mask=mask)."""
+    import os
+    (tp, tb), (bp, bb) = top, base
+    T = Ref(tp, (tb[0], tb[1], tb[2], cut_y), unit=1.0, seg='sam', foot=0, **(top_kw or {}))
+    B = Ref(bp, bb, unit=1.0, seg='sam', foot=0, **(base_kw or {}))
+
+    def tight(r, y_hi=None):
+        m = r.mask if y_hi is None else r.mask[:y_hi]
+        ys, xs = np.nonzero(m)
+        y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+        return r.crop[y0:y1, x0:x1], m[y0:y1, x0:x1]
+    T.mask[max(0, cut_y - max(0, tb[1] - 14)):] = 0   # nothing below the cut (a pawn in front)
+    ti, tm = tight(T)
+    bi, bm = tight(B)
+    s = base_w / bi.shape[1]
+    bi = cv2.resize(bi, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
+    bm = cv2.resize(bm, (bi.shape[1], bi.shape[0]), interpolation=cv2.INTER_NEAREST)
+    if recolour:
+        mul, add = recolour
+        bi = np.clip(bi.astype(np.float32) * np.array(mul, np.float32) + np.array(add, np.float32), 0, 255).astype(np.uint8)
+    # the figure's axis: the middle of its lowest rows
+    rows = tm[-max(3, tm.shape[0] // 12):]
+    cols = [((np.nonzero(r)[0].min() + np.nonzero(r)[0].max()) / 2) for r in rows if np.any(r)]
+    ax = float(np.median(cols))
+    ov = max(2, bi.shape[0] // 6)   # the figure's hem sinks a little into the plinth
+    W = int(max(ax, tm.shape[1] - ax, bi.shape[1] / 2) * 2) + 2 * pad
+    H = tm.shape[0] + bi.shape[0] - ov + 2 * pad
+    img = np.zeros((H, W, 3), np.uint8)
+    img[:] = bg
+    m = np.zeros((H, W), np.uint8)
+    cx = W / 2
+    tx, ty = int(round(cx - ax)), pad
+    bx, by = int(round(cx - bi.shape[1] / 2)), pad + tm.shape[0] - ov
+    sel = bm > 0
+    img[by:by + bi.shape[0], bx:bx + bi.shape[1]][sel] = bi[sel]
+    m[by:by + bi.shape[0], bx:bx + bi.shape[1]][sel] = 255
+    sel = tm > 0
+    img[ty:ty + tm.shape[0], tx:tx + tm.shape[1]][sel] = ti[sel]
+    m[ty:ty + tm.shape[0], tx:tx + tm.shape[1]][sel] = 255
+    out = os.path.join(os.environ.get('COMPOSE_DIR', '/tmp/claude-0/compose'), name + '.png')
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    cv2.imwrite(out, img)
+    return out, (pad, pad, W - pad, H - pad), m

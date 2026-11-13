@@ -42,6 +42,7 @@ SPEC = {
     'q': {'kind': 'crown', 'zc': 0.685, 'zp': 0.735, 'ztip': 0.925, 'points': 8, 'ball': 0, 'sharp': 0.55,
           'top': ('finial', 0.9, 0.065), 'dome': (0.685, 0.93, 0.2, 0)},
     'r': {'kind': 'rook', 'merlons': 4, 'phase': 0.0, 'gap': 0.5},
+    'b': {'kind': 'turned', 'top': ('relief', 0.47, 0.2, 0.5), 'pearl': (0.715, 0.088)},
     'n': {'kind': 'knight', 'z0': 0.14},
 }
 
