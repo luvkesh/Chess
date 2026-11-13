@@ -209,6 +209,12 @@
   "text": "No checkmates in sight, for either side.",
   "spoken": "No checkmates in sight, for either side."
  },
+ "george/0ba1c15f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You can win the game with one move. Look closely!",
+  "spoken": "You can win the game with one move. Look closely!"
+ },
  "george/0bb21298": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -868,6 +874,12 @@
   "speed": 1.0,
   "text": "dee eight",
   "spoken": "dee eight"
+ },
+ "george/253a5857": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Their king is left all alone, so you win the game.",
+  "spoken": "Their king is left all alone, so you win the game."
  },
  "george/25633715": {
   "voice": "bm_george",
@@ -2507,6 +2519,12 @@
   "text": "A small slip.",
   "spoken": "A small slip."
  },
+ "george/7cf31c67": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You have a winning plan here. Think it through!",
+  "spoken": "You have a winning plan here. Think it through!"
+ },
  "george/7dda6dec": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2536,6 +2554,12 @@
   "speed": 1.0,
   "text": "Practise king safety and castling.",
   "spoken": "Practise king safety and castling."
+ },
+ "george/7e969acf": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "It can win the game.",
+  "spoken": "It can win the game."
  },
  "george/7ec17438": {
   "voice": "bm_george",
@@ -2812,6 +2836,12 @@
   "speed": 1.0,
   "text": "bee three",
   "spoken": "bee three"
+ },
+ "george/887037de": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "That is your third check, so you win the game.",
+  "spoken": "That is your third check, so you win the game."
  },
  "george/88e1487f": {
   "voice": "bm_george",
@@ -3928,6 +3958,12 @@
   "speed": 1.0,
   "text": "Moving one piece uncovers an attack by another.",
   "spoken": "Moving one piece uncovers an attack by another."
+ },
+ "george/b80a8dd8": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your king reaches the hill in the middle and wins the game.",
+  "spoken": "Your king reaches the hill in the middle and wins the game."
  },
  "george/b843a5d3": {
   "voice": "bm_george",
@@ -5453,6 +5489,12 @@
   "text": "No checkmates in sight, for either side.",
   "spoken": "No checkmates in sight, for either side."
  },
+ "heart/0ba1c15f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You can win the game with one move. Look closely!",
+  "spoken": "You can win the game with one move. Look closely!"
+ },
  "heart/0bb21298": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6112,6 +6154,12 @@
   "speed": 1.0,
   "text": "dee eight",
   "spoken": "dee eight"
+ },
+ "heart/253a5857": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Their king is left all alone, so you win the game.",
+  "spoken": "Their king is left all alone, so you win the game."
  },
  "heart/25633715": {
   "voice": "af_heart",
@@ -7751,6 +7799,12 @@
   "text": "A small slip.",
   "spoken": "A small slip."
  },
+ "heart/7cf31c67": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You have a winning plan here. Think it through!",
+  "spoken": "You have a winning plan here. Think it through!"
+ },
  "heart/7dda6dec": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7780,6 +7834,12 @@
   "speed": 1.0,
   "text": "Practise king safety and castling.",
   "spoken": "Practise king safety and castling."
+ },
+ "heart/7e969acf": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "It can win the game.",
+  "spoken": "It can win the game."
  },
  "heart/7ec17438": {
   "voice": "af_heart",
@@ -8056,6 +8116,12 @@
   "speed": 1.0,
   "text": "bee three",
   "spoken": "bee three"
+ },
+ "heart/887037de": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "That is your third check, so you win the game.",
+  "spoken": "That is your third check, so you win the game."
  },
  "heart/88e1487f": {
   "voice": "af_heart",
@@ -9172,6 +9238,12 @@
   "speed": 1.0,
   "text": "Moving one piece uncovers an attack by another.",
   "spoken": "Moving one piece uncovers an attack by another."
+ },
+ "heart/b80a8dd8": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your king reaches the hill in the middle and wins the game.",
+  "spoken": "Your king reaches the hill in the middle and wins the game."
  },
  "heart/b843a5d3": {
   "voice": "af_heart",
@@ -10697,6 +10769,12 @@
   "text": "No checkmates in sight, for either side.",
   "spoken": "No checkmates in sight, for either side."
  },
+ "rooky/0ba1c15f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You can win the game with one move. Look closely!",
+  "spoken": "You can win the game with one move. Look closely!"
+ },
  "rooky/0bb21298": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11356,6 +11434,12 @@
   "speed": 1.05,
   "text": "dee eight",
   "spoken": "dee eight"
+ },
+ "rooky/253a5857": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Their king is left all alone, so you win the game.",
+  "spoken": "Their king is left all alone, so you win the game."
  },
  "rooky/25633715": {
   "voice": "am_puck,am_liam",
@@ -12995,6 +13079,12 @@
   "text": "A small slip.",
   "spoken": "A small slip."
  },
+ "rooky/7cf31c67": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You have a winning plan here. Think it through!",
+  "spoken": "You have a winning plan here. Think it through!"
+ },
  "rooky/7dda6dec": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13024,6 +13114,12 @@
   "speed": 1.05,
   "text": "Practise king safety and castling.",
   "spoken": "Practise king safety and castling."
+ },
+ "rooky/7e969acf": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "It can win the game.",
+  "spoken": "It can win the game."
  },
  "rooky/7ec17438": {
   "voice": "am_puck,am_liam",
@@ -13300,6 +13396,12 @@
   "speed": 1.05,
   "text": "bee three",
   "spoken": "bee three"
+ },
+ "rooky/887037de": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "That is your third check, so you win the game.",
+  "spoken": "That is your third check, so you win the game."
  },
  "rooky/88e1487f": {
   "voice": "am_puck,am_liam",
@@ -14416,6 +14518,12 @@
   "speed": 1.05,
   "text": "Moving one piece uncovers an attack by another.",
   "spoken": "Moving one piece uncovers an attack by another."
+ },
+ "rooky/b80a8dd8": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your king reaches the hill in the middle and wins the game.",
+  "spoken": "Your king reaches the hill in the middle and wins the game."
  },
  "rooky/b843a5d3": {
   "voice": "am_puck,am_liam",

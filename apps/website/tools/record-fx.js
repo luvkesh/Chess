@@ -73,7 +73,8 @@ async function record(id) {
     } else if (cat === 'trail') {
       v.setFx({ trail: it.data });
       v.setBoard([K, k, [3, 5], [1, 2], [12, 1], [51, -1], [52, -1]], null);
-      run = async () => { await wait(700); await mv(3, 39, 5); await wait(400); await mv(1, 18, 2); await wait(400); await mv(39, 53, 5); await wait(900); };
+      // the three trail levels, one after the other: the queen, a knight, a pawn
+      run = async () => { await wait(700); await mv(3, 39, 5); await wait(450); await mv(1, 18, 2); await wait(450); await mv(12, 28, 1); await wait(1000); };
     } else if (cat === 'sound') {
       // the pack's own material on the table: marble pieces on marble, crystal pieces on glass
       if (it.data.pack === 'marble') v.setTheme({ board: 'marble' }, { set: 'marble' });
