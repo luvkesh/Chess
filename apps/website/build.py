@@ -199,7 +199,7 @@ def guide(coach, collection):
         assert recorded.get(key, {}).get('text') == text, 'audio/%s.mp3 says something else; run tools/record-guide.py' % key
         # The section lines are inlined so the tour starts at once; the 60 piece pitches are
         # fetched when needed (the game server serves them at /pitch/site/, the preview beside the page).
-        src = ('@@PITCHES@@' + key + '.mp3' if key.startswith('item-') else
+        src = ('@@PITCHES@@' + key + '.mp3' if key.startswith(('item-', 'fx-')) else
                'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode())
         out[key] = {'text': text, 'cues': recorded[key]['cues'], 'src': src}
     # Rooky in other languages: audio/<lang>/index.json and its clips, recorded from the translated
@@ -208,7 +208,7 @@ def guide(coach, collection):
         said = json.loads((d / 'index.json').read_text())['lines']
         for key, rec in said.items():
             if key in out and (d / (key + '.mp3')).exists():
-                src = ('@@PITCHES@@' + d.name + '/' + key + '.mp3' if key.startswith('item-') else
+                src = ('@@PITCHES@@' + d.name + '/' + key + '.mp3' if key.startswith(('item-', 'fx-')) else
                        'data:audio/mpeg;base64,' + base64.b64encode((d / (key + '.mp3')).read_bytes()).decode())
                 out[key].setdefault('langs', {})[d.name] = {'cues': rec['cues'], 'src': src}
     return out
@@ -439,14 +439,14 @@ def main():
         (out / 'meshes').mkdir(exist_ok=True)
         for pack in (game / 'meshes').glob('*.txt'):
             (out / 'meshes' / pack.name).write_bytes(pack.read_bytes())
-        for clip in (here / 'audio').glob('item-*.mp3'):
+        for clip in [c for g in ('item-*.mp3', 'fx-*.mp3') for c in (here / 'audio').glob(g)]:
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
         # The same pitches in other languages, joined per language into base64 parts of about 4 MB of
         # sound (the preview's host caps how many files a page may serve); the page plays
         # "audio/<lang>/part-<n>.txt#start-end" as that clip's slice of the part.
         page = (out / 'index.html').read_text()
         for d in sorted(x for x in (here / 'audio').iterdir() if x.is_dir()):
-            clips = sorted(d.glob('item-*.mp3'))
+            clips = sorted(d.glob('item-*.mp3')) + sorted(d.glob('fx-*.mp3'))
             if not clips:
                 continue
             (out / 'audio' / d.name).mkdir(exist_ok=True)

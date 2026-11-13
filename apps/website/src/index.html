@@ -29,7 +29,7 @@
   --r: 22px; --u: 18px;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overscroll-behavior-y: none; background: var(--bg); }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 var(--sans); overflow-x: hidden; }
 img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
@@ -442,7 +442,7 @@ html[dir="rtl"] .strip-arrow svg, html[dir="rtl"] .chev { transform: scaleX(-1);
 .gate .gate-no { margin: 10px 0 0; color: #f0a890; }
 .gate-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
 /* ---------- footer ---------- */
-footer { background: var(--bg); border-top: 1px solid var(--line-2); padding: 40px 0 44px; color: var(--faint); font-size: 14px; position: relative; }
+footer { background: var(--bg); border-top: 1px solid var(--line-2); padding: 40px 0 44px; color: var(--faint); font-size: 14px; position: relative; box-shadow: 0 50vh 0 50vh var(--bg); clip-path: inset(0 0 -100vh 0); }
 footer::before { content: ''; position: absolute; left: 10%; right: 10%; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent); box-shadow: 0 0 16px rgba(232, 192, 112, 0.5); }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 18px 26px; align-items: center; }
 footer a { text-decoration: none; color: var(--muted); }
@@ -985,7 +985,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     </div>
   </div>
 
-  <div class="details">
+  <div class="details" data-guide="details">
     <div class="minihead reveal"><h3>And the details</h3><span class="rule" aria-hidden="true"></span></div>
     <div class="fx reveal" id="fx">
       <div class="fx-tabs" role="tablist" aria-label="The details" aria-orientation="vertical">
@@ -1837,12 +1837,14 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
       });
       start(0);
     }
+    // a tab the visitor picks tells Rooky, who says a word about it when the tour is on ('cm:fx')
+    function said(k) { window.dispatchEvent(new CustomEvent('cm:fx', { detail: k })); }
     tabs.forEach(function (b, i) {
-      b.addEventListener('click', function () { choose(b.dataset.fx); });
+      b.addEventListener('click', function () { choose(b.dataset.fx); said(b.dataset.fx); });
       b.addEventListener('keydown', function (e) {
         var n = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key], j = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : n ? (i + n + tabs.length) % tabs.length : -1;
         if (j < 0) return;
-        e.preventDefault(); choose(tabs[j].dataset.fx, true);
+        e.preventDefault(); choose(tabs[j].dataset.fx, true); said(tabs[j].dataset.fx);
       });
     });
     pips.forEach(function (p, i) { p.addEventListener('click', function () { start(i); }); });
@@ -1877,13 +1879,16 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     var KEY = 'chackmate.site.tour.v1', CC_KEY = 'chackmate.site.captions', Y_KEY = 'chackmate.site.rooky-y.v1';
     var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
     var btn = $('r-btn'), invite = $('r-invite'), live = $('r-live'), cap = $('r-caption'), where = $('r-where'), orb = $('r-orb'), ccBtn = $('r-cc'), nextBtn = $('r-next');
-    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', train: 'Train', mates: 'Puzzles', progress: 'Progress', wonders: 'Wonders', collect: 'Collect', ages: 'Friends to play', families: 'For grown-ups', close: 'Play' };
+    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', train: 'Train', mates: 'Puzzles', progress: 'Progress', wonders: 'Wonders', collect: 'Collect', details: 'Details', ages: 'Friends to play', families: 'For grown-ups', close: 'Play' };
     var sections = [].slice.call(document.querySelectorAll('[data-guide]')).filter(function (el) { return G[el.dataset.guide]; });
     var keys = sections.map(function (el) { return el.dataset.guide; });
-    var on = false, paused = false, audio = null, lastSection = null, lastKey = null, settle = 0, capTimer = 0, peekT = 0, itemT = 0, nextTo = null, cueAt = 0;
+    var on = false, paused = false, audio = null, lastSection = null, lastKey = null, settle = 0, capTimer = 0, peekT = 0, itemT = 0, fxT = 0, nextTo = null, cueAt = 0;
     var itemName = {};
     ['sets', 'boards', 'places'].forEach(function (c) { D.collection[c].forEach(function (it) { itemName[it.key] = it.name; }); });
-    function sectionOf(key) { return key.indexOf('item-') === 0 ? 'collect' : key; }
+    // a pitch for one piece belongs to Collect, and one for a kind of detail (a tab) to the details
+    var FXNAME = { capture: 'Capture effects', victory: 'Victory effects', trail: 'Move trails', clock: 'Clock skins', sound: 'Sound packs', avatar: 'Avatars', frame: 'Frames' };
+    function side(key) { return key.indexOf('item-') === 0 || key.indexOf('fx-') === 0; }
+    function sectionOf(key) { return key.indexOf('item-') === 0 ? 'collect' : key.indexOf('fx-') === 0 ? 'details' : key; }
     // the caption bubble shows for a moment on a tap, hold, hover or focus, and while Rooky talks
     function peek(ms) { live.classList.add('show'); clearTimeout(peekT); if (ms) peekT = setTimeout(function () { if (!live.matches(':hover') && !live.contains(document.activeElement)) live.classList.remove('show'); }, ms); }
     var actx = null, voice = null, hush = null, tag = null;
@@ -1999,6 +2004,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     }
     function label(key) {
       if (key.indexOf('item-') === 0) return 'Collect · ' + (itemName[key] || '');
+      if (key.indexOf('fx-') === 0) return 'Details · ' + FXNAME[key.slice(3)];
       return LABEL[key] + ' · ' + (keys.indexOf(key) + 1) + ' of ' + keys.length;
     }
     // When sound cannot start, the caption says why, so a visitor (and we) can tell what went wrong.
@@ -2008,9 +2014,9 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
       if ('speechSynthesis' in window) speechSynthesis.cancel();
       fadeOut(); hideCue(); held = null;
       var a = { key: key, sec: sectionOf(key), src: null, el: null, gain: null, now: null, retry: !!retry }; audio = a; lastKey = key;
-      if (key.indexOf('item-') !== 0) lastSection = key;
+      if (!side(key)) lastSection = key;
       cap.textContent = L.cues[0].text; where.textContent = label(key);
-      function ended() { trace('ended ' + key + ' ' + (audio === a)); if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (key.indexOf('item-') !== 0) showCue(key); }
+      function ended() { trace('ended ' + key + ' ' + (audio === a)); if (audio !== a) return; audio = null; live.classList.remove('talking'); clearInterval(capTimer); if (!side(key)) showCue(key); }
       // the caption is the last cue whose time has passed
       function follow(now) {
         a.now = now; trace('follow ' + key);
@@ -2098,7 +2104,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
       if (!on || paused) return;
       var k = current();
       if (goingTo) { if (k === goingTo) goingTo = null; else return; }
-      if (audio && k !== audio.sec) { fadeOut(); clearTimeout(itemT); }
+      if (audio && k !== audio.sec) { fadeOut(); clearTimeout(itemT); clearTimeout(fxT); }
       // A section that stays the reader's for a fifth of a second gets its line, even while the
       // page is still gliding; one that only flashes past during a fast flick does not.
       if (k === pending) return;
@@ -2108,6 +2114,8 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
         var k2 = current();
         if (k2 !== k) return onScroll();
         if (held && k2 !== sectionOf(held.key)) held = null;
+        // the details sit inside Collect: scrolling out of them, Collect's own line is not said twice
+        if (k2 === 'collect' && lastSection === 'details') lastSection = 'collect';
         if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); else if (held) carryOn(false);
       }, 200);
     }
@@ -2120,7 +2128,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     }
     function setOn(v) {
       on = v; store.set(KEY, v ? '1' : '0'); btn.setAttribute('aria-pressed', String(v)); invite.hidden = true; live.hidden = !v; paused = false; live.classList.remove('paused', 'show');
-      if (v) { unlock(); preload(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); pending = undefined; clearTimeout(itemT); fadeOut(); hideCue(); quiet(); held = null; }
+      if (v) { unlock(); preload(); lastSection = null; onScroll(); peek(4000); } else { clearTimeout(settle); pending = undefined; clearTimeout(itemT); clearTimeout(fxT); fadeOut(); hideCue(); quiet(); held = null; }
     }
     addEventListener('scroll', onScroll, { passive: true });
     // every section's line is decoded as soon as the tour is on, so each one starts at once
@@ -2132,6 +2140,15 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
       clearTimeout(settle); pending = undefined;
       if (audio) fadeOut();
       itemT = setTimeout(function () { speak(e.detail); }, 200);
+    });
+    // and each kind of detail gets its own, when the visitor picks its tab
+    addEventListener('cm:fx', function (e) {
+      clearTimeout(fxT);
+      var key = 'fx-' + e.detail;
+      if (!on || paused || !G[key] || current() !== 'details') return;
+      clearTimeout(settle); pending = undefined;
+      if (audio) fadeOut();
+      fxT = setTimeout(function () { speak(key); }, 200);
     });
     btn.addEventListener('click', function () { setOn(!on); });
     $('r-yes').addEventListener('click', function () { setOn(true); });

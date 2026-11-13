@@ -2,28 +2,28 @@
  "lang": "es",
  "lines": {
   "hero": {
-   "text": "¡Hola! Soy Rooky, tu entrenador de ajedrez. ¡Bienvenido a Chackmate! Vamos, baja un poco. ¡Tengo muchísimas cosas que enseñarte!",
+   "text": "¡Hola, hola! ¡Soy Rooky, tu entrenador de ajedrez, y estoy muy feliz de que estés aquí! Bienvenido a Chackmate, donde el ajedrez viaja a través de los tiempos. Pirámides, palacios, dragones y acertijos te están esperando. ¡Baja por la página y vámonos de aventura!",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "¡Hola!"
+     "text": "¡Hola, hola!"
     },
     {
-     "t": 0.94,
-     "text": "Soy Rooky, tu entrenador de ajedrez."
+     "t": 1.28,
+     "text": "¡Soy Rooky, tu entrenador de ajedrez, y estoy muy feliz de que estés aquí!"
     },
     {
-     "t": 3.46,
-     "text": "¡Bienvenido a Chackmate!"
+     "t": 5.65,
+     "text": "Bienvenido a Chackmate, donde el ajedrez viaja a través de los tiempos."
     },
     {
-     "t": 5.34,
-     "text": "Vamos, baja un poco."
+     "t": 9.8,
+     "text": "Pirámides, palacios, dragones y acertijos te están esperando."
     },
     {
-     "t": 7.23,
-     "text": "¡Tengo muchísimas cosas que enseñarte!"
+     "t": 13.87,
+     "text": "¡Baja por la página y vámonos de aventura!"
     }
    ]
   },
@@ -2908,6 +2908,142 @@
     {
      "t": 10.59,
      "text": "Light and Void juega aquí, sobre Light and Void Marble."
+    }
+   ]
+  },
+  "details": {
+   "text": "¡Y ahora, los pequeños detalles! Toca cada uno y te lo cuento todo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Y ahora, los pequeños detalles!"
+    },
+    {
+     "t": 2.35,
+     "text": "Toca cada uno y te lo cuento todo."
+    }
+   ]
+  },
+  "fx-capture": {
+   "text": "¡Efectos de captura! Cada vez que capturas una pieza, hay un pequeño espectáculo. ¡El chocolate se derrite, el hielo se rompe y saltan chispas!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Efectos de captura!"
+    },
+    {
+     "t": 1.8,
+     "text": "Cada vez que capturas una pieza, hay un pequeño espectáculo."
+    },
+    {
+     "t": 5.55,
+     "text": "¡El chocolate se derrite, el hielo se rompe y saltan chispas!"
+    }
+   ]
+  },
+  "fx-victory": {
+   "text": "¡Efectos de victoria! Cuando ganas, todo el tablero lo celebra contigo. ¡Fuegos artificiales o relámpagos, tú eliges!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Efectos de victoria!"
+    },
+    {
+     "t": 1.85,
+     "text": "Cuando ganas, todo el tablero lo celebra contigo."
+    },
+    {
+     "t": 5.05,
+     "text": "¡Fuegos artificiales o relámpagos, tú eliges!"
+    }
+   ]
+  },
+  "fx-trail": {
+   "text": "¡Estelas de movimiento! Cada pieza deja una suave estela de luz al moverse. El rey y la dama tienen las más grandiosas.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Estelas de movimiento!"
+    },
+    {
+     "t": 1.89,
+     "text": "Cada pieza deja una suave estela de luz al moverse."
+    },
+    {
+     "t": 5.36,
+     "text": "El rey y la dama tienen las más grandiosas."
+    }
+   ]
+  },
+  "fx-clock": {
+   "text": "¡Diseños de reloj! Viste tu reloj de juego, desde cristal helado hasta rojo rubí.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Diseños de reloj!"
+    },
+    {
+     "t": 1.74,
+     "text": "Viste tu reloj de juego, desde cristal helado hasta rojo rubí."
+    }
+   ]
+  },
+  "fx-sound": {
+   "text": "¡Paquetes de sonido! Elige cómo suenan tus piezas al posarse. ¡El mármol hace clac y el cristal hace clin!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Paquetes de sonido!"
+    },
+    {
+     "t": 1.75,
+     "text": "Elige cómo suenan tus piezas al posarse."
+    },
+    {
+     "t": 4.63,
+     "text": "¡El mármol hace clac y el cristal hace clin!"
+    }
+   ]
+  },
+  "fx-avatar": {
+   "text": "¡Avatares! Elige una cara para tu tarjeta de jugador. ¿Qué amigo se parece más a ti?",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Avatares!"
+    },
+    {
+     "t": 1.24,
+     "text": "Elige una cara para tu tarjeta de jugador."
+    },
+    {
+     "t": 4.19,
+     "text": "¿Qué amigo se parece más a ti?"
+    }
+   ]
+  },
+  "fx-frame": {
+   "text": "¡Marcos! Pon un anillo brillante alrededor de tu avatar. ¡Hay muchísimos para coleccionar!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Marcos!"
+    },
+    {
+     "t": 1.11,
+     "text": "Pon un anillo brillante alrededor de tu avatar."
+    },
+    {
+     "t": 4.23,
+     "text": "¡Hay muchísimos para coleccionar!"
     }
    ]
   }
