@@ -345,6 +345,10 @@ def build(target):
         shown.update({p.stem: 'img/' + p.name for p in (here / 'img').glob('item-*.*') if p.stem in shown})
         # and so do the icons, which the page only ever names in a src
         img = dict(img, **{p.stem: 'img/' + p.name for p in (here / 'img').glob('ic-*.webp')})
+        # and the era stills and set pedestals (posters and the no-WebGL fallback)
+        beside = {p.stem: 'img/' + p.name for g in ('*-hero.webp', 'set-*.webp') for p in (here / 'img').glob(g)}
+        img = dict(img, **beside)
+        shown.update({k: v for k, v in beside.items() if k in shown})
     lines = guide(coach['name'], collection)
     catalog = load('catalog.json')
     fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in catalog['items'] if i['id'] == d] for c, ids in FX_DEMOS.items()}
@@ -428,7 +432,7 @@ def main():
         (out / 'index.html').write_text(build('preview'))
         (out / 'audio').mkdir(exist_ok=True)
         (out / 'img').mkdir(exist_ok=True)
-        for pic in list((here / 'img').glob('item-*.webp')) + list((here / 'img').glob('ic-*.webp')):
+        for pic in [p for g in ('item-*.webp', 'ic-*.webp', '*-hero.webp', 'set-*.webp') for p in (here / 'img').glob(g)]:
             (out / 'img' / pic.name).write_bytes(pic.read_bytes())
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())

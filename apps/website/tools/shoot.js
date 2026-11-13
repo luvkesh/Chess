@@ -28,7 +28,16 @@ const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], ro
   await page.addInitScript(() => { window.__SHOT = true; });
   // the built game (named chacklate-chess.html before the game was renamed Chackmate)
   const built = ['chackmate.html', 'chacklate-chess.html'].map((n) => path.join(root, 'apps/web-prototype/dist', n)).find((f) => fs.existsSync(f));
-  await page.goto('file://' + built, { waitUntil: 'commit', timeout: 0 });
+  // Served over http, not opened as a file: the modelled sets fetch their mesh packs (dist/meshes)
+  // beside the page, and a file page may not fetch.
+  const dist = path.dirname(built);
+  const server = require('http').createServer((q, r) => {
+    const f = path.join(dist, decodeURIComponent(q.url.split('?')[0]));
+    if (!f.startsWith(dist) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { r.writeHead(404); r.end(); return; }
+    r.writeHead(200, { 'Content-Type': f.endsWith('.html') ? 'text/html' : 'text/plain' }); fs.createReadStream(f).pipe(r);
+  });
+  await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
+  await page.goto('http://127.0.0.1:' + server.address().port + '/' + path.basename(built), { waitUntil: 'commit', timeout: 0 });
   await page.waitForFunction(() => window.__view && window.__cam, null, { timeout: 300000 });
   await page.waitForTimeout(2500);
   await page.addStyleTag({ content: 'body > *:not(canvas) { visibility: hidden !important; } canvas { visibility: visible !important; }' });
@@ -51,7 +60,9 @@ const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], ro
         w.setInsets(v.ins, true);
         if (v.attract) w.setAttract(true, true); else w.setView('white', v.view, true);
       }, [e, v]);
-      await page.waitForTimeout(2500);
+      // a snapshot waits for a modelled set's pack, so the table's own pieces are in by the screenshot
+      await page.evaluate((set) => window.__view.snapshot({ kind: 'piece', set, type: 'p', side: 'w' }, 64, 64), e.set);
+      await page.waitForTimeout(3500);
       await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
       await page.waitForTimeout(1200);
       await page.screenshot({ path: path.join(out, `${e.id}-${v.name}.png`) });
@@ -84,4 +95,5 @@ const FELT = { egypt: ['#1d2f7a', '#7f9cff'], greece: ['#2a5a7a', '#9cd2ff'], ro
     }
   }
   await browser.close();
+  server.close();
 })();
