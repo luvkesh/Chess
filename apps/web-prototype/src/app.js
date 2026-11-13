@@ -238,6 +238,7 @@
     PG.setSeason(state.progress);
     state.account = cur.account || null;
     if (!state.game) saved.game = cur.game || null;
+    if (!state.xq) saved.xq = cur.xq || null;
     setEntitlements(state.account && state.account.ent);
     return true;
   }
@@ -250,8 +251,10 @@
     if (readRev() > rev) adopt();
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
+      // a Xiangqi game in play is kept too; one not opened since the page loaded stays as it was saved
+      const Q = state.xq, xq = Q ? (!Q.g.outcome && Q.g.moves.length ? { moves: Q.g.moves.map(X.uci), human: Q.human, kind: Q.kind, level: Q.level, setup: Q.setup } : null) : saved.xq || null;
       localStorage.setItem(STORE_KEY, JSON.stringify({ settings: state.settings, setup: state.setup, progress: state.progress, account: state.account,
-        game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null }));
+        game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null, xq }));
       localStorage.setItem(REV_KEY, String(rev = Math.max(rev, readRev()) + 1));
     } catch (e) {
       // Storage full or blocked: everything still works for this visit; say so once.
@@ -1486,14 +1489,16 @@
     if (variantLook(v)) setLook(variantLook(v));
     const e = v.era && eraById(v.era), host = e ? eraCoach(e) : COACH;
     const learned = !!state.progress.variantLessons[v.id];
+    const xqBack = v.id === 'xiangqi' ? xqResumable() : null;   // an unfinished game takes the rule-sheet card's place (the sheet is just below)
     mount('<div class="page"><div class="page-in">' +
       '<button class="backlink" data-nav="variants">' + icon('back') + ' ' + t('play.var.all') + '</button>' +
       '<section class="era-hero"><img class="bg" src="' + variantArt(v) + '" alt="">' +
       '<div class="in">' + faceImg(host, 'coach-big') + '<div><div class="eyebrow">' + t('play.var.kicker', { when: esc(varText(v, 'when')) }) + (e ? ' · ' + esc(eraName(e)) : '') + '</div><h1>' + esc(varName(v)) + '</h1>' +
       '<p class="quote">' + esc(varText(v, 'blurb')) + '</p></div></div></section>' +
       '<div class="lux-row three var-actions">' +
-      lux({ id: 'v-learn', feature: !learned, art: faceImg(COACH), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), text: t('play.var.lessonText', { title: v.lesson.title }) }) +
-      lux({ id: 'v-rules', art: '<span class="ic-big">' + icon('scroll') + '</span>', title: t('play.var.sheet'), text: t('play.var.sheetText') }) +
+      lux({ id: 'v-learn', feature: !learned && !xqBack, art: faceImg(COACH), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), text: t('play.var.lessonText', { title: v.lesson.title }) }) +
+      (xqBack ? lux({ id: 'v-resume', feature: true, art: duoArt(), title: t('home.resume'), text: t('home.resumeText', { n: xqBack.n }) })
+        : lux({ id: 'v-rules', art: '<span class="ic-big">' + icon('scroll') + '</span>', title: t('play.var.sheet'), text: t('play.var.sheetText') })) +
       lux({ id: 'v-local', art: duoArt(), title: t('play.ng.local'), text: t('play.var.localText') }) +
       '</div>' +
       '<div id="v-sheet">' + sec('scroll', t('play.var.sheet'), t('play.var.gold')) + '<div class="glass rs-card">' + ruleSheet(v) + '</div></div>' +
@@ -1504,7 +1509,8 @@
     hydrate();
     wireLinks();
     $('v-learn').onclick = () => { AU.unlock(); AU.play('tap'); go(v.id === 'xiangqi' ? 'xqlesson' : 'lesson', { variant: v.id }); };
-    $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    if ($('v-rules')) $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    if ($('v-resume')) $('v-resume').onclick = () => { AU.unlock(); AU.play('tap'); if (xqBack.live) go('xiangqi'); else resumeXq(); };
     $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); if (v.id === 'xiangqi') { startXq({ mode: 'local' }); return; } startGame(Object.assign({ mode: 'local', color: 'white', level: 0, tc: 'none', look: variantLook(v) }, variantStart(v))); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp, v.id); }; });
     // The cards' records and "beaten" badges are for chess; a variation keeps its own record.
@@ -1586,6 +1592,24 @@
     else setTimeout(() => { try { const r = X.search(X.positionFrom(fen, moves), opts); done({ uci: r.move !== null ? X.uci(r.move) : null }); } catch (err) { done({ error: String(err) }); } }, 30);
   }
   const xqSide = (side) => t(side === X.RED ? 'play.xq.red' : 'play.xq.black');
+  // A Xiangqi game left unfinished: the one still in memory, or the one saved before a reload.
+  function xqResumable() {
+    const Q = state.xq;
+    if (Q) return !Q.g.outcome && Q.g.moves.length ? { live: true, n: Q.g.moves.length } : null;
+    const s = saved.xq;
+    return s && Array.isArray(s.moves) && s.moves.length ? { live: false, n: s.moves.length } : null;
+  }
+  function resumeXq() {
+    const s = saved.xq; saved.xq = null;
+    const kind = s.kind === 'local' ? 'local' : 'ai', level = X.LEVELS[s.level] ? s.level : 0;
+    const setup = Object.assign({}, s.setup && typeof s.setup === 'object' ? s.setup : {}, { mode: kind, level });
+    const g = new X.Game();
+    for (const u of s.moves) if (typeof u !== 'string' || !g.playText(u)) break;   // a damaged record keeps the moves that still make sense
+    if (!g.moves.length || g.outcome) { save(); go('variant', 'xiangqi'); return; }
+    const human = kind === 'local' ? 0 : s.human === X.BLACK ? X.BLACK : X.RED;
+    state.xq = { setup, g, human, kind, level, selected: -1, busy: false, thinking: false, request: 0, resultShown: false, viewSide: human === X.BLACK ? 'black' : 'white' };
+    go('xiangqi');
+  }
   function startXq(setup) {
     const g = new X.Game();
     const human = setup.mode === 'local' ? 0 : setup.color === 'black' ? X.BLACK : setup.color === 'random' ? (Math.random() < 0.5 ? X.RED : X.BLACK) : X.RED;
@@ -1674,6 +1698,7 @@
       if (!info) return;
       Q.busy = true; Q.selected = -1; marks();
       const req = ++Q.request;
+      save();
       if (T) T.move(info, () => { if (req !== Q.request || state.screen !== 'xiangqi') return; Q.busy = false; after(info); });
       else { Q.busy = false; after(info); }
     }
@@ -1758,7 +1783,7 @@
       Q.g.undo();
       if (Q.kind === 'ai' && Q.g.pos.side !== Q.human && Q.g.moves.length) Q.g.undo();
       if (T) T.setPosition(Q.g.pos.b);
-      Q.selected = -1; marks(); hud();
+      Q.selected = -1; marks(); hud(); save();
       if (Q.kind === 'ai' && Q.g.pos.side !== Q.human) think();
     };
     const setCam = () => { view.setView(Q.viewSide, state.settings.view === 'top' ? 'top' : 'player'); if (T) T.setSide(Q.viewSide === 'black' ? 'black' : 'red'); };
