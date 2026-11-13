@@ -376,7 +376,9 @@ function ChacklateScene(canvas, options) {
     clock.visible = !!clockState && !layoutPortrait;
     dirtyShadows();
   }
-  // Chess clock: a walnut case with two brass-rimmed faces and plungers.
+  // Chess clock: a walnut case with two brass-rimmed faces and plungers. A clock skin dresses the
+  // whole clock (its case, rims and plungers, and the faces), so two skins never look alike
+  // (user, 2026-11-06: "the clock skins have no difference").
   let clock = null, clockState = null, clockSkin = null, clockKey = '';
   const clockCanvas = document.createElement('canvas'); clockCanvas.width = 1024; clockCanvas.height = 384;
   const clockTex = new THREE.CanvasTexture(clockCanvas); clockTex.colorSpace = THREE.SRGBColorSpace;
@@ -387,12 +389,20 @@ function ChacklateScene(canvas, options) {
     const face = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.75), new THREE.MeshBasicMaterial({ map: clockTex, toneMapped: false }));
     face.position.set(0, 0.47, 0.352); g.add(face);
     for (const s of [-1, 1]) {
-      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.16, 20), K.MAT.brass()); b.position.set(s * 0.6, 0.98, 0); b.castShadow = true; g.add(b);
+      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.16, 20), K.MAT.brass().clone()); b.position.set(s * 0.6, 0.98, 0); b.castShadow = true; g.add(b);
       b.userData.side = s; g.userData['btn' + s] = b;
-      const bez = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.03, 8, 40), K.MAT.gold()); bez.position.set(s * 0.5, 0.47, 0.36); g.add(bez);
+      const bez = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.03, 8, 40), K.MAT.gold().clone()); bez.position.set(s * 0.5, 0.47, 0.36); g.add(bez);
+      g.userData.metals = (g.userData.metals || []).concat([b.material, bez.material]);
     }
+    g.userData.wood = wood;
     g.visible = false;
     return g;
+  }
+  // the skin's case and metal on the clock itself
+  function dressClock() {
+    if (!clock || !clockSkin) return;
+    if (clockSkin.body) clock.userData.wood.color.set(clockSkin.body);
+    if (clockSkin.metal) for (const m of clock.userData.metals) m.color.set(clockSkin.metal);
   }
   // Two faces that never look alike: White's is ivory with dark figures, Black's is ebony with
   // gold ones. The face whose time is running lights up with a gold ring and a glowing dot; the
@@ -407,12 +417,13 @@ function ChacklateScene(canvas, options) {
     const g = clockCanvas.getContext('2d');
     const sk = clockSkin || { face: '#f4ead8', ink: '#2a1a10', glow: '#b8862e', accent: '#d2466f' };
     const FACE = { w: { face: sk.face, ink: sk.ink }, b: { face: '#231510', ink: '#f1cf86' } };
-    g.fillStyle = '#1a0e08'; g.fillRect(0, 0, 1024, 384);
+    const metal = sk.metal || '#ffd982';
+    g.fillStyle = sk.body ? W.shade(sk.body, -0.55) : '#1a0e08'; g.fillRect(0, 0, 1024, 384);
     for (let i = 0; i < 2; i++) {
       const who = (i === 0) !== flip ? 'b' : 'w', f = FACE[who];
       const cx = 256 + i * 512, on = clockState.active === who, idle = clockState.active && !on;
       if (on) { g.fillStyle = 'rgba(255, 214, 130, 0.35)'; g.beginPath(); g.arc(cx, 192, 182, 0, TAU); g.fill(); }
-      g.lineWidth = on ? 16 : 8; g.strokeStyle = on ? '#ffd982' : '#7a5a2e';
+      g.lineWidth = on ? 16 : 8; g.strokeStyle = on ? W.shade(metal, 0.15) : W.shade(metal, -0.45);
       g.beginPath(); g.arc(cx, 192, 160, 0, TAU); g.stroke();
       const grd = g.createRadialGradient(cx, 170, 20, cx, 192, 156);
       grd.addColorStop(0, W.shade(f.face, who === 'b' ? 0.12 : 0)); grd.addColorStop(1, W.shade(f.face, -0.18));
@@ -626,7 +637,7 @@ function ChacklateScene(canvas, options) {
   // piece's level (see trailOf).
   function trailParticle(p, o) {
     const sz = o.size || 1, lf = o.life || 1, r = Math.random();
-    p.vx *= 0.25; p.vz *= 0.25; p.vy = 0.12; p.g = 0; p.drag = 0.5; p.alpha = 0.95; p.life = 950 * lf; p.size = (0.1 + r * 0.05) * sz;
+    p.vx *= 0.25; p.vz *= 0.25; p.vy = 0.12; p.g = 0; p.drag = 0.5; p.alpha = 0.88; p.life = 950 * lf; p.size = (0.1 + r * 0.05) * sz;
     switch (o.style) {
       case 'comet': p.life = 1150 * lf; p.size = (0.13 + r * 0.07) * sz; p.vy = 0.05; break;
       case 'flame': p.vy = 0.7 + r * 0.7; p.g = -0.6; p.life = 800 * lf; p.size = (0.12 + r * 0.06) * sz; p.grow = 1.3; break;
@@ -636,7 +647,7 @@ function ChacklateScene(canvas, options) {
       case 'petals': p.add = false; p.square = true; p.vy = 0.25; p.g = 0.4; p.life = 1700 * lf; p.size = (0.08 + r * 0.04) * sz; p.flutter = r * 6; break;
       case 'frost': p.vx *= 3; p.vz *= 3; p.vy = 0.3 + r * 0.4; p.g = 0.5; p.life = 1100 * lf; p.size = (0.05 + r * 0.05) * sz; p.twinkle = 2 + r * 5; break;
       case 'ribbon': p.vx = p.vz = 0; p.vy = 0; p.life = 700 * lf; p.size = 0.14 * sz; p.alpha = 0.9; break;
-      case 'wisp': p.vy = 0.3 + r * 0.25; p.g = -0.1; p.life = 1000 * lf; p.size = (0.08 + r * 0.04) * sz; p.grow = 1.2; p.alpha = 0.45; p.flutter = r * 6; break;   // softer: the old wisp clouded the board (user, 6 Nov)
+      case 'wisp': p.vy = 0.3 + r * 0.25; p.g = -0.12; p.life = 1000 * lf; p.size = (0.075 + r * 0.04) * sz; p.grow = 0.9; p.alpha = 0.36; p.flutter = r * 6; break;
       case 'drip': p.add = false; p.vy = -0.1; p.g = 2.4; p.life = 1100 * lf; p.size = (0.07 + r * 0.05) * sz; p.drag = 0.9; break;
       case 'bolt': p.x += (Math.random() - 0.5) * 0.22 * sz; p.y += (Math.random() - 0.5) * 0.22 * sz; p.z += (Math.random() - 0.5) * 0.22 * sz; p.vx = p.vz = p.vy = 0; p.life = 420 * lf; p.size = (0.08 + r * 0.06) * sz; p.twinkle = 4 + r * 4; break;
       default: p.g = 0.25; p.vy = 0.1; break;   // dust
@@ -688,7 +699,9 @@ function ChacklateScene(canvas, options) {
   // Particles are laid all along the path between two frames, so the trail reads as one
   // unbroken stroke even on a quick move. Each trail item has a style (data.style).
   const TRAIL_LEVEL = { 6: 1, 5: 1, 4: 2, 3: 2, 2: 2, 1: 3 };
-  const TRAIL_K = { 1: { per: 34, size: 2.6, life: 1.9, head: 0.6, land: 40 }, 2: { per: 22, size: 2, life: 1.45, head: 0.4, land: 22 }, 3: { per: 12, size: 1.5, life: 1.1, head: 0, land: 10 } };
+  // Subtle, but never hard to see (user, 2026-11-06: the Mint Wisp was "too much"): the stroke is a
+  // slim line of light, not a beam, and the three levels differ in length and weight, not glare.
+  const TRAIL_K = { 1: { per: 30, size: 2.1, life: 1.7, head: 0.46, land: 28 }, 2: { per: 21, size: 1.6, life: 1.3, head: 0.3, land: 16 }, 3: { per: 13, size: 1.2, life: 1.0, head: 0, land: 9 } };
   function trailOf(s) {
     const tr = fx.trail;
     if (!tr || !animations) { s.tp = null; return; }
@@ -697,11 +710,17 @@ function ChacklateScene(canvas, options) {
     if (!prev) return;
     const d = Math.hypot(here[0] - prev[0], here[1] - prev[1], here[2] - prev[2]);
     if (d < 0.004) return;
+    // every colour of the trail shows: a ribbon runs through them in bands along the path, the
+    // other styles mix them
+    const cs = tr.colors && tr.colors.length ? tr.colors : ['#ffffff'], run = s.td || 0;
+    s.td = run + d;
+    const tint = (f) => [cs[tr.style === 'ribbon' ? Math.floor((run + f * d) * 1.6) % cs.length : Math.floor(Math.random() * cs.length)]];
     const k = TRAIL_K[TRAIL_LEVEL[kindOf(s.piece)] || 3], opt = { style: tr.style, size: k.size, life: k.life };
-    const n = Math.min(48, Math.ceil(d * k.per * (lvl() >= 3 ? 0.5 : lvl() >= 1 ? 0.75 : 1)));
+    // a wisp is a thin curl of mist, so it is laid more sparsely than the other styles
+    const n = Math.min(48, Math.ceil(d * k.per * (tr.style === 'wisp' ? 0.55 : 1) * (lvl() >= 3 ? 0.5 : lvl() >= 1 ? 0.75 : 1)));
     for (let i = 0; i < n; i++) {
       const f = (i + Math.random()) / n, j = 0.05 * k.size;
-      spawn('trail', lerp(prev[0], here[0], f) + (Math.random() - 0.5) * j, lerp(prev[1], here[1], f) + (Math.random() - 0.5) * j, lerp(prev[2], here[2], f) + (Math.random() - 0.5) * j, tr.colors, 1, opt);
+      spawn('trail', lerp(prev[0], here[0], f) + (Math.random() - 0.5) * j, lerp(prev[1], here[1], f) + (Math.random() - 0.5) * j, lerp(prev[2], here[2], f) + (Math.random() - 0.5) * j, tint(f), 1, opt);
     }
     // the bright head of a king's or queen's comet
     if (k.head) spawn('trail', here[0], here[1], here[2], [tr.colors[tr.colors.length - 1] || '#ffffff'], 1, { style: 'ribbon', size: k.head / 0.14, life: 0.35 });
@@ -710,7 +729,7 @@ function ChacklateScene(canvas, options) {
   function trailLand(s) {
     const tr = fx.trail;
     if (!tr || !animations) return;
-    s.tp = null;
+    s.tp = null; s.td = 0;
     const k = TRAIL_K[TRAIL_LEVEL[kindOf(s.piece)] || 3];
     spawn('ring', s.x, 0.06, s.z, tr.colors, pn(k.land), { speed: 0.35 + 0.25 * k.size });
     if (k.head) spawn('trail', s.x, 0.5, s.z, tr.colors, pn(k.land), { style: tr.style === 'ribbon' ? 'stars' : tr.style, size: k.size, life: k.life });
@@ -2776,7 +2795,7 @@ function ChacklateScene(canvas, options) {
     },
     setClock(state, skin) {
       clockState = state; if (skin) clockSkin = skin;
-      placeClock();
+      dressClock(); placeClock();
       clockKey = '';
       requestRender();
     },
