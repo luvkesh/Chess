@@ -24,6 +24,35 @@ import numpy as np  # noqa: E402
 import kit  # noqa: E402
 import pack as packer  # noqa: E402
 
+# every piece must stand inside its square (1.0 wide, kept a little in from the edge) and the
+# heights must read at a glance: king tallest, queen next, the rest below. A piece that breaks
+# either rule is scaled down evenly at build time, so the game never has to shrink it.
+SQUARE, STEP = 0.94, 0.96
+
+
+def fit(ob, t, tall, pre=1.0, dry=False):
+    """scale ob (about its foot) to the square and height rules; tall holds the king's and
+    queen's heights already fitted for this side"""
+    from mathutils import Matrix
+    vs = np.array([v.co[:] for v in ob.data.vertices])
+    w = max(np.ptp(vs[:, 0]), np.ptp(vs[:, 1]))
+    h = vs[:, 2].max() - min(0.0, vs[:, 2].min())
+    if dry:
+        return min(1.0, SQUARE / w)
+    w, h = w * pre, h * pre
+    sc = min(1.0, SQUARE / w)
+    if t == 'q' and 'k' in tall:
+        sc = min(sc, tall['k'] * STEP / h)
+    elif t not in ('k', 'q') and 'q' in tall:
+        sc = min(sc, tall['q'] * STEP / h)
+    tall[t] = h * sc
+    sc *= pre
+    if sc < 0.999:
+        ob.data.transform(Matrix.Scale(sc, 4))
+        ob.data.update()
+    return sc
+
+
 # triangle caps per piece: 'show' for close-ups (collection, menus), 'play' for the table, where
 # all 32 pieces, their shadows and reflections are drawn every frame (keep a board near 150k)
 CAPS = {'show': {'p': 6000, 'default': 14000}, 'play': {'p': 1800, 'default': 4500}}
@@ -43,6 +72,8 @@ def build_set(sid):
     mr = {s: np.zeros((kit.ATLAS_H, kit.ATLAS_W, 3), np.uint8) for s in refs}
     glow = {s: np.zeros((kit.ATLAS_H, kit.ATLAS_W, 3), np.uint8) for s in refs}
     geoms, objs = {}, {}
+    tall = {'w': {}, 'b': {}}
+    built = []
     for t in kit.TYPES:
         for s, r in refs.items():
             kit.paint_cell(r[t], t, atlas[s], mr[s], mod.LOOK[s] if s in mod.LOOK else mod.LOOK, half=getattr(mod, 'HALF', {}).get(t, 'right'), glow=glow[s])
@@ -53,12 +84,22 @@ def build_set(sid):
             other = 'b' if s == 'w' else 'w'
             ob = mod.build(t, {'w': refs[s][t], 'b': refs[other][t]})   # 'w' is the shape's source
             objs[t] = ob
-            tris = sum(len(p.vertices) - 2 for p in ob.data.polygons)
-            for lod in ('show', 'play'):
-                cap = CAPS[lod].get(t, CAPS[lod]['default'])
-                P, N, U, I = kit.mesh_arrays(ob, min(1.0, cap / max(tris, 1)))
-                geoms[('%s.' % s if sided else '') + '%s.%s' % (t, lod)] = {'skin': (P, N, U, I)}
-                print(sid, s if sided else '', t, lod, len(P), 'verts', len(I) // 3, 'tris', flush=True)
+            built.append((t, s, sided, ob))
+    # one even scale for the whole set first, so the king and queen fit their squares and the
+    # set keeps its picture's proportions; then each piece's own square and height order
+    whole = min(fit(ob, t, {}, dry=True) for t, s, sd, ob in built if t in ('k', 'q'))
+    for t, s, sided, ob in built:
+        sc = fit(ob, t, tall[s], pre=whole)
+        if not sided:
+            tall['b'][t] = tall['w'][t]
+        if sc < 0.999:
+            print(sid, s, t, 'fitted x%.3f' % sc, flush=True)
+        tris = sum(len(p.vertices) - 2 for p in ob.data.polygons)
+        for lod in ('show', 'play'):
+            cap = CAPS[lod].get(t, CAPS[lod]['default'])
+            P, N, U, I = kit.mesh_arrays(ob, min(1.0, cap / max(tris, 1)))
+            geoms[('%s.' % s if sided else '') + '%s.%s' % (t, lod)] = {'skin': (P, N, U, I)}
+            print(sid, s if sided else '', t, lod, len(P), 'verts', len(I) // 3, 'tris', flush=True)
     out = {'geoms': geoms}
     for s in refs:
         half = cv2.resize(mr[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_AREA).astype(np.float32)
