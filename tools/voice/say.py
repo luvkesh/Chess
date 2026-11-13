@@ -11,8 +11,10 @@ SAY = {
     'Machu Picchu': '[Machu Picchu](/mˈɑʧu pˈikʧu/)',          # MAH-choo PEEK-choo, not "Pikku"
     'Mohenjo-daro': '[Mohenjo-daro](/mOhˈɛnʤO dˈɑɹO/)',        # mo-HEN-jo DAH-ro
     'Sounion': '[Sounion](/sˈuniɑn/)',                        # SOO-nee-on, not "Sow-nion"
+    'Verde Onyx': '[Verde Onyx](/vˈɛɹdA ˈɑnɪks/)',              # VER-day, not "verd"
     'Xiangqi': '[Xiangqi](/ʃjˈɑŋʧi/)',                         # shyang-chee
     'Chaturanga': '[Chaturanga](/ʧˌʌtəɹˈʌŋɡə/)',               # chuh-tuh-RUNG-guh
+    'Runecarved': '[Runecarved](/ɹˈunkˌɑɹvd/)',               # ROON-carved, not "roong"
     # Sounds that are not words: Kokoro spells these out as letters
     'Brrr': '[Brrr](/bɹɹˈɜɹ/)',
     'Brr': '[Brr](/bɹˈɜɹ/)',

@@ -88,6 +88,10 @@ function ChacklateProgress(catalog, extras) {
       coins: 0, earned: { date: '', by: {}, n: {} }, bought: [],
       granted: {},   // items handed out by developer mode, on this device only
       mini: { best: {}, plays: {}, day: { date: '', best: {} }, seen: [] },
+      trainers: {},   // skill trainers: { id: { best, rounds, log: [{ d, s }] } }
+      mates: {},      // checkmate in N puzzles: { N: { solved: [ids], log: [{ d, n, ok }] } }
+      mistakes: [],   // moments from the player's own reviewed games, for Retry mistakes
+      perf: { r: 0, n: 0, games: [] },   // performance over time (see perfGame)
     };
   }
   function migrate(s) {
@@ -110,6 +114,11 @@ function ChacklateProgress(catalog, extras) {
     const su = suiteOf(out.equipped.room) || suiteOf(catalog.defaults.room);
     if (su) Object.assign(out.equipped, { room: su.room, board: su.board, pieces: su.pieces });
     out.mini = Object.assign(f.mini, s.mini || {});
+    out.trainers = Object.assign({}, s.trainers || {});
+    out.mates = Object.assign({}, s.mates || {});
+    out.mistakes = Array.isArray(s.mistakes) ? s.mistakes.slice(0, MISTAKES_KEPT) : [];
+    out.perf = Object.assign(f.perf, s.perf || {});
+    out.perf.games = Array.isArray(out.perf.games) ? out.perf.games.slice(-PERF_KEEP) : [];
     return out;
   }
 
@@ -302,8 +311,118 @@ function ChacklateProgress(catalog, extras) {
     }
     state.history.unshift({ date: new Date(now || Date.now()).toISOString(), mode: g.mode, level: g.level, result: g.won ? 'win' : g.drawn ? 'draw' : g.lost ? 'loss' : '-', reason: g.reason, plies: g.plies, pgn: g.pgn || '', start: g.startFen, ucis: g.ucis || [], color: g.color, variant: variant || undefined });
     state.history = state.history.slice(0, 30);
+    out.perf = variant ? null : perfGame(state, g, now);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
+  }
+
+  // ------------------------------------------------------------ performance over time
+  // Kept on the device only, like the rest of progress: one small entry per finished chess game
+  // against an animal friend or online. { t: time, res: 'w'|'d'|'l', r: practice rating after it,
+  // s: { skill: 0-100 } once Rooky's review of the game is in }. Nothing here is compared with
+  // other players.
+  const PERF_KEEP = 400;
+  // The eight skills, each scored 0-100 from the review of one game (skillScores).
+  const SKILLS = ['opening', 'tactics', 'endgame', 'advantage', 'resourcefulness', 'defence', 'blunders', 'time'];
+  // Where Practice goes for each skill: its trainer when the game has trainers, else a lesson or page.
+  const PRACTICE_FOR = {
+    opening: { trainer: 'openings', screen: 'openings' },
+    tactics: { trainer: 'tactics', lesson: 'lesson.c04.l01.forks' },
+    endgame: { trainer: 'endgame', screen: 'dojo' },
+    advantage: { trainer: 'advantage', lesson: 'lesson.c07.l01.when-to-trade' },
+    resourcefulness: { trainer: 'resourcefulness', lesson: 'lesson.c05.l04.counter' },
+    defence: { trainer: 'defences', lesson: 'lesson.c05.l01.scan' },
+    blunders: { trainer: 'blunders', lesson: 'lesson.c09.l05.blunder-check' },
+    time: { trainer: 'time', lesson: 'lesson.c10.l01.clock' },
+  };
+  // The practice rating: Elo on this device against the middle of each friend's strength band
+  // (engine LEVELS: Truffle 250-500 ... Tactician 2000-2300, Grandmaster mode above).
+  const FRIEND_RATING = [375, 650, 950, 1250, 1550, 1850, 2150, 2450];
+  // The two skill lines drawn on every chart: Rooky's own grade bars (mentor.report rate()).
+  const SKILL_LINES = { strong: 85, solid: 65 };
+  const clamp100 = (x) => Math.max(0, Math.min(100, Math.round(x)));
+  function perfOf(state) {
+    if (!state.perf) state.perf = { r: 0, n: 0, games: [] };
+    if (!state.perf.r) state.perf.r = FRIEND_RATING[state.placement && state.placement.level >= 0 ? state.placement.level : 0];
+    return state.perf;
+  }
+  // Called from gameFinished for chess games. Local games (two players at one table) and
+  // resignations before move 3 leave no entry. Returns the entry, or null.
+  function perfGame(state, g, now) {
+    if (g.mode !== 'ai' && !g.online) return null;
+    if ((g.plies || 0) < 6) return null;
+    const pf = perfOf(state);
+    const score = g.won ? 1 : g.drawn ? 0.5 : g.lost ? 0 : null;
+    if (score === null) return null;
+    const opp = g.online ? (+g.oppRating || null) : FRIEND_RATING[Math.max(0, Math.min(FRIEND_RATING.length - 1, g.level || 0))];
+    if (opp) {
+      const exp = 1 / (1 + Math.pow(10, (opp - pf.r) / 400));
+      const k = pf.n < 10 ? 48 : 24;
+      pf.r = Math.max(100, Math.round(pf.r + k * (score - exp)));
+      pf.n++;
+    }
+    const e = { t: now || Date.now(), res: g.won ? 'w' : g.drawn ? 'd' : 'l', r: pf.r, m: g.online ? 'o' : 'a', lv: g.online ? undefined : g.level, s: null };
+    pf.games.push(e);
+    if (pf.games.length > PERF_KEEP) pf.games.splice(0, pf.games.length - PERF_KEEP);
+    return e;
+  }
+  // Scores the eight skills from coach.review() and mentor.report() for the player's side.
+  // time: { trouble, rushed, slowEasy } for a timed game, else null. A skill the game did not
+  // test (no endgame, never ahead, no clock...) is left out rather than guessed.
+  function skillScores(rv, rep, side, time) {
+    const s = {};
+    const mine = rv.plies.filter((p) => p.side === side);
+    if (!mine.length) return s;
+    const avgAcc = (list) => list.reduce((a, p) => a + p.accuracy, 0) / list.length;
+    const st = rep.stats || {}, op = st.op || {}, kinds = st.kinds || {}, counts = rep.counts || {};
+    if (rep.phaseAcc.opening !== null && rep.phaseAcc.opening !== undefined) s.opening = clamp100(rep.phaseAcc.opening - (op.lateCastle ? 10 : 0) - (op.queenEarly ? 10 : 0) - (op.slow ? 10 : 0));
+    if ((st.tacticsFound || 0) + (st.tacticsMissed || 0) > 0) s.tactics = clamp100(100 * st.tacticsFound / (st.tacticsFound + st.tacticsMissed));
+    if (rep.phaseAcc.endgame !== null && rep.phaseAcc.endgame !== undefined) s.endgame = clamp100(rep.phaseAcc.endgame);
+    // ahead by a piece and a half or more: did the player keep it and finish the job?
+    const ahead = mine.filter((p) => p.cpBefore * side >= 150), behind = mine.filter((p) => p.cpBefore * side <= -150);
+    if (ahead.length >= 3) s.advantage = clamp100(avgAcc(ahead));
+    if (behind.length >= 3) s.resourcefulness = clamp100(avgAcc(behind));
+    s.defence = clamp100(100 - 25 * ((kinds.hanging || 0) + (kinds.forks || 0) + 2 * (kinds.mate || 0)));
+    s.blunders = clamp100(100 * (1 - (2 * (counts.blunder || 0) + (counts.mistake || 0)) / mine.length));
+    if (time) s.time = clamp100(100 - (time.trouble ? 35 : 0) - 10 * (time.rushed || 0) - 8 * (time.slowEasy || 0));
+    return s;
+  }
+  // Adds the skill scores to the game entry made at time t (once only).
+  function perfSkills(state, t, scores) {
+    const e = perfOf(state).games.find((x) => x.t === t);
+    if (!e || e.s) return false;
+    e.s = scores;
+    return true;
+  }
+  // Everything the Progress page draws, for the last `days` days (0 = all time).
+  function perfView(state, days, now) {
+    const pf = perfOf(state);
+    const end = now || Date.now(), from = days ? end - days * 86400000 : 0;
+    const games = pf.games.filter((e) => e.t >= from && e.t <= end);
+    const before = pf.games.filter((e) => e.t < from).pop();
+    const mean = (l) => (l.length ? l.reduce((a, b) => a + b, 0) / l.length : null);
+    const change = (vals) => {
+      if (vals.length < 2) return null;
+      const h = Math.floor(vals.length / 2);
+      return Math.round(mean(vals.slice(vals.length - h)) - mean(vals.slice(0, h)));
+    };
+    const rating = games.map((e) => ({ t: e.t, v: e.r }));
+    const startR = before ? before.r : rating.length ? null : pf.r;
+    const wdl = { w: 0, d: 0, l: 0 };
+    for (const e of games) wdl[e.res]++;
+    const skills = {};
+    for (const id of SKILLS) {
+      const pts = games.filter((e) => e.s && typeof e.s[id] === 'number').map((e) => ({ t: e.t, v: e.s[id] }));
+      const vals = pts.map((p) => p.v);
+      skills[id] = { id, pts, avg: vals.length ? Math.round(mean(vals)) : null, last: vals.length ? vals[vals.length - 1] : null, best: vals.length ? Math.max(...vals) : null, change: change(vals), practice: PRACTICE_FOR[id] };
+    }
+    const ratingChange = rating.length ? rating[rating.length - 1].v - (startR !== null && startR !== undefined ? startR : rating[0].v) : 0;
+    // the friends whose strength sits just below and just above the rating, for the rating chart
+    const below = FRIEND_RATING.map((r, i) => [r, i]).filter(([r]) => r <= pf.r).pop() || null;
+    const above = FRIEND_RATING.map((r, i) => [r, i]).find(([r]) => r > pf.r) || null;
+    // weakest skill with at least two scores first: what to practise next
+    const focus = SKILLS.map((id) => skills[id]).filter((k) => k.pts.length >= 2).sort((a, b) => a.avg - b.avg)[0] || null;
+    return { games, rating, rating0: startR, ratingNow: pf.r, ratingChange, wdl, skills, below: below && { r: below[0], level: below[1] }, above: above && { r: above[0], level: above[1] }, focus: focus && focus.id, reviewed: games.filter((e) => e.s).length };
   }
 
   // Puzzle ratings use a simple Elo update against the puzzle's rating.
@@ -317,6 +436,8 @@ function ChacklateProgress(catalog, extras) {
     out.ratingDelta = p.rating - before;
     if (solved) p.solved++; else p.failed++;
     if (!p.seen.includes(puzzle.id)) p.seen.push(puzzle.id);
+    const mt = (puzzle.themes || []).find((x) => /^mateIn[1-5]$/.test(x));
+    if (mt) mateLogged(state, +mt.slice(6), puzzle.id, solved, now);
     if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
@@ -325,6 +446,61 @@ function ChacklateProgress(catalog, extras) {
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
   }
+
+  // Checkmate in N: which puzzles of each set are solved, and a day-by-day log for the progress charts.
+  const LOG_DAYS = 120;
+  function dayLog(log, d, fn) {
+    let e = log.length && log[log.length - 1].d === d ? log[log.length - 1] : null;
+    if (!e) { e = { d }; log.push(e); }
+    fn(e);
+    while (log.length > LOG_DAYS) log.shift();
+  }
+  function mateLogged(state, n, id, solved, now) {
+    const m = state.mates || (state.mates = {});
+    const r = m[n] || (m[n] = { solved: [], log: [] });
+    if (solved && !r.solved.includes(id)) r.solved.push(id);
+    dayLog(r.log, PG_today(now), (e) => { e.n = (e.n || 0) + 1; e.ok = (e.ok || 0) + (solved ? 1 : 0); });
+  }
+  // A finished trainer round, scored 0 to 100. Keeps the best, the number of rounds and each
+  // day's average score (s) and rounds (n), the data the progress charts draw.
+  function trainerFinished(state, id, score, now) {
+    const out = result();
+    const tr = state.trainers || (state.trainers = {});
+    const r = tr[id] || (tr[id] = { best: 0, rounds: 0, log: [] });
+    out.newBest = r.rounds > 0 && score > r.best;
+    r.best = Math.max(r.best, score);
+    r.rounds++;
+    dayLog(r.log, PG_today(now), (e) => { e.s = Math.round(((e.s || 0) * (e.n || 0) + score) / ((e.n || 0) + 1)); e.n = (e.n || 0) + 1; });
+    grant(state, 6 + Math.round(score / 10), out);
+    track(state, 'lesson', 1, now, out);
+    touchStreak(state, now ? new Date(now) : undefined, out);
+    return out;
+  }
+  // Moments from the player's own reviewed games where a better move was there (Retry mistakes).
+  // Newest first; one per position; a moment solved twice in a row is retired.
+  const MISTAKES_KEPT = 40;
+  function mistakesFound(state, list, now) {
+    const m = state.mistakes || (state.mistakes = []);
+    const d = PG_today(now);
+    for (const x of list.slice().reverse()) {
+      const key = x.fen.split(' ').slice(0, 2).join(' ');
+      if (m.some((y) => y.fen.split(' ').slice(0, 2).join(' ') === key)) continue;
+      m.unshift({ fen: x.fen, played: x.played, best: x.best, cls: x.cls, d, ok: 0 });
+    }
+    m.length = Math.min(m.length, MISTAKES_KEPT);
+  }
+  function mistakeRetried(state, fen, solved) {
+    const m = state.mistakes || [];
+    const i = m.findIndex((y) => y.fen === fen);
+    if (i < 0) return;
+    m[i].ok = solved ? (m[i].ok || 0) + 1 : 0;
+    if (m[i].ok >= 2) m.splice(i, 1);
+  }
+  // A trainer's record: best round score (0-100), rounds played and the day-by-day log for the charts.
+  const trainerLog = (state, id) => { const t = (state.trainers || {})[id] || {}; return { best: t.best || 0, rounds: t.rounds || 0, log: (t.log || []).slice() }; };
+  // A checkmate-in-N set: puzzles solved and the day-by-day log.
+
+  const mateLog = (state, n) => { const m = (state.mates || {})[n] || {}; return { solved: (m.solved || []).slice(), log: (m.log || []).slice() }; };
 
   // Learn was regrouped into longer lessons: each one names the lessons it grew from ("replaces").
   // A regrouped lesson counts as done only when every part of it was done (lowest stars, earliest
@@ -573,8 +749,8 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
-    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished,
-    setSeason, activeSeason, seasonInfo, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
+    setSeason, activeSeason, seasonInfo, SKILLS, SKILL_LINES, PRACTICE_FOR, FRIEND_RATING, perfGame, perfSkills, perfView, skillScores, perfOf, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 
 if (typeof module !== 'undefined') module.exports = ChacklateProgress;

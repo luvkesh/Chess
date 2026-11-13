@@ -81,6 +81,10 @@
       "who": "rooky",
       "text": "Let's practise! Pick a skill, and we'll work on it together."
     },
+    "progress": {
+      "who": "rooky",
+      "text": "Here is your progress! Every game you play adds to these lines. Tap Practice on a skill to make it stronger."
+    },
     "minis": {
       "who": "rooky",
       "text": "Mini-games are quick! Pick one, and beat your best score."
@@ -780,6 +784,62 @@
     "variant.xiangqi.ex.river": {
       "who": "rooky",
       "text": "Which piece can cross the river?"
+    },
+    "trainers": {
+      "who": "rooky",
+      "text": "Thirteen trainers, one for each chess skill. Pick one and play a quick round!"
+    },
+    "lesson.open.openings": {
+      "who": "rooky",
+      "text": "Ready, set, develop! Let's start every game like a champion."
+    },
+    "lesson.open.time": {
+      "who": "rooky",
+      "text": "Tick, tock! Let's make friends with the clock."
+    },
+    "lesson.open.resourcefulness": {
+      "who": "rooky",
+      "text": "Never give up! Let's find the secret escape in tricky spots."
+    },
+    "lesson.open.advantage": {
+      "who": "rooky",
+      "text": "You're winning? Brilliant! Now let's finish the job."
+    },
+    "lesson.open.endgame": {
+      "who": "rooky",
+      "text": "Just a few pieces left. This is where kings become heroes!"
+    },
+    "lesson.open.tactics": {
+      "who": "rooky",
+      "text": "Trick time! Let's catch pieces with forks, pins and skewers."
+    },
+    "lesson.open.blunders": {
+      "who": "rooky",
+      "text": "Let's build a magic shield against silly slips."
+    },
+    "lesson.open.intuition": {
+      "who": "rooky",
+      "text": "Let's train that chess sixth sense of yours!"
+    },
+    "lesson.open.three-sixty": {
+      "who": "rooky",
+      "text": "Let's spin the board around and peek at your opponent's plans."
+    },
+    "lesson.open.retry": {
+      "who": "rooky",
+      "text": "Oops moments are learning moments. Let's fix them together!"
+    },
+    "lesson.open.defences": {
+      "who": "rooky",
+      "text": "Shields up! Let's learn to stand strong under attack."
+    },
+    "lesson.open.blindfold": {
+      "who": "rooky",
+      "text": "Close your eyes... just kidding! Let's train your chess memory."
+    },
+    "lesson.open.patterns": {
+      "who": "rooky",
+      "text": "Some checkmates are so famous they have names. Let's meet them!"
     }
   }
 }
