@@ -103,7 +103,8 @@ parts.append('const CHACKLATE_TEXT = %s;' % json.dumps(text, separators=(',', ':
 parts.append("const CHACKLATE_XQ_FONT = 'data:font/ttf;base64,%s';" % base64.b64encode((vendor / 'xiangqi-han.ttf').read_bytes()).decode())
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
-look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
+look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()
+                    + b''.join(f.read_bytes() for f in sorted((here / 'meshes').glob('*.txt')))).hexdigest()[:12]
 parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
 # The crest (the rendered gold knight, shared with the website), inlined so the game stays one file.
 parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
@@ -142,3 +143,9 @@ out = here / 'dist' / 'chackmate.html'
 out.parent.mkdir(exist_ok=True)
 out.write_text(html)
 print(out, len(html))
+# The packs of sets modelled in Blender (tools/model/) are fetched beside the page: dist/meshes/.
+import shutil
+for f in sorted((here / 'meshes').glob('*.txt')):
+    (out.parent / 'meshes').mkdir(exist_ok=True)
+    shutil.copyfile(f, out.parent / 'meshes' / f.name)
+    print(out.parent / 'meshes' / f.name, f.stat().st_size)

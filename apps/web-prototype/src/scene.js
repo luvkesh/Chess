@@ -254,6 +254,11 @@ function ChacklateScene(canvas, options) {
     setId = P.SETS[id] ? id : 'regency';
     for (const s of sprites.concat(graveyard)) rebuildSprite(s);
     warm();
+    // a set modelled in Blender swaps its meshes in once its pack has arrived
+    if (P.pending(setId)) {
+      const want = setId;
+      P.ready(want).then((ok) => { if (ok && setId === want) { for (const s of sprites.concat(graveyard)) rebuildSprite(s); warm(); requestRender(); } });
+    }
   }
   // New materials have their shaders compiled before they are drawn. Drawing first would
   // compile them on the page's thread and freeze it for seconds on a phone; compileAsync lets
@@ -2046,6 +2051,9 @@ function ChacklateScene(canvas, options) {
   const snapCache = new Map(), snapPending = new Map();
   let snapQueue = Promise.resolve(), snapDB = null;
   function snapshot(spec, w, h, wanted) {
+    // pictures of a modelled set wait for its meshes, so a card never keeps the stand-in pieces
+    const sets = [spec.set].concat((spec.items || []).map((it) => it.set)).filter((x) => x && P.pending(x));
+    if (sets.length) return Promise.all(sets.map((x) => P.ready(x))).then(() => snapshot(spec, w, h, wanted));
     const keyS = JSON.stringify([spec, w, h]);
     if (snapCache.has(keyS)) return Promise.resolve(snapCache.get(keyS));
     if (snapPending.has(keyS)) return snapPending.get(keyS);
@@ -2121,10 +2129,10 @@ function ChacklateScene(canvas, options) {
       sides.forEach((side, row) => types.forEach((t, i) => {
         const g = P.make(spec.set, t, side, spec.detail);
         g.position.set((i - (types.length - 1) / 2) * 0.78, 0, row ? -0.85 : 0.2);
-        g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
+        g.rotation.y = spec.turn !== undefined ? spec.turn : t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
       }));
-      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
+      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; if (spec.level) { c2.position.set(0, ht * 0.5, ht * 4.2 + 0.8); look.set(0, ht * 0.5, 0); } else { c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); } }
       else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
       // floor: false leaves the pieces standing on nothing (the menu medals, tools/shoot-art.js)
       if (spec.floor !== false) {
