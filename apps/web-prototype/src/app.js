@@ -180,7 +180,7 @@
   if (state.settings.voiceRev < 3) { const lv = langVoice(state.settings.lang); if (lv && state.settings.voiceCalls !== 'off' && englishVoice(state.settings.voiceCalls)) state.settings.voiceCalls = lv; state.settings.voiceRev = 3; }
   I18N.set(state.settings.lang);
   I18N.watch(document.body);   // content text written straight from the content files
-  if (I18N.lang !== 'en') { C = ChacklateCoach(E, coachStrings()); M = ChacklateMentor(E, C, areaStrings('mentor')); }
+  if (I18N.lang !== 'en') { C = ChacklateCoach(E, coachStrings()); M = ChacklateMentor(E, C, areaStrings('mentor'), (n) => I18N.text(n)); }
   // The coach's settings (the spec's table): filled from the old one-word setting on first run.
   state.settings.coachCfg = ME.migrate(state.settings.coach, state.settings.coachCfg);
   const myName = () => (state.settings.name === 'You' ? t('common.you') : state.settings.name);
@@ -324,7 +324,7 @@
   // A new language: the coach and its workers start again with the new sentences.
   function coachLanguage() {
     C = ChacklateCoach(E, coachStrings());
-    M = ChacklateMentor(E, C, areaStrings('mentor'));
+    M = ChacklateMentor(E, C, areaStrings('mentor'), (n) => I18N.text(n));
     for (const k of Object.keys(workers)) {
       const old = workers[k];
       workers[k] = makeWorker();
@@ -1702,9 +1702,7 @@
     function speak(now) {
       const cur = S.phase === 'steps' ? steps[S.i] : S.phase === 'ex' ? ex[S.i] : null;
       const say = () => { if (cur && state.settings.narration) AU.guide(cur.line, cur.say); };
-      // every Learn lesson opens with its own line from Rooky; other lessons share the general one
-      const open = L.id && GUIDE.lines['lesson.open.' + L.id.split('.').pop()] && !own && !vr ? 'lesson.open.' + L.id.split('.').pop() : 'lesson.steps';
-      const g = S.phase === 'steps' ? open : S.phase === 'ex' ? 'lesson.ex' : null;
+      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
       if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
       if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
     }
@@ -2039,7 +2037,7 @@
     idleBoard();
     const P = state.progress;
     const nl = nextLesson();
-    const due = PG.dueReviews(P);
+    const due = PG.dueReviews(P).filter((id) => { const l = LESSONS.lessons.find((x) => x.id === id); return l && lessonOpen(l); });
     const total = LESSONS.lessons.length, done = LESSONS.lessons.filter((l) => P.lessons[l.id]).length;
     mount('<div class="page"><div class="page-in">' + subnav('learn') +
       pageHead(t('learn.eyebrow'), t('learn.title'), t('learn.sub', { n: done, of: total }),
@@ -2371,7 +2369,7 @@
         (who ? t('learn.vs', { name: esc(oppFull(who)) }) : t('learn.online')) + '<small>' + esc(I18N.date(new Date(p.t))) + '</small></span><b>' + I18N.num(p.v) + '</b></li>';
     }).join('');
     const tlog = PG.trainerLog && PG.PRACTICE_FOR[k.id].trainer ? PG.trainerLog(state.progress, PG.PRACTICE_FOR[k.id].trainer) : null;
-    const tBest = tlog && typeof tlog.best === 'number' ? '<p class="fine">' + t('learn.pg.trainerBest', { n: I18N.num(tlog.best) }) + '</p>' : '';
+    const tBest = tlog && typeof tlog.best === 'number' && tlog.rounds > 0 ? '<p class="fine">' + t('learn.pg.trainerBest', { n: I18N.num(tlog.best) }) + '</p>' : '';
     const m = modal('<div class="pg-det-h">' + skillIcon(k.id, 'pg-ic big') + '<div><div class="eyebrow">' + t('learn.pg.days.' + (days || 'all')) + '</div><h2>' + esc(skillName(k.id)) + '</h2></div></div>' +
       '<p>' + t('learn.pg.what.' + k.id) + '</p>' +
       '<div class="pf-stats">' + stat(t('learn.pg.avg'), k.avg) + stat(t('learn.pg.best'), k.best) + stat(t('learn.pg.last'), k.last) + stat(t('learn.pg.count'), k.pts.length) + '</div>' + tBest +
@@ -4168,7 +4166,8 @@
       '<div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div class="cbody"><div class="chead"><b>' + esc(m.who ? fullName(who) : COACH.name) + '</b>' + kindLabel + tools + '</div>' +
       (showText ? '<button class="ctext" data-coach="' + (canMore ? 'more' : 'none') + '"' + (canMore ? '' : ' tabindex="-1"') + '>' + (m.head ? '<strong>' + esc(m.head) + '</strong> ' : '') + lines.map(esc).join(' ') + (m.after ? ' ' + m.after.lines.map(esc).join(' ') : '') + '</button>' : '') +
       (words.length ? '<div class="cwords"><small>' + t('play.coach.words') + '</small>' + words.map((w) => '<button class="chip" data-term="' + w + '">' + esc(M.term(w, coachLevel()).word) + '</button>').join('') + '</div>' : '') +
-      '<div class="row">' + (m.actions || []).map(([label, a]) => btn(a, label, null, a === 'takeback' || a === 'play-anyway')).join('') +
+      // "Take it back" only while that move is still the last one of mine (an old card would undo a later move)
+      '<div class="row">' + (m.actions || []).filter(([, a]) => a !== 'takeback' || m.ply === undefined || m.ply >= G.g.moves.length - 2).map(([label, a]) => btn(a, label, null, a === 'takeback' || a === 'play-anyway')).join('') +
       (m.kind === 'move' && m.st ? btn('detail', t('play.coach.detail')) : '') +
       (m.kind === 'hint' && G.hintStep < 3 ? btn('hint-more', t('play.coach.anotherHint')) : '') +
       (m.kind === 'chance' && m.show ? btn('hint', t('play.coach.showMe')) : '') +
@@ -4183,7 +4182,7 @@
     const G = state.game, m = G && G.coachMsg;
     if (!m) return;
     if (a === 'none') return;
-    if (a === 'takeback') { G.takebacks++; undo(); return; }
+    if (a === 'takeback') { const m = G.coachMsg; if (m && m.ply !== undefined && m.ply < G.g.moves.length - 2) return; G.takebacks++; undo(); return; }
     if (a === 'more') { m.expanded = !m.expanded; renderCoach(); if (m.expanded) coachSpeak(spoken(m, CFG().depth)); return; }
     if (a === 'listen') {
       if (m.talking) { AU.hush(); m.talking = false; renderCoach(); return; }
@@ -4227,6 +4226,12 @@
     if (G.kind === 'online' || !g.moves.length || g.ended || G.busy) return;
     G.request++; G.thinking = false;
     if (G.kind === 'ai') { g.undo(); if (g.moves.length && g.pos.side !== G.human) g.undo(); } else g.undo();
+    // the coach's looks and studies of the moves taken back belong to another game now
+    const n = g.moves.length;
+    for (const k of Object.keys(G.looks || {})) if (+k > n) delete G.looks[k];   // the look at ply n is the same position
+    for (const k of Object.keys(G.studies || {})) if (+k >= n) delete G.studies[k];
+    if (G.times) G.times.length = Math.min(G.times.length, n);
+    G.hintData = null; G.hintKey = -1;
     G.selected = -1; G.hint = null; G.hintStep = 0; G.threat = null; G.coachMsg = null; G.coachArrow = null; G.coachArrows = []; G.coachMarks = []; G.resultShown = false; G.pendingMove = null;
     AU.play('tap'); AU.hush();
     view.setBoard(piecesOf(g.pos), capturedFor(g));
@@ -4311,7 +4316,7 @@
         const [g1, g2] = both('phaseGuide', lk, coachLevel());
         const [c1, c2] = both('chances', lk);
         const real = c1.length && c1[0].real;
-        const rec = lk.phase === 'opening' && G.g.moves.length <= 2 ? both('recommendOpening', coachLevel(), G.human) : [[], []];
+        const rec = lk.phase === 'opening' && G.g.moves.length <= 2 && G.g.startFen === E.START_FEN ? both('recommendOpening', coachLevel(), G.human) : [[], []];
         say(Object.assign(base, { kind: 'mentor', title: g1.title, lines: (real ? [c1[0].text] : []).concat(g1.lines, rec[0]), en: (real ? [c2[0].text] : []).concat(g2.lines, rec[1]), marks: g1.marks }));
       } else if (id === 'think') {
         const [a, b] = both('thinkAhead', lk);
@@ -4320,14 +4325,17 @@
       } else if (id === 'chances') {
         const [a, b] = both('chances', lk);
         const none = [M.tr('op.none'), ME.tr('op.none')];
+        if (!a.length) Object.assign(base, { head: '', enHead: '' });   // no "Something good is waiting!" before "No big chance"
         say(Object.assign(base, { kind: 'chance', lines: a.length ? a.map((x) => x.text) : [none[0]], en: b.length ? b.map((x) => x.text) : [none[1]], show: a.length > 0, marks: [] }));
       } else if (id === 'threats') {
         const [a, b] = both('threats', lk, []);
         const none = [M.tr('n.noThreat'), ME.tr('n.noThreat')];
+        if (!a.length) Object.assign(base, { head: '', enHead: '' });
         say(Object.assign(base, { kind: 'threat', lines: a.length ? a.slice(0, 2).map((x) => x.text) : [none[0]], en: b.length ? b.slice(0, 2).map((x) => x.text) : [none[1]], marks: a.length ? a[0].marks : [] }));
       } else if (id === 'radar') {
         const [a, b] = both('mateRadar', lk);
         const arrows = a.mine && lk.alts[0] ? [{ from: lk.alts[0].facts.from, to: lk.alts[0].facts.to, color: 'best' }] : a.theirs && lk.threat ? [{ from: lk.threat.facts.from, to: lk.threat.facts.to, color: 'them' }] : [];
+        if (!a.mine && !a.theirs) Object.assign(base, { head: '', enHead: '' });
         say(Object.assign(base, { kind: a.theirs ? 'threat' : 'chance', lines: [a.text], en: [b.text], arrows }));
       }
     }, G.looks[G.g.moves.length] ? 0 : 300);
@@ -4362,7 +4370,7 @@
       if (!w) { play(); return; }
       G.pendingMove = m; G.warnings = (G.warnings || 0) + 1;
       view.setBoard(piecesOf(G.g.pos), capturedFor(G.g));
-      say({ kind: 'warn', head: w.title, enHead: we.title, lines: [w.text], en: [we.text], marks: w.marks, arrows: w.arrows, actions: [[w.think, 'think-again'], [w.play, 'play-anyway']] });
+      say({ kind: 'warn', head: '', enHead: we.title, lines: [w.text], en: [we.text], marks: w.marks, arrows: w.arrows, actions: [[w.think, 'think-again'], [w.play, 'play-anyway']] });
     });
   }
   // Detailed move analysis: the chess logic behind one move, section by section, with a Listen button.
@@ -5293,7 +5301,9 @@
         if (!L.voice) { AU.say(t); return; }
         AU.words(L.voice, t).then(() => { if (w && run === S.talk && state.screen === 'lesson' && state.settings.narration) AU.words('priya', w.hi); });
       };
-      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
+      // every Learn lesson opens with its own line from Rooky; era, variation and trainer lessons share the general one
+      const opener = L.id && !own && !vr && GUIDE.lines['lesson.open.' + L.id.split('.').pop()] ? 'lesson.open.' + L.id.split('.').pop() : 'lesson.steps';
+      const g = S.phase === 'steps' ? opener : S.phase === 'ex' ? 'lesson.ex' : null;
       if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
       if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
     };
@@ -5350,7 +5360,7 @@
     }
     function renderEx() {
       const x = ex[S.i];
-      S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false;
+      S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false; S.wait = false;
       $('ls-phase').textContent = trn ? t('learn.tr.position', { n: S.i + 1, of: ex.length }) : t(test ? 'learn.ls.question' : 'learn.ls.exercise', { n: S.i + 1, of: ex.length });
       $('ls-prev').disabled = true;
       $('ls-prev').hidden = quiz;
@@ -5386,13 +5396,22 @@
         (test ? '' : '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' ' + t('learn.ls.hint') + '</button></div>') + '<div id="ls-fb"></div>';
       if (!test) $('ls-hint').onclick = () => {
         const hints = x.type === 'puzzle' ? [t('learn.ls.hintForcing'), t('learn.ls.hintPiece', { piece: C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] })] : x.hints || (trn && x.answers ? [t('learn.ls.hintPiece', { piece: C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.answers[0].slice(0, 2))))] })] : []);
-        if (S.hintN < hints.length) { fb('hint', I18N.text(hints[S.hintN])); S.hintN++; }
-        else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); S.tries++; }
+        // any help costs the first-try credit; the last press shows the answer itself
+        if (S.answered || S.wait) return;
+        if (S.hintN < hints.length) { fb('hint', I18N.text(hints[S.hintN])); S.hintN++; S.tries++; }
+        else {
+          const u = hintMove(x);
+          if (x.type === 'square' && x.answers) view.setHighlights({ spots: [{ sq: sqIndex(x.answers[0]), color: '#2fd8ff' }] });
+          else if (x.type === 'targets') { const g = new E.Game(S.pos.fen()); view.setHighlights({ selected: sqIndex(x.from), spots: S.found.map((q) => ({ sq: q, color: '#3ee07a', pulse: false })).concat(g.targets(sqIndex(x.from)).filter((q) => !S.found.includes(q)).map((q) => ({ sq: q, color: '#2fd8ff' }))) }); }
+          else if (u) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
+          if ((x.type === 'square' && x.answers) || x.type === 'targets' || u) S.tries++;
+          $('ls-hint').disabled = true;
+        }
         AU.play('coach');
       };
       if (x.type === 'puzzle') {
-        S.pz = 0;
-        setPos(fen, [x.puzzle.moves[0]], () => { view.setView(S.pos.side === WHITE ? 'white' : 'black', 'player'); });
+        S.pz = 0; S.wait = true;
+        setPos(fen, [x.puzzle.moves[0]], () => { S.wait = false; view.setView(S.pos.side === WHITE ? 'white' : 'black', 'player'); });
       } else setPos(fen);
       if (x.last) view.setHighlights({ lastFrom: sqIndex(x.last.slice(0, 2)), lastTo: sqIndex(x.last.slice(2, 4)), marks: hillMarks(fen) });
       if (x.played) view.setArrows([{ from: sqIndex(x.played.slice(0, 2)), to: sqIndex(x.played.slice(2, 4)), color: '#ff4a40' }]);
@@ -5433,10 +5452,19 @@
       if (x.type === 'targets') updateCount();
       setHooks({
         onSquare: (sq) => exSquare(sq),
-        canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !x.options && !S.hidden && !S.answered && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
+        canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !x.options && !S.hidden && !S.answered && !S.wait && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
         onDrop: (from, to) => { const g = new E.Game(S.pos.fen()); if (!g.targets(from).includes(to)) return false; exMove(from, to); return true; },
       });
       dots(); speak();
+    }
+    // The move the last hint draws: the puzzle's next move, the answer, else a mate (or any legal move) found on the board.
+    function hintMove(x) {
+      if (x.type === 'puzzle') return x.puzzle.moves[S.pz * 2 + 1];
+      if (x.answers && x.answers[0] && x.answers[0].length >= 4) return x.answers[0];
+      if (!['mate', 'anyLegal', 'win'].includes(x.type)) return null;
+      const g = new E.Game(S.pos.fen());
+      for (const m of g.legal) { const g2 = new E.Game(S.pos.fen()); g2.play(m); if (x.type === 'anyLegal' || (g2.outcome && (x.type === 'mate' ? g2.outcome.reason === 'checkmate' : g2.outcome.result === (S.pos.side === WHITE ? '1-0' : '0-1')))) return E.uci(m); }
+      return null;
     }
     function updateCount() {
       const x = ex[S.i];
@@ -5451,7 +5479,7 @@
     function fb(kind, text) { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; }
     function exSquare(sq) {
       const x = ex[S.i];
-      if (S.answered) return;
+      if (S.answered || S.wait) return;
       if (x.type === 'square') {
         const ok = x.answers.map(sqIndex).includes(sq);
         view.setHighlights({ spots: [{ sq, color: ok ? '#3ee07a' : '#ff4a40', pulse: false }] });
@@ -5499,12 +5527,13 @@
           if (ok && S.pz * 2 + 2 < x.puzzle.moves.length) {
             const info = g.play(m);
             AU.play(info.captured ? 'capture' : 'move', info);
+            S.wait = true;
             quickMove(info, () => {
               S.pos = g.pos; view.setBoard(piecesOf(g.pos), null);
               const reply = g.playText(x.puzzle.moves[S.pz * 2 + 2]);
               S.pz++;
               fb('ok', t('learn.ls.keepGoing'));
-              setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move', reply); }), 350);
+              setTimeout(() => quickMove(reply, () => { S.wait = false; S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move', reply); }), 350);
             });
             return;
           }
@@ -5551,6 +5580,7 @@
         if (S.i < ex.length - 1) { S.i++; renderEx(); } else finish();
         return;
       }
+      if (S.retry) { go('lesson', toGame ? { id: L.id, back: 'game' } : L.id); return; }
       if (S.nx) { go('lesson', S.nx.id); return; }
       if (S.again) { go('lesson', { trainer: trn.id }); return; }
       leaveTo();
@@ -5565,7 +5595,18 @@
       let res;
       if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
       else if (vr) res = PG.variantLessonFinished(state.progress, vr.id, first, ex.length);
-      else {
+      else if (!first && ex.length) {
+        // nothing right first time (every exercise skipped or missed): not complete, have another go
+        $('ls-phase').textContent = t('learn.ls.yourResult');
+        $('ls-content').innerHTML = '<div class="done-card"><p class="prompt">' + esc(t('learn.ls.firstTime', { n: 0, of: ex.length, pct: 0 })) + '</p><p class="say">' + esc(t('learn.ls.notYet')) + '</p></div>';
+        S.retry = true;
+        $('ls-next').textContent = t('learn.ls.again');
+        $('ls-prev').hidden = false; $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
+        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : t('common.nav.learn')) + '</span>';
+        $('ls-prev').onclick = () => { AU.play('tap'); leaveTo(); };
+        guideIdle(null); dots();
+        return;
+      } else {
         const wasDue = PG.dueReviews(state.progress).includes(L.id);
         res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
         if (wasDue) PG.reviewDone(state.progress, L.id);
@@ -5648,7 +5689,7 @@
       celebrate(res);
     }
     if (quiz) { if (ex.length) renderEx(); else finish(); } else renderStep();
-    return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'Enter' && e.target && e.target.closest && e.target.closest('button')) return; if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
+    return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'Enter' && e.target && e.target.closest && e.target.closest('button')) return; if (S.phase === 'ex' && !S.answered) return; if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
   };
 
   // ---------------------------------------------------------------- drills

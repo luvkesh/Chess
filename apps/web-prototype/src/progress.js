@@ -356,13 +356,14 @@ function ChacklateProgress(catalog, extras) {
     const score = g.won ? 1 : g.drawn ? 0.5 : g.lost ? 0 : null;
     if (score === null) return null;
     const opp = g.online ? (+g.oppRating || null) : FRIEND_RATING[Math.max(0, Math.min(FRIEND_RATING.length - 1, g.level || 0))];
+    const r0 = pf.r;   // the rating before this game, so a period's change counts its first game too
     if (opp) {
       const exp = 1 / (1 + Math.pow(10, (opp - pf.r) / 400));
       const k = pf.n < 10 ? 48 : 24;
       pf.r = Math.max(100, Math.round(pf.r + k * (score - exp)));
       pf.n++;
     }
-    const e = { t: now || Date.now(), res: g.won ? 'w' : g.drawn ? 'd' : 'l', r: pf.r, m: g.online ? 'o' : 'a', lv: g.online ? undefined : g.level, s: null };
+    const e = { t: now || Date.now(), res: g.won ? 'w' : g.drawn ? 'd' : 'l', r: pf.r, r0, m: g.online ? 'o' : 'a', lv: g.online ? undefined : g.level, s: null };
     pf.games.push(e);
     if (pf.games.length > PERF_KEEP) pf.games.splice(0, pf.games.length - PERF_KEEP);
     return e;
@@ -408,7 +409,7 @@ function ChacklateProgress(catalog, extras) {
       return Math.round(mean(vals.slice(vals.length - h)) - mean(vals.slice(0, h)));
     };
     const rating = games.map((e) => ({ t: e.t, v: e.r }));
-    const startR = before ? before.r : rating.length ? null : pf.r;
+    const startR = before ? before.r : games.length ? (typeof games[0].r0 === 'number' ? games[0].r0 : null) : pf.r;
     const wdl = { w: 0, d: 0, l: 0 };
     for (const e of games) wdl[e.res]++;
     const skills = {};
@@ -422,7 +423,7 @@ function ChacklateProgress(catalog, extras) {
     const below = FRIEND_RATING.map((r, i) => [r, i]).filter(([r]) => r <= pf.r).pop() || null;
     const above = FRIEND_RATING.map((r, i) => [r, i]).find(([r]) => r > pf.r) || null;
     // weakest skill with at least two scores first: what to practise next
-    const focus = SKILLS.map((id) => skills[id]).filter((k) => k.pts.length >= 2).sort((a, b) => a.avg - b.avg)[0] || null;
+    const focus = SKILLS.map((id) => skills[id]).filter((k) => k.pts.length >= 2 && k.avg < SKILL_LINES.strong).sort((a, b) => a.avg - b.avg)[0] || null;
     return { games, rating, rating0: startR, ratingNow: pf.r, ratingChange, wdl, skills, below: below && { r: below[0], level: below[1] }, above: above && { r: above[0], level: above[1] }, focus: focus && focus.id, reviewed: games.filter((e) => e.s).length };
   }
 
