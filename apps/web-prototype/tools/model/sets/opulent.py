@@ -13,8 +13,8 @@ HALF = {'n': 'full'}
 SIDED = set()
 GOLD = (64, 172, 246)
 LOOK = {
-    'w': {'wb': (1.05, 0.96, 0.98), 'body': (0.22, 0.0), 'gold': (0.3, 0.6), 'gem': (0.05, 0.0), 'gold_tone': GOLD},
-    'b': {'wb': (1.02, 1.0, 0.94), 'body_gain': 0.85, 'body': (0.15, 0.0), 'gold': (0.3, 0.6), 'gem': (0.05, 0.0), 'gold_tone': GOLD},
+    'w': {'wb': (1.05, 0.96, 0.98), 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
+    'b': {'wb': (1.02, 1.0, 0.94), 'body_gain': 0.85, 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
 }
 
 
@@ -30,10 +30,8 @@ def refs():
 
 
 SPEC = {
-    'k': {'kind': 'crown', 'zc': 0.64, 'zp': 0.7, 'ztip': 0.83, 'points': 8, 'ball': 0.016, 'sharp': 0.5,
-          'top': ('cross', 0.86, 0.12), 'dome': (0.64, 0.87, 0.2, 0)},
-    'q': {'kind': 'crown', 'zc': 0.78, 'zp': 0.85, 'ztip': 0.975, 'points': 8, 'ball': 0.016, 'sharp': 0.5,
-          'top': ('finial', 0.955, 0.05), 'dome': (0.78, 0.96, 0.15, 0)},
+    'k': {'kind': 'turned', 'top': ('relief', 0.65, 0.5, 0.45)},
+    'q': {'kind': 'turned', 'top': ('relief', 0.79, 0.5, 0.45)},
     'r': {'kind': 'rook', 'merlons': 6, 'depth': 0.105, 'notch': 0.62},
     'n': {'kind': 'knight', 'z0': 0.27},
 }

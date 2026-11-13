@@ -13685,7 +13685,7 @@ function ChacklatePieces(THREE, K) {
     },
     dino: {
       id: 'dino', name: 'Dino Kingdom', era: 'Long, long ago', year: '66 million years ago', tint: '#6a3a12', sided: true,
-      mesh: 'figures2', meshLook: { b: { clearcoat: 0.15 } },
+      mesh: 'figures2', meshLook: { clearcoat: 0.3, b: { clearcoat: 0 } },
       story: 'Made for the table in Dinosaur Valley, under the smoking volcano. White is carved from fossil bone with amber and ferns, and black is dark lava stone with glowing cracks.',
       lore: {
         k: 'A crowned tyrant lizard king in a royal cape, roaring as loud as he can.',
@@ -13776,7 +13776,7 @@ function ChacklatePieces(THREE, K) {
     },
     rune: {
       id: 'rune', name: 'Runecarved', era: 'The Viking age', year: 'About 950', tint: '#5a3a1e',
-      mesh: 'figures2', meshLook: { b: { clearcoat: 0.1 } },
+      mesh: 'figures2', meshLook: { clearcoat: 0.25, clearcoatRoughness: 0.2 },
       story: 'Whittled by hand for the table at the gate of a great hall, where dragons are carved on the doorposts. White is pale birch with blue cloaks, black is dark oak with red, and every piece stands on a drum of knotwork.',
       lore: {
         k: 'A carved king leaning on his sword, with a long beard and a simple crown.',
@@ -14012,8 +14012,12 @@ function ChacklatePieces(THREE, K) {
     const k = id + ':' + slot + ':' + side;
     if (!SKINS.has(k)) {
       const t = MODELLED.get(id).tex[side === 'b' ? 'b' : 'w'], ml = SETS[id].meshLook || {}, look = Object.assign({ clearcoat: 0.7, clearcoatRoughness: 0.08 }, ml, ml[side === 'b' ? 'b' : 'w'] || {}, ml[slot] || {});
-      const o = { map: t.albedo, roughnessMap: t.mr, metalnessMap: t.mr, roughness: 1, metalness: 1, clearcoat: look.clearcoat, clearcoatRoughness: look.clearcoatRoughness, envMapIntensity: look.env || 1.15 };
-      if (t.glow) Object.assign(o, { emissiveMap: t.glow, emissive: new THREE.Color('#ffffff'), emissiveIntensity: look.glow || 1.4 });
+      // the atlas is the photographed piece, its light and reflections already in it: metal only
+      // part way, and a little of the photo shows through as its own light, so a warm room does not
+      // turn ivory to mustard or gold to brass
+      const o = { map: t.albedo, roughnessMap: t.mr, metalnessMap: t.mr, roughness: 1, metalness: look.metal ?? 0.3, clearcoat: look.clearcoat, clearcoatRoughness: look.clearcoatRoughness, envMapIntensity: look.env || 0.8 };
+      if (t.glow) Object.assign(o, { emissiveMap: t.glow, emissive: new THREE.Color('#ffffff'), emissiveIntensity: look.glow ?? 1.0 });
+      else Object.assign(o, { emissiveMap: t.albedo, emissive: new THREE.Color('#ffffff'), emissiveIntensity: look.baked ?? 0.1 });
       if (slot === 'glass') Object.assign(o, { transmission: look.transmission || 0.85, thickness: 0.4, ior: 1.5 });
       SKINS.set(k, new THREE.MeshPhysicalMaterial(o));
     }

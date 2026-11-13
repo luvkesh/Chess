@@ -41,10 +41,11 @@ def build_set(sid):
     refs = mod.refs()
     atlas = {s: np.zeros((kit.ATLAS_H, kit.ATLAS_W, 3), np.uint8) for s in refs}
     mr = {s: np.zeros((kit.ATLAS_H, kit.ATLAS_W, 3), np.uint8) for s in refs}
+    glow = {s: np.zeros((kit.ATLAS_H, kit.ATLAS_W, 3), np.uint8) for s in refs}
     geoms, objs = {}, {}
     for t in kit.TYPES:
         for s, r in refs.items():
-            kit.paint_cell(r[t], t, atlas[s], mr[s], mod.LOOK[s] if s in mod.LOOK else mod.LOOK, half=getattr(mod, 'HALF', {}).get(t, 'right'))
+            kit.paint_cell(r[t], t, atlas[s], mr[s], mod.LOOK[s] if s in mod.LOOK else mod.LOOK, half=getattr(mod, 'HALF', {}).get(t, 'right'), glow=glow[s])
         # pieces whose two sides differ in shape (knights' manes, as a rule) are built from each
         # side's own picture; the rest share the white side's mesh
         sided = t in getattr(mod, 'SIDED', {'n'})
@@ -60,8 +61,15 @@ def build_set(sid):
                 print(sid, s if sided else '', t, lod, len(P), 'verts', len(I) // 3, 'tris', flush=True)
     out = {'geoms': geoms}
     for s in refs:
-        half = cv2.resize(mr[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_AREA)
-        out[s] = {'albedo': webp(atlas[s], 84), 'mr': webp(half, 70)}
+        half = cv2.resize(mr[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_AREA).astype(np.float32)
+        # natural wear: scratches and handling show as rougher lines in the polish (stronger on
+        # metal, where they catch the light), drawn at the map's own size so they stay sharp
+        lk = mod.LOOK[s] if s in mod.LOOK else mod.LOOK
+        wr = kit.wear(half.shape[0], half.shape[1], hash((sid, s)) & 0xffff, lk.get('wear', 1.0))
+        metal = half[..., 2] / 255
+        half[..., 1] = np.clip(half[..., 1] + 255 * wr * (0.1 + 0.16 * metal), 0, 255)
+        out[s] = {'albedo': webp(atlas[s], 84), 'mr': webp(half.astype(np.uint8), 80),
+                  'glow': webp(cv2.resize(glow[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_AREA), 75)}
     return out, objs, atlas
 
 

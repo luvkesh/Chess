@@ -19,9 +19,9 @@ HALF = {t: 'full' for t in 'rnbqk'}
 SIDED = set('rnbqk')
 GOLD = (60, 168, 238)
 LOOK = {
-    'w': {'wb': (1.06, 1.0, 0.95), 'body_cool': 0.2, 'body': (0.18, 0.0), 'gold': (0.28, 0.65), 'gem': (0.06, 0.0), 'gold_tone': GOLD,
+    'w': {'wb': (1.06, 1.0, 0.95), 'body_cool': 0.2, 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.5}},
-    'b': {'wb': (1.03, 1.0, 0.97), 'body': (0.16, 0.0), 'gold': (0.28, 0.65), 'gem': (0.06, 0.0), 'gold_tone': GOLD,
+    'b': {'wb': (1.03, 1.0, 0.97), 'body': 'lacquer', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.5}},
 }
 
