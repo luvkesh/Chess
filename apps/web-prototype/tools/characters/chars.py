@@ -281,11 +281,15 @@ def squash(f, c, sx=1.0, sy=1.0, sz=1.0):
     return S.F(lambda P: f(c + (P - c) / sc) * m)
 
 
-def critter_head(c=(0, 0.25, 0), r=(0.36, 0.33, 0.33), cheeks=0.17, muzzle=(0.15, 0.11, 0.11), my=0.03, mz=0.29, chin=True):
-    """A cute mammal head: round cranium, fluffy cheeks, a small soft muzzle."""
+def critter_head(c=(0, 0.25, 0), r=(0.36, 0.33, 0.33), cheeks=0.17, muzzle=(0.15, 0.11, 0.11), my=0.03, mz=0.29, chin=True, taper=0.0, cheek_y=0.42):
+    """A mammal head: cranium, cheeks and muzzle. taper > 0 makes a pear (narrow crown, wide jowls),
+    taper < 0 a broad crown over a narrow jaw, so every animal gets its own face shape."""
     cx, cy, cz = c
     head = S.ell(c, r)
-    ch = S.ell((r[0] * 0.55, cy - r[1] * 0.42, cz + r[2] * 0.3), (cheeks, cheeks * 0.85, cheeks * 0.9)).mirror()
+    if taper:
+        h0 = head
+        head = S.F(lambda P, h0=h0: h0(np.column_stack([P[:, 0] / np.clip(1 - taper * (P[:, 1] - cy) / r[1], 0.4, 2.0), P[:, 1], P[:, 2]])) * 0.9)
+    ch = S.ell((r[0] * 0.55, cy - r[1] * cheek_y, cz + r[2] * 0.3), (cheeks, cheeks * 0.85, cheeks * 0.9)).mirror()
     mu = S.ell((0, cy - r[1] * 0.68 + my, mz), muzzle)
     parts = [head, ch, mu]
     if chin:
@@ -302,7 +306,7 @@ def bunny():
     """Truffle: a cream bunny with long ears (one folding forward), buck teeth, a pink silk bow
     and a rose neckerchief."""
     C = Char('Truffle', '#e8d6cc', '#f4ebe2', '#fffaf4', length=0.03, align=(0, -0.4, 0), clump=0.12, var=0.08)
-    head, mu = critter_head((0, 0.22, 0), (0.34, 0.33, 0.32), 0.18, (0.14, 0.1, 0.1), 0.02, 0.27)
+    head, mu = critter_head((0, 0.22, 0), (0.33, 0.34, 0.32), 0.21, (0.14, 0.1, 0.1), 0.02, 0.27, taper=0.18)
     C.add(head)
     upright = squash(S.tube([(0.13, 0.48, -0.06), (0.17, 0.75, -0.08), (0.19, 1.02, -0.06)], 0.085, 0.075, k=0.02), (0.17, 0.75, -0.07), 1.0, 1.0, 0.45)
     fold = squash(S.tube([(-0.13, 0.48, -0.06), (-0.22, 0.72, -0.02), (-0.33, 0.86, 0.1), (-0.4, 0.8, 0.24)], 0.085, 0.07, k=0.02), (-0.25, 0.75, 0.0), 1.0, 0.7, 0.6)
@@ -343,7 +347,7 @@ def raccoon():
     """Rocco: a raccoon magician: black mask, white brows and muzzle, cheek ruffs, a silk top hat
     with a red band, a tailcoat and a red bow tie."""
     C = Char('Rocco', '#5a5e68', '#8c909a', '#c8ccd4', length=0.026, align=(0, -0.5, -0.1), clump=0.12)
-    head, mu = critter_head((0, 0.22, 0), (0.36, 0.31, 0.31), 0.18, (0.13, 0.09, 0.12), 0.02, 0.3)
+    head, mu = critter_head((0, 0.22, 0), (0.37, 0.3, 0.3), 0.2, (0.1, 0.08, 0.17), 0.03, 0.33, taper=-0.15)
     C.add(head)
     for sx in (1, -1):
         e, cut = ear((sx * 0.22, 0.42, -0.04), (sx * 0.33, 0.66, -0.06), 0.1, 0.03, thick=0.045)
@@ -385,7 +389,7 @@ def raccoon():
 def panda():
     """Bao: a panda in a red silk jacket with a gold mandarin collar and frog buttons, a sprig of bamboo."""
     C = Char('Bao', '#e6e2dc', '#f6f3ee', '#ffffff', length=0.03, align=(0, -0.4, 0), clump=0.12, var=0.06)
-    head, mu = critter_head((0, 0.2, 0), (0.38, 0.34, 0.33), 0.2, (0.15, 0.1, 0.11), 0.02, 0.28)
+    head, mu = critter_head((0, 0.2, 0), (0.42, 0.34, 0.34), 0.21, (0.13, 0.09, 0.1), 0.02, 0.29, taper=0.05)
     C.add(head)
     ears = S.ell((0.28, 0.5, -0.05), (0.11, 0.1, 0.06)).mirror()
     C.add(ears, 0.05)
@@ -448,13 +452,13 @@ def mouth_after(C, **kw):
 def beaver():
     """Bramble: a beaver builder: a yellow hard hat, big buck teeth, denim overalls with brass buttons."""
     C = Char('Bramble', '#5a3018', '#8c5430', '#b8794a', length=0.026, align=(0, -0.6, -0.1), clump=0.14)
-    head, mu = critter_head((0, 0.2, 0), (0.37, 0.32, 0.32), 0.2, (0.17, 0.12, 0.12), 0.02, 0.29)
+    head, mu = critter_head((0, 0.2, 0), (0.34, 0.34, 0.31), 0.25, (0.21, 0.12, 0.11), 0.0, 0.29, taper=0.38, cheek_y=0.6)
     C.add(head)
     C.add(S.ell((0.33, 0.38, -0.04), (0.075, 0.07, 0.05)).mirror(), 0.03)
     body = torso(-0.5, 0.7, 0.32)
     C.add(body, 0.18)
     nose_c, mc, cav = face_basics(C, 0.1, -0.03, (0.06, 0.036, 0.042), 0.1, 0.05, 0.08, 0.9, '#2a160c')
-    C.eye(0.155, 0.25, 0.088, 0.6, '#7a4a22', look=(0.06, 0.0, 1))
+    C.eye(0.16, 0.3, 0.078, 0.62, '#7a4a22', look=(0.06, 0.0, 1))
     C.region(S.ell((0, 0.02, 0.27), (0.22, 0.15, 0.15)), '#c8a07a', 0.04, hair='#d8b48c', tip='#ecd2b0', length=0.018)
     C.region(S.ell((0.33, 0.38, 0.0), (0.04, 0.04, 0.05)).mirror(), '#3a1e0e', 0.01)
     face_regions(C)
@@ -481,7 +485,7 @@ def beaver():
 def squirrel():
     """Zippy: a racing squirrel: tufted ears, a huge plume of a tail, a terry headband and a track jacket."""
     C = Char('Zippy', '#7a3610', '#c8641e', '#ec9a4a', length=0.026, align=(0, -0.5, -0.15), clump=0.14)
-    head, mu = critter_head((0, 0.2, 0), (0.33, 0.31, 0.31), 0.17, (0.12, 0.09, 0.1), 0.02, 0.28)
+    head, mu = critter_head((0, 0.2, 0), (0.31, 0.32, 0.3), 0.22, (0.11, 0.085, 0.1), 0.02, 0.28, taper=0.25, cheek_y=0.5)
     C.add(head)
     for sx in (1, -1):
         e, cut = ear((sx * 0.18, 0.42, -0.04), (sx * 0.25, 0.66, -0.06), 0.085, 0.02, thick=0.04)
@@ -521,7 +525,7 @@ def cat():
     """Miu: the black cat of the Nile: green slit eyes lined in lapis kohl, a gold hoop, a scarab on
     the brow and a broad usekh collar of gold, lapis and carnelian."""
     C = Char('Miu', '#141418', '#1c1c24', '#3a3c4a', length=0.018, align=(0, -0.4, -0.2), clump=0.06, var=0.1)
-    head, mu = critter_head((0, 0.2, 0), (0.33, 0.29, 0.3), 0.15, (0.11, 0.08, 0.09), 0.02, 0.27)
+    head, mu = critter_head((0, 0.2, 0), (0.34, 0.29, 0.3), 0.15, (0.11, 0.08, 0.09), 0.02, 0.27, taper=-0.18)
     C.add(head)
     for sx in (1, -1):
         e, cut = ear((sx * 0.17, 0.4, -0.04), (sx * 0.33, 0.78, -0.06), 0.12, 0.018, thick=0.04, cup=0.65)
@@ -596,13 +600,13 @@ def bear():
     """Mishka: a Russian bear in a tall fur hat with a green velvet crown, a frogged green coat
     with gold braid and a little jewelled egg."""
     C = Char('Mishka', '#3a2010', '#6e4222', '#a06a3a', length=0.032, align=(0, -0.5, -0.1), clump=0.16)
-    head, mu = critter_head((0, 0.2, 0), (0.38, 0.33, 0.33), 0.2, (0.16, 0.11, 0.12), 0.02, 0.29)
+    head, mu = critter_head((0, 0.2, 0), (0.44, 0.31, 0.34), 0.17, (0.18, 0.12, 0.17), 0.0, 0.34, taper=-0.12)
     C.add(head)
     C.add(S.ell((0.3, 0.44, -0.04), (0.1, 0.09, 0.06)).mirror(), 0.04)
     body = torso(-0.5, 0.74, 0.34)
     C.add(body, 0.18)
     face_basics(C, 0.1, -0.03, (0.065, 0.042, 0.045), 0.11, 0.06, 0.08, 0.9, '#1a0e08')
-    C.eye(0.15, 0.25, 0.088, 0.6, '#7a4a20', look=(0.06, 0.0, 1))
+    C.eye(0.13, 0.27, 0.074, 0.6, '#7a4a20', look=(0.06, 0.0, 1))
     C.region(S.ell((0, 0.03, 0.27), (0.21, 0.15, 0.14)), '#b88a5a', 0.04, hair='#c89a68', tip='#e0b888', length=0.02)
     face_regions(C)
     coat = garment(body, -0.36, 0.045)
@@ -640,7 +644,7 @@ def lion():
     """Marco: the winged lion of Saint Mark: a great russet mane, a gold halo, wings at his back,
     a blue velvet coat with a gold collar."""
     C = Char('Marco', '#8a5a20', '#d8a04a', '#f0c878', length=0.02, align=(0, -0.5, -0.1), clump=0.1)
-    head, mu = critter_head((0, 0.2, 0), (0.33, 0.31, 0.31), 0.19, (0.16, 0.11, 0.12), 0.02, 0.29)
+    head, mu = critter_head((0, 0.2, 0), (0.35, 0.31, 0.31), 0.22, (0.21, 0.13, 0.13), 0.0, 0.3, taper=0.1)
     C.add(head)
     C.add(S.ell((0.27, 0.43, -0.04), (0.07, 0.065, 0.045)).mirror(), 0.04)
     body = torso(-0.5, 0.7, 0.3)
@@ -799,14 +803,16 @@ def raven():
     """Onyx: a raven with blue-violet sheen on black feathers, a gold monocle on a chain and a
     violet silk cravat."""
     C = Char('Onyx', '#08080c', '#101218', '#2a3150', length=0.032, align=(0, -0.7, -0.3), clump=0.5, var=0.12)
-    body = bird(C)
+    body = bird(C, (0, 0.22, -0.02), (0.28, 0.27, 0.32), 0.66, 0.3)
     C.eye(0.15, 0.27, 0.088, 0.62, '#4a3a6a', look=(0.06, 0.0, 1))
     bc = (0, 0.14, S.surf_z(C.shape, 0, 0.14) - 0.06)
-    up, lo = beak(bc, 0.36, 0.1, 0.085, 0.06, 0.03)
+    up, lo = beak(bc, 0.44, 0.115, 0.1, 0.09, 0.05)
     C.build()
     K.build('OnyxBeak', up.add(lo, 0.01), (-0.2, -0.1, 0.0), (0.2, 0.3, 0.75), [K.glossy('OnyxHorn', '#3a3a46', 0.2)], step=0.003)
     # a swept crest of glossy feathers on the crown
     P, N = K.sample_surface(C.o, C.weight(S.ell((0, 0.5, 0.0), (0.12, 0.08, 0.16))), 500, seed=6)
+    P, N = K.sample_surface(C.o, C.weight(S.ell((0, -0.02, 0.18), (0.18, 0.12, 0.14))), 900, seed=9)
+    K.strands('OnyxHackles', K.groom(P, N, 0.1, (0, -1.0, 0.3), gravity=0.6, lift=0.5, clumps=26, clump=0.85, jitter=0.2, seed=9), bpy_mat('OnyxHair0'), 0.004, 0.0008, normals=N)
     K.strands('OnyxCrest', K.groom(P, N, 0.14, (0.0, 0.4, -1.0), gravity=-0.3, lift=0.8, clumps=7, clump=0.85, jitter=0.15, seed=6), bpy_mat('OnyxHair0'), 0.006, 0.001, normals=N)
     K.build('OnyxGape', S.tube([(0.07, 0.08, bc[2] + 0.02), (0.1, 0.1, bc[2] - 0.02), (0.125, 0.135, bc[2] - 0.06)], 0.012, 0.008).mirror(), (-0.3, 0.0, 0.0), (0.3, 0.25, 0.5), [K.skin('OnyxGapeSkin', '#5a4a40')], step=0.003)
     e = C.eyes[0]
@@ -826,9 +832,9 @@ def raven():
 def owl():
     """Sophie: the owl of Athens: a pale facial disc, great amber eyes, ear tufts and a laurel wreath."""
     C = Char('Sophie', '#5a3a1e', '#8a6038', '#c89a62', length=0.03, align=(0, -0.7, -0.2), clump=0.45, var=0.2)
-    body = bird(C, (0, 0.2, 0), (0.36, 0.33, 0.3), 0.7, 0.36)
-    C.eye(0.15, 0.24, 0.11, 0.58, '#e8a020', look=(0.06, 0.0, 1), iris_r=0.8, pupil_r=0.36)
-    disc = S.union(*[S.ell((sx * 0.15, 0.22, 0.24), (0.17, 0.17, 0.14)) for sx in (1, -1)], k=0.05)
+    body = bird(C, (0, 0.18, 0), (0.43, 0.33, 0.27), 0.72, 0.4)
+    C.eye(0.17, 0.22, 0.125, 0.56, '#e8a020', look=(0.06, 0.0, 1), iris_r=0.8, pupil_r=0.36)
+    disc = S.union(*[S.ell((sx * 0.17, 0.2, 0.22), (0.19, 0.18, 0.13)) for sx in (1, -1)], k=0.05)
     C.region(disc.grow(0.03), '#4a2a14', 0.02, hair='#5a3418', tip='#7a4a26', length=0.024, clump=0.3)
     C.region(disc, '#e8d4b0', 0.04, hair='#f2e2c4', tip='#fff4e0', length=0.022, align=(0, 0, 0.5), clump=0.3)
     C.region(S.ell((0, -0.75, 0.2), (0.4, 0.35, 0.2)), '#e8d4b0', 0.05, hair='#ead6b2', tip='#fbf0dc', length=0.03, clump=0.5)
@@ -898,7 +904,7 @@ def eagle():
     C.add(S.ell((0.13, 0.36, 0.2), (0.11, 0.035, 0.07), rot=(0, 0, 0.2)).mirror(), 0.04)
     C.eye(0.14, 0.27, 0.085, 0.58, '#e8b020', look=(0.06, 0.0, 1))
     bc = (0, 0.16, S.surf_z(C.shape, 0, 0.16) - 0.06)
-    up, lo = beak(bc, 0.26, 0.085, 0.08, 0.06, 0.06)
+    up, lo = beak(bc, 0.3, 0.1, 0.09, 0.07, 0.09)
     jacket = garment(body, -0.36, 0.05, (0.3, 0.14))
     C.region(body.grow(0.01).inter(S.plane((0, 1, 0), -0.2)), '#4a2a14', 0.06, hair='#6a4020', tip='#9a6a3a', length=0.03, clump=0.5)
     C.region(jacket.grow(0.02), '#222222', 0.01)
