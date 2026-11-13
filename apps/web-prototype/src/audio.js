@@ -715,11 +715,19 @@ function ChacklateAudio() {
     const B = V.moves.en;
     if (!parts || !B) return null;
     const keys = [], gaps = [];
-    for (const p of parts) {
-      if (p.pause) { if (keys.length) gaps[keys.length - 1] = Math.max(gaps[keys.length - 1] || 0, PAUSE[p.pause] / 1000); continue; }
-      const w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]]] : [B.file[p.file]];
+    parts.forEach((p, i) => {
+      if (p.pause) { if (keys.length) gaps[keys.length - 1] = Math.max(gaps[keys.length - 1] || 0, PAUSE[p.pause] / 1000); return; }
+      let w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]]] : [B.file[p.file]];
+      // Said the way a person says it: "exd4 wins a knight" is "Pawn takes on d4, and wins a knight",
+      // not "Pawn takes d4 wins a knight" in one breath.
+      if (p.san && /x/.test(p.san) && w[1] === B.takes) w = [w[0], w[1], 'on'].concat(w.slice(2));
       for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.05); }
-    }
+      const next = parts[i + 1];
+      if (p.san && next && next.line && /^(wins|takes|attacks|forks|pins|skewers|uncovers|gives|promotes|tucks)\b/.test(next.line)) {
+        gaps[keys.length - 1] = PAUSE.comma / 1000;
+        keys.push(voiceKey('and')); gaps.push(0.05);
+      }
+    });
     return keys.length ? { keys, gaps } : null;
   }
   function coach(text) {
