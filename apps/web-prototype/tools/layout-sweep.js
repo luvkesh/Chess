@@ -39,7 +39,7 @@ const SCREENS = ['home', 'play', 'variants', 'variant:chess960', 'minis', 'club'
 // resign question, tool tips, the coach's answers). Written tap|screen|selector[|selector...].
 const TAPS = ['tap|store|[data-item]', 'tap|store|#st-gate', 'tap|collection|[data-item]', 'tap|minis|[data-mini]',
   'tap|era:egypt|[data-stage]', 'tap|hud:game|#g-resign', 'tap|hud:game|#g-draw', 'tap|hud:game|#g-copy', 'tap|hud:game|#g-settings', 'tap|hud:game|#g-mode', 'tap|hud:game|#g-view',
-  'tap|settings:play|.ck-i', 'tap|settings:look|.ck-i', 'tap|play|.ck-i', 'toasts'];
+  'tap|settings:play|.ck-i', 'tap|settings:look|.ck-i', 'toasts'];
 // In-game screens: the table is not drawn without WebGL, but the panels, clocks and bars around it are.
 const HUDS = ['hud:game', 'hud:game-clock', 'hud:local', 'hud:lesson', 'hud:puzzle', 'hud:drill', 'hud:mini-tour', 'hud:mini-spotter', 'hud:mini-rush', 'hud:review', 'hud:xiangqi', 'hud:xqlesson', 'hud:rulebook', 'hud:won', 'hud:levelup'];
 const MODALS = ['settings', 'settings:play', 'settings:coach', 'settings:sound', 'settings:look', 'settings:lang', 'settings:app', 'gate', 'pin', 'promo', 'eraDone:egypt', 'tale:egypt', 'labs', 'missions', 'profile', 'newGame', 'friend', 'world', 'glossary', 'coach', 'premium', 'opponent:0', 'opponent:3', 'levelUp', 'placement'];

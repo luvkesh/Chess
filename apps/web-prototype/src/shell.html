@@ -1570,7 +1570,8 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
    moves and the coach slide up from the bottom as a sheet. */
 @media (max-width: 900px) and (orientation: portrait) {
   .hud-top { top: calc(var(--safe-t) + 10px); left: max(10px, var(--safe-l)); right: max(10px, var(--safe-r)); gap: 8px; }
-  .hud-top .title span, .backbtn span { display: none; }
+  .hud-top .title span { display: none; }
+  .backbtn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }   /* still names the button for screen readers */
   .hud-top .title { padding: 0 5px; } .backbtn { padding: 0 12px; }
   /* Left-aligned, so Rooky's corner button and its bubble (same row, right side) never cover it. */
   .status-chip { position: fixed; left: max(10px, var(--safe-l)); bottom: calc(36vh + var(--safe-b) + 84px); height: 34px; font-size: 10.5px; letter-spacing: 0.1em; padding: 0 14px; z-index: 7; max-width: calc(100vw - 214px - var(--safe-l) - var(--safe-r)); }
@@ -1866,11 +1867,15 @@ body.ingame .guide.up.open .gd-bubble, body.ingame .guide.up.speaking .gd-bubble
    not the portrait one that cut panels to a strip over the board; the panel is a little narrower */
 @media (max-width: 600px) and (orientation: landscape) {
   :root { --col: 250px; }
+  .backbtn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .backbtn { padding: 0 12px; }
+  .lesson footer { flex-wrap: wrap; }
+  .move-form { display: none; }   /* no room under the moves; it showed half cut off */
 }
-/* Narrow phones: the four Learn tabs fit without cutting "Training" */
+/* Narrow phones: the four Learn tabs fit without cutting "Training" (Entrenamiento): sentence case, and the row scrolls if a language still needs more */
 @media (max-width: 420px) {
-  .subnav { gap: 2px; }
-  .subnav button { padding-inline: 2px; letter-spacing: 0.06em; }
+  .subnav { gap: 2px; flex-wrap: wrap; }
+  .subnav button { flex: 1 1 auto; padding-inline: 8px; font: 600 12.5px/1.1 var(--body); letter-spacing: 0; text-transform: none; }
 }
 /* Narrow phones: profile numbers, club table headings and the store's parent button fit their boxes in every language */
 @media (max-width: 380px) {
@@ -1879,7 +1884,8 @@ body.ingame .guide.up.open .gd-bubble, body.ingame .guide.up.speaking .gd-bubble
   .stat small { letter-spacing: 0.04em; }
   .stat.big b { font-size: 36px; }
   .cl-row.head { font-size: 10px; letter-spacing: 0.02em; }
-  #st-gate { letter-spacing: 0.06em; padding-inline: 12px; }
+  #st-gate { letter-spacing: 0.06em; padding-inline: 12px; white-space: normal; line-height: 1.25; text-align: center; }
+  .cats button { font: 600 10.5px/1.15 var(--body); letter-spacing: 0; text-transform: none; hyphens: auto; }   /* long names (Conjuntos de peças) wrap between words */
 }
 </style>
 
