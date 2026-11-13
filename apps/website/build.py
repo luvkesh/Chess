@@ -311,9 +311,21 @@ def i18n(page, eras, opponents, collection, guide_lines, keep):
 def build(target):
     eras, opponents, counts, coach, collection = site_data()
     art = json.loads(subprocess.run(['node', str(here / 'tools' / 'render-art.js')], check=True, capture_output=True, text=True).stdout)
-    # art.js hands out URI-encoded SVG; base64 is about half the size
+    # art.js hands out URI-encoded SVG; base64 is about half the size, except for SVGs that wrap a
+    # base64 picture (the 3D portraits), which stay text with only the characters a URI needs escaped
     prefix = 'data:image/svg+xml;charset=utf-8,'
-    art = {k: 'data:image/svg+xml;base64,' + base64.b64encode(urllib.parse.unquote(v[len(prefix):]).encode()).decode() if v.startswith(prefix) else v for k, v in art.items()}
+
+    def svg_uri(v):
+        if not v.startswith(prefix):
+            return v
+        svg = urllib.parse.unquote(v[len(prefix):])
+        b64 = 'data:image/svg+xml;base64,' + base64.b64encode(svg.encode()).decode()
+        text = prefix + re.sub(r'[%#"<>\n\r]', lambda m: '%%%02X' % ord(m.group(0)), svg)
+        return text if len(text) < len(b64) else b64
+    art = {k: svg_uri(v) for k, v in art.items()}
+    # only the pictures the page asks for: by name, or by a prefix it builds names from ('coach-' + id)
+    tpl = (here / 'src' / 'index.html').read_text()
+    art = {k: v for k, v in art.items() if k in tpl or ("'%s-'" % k.rsplit('-', 1)[0]) in tpl}
     img = {p.stem: data_uri(p) for p in sorted((here / 'img').iterdir()) if p.suffix in ('.webp', '.jpg', '.png', '.svg')}
     for e in eras:
         # stills: shown before the 3D table is ready, and instead of it where WebGL is missing
@@ -356,6 +368,7 @@ def build(target):
                                              'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep),
                                              'fonts': {k: (game / 'vendor' / ('fonts-%s.css' % k)).read_text() for k in sorted({META[c]['fonts'] for c, _ in LANGS if 'fonts' in META.get(c, {})})}},
                                             separators=(',', ':'), ensure_ascii=False)
+    data += "document.addEventListener('DOMContentLoaded',function(){[].forEach.call(document.querySelectorAll('img[data-art]'),function(i){i.src=window.SITE.art[i.getAttribute('data-art')];});});"
     assert '</script' not in data.lower()
     scene = '\n'.join(EXPORTS.sub('', p.read_text()) for p in SCENE)
     # the brands' artwork for the Times Square billboards, as the game builds it
@@ -378,6 +391,17 @@ def build(target):
 
 def fill(page, img, art, counts, coach, target):
     page = re.sub(r'@@IMG:([\w-]+)@@', lambda m: img[m.group(1)], page)
+    # a picture the page shows more than once (Rooky's portrait) is written out once; the other
+    # <img> tags take it from SITE.art when the page runs (see the script after window.SITE)
+    once = set()
+
+    def art_src(m):
+        k = m.group(1)
+        if k in once and len(art[k]) > 4000:
+            return 'data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-art="' + k
+        once.add(k)
+        return art[k]
+    page = re.sub(r'(?<=src=")@@ART:([\w-]+)@@', art_src, page)
     page = re.sub(r'@@ART:([\w-]+)@@', lambda m: art[m.group(1)], page)
     page = re.sub(r'@@N:(\w+)@@', lambda m: str(counts[m.group(1)]), page)
     page = page.replace('@@COACHFULL@@', coach['full']).replace('@@COACH@@', coach['name'])
