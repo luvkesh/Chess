@@ -918,5 +918,75 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "Quelle pièce peut traverser la rivière ?"
+ },
+ "trainers": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Treize entraîneurs, un pour chaque compétence des échecs. Choisis-en un et joue une manche rapide !"
+ },
+ "lesson.open.openings": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "À vos marques, développez ! Commençons chaque partie comme un champion."
+ },
+ "lesson.open.time": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tic, tac ! Faisons ami-ami avec la pendule."
+ },
+ "lesson.open.resourcefulness": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ne lâche jamais ! Cherchons la sortie secrète dans les moments difficiles."
+ },
+ "lesson.open.advantage": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu gagnes ? Génial ! Maintenant, finissons le travail."
+ },
+ "lesson.open.endgame": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Plus que quelques pièces. C'est là que les rois deviennent des héros !"
+ },
+ "lesson.open.tactics": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "C'est l'heure des astuces ! Attrapons des pièces avec des fourchettes, des clouages et des enfilades."
+ },
+ "lesson.open.blunders": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Construisons un bouclier magique contre les étourderies."
+ },
+ "lesson.open.intuition": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Entraînons ton sixième sens des échecs !"
+ },
+ "lesson.open.three-sixty": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Faisons tourner l'échiquier et jetons un œil aux plans de ton adversaire."
+ },
+ "lesson.open.retry": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les moments oups sont des moments pour apprendre. Réparons-les ensemble !"
+ },
+ "lesson.open.defences": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Boucliers levés ! Apprenons à tenir bon sous l'attaque."
+ },
+ "lesson.open.blindfold": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ferme les yeux... je plaisante ! Entraînons ta mémoire des échecs."
+ },
+ "lesson.open.patterns": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Certains mats sont si célèbres qu'ils ont un nom. Allons les rencontrer !"
  }
 }

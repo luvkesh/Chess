@@ -1994,6 +1994,614 @@
      "text": "Falcon and Pearl juegan aquí, sobre Pearl and Night Sand."
     }
    ]
+  },
+  "item-sets-dino": {
+   "text": "¡Grrr! Dino Kingdom es hueso fósil y ámbar contra piedra de lava oscura con grietas que brillan. Un T-rex es el rey, un tricerátops y un raptor son los caballos, y los peones son dinosaurios bebé saliendo del huevo. Viene con Dinosaur Valley.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Grrr!"
+    },
+    {
+     "t": 1.49,
+     "text": "Dino Kingdom es hueso fósil y ámbar contra piedra de lava oscura con grietas que brillan."
+    },
+    {
+     "t": 6.85,
+     "text": "Un T-rex es el rey, un tricerátops y un raptor son los caballos, y los peones son dinosaurios bebé saliendo del huevo."
+    },
+    {
+     "t": 13.92,
+     "text": "Viene con Dinosaur Valley."
+    }
+   ]
+  },
+  "item-sets-forest": {
+   "text": "Érase una vez, los elfos del claro conocieron a la gente del bosque. Forest Guardians es marfil y oro contra corteza y musgo, con un rey elfo, un mago con un cristal, un Rey Roble con astas y un gran oso de musgo. Viene con Enchanted Forest.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Érase una vez, los elfos del claro conocieron a la gente del bosque."
+    },
+    {
+     "t": 4.22,
+     "text": "Forest Guardians es marfil y oro contra corteza y musgo, con un rey elfo, un mago con un cristal, un Rey Roble con astas y un gran oso de musgo."
+    },
+    {
+     "t": 13.02,
+     "text": "Viene con Enchanted Forest."
+    }
+   ]
+  },
+  "item-sets-jarl": {
+   "text": "¡Los barcos vikingos han vuelto a casa! Jarls of the Fjord es oro y marfil con capas azules, contra hierro oscuro y cuero con estandartes rojos. Hay jarls, doncellas escuderas, sabios videntes con bastones de runas y lobos como caballos. Viene con Fjord of the Longships.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Los barcos vikingos han vuelto a casa!"
+    },
+    {
+     "t": 2.82,
+     "text": "Jarls of the Fjord es oro y marfil con capas azules, contra hierro oscuro y cuero con estandartes rojos."
+    },
+    {
+     "t": 9.17,
+     "text": "Hay jarls, doncellas escuderas, sabios videntes con bastones de runas y lobos como caballos."
+    },
+    {
+     "t": 15.01,
+     "text": "Viene con Fjord of the Longships."
+    }
+   ]
+  },
+  "item-sets-rune": {
+   "text": "Cada pieza de Runecarved parece tallada a mano, en abedul pálido y roble oscuro. La reina sostiene un cuerno para beber, el escaldo cuenta historias y los caballos son cabezas de lobo. Viene con Longhouse Gate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Cada pieza de Runecarved parece tallada a mano, en abedul pálido y roble oscuro."
+    },
+    {
+     "t": 5.04,
+     "text": "La reina sostiene un cuerno para beber, el escaldo cuenta historias y los caballos son cabezas de lobo."
+    },
+    {
+     "t": 10.97,
+     "text": "Viene con Longhouse Gate."
+    }
+   ]
+  },
+  "item-boards-fossil": {
+   "text": "Fossil and Basalt pone piedra fósil color crema junto a basalto oscuro, con grietas de ámbar que brillan como lava. Hay helechos tallados alrededor del marco. Viene con Dinosaur Valley y Dino Kingdom.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Fossil and Basalt pone piedra fósil color crema junto a basalto oscuro, con grietas de ámbar que brillan como lava."
+    },
+    {
+     "t": 6.82,
+     "text": "Hay helechos tallados alrededor del marco."
+    },
+    {
+     "t": 9.67,
+     "text": "Viene con Dinosaur Valley y Dino Kingdom."
+    }
+   ]
+  },
+  "item-boards-glade": {
+   "text": "Moonstone and Moss Agate es piedra lunar pálida junto a ágata musgosa verde, en un marco de madera oscura con enredaderas doradas. Viene con Enchanted Forest y Forest Guardians.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Moss Agate es piedra lunar pálida junto a ágata musgosa verde, en un marco de madera oscura con enredaderas doradas."
+    },
+    {
+     "t": 7.87,
+     "text": "Viene con Enchanted Forest y Forest Guardians."
+    }
+   ]
+  },
+  "item-boards-fjord": {
+   "text": "Frost Ash and Slate es piedra pálida escarchada junto a pizarra azul, fría como un fiordo en invierno, con runas doradas alrededor del marco. Viene con Fjord of the Longships y Jarls of the Fjord.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Frost Ash and Slate es piedra pálida escarchada junto a pizarra azul, fría como un fiordo en invierno, con runas doradas alrededor del marco."
+    },
+    {
+     "t": 8.39,
+     "text": "Viene con Fjord of the Longships y Jarls of the Fjord."
+    }
+   ]
+  },
+  "item-boards-runeoak": {
+   "text": "Carved Oak es roble claro y oscuro, cortado a mano, con runas talladas alrededor de todo el marco. Viene con Longhouse Gate y Runecarved.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Carved Oak es roble claro y oscuro, cortado a mano, con runas talladas alrededor de todo el marco."
+    },
+    {
+     "t": 6.06,
+     "text": "Viene con Longhouse Gate y Runecarved."
+    }
+   ]
+  },
+  "item-places-dinoval": {
+   "text": "¡Bienvenido al mundo de los dinosaurios! Delante humea un volcán, las cascadas caen al lago, y los dinosaurios de cuello largo vadean el agua mientras los pterosaurios planean por encima. Dino Kingdom juega aquí, sobre Fossil and Basalt.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Bienvenido al mundo de los dinosaurios!"
+    },
+    {
+     "t": 2.7,
+     "text": "Delante humea un volcán, las cascadas caen al lago, y los dinosaurios de cuello largo vadean el agua mientras los pterosaurios planean por encima."
+    },
+    {
+     "t": 11.49,
+     "text": "Dino Kingdom juega aquí, sobre Fossil and Basalt."
+    }
+   ]
+  },
+  "item-places-forest": {
+   "text": "Entra de puntillas. Los árboles gigantes brillan en verde y morado, las setas relucen, las luciérnagas bailan y una cascada de luz azul cae en el estanque. ¡Mira, un ciervo hecho de luz sobre la roca! Forest Guardians juegan aquí, sobre Moonstone and Moss Agate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Entra de puntillas."
+    },
+    {
+     "t": 1.67,
+     "text": "Los árboles gigantes brillan en verde y morado, las setas relucen, las luciérnagas bailan y una cascada de luz azul cae en el estanque."
+    },
+    {
+     "t": 9.84,
+     "text": "¡Mira, un ciervo hecho de luz sobre la roca!"
+    },
+    {
+     "t": 12.72,
+     "text": "Forest Guardians juegan aquí, sobre Moonstone and Moss Agate."
+    }
+   ]
+  },
+  "item-places-fjord": {
+   "text": "¡Respira ese aire frío y fresco! Los acantilados nevados salen directo del agua, las cascadas caen y un barco vikingo de vela azul se desliza hasta el muelle. Jarls of the Fjord juegan aquí, sobre Frost Ash and Slate.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Respira ese aire frío y fresco!"
+    },
+    {
+     "t": 2.47,
+     "text": "Los acantilados nevados salen directo del agua, las cascadas caen y un barco vikingo de vela azul se desliza hasta el muelle."
+    },
+    {
+     "t": 9.92,
+     "text": "Jarls of the Fjord juegan aquí, sobre Frost Ash and Slate."
+    }
+   ]
+  },
+  "item-places-longhouse": {
+   "text": "El sol está saliendo sobre los picos nevados. Cruza la puerta de dragones tallados, pasa las piedras rúnicas y las antorchas, y llega a la gran sala. Un barco vikingo espera en la bahía. Runecarved juega aquí, sobre Carved Oak.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "El sol está saliendo sobre los picos nevados."
+    },
+    {
+     "t": 3.17,
+     "text": "Cruza la puerta de dragones tallados, pasa las piedras rúnicas y las antorchas, y llega a la gran sala."
+    },
+    {
+     "t": 9.09,
+     "text": "Un barco vikingo espera en la bahía."
+    },
+    {
+     "t": 11.62,
+     "text": "Runecarved juega aquí, sobre Carved Oak."
+    }
+   ]
+  },
+  "item-sets-galactic": {
+   "text": "¡Dos flotas estelares se enfrentan en el tablero! La Flota Azul es blanca con luces azules, y la Flota Roja es negra con luces rojas. Los caballos son naves estelares, los alfiles son cristales brillantes y los peones son cadetes espaciales. Viene con Starship Deck.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Dos flotas estelares se enfrentan en el tablero!"
+    },
+    {
+     "t": 3.27,
+     "text": "La Flota Azul es blanca con luces azules, y la Flota Roja es negra con luces rojas."
+    },
+    {
+     "t": 8.84,
+     "text": "Los caballos son naves estelares, los alfiles son cristales brillantes y los peones son cadetes espaciales."
+    },
+    {
+     "t": 15.48,
+     "text": "Viene con Starship Deck."
+    }
+   ]
+  },
+  "item-sets-sunshadow": {
+   "text": "¡Érase una vez, entre las nubes! El Reino del Sol tiene un rey alegre, una princesa, un mago y aldeanos con sombrero de girasol. La Legión de las Sombras tiene un rey con cuernos, una hechicera, un dragoncito y diablillos gruñones. Viene con Floating Isles.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Érase una vez, entre las nubes!"
+    },
+    {
+     "t": 2.3,
+     "text": "El Reino del Sol tiene un rey alegre, una princesa, un mago y aldeanos con sombrero de girasol."
+    },
+    {
+     "t": 8.26,
+     "text": "La Legión de las Sombras tiene un rey con cuernos, una hechicera, un dragoncito y diablillos gruñones."
+    },
+    {
+     "t": 14.26,
+     "text": "Viene con Floating Isles."
+    }
+   ]
+  },
+  "item-sets-elves": {
+   "text": "¡Dos ejércitos de los viejos cuentos de fantasía! Orcs and Elves enfrenta a elfos en blanco, azul y oro contra orcos en verde, cuero rojo y hierro. El caballo elfo es un ciervo blanco; el caballo orco, un gran lobo gris. Viene con Twin Realms.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Dos ejércitos de los viejos cuentos de fantasía!"
+    },
+    {
+     "t": 3.34,
+     "text": "Orcs and Elves enfrenta a elfos en blanco, azul y oro contra orcos en verde, cuero rojo y hierro."
+    },
+    {
+     "t": 9.24,
+     "text": "El caballo elfo es un ciervo blanco; el caballo orco, un gran lobo gris."
+    },
+    {
+     "t": 13.94,
+     "text": "Viene con Twin Realms."
+    }
+   ]
+  },
+  "item-boards-stargrid": {
+   "text": "Star Grid es acero brillante del suelo de una nave estelar, con una luz azul alrededor del marco. Viene con Starship Deck.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Star Grid es acero brillante del suelo de una nave estelar, con una luz azul alrededor del marco."
+    },
+    {
+     "t": 5.68,
+     "text": "Viene con Starship Deck."
+    }
+   ]
+  },
+  "item-boards-sunbrick": {
+   "text": "Sunstone and Brick es piedra cremosa y ladrillo rojo cálido, como el camino hacia un castillo de cuento. Viene con Floating Isles.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Sunstone and Brick es piedra cremosa y ladrillo rojo cálido, como el camino hacia un castillo de cuento."
+    },
+    {
+     "t": 5.97,
+     "text": "Viene con Floating Isles."
+    }
+   ]
+  },
+  "item-boards-moonslate": {
+   "text": "Moonstone and Slate pone piedra lunar clara con vetas doradas junto a pizarra gris, en un marco de roble viejo tallado con nudos. Viene con Twin Realms.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Moonstone and Slate pone piedra lunar clara con vetas doradas junto a pizarra gris, en un marco de roble viejo tallado con nudos."
+    },
+    {
+     "t": 7.69,
+     "text": "Viene con Twin Realms."
+    }
+   ]
+  },
+  "item-places-starbridge": {
+   "text": "Juega en la cubierta abierta de una nave estelar, muy por encima de un planeta azul. Una estación en anillo gira a lo lejos, y pasan volando dos flotas estelares.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Juega en la cubierta abierta de una nave estelar, muy por encima de un planeta azul."
+    },
+    {
+     "t": 5.1,
+     "text": "Una estación en anillo gira a lo lejos, y pasan volando dos flotas estelares."
+    }
+   ]
+  },
+  "item-places-skyisles": {
+   "text": "¡Juega en una isla que flota entre las nubes! Hay un castillo con tejados azules, un molino, un globo y un arcoíris, y allá, la torre oscura de la Legión de las Sombras.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Juega en una isla que flota entre las nubes!"
+    },
+    {
+     "t": 2.93,
+     "text": "Hay un castillo con tejados azules, un molino, un globo y un arcoíris, y allá, la torre oscura de la Legión de las Sombras."
+    }
+   ]
+  },
+  "item-places-twinrealms": {
+   "text": "Ponte en una cresta al atardecer entre dos reinos. A un lado, la ciudad blanca de los elfos está junto a una cascada. Al otro, la fortaleza de los orcos brilla en las colinas ardientes.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Ponte en una cresta al atardecer entre dos reinos."
+    },
+    {
+     "t": 3.32,
+     "text": "A un lado, la ciudad blanca de los elfos está junto a una cascada."
+    },
+    {
+     "t": 7.6,
+     "text": "Al otro, la fortaleza de los orcos brilla en las colinas ardientes."
+    }
+   ]
+  },
+  "item-sets-fantasy": {
+   "text": "Algunos juegos de ajedrez parecen salidos de un cuento de hadas. Fantasy Marble es mármol blanco como la nieve frente al negro, envuelto en cintas doradas, con coronas de tulipán, un alfil que sostiene una perla y torres con arquitos. Viene con Sculptor's Studio.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Algunos juegos de ajedrez parecen salidos de un cuento de hadas."
+    },
+    {
+     "t": 3.97,
+     "text": "Fantasy Marble es mármol blanco como la nieve frente al negro, envuelto en cintas doradas, con coronas de tulipán, un alfil que sostiene una perla y torres con arquitos."
+    },
+    {
+     "t": 13.83,
+     "text": "Viene con Sculptor's Studio."
+    }
+   ]
+  },
+  "item-sets-sapphire": {
+   "text": "Los reyes y las reinas guardaban sus zafiros para los días más especiales. Royal Ivory and Sapphire es marfil frente a azul intenso, con coronas doradas cerradas, torres con escudo y una gema azul en cada pieza. Viene con Sapphire Throne Room.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los reyes y las reinas guardaban sus zafiros para los días más especiales."
+    },
+    {
+     "t": 4.74,
+     "text": "Royal Ivory and Sapphire es marfil frente a azul intenso, con coronas doradas cerradas, torres con escudo y una gema azul en cada pieza."
+    },
+    {
+     "t": 12.93,
+     "text": "Viene con Sapphire Throne Room."
+    }
+   ]
+  },
+  "item-sets-navy": {
+   "text": "¡Ah del barco! Royal Navy es marfil frente a azul marino, envuelto en cuerda dorada y salpicado de rubíes. Los reyes llevan un ancla en la corona, los caballos llevan bandas y las torres tienen ojos de buey redondos. Viene con Admiral's Cabin.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Ah del barco!"
+    },
+    {
+     "t": 1.43,
+     "text": "Royal Navy es marfil frente a azul marino, envuelto en cuerda dorada y salpicado de rubíes."
+    },
+    {
+     "t": 7.17,
+     "text": "Los reyes llevan un ancla en la corona, los caballos llevan bandas y las torres tienen ojos de buey redondos."
+    },
+    {
+     "t": 13.51,
+     "text": "Viene con Admiral's Cabin."
+    }
+   ]
+  },
+  "item-sets-opulent": {
+   "text": "Las esmeraldas son el tesoro verde de los reyes. Opulent Emerald es crema frente a verde intenso, con reyes de muchas caras, alfiles con cúpula de cebolla y torres cuyas ventanas brillan doradas por la noche. Viene con Emerald Observatory.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Las esmeraldas son el tesoro verde de los reyes."
+    },
+    {
+     "t": 3.32,
+     "text": "Opulent Emerald es crema frente a verde intenso, con reyes de muchas caras, alfiles con cúpula de cebolla y torres cuyas ventanas brillan doradas por la noche."
+    },
+    {
+     "t": 12.66,
+     "text": "Viene con Emerald Observatory."
+    }
+   ]
+  },
+  "item-sets-pagoda": {
+   "text": "Este juego cuenta una historia de las montañas entre la niebla del Oriente. Dragon and Pagoda tiene reyes y reinas con largas túnicas de seda, alfiles de loto, caballos dragón con cuernos dorados y pequeñas torres pagoda con ventanas que brillan. Viene con Waterfall Pavilion.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Este juego cuenta una historia de las montañas entre la niebla del Oriente."
+    },
+    {
+     "t": 4.42,
+     "text": "Dragon and Pagoda tiene reyes y reinas con largas túnicas de seda, alfiles de loto, caballos dragón con cuernos dorados y pequeñas torres pagoda con ventanas que brillan."
+    },
+    {
+     "t": 14.5,
+     "text": "Viene con Waterfall Pavilion."
+    }
+   ]
+  },
+  "item-boards-nero": {
+   "text": "Nero and Gold Vein pone mármol negro con vetas doradas junto a mármol blanco como la nieve, con arcos dorados alrededor de todo el marco. Viene con Sculptor's Studio y Fantasy Marble.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Nero and Gold Vein pone mármol negro con vetas doradas junto a mármol blanco como la nieve, con arcos dorados alrededor de todo el marco."
+    },
+    {
+     "t": 8.0,
+     "text": "Viene con Sculptor's Studio y Fantasy Marble."
+    }
+   ]
+  },
+  "item-boards-sapphire": {
+   "text": "Lapis and Ivory Gilt es piedra azul intensa y marfil cálido, con pequeños escudos dorados alrededor de un marco azul real. Viene con Sapphire Throne Room y Royal Ivory and Sapphire.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Lapis and Ivory Gilt es piedra azul intensa y marfil cálido, con pequeños escudos dorados alrededor de un marco azul real."
+    },
+    {
+     "t": 7.75,
+     "text": "Viene con Sapphire Throne Room y Royal Ivory and Sapphire."
+    }
+   ]
+  },
+  "item-boards-admiralty": {
+   "text": "Admiralty Blue es marfil y azul medianoche en un marco de brillante madera de barco, con una cuerda dorada y anclas diminutas. Viene con Admiral's Cabin y el juego Royal Navy.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Admiralty Blue es marfil y azul medianoche en un marco de brillante madera de barco, con una cuerda dorada y anclas diminutas."
+    },
+    {
+     "t": 7.42,
+     "text": "Viene con Admiral's Cabin y el juego Royal Navy."
+    }
+   ]
+  },
+  "item-boards-verdant": {
+   "text": "Verde Onyx es mármol verde y ónix cremoso, con esmeraldas brillantes engastadas en un marco oscuro de nogal. Viene con Emerald Observatory y Opulent Emerald.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Verde Onyx es mármol verde y ónix cremoso, con esmeraldas brillantes engastadas en un marco oscuro de nogal."
+    },
+    {
+     "t": 6.9,
+     "text": "Viene con Emerald Observatory y Opulent Emerald."
+    }
+   ]
+  },
+  "item-boards-scroll": {
+   "text": "Mountain Scroll es marfil y laca negra en un marco rojo pintado con nubes rizadas, picos entre la niebla y cuatro soles pequeños. Viene con Waterfall Pavilion y Dragon and Pagoda.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Mountain Scroll es marfil y laca negra en un marco rojo pintado con nubes rizadas, picos entre la niebla y cuatro soles pequeños."
+    },
+    {
+     "t": 7.94,
+     "text": "Viene con Waterfall Pavilion y Dragon and Pagoda."
+    }
+   ]
+  },
+  "item-places-studio": {
+   "text": "En lo alto de las montañas de mármol blanco, el taller de un escultor se llena de luz de la mañana. Los bloques de mármol esperan en el camino de abajo, una estatuilla espera a que la terminen, y Fantasy Marble juega aquí sobre Nero and Gold Vein.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En lo alto de las montañas de mármol blanco, el taller de un escultor se llena de luz de la mañana."
+    },
+    {
+     "t": 5.7,
+     "text": "Los bloques de mármol esperan en el camino de abajo, una estatuilla espera a que la terminen, y Fantasy Marble juega aquí sobre Nero and Gold Vein."
+    }
+   ]
+  },
+  "item-places-keep": {
+   "text": "En un castillo sobre una montaña nevada, el salón del trono azul y dorado brilla mientras las torres se iluminan para la noche. Un cetro descansa sobre su cojín, y Royal Ivory and Sapphire juega aquí sobre Lapis and Ivory Gilt.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En un castillo sobre una montaña nevada, el salón del trono azul y dorado brilla mientras las torres se iluminan para la noche."
+    },
+    {
+     "t": 7.29,
+     "text": "Un cetro descansa sobre su cojín, y Royal Ivory and Sapphire juega aquí sobre Lapis and Ivory Gilt."
+    }
+   ]
+  },
+  "item-places-admiral": {
+   "text": "En la popa de un gran velero está el camarote del capitán. La luna brilla sobre el mar, un faro parpadea al otro lado de la bahía, y el juego Royal Navy juega aquí sobre Admiralty Blue.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En la popa de un gran velero está el camarote del capitán."
+    },
+    {
+     "t": 3.74,
+     "text": "La luna brilla sobre el mar, un faro parpadea al otro lado de la bahía, y el juego Royal Navy juega aquí sobre Admiralty Blue."
+    }
+   ]
+  },
+  "item-places-emeraldhall": {
+   "text": "En una colina verde hay una sala de mármol hecha para mirar las estrellas. Un telescopio de latón apunta al cielo, la hiedra cuelga en las ventanas, y Opulent Emerald juega aquí sobre Verde Onyx.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En una colina verde hay una sala de mármol hecha para mirar las estrellas."
+    },
+    {
+     "t": 4.39,
+     "text": "Un telescopio de latón apunta al cielo, la hiedra cuelga en las ventanas, y Opulent Emerald juega aquí sobre Verde Onyx."
+    }
+   ]
+  },
+  "item-places-pavilion": {
+   "text": "Un pabellón rojo mira hacia una cascada que ruge entre montañas con niebla, con cerezos en flor por todas partes. Un farol de piedra brilla, las carpas koi nadan en un cuenco, y Dragon and Pagoda juega aquí sobre Mountain Scroll.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Un pabellón rojo mira hacia una cascada que ruge entre montañas con niebla, con cerezos en flor por todas partes."
+    },
+    {
+     "t": 6.94,
+     "text": "Un farol de piedra brilla, las carpas koi nadan en un cuenco, y Dragon and Pagoda juega aquí sobre Mountain Scroll."
+    }
+   ]
   }
  }
 }

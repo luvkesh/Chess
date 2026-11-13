@@ -704,10 +704,45 @@
   "voice": "em_alex",
   "text": "De la météorite foncée tombée de l'espace, à côté de la glace givrée. Une ligne bleue lumineuse fait le tour du cadre."
  },
+ "dc50d649": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Des cases d'acier brillant tirées du sol d'un vaisseau, avec une lumière bleue tout autour du cadre."
+ },
+ "a45883f5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une pierre de soleil crémeuse et une brique rouge chaude, comme le chemin d'un château. C'est un plateau de conte !"
+ },
+ "a7d0b4b0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une pierre de lune claire veinée d'or, à côté d'une ardoise grise et fraîche. Le cadre de vieux chêne est sculpté de nœuds."
+ },
  "3295c047": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Du sable blanc nacré et du sable noir comme la nuit, scellés sous verre avec un bord doré. Il scintille comme le désert la nuit."
+ },
+ "73408823": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre fossile crème à côté du basalte sombre, avec des fissures d'ambre qui brillent comme la lave. Cherche les fougères sculptées sur le cadre !"
+ },
+ "bf91082d": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "De la pierre de lune pâle et de l'agate mousse verte, dans un cadre de bois sombre. Des vignes dorées s'enroulent tout autour."
+ },
+ "382057f7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Pierre pâle givrée et ardoise bleue, froides comme un fjord en hiver. Une bande de runes dorées fait le tour du cadre."
+ },
+ "9f0a663c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du chêne clair et du chêne foncé, taillés à la main. Des runes sont sculptées tout autour du cadre, comme dans une grande salle viking."
  },
  "e89f15b1": {
   "who": "rooky",
@@ -794,9 +829,94 @@
   "voice": "em_alex",
   "text": "Une lune glacée de Saturne, avec une fusée qui attend sur son pas de tir. Regarde en l'air, les anneaux remplissent tout le ciel !"
  },
+ "015c2c93": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Le pont d'un vaisseau, tout là-haut au-dessus d'une planète bleue. Regarde, deux flottes passent !"
+ },
+ "fb826aec": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Tu es sur une île qui flotte dans les nuages ! Fais coucou au château, et garde un œil sur cette tour sombre."
+ },
+ "3e74a80b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Les elfes d'un côté, les orques de l'autre, et toi au beau milieu ! Tu vois la cascade et la forteresse qui brille ?"
+ },
  "4691725a": {
   "who": "rooky",
   "voice": "em_alex",
   "text": "Tout en haut de la Burj Khalifa, le plus haut bâtiment du monde. On est au-dessus des nuages !"
+ },
+ "d4d94593": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une vallée verte à l'aube des temps, sous un volcan fumant. Regarde, les longs cous marchent dans le lac !"
+ },
+ "ee64000b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une clairière moussue où les arbres brillent et les champignons luisent. Tu vois le cerf fait de lumière ?"
+ },
+ "25a6b1f2": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une rive enneigée sur un fjord bleu profond, avec des cascades tout autour. Voici un drakkar qui rentre à la maison !"
+ },
+ "0ec45a0c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La porte aux dragons d'une grande salle viking, juste au lever du soleil. Les torches brûlent encore !"
+ },
+ "820abd3f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Du marbre noir veiné d'or, à côté d'un marbre blanc comme la neige. Des arcs d'or font tout le tour du cadre !"
+ },
+ "9fd8447b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Lapis-lazuli bleu profond et ivoire chaud, avec de petits boucliers dorés tout autour du cadre. On dirait un trésor royal."
+ },
+ "16900de5": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ivoire et bleu nuit dans un cadre de bois de navire brillant, entouré d'une corde dorée avec de minuscules ancres."
+ },
+ "46b23cb0": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marbre vert et onyx crémeux, avec des émeraudes étincelantes serties dans un cadre de noyer foncé."
+ },
+ "f2bc0a89": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ivoire et laque noire dans un cadre rouge peint de nuages bouclés, de montagnes dans la brume et de quatre petits soleils."
+ },
+ "45220027": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un atelier de sculpteur plein de lumière, tout en haut des montagnes de marbre blanc. Regarde, une petite statue attend d'être finie !"
+ },
+ "94c01274": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une salle du trône bleu et or dans un château de montagne. Les tours s'illuminent pour la soirée !"
+ },
+ "29f249f7": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La cabine du capitaine, à l'arrière d'un grand voilier. Tu vois le phare qui clignote de l'autre côté de la baie ?"
+ },
+ "65d106f1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Une salle de marbre vert sur une colline, faite pour regarder les étoiles. Les premières apparaissent en ce moment !"
+ },
+ "20f7dbda": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un pavillon rouge face à une cascade qui gronde, avec des cerisiers en fleurs tout autour. Écoute l'eau !"
  }
 }

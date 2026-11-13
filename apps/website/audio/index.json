@@ -1893,6 +1893,578 @@
           "text": "Falcon and Pearl play here, on Pearl and Night Sand."
         }
       ]
+    },
+    "item-sets-dino": {
+      "text": "Roar! Dino Kingdom is fossil bone and amber against dark lava stone with glowing cracks. A T-rex is king, a triceratops and a raptor are the knights, and the pawns are baby dinosaurs hatching from their eggs. It comes with Dinosaur Valley.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Roar!"
+        },
+        {
+          "t": 0.65,
+          "text": "Dino Kingdom is fossil bone and amber against dark lava stone with glowing cracks."
+        },
+        {
+          "t": 5.77,
+          "text": "A T-rex is king, a triceratops and a raptor are the knights, and the pawns are baby dinosaurs hatching from their eggs."
+        },
+        {
+          "t": 12.97,
+          "text": "It comes with Dinosaur Valley."
+        }
+      ]
+    },
+    "item-sets-forest": {
+      "text": "Once upon a time, the elves of the glade met the forest folk. Forest Guardians is ivory and gold against bark and moss, with an elf king, a mage with a crystal, an antlered Oak King and a big moss bear. It comes with the Enchanted Forest.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Once upon a time, the elves of the glade met the forest folk."
+        },
+        {
+          "t": 3.6,
+          "text": "Forest Guardians is ivory and gold against bark and moss, with an elf king, a mage with a crystal, an antlered Oak King and a big moss bear."
+        },
+        {
+          "t": 12.07,
+          "text": "It comes with the Enchanted Forest."
+        }
+      ]
+    },
+    "item-sets-jarl": {
+      "text": "The longships are home! Jarls of the Fjord is gold and ivory with blue cloaks, against dark iron and leather with red banners. There are jarls, shieldmaidens, wise seers with rune staffs and wolves for knights. It comes with the Fjord of the Longships.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "The longships are home!"
+        },
+        {
+          "t": 1.49,
+          "text": "Jarls of the Fjord is gold and ivory with blue cloaks, against dark iron and leather with red banners."
+        },
+        {
+          "t": 7.57,
+          "text": "There are jarls, shieldmaidens, wise seers with rune staffs and wolves for knights."
+        },
+        {
+          "t": 12.61,
+          "text": "It comes with the Fjord of the Longships."
+        }
+      ]
+    },
+    "item-sets-rune": {
+      "text": "Every piece of Runecarved looks whittled by hand, from pale birch and dark oak. The queen holds a drinking horn, the skald tells stories, and the knights are wolf heads. It comes with the Longhouse Gate.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Every piece of Runecarved looks whittled by hand, from pale birch and dark oak."
+        },
+        {
+          "t": 4.72,
+          "text": "The queen holds a drinking horn, the skald tells stories, and the knights are wolf heads."
+        },
+        {
+          "t": 9.73,
+          "text": "It comes with the Longhouse Gate."
+        }
+      ]
+    },
+    "item-boards-fossil": {
+      "text": "Fossil and Basalt sets cream fossil stone beside dark basalt, with amber cracks that glow like lava. Ferns are carved round the frame. It comes with Dinosaur Valley and Dino Kingdom.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Fossil and Basalt sets cream fossil stone beside dark basalt, with amber cracks that glow like lava."
+        },
+        {
+          "t": 6.58,
+          "text": "Ferns are carved round the frame."
+        },
+        {
+          "t": 8.86,
+          "text": "It comes with Dinosaur Valley and Dino Kingdom."
+        }
+      ]
+    },
+    "item-boards-glade": {
+      "text": "Moonstone and Moss Agate is pale moonstone beside green moss agate, in a dark wooden frame with golden vines. It comes with the Enchanted Forest and the Forest Guardians.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Moonstone and Moss Agate is pale moonstone beside green moss agate, in a dark wooden frame with golden vines."
+        },
+        {
+          "t": 7.14,
+          "text": "It comes with the Enchanted Forest and the Forest Guardians."
+        }
+      ]
+    },
+    "item-boards-fjord": {
+      "text": "Frost Ash and Slate is frosty pale stone beside blue slate, as cold as a winter fjord, with golden runes round the frame. It comes with the Fjord of the Longships and the Jarls of the Fjord.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Frost Ash and Slate is frosty pale stone beside blue slate, as cold as a winter fjord, with golden runes round the frame."
+        },
+        {
+          "t": 7.95,
+          "text": "It comes with the Fjord of the Longships and the Jarls of the Fjord."
+        }
+      ]
+    },
+    "item-boards-runeoak": {
+      "text": "Carved Oak is light and dark oak, cut by hand, with runes carved all the way round the frame. It comes with the Longhouse Gate and Runecarved.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Carved Oak is light and dark oak, cut by hand, with runes carved all the way round the frame."
+        },
+        {
+          "t": 5.9,
+          "text": "It comes with the Longhouse Gate and Runecarved."
+        }
+      ]
+    },
+    "item-places-dinoval": {
+      "text": "Welcome to the world of the dinosaurs! A volcano smokes ahead, waterfalls tumble into the lake, and long-necked dinosaurs wade in the water while pterosaurs glide above. Dino Kingdom plays here, on Fossil and Basalt.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Welcome to the world of the dinosaurs!"
+        },
+        {
+          "t": 2.34,
+          "text": "A volcano smokes ahead, waterfalls tumble into the lake, and long-necked dinosaurs wade in the water while pterosaurs glide above."
+        },
+        {
+          "t": 10.01,
+          "text": "Dino Kingdom plays here, on Fossil and Basalt."
+        }
+      ]
+    },
+    "item-places-forest": {
+      "text": "Tiptoe in. The giant trees glow green and purple, toadstools shine, fireflies dance, and a waterfall of blue light pours into the pool. Look, a stag made of light on the rock! The Forest Guardians play here, on Moonstone and Moss Agate.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Tiptoe in."
+        },
+        {
+          "t": 1.0,
+          "text": "The giant trees glow green and purple, toadstools shine, fireflies dance, and a waterfall of blue light pours into the pool."
+        },
+        {
+          "t": 8.57,
+          "text": "Look, a stag made of light on the rock!"
+        },
+        {
+          "t": 11.13,
+          "text": "The Forest Guardians play here, on Moonstone and Moss Agate."
+        }
+      ]
+    },
+    "item-places-fjord": {
+      "text": "Breathe in that cold, fresh air! Snowy cliffs rise straight out of the water, waterfalls pour down, and a longship with a blue sail glides home to the dock. The Jarls of the Fjord play here, on Frost Ash and Slate.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Breathe in that cold, fresh air!"
+        },
+        {
+          "t": 2.25,
+          "text": "Snowy cliffs rise straight out of the water, waterfalls pour down, and a longship with a blue sail glides home to the dock."
+        },
+        {
+          "t": 9.3,
+          "text": "The Jarls of the Fjord play here, on Frost Ash and Slate."
+        }
+      ]
+    },
+    "item-places-longhouse": {
+      "text": "The sun is coming up over the snowy peaks. Walk through the gate of carved dragons, past the runestones and the torches, to the great hall. A longship waits in the bay. Runecarved plays here, on Carved Oak.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "The sun is coming up over the snowy peaks."
+        },
+        {
+          "t": 2.64,
+          "text": "Walk through the gate of carved dragons, past the runestones and the torches, to the great hall."
+        },
+        {
+          "t": 7.95,
+          "text": "A longship waits in the bay."
+        },
+        {
+          "t": 9.97,
+          "text": "Runecarved plays here, on Carved Oak."
+        }
+      ]
+    },
+    "item-sets-galactic": {
+      "text": "Two star fleets meet on the board! The Blue Fleet is white with blue lights, and the Red Fleet is black with red lights. Knights are starships, bishops are glowing crystals, and the pawns are space cadets. It comes with the Starship Deck.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Two star fleets meet on the board!"
+        },
+        {
+          "t": 2.03,
+          "text": "The Blue Fleet is white with blue lights, and the Red Fleet is black with red lights."
+        },
+        {
+          "t": 6.96,
+          "text": "Knights are starships, bishops are glowing crystals, and the pawns are space cadets."
+        },
+        {
+          "t": 11.95,
+          "text": "It comes with the Starship Deck."
+        }
+      ]
+    },
+    "item-sets-sunshadow": {
+      "text": "Once upon a time, in the clouds! The Sun Kingdom has a jolly king, a princess, a wizard and villagers in sunflower hats. The Shadow Legion has a horned king, a sorceress, a baby dragon and grumpy little imps. It comes with the Floating Isles.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Once upon a time, in the clouds!"
+        },
+        {
+          "t": 2.23,
+          "text": "The Sun Kingdom has a jolly king, a princess, a wizard and villagers in sunflower hats."
+        },
+        {
+          "t": 8.1,
+          "text": "The Shadow Legion has a horned king, a sorceress, a baby dragon and grumpy little imps."
+        },
+        {
+          "t": 13.54,
+          "text": "It comes with the Floating Isles."
+        }
+      ]
+    },
+    "item-sets-elves": {
+      "text": "Two armies from the old fantasy tales! Orcs and Elves puts elves in white, blue and gold against orcs in green, red leather and iron. The elf knight is a white stag, the orc knight a big grey wolf. It comes with the Twin Realms.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Two armies from the old fantasy tales!"
+        },
+        {
+          "t": 2.57,
+          "text": "Orcs and Elves puts elves in white, blue and gold against orcs in green, red leather and iron."
+        },
+        {
+          "t": 8.56,
+          "text": "The elf knight is a white stag, the orc knight a big grey wolf."
+        },
+        {
+          "t": 12.42,
+          "text": "It comes with the Twin Realms."
+        }
+      ]
+    },
+    "item-boards-stargrid": {
+      "text": "Star Grid is shiny steel from a starship floor, with a blue light glowing round the frame. It comes with the Starship Deck.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Star Grid is shiny steel from a starship floor, with a blue light glowing round the frame."
+        },
+        {
+          "t": 5.16,
+          "text": "It comes with the Starship Deck."
+        }
+      ]
+    },
+    "item-boards-sunbrick": {
+      "text": "Sunstone and Brick is creamy stone and warm red brick, like the path up to a storybook castle. It comes with the Floating Isles.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Sunstone and Brick is creamy stone and warm red brick, like the path up to a storybook castle."
+        },
+        {
+          "t": 5.74,
+          "text": "It comes with the Floating Isles."
+        }
+      ]
+    },
+    "item-boards-moonslate": {
+      "text": "Moonstone and Slate puts pale moonstone with gold veins next to cool grey slate, in an old oak frame carved with knots. It comes with the Twin Realms.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Moonstone and Slate puts pale moonstone with gold veins next to cool grey slate, in an old oak frame carved with knots."
+        },
+        {
+          "t": 7.32,
+          "text": "It comes with the Twin Realms."
+        }
+      ]
+    },
+    "item-places-starbridge": {
+      "text": "Play on the open deck of a starship, high above a blue planet. A ring station turns in the distance, and two star fleets fly past.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Play on the open deck of a starship, high above a blue planet."
+        },
+        {
+          "t": 3.92,
+          "text": "A ring station turns in the distance, and two star fleets fly past."
+        }
+      ]
+    },
+    "item-places-skyisles": {
+      "text": "Play on an island floating in the clouds! There's a castle with blue roofs, a windmill, a balloon and a rainbow, and over there, the Shadow Legion's dark tower.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Play on an island floating in the clouds!"
+        },
+        {
+          "t": 2.37,
+          "text": "There's a castle with blue roofs, a windmill, a balloon and a rainbow, and over there, the Shadow Legion's dark tower."
+        }
+      ]
+    },
+    "item-places-twinrealms": {
+      "text": "Stand on a ridge at sunset between two kingdoms. On one side, the elves' white city sits by a waterfall. On the other, the orcs' fortress glows in the burning hills.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Stand on a ridge at sunset between two kingdoms."
+        },
+        {
+          "t": 3.17,
+          "text": "On one side, the elves' white city sits by a waterfall."
+        },
+        {
+          "t": 7.08,
+          "text": "On the other, the orcs' fortress glows in the burning hills."
+        }
+      ]
+    },
+    "item-sets-fantasy": {
+      "text": "Some chess sets look like they came out of a fairy tale. Fantasy Marble is snowy white marble against black, wrapped in golden ribbons, with tulip crowns, a bishop holding a pearl and rooks with tiny arches. It comes with the Sculptor's Studio.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Some chess sets look like they came out of a fairy tale."
+        },
+        {
+          "t": 3.16,
+          "text": "Fantasy Marble is snowy white marble against black, wrapped in golden ribbons, with tulip crowns, a bishop holding a pearl and rooks with tiny arches."
+        },
+        {
+          "t": 12.26,
+          "text": "It comes with the Sculptor's Studio."
+        }
+      ]
+    },
+    "item-sets-sapphire": {
+      "text": "Kings and queens kept their sapphires for the most special days. Royal Ivory and Sapphire is ivory against deep blue, with closed golden crowns, shield rooks and a blue gem on every piece. It comes with the Sapphire Throne Room.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Kings and queens kept their sapphires for the most special days."
+        },
+        {
+          "t": 3.66,
+          "text": "Royal Ivory and Sapphire is ivory against deep blue, with closed golden crowns, shield rooks and a blue gem on every piece."
+        },
+        {
+          "t": 11.52,
+          "text": "It comes with the Sapphire Throne Room."
+        }
+      ]
+    },
+    "item-sets-navy": {
+      "text": "Ahoy! Royal Navy is ivory against navy blue, wrapped in golden rope and dotted with rubies. The kings wear an anchor on their crowns, the knights wear sashes and the rooks have round portholes. It comes with the Admiral's Cabin.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Ahoy!"
+        },
+        {
+          "t": 0.67,
+          "text": "Royal Navy is ivory against navy blue, wrapped in golden rope and dotted with rubies."
+        },
+        {
+          "t": 5.97,
+          "text": "The kings wear an anchor on their crowns, the knights wear sashes and the rooks have round portholes."
+        },
+        {
+          "t": 11.41,
+          "text": "It comes with the Admiral's Cabin."
+        }
+      ]
+    },
+    "item-sets-opulent": {
+      "text": "Emeralds are the green treasure of kings. Opulent Emerald is cream against deep green, with many-sided kings, onion-dome bishops and rooks whose windows glow gold at night. It comes with the Emerald Observatory.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Emeralds are the green treasure of kings."
+        },
+        {
+          "t": 2.67,
+          "text": "Opulent Emerald is cream against deep green, with many-sided kings, onion-dome bishops and rooks whose windows glow gold at night."
+        },
+        {
+          "t": 10.67,
+          "text": "It comes with the Emerald Observatory."
+        }
+      ]
+    },
+    "item-sets-pagoda": {
+      "text": "This set tells a story from the misty mountains of the East. Dragon and Pagoda has kings and queens in long silk robes, lotus bishops, dragon knights with golden horns and little pagoda rooks with glowing windows. It comes with the Waterfall Pavilion.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This set tells a story from the misty mountains of the East."
+        },
+        {
+          "t": 3.35,
+          "text": "Dragon and Pagoda has kings and queens in long silk robes, lotus bishops, dragon knights with golden horns and little pagoda rooks with glowing windows."
+        },
+        {
+          "t": 12.71,
+          "text": "It comes with the Waterfall Pavilion."
+        }
+      ]
+    },
+    "item-boards-nero": {
+      "text": "Nero and Gold Vein sets black marble with golden veins next to snowy white marble, with gold arcs running all the way round the frame. It comes with the Sculptor's Studio and Fantasy Marble.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Nero and Gold Vein sets black marble with golden veins next to snowy white marble, with gold arcs running all the way round the frame."
+        },
+        {
+          "t": 8.14,
+          "text": "It comes with the Sculptor's Studio and Fantasy Marble."
+        }
+      ]
+    },
+    "item-boards-sapphire": {
+      "text": "Lapis and Ivory Gilt is deep blue stone and warm ivory, with little golden shields all round a royal blue frame. It comes with the Sapphire Throne Room and Royal Ivory and Sapphire.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Lapis and Ivory Gilt is deep blue stone and warm ivory, with little golden shields all round a royal blue frame."
+        },
+        {
+          "t": 7.22,
+          "text": "It comes with the Sapphire Throne Room and Royal Ivory and Sapphire."
+        }
+      ]
+    },
+    "item-boards-admiralty": {
+      "text": "Admiralty Blue is ivory and midnight blue in a frame of shiny ship's wood, with a golden rope and tiny anchors. It comes with the Admiral's Cabin and the Royal Navy set.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Admiralty Blue is ivory and midnight blue in a frame of shiny ship's wood, with a golden rope and tiny anchors."
+        },
+        {
+          "t": 6.74,
+          "text": "It comes with the Admiral's Cabin and the Royal Navy set."
+        }
+      ]
+    },
+    "item-boards-verdant": {
+      "text": "Verde Onyx is green marble and creamy onyx, with sparkling emeralds set into a dark walnut frame. It comes with the Emerald Observatory and Opulent Emerald.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Verde Onyx is green marble and creamy onyx, with sparkling emeralds set into a dark walnut frame."
+        },
+        {
+          "t": 6.64,
+          "text": "It comes with the Emerald Observatory and Opulent Emerald."
+        }
+      ]
+    },
+    "item-boards-scroll": {
+      "text": "Mountain Scroll is ivory and black lacquer in a red frame painted with curly clouds, misty peaks and four little suns. It comes with the Waterfall Pavilion and Dragon and Pagoda.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Mountain Scroll is ivory and black lacquer in a red frame painted with curly clouds, misty peaks and four little suns."
+        },
+        {
+          "t": 7.32,
+          "text": "It comes with the Waterfall Pavilion and Dragon and Pagoda."
+        }
+      ]
+    },
+    "item-places-studio": {
+      "text": "High above the white marble mountains, a sculptor's studio fills with morning light. Marble blocks wait on the road below, a little statue waits to be finished, and Fantasy Marble plays here on Nero and Gold Vein.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "High above the white marble mountains, a sculptor's studio fills with morning light."
+        },
+        {
+          "t": 4.84,
+          "text": "Marble blocks wait on the road below, a little statue waits to be finished, and Fantasy Marble plays here on Nero and Gold Vein."
+        }
+      ]
+    },
+    "item-places-keep": {
+      "text": "In a castle on a snowy mountain, the blue and gold throne room glows as the towers light up for the evening. A sceptre rests on its cushion, and Royal Ivory and Sapphire plays here on Lapis and Ivory Gilt.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "In a castle on a snowy mountain, the blue and gold throne room glows as the towers light up for the evening."
+        },
+        {
+          "t": 6.33,
+          "text": "A sceptre rests on its cushion, and Royal Ivory and Sapphire plays here on Lapis and Ivory Gilt."
+        }
+      ]
+    },
+    "item-places-admiral": {
+      "text": "At the back of a great sailing ship sits the captain's cabin. The moon shines on the sea, a lighthouse blinks across the bay, and the Royal Navy set plays here on Admiralty Blue.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "At the back of a great sailing ship sits the captain's cabin."
+        },
+        {
+          "t": 3.49,
+          "text": "The moon shines on the sea, a lighthouse blinks across the bay, and the Royal Navy set plays here on Admiralty Blue."
+        }
+      ]
+    },
+    "item-places-emeraldhall": {
+      "text": "On a green hilltop stands a marble room made for watching the stars. A brass telescope points at the sky, ivy hangs at the windows, and Opulent Emerald plays here on Verde Onyx.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "On a green hilltop stands a marble room made for watching the stars."
+        },
+        {
+          "t": 4.17,
+          "text": "A brass telescope points at the sky, ivy hangs at the windows, and Opulent Emerald plays here on Verde Onyx."
+        }
+      ]
+    },
+    "item-places-pavilion": {
+      "text": "A red pavilion looks out at a roaring waterfall between misty mountains, with cherry blossom all around. A stone lantern glows, koi swim in a bowl, and Dragon and Pagoda plays here on Mountain Scroll.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "A red pavilion looks out at a roaring waterfall between misty mountains, with cherry blossom all around."
+        },
+        {
+          "t": 6.09,
+          "text": "A stone lantern glows, koi swim in a bowl, and Dragon and Pagoda plays here on Mountain Scroll."
+        }
+      ]
     }
   }
 }
