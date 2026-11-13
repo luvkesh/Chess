@@ -243,9 +243,14 @@ function ChacklateSuites(THREE, K, H) {
     const H = y1 - y0;
     if (kind === 'pedestal' || kind === 'column') {
       const stone = kind === 'column' ? MAT.stone(TEX.marble(t.top.color || '#efece6', t.top.vein || '#a8a49c', { size: 512, scale: 2, strength: 0.4 }), { roughness: 0.25 }) : wood;
+      // traced with a quarter of the steps along: the foot stands in the table's shadow, and at
+      // full steps it was some 30k triangles in every room
+      const along = K.DETAIL.along;
+      K.DETAIL.along = along * 0.25;
       const prof = kind === 'column'
         ? K.profile(0, y0).line(2.4, y0).line(2.4, y0 + 0.5).arc(2.0, y0 + 0.8, 0.3).line(1.15, y0 + 1.0).line(1.0, y0 + 1.2).line(0.95, y1 - 1.0).line(1.4, y1 - 0.7).line(2.6, y1 - 0.2).line(2.6, y1).line(0, y1)
         : K.profile(0, y0).line(2.6, y0).arc(2.5, y0 + 0.3, 0.3).curve([[1.6, y0 + 0.6], [0.9, y0 + 1.2], [0.75, y0 + 2.4], [0.95, y1 - 0.8], [2.2, y1 - 0.1]]).line(0, y1);
+      K.DETAIL.along = along;
       add(K.revolve(prof, { segs: 64, mod: K.MOD.flutes(kind === 'column' ? 20 : 16, 0.06, y0 + 1.3, y1 - 1.0) }), stone);
       add(K.ring(1.0, y0 + 1.15, 0.05), m); add(K.ring(1.02, y1 - 1.0, 0.05), m);
     } else if (kind === 'legs' || kind === 'bistro' || kind === 'iron') {

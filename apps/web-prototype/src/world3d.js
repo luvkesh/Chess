@@ -296,7 +296,7 @@ function ChacklateWorld(THREE, K) {
   const BOARDS = {
     walnut: { name: 'Walnut & Maple', field: { type: 'wood', light: '#e2c08e', dark: '#5e3824' }, frame: { type: 'wood', color: '#3b2216', grainLight: '#5a3524' }, inlay: '#d9b56a', label: '#f0d9a8', rim: 'gold' },
     regency: { name: 'Gilded Ebony', field: { type: 'lacquer', light: '#eee6d6', dark: '#16110f', seam: 'rgba(0,0,0,0.6)', seamGold: 'rgba(220,180,100,0.55)' }, frame: { type: 'lacquer', color: '#120d0b' }, inlay: '#e8c06a', label: '#f2d08a', rim: 'gold', gloss: 0.18 },
-    marble: { name: 'Carrara & Nero', field: { type: 'marble', light: '#e8e3d8', dark: '#3e4048', veinLight: '#9a9aa0', veinDark: '#c8c6c0' }, frame: { type: 'marble', color: '#2a2a2e', vein: '#9a968c' }, inlay: '#d8b46a', label: '#f0dcae', rim: 'gold', gloss: 0.12 },
+    marble: { name: 'Night Marble', field: { type: 'marble', light: '#e8e3d8', dark: '#3e4048', veinLight: '#9a9aa0', veinDark: '#c8c6c0' }, frame: { type: 'marble', color: '#2a2a2e', vein: '#9a968c' }, inlay: '#d8b46a', label: '#f0dcae', rim: 'gold', gloss: 0.12 },
     nile: { name: 'Sandstone & Lapis', field: { type: 'lapis', tintDark: ['#4a74e8', 0.3], light: '#e3c99a', dark: '#1d2f7a', veinLight: '#b08850', marbleLight: { cloud: 0.4, strength: 0.25, freq: 1 } }, frame: { type: 'stone', color: '#8a6a3e', speck: '#c8a46a' }, inlay: '#f0c860', label: '#ffe2a0', rim: 'gold', motif: 'egypt', crest: 'sun' },
     athens: { name: 'Pentelic & Verde Antico', field: { type: 'marble', light: '#e4d7c0', dark: '#3d6b56', veinLight: '#b0a898', veinDark: '#a8d4bc', marbleDark: { cloud: 0.5, strength: 0.6, freq: 3 } }, frame: { type: 'marble', color: '#ddd0b8', vein: '#a89c86' }, inlay: '#b8863b', label: '#4a3420', rim: 'bronze', motif: 'meander' },
     roma: { name: 'Porphyry & Travertine', field: { type: 'marble', light: '#e2d4b6', dark: '#6a7480', veinLight: '#c4ae88', veinDark: '#c8d2dc', marbleLight: { cloud: 0.4, strength: 0.3 }, marbleDark: { cloud: 0.4, strength: 0.45, freq: 3 } }, frame: { type: 'stone', color: '#3a1416', speck: '#a8686a' }, inlay: '#c8954a', label: '#f0d8b0', rim: 'bronze' },
@@ -323,7 +323,7 @@ function ChacklateWorld(THREE, K) {
     lapis: { name: 'Lapis & Moonstone', field: { type: 'lapis', light: '#e4e8f0', dark: '#3a56a8', veinLight: '#a8b0c8', marbleLight: { cloud: 0.5, strength: 0.2, freq: 1 } }, frame: { type: 'lacquer', color: '#0e1630', stars: true }, inlay: '#e8c870', label: '#f2e6c0', rim: 'gold', gloss: 0.1 },
     // the raw boards: no polish, no gold, squares cut and rubbed by hand
     sarsen: { name: 'Sarsen Stone', field: { type: 'chisel', light: '#cfc8b4', dark: '#7a7464' }, frame: { type: 'raw', color: '#8a8472', speck: '#5a5648' }, inlay: '#4a4638', label: '#3a3628', raw: true },
-    terracotta: { name: 'Indus Terracotta', field: { type: 'clay', light: '#e2b88c', dark: '#9a4a2a' }, frame: { type: 'raw', color: '#a8643a', speck: '#6a3420', clay: true }, inlay: '#2a140a', label: '#2a140a', raw: true },
+    terracotta: { name: 'Harappan Clay', field: { type: 'clay', light: '#e2b88c', dark: '#9a4a2a' }, frame: { type: 'raw', color: '#a8643a', speck: '#6a3420', clay: true }, inlay: '#2a140a', label: '#2a140a', raw: true },
     andesite: { name: 'Andesite Block', field: { type: 'chisel', light: '#c4beb2', dark: '#6a6660', seed: 23 }, frame: { type: 'raw', color: '#76726a', speck: '#4a4640', polygonal: true }, inlay: '#3a3630', label: '#2e2a26', raw: true },
     // Norse Carved's: birch and bog oak in a frame carved with knotwork, matt like a well-used table
     runewood: { name: 'Runewood', field: { type: 'wood', light: '#d8b47e', dark: '#4a2e1a', woodDark: { lines: 22, contrast: 0.7, warp: 2.2 }, woodLight: { lines: 34, contrast: 0.45 } }, frame: { type: 'wood', color: '#5a3820', grainLight: '#8a5a32' }, inlay: '#2a180c', label: '#f2dcb4', raw: true, motif: 'knot' },
@@ -2182,6 +2182,15 @@ function ChacklateWorld(THREE, K) {
     g.fillStyle = '#9a2a1e'; g.fillRect(0, 960, 256, 14); g.fillStyle = '#1e3a8a'; g.fillRect(0, 980, 256, 10);
     const t = texFrom(c); t.wrapS = THREE.RepeatWrapping; return t;
   }
+  // Room architecture stands metres from the camera, so its profiles are traced with fewer
+  // steps along their length than a piece's (a fluted column was 37k triangles, the twelve in a
+  // classical hall 450k; a terrace's 170 balusters 470k). Round shapes keep their full count
+  // around, so silhouettes and flutes look the same.
+  function coarse(fn, along) {
+    const was = K.DETAIL.along;
+    K.DETAIL.along = was * (along || 0.25);
+    try { return fn(); } finally { K.DETAIL.along = was; }
+  }
   function column(def, h) {
     const c = def.column, grp = new THREE.Group();
     if (c.kind === 'fin') {
@@ -2192,17 +2201,17 @@ function ChacklateWorld(THREE, K) {
     }
     let prof, mat;
     if (c.kind === 'papyrus') {
-      prof = K.profile(0, 0).line(0.95, 0).line(0.95, 0.36).line(0.72, 0.42).curve([[0.8, 0.9], [0.74, 2.2], [0.64, h * 0.55], [0.6, h - 3.0]]).line(0.62, h - 2.9).line(0.6, h - 2.7)
-        .bez(0.76, h - 2.1, 1.12, h - 1.5, 1.2, h - 1.1).line(0.78, h - 1.04).line(0.78, h - 0.6).line(0, h - 0.6);
+      prof = coarse(() => K.profile(0, 0).line(0.95, 0).line(0.95, 0.36).line(0.72, 0.42).curve([[0.8, 0.9], [0.74, 2.2], [0.64, h * 0.55], [0.6, h - 3.0]]).line(0.62, h - 2.9).line(0.6, h - 2.7)
+        .bez(0.76, h - 2.1, 1.12, h - 1.5, 1.2, h - 1.1).line(0.78, h - 1.04).line(0.78, h - 0.6).line(0, h - 0.6), 0.3);
       const tex = papyrusTexture(); tex.repeat.set(3, 1 / prof.rings().slice(-1)[0].len);
       mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 });
     } else if (c.kind === 'pillar') {
       prof = K.profile(0, 0).line(1.0, 0).line(1.0, 0.8).arc(0.8, 1.1, 0.3).line(0.62, 1.12).line(0.62, h - 0.8).line(0.8, h - 0.7).line(0.8, h - 0.4).line(0, h - 0.4);
       mat = MAT.lacquer(c.color || '#9e1c16');
     } else {
-      prof = K.profile(0, 0).line(0.95, 0).line(0.95, 0.34).line(0.82, 0.36).arc(0.8, 0.7, 0.35).line(0.7, 0.76)
+      prof = coarse(() => K.profile(0, 0).line(0.95, 0).line(0.95, 0.34).line(0.82, 0.36).arc(0.8, 0.7, 0.35).line(0.7, 0.76)
         .curve([[0.7, 1.6], [0.69, h * 0.42], [0.6, h - 1.9]]).line(0.66, h - 1.82).line(0.62, h - 1.72)
-        .bez(0.7, h - 1.4, 0.92, h - 1.1, 0.98, h - 0.86).line(1.02, h - 0.84).line(1.02, h - 0.46).line(0, h - 0.46);
+        .bez(0.7, h - 1.4, 0.92, h - 1.1, 0.98, h - 0.86).line(1.02, h - 0.84).line(1.02, h - 0.46).line(0, h - 0.46), 0.3);
       mat = c.mat === 'porphyry' ? MAT.stone(TEX.stone('#6a1e26', '#b06a6a', { scale: 6, speckScale: 220, speckCut: 0.3 }), { roughness: 0.2 })
         : c.mat === 'malachite' ? MAT.stone(TEX.malachite({ bands: 34 }), { roughness: 0.16 })
         : MAT.stone(TEX.marble(c.color || '#f2eee6', c.vein || '#a8a49c', { size: 512, scale: 2, strength: 0.5 }), { roughness: 0.24 });
@@ -2763,7 +2772,7 @@ function ChacklateWorld(THREE, K) {
       grp.add(new THREE.Mesh(K.merge(poles), pole));
     } else {
       // balusters between square posts, a rail on top
-      const bal = K.revolve(K.profile(0, 0).line(0.13, 0).line(0.13, 0.1).curve([[0.08, 0.2], [0.17, 0.48], [0.07, 0.8]]).line(0.1, 0.86).line(0.1, 0.95).line(0, 0.95), { segs: 10 });
+      const bal = K.revolve(coarse(() => K.profile(0, 0).line(0.13, 0).line(0.13, 0.1).curve([[0.08, 0.2], [0.17, 0.48], [0.07, 0.8]]).line(0.1, 0.86).line(0.1, 0.95).line(0, 0.95), 0.2), { segs: 10 });
       const n = Math.round(TAU * r / 0.42);
       for (let i = 0; i < n; i++) {
         const a = i / n * TAU;
