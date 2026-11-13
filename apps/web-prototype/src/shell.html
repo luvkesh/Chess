@@ -22,6 +22,8 @@ html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) *:not(.wo
 html[data-script="deva"] body, html[data-script="beng"] body, html[data-script="arab"] body { line-height: 1.6; }
 html[data-script="hans"] body { line-height: 1.6; }
 html[dir="rtl"] .ico-dir { transform: scaleX(-1); }
+/* Rooky's face keeps to the screen corner in right-to-left languages (his bubble used to push him sideways onto the game buttons) */
+html[dir="rtl"] .guide { flex-direction: row-reverse; }
 /* Devanagari has no true italic: a slanted Latin face reads badly, so quotes stand upright. */
 html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) em, html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) i:not(:empty), html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) .quote, html[data-script]:not([data-script="latin"]):not([data-script="cyrl"]) .say { font-style: normal; }
 html[data-script="deva"] :is(h1, h2, h3), html[data-script="beng"] :is(h1, h2, h3), html[data-script="arab"] :is(h1, h2, h3), html[data-script="hans"] :is(h1, h2, h3) { line-height: 1.4; }
@@ -86,6 +88,8 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 .grain { position: fixed; inset: 0; pointer-events: none; z-index: 2; opacity: 0.05; mix-blend-mode: overlay; background-size: 180px; }
 .nogl { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); z-index: 1; background: radial-gradient(ellipse at 50% 35%, #2a1a12, #0d0806 70%); }
 .nogl p { max-width: 40ch; margin-top: 40vh; }
+/* the notice is about the table: menus over it stay readable (it used to show through the cards on laptops) */
+body.paged .nogl p, body.heroic .nogl p { display: none; }
 
 /* ------------------------------------------------------------ type */
 .eyebrow { display: inline-flex; align-items: center; gap: 10px; font: 600 11.5px/1 var(--caps); letter-spacing: 0.26em; text-transform: uppercase; color: var(--gold); }
@@ -166,9 +170,10 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 
 /* ------------------------------------------------------------ top navigation */
 .topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: calc(var(--nav-h) + var(--safe-t)); padding: var(--safe-t) max(22px, var(--safe-r)) 0 max(22px, var(--safe-l)); display: flex; align-items: center; gap: 22px;
-  background: linear-gradient(180deg, rgba(12, 7, 5, 0.95), rgba(12, 7, 5, 0.88)); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); transition: transform .5s var(--ease), opacity .5s; }
+  background: linear-gradient(180deg, rgba(12, 7, 5, 0.95), rgba(12, 7, 5, 0.88)); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); transition: transform .5s var(--ease), opacity .5s, visibility 0s; }
 .topnav::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, rgba(232, 194, 122, 0.45) 30%, rgba(232, 194, 122, 0.45) 70%, transparent); opacity: 0.5; }
-body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: none; }
+/* hidden in games: visibility too, so Tab does not walk through buttons nobody can see */
+body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: none; visibility: hidden; transition: transform .5s var(--ease), opacity .5s, visibility 0s linear .5s; }
 .brand { display: flex; align-items: center; gap: 12px; flex: none; }
 .brand img { width: 40px; height: 40px; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)); }
 .brand span { font: 600 15px/1 var(--caps); letter-spacing: 0.24em; color: var(--gold-2); }
@@ -295,6 +300,23 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .persona.beaten .tag { color: var(--gold-2); }
 
 /* ------------------------------------------------------------ Journey */
+.passport { border-radius: 22px; padding: 18px 22px 16px; margin: 0 0 22px; }
+.passport header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.passport h2 { margin: 0; font: 600 22px/1.2 var(--serif); color: var(--gold-2); }
+.passport .stamps { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 10px; }
+.stamp { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0; background: none; border: 0; color: inherit; cursor: pointer; min-width: 0; }
+.stamp img { width: 64px; height: 64px; border-radius: 50%; filter: grayscale(1) brightness(0.45) contrast(0.9); opacity: 0.55; outline: 1.5px dashed rgba(232, 194, 122, 0.35); outline-offset: 3px; transition: transform .3s var(--ease); }
+.stamp.on img { filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5)); opacity: 1; outline: 0; transform: rotate(-6deg); }
+.stamp small { font-size: 12px; line-height: 1.2; color: var(--muted); max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+.stamp.on small { color: var(--gold-2); }
+@media (hover: hover) { .stamp:hover img { transform: scale(1.06); } .stamp.on:hover img { transform: rotate(-6deg) scale(1.06); } }
+@media (max-width: 760px) { .passport .stamps { grid-template-columns: repeat(5, minmax(0, 1fr)); } .passport { padding: 14px 16px; } .stamp img { width: 52px; height: 52px; } }
+.result-hero .vign.sm { height: 150px; }
+.result-hero .vign.sm img { height: 150px; width: auto; max-width: 100%; object-fit: contain; }
+.stamp-moment { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 8px; color: var(--gold-2); font: 600 17px/1.25 var(--serif); }
+.stamp-moment img { width: 60px; height: 60px; flex: none; border-radius: 50%; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55)); animation: stamp-in .7s .35s var(--ease) both; }
+@keyframes stamp-in { 0% { opacity: 0; transform: scale(2.2) rotate(14deg); } 60% { opacity: 1; transform: scale(0.92) rotate(-8deg); } 100% { opacity: 1; transform: scale(1) rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce) { .stamp-moment img { animation: none; transform: rotate(-6deg); } }
 .eras { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; }
 .era { position: relative; display: flex; flex-direction: column; text-align: left; border-radius: 22px; overflow: hidden; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .4s var(--ease), border-color .4s, box-shadow .4s; }
 @media (hover: hover) { .era:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); } }
@@ -560,6 +582,10 @@ body:has(.museum-card) .guide, body.peeking .guide { display: none; }
 .pbanner .avatar.xl { box-shadow: 0 0 0 1px rgba(232, 194, 122, 0.4), 0 0 50px rgba(232, 194, 122, 0.2); border-radius: 50%; }
 .pbanner .who { flex: 1; min-width: 0; }
 .pbanner h1 { font: 500 clamp(36px, 5vw, 54px)/1 var(--serif); margin: 10px 0 12px; display: flex; align-items: center; gap: 12px; }
+/* a long name (up to 20 letters) gets smaller and may break, never runs past the card */
+.pbanner h1 .nm { min-width: 0; overflow-wrap: anywhere; }
+.pbanner h1.long { font-size: clamp(28px, 3.6vw, 42px); }
+.pbanner h1 .round { flex: none; }
 .pbanner .xp { max-width: 420px; }
 .pbanner .xp small { color: var(--muted); font-size: 13px; display: block; margin-top: 6px; }
 .stats { display: grid; grid-template-columns: 1.15fr repeat(4, 1fr); gap: 12px; margin: 18px 0 0; padding: 14px; border-radius: 22px; }
@@ -859,7 +885,7 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 /* ---------- settings: sections on the left, the chosen one on the right (as on Jong Club) */
 .card.settings-card { width: min(920px, 100%); height: min(680px, 100%); display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 .set-shell { display: flex; flex-direction: column; min-height: 0; flex: 1; }
-.set-head { padding: 24px 72px 14px 28px; border-bottom: 1px solid var(--line); }
+.set-head { padding: 24px 0 14px; padding-inline: 28px 72px; border-bottom: 1px solid var(--line); }
 .set-head h2 { margin: 0; }
 .set-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 290px 1fr; }
 .set-nav { overflow-y: auto; padding: 14px 10px 14px 14px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
@@ -884,7 +910,7 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .set-foot { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--line); }
 @media (max-width: 720px) {
   .card.settings-card { height: 100%; border-radius: 20px; }
-  .set-head { padding: 20px 64px 12px 20px; }
+  .set-head { padding: 20px 0 12px; padding-inline: 20px 64px; }
   .set-body { grid-template-columns: 1fr; }
   .set-nav { border-right: 0; padding: 10px; }
   .set-panel { display: none; padding: 12px 18px 20px; }
@@ -1214,7 +1240,7 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .card::before { content: ""; position: absolute; left: 30px; right: 30px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.7; }
 @keyframes pop { from { opacity: 0; transform: translateY(16px) scale(0.98); } }
 .card h2 { font: 500 34px/1.08 var(--serif); margin: 10px 0 8px; }
-.card .x { position: absolute; top: 16px; right: 16px; }
+.card .x { position: absolute; top: 16px; inset-inline-end: 16px; }   /* the close button swaps sides in Arabic and Urdu */
 .levels { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
 .levels label { position: relative; display: block; }
 .levels input { position: absolute; opacity: 0; pointer-events: none; }
@@ -1482,8 +1508,8 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .tools { gap: 8px; } .round { width: 40px; height: 40px; }
   .mepill { padding: 2px; border-radius: 50%; }
   .prem-btn { width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 50%; }
-  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 6px max(6px, var(--safe-r)) calc(6px + var(--safe-b)) max(6px, var(--safe-l)); background: linear-gradient(180deg, rgba(14, 9, 6, 0.86), rgba(10, 6, 4, 0.96)); border-top: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transition: transform .5s var(--ease); }
-  body.ingame .tabbar { transform: translateY(110%); }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 6px max(6px, var(--safe-r)) calc(6px + var(--safe-b)) max(6px, var(--safe-l)); background: linear-gradient(180deg, rgba(14, 9, 6, 0.86), rgba(10, 6, 4, 0.96)); border-top: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transition: transform .5s var(--ease), visibility 0s; }
+  body.ingame .tabbar { transform: translateY(110%); visibility: hidden; transition: transform .5s var(--ease), visibility 0s linear .5s; }
   .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 7px 2px 5px; color: var(--muted); font: 500 11px/1 var(--body); border-radius: 12px; position: relative; }
   .tabbar button .ico { width: 22px; height: 22px; }
   .tabbar button[aria-current="page"] { color: var(--gold-2); }
@@ -1612,7 +1638,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .tcell { flex-direction: column; align-items: flex-start; gap: 6px; padding: 9px 10px; min-height: 0; }
   .tcell b { display: block; font-size: 14px; line-height: 1.2; } .tcell small { display: block; font-size: 11.5px; line-height: 1.3; }
   .card { padding: 20px 16px; }
-  .card .x { top: 12px; right: 12px; z-index: 3; background: rgba(14, 9, 6, 0.85); }
+  .card .x { top: 12px; inset-inline-end: 12px; z-index: 3; background: rgba(14, 9, 6, 0.85); }
   .card.museum-card { padding-top: 70px; }
   .mu-rooky { top: 9px; right: 60px; }
   .museum-card #mu-info > .eyebrow, .museum-card #mu-info > h2 { padding-right: 0; }
@@ -1623,7 +1649,6 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .toggle select { flex: 1 1 200px; min-width: 0; width: 100%; max-width: none; min-height: 40px; }
   .voice-pick { flex: 1 1 200px; }
   .row .btn { flex: 1 1 auto; }
-  body.paged .nogl p, body.heroic .nogl p { display: none; }
 }
 @media (max-width: 900px) and (orientation: portrait), (max-width: 600px) {
   body.ingame .toasts { top: calc(var(--safe-t) + 124px); }
@@ -1683,7 +1708,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 /* pages scroll clear of the face */
 body.paged .page { padding-bottom: 120px; }
 /* in games and lessons the face sits at the bottom right of the table, left of the side panel */
-body.ingame .guide { right: var(--gd-right, 16px); bottom: max(18px, var(--safe-b)); }
+body.ingame .guide { right: var(--gd-right, 16px); bottom: var(--gd-bottom, max(18px, var(--safe-b))); }
 body.ingame .gd-text { font-size: 15.5px; }
 /* the story card has its own replay and voice buttons */
 .parch .head { position: relative; }
@@ -1700,7 +1725,8 @@ body.ingame .gd-text { font-size: 15.5px; }
   .guide.edge .gd-bubble { visibility: hidden; }
   body.ingame .guide.edge .narrator { transform: none; opacity: 1; }
   .gd-text { font-size: 15px; }
-  body.ingame .guide { right: 10px; bottom: var(--sheet-top, 200px); }
+  /* above the sheet on portrait phones; left of the side panel on landscape phones (it used to sit on the clock and the Next button) */
+  body.ingame .guide { right: var(--gd-right-ph, 10px); bottom: max(var(--sheet-top, 200px), var(--gd-bottom, calc(10px + var(--safe-b)))); }
   body.ingame .guide .narrator { width: 46px; height: 46px; }
   body.ingame .gd-text { font-size: 14px; }
   body.paged .page, body.heroic .hero { padding-bottom: calc(150px + var(--safe-b)); }
@@ -1786,6 +1812,11 @@ body.ingame .gd-text { font-size: 15.5px; }
   .hud-top .mini-stats { order: 9; flex-basis: 100%; justify-content: center; gap: 12px; padding: 6px 10px; }
   .mini-result b, .mini-stat b { font-size: 22px; }
 }
+/* landscape phones: the score stays in the top row; on its own row it covered the panel's title */
+@media (max-width: 900px) and (orientation: landscape) and (min-width: 601px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  .hud-top:has(.mini-stats) { flex-wrap: nowrap; }
+  .hud-top .mini-stats { order: 0; flex-basis: auto; margin: 0 auto; }
+}
 @media (max-width: 900px) and (orientation: portrait), (max-width: 600px) {
   .lesson.mini-panel { height: 36vh; }
   .mini-tray { gap: 5px; }
@@ -1794,6 +1825,24 @@ body.ingame .gd-text { font-size: 15.5px; }
 }
 @media (prefers-reduced-motion: reduce) { .guide .narrator { transition: none; } .guide.pop .narrator, .guide.speaking .narrator .ring, .gd-bubble, .mu-rooky.speaking .narrator { animation: none; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+/* the narrowest phones (320-360 px): smaller card pictures leave the words room for more than two per line */
+@media (max-width: 360px) {
+  .lux.h { grid-template-columns: 66px 1fr 36px; column-gap: 12px; padding: 12px 12px 12px 10px; }
+  .lux.h .art { zoom: 0.78; }
+  .lux.h .go { width: 36px; height: 36px; }
+}
+/* landscape phones: the result card fits without scrolling to reach Rematch and Home */
+@media (max-height: 500px) and (orientation: landscape) {
+  .result-hero .portrait.big, .result-hero > .portrait { width: 60px; height: 60px; }
+  .result-hero .vign { height: 120px; }
+  .result-hero .result-title { font-size: 28px !important; margin-top: 4px !important; }
+  .result-hero .quote { font-size: 15px; margin-bottom: 4px; }
+  .result-hero .reward-list { margin: 2px auto 10px; }
+  .modal .card:has(.result-hero) { padding-top: 12px; padding-bottom: 12px; }
+  .result-hero .sub { margin: 2px 0 6px; }
+}
+.actionbar.tight .btn span.lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }   /* still read out by screen readers */
+.actionbar.tight .btn { padding: 0 12px; }
 </style>
 
 <div id="stage"><canvas id="board" aria-label="3D chess board" data-t-aria="common.boardLabel"></canvas></div>

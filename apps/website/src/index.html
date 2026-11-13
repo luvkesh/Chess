@@ -536,6 +536,9 @@ html.nonlatin body { line-height: 1.75; }
 .r-face img { width: 100%; height: 100%; border-radius: 50%; }
 .r-invite { position: fixed; z-index: 40; right: max(16px, env(safe-area-inset-right)); bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); animation: r-rise .6s cubic-bezier(.2, .7, .2, 1) both; }
 .r-invite[hidden] { display: none; }
+.r-invite.mini .r-pill { display: none; }
+.r-invite.mini .r-face { cursor: pointer; }
+.r-invite.away { visibility: hidden; }
 .r-pill { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 8px 8px 8px 20px; border: 1px solid var(--gold-3); border-radius: 999px; background: rgba(24, 15, 11, 0.96); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55); }
 .r-pill b { font: 500 16px/1.2 var(--sans); color: var(--ink); white-space: nowrap; }
 .r-start { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 18px; border: 1px solid rgba(255, 240, 210, 0.6); border-radius: 999px; background: var(--gold-grad); color: #2a1608; font: 700 12px/1 var(--sans); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; }
@@ -2133,6 +2136,34 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     btn.addEventListener('click', function () { setOn(!on); });
     $('r-yes').addEventListener('click', function () { setOn(true); });
     $('r-no').addEventListener('click', function () { invite.hidden = true; store.set(KEY, '0'); });
+    // The invite never sits on a button, a link or the hero's words. Where the pill would, only
+    // the round face stays (a tap on it starts the tour); where even that would, it waits.
+    var face = invite.querySelector('.r-face'), pill = invite.querySelector('.r-pill'), fitQ = 0;
+    function clash(el) {
+      var a = el.getBoundingClientRect(); if (!a.width) return false;
+      var list = document.querySelectorAll('a, button, input, select, .hero h1, .hero .lede, .hero .feats li, .hero .place, .hero .begin');
+      for (var i = 0; i < list.length; i++) {
+        var e = list[i]; if (invite.contains(e)) continue;
+        var q = e.getBoundingClientRect();
+        if (!q.width || !q.height || q.bottom <= 0 || q.top >= innerHeight) continue;
+        if (a.left - 8 < q.right && a.right + 8 > q.left && a.top - 8 < q.bottom && a.bottom + 8 > q.top && getComputedStyle(e).visibility !== 'hidden') return true;
+      }
+      return false;
+    }
+    function fitInvite() {
+      fitQ = 0; if (invite.hidden) return;
+      invite.classList.remove('mini', 'away');
+      var b = pill.querySelector('b');
+      if (b.offsetHeight > 30 || invite.getBoundingClientRect().left < 8 || clash(pill) || clash(face)) invite.classList.add('mini');
+      if (invite.classList.contains('mini') && clash(face)) invite.classList.add('away');
+      if (invite.classList.contains('mini')) { face.setAttribute('role', 'button'); face.tabIndex = 0; face.setAttribute('aria-label', b.textContent); }
+      else { face.removeAttribute('role'); face.removeAttribute('tabindex'); face.removeAttribute('aria-label'); }
+    }
+    function queueFit() { if (!fitQ && !invite.hidden) fitQ = requestAnimationFrame(fitInvite); }
+    addEventListener('scroll', queueFit, { passive: true }); addEventListener('resize', queueFit);
+    new MutationObserver(function () { setTimeout(fitInvite, 60); }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+    face.addEventListener('click', function () { if (invite.classList.contains('mini')) setOn(true); });
+    face.addEventListener('keydown', function (e) { if (invite.classList.contains('mini') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setOn(true); } });
     $('r-stop').addEventListener('click', function () { setOn(false); });
     $('r-again').addEventListener('click', function () { if (!lastKey) return; if (paused) setPaused(false); unlock(); speak(lastKey); });
     function setCaptions(v) {
@@ -2187,7 +2218,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
         on = true; unlock(); preload(); lastSection = null; onScroll();
       };
       addEventListener('click', first, true); addEventListener('touchend', first, true); addEventListener('keydown', first, true);
-    } else if (saved !== '0') setTimeout(function () { if (!on) invite.hidden = false; }, 1800);
+    } else if (saved !== '0') setTimeout(function () { if (!on) { invite.hidden = false; fitInvite(); } }, 1800);
     if (window.__SHOT) window.__tour = { setOn: setOn, speak: speak, state: function () { return { on: on, paused: paused, last: lastKey, cap: cap.textContent, talking: live.classList.contains('talking'), held: held, at: audio && audio.now ? audio.now() : null, tag: tag && { src: tag.src.slice(0, 22), paused: tag.paused, t: tag.currentTime, err: tag.error && tag.error.code, ready: tag.readyState }, actx: actx && actx.state }; } };
   })();
 

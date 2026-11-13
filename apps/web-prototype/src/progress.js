@@ -308,7 +308,8 @@ function ChacklateProgress(catalog, extras) {
       const v = state.stats.variants[variant] || (state.stats.variants[variant] = { w: 0, d: 0, l: 0 });
       if (g.won) v.w++; else if (g.drawn) v.d++; else if (g.lost) v.l++;
     }
-    if (g.mode === 'ai' && !variant) {
+    // an era champion is not the animal friend of the same level: no friend record, no friend medal
+    if (g.mode === 'ai' && !variant && !g.champion) {
       const b = state.stats.byLevel[g.level] || (state.stats.byLevel[g.level] = { w: 0, d: 0, l: 0 });
       if (g.won) b.w++; else if (g.drawn) b.d++; else if (g.lost) b.l++;
     }
@@ -317,7 +318,7 @@ function ChacklateProgress(catalog, extras) {
     if (g.plies < 6) xp = Math.min(xp, 5);   // no farming XP from instant resignations
     grant(state, xp, out);
     achieve(state, 'first-game', out);
-    if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); if (!variant) achieve(state, LEVEL_ACH[lv], out); }
+    if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); if (!variant && !g.champion) achieve(state, LEVEL_ACH[lv], out); }
     if (g.online) achieve(state, 'online-first', out);
     if (g.plies >= 6) {
       earn(state, 'game', g.won ? COINS.game.win : COINS.game.amount, { times: COINS.game.times, now }, out);
@@ -380,13 +381,14 @@ function ChacklateProgress(catalog, extras) {
     const score = g.won ? 1 : g.drawn ? 0.5 : g.lost ? 0 : null;
     if (score === null) return null;
     const opp = g.online ? (+g.oppRating || null) : FRIEND_RATING[Math.max(0, Math.min(FRIEND_RATING.length - 1, g.level || 0))];
+    const r0 = pf.r;   // the rating before this game, so a period's change counts its first game too
     if (opp) {
       const exp = 1 / (1 + Math.pow(10, (opp - pf.r) / 400));
       const k = pf.n < 10 ? 48 : 24;
       pf.r = Math.max(100, Math.round(pf.r + k * (score - exp)));
       pf.n++;
     }
-    const e = { t: now || Date.now(), res: g.won ? 'w' : g.drawn ? 'd' : 'l', r: pf.r, m: g.online ? 'o' : 'a', lv: g.online ? undefined : g.level, s: null };
+    const e = { t: now || Date.now(), res: g.won ? 'w' : g.drawn ? 'd' : 'l', r: pf.r, r0, m: g.online ? 'o' : 'a', lv: g.online ? undefined : g.level, s: null };
     pf.games.push(e);
     if (pf.games.length > PERF_KEEP) pf.games.splice(0, pf.games.length - PERF_KEEP);
     return e;
@@ -432,7 +434,7 @@ function ChacklateProgress(catalog, extras) {
       return Math.round(mean(vals.slice(vals.length - h)) - mean(vals.slice(0, h)));
     };
     const rating = games.map((e) => ({ t: e.t, v: e.r }));
-    const startR = before ? before.r : rating.length ? null : pf.r;
+    const startR = before ? before.r : games.length ? (typeof games[0].r0 === 'number' ? games[0].r0 : null) : pf.r;
     const wdl = { w: 0, d: 0, l: 0 };
     for (const e of games) wdl[e.res]++;
     const skills = {};
@@ -446,7 +448,7 @@ function ChacklateProgress(catalog, extras) {
     const below = FRIEND_RATING.map((r, i) => [r, i]).filter(([r]) => r <= pf.r).pop() || null;
     const above = FRIEND_RATING.map((r, i) => [r, i]).find(([r]) => r > pf.r) || null;
     // weakest skill with at least two scores first: what to practise next
-    const focus = SKILLS.map((id) => skills[id]).filter((k) => k.pts.length >= 2).sort((a, b) => a.avg - b.avg)[0] || null;
+    const focus = SKILLS.map((id) => skills[id]).filter((k) => k.pts.length >= 2 && k.avg < SKILL_LINES.strong).sort((a, b) => a.avg - b.avg)[0] || null;
     return { games, rating, rating0: startR, ratingNow: pf.r, ratingChange, wdl, skills, below: below && { r: below[0], level: below[1] }, above: above && { r: above[0], level: above[1] }, focus: focus && focus.id, reviewed: games.filter((e) => e.s).length };
   }
 
@@ -496,6 +498,8 @@ function ChacklateProgress(catalog, extras) {
     r.best = Math.max(r.best, score);
     r.rounds++;
     dayLog(r.log, PG_today(now), (e) => { e.s = Math.round(((e.s || 0) * (e.n || 0) + score) / ((e.n || 0) + 1)); e.n = (e.n || 0) + 1; });
+    // a round with nothing solved earns nothing (no XP, mission or streak for skipping through)
+    if (score <= 0) return out;
     grant(state, 6 + Math.round(score / 10), out);
     track(state, 'lesson', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
