@@ -57,7 +57,7 @@
  },
  "pieces.ocean.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Come under the sea! Coral Kingdom is carved in mother of pearl, with merfolk, an octopus, a seahorse and a coral castle. Their tails shimmer like fish scales."
+  "text": "Come under the sea! Coral Kingdom is the court of a sunken city, in pearl and gold: a sea king, a mermaid queen, glowing jellyfish, seahorses and lighthouses. The pawns are pearls in open shells."
  },
  "board.walnut.v1": {
   "voice": "am_puck,am_liam",
@@ -145,7 +145,7 @@
  },
  "board.deco.v1": {
   "voice": "am_puck,am_liam",
-  "text": "Striped ebony and shiny chrome, straight from a fancy New York penthouse in the 1930s."
+  "text": "Cream and deep green marble with veins of gold, and golden sunburst fans round the frame. Very New York, very 1930s."
  },
  "room.salon.v1": {
   "voice": "am_puck,am_liam",

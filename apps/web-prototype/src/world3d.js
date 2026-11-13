@@ -219,7 +219,7 @@ function ChacklateWorld(THREE, K) {
     walnut: { name: 'Walnut & Maple', field: { type: 'wood', light: '#e2c08e', dark: '#5e3824' }, frame: { type: 'wood', color: '#3b2216', grainLight: '#5a3524' }, inlay: '#d9b56a', label: '#f0d9a8', rim: 'gold' },
     regency: { name: 'Gilded Ebony', field: { type: 'lacquer', light: '#eee6d6', dark: '#16110f', seam: 'rgba(0,0,0,0.6)', seamGold: 'rgba(220,180,100,0.55)' }, frame: { type: 'lacquer', color: '#120d0b' }, inlay: '#e8c06a', label: '#f2d08a', rim: 'gold', gloss: 0.18 },
     marble: { name: 'Carrara & Nero', field: { type: 'marble', light: '#e8e3d8', dark: '#3e4048', veinLight: '#9a9aa0', veinDark: '#c8c6c0' }, frame: { type: 'marble', color: '#2a2a2e', vein: '#9a968c' }, inlay: '#d8b46a', label: '#f0dcae', rim: 'gold', gloss: 0.12 },
-    nile: { name: 'Sandstone & Lapis', field: { type: 'lapis', tintDark: ['#4a74e8', 0.3], light: '#e3c99a', dark: '#1d2f7a', veinLight: '#b08850', marbleLight: { cloud: 0.4, strength: 0.25, freq: 1 } }, frame: { type: 'stone', color: '#8a6a3e', speck: '#c8a46a' }, inlay: '#f0c860', label: '#ffe2a0', rim: 'gold', motif: 'egypt' },
+    nile: { name: 'Sandstone & Lapis', field: { type: 'lapis', tintDark: ['#4a74e8', 0.3], light: '#e3c99a', dark: '#1d2f7a', veinLight: '#b08850', marbleLight: { cloud: 0.4, strength: 0.25, freq: 1 } }, frame: { type: 'stone', color: '#8a6a3e', speck: '#c8a46a' }, inlay: '#f0c860', label: '#ffe2a0', rim: 'gold', motif: 'egypt', crest: 'sun' },
     athens: { name: 'Pentelic & Verde Antico', field: { type: 'marble', light: '#e4d7c0', dark: '#3d6b56', veinLight: '#b0a898', veinDark: '#a8d4bc', marbleDark: { cloud: 0.5, strength: 0.6, freq: 3 } }, frame: { type: 'marble', color: '#ddd0b8', vein: '#a89c86' }, inlay: '#b8863b', label: '#4a3420', rim: 'bronze', motif: 'meander' },
     roma: { name: 'Porphyry & Travertine', field: { type: 'marble', light: '#e2d4b6', dark: '#6a7480', veinLight: '#c4ae88', veinDark: '#c8d2dc', marbleLight: { cloud: 0.4, strength: 0.3 }, marbleDark: { cloud: 0.4, strength: 0.45, freq: 3 } }, frame: { type: 'stone', color: '#3a1416', speck: '#a8686a' }, inlay: '#c8954a', label: '#f0d8b0', rim: 'bronze' },
     mughal: { name: 'Taj Marble & Red Sandstone', field: { type: 'marble', light: '#f4f1ea', dark: '#b85a40', veinLight: '#c8c4bc', veinDark: '#e09a7a', marbleDark: { cloud: 0.5, strength: 0.25 } }, frame: { type: 'stone', color: '#8e3a26', speck: '#c87a5a' }, inlay: '#e8c06a', label: '#ffe8c0', rim: 'gold', motif: 'flowers' },
@@ -227,7 +227,8 @@ function ChacklateWorld(THREE, K) {
     venice: { name: 'Murano Mirror Glass', field: { type: 'aventurine', light: '#e6ecf2', dark: '#7a3a12', seamGold: 'rgba(240,210,140,0.7)' }, frame: { type: 'lacquer', color: '#0c1830' }, inlay: '#f0d8a0', label: '#f6e8c4', rim: 'gold', gloss: 0.06, glass: true },
     winter: { name: 'Malachite & Rhodonite', field: { type: 'marble', light: '#efe8dc', dark: '#b86a78', veinLight: '#c8c0b0', veinDark: '#3a2228', marbleDark: { cloud: 0.4, strength: 0.5, freq: 3 } }, frame: { type: 'malachite', color: '#13563a' }, inlay: '#e8c06a', label: '#f2d696', rim: 'gold', gloss: 0.1 },
     belle: { name: 'Bleu Turquin & Carrara', field: { type: 'marble', light: '#efe8dc', dark: '#3e4f63', veinLight: '#b8b4ac', veinDark: '#a8b8c8', marbleDark: { cloud: 0.5, strength: 0.45, freq: 3 } }, frame: { type: 'wood', color: '#3a1a14', grainLight: '#6a3424' }, inlay: '#e8c06a', label: '#f4e2b8', rim: 'gold', gloss: 0.1 },
-    deco: { name: 'Macassar & Chrome', field: { type: 'wood', light: '#e6dccb', dark: '#7a5636', woodDark: { lines: 16, contrast: 0.75, warp: 2.4 }, woodLight: { lines: 70, contrast: 0.22 } }, frame: { type: 'lacquer', color: '#0e0e10' }, inlay: '#dfe3e8', label: '#e8ecf0', rim: 'chrome' },
+    // Manhattan Deco's: cream marble and deep green marble with gold veins, in black lacquer with gold fans
+    deco: { name: 'Skyline Marble', field: { type: 'marble', light: '#ece4d2', dark: '#2a4a40', veinLight: '#b8a27a', veinDark: '#d8b870', marbleLight: { cloud: 0.4, strength: 0.4, freq: 2 }, marbleDark: { cloud: 0.4, strength: 0.6, freq: 3 } }, frame: { type: 'lacquer', color: '#0c0c0e' }, inlay: '#e2b860', label: '#f0d8a0', rim: 'gold', gloss: 0.08, motif: 'deco', crest: 'fan' },
     cocoa: { name: 'Cocoa & Cream', field: { type: 'lacquer', light: '#ecdcc4', dark: '#9a5e3e', seamGold: 'rgba(214,92,124,0.55)' }, frame: { type: 'wood', color: '#2c1a12', grainLight: '#4e3022' }, inlay: '#d9668a', label: '#f2e3cb', rim: 'gold', gloss: 0.16 },
     tournament: { name: 'Tournament Green', field: { type: 'lacquer', light: '#eceed0', dark: '#6f9150' }, frame: { type: 'wood', color: '#2e3a22', grainLight: '#4a5a36' }, inlay: '#d9d2a8', label: '#eeeed2', rim: 'bronze', gloss: 0.42 },
     rosewood: { name: 'Rosewood & Gold Leaf', field: { type: 'wood', light: '#e8c9a4', dark: '#5a2620', woodDark: { lines: 30, contrast: 0.8, warp: 2 } }, frame: { type: 'wood', color: '#2a100c', grainLight: '#5a2a20' }, inlay: '#e8b85a', label: '#f6dcae', rim: 'gold' },
@@ -239,7 +240,7 @@ function ChacklateWorld(THREE, K) {
     harvest: { name: 'Harvest Oak', field: { type: 'wood', light: '#e6c898', dark: '#5a3a1e' }, frame: { type: 'wood', color: '#3b2412', grainLight: '#5e3a1e' }, inlay: '#d0a060', label: '#f0dcb8', rim: 'bronze' },
     cacao: { name: 'Cacao Pod', field: { type: 'wood', light: '#f0dab6', dark: '#8a3826', woodDark: { lines: 24, contrast: 0.6 } }, frame: { type: 'lacquer', color: '#2a120c' }, inlay: '#e8b85a', label: '#f6e3c4', rim: 'gold' },
     // Coral Kingdom's: mother of pearl and rose coral, in a frame of deep-sea lacquer
-    pearl: { name: 'Pearl & Coral', field: { type: 'nacre', light: '#eef0ee', dark: '#c27866' }, frame: { type: 'lacquer', color: '#0e3040' }, inlay: '#e8c890', label: '#f4ecd8', rim: 'gold', gloss: 0.06, pearly: true },
+    pearl: { name: 'Pearl & Coral', field: { type: 'nacre', light: '#eef0ee', dark: '#c27866' }, frame: { type: 'lacquer', color: '#0e3040' }, inlay: '#e8c890', label: '#f4ecd8', rim: 'gold', gloss: 0.06, pearly: true, motif: 'waves', crest: 'shell' },
     // Celestial Opal's: lapis lazuli with gold flecks for stars, against pale moonstone
     lapis: { name: 'Lapis & Moonstone', field: { type: 'lapis', light: '#e4e8f0', dark: '#3a56a8', veinLight: '#a8b0c8', marbleLight: { cloud: 0.5, strength: 0.2, freq: 1 } }, frame: { type: 'lacquer', color: '#0e1630', stars: true }, inlay: '#e8c870', label: '#f2e6c0', rim: 'gold', gloss: 0.1 },
     // the raw boards: no polish, no gold, squares cut and rubbed by hand
@@ -371,6 +372,37 @@ function ChacklateWorld(THREE, K) {
       }
       for (const sx of [-1, 1]) for (const sy of [-1, 1]) { g.strokeStyle = 'rgba(20,10,4,0.75)'; g.lineWidth = 9; g.beginPath(); g.arc(px(sx * 4.45), px(sy * 4.45), 30, 0, TAU); g.stroke(); g.beginPath(); g.arc(px(sx * 4.45), px(sy * 4.45), 14, 0, TAU); g.stroke(); }
     }
+    if (b.motif === 'deco') {
+      // stepped chevrons along every side, and a quarter sunburst in each corner
+      g.strokeStyle = b.inlay; g.fillStyle = b.inlay;
+      for (const s2 of [-1, 1]) for (const horiz of [true, false]) {
+        const at2 = (u, w) => (horiz ? [px(u), px(s2 * 4.45) + w] : [px(s2 * 4.45) + w, px(u)]);
+        for (let i = 0; i < 30; i++) {
+          const u = -3.62 + i * 0.25;
+          g.lineWidth = 4; g.beginPath();
+          for (const [du, dw] of [[-0.09, -16], [0, 14], [0.09, -16]]) { const [x, y] = at2(u + du, dw * (horiz ? 1 : 1)); g.lineTo(x, y); }
+          g.stroke();
+        }
+      }
+      for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+        g.save(); g.translate(px(sx * 4.45), px(sy * 4.45)); g.lineWidth = 3;
+        for (let i = 0; i < 12; i++) { const a = (i / 12) * TAU; g.beginPath(); g.moveTo(Math.cos(a) * 30, Math.sin(a) * 30); g.lineTo(Math.cos(a) * 52, Math.sin(a) * 52); g.stroke(); }
+        g.restore();
+      }
+    }
+    if (b.motif === 'waves') {
+      // a running wave scroll in gold along every side
+      g.strokeStyle = b.inlay; g.lineWidth = 5;
+      for (const s2 of [-1, 1]) for (const horiz of [true, false]) {
+        const at2 = (u, w) => (horiz ? [px(u), px(s2 * 4.45) + w] : [px(s2 * 4.45) + w, px(u)]);
+        for (let i = 0; i < 24; i++) {
+          const u0 = -3.6 + i * 0.3; g.beginPath();
+          for (let k2 = 0; k2 <= 24; k2++) { const t = k2 / 24, a = t * TAU * 0.85, r = 20 * (1 - t * 0.6); const [x, y] = at2(u0 + 0.12 + Math.cos(a + Math.PI) * r / 260, -Math.sin(a + Math.PI) * r - 4); k2 ? g.lineTo(x, y) : g.moveTo(x, y); }
+          g.stroke();
+          g.beginPath(); const [x0, y0] = at2(u0, 18); g.moveTo(x0, y0); const [x1, y1] = at2(u0 + 0.3, 18); g.lineTo(x1, y1); g.stroke();
+        }
+      }
+    }
     // fossil fern fronds and little ammonites pressed into the stone (Dino Kingdom)
     if (b.motif === 'ferns') {
       for (const s2 of [-1, 1]) for (const horiz of [true, false]) for (let i = 0; i < 7; i++) {
@@ -458,6 +490,52 @@ function ChacklateWorld(THREE, K) {
   }
   // Gold, bronze or chrome by name.
   const metal = (name) => (name === 'bronze' ? MAT.bronze() : name === 'chrome' ? MAT.chrome() : name === 'brass' ? MAT.brass() : name === 'silver' ? MAT.silver() : MAT.gold());
+  // Gold ornaments standing against the middle of each side of the frame: a sunburst fan
+  // (Manhattan Deco), a scallop shell holding a pearl (Coral Kingdom) or a winged sun (Egypt).
+  function boardCrests(kind, gold) {
+    const parts = [], pearls = [], gems = [];
+    const one = () => {
+      const g = [];
+      if (kind === 'fan') {
+        for (let i = 0; i < 13; i++) {
+          const a = (i / 12 - 0.5) * Math.PI * 0.92, len = i % 2 ? 0.34 : 0.46;
+          const sh = new THREE.Shape(); sh.moveTo(-0.03, 0.06); sh.lineTo(0.03, 0.06); sh.lineTo(0.05, len); sh.lineTo(0, len + 0.04); sh.lineTo(-0.05, len); sh.closePath();
+          const r = new THREE.ExtrudeGeometry(sh, { depth: 0.03, bevelEnabled: true, bevelThickness: 0.008, bevelSize: 0.006, bevelSegments: 1 }); r.rotateZ(-a); g.push(r);
+        }
+        const hub = new THREE.CylinderGeometry(0.1, 0.1, 0.05, 24, 1, false, -Math.PI / 2, Math.PI); hub.rotateX(Math.PI / 2); hub.translate(0, 0, 0.02); g.push(hub);
+        gems.push({ at: [0, 0.05, 0.05], r: 0.035 });
+      } else if (kind === 'shell') {
+        for (let i = 0; i < 11; i++) {
+          const a = (i / 10 - 0.5) * Math.PI * 0.86;
+          const rib = new THREE.CapsuleGeometry(0.045, 0.28, 4, 8); rib.translate(0, 0.2, 0); rib.scale(1, 1, 0.5); rib.rotateZ(-a); g.push(rib);
+        }
+        const hinge = new THREE.BoxGeometry(0.22, 0.06, 0.05); hinge.translate(0, 0.02, 0); g.push(hinge);
+        pearls.push({ at: [0, 0.1, 0.07], r: 0.07 });
+        for (const x of [-0.42, -0.3, 0.3, 0.42]) pearls.push({ at: [x, 0.04, 0.02], r: 0.035 });
+      } else {
+        const disc = new THREE.CylinderGeometry(0.11, 0.11, 0.04, 28); disc.rotateX(Math.PI / 2); disc.translate(0, 0.17, 0.02); gems.push({ at: [0, 0.17, 0.05], r: 0.075, flat: true });
+        g.push(new THREE.TorusGeometry(0.11, 0.02, 8, 32).translate(0, 0.17, 0.03));
+        for (const sx of [-1, 1]) for (let i = 0; i < 6; i++) {
+          const f = new THREE.BoxGeometry(0.3 - i * 0.035, 0.03, 0.03); f.translate(sx * (0.11 + (0.3 - i * 0.035) / 2), 0.24 - i * 0.032, 0.02); f.rotateZ(sx * 0.04 * i); g.push(f);
+        }
+        const cob = new THREE.CylinderGeometry(0.02, 0.025, 0.12, 8); cob.translate(0, 0.32, 0.02); g.push(cob); g.push(disc);
+      }
+      return K.merge(g);
+    };
+    const out = new THREE.Group(), pg = [], gg = [];
+    for (let k = 0; k < 4; k++) {
+      const a = k * Math.PI / 2, place = (geo) => { geo.translate(0, -0.33, 4.93); geo.rotateY(a); return geo; };
+      parts.push(place(one()));
+      for (const p of pearls) pg.push(place(new THREE.SphereGeometry(p.r, 18, 12).translate(...p.at)));
+      for (const p of gems) gg.push(place(p.flat ? new THREE.CylinderGeometry(p.r, p.r, 0.03, 24).rotateX(Math.PI / 2).translate(...p.at) : new THREE.SphereGeometry(p.r, 16, 10).scale(1, 1, 0.6).translate(...p.at)));
+      pearls.length = 0; gems.length = 0;
+    }
+    const m = new THREE.Mesh(K.merge(parts), gold); m.castShadow = true; m.receiveShadow = true; out.add(m);
+    if (pg.length) out.add(new THREE.Mesh(K.merge(pg), MAT.lacquer('#f6f0e8', { iridescence: 0.6, iridescenceIOR: 1.4, sheen: 1, sheenColor: new THREE.Color('#ffe0ee'), roughness: 0.18 })));
+    if (gg.length) out.add(new THREE.Mesh(K.merge(gg), kind === 'fan' ? MAT.gem('#0f9a5a') : kind === 'sun' ? MATS_CARNELIAN() : MAT.gem('#22c8c0')));
+    return out;
+  }
+  const MATS_CARNELIAN = () => MAT.lacquer('#c2421f', { roughness: 0.18, emissive: '#4a0a00', emissiveIntensity: 0.4 });
   function board(id, side) {
     const b = BOARDS[id] || BOARDS.walnut;
     const grp = new THREE.Group();
@@ -500,6 +578,7 @@ function ChacklateWorld(THREE, K) {
     const rimMesh = new THREE.Mesh(K.merge([fillet(4.0, 0.03, 0.05), fillet(4.93, -0.06, 0.035)]), gold);
     rimMesh.castShadow = false; rimMesh.receiveShadow = true;
     if (!b.raw) grp.add(rimMesh);
+    if (b.crest) grp.add(boardCrests(b.crest, gold));
     // plinth beneath, slightly wider, with a moulded edge
     const plinthG = slab(roundedSquare(5.05, 0.22), -0.46, -0.33, 0.03, 16);
     const plinth = new THREE.Mesh(b.raw ? roughGeometry(plinthG, 0.05, 5) : plinthG, frameSide);

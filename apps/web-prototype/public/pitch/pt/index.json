@@ -69,10 +69,10 @@
   "voice": "pm_alex",
   "text": "Bip bop! O Robot Squad é feito de plástico de brinquedo brilhante e cromo reluzente, com olhos que acendem. Cada robô usa o distintivo da sua peça, então você sempre sabe quem é quem."
  },
- "c5fc944c": {
+ "12b24264": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Venha para o fundo do mar! O Coral Kingdom é esculpido em madrepérola, com sereias e tritões, um polvo, um cavalo-marinho e um castelo de coral. As caudas brilham como escamas de peixe."
+  "text": "Venha para o fundo do mar! O Coral Kingdom é a corte de uma cidade afundada, em pérola e ouro: um rei do mar, uma rainha sereia, águas-vivas que brilham, cavalos-marinhos e faróis. Os peões são pérolas em conchas abertas."
  },
  "a358daaf": {
   "who": "rooky",
@@ -179,10 +179,10 @@
   "voice": "pm_alex",
   "text": "Pedra rosa e ônix branco, com moldura de malaquita verde cheia de redemoinhos dos Montes Urais."
  },
- "c0be5a95": {
+ "65e35afe": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Ébano listrado e cromo brilhante, direto de uma cobertura chique de Nova York dos anos 1930."
+  "text": "Mármore creme e verde-escuro com veios de ouro, e leques dourados de raios de sol em volta da moldura. Muito Nova Iorque, muito anos trinta."
  },
  "b1f51b16": {
   "who": "rooky",
@@ -704,21 +704,6 @@
   "voice": "pm_alex",
   "text": "Meteorito escuro que caiu do espaço, ao lado de gelo congelado. Uma linha azul brilhante dá a volta na moldura."
  },
- "45ee3694": {
-  "who": "rooky",
-  "voice": "pm_alex",
-  "text": "Casas de aço brilhante do chão de uma nave estelar, com uma luz azul brilhando em volta da moldura."
- },
- "ebc25120": {
-  "who": "rooky",
-  "voice": "pm_alex",
-  "text": "Pedra-do-sol cremosa e tijolo vermelho quentinho, como um caminho até um castelo. É um tabuleiro de conto!"
- },
- "a28c8a8e": {
-  "who": "rooky",
-  "voice": "pm_alex",
-  "text": "Pedra-da-lua clara com veios dourados, ao lado de uma ardósia cinza e fresca. A moldura de carvalho antigo é entalhada com nós."
- },
  "51746d66": {
   "who": "rooky",
   "voice": "pm_alex",
@@ -829,21 +814,6 @@
   "voice": "pm_alex",
   "text": "Uma lua gelada de Saturno, com um foguete esperando na plataforma. Olhe para cima, os anéis enchem o céu inteiro!"
  },
- "00cc7b11": {
-  "who": "rooky",
-  "voice": "pm_alex",
-  "text": "O convés de uma nave estelar, bem acima de um planeta azul. Olhe, duas frotas estão passando!"
- },
- "cf7c86c7": {
-  "who": "rooky",
-  "voice": "pm_alex",
-  "text": "Você está numa ilha flutuando nas nuvens! Acene para o castelo e fique de olho naquela torre escura."
- },
- "78120a04": {
-  "who": "rooky",
-  "voice": "pm_alex",
-  "text": "Elfos de um lado, orcs do outro, e você bem no meio! Consegue ver a cascata e a fortaleza brilhando?"
- },
  "ecc7793b": {
   "who": "rooky",
   "voice": "pm_alex",
@@ -868,6 +838,36 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "O portão do dragão de um grande salão viking, bem quando o sol nasce. As tochas ainda estão acesas!"
+ },
+ "45ee3694": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Casas de aço brilhante do chão de uma nave estelar, com uma luz azul brilhando em volta da moldura."
+ },
+ "ebc25120": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra-do-sol cremosa e tijolo vermelho quentinho, como um caminho até um castelo. É um tabuleiro de conto!"
+ },
+ "a28c8a8e": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Pedra-da-lua clara com veios dourados, ao lado de uma ardósia cinza e fresca. A moldura de carvalho antigo é entalhada com nós."
+ },
+ "00cc7b11": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "O convés de uma nave estelar, bem acima de um planeta azul. Olhe, duas frotas estão passando!"
+ },
+ "cf7c86c7": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Você está numa ilha flutuando nas nuvens! Acene para o castelo e fique de olho naquela torre escura."
+ },
+ "78120a04": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Elfos de um lado, orcs do outro, e você bem no meio! Consegue ver a cascata e a fortaleza brilhando?"
  },
  "d6619c9b": {
   "who": "rooky",
