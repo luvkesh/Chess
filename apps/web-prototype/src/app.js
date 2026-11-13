@@ -629,9 +629,15 @@
     wrap.className = 'modal';
     wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true');
     wrap.innerHTML = '<div class="card' + (opts.cls ? ' ' + opts.cls : '') + '">' + (opts.x ? '<button class="round sm x" data-close aria-label="' + t('common.close') + '">' + icon('x') + '</button>' : '') + html + '</div>';
+    // Focus comes back to whatever opened the pop-up once it closes.
+    const opener = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
     $('modals').appendChild(wrap);
     AU.play('open');
-    const close = () => { wrap.remove(); if (opts.onClose) opts.onClose(); };
+    const close = () => {
+      const had = wrap.contains(document.activeElement);
+      wrap.remove(); if (opts.onClose) opts.onClose();
+      if (had && opener && opener.isConnected && !document.querySelector('.modal')) opener.focus({ preventScroll: true });
+    };
     wrap.addEventListener('click', (e) => {
       if ((e.target === wrap && !opts.sticky) || e.target.closest('[data-close]')) close();
     });
@@ -641,7 +647,19 @@
     wrap.sticky = !!opts.sticky;
     return wrap;
   }
+  // Tab stays inside the open pop-up (it used to walk on to the page behind it).
+  const focusables = (root) => [...root.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+    .filter((el) => !el.disabled && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      const open = [...document.querySelectorAll('.modal')].pop();
+      if (!open) return;
+      const list = focusables(open);
+      if (!list.length) { e.preventDefault(); return; }
+      const i = list.indexOf(document.activeElement);
+      if (i < 0 || (e.shiftKey && i === 0) || (!e.shiftKey && i === list.length - 1)) { e.preventDefault(); list[e.shiftKey ? list.length - 1 : 0].focus(); }
+      return;
+    }
     if (e.key === 'Escape') {
       const open = [...document.querySelectorAll('.modal')].pop();
       if (open) { if (!open.sticky || open.querySelector('[data-close]')) open.close(); }   // a sticky card with no way out (the time-limit break) stays
@@ -914,6 +932,14 @@
     if (kind === 'hero') { const m = document.querySelector('#screens .motto'); ins.top = m ? m.getBoundingClientRect().bottom - 4 : $('topnav').getBoundingClientRect().bottom; }
     else if (kind === 'hud') {
       const side = rect('.side') || rect('.lesson');
+      // The button bar shares the width left of the side panel: where its words do not fit
+      // (about 1024-1200 px) it shows icons only, as on phones, instead of hiding Draw and
+      // Resign past its edge.
+      const abar = document.querySelector('#screens .actionbar');
+      if (abar) {
+        abar.classList.remove('tight');
+        if (abar.scrollWidth > abar.clientWidth + 1) abar.classList.add('tight');
+      }
       const bar = rect('.actionbar');
       const sheet = side && side.top > H * 0.4 && side.width > W * 0.6;   // phone: a sheet along the bottom
       let top = 0;
@@ -926,6 +952,12 @@
       const gd = $('guide'), gdOn = gd && !gd.hidden && !gd.classList.contains('off');
       document.body.style.setProperty('--sheet-top', (sheet ? H - side.top + 8 : 0) + 'px');
       document.body.style.setProperty('--gd-right', (side && !sheet ? W - side.left + 14 : 16) + 'px');
+      document.body.style.setProperty('--gd-right-ph', (side && !sheet ? Math.min(W - side.left + 10, W - 58) : 10) + 'px');
+      // where the button bar runs on under his spot (laptops and iPads about 1024-1200 px wide), he
+      // sits just above it instead of on Draw, Resign or Play from here
+      const phoneUi = matchMedia('(max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse)').matches;
+      const faceL = W - (side && !sheet ? W - side.left + (phoneUi ? 10 : 14) : phoneUi ? 10 : 16) - (phoneUi ? 46 : 58);
+      document.body.style.setProperty('--gd-bottom', bar && !sheet && bar.right > faceL - 6 ? (H - bar.top + 10) + 'px' : '');
       if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? 64 : 0);
       else {
         if (side) ins.right = W - side.left + 12;
@@ -2807,7 +2839,7 @@
     const stat = (ic, label, v) => '<div class="stat"><span class="ic">' + icon(ic) + '</span><span><small>' + label + '</small><b>' + v + '</b></span></div>';
     mount('<div class="page"><div class="page-in">' +
       '<section class="pbanner glass"><button class="pav" id="pf-av" aria-label="' + t('profile.changePic') + '">' + avatarHtml('xl') + '<span class="round sm">' + icon('edit') + '</span></button>' +
-      '<div class="who"><div class="eyebrow">' + esc(levelTitle(lv)) + ' · ' + t('common.level', { n: lv.level }) + '</div><h1>' + esc(myName()) + ' <button class="round sm" id="pf-name" aria-label="' + t('profile.changeName') + '">' + icon('edit') + '</button></h1>' +
+      '<div class="who"><div class="eyebrow">' + esc(levelTitle(lv)) + ' · ' + t('common.level', { n: lv.level }) + '</div><h1' + (myName().length > 12 ? ' class="long"' : '') + '><span class="nm">' + esc(myName()) + '</span> <button class="round sm" id="pf-name" aria-label="' + t('profile.changeName') + '">' + icon('edit') + '</button></h1>' +
       '<div class="xp"><div class="bar"><i style="width:' + Math.round(lv.into / lv.need * 100) + '%"></i></div><small>' + t('profile.xpTo', { n: lv.into, of: lv.need, level: lv.level + 1 }) + '</small></div>' +
       '<div class="chips">' + (P.streak.count > 1 ? '<span class="pill gold">' + icon('flame') + ' ' + t('profile.streak', { n: P.streak.count }) + '</span>' : '') +
       '<span class="pill">' + icon('journey') + ' ' + t('profile.eras', { n: eras, of: CAMPAIGN.eras.length }) + '</span>' + (P.premium ? '<span class="pill gold">' + icon('crown') + ' ' + t('common.premium') + '</span>' : '') + '</div></div></section>' +
@@ -6613,7 +6645,8 @@
   applySettings();
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
-  if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; window.__start = startGame; window.__settings = settingsModal; }   // tooling answers board questions through the hooks
+  if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; window.__start = startGame; window.__settings = settingsModal;
+    window.__modal = { labs: labsModal, missions: missionsModal, profile: profileModal, newGame: newGameModal, friend: friendModal, world: worldModal, glossary: glossaryModal, coach: coachSettingsModal, premium: premiumModal, opponent: opponentModal, rules: ruleSheet, levelUp: levelUpModal, placement: placementOffer, xq: startXq }; }   // tooling answers board questions through the hooks
   const bonus = PG.dailyBonus(state.progress);
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
