@@ -259,12 +259,19 @@ assert(PG.buyWithCoins(s, near));
 assert(PG.isUnlocked(s, near) && s.coins === 100000 - PG.coinPrice(near));
 assert.strictEqual(PG.coinOffer(s, near).reason, 'owned');
 assert(!PG.buyWithCoins(s, near), 'cannot buy twice');
-// a room, its board and its set are one suite: buying one buys all three, equipping one equips all three
+// a room, its board and its set are one suite: buying one buys all three. Equipping one equips only
+// that one; the other two are offered and equipped only when the player picks them.
 const su = PG.suiteOf(near);
 assert(su && [su.room, su.board, su.pieces].every((id) => PG.isUnlocked(s, PG.item(id))), 'the whole suite is bought');
-assert(PG.equip(s, PG.item(su.board)) && s.equipped.room === su.room && s.equipped.pieces === su.pieces, 'the whole suite is equipped');
+{ const before = Object.assign({}, s.equipped);
+  assert(PG.equip(s, PG.item(su.board)) && s.equipped.board === su.board, 'the board is equipped');
+  assert(s.equipped.room === before.room && s.equipped.pieces === before.pieces, 'the room and set stay as they were');
+  assert.deepStrictEqual(PG.suiteMatches(s, PG.item(su.board)).map((i) => i.id).sort(), [su.room, su.pieces].filter((id) => before[PG.item(id).category] !== id).sort(), 'the matching room and set are offered');
+  assert(PG.equip(s, PG.item(su.board), ['room']) && s.equipped.room === su.room && s.equipped.pieces === before.pieces, 'only the picked match is added');
+  assert(PG.equip(s, PG.item(su.board), ['pieces', 'room']) && s.equipped.pieces === su.pieces, 'both matches when both are picked');
+  assert.deepStrictEqual(PG.suiteMatches(s, PG.item(su.board)), [], 'nothing left to offer'); }
 { const mixed = PG.fresh(); mixed.equipped.board = su.board; const m = PG.migrate(mixed);
-  assert(m.equipped.board === catalog.defaults.board && m.equipped.pieces === catalog.defaults.pieces, 'old mixed looks line up with the room'); }
+  assert(m.equipped.board === su.board && m.equipped.pieces === catalog.defaults.pieces, 'a mixed look is kept'); }
 s.coins = 10;
 const near2 = lvItems.find((i) => i.unlock.level <= 3 && PG.suiteOf(i) !== PG.suiteOf(near));
 assert.strictEqual(PG.coinOffer(s, near2).reason, 'short');
