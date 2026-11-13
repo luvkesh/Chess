@@ -103,6 +103,8 @@ function ChacklateProgress(catalog, extras) {
     const obj = (v) => v && typeof v === 'object' && !Array.isArray(v);
     const o = (v, def) => Object.assign({}, def, obj(v) ? v : {});
     const arr = (v) => (Array.isArray(v) ? v.slice() : []);
+    const objs = (v) => arr(v).filter(obj);   // a list of records keeps only the records
+    const recs = (v) => { const r = {}; for (const [k, x] of Object.entries(obj(v) ? v : {})) if (obj(x)) r[k] = x; return r; };
     const num = (v, def, min) => (Number.isFinite(+v) && v !== null && v !== '' ? Math.max(min === undefined ? -Infinity : min, +v) : def);
     const out = Object.assign(f, s);
     for (const k of Object.keys(d)) if (obj(d[k]) && !obj(out[k])) out[k] = d[k];
@@ -115,19 +117,26 @@ function ChacklateProgress(catalog, extras) {
     for (const k of ['games', 'wins', 'draws', 'losses']) out.stats[k] = Math.floor(num(st[k], 0, 0));
     out.stats.byLevel = o(st.byLevel);
     out.stats.variants = o(st.variants);
-    out.stats.accuracy = arr(st.accuracy);
+    out.stats.accuracy = arr(st.accuracy).filter((x) => Number.isFinite(x));
     out.stats.puzzles = o(st.puzzles, d.stats.puzzles);
     out.stats.puzzles.seen = arr(out.stats.puzzles.seen);
+    out.stats.puzzles.done = arr(out.stats.puzzles.done);
     out.stats.puzzles.rating = num(out.stats.puzzles.rating, 800, 100);
     for (const k of ['solved', 'failed']) out.stats.puzzles[k] = Math.floor(num(out.stats.puzzles[k], 0, 0));
     out.streak = o(s.streak, d.streak); out.streak.count = Math.floor(num(out.streak.count, 0, 0));
     out.daily = o(s.daily, d.daily);
     out.equipped = Object.assign({}, catalog.defaults, obj(s.equipped) ? s.equipped : {});
     out.missions = o(s.missions, d.missions); out.missions.list = arr(out.missions.list);
-    out.journey = o(s.journey);
+    out.journey = recs(s.journey);
+    out.history = objs(s.history);
+    out.lessons = recs(s.lessons);
+    for (const r of Object.values(out.lessons)) if (!Array.isArray(r.reviews)) r.reviews = [];
+    out.openings = recs(s.openings);
+    out.seasons = {}; for (const [k, v] of Object.entries(obj(s.seasons) ? s.seasons : {})) if (Number.isFinite(+v) && v !== null && v !== '') out.seasons[k] = Math.max(0, +v);   // season XP by id
+    if (out.placement !== null && !(obj(out.placement) && Number.isFinite(out.placement.chapter))) out.placement = null;
     out.variantLessons = o(s.variantLessons);
     out.granted = o(s.granted);
-    out.coins = Math.max(0, Math.floor(+s.coins || 0));
+    out.coins = Math.floor(num(s.coins, 0, 0));
     out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n); out.earned.xp = o(out.earned.xp);
     out.bought = arr(s.bought);
     // Older saves could mix a room with another room's board or set: line them up with the room.
@@ -137,11 +146,14 @@ function ChacklateProgress(catalog, extras) {
     for (const k of ['best', 'plays']) out.mini[k] = o(out.mini[k]);
     out.mini.day = o(out.mini.day, d.mini.day); out.mini.day.best = o(out.mini.day.best);
     out.mini.seen = arr(out.mini.seen);
-    out.trainers = o(s.trainers);
-    out.mates = o(s.mates);
+    out.trainers = recs(s.trainers);
+    for (const r of Object.values(out.trainers)) r.log = objs(r.log);
+    out.mates = recs(s.mates);
+    for (const r of Object.values(out.mates)) { r.solved = arr(r.solved); r.log = objs(r.log); }
     out.mistakes = arr(s.mistakes).slice(0, MISTAKES_KEPT);
     out.perf = o(s.perf, d.perf);
-    out.perf.games = arr(out.perf.games).slice(-PERF_KEEP);
+    out.perf.games = objs(out.perf.games).slice(-PERF_KEEP);
+    out.perf.r = num(out.perf.r, 0); out.perf.n = Math.floor(num(out.perf.n, 0, 0));
     return out;
   }
 

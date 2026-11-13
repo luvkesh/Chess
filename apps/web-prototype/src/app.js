@@ -160,6 +160,7 @@
     if (!['high', 'low'].includes(st.quality)) st.quality = 'high';
     if (!I18N.ALL.some((l) => l.id === st.lang)) st.lang = I18N.guess(navigator.languages || [navigator.language]);
     if (typeof st.name !== 'string' || !st.name.trim()) st.name = 'You';
+    if (typeof st.server !== 'string') st.server = '';
     if (!state.setup || typeof state.setup !== 'object') state.setup = { mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false };
   }
   PG.mergeLessons(state.progress, LESSONS.lessons);
@@ -228,33 +229,65 @@
   const REV_KEY = 'chacklate-chess:rev';
   const readRev = () => { try { return +localStorage.getItem(REV_KEY) || 0; } catch (e) { return 0; } };
   let rev = readRev(), saveWarned = false;
-  function adopt() {
+  // Coins and XP as last saved or taken from the other tab: what this tab added since is its delta.
+  let base = { coins: state.progress.coins, xp: state.progress.xp };
+  // Progress from the other tab, folded into this tab's: unions for what was bought, passed and
+  // unlocked, and coins and XP as the stored values plus what this tab added since it last synced.
+  function mergeProgress(mine, theirs) {
+    const out = theirs;
+    out.coins = Math.max(0, theirs.coins + (mine.coins - base.coins));
+    out.xp = Math.max(theirs.xp, theirs.xp + (mine.xp - base.xp));
+    out.bought = [...new Set([...theirs.bought, ...mine.bought])];
+    for (const k of ['lessons', 'achievements', 'granted', 'journey', 'openings', 'trainers', 'variantLessons']) out[k] = Object.assign({}, theirs[k], mine[k]);
+    const pz = out.stats.puzzles, mz = mine.stats.puzzles;
+    pz.seen = [...new Set([...(pz.seen || []), ...(mz.seen || [])])];
+    pz.done = [...new Set([...(pz.done || []), ...(mz.done || [])])];
+    out.equipped = Object.assign({}, mine.equipped);
+    return out;
+  }
+  // Takes the stored copy (from the other tab) into this tab. The progress object is refilled in
+  // place, so a screen holding it (a puzzle, a "Buy?" box) keeps writing into the live one.
+  function adopt(merge) {
     let cur = null;
     try { cur = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { cur = null; }
     rev = readRev();
     if (!cur || typeof cur !== 'object') return false;
-    const lang = state.settings.lang;   // each tab keeps the language it shows
-    if (cur.settings && typeof cur.settings === 'object') Object.assign(state.settings, cur.settings, { lang });
-    state.progress = PG.migrate(cur.progress);
+    const st = state.settings, lang = st.lang;   // each tab keeps the language it shows
+    if (cur.settings && typeof cur.settings === 'object') {
+      const wasReset = st.resetAt;
+      for (const k of Object.keys(st)) if (k !== 'lang' && !(k in cur.settings)) delete st[k];
+      Object.assign(st, cur.settings, { lang });
+      // That tab's language brought its game-calls voice: this tab's language picks its own.
+      if (cur.settings.lang !== lang) { st.voiceCalls = callsFor(lang, cur.settings.voiceCalls); oneVoice(st); }
+      // Started again in the other tab: the game left here goes too.
+      if (st.resetAt && st.resetAt !== wasReset) { state.game = null; saved.game = null; if (!document.querySelector('.modal')) go('home'); }
+    }
+    let p = PG.migrate(cur.progress);
+    if (merge) p = mergeProgress(state.progress, p);
+    for (const k of Object.keys(state.progress)) delete state.progress[k];
+    Object.assign(state.progress, p);
     PG.mergeLessons(state.progress, LESSONS.lessons);
     PG.setSeason(state.progress);
+    base = { coins: state.progress.coins, xp: state.progress.xp };
     state.account = cur.account || null;
     if (!state.game) saved.game = cur.game || null;
     setEntitlements(state.account && state.account.ent);
     return true;
   }
   window.addEventListener('storage', (e) => {
-    if (e.key !== REV_KEY || readRev() <= rev || !adopt()) return;
+    if (e.key !== REV_KEY || readRev() <= rev || !adopt(false)) return;
+    // Only the bar is redrawn: the screen stays as it is under the player (typing, scrolling, a voice).
     applySettings(); renderNav();
-    if ((!KIND[state.screen] || state.screen === 'home') && !document.querySelector('.modal')) go(state.screen, state.screenArg);
   });
   function save() {
-    if (readRev() > rev) adopt();
+    // The other tab saved and this one has not heard yet: fold that in, keeping this tab's change.
+    if (readRev() > rev) adopt(true);
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
       localStorage.setItem(STORE_KEY, JSON.stringify({ settings: state.settings, setup: state.setup, progress: state.progress, account: state.account,
         game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null }));
       localStorage.setItem(REV_KEY, String(rev = Math.max(rev, readRev()) + 1));
+      base = { coins: state.progress.coins, xp: state.progress.xp };
     } catch (e) {
       // Storage full or blocked: everything still works for this visit; say so once.
       if (!saveWarned) { saveWarned = true; setTimeout(() => { try { toast(t('common.saveFail'), 'bad'); } catch (e2) { /* not drawn yet */ } }, 0); }
@@ -1216,7 +1249,7 @@
       '<p class="motto">' + t('home.motto') + '</p>' +
       '<div class="lux-row">' +
       lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
-        text: resume ? t('home.resumeText', { n: resume.n }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
+        text: resume ? (resume.n === 0 ? t('home.resumeNone') : resume.n === 1 ? t('home.resumeOne') : t('home.resumeText', { n: resume.n })) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
       lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
@@ -3691,11 +3724,14 @@
   // ratings and a new id). Language, sound and voices stay, and so does today's play time, which
   // is a grown-up's limit. (The saved pictures are renders of the game itself, nothing personal.)
   function resetDevice() {
-    state.progress = PG.fresh();
+    const fresh = PG.fresh();
+    for (const k of Object.keys(state.progress)) delete state.progress[k];
+    Object.assign(state.progress, fresh);
     PG.mergeLessons(state.progress, LESSONS.lessons);
     PG.setSeason(state.progress);
     state.game = null; saved.game = null;
     state.settings.name = 'You';
+    state.settings.resetAt = Date.now();   // tells another open tab to drop its game too
     delete state.settings.club; delete state.settings.netName; delete state.settings.ageKid;
     try { sessionStorage.clear(); } catch (e) { /* storage blocked */ }
     setEntitlements(state.account && state.account.ent);
