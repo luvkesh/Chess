@@ -2466,6 +2466,61 @@
         }
       ]
     },
+    "train": {
+      "text": "Time to train! There are thirteen trainers, one skill at a time. First a quick lesson with me, then a practice round with a score. Can you beat your best?",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Time to train!"
+        },
+        {
+          "t": 1.09,
+          "text": "There are thirteen trainers, one skill at a time."
+        },
+        {
+          "t": 4.14,
+          "text": "First a quick lesson with me, then a practice round with a score."
+        },
+        {
+          "t": 7.85,
+          "text": "Can you beat your best?"
+        }
+      ]
+    },
+    "mates": {
+      "text": "Puzzle time! Find the checkmate in one move, then two, all the way up to five. Watch me solve one right here on the table!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Puzzle time!"
+        },
+        {
+          "t": 1.03,
+          "text": "Find the checkmate in one move, then two, all the way up to five."
+        },
+        {
+          "t": 5.01,
+          "text": "Watch me solve one right here on the table!"
+        }
+      ]
+    },
+    "progress": {
+      "text": "And look how much you grow! I check eight skills from your games and draw them on a chart. It all stays on your device, promise!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "And look how much you grow!"
+        },
+        {
+          "t": 1.48,
+          "text": "I check eight skills from your games and draw them on a chart."
+        },
+        {
+          "t": 4.92,
+          "text": "It all stays on your device, promise!"
+        }
+      ]
+    },
     "item-sets-astral": {
       "text": "Make a wish on a falling star! Astral Glass is frosted moon-glass against midnight-blue glass, with silver ribbons winding round like the paths of planets, and a little star glowing inside every piece. It comes with the Star Observatory.",
       "cues": [

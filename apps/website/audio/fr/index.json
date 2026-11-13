@@ -2579,6 +2579,64 @@
     }
    ]
   },
+  "train": {
+   "text": "C'est l'heure de s'entraîner ! Il y a treize entraîneurs, une compétence à la fois. D'abord une petite leçon avec moi, puis une manche d'entraînement avec un score. Tu peux battre ton record ?",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "C'est l'heure de s'entraîner !"
+    },
+    {
+     "t": 1.8,
+     "text": "Il y a treize entraîneurs, une compétence à la fois."
+    },
+    {
+     "t": 4.69,
+     "text": "D'abord une petite leçon avec moi, puis une manche d'entraînement avec un score."
+    },
+    {
+     "t": 8.86,
+     "text": "Tu peux battre ton record ?"
+    }
+   ]
+  },
+  "mates": {
+   "text": "C'est l'heure des énigmes ! Trouve l'échec et mat en un coup, puis en deux, et ainsi de suite jusqu'à cinq. Regarde-moi en résoudre une, ici même sur la table !",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "C'est l'heure des énigmes !"
+    },
+    {
+     "t": 1.78,
+     "text": "Trouve l'échec et mat en un coup, puis en deux, et ainsi de suite jusqu'à cinq."
+    },
+    {
+     "t": 5.88,
+     "text": "Regarde-moi en résoudre une, ici même sur la table !"
+    }
+   ]
+  },
+  "progress": {
+   "text": "Et regarde comme tu progresses ! Je regarde huit compétences dans tes parties et je les dessine sur un graphique. Tout reste sur ton appareil, promis !",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Et regarde comme tu progresses !"
+    },
+    {
+     "t": 2.2,
+     "text": "Je regarde huit compétences dans tes parties et je les dessine sur un graphique."
+    },
+    {
+     "t": 6.33,
+     "text": "Tout reste sur ton appareil, promis !"
+    }
+   ]
+  },
   "item-sets-astral": {
    "text": "Fais un vœu sur une étoile filante ! Astral Glass, c'est du verre de lune dépoli face à du verre bleu nuit, avec des rubans d'argent qui tournent comme les orbites des planètes et une petite étoile qui brille dans chaque pièce. Il va avec Star Observatory.",
    "voice": "em_alex",
