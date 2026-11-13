@@ -22546,11 +22546,7 @@ function ChacklateScene(canvas, options) {
       case 'petals': p.add = false; p.square = true; p.vy = 0.25; p.g = 0.4; p.life = 1700 * lf; p.size = (0.08 + r * 0.04) * sz; p.flutter = r * 6; break;
       case 'frost': p.vx *= 3; p.vz *= 3; p.vy = 0.3 + r * 0.4; p.g = 0.5; p.life = 1100 * lf; p.size = (0.05 + r * 0.05) * sz; p.twinkle = 2 + r * 5; break;
       case 'ribbon': p.vx = p.vz = 0; p.vy = 0; p.life = 700 * lf; p.size = 0.14 * sz; p.alpha = 0.9; break;
-<<<<<<< HEAD
       case 'wisp': p.vy = 0.3 + r * 0.25; p.g = -0.12; p.life = 1000 * lf; p.size = (0.075 + r * 0.04) * sz; p.grow = 0.9; p.alpha = 0.36; p.flutter = r * 6; break;
-=======
-      case 'wisp': p.vy = 0.3 + r * 0.25; p.g = -0.1; p.life = 1000 * lf; p.size = (0.08 + r * 0.04) * sz; p.grow = 1.2; p.alpha = 0.45; p.flutter = r * 6; break;   // softer: the old wisp clouded the board (user, 6 Nov)
->>>>>>> origin/main
       case 'drip': p.add = false; p.vy = -0.1; p.g = 2.4; p.life = 1100 * lf; p.size = (0.07 + r * 0.05) * sz; p.drag = 0.9; break;
       case 'bolt': p.x += (Math.random() - 0.5) * 0.22 * sz; p.y += (Math.random() - 0.5) * 0.22 * sz; p.z += (Math.random() - 0.5) * 0.22 * sz; p.vx = p.vz = p.vy = 0; p.life = 420 * lf; p.size = (0.08 + r * 0.06) * sz; p.twinkle = 4 + r * 4; break;
       default: p.g = 0.25; p.vy = 0.1; break;   // dust
