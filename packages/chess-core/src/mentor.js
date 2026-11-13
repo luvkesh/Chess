@@ -216,10 +216,18 @@ function ChacklateMentor(E, C, strings, nameOf) {
   for (const k in PHASE_OPENERS) PHASE_OPENERS[k].forEach((t, i) => { EN['opp.' + k + '.' + (i + 1)] = t; });
   for (const k in LINES) LINES[k].forEach((t, i) => { EN['ln.' + k + '.' + (i + 1)] = t; });
 
+  // Moves in a sentence are named the way a person says them ("knight to f3"), never in notation;
+  // a line of moves is a list of them. A sentence that opens with a move starts with a capital.
+  const MOVE_VARS = ['san', 'best', 'played'];
   const tr = (key, vars) => {
     const s = (strings && strings[key]) || EN[key];
     if (s === undefined) throw new Error('mentor: no string ' + key);
-    return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] === undefined ? m : vars[k])) : s;
+    if (!vars) return s;
+    const v = Object.assign({}, vars);
+    for (const k of MOVE_VARS) if (typeof v[k] === 'string') v[k] = C.sayMove(v[k]);
+    if (typeof v.line === 'string') v.line = v.line.split(', ').map(C.sayMove).join(', ');
+    const out = s.replace(/\{(\w+)\}/g, (m, k) => (v[k] === undefined ? m : v[k])).replace(/\s*[(\uff08]\s*[)\uff09]/g, '');
+    return /^\{/.test(s) && /[.!?\u3002\u0964\u06d4]$/u.test(s) ? out.replace(/^\p{Ll}/u, (c) => c.toUpperCase()) : out;
   };
   const NAME = [''].concat([1, 2, 3, 4, 5, 6].map((k) => C.NAME[k]));
   const PTS = [0, 1, 3, 3, 5, 9, 0];
@@ -795,9 +803,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
   const bitsOrNull = (f) => (f && !f.mate && !f.stalemate ? bits(f) : '');
   function bits(f) {
     // what a move does, without the move's name ("forks the rook and gives check")
-    const d = C.describe(f);
-    if (!d) return '';
-    return d.slice(f.san.length).replace(/^[\s:\u2014-]+/, '').replace(/[.\u3002\u0964\u06d4]$/u, '');
+    return C.bits(f);
   }
   // Picks one line from a group, avoiding the ones said lately. seen: an array of recent keys (kept by the caller).
   function pick(keys, seen, rand) {
@@ -819,7 +825,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
   function shortWhy(st, grade) {
     const f = st.facts;
     if (grade === 'excellent' || grade === 'good') {
-      const d = C.describe(f);
+      const d = C.describe(f, true);
       if (d) return d;
       if (st.isBest && grade === 'excellent' && st.onlyMove) return tr('r.top');
       return reason(f, st.before, st.after);
@@ -886,7 +892,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     add('h.why', [shortWhy(st, grade)]);
     // tactics
     const tac = [];
-    const d = C.describe(f); if (d && (f.forks.length || f.pin || f.skewer || f.discovered.length || f.mate || f.capture || f.check || f.attacks.length || f.promotion)) tac.push(d);
+    const d = C.describe(f, true); if (d && (f.forks.length || f.pin || f.skewer || f.discovered.length || f.mate || f.capture || f.check || f.attacks.length || f.promotion)) tac.push(d);
     if (st.mateBefore > 0 && !st.isBest && st.best) tac.push(tr('d.missedMate', { n: st.mateBefore, san: st.best.san }));
     else if (st.best && !st.isBest && notable(st.best.facts) && grade !== 'good') tac.push(tr('d.missed', { san: st.best.san, bits: bits(st.best.facts) || tr('op.win') }));
     if (!tac.length) tac.push(tr('t.none'));
@@ -1121,8 +1127,8 @@ function ChacklateMentor(E, C, strings, nameOf) {
       : kind === 'defend' ? 'safety' : kind === 'develop' ? 'develop' : kind === 'centre' ? 'centre' : null;
     const piece = onSq(f.piece, f.from);
     const guided = (ideaKey ? tr('hi.guidedIdea', { piece, idea: tr('hi.idea.' + ideaKey) }) : tr('hi.guided', { piece })) + (ideaKey === 'develop' || ideaKey === 'centre' || !ideaKey ? ' ' + tr('hi.toward', { sq: regionOf(f.to) }) : '');
-    const d = C.describe(f);
-    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: best.san }) + ' ' + (best.goal ? tr({ hill: 'hi.wins.hill', checks: 'hi.wins.checks', bare: 'hi.wins.bare' }[best.goal]) : (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] && !/#$/.test(lk.line.moves[0].san) && !(best.mate < 0) && best.mate !== 1 ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : ''));
+    const d = C.describe(f, true);
+    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: '' }) + ' ' + (best.goal ? tr({ hill: 'hi.wins.hill', checks: 'hi.wins.checks', bare: 'hi.wins.bare' }[best.goal]) : (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] && !/#$/.test(lk.line.moves[0].san) && !(best.mate < 0) && best.mate !== 1 ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : ''));
     return {
       levels: [
         { text: dir, marks: [] },
@@ -1182,7 +1188,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       const before = C.toCp(prev.score), after = -C.toCp(r.score);
       const loss = best === u ? 0 : Math.max(0, C.winProb(before) - C.winProb(after));
       const cls = C.classify(loss, best === u, f, after);
-      out.push({ san: f.san, mine: mover === me, grade: gradeOf(cls, f, false), cp: mover === me ? after : -after, text: C.describe(f) });
+      out.push({ san: f.san, mine: mover === me, grade: gradeOf(cls, f, false), cp: mover === me ? after : -after, text: C.describe(f, mover === me) });
       prev = r;
     }
     for (let i = 0; i < made; i++) pos.unmake();
@@ -1458,6 +1464,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     for (const x of TRAPS) add(x.name);
     for (let n = 0; n <= 100; n++) add(String(n));
     add('percent');
+    add('takes');   // "pawn takes on e4": the move word, recorded with the moves
     vocab = [...set].sort((a, b) => b.length - a.length);
     byFirst = new Map();
     for (const v of vocab) { const c = v[0].toLowerCase(); if (!byFirst.has(c)) byFirst.set(c, []); byFirst.get(c).push(v); }

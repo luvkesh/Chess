@@ -1103,10 +1103,19 @@
     const live = () => peeking && peeking.it === it, storm = !!(it.data && it.data.storm);
     const play = () => {
       if (!live()) return;
-      view.setBoard([[sqIndex('e1'), 6], [sqIndex('d1'), 5], [sqIndex('a1'), 4], [sqIndex('c1'), 3], [sqIndex('g1'), 2], [sqIndex('d2'), 1], [sqIndex('e2'), 1], [sqIndex('f2'), 1],
-        [sqIndex('e8'), -6], [sqIndex('h8'), -4], [sqIndex('f7'), -1], [sqIndex('g7'), -1], [sqIndex('h7'), -1], [sqIndex('c6'), -2]], null);
-      peeking.timers.push(setTimeout(() => { if (live()) view.celebrate('win', sqIndex('e8'), null, sqIndex('e1'), { storm }); }, 400));
-      peeking.timers.push(setTimeout(play, storm ? 14000 : 6000));
+      // a real checkmate: Qa2-a8 mates the king on h8 (the white king on g6 takes g7 and h7)
+      const sq = sqIndex;
+      view.setHighlights({});
+      view.setBoard([[sq('g6'), 6], [sq('a2'), 5], [sq('f2'), 1], [sq('g2'), 1], [sq('h8'), -6], [sq('b7'), -1], [sq('c7'), -1], [sq('d5'), -2]], null);
+      peeking.timers.push(setTimeout(() => {
+        if (!live()) return;
+        view.animateMove({ from: sq('a2'), to: sq('a8'), capturedSq: -1, mover: 5 }, () => {
+          if (!live()) return;
+          view.setHighlights({ lastFrom: sq('a2'), lastTo: sq('a8'), check: sq('h8') });
+          peeking.timers.push(setTimeout(() => { if (live()) view.celebrate('win', sq('h8'), null, sq('g6'), { storm }); }, 450));
+          peeking.timers.push(setTimeout(play, storm ? 14000 : 6000));
+        }, { skipHint: false });
+      }, 500));
     };
     play();
     peeking.demo = true;
@@ -5312,13 +5321,13 @@
       if (pl.isBest) add(M.tr('r.top'), ME.tr('r.top'));
       else if (pl.bestSan && !['inaccurate', 'mistake', 'blunder'].includes(g)) add(M.tr('d.practical', { san: pl.bestSan }), ME.tr('d.practical', { san: pl.bestSan }));
       if (!pl.isBest && pl.bestFacts && M.notable(pl.bestFacts) && pl.wpLoss >= 0.05 && !/Better was/.test(CE.explain(ply))) {
-        const b = C.describe(pl.bestFacts), be = CE.describe(pl.bestFacts);
-        add(M.tr('d.missed', { san: pl.bestSan, bits: b ? b.slice(pl.bestFacts.san.length + 1).replace(/\.$/, '') : M.tr('op.win') }), ME.tr('d.missed', { san: pl.bestSan, bits: be ? be.slice(pl.bestFacts.san.length + 1).replace(/\.$/, '') : ME.tr('op.win') }));
+        const b = C.describe(pl.bestFacts) && C.bits(pl.bestFacts), be = CE.describe(pl.bestFacts) && CE.bits(pl.bestFacts);
+        add(M.tr('d.missed', { san: pl.bestSan, bits: b || M.tr('op.win') }), ME.tr('d.missed', { san: pl.bestSan, bits: be || ME.tr('op.win') }));
       }
       const r = pl.refutation;
       if (r && !['mistake', 'blunder'].includes(g)) {
-        const b = C.describe(r), be = CE.describe(r);
-        add(b ? M.tr('d.theyReply', { san: r.san, bits: b.slice(r.san.length + 1).replace(/\.$/, '') }) : M.tr('d.theyReplyPlain', { san: r.san }), be ? ME.tr('d.theyReply', { san: r.san, bits: be.slice(r.san.length + 1).replace(/\.$/, '') }) : ME.tr('d.theyReplyPlain', { san: r.san }));
+        const b = C.describe(r) && C.bits(r), be = CE.describe(r) && CE.bits(r);
+        add(b ? M.tr('d.theyReply', { san: r.san, bits: b }) : M.tr('d.theyReplyPlain', { san: r.san }), be ? ME.tr('d.theyReply', { san: r.san, bits: be }) : ME.tr('d.theyReplyPlain', { san: r.san }));
       }
       const ev = R.data.evals[i + 1];
       add(M.swingWords(sw(pl.cpBefore), sw(pl.cpAfter)), ME.swingWords(sw(pl.cpBefore), sw(pl.cpAfter)));
@@ -6258,7 +6267,7 @@
       const u = wantMove();
       view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
-      fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m)) || ''));
+      fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m), true) || ''));
       finish(false);
     };
     $('pz-next').onclick = () => { AU.play('tap'); load(); };
