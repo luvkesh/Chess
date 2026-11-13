@@ -231,10 +231,15 @@
       '<div id="su-rest"></div><p class="err" id="su-err"></p>');
     const q = (s) => m.querySelector(s);
     let picked = null;
+    // An age under 18, once given on this device, stays: going back to pick an older year
+    // cannot swap the parent's form for the grown-up one (the FTC's advice for age screens).
+    const st = app.state.settings;
+    if (st.ageKid && st.ageKid.y) { q('#su-m').value = String(st.ageKid.m); q('#su-y').value = String(st.ageKid.y); }
     const step2 = async () => {
       const mo = +q('#su-m').value, y = +q('#su-y').value;
       if (!mo || !y) return;
       const kid = ageOf(y, mo) < 18;
+      if (kid) { q('#su-m').disabled = true; q('#su-y').disabled = true; if (!st.ageKid) { st.ageKid = { y, m: mo }; app.save(); } }
       const needName = !opts.ageOnly || kid;
       let names = [];
       if (kid) { try { names = (await api('/api/names')).names; } catch (e) { names = []; } }
@@ -270,6 +275,7 @@
       };
     };
     q('#su-m').onchange = step2; q('#su-y').onchange = step2;
+    if (st.ageKid) step2();
   }
   function signInModal() {
     const app = A();
@@ -328,7 +334,8 @@
 
   function syncProgress() {
     clearTimeout(progressTimer);
-    progressTimer = setTimeout(() => { if (A()) send({ type: 'progress', data: A().state.progress }); }, 1500);
+    // Progress changed in Labs (testing tools) stays on this device.
+    progressTimer = setTimeout(() => { if (A() && !A().state.progress.labs) send({ type: 'progress', data: A().state.progress }); }, 1500);
   }
 
   window.ChacklateNet = {

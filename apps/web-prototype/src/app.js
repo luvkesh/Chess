@@ -136,6 +136,11 @@
   const stageTitle = (e, k) => tx('content.era.' + e.id + '.stage' + k, e.stages[k].title);
 
   // ------------------------------------------------------------ persistence
+  // What the server lets this account do (setSafety below); null with no server.
+  let safety = null;
+  const isMinor = () => !!(safety && safety.kind === 'minor');
+  // Labs (testing tools, see labsModal) is on while the game is in testing; turn this off for launch.
+  const LABS_DEFAULT = true;
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
     settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, captions: false, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, elements: true, colourToss: true,
@@ -147,14 +152,26 @@
     game: null,
     account: saved.account || null,
   };
+  // A damaged or hand-edited save cannot break sound or the screens: settings get the type they need.
+  {
+    const st = state.settings, vol = (v, def) => (Number.isFinite(+v) && v !== null && v !== '' ? Math.min(1, Math.max(0, +v)) : def);
+    st.sfxVol = vol(st.sfxVol, 0.8); st.musicVol = vol(st.musicVol, 0.35);
+    if (!['high', 'low'].includes(st.quality)) st.quality = 'high';
+    if (!I18N.ALL.some((l) => l.id === st.lang)) st.lang = I18N.guess(navigator.languages || [navigator.language]);
+    if (typeof st.name !== 'string' || !st.name.trim()) st.name = 'You';
+    if (!state.setup || typeof state.setup !== 'object') state.setup = { mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false };
+  }
   PG.mergeLessons(state.progress, LESSONS.lessons);
   // Premium comes from the account's entitlements on the server. The device-only preview switch
   // (for testing without a server) sits on top of that.
-  if (state.settings.previewPremium === undefined) state.settings.previewPremium = !!state.progress.premium;
+  // The preview lives in Labs only, never for a child's account and never on top of a signed-in
+  // account, whose entitlements are the truth (a lapsed plan must not stay open through it).
+  if (state.settings.previewPremium === undefined) state.settings.previewPremium = false;
+  const previewOn = () => !!state.settings.previewPremium && labsOn() && !(state.account && state.account.token);
   function setEntitlements(ent) {
     if (state.account || ent) state.account = Object.assign({}, state.account || {}, { ent: ent || null });
     const e = ent || {};
-    state.progress.premium = !!(state.settings.previewPremium || e.premium);
+    state.progress.premium = !!(previewOn() || e.premium);
     state.progress.passes = e.passes || [];
   }
   setEntitlements(state.account && state.account.ent);
@@ -180,7 +197,7 @@
   if (state.settings.voiceRev < 3) { const lv = langVoice(state.settings.lang); if (lv && state.settings.voiceCalls !== 'off' && englishVoice(state.settings.voiceCalls)) state.settings.voiceCalls = lv; state.settings.voiceRev = 3; }
   I18N.set(state.settings.lang);
   I18N.watch(document.body);   // content text written straight from the content files
-  if (I18N.lang !== 'en') { C = ChacklateCoach(E, coachStrings()); M = ChacklateMentor(E, C, areaStrings('mentor')); }
+  if (I18N.lang !== 'en') { C = ChacklateCoach(E, coachStrings()); M = ChacklateMentor(E, C, areaStrings('mentor'), (n) => I18N.text(n)); }
   // The coach's settings (the spec's table): filled from the old one-word setting on first run.
   state.settings.coachCfg = ME.migrate(state.settings.coach, state.settings.coachCfg);
   const myName = () => (state.settings.name === 'You' ? t('common.you') : state.settings.name);
@@ -203,34 +220,71 @@
     return t('collection.unlock.free');
   }
   PG.setSeason(state.progress);
+  // Two tabs on one device share one save. Each save bumps a counter in its own small key; a tab
+  // that sees a newer one (the storage event, or before its own save) takes that copy first, so
+  // a tab left open never writes old progress over what the other tab earned or bought.
+  const REV_KEY = 'chacklate-chess:rev';
+  const readRev = () => { try { return +localStorage.getItem(REV_KEY) || 0; } catch (e) { return 0; } };
+  let rev = readRev(), saveWarned = false;
+  function adopt() {
+    let cur = null;
+    try { cur = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { cur = null; }
+    rev = readRev();
+    if (!cur || typeof cur !== 'object') return false;
+    const lang = state.settings.lang;   // each tab keeps the language it shows
+    if (cur.settings && typeof cur.settings === 'object') Object.assign(state.settings, cur.settings, { lang });
+    state.progress = PG.migrate(cur.progress);
+    PG.mergeLessons(state.progress, LESSONS.lessons);
+    PG.setSeason(state.progress);
+    state.account = cur.account || null;
+    if (!state.game) saved.game = cur.game || null;
+    setEntitlements(state.account && state.account.ent);
+    return true;
+  }
+  window.addEventListener('storage', (e) => {
+    if (e.key !== REV_KEY || readRev() <= rev || !adopt()) return;
+    applySettings(); renderNav();
+    if ((!KIND[state.screen] || state.screen === 'home') && !document.querySelector('.modal')) go(state.screen, state.screenArg);
+  });
   function save() {
+    if (readRev() > rev) adopt();
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
       localStorage.setItem(STORE_KEY, JSON.stringify({ settings: state.settings, setup: state.setup, progress: state.progress, account: state.account,
         game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null }));
-    } catch (e) { /* storage unavailable: everything still works for this visit */ }
+      localStorage.setItem(REV_KEY, String(rev = Math.max(rev, readRev()) + 1));
+    } catch (e) {
+      // Storage full or blocked: everything still works for this visit; say so once.
+      if (!saveWarned) { saveWarned = true; setTimeout(() => { try { toast(t('common.saveFail'), 'bad'); } catch (e2) { /* not drawn yet */ } }, 0); }
+    }
     if (window.ChacklateNet) ChacklateNet.syncProgress();
   }
 
   // ------------------------------------------------------------ children's safety
   // The server says what this account may do (see services/game-server/src/family.js); null
   // means no server, which is offline play with nothing to buy or share.
-  let safety = null;
   function setSafety(s) {
     safety = s || null;
+    setEntitlements(state.account && state.account.ent);   // a child's account never keeps the Labs preview
+    if ($('topnav')) { renderNav(); refreshScreenTools(); }   // nor the Labs button
     if (safety && !safety.reminders && state.settings.reminder && state.settings.reminder.on) { state.settings.reminder = Object.assign({}, state.settings.reminder, { on: false }); save(); }
     checkPlayTime();
     if (['store', 'home'].includes(state.screen) && !document.querySelector('.modal')) go(state.screen);
   }
-  const isMinor = () => !!(safety && safety.kind === 'minor');
 
   // Parent gate: a sum written in words, which a young child cannot read and an adult answers in
   // a second. It sits in front of the store, purchases and turning reminders on, as Apple's Kids
-  // category and Google's Families policy ask. A pass lasts ten minutes.
+  // category and Google's Families policy ask. A pass lasts ten minutes, and only for looking
+  // around the store: a purchase, more play time, reminders and location ask every time
+  // (opts.always), so one answer from a grown-up never opens the others for the child.
   const WORDS = (n) => t('store.gate.n' + n);
   let gatePassed = 0;
-  function parentGate(why) {
-    if (Date.now() - gatePassed < 10 * 60e3) return Promise.resolve(true);
+  // Answers typed in the player's own digits (Devanagari, Arabic-Indic, Bengali...) count too.
+  const DIGIT_ZEROS = [0x30, 0x660, 0x6F0, 0x966, 0x9E6, 0xA66, 0xAE6, 0xB66, 0xBE6, 0xC66, 0xCE6, 0xD66, 0xE50, 0xFF10];
+  const asciiDigits = (v) => String(v || '').replace(/\p{Nd}/gu, (d) => { const c = d.codePointAt(0), z = DIGIT_ZEROS.find((x) => c >= x && c < x + 10); return z === undefined ? d : String(c - z); }).replace(/\s+/g, '');
+  function parentGate(why, opts) {
+    const always = !!(opts && opts.always);
+    if (!always && Date.now() - gatePassed < 10 * 60e3) return Promise.resolve(true);
     return new Promise((resolve) => {
       const a = 3 + Math.floor(Math.random() * 7), b = 3 + Math.floor(Math.random() * 7);
       let done = false;
@@ -241,7 +295,8 @@
       m.querySelector('#pg').onsubmit = (e) => {
         e.preventDefault();
         done = true; m.close();
-        if (+m.querySelector('#pg-a').value === a * b) { gatePassed = Date.now(); resolve(true); }
+        const v = asciiDigits(m.querySelector('#pg-a').value);
+        if (/^\d+$/.test(v) && +v === a * b) { if (!always) gatePassed = Date.now(); resolve(true); }
         else { toast(t('store.gate.wrong'), 'bad'); resolve(false); }
       };
     });
@@ -276,7 +331,7 @@
       '<div class="row" style="justify-content:center"><button class="btn" id="br-more">' + t('home.break.more') + '</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
     breakModal.querySelector('#br-more').onclick = async () => {
       const m = breakModal; m.style.visibility = 'hidden';
-      if (await parentGate(t('home.break.gate'))) {
+      if (await parentGate(t('home.break.gate'), { always: true })) {
         const t2 = playTime(); t2.extra += 15; try { localStorage.setItem(PLAY_KEY, JSON.stringify(t2)); } catch (e) { /* not stored */ }
         breakModal = null; m.close();
       } else m.style.visibility = '';
@@ -324,7 +379,7 @@
   // A new language: the coach and its workers start again with the new sentences.
   function coachLanguage() {
     C = ChacklateCoach(E, coachStrings());
-    M = ChacklateMentor(E, C, areaStrings('mentor'));
+    M = ChacklateMentor(E, C, areaStrings('mentor'), (n) => I18N.text(n));
     for (const k of Object.keys(workers)) {
       const old = workers[k];
       workers[k] = makeWorker();
@@ -586,9 +641,10 @@
     wrap.addEventListener('click', (e) => {
       if ((e.target === wrap && !opts.sticky) || e.target.closest('[data-close]')) close();
     });
-    const f = wrap.querySelector('[autofocus], .btn.primary, button:not(.x), input');
+    const f = wrap.querySelector('[autofocus]') || wrap.querySelector('.btn.primary, button:not(.x), input');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 30);
     wrap.close = close;
+    wrap.sticky = !!opts.sticky;
     return wrap;
   }
   // Tab stays inside the open pop-up (it used to walk on to the page behind it).
@@ -606,7 +662,7 @@
     }
     if (e.key === 'Escape') {
       const open = [...document.querySelectorAll('.modal')].pop();
-      if (open) open.close();
+      if (open) { if (!open.sticky || open.querySelector('[data-close]')) open.close(); }   // a sticky card with no way out (the time-limit break) stays
       else if (peeking) endPeek();
       else if (current && current.escape) current.escape();
     } else if (peeking && !document.querySelector('.modal') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !/input|textarea|select/i.test((e.target.tagName || ''))) {
@@ -783,7 +839,7 @@
     if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
     let key = name;
     if (name === 'home') {
-      const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+      const resume = resumable();
       key = resume ? 'home.resume' : state.progress.xp ? 'home' : 'home.first';
     }
     if (GUIDE.lines[key]) guideSay(key);
@@ -838,6 +894,8 @@
     if (name === 'improve') name = 'puzzles';
     // go('trainer', id): a round of that skill trainer, played in the lesson player
     if (name === 'trainer') { name = 'lesson'; arg = { trainer: arg }; }
+    // Premium lessons and trainers stay shut whichever link leads there (puzzles, reviews, the rule book, Progress)
+    if (name === 'lesson') { const lk = lockedLesson(arg); if (lk) { premiumModal(t('learn.lockedLesson', { title: lk.title, n: lk.chapter }), COACH); return false; } }
     if (arg === undefined && name === state.screen) {
       // A refresh of the screen on show (after a sync, say). Game screens keep their state.
       if (KIND[name] === 'hud') { renderNav(); return; }
@@ -1100,6 +1158,15 @@
     const from = state.progress.placement ? state.progress.placement.chapter : 1;
     return todo.find((l) => l.chapter >= from) || todo.filter((l) => l.chapter < from).sort((a, b) => b.chapter - a.chapter)[0] || null;
   }
+  // The Learn lesson or trainer behind a go('lesson', arg) that this player can't open yet (null when it is open).
+  // Era stages, variations and the placement test are not Learn lessons and are gated where they start.
+  function lockedLesson(arg) {
+    if (!arg || state.progress.premium) return null;
+    if (typeof arg === 'object' && arg.trainer) { const tr = trainerById(arg.trainer), l = tr && trainerLesson(tr); return tr && trainerLocked(tr) ? { title: I18N.text(tr.name), chapter: l.chapter } : null; }
+    if (typeof arg === 'object' && (arg.journey || arg.variant || arg.placement)) return null;
+    const id = typeof arg === 'string' ? arg : arg.id, l = id && LESSONS.lessons.find((x) => x.id === id);
+    return l && !lessonOpen(l) ? { title: I18N.text(l.title), chapter: l.chapter } : null;
+  }
   const lessonOpen = (l) => LESSONS.chapters.find((c) => c.n === l.chapter).access === 'free' || state.progress.premium;
   function dailyPuzzle() {
     if (!PUZZLES.length) return null;
@@ -1122,7 +1189,7 @@
   }
   SCREENS.home = function () {
     idleBoard();
-    const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+    const resume = resumable(), live = resume && resume.live;
     const online = netOn();
     const nl = nextLesson();
     const daily = dailyPuzzle();
@@ -1135,7 +1202,7 @@
       '<p class="motto">' + t('home.motto') + '</p>' +
       '<div class="lux-row">' +
       lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
-        text: resume ? t('home.resumeText', { n: saved.game.moves.length }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
+        text: resume ? t('home.resumeText', { n: resume.n }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
       lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
@@ -1146,7 +1213,7 @@
       '</section>');
     hydrate();
     wireLinks();
-    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (resume) resumeSaved(); else quickPlay(); };
+    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (live) backToGame(); else if (resume) resumeSaved(); else quickPlay(); };
     $('h-journey').onclick = () => { AU.unlock(); AU.play('tap'); if (ne && PG.eraOpen(state.progress, ne.id)) go('era', ne.id); else go('journey'); };
     $('h-learn').onclick = () => { AU.unlock(); AU.play('tap'); if (nl) go('lesson', nl.id); else go('learn'); };
     $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: t('learn.dailyPuzzle') }); else go('puzzles'); };
@@ -1202,7 +1269,7 @@
       '<div class="row"><button class="btn" data-close>' + t('common.notNow') + '</button><button class="btn gold" id="cb-ok">' + icon('coin') + ' ' + t('store.coin.buyFor', { n: I18N.num(o.price) }) + '</button></div>');
     m.querySelector('#cb-ok').onclick = () => {
       m.close();
-      if (!PG.buyWithCoins(P, it)) return;
+      if (!PG.buyWithCoins(P, it)) { const o2 = PG.coinOffer(P, it); if (o2.reason === 'short') toast(t('store.coin.short', { n: coinCount(o2.short) }), 'bad'); return; }
       AU.play('achievement');
       toast('<i>★</i><div><small>' + t('store.coin.yours') + '</small><b>' + esc(it.name) + '</b></div>', 'ach');
       save(); renderNav();
@@ -1723,9 +1790,7 @@
     function speak(now) {
       const cur = S.phase === 'steps' ? steps[S.i] : S.phase === 'ex' ? ex[S.i] : null;
       const say = () => { if (cur && state.settings.narration) AU.guide(cur.line, cur.say); };
-      // every Learn lesson opens with its own line from Rooky; other lessons share the general one
-      const open = L.id && GUIDE.lines['lesson.open.' + L.id.split('.').pop()] && !own && !vr ? 'lesson.open.' + L.id.split('.').pop() : 'lesson.steps';
-      const g = S.phase === 'steps' ? open : S.phase === 'ex' ? 'lesson.ex' : null;
+      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
       if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
       if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
     }
@@ -1813,7 +1878,7 @@
       if (m === null) return;
       let ok = false, msg = '';
       if (x.type === 'move') { ok = x.answers.includes(X.uci(m)); msg = ok ? t('learn.ls.wellPlayed') : t('learn.ls.notTheMove') + ' ' + t('learn.ls.tryAgain'); }
-      else if (x.type === 'win') { const tg = new X.Game(x.fen); tg.play(m); ok = !!(tg.outcome && tg.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1')); msg = I18N.text(ok ? x.yes : x.no); }
+      else if (x.type === 'win') { const tg = new X.Game(x.fen); tg.play(m); ok = !!(tg.outcome && tg.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1') && (!x.reason || tg.outcome.reason === x.reason)); msg = I18N.text(ok ? x.yes : x.no); }
       if (ok) {
         const info = g.play(m);
         AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
@@ -1879,6 +1944,7 @@
     const done = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length;
     mount('<div class="page"><div class="page-in">' +
       pageHead(t('journey.eyebrow'), t('journey.title'), t('journey.sub'), meter(done, CAMPAIGN.eras.length, t('journey.complete'))) +
+      passport() +
       '<div class="eras">' + CAMPAIGN.eras.map(eraCard).join('') + '</div>' +
       '<p class="fine">' + t('journey.fine') + '</p>' +
       '</div></div>');
@@ -1886,6 +1952,17 @@
     document.querySelectorAll('[data-era]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); openEra(b.dataset.era); }; });
     return {};
   };
+  // The passport: one stamp per era, given when its champion is beaten (the same place badges as the website).
+  const stampSrc = (e) => (typeof CHACKLATE_STAMPS !== 'undefined' && CHACKLATE_STAMPS[e.id]) || medal('piece:k', e.colors[0], e.colors[1]);
+  function passport() {
+    const P = state.progress, got = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length;
+    return '<section class="passport glass" aria-label="' + esc(t('journey.passport')) + '"><header><h2>' + t('journey.passport') + '</h2><span class="muted">' + t('journey.stamps', { n: got, of: CAMPAIGN.eras.length }) + '</span></header><div class="stamps">' +
+      CAMPAIGN.eras.map((e) => {
+        const on = PG.journeyInfo(P, e.id).done;
+        return '<button class="stamp' + (on ? ' on' : '') + '" data-era="' + e.id + '" aria-label="' + esc(eraText(e, 'place') + ' · ' + (on ? t('journey.stampOn') : t('journey.stampOff', { name: eraCoach(e).name }))) + '" data-tip="' + esc(eraText(e, 'place') + '|' + (on ? t('journey.stampOn') : t('journey.stampOff', { name: eraCoach(e).name }))) + '">' +
+          '<img src="' + stampSrc(e) + '" alt="" width="64" height="64"><small>' + esc(eraText(e, 'place').split(/[,،，]/)[0]) + '</small></button>';
+      }).join('') + '</div></section>';
+  }
   function openEra(id) {
     const info = PG.journeyInfo(state.progress, id);
     if (info.open) return go('era', id);
@@ -1966,7 +2043,8 @@
     AU.play('levelUp');
     AU.event('lesson.passed');
     const m = modal('<div class="result-hero">' +
-      '<div class="vign">' + snap(VIGN.trio(e.set, felt, sheen), 360, 220, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
+      '<div class="vign sm">' + snap(VIGN.trio(e.set, felt, sheen), 360, 220, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
+      '<div class="stamp-moment" role="img" aria-label="' + esc(t('journey.stamped', { place: eraText(e, 'place') })) + '"><img src="' + stampSrc(e) + '" alt=""><span>' + esc(t('journey.stamped', { place: eraText(e, 'place') })) + '</span></div>' +
       '<span class="result-badge win">' + t('journey.eraDone', { n: ROMAN[CAMPAIGN.eras.indexOf(e)] }) + '</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
       '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(sayLine(co, 'win')) + '”</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul>' +
@@ -2047,7 +2125,7 @@
     idleBoard();
     const P = state.progress;
     const nl = nextLesson();
-    const due = PG.dueReviews(P);
+    const due = PG.dueReviews(P).filter((id) => { const l = LESSONS.lessons.find((x) => x.id === id); return l && lessonOpen(l); });
     const total = LESSONS.lessons.length, done = LESSONS.lessons.filter((l) => P.lessons[l.id]).length;
     mount('<div class="page"><div class="page-in">' + subnav('learn') +
       pageHead(t('learn.eyebrow'), t('learn.title'), t('learn.sub', { n: done, of: total }),
@@ -2379,7 +2457,7 @@
         (who ? t('learn.vs', { name: esc(oppFull(who)) }) : t('learn.online')) + '<small>' + esc(I18N.date(new Date(p.t))) + '</small></span><b>' + I18N.num(p.v) + '</b></li>';
     }).join('');
     const tlog = PG.trainerLog && PG.PRACTICE_FOR[k.id].trainer ? PG.trainerLog(state.progress, PG.PRACTICE_FOR[k.id].trainer) : null;
-    const tBest = tlog && typeof tlog.best === 'number' ? '<p class="fine">' + t('learn.pg.trainerBest', { n: I18N.num(tlog.best) }) + '</p>' : '';
+    const tBest = tlog && typeof tlog.best === 'number' && tlog.rounds > 0 ? '<p class="fine">' + t('learn.pg.trainerBest', { n: I18N.num(tlog.best) }) + '</p>' : '';
     const m = modal('<div class="pg-det-h">' + skillIcon(k.id, 'pg-ic big') + '<div><div class="eyebrow">' + t('learn.pg.days.' + (days || 'all')) + '</div><h2>' + esc(skillName(k.id)) + '</h2></div></div>' +
       '<p>' + t('learn.pg.what.' + k.id) + '</p>' +
       '<div class="pf-stats">' + stat(t('learn.pg.avg'), k.avg) + stat(t('learn.pg.best'), k.best) + stat(t('learn.pg.last'), k.last) + stat(t('learn.pg.count'), k.pts.length) + '</div>' + tBest +
@@ -2775,8 +2853,7 @@
       '<h2 class="sec" id="games">' + icon('refresh') + '<span>' + t('learn.recent') + '</span></h2>' +
       '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">' + t('profile.noGames') + '</p>') + '</div>' +
       '<h2 class="sec" id="acct">' + icon('globe') + '<span>' + t('profile.account') + '</span></h2><div class="panel glass" id="pf-account"></div>' +
-      sec('crown', t('common.premium')) + '<div class="panel glass">' + premiumLine() +
-      '<label class="toggle">' + t('profile.preview') + ' <input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></label></div>' +
+      sec('crown', t('common.premium')) + '<div class="panel glass">' + premiumLine() + '</div>' +
       '</div></div>');
     wireLinks();
     wireGames(P.history);
@@ -2786,7 +2863,6 @@
         '<p class="fine">' + t('profile.nameFine') + '</p><div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('common.save') + '</button></div></form>');
       m.querySelector('#nm').onsubmit = (e) => { e.preventDefault(); const v = m.querySelector('#nm-v').value.trim().slice(0, 20); if (v) { state.settings.name = v; save(); m.close(); toast(t('profile.nameSaved')); go('profile'); } };
     };
-    $('pf-prem').onchange = (e) => { state.settings.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); save(); toast(t(e.target.checked ? 'profile.previewOn' : 'profile.previewOff')); go('profile'); };
     $('pf-store').onclick = () => go('store');
     if (window.ChacklateNet) ChacklateNet.renderAccount($('pf-account')); else $('pf-account').innerHTML = '<p class="muted">' + t('profile.noOnline') + '</p>';
     if (section === 'games') setTimeout(() => $('games').scrollIntoView({ behavior: 'smooth' }), 120);
@@ -2825,7 +2901,7 @@
   SCREENS.club = function () {
     idleBoard();
     const C = ChacklateClub;
-    C.autoLocate();
+    // No place is set until the player picks one (or taps the time-zone guess): nothing is shared unasked.
     const SCOPES = [['global', 'globe'], ['country', 'pin'], ['city', 'city'], ['following', 'users']];
     mount('<div class="page"><div class="page-in club">' +
       pageHead(t('club.title'), t('club.head'), t('club.sub'), '<button class="pill gold" id="cl-where">' + icon('pin') + ' <span id="cl-where-t"></span></button>') +
@@ -2938,17 +3014,20 @@
     function renderLoc(busy, msg) {
       const p = C.place();
       const NOTE = { tz: t('club.note.tz'), manual: t('club.note.manual'), gps: t('club.note.gps') };
-      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="' + t('club.country') + '">' + (p.country ? '' : '<option value="">' + t('club.chooseCountry') + '</option>') +
+      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="' + t('club.country') + '">' + '<option value="">' + t('club.chooseCountry') + '</option>' +
         C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
         (p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="' + t('club.city') + '">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
-        (!C.gpsAllowed() ? '' : '<button class="round" id="cl-gps" aria-label="' + t('club.useLoc') + '" title="' + t('club.useLoc') + '"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
+        (!C.gpsAllowed() || isMinor() ? '' : '<button class="round" id="cl-gps" aria-label="' + t('club.useLoc') + '" title="' + t('club.useLoc') + '"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
         '<p class="fine">' + (busy ? t('club.finding') : msg || (p.source ? NOTE[p.source] : t('club.chooseLocal'))) +
-        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">' + t('club.guessTz') + '</button>' : '') + '</p>';
-      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
+        (p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">' + t('club.guessTz') + '</button>' : '') + '</p>';
+      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value || null, city: e.target.value ? C.citiesOf(e.target.value)[0] : null, source: 'manual' }); renderAll(); };
       const city = $('cl-city'); if (city) city.onchange = (e) => { C.setPlace({ country: p.country, city: e.target.value, source: 'manual' }); renderAll(); };
       const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, t('club.tzFail')); };
       const gp = $('cl-gps');
       if (gp) gp.onclick = async () => {
+        // The device's location is for grown-ups: the parent gate asks every time.
+        if (isMinor() || !await parentGate(t('club.useLoc'), { always: true })) return;
+        if (!alive) return;
         renderLoc(true);
         const g = await C.gps();
         if (!alive) return;
@@ -2997,7 +3076,7 @@
     }
     mount('<div class="page"><div class="page-in">' +
       pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), seasonName(s.season), esc(tx('content.season.' + s.season.id + '.blurb', s.season.blurb)), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
-      (s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
+      (!P.season ? '<p class="sub">' + t('season.soon') + '</p>' : s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
         : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.ask') + '</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">' + t('season.free') + '</div><div class="eyebrow">' + t('season.pass') + '</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">' + t('season.fine') + '</p></div></div>');
@@ -3026,9 +3105,10 @@
       }
       const ent = (state.account && state.account.ent) || {};
       const online = netOn();
-      const products = STORE.products.map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
+      // A season's pass is sold only while that season runs.
+      const products = STORE.products.filter((p) => !p.id.startsWith('pass.') || p.id === 'pass.' + P.season).map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
       const owned = (p) => p.id.startsWith('pass.') ? PG.hasPass(P, p.id.slice(5)) : p.id === 'premium.lifetime' ? ent.premiumUntil === 'lifetime' : false;
-      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(ent.premiumUntil)) })) : t(state.settings.previewPremium ? 'store.previewStatus' : 'store.freeStatus');
+      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(ent.premiumUntil)) })) : t(previewOn() ? 'store.previewStatus' : 'store.freeStatus');
       $('st-body').innerHTML =
         '<div class="hero-card"><span class="sg big gold">' + icon('crown') + '</span><span style="flex:1"><span class="eyebrow">' + t('store.yourPlan') + '</span><b class="plan">' + esc(status) + '</b></span></div>' +
         '<ul class="perks">' + STORE.perks.map((p, k) => '<li>' + icon('check') + esc(t('store.perk' + k)) + '</li>').join('') + '</ul>' +
@@ -3053,7 +3133,7 @@
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
-      if (!await parentGate(t('store.gateBuy'))) return;
+      if (!await parentGate(t('store.gateBuy'), { always: true })) return;
       let pin;
       if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
@@ -3192,7 +3272,11 @@
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
     wireAppSection(m);
     on('#s-ver', 'click', () => versionTap(m));
-    on('#s-reset', 'click', () => { if (confirm(t('settings.resetConfirm'))) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+    on('#s-reset', 'click', async () => {
+      // A grown-up starts again, not a stray tap: the parent gate first, then the question.
+      if (!await parentGate(t('settings.resetConfirm'), { always: true }) || !confirm(t('settings.resetConfirm'))) return;
+      resetDevice(); m.close(); applyLook(); go('home');
+    });
     return m;
   }
 
@@ -3211,8 +3295,8 @@
   // flask button by Settings. It is on while the game is in testing (LABS_DEFAULT); Hide Labs turns
   // it off, and seven taps on the version line in Settings bring it back. Everything changes this
   // device only: nothing here reaches the server, the rating board or another player.
-  const LABS_DEFAULT = true;
-  const labsOn = () => (state.settings.labs === undefined ? LABS_DEFAULT : !!state.settings.labs);
+  // Never on a child's account (the server says so), whatever the device remembers.
+  function labsOn() { return !isMinor() && (state.settings.labs === undefined ? LABS_DEFAULT : !!state.settings.labs); }
   let verTaps = 0, verAt = 0;
   function versionTap(m) {
     const now = Date.now();
@@ -3221,8 +3305,9 @@
     if (labsOn()) { if (verTaps >= 3) toast('Labs is already on.'); return; }
     if (verTaps >= 7) {
       verTaps = 0;
-      state.settings.labs = true; save(); renderNav(); refreshScreenTools();
-      m.close(); labsModal();
+      if (isMinor()) return;
+      m.close();
+      parentGate('Labs', { always: true }).then((ok) => { if (!ok) return; state.settings.labs = true; save(); renderNav(); refreshScreenTools(); labsModal(); });
     } else if (verTaps >= 4) toast((7 - verTaps) + (7 - verTaps === 1 ? ' more tap' : ' more taps') + ' to Labs.');
   }
   // the flask button in the bar at the top, in games and lessons too
@@ -3268,7 +3353,7 @@
     const q = (sel) => m.querySelector(sel);
     const note = (text) => { q('#lb-note').textContent = text; };
     // apply a change, save, redraw what shows it, and say what happened
-    const did = (text, fn) => () => { fn(); save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
+    const did = (text, fn) => () => { fn(); state.progress.labs = true; save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
     const p = () => state.progress;
     const items = () => CATALOG.items.forEach((i) => { if (!PG.isUnlocked(p(), i)) p().granted[i.id] = true; });
     const lessons = () => LESSONS.lessons.forEach((l) => { if (!p().lessons[l.id]) p().lessons[l.id] = { stars: 3, attempts: 1, mastered: true, completed: PG.today(), reviews: [] }; });
@@ -3363,7 +3448,7 @@
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
-      if (want.on && !await parentGate(t('settings.reminder.gate'))) { box.checked = false; return; }
+      if (want.on && !await parentGate(t('settings.reminder.gate'), { always: true })) { box.checked = false; return; }
       try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? t('settings.reminder.set', { time: String(want.hour).padStart(2, '0') + ':00' }) : t('settings.reminder.off')); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
@@ -3577,6 +3662,29 @@
     G.toss = { skip: () => skip(), reveal: pick };
     if (watch && G.tossHand) pick(G.tossHand);
   }
+  // The game Home's big card goes back to: one left on the table for Home (live), or the one
+  // saved when the page closed. Null when there is none.
+  // Starting again: progress, the game left on the table, the name, the Club (friends, place,
+  // ratings and a new id). Language, sound and voices stay, and so does today's play time, which
+  // is a grown-up's limit. (The saved pictures are renders of the game itself, nothing personal.)
+  function resetDevice() {
+    state.progress = PG.fresh();
+    PG.mergeLessons(state.progress, LESSONS.lessons);
+    PG.setSeason(state.progress);
+    state.game = null; saved.game = null;
+    state.settings.name = 'You';
+    delete state.settings.club; delete state.settings.netName; delete state.settings.ageKid;
+    try { sessionStorage.clear(); } catch (e) { /* storage blocked */ }
+    setEntitlements(state.account && state.account.ent);
+    save();
+    if (window.ChacklateClub) ChacklateClub.publish();
+  }
+  function resumable() {
+    const G = state.game;
+    if (G && !G.g.outcome && (G.kind === 'online' || G.g.moves.length)) return { live: true, n: G.g.moves.length };
+    if (!G && saved.game && saved.game.moves && saved.game.moves.length) return { live: false, n: saved.game.moves.length };
+    return null;
+  }
   function backToGame() {
     const G = state.game;
     go('game', G);
@@ -3585,7 +3693,19 @@
   function resumeSaved() {
     const s = saved.game;
     saved.game = null;
-    startGame(Object.assign({}, s.setup || state.setup, { fen: s.start === E.START_FEN ? '' : s.start }), { moves: s.moves, human: s.human, clock: s.clock });
+    // A saved game is checked before it goes back on the table: a known level, a real clock with
+    // times inside it, and moves as text. Anything else starts from what can be trusted.
+    const setup = Object.assign({}, state.setup, s.setup && typeof s.setup === 'object' ? s.setup : {});
+    if (!LEVELS[setup.level]) setup.level = 1;
+    if (setup.tc !== 'none' && !/^\d{1,2}\+\d{1,2}$/.test(String(setup.tc))) setup.tc = 'none';
+    const tc = parseTc(setup.tc);
+    let clock = null;
+    if (tc && s.clock && Number.isFinite(+s.clock.w) && Number.isFinite(+s.clock.b)) {
+      const most = tc.w + 600 * tc.inc;   // a clock never holds more than its start and a long game's increments
+      clock = { w: Math.min(most, Math.max(1000, +s.clock.w)), b: Math.min(most, Math.max(1000, +s.clock.b)), inc: tc.inc };
+    }
+    const moves = Array.isArray(s.moves) ? s.moves.filter((u) => typeof u === 'string') : [];
+    startGame(Object.assign(setup, { fen: s.start === E.START_FEN || typeof s.start !== 'string' ? '' : s.start }), { moves, human: s.human === WHITE || s.human === BLACK ? s.human : undefined, clock });
   }
 
   SCREENS.game = function () {
@@ -3750,6 +3870,7 @@
     const G = state.game;
     AU.play('tap');
     if (againstPerson(G) && (G.clock || G.kind === 'online') && !G.g.outcome) { toast(t('play.rules.clockWaits')); return; }
+    if (!id.startsWith('variant.') && lockedLesson(id)) { go('lesson', id); return; }   // says it is Premium; the clock keeps going
     if (!G.g.outcome) pauseClock(G, true);
     if (id.startsWith('variant.')) go('lesson', { variant: id.slice(8), back: 'game' });
     else go('lesson', { id, back: 'game' });
@@ -4175,7 +4296,8 @@
       '<div class="face"><img class="portrait" src="' + face(who) + '" alt=""></div><div class="cbody"><div class="chead"><b>' + esc(m.who ? fullName(who) : COACH.name) + '</b>' + kindLabel + tools + '</div>' +
       (showText ? '<button class="ctext" data-coach="' + (canMore ? 'more' : 'none') + '"' + (canMore ? '' : ' tabindex="-1"') + '>' + (m.head ? '<strong>' + esc(m.head) + '</strong> ' : '') + lines.map(esc).join(' ') + (m.after ? ' ' + m.after.lines.map(esc).join(' ') : '') + '</button>' : '') +
       (words.length ? '<div class="cwords"><small>' + t('play.coach.words') + '</small>' + words.map((w) => '<button class="chip" data-term="' + w + '">' + esc(M.term(w, coachLevel()).word) + '</button>').join('') + '</div>' : '') +
-      '<div class="row">' + (m.actions || []).map(([label, a]) => btn(a, label, null, a === 'takeback' || a === 'play-anyway')).join('') +
+      // "Take it back" only while that move is still the last one of mine (an old card would undo a later move)
+      '<div class="row">' + (m.actions || []).filter(([, a]) => a !== 'takeback' || m.ply === undefined || m.ply >= G.g.moves.length - 2).map(([label, a]) => btn(a, label, null, a === 'takeback' || a === 'play-anyway')).join('') +
       (m.kind === 'move' && m.st ? btn('detail', t('play.coach.detail')) : '') +
       (m.kind === 'hint' && G.hintStep < 3 ? btn('hint-more', t('play.coach.anotherHint')) : '') +
       (m.kind === 'chance' && m.show ? btn('hint', t('play.coach.showMe')) : '') +
@@ -4190,7 +4312,7 @@
     const G = state.game, m = G && G.coachMsg;
     if (!m) return;
     if (a === 'none') return;
-    if (a === 'takeback') { G.takebacks++; undo(); return; }
+    if (a === 'takeback') { const m = G.coachMsg; if (m && m.ply !== undefined && m.ply < G.g.moves.length - 2) return; G.takebacks++; undo(); return; }
     if (a === 'more') { m.expanded = !m.expanded; renderCoach(); if (m.expanded) coachSpeak(spoken(m, CFG().depth)); return; }
     if (a === 'listen') {
       if (m.talking) { AU.hush(); m.talking = false; renderCoach(); return; }
@@ -4234,6 +4356,12 @@
     if (G.kind === 'online' || !g.moves.length || g.ended || G.busy) return;
     G.request++; G.thinking = false;
     if (G.kind === 'ai') { g.undo(); if (g.moves.length && g.pos.side !== G.human) g.undo(); } else g.undo();
+    // the coach's looks and studies of the moves taken back belong to another game now
+    const n = g.moves.length;
+    for (const k of Object.keys(G.looks || {})) if (+k > n) delete G.looks[k];   // the look at ply n is the same position
+    for (const k of Object.keys(G.studies || {})) if (+k >= n) delete G.studies[k];
+    if (G.times) G.times.length = Math.min(G.times.length, n);
+    G.hintData = null; G.hintKey = -1;
     G.selected = -1; G.hint = null; G.hintStep = 0; G.threat = null; G.coachMsg = null; G.coachArrow = null; G.coachArrows = []; G.coachMarks = []; G.resultShown = false; G.pendingMove = null;
     AU.play('tap'); AU.hush();
     view.setBoard(piecesOf(g.pos), capturedFor(g));
@@ -4318,7 +4446,7 @@
         const [g1, g2] = both('phaseGuide', lk, coachLevel());
         const [c1, c2] = both('chances', lk);
         const real = c1.length && c1[0].real;
-        const rec = lk.phase === 'opening' && G.g.moves.length <= 2 ? both('recommendOpening', coachLevel(), G.human) : [[], []];
+        const rec = lk.phase === 'opening' && G.g.moves.length <= 2 && G.g.startFen === E.START_FEN ? both('recommendOpening', coachLevel(), G.human) : [[], []];
         say(Object.assign(base, { kind: 'mentor', title: g1.title, lines: (real ? [c1[0].text] : []).concat(g1.lines, rec[0]), en: (real ? [c2[0].text] : []).concat(g2.lines, rec[1]), marks: g1.marks }));
       } else if (id === 'think') {
         const [a, b] = both('thinkAhead', lk);
@@ -4327,14 +4455,17 @@
       } else if (id === 'chances') {
         const [a, b] = both('chances', lk);
         const none = [M.tr('op.none'), ME.tr('op.none')];
+        if (!a.length) Object.assign(base, { head: '', enHead: '' });   // no "Something good is waiting!" before "No big chance"
         say(Object.assign(base, { kind: 'chance', lines: a.length ? a.map((x) => x.text) : [none[0]], en: b.length ? b.map((x) => x.text) : [none[1]], show: a.length > 0, marks: [] }));
       } else if (id === 'threats') {
         const [a, b] = both('threats', lk, []);
         const none = [M.tr('n.noThreat'), ME.tr('n.noThreat')];
+        if (!a.length) Object.assign(base, { head: '', enHead: '' });
         say(Object.assign(base, { kind: 'threat', lines: a.length ? a.slice(0, 2).map((x) => x.text) : [none[0]], en: b.length ? b.slice(0, 2).map((x) => x.text) : [none[1]], marks: a.length ? a[0].marks : [] }));
       } else if (id === 'radar') {
         const [a, b] = both('mateRadar', lk);
         const arrows = a.mine && lk.alts[0] ? [{ from: lk.alts[0].facts.from, to: lk.alts[0].facts.to, color: 'best' }] : a.theirs && lk.threat ? [{ from: lk.threat.facts.from, to: lk.threat.facts.to, color: 'them' }] : [];
+        if (!a.mine && !a.theirs) Object.assign(base, { head: '', enHead: '' });
         say(Object.assign(base, { kind: a.theirs ? 'threat' : 'chance', lines: [a.text], en: [b.text], arrows }));
       }
     }, G.looks[G.g.moves.length] ? 0 : 300);
@@ -4369,7 +4500,7 @@
       if (!w) { play(); return; }
       G.pendingMove = m; G.warnings = (G.warnings || 0) + 1;
       view.setBoard(piecesOf(G.g.pos), capturedFor(G.g));
-      say({ kind: 'warn', head: w.title, enHead: we.title, lines: [w.text], en: [we.text], marks: w.marks, arrows: w.arrows, actions: [[w.think, 'think-again'], [w.play, 'play-anyway']] });
+      say({ kind: 'warn', head: '', enHead: we.title, lines: [w.text], en: [we.text], marks: w.marks, arrows: w.arrows, actions: [[w.think, 'think-again'], [w.play, 'play-anyway']] });
     });
   }
   // Detailed move analysis: the chess logic behind one move, section by section, with a Listen button.
@@ -4615,9 +4746,10 @@
     if (!VARIANT_END.has(o.reason)) setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
     // Progress
     let res = null;
-    if (G.kind !== 'local' || g.moves.length >= 10) {
+    // A game called off before both sides moved counts for nobody: no win, loss, XP or coins.
+    if (o.reason !== 'aborted' && (G.kind !== 'local' || g.moves.length >= 10)) {
       res = PG.gameFinished(state.progress, {
-        mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
+        mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, champion: !!G.setup.journey, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
         plies: g.moves.length, sans: g.sans, firstIsMine: G.kind === 'local' ? true : (E.positionFrom(g.startFen, []).side === G.human), startFen: g.startFen, ucis: g.uciMoves(),
         enPassant: g.moves.some((m, i) => (E.mFlags(m) & E.F_EP) && (G.kind === 'local' || (i % 2 === 0) === (E.positionFrom(g.startFen, []).side === G.human))),
         pgn: pgn(), color: G.human, variant: g.variant, oppRating: G.online && G.online.opponent ? G.online.opponent.rating : undefined,
@@ -4889,13 +5021,13 @@
       '<div class="label">' + t('play.fr.clock') + '</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="frtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div>' +
       '<button class="btn primary" id="fr-create">' + icon('users') + ' ' + t('play.fr.createBtn') + '</button></section>' +
       '<section class="glass"><h3>' + icon('play') + ' ' + t('play.fr.join') + '</h3><label class="fine" for="fr-code">' + t('play.fr.joinSub') + '</label>' +
-      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
+      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="9" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
       status +
       '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn" id="fr-local">' + icon('users') + ' ' + t('play.fr.local') + '</button></div>', { x: true });
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
     m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
     const join = () => {
-      const code = m.querySelector('#fr-code').value.trim().toUpperCase();
+      const code = m.querySelector('#fr-code').value.toUpperCase().replace(/[^A-Z0-9]/g, '');   // "abc-123" and "ABC 123" are the same code
       if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = t('play.fr.badCode'); return; }
       m.close(); ChacklateNet.joinFriend(code);
     };
@@ -5300,7 +5432,9 @@
         if (!L.voice) { AU.say(t); return; }
         AU.words(L.voice, t).then(() => { if (w && run === S.talk && state.screen === 'lesson' && state.settings.narration) AU.words('priya', w.hi); });
       };
-      const g = S.phase === 'steps' ? 'lesson.steps' : S.phase === 'ex' ? 'lesson.ex' : null;
+      // every Learn lesson opens with its own line from Rooky; era, variation and trainer lessons share the general one
+      const opener = L.id && !own && !vr && GUIDE.lines['lesson.open.' + L.id.split('.').pop()] ? 'lesson.open.' + L.id.split('.').pop() : 'lesson.steps';
+      const g = S.phase === 'steps' ? opener : S.phase === 'ex' ? 'lesson.ex' : null;
       if (S.phase === 'ex' && !now) guideIdle('lesson.idle', 40000);
       if (!now && g && !guided[g]) { guided[g] = true; guideSay(g, { force: true, then: say }); } else say();
     };
@@ -5357,7 +5491,7 @@
     }
     function renderEx() {
       const x = ex[S.i];
-      S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false;
+      S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false; S.wait = false;
       $('ls-phase').textContent = trn ? t('learn.tr.position', { n: S.i + 1, of: ex.length }) : t(test ? 'learn.ls.question' : 'learn.ls.exercise', { n: S.i + 1, of: ex.length });
       $('ls-prev').disabled = true;
       $('ls-prev').hidden = quiz;
@@ -5393,13 +5527,22 @@
         (test ? '' : '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' ' + t('learn.ls.hint') + '</button></div>') + '<div id="ls-fb"></div>';
       if (!test) $('ls-hint').onclick = () => {
         const hints = x.type === 'puzzle' ? [t('learn.ls.hintForcing'), t('learn.ls.hintPiece', { piece: C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] })] : x.hints || (trn && x.answers ? [t('learn.ls.hintPiece', { piece: C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.answers[0].slice(0, 2))))] })] : []);
-        if (S.hintN < hints.length) { fb('hint', I18N.text(hints[S.hintN])); S.hintN++; }
-        else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); S.tries++; }
+        // any help costs the first-try credit; the last press shows the answer itself
+        if (S.answered || S.wait) return;
+        if (S.hintN < hints.length) { fb('hint', I18N.text(hints[S.hintN])); S.hintN++; S.tries++; }
+        else {
+          const u = hintMove(x);
+          if (x.type === 'square' && x.answers) view.setHighlights({ spots: [{ sq: sqIndex(x.answers[0]), color: '#2fd8ff' }] });
+          else if (x.type === 'targets') { const g = new E.Game(S.pos.fen()); view.setHighlights({ selected: sqIndex(x.from), spots: S.found.map((q) => ({ sq: q, color: '#3ee07a', pulse: false })).concat(g.targets(sqIndex(x.from)).filter((q) => !S.found.includes(q)).map((q) => ({ sq: q, color: '#2fd8ff' }))) }); }
+          else if (u) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
+          if ((x.type === 'square' && x.answers) || x.type === 'targets' || u) S.tries++;
+          $('ls-hint').disabled = true;
+        }
         AU.play('coach');
       };
       if (x.type === 'puzzle') {
-        S.pz = 0;
-        setPos(fen, [x.puzzle.moves[0]], () => { view.setView(S.pos.side === WHITE ? 'white' : 'black', 'player'); });
+        S.pz = 0; S.wait = true;
+        setPos(fen, [x.puzzle.moves[0]], () => { S.wait = false; view.setView(S.pos.side === WHITE ? 'white' : 'black', 'player'); });
       } else setPos(fen);
       if (x.last) view.setHighlights({ lastFrom: sqIndex(x.last.slice(0, 2)), lastTo: sqIndex(x.last.slice(2, 4)), marks: hillMarks(fen) });
       if (x.played) view.setArrows([{ from: sqIndex(x.played.slice(0, 2)), to: sqIndex(x.played.slice(2, 4)), color: '#ff4a40' }]);
@@ -5440,10 +5583,19 @@
       if (x.type === 'targets') updateCount();
       setHooks({
         onSquare: (sq) => exSquare(sq),
-        canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !x.options && !S.hidden && !S.answered && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
+        canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !x.options && !S.hidden && !S.answered && !S.wait && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
         onDrop: (from, to) => { const g = new E.Game(S.pos.fen()); if (!g.targets(from).includes(to)) return false; exMove(from, to); return true; },
       });
       dots(); speak();
+    }
+    // The move the last hint draws: the puzzle's next move, the answer, else a mate (or any legal move) found on the board.
+    function hintMove(x) {
+      if (x.type === 'puzzle') return x.puzzle.moves[S.pz * 2 + 1];
+      if (x.answers && x.answers[0] && x.answers[0].length >= 4) return x.answers[0];
+      if (!['mate', 'anyLegal', 'win'].includes(x.type)) return null;
+      const g = new E.Game(S.pos.fen());
+      for (const m of g.legal) { const g2 = new E.Game(S.pos.fen()); g2.play(m); if (x.type === 'anyLegal' || (g2.outcome && (x.type === 'mate' ? g2.outcome.reason === 'checkmate' : g2.outcome.result === (S.pos.side === WHITE ? '1-0' : '0-1')))) return E.uci(m); }
+      return null;
     }
     function updateCount() {
       const x = ex[S.i];
@@ -5453,10 +5605,12 @@
       view.setHighlights({ selected: sqIndex(x.from), spots: S.found.map((s) => ({ sq: s, color: '#3ee07a', pulse: false })) });
       return all;
     }
+    // a trainer item answered by its buttons or its clock: the main button moves on
+    function finishedEx() { $('ls-next').textContent = S.i === ex.length - 1 ? t('learn.ls.finish') : t('common.next'); dots(); }
     function fb(kind, text) { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; }
     function exSquare(sq) {
       const x = ex[S.i];
-      if (S.answered) return;
+      if (S.answered || S.wait) return;
       if (x.type === 'square') {
         const ok = x.answers.map(sqIndex).includes(sq);
         view.setHighlights({ spots: [{ sq, color: ok ? '#3ee07a' : '#ff4a40', pulse: false }] });
@@ -5504,12 +5658,13 @@
           if (ok && S.pz * 2 + 2 < x.puzzle.moves.length) {
             const info = g.play(m);
             AU.play(info.captured ? 'capture' : 'move', info);
+            S.wait = true;
             quickMove(info, () => {
               S.pos = g.pos; view.setBoard(piecesOf(g.pos), null);
               const reply = g.playText(x.puzzle.moves[S.pz * 2 + 2]);
               S.pz++;
               fb('ok', t('learn.ls.keepGoing'));
-              setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move', reply); }), 350);
+              setTimeout(() => quickMove(reply, () => { S.wait = false; S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move', reply); }), 350);
             });
             return;
           }
@@ -5556,6 +5711,7 @@
         if (S.i < ex.length - 1) { S.i++; renderEx(); } else finish();
         return;
       }
+      if (S.retry) { go('lesson', toGame ? { id: L.id, back: 'game' } : L.id); return; }
       if (S.nx) { go('lesson', S.nx.id); return; }
       if (S.again) { go('lesson', { trainer: trn.id }); return; }
       leaveTo();
@@ -5570,7 +5726,18 @@
       let res;
       if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
       else if (vr) res = PG.variantLessonFinished(state.progress, vr.id, first, ex.length);
-      else {
+      else if (!first && ex.length) {
+        // nothing right first time (every exercise skipped or missed): not complete, have another go
+        $('ls-phase').textContent = t('learn.ls.yourResult');
+        $('ls-content').innerHTML = '<div class="done-card"><p class="prompt">' + esc(t('learn.ls.firstTime', { n: 0, of: ex.length, pct: 0 })) + '</p><p class="say">' + esc(t('learn.ls.notYet')) + '</p></div>';
+        S.retry = true;
+        $('ls-next').textContent = t('learn.ls.again');
+        $('ls-prev').hidden = false; $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
+        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : t('common.nav.learn')) + '</span>';
+        $('ls-prev').onclick = () => { AU.play('tap'); leaveTo(); };
+        guideIdle(null); dots();
+        return;
+      } else {
         const wasDue = PG.dueReviews(state.progress).includes(L.id);
         res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
         if (wasDue) PG.reviewDone(state.progress, L.id);
@@ -5653,7 +5820,7 @@
       celebrate(res);
     }
     if (quiz) { if (ex.length) renderEx(); else finish(); } else renderStep();
-    return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
+    return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'Enter' && e.target && e.target.closest && e.target.closest('button')) return; if (S.phase === 'ex' && !S.answered) return; if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
   };
 
   // ---------------------------------------------------------------- drills
@@ -5871,7 +6038,11 @@
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
-        if (S.step * 2 + 2 >= S.cur.moves.length || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
+        // A mate puzzle is solved only on the board's checkmate: if its stored line runs out first,
+        // the prover keeps defending (S.off) instead of calling it solved with no mate.
+        const lineDone = S.step * 2 + 2 >= S.cur.moves.length;
+        if (lineDone && mn && !(tg.outcome && tg.outcome.reason === 'checkmate')) S.off = true;
+        else if (lineDone || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.off ? (MS.longestDefence(g.pos, left - 1, 4e5) || {}).move : S.cur.moves[S.step * 2 + 2]);
         if (!reply) { finish(true); return; }
         S.step++;
@@ -5899,7 +6070,7 @@
     // The move to find now: the stored line's, or after a different mating move, the prover's.
     function wantMove() {
       if (!S.off) return S.cur.moves[S.step * 2 + 1];
-      const ms = MS.matingMoves(S.pos, mateOf(S.cur) - S.step, 4e5);
+      const ms = MS.matingMoves(S.pos, Math.max(1, mateOf(S.cur) - S.step), 4e5);
       return (ms && ms[0]) || S.cur.moves[S.step * 2 + 1];
     }
     $('pz-hint').onclick = () => {
@@ -6479,6 +6650,12 @@
   const bonus = PG.dailyBonus(state.progress);
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
+  // A tab left open overnight gets the new day's bonus when the player comes back to it.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    const b = PG.dailyBonus(state.progress);
+    if (b.coins) { save(); renderNav(); setTimeout(() => celebrate(b, true), 600); }
+  });
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitNav(); applyInsets(); });
   // App shortcuts from the installed icon's menu, and links from emails.

@@ -219,6 +219,14 @@ assert.strictEqual(s.earned.by.lesson, 25, 'a replayed lesson does not pay again
 const pz = { id: 'pz-coin', rating: 900 };
 assert(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins >= 30);
 assert.strictEqual(s.earned.by['daily-puzzle'], 30);
+assert.strictEqual(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins || 0, 0, 'the daily puzzle pays once a day');
+assert.strictEqual(PG.puzzleFinished(s, { id: 'pz-coin2', rating: 900 }, true, { daily: true }, day(11)).coins >= 30, true, 'and again the next day');
+// turning the clock back cannot reopen a day already paid
+s = PG.fresh();
+assert.strictEqual(PG.dailyBonus(s, day(12)).coins, 20);
+assert.strictEqual(PG.dailyBonus(s, day(11)).coins, 0, 'no bonus for going back a day');
+assert.strictEqual(PG.dailyBonus(s, day(12)).coins, 0, 'nor for coming forward again');
+assert.strictEqual(PG.dailyBonus(s, day(13)).coins, 20);
 // the generic earn API with a per-source daily cap (mini-games use this)
 s = PG.fresh();
 const got = [1, 2, 3, 4, 5, 6].map(() => PG.earn(s, 'mini:test', 10, { cap: 50, now: day(10) }));
@@ -410,4 +418,19 @@ console.log('progress ok');
   for (let i = 0; i < 450; i++) P2.gameFinished(st, g({ won: i % 2 === 0, lost: i % 2 === 1 }), day(4) + i);
   assert(P2.perfOf(st).games.length <= 400, 'at most 400 games kept');
   console.log('performance over time ok');
+}
+
+// An era champion is not the animal friend of the same level; a trainer round with nothing solved earns nothing.
+{
+  const st = PG.fresh();
+  const rc = PG.gameFinished(st, { mode: 'ai', level: 0, champion: true, won: true, plies: 12, sans: [], firstIsMine: true, reason: 'checkmate' }, day(1));
+  assert.deepStrictEqual(st.stats.byLevel, {}, 'champion games stay out of the friend record');
+  assert(!st.achievements['beat-truffle'] && !rc.achievements.some((a) => a.id === 'beat-truffle'), 'no friend medal for a champion');
+  const xp0 = st.xp;
+  const r0 = PG.trainerFinished(st, 'tactics', 0, day(2));
+  assert.strictEqual(st.xp, xp0, 'a round with nothing solved gives no XP');
+  assert(!r0.xp);
+  PG.trainerFinished(st, 'tactics', 50, day(2));
+  assert(st.xp > xp0, 'a real round gives XP');
+  console.log('champion and trainer rewards ok');
 }

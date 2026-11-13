@@ -135,13 +135,13 @@ html.nonlatin .wordmark::after { margin-left: 0; }
 /* ---------- learn with @@COACH@@ ---------- */
 #learn { min-height: 100vh; display: flex; align-items: center; }
 .learn { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; width: 100%; }
-.learn-copy { position: relative; padding: 30px 150px 30px 30px; max-width: 600px; }
+.learn-copy { position: relative; padding: 30px; padding-inline-end: 150px; max-width: 600px; }
 .learn-copy .sub { margin-top: 14px; font-size: 17.5px; }
 .learn-copy h2 { font-size: clamp(36px, 3.6vw, 52px); }
 /* @@COACH@@ looks in over the top corner of the card */
-.learn-copy .peek { position: absolute; top: -28px; right: 22px; width: 150px; height: 150px; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6)); }
+.learn-copy .peek { position: absolute; top: -28px; inset-inline-end: 22px; width: 150px; height: 150px; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6)); }
 .learn-copy .peek img { width: 100%; height: 100%; border-radius: 50%; }
-.learn-copy .peek::before { content: ''; position: absolute; left: -22px; top: 18px; width: 22px; height: 22px; background: linear-gradient(var(--gold-2), var(--gold-2)) 0 50% / 100% 2px no-repeat, linear-gradient(var(--gold-2), var(--gold-2)) 50% 0 / 2px 100% no-repeat; transform: rotate(20deg); border-radius: 2px; opacity: .9; }
+.learn-copy .peek::before { content: ''; position: absolute; inset-inline-start: -22px; top: 18px; width: 22px; height: 22px; background: linear-gradient(var(--gold-2), var(--gold-2)) 0 50% / 100% 2px no-repeat, linear-gradient(var(--gold-2), var(--gold-2)) 50% 0 / 2px 100% no-repeat; transform: rotate(20deg); border-radius: 2px; opacity: .9; }
 .coach-card { margin-top: var(--u); padding: 16px 22px 16px 16px; display: flex; gap: 16px; align-items: center; max-width: 600px; min-height: 108px; }
 .coach-card .crest { width: 76px; height: 76px; }
 .coach-card b { display: block; margin-bottom: 8px; }
@@ -169,7 +169,7 @@ html.nonlatin .wordmark::after { margin-left: 0; }
 .trainers h3::after { content: ''; display: block; width: 36px; height: 1px; margin: 10px auto 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 .trainers p { margin: 10px 0 0; color: var(--muted); font-size: 14.5px; line-height: 1.45; }
 #mates { min-height: 100vh; display: flex; align-items: center; }
-.mates-copy { padding-right: 30px; }
+.mates-copy { padding-inline-end: 30px; }
 .ladder-steps { margin-top: var(--u); max-width: 600px; padding: 12px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: end; }
 .ladder-steps button { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; padding: 10px 4px 10px; border-radius: 14px; border: 1px solid var(--line-2); background: linear-gradient(180deg, rgba(232, 192, 112, 0.08), rgba(232, 192, 112, 0.02)); color: var(--muted); cursor: pointer; transition: border-color .2s, background .2s, color .2s, transform .2s; }
 .ladder-steps button:nth-child(1) { min-height: 76px; } .ladder-steps button:nth-child(2) { min-height: 88px; } .ladder-steps button:nth-child(3) { min-height: 100px; } .ladder-steps button:nth-child(4) { min-height: 112px; } .ladder-steps button:nth-child(5) { min-height: 124px; }
@@ -258,7 +258,7 @@ html.nonlatin .wordmark::after { margin-left: 0; }
 .collect-head { text-align: center; display: flex; flex-direction: column; align-items: center; }
 /* the three counts: wide tiles in their own colours, each a tab of the showroom */
 .car-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--u); margin: 44px 0 var(--u); }
-.car-tabs button { --ca: #5a1020; --cb: #2a0810; display: flex; align-items: center; gap: 14px; min-height: 120px; padding: 8px 22px 8px 12px; border-radius: 20px; border: 1px solid transparent; background: linear-gradient(135deg, var(--ca), var(--cb)) padding-box, linear-gradient(160deg, rgba(246, 220, 156, 0.45), rgba(185, 137, 58, 0.25)) border-box; color: var(--ink); cursor: pointer; text-align: left; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4); transition: transform .25s, box-shadow .25s; }
+.car-tabs button { --ca: #5a1020; --cb: #2a0810; display: flex; align-items: center; gap: 14px; min-height: 120px; padding-block: 8px; padding-inline: 12px 22px; border-radius: 20px; border: 1px solid transparent; background: linear-gradient(135deg, var(--ca), var(--cb)) padding-box, linear-gradient(160deg, rgba(246, 220, 156, 0.45), rgba(185, 137, 58, 0.25)) border-box; color: var(--ink); cursor: pointer; text-align: start; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4); transition: transform .25s, box-shadow .25s; }
 .car-tabs button .ic3d { width: 112px; height: 112px; margin: -6px 0; }
 .car-tabs button span { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
 .car-tabs button span i { font: 600 13px/1.2 var(--caps); font-style: normal; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); }
@@ -323,7 +323,7 @@ html[dir="rtl"] .strip-arrow svg, html[dir="rtl"] .chev { transform: scaleX(-1);
 .details { padding-top: 110px; }
 .fx { display: grid; grid-template-columns: minmax(230px, 300px) minmax(0, 1fr); gap: 28px; align-items: stretch; max-width: 1120px; margin: 0 auto; }
 .fx-tabs { display: flex; flex-direction: column; gap: 10px; }
-.fx-tabs button { flex: 1 1 0; display: flex; align-items: center; gap: 16px; min-height: 68px; padding: 6px 16px 6px 7px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--muted); font: 600 20px/1.15 var(--serif); text-align: left; cursor: pointer; transition: border-color 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s; }
+.fx-tabs button { flex: 1 1 0; display: flex; align-items: center; gap: 16px; min-height: 68px; padding-block: 6px; padding-inline: 7px 16px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--muted); font: 600 20px/1.15 var(--serif); text-align: start; cursor: pointer; transition: border-color 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s; }
 .fx-tabs button[aria-selected="true"] { color: var(--ink); background: linear-gradient(90deg, rgba(120, 30, 70, 0.75), rgba(60, 20, 40, 0.3)) padding-box, var(--gold-grad) border-box; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 24px rgba(232, 192, 112, 0.2); }
 .fx-tabs button:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 3px; }
 @media (hover: hover) { .fx-tabs button:hover { color: var(--ink); } }
@@ -394,7 +394,7 @@ html[dir="rtl"] .strip-arrow svg, html[dir="rtl"] .chev { transform: scaleX(-1);
 .plan.featured { background: linear-gradient(180deg, rgba(70, 45, 28, 0.86), rgba(28, 17, 12, 0.94)) padding-box, var(--gold-grad) border-box; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(232, 192, 112, 0.22); }
 .plan .price { display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap; font: 600 44px/1.1 var(--caps); font-variant-numeric: lining-nums tabular-nums; margin: 20px 0 18px; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.08em; }
 .plan .price small { font: 400 15px/1.4 var(--sans); color: var(--muted); -webkit-text-fill-color: var(--muted); }
-.plan ul { list-style: none; margin: 0 0 26px; padding: 0; display: flex; flex-direction: column; gap: 10px; text-align: left; width: 100%; max-width: 300px; }
+.plan ul { list-style: none; margin: 0 0 26px; padding: 0; display: flex; flex-direction: column; gap: 10px; text-align: start; width: 100%; max-width: 300px; }
 .plan li { display: flex; align-items: flex-start; gap: 10px; color: #eadccd; font-size: 15.5px; line-height: 1.4; }
 .plan li svg { flex: none; width: 18px; height: 18px; margin-top: 3px; color: var(--gold); }
 .plan .btn { margin-top: auto; width: 100%; max-width: 300px; }
@@ -429,7 +429,7 @@ html[dir="rtl"] .strip-arrow svg, html[dir="rtl"] .chev { transform: scaleX(-1);
 .house-contact li small { font-size: 13px; color: var(--faint); }
 .house-contact a { color: var(--ink); text-decoration: none; overflow-wrap: anywhere; font-size: 17px; }
 .house-contact a:hover, .house-contact a:focus-visible { color: var(--gold-2); text-decoration: underline; text-underline-offset: 4px; }
-.house-contact .fine { justify-content: flex-start; text-align: left; margin-top: 4px; font-size: 13px; }
+.house-contact .fine { justify-content: flex-start; text-align: start; margin-top: 4px; font-size: 13px; }
 @media (max-width: 760px) {
   .house { grid-template-columns: 1fr; gap: 36px; }
   .house-contact { padding: 28px 0 0; border-left: 0; border-top: 1px solid var(--line); }
@@ -522,7 +522,7 @@ header.top.cramped.menu-open nav a.on::after { left: auto; right: 4px; top: 50%;
 .lang-btn:hover, .lang-btn[aria-expanded="true"] { border-color: var(--gold-3); }
 .lang-btn svg { width: 20px; height: 20px; }
 .lang-menu { position: absolute; top: calc(100% + 10px); right: 0; z-index: 60; min-width: 168px; padding: 6px; border: 1px solid var(--line); border-radius: 14px; background: rgba(20, 13, 10, 0.97); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55); }
-.lang-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0 14px; border: 0; border-radius: 9px; background: none; color: var(--ink); font: 500 16px/1.2 var(--sans); text-align: left; cursor: pointer; }
+.lang-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0 14px; border: 0; border-radius: 9px; background: none; color: var(--ink); font: 500 16px/1.2 var(--sans); text-align: start; cursor: pointer; }
 .lang-menu button:hover, .lang-menu button:focus-visible { background: rgba(232, 192, 112, 0.1); outline: none; }
 .lang-menu button[aria-checked="true"]::after { content: ''; width: 10px; height: 5px; margin-left: 12px; border: solid var(--gold); border-width: 0 0 2px 2px; transform: rotate(-45deg) translateY(-2px); }
 /* Devanagari and other non-Latin scripts: no spaced capitals, and a little more line height */
@@ -615,9 +615,9 @@ html.nonlatin body { line-height: 1.75; }
   .plan ul { gap: 8px; }
   .plan li { font-size: 15px; }
   .stage { max-height: 600px; }
-  .learn-copy { padding-right: 120px; }
-  .learn-copy .peek { width: 118px; height: 118px; top: -20px; right: 16px; }
-  .car-tabs button { min-height: 96px; padding: 8px 16px 8px 10px; }
+  .learn-copy { padding-inline-end: 120px; }
+  .learn-copy .peek { width: 118px; height: 118px; top: -20px; inset-inline-end: 16px; }
+  .car-tabs button { min-height: 96px; padding-block: 8px; padding-inline: 10px 16px; }
   .car-tabs button .ic3d { width: 78px; height: 78px; }
   .car-tabs button small { font-size: 28px; }
   .pillars .ic3d { width: 90px; height: 90px; }
@@ -651,7 +651,7 @@ html.nonlatin body { line-height: 1.75; }
   .learn { grid-template-columns: 1fr; }
   .learn > div:first-child { padding-top: 46vh; }
   .learn-copy { padding: 22px 18px 22px; }
-  .learn-copy .peek { width: 86px; height: 86px; top: -30px; right: 14px; }
+  .learn-copy .peek { width: 86px; height: 86px; top: -30px; inset-inline-end: 14px; }
   .learn-copy .peek::before { display: none; }
   .trainers { gap: 10px; margin-top: 36px; }
   .trainers li { flex-basis: calc((100% - 10px) / 2); padding: 14px 10px 16px; }
@@ -673,7 +673,7 @@ html.nonlatin body { line-height: 1.75; }
   .skills .delta { order: 1; font-size: 12px; }
   .ringwrap svg { width: 110px; height: 110px; }
   .periods button { padding: 0 14px; }
-  .learn-copy h2 { padding-right: 70px; }
+  .learn-copy h2 { padding-inline-end: 70px; }
   .coach-card p { font-size: 18px; }
   .coach-card .crest { width: 60px; height: 60px; }
   .ticks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -698,7 +698,7 @@ html.nonlatin body { line-height: 1.75; }
   .nums b { font-size: 40px; }
   .nums p { font-size: 14px; }
   .car-tabs { grid-template-columns: 1fr; gap: 10px; margin: 30px 0 14px; }
-  .car-tabs button { min-height: 78px; border-radius: 16px; padding: 6px 16px 6px 8px; }
+  .car-tabs button { min-height: 78px; border-radius: 16px; padding-block: 6px; padding-inline: 8px 16px; }
   .car-tabs button .ic3d { width: 66px; height: 66px; }
   .car-tabs button small { font-size: 26px; }
   .showroom { padding: 12px; }
@@ -732,7 +732,8 @@ html.nonlatin body { line-height: 1.75; }
   .fx-pips { gap: 14px; }
   .fx-pips button { width: 104px; font-size: 13px; }
   .fx-th { width: 70px; height: 70px; }
-  .pricing { grid-template-columns: 1fr; max-width: 520px; margin-left: auto; margin-right: auto; }
+  .pricing { grid-template-columns: minmax(0, 1fr); max-width: 520px; margin-left: auto; margin-right: auto; }
+  .plan .btn { white-space: normal; text-align: center; line-height: 1.25; padding: 10px 20px; }
   .plan { padding: 10px 20px 24px; }
   .plan .ic3d { width: 150px; height: 150px; }
   .plan .price { font-size: 36px; }
@@ -756,6 +757,10 @@ html.nonlatin body { line-height: 1.75; }
 }
 @media (max-width: 480px) { header.top .wrap { gap: 10px; } .logo { gap: 9px; font-size: 13px; letter-spacing: 0.18em; } .htools { gap: 8px; } .htools .btn.small { padding: 0 14px; letter-spacing: 0.12em; } }
 @media (max-width: 440px) { .logo > span:not(.crest) { display: none; } }
+@media (max-width: 420px) { main .btn { max-width: 100%; white-space: normal; text-align: center; line-height: 1.25; padding-top: 8px; padding-bottom: 8px; } .btn.big { padding: 8px 26px; letter-spacing: 0.1em; } }
+header.top.snug .htools { gap: 6px; }
+header.top.snug .rooky-tool, header.top.snug .lang-btn, header.top.snug .menu-btn { width: 36px; height: 36px; }
+header.top.snug .htools .btn.small { white-space: normal; text-align: center; line-height: 1.15; min-height: 38px; max-width: 106px; padding: 3px 10px; font-size: 10.5px; letter-spacing: 0.04em; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
@@ -964,7 +969,7 @@ html.nonlatin body { line-height: 1.75; }
       <div class="stage" id="stage"><img id="stageimg" src="" alt=""><span class="glint" aria-hidden="true"></span><span class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V11m0-3a1.5 1.5 0 0 1 3 0v3m0-1.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.2a6 6 0 0 1-4.6-2.2L3 14.6a1.6 1.6 0 0 1 2.4-2.1L9 15"/></svg>Drag to rotate</span></div>
       <div class="plaque" aria-live="polite">
         <small id="pline"></small>
-        <h3 id="pname"></h3>
+        <h3 id="pname" data-no-i18n></h3>
         <p id="pdesc"></p>
         <div class="chips" id="pchips"></div>
         <span class="how" id="phow"></span>
@@ -1074,9 +1079,9 @@ html.nonlatin body { line-height: 1.75; }
     <aside class="house-contact" id="contact" aria-labelledby="contact-h">
       <h3 id="contact-h">Contact</h3>
       <ul>
-        <li><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span><span><a href="mailto:bite@chacklate.com" data-out data-no-i18n>bite@chacklate.com</a><small>General questions</small></span></li>
-        <li><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="12.5" width="4" height="6" rx="1.5"/><rect x="17" y="12.5" width="4" height="6" rx="1.5"/><path d="M19 18.5v1a2 2 0 0 1-2 2h-3"/></svg></span><span><a href="mailto:support@chacklate.com" data-out data-no-i18n>support@chacklate.com</a><small>Help with the game</small></span></li>
-        <li><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="5"/><circle cx="12" cy="12" r="3.8"/><path d="M17 7h.01"/></svg></span><span data-no-i18n><a href="https://www.instagram.com/chackmate/" data-out>@chackmate</a><a href="https://www.instagram.com/chacklate/" data-out>@chacklate</a></span></li>
+        <li><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span><span><a href="mailto:bite@chacklate.com" data-out data-no-i18n dir="ltr">bite@chacklate.com</a><small>General questions</small></span></li>
+        <li><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="12.5" width="4" height="6" rx="1.5"/><rect x="17" y="12.5" width="4" height="6" rx="1.5"/><path d="M19 18.5v1a2 2 0 0 1-2 2h-3"/></svg></span><span><a href="mailto:support@chacklate.com" data-out data-no-i18n dir="ltr">support@chacklate.com</a><small>Help with the game</small></span></li>
+        <li><span class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="5"/><circle cx="12" cy="12" r="3.8"/><path d="M17 7h.01"/></svg></span><span data-no-i18n><a href="https://www.instagram.com/chackmate/" data-out dir="ltr">@chackmate</a><a href="https://www.instagram.com/chacklate/" data-out dir="ltr">@chacklate</a></span></li>
       </ul>
       <p class="fine"><span>Links open outside this site, after a quick grown-up check.</span></p>
     </aside>
@@ -1089,7 +1094,7 @@ html.nonlatin body { line-height: 1.75; }
     <p>This link leaves the site. To carry on, answer: <b id="gate-q" data-no-i18n></b></p>
     <input id="gate-a" inputmode="numeric" autocomplete="off" aria-labelledby="gate-q">
     <p class="gate-no" id="gate-no" hidden>Not quite. Ask a grown-up.</p>
-    <div class="gate-btns"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn small gold" id="gate-ok" value="ok">Continue</button></div>
+    <div class="gate-btns"><button type="button" class="btn small" id="gate-cancel">Cancel</button><button class="btn small gold" id="gate-ok" value="ok">Continue</button></div>
   </form>
 </dialog>
 <aside class="r-invite" id="r-invite" hidden aria-label="Guided tour">
@@ -1227,7 +1232,8 @@ html.nonlatin body { line-height: 1.75; }
   addEventListener('scroll', function () { scrolledAt = Date.now(); }, { passive: true });
   function insetsFor(mode) {
     var W = window.innerWidth, H = window.innerHeight, phone = W <= 760;
-    if (mode === 'learn' || mode === 'mates') return phone ? { top: 80, bottom: H * 0.5, left: 8, right: 8 } : { top: 90, bottom: 60, left: W * 0.5, right: 40 };
+    // the table sits beside the card: on the right, or on the left when the page reads right to left
+    if (mode === 'learn' || mode === 'mates') return phone ? { top: 80, bottom: H * 0.5, left: 8, right: 8 } : document.documentElement.dir === 'rtl' ? { top: 90, bottom: 60, left: 40, right: W * 0.5 } : { top: 90, bottom: 60, left: W * 0.5, right: 40 };
     // phones: the camera comes in close (see setMode), past the benches, so the wonder fills the window
     if (phone) return { top: H * 0.36 };
     if (mode === 'wonders') return { top: H * 0.5, bottom: 150, left: W * 0.12, right: W * 0.12 };
@@ -1532,7 +1538,7 @@ html.nonlatin body { line-height: 1.75; }
     C[t].forEach(function (it, k) {
       var b = document.createElement('button');
       b.type = 'button'; b.setAttribute('role', 'tab');
-      b.innerHTML = '<span class="thumb"><img src="' + IMG[it.key] + '" alt="" width="124" height="92" loading="lazy"></span><span>' + it.name + '</span>';
+      b.innerHTML = '<span class="thumb"><img src="' + IMG[it.key] + '" alt="" width="124" height="92" loading="lazy"></span><span data-no-i18n>' + it.name + '</span>';
       b.onclick = function () { if (k !== at) { show(k); tell(); } };
       strip.appendChild(b);
     });
@@ -1542,7 +1548,7 @@ html.nonlatin body { line-height: 1.75; }
   function show(i) {
     var list = C[tab], it = list[i];
     at = i;
-    [].forEach.call(strip.children, function (b, k) { b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+    [].forEach.call(strip.children, function (b, k) { b.setAttribute('aria-selected', k === i ? 'true' : 'false'); b.tabIndex = k === i ? 0 : -1; });
     var sel = strip.children[i], l = sel.offsetLeft - strip.offsetLeft;
     if (l < strip.scrollLeft || l + sel.offsetWidth > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = l - (strip.clientWidth - sel.offsetWidth) / 2;
     $('sprev').disabled = i === 0; $('snext').disabled = i === list.length - 1;
@@ -1561,7 +1567,12 @@ html.nonlatin body { line-height: 1.75; }
   function stepItem(d) { var j = Math.max(0, Math.min(C[tab].length - 1, at + d)); if (j !== at) { show(j); tell(); } }
   $('sprev').onclick = function () { stepItem(-1); };
   $('snext').onclick = function () { stepItem(1); };
-  strip.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); stepItem(e.key === 'ArrowRight' ? 1 : -1); strip.children[at].focus(); } });
+  // one Tab stop for the whole strip (the piece on show); the arrow keys move along it, mirrored when the page reads right to left
+  strip.addEventListener('keydown', function (e) {
+    var fwd = document.documentElement.dir === 'rtl' ? 'ArrowLeft' : 'ArrowRight', back = fwd === 'ArrowLeft' ? 'ArrowRight' : 'ArrowLeft';
+    var d = e.key === fwd ? 1 : e.key === back ? -1 : e.key === 'Home' ? -at : e.key === 'End' ? C[tab].length : 0;
+    if (d) { e.preventDefault(); stepItem(d); strip.children[at].focus(); }
+  });
   openTab('sets', 0);
   // The plaque always swipes; the stage swipes only while it shows a picture.
   var sx = null, sy = 0, tiltT = 0;
@@ -1863,7 +1874,7 @@ html.nonlatin body { line-height: 1.75; }
     var KEY = 'chackmate.site.tour.v1', CC_KEY = 'chackmate.site.captions', Y_KEY = 'chackmate.site.rooky-y.v1';
     var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
     var btn = $('r-btn'), invite = $('r-invite'), live = $('r-live'), cap = $('r-caption'), where = $('r-where'), orb = $('r-orb'), ccBtn = $('r-cc'), nextBtn = $('r-next');
-    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', train: 'Train', mates: 'Puzzles', progress: 'Progress', wonders: 'Wonders', collect: 'Collect', ages: 'Every age', families: 'For families', close: 'Play' };
+    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', train: 'Train', mates: 'Puzzles', progress: 'Progress', wonders: 'Wonders', collect: 'Collect', ages: 'Friends to play', families: 'For grown-ups', close: 'Play' };
     var sections = [].slice.call(document.querySelectorAll('[data-guide]')).filter(function (el) { return G[el.dataset.guide]; });
     var keys = sections.map(function (el) { return el.dataset.guide; });
     var on = false, paused = false, audio = null, lastSection = null, lastKey = null, settle = 0, capTimer = 0, peekT = 0, itemT = 0, nextTo = null, cueAt = 0;
@@ -2133,17 +2144,18 @@ html.nonlatin body { line-height: 1.75; }
     setCaptions(store.get(CC_KEY) === '1');   // off until the visitor turns them on
     ccBtn.addEventListener('click', function () { var v = live.classList.contains('nocap'); store.set(CC_KEY, v ? '1' : '0'); setCaptions(v); });
     // the face floats on the right edge: drag it up or down (a drag never counts as a tap); hold to read the caption
-    var holdT = 0, held = false, drag = null, dragged = false;
+    // ('pressed' is that hold; 'held' above is a clip waiting for a tap, so the two must stay apart)
+    var holdT = 0, pressed = false, drag = null, dragged = false;
     function clampY(y) { var top = ($('top').getBoundingClientRect().bottom || 74) + 12, bottom = innerHeight - orb.offsetHeight - 20; return Math.max(top, Math.min(bottom, y)); }
     function place(y) { live.classList.add('placed'); live.style.setProperty('--r-y', clampY(y) + 'px'); }
     function saveY() { try { sessionStorage.setItem(Y_KEY, parseFloat(live.style.getPropertyValue('--r-y'))); } catch (e) {} }
     try { var y0 = sessionStorage.getItem(Y_KEY); if (y0 !== null) place(+y0); } catch (e) {}
     addEventListener('resize', function () { if (live.classList.contains('placed')) place(parseFloat(live.style.getPropertyValue('--r-y'))); });
     orb.addEventListener('pointerdown', function (e) {
-      held = false; dragged = false; clearTimeout(holdT);
+      pressed = false; dragged = false; clearTimeout(holdT);
       drag = { y0: e.clientY, top: live.getBoundingClientRect().top, id: e.pointerId };
       try { orb.setPointerCapture(e.pointerId); } catch (err) {}
-      holdT = setTimeout(function () { if (!dragged) { held = true; peek(0); } }, 450);
+      holdT = setTimeout(function () { if (!dragged) { pressed = true; peek(0); } }, 450);
     });
     orb.addEventListener('pointermove', function (e) {
       if (!drag || e.pointerId !== drag.id) return;
@@ -2152,14 +2164,15 @@ html.nonlatin body { line-height: 1.75; }
       if (!dragged) { dragged = true; clearTimeout(holdT); live.classList.add('dragging'); }
       place(drag.top + dy);
     });
-    function release() { clearTimeout(holdT); if (dragged) { live.classList.remove('dragging'); saveY(); } else if (held) peek(1800); drag = null; }
+    function release() { clearTimeout(holdT); if (dragged) { live.classList.remove('dragging'); saveY(); } else if (pressed) peek(1800); drag = null; }
     orb.addEventListener('pointerup', release); orb.addEventListener('pointercancel', release);
     orb.addEventListener('contextmenu', function (e) { e.preventDefault(); });
     orb.addEventListener('keydown', function (e) { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); place(live.getBoundingClientRect().top + (e.key === 'ArrowUp' ? -40 : 40)); saveY(); } });
-    orb.addEventListener('click', function () { if (dragged || held) { dragged = false; held = false; return; } if (!on) { setOn(true); return; } setPaused(!paused); peek(2500); });
+    orb.addEventListener('click', function () { if (dragged || pressed) { dragged = false; pressed = false; return; } if (!on) { setOn(true); return; } setPaused(!paused); peek(2500); });
     live.addEventListener('mouseenter', function () { peek(0); }); live.addEventListener('mouseleave', function () { peek(1200); });
     orb.addEventListener('focus', function () { peek(0); }); orb.addEventListener('blur', function () { peek(1200); });
-    addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) setOn(false); });
+    // Escape ends the tour, unless it is closing a menu or the grown-ups check first
+    addEventListener('keydown', function (e) { if (e.key === 'Escape' && on && !e.defaultPrevented && !document.querySelector('dialog[open]')) setOn(false); });
     document.addEventListener('visibilitychange', function () { if (paused || !on) return; if (document.hidden) { hold(); quiet(); dropContext(); } else { if (hush) hush.play().catch(function () {}); carryOn(false); } });
     // iOS also fires these on a lock or a return, sometimes without visibilitychange
     addEventListener('pagehide', function () { if (on && !paused) { hold(); quiet(); dropContext(); } });
@@ -2189,18 +2202,20 @@ html.nonlatin body { line-height: 1.75; }
   menuBtn.addEventListener('click', function () { menu(!top.classList.contains('menu-open')); });
   // folds the section names into the menu button when they do not fit on one line (long languages)
   var navEl = $('nav'), toolsEl = document.querySelector('.htools');
+  // and on a small phone, lets a long "Play now" (French, Spanish, Russian) wrap onto two lines
   function fitNav() {
-    top.classList.remove('cramped');
-    if (getComputedStyle(navEl).display === 'none') return;
-    var bar = top.querySelector('.wrap'), t = toolsEl.getBoundingClientRect();
-    if (bar.scrollWidth > bar.clientWidth + 1 || t.right > innerWidth + 1 || t.left < -1) top.classList.add('cramped');
+    top.classList.remove('cramped', 'snug');
+    var bar = top.querySelector('.wrap');
+    var over = function () { var t = toolsEl.getBoundingClientRect(), b = bar.getBoundingClientRect(), cs = getComputedStyle(bar); return bar.scrollWidth > bar.clientWidth + 1 || t.right > Math.min(innerWidth, b.right - parseFloat(cs.paddingRight)) + 1 || t.left < Math.max(0, b.left + parseFloat(cs.paddingLeft)) - 1; };
+    if (getComputedStyle(navEl).display !== 'none' && over()) top.classList.add('cramped');
+    if (over()) top.classList.add('snug');
   }
   addEventListener('resize', fitNav);
   new MutationObserver(function () { requestAnimationFrame(fitNav); }).observe(navEl, { subtree: true, characterData: true, childList: true });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
   fitNav();
   links.forEach(function (a) { a.addEventListener('click', function () { menu(false); }); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && top.classList.contains('menu-open')) { menu(false); menuBtn.focus(); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && top.classList.contains('menu-open')) { e.preventDefault(); menu(false); menuBtn.focus(); } });
   document.addEventListener('click', function (e) { if (top.classList.contains('menu-open') && !e.target.closest('header.top')) menu(false); });
   if ('IntersectionObserver' in window) {
     var spy = new IntersectionObserver(function (es) {
@@ -2276,6 +2291,8 @@ html.nonlatin body { line-height: 1.75; }
   (function () {
     var LANG_KEY = 'chackmate.site.lang', ATTRS = ['aria-label', 'alt', 'title', 'data-tip', 'placeholder'];
     var keep = {}; D.keep.forEach(function (k) { keep[k] = 1; });
+    // a wonder is translated even where a room shares its name ("The Colosseum"); the room keeps it in Collect
+    (D.landmarks || []).forEach(function (k) { delete keep[k]; });
     var lang = 'en', table = null, eng = new WeakMap(), said = new WeakMap(), engAttr = new WeakMap(), missing = {};
     function word(t) {
       if (!/[A-Za-z]/.test(t) || keep[t] || /^[IVX]+$/.test(t)) return t;
@@ -2360,7 +2377,7 @@ html.nonlatin body { line-height: 1.75; }
     document.addEventListener('click', function (e) { if (!menu.hidden && !e.target.closest('.lang')) open(false); });
     menu.addEventListener('keydown', function (e) {
       var items = [].slice.call(menu.children), i = items.indexOf(document.activeElement);
-      if (e.key === 'Escape') { open(false); btn.focus(); }
+      if (e.key === 'Escape') { e.preventDefault(); open(false); btn.focus(); }
       else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus(); }
     });
     function set(code, save) {
@@ -2375,6 +2392,8 @@ html.nonlatin body { line-height: 1.75; }
       if (fk && D.fonts[fk] && !document.querySelector('style[data-script="' + fk + '"]')) { var st = document.createElement('style'); st.dataset.script = fk; st.textContent = D.fonts[fk]; document.head.appendChild(st); }
       [].forEach.call(menu.children, function (b) { b.setAttribute('aria-checked', b.dataset.code === lang ? 'true' : 'false'); });
       walk(document.body);
+      // the table and the header refit to the new language's direction and lengths
+      if (save) dispatchEvent(new Event('resize'));
       if (save) try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
     }
     var saved = null;
@@ -2399,6 +2418,8 @@ html.nonlatin body { line-height: 1.75; }
         gate.showModal(); a.focus();
       });
     });
+    // Cancel is a plain button, so Enter in the answer box means Continue
+    document.getElementById('gate-cancel').addEventListener('click', function () { gate.close('cancel'); });
     gate.addEventListener('close', function () {
       if (gate.returnValue !== 'ok') return;
       if (parseInt(a.value, 10) !== want) { no.hidden = false; gate.showModal(); a.select(); return; }

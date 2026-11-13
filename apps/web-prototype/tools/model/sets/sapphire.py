@@ -9,10 +9,11 @@ BOXES = {
     'b': {'r': (204, 430, 347, 654), 'n': (352, 410, 506, 654), 'b': (510, 418, 629, 654), 'q': (627, 380, 756, 654), 'k': (758, 336, 901, 654), 'p': (1339, 494, 1433, 654)},
 }
 HALF = {'n': 'full'}
+SIDED = {'n', 'k', 'q'}   # each side's crowns carved from its own picture
 GOLD = (64, 172, 246)
 LOOK = {
-    'w': {'body_cool': 0.1, 'wb': (1.05, 0.95, 1.0), 'body': (0.24, 0.0), 'gold': (0.3, 0.6), 'gem': (0.08, 0.0), 'gold_tone': GOLD},
-    'b': {'wb': (1.02, 1.0, 0.9), 'body': (0.14, 0.0), 'gold': (0.3, 0.6), 'gem': (0.08, 0.0), 'gold_tone': GOLD},
+    'w': {'body_cool': 0.1, 'wb': (1.05, 0.95, 1.0), 'body': 'porcelain', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
+    'b': {'wb': (1.02, 1.0, 0.9), 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
 }
 
 
@@ -30,10 +31,8 @@ def refs():
 
 
 SPEC = {
-    'k': {'kind': 'crown', 'zc': 0.62, 'zp': 0.73, 'ztip': 0.835, 'points': 8, 'ball': 0.02, 'sharp': 0.9,
-          'top': ('cross', 0.845, 0.13), 'dome': (0.62, 0.865, 0.2, 0)},
-    'q': {'kind': 'crown', 'zc': 0.665, 'zp': 0.775, 'ztip': 0.9, 'points': 8, 'ball': 0.02, 'sharp': 0.9,
-          'top': ('finial', 0.895, 0.06), 'dome': (0.665, 0.92, 0.2, 0)},
+    'k': {'kind': 'turned', 'top': ('relief', 0.630, 0.5, 0.45)},
+    'q': {'kind': 'turned', 'top': ('relief', 0.675, 0.5, 0.45)},
     'r': {'kind': 'rook', 'merlons': 6},
     'n': {'kind': 'knight', 'z0': 0.26},
 }

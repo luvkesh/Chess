@@ -12,12 +12,13 @@ BOXES = {
     'b': {'p': (764, 840, 850, 976), 'r': (856, 804, 952, 976), 'n': (956, 780, 1080, 976), 'b': (1070, 770, 1162, 976), 'q': (1176, 756, 1288, 976), 'k': (1288, 722, 1414, 976)},
 }
 HALF = {'n': 'full'}
+SIDED = {'n', 'k', 'q'}   # each side's crowns carved from its own picture
 GOLD = (90, 170, 226)
 LOOK = {
-    'w': {'wb': (1.04, 0.98, 0.98), 'body': (0.2, 0.0), 'gold': (0.3, 0.65), 'gem': (0.05, 0.0), 'gold_tone': GOLD, 'gold_mix': 0.3,
+    'w': {'wb': (1.04, 0.98, 0.98), 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.3,
           'classify': {'gold_sat': 0.42, 'gem_sat': 0.95}},
     # the black side's bronze-gold ribbons are dim: no lift, and only bright, saturated pixels count
-    'b': {'body': (0.16, 0.0), 'gold': (0.3, 0.65), 'gem': (0.05, 0.0), 'wb': (1.12, 1.0, 0.86),
+    'b': {'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'wb': (1.12, 1.0, 0.86),
           'classify': {'gold_sat': 0.5, 'gold_val': 0.5, 'gem_sat': 0.95}},
 }
 
@@ -37,10 +38,8 @@ def refs():
 
 
 SPEC = {
-    'k': {'kind': 'crown', 'zc': 0.655, 'zp': 0.69, 'ztip': 0.835, 'points': 8, 'ball': 0, 'sharp': 0.55,
-          'top': ('cross', 0.84, 0.14), 'dome': (0.655, 0.87, 0.2, 0)},
-    'q': {'kind': 'crown', 'zc': 0.685, 'zp': 0.735, 'ztip': 0.925, 'points': 8, 'ball': 0, 'sharp': 0.55,
-          'top': ('finial', 0.9, 0.065), 'dome': (0.685, 0.93, 0.2, 0)},
+    'k': {'kind': 'turned', 'top': ('relief', 0.665, 0.5, 0.45)},
+    'q': {'kind': 'turned', 'top': ('relief', 0.695, 0.5, 0.45)},
     'r': {'kind': 'rook', 'merlons': 4, 'phase': 0.0, 'gap': 0.5},
     'b': {'kind': 'turned', 'top': ('relief', 0.47, 0.2, 0.5), 'pearl': (0.715, 0.088)},
     'n': {'kind': 'knight', 'z0': 0.14},

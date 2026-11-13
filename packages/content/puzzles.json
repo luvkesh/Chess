@@ -1014,7 +1014,9 @@
   "fen": "rnbq1bnr/pppp1ppp/3k4/4p2Q/3PP3/P1N5/1PP2PPP/R1B1KBNR b KQ - 4 5",
   "moves": [
    "g8e7",
-   "h5e5"
+   "h5e5",
+   "d6c6",
+   "e5c5"
   ],
   "themes": [
    "mateIn2",
@@ -1229,7 +1231,11 @@
   "fen": "1b4r1/3p1p1k/Qp6/1pp4p/4Pp2/3P3P/PPP2P1P/2n4K w - - 0 31",
   "moves": [
    "a6b6",
-   "c1e2"
+   "c1e2",
+   "b6g6",
+   "g8g6",
+   "a2a3",
+   "g6g1"
   ],
   "themes": [
    "mateIn3"
@@ -1241,10 +1247,16 @@
   "fen": "r1b3k1/ppp2ppp/4r3/3pp3/4Pn2/P2P1P2/1P1PQPKP/R1B1R3 w - - 4 17",
   "moves": [
    "g2f1",
-   "e6g6"
+   "e6g6",
+   "e1d1",
+   "c8h3",
+   "f1e1",
+   "g6g1",
+   "e2f1",
+   "g1f1"
   ],
   "themes": [
-   "mateIn3"
+   "mateIn4"
   ],
   "rating": 900
  },
@@ -1255,10 +1267,14 @@
    "c3e2",
    "e6g4",
    "f3f4",
-   "f6e4"
+   "f6e4",
+   "f4g4",
+   "e4f2",
+   "g4g5",
+   "d4g4"
   ],
   "themes": [
-   "mateIn3",
+   "mateIn4",
    "skewer"
   ],
   "rating": 1000
@@ -1286,7 +1302,9 @@
    "b7a6",
    "f2d4",
    "e8e5",
-   "d4e5"
+   "d4e5",
+   "f7f6",
+   "e5f6"
   ],
   "themes": [
    "mateIn3"

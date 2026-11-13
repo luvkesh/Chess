@@ -118,6 +118,10 @@ for f in sorted((src / 'art').glob('*.webp')):
     kind, name = f.stem.split('-', 1)
     art[kind][landmarks.get(name, name) if kind == 'view' else name] = uri(f)
 parts.append('const CHACKLATE_ART = %s;' % json.dumps(art, separators=(',', ':')))
+# The passport stamps: the website's nine place badges (apps/website/tools/place-icons.js), one per era.
+import subprocess
+stamps = json.loads(subprocess.run(['node', '-e', "const P=require(process.argv[1]);const o={};for(const id of P.ids)o[id]=P.icon(id);console.log(JSON.stringify(o))", str(site / 'tools' / 'place-icons.js')], check=True, capture_output=True, text=True).stdout)
+parts.append('const CHACKLATE_STAMPS = %s;' % json.dumps({k: 'data:image/svg+xml;base64,' + base64.b64encode(v.encode()).decode() for k, v in stamps.items()}, separators=(',', ':')))
 # The brands' own artwork for the Times Square billboards (src/billboards.js): the
 # Nibbland logo and the Jong Club wordmark (the crest is CHACKLATE_CREST above).
 ads = {'nibbland': uri(src / 'ads' / 'nibbland-logo.webp'),

@@ -19,10 +19,10 @@ HALF = {t: 'full' for t in 'rnqkp'}
 SIDED = set('rnbqkp')
 GOLD = (52, 160, 236)
 LOOK = {
-    'w': {'wb': (1.1, 1.0, 0.93), 'body_cool': 0.3, 'body': (0.3, 0.0), 'gold': (0.28, 0.65), 'gem': (0.06, 0.0), 'gold_tone': GOLD,
+    'w': {'wb': (1.1, 1.0, 0.93), 'body_cool': 0.3, 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.45}},
     # the basalt picks up warm light: only bright, saturated yellow counts as gold
-    'b': {'wb': (1.04, 0.98, 0.96), 'body': (0.25, 0.0), 'gold': (0.28, 0.65), 'gem': (0.06, 0.0), 'gold_tone': GOLD,
+    'b': {'wb': (1.04, 0.98, 0.96), 'body': 'shiny stone', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
           'classify': {'gold_sat': 0.62, 'gold_val': 0.52}},
 }
 

@@ -86,7 +86,11 @@
     if (!st.settings.netName) { st.settings.netName = ADJ[Math.floor(Math.random() * ADJ.length)] + ' ' + ANIMAL[Math.floor(Math.random() * ANIMAL.length)]; A().save(); }
     return st.settings.netName;
   }
-  const clean = (s, n) => String(s == null ? '' : s).replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, n || 24) || 'Player';
+  // Another player's name shows only when it is one of the made-up names (two words from the
+  // lists above): nothing typed (a real name, a phone number, a rude word) reaches a child.
+  const kidName = (s) => { const m = /^([A-Z][a-z]+) ([A-Z][a-z]+)$/.exec(String(s == null ? '' : s)); return m && ADJ.includes(m[1]) && ANIMAL.includes(m[2]) ? m[0] : 'Player'; };
+  window.ChacklateKidName = kidName;
+  const clean = (s) => kidName(s);
   const newCode = () => Array.from({ length: 6 }, () => CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)]).join('');
   const parseTc = (tc) => { const [m, s] = tc.split('+').map(Number); return { base: m * 60000, inc: s * 1000 }; };
   // The rating pool of a time control, as the server counts it.
@@ -163,14 +167,14 @@
     lookAtRoom(h);
     // A worldwide partner who never turns up is skipped; a friend's code with nobody behind it is reported.
     if (world || !host) setTimeout(() => {
-      if (hosting !== h || game) return;
+      if (hosting !== h || (game && !game.ended)) return;
       if (world) { hosting = null; if (h.unsub) h.unsub(); room.leave().catch(() => {}); if (seek) { seek.tried.add(expect); seek.pairing = null; matchmake(); } return; }
       cancelAll(); A().toast(t('online.noGame', { code }), 'bad');
     }, world ? 8000 : 12000);
   }
 
   function lookAtRoom(h) {
-    if (hosting !== h || game) return;
+    if (hosting !== h || (game && !game.ended)) return;
     const peers = h.room.peers().filter((p) => !(p.isMe && p.sameTab) && p.kind === 'viewer');
     if (h.host) {
       const guest = peers.find((p) => p.presence && p.presence.role === 'guest' && (!h.expect || p.peer === h.expect));
@@ -190,6 +194,7 @@
 
   function begin(h, start, opp) {
     closeWait(true);
+    if (game && game.unsub) game.unsub();   // the last game's room stops talking to this one
     if (h.world) lobby.presence({ seek: null }).catch(() => {});
     seek = null; hosting = null;
     if (h.unsub) h.unsub();
@@ -221,9 +226,10 @@
   function pressed(reported) {
     const now = performance.now(), side = game.moves.length % 2 === 1 ? 'w' : 'b';
     if (game.moves.length > 2) {
-      let t = game.clock[side] - (now - game.turnAt);
+      // The opponent's report already has the increment in it: add it to our own count only.
+      let t = game.clock[side] - (now - game.turnAt) + game.inc;
       if (reported !== undefined) t = Math.max(t, Math.min(reported, t + LATENCY_MS));
-      game.clock[side] = t + game.inc;
+      game.clock[side] = t;
     }
     game.turnAt = now;
   }
@@ -287,8 +293,11 @@
     if (e && typeof e === 'object') {
       const theyLose = game.mine === 'w' ? '1-0' : '0-1';
       const g = new app.E.Game(); for (const u of game.moves) g.playText(u);
-      if (e.result === theyLose && ['resignation', 'timeout', 'aborted'].includes(e.reason)) finish(e.result, e.reason, true);
-      else if (e.result === '1/2-1/2' && (e.reason === 'aborted' || e.reason === 'timeout-insufficient' || (e.reason === g.claimable()))) finish(e.result, e.reason, true);
+      // A game can be called off only before both sides have moved; a draw on time only when
+      // this side's own clock shows that side out of time (it then calls it itself).
+      const early = game.moves.length < 2;
+      if (e.result === theyLose && (['resignation', 'timeout'].includes(e.reason) || (e.reason === 'aborted' && early))) finish(e.result, e.reason, true);
+      else if (e.result === '1/2-1/2' && ((e.reason === 'aborted' && early) || (e.reason === 'timeout-insufficient' && running() && left(toMove()) <= 0) || (e.reason === g.claimable()))) finish(e.result, e.reason, true);
     }
   }
 
@@ -330,7 +339,7 @@
     if (game.ended) return;
     const G = A().state.game;
     switch (m.type) {
-      case 'resign': return finish(game.mine === 'w' ? '0-1' : '1-0', game.moves.length < 2 ? 'aborted' : 'resignation', false);
+      case 'resign': return game.moves.length < 2 ? finish('1/2-1/2', 'aborted', false) : finish(game.mine === 'w' ? '0-1' : '1-0', 'resignation', false);
       case 'draw-offer': game.myDrawOffer = game.moves.length; game.room.presence({ drawOffer: game.moves.length }).catch(() => {}); return;
       case 'draw-accept': game.room.presence({ drawAccept: game.moves.length }).catch(() => {}); return finish('1/2-1/2', 'agreement', false);
       case 'claim': if (G && G.g.outcome) finish(G.g.outcome.result, G.g.outcome.reason, false); return;

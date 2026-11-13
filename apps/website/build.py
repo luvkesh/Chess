@@ -372,7 +372,7 @@ def build(target):
     filled = fill(page, img, art, counts, coach, target)
     langs = i18n(filled, eras, opponents, collection, lines, keep)
     data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': lines, 'coach': coach['name'], 'collection': collection, 'fx': fx,
-                                             'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep),
+                                             'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep), 'landmarks': sorted(LANDMARKS.values()),
                                              'fonts': {k: (game / 'vendor' / ('fonts-%s.css' % k)).read_text() for k in sorted({META[c]['fonts'] for c, _ in LANGS if 'fonts' in META.get(c, {})})}},
                                             separators=(',', ':'), ensure_ascii=False)
     data += "document.addEventListener('DOMContentLoaded',function(){[].forEach.call(document.querySelectorAll('img[data-art]'),function(i){i.src=window.SITE.art[i.getAttribute('data-art')];});});"
