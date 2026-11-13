@@ -152,6 +152,15 @@
     game: null,
     account: saved.account || null,
   };
+  // A damaged or hand-edited save cannot break sound or the screens: settings get the type they need.
+  {
+    const st = state.settings, vol = (v, def) => (Number.isFinite(+v) && v !== null && v !== '' ? Math.min(1, Math.max(0, +v)) : def);
+    st.sfxVol = vol(st.sfxVol, 0.8); st.musicVol = vol(st.musicVol, 0.35);
+    if (!['high', 'low'].includes(st.quality)) st.quality = 'high';
+    if (!I18N.ALL.some((l) => l.id === st.lang)) st.lang = I18N.guess(navigator.languages || [navigator.language]);
+    if (typeof st.name !== 'string' || !st.name.trim()) st.name = 'You';
+    if (!state.setup || typeof state.setup !== 'object') state.setup = { mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false };
+  }
   PG.mergeLessons(state.progress, LESSONS.lessons);
   // Premium comes from the account's entitlements on the server. The device-only preview switch
   // (for testing without a server) sits on top of that.
@@ -211,12 +220,43 @@
     return t('collection.unlock.free');
   }
   PG.setSeason(state.progress);
+  // Two tabs on one device share one save. Each save bumps a counter in its own small key; a tab
+  // that sees a newer one (the storage event, or before its own save) takes that copy first, so
+  // a tab left open never writes old progress over what the other tab earned or bought.
+  const REV_KEY = 'chacklate-chess:rev';
+  const readRev = () => { try { return +localStorage.getItem(REV_KEY) || 0; } catch (e) { return 0; } };
+  let rev = readRev(), saveWarned = false;
+  function adopt() {
+    let cur = null;
+    try { cur = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { cur = null; }
+    rev = readRev();
+    if (!cur || typeof cur !== 'object') return false;
+    const lang = state.settings.lang;   // each tab keeps the language it shows
+    if (cur.settings && typeof cur.settings === 'object') Object.assign(state.settings, cur.settings, { lang });
+    state.progress = PG.migrate(cur.progress);
+    PG.mergeLessons(state.progress, LESSONS.lessons);
+    PG.setSeason(state.progress);
+    state.account = cur.account || null;
+    if (!state.game) saved.game = cur.game || null;
+    setEntitlements(state.account && state.account.ent);
+    return true;
+  }
+  window.addEventListener('storage', (e) => {
+    if (e.key !== REV_KEY || readRev() <= rev || !adopt()) return;
+    applySettings(); renderNav();
+    if ((!KIND[state.screen] || state.screen === 'home') && !document.querySelector('.modal')) go(state.screen, state.screenArg);
+  });
   function save() {
+    if (readRev() > rev) adopt();
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
       localStorage.setItem(STORE_KEY, JSON.stringify({ settings: state.settings, setup: state.setup, progress: state.progress, account: state.account,
         game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null }));
-    } catch (e) { /* storage unavailable: everything still works for this visit */ }
+      localStorage.setItem(REV_KEY, String(rev = Math.max(rev, readRev()) + 1));
+    } catch (e) {
+      // Storage full or blocked: everything still works for this visit; say so once.
+      if (!saveWarned) { saveWarned = true; setTimeout(() => { try { toast(t('common.saveFail'), 'bad'); } catch (e2) { /* not drawn yet */ } }, 0); }
+    }
     if (window.ChacklateNet) ChacklateNet.syncProgress();
   }
 
@@ -595,7 +635,7 @@
     wrap.addEventListener('click', (e) => {
       if ((e.target === wrap && !opts.sticky) || e.target.closest('[data-close]')) close();
     });
-    const f = wrap.querySelector('[autofocus], .btn.primary, button:not(.x), input');
+    const f = wrap.querySelector('[autofocus]') || wrap.querySelector('.btn.primary, button:not(.x), input');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 30);
     wrap.close = close;
     wrap.sticky = !!opts.sticky;
@@ -781,7 +821,7 @@
     if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
     let key = name;
     if (name === 'home') {
-      const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+      const resume = resumable();
       key = resume ? 'home.resume' : state.progress.xp ? 'home' : 'home.first';
     }
     if (GUIDE.lines[key]) guideSay(key);
@@ -1106,7 +1146,7 @@
   }
   SCREENS.home = function () {
     idleBoard();
-    const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+    const resume = resumable(), live = resume && resume.live;
     const online = netOn();
     const nl = nextLesson();
     const daily = dailyPuzzle();
@@ -1119,7 +1159,7 @@
       '<p class="motto">' + t('home.motto') + '</p>' +
       '<div class="lux-row">' +
       lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
-        text: resume ? t('home.resumeText', { n: saved.game.moves.length }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
+        text: resume ? t('home.resumeText', { n: resume.n }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
       lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
@@ -1130,7 +1170,7 @@
       '</section>');
     hydrate();
     wireLinks();
-    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (resume) resumeSaved(); else quickPlay(); };
+    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (live) backToGame(); else if (resume) resumeSaved(); else quickPlay(); };
     $('h-journey').onclick = () => { AU.unlock(); AU.play('tap'); if (ne && PG.eraOpen(state.progress, ne.id)) go('era', ne.id); else go('journey'); };
     $('h-learn').onclick = () => { AU.unlock(); AU.play('tap'); if (nl) go('lesson', nl.id); else go('learn'); };
     $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: t('learn.dailyPuzzle') }); else go('puzzles'); };
@@ -3178,7 +3218,11 @@
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
     wireAppSection(m);
     on('#s-ver', 'click', () => versionTap(m));
-    on('#s-reset', 'click', () => { if (confirm(t('settings.resetConfirm'))) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+    on('#s-reset', 'click', async () => {
+      // A grown-up starts again, not a stray tap: the parent gate first, then the question.
+      if (!await parentGate(t('settings.resetConfirm'), { always: true }) || !confirm(t('settings.resetConfirm'))) return;
+      resetDevice(); m.close(); applyLook(); go('home');
+    });
     return m;
   }
 
@@ -3564,6 +3608,29 @@
     G.toss = { skip: () => skip(), reveal: pick };
     if (watch && G.tossHand) pick(G.tossHand);
   }
+  // The game Home's big card goes back to: one left on the table for Home (live), or the one
+  // saved when the page closed. Null when there is none.
+  // Starting again: progress, the game left on the table, the name, the Club (friends, place,
+  // ratings and a new id). Language, sound and voices stay, and so does today's play time, which
+  // is a grown-up's limit. (The saved pictures are renders of the game itself, nothing personal.)
+  function resetDevice() {
+    state.progress = PG.fresh();
+    PG.mergeLessons(state.progress, LESSONS.lessons);
+    PG.setSeason(state.progress);
+    state.game = null; saved.game = null;
+    state.settings.name = 'You';
+    delete state.settings.club; delete state.settings.netName; delete state.settings.ageKid;
+    try { sessionStorage.clear(); } catch (e) { /* storage blocked */ }
+    setEntitlements(state.account && state.account.ent);
+    save();
+    if (window.ChacklateClub) ChacklateClub.publish();
+  }
+  function resumable() {
+    const G = state.game;
+    if (G && !G.g.outcome && (G.kind === 'online' || G.g.moves.length)) return { live: true, n: G.g.moves.length };
+    if (!G && saved.game && saved.game.moves && saved.game.moves.length) return { live: false, n: saved.game.moves.length };
+    return null;
+  }
   function backToGame() {
     const G = state.game;
     go('game', G);
@@ -3572,7 +3639,19 @@
   function resumeSaved() {
     const s = saved.game;
     saved.game = null;
-    startGame(Object.assign({}, s.setup || state.setup, { fen: s.start === E.START_FEN ? '' : s.start }), { moves: s.moves, human: s.human, clock: s.clock });
+    // A saved game is checked before it goes back on the table: a known level, a real clock with
+    // times inside it, and moves as text. Anything else starts from what can be trusted.
+    const setup = Object.assign({}, state.setup, s.setup && typeof s.setup === 'object' ? s.setup : {});
+    if (!LEVELS[setup.level]) setup.level = 1;
+    if (setup.tc !== 'none' && !/^\d{1,2}\+\d{1,2}$/.test(String(setup.tc))) setup.tc = 'none';
+    const tc = parseTc(setup.tc);
+    let clock = null;
+    if (tc && s.clock && Number.isFinite(+s.clock.w) && Number.isFinite(+s.clock.b)) {
+      const most = tc.w + 600 * tc.inc;   // a clock never holds more than its start and a long game's increments
+      clock = { w: Math.min(most, Math.max(1000, +s.clock.w)), b: Math.min(most, Math.max(1000, +s.clock.b)), inc: tc.inc };
+    }
+    const moves = Array.isArray(s.moves) ? s.moves.filter((u) => typeof u === 'string') : [];
+    startGame(Object.assign(setup, { fen: s.start === E.START_FEN || typeof s.start !== 'string' ? '' : s.start }), { moves, human: s.human === WHITE || s.human === BLACK ? s.human : undefined, clock });
   }
 
   SCREENS.game = function () {
