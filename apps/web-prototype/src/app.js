@@ -557,9 +557,8 @@
   // its era's board, pieces and room for the length of the game.
   let preview = null, lookOverride = null, clockSkin = null;
   function applyLook() {
-    // Trying on a room, board or set shows its whole suite: the room with its own board and pieces.
-    const su = preview && PG.suiteOf(preview);
-    const pick = (cat) => (su && su[cat] ? PG.item(su[cat]) : preview && preview.category === cat ? preview : PG.equipped(state.progress, cat));
+    // Trying on a room, board or set shows just that one, with whatever else is equipped.
+    const pick = (cat) => (preview && preview.category === cat ? preview : PG.equipped(state.progress, cat));
     const o = (preview ? null : lookOverride) || {};
     view.setTheme(o.board ? { board: o.board } : pick('board').data, o.set ? { set: o.set } : pick('pieces').data);
     const room = o.room ? { room: o.room } : pick('room').data;
@@ -1150,7 +1149,7 @@
       bar.addEventListener('pointercancel', () => { sw = null; });
     }
     const eq = bar.querySelector('#pk-eq');
-    if (eq) eq.onclick = () => { PG.equip(state.progress, it); save(); toast(t('collection.equippedToast', { name: esc(it.name) })); endPeek(); };
+    if (eq) eq.onclick = () => { endPeek(); equipItem(it); };
   }
   function peekCard(it) {
     const P = state.progress, card = document.createElement('div');
@@ -2106,8 +2105,11 @@
     hydrate(m);
     m.querySelector('#ed-map').onclick = () => { m.close(); go('journey'); };
     m.querySelector('#ed-use').onclick = () => {
-      eraRewards(e).filter((it) => ['pieces', 'board', 'room'].includes(it.category)).forEach((it) => PG.equip(state.progress, it));
+      // the new set only; its board and room are offered on the Collection page, not put on unasked
+      const own = eraRewards(e).find((it) => it.category === 'pieces');
+      if (own) PG.equip(state.progress, own);
       save(); applyLook(); m.close(); toast(t('journey.setToast', { set: esc(set.name) })); go('collection', 'pieces');
+      if (own) offerMatches(own);
     };
     // the level-up card waits until the era card is closed, so the stamp moment has the stage
     celebrate(Object.assign({}, res, { achievements: [], missions: (game && game.missions || []).concat(res.missions || []), coins: (res.coins || 0) + ((game && game.coins) || 0), levelUp: 0, seasonTier: 0, unlocked: [] }), true);
@@ -2217,7 +2219,7 @@
       '</span><span class="go">' + icon(r ? 'refresh' : 'arrow') + '</span></button>';
   }
   const THEMES = [['fork', 'piece:n'], ['pin', 'piece:b'], ['skewer', 'piece:r'], ['discoveredAttack', 'piece:q'], ['hangingPiece', 'piece:p'], ['mate', 'piece:k']];
-  const themeName = (th) => (I18N.has('learn.theme.' + th) ? t('learn.theme.' + th) : th);
+  const themeName = (th) => { const m = /^mateIn(\d)$/.exec(th); if (m) return +m[1] === 1 ? t('learn.mateIn1') : t('learn.mateInN', { n: +m[1] }); return I18N.has('learn.theme.' + th) ? t('learn.theme.' + th) : th; };
   const themePuzzles = (th) => PUZZLES.filter((p) => th === 'mate' ? p.themes.some((x) => x.startsWith('mateIn')) : p.themes.includes(th));
   SCREENS.puzzles = function () {
     idleBoard();
@@ -2642,10 +2644,29 @@
     if (u.type === 'premium') return { text: t('collection.get.premium'), go: ['store'], label: t('collection.get.askGrownUp') };
     return { text: t('collection.get.yours'), go: null };
   }
-  function equipItem(it) {
+  function equipItem(it, after) {
     if (!PG.equip(state.progress, it)) return false;
     save(); applyLook(); AU.play('select'); toast(t('collection.equippedToast', { name: esc(it.name) })); renderNav();
+    offerMatches(it, after);
     return true;
+  }
+  // A set, board or room equips only itself. If its suite's other two are owned and not in use,
+  // the player is asked; nothing is ticked, and only what they tick is added.
+  function offerMatches(it, after) {
+    const list = PG.suiteMatches(state.progress, it);
+    if (!list.length) return;
+    const m = modal('<h2>' + t('collection.match.title') + '</h2><p class="fine">' + t('collection.match.text', { name: esc(it.name) }) + '</p>' +
+      '<div class="match-list">' + list.map((x) => '<label class="toggle"><span>' + t('collection.match.' + x.category, { name: esc(x.name) }) + '</span><input type="checkbox" data-cat="' + x.category + '"></label>').join('') + '</div>' +
+      '<div class="row" style="justify-content:flex-end;margin-top:18px"><button class="btn" id="mt-skip">' + t('collection.match.skip') + '</button><button class="btn primary" id="mt-use">' + icon('check') + ' ' + t('collection.match.apply') + '</button></div>', { cls: 'narrow', x: true });
+    const use = m.querySelector('#mt-use');
+    const sync = () => { use.disabled = !m.querySelector('.match-list input:checked'); };
+    m.querySelectorAll('.match-list input').forEach((c) => { c.onchange = sync; }); sync();
+    m.querySelector('#mt-skip').onclick = () => { AU.play('tap'); m.close(); };
+    use.onclick = () => {
+      const cats = [...m.querySelectorAll('.match-list input:checked')].map((c) => c.dataset.cat);
+      if (cats.length) { PG.equip(state.progress, it, cats); save(); applyLook(); AU.play('select'); renderNav(); }
+      m.close(); if (after) after();
+    };
   }
   // The round drawn buttons on a card: View always, then Equip or Acquire when they apply.
   function cardActs(it, un, on) {
@@ -2739,7 +2760,7 @@
         el.onclick = (e) => {
           const it = PG.item(el.dataset.item), act = e.target.closest('[data-act]');
           AU.play('tap'); AU.unlock();
-          if (act && act.dataset.act === 'equip') { equipItem(it); render(); } else if (act && act.dataset.act === 'get') acquire(it, render); else itemModal(it, render, items);
+          if (act && act.dataset.act === 'equip') { equipItem(it, render); render(); } else if (act && act.dataset.act === 'get') acquire(it, render); else itemModal(it, render, items);
         };
       });
       $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, t('collection.collected'));
@@ -2834,7 +2855,7 @@
         };
       });
       const eq = info.querySelector('#mu-eq');
-      if (eq) eq.onclick = () => { equipItem(it); m.close(); if (after) after(); };
+      if (eq) eq.onclick = () => { m.close(); equipItem(it, after); if (after) after(); };
       const get = info.querySelector('#mu-get');
       if (get) get.onclick = () => { m.close(); acquire(it); };
       const how = info.querySelector('#mu-howbtn');
@@ -3793,7 +3814,8 @@
       labsBtn('g-labs') + '<button class="round" id="g-settings" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<div class="player-card glass top" id="p-top"></div><div class="player-card glass bottom" id="p-bottom"></div>' +
       '<div class="evalbar" id="evalbar" hidden><i id="evalfill" style="height:50%"></i></div>' +
-      '<aside class="side glass" id="side"><header><b id="side-title">' + esc(dojo ? dojo.name : t('play.hud.moves')) + '</b><button class="btn small ghost" id="g-copy" title="' + t('play.hud.copyPgn') + '">PGN</button></header>' +
+      '<aside class="side glass' + (state.settings.sheetOpen ? '' : ' min') + '" id="side"><header><b id="side-title">' + esc(dojo ? dojo.name : t('play.hud.moves')) + '</b><button class="btn small ghost" id="g-copy" title="' + t('play.hud.copyPgn') + '">PGN</button>' +
+      '<button class="sheet-tog" id="g-sheet" aria-controls="moves-wrap" aria-expanded="' + !!state.settings.sheetOpen + '" aria-label="' + t(state.settings.sheetOpen ? 'play.hud.hideMoves' : 'play.hud.showMoves') + '">' + icon('down') + '</button></header>' +
       '<div id="coach-slot"></div><div class="moves-wrap" id="moves-wrap"><ol class="moves" id="moves" aria-label="' + t('play.hud.played') + '"></ol></div>' +
       '<form id="move-form" class="move-form" autocomplete="off"><label class="sr" for="move-input">' + t('play.hud.type') + '</label><input id="move-input" class="text-in" placeholder="' + t('play.hud.typeHint') + '" spellcheck="false" autocapitalize="off"><button class="btn small">' + t('common.nav.play') + '</button></form></aside>' +
       '<div class="actionbar glass" id="actionbar">' +
@@ -3821,7 +3843,18 @@
     $('g-settings').onclick = () => settingsModal();
     if ($('g-labs')) $('g-labs').onclick = () => labsModal();
     $('g-rules').onclick = () => { AU.play('tap'); ruleBook(!G.rulebook); };
-    $('g-copy').onclick = () => copy(pgn(), 'PGN');
+    $('g-copy').onclick = (e) => { e.stopPropagation(); copy(pgn(), 'PGN'); };
+    // Phones: the moves sheet folds down to its title bar (the board first); the choice is kept.
+    const sheetTog = (e) => {
+      if (!matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 600px)').matches) return;
+      if (e && e.target.closest('#g-copy')) return;
+      const open = $('side').classList.toggle('min') === false;
+      state.settings.sheetOpen = open; save(); AU.play('tap');
+      $('g-sheet').setAttribute('aria-expanded', String(open));
+      $('g-sheet').setAttribute('aria-label', t(open ? 'play.hud.hideMoves' : 'play.hud.showMoves'));
+      applyInsets();
+    };
+    $('side').querySelector('header').onclick = sheetTog;
     if ($('g-undo')) $('g-undo').onclick = undo;
     if ($('g-hint')) $('g-hint').onclick = hint;
     if ($('g-coach')) $('g-coach').onclick = () => { AU.unlock(); coachMenu(); };
@@ -4326,6 +4359,8 @@
     const G = state.game, cfg = CFG();
     if (!G) return;
     msg.expanded = false;
+    // One warning, not two: a line that already starts "Watch out:" keeps no "Look out!" before it.
+    if (msg.head && msg.en && /^Watch out\b/.test(msg.en[0] || '') && /^(Watch out|Careful|Look out|Be careful|Heads up|Danger)\b/.test(msg.enHead || '')) { msg.head = ''; msg.enHead = ''; }
     G.coachMsg = msg;
     G.coachMarks = msg.marks || [];
     G.coachArrows = msg.arrows || [];

@@ -126,6 +126,10 @@ function ChacklateProgress(catalog, extras) {
     out.streak = o(s.streak, d.streak); out.streak.count = Math.floor(num(out.streak.count, 0, 0));
     out.daily = o(s.daily, d.daily);
     out.equipped = Object.assign({}, catalog.defaults, obj(s.equipped) ? s.equipped : {});
+    // Move trails are on by default since November 2026: a save still on the old default (None) gets
+    // Gold Dust once; anyone who picks None after that keeps it.
+    if (!s.trailOn && out.equipped.trail === 'trail.none.v1') out.equipped.trail = catalog.defaults.trail;
+    out.trailOn = 1;
     out.missions = o(s.missions, d.missions); out.missions.list = arr(out.missions.list);
     out.journey = recs(s.journey);
     out.history = objs(s.history);
@@ -139,9 +143,6 @@ function ChacklateProgress(catalog, extras) {
     out.coins = Math.floor(num(s.coins, 0, 0));
     out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n); out.earned.xp = o(out.earned.xp);
     out.bought = arr(s.bought);
-    // Older saves could mix a room with another room's board or set: line them up with the room.
-    const su = suiteOf(out.equipped.room) || suiteOf(catalog.defaults.room);
-    if (su) Object.assign(out.equipped, { room: su.room, board: su.board, pieces: su.pieces });
     out.mini = o(s.mini, d.mini);
     for (const k of ['best', 'plays']) out.mini[k] = o(out.mini[k]);
     out.mini.day = o(out.mini.day, d.mini.day); out.mini.day.best = o(out.mini.day.best);
@@ -768,14 +769,24 @@ function ChacklateProgress(catalog, extras) {
     if (u.type === 'journey') { const e = eraById(u.era); return 'Journey: ' + (e ? e.name : u.era) + (e && e.access === 'premium' ? ' · Premium' : ''); }
     return 'Free';
   }
-  function equip(state, item) {
+  // Equips one item. A set, board or room equips only itself: its suite's other two are offered
+  // to the player (suiteMatches) and equipped only when they say so (also: ['board', 'room']).
+  function equip(state, item, also) {
     if (!isUnlocked(state, item)) return false;
+    state.equipped[item.category] = item.id;
     const su = suiteOf(item);
-    if (su) Object.assign(state.equipped, { room: su.room, board: su.board, pieces: su.pieces });
-    else state.equipped[item.category] = item.id;
+    if (su && also) for (const cat of also) { const it = su[cat] && itemById(su[cat]); if (it && it.category === cat && isUnlocked(state, it)) state.equipped[cat] = it.id; }
     return true;
   }
+  // The suite's other items that the player owns and is not already using: what to offer after equip.
+  function suiteMatches(state, item) {
+    const su = suiteOf(item);
+    if (!su) return [];
+    return ['pieces', 'board', 'room'].filter((cat) => cat !== item.category && su[cat] && state.equipped[cat] !== su[cat])
+      .map((cat) => itemById(su[cat])).filter((it) => it && isUnlocked(state, it));
+  }
   function item(id) { return catalog.items.find((i) => i.id === id); }
+  const itemById = item;   // for functions whose argument is called item
   function equipped(state, category) {
     const it = item(state.equipped[category]);
     return it && isUnlocked(state, it) ? it : item(catalog.defaults[category]);
@@ -805,7 +816,7 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
-    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, suiteMatches, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
     setSeason, activeSeason, seasonInfo, SKILLS, SKILL_LINES, PRACTICE_FOR, FRIEND_RATING, perfGame, perfSkills, perfView, skillScores, perfOf, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 
