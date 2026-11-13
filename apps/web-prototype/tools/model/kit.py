@@ -430,6 +430,7 @@ def set_uv(ob, t, fold=2, mode='fold', ox=0.0, at=(0.0, 0.5), inner=None, top=No
     if not me.uv_layers:
         me.uv_layers.new(name='uv')
     uvl = me.uv_layers[0].data
+    bpy.context.view_layer.update()   # a just-placed part (a ball set at a height) has a stale matrix
     mw = ob.matrix_world
     nm = mw.to_3x3()
     for poly in me.polygons:

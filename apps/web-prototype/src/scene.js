@@ -2132,7 +2132,7 @@ function ChacklateScene(canvas, options) {
         g.rotation.y = spec.turn !== undefined ? spec.turn : t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
       }));
-      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; if (spec.level) { c2.position.set(0, ht * 0.5, ht * 4.2 + 0.8); look.set(0, ht * 0.5, 0); } else { c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); } }
+      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; if (spec.level) { const hb = new THREE.Box3().setFromObject(s2).max.y || ht; c2.position.set(0, hb * 0.5, hb * 4.2 + 0.8); look.set(0, hb * 0.5, 0); } else { c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); } }
       else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
       // floor: false leaves the pieces standing on nothing (the menu medals, tools/shoot-art.js)
       if (spec.floor !== false) {

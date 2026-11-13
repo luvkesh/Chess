@@ -128,4 +128,10 @@ def build(t, refs, spec):
         parts = [body]
         if sp.get('top'):
             parts.append(topper(r, sp['top']))
+        if sp.get('pearl'):
+            # a pearl held in an open carved top: a true ball, painted from the picture's pearl
+            zc, rr = sp['pearl'][0] * h, sp['pearl'][1] * h
+            b = kit.ball('pearl', rr, (0, 0, zc))
+            kit.set_uv(b, t, mode='front', fold=0)
+            parts.append(b)
     return kit.join(parts, t)

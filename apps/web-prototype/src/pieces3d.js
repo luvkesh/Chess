@@ -6419,6 +6419,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => (side === 'w' ? { body: MATS.boxwood() } : { body: MATS.ebony() }),
     },
     pharaoh: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.5 } },
       id: 'pharaoh', name: "Pharaoh's Treasure", era: 'Ancient Egypt', year: 'c. 1330 BC', tint: '#1d2f7a',
       story: 'Inspired by the treasures of the boy king Tutankhamun: alabaster that glows like moonlight, black basalt from the desert, and collars of gold, blue lapis lazuli and red carnelian. Every piece stands on a drum of gold set with a gem.',
       lore: {
