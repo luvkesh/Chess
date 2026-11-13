@@ -1,97 +1,97 @@
 {
  "rooky/03c7c50f": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Les joueurs d'échecs du monde entier partagent quelques petits mots. Apprenons quoi dire à la table, en anglais et en hindi ! Priya va te dire chaque mot en hindi."
  },
  "rooky/2ce27b1d": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Quand ton coup attaque le roi, tu peux dire : échec ! C'est sympa, ce n'est pas une règle. En hindi, échec se dit :"
  },
  "rooky/c81125d4": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Échec !"
  },
  "rooky/56bad328": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Quand le roi est attaqué et ne peut pas s'échapper, la partie est finie. Dis : échec et mat ! En hindi, c'est :"
  },
  "rooky/44db2cb9": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Échec et mat !"
  },
  "rooky/35865f97": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Le savais-tu ? « Échec et mat » et Shah-maat viennent des mêmes vieux mots persans. Shah veut dire roi, alors Shah-maat veut dire : le roi est coincé !"
  },
  "rooky/650ad6f8": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Tu sais déjà quand proposer la nulle. Voici les mots : je propose la nulle. Ton ami peut dire oui, ou continuer à jouer. En hindi :"
  },
  "rooky/c221ebf9": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Je propose la nulle."
  },
  "rooky/c7dca077": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Quand la partie se termine, que tu gagnes ou que tu perdes, dis : bonne partie ! Ça montre à ton ami que tu as aimé jouer. En hindi :"
  },
  "rooky/9427cbe7": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Bonne partie !"
  },
  "rooky/025bb09e": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Tu te souviens qu'on dit « j'adoube » avant de remettre une pièce droite ? Partout dans le monde, les joueurs le disent en français : j'adoube. Ça veut dire « j'ajuste ». En hindi :"
  },
  "rooky/83e88b8d": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "J'adoube !"
  },
  "rooky/f092549b": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Voici tous tes mots de la table. Touche un mot pour l'entendre encore, en anglais ou en hindi."
  },
  "rooky/4c0fa60e": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Trouve le coup qui te permet de dire : échec et mat !"
  },
  "rooky/aa04c4eb": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Ta dame peut atteindre la rangée du haut."
  },
  "rooky/777338e7": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Joue la dame en b8."
  },
  "rooky/a30a2462": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Ton ami remet un fou droit et dit « j'adoube ». Qu'est-ce que ça veut dire ?"
  },
  "rooky/5987667c": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "Lequel veut dire échec et mat en hindi ?"
  },
  "rooky/6aece5fd": {
   "who": "rooky",
-  "voice": "em_alex",
+  "voice": "ff_siwis,am_puck",
   "text": "La partie est finie, et tu as perdu. Qu'est-ce qu'on peut dire de gentil ?"
  }
 }
