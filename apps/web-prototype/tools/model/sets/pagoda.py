@@ -17,9 +17,9 @@ GOLD = (60, 168, 242)
 LOOK = {
     # the ivory is warm in the picture: only strong, saturated yellow is gold, and the stone is
     # cooled toward porcelain white
-    'w': {'wb': (1.12, 1.0, 0.92), 'body_cool': 0.35, 'body': (0.2, 0.0), 'gold': (0.3, 0.6), 'gem': (0.12, 0.0), 'gold_tone': GOLD,
+    'w': {'wb': (1.12, 1.0, 0.92), 'body_cool': 0.35, 'body': 'porcelain', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
           'classify': {'gold_sat': 0.66, 'gold_val': 0.5}},
-    'b': {'wb': (1.02, 0.98, 0.98), 'body': (0.18, 0.0), 'gold': (0.3, 0.6), 'gem': (0.05, 0.0), 'gold_tone': GOLD},
+    'b': {'wb': (1.02, 0.98, 0.98), 'body': 'lacquer', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
 }
 
 

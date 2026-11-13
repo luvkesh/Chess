@@ -334,7 +334,37 @@ def dilate_fill(img, mask, n=40):
     return out.clip(0, 255).astype(np.uint8)
 
 
-def paint_cell(ref, t, atlas, mr, look, half='right'):
+# what each kind of surface is: (roughness, metalness). LOOK['body'] / ['gold'] may name one.
+MATERIALS = {
+    'matte stone': (0.78, 0.0), 'shiny stone': (0.2, 0.0), 'marble': (0.16, 0.0), 'ceramic': (0.12, 0.0),
+    'porcelain': (0.1, 0.0), 'plastic': (0.34, 0.0), 'wood': (0.55, 0.0), 'varnished wood': (0.32, 0.0),
+    'lacquer': (0.1, 0.0), 'enamel': (0.14, 0.0), 'bone': (0.5, 0.0), 'glass': (0.04, 0.0), 'ice': (0.06, 0.0),
+    'metal': (0.32, 1.0), 'iron': (0.45, 0.9), 'bronze': (0.3, 1.0), 'brass': (0.26, 1.0), 'silver': (0.18, 1.0),
+    'chrome': (0.06, 1.0), 'gold': (0.22, 1.0), 'gem': (0.03, 0.0),
+}
+
+
+def _mat(v):
+    return MATERIALS[v] if isinstance(v, str) else v
+
+
+def wear(h, w, seed, amount=1.0):
+    """0..1: natural wear over an atlas: a soft cloud (handling, polish) and fine scratches, many
+    short and faint, a few long, criss-crossing the way a piece is slid and picked up."""
+    rng = np.random.default_rng(seed)
+    cloud = cv2.resize(rng.random((max(2, h // 64), max(2, w // 64))).astype(np.float32), (w, h), interpolation=cv2.INTER_CUBIC)
+    sc = np.zeros((h, w), np.float32)
+    n = int(amount * h * w / 900)
+    for i in range(n):
+        x, y = rng.integers(0, w), rng.integers(0, h)
+        ln = rng.gamma(1.6, 6) * (4 if rng.random() < 0.06 else 1)
+        a = rng.normal(0.35, 0.5) + (np.pi / 2 if rng.random() < 0.3 else 0)
+        x2, y2 = int(x + ln * np.cos(a)), int(y + ln * np.sin(a))
+        cv2.line(sc, (int(x), int(y)), (x2, y2), float(rng.uniform(0.25, 1.0)), 1, cv2.LINE_AA)
+    return np.clip(0.35 * (cloud - 0.5) + sc, -0.2, 1.0)
+
+
+def paint_cell(ref, t, atlas, mr, look, half='right', glow=None):
     """resample a side's picture of piece type t into its atlas cell.
     look: {'body': (rough, metal), 'gold': (rough, metal), 'gem': (rough, metal), 'gold_tone': bgr or None}"""
     i = TYPES.index(t)
@@ -378,13 +408,19 @@ def paint_cell(ref, t, atlas, mr, look, half='right'):
         col = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
     atlas[cy:cy + CH, cx:cx + CW] = col
     m = np.zeros((CH, CW, 3), np.float32)
-    (br, bm), (gr, gm), (er, em) = look['body'], look['gold'], look['gem']
+    (br, bm), (gr, gm), (er, em) = _mat(look['body']), _mat(look['gold']), _mat(look['gem'])
     m[..., 1] = (br * (1 - gw) + gr * gw) * 255
     m[..., 0] = (bm * (1 - gw) + gm * gw) * 255
     gem = idm == 2
     m[gem, 1], m[gem, 0] = er * 255, em * 255   # BGR: R=0 (unused), G rough, B metal
     m = m.clip(0, 255).astype(np.uint8)
     mr[cy:cy + CH, cx:cx + CW] = m[..., ::-1]
+    if glow is not None:
+        # gems catch the light from inside: a little of their own colour glows, so they sparkle
+        # even in a dim room; look['emit'] lets lava, ice and neon glow all over
+        g = col.astype(np.float32) * look.get('emit', 0.1)
+        g[gem] = col[gem].astype(np.float32) * max(look.get('gem_glow', 0.45), look.get('emit', 0.1))
+        glow[cy:cy + CH, cx:cx + CW] = g.clip(0, 255).astype(np.uint8)
 
 
 # ------------------------------------------------------------------ geometry

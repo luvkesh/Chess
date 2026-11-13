@@ -12,9 +12,10 @@ BOXES = {
 PAWN = (240, 244, 329, 358)   # the board picture's front ivory pawn (for its pearl)
 GOLD = (64, 172, 246)   # BGR tone the gold leaf is lifted toward
 HALF = {'n': 'full'}
+SIDED = {'n', 'k', 'q'}   # each side's crowns carved from its own picture
 LOOK = {
-    'w': {'body_cool': 0.1, 'wb': (1.06, 0.93, 1.0), 'body': (0.24, 0.0), 'gold': (0.3, 0.6), 'gem': (0.06, 0.0), 'gold_tone': GOLD},
-    'b': {'wb': (1.04, 0.95, 1.0), 'body_gain': 0.72, 'body': (0.16, 0.0), 'gold': (0.3, 0.6), 'gem': (0.06, 0.0), 'gold_tone': GOLD},
+    'w': {'body_cool': 0.1, 'wb': (1.06, 0.93, 1.0), 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
+    'b': {'wb': (1.04, 0.95, 1.0), 'body_gain': 0.72, 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
 }
 
 
@@ -45,10 +46,10 @@ def refs():
 
 
 SPEC = {
-    'k': {'kind': 'crown', 'zc': 0.649, 'zp': 0.719, 'ztip': 0.878, 'points': 8, 'ball': 0.024,
-          'top': ('cross', 0.847, 0.17), 'dome': (0.636, 0.897, 0.22, 0)},
-    'q': {'kind': 'crown', 'zc': 0.656, 'zp': 0.733, 'ztip': 0.903, 'points': 8, 'ball': 0.022,
-          'top': ('finial', 0.872, 0.055), 'dome': (0.664, 0.926, 0.22, 2)},
+    # the crowns are carved from the front picture (a deep relief over a turned band), so seen from
+    # the front each point, gem and curl is where the picture has it
+    'k': {'kind': 'turned', 'top': ('relief', 0.66, 0.5, 0.45)},
+    'q': {'kind': 'turned', 'top': ('relief', 0.67, 0.5, 0.45)},
     'r': {'kind': 'rook', 'merlons': 6},
     'n': {'kind': 'knight', 'z0': 0.278},
 }
