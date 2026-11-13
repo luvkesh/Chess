@@ -13122,6 +13122,7 @@ function ChacklatePieces(THREE, K) {
   // ------------------------------------------------------------------ the jewel sets (2026-11)
   Object.assign(SETS, {
     fantasy: {
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.5 } },
       id: 'fantasy', name: 'Fantasy Marble', era: 'A sculptor\'s dream', year: 'Today', tint: '#3a3226',
       story: 'Carved from white and black marble, then wound with ribbons of gold. Each piece is a sculpture: tulip crowns, a pearl held in a twisted loop and towers with tall arched windows.',
       lore: {
@@ -13138,6 +13139,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('fm-black', { map: TEX.marble('#151416', '#a8864a', { scale: 2.4, sharp: 7, strength: 0.55, cloud: 0.1 }), roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05 }), mane: phys('fm-black-mane', { map: TEX.marble('#18171a', '#c09048', { scale: 3.5, sharp: 4, strength: 0.8, cloud: 0.1 }), roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05 }), trim: MAT.gold('#e2b45a'), orb: phys('fm-smoke', { color: '#2c2a2e', metalness: 0.25, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.8 }), gem: MATS.diamond() }),
     },
     sapphire: {
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.45, env: 0.95 } },
       id: 'sapphire', name: 'Royal Ivory & Sapphire', era: 'A king\'s mountain tower', year: 'Once upon a time', tint: '#1d2c6e',
       story: 'Made for a king whose tower looked out over snowy mountains. Ivory faces royal blue, both laid with gold and set with sapphires, and the rooks carry the king\'s shield with a golden lily.',
       lore: {
@@ -13154,6 +13156,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('sap-blue', { map: TEX.marble('#1f3290', '#6a82e0', { scale: 2.5, sharp: 9, strength: 0.35, cloud: 0.2 }), roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }), enamel: phys('sap-enamel-deep', { color: '#101a52', roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.03, sheen: 0.4, sheenColor: new THREE.Color('#5a7aff') }), trim: MAT.gold('#e6b85a'), gem: MAT.gem('#6a9aff') }),
     },
     navy: {
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.45, env: 0.95 } },
       id: 'navy', name: 'Royal Navy', era: 'An admiral\'s cabin', year: 'The age of sail', tint: '#141c3a',
       story: 'Made for an admiral to play in his cabin at sea. Ivory with rubies faces deep navy with sapphires, all trimmed in gold, with gold rope round every foot and an anchor on the king\'s cross.',
       lore: {
@@ -13170,6 +13173,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('nv-navy', { map: TEX.marble('#121a34', '#4a5c94', { scale: 2.2, sharp: 8, strength: 0.4, cloud: 0.2 }), roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }), band: MAT.gold('#e4b45a'), trim: MAT.gold('#e4b45a'), gem: MAT.gem('#2a5cff'), glow: phys('nv-glow-blue', { color: '#5a9aff', emissive: '#1a5aff', emissiveIntensity: 1.3, roughness: 0.06, clearcoat: 1 }), orb: phys('nv-orb-sapphire', { color: '#1c3ab0', roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6 }) }),
     },
     opulent: {
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.5 } },
       id: 'opulent', name: 'Opulent Emerald', era: 'A stargazer\'s tower', year: 'Once upon a time', tint: '#12302a',
       story: 'Made for a stargazer\'s tower, where lamps glow in the windows all night. Ivory faces deep green marble, set with emeralds in gold, and the kings and queens are cut with eight shining sides.',
       lore: {
@@ -13186,6 +13190,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('em-green', { map: TEX.marble('#13221c', '#5a8a74', { scale: 2.2, sharp: 8, strength: 0.45, cloud: 0.2 }), roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05 }), trim: MAT.gold('#e2b050'), gem: phys('em-gem', { color: '#12b47e', roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.2, emissive: '#0a8a5a', emissiveIntensity: 0.35 }), window: phys('em-window', { color: '#ffd890', emissive: '#ffb040', emissiveIntensity: 1.6, roughness: 0.4 }) }),
     },
     pagoda: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.55, env: 1.0 } },
       id: 'pagoda', name: 'Dragon & Pagoda', era: 'A pavilion by a mountain waterfall', year: 'Long ago', tint: '#3a1418',
       story: 'Made for a pavilion high in the mountains, beside a waterfall. Porcelain white with crimson silk faces midnight lacquer with glowing blue, all in gold: an emperor and an empress, dragon knights, lotus-flame bishops and lantern pagodas for rooks.',
       lore: {
@@ -13249,6 +13254,93 @@ function ChacklatePieces(THREE, K) {
     play: { around: 0.4, along: 0.34, tube: 0.45, cell: 0.012, mane: 0.0095 },
   };
   const geomCache = new Map();
+
+  // ------------------------------------------------------------------ modelled sets
+  // Sets modelled in Blender from their reference pictures (tools/model/). Their meshes and
+  // painted texture atlases live in a pack, meshes/<pack>.txt beside the page, fetched the first
+  // time one of its sets is shown. Until it arrives (or if it cannot), the set's coded pieces
+  // stand in. A pack is text: JSON { sets: { id: { bin, w: { albedo, mr, glow }, b: {...} } } },
+  // where bin is the base64 of a gzipped buffer (u32 header length, JSON header, then 4-byte
+  // aligned arrays) and each side's textures are data URLs (colour; G roughness, B metalness;
+  // glow for emissive parts). Both sides share the meshes unless a key names its side.
+  const PACKS = new Map(), DONE = new Set();
+  const MODELLED = new Map();   // set id -> { geo: { 'w.k.show': { slot: geometry } }, tex }
+  const meshPack = (id) => { const s = SETS[id]; return s && s.mesh && typeof DecompressionStream !== 'undefined' && typeof fetch !== 'undefined' ? s.mesh : null; };
+  const b64bytes = (b) => { const t = atob(b), u = new Uint8Array(t.length); for (let i = 0; i < t.length; i++) u[i] = t.charCodeAt(i); return u; };
+  async function gunzip(bytes) {
+    const st = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Uint8Array(await new Response(st).arrayBuffer());
+  }
+  function texture(url, srgb) {
+    return new Promise((res) => {
+      const img = new Image();
+      img.onload = () => {
+        const t = new THREE.Texture(img);
+        t.flipY = false; t.anisotropy = 4;
+        if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+        t.needsUpdate = true; res(t);
+      };
+      img.onerror = () => res(null);
+      img.src = url;
+    });
+  }
+  function decodeSet(buf) {
+    const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+    const n = dv.getUint32(0, true);
+    const head = JSON.parse(new TextDecoder().decode(buf.subarray(4, 4 + n)));
+    const ab = buf.slice().buffer, geo = {};
+    for (const [key, slots] of Object.entries(head.geoms)) {
+      geo[key] = {};
+      for (const [slot, d] of Object.entries(slots)) {
+        const g = new THREE.BufferGeometry(), b = d.box, q = new Uint16Array(ab, d.o[0], d.n * 3), pos = new Float32Array(d.n * 3);
+        for (let i = 0; i < d.n * 3; i++) { const a = i % 3; pos[i] = b[a] + (q[i] / 65535) * (b[a + 3] - b[a]); }
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        g.setAttribute('normal', new THREE.BufferAttribute(new Int8Array(ab, d.o[1], d.n * 3), 3, true));
+        g.setAttribute('uv', new THREE.BufferAttribute(new Uint16Array(ab, d.o[2], d.n * 2), 2, true));
+        g.setIndex(new THREE.BufferAttribute(d.n > 65535 ? new Uint32Array(ab, d.o[3], d.i) : new Uint16Array(ab, d.o[3], d.i), 1));
+        g.computeBoundingSphere(); g.computeBoundingBox();
+        geo[key][slot] = g;
+      }
+    }
+    return geo;
+  }
+  function loadPack(pack) {
+    if (!PACKS.has(pack)) {
+      PACKS.set(pack, fetch('meshes/' + pack + '.txt').then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
+        .then((j) => Promise.all(Object.entries(j.sets).map(async ([id, d]) => {
+          const side = async (t) => (t ? { albedo: await texture(t.albedo, true), mr: await texture(t.mr), glow: t.glow ? await texture(t.glow, true) : null } : null);
+          const [geo, w, b] = await Promise.all([gunzip(b64bytes(d.bin)).then(decodeSet), side(d.w), side(d.b)]);
+          if (w && w.albedo && w.mr && b && b.albedo && b.mr) MODELLED.set(id, { geo, tex: { w, b } });
+        })))
+        .catch((e) => { if (typeof console !== 'undefined') console.warn('pieces: pack', pack, 'not loaded', e && e.message); })
+        .then(() => { DONE.add(pack); }));
+    }
+    return PACKS.get(pack);
+  }
+  // Resolves once a set's modelled pieces are in (at once for coded sets, and for a pack that fails).
+  function ready(id) { const p = meshPack(id); return p ? loadPack(p).then(() => !!MODELLED.get(id)) : Promise.resolve(false); }
+  // true while a modelled set's pack is still on its way (or not asked for yet)
+  const pending = (id) => !!meshPack(id) && !MODELLED.has(id) && !DONE.has(meshPack(id));
+  // The painted skin of a modelled piece: the atlas colour, roughness and metalness from the
+  // mr map (gold leaf shines as metal, enamel and stone stay glossy), and glowing gems and windows.
+  const SKINS = new Map();
+  function skin(id, slot, side) {
+    const k = id + ':' + slot + ':' + side;
+    if (!SKINS.has(k)) {
+      const t = MODELLED.get(id).tex[side === 'b' ? 'b' : 'w'], ml = SETS[id].meshLook || {}, look = Object.assign({ clearcoat: 0.7, clearcoatRoughness: 0.08 }, ml, ml[side === 'b' ? 'b' : 'w'] || {}, ml[slot] || {});
+      const o = { map: t.albedo, roughnessMap: t.mr, metalnessMap: t.mr, roughness: 1, metalness: 1, clearcoat: look.clearcoat, clearcoatRoughness: look.clearcoatRoughness, envMapIntensity: look.env || 1.15 };
+      if (t.glow) Object.assign(o, { emissiveMap: t.glow, emissive: new THREE.Color('#ffffff'), emissiveIntensity: look.glow || 1.4 });
+      if (slot === 'glass') Object.assign(o, { transmission: look.transmission || 0.85, thickness: 0.4, ior: 1.5 });
+      SKINS.set(k, new THREE.MeshPhysicalMaterial(o));
+    }
+    return SKINS.get(k);
+  }
+  const modelled = (id, type, detail, side) => {
+    const m = MODELLED.get(id);
+    if (!m) return null;
+    const sd = side === 'b' ? 'b.' : 'w.';
+    return m.geo[sd + type + '.' + detail] || m.geo[type + '.' + detail] || m.geo[sd + type + '.show'] || m.geo[type + '.show'] || null;
+  };
   // A set whose two armies are different figures (Orcs & Elves) gives black its own module, piecesB.
   // Sets whose two sides are different characters (set.sided) build each piece for its side.
   function geometry(setId, type, detail, side) {
@@ -13293,6 +13385,18 @@ function ChacklatePieces(THREE, K) {
   }
   function make(setId, type, side, detail) {
     const set = SETS[setId] || SETS.regency;
+    const mg = modelled(set.id, type, LOD[detail] ? detail : 'show', side);
+    if (mg) {
+      const grp = new THREE.Group();
+      for (const slot of Object.keys(mg)) {
+        const m = new THREE.Mesh(mg[slot], skin(set.id, slot, side));
+        m.castShadow = true; m.receiveShadow = true;
+        grp.add(m);
+      }
+      grp.userData = { set: set.id, type, side, modelled: true };
+      return grp;
+    }
+    if (meshPack(set.id)) loadPack(meshPack(set.id));
     const g = geometry(set.id, type, detail, side);
     const mats = set.mats(side);
     const grp = new THREE.Group();
@@ -13305,7 +13409,7 @@ function ChacklatePieces(THREE, K) {
     return grp;
   }
   const HEIGHT = { k: 1.62, q: 1.43, b: 1.24, n: 1.06, r: 0.97, p: 0.72 };
-  return { SETS, make, geometry, HEIGHT, list: () => Object.keys(SETS).map((k) => SETS[k]) };
+  return { SETS, make, geometry, HEIGHT, ready, pending, list: () => Object.keys(SETS).map((k) => SETS[k]) };
 }
 
 // Chackmate billboards: the adverts on the LED screens and neon signs of Times Square.
@@ -20659,6 +20763,11 @@ function ChacklateScene(canvas, options) {
     setId = P.SETS[id] ? id : 'regency';
     for (const s of sprites.concat(graveyard)) rebuildSprite(s);
     warm();
+    // a set modelled in Blender swaps its meshes in once its pack has arrived
+    if (P.pending(setId)) {
+      const want = setId;
+      P.ready(want).then((ok) => { if (ok && setId === want) { for (const s of sprites.concat(graveyard)) rebuildSprite(s); warm(); requestRender(); } });
+    }
   }
   // New materials have their shaders compiled before they are drawn. Drawing first would
   // compile them on the page's thread and freeze it for seconds on a phone; compileAsync lets
@@ -22451,6 +22560,9 @@ function ChacklateScene(canvas, options) {
   const snapCache = new Map(), snapPending = new Map();
   let snapQueue = Promise.resolve(), snapDB = null;
   function snapshot(spec, w, h, wanted) {
+    // pictures of a modelled set wait for its meshes, so a card never keeps the stand-in pieces
+    const sets = [spec.set].concat((spec.items || []).map((it) => it.set)).filter((x) => x && P.pending(x));
+    if (sets.length) return Promise.all(sets.map((x) => P.ready(x))).then(() => snapshot(spec, w, h, wanted));
     const keyS = JSON.stringify([spec, w, h]);
     if (snapCache.has(keyS)) return Promise.resolve(snapCache.get(keyS));
     if (snapPending.has(keyS)) return snapPending.get(keyS);
@@ -22526,10 +22638,10 @@ function ChacklateScene(canvas, options) {
       sides.forEach((side, row) => types.forEach((t, i) => {
         const g = P.make(spec.set, t, side, spec.detail);
         g.position.set((i - (types.length - 1) / 2) * 0.78, 0, row ? -0.85 : 0.2);
-        g.rotation.y = t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
+        g.rotation.y = spec.turn !== undefined ? spec.turn : t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
         s2.add(g);
       }));
-      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
+      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; if (spec.level) { c2.position.set(0, ht * 0.5, ht * 4.2 + 0.8); look.set(0, ht * 0.5, 0); } else { c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); } }
       else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
       // floor: false leaves the pieces standing on nothing (the menu medals, tools/shoot-art.js)
       if (spec.floor !== false) {
