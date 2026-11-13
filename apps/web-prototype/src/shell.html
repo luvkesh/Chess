@@ -163,7 +163,7 @@ body.paged .nogl p, body.heroic .nogl p { display: none; }
 .seg input:disabled + span { opacity: 0.45; cursor: default; }
 .toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
 .toggle input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--gold-3); flex: none; }
-.toggle input[type=range] { width: 140px; accent-color: var(--gold-3); }
+.toggle input[type=range] { width: 140px; height: 28px; margin: 0; accent-color: var(--gold-3); cursor: pointer; }
 .toggle select { background: var(--sunk); border: 1px solid var(--line-2); border-radius: 9px; padding: 7px 9px; max-width: 220px; }
 .voice-pick { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .portrait { border-radius: 50%; flex: none; }
@@ -830,7 +830,7 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 @keyframes turnring { 50% { transform: scale(1.06); opacity: 0.4; } }
 .player-card .who { flex: 1; min-width: 0; }
 .player-card .name { font: 500 21px/1.05 var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.player-card .sub { font: 600 9.5px/1.2 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+.player-card .sub { font: 600 10.5px/1.2 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
 .player-card .taken { display: flex; align-items: center; min-height: 18px; margin-top: 3px; }
 .player-card .checks { display: inline-flex; gap: 4px; margin-right: 8px; }
 .player-card .checks[hidden] { display: none; }
@@ -1612,7 +1612,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .lesson header { padding: 8px 12px; } .lesson header img { width: 38px; height: 38px; } .lesson header h3 { font-size: 18px; }
   .lesson .content { padding: 10px 14px; } .lesson .say { font-size: 16px; } .lesson .prompt { font-size: 17px; }
   .coach { margin: 8px; padding: 10px; }
-  #coach-slot { max-height: 80%; }
+  #coach-slot { max-height: min(80%, calc(100% - 66px)); }   /* the header stays above it, so its end can scroll into view */
   .evalbar { height: 40vh; }
   .actionbar { bottom: calc(var(--safe-b) + 8px); padding: 4px; } .actionbar .btn { min-height: 38px; padding: 0 11px; }
   .actionbar .btn span.lbl { display: none; }
@@ -1710,6 +1710,10 @@ body.paged .page { padding-bottom: 120px; }
 /* in games and lessons the face sits at the bottom right of the table, left of the side panel */
 body.ingame .guide { right: var(--gd-right, 16px); bottom: var(--gd-bottom, max(18px, var(--safe-b))); }
 body.ingame .gd-text { font-size: 15.5px; }
+body.ingame .guide.up { flex-direction: column; align-items: flex-end; }
+body.ingame .guide.up .gd-bubble { transform: translateY(8px); }
+html[dir="rtl"] body.ingame .guide.up { flex-direction: column; align-items: flex-start; }
+body.ingame .guide.up.open .gd-bubble, body.ingame .guide.up.speaking .gd-bubble { transform: none; }
 /* the story card has its own replay and voice buttons */
 .parch .head { position: relative; }
 .tl-tools { margin-left: auto; display: flex; gap: 6px; align-self: flex-start; }
@@ -1843,6 +1847,14 @@ body.ingame .gd-text { font-size: 15.5px; }
 }
 .actionbar.tight .btn span.lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }   /* still read out by screen readers */
 .actionbar.tight .btn { padding: 0 12px; }
+/* Landscape phones: an item's picture sits beside its words (stacked, the picture filled the whole window) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .museum { grid-template-columns: minmax(0, 0.85fr) 1fr; gap: 16px; }
+  .museum .stagecol { position: sticky; top: 0; align-self: start; }
+  .museum .stagebox { min-height: 0; height: calc(100vh - 110px); max-height: 300px; }
+  .museum .stagebox img { max-height: calc(100vh - 130px); }
+  .card.museum-card { padding-top: 56px; }
+}
 </style>
 
 <div id="stage"><canvas id="board" aria-label="3D chess board" data-t-aria="common.boardLabel"></canvas></div>
