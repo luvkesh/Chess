@@ -269,6 +269,31 @@
     "room.keep.v1": "A blue and gold throne room in a castle on a mountain. The towers are lighting up for the evening!",
     "room.admiral.v1": "The captain's cabin at the back of a great sailing ship. Can you see the lighthouse blinking across the bay?",
     "room.emeraldhall.v1": "A green marble room on a hilltop, made for watching the stars. The first ones are coming out right now!",
-    "room.pavilion.v1": "A red pavilion facing a roaring waterfall, with cherry blossom all around. Listen to the water!"
+    "room.pavilion.v1": "A red pavilion facing a roaring waterfall, with cherry blossom all around. Listen to the water!",
+    "pieces.astral.v1": {
+      "site": "item-sets-astral"
+    },
+    "pieces.elemental.v1": {
+      "site": "item-sets-elemental"
+    },
+    "pieces.clockwork.v1": {
+      "site": "item-sets-clockwork"
+    },
+    "pieces.neon.v1": {
+      "site": "item-sets-neon"
+    },
+    "pieces.lumen.v1": {
+      "site": "item-sets-lumen"
+    },
+    "board.starglass.v1": "Black glass full of tiny stars, next to frosted glass. Golden orbits shine on every corner.",
+    "board.lavaice.v1": "Blue glacier ice next to black stone, with lava glowing in the cracks. Hot and cold at once!",
+    "board.gearwood.v1": "Walnut and maple, with tiny gears carved into the squares. Look for the clocks on the corners!",
+    "board.neongrid.v1": "Smoky glass squares, every edge lit in electric blue. Like a city at night, seen from the sky.",
+    "board.voidmarble.v1": "White marble with golden veins, next to night-blue marble. Every dark square has a line of light.",
+    "room.observatory.v1": "A mountain top above the clouds, under a sky full of stars. Watch the golden sphere turn!",
+    "room.rift.v1": "An ice palace on one side, a volcano on the other. Northern lights over the ice, lava below!",
+    "room.clocktower.v1": "The top of a clock tower at sunset, with gears as big as houses. Wave to the airships!",
+    "room.neonroof.v1": "A rainy rooftop in a city of towers, glowing pink and blue. Here comes the train!",
+    "room.citadel.v1": "An island floating in the sky, with waterfalls all around. Look at the ring of light ahead!"
   }
 }

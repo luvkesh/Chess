@@ -73,7 +73,8 @@ def load(name):
 
 # What a board's squares and frame are made of (world3d.js BOARDS), in the plaque's words.
 FIELD = {'wood': 'Wood squares', 'lacquer': 'Lacquer squares', 'marble': 'Marble squares', 'lapis': 'Lapis lazuli squares', 'stone': 'Stone squares',
-         'clay': 'Terracotta squares', 'chisel': 'Chiselled stone squares', 'nacre': 'Mother-of-pearl squares', 'aventurine': 'Aventurine glass squares'}
+         'clay': 'Terracotta squares', 'chisel': 'Chiselled stone squares', 'nacre': 'Mother-of-pearl squares', 'aventurine': 'Aventurine glass squares',
+         'glass': 'Glass squares', 'glacier': 'Glacier ice squares', 'gearwork': 'Engraved wood squares'}
 FRAME = {'wood': 'Wood frame', 'lacquer': 'Lacquer frame', 'marble': 'Marble frame', 'stone': 'Stone frame', 'malachite': 'Malachite frame', 'raw': 'Rough-hewn frame'}
 
 

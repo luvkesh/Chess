@@ -3,7 +3,7 @@
 // score are synthesised with the Web Audio API; the coach's lines are recorded voices.
 function ChacklateAudio() {
   'use strict';
-  let ctx = null, master = null, sfxBus = null, musicBus = null, verb = null, verbSend = null;
+  let ctx = null, master = null, sfxBus = null, musicBus = null, musicWet = null, verb = null, verbSend = null;
   let sfxVol = 0.8, musicVol = 0.35, sfxOn = true, musicOn = true, pack = 'wood';
   let music = null;
 
@@ -11,6 +11,8 @@ function ChacklateAudio() {
     if (ctx) return ctx;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
+    // iPhone and iPad: play like a media app, so the ring/silent switch doesn't mute the game (Safari 17+)
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* older Safari */ }
     ctx = new AC();
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.2;
@@ -18,6 +20,9 @@ function ChacklateAudio() {
     master.connect(comp).connect(ctx.destination);
     sfxBus = ctx.createGain(); sfxBus.gain.value = sfxVol; sfxBus.connect(master);
     musicBus = ctx.createGain(); musicBus.gain.value = 0; musicBus.connect(master);
+    // the music's own reverb send follows the music's volume, so ducking, the slider and
+    // switching music off quieten its echo too
+    musicWet = ctx.createGain(); musicWet.gain.value = 0;
     // Small hall made from decaying stereo noise.
     verb = ctx.createConvolver();
     const len = Math.floor(ctx.sampleRate * 2.6);
@@ -30,11 +35,13 @@ function ChacklateAudio() {
     const verbOut = ctx.createGain(); verbOut.gain.value = 0.5;
     verb.connect(verbOut).connect(master);
     verbSend = ctx.createGain(); verbSend.gain.value = 0.18; verbSend.connect(verb);
+    musicWet.connect(verbSend);
     return ctx;
   }
   function ready() {
     if (!init()) return false;
-    if (ctx.state === 'suspended') ctx.resume();
+    // iOS may leave it 'suspended' or 'interrupted' (a call, the lock screen); a tap brings it back
+    if (ctx.state !== 'running') { const r = ctx.resume(); if (r && r.catch) r.catch(() => {}); }
     bank(pack);   // decode the chosen sound pack ahead of the first move
     return true;
   }
@@ -67,6 +74,7 @@ function ChacklateAudio() {
     o.start(t); o.stop(t + dur + 0.05);
     return g;
   }
+  const wetFor = (out) => (out && out.wet) || verbSend;
   // FM bell / electric piano voice.
   function bell(t, hz, dur, gain, ratio, index, out) {
     const car = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain(), g = ctx.createGain();
@@ -76,7 +84,7 @@ function ChacklateAudio() {
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     car.connect(g);
     g.connect(out || sfxBus);
-    const send = ctx.createGain(); send.gain.value = 0.6; g.connect(send).connect(verbSend);
+    const send = ctx.createGain(); send.gain.value = 0.6; g.connect(send).connect(wetFor(out));
     car.start(t); mod.start(t); car.stop(t + dur + 0.1); mod.stop(t + dur + 0.1);
   }
 
@@ -194,7 +202,7 @@ function ChacklateAudio() {
 
   // info: the move (its mover and captured piece), so each piece sounds its own weight.
   function play(kind, info) {
-    if (!sfxOn || !ready() || !FX[kind]) return;
+    if (!sfxOn || !ready() || !FX[kind] || ctx.state !== 'running') return;   // never a burst of late sounds on wake
     try { FX[kind].call(FX, ctx.currentTime + 0.005, info || {}); } catch (e) { /* audio is optional */ }
   }
 
@@ -302,6 +310,21 @@ function ChacklateAudio() {
     // a warm Arabian (Hijaz) tune on a plucked string, above the clouds
     burj: { chords: [[38, 50, 57, 62, 66], [38, 50, 55, 62, 67], [36, 48, 55, 60, 63], [38, 50, 57, 62, 66]],
       scale: [62, 63, 66, 67, 69, 70, 72, 74, 75, 78], voice: 'lyre', every: 8000 },
+    // slow Lydian bells under the stars
+    observatory: { chords: [[38, 50, 57, 64, 68], [40, 52, 59, 64, 68], [36, 48, 55, 62, 66], [38, 50, 57, 62, 69]],
+      scale: [62, 64, 66, 68, 69, 71, 73, 74, 76, 78], voice: 'celesta', every: 9000 },
+    // a dark minor drone with a horn call between the fire and the ice
+    rift: { chords: [[28, 40, 47, 52, 55], [29, 41, 48, 53, 57], [26, 38, 45, 50, 53], [28, 40, 47, 52, 59]],
+      scale: [52, 55, 57, 59, 60, 62, 64, 67, 69, 71], voice: 'horn', every: 8500 },
+    // a music box in a bright major, ticking along
+    clocktower: { chords: [[36, 48, 55, 60, 64], [41, 48, 53, 57, 60], [43, 50, 55, 59, 62], [36, 48, 55, 60, 64]],
+      scale: [60, 62, 64, 67, 69, 72, 74, 76, 79, 81], voice: 'celesta', every: 6500 },
+    // soft synth chords in the rain, minor ninths
+    neonroof: { chords: [[33, 45, 52, 55, 59], [29, 41, 48, 52, 55], [36, 48, 55, 59, 62], [31, 43, 50, 53, 57]],
+      scale: [57, 59, 60, 62, 64, 67, 69, 71, 72, 76], voice: 'ep', every: 7500 },
+    // wide, floating fifths between light and dark
+    citadel: { chords: [[38, 50, 57, 62, 69], [34, 46, 53, 58, 65], [36, 48, 55, 60, 67], [41, 53, 60, 65, 72]],
+      scale: [62, 64, 65, 67, 69, 72, 74, 76, 77, 79], voice: 'harp', every: 9000 },
     // deep drums of fifths and a slow, wondering tune on the horn, in the valley of giants
     dinoval: { chords: [[29, 41, 48, 53, 57], [27, 39, 46, 51, 55], [32, 44, 51, 56, 60], [29, 41, 48, 53, 60]],
       scale: [53, 55, 57, 60, 62, 65, 67, 69, 72, 74], voice: 'horn', every: 9500 },
@@ -350,7 +373,7 @@ function ChacklateAudio() {
     f.frequency.setValueAtTime(Math.min(16000, hz * bright), t); f.frequency.exponentialRampToValueAtTime(hz * 1.1, t + dur * 0.55);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     a.connect(f); b.connect(f); f.connect(g).connect(out);
-    const send = ctx.createGain(); send.gain.value = 0.7; g.connect(send).connect(verbSend);
+    const send = ctx.createGain(); send.gain.value = 0.7; g.connect(send).connect(wetFor(out));
     a.start(t); b.start(t); a.stop(t + dur + 0.1); b.stop(t + dur + 0.1);
   }
   // A soft brass voice: the filter opens with the breath and closes again.
@@ -361,7 +384,7 @@ function ChacklateAudio() {
     f.frequency.setValueAtTime(hz * 1.2, t); f.frequency.linearRampToValueAtTime(hz * 3.2, t + 0.25); f.frequency.exponentialRampToValueAtTime(hz * 1.4, t + dur);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + 0.18); g.gain.setValueAtTime(gain, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(f).connect(g).connect(out);
-    const send = ctx.createGain(); send.gain.value = 0.8; g.connect(send).connect(verbSend);
+    const send = ctx.createGain(); send.gain.value = 0.8; g.connect(send).connect(wetFor(out));
     o.start(t); o.stop(t + dur + 0.1);
   }
   function note(voice, t, hz, gain, out) {
@@ -379,24 +402,26 @@ function ChacklateAudio() {
   function startMusic() {
     if (music || !ready()) return;
     const out = ctx.createGain(); out.gain.value = 1; out.connect(musicBus);
-    const wet = ctx.createGain(); wet.gain.value = 1.6; out.connect(wet).connect(verbSend);
+    out.wet = musicWet;
+    const wet = ctx.createGain(); wet.gain.value = 1.6; out.connect(wet).connect(musicWet);
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.4; lp.connect(out);
     const lfo = ctx.createOscillator(), lfoG = ctx.createGain(); lfo.frequency.value = 0.05; lfoG.gain.value = 350; lfo.connect(lfoG).connect(lp.frequency); lfo.start();
     music = { out, lp, lfo, timer: 0, step: 0, at: 4, mood: null };
-    musicBus.gain.cancelScheduledValues(ctx.currentTime);
-    musicBus.gain.setTargetAtTime(musicVol * 0.5, ctx.currentTime, 1.5);
+    musicLevel(talkingNow ? DUCKED : 1, 1.5);
     const chord = () => {
       if (!music) return;
       const m = mood, t = ctx.currentTime + 0.05;
       if (music.mood !== m) { music.mood = m; music.step = 0; music.at = 3 + Math.floor(Math.random() * 4); }
       const c = m.chords[music.step % m.chords.length];
       music.step += 1 + (Math.random() < 0.3 ? 1 : 0);
-      const len = m.every / 1000 + 2;
+      // Each chord swells in while the last one fades out under it (straight-line fades that overlap
+      // by 3.5 s), so the pad never drops out between chords.
+      const len = m.every / 1000 + 3.5;
       for (const n of c) {
         for (const det of [-6, 6]) {
           const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(n); o.detune.value = det + (Math.random() - 0.5) * 4;
           const g = ctx.createGain();
-          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.018, t + 2.5); g.gain.setValueAtTime(0.018, t + len - 3.5); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.018, t + 2.5); g.gain.setValueAtTime(0.018, t + len - 3.5); g.gain.linearRampToValueAtTime(0, t + len);
           o.connect(g).connect(music.lp); o.start(t); o.stop(t + len + 0.2);
         }
       }
@@ -425,7 +450,7 @@ function ChacklateAudio() {
     const m = music; music = null;
     clearTimeout(m.timer);
     if (ctx) {
-      musicBus.gain.setTargetAtTime(0, ctx.currentTime, 0.6);
+      musicLevel(0, 0.6);
       setTimeout(() => { try { m.lfo.stop(); m.out.disconnect(); } catch (e) { /* already stopped */ } }, 3000);
     }
   }
@@ -460,12 +485,13 @@ function ChacklateAudio() {
       for (const [id, v] of Object.entries(j.voices || {})) {
         const keys = (j.keys || {})[v.lang] || [];
         if (keys.length !== v.sizes.length) continue;
-        const parts = (v.parts || [{ url: 'voice/' + id + '.mp3' + (v.v ? '?v=' + v.v : ''), n: keys.length }]).map((p) => ({ url: p.url, b64: !!p.b64, n: p.n }));
+        // a part may start part-way into a file it shares with other voices (at: its first character)
+        const parts = (v.parts || [{ url: 'voice/' + id + '.mp3' + (v.v ? '?v=' + v.v : ''), n: keys.length }]).map((p) => ({ url: p.url, b64: !!p.b64, n: p.n, at: p.at || 0 }));
         if (parts.reduce((t, p) => t + p.n, 0) !== keys.length) continue;
         const at = new Map();
-        let part = 0, left = parts[0].n, start = 0;
+        let part = 0, left = parts[0].n, start = parts[0].at;
         keys.forEach((k, i) => {
-          if (!left) { part++; left = parts[part].n; start = 0; }
+          if (!left) { part++; left = parts[part].n; start = parts[part].at; }
           const n = parts[part].b64 ? 4 * Math.ceil(v.sizes[i] / 3) : v.sizes[i];
           at.set(k, [parts[part], start, start + n]);
           start += n; left--;
@@ -525,13 +551,58 @@ function ChacklateAudio() {
     }
     return clips.get(k);
   }
+  // The music sits about 14 dB under the voices (it was 26 dB under, too quiet to hear on a phone),
+  // and dips a further 10 dB while anyone talks.
+  const MUSIC_LIFT = 4, DUCKED = 0.32;
+  let talkingNow = false;
+  function musicLevel(k, tc) {
+    if (!ctx) return;
+    const v = musicVol * 0.5 * MUSIC_LIFT * k, now = ctx.currentTime;
+    for (const g of [musicBus.gain, musicWet.gain]) { g.cancelScheduledValues(now); g.setTargetAtTime(v, now, tc); }
+  }
   function duck(on) {
-    if (music && ctx) musicBus.gain.setTargetAtTime(musicVol * (on ? 0.2 : 0.5), ctx.currentTime, on ? 0.3 : 0.8);
+    talkingNow = on;
+    if (music && ctx) musicLevel(on ? DUCKED : 1, on ? 0.3 : 0.8);
   }
   function stopSpeech() {
     queueId++;
     if (current) { try { current.stop(); } catch (e) { /* already ended */ } current = null; }
     if ('speechSynthesis' in window) speechSynthesis.cancel();
+  }
+  // Every recording plays at the same loudness. A quick measure of a clip's loud parts (50 ms frames,
+  // gated like a loudness meter: frames under -50 dB, or 20 dB under the loudest, don't count) sets
+  // its gain, within limits and never past full scale. The first 8 ms fade in, so a clip that starts
+  // right on a word never clicks. LEVEL is the gated level of the median recorded clip.
+  const LEVEL = -17.6;
+  const levels = new WeakMap();
+  function energy(b) {
+    if (!levels.has(b)) {
+      const d = b.getChannelData(0), w = Math.max(1, Math.floor(b.sampleRate * 0.05)), ms = [];
+      let peak = 0;
+      for (let i = 0; i + w <= d.length; i += w) {
+        let e = 0;
+        for (let j = i; j < i + w; j++) { const x = d[j]; e += x * x; if (x > peak) peak = x; else if (-x > peak) peak = -x; }
+        ms.push(e / w);
+      }
+      levels.set(b, { ms, peak });
+    }
+    return levels.get(b);
+  }
+  function gainFor(bufs) {
+    const all = [];
+    let peak = 0;
+    for (const b of bufs) { const m = energy(b); all.push(...m.ms); peak = Math.max(peak, m.peak); }
+    const top = all.reduce((a, x) => Math.max(a, x), 0);
+    const kept = all.filter((x) => x > 1e-5 && x > top * 0.01);
+    if (!kept.length || !peak) return 1;
+    const db = 10 * Math.log10(kept.reduce((a, x) => a + x, 0) / kept.length);
+    return Math.min(2.2, Math.max(0.6, Math.pow(10, (LEVEL - db) / 20)), 0.98 / peak);
+  }
+  function voiceOut(bufs, t) {
+    const g = ctx.createGain(), k = gainFor(bufs);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(k, t + 0.008);
+    g.connect(master);
+    return g;
   }
   // Plays recordings back to back with a short breath between them. Resolves false if any is missing.
   async function playKeys(id, keys, gap) {
@@ -543,8 +614,8 @@ function ChacklateAudio() {
     try { bufs = await Promise.all(keys.map((k) => clip(id, k))); } catch (e) { return false; }
     if (my !== queueId) return true;
     if (current) { try { current.stop(); } catch (e) { /* already ended */ } }
-    const voiceBus = ctx.createGain(); voiceBus.gain.value = 1; voiceBus.connect(master);
     let t = ctx.currentTime + 0.03, last = null;
+    const voiceBus = voiceOut(bufs, t);
     for (const b of bufs) {
       const s = ctx.createBufferSource(); s.buffer = b; s.connect(voiceBus); s.start(t);
       t += b.duration + (gap || 0.06); last = s;
@@ -628,6 +699,8 @@ function ChacklateAudio() {
     }
     const id = coachVoice;
     if (id !== 'device' && await playKeys(id, [voiceKey(text)])) return true;
+    // a line the chosen voice hasn't recorded yet is said by Rooky's own voice rather than not at all
+    if (id !== 'device' && id !== 'toby' && await playKeys('toby', [voiceKey(text)])) return true;
     return mayUseDevice(id) ? device(text, rate, 'en') : false;
   }
   // Rooky's coach lines. The game cuts each English line into recorded pieces (setCoachSplit:
@@ -664,8 +737,8 @@ function ChacklateAudio() {
         let bufs;
         try { bufs = await Promise.all(plan.keys.map((k) => clip(id, k))); } catch (e) { return viaDevice(); }
         if (my !== queueId) return done();
-        const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(master);
         let t = ctx.currentTime + 0.03, last = null;
+        const bus = voiceOut(bufs, t);
         const srcs = bufs.map((b, i) => { const src = ctx.createBufferSource(); src.buffer = b; src.connect(bus); src.start(t); t += b.duration + plan.gaps[i]; return (last = src); });
         // cut short: every piece still waiting stops too
         current = { stop() { for (const x of srcs) { try { x.stop(); } catch (e) { /* not started */ } } try { bus.disconnect(); } catch (e) { /* gone */ } done(); } };
@@ -762,8 +835,8 @@ function ChacklateAudio() {
       const clip = (i) => (i >= urls.length ? Promise.reject(new Error('missing')) : lineClip(urls[i]).catch(() => clip(i + 1)));
       clip(0).then((b) => {
         if (my !== queueId) return done();
-        const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(master);
-        const s = ctx.createBufferSource(); s.buffer = b; s.connect(bus); s.start(ctx.currentTime + 0.03);
+        const t = ctx.currentTime + 0.03, bus = voiceOut([b], t);
+        const s = ctx.createBufferSource(); s.buffer = b; s.connect(bus); s.start(t);
         current = s;
         duck(true);
         s.onended = () => { if (current === s) { current = null; duck(false); } end(); };
@@ -804,6 +877,33 @@ function ChacklateAudio() {
   const canTalk = () => tapped || !!(ctx && ctx.state === 'running');
   function hush() { stopSpeech(); duck(false); talking(false, null); }
 
+  // Leaving the page on iPhone or iPad (another tab or app, the lock screen, a call): iOS can hand back
+  // a context that says "running" but makes no sound, so there it is let go on the way out and a
+  // fresh one is made by the next tap. Decoded clips and sound packs are kept and reused.
+  const IOS = typeof navigator !== 'undefined' && (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+  let away = false;
+  function leave() {
+    if (!ctx || !IOS || away) return;
+    away = true;
+    hush();
+    if (music) { const m = music; music = null; clearTimeout(m.timer); }
+    const old = ctx;
+    ctx = null; tapped = false;
+    try { old.close(); } catch (e) { /* already closed */ }
+  }
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => { if (document.hidden) leave(); });
+    addEventListener('pagehide', leave);
+    // after a return (or an interruption) the first tap anywhere brings the sound and music back
+    const wake = () => {
+      if (!away && !(ctx && ctx.state !== 'running' && tapped)) return;
+      away = false;
+      if (ready()) { tapped = true; if (musicOn && !music) startMusic(); }
+    };
+    document.addEventListener('click', wake, true);
+    document.addEventListener('keydown', wake, true);
+  }
+
   return {
     play,
     setPack(p) { if (PACKS[p]) { pack = p; if (ctx) bank(p); } },
@@ -812,7 +912,7 @@ function ChacklateAudio() {
     setMusic(on, vol) {
       musicOn = on; if (vol !== undefined) musicVol = vol;
       if (!ctx) return;
-      if (on) { if (music) musicBus.gain.setTargetAtTime(musicVol * 0.5, ctx.currentTime, 0.4); else startMusic(); } else stopMusic();
+      if (on) { if (music) musicLevel(talkingNow ? DUCKED : 1, 0.4); else startMusic(); } else stopMusic();
     },
     // Browsers only allow sound after a user gesture; call this from one.
     unlock() { if (ready()) { tapped = true; if (musicOn && !music) startMusic(); } },
