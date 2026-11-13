@@ -2093,7 +2093,8 @@
           "prompt": "Win the knight with a double attack.",
           "fen": "4k3/8/8/8/7n/8/8/3QK3 w - - 0 1",
           "answers": [
-            "d1a4"
+            "d1a4",
+            "d1h5"
           ],
           "hints": [
             "Look for a queen check.",
@@ -2968,7 +2969,7 @@
             "Four"
           ],
           "answer": 2,
-          "explain": "a-b, d, and f-g-h are three separate groups.",
+          "explain": "a, c, e and g-h are four separate groups.",
           "fen": "4k3/pp3ppp/8/8/8/8/P1P1P1PP/4K3 w - - 0 1"
         },
         {
