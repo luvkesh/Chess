@@ -7358,6 +7358,7 @@ function ChacklatePieces(THREE, K) {
     },
     astral: {
       id: 'astral', name: 'Astral Glass', era: 'The star observatory', year: 'Tonight', tint: '#1e2650',
+      mesh: 'glass1', meshLook: { clearcoat: 0.9, clearcoatRoughness: 0.05 },
       story: 'Frosted moon-glass against midnight-blue glass, and inside every piece a little star that glows. Silver ribbons wind round the pieces like the paths of planets.',
       lore: {
         k: 'A tall glass spire holding a glowing star inside two spinning silver rings, with a compass star on top.',
@@ -7374,6 +7375,7 @@ function ChacklatePieces(THREE, K) {
     },
     elemental: {
       id: 'elemental', name: 'Fire and Ice', era: 'Where the volcano meets the glacier', year: 'Long ago', tint: '#5a1e1a', bySide: true,
+      mesh: 'glass1', meshLook: { clearcoat: 0.8, clearcoatRoughness: 0.05, glow: 1.6 },
       story: 'Two kingdoms meet across the board. White is the Ice Court, carved from glacier ice with frost-wolf knights; Black is the Fire Court, cast in red-hot stone with dragon knights. Every piece glows from inside, and every one stands on the same rune stone.',
       lore: {
         k: 'A bearded king in a cloak, his crown and his staff made of ice or of fire.',
@@ -7390,6 +7392,7 @@ function ChacklatePieces(THREE, K) {
     },
     clockwork: {
       id: 'clockwork', name: 'Clockwork Brass', era: 'The age of steam', year: 'About 1890', tint: '#4a3018', bySide: ['n'],
+      mesh: 'glass1', meshLook: { b: { clearcoat: 0.5 } },
       story: 'Built in an inventor\'s workshop at the top of a clock tower. Ivory enamel faces dark bronze, all set in polished brass, with gears you can see turning and little lights glowing in glass.',
       lore: {
         k: 'A cage of turning gears under a jewelled crown, with a cross made from a cog.',
@@ -7406,6 +7409,7 @@ function ChacklatePieces(THREE, K) {
     },
     neon: {
       id: 'neon', name: 'Neon City', era: 'A city of the future', year: 'Tomorrow night', tint: '#3a1450',
+      mesh: 'glass1', meshLook: { clearcoat: 0.9, clearcoatRoughness: 0.05, glow: 1.6 },
       story: 'Made for a rooftop high above a city of the future, in the rain. Polished chrome lit in electric blue faces black chrome lit in neon pink: an emperor in a long cloak, hooded bishops, cyber-horses and a squad of little robots.',
       lore: {
         k: 'An emperor in a long cloak with a glowing visor and a crown of light.',
@@ -7422,6 +7426,7 @@ function ChacklatePieces(THREE, K) {
     },
     lumen: {
       id: 'lumen', name: 'Light and Void', era: 'A citadel in the sky', year: 'Far in the future', tint: '#1a2440',
+      mesh: 'glass1', meshLook: { clearcoat: 0.8, clearcoatRoughness: 0.06 },
       story: 'Two armies from a citadel floating above the clouds. Light is pearl-white marble veined in gold and lit amber; Void is black glass lit electric blue. Look for the glowing diamond every piece carries at its foot.',
       lore: {
         k: 'A robed sentinel in a crowned helm with a glowing visor, under a double chevron.',
