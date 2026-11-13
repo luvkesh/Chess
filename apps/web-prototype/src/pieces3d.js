@@ -7794,23 +7794,39 @@ function ChacklatePieces(THREE, K) {
     }
     return geo;
   }
+  // A pack is fetched once, but only the sets asked for are unpacked: a pack holds four or five
+  // sets, and decoding all of them (meshes and ten texture pictures) for the one on the table
+  // cost seconds on a phone and kept every set's pictures in memory. A set's text is let go
+  // once it is unpacked.
+  const SETS_IN = new Map();   // set id -> promise of its unpacking
   function loadPack(pack) {
     if (!PACKS.has(pack)) {
       PACKS.set(pack, fetch('meshes/' + pack + '.txt').then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
-        .then((j) => Promise.all(Object.entries(j.sets).map(async ([id, d]) => {
-          const side = async (t) => (t ? { albedo: await texture(t.albedo, true), mr: await texture(t.mr), glow: t.glow ? await texture(t.glow, true) : null } : null);
-          const [geo, w, b] = await Promise.all([gunzip(b64bytes(d.bin)).then(decodeSet), side(d.w), side(d.b)]);
-          if (w && w.albedo && w.mr && b && b.albedo && b.mr) MODELLED.set(id, { geo, tex: { w, b } });
-        })))
-        .catch((e) => { if (typeof console !== 'undefined') console.warn('pieces: pack', pack, 'not loaded', e && e.message); })
-        .then(() => { DONE.add(pack); }));
+        .then((j) => j.sets || {})
+        .catch((e) => { if (typeof console !== 'undefined') console.warn('pieces: pack', pack, 'not loaded', e && e.message); DONE.add(pack); return {}; }));
     }
     return PACKS.get(pack);
   }
+  function loadModel(id) {
+    const pack = meshPack(id);
+    if (!pack) return Promise.resolve();
+    if (!SETS_IN.has(id)) {
+      SETS_IN.set(id, loadPack(pack).then(async (sets) => {
+        const d = sets[id];
+        if (!d) return;
+        delete sets[id];
+        const side = async (t) => (t ? { albedo: await texture(t.albedo, true), mr: await texture(t.mr), glow: t.glow ? await texture(t.glow, true) : null } : null);
+        const [geo, w, b] = await Promise.all([gunzip(b64bytes(d.bin)).then(decodeSet), side(d.w), side(d.b)]);
+        if (w && w.albedo && w.mr && b && b.albedo && b.mr) MODELLED.set(id, { geo, tex: { w, b } });
+      }).catch((e) => { if (typeof console !== 'undefined') console.warn('pieces: set', id, 'not unpacked', e && e.message); })
+        .then(() => { DONE.add(id); }));
+    }
+    return SETS_IN.get(id);
+  }
   // Resolves once a set's modelled pieces are in (at once for coded sets, and for a pack that fails).
-  function ready(id) { const p = meshPack(id); return p ? loadPack(p).then(() => !!MODELLED.get(id)) : Promise.resolve(false); }
+  function ready(id) { return meshPack(id) ? loadModel(id).then(() => !!MODELLED.get(id)) : Promise.resolve(false); }
   // true while a modelled set's pack is still on its way (or not asked for yet)
-  const pending = (id) => !!meshPack(id) && !MODELLED.has(id) && !DONE.has(meshPack(id));
+  const pending = (id) => !!meshPack(id) && !MODELLED.has(id) && !DONE.has(id) && !DONE.has(meshPack(id));
   // The painted skin of a modelled piece: the atlas colour, roughness and metalness from the
   // mr map (gold leaf shines as metal, enamel and stone stay glossy), and glowing gems and windows.
   const SKINS = new Map();
@@ -7880,29 +7896,71 @@ function ChacklatePieces(THREE, K) {
     per[side] = out;
     return out.map(([geo, name]) => [geo, mats[name] || mats.body]);
   }
+  // How each piece stands on its square. Every set keeps its own proportions, but on the table
+  // a piece must stay inside its square (a king with wide arms used to reach into the queen's)
+  // and the order of heights must read at a glance: the king tallest, then the queen, then the
+  // rest. A piece that breaks either rule is scaled down evenly, so its shape is unchanged.
+  const BOXES = new Map(), FITS = new Map();
+  function slotsOf(setId, type, side, detail) {
+    const set = SETS[setId] || SETS.regency;
+    return modelled(set.id, type, detail, side) || geometry(set.id, type, detail, side);
+  }
+  function boxOf(setId, type, side, detail) {
+    const mod = MODELLED.has(setId) ? 'm' : 'c';
+    const k = setId + type + side + detail + mod;
+    if (!BOXES.has(k)) {
+      const b = new THREE.Box3();
+      for (const g of Object.values(slotsOf(setId, type, side, detail))) { if (!g.boundingBox) g.computeBoundingBox(); b.union(g.boundingBox); }
+      BOXES.set(k, { h: b.max.y - Math.min(0, b.min.y), w: Math.max(b.max.x - b.min.x, b.max.z - b.min.z) });
+    }
+    return BOXES.get(k);
+  }
+  const SQUARE = 0.98, STEP = 0.96;
+  function fit(setId, type, side, detail) {
+    const k = setId + type + side + detail + (MODELLED.has(setId) ? 'm' : 'c');
+    if (!FITS.has(k)) {
+      // the width rule first, for the king and queen too, then the heights in order
+      const wide = (t) => { const b = boxOf(setId, t, side, detail); return b.w > SQUARE ? SQUARE / b.w : 1; };
+      const kingH = boxOf(setId, 'k', side, detail).h * wide('k');
+      const queenH = Math.min(boxOf(setId, 'q', side, detail).h * wide('q'), kingH * STEP);
+      const b = boxOf(setId, type, side, detail);
+      let sc = wide(type);
+      if (type === 'q') sc = queenH / b.h;
+      else if (type !== 'k') sc = Math.min(sc, (queenH * STEP) / b.h);
+      FITS.set(k, Math.min(1, sc));
+    }
+    return FITS.get(k);
+  }
   function make(setId, type, side, detail) {
     const set = SETS[setId] || SETS.regency;
-    const mg = modelled(set.id, type, LOD[detail] ? detail : 'show', side);
+    const lod = LOD[detail] ? detail : 'show';
+    const mg = modelled(set.id, type, lod, side);
+    let grp;
     if (mg) {
-      const grp = new THREE.Group();
+      grp = new THREE.Group();
       for (const slot of Object.keys(mg)) {
         const m = new THREE.Mesh(mg[slot], skin(set.id, slot, side));
         m.castShadow = true; m.receiveShadow = true;
         grp.add(m);
       }
       grp.userData = { set: set.id, type, side, modelled: true };
-      return grp;
+    } else {
+      if (meshPack(set.id)) loadModel(set.id);
+      const g = geometry(set.id, type, detail, side);
+      const mats = set.mats(side);
+      grp = new THREE.Group();
+      for (const [geo, mat] of byMaterial(g, mats, side)) {
+        const m = new THREE.Mesh(geo, mat);
+        m.castShadow = true; m.receiveShadow = true;
+        grp.add(m);
+      }
+      grp.userData = { set: set.id, type, side };
     }
-    if (meshPack(set.id)) loadPack(meshPack(set.id));
-    const g = geometry(set.id, type, detail, side);
-    const mats = set.mats(side);
-    const grp = new THREE.Group();
-    for (const [geo, mat] of byMaterial(g, mats, side)) {
-      const m = new THREE.Mesh(geo, mat);
-      m.castShadow = true; m.receiveShadow = true;
-      grp.add(m);
+    if (HEIGHT[type]) {
+      const sc = fit(set.id, type, side, lod);
+      if (sc < 0.999) grp.children.forEach((m) => m.scale.setScalar(sc));
+      grp.userData.fit = sc;
     }
-    grp.userData = { set: set.id, type, side };
     return grp;
   }
   const HEIGHT = { k: 1.62, q: 1.43, b: 1.24, n: 1.06, r: 0.97, p: 0.72 };

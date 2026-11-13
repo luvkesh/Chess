@@ -4,6 +4,22 @@
 // an inlaid board, sculpted pieces with real reflections and shadows, velvet trays for
 // captures, a chess clock, candles, a chandelier, and a gentle glow on bright highlights.
 function ChacklateScene(canvas, options) {
+  // three's compileAsync polls each material's program until it is ready, but a material freed
+  // while it waits (a room or set switched away mid-compile, a lost context) has no program
+  // left and the poll threw on the page, leaving the promise hanging. This one lets it go.
+  function safeCompileAsync(r) {
+    r.compileAsync = function (sc, cam, target) {
+      let mats;
+      try { mats = r.compile(sc, cam, target || null); } catch (e) { return Promise.resolve(sc); }
+      return new Promise((res) => {
+        const poll = () => {
+          mats.forEach((m) => { const p = r.properties.get(m).currentProgram; let ok = true; try { ok = !p || p.isReady(); } catch (e) { ok = true; } if (ok) mats.delete(m); });
+          if (!mats.size) res(sc); else setTimeout(poll, 10);
+        };
+        setTimeout(poll, 0);
+      });
+    };
+  }
   'use strict';
   const THREE = window.THREE;
   if (!THREE) return null;
@@ -18,6 +34,7 @@ function ChacklateScene(canvas, options) {
   const AV = typeof ChacklateAvatars === 'function' ? ChacklateAvatars(THREE, K) : null;
   const TAU = Math.PI * 2;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  safeCompileAsync(renderer);
   renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -252,12 +269,15 @@ function ChacklateScene(canvas, options) {
   function loadSet(id) {
     if (id === setId && sprites.length && sprites[0].obj && sprites[0].obj.userData.set === id) return;
     setId = P.SETS[id] ? id : 'regency';
+    const before = texturesOf(pieceGroup);
     for (const s of sprites.concat(graveyard)) rebuildSprite(s);
+    // the old set's painted textures come off the GPU (they upload again if it comes back)
+    releaseTextures(before, texturesOf(scene));
     warm();
     // a set modelled in Blender swaps its meshes in once its pack has arrived
     if (P.pending(setId)) {
       const want = setId;
-      P.ready(want).then((ok) => { if (ok && setId === want) { for (const s of sprites.concat(graveyard)) rebuildSprite(s); warm(); requestRender(); } });
+      P.ready(want).then((ok) => { if (ok && setId === want) { const was = texturesOf(pieceGroup); for (const s of sprites.concat(graveyard)) rebuildSprite(s); releaseTextures(was, texturesOf(scene)); warm(); requestRender(); } });
     }
   }
   // New materials have their shaders compiled before they are drawn. Drawing first would
@@ -2341,6 +2361,7 @@ function ChacklateScene(canvas, options) {
     } catch (e) { return null; }
     if (!r.getContext()) return null;
     r.toneMapping = THREE.ACESFilmicToneMapping;
+    safeCompileAsync(r);
     r.toneMappingExposure = 1.1;   // the card pictures are graded 10% brighter too
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFSoftShadowMap;
