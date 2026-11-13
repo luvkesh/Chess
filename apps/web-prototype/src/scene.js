@@ -2195,9 +2195,9 @@ function ChacklateScene(canvas, options) {
       c2.position.set(0, 0, d); look.set(0, 0, 0);
       s2.background = null;
     } else if (spec.kind === 'avatar' && AV) {
-      // An avatar: an animal friend's bust (head and shoulders) or an emblem, lit in a warm
-      // studio. floor: false is the menus' picture (tools/shoot-art.js): the bust framed like a
-      // portrait on nothing. Otherwise it stands on a velvet plinth, for the Collection's stage.
+      // An emblem avatar, lit in a warm studio. floor: false is the menus' picture
+      // (tools/shoot-art.js) on nothing; otherwise it stands on a velvet plinth, for the
+      // Collection's stage. (The animal friends are Blender renders: tools/characters/.)
       s2.environment = envFor(AV.STUDIO);
       const a = AV.make(spec.art, { detail: spec.detail });
       a.rotation.y = spec.yaw === undefined ? (a.userData.portrait ? 0.32 : 0.2) : spec.yaw;

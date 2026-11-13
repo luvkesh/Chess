@@ -1,5 +1,5 @@
-// Renders the gold pieces on the menu medals from the game's own 3D set, and the 3D avatars
-// (every animal friend's bust and the emblem avatars) for portraits and avatar medals.
+// Renders the gold pieces on the menu medals from the game's own 3D set, and the emblem avatars
+// for avatar medals (the animal friends' portraits are Blender renders, tools/characters/).
 //   node tools/shoot-art.js            (after python3 build.py)
 // Writes PNGs to tools/out/ (git-ignored); then run python3 tools/art-webp.py.
 // Needs Playwright with Chromium. WebGL runs on SwiftShader, so it takes a minute or two.
@@ -30,7 +30,8 @@ const SET = process.env.ART_SET || 'regency', SIDE = process.env.ART_SIDE || 'w'
     save('piece-' + t, url);
     console.log('piece', t);
   }
-  const A = await page.evaluate(() => { const K = ChacklateKit(THREE), A = ChacklateAvatars(THREE, K); return A.ANIMALS.map((n) => 'animal:' + n).concat(A.EMBLEMS.map((n) => 'emblem:' + n)); });
+  // the emblem avatars (the animal friends' portraits come from Blender: tools/characters/render.py)
+  const A = await page.evaluate(() => { const K = ChacklateKit(THREE), A = ChacklateAvatars(THREE, K); return A.EMBLEMS.map((n) => 'emblem:' + n); });
   for (const art of A) {
     const name = art.split(':')[1];
     if (!want('avatar') && !want('avatar-' + name)) continue;
