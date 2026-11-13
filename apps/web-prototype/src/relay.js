@@ -88,7 +88,7 @@
   }
   // Another player's name shows only when it is one of the made-up names (two words from the
   // lists above): nothing typed (a real name, a phone number, a rude word) reaches a child.
-  const kidName = (s) => { const m = /^([A-Z][a-z]+) ([A-Z][a-z]+)$/.exec(String(s == null ? '' : s)); return m && ADJ.includes(m[1]) && ANIMAL.includes(m[2]) ? m[0] : 'Player'; };
+  const kidName = (s) => { const m = typeof s === 'string' && /^([A-Z][a-z]+) ([A-Z][a-z]+)$/.exec(s); return m && ADJ.includes(m[1]) && ANIMAL.includes(m[2]) ? m[0] : 'Player'; };
   window.ChacklateKidName = kidName;
   const clean = (s) => kidName(s);
   const newCode = () => Array.from({ length: 6 }, () => CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)]).join('');
@@ -96,10 +96,19 @@
   // The rating pool of a time control, as the server counts it.
   const poolFor = (tc) => { const { base, inc } = parseTc(tc); const est = base / 1000 + 40 * inc / 1000; return est < 180 ? 'bullet' : est < 480 ? 'blitz' : 'rapid'; };
 
+  // One online game at a time: a new table or search waits until the one on the board is over.
+  function busy() {
+    if (!game || game.ended) return false;
+    A().toast(t('online.finishFirst'), 'bad');
+    if (A().backToGame) A().backToGame();
+    return true;
+  }
+
   // ---------------------------------------------------------------- worldwide matchmaking
   // Seekers wait in the lobby with their time control in presence. Every page sorts the
   // seekers the same way and pairs them two by two; a pair meets in a room named after both.
   function quickMatch(tc) {
+    if (busy()) return true;
     if (!ready) { needLink(() => quickMatch(tc)); return true; }
     tc = TIME_CONTROLS.includes(tc) ? tc : '5+3';
     cancelAll();
@@ -119,18 +128,23 @@
     if (!seek || seek.pairing || !lobby) return;
     const me = myPeer(lobby);
     if (!me) return;
-    const list = lobby.peers().filter((p) => p.kind === 'viewer' && p.presence && p.presence.seek && p.presence.seek.tc === seek.tc && !seek.tried.has(p.peer) || (p.isMe && p.sameTab))
+    const peers = lobby.peers();
+    const list = peers.filter((p) => p.kind === 'viewer' && p.presence && p.presence.seek && p.presence.seek.tc === seek.tc && !seek.tried.has(p.peer) || (p.isMe && p.sameTab))
       .map((p) => p.peer).sort();
     const i = list.indexOf(me), j = i ^ 1;
     if (i < 0 || j >= list.length) return;
     const other = list[j];
-    const code = 'W' + (hash([me, other].sort().join('|')).toString(36).toUpperCase() + 'XXXXX').slice(0, 5);
+    // Each pairing meets in its own room: the two seeks' start times go into the name, so two
+    // players who meet again straight away never land in their last game's room.
+    const at = (peer) => { const p = peers.find((x) => x.peer === peer); const v = p && p.presence && p.presence.seek && p.presence.seek.at; return Number.isFinite(v) ? v : 0; };
+    const code = 'W' + (hash([me + ':' + at(me), other + ':' + at(other)].sort().join('|')).toString(36).toUpperCase() + 'XXXXX').slice(0, 5);
     seek.pairing = other;
     meet(code, seek.tc, me < other, other, true);
   }
 
   // ---------------------------------------------------------------- friend codes
   function createFriend(tc) {
+    if (busy()) return true;
     if (!ready) return needLink(() => createFriend(tc));
     tc = TIME_CONTROLS.includes(tc) ? tc : '5+3';
     cancelAll();
@@ -138,6 +152,7 @@
     meet(code, tc, true, null, false);
   }
   function joinFriend(code) {
+    if (busy()) return true;
     if (!ready) return needLink(() => joinFriend(code));
     code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
     cancelAll();
@@ -188,7 +203,7 @@
     }
     const host = peers.find((p) => p.presence && p.presence.role === 'host');
     const s = host && host.presence.start;
-    if (s && typeof s === 'object' && TIME_CONTROLS.includes(s.tc) && (s.white === h.me || s.black === h.me) && typeof s.id === 'string') begin(h, { id: s.id.slice(0, 40), tc: s.tc, white: s.white, black: s.black, picker: s.picker === h.me || s.picker === host.peer ? s.picker : host.peer }, host);
+    if (s && typeof s === 'object' && TIME_CONTROLS.includes(s.tc) && (s.white === h.me || s.black === h.me) && typeof s.id === 'string' && !(game && game.id === s.id.slice(0, 40))) begin(h, { id: s.id.slice(0, 40), tc: s.tc, white: s.white, black: s.black, picker: s.picker === h.me || s.picker === host.peer ? s.picker : host.peer }, host);
     else if (host && s && !(s.white === h.me || s.black === h.me)) { cancelAll(); A().toast(t('online.started'), 'bad'); }
   }
 
@@ -228,7 +243,9 @@
     if (game.moves.length > 2) {
       // The opponent's report already has the increment in it: add it to our own count only.
       let t = game.clock[side] - (now - game.turnAt) + game.inc;
-      if (reported !== undefined) t = Math.max(t, Math.min(reported, t + LATENCY_MS));
+      // While their room was out of reach both sides ran their clock; their own report wins back
+      // up to that much time, so the two pages agree again.
+      if (reported !== undefined) { t = Math.max(t, Math.min(reported, t + LATENCY_MS + (game.awayMs || 0))); game.awayMs = 0; }
       game.clock[side] = t;
     }
     game.turnAt = now;
@@ -253,7 +270,7 @@
     const p = oppPeer();
     const app = A();
     if (!p) { if (!game.oppAway) { game.oppAway = Date.now(); app.onlineStatus({ opponentAway: true }); } return; }
-    if (game.oppAway) { game.oppAway = 0; app.onlineStatus({ opponentAway: false }); }
+    if (game.oppAway) { game.awayMs = (game.awayMs || 0) + (Date.now() - game.oppAway); game.oppAway = 0; app.onlineStatus({ opponentAway: false }); }
     const s = p.presence || {};
     if (s.game !== game.id) return;
     // Their move: exactly one more than we have, theirs to make, and legal.
@@ -277,9 +294,9 @@
       app.onlineToss(s.toss.hand);
     }
     // Reactions: preset ids only, a fresh number each time.
-    if (s.emote && typeof s.emote === 'object' && s.emote.n !== game.seen.emote && EMOTE_IDS.includes(s.emote.id)) {
+    if (s.emote && typeof s.emote === 'object' && Number.isInteger(s.emote.n) && s.emote.n > (game.seen.emote || 0) && EMOTE_IDS.includes(s.emote.id)) {
       game.seen.emote = s.emote.n;
-      app.onlineEmote(s.emote.id, false);
+      if (Date.now() - (game.seen.emoteAt || 0) >= 1500) { game.seen.emoteAt = Date.now(); app.onlineEmote(s.emote.id, false); }
     }
     // A draw offer for the position on the board now.
     if (Number.isInteger(s.drawOffer) && s.drawOffer === game.moves.length && game.seen.drawOffer !== s.drawOffer) {
@@ -287,7 +304,7 @@
       if (game.myDrawOffer === game.moves.length) return finish('1/2-1/2', 'agreement', true);
       app.drawOffered();
     }
-    if (Number.isInteger(s.drawAccept) && game.myDrawOffer === s.drawAccept && s.drawAccept === game.moves.length) return finish('1/2-1/2', 'agreement', true);
+    if (Number.isInteger(s.drawAccept) && game.myDrawOffer === s.drawAccept && game.moves.length - s.drawAccept <= 1 && game.moves.length >= s.drawAccept) return finish('1/2-1/2', 'agreement', true);
     // Their result counts only when it goes against them, or it is a draw the board allows.
     const e = s.end;
     if (e && typeof e === 'object') {
@@ -325,6 +342,7 @@
     if (!game || game.ended) return;
     game.ended = true;
     if (!fromThem) game.room.presence({ end: { result, reason } }).catch(() => {});
+    game.room.presence({ start: null, role: null }).catch(() => {});   // nobody can join this game again
     let rating = null;
     if (game.world && reason !== 'aborted' && Club()) rating = Club().rated(poolFor(game.tc), game.oppRating, result === '1/2-1/2' ? 0.5 : result === (game.mine === 'w' ? '1-0' : '0-1') ? 1 : 0);
     A().onlineEnd(result, reason, rating);
@@ -341,7 +359,8 @@
     switch (m.type) {
       case 'resign': return game.moves.length < 2 ? finish('1/2-1/2', 'aborted', false) : finish(game.mine === 'w' ? '0-1' : '1-0', 'resignation', false);
       case 'draw-offer': game.myDrawOffer = game.moves.length; game.room.presence({ drawOffer: game.moves.length }).catch(() => {}); return;
-      case 'draw-accept': game.room.presence({ drawAccept: game.moves.length }).catch(() => {}); return finish('1/2-1/2', 'agreement', false);
+      case 'draw-accept': if (game.seen.drawOffer !== game.moves.length) return;
+        game.room.presence({ drawAccept: game.moves.length }).catch(() => {}); return finish('1/2-1/2', 'agreement', false);
       case 'claim': if (G && G.g.outcome) finish(G.g.outcome.result, G.g.outcome.reason, false); return;
       case 'emote': {
         if (!EMOTE_IDS.includes(m.id) || Date.now() - game.lastEmote < 1500) return;
