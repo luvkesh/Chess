@@ -427,6 +427,8 @@
   function coachLanguage() {
     C = ChacklateCoach(E, coachStrings());
     M = ChacklateMentor(E, C, areaStrings('mentor'), (n) => I18N.text(n));
+    const G = state.game;   // a hint already started carries on in the new language
+    if (G && G.hintData && G.looks && G.looks[G.hintKey]) { try { [G.hintData, G.hintEn] = both('hints', G.looks[G.hintKey]); } catch (e) { G.hintData = null; } }
     for (const k of Object.keys(workers)) {
       const old = workers[k];
       workers[k] = makeWorker();
@@ -883,7 +885,9 @@
   }
   // The line for a menu screen. Era, lesson, puzzle and game screens choose their own as things change.
   function guideScreen(name) {
-    if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
+    // a game on the table: its own line, not the last screen's (resumed games, dojo games, back from review)
+    if (name === 'game') { const G = state.game; if (G && (G.g.moves.length || G.setup.dojo)) { const k = G.g.outcome ? 'game.over' : 'game.idle'; if (GUIDE.lines[k]) guideShow(k); } return; }
+    if (['era', 'lesson', 'puzzle', 'drill'].includes(name)) return;
     let key = name;
     if (name === 'home') {
       const resume = resumable();
@@ -2084,7 +2088,9 @@
     else celebrate(res);
     return res;
   }
-  function eraDoneModal(e, res) {
+  function eraDoneModal(e, res, game) {
+    const ach = (game ? game.achievements : []).concat(res.achievements || []);
+    const lu = Math.max(res.levelUp || 0, (game && game.levelUp) || 0), unl = ((game && game.unlocked) || []).concat(res.unlocked || []);
     const co = eraCoach(e), set = setInfo(e.set) || { name: e.set };
     const [felt, sheen] = eraFelt(e);
     AU.play('levelUp');
@@ -2095,14 +2101,16 @@
       '<span class="result-badge win">' + t('journey.eraDone', { n: ROMAN[CAMPAIGN.eras.indexOf(e)] }) + '</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
       '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(sayLine(co, 'win')) + '”</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' ' + t('journey.map') + '</button><button class="btn primary" id="ed-use">' + icon('check') + ' ' + t('journey.useSet') + '</button></div></div>', { cls: 'narrow' });
+      (ach.length ? '<div class="unlocks">' + ach.map((a) => '<span class="pill gold">★ ' + esc(achName(a)) + '</span>').join('') + '</div>' : '') +
+      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' ' + t('journey.map') + '</button><button class="btn primary" id="ed-use">' + icon('check') + ' ' + t('journey.useSet') + '</button></div></div>', { cls: 'narrow', onClose() { if (lu) setTimeout(() => levelUpModal(lu, unl), 300); } });
     hydrate(m);
     m.querySelector('#ed-map').onclick = () => { m.close(); go('journey'); };
     m.querySelector('#ed-use').onclick = () => {
       eraRewards(e).filter((it) => ['pieces', 'board', 'room'].includes(it.category)).forEach((it) => PG.equip(state.progress, it));
       save(); applyLook(); m.close(); toast(t('journey.setToast', { set: esc(set.name) })); go('collection', 'pieces');
     };
-    celebrate(res, true);
+    // the level-up card waits until the era card is closed, so the stamp moment has the stage
+    celebrate(Object.assign({}, res, { achievements: [], missions: (game && game.missions || []).concat(res.missions || []), coins: (res.coins || 0) + ((game && game.coins) || 0), levelUp: 0, seasonTier: 0, unlocked: [] }), true);
   }
   // The story: parchment pages read aloud, then one question.
   function taleModal(e, k) {
@@ -2141,7 +2149,7 @@
           body.querySelectorAll('[data-o]').forEach((x) => { x.disabled = true; });
           next.hidden = false;
           if (state.settings.narration) AU.tale(e.id, s.quiz.explain);
-          if (!solved) { solved = true; m.dataset.won = '1'; }
+          if (!solved) { solved = true; m.dataset.won = '1'; stageDone({ era: e.id, stage: k }); }   // saved now: Esc or a tap outside keeps it
         };
       });
     }
@@ -2150,7 +2158,7 @@
       AU.play('tap');
       if (page < s.pages.length) { page++; render(); return; }
       m.close();
-      if (m.dataset.won) { stageDone({ era: e.id, stage: k }); if (state.screen === 'era') go('era', e.id); }
+      if (m.dataset.won && state.screen === 'era') go('era', e.id);
     };
     render();
   }
@@ -2446,7 +2454,7 @@
   function skillPractice(id) {
     const p = PG.PRACTICE_FOR[id];
     AU.unlock(); AU.play('tap');
-    if (p.trainer && SCREENS.trainer) return go('trainer', p.trainer);
+    if (p.trainer && SCREENS.trainer && !lockedLesson({ trainer: p.trainer })) return go('trainer', p.trainer);
     if (p.screen) return go(p.screen);
     if (p.lesson && lessonFor(p.lesson)) go('lesson', lessonFor(p.lesson));
   }
@@ -3516,12 +3524,15 @@
     await ChacklateNet.api('/api/push/subscribe', { subscription: s.toJSON(), hour: r.hour, tz: -new Date().getTimezoneOffset() });
   }
 
+  let luOpen = null;
   function levelUpModal(level, unlocked) {
+    if (luOpen && luOpen.isConnected) { if (luOpen.level >= level) return; unlocked = luOpen.unlocked.concat(unlocked); luOpen.close(); }
     AU.play('levelUp');
-    const lv = PG.levelFor(state.progress.xp);
+    const lv = PG.levelFor(PG.xpFor(level));
     const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">' + t('home.levelUp') + '</span><h2 class="result-title">' + t('common.level', { n: level }) + '</h2><p class="sub">' + t('home.youAreNow', { title: esc(levelTitle(lv)) }) + '</p>' +
       (unlocked.length ? '<div class="eyebrow">' + t('season.unlocked') + '</div><div class="unlocks">' + unlocked.map((u) => '<span class="pill gold">' + esc(u.name) + '</span>').join('') + '</div>' : '') +
       '<div class="row" style="justify-content:center;margin-top:18px">' + (unlocked.length ? '<button class="btn" id="lu-col">' + t('home.seeCollection') + '</button>' : '') + '<button class="btn primary" data-close>' + t('common.continue') + '</button></div></div>');
+    m.level = level; m.unlocked = unlocked; luOpen = m;
     if (KIND[state.screen] === 'hud') view.celebrate('win', -1, null, -1);
     const b = m.querySelector('#lu-col'); if (b) b.onclick = () => { m.close(); go('collection', unlocked[0].category); };
   }
@@ -3844,6 +3855,7 @@
     view.setBoard(piecesOf(G.g.pos), capturedFor(G.g));
     G.rulebook = false;
     pauseClock(G, false);
+    if (G.botDue) { G.botDue = false; setTimeout(() => { if (state.game === G && state.screen === 'game') maybeComputer(); }, 300); }
     renderTitle();
     renderCards();
     refreshHighlights();
@@ -4134,10 +4146,18 @@
     const id = ++G.request;
     job('play', { type: 'search', fen: g.startFen, moves: g.uciMoves(), opts: Object.assign({}, level, { timeMs }) }, (r) => {
       if (id !== G.request || state.game !== G) return;
+<<<<<<< HEAD
       const delay = state.settings.labsFast && labsOn() ? 0 : Math.max(0, 420 - (performance.now() - started));
+=======
+      // the workers restart when the language changes: ask again rather than leave the bot frozen
+      if (r && r.error) { G.thinking = false; setTimeout(() => { if (state.game === G && id === G.request && !G.g.outcome) maybeComputer(); }, 50); return; }
+      const delay = state.settings.labsFast ? 0 : Math.max(0, 420 - (performance.now() - started));
+>>>>>>> origin/main
       setTimeout(() => {
         if (id !== G.request || state.game !== G) return;
         G.thinking = false;
+        // a rule-book lesson or review is open: the bot waits, like the clock, until the player is back
+        if (state.screen !== 'game') { G.botDue = true; return; }
         const m = r.uci ? g.pos.parseMove(r.uci, g.legal) : null;
         if (m !== null && m !== undefined) playMove(m, false); else renderHud();
       }, delay);
@@ -4233,7 +4253,7 @@
     }
     if (!pickd && cfg.mentor) {
       if (lk.trap && !G.noted.includes('trap:' + lk.trap.name)) {
-        const [a, b] = [M.tr('o.trap', { name: lk.trap.name, idea: M.tr(lk.trap.idea) }), ME.tr('o.trap', { name: lk.trap.name, idea: ME.tr(lk.trap.idea) })];
+        const [a, b] = [M.tr('o.trap', { name: I18N.text(lk.trap.name), idea: M.tr(lk.trap.idea) }), ME.tr('o.trap', { name: lk.trap.name, idea: ME.tr(lk.trap.idea) })];
         pickd = { kind: 'mentor', group: 'mentor', lines: [a], en: [b] }; G.noted.push('trap:' + lk.trap.name);
       } else if (lk.phase === 'endgame' && !G.endgameSaid) {
         G.endgameSaid = true;
@@ -4358,7 +4378,7 @@
       // "Take it back" only while that move is still the last one of mine (an old card would undo a later move)
       '<div class="row">' + (m.actions || []).filter(([, a]) => a !== 'takeback' || m.ply === undefined || m.ply >= G.g.moves.length - 2).map(([label, a]) => btn(a, label, null, a === 'takeback' || a === 'play-anyway')).join('') +
       (m.kind === 'move' && m.st ? btn('detail', t('play.coach.detail')) : '') +
-      (m.kind === 'hint' && G.hintStep < 3 ? btn('hint-more', t('play.coach.anotherHint')) : '') +
+      (m.kind === 'hint' && G.hintStep < 3 && !G.g.outcome ? btn('hint-more', t('play.coach.anotherHint')) : '') +
       (m.kind === 'chance' && m.show ? btn('hint', t('play.coach.showMe')) : '') +
       (m.steps ? btn('think-show', t('play.coach.showLine')) : '') +
       (m.kind === 'mentor' || m.steps || m.kind === 'chance' ? btn('practice', t('play.coach.practice')) : '') +
@@ -4382,7 +4402,7 @@
       return;
     }
     if (a === 'detail') { detailModal(m.st); return; }
-    if (a === 'hint-more') { if (G.hintStep < 3) { G.hintStep++; showHintStep(); } return; }
+    if (a === 'hint-more') { if (!humanTurn()) return; if (G.hintStep < 3) { G.hintStep++; showHintStep(); } return; }
     if (a === 'hint') { hint(); return; }
     if (a === 'think-show') { playThinkLine(m.steps); return; }
     if (a === 'practice') { openPractice(); return; }
@@ -4636,6 +4656,7 @@
     const side = G.human;
     job('analysis', { type: 'review', fen: G.g.startFen, moves: G.g.uciMoves(), timeMs: state.progress.premium ? 300 : 160 }, (r) => {
       G.reviewing = false;
+      if (r.error === 'worker') { setTimeout(() => { if (state.game === G) postGame(G); }, 50); return; }   // restarted for a new language
       if (r.error || !r.review) return;
       G.review = r.review;
       // The slips worth another try go to Retry mistakes.
@@ -4845,14 +4866,14 @@
       (G.kind === 'online' ? '<button class="btn" id="r-report">' + t('play.end.report') + '</button>' : jr ? '' : '<button class="btn' + (era ? ' primary' : '') + '" id="r-rematch">' + icon('refresh') + ' ' + t(era ? 'common.tryAgain' : 'play.end.rematch') + '</button>') +
       (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? t('play.end.prize') : t('learn.dj.backTo', { era: esc(eraName(era)) })) + '</button>'
         : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' ' + t('play.btn.review') + '</button>' : '') + '</div></div>';
-    let prizeShown = false;
+    let prizeShown = false, gameRes = null;
     // the result card waits for a win storm to finish (a tap calms it sooner)
     const shown = performance.now();
     const showResult = () => {
       if (state.game !== G || state.screen !== 'game') return;
       if (view.storming() && performance.now() - shown < 13500) { setTimeout(showResult, 250); return; }
       if (exploring) view.explore(false);
-      const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr), 250); } } });
+      const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr, gameRes), 250); } } });
       setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
       const on = (id, fn) => { const b = mdl.querySelector(id); if (b) b.onclick = fn; };
       if (mdl.querySelector('#r-coach')) fillReportBox(mdl.querySelector('#r-coach'), G);
@@ -4862,7 +4883,8 @@
       on('#r-report', (e) => { e.currentTarget.disabled = true; ChacklateNet.report('Reported from the result screen', G.online && G.online.id); });
       on('#r-rematch', () => { mdl.close(); const s = Object.assign({}, G.setup); if (s.mode === 'ai' && !era && s.color !== 'random') s.color = s.color === 'white' ? 'black' : 'white'; startGame(s); });
       on('#r-prize', () => { mdl.close(); if (!jr.eraDone) go('era', era.id); });
-      celebrate(res);
+      // an era's last win: the prize card shows everything at once, without toasts over it
+      if (jr && jr.eraDone) gameRes = res; else celebrate(res);
       if (jr && !jr.eraDone) celebrate(jr, true);
       if (!era && mdl.querySelector('#r-review')) guideSay('game.over', { delay: 2200 });
     };
@@ -5615,7 +5637,7 @@
             if (S.answered) return;
             const ok = x.answers.includes(b.dataset.pick);
             b.classList.add(ok ? 'right' : 'wrong');
-            if (ok) { clearTimeout(S.clock); answer(true, t('learn.tr.goodEye')); }
+            if (ok) { clearTimeout(S.clock); answer(S.tries === 0, t('learn.tr.goodEye')); }
             else { S.answered = true; clearTimeout(S.clock); S.results[S.i] = false; AU.play('wrong'); fb('bad', t('learn.tr.itWas', { san: san(x.fen, x.answers[0]) })); finishedEx(); }
             view.setArrows([{ from: sqIndex(x.answers[0].slice(0, 2)), to: sqIndex(x.answers[0].slice(2, 4)), color: '#3ee07a' }]);
           };
@@ -5669,7 +5691,7 @@
     }
     // a trainer item answered by its buttons or its clock: the main button moves on
     function finishedEx() { $('ls-next').textContent = S.i === ex.length - 1 ? t('learn.ls.finish') : t('common.next'); dots(); }
-    function fb(kind, text) { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; }
+    function fb(kind, text) { const el = $('ls-fb'); if (el) { el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } const pk = S.answered && $('ls-peek'); if (pk) pk.hidden = true; }
     function exSquare(sq) {
       const x = ex[S.i];
       if (S.answered || S.wait) return;
@@ -5773,7 +5795,7 @@
         if (S.i < ex.length - 1) { S.i++; renderEx(); } else finish();
         return;
       }
-      if (S.retry) { go('lesson', toGame ? { id: L.id, back: 'game' } : L.id); return; }
+      if (S.retry) { go('lesson', own ? { journey } : toGame ? { id: L.id, back: 'game' } : L.id); return; }
       if (S.nx) { go('lesson', S.nx.id); return; }
       if (S.again) { go('lesson', { trainer: trn.id }); return; }
       leaveTo();
@@ -5786,20 +5808,20 @@
       const first = S.results.filter((r) => r === true).length;
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       let res;
-      if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
-      else if (vr) res = PG.variantLessonFinished(state.progress, vr.id, first, ex.length);
-      else if (!first && ex.length) {
+      if (!first && ex.length && !vr) {
         // nothing right first time (every exercise skipped or missed): not complete, have another go
         $('ls-phase').textContent = t('learn.ls.yourResult');
         $('ls-content').innerHTML = '<div class="done-card"><p class="prompt">' + esc(t('learn.ls.firstTime', { n: 0, of: ex.length, pct: 0 })) + '</p><p class="say">' + esc(t('learn.ls.notYet')) + '</p></div>';
         S.retry = true;
         $('ls-next').textContent = t('learn.ls.again');
         $('ls-prev').hidden = false; $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
-        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : t('common.nav.learn')) + '</span>';
+        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? t('learn.dj.backTo', { era: eraName(era) }) : t('common.nav.learn')) + '</span>';
         $('ls-prev').onclick = () => { AU.play('tap'); leaveTo(); };
         guideIdle(null); dots();
         return;
-      } else {
+      } else if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
+      else if (vr) res = PG.variantLessonFinished(state.progress, vr.id, first, ex.length);
+      else {
         const wasDue = PG.dueReviews(state.progress).includes(L.id);
         res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
         if (wasDue) PG.reviewDone(state.progress, L.id);
