@@ -47,7 +47,7 @@
     { "id": "dev", "name": "Dev", "lang": "hi", "engine": "hm_omega", "speed": 1.05, "blurb": "Rooky's voice in Hindi: lessons, game calls and moves.", "lessons": true },
     { "id": "priya", "name": "Priya", "lang": "hi", "engine": "hf_alpha", "speed": 1.0, "blurb": "Lessons, game calls and moves in Hindi.", "lessons": true },
     { "id": "mateo", "name": "Mateo", "lang": "es", "engine": "em_alex", "speed": 1.05, "blurb": "Rooky's voice in Spanish: lessons, game calls and moves.", "lessons": true },
-    { "id": "louis", "name": "Louis", "lang": "fr", "engine": "em_alex", "speed": 1.05, "blurb": "Rooky's voice in French: lessons, game calls and moves.", "lessons": true },
+    { "id": "louis", "name": "Louis", "lang": "fr", "engine": "ff_siwis,am_puck", "speed": 1.05, "blurb": "Rooky's voice in French: lessons, game calls and moves.", "lessons": true },
     { "id": "joao", "name": "João", "lang": "pt", "engine": "pm_alex", "speed": 1.05, "blurb": "Rooky's voice in Portuguese: lessons, game calls and moves.", "lessons": true },
     { "id": "yunxi", "name": "Yunxi", "lang": "zh", "engine": "zm_yunxi", "speed": 1.05, "blurb": "Rooky's voice in Mandarin: lessons, game calls and moves.", "lessons": true }
   ],
