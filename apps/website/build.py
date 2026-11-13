@@ -135,6 +135,7 @@ def site_data():
         'items': len(catalog['items']), 'sets': cats['pieces'], 'boards': cats['board'], 'rooms': cats['room'],
         'tiers': load('seasons.json')['seasons'][0]['tiers'],
     }
+    counts['showroom'] = counts['sets'] + counts['boards'] + counts['rooms']   # what Collect's line names (not avatars or effects)
     # the details showcase: how many of each kind there are to collect ("None" is not one)
     for c in FX_DEMOS:
         counts['fx_' + c] = sum(1 for i in catalog['items'] if i['category'] == c and '.none.' not in i['id'])
