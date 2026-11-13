@@ -380,6 +380,8 @@
   function coachLanguage() {
     C = ChacklateCoach(E, coachStrings());
     M = ChacklateMentor(E, C, areaStrings('mentor'), (n) => I18N.text(n));
+    const G = state.game;   // a hint already started carries on in the new language
+    if (G && G.hintData && G.looks && G.looks[G.hintKey]) { try { [G.hintData, G.hintEn] = both('hints', G.looks[G.hintKey]); } catch (e) { G.hintData = null; } }
     for (const k of Object.keys(workers)) {
       const old = workers[k];
       workers[k] = makeWorker();
@@ -836,7 +838,9 @@
   }
   // The line for a menu screen. Era, lesson, puzzle and game screens choose their own as things change.
   function guideScreen(name) {
-    if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
+    // a game on the table: its own line, not the last screen's (resumed games, dojo games, back from review)
+    if (name === 'game') { const G = state.game; if (G && (G.g.moves.length || G.setup.dojo)) { const k = G.g.outcome ? 'game.over' : 'game.idle'; if (GUIDE.lines[k]) guideShow(k); } return; }
+    if (['era', 'lesson', 'puzzle', 'drill'].includes(name)) return;
     let key = name;
     if (name === 'home') {
       const resume = resumable();
@@ -2399,7 +2403,7 @@
   function skillPractice(id) {
     const p = PG.PRACTICE_FOR[id];
     AU.unlock(); AU.play('tap');
-    if (p.trainer && SCREENS.trainer) return go('trainer', p.trainer);
+    if (p.trainer && SCREENS.trainer && !lockedLesson({ trainer: p.trainer })) return go('trainer', p.trainer);
     if (p.screen) return go(p.screen);
     if (p.lesson && lessonFor(p.lesson)) go('lesson', lessonFor(p.lesson));
   }
@@ -3785,6 +3789,7 @@
     view.setBoard(piecesOf(G.g.pos), capturedFor(G.g));
     G.rulebook = false;
     pauseClock(G, false);
+    if (G.botDue) { G.botDue = false; setTimeout(() => { if (state.game === G && state.screen === 'game') maybeComputer(); }, 300); }
     renderTitle();
     renderCards();
     refreshHighlights();
@@ -4075,10 +4080,14 @@
     const id = ++G.request;
     job('play', { type: 'search', fen: g.startFen, moves: g.uciMoves(), opts: Object.assign({}, level, { timeMs }) }, (r) => {
       if (id !== G.request || state.game !== G) return;
+      // the workers restart when the language changes: ask again rather than leave the bot frozen
+      if (r && r.error) { G.thinking = false; setTimeout(() => { if (state.game === G && id === G.request && !G.g.outcome) maybeComputer(); }, 50); return; }
       const delay = state.settings.labsFast ? 0 : Math.max(0, 420 - (performance.now() - started));
       setTimeout(() => {
         if (id !== G.request || state.game !== G) return;
         G.thinking = false;
+        // a rule-book lesson or review is open: the bot waits, like the clock, until the player is back
+        if (state.screen !== 'game') { G.botDue = true; return; }
         const m = r.uci ? g.pos.parseMove(r.uci, g.legal) : null;
         if (m !== null && m !== undefined) playMove(m, false); else renderHud();
       }, delay);
@@ -4174,7 +4183,7 @@
     }
     if (!pickd && cfg.mentor) {
       if (lk.trap && !G.noted.includes('trap:' + lk.trap.name)) {
-        const [a, b] = [M.tr('o.trap', { name: lk.trap.name, idea: M.tr(lk.trap.idea) }), ME.tr('o.trap', { name: lk.trap.name, idea: ME.tr(lk.trap.idea) })];
+        const [a, b] = [M.tr('o.trap', { name: I18N.text(lk.trap.name), idea: M.tr(lk.trap.idea) }), ME.tr('o.trap', { name: lk.trap.name, idea: ME.tr(lk.trap.idea) })];
         pickd = { kind: 'mentor', group: 'mentor', lines: [a], en: [b] }; G.noted.push('trap:' + lk.trap.name);
       } else if (lk.phase === 'endgame' && !G.endgameSaid) {
         G.endgameSaid = true;
@@ -4299,7 +4308,7 @@
       // "Take it back" only while that move is still the last one of mine (an old card would undo a later move)
       '<div class="row">' + (m.actions || []).filter(([, a]) => a !== 'takeback' || m.ply === undefined || m.ply >= G.g.moves.length - 2).map(([label, a]) => btn(a, label, null, a === 'takeback' || a === 'play-anyway')).join('') +
       (m.kind === 'move' && m.st ? btn('detail', t('play.coach.detail')) : '') +
-      (m.kind === 'hint' && G.hintStep < 3 ? btn('hint-more', t('play.coach.anotherHint')) : '') +
+      (m.kind === 'hint' && G.hintStep < 3 && !G.g.outcome ? btn('hint-more', t('play.coach.anotherHint')) : '') +
       (m.kind === 'chance' && m.show ? btn('hint', t('play.coach.showMe')) : '') +
       (m.steps ? btn('think-show', t('play.coach.showLine')) : '') +
       (m.kind === 'mentor' || m.steps || m.kind === 'chance' ? btn('practice', t('play.coach.practice')) : '') +
@@ -4323,7 +4332,7 @@
       return;
     }
     if (a === 'detail') { detailModal(m.st); return; }
-    if (a === 'hint-more') { if (G.hintStep < 3) { G.hintStep++; showHintStep(); } return; }
+    if (a === 'hint-more') { if (!humanTurn()) return; if (G.hintStep < 3) { G.hintStep++; showHintStep(); } return; }
     if (a === 'hint') { hint(); return; }
     if (a === 'think-show') { playThinkLine(m.steps); return; }
     if (a === 'practice') { openPractice(); return; }
@@ -4577,6 +4586,7 @@
     const side = G.human;
     job('analysis', { type: 'review', fen: G.g.startFen, moves: G.g.uciMoves(), timeMs: state.progress.premium ? 300 : 160 }, (r) => {
       G.reviewing = false;
+      if (r.error === 'worker') { setTimeout(() => { if (state.game === G) postGame(G); }, 50); return; }   // restarted for a new language
       if (r.error || !r.review) return;
       G.review = r.review;
       // The slips worth another try go to Retry mistakes.
@@ -5555,7 +5565,7 @@
             if (S.answered) return;
             const ok = x.answers.includes(b.dataset.pick);
             b.classList.add(ok ? 'right' : 'wrong');
-            if (ok) { clearTimeout(S.clock); answer(true, t('learn.tr.goodEye')); }
+            if (ok) { clearTimeout(S.clock); answer(S.tries === 0, t('learn.tr.goodEye')); }
             else { S.answered = true; clearTimeout(S.clock); S.results[S.i] = false; AU.play('wrong'); fb('bad', t('learn.tr.itWas', { san: san(x.fen, x.answers[0]) })); finishedEx(); }
             view.setArrows([{ from: sqIndex(x.answers[0].slice(0, 2)), to: sqIndex(x.answers[0].slice(2, 4)), color: '#3ee07a' }]);
           };
@@ -5609,7 +5619,7 @@
     }
     // a trainer item answered by its buttons or its clock: the main button moves on
     function finishedEx() { $('ls-next').textContent = S.i === ex.length - 1 ? t('learn.ls.finish') : t('common.next'); dots(); }
-    function fb(kind, text) { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; }
+    function fb(kind, text) { const el = $('ls-fb'); if (el) { el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } const pk = S.answered && $('ls-peek'); if (pk) pk.hidden = true; }
     function exSquare(sq) {
       const x = ex[S.i];
       if (S.answered || S.wait) return;
