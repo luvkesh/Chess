@@ -960,7 +960,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
   <div class="collect-head reveal">
     <div class="chapter"><b data-no-i18n>VI</b><span>Win your treasures</span></div>
     <h2>Every piece. Every board. <em>Everything.</em></h2>
-    <p class="sub">@@N:items@@ chess sets, boards and places to win, and a table to try them on.</p>
+    <p class="sub">@@N:showroom@@ chess sets, boards and places to win, and a table to try them on.</p>
   </div>
   <div class="car-tabs reveal" role="tablist" aria-label="The collection" id="ctabs">
     <button type="button" role="tab" data-tab="sets" aria-selected="true"><img class="ic3d" src="@@IMG:ic-sets@@" alt="" width="96" height="96"><span><i>Chess sets</i><small>@@N:sets@@<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></small></span></button>
@@ -1106,7 +1106,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     <button type="button" class="r-start" id="r-yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19.5 5.5a9 9 0 0 1 0 13"/></svg>Start</button>
     <button type="button" class="r-no" id="r-no" aria-label="No thanks" title="No thanks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg></button>
   </div>
-  <span class="r-face"><img src="@@ART:coach@@" alt=""></span>
+  <span class="r-face" data-no-i18n><img src="@@ART:coach@@" alt=""></span>
 </aside>
 <button type="button" class="r-next" id="r-next" hidden><span>Continue</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
 <div class="r-dot" id="r-live" hidden>
@@ -2161,7 +2161,12 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     }
     function queueFit() { if (!fitQ && !invite.hidden) fitQ = requestAnimationFrame(fitInvite); }
     addEventListener('scroll', queueFit, { passive: true }); addEventListener('resize', queueFit);
-    new MutationObserver(function () { setTimeout(fitInvite, 60); }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+    invite.addEventListener('animationend', queueFit); // measured mid-rise it sits 12px low and can collapse for nothing
+    new MutationObserver(function () {
+      setTimeout(fitInvite, 60);
+      // a new language mid-line: say that line again in it (the old voice and caption would carry on)
+      if (on && audio && lastKey && !paused) speak(lastKey);
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
     face.addEventListener('click', function () { if (invite.classList.contains('mini')) setOn(true); });
     face.addEventListener('keydown', function (e) { if (invite.classList.contains('mini') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setOn(true); } });
     $('r-stop').addEventListener('click', function () { setOn(false); });
