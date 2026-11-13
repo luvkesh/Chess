@@ -1028,7 +1028,10 @@
       // sits just above it instead of on Draw, Resign or Play from here
       const phoneUi = matchMedia('(max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse)').matches;
       const faceL = W - (side && !sheet ? W - side.left + (phoneUi ? 10 : 14) : phoneUi ? 10 : 16) - (phoneUi ? 46 : 58);
-      document.body.style.setProperty('--gd-bottom', bar && !sheet && bar.right > faceL - 6 ? (H - bar.top + 10) + 'px' : '');
+      const lift = bar && !sheet && bar.right > faceL - 6;
+      document.body.style.setProperty('--gd-bottom', lift ? (H - bar.top + 10) + 'px' : '');
+      // beside the bar his bubble would open over its last buttons (Resign, then its Sure?): it opens above him
+      if (gd) gd.classList.toggle('up', !!(bar && !sheet && !lift && bar.right > faceL - 400));
       if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? 64 : 0);
       else {
         if (side) ins.right = W - side.left + 12;
@@ -3355,7 +3358,7 @@
         '<div class="label set-h">' + t('settings.startAgain') + '</div>' +
         '<div class="row set-reset"><button class="btn warn" id="s-reset" data-tk="settings.reset">' + t('settings.reset') + '</button></div>' +
         '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · ' + t('settings.build') + ' ' + BUILD + '</button>');
-    const nav = SET_SECTIONS.map(([k, ic]) => '<button type="button" class="set-cat" data-sec="' + k + '"><span class="set-ic">' + icon(ic) + '</span><span class="set-cat-t"><b>' + t('settings.sec.' + k) + '</b><small>' + t('settings.sec.' + k + '.note') + '</small></span><span class="set-chev">' + icon('next') + '</span></button>').join('') +
+    const nav = SET_SECTIONS.map(([k, ic]) => '<button type="button" class="set-cat" data-sec="' + k + '"' + (k === cur ? ' autofocus' : '') + '><span class="set-ic">' + icon(ic) + '</span><span class="set-cat-t"><b>' + t('settings.sec.' + k) + '</b><small>' + t('settings.sec.' + k + '.note') + '</small></span><span class="set-chev">' + icon('next') + '</span></button>').join('') +
       (labsOn() ? '<button type="button" class="set-cat set-labs" id="s-labs"><span class="set-ic">' + icon('flask') + '</span><span class="set-cat-t"><b>Labs</b><small>Testing tools for this device</small></span><span class="set-chev">' + icon('next') + '</span></button>' : '');
     const m = modal('<div class="set-shell" data-view="list"><div class="set-head"><h2>' + t('settings.title') + '</h2></div>' +
       '<div class="set-body"><nav class="set-nav" aria-label="' + t('settings.title') + '">' + nav + '</nav><div class="set-panel">' + pages + '</div></div>' +
@@ -4877,6 +4880,13 @@
     if (G.g.outcome) return;
     const btn = $('g-resign');
     if (Date.now() - resignArmed > 3000) {
+      // Where the bar shows icons only (phones, narrow windows), a red ring alone does not say "tap again": ask in words.
+      const lbl = btn.querySelector('.lbl');
+      if (!lbl || lbl.getBoundingClientRect().width < 4) {
+        const m = modal('<h2>' + t('play.resign.title') + '</h2><p class="sub">' + t('play.resign.sub') + '</p><div class="row"><button class="btn" data-close>' + t('play.resign.keep') + '</button><button class="btn warn" id="gr-yes">' + icon('flag') + ' ' + t('play.btn.resign') + '</button></div>', { cls: 'narrow' });
+        m.querySelector('#gr-yes').onclick = () => { m.close(); resignArmed = Date.now(); resign(); };
+        return;
+      }
       resignArmed = Date.now();
       btn.classList.add('warn'); btn.querySelector('.lbl').textContent = t('play.sure');
       setTimeout(() => { if (Date.now() - resignArmed >= 3000 && btn.isConnected) { btn.classList.remove('warn'); btn.querySelector('.lbl').textContent = t('play.btn.resign'); } }, 3100);
@@ -6824,7 +6834,7 @@
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
   if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; window.__start = startGame; window.__settings = settingsModal;
-    window.__modal = { labs: labsModal, missions: missionsModal, profile: profileModal, newGame: newGameModal, friend: friendModal, world: worldModal, glossary: glossaryModal, coach: coachSettingsModal, premium: premiumModal, opponent: opponentModal, rules: ruleSheet, levelUp: levelUpModal, placement: placementOffer, xq: startXq }; }   // tooling answers board questions through the hooks
+    window.__modal = { labs: labsModal, missions: missionsModal, profile: profileModal, newGame: newGameModal, friend: friendModal, world: worldModal, glossary: glossaryModal, coach: coachSettingsModal, premium: premiumModal, opponent: opponentModal, rules: ruleSheet, levelUp: levelUpModal, placement: placementOffer, xq: startXq, gate: parentGate, pin: askPin, promo: choosePromotion, eraDone: (id) => eraDoneModal(CAMPAIGN.eras.find((e) => e.id === id), { achievements: [], unlocked: [] }), celebrate, tale: (id, k) => taleModal(CAMPAIGN.eras.find((e) => e.id === id), k) }; }   // tooling answers board questions through the hooks
   const bonus = PG.dailyBonus(state.progress);
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
