@@ -918,5 +918,75 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "¿Qué pieza puede cruzar el río?"
+ },
+ "trainers": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Trece entrenadores, uno para cada habilidad del ajedrez. ¡Elige uno y juega una ronda rápida!"
+ },
+ "lesson.open.openings": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Preparados, listos, a desarrollar! Empecemos cada partida como campeones."
+ },
+ "lesson.open.time": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Tic, tac! Hagámonos amigos del reloj."
+ },
+ "lesson.open.resourcefulness": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Nunca te rindas! Busquemos la salida secreta en los momentos difíciles."
+ },
+ "lesson.open.advantage": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¿Vas ganando? ¡Genial! Ahora terminemos el trabajo."
+ },
+ "lesson.open.endgame": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Quedan pocas piezas. ¡Aquí es donde los reyes se vuelven héroes!"
+ },
+ "lesson.open.tactics": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Hora de trucos! Atrapemos piezas con dobles ataques, clavadas y pinchos."
+ },
+ "lesson.open.blunders": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Construyamos un escudo mágico contra los despistes."
+ },
+ "lesson.open.intuition": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Entrenemos tu sexto sentido para el ajedrez!"
+ },
+ "lesson.open.three-sixty": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Demos la vuelta al tablero y espiemos los planes de tu rival."
+ },
+ "lesson.open.retry": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los momentos de ¡ups! son momentos para aprender. ¡Arreglémoslos juntos!"
+ },
+ "lesson.open.defences": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Escudos arriba! Aprendamos a resistir bajo ataque."
+ },
+ "lesson.open.blindfold": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Cierra los ojos... ¡es broma! Entrenemos tu memoria de ajedrez."
+ },
+ "lesson.open.patterns": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Algunos mates son tan famosos que tienen nombre. ¡Vamos a conocerlos!"
  }
 }

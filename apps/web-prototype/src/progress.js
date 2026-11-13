@@ -88,6 +88,9 @@ function ChacklateProgress(catalog, extras) {
       coins: 0, earned: { date: '', by: {}, n: {} }, bought: [],
       granted: {},   // items handed out by developer mode, on this device only
       mini: { best: {}, plays: {}, day: { date: '', best: {} }, seen: [] },
+      trainers: {},   // skill trainers: { id: { best, rounds, log: [{ d, s }] } }
+      mates: {},      // checkmate in N puzzles: { N: { solved: [ids], log: [{ d, n, ok }] } }
+      mistakes: [],   // moments from the player's own reviewed games, for Retry mistakes
       perf: { r: 0, n: 0, games: [] },   // performance over time (see perfGame)
     };
   }
@@ -111,6 +114,9 @@ function ChacklateProgress(catalog, extras) {
     const su = suiteOf(out.equipped.room) || suiteOf(catalog.defaults.room);
     if (su) Object.assign(out.equipped, { room: su.room, board: su.board, pieces: su.pieces });
     out.mini = Object.assign(f.mini, s.mini || {});
+    out.trainers = Object.assign({}, s.trainers || {});
+    out.mates = Object.assign({}, s.mates || {});
+    out.mistakes = Array.isArray(s.mistakes) ? s.mistakes.slice(0, MISTAKES_KEPT) : [];
     out.perf = Object.assign(f.perf, s.perf || {});
     out.perf.games = Array.isArray(out.perf.games) ? out.perf.games.slice(-PERF_KEEP) : [];
     return out;
@@ -430,6 +436,8 @@ function ChacklateProgress(catalog, extras) {
     out.ratingDelta = p.rating - before;
     if (solved) p.solved++; else p.failed++;
     if (!p.seen.includes(puzzle.id)) p.seen.push(puzzle.id);
+    const mt = (puzzle.themes || []).find((x) => /^mateIn[1-5]$/.test(x));
+    if (mt) mateLogged(state, +mt.slice(6), puzzle.id, solved, now);
     if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
@@ -438,6 +446,61 @@ function ChacklateProgress(catalog, extras) {
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
   }
+
+  // Checkmate in N: which puzzles of each set are solved, and a day-by-day log for the progress charts.
+  const LOG_DAYS = 120;
+  function dayLog(log, d, fn) {
+    let e = log.length && log[log.length - 1].d === d ? log[log.length - 1] : null;
+    if (!e) { e = { d }; log.push(e); }
+    fn(e);
+    while (log.length > LOG_DAYS) log.shift();
+  }
+  function mateLogged(state, n, id, solved, now) {
+    const m = state.mates || (state.mates = {});
+    const r = m[n] || (m[n] = { solved: [], log: [] });
+    if (solved && !r.solved.includes(id)) r.solved.push(id);
+    dayLog(r.log, PG_today(now), (e) => { e.n = (e.n || 0) + 1; e.ok = (e.ok || 0) + (solved ? 1 : 0); });
+  }
+  // A finished trainer round, scored 0 to 100. Keeps the best, the number of rounds and each
+  // day's average score (s) and rounds (n), the data the progress charts draw.
+  function trainerFinished(state, id, score, now) {
+    const out = result();
+    const tr = state.trainers || (state.trainers = {});
+    const r = tr[id] || (tr[id] = { best: 0, rounds: 0, log: [] });
+    out.newBest = r.rounds > 0 && score > r.best;
+    r.best = Math.max(r.best, score);
+    r.rounds++;
+    dayLog(r.log, PG_today(now), (e) => { e.s = Math.round(((e.s || 0) * (e.n || 0) + score) / ((e.n || 0) + 1)); e.n = (e.n || 0) + 1; });
+    grant(state, 6 + Math.round(score / 10), out);
+    track(state, 'lesson', 1, now, out);
+    touchStreak(state, now ? new Date(now) : undefined, out);
+    return out;
+  }
+  // Moments from the player's own reviewed games where a better move was there (Retry mistakes).
+  // Newest first; one per position; a moment solved twice in a row is retired.
+  const MISTAKES_KEPT = 40;
+  function mistakesFound(state, list, now) {
+    const m = state.mistakes || (state.mistakes = []);
+    const d = PG_today(now);
+    for (const x of list.slice().reverse()) {
+      const key = x.fen.split(' ').slice(0, 2).join(' ');
+      if (m.some((y) => y.fen.split(' ').slice(0, 2).join(' ') === key)) continue;
+      m.unshift({ fen: x.fen, played: x.played, best: x.best, cls: x.cls, d, ok: 0 });
+    }
+    m.length = Math.min(m.length, MISTAKES_KEPT);
+  }
+  function mistakeRetried(state, fen, solved) {
+    const m = state.mistakes || [];
+    const i = m.findIndex((y) => y.fen === fen);
+    if (i < 0) return;
+    m[i].ok = solved ? (m[i].ok || 0) + 1 : 0;
+    if (m[i].ok >= 2) m.splice(i, 1);
+  }
+  // A trainer's record: best round score (0-100), rounds played and the day-by-day log for the charts.
+  const trainerLog = (state, id) => { const t = (state.trainers || {})[id] || {}; return { best: t.best || 0, rounds: t.rounds || 0, log: (t.log || []).slice() }; };
+  // A checkmate-in-N set: puzzles solved and the day-by-day log.
+
+  const mateLog = (state, n) => { const m = (state.mates || {})[n] || {}; return { solved: (m.solved || []).slice(), log: (m.log || []).slice() }; };
 
   // Learn was regrouped into longer lessons: each one names the lessons it grew from ("replaces").
   // A regrouped lesson counts as done only when every part of it was done (lowest stars, earliest
@@ -686,7 +749,7 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
-    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
     setSeason, activeSeason, seasonInfo, SKILLS, SKILL_LINES, PRACTICE_FOR, FRIEND_RATING, perfGame, perfSkills, perfView, skillScores, perfOf, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 

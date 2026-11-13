@@ -12,7 +12,7 @@
   // language on screen; ME is the same mentor in English, for Rooky's recorded voice.
   let M = ChacklateMentor(E, C);
   const CE = ChacklateCoach(E), ME = ChacklateMentor(E, CE);
-  const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES;
+  const CATALOG = CHACKLATE_CATALOG, LESSONS = CHACKLATE_LESSONS, PUZZLES = CHACKLATE_PUZZLES, TRAINERS = CHACKLATE_TRAINERS;
   const OPENINGS = CHACKLATE_OPENINGS.openings, ENDGAMES = CHACKLATE_ENDGAMES.endgames;
   const STORE = CHACKLATE_STORE, CAMPAIGN = CHACKLATE_CAMPAIGN;
   const VARIANTS = CHACKLATE_VARIANTS.variants;
@@ -626,6 +626,7 @@
     $('gd-cc').onclick = () => { state.settings.captions = !state.settings.captions; save(); guideCaptions(); guidePeek(4000); };
     $('gd-show').onclick = () => {
       AU.unlock();
+      if (el.classList.contains('edge')) { el.classList.remove('edge'); return; }
       if (el.classList.contains('speaking')) { AU.hush(); guidePeek(2500); return; }
       if (guideSt.key) { if (!state.settings.narration) guidePeek(6000); else guideSay(guideSt.key, { force: true }); }
     };
@@ -635,11 +636,40 @@
       if (what === 'coach') return;   // the coach card shows its own words while Rooky talks
       const mine = on && what !== 'pitch' && what !== 'tale';
       el.classList.toggle('speaking', mine);
+      if (mine) el.classList.remove('edge');
       if (!on) guidePeek(captionsOn() ? 2500 : 600);
     });
     el.classList.toggle('off', !state.settings.guide);
     guideCaptions();
+    guideEdge(el);
     return el;
+  }
+  // On phones Rooky's face floats over the page, so it would sit on top of the arrow buttons at the
+  // right of the cards as they scroll past. While the page scrolls he slides to the edge, leaving a
+  // sliver to tap; when it stops he comes back only if nothing tappable is under his spot.
+  function guideEdge(el) {
+    const phone = matchMedia('(max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse)');
+    let tm = 0;
+    // small controls only (arrow buttons, chips): a whole card that is a button can sit under him
+    const tappable = (x, y) => document.elementsFromPoint(x, y).some((n) => {
+      const c = !el.contains(n) && n.closest('#screens') && (n.closest('.go') || n.closest('button, a, [role="button"], input, select, label'));
+      if (!c) return false; const r = c.getBoundingClientRect(); return r.width < 140 && r.height < 140;
+    });
+    const settle = () => {
+      const n = $('gd-show'); if (!n || !el.classList.contains('edge')) return;
+      const r = n.getBoundingClientRect(), w = r.width, x0 = innerWidth - parseFloat(getComputedStyle(el).right) - w, y0 = r.top;
+      const pts = [[0.5, 0.5], [0.15, 0.15], [0.85, 0.15], [0.15, 0.85], [0.85, 0.85], [0, 0.5], [0.5, 0], [0.5, 1]];
+      const hit = pts.some(([a, b]) => tappable(x0 + a * w, y0 + b * w));
+      // his bubble comes back with him while he talks, so its spot has to be clear too
+      const bb = el.matches('.open, .speaking') && $('gd-bubble').getBoundingClientRect();
+      const bHit = bb && bb.width && [0.1, 0.5, 0.9].some((a) => [0.2, 0.8].some((b) => tappable(bb.left + a * bb.width, bb.top + b * bb.height)));
+      if (!hit && !bHit) el.classList.remove('edge');
+    };
+    document.addEventListener('scroll', () => {
+      if (!phone.matches || document.body.classList.contains('ingame') || el.hidden || el.matches(':not(.nocap):is(.open, .speaking)')) return;   // not while his words are showing
+      el.classList.add('edge');
+      clearTimeout(tm); tm = setTimeout(settle, 650);
+    }, { capture: true, passive: true });
   }
   // the bubble shows for a while (ms), or until the pointer or focus leaves (0)
   function guidePeek(ms) {
@@ -750,12 +780,12 @@
   // ------------------------------------------------------------------ navigation
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
-  const NAV = [['home', 'home'], ['play', 'play'], ['journey', 'journey'], ['learn', 'learn'],
+  const NAV = [['home', 'home'], ['play', 'play'], ['journey', 'journey'], ['learn', 'learn'], ['trainers', 'bolt'],
     ['puzzles', 'puzzle'], ['training', 'improve'], ['collection', 'collection'], ['club', 'users'], ['profile', 'profile']];
   const navName = (k) => t('common.nav.' + k);
   const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
   const SECTION = { progress: 'training', era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play' };
-  const TAB_OF = { progress: 'learn', puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
+  const TAB_OF = { trainers: 'learn', progress: 'learn', puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
   const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud', xiangqi: 'hud', xqlesson: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
@@ -775,9 +805,21 @@
     $('nv-music').onclick = () => { state.settings.music = !state.settings.music; AU.unlock(); applySettings(); save(); renderNav(); };
     $('nv-set').onclick = () => { AU.play('tap'); settingsModal(); };
     if ($('nv-labs')) $('nv-labs').onclick = () => { AU.play('tap'); labsModal(); };
+    fitNav();
+  }
+  // The menu bar has ten sections whose names change length with the language, so fixed
+  // breakpoints cannot keep it on screen: at 1280-1440 px the settings and profile buttons
+  // used to fall off the right edge. Tighten it a step at a time until it fits.
+  function fitNav() {
+    const n = $('topnav'); if (!n) return;
+    for (let i = 1; i <= 5; i++) n.classList.remove('fit' + i);
+    if (innerWidth <= 900 || !n.offsetWidth) return;
+    for (let i = 1; i <= 5 && n.scrollWidth > n.clientWidth + 1; i++) n.classList.add('fit' + i);
   }
   function go(name, arg) {
     if (name === 'improve') name = 'puzzles';
+    // go('trainer', id): a round of that skill trainer, played in the lesson player
+    if (name === 'trainer') { name = 'lesson'; arg = { trainer: arg }; }
     if (arg === undefined && name === state.screen) {
       // A refresh of the screen on show (after a sync, say). Game screens keep their state.
       if (KIND[name] === 'hud') { renderNav(); return; }
@@ -836,13 +878,16 @@
     }
     view.setInsets(ins, kind !== 'hud');
   }
-  window.addEventListener('resize', () => { applyInsets(); });
+  window.addEventListener('resize', () => { fitNav(); applyInsets(); });
 
   function avatarHtml(cls, avatarId, frameId) {
     const a = (avatarId && PG.item(avatarId)) || PG.equipped(state.progress, 'avatar') || PG.item(CATALOG.defaults.avatar);
     const f = (frameId && PG.item(frameId)) || (avatarId ? null : PG.equipped(state.progress, 'frame')) || PG.item(CATALOG.defaults.frame);
     const ring = !!(f && f.data.ring !== 'transparent');
-    return '<div class="avatar ' + (cls || '') + (ring ? ' ringed" style="--ring:' + f.data.ring : '') + '"><img src="' + medal(a.data.art, a.data.from, a.data.to, { ring: !ring }) + '" alt=""></div>';
+    // the frame is the 3D gold bezel picture where the build has it, else the flat gradient ring
+    const img = ring && ART.frameUri(f.id);
+    const bezel = img ? '<img class="frame3d" src="' + img + '" alt="">' : '';
+    return '<div class="avatar ' + (cls || '') + (ring && !img ? ' ringed" style="--ring:' + f.data.ring : '') + (img ? ' framed' : '') + '"><img src="' + medal(a.data.art, a.data.from, a.data.to, { ring: !ring }) + '" alt="">' + bezel + '</div>';
   }
 
   // A calm table behind the menus: the start position, slowly circling.
@@ -1744,8 +1789,12 @@
         answer(S.tries === 0, msg);
       } else { S.tries++; AU.play('wrong'); fb('bad', msg); if (T) T.setMarks({}); }
     }
+    // After a wrong pick or a timeout the button moves on.
+    function finishedEx() { $('ls-next').textContent = S.i === ex.length - 1 ? t('learn.ls.finish') : t('common.next'); dots(); }
     function answer(firstTry, msg) {
-      S.answered = true; guideIdle(null);
+      S.answered = true;
+      clearTimeout(S.clock); clearTimeout(S.peekT);
+      if (S.hidden) { S.hidden = false; view.setBoard(piecesOf(S.pos), null); } guideIdle(null);
       if (S.results[S.i] === undefined) S.results[S.i] = firstTry;
       AU.play('correct'); fb('ok', firstTry ? msg : t('learn.ls.afterRetry', { msg }));
       $('ls-next').textContent = S.i === ex.length - 1 ? t('learn.ls.finish') : t('common.next');
@@ -1950,7 +1999,7 @@
   }
 
   // ---------------------------------------------------------------- learn, puzzles, training
-  const subnav = (cur) => '<nav class="subnav" aria-label="' + t('learn.nav') + '">' + ['learn', 'puzzles', 'training'].map((k) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t('learn.sub.' + k) + '</button>').join('') + '</nav>';
+  const subnav = (cur) => '<nav class="subnav" aria-label="' + t('learn.nav') + '">' + ['learn', 'trainers', 'puzzles', 'training'].map((k) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t('learn.sub.' + k) + '</button>').join('') + '</nav>';
   const stars = (n) => '<span class="stars" aria-label="' + t('learn.stars', { n }) + '">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
   const locked = (item) => item.access === 'premium' && !state.progress.premium;
   // Each lesson's own 3D picture: pieces, arrows and target rings on a velvet plinth, in the player's
@@ -2018,6 +2067,13 @@
       lux({ id: 'z-rated', art: snap(VIGN.duo(set), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: t('learn.trainer'), text: t('learn.trainerText', { n: PUZZLES.length }) }) +
       lux({ id: 'z-plan', art: faceImg(COACH), title: t('learn.plan'), text: plan.summary }) +
       '</div>' +
+      sec('crown', t('learn.mates'), t('learn.matesSub')) +
+      '<div class="mate-sets">' + [1, 2, 3, 4, 5].map((n) => {
+        const all = mateSet(n), r = (P.mates || {})[n] || { solved: [] }, done = all.filter((p) => r.solved.includes(p.id)).length;
+        return '<button class="mate-set glass" data-mate="' + n + '"' + (all.length ? '' : ' disabled') + '><span class="ms-art">' + snap(MATE_ART(n, set), 150, 120, medal('piece:' + 'kqrbn'[n - 1], MATE_FELT[n - 1][0], '#1a0a10')) + '<b class="ms-n">' + n + '</b></span>' +
+          '<span class="ms-t"><b>' + esc(t(n === 1 ? 'learn.mateIn1' : 'learn.mateInN', { n })) + '</b><small>' + t('learn.mateDone', { n: done, of: all.length }) + '</small></span>' +
+          '<span class="bar"><i style="width:' + Math.round(done / Math.max(1, all.length) * 100) + '%"></i></span></button>';
+      }).join('') + '</div>' +
       sec('puzzle', t('learn.themes')) +
       '<div class="cards">' + THEMES.map(([th, art]) => { const c = themePuzzles(th).length; return '<button class="tile" data-theme="' + th + '"' + (c ? '' : ' disabled') + '><span class="ic"><img src="' + medal(art, '#a3294f', '#4a0c1e', { ring: false }) + '" alt=""></span><b>' + themeName(th) + '</b><small>' + esc(t('learn.themeText.' + th)) + ' ' + t('learn.nPuzzles', { n: c }) + '</small><span class="go">' + icon('arrow') + '</span></button>'; }).join('') + '</div>' +
       '</div></div>');
@@ -2027,7 +2083,21 @@
     $('z-rated').onclick = () => { AU.unlock(); go('puzzle', { rated: true, title: t('learn.trainerTitle') }); };
     $('z-plan').onclick = () => { AU.unlock(); go('puzzle', { theme: plan.theme, rated: true, title: t('learn.planTitle', { name: plan.name }) }); };
     document.querySelectorAll('[data-theme]').forEach((b) => { b.onclick = () => { AU.unlock(); go('puzzle', { theme: b.dataset.theme, rated: true, title: b.querySelector('b').textContent }); }; });
+    document.querySelectorAll('[data-mate]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); const n = +b.dataset.mate; go('puzzle', { mate: n, title: t(n === 1 ? 'learn.mateIn1' : 'learn.mateInN', { n }) }); }; });
     return {};
+  };
+  // Checkmate in N: the set, easiest first. Its picture has one attacker for each move to find.
+  // Checkmate in N puzzles accept any move that still mates in time, proved by the same exact
+  // search that made them (mates.js); off the stored line the defence is the one that lasts longest.
+  const MS = ChacklateMates(E);
+  const mateOf = (pz) => { const th = (pz.themes || []).find((x) => /^mateIn\d$/.test(x)); return th ? +th.slice(6) : 0; };
+  const mateSet = (n) => PUZZLES.filter((p) => p.themes.includes('mateIn' + n)).sort((a, b) => a.rating - b.rating);
+  const MATE_FELT = [['#5c1428', '#c06a80'], ['#14304a', '#7a9cc8'], ['#173a2a', '#6aa88a'], ['#3a2414', '#c8a47a'], ['#2a2440', '#9a8cc8']];
+  const MATE_ART = (n, set) => {
+    const pcs = ['q', 'r', 'n', 'b', 'p'].slice(0, n);
+    const xs = pcs.map((_, i) => (pcs.length === 1 ? 0.45 : -0.05 + (i / (pcs.length - 1)) * 0.95));
+    const felts = MATE_FELT[n - 1];
+    return { kind: 'vignette', felt: felts[0], sheen: felts[1], items: [{ set, type: 'k', side: 'b', x: -0.62, z: -0.1, tilt: 1.2, y: 0.36, rot: 0.5 }].concat(pcs.map((type, i) => ({ set, type, side: 'w', x: xs[i], z: i % 2 ? -0.32 : 0.28, rot: type === 'n' ? -1.2 : 0.2 }))) };
   };
   // Personalised plan: the motif that has cost you the most in reviewed games and puzzles.
   function trainingPlan() {
@@ -2093,6 +2163,72 @@
     $('t-words').onclick = () => { AU.unlock(); AU.play('tap'); glossaryModal(); };
     return {};
   };
+
+  // ---------------------------------------------------------------- skill trainers
+  // Thirteen trainers (trainers.json). Each has a lesson in Learn's last chapter and a practice
+  // round of positions found in engine self-play, scored 0 to 100. Every round's score is kept
+  // day by day (PG.trainerFinished), which is what the progress charts draw.
+  const trainerById = (id) => TRAINERS.trainers.find((x) => x.id === id);
+  const trainerLesson = (tr) => LESSONS.lessons.find((l) => l.id === tr.lesson);
+  const trainerLocked = (tr) => { const l = trainerLesson(tr); const ch = l && LESSONS.chapters.find((c) => c.n === l.chapter); return !!ch && ch.access !== 'free' && !state.progress.premium; };
+  // A small line of the last ten days' scores.
+  function spark(log) {
+    const pts = log.slice(-10);
+    if (pts.length < 2) return '';
+    const w = 120, h = 34, step = w / (pts.length - 1);
+    const xy = pts.map((e, i) => [Math.round(i * step), Math.round(h - 3 - (e.s / 100) * (h - 6))]);
+    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true"><polyline points="' + xy.map((p) => p.join(',')).join(' ') + '"/><circle cx="' + xy[xy.length - 1][0] + '" cy="' + xy[xy.length - 1][1] + '" r="3"/></svg>';
+  }
+  // Other screens (the progress page) look for this to link straight into a trainer round.
+  SCREENS.trainer = (id) => SCREENS.lesson({ trainer: id });
+  SCREENS.trainers = function () {
+    idleBoard();
+    const P = state.progress;
+    const tried = TRAINERS.trainers.filter((tr) => (P.trainers[tr.id] || {}).rounds).length;
+    mount('<div class="page"><div class="page-in">' + subnav('trainers') +
+      pageHead(t('learn.sub.trainers'), t('learn.tr.title'), t('learn.tr.sub', { coach: COACH.name }), meter(tried, TRAINERS.trainers.length, t('learn.tr.tried'))) +
+      '<div class="trainers">' + TRAINERS.trainers.map((tr) => {
+        const r = P.trainers[tr.id] || { best: 0, rounds: 0, log: [] };
+        const l = trainerLesson(tr), lock = trainerLocked(tr);
+        const lastS = r.log.length ? r.log[r.log.length - 1].s : null;
+        return '<article class="trainer glass' + (lock ? ' locked' : '') + '">' + (l ? lessonArt(l, 96) : '') +
+          '<div class="tr-body"><h3>' + esc(trName(tr)) + '</h3><p>' + esc(I18N.text(tr.line)) + '</p>' +
+          '<div class="tr-score">' + (r.rounds ? '<b>' + lastS + '</b><small>' + t('learn.tr.best', { n: r.best }) + '</small>' + spark(r.log) : '<small>' + t('learn.tr.new') + '</small>') + '</div></div>' +
+          '<div class="tr-go"><button class="btn primary small" data-tr="' + tr.id + '"' + (lock ? ' disabled' : '') + '>' + icon(lock ? 'lock' : 'play') + ' ' + t('learn.tr.practise') + '</button>' +
+          (l ? '<button class="btn outline small" data-trl="' + l.id + '"' + (lock ? ' disabled' : '') + '>' + icon('learn') + ' ' + t('learn.tr.lesson') + '</button>' : '') + '</div></article>';
+      }).join('') + '</div></div></div>');
+    wireLinks(); hydrate(null, true);
+    document.querySelectorAll('[data-tr]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { trainer: b.dataset.tr }); }; });
+    document.querySelectorAll('[data-trl]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', b.dataset.trl); }; });
+    return {};
+  };
+  const trName = (tr) => I18N.text(tr.name);
+  // The same board with the other side to move: "if it were their turn, what would they play?"
+  function theirTurn(fen) {
+    const f = fen.split(' ');
+    f[1] = f[1] === 'w' ? 'b' : 'w'; f[3] = '-';
+    return f.join(' ');
+  }
+  // One practice round: six positions, ones not seen lately first.
+  function trainerRound(tr) {
+    const P = state.progress;
+    const rec = P.trainers[tr.id] || {};
+    const seen = new Set(rec.seen || []);
+    const pick = (pool, n) => {
+      const all = (TRAINERS.items[pool] || []).slice();
+      const fresh = shuffled(all.filter((x) => !seen.has(x.id))), old = shuffled(all.filter((x) => seen.has(x.id)));
+      return fresh.concat(old).slice(0, n);
+    };
+    const prompt = (k) => t('learn.tr.p.' + k);
+    const move = (x, extra) => Object.assign({ type: x.mate ? 'mate' : 'move', fen: x.fen, answers: x.answers, last: x.last, item: x.id, note: x.note, prompt: prompt(tr.id) }, extra || {});
+    if (tr.id === 'three-sixty') return pick(tr.pool, 3).flatMap((x) => [move(x, { fen: theirTurn(x.fen), answers: [x.threat], their: true, last: null, prompt: prompt('threat') }), move(x, { item: null, prompt: prompt('stop') })]);
+    if (tr.id === 'intuition') return pick(tr.pool, tr.round).map((x) => move(x, { options: shuffled(x.options), seconds: tr.seconds }));
+    if (tr.id === 'retry') {
+      const mine = (P.mistakes || []).slice(0, tr.round).map((m) => ({ type: 'move', fen: m.fen, answers: [m.best], played: m.played, mistake: m.fen, prompt: prompt('retry') }));
+      return mine.concat(pick(tr.pool, Math.max(0, tr.round - mine.length)).map((x) => move(x, { played: x.played, prompt: prompt('retryOthers') })));
+    }
+    return pick(tr.pool, tr.round).map((x) => move(x, { seconds: tr.seconds, blind: tr.blind }));
+  }
 
   // ---------------------------------------------------------------- Progress over time
   // The player's own dashboard: the practice rating, won / drawn / lost, and eight skills scored
@@ -2374,6 +2510,14 @@
     if (it.category === 'pieces') { const t = setTint(d.set); return Object.assign(VIGN.trio(d.set, ART.dim(t, 0.3), ART.lit(t, 0.55)), { r: 1.32 }); }
     if (it.category === 'board') return { kind: 'board', board: d.board };
     if (it.category === 'room' && view.rooms()[d.room]) return { kind: 'room', room: d.room };
+    // an avatar turns on the stage as the sculpted bust (or emblem) on a velvet plinth in its colours;
+    // phones build it a little coarser so it opens quickly
+    if (it.category === 'avatar' && /^(animal|emblem):/.test(d.art || '')) {
+      const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      return { kind: 'avatar', art: d.art, felt: d.to, sheen: d.from, detail: touch ? 'play' : 'stage' };
+    }
+    // a piece avatar is the medal's gold piece itself
+    if (it.category === 'avatar' && /^piece:[kqrbnp]$/.test(d.art || '')) return { kind: 'piece', set: 'regency', type: d.art.slice(6), side: 'w', gild: '#ffd27a' };
     return null;
   }
   // The grid's pictures use the pieces' table detail: at card size it looks the same, and the
@@ -2733,7 +2877,7 @@
       $('cl-board').innerHTML = res.needs ? '' :
         '<div class="cl-row head" role="row">' + ['#', t('club.col.player'), t('club.col.place'), t('club.col.league'), t('club.col.rating')].map((h, i) => '<span role="columnheader"' + (['', '', ' class="cl-loc"', ' class="cl-lg"', ' class="num"'][i]) + '>' + h + '</span>').join('') + '</div>' +
         res.rows.map((r, i) => (i && r.rank > res.rows[i - 1].rank + 1 ? '<div class="cl-gap" aria-hidden="true">⋯</div>' : '') + '<div class="cl-row' + (r.me ? ' me' : '') + '" role="row">' + rankMedal(r.rank) +
-          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm">' + esc(r.name) + (r.me && r.name !== 'You' ? ' <em>' + t('club.you') + '</em>' : '') + (r.ai ? '<span class="cl-tag ai">' + t('club.tag.aiShort') + '</span>' : r.friend ? '<span class="cl-tag live">' + t('club.tag.friend') + '</span>' : '') + '</span></span>' +
+          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm"><span class="cl-n">' + esc(r.name) + '</span>' + (r.me && r.name !== 'You' ? '<em>' + t('club.you') + '</em>' : '') + (r.ai ? '<span class="cl-tag ai">' + t('club.tag.aiShort') + '</span>' : r.friend ? '<span class="cl-tag live">' + t('club.tag.friend') + '</span>' : '') + '</span></span>' +
           '<span class="cl-loc">' + placeText(r.country, r.city) + '</span>' +
           '<span class="cl-lg">' + leagueBadge(r.league, 20) + '<span>' + esc(leagueName(r.league)) + '</span></span>' +
           '<span class="num">' + r.rating + (r.provisional ? '?' : '') + '</span></div>').join('');
@@ -2794,7 +2938,7 @@
     const d = it.data || {};
     if (it.category === 'avatar') return '<img src="' + medal(d.art, d.from, d.to) + '" alt="">';
     if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
-    if (it.category === 'frame') return '<span class="ringdot" style="background:' + d.ring + '"></span>';
+    if (it.category === 'frame') return ART.frameUri(it.id) ? '<img src="' + ART.frameUri(it.id) + '" alt="">' : '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
     if (it.category === 'capture' || it.category === 'victory' || it.category === 'trail') return '<img src="' + fxArt(it) + '" alt="">';
     return icon(CAT_ICON[it.category] || 'star');
@@ -4272,6 +4416,8 @@
       G.reviewing = false;
       if (r.error || !r.review) return;
       G.review = r.review;
+      // The slips worth another try go to Retry mistakes.
+      if (G.kind === 'ai' || G.kind === 'online') { PG.mistakesFound(state.progress, (r.review.plies || []).filter((p) => p.side === side && (p.cls === 'mistake' || p.cls === 'blunder') && p.best && p.best !== p.uci).map((p) => ({ fen: p.fen, played: p.uci, best: p.best, cls: p.cls }))); save(); }
       coachReport(G, r.review, side);
     });
   }
@@ -5071,7 +5217,10 @@
     const vr = arg && arg.variant ? variantById(arg.variant) : null;
     const said = (x) => Object.assign({}, x, { say: GUIDE.lines[x.line].text, prompt: GUIDE.lines[x.line].text });
     const test = !!(arg && arg.placement);
-    const L = test ? { id: 'placement', title: t('learn.place.eyebrow'), steps: [], exercises: PLACEMENT.questions, objectives: [] } : vr ? Object.assign({ id: 'variant.' + vr.id }, vr.lesson, { steps: vr.lesson.steps.map(said), exercises: vr.lesson.exercises.map(said) })
+    // A trainer's practice round: no steps, six positions, hints allowed, scored by first tries.
+    const trn = arg && arg.trainer ? trainerById(arg.trainer) : null;
+    const quiz = test || !!trn;
+    const L = test ? { id: 'placement', title: t('learn.place.eyebrow'), steps: [], exercises: PLACEMENT.questions, objectives: [] } : trn ? { id: 'trainer.' + trn.id, title: trn.name, steps: [], exercises: trainerRound(trn), objectives: [] } : vr ? Object.assign({ id: 'variant.' + vr.id }, vr.lesson, { steps: vr.lesson.steps.map(said), exercises: vr.lesson.exercises.map(said) })
       : own || LESSONS.lessons.find((l) => l.id === id);
     const guide = own ? eraCoach(era) : COACH;
     if (!L) { setTimeout(() => go('learn'), 0); return {}; }
@@ -5086,16 +5235,16 @@
         pool.forEach((p) => ex.push({ type: 'puzzle', prompt: x.prompt, puzzle: p }));
       } else ex.push(x);
     }
-    const S = { phase: test ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, talk: 0, t0: Date.now() };
+    const S = { phase: quiz ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, talk: 0, t0: Date.now() };
     // a lesson opened from the rule book goes back to the game it came from
     const toGame = arg && arg.back === 'game' && state.game ? state.game : null;
-    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? eraName(era) : vr ? I18N.text(vr.name) : t('common.nav.learn')) + '</span></button>' +
-      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (test ? t('common.nav.learn') : own ? esc(eraName(era)) : vr ? esc(I18N.text(vr.name)) : t('learn.ls.chapter', { n: L.chapter })) + ' · ' + esc(I18N.text(L.title)) + '</span></div><span class="spacer"></span>' +
+    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? eraName(era) : vr ? I18N.text(vr.name) : trn ? t('learn.sub.trainers') : t('common.nav.learn')) + '</span></button>' +
+      '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (test ? t('common.nav.learn') : trn ? t('learn.sub.trainers') : own ? esc(eraName(era)) : vr ? esc(I18N.text(vr.name)) : t('learn.ls.chapter', { n: L.chapter })) + ' · ' + esc(I18N.text(L.title)) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       labsBtn('ls-labs') + '<button class="round" id="ls-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(I18N.text(L.title)) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="' + t('common.back') + '">' + icon('prev') + '</button><button class="btn primary" id="ls-next">' + t('common.next') + '</button></footer></aside>');
-    const leaveTo = () => (toGame && state.game === toGame ? backToGame() : era ? go('era', era.id) : test && arg.from === 'home' ? go('home') : vr ? go('variant', vr.id) : go('learn'));
+    const leaveTo = () => (toGame && state.game === toGame ? backToGame() : era ? go('era', era.id) : test && arg.from === 'home' ? go('home') : vr ? go('variant', vr.id) : trn ? go('trainers') : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
     if ($('ls-labs')) $('ls-labs').onclick = () => labsModal();
@@ -5108,6 +5257,7 @@
     const guided = {};
     const speak = (now) => {
       if (test) { const key = S.phase === 'ex' && ex[S.i] ? 'placement.' + ex[S.i].id : null; if (key) guideSay(key, { force: true }); return; }
+      if (trn) { if (S.phase === 'ex' && ex[S.i] && state.settings.narration && (S.i === 0 || ex[S.i].prompt !== ex[S.i - 1].prompt)) AU.say(ex[S.i].prompt); return; }
       const cur = S.phase === 'steps' ? L.steps[S.i] : S.phase === 'ex' ? ex[S.i] : null;
       const t = cur ? (S.phase === 'steps' ? cur.say : cur.prompt) : null;
       const w = S.phase === 'steps' && L.steps[S.i].word, run = ++S.talk;
@@ -5176,9 +5326,10 @@
     function renderEx() {
       const x = ex[S.i];
       S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false;
-      $('ls-phase').textContent = t(test ? 'learn.ls.question' : 'learn.ls.exercise', { n: S.i + 1, of: ex.length });
+      $('ls-phase').textContent = trn ? t('learn.tr.position', { n: S.i + 1, of: ex.length }) : t(test ? 'learn.ls.question' : 'learn.ls.exercise', { n: S.i + 1, of: ex.length });
       $('ls-prev').disabled = true;
-      $('ls-prev').hidden = test;
+      $('ls-prev').hidden = quiz;
+      clearTimeout(S.clock); clearTimeout(S.peekT); S.hidden = false;
       $('ls-next').textContent = test ? t('learn.ls.dontKnow') : t('learn.ls.skip');
       view.setArrows([]); view.setHighlights({ marks: hillMarks(x.fen || '') });
       if (x.type === 'choice') {
@@ -5200,10 +5351,16 @@
       }
       const fen = x.type === 'puzzle' ? x.puzzle.fen : x.fen;
       const prompt = x.type === 'puzzle' ? I18N.text(x.prompt) + ' ' + t(E.positionFrom(fen, [x.puzzle.moves[0]]).side === WHITE ? 'learn.ls.whiteToMove' : 'learn.ls.blackToMove') : I18N.text(x.prompt);
-      $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(prompt) + '</p>' + (x.type === 'targets' ? '<div class="pill" id="ls-count"></div>' : '') +
+      const san = (fen0, u) => { try { const g0 = new E.Game(fen0); const m0 = g0.pos.parseMove(u, g0.legal); return m0 === null || m0 === undefined ? u : g0.pos.san(m0, g0.legal); } catch (e) { return u; } };
+      const OPT = ['#2fd8ff', '#ffb02e', '#c77dff'];
+      $('ls-content').innerHTML = (x.differs ? differs() : '') + (x.their ? '<div class="feedback hint tr-their">' + icon('refresh') + ' ' + esc(t('learn.tr.theirSeat')) + '</div>' : '') +
+        '<p class="prompt">' + esc(prompt) + '</p>' + (x.played ? '<p class="say tr-played">' + esc(t('learn.tr.played', { san: san(x.fen, x.played) })) + '</p>' : '') +
+        (x.seconds ? '<div class="pill tr-clock" id="ls-clock">' + icon('clock') + ' <b>' + x.seconds + '</b></div>' : '') +
+        (x.options ? '<div class="choices tr-opts">' + x.options.map((u, k) => '<button class="btn" data-pick="' + u + '"><i style="background:' + OPT[k] + '"></i>' + esc(san(x.fen, u)) + '</button>').join('') + '</div>' : '') +
+        (x.type === 'targets' ? '<div class="pill" id="ls-count"></div>' : '') +
         (test ? '' : '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' ' + t('learn.ls.hint') + '</button></div>') + '<div id="ls-fb"></div>';
       if (!test) $('ls-hint').onclick = () => {
-        const hints = x.type === 'puzzle' ? [t('learn.ls.hintForcing'), t('learn.ls.hintPiece', { piece: C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] })] : x.hints || [];
+        const hints = x.type === 'puzzle' ? [t('learn.ls.hintForcing'), t('learn.ls.hintPiece', { piece: C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.puzzle.moves[S.pz * 2 + 1].slice(0, 2))))] })] : x.hints || (trn && x.answers ? [t('learn.ls.hintPiece', { piece: C.NAME[Math.abs(E.pieceAt(S.pos, sqIndex(x.answers[0].slice(0, 2))))] })] : []);
         if (S.hintN < hints.length) { fb('hint', I18N.text(hints[S.hintN])); S.hintN++; }
         else if (x.type === 'puzzle' || x.answers) { const u = x.type === 'puzzle' ? x.puzzle.moves[S.pz * 2 + 1] : x.answers[0]; if (u.length >= 4) view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); S.tries++; }
         AU.play('coach');
@@ -5212,10 +5369,46 @@
         S.pz = 0;
         setPos(fen, [x.puzzle.moves[0]], () => { view.setView(S.pos.side === WHITE ? 'white' : 'black', 'player'); });
       } else setPos(fen);
+      if (x.last) view.setHighlights({ lastFrom: sqIndex(x.last.slice(0, 2)), lastTo: sqIndex(x.last.slice(2, 4)), marks: hillMarks(fen) });
+      if (x.played) view.setArrows([{ from: sqIndex(x.played.slice(0, 2)), to: sqIndex(x.played.slice(2, 4)), color: '#ff4a40' }]);
+      if (x.options) {
+        view.setArrows(x.options.map((u, k) => ({ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: OPT[k] })));
+        document.querySelectorAll('[data-pick]').forEach((b) => {
+          b.onclick = () => {
+            if (S.answered) return;
+            const ok = x.answers.includes(b.dataset.pick);
+            b.classList.add(ok ? 'right' : 'wrong');
+            if (ok) { clearTimeout(S.clock); answer(true, t('learn.tr.goodEye')); }
+            else { S.answered = true; clearTimeout(S.clock); S.results[S.i] = false; AU.play('wrong'); fb('bad', t('learn.tr.itWas', { san: san(x.fen, x.answers[0]) })); finishedEx(); }
+            view.setArrows([{ from: sqIndex(x.answers[0].slice(0, 2)), to: sqIndex(x.answers[0].slice(2, 4)), color: '#3ee07a' }]);
+          };
+        });
+      }
+      if (x.blind) {
+        $('ls-content').insertAdjacentHTML('beforeend', '<div class="tr-blind" id="ls-blind"><span class="pill" id="ls-peekc">' + icon('eye') + ' ' + esc(t('learn.tr.remember', { n: x.blind })) + '</span><button class="btn small" id="ls-peek" hidden>' + icon('eye') + ' ' + t('learn.tr.peek') + '</button></div>');
+        const hide = () => { if (state.screen !== 'lesson' || ex[S.i] !== x || S.answered) return; S.hidden = true; view.setBoard([], null); $('ls-peekc').textContent = t('learn.tr.hidden'); $('ls-peek').hidden = false; };
+        S.peekT = setTimeout(hide, x.blind * 1000 + 700);
+        $('ls-peek').onclick = () => { if (S.answered || !S.hidden) return; S.tries++; S.hidden = false; view.setBoard(piecesOf(S.pos), null); clearTimeout(S.peekT); S.peekT = setTimeout(hide, 1500); AU.play('coach'); };
+      }
+      if (x.seconds) {
+        let left = x.seconds;
+        const tick = () => {
+          if (state.screen !== 'lesson' || ex[S.i] !== x || S.answered) return;
+          const c = $('ls-clock'); if (c) { c.querySelector('b').textContent = left; c.classList.toggle('low', left <= 5); }
+          if (left-- <= 0) {
+            S.answered = true; S.results[S.i] = false; AU.play('wrong');
+            const u = x.answers[0];
+            view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#3ee07a' }]);
+            fb('bad', t('learn.tr.timeUp', { san: san(x.fen, u) })); finishedEx(); dots(); return;
+          }
+          S.clock = setTimeout(tick, 1000);
+        };
+        tick();
+      }
       if (x.type === 'targets') updateCount();
       setHooks({
         onSquare: (sq) => exSquare(sq),
-        canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !S.answered && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
+        canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !x.options && !S.hidden && !S.answered && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
         onDrop: (from, to) => { const g = new E.Game(S.pos.fen()); if (!g.targets(from).includes(to)) return false; exMove(from, to); return true; },
       });
       dots(); speak();
@@ -5247,14 +5440,15 @@
         if (S.found.length === left.length) answer(S.tries === 0, t('learn.ls.allFound', { n: left.length }));
         return;
       }
-      // move-style exercises: select, then the target
+      // move-style exercises: select, then the target (a pick-one exercise is answered with its buttons)
+      if (x.options) return;
       const p = E.pieceAt(S.pos, sq);
       const g = new E.Game(S.pos.fen());
       if (S.selected >= 0 && g.targets(S.selected).includes(sq)) { exMove(S.selected, sq); return; }
       if (p && Math.sign(p) === S.pos.side) {
         S.selected = sq; AU.play('select');
         const t = g.targets(sq);
-        view.setHighlights(Object.assign({ selected: sq, marks: hillMarks(S.pos.fen()) }, splitTargets(S.pos, t)));
+        view.setHighlights(S.hidden ? { selected: sq } : Object.assign({ selected: sq, marks: hillMarks(S.pos.fen()) }, splitTargets(S.pos, t)));
       }
     }
     function exMove(from, to) {
@@ -5297,7 +5491,7 @@
           view.setBoard(piecesOf(S.pos), null); view.setHighlights({});
           fail(msg);
         } else {
-          S.tries++; AU.play('wrong'); fb('bad', again ? msg + ' ' + t('learn.ls.tryAgain') : msg); view.setBoard(piecesOf(S.pos), null); view.setHighlights({ marks: hillMarks(x.fen) });
+          S.tries++; AU.play('wrong'); fb('bad', again ? msg + ' ' + t('learn.ls.tryAgain') : msg); view.setBoard(S.hidden ? [] : piecesOf(S.pos), null); view.setHighlights({ marks: hillMarks(x.fen) });
         }
         S.selected = -1;
       };
@@ -5331,12 +5525,14 @@
         return;
       }
       if (S.nx) { go('lesson', S.nx.id); return; }
+      if (S.again) { go('lesson', { trainer: trn.id }); return; }
       leaveTo();
     }
     function finish() {
       S.phase = 'done';
       setHooks({});
       if (test) return placed();
+      if (trn) return trainerDone();
       const first = S.results.filter((r) => r === true).length;
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       let res;
@@ -5369,6 +5565,34 @@
       dots();
       if (!own) { celebrate(res); if (journey) stageDone(journey); }
     }
+    // A practice round's score: first tries out of the round, kept day by day for the progress charts.
+    function trainerDone() {
+      const P = state.progress;
+      clearTimeout(S.clock); clearTimeout(S.peekT);
+      const first = S.results.filter((r) => r === true).length;
+      const score = Math.round((first / Math.max(1, ex.length)) * 100);
+      const rec = P.trainers[trn.id] || (P.trainers[trn.id] = { best: 0, rounds: 0, log: [] });
+      rec.seen = (rec.seen || []).concat(ex.map((x) => x.item).filter(Boolean)).slice(-200);
+      ex.forEach((x, i) => { if (x.mistake) PG.mistakeRetried(P, x.mistake, S.results[i] === true); });
+      const res = PG.trainerFinished(P, trn.id, score);
+      save();
+      $('ls-phase').textContent = t('learn.tr.roundDone');
+      $('ls-content').innerHTML = '<div class="done-card"><p class="big-score">' + score + '</p>' +
+        '<p class="prompt">' + t(score >= 80 ? 'learn.tr.great' : score >= 50 ? 'learn.tr.good' : 'learn.tr.keep') + '</p>' +
+        '<p class="say">' + esc(t('learn.tr.firstTry', { n: first, of: ex.length }) + ' ' + t('learn.tr.bestNow', { n: rec.best })) + '</p>' +
+        (res.newBest ? '<span class="pill gold">' + t('learn.tr.newBest') + '</span> ' : '') + (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') +
+        (spark(rec.log) ? '<div class="tr-score done">' + spark(rec.log) + '</div>' : '') + '</div>';
+      S.again = true;
+      $('ls-next').textContent = t('learn.tr.again');
+      $('ls-prev').hidden = false; $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
+      $('ls-prev').innerHTML = icon('back') + '<span>' + t('learn.sub.trainers') + '</span>';
+      $('ls-prev').onclick = () => { AU.play('tap'); go('trainers'); };
+      AU.play(score >= 50 ? 'win' : 'correct');
+      guideSay(score >= 80 ? 'lesson.done' : 'puzzle.solved', { delay: 1600 });
+      if (score >= 80) view.celebrate('win', -1, null, -1);
+      dots();
+      celebrate(res);
+    }
     // The placement result: the chapter the path now starts at, a friend to play and a badge.
     function placed() {
       const P = state.progress;
@@ -5396,8 +5620,8 @@
       dots();
       celebrate(res);
     }
-    if (test) renderEx(); else renderStep();
-    return { leave() { AU.hush(); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
+    if (quiz) { if (ex.length) renderEx(); else finish(); } else renderStep();
+    return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
   };
 
   // ---------------------------------------------------------------- drills
@@ -5518,6 +5742,11 @@
     const list = arg.list || null;
     const pickNext = () => {
       if (list) return list[++S.idx] || null;
+      if (arg.mate) {
+        const r = (P.mates || {})[arg.mate] || { solved: [] }, all = mateSet(arg.mate);
+        const open = all.filter((p) => !r.solved.includes(p.id) && p !== S.cur);
+        return open[0] || all[Math.floor(Math.random() * all.length)] || null;
+      }
       let pool = PUZZLES.filter((p) => !arg.theme || (arg.theme === 'mate' ? p.themes.some((t) => t.startsWith('mateIn')) : p.themes.includes(arg.theme)));
       const unseen = pool.filter((p) => !P.stats.puzzles.seen.includes(p.id));
       if (unseen.length) pool = unseen;
@@ -5540,7 +5769,7 @@
     function load() {
       const pz = pickNext();
       if (!pz) { $('pz-content').innerHTML = '<p class="say">' + t('learn.pz.noMore') + '</p>'; $('pz-next').hidden = true; return; }
-      S.cur = pz; S.step = 0; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0; S.busy = false;
+      S.cur = pz; S.step = 0; S.off = false; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0; S.busy = false;
       const pre = E.positionFrom(pz.fen, []);
       S.pos = pre;
       const solverSide = -pre.side;
@@ -5548,7 +5777,8 @@
       view.setHighlights({}); view.setArrows([]);
       view.setView(solverSide === WHITE ? 'white' : 'black', 'player');
       $('pz-eyebrow').textContent = (list && list.length > 1 ? t('learn.pz.nOf', { n: S.idx + 1, of: list.length }) + ' · ' : arg.daily ? t('learn.dailyPuzzle') + ' · ' : '') + t('learn.pz.rated', { n: pz.rating });
-      $('pz-title').textContent = t(solverSide === WHITE ? 'learn.pz.whiteFind' : 'learn.pz.blackFind');
+      const mn = arg.mate ? mateOf(pz) : 0;
+      $('pz-title').textContent = mn ? t(solverSide === WHITE ? 'learn.pz.whiteMate' : 'learn.pz.blackMate', { n: mn }) : t(solverSide === WHITE ? 'learn.pz.whiteFind' : 'learn.pz.blackFind');
       $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : t('learn.pz.intro')) + '</p><div id="pz-fb"></div>';
       if (arg.intro && S.idx <= 0 && state.settings.narration) AU.say(arg.intro);
       $('pz-next').hidden = true; $('pz-hint').disabled = false; if ($('pz-sol')) $('pz-sol').disabled = false;
@@ -5591,10 +5821,12 @@
       const g = new E.Game(S.pos.fen());
       const m = g.find(from, to, promo || 0);
       if (m === null) return false;
-      const want = S.cur.moves[S.step * 2 + 1];
+      const want = wantMove();
       // (named tg, not t: t is the translator, and shadowing it froze the puzzle after any move)
       const tg = new E.Game(S.pos.fen()); tg.play(m);
-      const ok = E.uci(m) === want || (tg.outcome && tg.outcome.reason === 'checkmate');
+      const mn = mateOf(S.cur), left = mn - S.step;
+      let ok = E.uci(m) === want || (tg.outcome && tg.outcome.reason === 'checkmate');
+      if (!ok && mn && left > 1 && MS.defends(tg.pos, left - 1, 4e5) === true) { ok = true; S.off = true; }
       if (!ok) {
         // The wrong move is played on the board for a moment, then taken back, so the player sees it was a real move.
         S.failed = true; S.busy = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', t('learn.pz.wrong'));
@@ -5608,7 +5840,8 @@
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
         if (S.step * 2 + 2 >= S.cur.moves.length || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
-        const reply = g.playText(S.cur.moves[S.step * 2 + 2]);
+        const reply = g.playText(S.off ? (MS.longestDefence(g.pos, left - 1, 4e5) || {}).move : S.cur.moves[S.step * 2 + 2]);
+        if (!reply) { finish(true); return; }
         S.step++;
         fb('ok', t('learn.pz.keepGoing'));
         setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
@@ -5631,11 +5864,17 @@
         return tryMove(from, to);
       },
     });
+    // The move to find now: the stored line's, or after a different mating move, the prover's.
+    function wantMove() {
+      if (!S.off) return S.cur.moves[S.step * 2 + 1];
+      const ms = MS.matingMoves(S.pos, mateOf(S.cur) - S.step, 4e5);
+      return (ms && ms[0]) || S.cur.moves[S.step * 2 + 1];
+    }
     $('pz-hint').onclick = () => {
       if (!S.cur || S.solved) return;
       S.failed = true; S.hints++;
       guideIdle(null);
-      const u = S.cur.moves[S.step * 2 + 1];
+      const u = wantMove();
       if (S.hints === 1) { const th = S.cur.themes[0]; fb('hint', I18N.has('learn.pzh.' + th) ? t('learn.pzh.' + th) : t(th.startsWith('mateIn') ? 'learn.pzh.mate' : 'learn.pzh.forcing')); }
       else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', t('learn.pzh.piece', { sq: u.slice(0, 2) })); }
       else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', t('learn.pzh.arrow')); }
@@ -5644,7 +5883,7 @@
     if ($('pz-sol')) $('pz-sol').onclick = () => {
       if (!S.cur || S.solved) return;
       S.failed = true;
-      const u = S.cur.moves[S.step * 2 + 1];
+      const u = wantMove();
       view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
       fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m)) || ''));
@@ -6208,7 +6447,7 @@
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
   // The hero frames the table under the wordmark, which settles once the fonts are in.
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => applyInsets());
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitNav(); applyInsets(); });
   // App shortcuts from the installed icon's menu, and links from emails.
   if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
   else if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));

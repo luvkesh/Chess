@@ -628,24 +628,12 @@
    ]
   },
   "item-sets-ocean": {
-   "text": "¡Sumérgete bajo el mar! Coral Kingdom es toda una corte submarina, con sirenas y tritones, un pulpo, un caballito de mar, un castillo de coral y peces globo bien hinchados como peones. Cada pieza está pintada con colores vivos del océano. Llega al nivel doce y todo el reino llegará nadando a tu tablero.",
+   "text": "¡Sumérgete bajo el mar! Coral Kingdom es la corte de una ciudad hundida, en perla y oro: un rey del mar con su tridente, una reina sirena, medusas que brillan, caballitos de mar con púas y faros que aún iluminan. Los peones son perlas en conchas abiertas. Llega al nivel doce y todo el reino nadará hasta tu tablero.",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "¡Sumérgete bajo el mar!"
-    },
-    {
-     "t": 1.96,
-     "text": "Coral Kingdom es toda una corte submarina, con sirenas y tritones, un pulpo, un caballito de mar, un castillo de coral y peces globo bien hinchados como peones."
-    },
-    {
-     "t": 11.52,
-     "text": "Cada pieza está pintada con colores vivos del océano."
-    },
-    {
-     "t": 15.17,
-     "text": "Llega al nivel doce y todo el reino llegará nadando a tu tablero."
+     "text": "¡Sumérgete bajo el mar! Coral Kingdom es la corte de una ciudad hundida, en perla y oro: un rey del mar con su tridente, una reina sirena, medusas que brillan, caballitos de mar con púas y faros que aún iluminan. Los peones son perlas en conchas abiertas. Llega al nivel doce y todo el reino nadará hasta tu tablero."
     }
    ]
   },
@@ -1052,24 +1040,12 @@
    ]
   },
   "item-boards-deco": {
-   "text": "Entra en un ático de los años 30. Macassar and Chrome tiene ébano de Macasar a rayas, una madera con llamativas rayas oscuras y doradas, junto a cromo reluciente. Es afilado, brillante y muy de Nueva York. Gana a Skye el Águila sobre Manhattan y será tuyo.",
+   "text": "Entra en la era del jazz. Skyline Marble es mármol crema y verde oscuro con vetas de oro, enmarcado en laca negra con abanicos dorados de rayos de sol. Es elegante, brillante y muy Nueva York. Vence a Skye the Eagle sobre Manhattan y será tuyo.",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Entra en un ático de los años 30."
-    },
-    {
-     "t": 2.6,
-     "text": "Macassar and Chrome tiene ébano de Macasar a rayas, una madera con llamativas rayas oscuras y doradas, junto a cromo reluciente."
-    },
-    {
-     "t": 10.5,
-     "text": "Es afilado, brillante y muy de Nueva York."
-    },
-    {
-     "t": 13.47,
-     "text": "Gana a Skye el Águila sobre Manhattan y será tuyo."
+     "text": "Entra en la era del jazz. Skyline Marble es mármol crema y verde oscuro con vetas de oro, enmarcado en laca negra con abanicos dorados de rayos de sol. Es elegante, brillante y muy Nueva York. Vence a Skye the Eagle sobre Manhattan y será tuyo."
     }
    ]
   },
@@ -2366,6 +2342,240 @@
     {
      "t": 7.6,
      "text": "Al otro, la fortaleza de los orcos brilla en las colinas ardientes."
+    }
+   ]
+  },
+  "item-sets-fantasy": {
+   "text": "Algunos juegos de ajedrez parecen salidos de un cuento de hadas. Fantasy Marble es mármol blanco como la nieve frente al negro, envuelto en cintas doradas, con coronas de tulipán, un alfil que sostiene una perla y torres con arquitos. Viene con Sculptor's Studio.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Algunos juegos de ajedrez parecen salidos de un cuento de hadas."
+    },
+    {
+     "t": 3.97,
+     "text": "Fantasy Marble es mármol blanco como la nieve frente al negro, envuelto en cintas doradas, con coronas de tulipán, un alfil que sostiene una perla y torres con arquitos."
+    },
+    {
+     "t": 13.83,
+     "text": "Viene con Sculptor's Studio."
+    }
+   ]
+  },
+  "item-sets-sapphire": {
+   "text": "Los reyes y las reinas guardaban sus zafiros para los días más especiales. Royal Ivory and Sapphire es marfil frente a azul intenso, con coronas doradas cerradas, torres con escudo y una gema azul en cada pieza. Viene con Sapphire Throne Room.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Los reyes y las reinas guardaban sus zafiros para los días más especiales."
+    },
+    {
+     "t": 4.74,
+     "text": "Royal Ivory and Sapphire es marfil frente a azul intenso, con coronas doradas cerradas, torres con escudo y una gema azul en cada pieza."
+    },
+    {
+     "t": 12.93,
+     "text": "Viene con Sapphire Throne Room."
+    }
+   ]
+  },
+  "item-sets-navy": {
+   "text": "¡Ah del barco! Royal Navy es marfil frente a azul marino, envuelto en cuerda dorada y salpicado de rubíes. Los reyes llevan un ancla en la corona, los caballos llevan bandas y las torres tienen ojos de buey redondos. Viene con Admiral's Cabin.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Ah del barco!"
+    },
+    {
+     "t": 1.43,
+     "text": "Royal Navy es marfil frente a azul marino, envuelto en cuerda dorada y salpicado de rubíes."
+    },
+    {
+     "t": 7.17,
+     "text": "Los reyes llevan un ancla en la corona, los caballos llevan bandas y las torres tienen ojos de buey redondos."
+    },
+    {
+     "t": 13.51,
+     "text": "Viene con Admiral's Cabin."
+    }
+   ]
+  },
+  "item-sets-opulent": {
+   "text": "Las esmeraldas son el tesoro verde de los reyes. Opulent Emerald es crema frente a verde intenso, con reyes de muchas caras, alfiles con cúpula de cebolla y torres cuyas ventanas brillan doradas por la noche. Viene con Emerald Observatory.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Las esmeraldas son el tesoro verde de los reyes."
+    },
+    {
+     "t": 3.32,
+     "text": "Opulent Emerald es crema frente a verde intenso, con reyes de muchas caras, alfiles con cúpula de cebolla y torres cuyas ventanas brillan doradas por la noche."
+    },
+    {
+     "t": 12.66,
+     "text": "Viene con Emerald Observatory."
+    }
+   ]
+  },
+  "item-sets-pagoda": {
+   "text": "Este juego cuenta una historia de las montañas entre la niebla del Oriente. Dragon and Pagoda tiene reyes y reinas con largas túnicas de seda, alfiles de loto, caballos dragón con cuernos dorados y pequeñas torres pagoda con ventanas que brillan. Viene con Waterfall Pavilion.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Este juego cuenta una historia de las montañas entre la niebla del Oriente."
+    },
+    {
+     "t": 4.42,
+     "text": "Dragon and Pagoda tiene reyes y reinas con largas túnicas de seda, alfiles de loto, caballos dragón con cuernos dorados y pequeñas torres pagoda con ventanas que brillan."
+    },
+    {
+     "t": 14.5,
+     "text": "Viene con Waterfall Pavilion."
+    }
+   ]
+  },
+  "item-boards-nero": {
+   "text": "Nero and Gold Vein pone mármol negro con vetas doradas junto a mármol blanco como la nieve, con arcos dorados alrededor de todo el marco. Viene con Sculptor's Studio y Fantasy Marble.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Nero and Gold Vein pone mármol negro con vetas doradas junto a mármol blanco como la nieve, con arcos dorados alrededor de todo el marco."
+    },
+    {
+     "t": 8.0,
+     "text": "Viene con Sculptor's Studio y Fantasy Marble."
+    }
+   ]
+  },
+  "item-boards-sapphire": {
+   "text": "Lapis and Ivory Gilt es piedra azul intensa y marfil cálido, con pequeños escudos dorados alrededor de un marco azul real. Viene con Sapphire Throne Room y Royal Ivory and Sapphire.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Lapis and Ivory Gilt es piedra azul intensa y marfil cálido, con pequeños escudos dorados alrededor de un marco azul real."
+    },
+    {
+     "t": 7.75,
+     "text": "Viene con Sapphire Throne Room y Royal Ivory and Sapphire."
+    }
+   ]
+  },
+  "item-boards-admiralty": {
+   "text": "Admiralty Blue es marfil y azul medianoche en un marco de brillante madera de barco, con una cuerda dorada y anclas diminutas. Viene con Admiral's Cabin y el juego Royal Navy.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Admiralty Blue es marfil y azul medianoche en un marco de brillante madera de barco, con una cuerda dorada y anclas diminutas."
+    },
+    {
+     "t": 7.42,
+     "text": "Viene con Admiral's Cabin y el juego Royal Navy."
+    }
+   ]
+  },
+  "item-boards-verdant": {
+   "text": "Verde Onyx es mármol verde y ónix cremoso, con esmeraldas brillantes engastadas en un marco oscuro de nogal. Viene con Emerald Observatory y Opulent Emerald.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Verde Onyx es mármol verde y ónix cremoso, con esmeraldas brillantes engastadas en un marco oscuro de nogal."
+    },
+    {
+     "t": 6.9,
+     "text": "Viene con Emerald Observatory y Opulent Emerald."
+    }
+   ]
+  },
+  "item-boards-scroll": {
+   "text": "Mountain Scroll es marfil y laca negra en un marco rojo pintado con nubes rizadas, picos entre la niebla y cuatro soles pequeños. Viene con Waterfall Pavilion y Dragon and Pagoda.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Mountain Scroll es marfil y laca negra en un marco rojo pintado con nubes rizadas, picos entre la niebla y cuatro soles pequeños."
+    },
+    {
+     "t": 7.94,
+     "text": "Viene con Waterfall Pavilion y Dragon and Pagoda."
+    }
+   ]
+  },
+  "item-places-studio": {
+   "text": "En lo alto de las montañas de mármol blanco, el taller de un escultor se llena de luz de la mañana. Los bloques de mármol esperan en el camino de abajo, una estatuilla espera a que la terminen, y Fantasy Marble juega aquí sobre Nero and Gold Vein.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En lo alto de las montañas de mármol blanco, el taller de un escultor se llena de luz de la mañana."
+    },
+    {
+     "t": 5.7,
+     "text": "Los bloques de mármol esperan en el camino de abajo, una estatuilla espera a que la terminen, y Fantasy Marble juega aquí sobre Nero and Gold Vein."
+    }
+   ]
+  },
+  "item-places-keep": {
+   "text": "En un castillo sobre una montaña nevada, el salón del trono azul y dorado brilla mientras las torres se iluminan para la noche. Un cetro descansa sobre su cojín, y Royal Ivory and Sapphire juega aquí sobre Lapis and Ivory Gilt.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En un castillo sobre una montaña nevada, el salón del trono azul y dorado brilla mientras las torres se iluminan para la noche."
+    },
+    {
+     "t": 7.29,
+     "text": "Un cetro descansa sobre su cojín, y Royal Ivory and Sapphire juega aquí sobre Lapis and Ivory Gilt."
+    }
+   ]
+  },
+  "item-places-admiral": {
+   "text": "En la popa de un gran velero está el camarote del capitán. La luna brilla sobre el mar, un faro parpadea al otro lado de la bahía, y el juego Royal Navy juega aquí sobre Admiralty Blue.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En la popa de un gran velero está el camarote del capitán."
+    },
+    {
+     "t": 3.74,
+     "text": "La luna brilla sobre el mar, un faro parpadea al otro lado de la bahía, y el juego Royal Navy juega aquí sobre Admiralty Blue."
+    }
+   ]
+  },
+  "item-places-emeraldhall": {
+   "text": "En una colina verde hay una sala de mármol hecha para mirar las estrellas. Un telescopio de latón apunta al cielo, la hiedra cuelga en las ventanas, y Opulent Emerald juega aquí sobre Verde Onyx.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "En una colina verde hay una sala de mármol hecha para mirar las estrellas."
+    },
+    {
+     "t": 4.39,
+     "text": "Un telescopio de latón apunta al cielo, la hiedra cuelga en las ventanas, y Opulent Emerald juega aquí sobre Verde Onyx."
+    }
+   ]
+  },
+  "item-places-pavilion": {
+   "text": "Un pabellón rojo mira hacia una cascada que ruge entre montañas con niebla, con cerezos en flor por todas partes. Un farol de piedra brilla, las carpas koi nadan en un cuenco, y Dragon and Pagoda juega aquí sobre Mountain Scroll.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Un pabellón rojo mira hacia una cascada que ruge entre montañas con niebla, con cerezos en flor por todas partes."
+    },
+    {
+     "t": 6.94,
+     "text": "Un farol de piedra brilla, las carpas koi nadan en un cuenco, y Dragon and Pagoda juega aquí sobre Mountain Scroll."
     }
    ]
   },

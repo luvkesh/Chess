@@ -16,11 +16,13 @@ SCRIPTS = [
     core / 'engine.js',
     core / 'coach.js',
     core / 'mentor.js',
+    core / 'mates.js',
     core / 'xiangqi.js',
     src / 'i18n.js',
     vendor / 'three.bundle.js',
     src / 'kit3d.js',
     src / 'pieces3d.js',
+    src / 'avatars3d.js',
     src / 'billboards.js',
     src / 'landmarks3d.js',
     src / 'suites3d.js',
@@ -62,6 +64,7 @@ parts = [
     data('CHACKLATE_GUIDE', 'guide.json'),
     data('CHACKLATE_VARIANTS', 'variants.json'),
     data('CHACKLATE_PLACEMENT', 'placement.json'),
+    data('CHACKLATE_TRAINERS', 'trainers.json'),
 ]
 # What Rooky says about each Collection item. A chess set from an era plays the website's recording of
 # its pitch (pitch/site/<key>.mp3, served from apps/website/audio), so each pitch is recorded once.
@@ -100,15 +103,17 @@ parts.append('const CHACKLATE_TEXT = %s;' % json.dumps(text, separators=(',', ':
 parts.append("const CHACKLATE_XQ_FONT = 'data:font/ttf;base64,%s';" % base64.b64encode((vendor / 'xiangqi-han.ttf').read_bytes()).decode())
 # Card pictures of sets, boards and rooms are cached in the browser under this id, so any
 # change to the 3D code or the catalog draws them again.
-look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()).hexdigest()[:12]
+look = hashlib.sha1(b''.join((src / f).read_bytes() for f in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'world3d.js', 'scene.js')) + (content / 'catalog.json').read_bytes()
+                    + b''.join(f.read_bytes() for f in sorted((here / 'meshes').glob('*.txt')))).hexdigest()[:12]
 parts.append("const CHACKLATE_LOOK_ID = '%s';" % look)
 # The crest (the rendered gold knight, shared with the website), inlined so the game stays one file.
 parts.append("const CHACKLATE_CREST = 'data:image/webp;base64,%s';" % base64.b64encode((src / 'crest.webp').read_bytes()).decode())
 # Menu pictures rendered from the game's 3D pieces and era paintings (tools/shoot-art.js, then
-# tools/art-webp.py): the gold pieces for the medals and each era's view, keyed by its landmark.
+# tools/art-webp.py): the gold pieces for the medals, each era's view, keyed by its landmark, and the
+# 3D avatars (animal busts and emblems), keyed by their art name, and the 3D avatar frames.
 uri = lambda f: 'data:image/webp;base64,' + base64.b64encode(f.read_bytes()).decode()
 landmarks = {e['id']: e['landmark'] for e in json.loads((content / 'campaign.json').read_text())['eras']}
-art = {'piece': {}, 'view': {}}
+art = {'piece': {}, 'view': {}, 'avatar': {}, 'frame': {}}
 for f in sorted((src / 'art').glob('*.webp')):
     kind, name = f.stem.split('-', 1)
     art[kind][landmarks.get(name, name) if kind == 'view' else name] = uri(f)
@@ -138,3 +143,9 @@ out = here / 'dist' / 'chackmate.html'
 out.parent.mkdir(exist_ok=True)
 out.write_text(html)
 print(out, len(html))
+# The packs of sets modelled in Blender (tools/model/) are fetched beside the page: dist/meshes/.
+import shutil
+for f in sorted((here / 'meshes').glob('*.txt')):
+    (out.parent / 'meshes').mkdir(exist_ok=True)
+    shutil.copyfile(f, out.parent / 'meshes' / f.name)
+    print(out.parent / 'meshes' / f.name, f.stat().st_size)

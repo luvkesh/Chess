@@ -69,10 +69,10 @@
   "voice": "em_alex",
   "text": "¡Bip bup! El Robot Squad está hecho de brillante plástico de juguete y cromo reluciente, con ojos que se iluminan. Cada robot lleva todavía la insignia de su pieza, así que siempre sabes quién es quién."
  },
- "66628586": {
+ "7dbbe070": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "¡Ven bajo el mar! Coral Kingdom está tallado en nácar, con sirenas y tritones, un pulpo, un caballito de mar y un castillo de coral. Sus colas brillan como escamas de pez."
+  "text": "¡Ven bajo el mar! Coral Kingdom es la corte de una ciudad hundida, en perla y oro: un rey del mar, una reina sirena, medusas que brillan, caballitos de mar y faros. Los peones son perlas en conchas abiertas."
  },
  "1a719f59": {
   "who": "rooky",
@@ -179,10 +179,10 @@
   "voice": "em_alex",
   "text": "Piedra rosa y ónice blanco, con un marco de malaquita verde arremolinada de los montes Urales."
  },
- "3d824c11": {
+ "b23bff80": {
   "who": "rooky",
   "voice": "em_alex",
-  "text": "Ébano a rayas y cromo brillante, sacados de un elegante ático de Nueva York de los años 30."
+  "text": "Mármol crema y verde oscuro con vetas de oro, y abanicos dorados de rayos de sol alrededor del marco. Muy Nueva York, muy años treinta."
  },
  "b2cbc820": {
   "who": "rooky",
@@ -704,21 +704,6 @@
   "voice": "em_alex",
   "text": "Un meteorito oscuro que cayó del espacio, junto a hielo escarchado. Una línea azul brillante rodea el marco."
  },
- "cf0e8c9c": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "Casillas de acero brillante del suelo de una nave estelar, con una luz azul que brilla alrededor del marco."
- },
- "7067717c": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "Piedra solar cremosa y ladrillo rojo cálido, como un camino hacia un castillo. ¡Es un tablero de cuento!"
- },
- "c7c49d9a": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "Piedra lunar clara con vetas doradas, junto a una pizarra gris y fresca. El marco de roble viejo está tallado con nudos."
- },
  "81dc99f9": {
   "who": "rooky",
   "voice": "em_alex",
@@ -829,21 +814,6 @@
   "voice": "em_alex",
   "text": "Una luna helada de Saturno, con un cohete esperando en su plataforma. ¡Mira arriba, los anillos llenan todo el cielo!"
  },
- "035bf5bc": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "La cubierta de una nave estelar, muy por encima de un planeta azul. ¡Mira, pasan dos flotas volando!"
- },
- "865d62c1": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "¡Estás en una isla que flota entre las nubes! Saluda al castillo y no pierdas de vista esa torre oscura."
- },
- "5c4d371a": {
-  "who": "rooky",
-  "voice": "em_alex",
-  "text": "¡Elfos a un lado, orcos al otro y tú justo en medio! ¿Ves la cascada y la fortaleza que brilla?"
- },
  "8443803b": {
   "who": "rooky",
   "voice": "em_alex",
@@ -868,6 +838,96 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "La puerta del dragón de una gran sala vikinga, justo cuando sale el sol. ¡Las antorchas todavía arden!"
+ },
+ "cf0e8c9c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Casillas de acero brillante del suelo de una nave estelar, con una luz azul que brilla alrededor del marco."
+ },
+ "7067717c": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Piedra solar cremosa y ladrillo rojo cálido, como un camino hacia un castillo. ¡Es un tablero de cuento!"
+ },
+ "c7c49d9a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Piedra lunar clara con vetas doradas, junto a una pizarra gris y fresca. El marco de roble viejo está tallado con nudos."
+ },
+ "035bf5bc": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "La cubierta de una nave estelar, muy por encima de un planeta azul. ¡Mira, pasan dos flotas volando!"
+ },
+ "865d62c1": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Estás en una isla que flota entre las nubes! Saluda al castillo y no pierdas de vista esa torre oscura."
+ },
+ "5c4d371a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Elfos a un lado, orcos al otro y tú justo en medio! ¿Ves la cascada y la fortaleza que brilla?"
+ },
+ "9351af76": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mármol negro con vetas doradas junto a mármol blanco como la nieve. ¡Hay arcos de oro alrededor de todo el marco!"
+ },
+ "ceac4034": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Lapislázuli azul intenso y marfil cálido, con pequeños escudos dorados alrededor del marco. Parece un tesoro real."
+ },
+ "0b250858": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marfil y azul medianoche en un marco de brillante madera de barco, rodeado por una cuerda dorada con anclas diminutas."
+ },
+ "6259addd": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Mármol verde y ónix cremoso, con esmeraldas brillantes engastadas en un marco oscuro de nogal."
+ },
+ "b0a4b99f": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Marfil y laca negra en un marco rojo pintado con nubes rizadas, montañas entre la niebla y cuatro soles pequeños."
+ },
+ "6b344e63": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un taller de escultor lleno de luz, en lo alto de las montañas de mármol blanco. ¡Mira, una estatuilla espera a que la terminen!"
+ },
+ "8ebfd3a3": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un salón del trono azul y dorado en un castillo de montaña. ¡Las torres se están iluminando para la noche!"
+ },
+ "ec0217ae": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "El camarote del capitán, en la popa de un gran velero. ¿Ves el faro parpadeando al otro lado de la bahía?"
+ },
+ "118d156a": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Una sala de mármol verde en una colina, hecha para mirar las estrellas. ¡Las primeras están saliendo ahora mismo!"
+ },
+ "a2b37a3b": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Un pabellón rojo frente a una cascada que ruge, con cerezos en flor por todas partes. ¡Escucha el agua!"
+ },
+ "66628586": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Ven bajo el mar! Coral Kingdom está tallado en nácar, con sirenas y tritones, un pulpo, un caballito de mar y un castillo de coral. Sus colas brillan como escamas de pez."
+ },
+ "3d824c11": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Ébano a rayas y cromo brillante, sacados de un elegante ático de Nueva York de los años 30."
  },
  "2b2033a1": {
   "who": "rooky",
