@@ -4902,7 +4902,8 @@
     const vsSomeone = G.kind !== 'local';
     const youWon = vsSomeone && winner === G.human, youLost = vsSomeone && winner === -G.human;
     // the room's storm is for the player's own wins (and either side's in a game at one table)
-    if (winner) view.celebrate('win', kingSquare(pos, -winner), null, kingSquare(pos, winner), { storm: youWon || G.kind === 'local' });
+    // the beaten king's fall is heard knock by knock, in the set's own sound
+    if (winner) view.celebrate('win', kingSquare(pos, -winner), null, kingSquare(pos, winner), { storm: youWon || G.kind === 'local', reason: o.reason, sound: (kind, v, dur) => AU.play('fall', { kind, v, dur }) });
     else view.celebrate('draw', -1, [kingSquare(pos, WHITE), kingSquare(pos, BLACK)]);
     AU.play(winner ? (youLost ? 'loss' : 'win') : 'draw');
     if (!VARIANT_END.has(o.reason)) setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
