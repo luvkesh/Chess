@@ -874,6 +874,14 @@
     if (kind === 'hero') { const m = document.querySelector('#screens .motto'); ins.top = m ? m.getBoundingClientRect().bottom - 4 : $('topnav').getBoundingClientRect().bottom; }
     else if (kind === 'hud') {
       const side = rect('.side') || rect('.lesson');
+      // The button bar shares the width left of the side panel: where its words do not fit
+      // (about 1024-1200 px) it shows icons only, as on phones, instead of hiding Draw and
+      // Resign past its edge.
+      const abar = document.querySelector('#screens .actionbar');
+      if (abar) {
+        abar.classList.remove('tight');
+        if (abar.scrollWidth > abar.clientWidth + 1) abar.classList.add('tight');
+      }
       const bar = rect('.actionbar');
       const sheet = side && side.top > H * 0.4 && side.width > W * 0.6;   // phone: a sheet along the bottom
       let top = 0;

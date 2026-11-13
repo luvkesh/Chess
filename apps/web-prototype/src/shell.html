@@ -1822,6 +1822,8 @@ body.ingame .gd-text { font-size: 15.5px; }
   .modal .card:has(.result-hero) { padding-top: 12px; padding-bottom: 12px; }
   .result-hero .sub { margin: 2px 0 6px; }
 }
+.actionbar.tight .btn span.lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }   /* still read out by screen readers */
+.actionbar.tight .btn { padding: 0 12px; }
 </style>
 
 <div id="stage"><canvas id="board" aria-label="3D chess board" data-t-aria="common.boardLabel"></canvas></div>
