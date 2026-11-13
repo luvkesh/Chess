@@ -18,6 +18,7 @@ import math
 import bpy  # noqa: F401  (bmesh needs bpy loaded first)
 import bmesh
 import cv2
+import os
 import numpy as np
 from mathutils import Vector
 
@@ -744,12 +745,51 @@ def reset():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
 
-def relief(name, ref, z0, z1=None, thick=0.36, power=0.55, res=0.006, smooth=6, x_view='side', taper=None):
+TSR = os.environ.get('CHACK_TSR', '0') == '1'  # opt in while side colours are worked on
+
+
+def _tsr_field(ref, X, Z, res):
+    """TripoSR's occupancy for the whole cut-out, resampled onto relief()'s (x, z) grid.
+    Returns (f(gy) -> field over (y, z, x), half depth) or None when TripoSR isn't set up."""
+    import tsr
+    from scipy.ndimage import map_coordinates
+    if not tsr.available() and not getattr(ref, '_tsr', None):
+        return None
+    if getattr(ref, '_tsr', None) is None:
+        ref._tsr = tsr.volume(ref.crop, ref.mask)
+    v, box = ref._tsr
+    n = v.shape[0]
+    ys, xs = np.nonzero(ref.mask > 127)
+    xw0, xw1 = (xs.min() - ref.axis) * ref.unit, (xs.max() + 1 - ref.axis) * ref.unit
+    zw0, zw1 = (ref.bot - ys.max() - 1) * ref.unit, (ref.bot - ys.min()) * ref.unit
+    (d0, d1), (u0, u1), (a0, a1) = box
+    sa, su = (xw1 - xw0) / (a1 - a0), (zw1 - zw0) / (u1 - u0)
+    sd = (sa + su) / 2
+    occ = v > 0
+    di = np.nonzero(occ.any((1, 2)))[0]
+    dc = d0 + (di.min() + di.max()) / 2 / (n - 1) * (d1 - d0)
+    ia = (a0 + (X - xw0) / sa - a0) / (a1 - a0) * (n - 1)
+    iu = (u0 + (Z - zw0) / su - u0) / (u1 - u0) * (n - 1)
+    half = max(dc - d0, d1 - dc) * sd
+
+    def field(gy):
+        idd = ((dc + gy / sd) - d0) / (d1 - d0) * (n - 1)
+        D = np.broadcast_to(idd[:, None, None], (len(gy),) + X.shape)
+        U = np.broadcast_to(iu[None], D.shape)
+        A = np.broadcast_to(ia[None], D.shape)
+        return map_coordinates(v, [D.ravel(), U.ravel(), A.ravel()], order=1, cval=-5.0).reshape(D.shape)
+    return field, half
+
+
+
+def relief(name, ref, z0, z1=None, thick=0.36, power=0.55, res=0.006, smooth=6, x_view='side', taper=None, use_tsr=None):
     """a rounded solid from a flat outline (the knight's head seen side on): the outline is
     swollen into the depth axis by its distance to the edge, like a carved relief cut free, so
     the muzzle and ears stay thin and the neck full. Blender x/z = the picture, y = depth."""
     from scipy.ndimage import distance_transform_edt
     from skimage.measure import marching_cubes
+    if use_tsr is None:
+        use_tsr = TSR
     m = ref.mask.copy()
     m[int(round(ref.bot - z0 / ref.unit)):] = 0
     if z1 is not None:
@@ -770,9 +810,17 @@ def relief(name, ref, z0, z1=None, thick=0.36, power=0.55, res=0.006, smooth=6, 
     half = np.where(mm, np.maximum(half, np.minimum(dt * 1.0, 0.0) + 1.6 * res), half)
     if taper is not None:
         half = half * taper(X, Z)
-    gy = np.arange(-thick / 2 - 0.02, thick / 2 + 0.02, res)
+    T = _tsr_field(ref, X, Z, res) if use_tsr else None
+    yr = thick / 2 if T is None else max(thick / 2, T[1])
+    gy = np.arange(-yr - 0.02, yr + 0.02, res)
     # signed field: inside when |y| < half(x, z)
     F = half[None, :, :] - np.abs(gy)[:, None, None]
+    if T is not None:
+        # the true depth from TripoSR, cut to the picture's own outline; columns it missed
+        # (a staff or prong thinner than its grid) keep the swollen outline
+        Ft = T[0](gy)
+        hit = (Ft > 0).any(0) & mm
+        F = np.where(hit[None], np.clip(Ft, -1, 1) * res, F)
     F[:, ~mm] = -res
     verts, faces, _, _ = marching_cubes(np.pad(F, 1, constant_values=-1), 0)
     verts -= 1
