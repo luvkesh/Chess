@@ -23,6 +23,17 @@ function ChacklateScene(canvas, options) {
   'use strict';
   const THREE = window.THREE;
   if (!THREE) return null;
+  // The shadow pass draws every caster with one shared depth material and copies the caster's
+  // picture onto it, though a solid caster's picture changes nothing in its shadow. The shared
+  // material then kept the last room's table top (2048 px) and drew it again after the room had
+  // freed it, so each tour of the rooms left two or three 21 MB pictures on the GPU for good.
+  // Solid casters now cast without their picture: no stale picture, and a lighter shadow pass.
+  if (!THREE.Mesh.prototype.__solidShadows) {
+    THREE.Mesh.prototype.__solidShadows = true;
+    THREE.Mesh.prototype.onBeforeShadow = function (r, o, cam, shadowCam, geo, depthMat) {
+      if (depthMat && depthMat.map && !(depthMat.alphaTest > 0) && !depthMat.alphaToCoverage) depthMat.map = null;
+    };
+  }
   const opts = Object.assign({ onSquare() {}, canDrag() { return false; }, onDrop() { return false; }, onContextLost() {}, onContextRestored() {}, onPerf() {}, onExplore() {} }, options);
   let renderer;
   try {
