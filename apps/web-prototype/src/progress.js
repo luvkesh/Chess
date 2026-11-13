@@ -283,7 +283,8 @@ function ChacklateProgress(catalog, extras) {
       const v = state.stats.variants[variant] || (state.stats.variants[variant] = { w: 0, d: 0, l: 0 });
       if (g.won) v.w++; else if (g.drawn) v.d++; else if (g.lost) v.l++;
     }
-    if (g.mode === 'ai' && !variant) {
+    // an era champion is not the animal friend of the same level: no friend record, no friend medal
+    if (g.mode === 'ai' && !variant && !g.champion) {
       const b = state.stats.byLevel[g.level] || (state.stats.byLevel[g.level] = { w: 0, d: 0, l: 0 });
       if (g.won) b.w++; else if (g.drawn) b.d++; else if (g.lost) b.l++;
     }
@@ -292,7 +293,7 @@ function ChacklateProgress(catalog, extras) {
     if (g.plies < 6) xp = Math.min(xp, 5);   // no farming XP from instant resignations
     grant(state, xp, out);
     achieve(state, 'first-game', out);
-    if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); if (!variant) achieve(state, LEVEL_ACH[lv], out); }
+    if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); if (!variant && !g.champion) achieve(state, LEVEL_ACH[lv], out); }
     if (g.online) achieve(state, 'online-first', out);
     if (g.plies >= 6) {
       earn(state, 'game', g.won ? COINS.game.win : COINS.game.amount, { times: COINS.game.times, now }, out);
@@ -471,6 +472,8 @@ function ChacklateProgress(catalog, extras) {
     r.best = Math.max(r.best, score);
     r.rounds++;
     dayLog(r.log, PG_today(now), (e) => { e.s = Math.round(((e.s || 0) * (e.n || 0) + score) / ((e.n || 0) + 1)); e.n = (e.n || 0) + 1; });
+    // a round with nothing solved earns nothing (no XP, mission or streak for skipping through)
+    if (score <= 0) return out;
     grant(state, 6 + Math.round(score / 10), out);
     track(state, 'lesson', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);

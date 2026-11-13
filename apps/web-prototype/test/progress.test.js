@@ -411,3 +411,18 @@ console.log('progress ok');
   assert(P2.perfOf(st).games.length <= 400, 'at most 400 games kept');
   console.log('performance over time ok');
 }
+
+// An era champion is not the animal friend of the same level; a trainer round with nothing solved earns nothing.
+{
+  const st = PG.fresh();
+  const rc = PG.gameFinished(st, { mode: 'ai', level: 0, champion: true, won: true, plies: 12, sans: [], firstIsMine: true, reason: 'checkmate' }, day(1));
+  assert.deepStrictEqual(st.stats.byLevel, {}, 'champion games stay out of the friend record');
+  assert(!st.achievements['beat-truffle'] && !rc.achievements.some((a) => a.id === 'beat-truffle'), 'no friend medal for a champion');
+  const xp0 = st.xp;
+  const r0 = PG.trainerFinished(st, 'tactics', 0, day(2));
+  assert.strictEqual(st.xp, xp0, 'a round with nothing solved gives no XP');
+  assert(!r0.xp);
+  PG.trainerFinished(st, 'tactics', 50, day(2));
+  assert(st.xp > xp0, 'a real round gives XP');
+  console.log('champion and trainer rewards ok');
+}

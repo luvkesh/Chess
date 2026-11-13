@@ -820,6 +820,8 @@
     if (name === 'improve') name = 'puzzles';
     // go('trainer', id): a round of that skill trainer, played in the lesson player
     if (name === 'trainer') { name = 'lesson'; arg = { trainer: arg }; }
+    // Premium lessons and trainers stay shut whichever link leads there (puzzles, reviews, the rule book, Progress)
+    if (name === 'lesson') { const lk = lockedLesson(arg); if (lk) { premiumModal(t('learn.lockedLesson', { title: lk.title, n: lk.chapter }), COACH); return false; } }
     if (arg === undefined && name === state.screen) {
       // A refresh of the screen on show (after a sync, say). Game screens keep their state.
       if (KIND[name] === 'hud') { renderNav(); return; }
@@ -1067,6 +1069,15 @@
     const todo = LESSONS.lessons.filter((l) => !state.progress.lessons[l.id] && lessonOpen(l));
     const from = state.progress.placement ? state.progress.placement.chapter : 1;
     return todo.find((l) => l.chapter >= from) || todo.filter((l) => l.chapter < from).sort((a, b) => b.chapter - a.chapter)[0] || null;
+  }
+  // The Learn lesson or trainer behind a go('lesson', arg) that this player can't open yet (null when it is open).
+  // Era stages, variations and the placement test are not Learn lessons and are gated where they start.
+  function lockedLesson(arg) {
+    if (!arg || state.progress.premium) return null;
+    if (typeof arg === 'object' && arg.trainer) { const tr = trainerById(arg.trainer), l = tr && trainerLesson(tr); return tr && trainerLocked(tr) ? { title: I18N.text(tr.name), chapter: l.chapter } : null; }
+    if (typeof arg === 'object' && (arg.journey || arg.variant || arg.placement)) return null;
+    const id = typeof arg === 'string' ? arg : arg.id, l = id && LESSONS.lessons.find((x) => x.id === id);
+    return l && !lessonOpen(l) ? { title: I18N.text(l.title), chapter: l.chapter } : null;
   }
   const lessonOpen = (l) => LESSONS.chapters.find((c) => c.n === l.chapter).access === 'free' || state.progress.premium;
   function dailyPuzzle() {
@@ -3718,6 +3729,7 @@
     const G = state.game;
     AU.play('tap');
     if (againstPerson(G) && (G.clock || G.kind === 'online') && !G.g.outcome) { toast(t('play.rules.clockWaits')); return; }
+    if (!id.startsWith('variant.') && lockedLesson(id)) { go('lesson', id); return; }   // says it is Premium; the clock keeps going
     if (!G.g.outcome) pauseClock(G, true);
     if (id.startsWith('variant.')) go('lesson', { variant: id.slice(8), back: 'game' });
     else go('lesson', { id, back: 'game' });
@@ -4585,7 +4597,7 @@
     let res = null;
     if (G.kind !== 'local' || g.moves.length >= 10) {
       res = PG.gameFinished(state.progress, {
-        mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
+        mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, champion: !!G.setup.journey, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
         plies: g.moves.length, sans: g.sans, firstIsMine: G.kind === 'local' ? true : (E.positionFrom(g.startFen, []).side === G.human), startFen: g.startFen, ucis: g.uciMoves(),
         enPassant: g.moves.some((m, i) => (E.mFlags(m) & E.F_EP) && (G.kind === 'local' || (i % 2 === 0) === (E.positionFrom(g.startFen, []).side === G.human))),
         pgn: pgn(), color: G.human, variant: g.variant, oppRating: G.online && G.online.opponent ? G.online.opponent.rating : undefined,
@@ -5421,6 +5433,8 @@
       view.setHighlights({ selected: sqIndex(x.from), spots: S.found.map((s) => ({ sq: s, color: '#3ee07a', pulse: false })) });
       return all;
     }
+    // a trainer item answered by its buttons or its clock: the main button moves on
+    function finishedEx() { $('ls-next').textContent = S.i === ex.length - 1 ? t('learn.ls.finish') : t('common.next'); dots(); }
     function fb(kind, text) { const el = $('ls-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; }
     function exSquare(sq) {
       const x = ex[S.i];
@@ -5621,7 +5635,7 @@
       celebrate(res);
     }
     if (quiz) { if (ex.length) renderEx(); else finish(); } else renderStep();
-    return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
+    return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'Enter' && e.target && e.target.closest && e.target.closest('button')) return; if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
   };
 
   // ---------------------------------------------------------------- drills
