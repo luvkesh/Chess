@@ -989,6 +989,28 @@ function ChacklateScene(canvas, options) {
     coatMat.emissiveIntensity = kind === 'weld' || kind === 'fire' ? 0.6 + 1.4 * a : 0.4;
     coatMat.opacity = Math.min(1, a) * look[2];
   }
+  // Deep Freeze: the taken piece is sealed in a block of clear blue ice that grows up from the
+  // board, with bright crystal edges, then shatters (so it never reads as a burst of fire)
+  const iceBlock = (() => {
+    const geo = new THREE.CylinderGeometry(0.4, 0.46, 1, 6, 1);
+    const mat = new THREE.MeshStandardMaterial({ color: '#cfeeff', emissive: '#1f63d8', emissiveIntensity: 0.45, roughness: 0.04, metalness: 0, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
+    const m = new THREE.Mesh(geo, mat);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: '#f4fbff', transparent: true, opacity: 0, toneMapped: false }));
+    m.add(edges); m.renderOrder = 4; m.visible = false; m.frustumCulled = false; m.userData.edges = edges;
+    scene.add(m);
+    return m;
+  })();
+  function iceAt(v, k) {
+    if (!v.obj) return;
+    if (!v.iceH) { const b = new THREE.Box3().setFromObject(v.obj); v.iceH = Math.max(0.6, (b.max.y - b.min.y) / Math.max(0.001, v.obj.scale.y || 1)); }
+    const grow = Math.min(1, k * 1.7), h = v.iceH * (v.scale || 1) * 1.12 * Math.max(0.04, grow), y0 = worldY(v);
+    iceBlock.visible = true;
+    iceBlock.position.set(v.x, y0 + h / 2, v.z);
+    iceBlock.scale.set(v.scale || 1, h, v.scale || 1);
+    iceBlock.rotation.y = 0.4 + v.yaw * 0.15;
+    iceBlock.material.opacity = 0.42 * Math.min(1, k * 2.5);
+    iceBlock.userData.edges.material.opacity = 0.85 * Math.min(1, k * 2.5);
+  }
   function uncoat(s) { if (s.coatMeshes) for (const c of s.coatMeshes) if (c.parent) c.parent.remove(c); s.coatMeshes = null; s.coat = null; }
   // how thick the coat is as the effect takes hold (k from 0 to 1); lightning's shimmers gently
   const coatK = (kind, k) => (kind === 'lightning' ? (0.7 + 0.3 * Math.sin(performance.now() / 70)) * Math.min(1, k * 3) : Math.min(1, k * (kind === 'stone' || kind === 'freeze' ? 1.8 : 1.3)));
@@ -1041,7 +1063,7 @@ function ChacklateScene(canvas, options) {
       v.y = lerp(F.y, 0, a) + (F.y < 0.3 ? Math.sin(Math.PI * a) * 0.35 : 0);
       v.scale = lerp(F.scale, 1, a); v.yaw = F.yaw + Math.PI * a;
       const k = seg(t, A, B);
-      if (t >= A) { pose(v, kind, k, t); EL.fate(kind, 'hold', v.x, worldY(v), v.z, k, dt); }
+      if (t >= A) { pose(v, kind, k, t); EL.fate(kind, 'hold', v.x, worldY(v), v.z, k, dt); if (kind === 'freeze') iceAt(v, k); }
       coat(v, kind, coatK(kind, t < A ? seg(t, f0, A) * 0.3 : k));
     } else {
       if (!F.gone) { F.gone = true; uncoat(v); EL.fate(kind, 'end', v.x, worldY(v), v.z, S.power || 1, c.colors); bump(0.03 * (S.power || 1)); }
@@ -1137,6 +1159,7 @@ function ChacklateScene(canvas, options) {
     const c = cine, t = now - c.start;
     // the scene sets what it needs each frame; leaning and hopping start from upright
     c.m.bow = c.m.tilt = c.v.bow = c.v.tilt = 0; c.m.squash = c.v.squash = 0;
+    iceBlock.visible = false;   // stepFate shows it again while a piece is frozen
     if (!c.castle) c.v.y = 0;
     c.S.run(c, t);
     const dt = Math.min(0.05, Math.max(0, (now - c.last) / 1000)); c.last = now;
@@ -1160,6 +1183,7 @@ function ChacklateScene(canvas, options) {
   function endCine(skipped, dropped) {
     const c = cine;
     if (!c) return;
+    iceBlock.visible = false;
     restoreCam();
     cine = null;
     clearTimeout(skipTimer); showSkip(false);

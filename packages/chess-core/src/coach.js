@@ -11,7 +11,8 @@ function ChacklateCoach(E, strings) {
     'side.w': 'White', 'side.b': 'Black', 'and': 'and', 'on': '{piece} on {sq}',
     'piece.1': 'pawn', 'piece.2': 'knight', 'piece.3': 'bishop', 'piece.4': 'rook', 'piece.5': 'queen', 'piece.6': 'king',
     'old.1': 'soldier', 'old.2': 'horse', 'old.3': 'elephant', 'old.4': 'chariot', 'old.5': 'counsellor', 'old.6': 'king',
-    'd.mate': '{san} is checkmate.', 'd.stalemate': '{san} stalemates: the game is drawn.', 'd.stalemateOld': '{san} leaves the king with no move: in chaturanga that wins.', 'd.sentence': '{san} {bits}.',
+    'd.mate': '{san} is checkmate.', 'd.stalemate': '{san} stalemates: the game is drawn.', 'd.stalemateOld': '{san} leaves the king with no move: in chaturanga that wins.', 'd.sentence': '{who} {bits}.',
+    'd.your': 'Your {piece}', 'd.the': 'The {piece}', 'd.yourOn': 'Your {piece} on {sq}', 'd.theOn': 'The {piece} on {sq}', 'd.takesOn': 'takes the {piece} on {sq}', 'd.castled': 'Your king is now tucked away safely.',
     'd.fork': 'forks the {list}', 'd.pinKing': 'pins the {piece} on {sq} to the king', 'd.pin': 'pins the {piece} on {sq} to the {behind}',
     'd.skewer': 'skewers the {piece} on {sq}, winning the {behind} behind it', 'd.discovered': 'uncovers an attack on the {piece} on {sq}',
     'd.promote': 'promotes to a {piece}', 'd.attacks': 'attacks the {list}', 'd.wins': 'wins a {piece}', 'd.takes': 'takes the {piece}',
@@ -30,9 +31,33 @@ function ChacklateCoach(E, strings) {
     'h.pin': 'Look for a pin along a line.', 'h.skewer': 'Look for a skewer.', 'h.discovered': 'Look for a discovered attack.', 'h.capture': 'Something can be captured safely.',
     'h.promote': 'A pawn is ready to promote.', 'h.castle': 'Think about king safety.', 'h.attacked': 'One of your pieces is under attack. Look at your {piece} on {sq}.',
   };
+  // A move named the way a person says it ("knight to f3", "pawn takes on e4"), never in notation.
+  // Kept apart from EN: every word of these is already among Rooky's recorded pieces, so they add
+  // nothing to record (i18n/coach.json still translates them).
+  const MV = { 'mv.to': '{piece} to {sq}', 'mv.takes': '{piece} takes on {sq}', 'mv.castleK': 'castles kingside', 'mv.castleQ': 'castles queenside',
+    'mv.promo': '{move} and promotes to a {piece}' };
+  const raw = (key) => (strings && strings[key]) || EN[key] || MV[key];
+  const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] === undefined ? m : vars[k]));
+  const SAN = /^(?:O-O(?:-O)?|[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h](?:x[a-h])?[1-8](?:=[QRBN])?)[+#!?]*$/;
+  function sayMove(san) {
+    if (typeof san !== 'string' || !SAN.test(san)) return san;
+    const s = san.replace(/[+#!?]+$/, '');
+    if (s === 'O-O') return raw('mv.castleK');
+    if (s === 'O-O-O') return raw('mv.castleQ');
+    const m = s.match(/^([KQRBN]?)[a-h]?[1-8]?(x?)([a-h][1-8])(?:=([QRBN]))?$/);
+    const piece = (k) => raw('piece.' + ('PNBRQK'.indexOf(k || 'P') + 1));
+    const move = fill(raw(m[2] ? 'mv.takes' : 'mv.to'), { piece: piece(m[1]), sq: m[3] });
+    return m[4] ? fill(raw('mv.promo'), { move, piece: piece(m[4]) }) : move;
+  }
+  // A whole sentence that opens with the move or the piece starts with a capital letter.
+  const cap = (s) => s.replace(/^\p{Ll}/u, (c) => c.toUpperCase());
   const tr = (key, vars) => {
-    const s = (strings && strings[key]) || EN[key];
-    return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] === undefined ? m : vars[k])) : s;
+    const s = raw(key);
+    if (!vars) return s;
+    const v = Object.assign({}, vars);
+    for (const k of ['san', 'best', 'played']) if (v[k] !== undefined) v[k] = sayMove(v[k]);
+    const out = fill(s, v);
+    return /^\{/.test(s) && /[.!?\u3002\u0964\u06d4]$/u.test(s) ? cap(out) : out;
   };
   const NAME = ['', 1, 2, 3, 4, 5, 6].map((k) => (k ? tr('piece.' + k) : ''));
   const PTS = [0, 1, 3, 3, 5, 9, 100];
@@ -193,7 +218,8 @@ function ChacklateCoach(E, strings) {
   const onSq = (kind, sq, old) => tr('on', { piece: names(old)[kind], sq });
 
   // What a move does, as phrases joined into one ("forks the rook on a8 and gives check").
-  function bitsOf(f) {
+  // own: the phrases for a sentence about the move itself, which says the capture and castling its own way.
+  function bitList(f, own) {
     const bits = [], NAME = names(f.old);
     if (f.forks.length) bits.push(tr('d.fork', { list: list2(f.forks.map((t) => onSq(t.kind, t.sq, f.old))) }));
     if (f.pin) bits.push(tr(f.pin.absolute ? 'd.pinKing' : 'd.pin', { piece: NAME[f.pin.piece], sq: f.pin.at, behind: NAME[f.pin.behind] }));
@@ -201,18 +227,25 @@ function ChacklateCoach(E, strings) {
     if (f.discovered.length) bits.push(tr('d.discovered', { piece: NAME[f.discovered[0].target], sq: f.discovered[0].at }));
     if (f.promotion) bits.push(tr('d.promote', { piece: NAME[f.promotion] }));
     if (f.attacks.length && !f.forks.length && !f.pin && !f.skewer) bits.push(tr('d.attacks', { list: list2(f.attacks.map((t) => onSq(t.kind, t.sq, f.old))) }));
-    if (f.capture && !bits.length) bits.push(tr('d.wins', { piece: NAME[f.capture] }));
+    if (own) { if (f.capture) bits.unshift(tr('d.takesOn', { piece: NAME[f.capture], sq: f.to })); }
+    else if (f.capture && !bits.length) bits.push(tr('d.wins', { piece: NAME[f.capture] }));
     else if (f.capture) bits.unshift(tr('d.takes', { piece: NAME[f.capture] }));
     if (f.check && !f.forks.length) bits.push(tr('d.check'));
-    if (f.castle) bits.push(tr('d.castle'));
-    return bits.length ? list2(bits) : '';
+    if (f.castle && !own) bits.push(tr('d.castle'));
+    return bits;
   }
-  // One sentence describing what a move does, from its fact sheet.
-  function describe(f) {
+  const bitsOf = (f) => list2(bitList(f));
+  // One sentence describing what a move does, from its fact sheet, said the way a person would:
+  // "Your pawn takes the pawn on e4 and attacks the knight on f3." mine: the player's own move.
+  function describe(f, mine) {
     if (f.mate) return tr('d.mate', { san: f.san });
     if (f.stalemate) return tr(f.old ? 'd.stalemateOld' : 'd.stalemate', { san: f.san });
-    const bits = bitsOf(f);
-    return bits ? tr('d.sentence', { san: f.san, bits }) : '';
+    const bits = bitList(f, true), NAME = names(f.old);
+    if (f.castle && !bits.length) return mine ? tr('d.castled') : '';
+    if (!bits.length) return '';
+    // the piece that moved, and where it went (a capture says the square itself); castling's check comes from the rook
+    const at = !f.castle && !f.capture, piece = NAME[f.castle ? R : f.piece];
+    return tr('d.sentence', { who: tr((mine ? 'd.your' : 'd.the') + (at ? 'On' : ''), { piece, sq: f.to }), bits: list2(bits) });
   }
 
   // Classify by how much winning chance the move gave away.
@@ -234,7 +267,7 @@ function ChacklateCoach(E, strings) {
     const NAME = names(ply.facts.old);
     const out = [];
     const you = ply.side;
-    const own = describe(ply.facts);
+    const own = describe(ply.facts, true);
     if (ply.cls === 'brilliant') out.push(own || tr('x.sacrifice', { san: ply.san }), tr('x.sacrificeOk'));
     else if (ply.cls === 'best' || ply.cls === 'excellent') out.push(own || tr(ply.cls === 'best' ? 'x.top' : 'x.nearly'));
     else if (ply.cls === 'good') out.push(own || tr('x.sound'));
@@ -249,7 +282,7 @@ function ChacklateCoach(E, strings) {
         out.push(tr((r.capture === P ? 'x.losesPawn' : 'x.losesPiece') + (r.attacks.length ? 'Attack' : ''), v));
       } else if (r && r.attacks.length) out.push(tr('x.allowsAttack', { san: r.san, list: list2(r.attacks.map((t) => onSq(t.kind, t.sq, ply.facts.old))) }));
       else if (loose.length) out.push(tr('x.leaves', { piece: NAME[loose[0].kind], sq: loose[0].sq }));
-      else if (r && (r.pin || r.skewer)) out.push(tr('x.allows', { what: describe(r) }));
+      else if (r && (r.pin || r.skewer)) out.push(tr('t.which', { side: SIDE(-you), san: r.san, bits: bitsOf(r) }));
       else if (r) out.push(tr('x.initiative', { san: r.san, side: SIDE(-you) }));
       if (ply.bestFacts) {
         const b = ply.bestFacts.mate || ply.bestFacts.stalemate ? '' : bitsOf(ply.bestFacts);
@@ -390,7 +423,7 @@ function ChacklateCoach(E, strings) {
     return { theme, piece: onSq(f.piece, f.from, f.old), from: f.from, to: f.to, san: f.san, text: describe(f) };
   }
 
-  return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, classify, explain, review, threat, line, hintLadder,
+  return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, bits: bitsOf, sayMove, classify, explain, review, threat, line, hintLadder,
     moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME, NAME_OLD, EN, tr };
 }
 
