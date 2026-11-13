@@ -276,3 +276,40 @@ for (const id of ['chess960', 'koth', 'threecheck']) for (const lv of E.LEVELS) 
   assert.ok(pp.legalMoves().includes(rr.move), id + ' ' + lv.name);
 }
 console.log('three-check ok');
+
+// Retest 2026-11-13. SAN such as "B1b2" must not be read as the UCI move b1b2 (a rook stood on b1).
+{
+  const p = new E.Pos(); p.load('8/5k2/p7/1n6/8/2b3B1/5K2/1rb5 b - - 15 93');
+  const L = p.legalMoves();
+  assert.strictEqual(E.uci(p.parseMove('B1b2', L)), 'c1b2', 'B1b2 is the c1 bishop');
+  assert.strictEqual(E.uci(p.parseMove('B3b2', L)), 'c3b2', 'B3b2 is the c3 bishop');
+  assert.strictEqual(E.uci(p.parseMove('b1b2', L)), 'b1b2', 'lower-case UCI still works');
+  // Every legal move's SAN reads back as that move, in a few hundred random positions of each variation.
+  let seed = 7; const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  for (const start of [E.START_FEN, E.VARIANTS.chaturanga.start, E.chess960Fen(77), E.VARIANTS.threecheck.start]) {
+    for (let r = 0; r < 4; r++) {
+      const gm = new E.Game(start);
+      while (!gm.outcome && gm.moves.length < 160) {
+        for (const m of gm.legal) assert.strictEqual(gm.pos.parseMove(gm.pos.san(m, gm.legal), gm.legal), m, gm.pos.fen() + ' ' + E.uci(m));
+        gm.play(gm.legal[Math.floor(rnd() * gm.legal.length)]);
+      }
+    }
+  }
+}
+console.log('san round trip ok');
+
+// Retest 2026-11-13. The lower levels score every root move and add noise. A move whose search was
+// cut off by the clock used to score 0, so a level that was behind (every real score negative)
+// picked among the cut-off moves at random. Black here is a rook down: even with almost no time the
+// chosen move must be about as good as the best one, never a random shuffle.
+{
+  const fen = '3qk2r/ppp2ppp/2np1n2/2b1p1B1/2B1P1b1/2NP1N2/PPP2PPP/R2QK2R b KQk - 0 7';
+  const scoreOf = (u) => { const p = new E.Pos(); p.load(fen); return E.search(p, { timeMs: 400, depth: 4, exclude: p.legalMoves().map(E.uci).filter((x) => x !== u) }).score; };
+  for (const lv of [3, 4]) for (const timeMs of [1, 150]) {
+    const p = new E.Pos(); p.load(fen);
+    const r = E.search(p, Object.assign({}, E.LEVELS[lv], { timeMs }));
+    assert.ok(r.score < 0, E.LEVELS[lv].name + ' knows it is behind (' + r.score + ')');
+    assert.ok(scoreOf(E.uci(r.move)) > -700, E.LEVELS[lv].name + ' ' + timeMs + 'ms played ' + E.uci(r.move));
+  }
+}
+console.log('levels under time pressure ok');

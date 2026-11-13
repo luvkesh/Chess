@@ -364,7 +364,12 @@ function checkXiangqi(v) {
     if (x.type === 'targets') assert.ok(g.targets(pt(x.from, where)).length >= 2, where + ' targets');
     else if (x.type === 'move') for (const u of x.answers) assert.ok(g.legal.some((m) => X.uci(m) === u), where + ' answer ' + u);
     else if (x.type === 'choice') assert.ok(x.options[x.answer], where + ' answer');
-    else if (x.type === 'win') assert.ok(g.legal.some((m) => { const t = new X.Game(x.fen); t.play(m); return t.outcome && t.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1'); }), where + ' has a winning move');
+    else if (x.type === 'win') {
+      const wins = (m) => { const t = new X.Game(x.fen); t.play(m); return t.outcome && t.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1') && t.outcome.reason; };
+      assert.ok(g.legal.some((m) => !x.reason || wins(m) === x.reason ? wins(m) : false), where + ' has a winning move');
+      // A win that says "Checkmate!" must name its reason, so a stalemate win (also 1-0 in Xiangqi) is not praised as mate.
+      if (/checkmate/i.test(x.yes)) assert.ok(x.reason === 'checkmate', where + ' says checkmate, so it needs "reason": "checkmate"');
+    }
     else assert.fail(where + ' type ' + x.type);
     checked++;
   });
@@ -414,7 +419,7 @@ const placement = require('../placement.json');
   const sets = {};
   for (const pz of puzzles) {
     const t = pz.themes.find((x) => /^mateIn[1-5]$/.test(x));
-    if (!t || !pz.id.startsWith('puzzle.m')) continue;
+    if (!t) continue;   // every mate-tagged puzzle, not only the generated puzzle.m* ones
     const n = +t.slice(6);
     sets[n] = (sets[n] || 0) + 1;
     assert.strictEqual(pz.moves.length, 2 * n, pz.id + ' has ' + n + ' solver moves');
