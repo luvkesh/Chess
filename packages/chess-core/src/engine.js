@@ -16,7 +16,7 @@ function ChacklateEngine() {
   const BISHOP_DIRS = [15, 17, -15, -17];
   const ROOK_DIRS = [1, -1, 16, -16];
   const ALFIL_DIRS = [30, 34, -30, -34];
-  const STACK = 2048;
+  const STACK = 8192;   // undo stack: the longest legal game (75-move rule) plus a search fits
 
   // Variations. A position's variation travels inside its FEN as a prefix ("chaturanga:rnbq..."),
   // so start positions, saved games, worker jobs and reviews keep their rules without extra plumbing.
@@ -657,9 +657,10 @@ function ChacklateEngine() {
   Pos.prototype.parseMove = function (text, legal) {
     legal = legal || this.legalMoves();
     const raw = String(text).trim();
-    const uci = raw.toLowerCase().match(/^([a-h][1-8])([a-h][1-8])([qrbn])?$/);
+    // Case-sensitive, so SAN such as "B1b2" (a bishop from the first rank) is not read as the UCI b1b2.
+    const uci = raw.match(/^([a-h][1-8])([a-h][1-8])([qrbnQRBN])?$/);
     if (uci) {
-      const from = parseSq(uci[1]), to = parseSq(uci[2]), promo = uci[3] ? 'pnbrqk'.indexOf(uci[3]) + 1 : 0;
+      const from = parseSq(uci[1]), to = parseSq(uci[2]), promo = uci[3] ? 'pnbrqk'.indexOf(uci[3].toLowerCase()) + 1 : 0;
       const hit = legal.find((m) => mFrom(m) === from && mTo(m) === to && mPromo(m) === promo);
       if (hit !== undefined) return hit;
     }
@@ -840,7 +841,8 @@ function ChacklateEngine() {
     const style = opts.style || null;
     const noise = opts.noise || 0;
     const random = opts.random || Math.random;
-    const start = Date.now(), stopAt = start + timeMs;
+    const start = Date.now();
+    let stopAt = start + timeMs;
     let nodes = 0, stopped = false;
     const killers = new Int32Array(256);
     const history = new Int32Array(128 * 128);
@@ -986,21 +988,33 @@ function ChacklateEngine() {
     if (!rootMoves.length) return { move: 0, score: 0, depth: 0, nodes: 0 };
     if (opts.exclude && opts.exclude.length) excluded = new Set(pos.legalMoves().filter((m) => opts.exclude.includes(uci(m))));
 
-    // Lower levels: score every root move at a fixed depth, then add noise.
-    // The level is chosen before the game and never changes during it.
+    // Lower levels: score every root move, then add noise. The level is chosen before the game and
+    // never changes during it. Depths deepen one at a time and only a depth that finished for every
+    // root move is used: a move cut off by the clock would otherwise score 0 and look best whenever
+    // the side to move is behind (a level would then play at random once it was losing).
     if (noise > 0) {
-      let bestMove = rootMoves[0], bestScore = -INF;
-      for (const m of rootMoves) {
-        pos.make(m);
-        let s;
-        if (maxDepth <= 1) s = quiesce ? -qsearch(-INF, INF, 1) : -evalSide();
-        else s = -negamax(maxDepth - 1, -INF, INF, 1, true);
-        pos.unmake();
-        stopped = false;
-        const noisy = s + (random() * 2 - 1) * noise;
-        if (noisy > bestScore) { bestScore = noisy; bestMove = m; }
+      let scores = null, depthDone = 0;
+      for (let d = 1; d <= maxDepth; d++) {
+        if (d === 1) stopAt = Infinity;   // the shallowest pass always finishes
+        const cur = [];
+        for (const m of rootMoves) {
+          pos.make(m);
+          const s = d <= 1 ? (quiesce ? -qsearch(-INF, INF, 1) : -evalSide()) : -negamax(d - 1, -INF, INF, 1, true);
+          pos.unmake();
+          if (stopped) break;
+          cur.push(s);
+        }
+        if (d === 1) stopAt = start + timeMs;
+        if (stopped) break;
+        scores = cur; depthDone = d;
+        if (Date.now() - start > timeMs * 0.55) break;
       }
-      return { move: bestMove, score: bestScore | 0, depth: maxDepth, nodes };
+      let bestMove = rootMoves[0], bestScore = -INF;
+      rootMoves.forEach((m, i) => {
+        const noisy = scores[i] + (random() * 2 - 1) * noise;
+        if (noisy > bestScore) { bestScore = noisy; bestMove = m; }
+      });
+      return { move: bestMove, score: bestScore | 0, depth: depthDone, nodes };
     }
 
     let bestMove = rootMoves[0], bestScore = 0, depthDone = 0;

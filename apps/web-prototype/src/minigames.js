@@ -29,7 +29,7 @@ function ChacklateMinis(E, content) {
       levels: [['easy', 'Gentle'], ['fast', 'Speedy']] },
     { id: 'pawns', title: 'Pawn Race', art: 'pawns', colors: ['#8a5a2a', '#3a1e0e'], minutes: '1–3 min', skill: 'Pawn breakthroughs',
       blurb: 'Only pawns are left. Be the first to reach the far side and make a queen.',
-      howTo: ['Only pawns are on the board. Pawns move forward and capture diagonally.', 'Get one of your pawns to the far side first and you win.', 'In the Breakthrough, three pawns face three. There is one clever way through. If a move lets it slip, Rooky lets you take it back.', 'If nobody can move, it is a draw.'],
+      howTo: ['Only pawns are on the board. Pawns move forward and capture diagonally.', 'Get one of your pawns to the far side first and you win.', 'In the Breakthrough, three pawns face three. There is one clever way through. If a move lets it slip, Rooky lets you take it back.', 'If a player cannot move on their turn, it is a draw.'],
       levels: [['break', 'Breakthrough'], ['war', 'Pawn war']] },
     { id: 'queen', title: "Queen's Path", art: 'queen', colors: ['#5b4a8a', '#241a44'], minutes: '2–3 min', skill: 'Safe squares',
       blurb: 'Steer the queen to the far side without stopping on a guarded square.',
@@ -243,7 +243,7 @@ function ChacklateMinis(E, content) {
       const q = r.pick(starts), par = queenPar(q, guards);
       if (par >= minPar && par <= 5) return { queen: q, guards, par };
     }
-    return { queen: at(3, 0), guards: [[at(3, 5), 4], [at(6, 4), 3]], par: 2 };
+    return { queen: at(0, 0), guards: [[at(3, 5), 4], [at(6, 4), 3]], par: 2 };   // a1 is not attacked by either guard
   }
   const queenBoardScore = (moves, par, bumps) => Math.max(20, 100 - Math.max(0, moves - par) * 15 - bumps * 10);
   const QUEEN_BOARDS = 5;
