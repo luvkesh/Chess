@@ -1837,7 +1837,7 @@
       if (m === null) return;
       let ok = false, msg = '';
       if (x.type === 'move') { ok = x.answers.includes(X.uci(m)); msg = ok ? t('learn.ls.wellPlayed') : t('learn.ls.notTheMove') + ' ' + t('learn.ls.tryAgain'); }
-      else if (x.type === 'win') { const tg = new X.Game(x.fen); tg.play(m); ok = !!(tg.outcome && tg.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1')); msg = I18N.text(ok ? x.yes : x.no); }
+      else if (x.type === 'win') { const tg = new X.Game(x.fen); tg.play(m); ok = !!(tg.outcome && tg.outcome.result === (g.pos.side === X.RED ? '1-0' : '0-1') && (!x.reason || tg.outcome.reason === x.reason)); msg = I18N.text(ok ? x.yes : x.no); }
       if (ok) {
         const info = g.play(m);
         AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
@@ -5938,7 +5938,11 @@
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
-        if (S.step * 2 + 2 >= S.cur.moves.length || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
+        // A mate puzzle is solved only on the board's checkmate: if its stored line runs out first,
+        // the prover keeps defending (S.off) instead of calling it solved with no mate.
+        const lineDone = S.step * 2 + 2 >= S.cur.moves.length;
+        if (lineDone && mn && !(tg.outcome && tg.outcome.reason === 'checkmate')) S.off = true;
+        else if (lineDone || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.off ? (MS.longestDefence(g.pos, left - 1, 4e5) || {}).move : S.cur.moves[S.step * 2 + 2]);
         if (!reply) { finish(true); return; }
         S.step++;
@@ -5966,7 +5970,7 @@
     // The move to find now: the stored line's, or after a different mating move, the prover's.
     function wantMove() {
       if (!S.off) return S.cur.moves[S.step * 2 + 1];
-      const ms = MS.matingMoves(S.pos, mateOf(S.cur) - S.step, 4e5);
+      const ms = MS.matingMoves(S.pos, Math.max(1, mateOf(S.cur) - S.step), 4e5);
       return (ms && ms[0]) || S.cur.moves[S.step * 2 + 1];
     }
     $('pz-hint').onclick = () => {
