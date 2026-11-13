@@ -1858,6 +1858,7 @@
     const done = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length;
     mount('<div class="page"><div class="page-in">' +
       pageHead(t('journey.eyebrow'), t('journey.title'), t('journey.sub'), meter(done, CAMPAIGN.eras.length, t('journey.complete'))) +
+      passport() +
       '<div class="eras">' + CAMPAIGN.eras.map(eraCard).join('') + '</div>' +
       '<p class="fine">' + t('journey.fine') + '</p>' +
       '</div></div>');
@@ -1865,6 +1866,17 @@
     document.querySelectorAll('[data-era]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); openEra(b.dataset.era); }; });
     return {};
   };
+  // The passport: one stamp per era, given when its champion is beaten (the same place badges as the website).
+  const stampSrc = (e) => (typeof CHACKLATE_STAMPS !== 'undefined' && CHACKLATE_STAMPS[e.id]) || medal('piece:k', e.colors[0], e.colors[1]);
+  function passport() {
+    const P = state.progress, got = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length;
+    return '<section class="passport glass" aria-label="' + esc(t('journey.passport')) + '"><header><h2>' + t('journey.passport') + '</h2><span class="muted">' + t('journey.stamps', { n: got, of: CAMPAIGN.eras.length }) + '</span></header><div class="stamps">' +
+      CAMPAIGN.eras.map((e) => {
+        const on = PG.journeyInfo(P, e.id).done;
+        return '<button class="stamp' + (on ? ' on' : '') + '" data-era="' + e.id + '" aria-label="' + esc(eraText(e, 'place') + ' · ' + (on ? t('journey.stampOn') : t('journey.stampOff', { name: eraCoach(e).name }))) + '" data-tip="' + esc(eraText(e, 'place') + '|' + (on ? t('journey.stampOn') : t('journey.stampOff', { name: eraCoach(e).name }))) + '">' +
+          '<img src="' + stampSrc(e) + '" alt="" width="64" height="64"><small>' + esc(eraText(e, 'place').split(/[,،，]/)[0]) + '</small></button>';
+      }).join('') + '</div></section>';
+  }
   function openEra(id) {
     const info = PG.journeyInfo(state.progress, id);
     if (info.open) return go('era', id);
@@ -1945,7 +1957,8 @@
     AU.play('levelUp');
     AU.event('lesson.passed');
     const m = modal('<div class="result-hero">' +
-      '<div class="vign">' + snap(VIGN.trio(e.set, felt, sheen), 360, 220, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
+      '<div class="vign sm">' + snap(VIGN.trio(e.set, felt, sheen), 360, 220, medal('piece:k', e.colors[0], e.colors[1])) + '</div>' +
+      '<div class="stamp-moment" role="img" aria-label="' + esc(t('journey.stamped', { place: eraText(e, 'place') })) + '"><img src="' + stampSrc(e) + '" alt=""><span>' + esc(t('journey.stamped', { place: eraText(e, 'place') })) + '</span></div>' +
       '<span class="result-badge win">' + t('journey.eraDone', { n: ROMAN[CAMPAIGN.eras.indexOf(e)] }) + '</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
       '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(sayLine(co, 'win')) + '”</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul>' +
