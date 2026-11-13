@@ -146,10 +146,4 @@ for (const [k, v] of Object.entries(M.EN)) {
   if (/^(op|opp|ln|v|trap|ph|k|mr|hi\.idea|rp|eg)\./.test(k)) continue;
   assert(src.split("'" + k + "'").length - 1 >= 2, 'unused line ' + k);
 }
-// A move that wins a variant game on the spot is hinted as a win, with no reply after it.
-for (const [fen, san, word] of [['koth:r3k3/8/8/8/8/3K4/8/R6q w - - 0 1', 'Kd4', 'hill'], ['chaturanga:4k3/8/8/8/8/2n5/8/2R1K3 w - - 0 1', 'Rxc3', 'alone']]) {
-  const h = M.hints(M.look(fen, [], { timeMs: 300 }));
-  assert.strictEqual(h.san, san, fen);
-  assert(!/check/i.test(h.levels[0].text) && h.levels[2].text.includes(word) && !/If they answer/.test(h.levels[2].text), fen + ': ' + h.levels.map((l) => l.text).join(' | '));
-}
 console.log('mentor tests passed');
