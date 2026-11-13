@@ -15,6 +15,8 @@ SAY = {
     'Xiangqi': '[Xiangqi](/ʃjˈɑŋʧi/)',                         # shyang-chee
     'Chaturanga': '[Chaturanga](/ʧˌʌtəɹˈʌŋɡə/)',               # chuh-tuh-RUNG-guh
     'Runecarved': '[Runecarved](/ɹˈunkˌɑɹvd/)',               # ROON-carved, not "roong"
+    # The a-file in square names: espeak reads "ay" as "eye", so a7 came out "eye seven"
+    'ay': '[ay](/ˈA/)',
     # Sounds that are not words: Kokoro spells these out as letters
     'Brrr': '[Brrr](/bɹɹˈɜɹ/)',
     'Brr': '[Brr](/bɹˈɜɹ/)',
