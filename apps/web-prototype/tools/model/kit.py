@@ -823,3 +823,52 @@ def ball_slice(ref):
     top = ws[0][0]
     widest = max(ws[:len(ws) // 2], key=lambda p: p[1])
     return top - 2 * widest[1], top
+
+
+def compose(name, top, cut_y, base, base_w, recolour=None, top_kw=None, base_kw=None, pad=14, bg=(40, 40, 40)):
+    """a piece whose foot is hidden in its picture (pieces standing behind pawns on a board):
+    the visible figure down to row cut_y, set on a plinth cut from another piece's picture,
+    scaled to base_w picture pixels wide and optionally recoloured ((mul_bgr, add_bgr)).
+    top and base are (picture, box). Returns (path, box, mask) for Ref(path, box, mask=mask)."""
+    import os
+    (tp, tb), (bp, bb) = top, base
+    T = Ref(tp, (tb[0], tb[1], tb[2], cut_y), unit=1.0, seg='sam', foot=0, **(top_kw or {}))
+    B = Ref(bp, bb, unit=1.0, seg='sam', foot=0, **(base_kw or {}))
+
+    def tight(r, y_hi=None):
+        m = r.mask if y_hi is None else r.mask[:y_hi]
+        ys, xs = np.nonzero(m)
+        y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+        return r.crop[y0:y1, x0:x1], m[y0:y1, x0:x1]
+    T.mask[max(0, cut_y - max(0, tb[1] - 14)):] = 0   # nothing below the cut (a pawn in front)
+    ti, tm = tight(T)
+    bi, bm = tight(B)
+    s = base_w / bi.shape[1]
+    bi = cv2.resize(bi, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
+    bm = cv2.resize(bm, (bi.shape[1], bi.shape[0]), interpolation=cv2.INTER_NEAREST)
+    if recolour:
+        mul, add = recolour
+        bi = np.clip(bi.astype(np.float32) * np.array(mul, np.float32) + np.array(add, np.float32), 0, 255).astype(np.uint8)
+    # the figure's axis: the middle of its lowest rows
+    rows = tm[-max(3, tm.shape[0] // 12):]
+    cols = [((np.nonzero(r)[0].min() + np.nonzero(r)[0].max()) / 2) for r in rows if np.any(r)]
+    ax = float(np.median(cols))
+    ov = max(2, bi.shape[0] // 6)   # the figure's hem sinks a little into the plinth
+    W = int(max(ax, tm.shape[1] - ax, bi.shape[1] / 2) * 2) + 2 * pad
+    H = tm.shape[0] + bi.shape[0] - ov + 2 * pad
+    img = np.zeros((H, W, 3), np.uint8)
+    img[:] = bg
+    m = np.zeros((H, W), np.uint8)
+    cx = W / 2
+    tx, ty = int(round(cx - ax)), pad
+    bx, by = int(round(cx - bi.shape[1] / 2)), pad + tm.shape[0] - ov
+    sel = bm > 0
+    img[by:by + bi.shape[0], bx:bx + bi.shape[1]][sel] = bi[sel]
+    m[by:by + bi.shape[0], bx:bx + bi.shape[1]][sel] = 255
+    sel = tm > 0
+    img[ty:ty + tm.shape[0], tx:tx + tm.shape[1]][sel] = ti[sel]
+    m[ty:ty + tm.shape[0], tx:tx + tm.shape[1]][sel] = 255
+    out = os.path.join(os.environ.get('COMPOSE_DIR', '/tmp/claude-0/compose'), name + '.png')
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    cv2.imwrite(out, img)
+    return out, (pad, pad, W - pad, H - pad), m
