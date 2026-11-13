@@ -4695,8 +4695,9 @@
     if (G.g.outcome) return;
     if (G.kind === 'online') { ChacklateNet.send({ type: 'draw-offer' }); toast(t('play.drawOffered')); return; }
     // The computer accepts only when it is clearly not better.
-    const e = G.evals[G.g.moves.length];
-    const aiView = e ? e.cp * (G.g.pos.side === G.human ? -1 : 1) : 0;
+    // Without the analysis for this move yet, a quick static count stands in (it used to read as level, so a lost bot took any draw).
+    const e = G.evals[G.g.moves.length], cp = e ? e.cp : E.evaluate(G.g.pos) * G.g.pos.side;
+    const aiView = cp * (G.g.pos.side === G.human ? -1 : 1);
     if (G.g.moves.length >= 20 && aiView <= 30) { G.g.agreeDraw(); G.request++; endGame(); }
     else { const who = rival(G); coachSay(t(G.g.moves.length < 20 ? 'play.drawEarly' : 'play.drawNo'), [[t('common.ok'), 'dismiss']], null, who); AU.play('illegal'); }
   }
@@ -4837,7 +4838,8 @@
     const g = G.g;
     const loser = winner ? sideName(G, -winner) : '';
     const mine = G.kind !== 'local' && loser === myName();
-    const n = Math.ceil(g.moves.length / 2);
+    // The number of the mating move, from the board's own move counter (right when a game starts from a position).
+    const n = winner === BLACK ? g.pos.full - 1 : g.pos.full;
     if (o.reason === 'checkmate') return winner ? t('play.why.checkmate', { name: sideName(G, winner), n }) : '';
     if (o.reason === 'resignation') return mine ? t('play.why.youResigned') : t('play.why.resigned', { name: loser });
     const vr = variantOfGame(g);
@@ -5968,7 +5970,8 @@
     function load() {
       const pz = pickNext();
       if (!pz) { $('pz-content').innerHTML = '<p class="say">' + t('learn.pz.noMore') + '</p>'; $('pz-next').hidden = true; return; }
-      S.cur = pz; S.step = 0; S.off = false; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0; S.busy = false;
+      S.cur = pz; S.step = 0; S.off = false; S.failed = false; S.solved = false; S.selected = -1; S.hints = 0;
+      S.busy = true;   // no moves until the opponent's set-up move has landed (S.pos is still the position before it)
       const pre = E.positionFrom(pz.fen, []);
       S.pos = pre;
       const solverSide = -pre.side;
@@ -5987,7 +5990,7 @@
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move', info); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
+        quickMove(info, () => { S.pos = g.pos; S.busy = false; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move', info); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
@@ -6029,13 +6032,14 @@
       if (!ok) {
         // The wrong move is played on the board for a moment, then taken back, so the player sees it was a real move.
         S.failed = true; S.busy = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', t('learn.pz.wrong'));
-        const back = S.pos, cur = S.cur;
+        const cur = S.cur;
         view.setBoard(piecesOf(tg.pos), null); view.setHighlights({ spots: [{ sq: to, color: '#ff4a40', pulse: false }] });
-        setTimeout(() => { if (state.screen !== 'puzzle' || S.cur !== cur) return; S.busy = false; view.setBoard(piecesOf(back), null); view.setHighlights({}); }, 900);
+        setTimeout(() => { if (state.screen !== 'puzzle' || S.cur !== cur) return; S.busy = false; view.setBoard(piecesOf(S.pos), null); view.setHighlights({}); }, 900);
         return true;
       }
       const info = g.play(m);
       AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
+      S.busy = true;   // until the reply has landed
       quickMove(info, () => {
         S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to });
         // A mate puzzle is solved only on the board's checkmate: if its stored line runs out first,
@@ -6047,7 +6051,7 @@
         if (!reply) { finish(true); return; }
         S.step++;
         fb('ok', t('learn.pz.keepGoing'));
-        setTimeout(() => quickMove(reply, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
+        setTimeout(() => quickMove(reply, () => { S.pos = g.pos; S.busy = false; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
       });
       return true;
     }
@@ -6061,6 +6065,7 @@
       },
       canDrag: (sq) => S.pos && !S.solved && !S.busy && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
       onDrop(from, to) {
+        if (!S.pos || S.solved || S.busy) return false;
         const g = new E.Game(S.pos.fen());
         if (!g.targets(from).includes(to)) return false;
         if (g.needsPromotion(from, to)) { choosePromotion(S.pos.side, (k) => { if (k) tryMove(from, to, k); else view.setBoard(piecesOf(S.pos), null); }); return true; }
@@ -6074,7 +6079,7 @@
       return (ms && ms[0]) || S.cur.moves[S.step * 2 + 1];
     }
     $('pz-hint').onclick = () => {
-      if (!S.cur || S.solved) return;
+      if (!S.cur || S.solved || S.busy) return;
       S.failed = true; S.hints++;
       guideIdle(null);
       const u = wantMove();
@@ -6084,7 +6089,7 @@
       AU.play('coach');
     };
     if ($('pz-sol')) $('pz-sol').onclick = () => {
-      if (!S.cur || S.solved) return;
+      if (!S.cur || S.solved || S.busy) return;
       S.failed = true;
       const u = wantMove();
       view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
