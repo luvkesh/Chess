@@ -59,6 +59,22 @@ function ChacklateXiangqi() {
       if (this.kings[0] < 0 || this.kings[1] < 0) return 'Each side needs a general';
       return null;
     }
+    // Could this position come up in a game? Pieces only where the rules let them stand, and the
+    // side that just moved not left in check. (Teaching pictures may break this on purpose.)
+    reachable() {
+      const kings = [0, 0];
+      for (let s = 0; s < 90; s++) {
+        const p = this.b[s]; if (!p) continue;
+        const side = p > 0 ? RED : BLACK, t = Math.abs(p), f = fileOf(s), r = rankOf(s), rr = side === RED ? r : 9 - r;
+        if (t === K) { kings[side === RED ? 0 : 1]++; if (!inPalace(f, r, side)) return 'A general must stay in its palace'; }
+        if (t === A && !(inPalace(f, r, side) && (f + rr) % 2 === 1)) return 'An advisor must stand on its palace diagonals';
+        if (t === B && !(rr <= 4 && rr % 2 === 0 && f % 2 === 0 && (rr === 2) === (f % 4 === 0))) return 'An elephant cannot reach that point';
+        if (t === P && (rr < 3 || (rr < 5 && f % 2 === 1))) return 'A soldier cannot stand behind its starting point';
+      }
+      if (kings[0] !== 1 || kings[1] !== 1) return 'Each side needs exactly one general';
+      if (this.inCheck(-this.side)) return 'The side not to move is in check';
+      return null;
+    }
     rekey() {
       this.key = this.side === BLACK ? ZSIDE : 0; this.kings = [-1, -1];
       for (let s = 0; s < 90; s++) { const p = this.b[s]; if (!p) continue; this.key ^= zk(p, s); if (p === K) this.kings[0] = s; if (p === -K) this.kings[1] = s; }
@@ -395,6 +411,9 @@ function ChacklateXiangqi() {
     return result;
   }
 
+  // null when the FEN is a position a real game could reach, else the reason it cannot.
+  function validate(fen) { const p = new Pos(); return p.load(fen) || p.reachable(); }
+
   function positionFrom(fen, ucis) {
     const g = new Game(fen);
     for (const u of ucis || []) if (!g.playText(u)) throw new Error('Illegal move in history: ' + u);
@@ -403,7 +422,7 @@ function ChacklateXiangqi() {
 
   return {
     RED, BLACK, K, A, B, N, R, C, P, START_FEN, LEVELS, MATE,
-    Pos, Game, perft, search, evaluate, positionFrom,
+    Pos, Game, perft, search, evaluate, positionFrom, validate,
     sq, fileOf, rankOf, sqName, parseSq, uci, mFrom, mTo, onBoard, inPalace,
   };
 }

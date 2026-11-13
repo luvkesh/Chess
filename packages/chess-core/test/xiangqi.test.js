@@ -79,4 +79,9 @@ assert.strictEqual(X.uci(r.move), 'a0d0');
     assert(took <= X.LEVELS[lv].timeMs + 150, 'level ' + lv + ' thought ' + took + ' ms for ' + X.LEVELS[lv].timeMs);
   }
 }
+// Only positions a game could reach count as valid.
+assert.strictEqual(X.validate(X.START_FEN), null);
+for (const bad of ['xiangqi:4k4/9/9/9/9/9/9/9/9/K8 w - - 0 1', 'xiangqi:3k5/9/9/9/9/9/9/2B6/9/4K4 w - - 0 1',
+  'xiangqi:3k5/9/9/9/9/9/9/9/3A5/4K4 w - - 0 1', 'xiangqi:3k5/9/9/9/9/1P7/9/9/9/4K4 w - - 0 1',
+  'xiangqi:4k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1', 'xiangqi:3k5/9/9/9/9/9/9/9/9/3KK4 w - - 0 1']) assert(X.validate(bad), bad);
 console.log('xiangqi tests passed');
