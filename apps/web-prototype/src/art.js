@@ -6,7 +6,7 @@ const ChacklateArt = (() => {
   'use strict';
 
   // Pictures rendered from the 3D game (build.py inlines CHACKLATE_ART); drawn art stands in without them.
-  const ART_IMG = typeof CHACKLATE_ART !== 'undefined' ? CHACKLATE_ART : { piece: {}, view: {} };
+  const ART_IMG = Object.assign({ piece: {}, view: {}, avatar: {}, frame: {} }, typeof CHACKLATE_ART !== 'undefined' ? CHACKLATE_ART : {});
 
   // ------------------------------------------------------------ colour helpers
   const rgb = (c) => {
@@ -270,19 +270,22 @@ const ChacklateArt = (() => {
         '<g opacity=".5" fill="#fff"><circle cx="150" cy="112" r="5"/><circle cx="158" cy="104" r="7"/><circle cx="168" cy="96" r="5"/></g>' +
         crown(p, 100, 60, 34);
     },
-    redpanda(p) {
-      const f = '#c85a28', w = '#fbf3e6', d = '#3a1a10';
-      return bust(p, d) + P('M30 214 C34 176 60 160 100 158 C140 160 166 176 170 214Z', p.sh(f, { cy: 0.1 })) +
-        // ruby scarf with a gold pin
+    // Rooky the horse (the 3D render in src/art/ is used when the build has it; this is the fallback)
+    horse(p) {
+      const f = '#c06a2c', w = '#fbf1e2', mz = '#f0c8a0', mane = '#f4cf7a';
+      return bust(p, '#3a1a10') + P('M30 214 C34 176 60 160 100 158 C140 160 166 176 170 214Z', p.sh(f, { cy: 0.1 })) +
         P('M64 156 Q100 176 136 156 L138 170 Q100 190 62 170Z', p.sh('#b8325a'), ol('#b8325a', 1.4)) + P('M120 168 l12 26 l-14 2Z', p.sh('#a02a4e'), ol('#b8325a', 1.2)) +
         C(80, 170, 6, p.gold(), ol('#c08a36', 1.2)) +
-        sym(G(P('M50 94 Q40 46 70 40 Q90 50 88 70Z', p.sh(f), ol(f)) + P('M56 86 Q50 54 70 50 Q82 58 82 70Z', p.sh(d)) + P('M50 94 Q40 46 70 40 Q66 46 60 50 Q50 64 56 90Z', w, ' opacity=".95"'))) +
-        P('M100 56 C134 56 152 78 154 102 L166 116 L150 118 C144 138 124 150 100 150 C76 150 56 138 50 118 L34 116 L46 102 C48 78 66 56 100 56Z', p.sh(f), ol(f)) +
-        sym(E(78, 76, 9, 6, w)) +
-        P('M58 110 Q62 94 80 102 Q92 108 100 106 Q108 108 120 102 Q138 94 142 110 Q140 140 100 146 Q60 140 58 110Z', p.sh(w), '') +
-        sym(P('M74 100 Q70 116 62 126 Q72 122 80 108Z', p.sh('#8a2e14'))) +
-        nose(p, 112, 7.5, '#1e100a') + smile(121, 7, '#5a2a1a', 2.2) +
-        eyes(p, 21, 94, 8.5) + blush(p, 33, 118, 8);
+        // pricked ears
+        sym(G(P('M64 66 L56 22 Q74 34 82 58Z', p.sh(f), ol(f)) + P('M66 60 L61 32 Q72 40 77 56Z', p.sh('#8a3e1e')))) +
+        // the long head and the soft muzzle
+        P('M100 40 C130 40 146 62 144 92 C143 110 138 118 138 130 C138 150 122 160 100 160 C78 160 62 150 62 130 C62 118 57 110 56 92 C54 62 70 40 100 40Z', p.sh(f), ol(f)) +
+        P('M66 124 C66 110 134 110 134 124 C136 148 120 160 100 160 C80 160 64 148 66 124Z', p.sh(mz), ol(mz, 1.4)) +
+        P('M96 58 L104 58 L112 116 L88 116Z', p.sh(w), ' opacity=".95"') +
+        sym(E(86, 132, 4, 6, '#6a3020', rot(-20, 86, 132))) + smile(146, 14, '#5a2418', 2.4) +
+        // the golden forelock
+        P('M74 54 Q92 30 122 40 Q134 50 128 70 Q118 54 104 56 Q96 70 84 74 Q86 60 74 54Z', p.sh(mane), ol(mane, 1.4)) +
+        eyes(p, 24, 92, 9) + blush(p, 36, 112, 8);
     },
     cat(p) {
       const f = '#2c2834', gold = p.gold(), lapis = '#2a4aa8', turq = '#3ab0a0', carn = '#c8442e';
@@ -509,6 +512,14 @@ const ChacklateArt = (() => {
     p.raw('clip', '<clipPath id="inner"><circle cx="100" cy="100" r="' + inner + '"/></clipPath><clipPath id="collarclip"><path d="M14 214 C18 168 58 148 100 148 C142 148 182 168 186 214 Z"/></clipPath>');
     const from = o.from || '#b8325a', to = o.to || '#3a0c1a';
     const bg = o.bare ? '' : field(p, inner, from, to);
+    // the sculpted 3D bust (src/avatars3d.js, rendered by tools/shoot-art.js), framed as a portrait
+    const bustImg = ART_IMG.avatar[animal];
+    if (bustImg) {
+      const out = (o.ring === false ? '' : ring(p, r)) + '<g clip-path="url(#inner)">' + bg +
+        '<image href="' + bustImg + '" x="' + (100 - inner) + '" y="' + (100 - inner) + '" width="' + inner * 2 + '" height="' + inner * 2 + '"/>' +
+        C(100, 100, inner, p.rad([[0.72, '#000', 0], [1, '#000', 0.32]], 0.5, 0.5, 0.5)) + '</g>';
+      return svg(p, '0 0 200 200', out);
+    }
     const body = cloisons(draw(p));
     const out = (o.ring === false ? '' : ring(p, r)) + '<g clip-path="url(#inner)">' + bg + '<g filter="url(#lift)"><g filter="url(#enamel)">' + body + '</g></g>' +
       // soft inner shading at the rim
@@ -581,9 +592,12 @@ const ChacklateArt = (() => {
     } else if (kind === 'piece') {
       const fill = p.lin([[0, '#fff3c4'], [0.35, '#f0cf7e'], [0.7, '#c08a36'], [1, '#7a4a14']], 0.2, 0, 0.8, 1);
       body = '<g transform="translate(30 26) scale(1.4)">' + P(PIECE[name] || PIECE.n, fill, ' stroke="#6a3e10" stroke-width="1.4" stroke-linejoin="round"') + (PIECE_EYE[name] ? C(PIECE_EYE[name][0], PIECE_EYE[name][1], PIECE_EYE[name][2], '#5a3410') : '') + '</g>';
+    } else if (ART_IMG.avatar[name]) {
+      // the 3D emblem (src/avatars3d.js), rendered by tools/shoot-art.js
+      body = E(100, 158, 46, 7, 'rgba(0,0,0,.45)', ' filter="url(#soft)"') + '<image href="' + ART_IMG.avatar[name] + '" x="22" y="20" width="156" height="156"/>';
     } else body = emblemBody(p, name);
     const out = (o.ring === false ? '' : ring(p, r)) + '<g clip-path="url(#inner)">' + field(p, inner, o.from || '#a3294f', o.to || '#4a0c1e') +
-      (kind === 'piece' && ART_IMG.piece[name] ? body : '<g filter="url(#lift)">' + body + '</g>') + C(100, 100, inner, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
+      ((kind === 'piece' && ART_IMG.piece[name]) || (kind === 'emblem' && ART_IMG.avatar[name]) ? body : '<g filter="url(#lift)">' + body + '</g>') + C(100, 100, inner, p.rad([[0.7, '#000', 0], [1, '#000', 0.35]], 0.5, 0.5, 0.5)) + '</g>';
     return svg(p, '0 0 200 200', out);
   }
 
@@ -960,6 +974,8 @@ const ChacklateArt = (() => {
     crestUri: () => memo('crest', () => crest()),
     miniUri: (kind, o) => memo('mini' + kind + JSON.stringify(o || {}), () => miniMedal(kind, o)),
     // an era's own painted view (as seen from its room's window) where the build has it
+    // the 3D gold frame for an avatar (frame.<name>.v1), rendered from avatars3d.js; null if not built
+    frameUri: (id) => ART_IMG.frame[String(id || '').replace(/^frame\./, '').replace(/\.v\d+$/, '')] || null,
     bannerUri: (id, o) => ART_IMG.view[id] || memo('b' + id + JSON.stringify(o || {}), () => banner(id, o)),
     pieceUri: (type, o) => memo('s' + type + JSON.stringify(o || {}), () => pieceSvg(type, o)),
     fxUri: (kind, colors) => memo('f' + kind + (colors || []).join(), () => fx(kind, colors)),

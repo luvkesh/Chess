@@ -122,7 +122,7 @@ def site_data():
             'room': {'id': e['room'], 'name': r['name'], 'desc': r['desc']},
             'music': MUSIC[e['room']],
         })
-    opponents = [{'id': o['id'], 'name': o['name'], 'animal': o['animal'].replace('redpanda', 'red panda').capitalize(),
+    opponents = [{'id': o['id'], 'name': o['name'], 'animal': o['animal'].capitalize(),
                   'range': RANGES[o['level']], 'blurb': o['blurb'], 'plays': PLAYS[o['id']],
                   'colors': [mix(o['colors'][0], '#000000', 0.55), mix(o['colors'][1], '#000000', 0.45)]} for o in campaign['opponents']]
     cats = {}
