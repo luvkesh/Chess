@@ -4146,13 +4146,9 @@
     const id = ++G.request;
     job('play', { type: 'search', fen: g.startFen, moves: g.uciMoves(), opts: Object.assign({}, level, { timeMs }) }, (r) => {
       if (id !== G.request || state.game !== G) return;
-<<<<<<< HEAD
-      const delay = state.settings.labsFast && labsOn() ? 0 : Math.max(0, 420 - (performance.now() - started));
-=======
       // the workers restart when the language changes: ask again rather than leave the bot frozen
       if (r && r.error) { G.thinking = false; setTimeout(() => { if (state.game === G && id === G.request && !G.g.outcome) maybeComputer(); }, 50); return; }
-      const delay = state.settings.labsFast ? 0 : Math.max(0, 420 - (performance.now() - started));
->>>>>>> origin/main
+      const delay = state.settings.labsFast && labsOn() ? 0 : Math.max(0, 420 - (performance.now() - started));
       setTimeout(() => {
         if (id !== G.request || state.game !== G) return;
         G.thinking = false;
