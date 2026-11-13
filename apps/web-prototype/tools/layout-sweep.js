@@ -35,14 +35,19 @@ const LANGS = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ru', 'ur'];
 // Menu screens and their arguments; pop-ups are opened from Home through window.__modal.
 const SCREENS = ['home', 'play', 'variants', 'variant:chess960', 'minis', 'club', 'journey', 'era:egypt', 'era:ming', 'learn', 'trainers', 'puzzles', 'training', 'progress', 'dojo', 'openings',
   'collection', 'profile', 'season', 'store'];
+// Taps: open a screen, then tap each selector in turn and check what it opens (detail cards, the
+// resign question, tool tips, the coach's answers). Written tap|screen|selector[|selector...].
+const TAPS = ['tap|store|[data-item]', 'tap|store|#st-gate', 'tap|collection|[data-item]', 'tap|minis|[data-mini]',
+  'tap|era:egypt|[data-stage]', 'tap|hud:game|#g-resign', 'tap|hud:game|#g-draw', 'tap|hud:game|#g-copy', 'tap|hud:game|#g-settings', 'tap|hud:game|#g-mode', 'tap|hud:game|#g-view',
+  'tap|settings:play|.ck-i', 'tap|settings:look|.ck-i', 'toasts'];
 // In-game screens: the table is not drawn without WebGL, but the panels, clocks and bars around it are.
 const HUDS = ['hud:game', 'hud:game-clock', 'hud:local', 'hud:lesson', 'hud:puzzle', 'hud:drill', 'hud:mini-tour', 'hud:mini-spotter', 'hud:mini-rush', 'hud:review', 'hud:xiangqi', 'hud:xqlesson', 'hud:rulebook', 'hud:won', 'hud:levelup'];
-const MODALS = ['settings', 'settings:lang', 'labs', 'missions', 'profile', 'newGame', 'friend', 'world', 'glossary', 'coach', 'premium', 'opponent:0', 'opponent:3', 'levelUp', 'placement'];
+const MODALS = ['settings', 'settings:play', 'settings:coach', 'settings:sound', 'settings:look', 'settings:lang', 'settings:app', 'gate', 'pin', 'promo', 'eraDone:egypt', 'tale:egypt', 'labs', 'missions', 'profile', 'newGame', 'friend', 'world', 'glossary', 'coach', 'premium', 'opponent:0', 'opponent:3', 'levelUp', 'placement'];
 
 const pick = (v, all) => (!v || v === 'all' ? all : v.split(','));
 const sizes = (argv.sizes === 'all' ? ['phone', 'ipad', 'desk', 'zoom'] : (argv.sizes || 'core').split(',')).flatMap((k) => SIZES[k] || [SIZES.phone.concat(SIZES.ipad, SIZES.desk, SIZES.zoom).find((s) => s[0] === k)].filter(Boolean));
 const langs = pick(argv.langs || 'en', LANGS);
-const targets = pick(argv.screens, SCREENS.concat(HUDS, MODALS.map((m) => 'modal:' + m)));
+const targets = pick(argv.screens, SCREENS.concat(HUDS, MODALS.map((m) => 'modal:' + m), TAPS));
 const shots = argv.shots ? path.resolve(argv.shots) : null;
 const jobs = +argv.jobs || 4;
 const name = argv.name || 'Wolfeschlegelstein';   // the longest a name can be is 20 letters
@@ -248,6 +253,29 @@ async function sweepScreen(p) {
 }
 
 async function open(p, target) {
+  if (target.startsWith('tap|')) {
+    const [, base, ...sels] = target.split('|');
+    const err = await open(p, base.startsWith('settings') ? 'modal:' + base : base);
+    if (err) return err;
+    for (const sel of sels) {
+      const e2 = await p.evaluate((sel) => {
+        const top = [...document.querySelectorAll('#modals > *')].pop();
+        const el = (top && top.querySelector(sel)) || [...document.querySelectorAll(sel)].find((x) => x.getClientRects().length);
+        if (!el) return 'nothing to tap: ' + sel;
+        el.scrollIntoView({ block: 'center' }); el.click(); return null;
+      }, sel);
+      if (e2) return e2;
+      await p.waitForTimeout(500);
+    }
+    await p.evaluate(() => { const ng = document.getElementById('nogl'); if (ng) ng.remove(); });
+    return null;
+  }
+  if (target === 'toasts') {
+    const err = await open(p, 'home');
+    await p.evaluate(() => window.__modal.celebrate({ coins: 120, achievements: [{ id: 'beat-builder', name: 'Beat the Builder', xp: 150 }], unlocked: [], missions: [] }, true));
+    await p.waitForTimeout(900);
+    return err;
+  }
   return p.evaluate(async (target) => {
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     document.querySelectorAll('#modals > *').forEach((m) => m.remove());
@@ -263,6 +291,9 @@ async function open(p, target) {
         else if (a === 'rules') M.rules(b);
         else if (a === 'levelUp') M.levelUp(7, []);
         else if (a === 'placement') M.placement('home');
+        else if (a === 'gate') M.gate('Ask a grown-up to open the store.', { always: true });
+        else if (a === 'promo') M.promo(1, () => {});
+        else if (a === 'eraDone' || a === 'tale') M[a](b, 0);
         else M[a]();
       } else if (kind === 'hud') {
         window.__go('home'); await wait(30);
