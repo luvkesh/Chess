@@ -7550,6 +7550,7 @@ function ChacklatePieces(THREE, K) {
     },
     jarl: {
       id: 'jarl', name: 'Jarls of the Fjord', era: 'The Viking age', year: 'About 900', tint: '#1e2e5a', sided: true,
+      mesh: 'figures2', meshLook: { b: { clearcoat: 0.3 } },
       story: 'Made for a table by the fjord where the longships come home. White is gold and ivory with deep blue cloaks and white fur, black is dark iron and leather with grey fur, and on both sides the runestones glow ice blue.',
       lore: {
         k: 'A jarl in a fur cloak with both hands on his sword: a gold crown for white, a horned helm for black.',
