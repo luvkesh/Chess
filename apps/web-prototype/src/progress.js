@@ -152,6 +152,8 @@ function ChacklateProgress(catalog, extras) {
   function earn(state, source, amount, opts, out) {
     opts = opts || {};
     const d = today(opts.now ? new Date(opts.now) : undefined);
+    // A clock turned back cannot reopen a day already paid: a new day starts only going forward.
+    if (state.earned.date && d < state.earned.date) return 0;
     if (state.earned.date !== d) state.earned = { date: d, by: {}, n: {} };
     const e = state.earned, had = e.by[source] || 0, n = e.n[source] || 0;
     let give = Math.max(0, Math.floor(amount));
@@ -441,7 +443,7 @@ function ChacklateProgress(catalog, extras) {
     if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
-    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
+    if (opts && opts.daily && solved && !(state.daily.done && state.daily.date === today(now ? new Date(now) : undefined))) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
     if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
