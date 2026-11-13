@@ -1812,6 +1812,16 @@ body.ingame .gd-text { font-size: 15.5px; }
   .lux.h .art { zoom: 0.78; }
   .lux.h .go { width: 36px; height: 36px; }
 }
+/* landscape phones: the result card fits without scrolling to reach Rematch and Home */
+@media (max-height: 500px) and (orientation: landscape) {
+  .result-hero .portrait.big, .result-hero > .portrait { width: 60px; height: 60px; }
+  .result-hero .vign { height: 120px; }
+  .result-hero .result-title { font-size: 28px !important; margin-top: 4px !important; }
+  .result-hero .quote { font-size: 15px; margin-bottom: 4px; }
+  .result-hero .reward-list { margin: 2px auto 10px; }
+  .modal .card:has(.result-hero) { padding-top: 12px; padding-bottom: 12px; }
+  .result-hero .sub { margin: 2px 0 6px; }
+}
 </style>
 
 <div id="stage"><canvas id="board" aria-label="3D chess board" data-t-aria="common.boardLabel"></canvas></div>

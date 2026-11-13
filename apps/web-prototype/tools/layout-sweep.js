@@ -36,8 +36,8 @@ const LANGS = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'bn', 'pt', 'ru', 'ur'];
 const SCREENS = ['home', 'play', 'variants', 'variant:chess960', 'minis', 'club', 'journey', 'era:egypt', 'era:ming', 'learn', 'trainers', 'puzzles', 'training', 'progress', 'dojo', 'openings',
   'collection', 'profile', 'season', 'store'];
 // In-game screens: the table is not drawn without WebGL, but the panels, clocks and bars around it are.
-const HUDS = ['hud:game', 'hud:game-clock', 'hud:local', 'hud:lesson', 'hud:puzzle', 'hud:drill', 'hud:mini-tour', 'hud:mini-spotter', 'hud:mini-rush', 'hud:review', 'hud:xiangqi', 'hud:xqlesson'];
-const MODALS = ['settings', 'settings:lang', 'labs', 'missions', 'profile', 'newGame', 'friend', 'world', 'glossary', 'coach', 'premium', 'opponent:0', 'opponent:3', 'rules:chess960', 'levelUp', 'placement'];
+const HUDS = ['hud:game', 'hud:game-clock', 'hud:local', 'hud:lesson', 'hud:puzzle', 'hud:drill', 'hud:mini-tour', 'hud:mini-spotter', 'hud:mini-rush', 'hud:review', 'hud:xiangqi', 'hud:xqlesson', 'hud:rulebook', 'hud:won', 'hud:levelup'];
+const MODALS = ['settings', 'settings:lang', 'labs', 'missions', 'profile', 'newGame', 'friend', 'world', 'glossary', 'coach', 'premium', 'opponent:0', 'opponent:3', 'levelUp', 'placement'];
 
 const pick = (v, all) => (!v || v === 'all' ? all : v.split(','));
 const sizes = (argv.sizes === 'all' ? ['phone', 'ipad', 'desk', 'zoom'] : (argv.sizes || 'core').split(',')).flatMap((k) => SIZES[k] || [SIZES.phone.concat(SIZES.ipad, SIZES.desk, SIZES.zoom).find((s) => s[0] === k)].filter(Boolean));
@@ -61,7 +61,7 @@ function probe() {
   const txt = (el) => (el.innerText || el.value || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 40);
   const shown = (el) => el.checkVisibility ? el.checkVisibility({ opacityProperty: true, visibilityProperty: true }) : el.offsetParent !== null;
   // The top layer: the newest open pop-up, else the page.
-  const modals = [...document.querySelectorAll('#modals .modal, .modal')].filter(shown);
+  const modals = [...document.querySelectorAll('#modals .modal, .modal, #rulebook')].filter(shown);
   const layer = modals.length ? modals[modals.length - 1] : null;
   const inLayer = (el) => !layer || layer.contains(el);
   // The menu bars stay put while the page scrolls under them: words passing under a bar are not a fault.
@@ -181,11 +181,12 @@ function probe() {
         if (x < 0 || y < 0 || x >= W || y >= H) continue;
         if (!!A.el.closest(CHROME) !== !!B.el.closest(CHROME) && underChrome(x, y)) continue;
         const stack = document.elementsFromPoint(x, y);
-        const has = (el) => stack.some((s) => s === el || el.contains(s) || s.contains(el) && s !== document.body && s !== document.documentElement);
+        const has = (el) => stack.some((s) => s === el || el.contains(s));
+        const inside = (el) => { const c = clipBox(el).b; return x >= c.left && x <= c.right && y >= c.top && y <= c.bottom; };
         // words scrolling under a sticky heading are not a fault
         const stick = (el) => { for (let n = el; n && n !== document.body; n = n.parentElement) if (getComputedStyle(n).position === 'sticky') return n; return null; };
         if (stick(A.el) !== stick(B.el)) continue;
-        if (has(A.el) && has(B.el) && clipBox(A.el).b.bottom >= y && clipBox(B.el).b.bottom >= y) { out.push({ k: 'overlap', a: short(A.el), b: short(B.el), t: A.el.textContent.trim().slice(0, 20) + ' / ' + B.el.textContent.trim().slice(0, 20) }); }
+        if (has(A.el) && has(B.el) && inside(A.el) && inside(B.el)) { out.push({ k: 'overlap', a: short(A.el), b: short(B.el), t: A.el.textContent.trim().slice(0, 20) + ' / ' + B.el.textContent.trim().slice(0, 20) }); }
       }
     }
   }
@@ -205,7 +206,10 @@ function probe() {
     const f = face.getBoundingClientRect(), cx = (f.left + f.right) / 2, cy = (f.top + f.bottom) / 2, rad = f.width / 2 - 2;
     for (const el of document.querySelectorAll('#screens button, #screens a[href], #screens input, #screens select, #screens [role=button], .modal button')) {
       if (!inLayer(el) || !shown(el) || face.contains(el)) continue;
-      const r = el.getBoundingClientRect(); if (r.width < 1) continue;
+      const r0 = el.getBoundingClientRect(), cb = clipBox(el).b;
+      const r = { left: Math.max(r0.left, cb.left), right: Math.min(r0.right, cb.right), top: Math.max(r0.top, cb.top), bottom: Math.min(r0.bottom, cb.bottom) };
+      r.width = r.right - r.left; r.height = r.bottom - r.top;
+      if (r.width < 1 || r.height < 1) continue;
       const nx = Math.max(r.left, Math.min(cx, r.right)), ny = Math.max(r.top, Math.min(cy, r.bottom));
       const d = Math.hypot(nx - cx, ny - cy);
       // a big card that is a button can sit under him; small controls cannot
@@ -272,6 +276,16 @@ async function open(p, target) {
         else if (a === 'review') window.__go('review', { start: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', ucis: ['e2e4', 'e7e5', 'g1f3', 'b8c6', 'f1c4', 'g8f6'], side: 1, title: 'Truffle', level: 0, summary: true });
         else if (a === 'xiangqi') window.__modal.xq({ mode: 'ai', color: 'white', level: 0 });
         else if (a === 'xqlesson') window.__go('xqlesson');
+        else if (a === 'rulebook' || a === 'won' || a === 'levelup') {
+          window.__start({ mode: 'ai', level: 0, color: 'white', tc: 'none', fen: a === 'rulebook' ? '' : '6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1' });
+          await wait(150); document.querySelectorAll('#modals > *').forEach((m) => m.remove());
+          if (a === 'rulebook') document.getElementById('g-rules').click();
+          else { window.__hooks.onDrop(0, 56); await wait(3500); const ms = [...document.querySelectorAll('#modals > *')]; if (a === 'won') ms.slice(1).forEach((m) => m.remove()); }
+          await wait(300);
+          const ng = document.getElementById('nogl'); if (ng) ng.remove();
+          document.querySelectorAll('.toast, #toasts > *').forEach((m) => m.remove());
+          return null;
+        }
         await wait(150);
         // the colour toss and "how to play" cards open first: the panels are what is checked here
         document.querySelectorAll('#modals > *').forEach((m) => m.remove());

@@ -886,7 +886,7 @@
       const gd = $('guide'), gdOn = gd && !gd.hidden && !gd.classList.contains('off');
       document.body.style.setProperty('--sheet-top', (sheet ? H - side.top + 8 : 0) + 'px');
       document.body.style.setProperty('--gd-right', (side && !sheet ? W - side.left + 14 : 16) + 'px');
-      document.body.style.setProperty('--gd-right-ph', (side && !sheet ? W - side.left + 10 : 10) + 'px');
+      document.body.style.setProperty('--gd-right-ph', (side && !sheet ? Math.min(W - side.left + 10, W - 58) : 10) + 'px');
       // where the button bar runs on under his spot (laptops and iPads about 1024-1200 px wide), he
       // sits just above it instead of on Draw, Resign or Play from here
       const phoneUi = matchMedia('(max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse)').matches;
