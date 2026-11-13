@@ -45,17 +45,22 @@ def build_set(sid):
     for t in kit.TYPES:
         for s, r in refs.items():
             kit.paint_cell(r[t], t, atlas[s], mr[s], mod.LOOK[s] if s in mod.LOOK else mod.LOOK, half=getattr(mod, 'HALF', {}).get(t, 'right'))
-        ob = mod.build(t, {s: r[t] for s, r in refs.items()})
-        objs[t] = ob
-        tris = sum(len(p.vertices) - 2 for p in ob.data.polygons)
-        for lod in ('show', 'play'):
-            cap = CAPS[lod].get(t, CAPS[lod]['default'])
-            P, N, U, I = kit.mesh_arrays(ob, min(1.0, cap / max(tris, 1)))
-            geoms['%s.%s' % (t, lod)] = {'skin': (P, N, U, I)}
-            print(sid, t, lod, len(P), 'verts', len(I) // 3, 'tris', flush=True)
+        # pieces whose two sides differ in shape (knights' manes, as a rule) are built from each
+        # side's own picture; the rest share the white side's mesh
+        sided = t in getattr(mod, 'SIDED', {'n'})
+        for s in (refs if sided else ['w']):
+            other = 'b' if s == 'w' else 'w'
+            ob = mod.build(t, {'w': refs[s][t], 'b': refs[other][t]})   # 'w' is the shape's source
+            objs[t] = ob
+            tris = sum(len(p.vertices) - 2 for p in ob.data.polygons)
+            for lod in ('show', 'play'):
+                cap = CAPS[lod].get(t, CAPS[lod]['default'])
+                P, N, U, I = kit.mesh_arrays(ob, min(1.0, cap / max(tris, 1)))
+                geoms[('%s.' % s if sided else '') + '%s.%s' % (t, lod)] = {'skin': (P, N, U, I)}
+                print(sid, s if sided else '', t, lod, len(P), 'verts', len(I) // 3, 'tris', flush=True)
     out = {'geoms': geoms}
     for s in refs:
-        half = cv2.resize(mr[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_NEAREST)
+        half = cv2.resize(mr[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_AREA)
         out[s] = {'albedo': webp(atlas[s], 84), 'mr': webp(half, 70)}
     return out, objs, atlas
 

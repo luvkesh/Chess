@@ -6928,6 +6928,7 @@ function ChacklatePieces(THREE, K) {
   // ------------------------------------------------------------------ the jewel sets (2026-11)
   Object.assign(SETS, {
     fantasy: {
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.5 } },
       id: 'fantasy', name: 'Fantasy Marble', era: 'A sculptor\'s dream', year: 'Today', tint: '#3a3226',
       story: 'Carved from white and black marble, then wound with ribbons of gold. Each piece is a sculpture: tulip crowns, a pearl held in a twisted loop and towers with tall arched windows.',
       lore: {
@@ -6944,6 +6945,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('fm-black', { map: TEX.marble('#151416', '#a8864a', { scale: 2.4, sharp: 7, strength: 0.55, cloud: 0.1 }), roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05 }), mane: phys('fm-black-mane', { map: TEX.marble('#18171a', '#c09048', { scale: 3.5, sharp: 4, strength: 0.8, cloud: 0.1 }), roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05 }), trim: MAT.gold('#e2b45a'), orb: phys('fm-smoke', { color: '#2c2a2e', metalness: 0.25, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.8 }), gem: MATS.diamond() }),
     },
     sapphire: {
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.45, env: 0.95 } },
       id: 'sapphire', name: 'Royal Ivory & Sapphire', era: 'A king\'s mountain tower', year: 'Once upon a time', tint: '#1d2c6e',
       story: 'Made for a king whose tower looked out over snowy mountains. Ivory faces royal blue, both laid with gold and set with sapphires, and the rooks carry the king\'s shield with a golden lily.',
       lore: {
@@ -6960,7 +6962,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('sap-blue', { map: TEX.marble('#1f3290', '#6a82e0', { scale: 2.5, sharp: 9, strength: 0.35, cloud: 0.2 }), roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }), enamel: phys('sap-enamel-deep', { color: '#101a52', roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.03, sheen: 0.4, sheenColor: new THREE.Color('#5a7aff') }), trim: MAT.gold('#e6b85a'), gem: MAT.gem('#6a9aff') }),
     },
     navy: {
-      mesh: 'navy1',
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.45, env: 0.95 } },
       id: 'navy', name: 'Royal Navy', era: 'An admiral\'s cabin', year: 'The age of sail', tint: '#141c3a',
       story: 'Made for an admiral to play in his cabin at sea. Ivory with rubies faces deep navy with sapphires, all trimmed in gold, with gold rope round every foot and an anchor on the king\'s cross.',
       lore: {
@@ -6977,6 +6979,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('nv-navy', { map: TEX.marble('#121a34', '#4a5c94', { scale: 2.2, sharp: 8, strength: 0.4, cloud: 0.2 }), roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.05 }), band: MAT.gold('#e4b45a'), trim: MAT.gold('#e4b45a'), gem: MAT.gem('#2a5cff'), glow: phys('nv-glow-blue', { color: '#5a9aff', emissive: '#1a5aff', emissiveIntensity: 1.3, roughness: 0.06, clearcoat: 1 }), orb: phys('nv-orb-sapphire', { color: '#1c3ab0', roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6 }) }),
     },
     opulent: {
+      mesh: 'classic1', meshLook: { b: { clearcoat: 0.5 } },
       id: 'opulent', name: 'Opulent Emerald', era: 'A stargazer\'s tower', year: 'Once upon a time', tint: '#12302a',
       story: 'Made for a stargazer\'s tower, where lamps glow in the windows all night. Ivory faces deep green marble, set with emeralds in gold, and the kings and queens are cut with eight shining sides.',
       lore: {
@@ -7129,7 +7132,7 @@ function ChacklatePieces(THREE, K) {
   function skin(id, slot, side) {
     const k = id + ':' + slot + ':' + side;
     if (!SKINS.has(k)) {
-      const t = MODELLED.get(id).tex[side === 'b' ? 'b' : 'w'], look = Object.assign({ clearcoat: 0.7, clearcoatRoughness: 0.08 }, (SETS[id].meshLook || {})[slot] || SETS[id].meshLook || {});
+      const t = MODELLED.get(id).tex[side === 'b' ? 'b' : 'w'], ml = SETS[id].meshLook || {}, look = Object.assign({ clearcoat: 0.7, clearcoatRoughness: 0.08 }, ml, ml[side === 'b' ? 'b' : 'w'] || {}, ml[slot] || {});
       const o = { map: t.albedo, roughnessMap: t.mr, metalnessMap: t.mr, roughness: 1, metalness: 1, clearcoat: look.clearcoat, clearcoatRoughness: look.clearcoatRoughness, envMapIntensity: look.env || 1.15 };
       if (t.glow) Object.assign(o, { emissiveMap: t.glow, emissive: new THREE.Color('#ffffff'), emissiveIntensity: look.glow || 1.4 });
       if (slot === 'glass') Object.assign(o, { transmission: look.transmission || 0.85, thickness: 0.4, ior: 1.5 });
