@@ -86,6 +86,8 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 .grain { position: fixed; inset: 0; pointer-events: none; z-index: 2; opacity: 0.05; mix-blend-mode: overlay; background-size: 180px; }
 .nogl { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); z-index: 1; background: radial-gradient(ellipse at 50% 35%, #2a1a12, #0d0806 70%); }
 .nogl p { max-width: 40ch; margin-top: 40vh; }
+/* the notice is about the table: menus over it stay readable (it used to show through the cards on laptops) */
+body.paged .nogl p, body.heroic .nogl p { display: none; }
 
 /* ------------------------------------------------------------ type */
 .eyebrow { display: inline-flex; align-items: center; gap: 10px; font: 600 11.5px/1 var(--caps); letter-spacing: 0.26em; text-transform: uppercase; color: var(--gold); }
@@ -166,9 +168,10 @@ body.paged .shade { background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba
 
 /* ------------------------------------------------------------ top navigation */
 .topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: calc(var(--nav-h) + var(--safe-t)); padding: var(--safe-t) max(22px, var(--safe-r)) 0 max(22px, var(--safe-l)); display: flex; align-items: center; gap: 22px;
-  background: linear-gradient(180deg, rgba(12, 7, 5, 0.95), rgba(12, 7, 5, 0.88)); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); transition: transform .5s var(--ease), opacity .5s; }
+  background: linear-gradient(180deg, rgba(12, 7, 5, 0.95), rgba(12, 7, 5, 0.88)); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); transition: transform .5s var(--ease), opacity .5s, visibility 0s; }
 .topnav::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, rgba(232, 194, 122, 0.45) 30%, rgba(232, 194, 122, 0.45) 70%, transparent); opacity: 0.5; }
-body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: none; }
+/* hidden in games: visibility too, so Tab does not walk through buttons nobody can see */
+body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: none; visibility: hidden; transition: transform .5s var(--ease), opacity .5s, visibility 0s linear .5s; }
 .brand { display: flex; align-items: center; gap: 12px; flex: none; }
 .brand img { width: 40px; height: 40px; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)); }
 .brand span { font: 600 15px/1 var(--caps); letter-spacing: 0.24em; color: var(--gold-2); }
@@ -560,6 +563,10 @@ body:has(.museum-card) .guide, body.peeking .guide { display: none; }
 .pbanner .avatar.xl { box-shadow: 0 0 0 1px rgba(232, 194, 122, 0.4), 0 0 50px rgba(232, 194, 122, 0.2); border-radius: 50%; }
 .pbanner .who { flex: 1; min-width: 0; }
 .pbanner h1 { font: 500 clamp(36px, 5vw, 54px)/1 var(--serif); margin: 10px 0 12px; display: flex; align-items: center; gap: 12px; }
+/* a long name (up to 20 letters) gets smaller and may break, never runs past the card */
+.pbanner h1 .nm { min-width: 0; overflow-wrap: anywhere; }
+.pbanner h1.long { font-size: clamp(28px, 3.6vw, 42px); }
+.pbanner h1 .round { flex: none; }
 .pbanner .xp { max-width: 420px; }
 .pbanner .xp small { color: var(--muted); font-size: 13px; display: block; margin-top: 6px; }
 .stats { display: grid; grid-template-columns: 1.15fr repeat(4, 1fr); gap: 12px; margin: 18px 0 0; padding: 14px; border-radius: 22px; }
@@ -1482,8 +1489,8 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .tools { gap: 8px; } .round { width: 40px; height: 40px; }
   .mepill { padding: 2px; border-radius: 50%; }
   .prem-btn { width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 50%; }
-  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 6px max(6px, var(--safe-r)) calc(6px + var(--safe-b)) max(6px, var(--safe-l)); background: linear-gradient(180deg, rgba(14, 9, 6, 0.86), rgba(10, 6, 4, 0.96)); border-top: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transition: transform .5s var(--ease); }
-  body.ingame .tabbar { transform: translateY(110%); }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 6px max(6px, var(--safe-r)) calc(6px + var(--safe-b)) max(6px, var(--safe-l)); background: linear-gradient(180deg, rgba(14, 9, 6, 0.86), rgba(10, 6, 4, 0.96)); border-top: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transition: transform .5s var(--ease), visibility 0s; }
+  body.ingame .tabbar { transform: translateY(110%); visibility: hidden; transition: transform .5s var(--ease), visibility 0s linear .5s; }
   .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 7px 2px 5px; color: var(--muted); font: 500 11px/1 var(--body); border-radius: 12px; position: relative; }
   .tabbar button .ico { width: 22px; height: 22px; }
   .tabbar button[aria-current="page"] { color: var(--gold-2); }
@@ -1623,7 +1630,6 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .toggle select { flex: 1 1 200px; min-width: 0; width: 100%; max-width: none; min-height: 40px; }
   .voice-pick { flex: 1 1 200px; }
   .row .btn { flex: 1 1 auto; }
-  body.paged .nogl p, body.heroic .nogl p { display: none; }
 }
 @media (max-width: 900px) and (orientation: portrait), (max-width: 600px) {
   body.ingame .toasts { top: calc(var(--safe-t) + 124px); }
@@ -1683,7 +1689,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 /* pages scroll clear of the face */
 body.paged .page { padding-bottom: 120px; }
 /* in games and lessons the face sits at the bottom right of the table, left of the side panel */
-body.ingame .guide { right: var(--gd-right, 16px); bottom: max(18px, var(--safe-b)); }
+body.ingame .guide { right: var(--gd-right, 16px); bottom: var(--gd-bottom, max(18px, var(--safe-b))); }
 body.ingame .gd-text { font-size: 15.5px; }
 /* the story card has its own replay and voice buttons */
 .parch .head { position: relative; }
@@ -1700,7 +1706,8 @@ body.ingame .gd-text { font-size: 15.5px; }
   .guide.edge .gd-bubble { visibility: hidden; }
   body.ingame .guide.edge .narrator { transform: none; opacity: 1; }
   .gd-text { font-size: 15px; }
-  body.ingame .guide { right: 10px; bottom: var(--sheet-top, 200px); }
+  /* above the sheet on portrait phones; left of the side panel on landscape phones (it used to sit on the clock and the Next button) */
+  body.ingame .guide { right: var(--gd-right-ph, 10px); bottom: max(var(--sheet-top, 200px), var(--gd-bottom, calc(10px + var(--safe-b)))); }
   body.ingame .guide .narrator { width: 46px; height: 46px; }
   body.ingame .gd-text { font-size: 14px; }
   body.paged .page, body.heroic .hero { padding-bottom: calc(150px + var(--safe-b)); }
@@ -1786,6 +1793,11 @@ body.ingame .gd-text { font-size: 15.5px; }
   .hud-top .mini-stats { order: 9; flex-basis: 100%; justify-content: center; gap: 12px; padding: 6px 10px; }
   .mini-result b, .mini-stat b { font-size: 22px; }
 }
+/* landscape phones: the score stays in the top row; on its own row it covered the panel's title */
+@media (max-width: 900px) and (orientation: landscape) and (min-width: 601px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  .hud-top:has(.mini-stats) { flex-wrap: nowrap; }
+  .hud-top .mini-stats { order: 0; flex-basis: auto; margin: 0 auto; }
+}
 @media (max-width: 900px) and (orientation: portrait), (max-width: 600px) {
   .lesson.mini-panel { height: 36vh; }
   .mini-tray { gap: 5px; }
@@ -1794,6 +1806,12 @@ body.ingame .gd-text { font-size: 15.5px; }
 }
 @media (prefers-reduced-motion: reduce) { .guide .narrator { transition: none; } .guide.pop .narrator, .guide.speaking .narrator .ring, .gd-bubble, .mu-rooky.speaking .narrator { animation: none; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+/* the narrowest phones (320-360 px): smaller card pictures leave the words room for more than two per line */
+@media (max-width: 360px) {
+  .lux.h { grid-template-columns: 66px 1fr 36px; column-gap: 12px; padding: 12px 12px 12px 10px; }
+  .lux.h .art { zoom: 0.78; }
+  .lux.h .go { width: 36px; height: 36px; }
+}
 </style>
 
 <div id="stage"><canvas id="board" aria-label="3D chess board" data-t-aria="common.boardLabel"></canvas></div>
