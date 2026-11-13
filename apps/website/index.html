@@ -12730,6 +12730,7 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => Object.assign(side === 'w' ? { body: MATS.enamel() } : { body: MATS.malachite() }, { trim: MATS.roseGold(), accent: MATS.diamond(), accent2: MATS.spinel(), accent3: MATS.pearl() }),
     },
     manhattan: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.55 } },
       id: 'manhattan', name: 'Manhattan Deco', era: 'New York', year: '1930', tint: '#2a2a36',
       story: 'Made in the year the Chrysler Building reached for the clouds: cream enamel and black onyx with gold, standing on stepped plinths like skyscrapers. The people of the jazz-age city are the pieces, with emeralds for white and rubies for black.',
       lore: {
@@ -12821,6 +12822,7 @@ function ChacklatePieces(THREE, K) {
         : { body: lacquer('robot-b', '#2a2e36', { roughness: 0.24 }), trim: MAT.chrome(), joint: lacquer('robot-joint-b', '#12141a', { roughness: 0.4 }), accent: MAT.emissive('#ff9a2e', 1.6) }),
     },
     ocean: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.6 } },
       id: 'ocean', name: 'Coral Kingdom', era: 'Under the sea', year: 'Long ago, down deep', tint: '#0e5a6e',
       story: 'The court of a city that sank beneath the waves, carved in mother-of-pearl and gold: a sea king and a mermaid queen, glowing jellyfish, spiny seahorses, lighthouses that still shine, and pearls resting in open shells.',
       lore: {

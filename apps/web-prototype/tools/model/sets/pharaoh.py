@@ -12,9 +12,9 @@ BOXES = {
     'b': {'r': (313, 364, 483, 650), 'n': (510, 367, 671, 650), 'b': (706, 380, 845, 650), 'q': (858, 369, 1015, 650),
           'k': (1021, 356, 1222, 650), 'p': (1738, 418, 1863, 650)},
 }
-# the kings hold a staff: prompt the cut-out on it as well as up the figure
-POS = {'w': {'k': [(1105, 60), (1100, 150), (1100, 230), (1176, 90), (1176, 180), (1176, 230)]},
-       'b': {'k': [(1110, 430), (1110, 520), (1110, 600), (1192, 420), (1192, 520), (1192, 580)]}}
+# the kings hold a staff: it is cut on its own points and added to the figure
+ADD = {'w': {'k': [[(1172, 40), (1176, 120), (1176, 220)]]},
+       'b': {'k': [[(1192, 395), (1192, 500), (1192, 590)]]}}
 HALF = {t: 'full' for t in 'rnqkp'}
 SIDED = set('rnbqkp')
 GOLD = (52, 160, 236)
@@ -33,7 +33,7 @@ def refs():
     unit = king.unit
     for s in ('w', 'b'):
         for t, box in BOXES[s].items():
-            out[s][t] = kit.Ref(PIC, box, unit=unit, seg='sam', sym=(t == 'b'), pos=POS[s].get(t))
+            out[s][t] = kit.Ref(PIC, box, unit=unit, seg='sam', sym=(t == 'b'), add=ADD[s].get(t))
     for t in BOXES['b']:
         w, b = out['w'][t], out['b'][t]
         b.unit *= w.height() / max(b.height(), 1e-6)   # the two armies' carvings differ: match heights

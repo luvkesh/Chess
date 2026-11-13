@@ -46,7 +46,7 @@ def cell_uv(t, x, z):
 class Ref:
     """One piece cut from a reference picture. unit = game units per pixel."""
 
-    def __init__(self, path, box, unit=None, height=None, pad=14, iters=8, flip=False, mask=None, foot=0.12, seg='grabcut', thresh=10, core=None, sym=False, pos=None, neg=None):
+    def __init__(self, path, box, unit=None, height=None, pad=14, iters=8, flip=False, mask=None, foot=0.12, seg='grabcut', thresh=10, core=None, sym=False, pos=None, neg=None, add=None):
         self.sym = sym
         img = cv2.imread(path)
         x0, y0, x1, y1 = box
@@ -66,6 +66,10 @@ class Ref:
             N = [(x - X0, y - Y0) for x, y in (neg or [])]
             votes = sum((sam.cut(crop, [(x - X0, y - Y0) for x, y in P], N) > 0).astype(np.int32) for P in sets_)
             m = np.where(votes * 2 > len(sets_), 255, 0).astype(np.uint8)
+            # held things SAM keeps apart from the figure (a staff, a trident): cut each on its
+            # own points and add it
+            for P in (add or []):
+                m = np.maximum(m, sam.cut(crop, [(x - X0, y - Y0) for x, y in P], N, keep_all=True))
             m[:, :max(0, x0 - X0 - 2)] = 0
             m[:, x1 - X0 + 2:] = 0
         elif mask is None and seg == 'diff':
@@ -726,6 +730,8 @@ def relief(name, ref, z0, z1=None, thick=0.36, power=0.55, res=0.006, smooth=6, 
     mm = cv2.remap(m, mx, my, cv2.INTER_LINEAR, borderValue=0) > 127
     dt = distance_transform_edt(mm) * res
     half = thick / 2 * (dt / max(dt.max(), 1e-6)) ** power
+    # thin parts (a trident's prongs, a staff) keep a little round body instead of vanishing
+    half = np.where(mm, np.maximum(half, np.minimum(dt * 1.0, 0.0) + 1.6 * res), half)
     if taper is not None:
         half = half * taper(X, Z)
     gy = np.arange(-thick / 2 - 0.02, thick / 2 + 0.02, res)
