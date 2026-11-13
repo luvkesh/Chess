@@ -97,9 +97,9 @@ const freeItem = catalog.items.filter((i) => i.unlock.type === 'season' && i.unl
 const passItem = catalog.items.find((i) => i.unlock.type === 'season' && i.unlock.track === 'pass' && i.unlock.tier >= freeItem.unlock.tier);
 assert(freeItem && passItem);
 const top = Math.max(freeItem.unlock.tier, passItem.unlock.tier);
-let sawTier = 0, sawFree = false, sawPass = false;
+let sawTier = 0, sawFree = false, sawPass = false, px = 0;
 while (PS.tierOf(s, S1.id) < top) {
-  const out = PS.puzzleFinished(s, { id: 'px', rating: 2000 }, true, null, inSeason);
+  const out = PS.puzzleFinished(s, { id: 'px' + px++, rating: 2000 }, true, null, inSeason);   // a solved puzzle pays once
   if (out.seasonTier) sawTier = out.seasonTier;
   if (out.unlocked.some((u) => u.id === freeItem.id)) sawFree = true;
   if (out.unlocked.some((u) => u.id === passItem.id)) sawPass = true;
@@ -221,6 +221,18 @@ assert(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins >= 30);
 assert.strictEqual(s.earned.by['daily-puzzle'], 30);
 assert.strictEqual(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins || 0, 0, 'the daily puzzle pays once a day');
 assert.strictEqual(PG.puzzleFinished(s, { id: 'pz-coin2', rating: 900 }, true, { daily: true }, day(11)).coins >= 30, true, 'and again the next day');
+// a puzzle solved again moves neither XP nor the rating; short games and repeat runs have a daily XP limit
+s = PG.fresh();
+const r1 = PG.puzzleFinished(s, { id: 'again', rating: 1200 }, true, null, day(12));
+const r2 = PG.puzzleFinished(s, { id: 'again', rating: 1200 }, true, null, day(12));
+assert(r1.xp > 0 && r2.xp === 0 && r2.ratingDelta === 0, 'a solved puzzle pays once');
+const quick = () => PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 0, sans: [] }, day(12)).xp;
+quick();   // the first game also earns its badge
+let shortXp = 0; for (let i = 0; i < 50; i++) shortXp += quick();
+assert.strictEqual(shortXp, 10, 'instant resignations: 15 XP a day at most');
+PG.trainerFinished(s, 'tr', 50, day(12));
+let trXp = 0; for (let i = 0; i < 100; i++) trXp += PG.trainerFinished(s, 'tr', 50, day(12)).xp;
+assert(trXp <= 150, 'trainer XP is capped: ' + trXp);
 // turning the clock back cannot reopen a day already paid
 s = PG.fresh();
 assert.strictEqual(PG.dailyBonus(s, day(12)).coins, 20);

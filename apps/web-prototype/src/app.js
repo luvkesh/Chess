@@ -29,7 +29,8 @@
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   // A plain end date rather than a countdown: no ticking clocks aimed at children.
-  const seasonEnd = (s) => ChacklateI18n.date(new Date(s.ends + 'T00:00:00'), { day: 'numeric', month: 'short' });
+  // A season runs until the start of its end date, so its last day is the day before.
+  const seasonEnd = (s) => ChacklateI18n.date(new Date(new Date(s.ends + 'T00:00:00').getTime() - 86400e3), { day: 'numeric', month: 'short' });
   const STORE_KEY = 'chacklate-chess:v2';
   const APP_VERSION = '0.9 beta';
   const BUILD = typeof CHACKLATE_BUILD !== 'undefined' ? CHACKLATE_BUILD : 'dev';
@@ -159,6 +160,7 @@
     if (!['high', 'low'].includes(st.quality)) st.quality = 'high';
     if (!I18N.ALL.some((l) => l.id === st.lang)) st.lang = I18N.guess(navigator.languages || [navigator.language]);
     if (typeof st.name !== 'string' || !st.name.trim()) st.name = 'You';
+    if (typeof st.server !== 'string') st.server = '';
     if (!state.setup || typeof state.setup !== 'object') state.setup = { mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false };
   }
   PG.mergeLessons(state.progress, LESSONS.lessons);
@@ -174,6 +176,7 @@
     state.progress.premium = !!(previewOn() || e.premium);
     state.progress.passes = e.passes || [];
   }
+  if (state.account && state.account.safety && typeof state.account.safety === 'object') safety = state.account.safety;
   setEntitlements(state.account && state.account.ent);
   // Languages: Hindi brings Priya for the game calls (check, results); another language with a recorded
   // voice (Spanish, French, Portuguese, Mandarin) brings Rooky's voice in it. The coach voice stays as chosen.
@@ -226,16 +229,46 @@
   const REV_KEY = 'chacklate-chess:rev';
   const readRev = () => { try { return +localStorage.getItem(REV_KEY) || 0; } catch (e) { return 0; } };
   let rev = readRev(), saveWarned = false;
-  function adopt() {
+  // Coins and XP as last saved or taken from the other tab: what this tab added since is its delta.
+  let base = { coins: state.progress.coins, xp: state.progress.xp };
+  // Progress from the other tab, folded into this tab's: unions for what was bought, passed and
+  // unlocked, and coins and XP as the stored values plus what this tab added since it last synced.
+  function mergeProgress(mine, theirs) {
+    const out = theirs;
+    out.coins = Math.max(0, theirs.coins + (mine.coins - base.coins));
+    out.xp = Math.max(theirs.xp, theirs.xp + (mine.xp - base.xp));
+    out.bought = [...new Set([...theirs.bought, ...mine.bought])];
+    for (const k of ['lessons', 'achievements', 'granted', 'journey', 'openings', 'trainers', 'variantLessons']) out[k] = Object.assign({}, theirs[k], mine[k]);
+    const pz = out.stats.puzzles, mz = mine.stats.puzzles;
+    pz.seen = [...new Set([...(pz.seen || []), ...(mz.seen || [])])];
+    pz.done = [...new Set([...(pz.done || []), ...(mz.done || [])])];
+    out.equipped = Object.assign({}, mine.equipped);
+    return out;
+  }
+  // Takes the stored copy (from the other tab) into this tab. The progress object is refilled in
+  // place, so a screen holding it (a puzzle, a "Buy?" box) keeps writing into the live one.
+  function adopt(merge) {
     let cur = null;
     try { cur = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { cur = null; }
     rev = readRev();
     if (!cur || typeof cur !== 'object') return false;
-    const lang = state.settings.lang;   // each tab keeps the language it shows
-    if (cur.settings && typeof cur.settings === 'object') Object.assign(state.settings, cur.settings, { lang });
-    state.progress = PG.migrate(cur.progress);
+    const st = state.settings, lang = st.lang;   // each tab keeps the language it shows
+    if (cur.settings && typeof cur.settings === 'object') {
+      const wasReset = st.resetAt;
+      for (const k of Object.keys(st)) if (k !== 'lang' && !(k in cur.settings)) delete st[k];
+      Object.assign(st, cur.settings, { lang });
+      // That tab's language brought its game-calls voice: this tab's language picks its own.
+      if (cur.settings.lang !== lang) { st.voiceCalls = callsFor(lang, cur.settings.voiceCalls); oneVoice(st); }
+      // Started again in the other tab: the game left here goes too.
+      if (st.resetAt && st.resetAt !== wasReset) { state.game = null; saved.game = null; if (!document.querySelector('.modal')) go('home'); }
+    }
+    let p = PG.migrate(cur.progress);
+    if (merge) p = mergeProgress(state.progress, p);
+    for (const k of Object.keys(state.progress)) delete state.progress[k];
+    Object.assign(state.progress, p);
     PG.mergeLessons(state.progress, LESSONS.lessons);
     PG.setSeason(state.progress);
+    base = { coins: state.progress.coins, xp: state.progress.xp };
     state.account = cur.account || null;
     if (!state.game) saved.game = cur.game || null;
     if (!state.xq) saved.xq = cur.xq || null;
@@ -243,12 +276,13 @@
     return true;
   }
   window.addEventListener('storage', (e) => {
-    if (e.key !== REV_KEY || readRev() <= rev || !adopt()) return;
+    if (e.key !== REV_KEY || readRev() <= rev || !adopt(false)) return;
+    // Only the bar is redrawn: the screen stays as it is under the player (typing, scrolling, a voice).
     applySettings(); renderNav();
-    if ((!KIND[state.screen] || state.screen === 'home') && !document.querySelector('.modal')) go(state.screen, state.screenArg);
   });
   function save() {
-    if (readRev() > rev) adopt();
+    // The other tab saved and this one has not heard yet: fold that in, keeping this tab's change.
+    if (readRev() > rev) adopt(true);
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
       // a Xiangqi game in play is kept too; one not opened since the page loaded stays as it was saved
@@ -256,6 +290,7 @@
       localStorage.setItem(STORE_KEY, JSON.stringify({ settings: state.settings, setup: state.setup, progress: state.progress, account: state.account,
         game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null, xq }));
       localStorage.setItem(REV_KEY, String(rev = Math.max(rev, readRev()) + 1));
+      base = { coins: state.progress.coins, xp: state.progress.xp };
     } catch (e) {
       // Storage full or blocked: everything still works for this visit; say so once.
       if (!saveWarned) { saveWarned = true; setTimeout(() => { try { toast(t('common.saveFail'), 'bad'); } catch (e2) { /* not drawn yet */ } }, 0); }
@@ -267,7 +302,15 @@
   // The server says what this account may do (see services/game-server/src/family.js); null
   // means no server, which is offline play with nothing to buy or share.
   function setSafety(s) {
+    // The server's word for this account is kept with it, so a child's limits still hold with no
+    // connection (airplane mode, a wrong server address) until the server says otherwise.
+    if (s && state.account) state.account.safety = s;
+    else if (!s && state.account && state.account.safety && state.account.safety.kind === 'minor') s = state.account.safety;
     safety = s || null;
+    if (isMinor()) {   // no testing tools stay open on a child's account
+      document.querySelectorAll('.modal .labs-card').forEach((c) => { const w = c.closest('.modal'); if (w && w.close) w.close(); });
+      if (state.settings.labsFast) state.settings.labsFast = false;
+    }
     setEntitlements(state.account && state.account.ent);   // a child's account never keeps the Labs preview
     if ($('topnav')) { renderNav(); refreshScreenTools(); }   // nor the Labs button
     if (safety && !safety.reminders && state.settings.reminder && state.settings.reminder.on) { state.settings.reminder = Object.assign({}, state.settings.reminder, { on: false }); save(); }
@@ -329,9 +372,13 @@
     const pt = playTime();
     if (pt.ms < (lim + pt.extra) * 60e3 || breakModal) return;
     if (state.game && state.game.kind === 'online' && !state.game.g.outcome) return; // let the game finish
+    // A game against the computer waits on its clock while the break is up; Rooky's card hides.
+    const G0 = state.game && !state.game.g.outcome ? state.game : null;
+    if (G0) pauseClock(G0, true);
+    document.body.classList.add('breaktime');
     breakModal = modal('<div class="result-hero">' + faceImg(COACH) + '<span class="result-badge">' + t('home.break.badge') + '</span><h2 class="result-title">' + t('home.break.title') + '</h2>' +
       '<p class="sub">' + t('home.break.sub', { n: lim }) + '</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">' + t('home.break.more') + '</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
+      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">' + t('home.break.more') + '</button></div></div>', { sticky: true, onClose() { breakModal = null; document.body.classList.remove('breaktime'); if (G0 && state.game === G0) pauseClock(G0, false); } });
     breakModal.querySelector('#br-more').onclick = async () => {
       const m = breakModal; m.style.visibility = 'hidden';
       if (await parentGate(t('home.break.gate'), { always: true })) {
@@ -1227,7 +1274,7 @@
       '<p class="motto">' + t('home.motto') + '</p>' +
       '<div class="lux-row">' +
       lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
-        text: resume ? t('home.resumeText', { n: resume.n }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
+        text: resume ? (resume.n === 0 ? t('home.resumeNone') : resume.n === 1 ? t('home.resumeOne') : t('home.resumeText', { n: resume.n })) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
       lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
@@ -3274,7 +3321,7 @@
         '<label class="toggle">' + t('settings.languageLabel') + ' <select id="s-lang">' + I18N.LANGS.map((l) => '<option value="' + l.id + '" lang="' + l.id + '"' + (s.lang === l.id ? ' selected' : '') + '>' + esc(l.native === l.name ? l.native : l.native + ' · ' + l.name) + '</option>').join('') + '</select></label>') +
       page('app',
         appSection() +
-        '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">' + t('settings.server') + TIP_I + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>' +
+        (isMinor() ? '' : '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">' + t('settings.server') + TIP_I + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>') +
         '<div class="label set-h">' + t('settings.startAgain') + '</div>' +
         '<div class="row set-reset"><button class="btn warn" id="s-reset" data-tk="settings.reset">' + t('settings.reset') + '</button></div>' +
         '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · ' + t('settings.build') + ' ' + BUILD + '</button>');
@@ -3296,7 +3343,7 @@
     m.querySelectorAll('.set-back').forEach((b) => { b.onclick = () => { shell.dataset.view = 'list'; }; });
     if (m.querySelector('#s-labs')) m.querySelector('#s-labs').onclick = () => { m.close(); labsModal(); };
     show(cur, !!sec);
-    const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
+    const on = (id, ev, fn) => { const el = m.querySelector(id); if (el) el.addEventListener(ev, fn); };
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     // A new language: Hindi brings Priya for the game calls; the coach voice stays. The menus redraw.
     on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); oneVoice(s); applySettings(); save(); m.close(); relocalise(); settingsModal('lang'); });
@@ -3372,6 +3419,7 @@
     }
   }
   function labsModal() {
+    if (!labsOn()) return;
     const P = state.progress, s = state.settings;
     const G = state.game && state.screen === 'game' ? state.game : null;
     const fen = G ? G.g.pos.fen() : E.START_FEN;
@@ -3404,7 +3452,7 @@
     const q = (sel) => m.querySelector(sel);
     const note = (text) => { q('#lb-note').textContent = text; };
     // apply a change, save, redraw what shows it, and say what happened
-    const did = (text, fn) => () => { fn(); state.progress.labs = true; save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
+    const did = (text, fn) => () => { if (!labsOn()) { m.close(); return; } fn(); state.progress.labs = true; save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
     const p = () => state.progress;
     const items = () => CATALOG.items.forEach((i) => { if (!PG.isUnlocked(p(), i)) p().granted[i.id] = true; });
     const lessons = () => LESSONS.lessons.forEach((l) => { if (!p().lessons[l.id]) p().lessons[l.id] = { stars: 3, attempts: 1, mastered: true, completed: PG.today(), reviews: [] }; });
@@ -3438,7 +3486,7 @@
     m.querySelectorAll('input[name=lb-speed]').forEach((r) => r.addEventListener('change', () => { s.labsFast = r.value === 'fast'; save(); note(s.labsFast ? 'The computer now answers at once.' : 'The computer takes its usual time.'); }));
     m.querySelectorAll('input[name=lb-q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); note('Graphics set to ' + r.value + '.'); }));
     q('#lb-fps').onchange = (e) => { s.devFps = e.target.checked; save(); fpsMeter(e.target.checked); };
-    q('#lb-quick').onclick = () => { m.close(); s.labsFast = true; save(); startGame({ mode: 'ai', color: 'white', level: 0, tc: 'none', fen: '', dev: true }); };
+    q('#lb-quick').onclick = () => { m.close(); startGame({ mode: 'ai', color: 'white', level: 0, tc: 'none', fen: '', dev: true }); };
     q('#lb-missions').onclick = did('Today\'s missions start again.', () => { p().missions = { date: '', list: [], bonus: false }; });
     q('#lb-streak').onclick = did('Streak reset.', () => { p().streak = { count: 0, last: '' }; });
     q('#lb-learn').onclick = did('Every lesson is marked not done, so Learn starts from the first lesson.', () => { p().lessons = {}; });
@@ -3447,7 +3495,8 @@
     let wipe = false;
     q('#lb-wipe').onclick = () => {
       if (!wipe) { wipe = true; q('#lb-wipe').textContent = 'Tap again to reset'; return; }
-      state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); toast('Profile reset to a new player.');
+      m.close();
+      parentGate('Labs', { always: true }).then((ok) => { if (!ok || !labsOn()) return; resetDevice(); applyLook(); go('home'); toast('Profile reset to a new player.'); });
     };
     q('#lb-hide').onclick = () => { s.labs = false; save(); m.close(); renderNav(); refreshScreenTools(); toast('Labs is hidden. Tap the version line in Settings seven times to bring it back.'); };
     q('#lb-set').onclick = () => { m.close(); settingsModal(); };
@@ -3551,6 +3600,13 @@
   }
 
   function startGame(setup, restore) {
+    // An online game still on the board is never swapped for another one: finish it first.
+    const live = state.game;
+    if (live && live.kind === 'online' && !live.g.outcome && !(live.online && live.online.ended) && setup.mode !== 'online') {
+      toast(t('online.finishFirst'), 'bad');
+      backToGame();
+      return;
+    }
     // Only ordinary games become the defaults for the next one; dojo, journey and online
     // games keep their own setup.
     if (!setup.dojo && !setup.journey && !setup.dev && setup.mode !== 'online' && E.variantOf(setup.fen) === 'standard') state.setup = Object.assign({}, setup);
@@ -3722,11 +3778,14 @@
   // ratings and a new id). Language, sound and voices stay, and so does today's play time, which
   // is a grown-up's limit. (The saved pictures are renders of the game itself, nothing personal.)
   function resetDevice() {
-    state.progress = PG.fresh();
+    const fresh = PG.fresh();
+    for (const k of Object.keys(state.progress)) delete state.progress[k];
+    Object.assign(state.progress, fresh);
     PG.mergeLessons(state.progress, LESSONS.lessons);
     PG.setSeason(state.progress);
     state.game = null; saved.game = null;
     state.settings.name = 'You';
+    state.settings.resetAt = Date.now();   // tells another open tab to drop its game too
     delete state.settings.club; delete state.settings.netName; delete state.settings.ageKid;
     try { sessionStorage.clear(); } catch (e) { /* storage blocked */ }
     setEntitlements(state.account && state.account.ent);
@@ -4123,7 +4182,7 @@
     const level = LEVELS[G.setup.level];
     let timeMs = level.timeMs;
     if (G.clock) { const left = G.clock[g.pos.side === WHITE ? 'w' : 'b']; timeMs = Math.max(120, Math.min(timeMs, left / 30 + G.clock.inc * 0.6)); }
-    if (state.settings.labsFast) timeMs = Math.min(timeMs, 80);   // Labs: the computer answers at once
+    if (state.settings.labsFast && labsOn()) timeMs = Math.min(timeMs, 80);   // Labs: the computer answers at once
     G.thinking = true;
     renderHud();
     const started = performance.now();
@@ -4132,7 +4191,7 @@
       if (id !== G.request || state.game !== G) return;
       // the workers restart when the language changes: ask again rather than leave the bot frozen
       if (r && r.error) { G.thinking = false; setTimeout(() => { if (state.game === G && id === G.request && !G.g.outcome) maybeComputer(); }, 50); return; }
-      const delay = state.settings.labsFast ? 0 : Math.max(0, 420 - (performance.now() - started));
+      const delay = state.settings.labsFast && labsOn() ? 0 : Math.max(0, 420 - (performance.now() - started));
       setTimeout(() => {
         if (id !== G.request || state.game !== G) return;
         G.thinking = false;
@@ -4815,7 +4874,8 @@
     // Progress
     let res = null;
     // A game called off before both sides moved counts for nobody: no win, loss, XP or coins.
-    if (o.reason !== 'aborted' && (G.kind !== 'local' || g.moves.length >= 10)) {
+    // Labs games (any position, quick test) count for nothing either, so nothing from them reaches the server.
+    if (o.reason !== 'aborted' && !G.setup.dev && (G.kind !== 'local' || g.moves.length >= 10)) {
       res = PG.gameFinished(state.progress, {
         mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, champion: !!G.setup.journey, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
         plies: g.moves.length, sans: g.sans, firstIsMine: G.kind === 'local' ? true : (E.positionFrom(g.startFen, []).side === G.human), startFen: g.startFen, ucis: g.uciMoves(),
@@ -6656,7 +6716,7 @@
 
   // ---------------------------------------------------------------- shared API for the online client
   window.ChacklateApp = {
-    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate,
+    E, state, toast, modal, esc, icon, save, go, backToGame, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate,
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
@@ -6690,12 +6750,12 @@
       if (!G.g.outcome) G.g.finish(result, reason);
       endGame();
     },
-    onlineEmote(id, mine) { showEmote(id, mine); },
+    onlineEmote(id, mine) { const G = state.game; if (G && G.kind === 'online') showEmote(id, mine); },
     // The friend picked a hand: this side watches the same paw open.
     onlineToss(hand) { const G = state.game; if (!G || G.kind !== 'online') return; G.tossHand = hand; if (G.toss && G.toss.reveal) G.toss.reveal(hand); },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
     drawOffered() {
-      const G = state.game; if (!G) return;
+      const G = state.game; if (!G || G.kind !== 'online' || state.screen !== 'game') return;
       AU.event('draw.offer');
       coachSay(t('play.offer'), [[t('play.accept'), 'accept-draw'], [t('play.decline'), 'dismiss']]);
       const b = document.querySelector('[data-coach="accept-draw"]');
