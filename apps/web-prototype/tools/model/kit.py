@@ -34,16 +34,33 @@ COLS, ROWS = 3, 2
 ATLAS_W, ATLAS_H = CW * COLS, CH * ROWS
 
 
-def cell_uv(t, x, z):
-    """world (x across the picture, z up) on piece type t -> atlas uv (v down, flipY false)."""
+def set_views(n):
+    """1: the classic atlas (each piece painted from its front picture only). 4: hero sets, where
+    each piece also has a back, a left and a right cell painted from TripoSR's view of it, so
+    the sides and back carry their own colours instead of the front stretched round."""
+    global COLS, ROWS, ATLAS_W, ATLAS_H, VIEWS
+    VIEWS = n
+    COLS, ROWS = (3, 2) if n == 1 else (6, 4)
+    ATLAS_W, ATLAS_H = CW * COLS, CH * ROWS
+
+
+VIEWS = 1
+
+
+def _cell(t, view=0):
     i = TYPES.index(t)
-    cx, cy = (i % COLS) * CW, (i // COLS) * CH
+    return (i % 3 + 3 * (view % 2)) * CW, (i // 3 + 2 * (view // 2)) * CH
+
+
+def cell_uv(t, x, z, view=0):
+    """world (x across the picture, z up) on piece type t -> atlas uv (v down, flipY false).
+    view 0 front, 1 back (x as seen from the front), 2 left and 3 right (x = depth, y)."""
+    cx, cy = _cell(t, view)
     px = cx + (x / CELL_W + 0.5) * CW
     py = cy + (1 - z / CELL_H) * CH
     return px / ATLAS_W, py / ATLAS_H
 
 
-# ------------------------------------------------------------------ reference cut-outs
 class Ref:
     """One piece cut from a reference picture. unit = game units per pixel."""
 
@@ -365,11 +382,10 @@ def wear(h, w, seed, amount=1.0):
     return np.clip(0.35 * (cloud - 0.5) + sc, -0.2, 1.0)
 
 
-def paint_cell(ref, t, atlas, mr, look, half='right', glow=None):
+def paint_cell(ref, t, atlas, mr, look, half='right', glow=None, view=0):
     """resample a side's picture of piece type t into its atlas cell.
     look: {'body': (rough, metal), 'gold': (rough, metal), 'gem': (rough, metal), 'gold_tone': bgr or None}"""
-    i = TYPES.index(t)
-    cx, cy = (i % COLS) * CW, (i // COLS) * CH
+    cx, cy = _cell(t, view)
     xs = (np.arange(CW) + 0.5) / CW * CELL_W - CELL_W / 2
     zs = (1 - (np.arange(CH) + 0.5) / CH) * CELL_H
     X, Z = np.meshgrid(xs, zs)
@@ -748,16 +764,14 @@ def reset():
 TSR = os.environ.get('CHACK_TSR', '0') == '1'  # opt in while side colours are worked on
 
 
-def _tsr_field(ref, X, Z, res):
-    """TripoSR's occupancy for the whole cut-out, resampled onto relief()'s (x, z) grid.
-    Returns (f(gy) -> field over (y, z, x), half depth) or None when TripoSR isn't set up."""
+def _tsr_map(ref):
+    """TripoSR's volume for the whole cut-out and how its axes land in the piece's world"""
     import tsr
-    from scipy.ndimage import map_coordinates
-    if not tsr.available() and not getattr(ref, '_tsr', None):
+    if getattr(ref, '_tsrm', None) is not None:
+        return ref._tsrm
+    if not tsr.available():
         return None
-    if getattr(ref, '_tsr', None) is None:
-        ref._tsr = tsr.volume(ref.crop, ref.mask)
-    v, box = ref._tsr
+    v, box = tsr.volume(ref.crop, ref.mask)
     n = v.shape[0]
     ys, xs = np.nonzero(ref.mask > 127)
     xw0, xw1 = (xs.min() - ref.axis) * ref.unit, (xs.max() + 1 - ref.axis) * ref.unit
@@ -765,21 +779,131 @@ def _tsr_field(ref, X, Z, res):
     (d0, d1), (u0, u1), (a0, a1) = box
     sa, su = (xw1 - xw0) / (a1 - a0), (zw1 - zw0) / (u1 - u0)
     sd = (sa + su) / 2
-    occ = v > 0
-    di = np.nonzero(occ.any((1, 2)))[0]
+    di = np.nonzero((v > 0).any((1, 2)))[0]
     dc = d0 + (di.min() + di.max()) / 2 / (n - 1) * (d1 - d0)
-    ia = (a0 + (X - xw0) / sa - a0) / (a1 - a0) * (n - 1)
-    iu = (u0 + (Z - zw0) / su - u0) / (u1 - u0) * (n - 1)
-    half = max(dc - d0, d1 - dc) * sd
+    ref._tsrm = dict(v=v, n=n, box=box, xw0=xw0, zw0=zw0, sa=sa, su=su, sd=sd, dc=dc)
+    return ref._tsrm
+
+
+def _tsr_field(ref, X, Z, res):
+    """TripoSR's occupancy for the whole cut-out, resampled onto relief()'s (x, z) grid.
+    Returns (f(gy) -> field over (y, z, x), half depth) or None when TripoSR isn't set up.
+    Blender y is depth with the viewer at -y."""
+    from scipy.ndimage import map_coordinates
+    M = _tsr_map(ref)
+    if M is None:
+        return None
+    v, n = M['v'], M['n']
+    (d0, d1), (u0, u1), (a0, a1) = M['box']
+    ia = ((X - M['xw0']) / M['sa']) / (a1 - a0) * (n - 1)
+    iu = ((Z - M['zw0']) / M['su']) / (u1 - u0) * (n - 1)
+    half = max(M['dc'] - d0, d1 - M['dc']) * M['sd']
 
     def field(gy):
-        idd = ((dc + gy / sd) - d0) / (d1 - d0) * (n - 1)
+        idd = ((M['dc'] - gy / M['sd']) - d0) / (d1 - d0) * (n - 1)
         D = np.broadcast_to(idd[:, None, None], (len(gy),) + X.shape)
         U = np.broadcast_to(iu[None], D.shape)
         A = np.broadcast_to(ia[None], D.shape)
         return map_coordinates(v, [D.ravel(), U.ravel(), A.ravel()], order=1, cval=-5.0).reshape(D.shape)
     return field, half
 
+
+class _View:
+    """a TripoSR view of a piece, shaped like a Ref so paint_cell can paint from it"""
+    def __init__(self, crop, mask, axis, bot, unit):
+        self.crop, self.mask, self.axis, self.bot, self.unit = crop, mask, axis, bot, unit
+
+
+def tsr_views(ref):
+    """back, left and right views of the piece from TripoSR, colour-matched to the front
+    picture. Back: columns = x as seen from the front; sides: columns = Blender y."""
+    import tsr
+    M = _tsr_map(ref)
+    v, n = M['v'], M['n']
+    (d0, d1), (u0, u1), (a0, a1) = M['box']
+    occ = v > 0
+    ax = lambda lo, hi: lo + np.arange(n) / (n - 1) * (hi - lo)
+    D, U, A = ax(d0, d1), ax(u0, u1), ax(a0, a1)
+
+    def first(axis, rev):
+        o = np.flip(occ, axis) if rev else occ
+        hit = o.any(axis)
+        idx = o.argmax(axis)
+        return (n - 1 - idx if rev else idx), hit
+    out = {}
+    # front (to match colours), back: along depth; TripoSR depth grows towards the camera
+    for name, axis, rev in (('front', 0, True), ('back', 0, False), ('left', 2, False), ('right', 2, True)):
+        idx, hit = first(axis, rev)
+        if axis == 0:     # grid (u, a)
+            uu, aa = np.meshgrid(np.arange(n), np.arange(n), indexing='ij')
+            pts = np.stack([D[idx], A[aa], U[uu]], -1)
+        else:             # grid (d, u)
+            dd, uu = np.meshgrid(np.arange(n), np.arange(n), indexing='ij')
+            pts = np.stack([D[dd], A[idx], U[uu]], -1)
+        rgb = np.zeros(pts.shape, np.float32)
+        rgb[hit] = tsr.colour(ref.crop, ref.mask, pts[hit])
+        out[name] = (rgb, hit)
+    # colour match: TripoSR's front against the picture's own front, per channel
+    rgb, hit = out['front']
+    stepx, stepz = M['sa'] * (a1 - a0) / (n - 1), M['su'] * (u1 - u0) / (n - 1)
+    X = M['xw0'] + np.arange(n) * stepx
+    Z = M['zw0'] + np.arange(n) * stepz
+    mx = (ref.axis + X[None, :] / ref.unit + 0 * Z[:, None]).astype(np.float32)
+    my = (ref.bot - Z[:, None] / ref.unit + 0 * X[None, :]).astype(np.float32)
+    pic = cv2.remap(ref.crop, mx, my, cv2.INTER_AREA)[..., ::-1].astype(np.float32) / 255
+    pm = cv2.remap(ref.mask, mx, my, cv2.INTER_NEAREST) > 127
+    ok = hit & pm
+    gain, off = np.ones(3, np.float32), np.zeros(3, np.float32)
+    if ok.sum() > 50:
+        for c in range(3):
+            a_, b_ = rgb[..., c][ok], pic[..., c][ok]
+            gain[c] = b_.std() / max(a_.std(), 1e-3)
+            off[c] = b_.mean() - gain[c] * a_.mean()
+    views = {}
+    for name, view in (('back', 1), ('left', 2), ('right', 3)):
+        rgb, hit = out[name]
+        rgb = np.clip(rgb * gain + off, 0, 1)
+        if name == 'back':     # rows: u up -> image rows down; columns: a (x)
+            img, m = rgb[::-1], hit[::-1]
+            unit_x, z_step = stepx, stepz
+            axis = -M['xw0'] / stepx
+        else:                  # rows: u; columns: world y = -(d - dc) * sd, increasing
+            img, m = rgb.transpose(1, 0, 2)[::-1, ::-1], hit.T[::-1, ::-1]
+            stepy = M['sd'] * (d1 - d0) / (n - 1)
+            unit_x, z_step = stepy, stepz
+            # column c holds d index n-1-c; y = -(d - dc) * sd
+            axis = (n - 1) - (M['dc'] - d0) / (d1 - d0) * (n - 1)
+        # square pixels: resize rows so a row is unit_x tall
+        h2 = max(2, int(round(n * z_step / unit_x)))
+        img = cv2.resize((img[..., ::-1] * 255).astype(np.uint8), (n, h2), interpolation=cv2.INTER_CUBIC)
+        m = cv2.resize(m.astype(np.uint8) * 255, (n, h2), interpolation=cv2.INTER_NEAREST)
+        bot = (h2 - 1) + M['zw0'] / unit_x
+        views[view] = _View(img, m, axis, bot, unit_x)
+    return views
+
+
+def set_uv_box(ob, t):
+    """hero pieces: faces facing the viewer take the front picture, the rest the back, left or
+    right TripoSR views"""
+    me = ob.data
+    if not me.uv_layers:
+        me.uv_layers.new(name='uv')
+    uvl = me.uv_layers[0].data
+    bpy.context.view_layer.update()
+    mw = ob.matrix_world
+    nm = mw.to_3x3()
+    for poly in me.polygons:
+        nv = nm @ poly.normal
+        # the back shows the front picture through, as the classic sets do: on the table each
+        # army is seen from both sides, and the picture's own front reads far better than
+        # TripoSR's guess at a back
+        if abs(nv.y) > 0.35:
+            view = 0
+        else:
+            view = 2 if nv.x < 0 else 3
+        for li in poly.loop_indices:
+            co = mw @ me.vertices[me.loops[li].vertex_index].co
+            uvl[li].uv = cell_uv(t, co.y if view >= 2 else co.x, co.z, view)
 
 
 def relief(name, ref, z0, z1=None, thick=0.36, power=0.55, res=0.006, smooth=6, x_view='side', taper=None, use_tsr=None):
@@ -818,9 +942,25 @@ def relief(name, ref, z0, z1=None, thick=0.36, power=0.55, res=0.006, smooth=6, 
     if T is not None:
         # the true depth from TripoSR, cut to the picture's own outline; columns it missed
         # (a staff or prong thinner than its grid) keep the swollen outline
-        Ft = T[0](gy)
-        hit = (Ft > 0).any(0) & mm
-        F = np.where(hit[None], np.clip(Ft, -1, 1) * res, F)
+        # only TripoSR's front and back depth per column, smoothed, is kept: its surface is
+        # lumpy, while the picture's own outline and a smooth swell read far better from the front
+        from scipy.ndimage import gaussian_filter
+        Ft = T[0](gy) > 0
+        hit = Ft.any(0) & mm
+        idx = np.arange(len(gy))[:, None, None]
+        yf = np.where(Ft, gy[idx], np.inf).min(0)
+        yb = np.where(Ft, gy[idx], -np.inf).max(0)
+        fill_f = np.where(hit, yf, -half)
+        fill_b = np.where(hit, yb, half)
+        sig = max(2.0, 0.035 / res)
+        w = gaussian_filter(mm.astype(np.float32), sig) + 1e-6
+        yf_s = gaussian_filter(np.where(mm, fill_f, 0), sig) / w
+        yb_s = gaussian_filter(np.where(mm, fill_b, 0), sig) / w
+        c = (yf_s + yb_s) / 2
+        e = np.maximum((yb_s - yf_s) / 2, 1.6 * res)
+        # the edge is rounded off over a short band inside the outline
+        q = np.clip(dt / 0.05, 0, 1) ** 0.5
+        F = (e * q)[None] - np.abs(gy[:, None, None] - c[None])
     F[:, ~mm] = -res
     verts, faces, _, _ = marching_cubes(np.pad(F, 1, constant_values=-1), 0)
     verts -= 1

@@ -67,6 +67,8 @@ def webp(img, q=86):
 def build_set(sid):
     mod = importlib.import_module('sets.' + sid)
     kit.reset()
+    hero = getattr(mod, 'HERO', False)
+    kit.set_views(4 if hero else 1)
     refs = mod.refs()
     atlas = {s: np.zeros((kit.ATLAS_H, kit.ATLAS_W, 3), np.uint8) for s in refs}
     mr = {s: np.zeros((kit.ATLAS_H, kit.ATLAS_W, 3), np.uint8) for s in refs}
@@ -76,7 +78,11 @@ def build_set(sid):
     built = []
     for t in kit.TYPES:
         for s, r in refs.items():
-            kit.paint_cell(r[t], t, atlas[s], mr[s], mod.LOOK[s] if s in mod.LOOK else mod.LOOK, half=getattr(mod, 'HALF', {}).get(t, 'right'), glow=glow[s])
+            lk = mod.LOOK[s] if s in mod.LOOK else mod.LOOK
+            kit.paint_cell(r[t], t, atlas[s], mr[s], lk, half=getattr(mod, 'HALF', {}).get(t, 'right'), glow=glow[s])
+            if hero:
+                for view, vr in kit.tsr_views(r[t]).items():
+                    kit.paint_cell(vr, t, atlas[s], mr[s], lk, half='full', glow=glow[s], view=view)
         # pieces whose two sides differ in shape (knights' manes, as a rule) are built from each
         # side's own picture; the rest share the white side's mesh
         sided = t in getattr(mod, 'SIDED', {'n'})
