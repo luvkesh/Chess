@@ -278,12 +278,32 @@ function ChacklateXiangqi() {
     { depth: 64, noise: 0, timeMs: 2000 }, { depth: 64, noise: 0, timeMs: 3000 },
   ];
 
+  // A position seen again on the searched line (or earlier in the game, back to the last capture)
+  // is a draw, unless one side gave check with every move of the cycle: that side loses, as in Game.
+  const PERPETUAL = 15000;
   function search(pos, opts) {
     opts = opts || {};
     const maxDepth = opts.depth || 64, timeMs = opts.timeMs || 1000, noise = opts.noise || 0, random = opts.random || Math.random;
     const t0 = Date.now(), tt = new Map(), killers = [];
     let nodes = 0, stop = false;
-    const path = [];   // keys on the line being searched, for repetition
+    const late = () => Date.now() - t0 > timeMs;
+    const keys = [], chks = [];   // positions on the line being searched: key, and whether the side to move is in check
+    function repeat(inCheck) {
+      const n = keys.length, key = pos.key, lo = Math.max(0, n - pos.half);
+      for (let j = n - 2; j >= lo; j -= 2) {
+        if (keys[j] !== key) continue;
+        // moves j -> j+1, j+2 -> j+3 ... were made by the side to move now; the others by the opponent
+        let mine = true, theirs = true;
+        for (let i = j + 1; i <= n; i++) {
+          const c = i === n ? inCheck : chks[i];
+          if ((i - j) % 2) mine = mine && c; else theirs = theirs && c;
+        }
+        if (mine && !theirs) return -PERPETUAL;
+        if (theirs && !mine) return PERPETUAL;
+        return 0;
+      }
+      return null;
+    }
     const order = (ms, best, ply) => {
       const k = killers[ply] || [];
       return ms.map((m) => {
@@ -293,7 +313,7 @@ function ChacklateXiangqi() {
       }).sort((a, c) => c[0] - a[0]).map((x) => x[1]);
     };
     function quiesce(alpha, beta, ply) {
-      if ((++nodes & 2047) === 0 && Date.now() - t0 > timeMs) stop = true;
+      if ((++nodes & 511) === 0 && late()) stop = true;
       if (stop) return 0;
       const stand = evaluate(pos);
       if (stand >= beta) return stand;
@@ -311,35 +331,41 @@ function ChacklateXiangqi() {
       return alpha;
     }
     function negamax(depth, alpha, beta, ply) {
-      if ((++nodes & 2047) === 0 && Date.now() - t0 > timeMs) stop = true;
+      if ((++nodes & 511) === 0 && late()) stop = true;
       if (stop) return 0;
-      if (ply && path.includes(pos.key)) return 0;
       const inCheck = pos.inCheck();
+      if (ply) { const r = repeat(inCheck); if (r !== null) return r; }
       if (inCheck) depth++;
       if (depth <= 0) return quiesce(alpha, beta, ply);
       const e = tt.get(pos.key);
       if (e && e.d >= depth && ply) { if (e.f === 0) return e.v; if (e.f === 1 && e.v >= beta) return e.v; if (e.f === -1 && e.v <= alpha) return e.v; }
       let best = -MATE - 1, bestM = e ? e.m : -1, legal = 0;
       const a0 = alpha;
-      path.push(pos.key);
+      keys.push(pos.key); chks.push(inCheck);
       for (const m of order(pos.gen(false), bestM, ply)) {
         pos.make(m);
         if (pos.attacked(pos.kingSq(-pos.side), pos.side)) { pos.unmake(); continue; }
         legal++;
         const v = -negamax(depth - 1, -beta, -alpha, ply + 1);
         pos.unmake();
-        if (stop) { path.pop(); return 0; }
+        if (stop) { keys.pop(); chks.pop(); return 0; }
         if (v > best) { best = v; bestM = m; }
         if (v > alpha) alpha = v;
         if (alpha >= beta) { if (!pos.b[mTo(m)]) { const k = killers[ply] || (killers[ply] = []); if (!k.includes(m)) { k.unshift(m); k.length = Math.min(k.length, 2); } } break; }
       }
-      path.pop();
+      keys.pop(); chks.pop();
       if (!legal) return -MATE + ply;   // no move: checkmate or stalemate, both lose
-      tt.set(pos.key, { d: depth, v: best, m: bestM, f: best <= a0 ? -1 : best >= beta ? 1 : 0 });
+      // a score that came from a repetition depends on the line, so it is not kept for other lines
+      if (Math.abs(best) !== PERPETUAL) tt.set(pos.key, { d: depth, v: best, m: bestM, f: best <= a0 ? -1 : best >= beta ? 1 : 0 });
       return best;
     }
     const root = pos.legalMoves();
     if (!root.length) return { move: null, score: -MATE, depth: 0 };
+    // the game so far, back to the last capture, so the computer sees repetitions with earlier moves
+    const back = [];
+    while (back.length < pos.half && pos.hist.length) { back.push(pos.hist[pos.hist.length - 1].m); pos.unmake(); }
+    while (back.length) { keys.push(pos.key); chks.push(pos.inCheck()); pos.make(back.pop()); }
+    keys.push(pos.key); chks.push(pos.inCheck());
     let result = { move: root[0], score: 0, depth: 0 };
     for (let d = 1; d <= maxDepth; d++) {
       // the root by hand, so weaker levels can pick among near-best moves
@@ -347,7 +373,6 @@ function ChacklateXiangqi() {
       let alpha = -MATE - 1;
       const prev = result.move;
       const ms = order(root, prev, 0);
-      path.length = 0; path.push(pos.key);
       for (const m of ms) {
         pos.make(m);
         const v = -negamax(d - 1, -MATE - 1, noise ? MATE + 1 : -alpha, 1);
@@ -364,6 +389,7 @@ function ChacklateXiangqi() {
         if (ok.length) pick = ok[Math.floor(random() * ok.length)];
       }
       result = { move: pick[1], score: pick[0], depth: d };
+      // the next depth takes several times as long as this one, so do not start it late
       if (stop || Date.now() - t0 > timeMs * 0.5 || Math.abs(scored[0][0]) > MATE - 100) break;
     }
     return result;

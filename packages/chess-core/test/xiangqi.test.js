@@ -48,4 +48,35 @@ assert.strictEqual(g.fen(), before);
 // The computer finds a mate in one.
 const r = X.search(new X.Game('xiangqi:3k5/9/9/9/9/9/9/9/9/R3K4 w - - 0 1').pos, { depth: 4, timeMs: 2000 });
 assert.strictEqual(X.uci(r.move), 'a0d0');
+// The computer does not give endless check when that loses: Red is ahead, and one more
+// check from a8 to a9 would be the third time, so Red would lose the game.
+{
+  const fen = 'xiangqi:3k5/9/9/9/R7r/9/9/9/9/2BAKAB2 w - - 0 1', line = ['a5a9', 'd9d8', 'a9a8', 'd8d9', 'a8a9', 'd9d8', 'a9a8', 'd8d9'];
+  for (const lv of [5, 6, 7]) {
+    const pg = new X.Game(fen);
+    for (const mv of line) assert(pg.playText(mv), mv);
+    const s = X.search(pg.pos, Object.assign({}, X.LEVELS[lv], { timeMs: 600 }));
+    assert.strictEqual(pg.pos.hist.length, line.length);   // the search leaves the history as it was
+    pg.play(s.move);
+    assert(!pg.outcome, 'level ' + lv + ' played ' + X.uci(s.move) + ' and lost by endless check');
+  }
+  // ...and the side being checked is glad to repeat: Black, four guards down, keeps stepping back and forth.
+  const bg = new X.Game(fen);
+  for (const mv of line.slice(0, 7)) assert(bg.playText(mv), mv);
+  const before = bg.fen();
+  const s = X.search(bg.pos, { timeMs: 600 });
+  assert.strictEqual(bg.fen(), before);
+  assert(s.score > 0, 'black sees the repetition as a win, got ' + s.score);
+}
+// The top levels keep to their thinking time.
+{
+  const tg = new X.Game();
+  for (const mv of ['h2e2', 'h9g7', 'h0g2', 'i9h9']) assert(tg.playText(mv), mv);
+  for (const lv of [5, 7]) {
+    const t0 = Date.now();
+    X.search(tg.pos, X.LEVELS[lv]);
+    const took = Date.now() - t0;
+    assert(took <= X.LEVELS[lv].timeMs + 150, 'level ' + lv + ' thought ' + took + ' ms for ' + X.LEVELS[lv].timeMs);
+  }
+}
 console.log('xiangqi tests passed');
