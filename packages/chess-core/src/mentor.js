@@ -101,6 +101,9 @@ function ChacklateMentor(E, C, strings, nameOf) {
     'hi.idea.mate': 'It can give checkmate.', 'hi.idea.fork': 'It can make a fork.', 'hi.idea.pin': 'It can pin something.', 'hi.idea.skewer': 'It can make a skewer.',
     'hi.idea.discovered': 'Moving it uncovers an attack.', 'hi.idea.capture': 'It can take something safely.', 'hi.idea.promote': 'It can become a queen.',
     'hi.idea.check': 'It can give check.', 'hi.idea.safety': 'It needs a safer square.', 'hi.idea.develop': 'It is still at home.', 'hi.idea.centre': 'It can help in the centre.',
+    'hi.dirGoal': 'You can win the game with one move. Look closely!', 'hi.dirForce': 'You have a winning plan here. Think it through!',
+    'hi.idea.goal': 'It can win the game.', 'hi.wins.hill': 'Your king reaches the hill in the middle and wins the game.',
+    'hi.wins.checks': 'That is your third check, so you win the game.', 'hi.wins.bare': 'Their king is left all alone, so you win the game.',
     'hi.exactFrom': 'Move your {piece} from {from} to {to} ({san}).', 'hi.reply': 'If they answer {san}, you are ready.',
     // think ahead
     'ta.intro': 'Let\'s think a few moves ahead.', 'ta.you': 'You play {san}.', 'ta.them': 'They likely answer {san}.', 'ta.youThen': 'Then you play {san}.',
@@ -546,6 +549,20 @@ function ChacklateMentor(E, C, strings, nameOf) {
 
   // ------------------------------------------------------------------ the Analyst: engine work (worker side)
   // Up to n best moves, each from its own search with the earlier ones left out.
+  // Does this move win a variant game on the spot: king on the hill, third check, or their king bared?
+  function goalOf(pos, m) {
+    const side = pos.side;
+    if (!pos.v.hill && !pos.v.checks && !pos.ch) return null;
+    pos.make(m);
+    let g = null;
+    if (pos.legalMoves().length || !pos.inCheck()) {
+      const vw = pos.variantWinner();
+      if (vw === side) g = pos.v.hill ? 'hill' : 'checks';
+      else if (pos.ch && pos.count(-side) === 0 && pos.bareWinner() === side) g = 'bare';
+    }
+    pos.unmake();
+    return g;
+  }
   function topMoves(pos, n, timeMs) {
     const out = [], exclude = [];
     const legal = pos.legalMoves();
@@ -553,7 +570,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       const r = E.search(pos, { timeMs, quiesce: true, exclude: exclude.slice() });
       if (!r.move) break;
       exclude.push(E.uci(r.move));
-      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateIn(r.score), facts: C.facts(pos, r.move) });
+      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateIn(r.score), facts: C.facts(pos, r.move), goal: goalOf(pos, r.move) });
     }
     return out;
   }
@@ -644,7 +661,8 @@ function ChacklateMentor(E, C, strings, nameOf) {
       side, phase: a.phase, assess: a, alts, threat: threat ? { facts: threat.facts, serious: threat.serious, mate: threat.mate } : null, line, zugzwang: zz,
       inCheck: pos.inCheck(), legalCount: legal.length, captures: legal.filter((m) => E.mFlags(m) & E.F_CAP).length,
       opening: std ? opening(sans) : null, trap: std ? trapAhead(sans, side) : null, full: pos.full,
-      mate: alts[0] && alts[0].mate > 0 ? { n: alts[0].mate, line: [alts[0].san].concat(line ? line.moves.map((x) => x.san) : []).slice(0, alts[0].mate * 2 - 1), pattern: mateAlts(pos, alts[0], line) } : null,
+      variantGoal: !!(pos.v.hill || pos.v.checks || pos.ch),
+      mate: alts[0] && alts[0].mate > 0 && !(pos.v.hill || pos.v.checks) ? { n: alts[0].mate, line: [alts[0].san].concat(line ? line.moves.map((x) => x.san) : []).slice(0, alts[0].mate * 2 - 1), pattern: mateAlts(pos, alts[0], line) } : null,
       fen: pos.fen(),
     };
   }
@@ -1086,17 +1104,19 @@ function ChacklateMentor(E, C, strings, nameOf) {
     const f = best.facts, a = lk.assess;
     const kind = idea(f, a, null);
     let dir;
-    if (best.mate > 0 || f.mate) dir = tr('hi.dirMate');
+    if (best.goal) dir = tr('hi.dirGoal');
+    else if (f.mate || (best.mate > 0 && !lk.variantGoal)) dir = tr('hi.dirMate');
+    else if (best.mate > 0) dir = tr('hi.dirForce');
     else if (kind === 'tactic') dir = tr('hi.dirTactic');
     else if (kind === 'win') dir = tr('hi.dirWin');
     else if (kind === 'defend' || (a.hanging.me.length && a.hanging.me.some((h) => h.sq === f.from))) dir = tr('hi.dirDefend');
     else dir = tr({ develop: 'hi.dirDevelop', castle: 'hi.dirCastle', centre: 'hi.dirCentre', passer: 'hi.dirPasser', promote: 'hi.dirPasser', king: 'hi.dirKing', rook: 'hi.dirRook', trade: 'hi.dirTrade' }[kind] || 'hi.dirImprove');
-    const ideaKey = f.mate ? 'mate' : f.forks.length ? 'fork' : f.pin ? 'pin' : f.skewer ? 'skewer' : f.discovered.length ? 'discovered' : f.promotion ? 'promote' : f.capture && f.capture !== P ? 'capture' : f.check ? 'check'
+    const ideaKey = best.goal ? 'goal' : f.mate ? 'mate' : f.forks.length ? 'fork' : f.pin ? 'pin' : f.skewer ? 'skewer' : f.discovered.length ? 'discovered' : f.promotion ? 'promote' : f.capture && f.capture !== P ? 'capture' : f.check ? 'check'
       : kind === 'defend' ? 'safety' : kind === 'develop' ? 'develop' : kind === 'centre' ? 'centre' : null;
     const piece = onSq(f.piece, f.from);
     const guided = (ideaKey ? tr('hi.guidedIdea', { piece, idea: tr('hi.idea.' + ideaKey) }) : tr('hi.guided', { piece })) + (ideaKey === 'develop' || ideaKey === 'centre' || !ideaKey ? ' ' + tr('hi.toward', { sq: regionOf(f.to) }) : '');
     const d = C.describe(f);
-    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: best.san }) + ' ' + (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] && !/#$/.test(lk.line.moves[0].san) && !(best.mate < 0) ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : '');
+    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: best.san }) + ' ' + (best.goal ? tr({ hill: 'hi.wins.hill', checks: 'hi.wins.checks', bare: 'hi.wins.bare' }[best.goal]) : (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] && !/#$/.test(lk.line.moves[0].san) && !(best.mate < 0) ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : ''));
     return {
       levels: [
         { text: dir, marks: [] },

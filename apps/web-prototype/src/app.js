@@ -364,15 +364,25 @@
         'else if(d.type==="checkLine"){r={line:M.checkLine(d.fen,d.moves,d.line,d.opts)};}' +
         'r.id=d.id;postMessage(r);}catch(err){postMessage({id:d.id,error:String(err)});}};';
       const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
-      const pending = new Map();
+      // One job at a time, so a job that is no longer wanted (an old game, an undone move) can be
+      // dropped before it starts instead of making a hint wait behind it.
+      const pending = new Map(), queue = [];
+      let busy = false;
+      const pump = () => {
+        while (!busy && queue.length) {
+          const q = queue.shift();
+          if (q.cb.stale && q.cb.stale()) continue;
+          busy = true; pending.set(q.m.id, q.cb); w.postMessage(q.m);
+        }
+      };
       w.onmessage = (e) => {
         const d = e.data, cb = pending.get(d.id);
         if (!cb) return;
         if (d.progress !== undefined) { if (cb.progress) cb.progress(d.progress); return; }
-        pending.delete(d.id); cb.done(d);
+        pending.delete(d.id); busy = false; cb.done(d); pump();
       };
-      w.onerror = () => { for (const cb of pending.values()) cb.done({ error: 'worker' }); pending.clear(); };
-      return { w, pending };
+      w.onerror = () => { const all = [...pending.values(), ...queue.map((q) => q.cb)]; pending.clear(); queue.length = 0; busy = false; for (const cb of all) cb.done({ error: 'worker' }); };
+      return { w, pending, queue, send: (m, cb) => { queue.push({ m, cb }); pump(); } };
     } catch (e) { return null; }
   }
   const workers = { play: makeWorker(), analysis: makeWorker() };
@@ -383,16 +393,24 @@
     for (const k of Object.keys(workers)) {
       const old = workers[k];
       workers[k] = makeWorker();
-      if (old) { for (const cb of old.pending.values()) cb.done({ error: 'worker' }); old.w.terminate(); }
+      if (old) { for (const cb of [...old.pending.values(), ...old.queue.map((q) => q.cb)]) cb.done({ error: 'worker' }); old.w.terminate(); }
     }
   }
   let reqId = 0;
   // Runs a job on a worker; falls back to the page if workers are unavailable.
-  function job(which, msg, done, progress) {
+  // Moves a job that has not started yet to the front of its worker's queue.
+  function jobFirst(which, id) {
+    const wk = workers[which]; if (!wk) return;
+    const i = wk.queue.findIndex((q) => q.m.id === id);
+    if (i > 0) wk.queue.unshift(wk.queue.splice(i, 1)[0]);
+  }
+  // `stale`, when given, says the answer is no longer wanted; such a job is skipped if it has not started.
+  function job(which, msg, done, progress, stale) {
     const id = ++reqId;
     const wk = workers[which];
     const m = Object.assign({ id }, msg);
-    if (wk) { wk.pending.set(id, { done, progress }); wk.w.postMessage(m); }
+    if (typeof m.stale === 'function') { stale = stale || m.stale; delete m.stale; }
+    if (wk) wk.send(m, { done, progress, stale });
     else setTimeout(() => {
       try {
         const p = E.positionFrom(m.fen, m.moves);
@@ -4095,7 +4113,7 @@
       if (r.error || state.game !== G) return;
       G.evals[key] = r;
       renderEval();
-    });
+    }, null, () => state.game !== G || G.g.moves.length !== key);
   }
   function renderEval() {
     const G = state.game; if (!G) return;
@@ -4139,15 +4157,22 @@
     if (G.looks[key]) return;
     lookAt(G, (lk) => proactive(G, lk));
   }
-  function lookAt(G, done, timeMs) {
-    const key = G.g.moves.length;
+  // A look already on its way for this very position is shared, so a hint does not wait for two.
+  function lookAt(G, done, timeMs, urgent) {
+    const key = G.g.moves.length, moves = G.g.uciMoves(), here = moves.join(' ');
     if (G.looks[key] && !timeMs) { done(G.looks[key]); return; }
-    job('analysis', { type: 'look', fen: G.g.startFen, moves: G.g.uciMoves(), opts: { timeMs: timeMs || 200, alts: 3, plies: 4 } }, (r) => {
+    const wait = G.lookWait || (G.lookWait = {});
+    if (wait[here]) { wait[here].push(done); if (urgent) wait[here].urgent(); return; }
+    wait[here] = [done];
+    const id = job('analysis', { type: 'look', fen: G.g.startFen, moves, opts: { timeMs: timeMs || 200, alts: 3, plies: 4 } }, (r) => {
+      const cbs = wait[here] || []; delete wait[here];
       if (r.error || !r.look || state.game !== G || G.g.moves.length !== key) return;
       r.look.enteredEndgame = r.look.phase === 'endgame' && !G.endgameSaid;
       G.looks[key] = r.look;
-      done(r.look);
-    });
+      for (const cb of cbs) cb(r.look);
+    }, null, () => { const gone = state.game !== G || G.g.uciMoves().join(' ') !== here; if (gone) delete wait[here]; return gone; });
+    wait[here].urgent = () => jobFirst('analysis', id);
+    if (urgent) wait[here].urgent();
   }
   // Thinking assistance and Mentor mode: at most one word per turn, only when it matters.
   function proactive(G, lk) {
@@ -4212,7 +4237,7 @@
     G.times[ply] = spent;
     const deep = cfg.depth >= 3;
     const pre = G.looks[ply] ? { alts: G.looks[ply].alts, threat: G.looks[ply].threat && G.looks[ply].threat.serious ? G.looks[ply].threat.facts : null, assess: G.looks[ply].assess } : null;
-    job('analysis', { type: 'study', fen: G.g.startFen, moves: G.g.uciMoves().slice(0, ply + 1), opts: { timeMs: 200, alts: deep ? 3 : 2, plies: deep ? 4 : 0, pre } }, (r) => {
+    job('analysis', { type: 'study', stale: () => state.game !== G, fen: G.g.startFen, moves: G.g.uciMoves().slice(0, ply + 1), opts: { timeMs: 200, alts: deep ? 3 : 2, plies: deep ? 4 : 0, pre } }, (r) => {
       if (r.error || !r.study || state.game !== G || G.g.moves.length < ply + 1) return;
       const st = r.study;
       G.studies[ply] = st;
@@ -4382,7 +4407,7 @@
       if (!h) return;
       G.hintData = h; G.hintEn = he; G.hintKey = key; G.hintStep = 1; G.hints = (G.hints || 0) + 1;
       showHintStep();
-    }, G.looks[key] ? 0 : 300);
+    }, G.looks[key] ? 0 : 300, true);
   }
   function showHintStep() {
     const G = state.game, h = G.hintData, he = G.hintEn, lv = h.levels[G.hintStep - 1], le = he.levels[G.hintStep - 1];
@@ -4436,7 +4461,7 @@
     if (id === 'practice') return openPractice();
     if (id === 'last') {
       if (G.studies[lastMine]) return detailModal(G.studies[lastMine]);
-      return job('analysis', { type: 'study', fen: G.g.startFen, moves: G.g.uciMoves().slice(0, lastMine + 1), opts: { timeMs: 220, alts: 3, plies: 4 } }, (r) => { if (r.study && state.game === G) { G.studies[lastMine] = r.study; detailModal(r.study); } });
+      return job('analysis', { type: 'study', stale: () => state.game !== G, fen: G.g.startFen, moves: G.g.uciMoves().slice(0, lastMine + 1), opts: { timeMs: 220, alts: 3, plies: 4 } }, (r) => { if (r.study && state.game === G) { G.studies[lastMine] = r.study; detailModal(r.study); } });
     }
     lookAt(G, (lk) => {
       const opener = M.lineKey(id === 'threats' ? 'threat' : id === 'radar' ? 'mate' : id === 'chances' ? 'chance' : 'mentor', coachMem().said);
