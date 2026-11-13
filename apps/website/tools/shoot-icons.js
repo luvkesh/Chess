@@ -32,6 +32,9 @@ const only = process.argv[2] ? process.argv[2].split(',') : null;
   const todo = only ? only.filter((n) => names.includes(n) || console.error('no icon called', n)) : names;
   const t0 = Date.now();
   for (const name of todo) {
+    // Icons the owner's mock-ups show are that artwork itself (tools/hero/ic-<name>.png), not renders.
+    const master = path.join(__dirname, 'hero', 'ic-' + name + '.png');
+    if (fs.existsSync(master)) { fs.copyFileSync(master, path.join(out, name + '.png')); console.log('hero artwork', name); continue; }
     const url = await page.evaluate((n) => window.__studio.shoot(n), name);
     fs.writeFileSync(path.join(out, name + '.png'), Buffer.from(url.split(',')[1], 'base64'));
     console.log(((Date.now() - t0) / 1000).toFixed(0) + 's', name);

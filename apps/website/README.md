@@ -8,7 +8,7 @@ The audience is children and their parents, so the page is built to be safe as w
 | --- | --- |
 | `src/index.html` | Page template: the story, layout, styles and the script that drives the live 3D table behind the page (the coach's lesson, the world-wonder picker and the turning sets). |
 | `img/` | Pictures as WebP: `crest` (the logo, the game's 3D knight), `<era>-hero` (the era room from the home-screen camera), `set-<era>` (the era set on a pedestal) and `ic-<name>` (the page's icons, rendered in 3D by `tools/shoot-icons.js`). The page shows the stills until the live 3D is ready, and instead of it where WebGL is missing. |
-| `tools/icons3d.js`, `tools/shoot-icons.js` | The icons: colourful 3D objects (lacquer, enamel, velvet and gold, with the game's own Regency pieces) built from three.js primitives in `icons3d.js`, lit and shot in a studio by `shoot-icons.js` into `img/ic-<name>.webp` on a transparent ground. Each stands alone on the dark ground with a soft shadow. The four hero icons (coach, lessons, online, boards) follow the hero mock-up: deep enamel in a gold frame with a gem finial on top. The house rule: icons are 3D illustrations, never flat line glyphs. |
+| `tools/icons3d.js`, `tools/shoot-icons.js` | The icons: colourful 3D objects (lacquer, enamel, velvet and gold, with the game's own Regency pieces) built from three.js primitives in `icons3d.js`, lit and shot in a studio by `shoot-icons.js` into `img/ic-<name>.webp` on a transparent ground. Each stands alone on the dark ground with a soft shadow. The icons the owner's mock-ups show (the hero four, Meet Rooky, Learn, the details tabs, Play for it, Families and Pricing: every `tools/hero/ic-<name>.png`) are the mock-ups' own artwork, enlarged four times and cut out; `shoot-icons.js` uses those pictures as they are and renders only the rest. The house rule: icons are 3D illustrations, never flat line glyphs. |
 | `guide.json`, `audio/` | Rooky's guide, built like JongClub's guided game: a card in the bottom right that says one line per section as the reader reaches it (`{coach}` is the coach's name from `packages/content/campaign.json`), and the recorded MP3s. The voice is off until someone taps the speaker. |
 | `tools/render-art.js` | Draws the crest, animal portraits and era banners with the game's own `art.js`, and the colourful place badges of the Wonders passport from `tools/place-icons.js`. |
 | `build.py` | Inlines the game's fonts, its 3D renderer (three.js, `kit3d`, `pieces3d`, `world3d`, `scene`), `img/`, the art and the facts from `packages/content` (eras, coaches, sets, rooms, counts) into `index.html`. |
@@ -24,6 +24,8 @@ Needs Python 3 (with Pillow only to make new pictures) and Node 22.
 python3 apps/website/build.py                      # rebuild index.html after changing src/, img/ or packages/content
 python3 apps/website/build.py --preview /tmp/site  # stand-alone copy (index, privacy, terms) that links to the hosted game
 ```
+
+The modelled piece sets load their meshes from `meshes/<pack>.txt` beside the page (the game's `apps/web-prototype/meshes`). `--preview` copies the packs; a served site must host them there too, or those sets fall back to their coded pieces.
 
 ## New pictures
 
