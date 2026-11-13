@@ -136,6 +136,11 @@
   const stageTitle = (e, k) => tx('content.era.' + e.id + '.stage' + k, e.stages[k].title);
 
   // ------------------------------------------------------------ persistence
+  // What the server lets this account do (setSafety below); null with no server.
+  let safety = null;
+  const isMinor = () => !!(safety && safety.kind === 'minor');
+  // Labs (testing tools, see labsModal) is on while the game is in testing; turn this off for launch.
+  const LABS_DEFAULT = true;
   const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } })() || {};
   const state = {
     settings: Object.assign({ quality: 'high', animations: !reducedMotion, sfx: true, sfxVol: 0.8, music: true, musicVol: 0.35, narration: true, guide: true, captions: false, voiceCoach: 'toby', voiceCalls: 'toby', announce: false, coach: 'normal', captureScenes: true, elements: true, colourToss: true,
@@ -147,14 +152,26 @@
     game: null,
     account: saved.account || null,
   };
+  // A damaged or hand-edited save cannot break sound or the screens: settings get the type they need.
+  {
+    const st = state.settings, vol = (v, def) => (Number.isFinite(+v) && v !== null && v !== '' ? Math.min(1, Math.max(0, +v)) : def);
+    st.sfxVol = vol(st.sfxVol, 0.8); st.musicVol = vol(st.musicVol, 0.35);
+    if (!['high', 'low'].includes(st.quality)) st.quality = 'high';
+    if (!I18N.ALL.some((l) => l.id === st.lang)) st.lang = I18N.guess(navigator.languages || [navigator.language]);
+    if (typeof st.name !== 'string' || !st.name.trim()) st.name = 'You';
+    if (!state.setup || typeof state.setup !== 'object') state.setup = { mode: 'ai', color: 'white', level: 1, tc: 'none', fen: '', personal: false };
+  }
   PG.mergeLessons(state.progress, LESSONS.lessons);
   // Premium comes from the account's entitlements on the server. The device-only preview switch
   // (for testing without a server) sits on top of that.
-  if (state.settings.previewPremium === undefined) state.settings.previewPremium = !!state.progress.premium;
+  // The preview lives in Labs only, never for a child's account and never on top of a signed-in
+  // account, whose entitlements are the truth (a lapsed plan must not stay open through it).
+  if (state.settings.previewPremium === undefined) state.settings.previewPremium = false;
+  const previewOn = () => !!state.settings.previewPremium && labsOn() && !(state.account && state.account.token);
   function setEntitlements(ent) {
     if (state.account || ent) state.account = Object.assign({}, state.account || {}, { ent: ent || null });
     const e = ent || {};
-    state.progress.premium = !!(state.settings.previewPremium || e.premium);
+    state.progress.premium = !!(previewOn() || e.premium);
     state.progress.passes = e.passes || [];
   }
   setEntitlements(state.account && state.account.ent);
@@ -203,34 +220,71 @@
     return t('collection.unlock.free');
   }
   PG.setSeason(state.progress);
+  // Two tabs on one device share one save. Each save bumps a counter in its own small key; a tab
+  // that sees a newer one (the storage event, or before its own save) takes that copy first, so
+  // a tab left open never writes old progress over what the other tab earned or bought.
+  const REV_KEY = 'chacklate-chess:rev';
+  const readRev = () => { try { return +localStorage.getItem(REV_KEY) || 0; } catch (e) { return 0; } };
+  let rev = readRev(), saveWarned = false;
+  function adopt() {
+    let cur = null;
+    try { cur = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { cur = null; }
+    rev = readRev();
+    if (!cur || typeof cur !== 'object') return false;
+    const lang = state.settings.lang;   // each tab keeps the language it shows
+    if (cur.settings && typeof cur.settings === 'object') Object.assign(state.settings, cur.settings, { lang });
+    state.progress = PG.migrate(cur.progress);
+    PG.mergeLessons(state.progress, LESSONS.lessons);
+    PG.setSeason(state.progress);
+    state.account = cur.account || null;
+    if (!state.game) saved.game = cur.game || null;
+    setEntitlements(state.account && state.account.ent);
+    return true;
+  }
+  window.addEventListener('storage', (e) => {
+    if (e.key !== REV_KEY || readRev() <= rev || !adopt()) return;
+    applySettings(); renderNav();
+    if ((!KIND[state.screen] || state.screen === 'home') && !document.querySelector('.modal')) go(state.screen, state.screenArg);
+  });
   function save() {
+    if (readRev() > rev) adopt();
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
       localStorage.setItem(STORE_KEY, JSON.stringify({ settings: state.settings, setup: state.setup, progress: state.progress, account: state.account,
         game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null }));
-    } catch (e) { /* storage unavailable: everything still works for this visit */ }
+      localStorage.setItem(REV_KEY, String(rev = Math.max(rev, readRev()) + 1));
+    } catch (e) {
+      // Storage full or blocked: everything still works for this visit; say so once.
+      if (!saveWarned) { saveWarned = true; setTimeout(() => { try { toast(t('common.saveFail'), 'bad'); } catch (e2) { /* not drawn yet */ } }, 0); }
+    }
     if (window.ChacklateNet) ChacklateNet.syncProgress();
   }
 
   // ------------------------------------------------------------ children's safety
   // The server says what this account may do (see services/game-server/src/family.js); null
   // means no server, which is offline play with nothing to buy or share.
-  let safety = null;
   function setSafety(s) {
     safety = s || null;
+    setEntitlements(state.account && state.account.ent);   // a child's account never keeps the Labs preview
+    if ($('topnav')) { renderNav(); refreshScreenTools(); }   // nor the Labs button
     if (safety && !safety.reminders && state.settings.reminder && state.settings.reminder.on) { state.settings.reminder = Object.assign({}, state.settings.reminder, { on: false }); save(); }
     checkPlayTime();
     if (['store', 'home'].includes(state.screen) && !document.querySelector('.modal')) go(state.screen);
   }
-  const isMinor = () => !!(safety && safety.kind === 'minor');
 
   // Parent gate: a sum written in words, which a young child cannot read and an adult answers in
   // a second. It sits in front of the store, purchases and turning reminders on, as Apple's Kids
-  // category and Google's Families policy ask. A pass lasts ten minutes.
+  // category and Google's Families policy ask. A pass lasts ten minutes, and only for looking
+  // around the store: a purchase, more play time, reminders and location ask every time
+  // (opts.always), so one answer from a grown-up never opens the others for the child.
   const WORDS = (n) => t('store.gate.n' + n);
   let gatePassed = 0;
-  function parentGate(why) {
-    if (Date.now() - gatePassed < 10 * 60e3) return Promise.resolve(true);
+  // Answers typed in the player's own digits (Devanagari, Arabic-Indic, Bengali...) count too.
+  const DIGIT_ZEROS = [0x30, 0x660, 0x6F0, 0x966, 0x9E6, 0xA66, 0xAE6, 0xB66, 0xBE6, 0xC66, 0xCE6, 0xD66, 0xE50, 0xFF10];
+  const asciiDigits = (v) => String(v || '').replace(/\p{Nd}/gu, (d) => { const c = d.codePointAt(0), z = DIGIT_ZEROS.find((x) => c >= x && c < x + 10); return z === undefined ? d : String(c - z); }).replace(/\s+/g, '');
+  function parentGate(why, opts) {
+    const always = !!(opts && opts.always);
+    if (!always && Date.now() - gatePassed < 10 * 60e3) return Promise.resolve(true);
     return new Promise((resolve) => {
       const a = 3 + Math.floor(Math.random() * 7), b = 3 + Math.floor(Math.random() * 7);
       let done = false;
@@ -241,7 +295,8 @@
       m.querySelector('#pg').onsubmit = (e) => {
         e.preventDefault();
         done = true; m.close();
-        if (+m.querySelector('#pg-a').value === a * b) { gatePassed = Date.now(); resolve(true); }
+        const v = asciiDigits(m.querySelector('#pg-a').value);
+        if (/^\d+$/.test(v) && +v === a * b) { if (!always) gatePassed = Date.now(); resolve(true); }
         else { toast(t('store.gate.wrong'), 'bad'); resolve(false); }
       };
     });
@@ -276,7 +331,7 @@
       '<div class="row" style="justify-content:center"><button class="btn" id="br-more">' + t('home.break.more') + '</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
     breakModal.querySelector('#br-more').onclick = async () => {
       const m = breakModal; m.style.visibility = 'hidden';
-      if (await parentGate(t('home.break.gate'))) {
+      if (await parentGate(t('home.break.gate'), { always: true })) {
         const t2 = playTime(); t2.extra += 15; try { localStorage.setItem(PLAY_KEY, JSON.stringify(t2)); } catch (e) { /* not stored */ }
         breakModal = null; m.close();
       } else m.style.visibility = '';
@@ -580,15 +635,16 @@
     wrap.addEventListener('click', (e) => {
       if ((e.target === wrap && !opts.sticky) || e.target.closest('[data-close]')) close();
     });
-    const f = wrap.querySelector('[autofocus], .btn.primary, button:not(.x), input');
+    const f = wrap.querySelector('[autofocus]') || wrap.querySelector('.btn.primary, button:not(.x), input');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 30);
     wrap.close = close;
+    wrap.sticky = !!opts.sticky;
     return wrap;
   }
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const open = [...document.querySelectorAll('.modal')].pop();
-      if (open) open.close();
+      if (open) { if (!open.sticky || open.querySelector('[data-close]')) open.close(); }   // a sticky card with no way out (the time-limit break) stays
       else if (peeking) endPeek();
       else if (current && current.escape) current.escape();
     } else if (peeking && !document.querySelector('.modal') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !/input|textarea|select/i.test((e.target.tagName || ''))) {
@@ -765,7 +821,7 @@
     if (['era', 'lesson', 'puzzle', 'game', 'drill'].includes(name)) return;
     let key = name;
     if (name === 'home') {
-      const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+      const resume = resumable();
       key = resume ? 'home.resume' : state.progress.xp ? 'home' : 'home.first';
     }
     if (GUIDE.lines[key]) guideSay(key);
@@ -1090,7 +1146,7 @@
   }
   SCREENS.home = function () {
     idleBoard();
-    const resume = saved.game && saved.game.moves && saved.game.moves.length && !state.game;
+    const resume = resumable(), live = resume && resume.live;
     const online = netOn();
     const nl = nextLesson();
     const daily = dailyPuzzle();
@@ -1103,7 +1159,7 @@
       '<p class="motto">' + t('home.motto') + '</p>' +
       '<div class="lux-row">' +
       lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
-        text: resume ? t('home.resumeText', { n: saved.game.moves.length }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
+        text: resume ? t('home.resumeText', { n: resume.n }) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
       lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
       lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
       lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
@@ -1114,7 +1170,7 @@
       '</section>');
     hydrate();
     wireLinks();
-    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (resume) resumeSaved(); else quickPlay(); };
+    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (live) backToGame(); else if (resume) resumeSaved(); else quickPlay(); };
     $('h-journey').onclick = () => { AU.unlock(); AU.play('tap'); if (ne && PG.eraOpen(state.progress, ne.id)) go('era', ne.id); else go('journey'); };
     $('h-learn').onclick = () => { AU.unlock(); AU.play('tap'); if (nl) go('lesson', nl.id); else go('learn'); };
     $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: t('learn.dailyPuzzle') }); else go('puzzles'); };
@@ -1170,7 +1226,7 @@
       '<div class="row"><button class="btn" data-close>' + t('common.notNow') + '</button><button class="btn gold" id="cb-ok">' + icon('coin') + ' ' + t('store.coin.buyFor', { n: I18N.num(o.price) }) + '</button></div>');
     m.querySelector('#cb-ok').onclick = () => {
       m.close();
-      if (!PG.buyWithCoins(P, it)) return;
+      if (!PG.buyWithCoins(P, it)) { const o2 = PG.coinOffer(P, it); if (o2.reason === 'short') toast(t('store.coin.short', { n: coinCount(o2.short) }), 'bad'); return; }
       AU.play('achievement');
       toast('<i>★</i><div><small>' + t('store.coin.yours') + '</small><b>' + esc(it.name) + '</b></div>', 'ach');
       save(); renderNav();
@@ -2743,8 +2799,7 @@
       '<h2 class="sec" id="games">' + icon('refresh') + '<span>' + t('learn.recent') + '</span></h2>' +
       '<div class="list">' + (P.history.length ? P.history.map(gameRow).join('') : '<p class="muted">' + t('profile.noGames') + '</p>') + '</div>' +
       '<h2 class="sec" id="acct">' + icon('globe') + '<span>' + t('profile.account') + '</span></h2><div class="panel glass" id="pf-account"></div>' +
-      sec('crown', t('common.premium')) + '<div class="panel glass">' + premiumLine() +
-      '<label class="toggle">' + t('profile.preview') + ' <input type="checkbox" id="pf-prem"' + (state.settings.previewPremium ? ' checked' : '') + '></label></div>' +
+      sec('crown', t('common.premium')) + '<div class="panel glass">' + premiumLine() + '</div>' +
       '</div></div>');
     wireLinks();
     wireGames(P.history);
@@ -2754,7 +2809,6 @@
         '<p class="fine">' + t('profile.nameFine') + '</p><div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + t('common.save') + '</button></div></form>');
       m.querySelector('#nm').onsubmit = (e) => { e.preventDefault(); const v = m.querySelector('#nm-v').value.trim().slice(0, 20); if (v) { state.settings.name = v; save(); m.close(); toast(t('profile.nameSaved')); go('profile'); } };
     };
-    $('pf-prem').onchange = (e) => { state.settings.previewPremium = e.target.checked; setEntitlements(state.account && state.account.ent); save(); toast(t(e.target.checked ? 'profile.previewOn' : 'profile.previewOff')); go('profile'); };
     $('pf-store').onclick = () => go('store');
     if (window.ChacklateNet) ChacklateNet.renderAccount($('pf-account')); else $('pf-account').innerHTML = '<p class="muted">' + t('profile.noOnline') + '</p>';
     if (section === 'games') setTimeout(() => $('games').scrollIntoView({ behavior: 'smooth' }), 120);
@@ -2793,7 +2847,7 @@
   SCREENS.club = function () {
     idleBoard();
     const C = ChacklateClub;
-    C.autoLocate();
+    // No place is set until the player picks one (or taps the time-zone guess): nothing is shared unasked.
     const SCOPES = [['global', 'globe'], ['country', 'pin'], ['city', 'city'], ['following', 'users']];
     mount('<div class="page"><div class="page-in club">' +
       pageHead(t('club.title'), t('club.head'), t('club.sub'), '<button class="pill gold" id="cl-where">' + icon('pin') + ' <span id="cl-where-t"></span></button>') +
@@ -2906,17 +2960,20 @@
     function renderLoc(busy, msg) {
       const p = C.place();
       const NOTE = { tz: t('club.note.tz'), manual: t('club.note.manual'), gps: t('club.note.gps') };
-      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="' + t('club.country') + '">' + (p.country ? '' : '<option value="">' + t('club.chooseCountry') + '</option>') +
+      $('cl-loc').innerHTML = '<div class="cl-loc-row"><label class="cl-select">' + icon('flag') + '<select id="cl-cc" aria-label="' + t('club.country') + '">' + '<option value="">' + t('club.chooseCountry') + '</option>' +
         C.countries().map((cc) => '<option value="' + cc + '"' + (cc === p.country ? ' selected' : '') + '>' + esc(C.countryName(cc)) + '</option>').join('') + '</select></label>' +
         (p.country ? '<label class="cl-select">' + icon('city') + '<select id="cl-city" aria-label="' + t('club.city') + '">' + C.citiesOf(p.country).map((c) => '<option' + (c === p.city ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label>' : '') +
-        (!C.gpsAllowed() ? '' : '<button class="round" id="cl-gps" aria-label="' + t('club.useLoc') + '" title="' + t('club.useLoc') + '"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
+        (!C.gpsAllowed() || isMinor() ? '' : '<button class="round" id="cl-gps" aria-label="' + t('club.useLoc') + '" title="' + t('club.useLoc') + '"' + (busy ? ' disabled' : '') + '>' + icon('locate') + '</button>') + '</div>' +
         '<p class="fine">' + (busy ? t('club.finding') : msg || (p.source ? NOTE[p.source] : t('club.chooseLocal'))) +
-        (p.source && p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">' + t('club.guessTz') + '</button>' : '') + '</p>';
-      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value, city: C.citiesOf(e.target.value)[0], source: 'manual' }); renderAll(); };
+        (p.source !== 'tz' && !busy ? ' <button class="linkish" id="cl-auto">' + t('club.guessTz') + '</button>' : '') + '</p>';
+      $('cl-cc').onchange = (e) => { C.setPlace({ country: e.target.value || null, city: e.target.value ? C.citiesOf(e.target.value)[0] : null, source: 'manual' }); renderAll(); };
       const city = $('cl-city'); if (city) city.onchange = (e) => { C.setPlace({ country: p.country, city: e.target.value, source: 'manual' }); renderAll(); };
       const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, t('club.tzFail')); };
       const gp = $('cl-gps');
       if (gp) gp.onclick = async () => {
+        // The device's location is for grown-ups: the parent gate asks every time.
+        if (isMinor() || !await parentGate(t('club.useLoc'), { always: true })) return;
+        if (!alive) return;
         renderLoc(true);
         const g = await C.gps();
         if (!alive) return;
@@ -2965,7 +3022,7 @@
     }
     mount('<div class="page"><div class="page-in">' +
       pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), seasonName(s.season), esc(tx('content.season.' + s.season.id + '.blurb', s.season.blurb)), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
-      (s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
+      (!P.season ? '<p class="sub">' + t('season.soon') + '</p>' : s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
         : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.ask') + '</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">' + t('season.free') + '</div><div class="eyebrow">' + t('season.pass') + '</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">' + t('season.fine') + '</p></div></div>');
@@ -2994,9 +3051,10 @@
       }
       const ent = (state.account && state.account.ent) || {};
       const online = netOn();
-      const products = STORE.products.map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
+      // A season's pass is sold only while that season runs.
+      const products = STORE.products.filter((p) => !p.id.startsWith('pass.') || p.id === 'pass.' + P.season).map((p) => Object.assign({}, p, remote ? remote.products.find((r) => r.id === p.id) : { onSale: false }));
       const owned = (p) => p.id.startsWith('pass.') ? PG.hasPass(P, p.id.slice(5)) : p.id === 'premium.lifetime' ? ent.premiumUntil === 'lifetime' : false;
-      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(ent.premiumUntil)) })) : t(state.settings.previewPremium ? 'store.previewStatus' : 'store.freeStatus');
+      const status = ent.premium ? (ent.premiumUntil === 'lifetime' ? t('store.lifetime') : t('store.until', { date: I18N.date(new Date(ent.premiumUntil)) })) : t(previewOn() ? 'store.previewStatus' : 'store.freeStatus');
       $('st-body').innerHTML =
         '<div class="hero-card"><span class="sg big gold">' + icon('crown') + '</span><span style="flex:1"><span class="eyebrow">' + t('store.yourPlan') + '</span><b class="plan">' + esc(status) + '</b></span></div>' +
         '<ul class="perks">' + STORE.perks.map((p, k) => '<li>' + icon('check') + esc(t('store.perk' + k)) + '</li>').join('') + '</ul>' +
@@ -3021,7 +3079,7 @@
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
-      if (!await parentGate(t('store.gateBuy'))) return;
+      if (!await parentGate(t('store.gateBuy'), { always: true })) return;
       let pin;
       if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
@@ -3160,7 +3218,11 @@
     on('#s-server', 'change', (e) => { s.server = e.target.value.trim(); save(); if (window.ChacklateNet) ChacklateNet.connect(); });
     wireAppSection(m);
     on('#s-ver', 'click', () => versionTap(m));
-    on('#s-reset', 'click', () => { if (confirm(t('settings.resetConfirm'))) { state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); } });
+    on('#s-reset', 'click', async () => {
+      // A grown-up starts again, not a stray tap: the parent gate first, then the question.
+      if (!await parentGate(t('settings.resetConfirm'), { always: true }) || !confirm(t('settings.resetConfirm'))) return;
+      resetDevice(); m.close(); applyLook(); go('home');
+    });
     return m;
   }
 
@@ -3179,8 +3241,8 @@
   // flask button by Settings. It is on while the game is in testing (LABS_DEFAULT); Hide Labs turns
   // it off, and seven taps on the version line in Settings bring it back. Everything changes this
   // device only: nothing here reaches the server, the rating board or another player.
-  const LABS_DEFAULT = true;
-  const labsOn = () => (state.settings.labs === undefined ? LABS_DEFAULT : !!state.settings.labs);
+  // Never on a child's account (the server says so), whatever the device remembers.
+  function labsOn() { return !isMinor() && (state.settings.labs === undefined ? LABS_DEFAULT : !!state.settings.labs); }
   let verTaps = 0, verAt = 0;
   function versionTap(m) {
     const now = Date.now();
@@ -3189,8 +3251,9 @@
     if (labsOn()) { if (verTaps >= 3) toast('Labs is already on.'); return; }
     if (verTaps >= 7) {
       verTaps = 0;
-      state.settings.labs = true; save(); renderNav(); refreshScreenTools();
-      m.close(); labsModal();
+      if (isMinor()) return;
+      m.close();
+      parentGate('Labs', { always: true }).then((ok) => { if (!ok) return; state.settings.labs = true; save(); renderNav(); refreshScreenTools(); labsModal(); });
     } else if (verTaps >= 4) toast((7 - verTaps) + (7 - verTaps === 1 ? ' more tap' : ' more taps') + ' to Labs.');
   }
   // the flask button in the bar at the top, in games and lessons too
@@ -3236,7 +3299,7 @@
     const q = (sel) => m.querySelector(sel);
     const note = (text) => { q('#lb-note').textContent = text; };
     // apply a change, save, redraw what shows it, and say what happened
-    const did = (text, fn) => () => { fn(); save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
+    const did = (text, fn) => () => { fn(); state.progress.labs = true; save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
     const p = () => state.progress;
     const items = () => CATALOG.items.forEach((i) => { if (!PG.isUnlocked(p(), i)) p().granted[i.id] = true; });
     const lessons = () => LESSONS.lessons.forEach((l) => { if (!p().lessons[l.id]) p().lessons[l.id] = { stars: 3, attempts: 1, mastered: true, completed: PG.today(), reviews: [] }; });
@@ -3331,7 +3394,7 @@
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
-      if (want.on && !await parentGate(t('settings.reminder.gate'))) { box.checked = false; return; }
+      if (want.on && !await parentGate(t('settings.reminder.gate'), { always: true })) { box.checked = false; return; }
       try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? t('settings.reminder.set', { time: String(want.hour).padStart(2, '0') + ':00' }) : t('settings.reminder.off')); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
@@ -3545,6 +3608,29 @@
     G.toss = { skip: () => skip(), reveal: pick };
     if (watch && G.tossHand) pick(G.tossHand);
   }
+  // The game Home's big card goes back to: one left on the table for Home (live), or the one
+  // saved when the page closed. Null when there is none.
+  // Starting again: progress, the game left on the table, the name, the Club (friends, place,
+  // ratings and a new id). Language, sound and voices stay, and so does today's play time, which
+  // is a grown-up's limit. (The saved pictures are renders of the game itself, nothing personal.)
+  function resetDevice() {
+    state.progress = PG.fresh();
+    PG.mergeLessons(state.progress, LESSONS.lessons);
+    PG.setSeason(state.progress);
+    state.game = null; saved.game = null;
+    state.settings.name = 'You';
+    delete state.settings.club; delete state.settings.netName; delete state.settings.ageKid;
+    try { sessionStorage.clear(); } catch (e) { /* storage blocked */ }
+    setEntitlements(state.account && state.account.ent);
+    save();
+    if (window.ChacklateClub) ChacklateClub.publish();
+  }
+  function resumable() {
+    const G = state.game;
+    if (G && !G.g.outcome && (G.kind === 'online' || G.g.moves.length)) return { live: true, n: G.g.moves.length };
+    if (!G && saved.game && saved.game.moves && saved.game.moves.length) return { live: false, n: saved.game.moves.length };
+    return null;
+  }
   function backToGame() {
     const G = state.game;
     go('game', G);
@@ -3553,7 +3639,19 @@
   function resumeSaved() {
     const s = saved.game;
     saved.game = null;
-    startGame(Object.assign({}, s.setup || state.setup, { fen: s.start === E.START_FEN ? '' : s.start }), { moves: s.moves, human: s.human, clock: s.clock });
+    // A saved game is checked before it goes back on the table: a known level, a real clock with
+    // times inside it, and moves as text. Anything else starts from what can be trusted.
+    const setup = Object.assign({}, state.setup, s.setup && typeof s.setup === 'object' ? s.setup : {});
+    if (!LEVELS[setup.level]) setup.level = 1;
+    if (setup.tc !== 'none' && !/^\d{1,2}\+\d{1,2}$/.test(String(setup.tc))) setup.tc = 'none';
+    const tc = parseTc(setup.tc);
+    let clock = null;
+    if (tc && s.clock && Number.isFinite(+s.clock.w) && Number.isFinite(+s.clock.b)) {
+      const most = tc.w + 600 * tc.inc;   // a clock never holds more than its start and a long game's increments
+      clock = { w: Math.min(most, Math.max(1000, +s.clock.w)), b: Math.min(most, Math.max(1000, +s.clock.b)), inc: tc.inc };
+    }
+    const moves = Array.isArray(s.moves) ? s.moves.filter((u) => typeof u === 'string') : [];
+    startGame(Object.assign(setup, { fen: s.start === E.START_FEN || typeof s.start !== 'string' ? '' : s.start }), { moves, human: s.human === WHITE || s.human === BLACK ? s.human : undefined, clock });
   }
 
   SCREENS.game = function () {
@@ -4584,7 +4682,8 @@
     if (!VARIANT_END.has(o.reason)) setTimeout(() => AU.event(resultCall(o.reason, winner, youWon, youLost)), 700);
     // Progress
     let res = null;
-    if (G.kind !== 'local' || g.moves.length >= 10) {
+    // A game called off before both sides moved counts for nobody: no win, loss, XP or coins.
+    if (o.reason !== 'aborted' && (G.kind !== 'local' || g.moves.length >= 10)) {
       res = PG.gameFinished(state.progress, {
         mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
         plies: g.moves.length, sans: g.sans, firstIsMine: G.kind === 'local' ? true : (E.positionFrom(g.startFen, []).side === G.human), startFen: g.startFen, ucis: g.uciMoves(),
@@ -4859,13 +4958,13 @@
       '<div class="label">' + t('play.fr.clock') + '</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="frtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div>' +
       '<button class="btn primary" id="fr-create">' + icon('users') + ' ' + t('play.fr.createBtn') + '</button></section>' +
       '<section class="glass"><h3>' + icon('play') + ' ' + t('play.fr.join') + '</h3><label class="fine" for="fr-code">' + t('play.fr.joinSub') + '</label>' +
-      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
+      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="9" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
       status +
       '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn" id="fr-local">' + icon('users') + ' ' + t('play.fr.local') + '</button></div>', { x: true });
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
     m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
     const join = () => {
-      const code = m.querySelector('#fr-code').value.trim().toUpperCase();
+      const code = m.querySelector('#fr-code').value.toUpperCase().replace(/[^A-Z0-9]/g, '');   // "abc-123" and "ABC 123" are the same code
       if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = t('play.fr.badCode'); return; }
       m.close(); ChacklateNet.joinFriend(code);
     };
@@ -6455,6 +6554,12 @@
   const bonus = PG.dailyBonus(state.progress);
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
+  // A tab left open overnight gets the new day's bonus when the player comes back to it.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    const b = PG.dailyBonus(state.progress);
+    if (b.coins) { save(); renderNav(); setTimeout(() => celebrate(b, true), 600); }
+  });
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitNav(); applyInsets(); });
   // App shortcuts from the installed icon's menu, and links from emails.
