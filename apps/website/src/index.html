@@ -288,11 +288,11 @@ html.nonlatin .wordmark::after { margin-left: 0; }
 .how { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; max-width: 100%; min-height: 48px; padding: 0 24px 0 20px; border-radius: 999px; background: var(--gold-grad); color: #2a1608; font: 600 12.5px/1.3 var(--caps); letter-spacing: 0.16em; text-transform: uppercase; box-shadow: 0 8px 26px rgba(232, 192, 112, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
 .how svg { width: 17px; height: 17px; flex: none; }
 .strip-wrap { display: flex; align-items: center; gap: 10px; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line-2); }
-/* the scroller clips at its padding box, so the padding is wider than the gold ring (3.5px) plus the hover lift (2px) */
-.strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-inline: 7px; padding: 8px 7px 12px; flex: 1; min-width: 0; scrollbar-width: none; }
+/* the scroller clips at its padding box, so the padding is wider than the gold ring (2px), its glow (16px) and the hover lift (2px); the negative margin keeps the row where it was */
+.strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-inline: 18px; padding: 18px 18px 14px; margin: -10px -11px -2px; flex: 1; min-width: 0; scrollbar-width: none; }
 .strip::-webkit-scrollbar { display: none; }
 .strip button { flex: none; width: 136px; scroll-snap-align: start; padding: 0; border: 0; background: none; cursor: pointer; color: var(--muted); text-align: center; }
-.strip button .thumb { position: relative; display: block; margin: 0; padding: 6px 6px 0; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(255, 235, 215, 0.04); transition: transform .2s; }
+.strip button .thumb { position: relative; display: block; margin: 0; padding: 4px 6px 8px; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(255, 235, 215, 0.04); transition: transform .2s; }
 .strip button img { display: block; width: 100%; height: 92px; object-fit: cover; border-radius: 9px; }
 .strip button .thumb::after { content: ''; position: absolute; inset: -2px; border-radius: 16px; border: 1.5px solid var(--gold); box-shadow: 0 0 16px rgba(232, 192, 112, 0.4); opacity: 0; pointer-events: none; }
 .strip button span { display: block; padding: 7px 4px 8px; font-size: 13px; line-height: 1.25; }
