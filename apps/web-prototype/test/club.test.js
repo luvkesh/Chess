@@ -47,9 +47,10 @@ assert.deepStrictEqual(Object.keys(C.card()).sort(), ['cc', 'cid', 'name', 'r'])
 const before = C.data().ratings.blitz.r;
 const out = C.rated('blitz', 1500, 1);
 assert.ok(out.after > before);
+// A name that is not one of the made-up ones (relay.js, not loaded here) shows as Player; ratings stop at the top.
 C.addFriend({ cid: 'abc', name: '<b>Swift Fox</b>', cc: 'xx', r: { blitz: 99999 } });
 const f = C.data().friends[0];
-assert.deepStrictEqual([f.name, f.country, f.ratings.blitz], ['bSwift Foxb', null, 3000]);
+assert.deepStrictEqual([f.name, f.country, f.ratings.blitz], ['Player', null, 2400]);
 
 C.board('blitz', 'country').then((res) => {
   assert.ok(res.rows.every((r) => r.country === 'IN'));

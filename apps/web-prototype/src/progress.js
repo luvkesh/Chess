@@ -96,29 +96,52 @@ function ChacklateProgress(catalog, extras) {
   }
   function migrate(s) {
     const f = fresh();
-    if (!s || s.v !== 1) return f;
+    if (!s || typeof s !== 'object' || s.v !== 1) return f;
+    // Defaults come from a separate fresh copy (d): out shares f's objects once s is merged in.
+    // Every field gets the type it should have, so a damaged save can never stop the game starting.
+    const d = fresh();
+    const obj = (v) => v && typeof v === 'object' && !Array.isArray(v);
+    const o = (v, def) => Object.assign({}, def, obj(v) ? v : {});
+    const arr = (v) => (Array.isArray(v) ? v.slice() : []);
+    const num = (v, def, min) => (Number.isFinite(+v) && v !== null && v !== '' ? Math.max(min === undefined ? -Infinity : min, +v) : def);
     const out = Object.assign(f, s);
+    for (const k of Object.keys(d)) if (obj(d[k]) && !obj(out[k])) out[k] = d[k];
+    for (const k of ['passes', 'history', 'bought', 'mistakes']) if (!Array.isArray(out[k])) out[k] = d[k];
+    out.xp = Math.floor(num(s.xp, 0, 0));
+    out.premium = !!s.premium;
     out.lessonsV = s.lessonsV || 1;   // saved before Learn was regrouped
-    out.stats = Object.assign(f.stats, s.stats || {});
-    out.stats.puzzles = Object.assign(fresh().stats.puzzles, (s.stats || {}).puzzles || {});
-    out.equipped = Object.assign({}, catalog.defaults, s.equipped || {});
-    out.missions = Object.assign(f.missions, s.missions || {});
-    out.journey = Object.assign({}, s.journey || {});
-    out.stats.variants = Object.assign({}, (s.stats || {}).variants || {});
-    out.variantLessons = Object.assign({}, s.variantLessons || {});
-    out.granted = Object.assign({}, s.granted || {});
+    const st = obj(s.stats) ? s.stats : {};
+    out.stats = o(st, d.stats);
+    for (const k of ['games', 'wins', 'draws', 'losses']) out.stats[k] = Math.floor(num(st[k], 0, 0));
+    out.stats.byLevel = o(st.byLevel);
+    out.stats.variants = o(st.variants);
+    out.stats.accuracy = arr(st.accuracy);
+    out.stats.puzzles = o(st.puzzles, d.stats.puzzles);
+    out.stats.puzzles.seen = arr(out.stats.puzzles.seen);
+    out.stats.puzzles.rating = num(out.stats.puzzles.rating, 800, 100);
+    for (const k of ['solved', 'failed']) out.stats.puzzles[k] = Math.floor(num(out.stats.puzzles[k], 0, 0));
+    out.streak = o(s.streak, d.streak); out.streak.count = Math.floor(num(out.streak.count, 0, 0));
+    out.daily = o(s.daily, d.daily);
+    out.equipped = Object.assign({}, catalog.defaults, obj(s.equipped) ? s.equipped : {});
+    out.missions = o(s.missions, d.missions); out.missions.list = arr(out.missions.list);
+    out.journey = o(s.journey);
+    out.variantLessons = o(s.variantLessons);
+    out.granted = o(s.granted);
     out.coins = Math.max(0, Math.floor(+s.coins || 0));
-    out.earned = Object.assign(f.earned, s.earned || {});
-    out.bought = Array.isArray(s.bought) ? s.bought.slice() : [];
+    out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n);
+    out.bought = arr(s.bought);
     // Older saves could mix a room with another room's board or set: line them up with the room.
     const su = suiteOf(out.equipped.room) || suiteOf(catalog.defaults.room);
     if (su) Object.assign(out.equipped, { room: su.room, board: su.board, pieces: su.pieces });
-    out.mini = Object.assign(f.mini, s.mini || {});
-    out.trainers = Object.assign({}, s.trainers || {});
-    out.mates = Object.assign({}, s.mates || {});
-    out.mistakes = Array.isArray(s.mistakes) ? s.mistakes.slice(0, MISTAKES_KEPT) : [];
-    out.perf = Object.assign(f.perf, s.perf || {});
-    out.perf.games = Array.isArray(out.perf.games) ? out.perf.games.slice(-PERF_KEEP) : [];
+    out.mini = o(s.mini, d.mini);
+    for (const k of ['best', 'plays']) out.mini[k] = o(out.mini[k]);
+    out.mini.day = o(out.mini.day, d.mini.day); out.mini.day.best = o(out.mini.day.best);
+    out.mini.seen = arr(out.mini.seen);
+    out.trainers = o(s.trainers);
+    out.mates = o(s.mates);
+    out.mistakes = arr(s.mistakes).slice(0, MISTAKES_KEPT);
+    out.perf = o(s.perf, d.perf);
+    out.perf.games = arr(out.perf.games).slice(-PERF_KEEP);
     return out;
   }
 
@@ -152,6 +175,8 @@ function ChacklateProgress(catalog, extras) {
   function earn(state, source, amount, opts, out) {
     opts = opts || {};
     const d = today(opts.now ? new Date(opts.now) : undefined);
+    // A clock turned back cannot reopen a day already paid: a new day starts only going forward.
+    if (state.earned.date && d < state.earned.date) return 0;
     if (state.earned.date !== d) state.earned = { date: d, by: {}, n: {} };
     const e = state.earned, had = e.by[source] || 0, n = e.n[source] || 0;
     let give = Math.max(0, Math.floor(amount));
@@ -443,7 +468,7 @@ function ChacklateProgress(catalog, extras) {
     if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
-    if (opts && opts.daily && solved && !state.daily.done) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
+    if (opts && opts.daily && solved && !(state.daily.done && state.daily.date === today(now ? new Date(now) : undefined))) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
     if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;

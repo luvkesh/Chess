@@ -219,6 +219,14 @@ assert.strictEqual(s.earned.by.lesson, 25, 'a replayed lesson does not pay again
 const pz = { id: 'pz-coin', rating: 900 };
 assert(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins >= 30);
 assert.strictEqual(s.earned.by['daily-puzzle'], 30);
+assert.strictEqual(PG.puzzleFinished(s, pz, true, { daily: true }, day(10)).coins || 0, 0, 'the daily puzzle pays once a day');
+assert.strictEqual(PG.puzzleFinished(s, { id: 'pz-coin2', rating: 900 }, true, { daily: true }, day(11)).coins >= 30, true, 'and again the next day');
+// turning the clock back cannot reopen a day already paid
+s = PG.fresh();
+assert.strictEqual(PG.dailyBonus(s, day(12)).coins, 20);
+assert.strictEqual(PG.dailyBonus(s, day(11)).coins, 0, 'no bonus for going back a day');
+assert.strictEqual(PG.dailyBonus(s, day(12)).coins, 0, 'nor for coming forward again');
+assert.strictEqual(PG.dailyBonus(s, day(13)).coins, 20);
 // the generic earn API with a per-source daily cap (mini-games use this)
 s = PG.fresh();
 const got = [1, 2, 3, 4, 5, 6].map(() => PG.earn(s, 'mini:test', 10, { cap: 50, now: day(10) }));
