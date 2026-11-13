@@ -299,6 +299,12 @@ campaign.eras.forEach((e, k) => {
     } else assert.fail(e.id + ' stage kind ' + st.kind);
   }
 });
+ANIMALS.add(campaign.coach.animal);
+// every character has its Blender portrait (apps/web-prototype/tools/characters/)
+{
+  const fs = require('fs'), path = require('path');
+  for (const a of ANIMALS) assert.ok(fs.existsSync(path.join(__dirname, '../../../apps/web-prototype/src/art/avatar-' + a + '.webp')), a + ' has a portrait');
+}
 console.log('campaign ok:', campaign.eras.length, 'eras,', ANIMALS.size, 'portraits');
 
 // Variations: a playable one has its rules in the engine, a rule sheet, and a lesson whose boards,
