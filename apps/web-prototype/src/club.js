@@ -172,9 +172,10 @@ const ChacklateClub = (function () {
     const l = lobby();
     if (l && !server()) l.presence({ app: 'chackmate', club: card() }).catch(() => {});
   }
-  const cleanName = (s) => String(s == null ? '' : s).replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, 24) || 'Player';
+  // Only the made-up names (relay.js) are shown; with a game server, names come from its own list.
+  const cleanName = (s) => (window.ChacklateKidName ? window.ChacklateKidName(s) : 'Player');
   const cleanCc = (cc) => (typeof cc === 'string' && /^[A-Z]{2}$/.test(cc) ? cc : null);
-  const cleanR = (r) => (Number.isFinite(r) ? Math.max(400, Math.min(3000, Math.round(r))) : START);
+  const cleanR = (r) => (Number.isFinite(r) ? Math.max(400, Math.min(2400, Math.round(r))) : START);   // a page cannot claim more than the top
   function livePeers() {
     const l = lobby();
     if (!l) return [];

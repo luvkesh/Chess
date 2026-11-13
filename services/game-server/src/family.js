@@ -168,7 +168,7 @@ function create(db, lobby, opts) {
     try { progress = u.progress ? JSON.parse(u.progress) : null; } catch (e) { progress = null; }
     const games = db.get('SELECT COUNT(*) n, MAX(started) last FROM games WHERE white = ? OR black = ?', u.id, u.id);
     const week = db.get('SELECT COUNT(*) n FROM games WHERE (white = ? OR black = ?) AND started > ?', u.id, u.id, now() - 7 * 24 * HOUR);
-    const lessons = progress && progress.lessons ? Object.values(progress.lessons).filter((l) => l && typeof l === 'object').length   // the game keeps a record only for a lesson passed : 0;
+    const lessons = progress && progress.lessons ? Object.values(progress.lessons).filter((l) => l && typeof l === 'object').length : 0;   // the game keeps a record only for a lesson passed
     return { onlineGames: games.n, onlineGamesThisWeek: week.n, lastOnline: games.last || null, lessonsDone: lessons, level: progress && progress.xp != null ? progress.xp : null, ratings: lobby.ratings(u.id) };
   }
   const childView = (u) => ({ id: u.id, name: u.name, band: u.age_band, consent: u.consent, controls: controlsOf(u), activity: activity(u), created: u.created });

@@ -26,7 +26,7 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
     // A new player is offered the placement test once, on Home; say "skip" so it can't cover the cards.
     await p.waitForTimeout(1800);
     await p.evaluate(() => document.querySelectorAll('#modals [data-close]').forEach((b) => b.click()));
-    await p.evaluate(() => { ChacklateClub.data().cid = Math.random().toString(36).slice(2, 12); ChacklateApp.state.settings.netName = 'Player ' + Math.random().toString(36).slice(2, 6); ChacklateClub.publish(); });
+    await p.evaluate(() => { ChacklateClub.data().cid = Math.random().toString(36).slice(2, 12); delete ChacklateApp.state.settings.netName; ChacklateClub.publish(); });
     return p;
   };
   const inGame = (p) => p.waitForFunction(() => { const G = ChacklateApp.state.game; return G && G.kind === 'online' && G.online; }, null, { timeout: 20000 });
@@ -88,12 +88,14 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
   console.log('ok worldwide pairing and resignation');
   // A world game moves the Club rating on this device; the winner goes up, the loser down.
   const rr = async (p) => p.evaluate(() => ChacklateClub.data().ratings.blitz);
-  const [wr, lr] = cw ? [await rr(c), await rr(d)] : [await rr(d), await rr(c)];
+  const [wr, lr] = [await rr(c), await rr(d)];   // d resigned, so c won whatever its colour
   assert.ok(wr.r > 1500 && lr.r < 1500 && wr.g === 1, JSON.stringify([wr, lr]));
   console.log('ok world game rated in the Club');
 
-  // 4. The clock: a player who runs out of time loses on both devices.
-  const e = await open(), f = await open();
+  // 4. The clock: a player who runs out of time loses on both devices. The same two pages that
+  // played the first game play again: a finished game never blocks the next one.
+  const e = a, f = b;
+  for (const p of [e, f]) await p.evaluate(() => document.querySelectorAll('#modals [data-close]').forEach((x) => x.click()));
   await e.evaluate(() => ChacklateNet.createFriend('10+0'));
   const code2 = await (await e.waitForSelector('.friend-code')).textContent();
   await f.evaluate((x) => ChacklateNet.joinFriend(x), code2);
@@ -106,7 +108,10 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
   const [tw, tb] = [await outcome(W), await outcome(B)];
   assert.deepStrictEqual([tw.result, tw.reason], ['0-1', 'timeout']);
   assert.deepStrictEqual([tb.result, tb.reason], ['0-1', 'timeout']);
-  console.log('ok time runs out');
+  console.log('ok time runs out, in a second game on the same pages');
+  // Names: only the made-up ones show; anything typed reads "Player".
+  assert.strictEqual(await e.evaluate(() => [ChacklateKidName('Brave Otter'), ChacklateKidName('text me 9876543210'), ChacklateKidName('Brave <b>Otter</b>')].join('|')), 'Brave Otter|Player|Player');
+  console.log('ok only made-up names');
 
   // 5. A page with no live room (a downloaded file) still offers the buttons and says why they cannot work.
   const lone = await browser.newContext({ viewport: { width: 1280, height: 800 } });
