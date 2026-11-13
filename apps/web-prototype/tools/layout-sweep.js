@@ -115,6 +115,7 @@ function probe() {
     if (el.closest('#splash, [aria-hidden="true"], .sr, .sr-only, .visually-hidden')) continue;
     const r = rectOf(el); if (!r) continue;
     const cs = getComputedStyle(el);
+    if (cs.clipPath === 'inset(50%)' || (r.right - r.left) < 2) continue;   // words kept only for screen readers
     leaves.push({ el, r, cs });
   }
   for (const { el, r, cs } of leaves) {
@@ -346,7 +347,7 @@ async function run() {
 }
 
 run().then((results) => {
-  const outFile = path.join(shots || process.cwd(), 'layout-sweep.json');
+  const outFile = path.join(shots || require('os').tmpdir(), 'layout-sweep.json');
   fs.writeFileSync(outFile, JSON.stringify(results, null, 1));
   // one line per distinct problem
   const groups = new Map();
