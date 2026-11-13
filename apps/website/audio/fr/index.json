@@ -2,28 +2,28 @@
  "lang": "fr",
  "lines": {
   "hero": {
-   "text": "Salut ! Je suis Rooky, ton coach d'échecs. Bienvenue dans Chackmate ! Allez, fais défiler vers le bas. J'ai tellement de choses à te montrer !",
+   "text": "Coucou, coucou ! Je suis Rooky, ton coach d'échecs, et je suis trop content que tu sois là ! Bienvenue dans Chackmate, où les échecs voyagent à travers les âges. Des pyramides, des palais, des dragons et des énigmes t'attendent. Fais défiler la page, et partons à l'aventure !",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
      "t": 0.0,
-     "text": "Salut !"
+     "text": "Coucou, coucou !"
     },
     {
-     "t": 1.01,
-     "text": "Je suis Rooky, ton coach d'échecs."
+     "t": 1.39,
+     "text": "Je suis Rooky, ton coach d'échecs, et je suis trop content que tu sois là !"
     },
     {
-     "t": 3.05,
-     "text": "Bienvenue dans Chackmate !"
+     "t": 5.51,
+     "text": "Bienvenue dans Chackmate, où les échecs voyagent à travers les âges."
     },
     {
-     "t": 4.71,
-     "text": "Allez, fais défiler vers le bas."
+     "t": 9.39,
+     "text": "Des pyramides, des palais, des dragons et des énigmes t'attendent."
     },
     {
-     "t": 6.48,
-     "text": "J'ai tellement de choses à te montrer !"
+     "t": 12.93,
+     "text": "Fais défiler la page, et partons à l'aventure !"
     }
    ]
   },
@@ -2908,6 +2908,142 @@
     {
      "t": 9.51,
      "text": "Light and Void joue ici, sur Light and Void Marble."
+    }
+   ]
+  },
+  "details": {
+   "text": "Et maintenant, les petits détails ! Touche chacun d'eux, et je te raconte tout.",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Et maintenant, les petits détails !"
+    },
+    {
+     "t": 1.95,
+     "text": "Touche chacun d'eux, et je te raconte tout."
+    }
+   ]
+  },
+  "fx-capture": {
+   "text": "Effets de prise ! Chaque fois que tu prends une pièce, tu as droit à un petit spectacle. Le chocolat fond, la glace éclate et les étincelles volent !",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Effets de prise !"
+    },
+    {
+     "t": 1.36,
+     "text": "Chaque fois que tu prends une pièce, tu as droit à un petit spectacle."
+    },
+    {
+     "t": 5.04,
+     "text": "Le chocolat fond, la glace éclate et les étincelles volent !"
+    }
+   ]
+  },
+  "fx-victory": {
+   "text": "Effets de victoire ! Quand tu gagnes, tout l'échiquier fait la fête avec toi. Feux d'artifice ou éclairs, à toi de choisir !",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Effets de victoire !"
+    },
+    {
+     "t": 1.42,
+     "text": "Quand tu gagnes, tout l'échiquier fait la fête avec toi."
+    },
+    {
+     "t": 4.33,
+     "text": "Feux d'artifice ou éclairs, à toi de choisir !"
+    }
+   ]
+  },
+  "fx-trail": {
+   "text": "Traînées de coups ! Chaque pièce laisse une douce traînée de lumière en se déplaçant. Le roi et la dame ont les plus belles.",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Traînées de coups !"
+    },
+    {
+     "t": 1.29,
+     "text": "Chaque pièce laisse une douce traînée de lumière en se déplaçant."
+    },
+    {
+     "t": 4.61,
+     "text": "Le roi et la dame ont les plus belles."
+    }
+   ]
+  },
+  "fx-clock": {
+   "text": "Styles d'horloge ! Habille ta pendule de jeu, du verre glacé au rouge rubis.",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Styles d'horloge !"
+    },
+    {
+     "t": 1.43,
+     "text": "Habille ta pendule de jeu, du verre glacé au rouge rubis."
+    }
+   ]
+  },
+  "fx-sound": {
+   "text": "Packs de sons ! Choisis le son de tes pièces quand elles se posent. Le marbre fait clac, et le verre fait cling !",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Packs de sons !"
+    },
+    {
+     "t": 1.26,
+     "text": "Choisis le son de tes pièces quand elles se posent."
+    },
+    {
+     "t": 3.88,
+     "text": "Le marbre fait clac, et le verre fait cling !"
+    }
+   ]
+  },
+  "fx-avatar": {
+   "text": "Avatars ! Choisis un visage pour ta carte de joueur. Quel ami te ressemble le plus ?",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Avatars !"
+    },
+    {
+     "t": 1.16,
+     "text": "Choisis un visage pour ta carte de joueur."
+    },
+    {
+     "t": 3.61,
+     "text": "Quel ami te ressemble le plus ?"
+    }
+   ]
+  },
+  "fx-frame": {
+   "text": "Cadres ! Mets un anneau brillant autour de ton avatar. Il y en a tant à collectionner !",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Cadres !"
+    },
+    {
+     "t": 1.0,
+     "text": "Mets un anneau brillant autour de ton avatar."
+    },
+    {
+     "t": 3.62,
+     "text": "Il y en a tant à collectionner !"
     }
    ]
   }

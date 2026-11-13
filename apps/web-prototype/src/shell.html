@@ -65,6 +65,9 @@ html[data-script]:not([data-script="latin"]) .gold-text, html[data-script]:not([
 * { font-feature-settings: 'lnum' 1 !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); overflow: hidden; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+/* A long press on a phone never selects the screen or pops the copy menu; typing fields still can. */
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; }
 img { display: block; }
@@ -307,10 +310,11 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .stamp { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0; background: none; border: 0; color: inherit; cursor: pointer; min-width: 0; }
 .stamp img { width: 64px; height: 64px; border-radius: 50%; filter: grayscale(1) brightness(0.45) contrast(0.9); opacity: 0.55; outline: 1.5px dashed rgba(232, 194, 122, 0.35); outline-offset: 3px; transition: transform .3s var(--ease); }
 .stamp.on img { filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5)); opacity: 1; outline: 0; transform: rotate(-6deg); }
-.stamp small { font-size: 12px; line-height: 1.2; color: var(--muted); max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+.stamp small { font-size: 12px; line-height: 1.2; color: var(--muted); max-width: 100%; text-align: center; overflow-wrap: break-word; hyphens: auto; }
 .stamp.on small { color: var(--gold-2); }
 @media (hover: hover) { .stamp:hover img { transform: scale(1.06); } .stamp.on:hover img { transform: rotate(-6deg) scale(1.06); } }
 @media (max-width: 760px) { .passport .stamps { grid-template-columns: repeat(5, minmax(0, 1fr)); } .passport { padding: 14px 16px; } .stamp img { width: 52px; height: 52px; } }
+@media (max-width: 400px) { .passport .stamps { gap: 8px 4px; } .stamp small { font-size: 11px; } .stamp img { width: 46px; height: 46px; } }
 .result-hero .vign.sm { height: 150px; }
 .result-hero .vign.sm img { height: 150px; width: auto; max-width: 100%; object-fit: contain; }
 .stamp-moment { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 8px; color: var(--gold-2); font: 600 17px/1.25 var(--serif); }
@@ -794,6 +798,7 @@ body.lowfx .explorebar, body.lowfx .explorehint { animation: none; }
 .toss.still .paw, .toss.still .toss-slot img { transition: none; }
 @keyframes toss-bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
 body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossing #screens .side, body.tossing #screens .status-chip, body.tossing #guide { visibility: hidden; }
+body.breaktime #guide { visibility: hidden; }   /* the daily break: nothing to tap but its own card */
 .toss.opened #toss-skip { visibility: hidden; }
 .toss:not(.still):not(.opened) .toss-hands.watching .toss-hand { animation: toss-bob 1.6s ease-in-out infinite; }
 .toss:not(.still):not(.opened) .toss-hands.watching .toss-hand.right { animation-delay: -.8s; }
@@ -858,6 +863,7 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .side header b { font: 600 12px/1 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-2); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rv-body { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
 .side > header, .rv-body > :not(.moves-wrap) { flex-shrink: 0; }
+.side .sheet-tog { display: none; }
 .rv-body > .moves-wrap { min-height: 96px; }
 .round.rb { padding: 0; overflow: hidden; border-color: rgba(232, 194, 122, 0.55); background: transparent; }
 .round.rb img { width: 100%; height: 100%; display: block; transition: transform .3s var(--ease); }
@@ -1151,7 +1157,7 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .actionbar .toggle-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 .actionbar .toggle-btn input { width: 16px; height: 16px; accent-color: var(--gold-3); margin: 0; }
 @media (prefers-reduced-motion: reduce) { .coach, .coach-pop, .term-pop { animation: none; } }
-.actionbar { position: absolute; bottom: calc(var(--safe-b) + 16px); left: calc((100% - var(--col) - 32px) / 2); transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 7px; border-radius: 999px; z-index: 7; max-width: calc(100% - var(--col) - 64px); overflow-x: auto; scrollbar-width: none; }
+.actionbar { position: absolute; bottom: calc(var(--safe-b) + 16px); left: calc((100% - var(--col) - 32px) / 2); transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 7px; border-radius: 999px; z-index: 7; width: max-content; max-width: calc(100% - var(--col) - 64px); overflow-x: auto; scrollbar-width: none; }
 .actionbar .btn { border-radius: 999px; border-color: transparent; background: transparent; min-height: 44px; padding: 0 16px; font: 500 13.5px/1 var(--body); flex: none; }
 .actionbar .btn:hover:not(:disabled) { background: rgba(232, 194, 122, 0.1); }
 .actionbar .btn.primary, .actionbar .btn.gold { border-color: #fbe7b4; background: linear-gradient(180deg, #fbe6ad, #e9c27a 45%, #c38f3f); color: #2a1606; font: 600 11.5px/1 var(--caps); }
@@ -1179,7 +1185,9 @@ body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossi
 .lesson .content { flex: 1; overflow: auto; overflow-wrap: break-word; padding: 18px 20px; scrollbar-width: thin; scrollbar-color: rgba(232, 194, 122, 0.25) transparent; }
 .lesson .say { font: 500 19px/1.55 var(--serif); margin: 0 0 12px; }
 .lesson .prompt { font: 500 22px/1.35 var(--serif); margin: 0 0 12px; }
-.lesson footer { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); align-items: center; flex-wrap: nowrap; }
+.lesson footer { display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); align-items: center; flex-wrap: wrap; }
+/* where Hint, Solution and Next puzzle do not fit on one line, Next goes under them on the right instead of past the panel's edge */
+.lesson footer .btn.primary { margin-inline-start: auto; max-width: 100%; }
 .lesson footer .grow { flex: 1; }
 .lesson footer .dots { flex: 0 1 auto; min-width: 0; flex-wrap: nowrap; overflow: hidden; }
 .lesson footer .dots i { flex: 0 0 auto; }
@@ -1574,10 +1582,19 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .backbtn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }   /* still names the button for screen readers */
   .hud-top .title { padding: 0 5px; } .backbtn { padding: 0 12px; }
   /* Left-aligned, so Rooky's corner button and its bubble (same row, right side) never cover it. */
-  .status-chip { position: fixed; left: max(10px, var(--safe-l)); bottom: calc(36vh + var(--safe-b) + 84px); height: 34px; font-size: 10.5px; letter-spacing: 0.1em; padding: 0 14px; z-index: 7; max-width: calc(100vw - 214px - var(--safe-l) - var(--safe-r)); }
+  .status-chip { position: fixed; left: max(10px, var(--safe-l)); bottom: calc(var(--sheet-top, calc(36vh + var(--safe-b) + 82px)) + 2px); height: 34px; font-size: 10.5px; letter-spacing: 0.1em; padding: 0 14px; z-index: 7; max-width: calc(100vw - 214px - var(--safe-l) - var(--safe-r)); }
   .status-chip > span, .status-chip { overflow: hidden; text-overflow: ellipsis; }
   body.ingame:has(.guide:not(.nocap).open, .guide:not(.nocap).speaking) .status-chip { opacity: 0; }
   .side, .side.wide, .lesson { top: auto; left: max(10px, var(--safe-l)); right: max(10px, var(--safe-r)); width: auto; bottom: calc(var(--safe-b) + 74px); height: 36vh; }
+  /* The sheet folds down to its title bar (and Rooky's card, if he is talking) so the board is clear. */
+  .side .sheet-tog { display: grid; place-items: center; width: 36px; height: 36px; margin: -8px -8px -8px 0; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--gold-2); }
+  .side .sheet-tog .ico { width: 18px; height: 18px; transition: transform .25s var(--ease); }
+  .side.min .sheet-tog .ico { transform: rotate(180deg); }
+  .side > header { cursor: pointer; }
+  .side.min { height: auto; max-height: 36vh; }
+  .side.min .moves-wrap, .side.min .move-form, .side.min .rv-body { display: none; }
+  .side.min > header { border-bottom-color: transparent; }
+  .side.min #coach-slot:not(:empty) { border-top: 1px solid var(--line); }
   .lesson { bottom: calc(var(--safe-b) + 10px); height: 42vh; }
   .lesson header { padding: 10px 14px 9px; gap: 12px; } .lesson header img { width: 42px; height: 42px; } .lesson header h3 { font-size: 20px; margin-top: 4px; }
   .lesson .content { padding: 12px 14px; } .lesson .say { font-size: 17px; } .lesson .prompt { font-size: 19px; }
@@ -1593,6 +1610,7 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
   .clock { font-size: 15px; padding: 7px 7px; border-radius: 10px; min-width: 3.8em; }
   .evalbar { display: none; }
   .actionbar { left: 50%; bottom: calc(var(--safe-b) + 10px); max-width: calc(100% - 20px); gap: 0; }
+  .actionbar .btn.coach-btn { min-height: 44px; }
   .actionbar .btn span.lbl { display: none; }
   .actionbar .btn { padding: 0 12px; } .actionbar .sep { margin: 0 2px; }
   .rule { grid-template-columns: 72px 1fr; gap: 10px; padding: 10px; } .rule .rb-pic { width: 72px; }

@@ -361,6 +361,8 @@ function checkXiangqi(v) {
   L.steps.forEach((s, i) => { game(s.fen, 'xiangqi step ' + i); (s.marks || []).forEach((m) => pt(m, 'xiangqi step ' + i)); assert.ok(s.line, 'xiangqi step ' + i + ' line'); checked++; });
   L.exercises.forEach((x, i) => {
     const where = 'xiangqi exercise ' + i, g = game(x.fen, where);
+    // pictures in the steps may bend the rules to show a move; exercises are positions a game could reach
+    assert.strictEqual(X.validate(x.fen), null, where + ' is a position a game could reach');
     if (x.type === 'targets') assert.ok(g.targets(pt(x.from, where)).length >= 2, where + ' targets');
     else if (x.type === 'move') for (const u of x.answers) assert.ok(g.legal.some((m) => X.uci(m) === u), where + ' answer ' + u);
     else if (x.type === 'choice') assert.ok(x.options[x.answer], where + ' answer');
