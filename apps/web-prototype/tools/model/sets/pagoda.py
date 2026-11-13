@@ -31,6 +31,8 @@ def refs():
         for t, box in BOXES[s].items():
             # the navy dragon looks left: mirror it to face right like the ivory one
             out[s][t] = kit.Ref(PIC, box, unit=unit, seg='sam', sym=t not in ('n', 'q', 'k'), flip=(s == 'b' and t == 'n'))
+    for s in ('w', 'b'):
+        out[s]['r'].med = 1   # keep the pagoda roofs' thin flared eaves
     for t in BOXES['b']:
         w, b = out['w'][t], out['b'][t]
         b.unit *= w.width(0.05) / max(b.width(0.05), 1e-6)

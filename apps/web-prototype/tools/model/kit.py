@@ -164,7 +164,7 @@ class Ref:
                 rs.append((a_ + b_) / 2 if abs(a_ - b_) < 0.12 * max(a_, b_) else min(a_, b_))
             else:
                 rs.append((c.max() - c.min()) / 2)
-        rs = median_filter(np.array(rs, float), 5, mode='nearest')
+        rs = median_filter(np.array(rs, float), getattr(self, 'med', 5), mode='nearest')
         if smooth:
             rs = gaussian_filter1d(rs, smooth, mode='nearest')
         zs = (self.bot - rows) * self.unit
