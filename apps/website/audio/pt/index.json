@@ -628,24 +628,12 @@
    ]
   },
   "item-sets-ocean": {
-   "text": "Mergulhe no fundo do mar! O Coral Kingdom é uma corte submarina inteira, com sereias e tritões, um polvo, um cavalo-marinho, um castelo de coral e baiacus inflados no lugar dos peões. Cada peça é pintada com cores vivas do oceano. Chegue ao nível doze, e o reino inteiro vem nadando até o seu tabuleiro.",
+   "text": "Mergulhe no mar! O Coral Kingdom é a corte de uma cidade afundada, em pérola e ouro: um rei do mar com o seu tridente, uma rainha sereia, águas-vivas que brilham, cavalos-marinhos espinhosos e faróis que ainda brilham. Os peões são pérolas em conchas abertas. Chegue ao nível doze e o reino inteiro vem nadando para o seu tabuleiro.",
    "voice": "pm_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Mergulhe no fundo do mar!"
-    },
-    {
-     "t": 2.0,
-     "text": "O Coral Kingdom é uma corte submarina inteira, com sereias e tritões, um polvo, um cavalo-marinho, um castelo de coral e baiacus inflados no lugar dos peões."
-    },
-    {
-     "t": 11.43,
-     "text": "Cada peça é pintada com cores vivas do oceano."
-    },
-    {
-     "t": 14.63,
-     "text": "Chegue ao nível doze, e o reino inteiro vem nadando até o seu tabuleiro."
+     "text": "Mergulhe no mar! O Coral Kingdom é a corte de uma cidade afundada, em pérola e ouro: um rei do mar com o seu tridente, uma rainha sereia, águas-vivas que brilham, cavalos-marinhos espinhosos e faróis que ainda brilham. Os peões são pérolas em conchas abertas. Chegue ao nível doze e o reino inteiro vem nadando para o seu tabuleiro."
     }
    ]
   },
@@ -1052,24 +1040,12 @@
    ]
   },
   "item-boards-deco": {
-   "text": "Entre numa cobertura dos anos 1930. O Macassar and Chrome tem ébano macassar listrado, uma madeira com listras ousadas escuras e douradas, ao lado de cromo reluzente. É afiado, brilhante e bem Nova York. Vença Skye, a Águia, sobre Manhattan, e ele é seu.",
+   "text": "Entre na era do jazz. O Skyline Marble é mármore creme e verde-escuro com veios de ouro, numa moldura de laca preta com leques dourados de raios de sol. É elegante, brilhante e muito Nova Iorque. Vença Skye the Eagle sobre Manhattan e ele é seu.",
    "voice": "pm_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Entre numa cobertura dos anos 1930."
-    },
-    {
-     "t": 3.47,
-     "text": "O Macassar and Chrome tem ébano macassar listrado, uma madeira com listras ousadas escuras e douradas, ao lado de cromo reluzente."
-    },
-    {
-     "t": 11.33,
-     "text": "É afiado, brilhante e bem Nova York."
-    },
-    {
-     "t": 14.05,
-     "text": "Vença Skye, a Águia, sobre Manhattan, e ele é seu."
+     "text": "Entre na era do jazz. O Skyline Marble é mármore creme e verde-escuro com veios de ouro, numa moldura de laca preta com leques dourados de raios de sol. É elegante, brilhante e muito Nova Iorque. Vença Skye the Eagle sobre Manhattan e ele é seu."
     }
    ]
   },

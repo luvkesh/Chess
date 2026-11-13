@@ -597,22 +597,22 @@
       ]
     },
     "item-sets-ocean": {
-      "text": "Dive under the sea! Coral Kingdom is a whole undersea court, with merfolk, an octopus, a seahorse, a coral castle and puffed-up pufferfish for pawns. Every piece is painted in bright ocean colours. Reach level twelve, and the whole kingdom swims onto your board.",
+      "text": "Dive under the sea! Coral Kingdom is the court of a sunken city, in pearl and gold: a sea king with his trident, a mermaid queen, jellyfish that glow, spiny seahorses and lighthouses that still shine. The pawns are pearls in open shells. Reach level twelve, and the whole kingdom swims onto your board.",
       "cues": [
         {
           "t": 0,
           "text": "Dive under the sea!"
         },
         {
-          "t": 1.39,
-          "text": "Coral Kingdom is a whole undersea court, with merfolk, an octopus, a seahorse, a coral castle and puffed-up pufferfish for pawns."
+          "t": 1.31,
+          "text": "Coral Kingdom is the court of a sunken city, in pearl and gold: a sea king with his trident, a mermaid queen, jellyfish that glow, spiny seahorses and lighthouses that still shine."
         },
         {
-          "t": 9.73,
-          "text": "Every piece is painted in bright ocean colours."
+          "t": 12.12,
+          "text": "The pawns are pearls in open shells."
         },
         {
-          "t": 12.75,
+          "t": 14.74,
           "text": "Reach level twelve, and the whole kingdom swims onto your board."
         }
       ]
@@ -999,22 +999,22 @@
       ]
     },
     "item-boards-deco": {
-      "text": "Step into a 1930s penthouse. Macassar and Chrome has striped macassar ebony, a wood with bold dark and golden stripes, beside gleaming chrome. It's sharp, shiny and very New York. Beat Skye the Eagle above Manhattan, and it's yours.",
+      "text": "Step into the jazz age. Skyline Marble is cream and deep green marble with veins of gold, framed in black lacquer with golden sunburst fans. It's sharp, shiny and very New York. Beat Skye the Eagle above Manhattan, and it's yours.",
       "cues": [
         {
           "t": 0,
-          "text": "Step into a 1930s penthouse."
+          "text": "Step into the jazz age."
         },
         {
-          "t": 2.69,
-          "text": "Macassar and Chrome has striped macassar ebony, a wood with bold dark and golden stripes, beside gleaming chrome."
+          "t": 1.79,
+          "text": "Skyline Marble is cream and deep green marble with veins of gold, framed in black lacquer with golden sunburst fans."
         },
         {
-          "t": 9.4,
+          "t": 8.83,
           "text": "It's sharp, shiny and very New York."
         },
         {
-          "t": 12.15,
+          "t": 11.59,
           "text": "Beat Skye the Eagle above Manhattan, and it's yours."
         }
       ]
