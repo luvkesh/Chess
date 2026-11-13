@@ -2364,7 +2364,7 @@
       }).join('') + '</div></div></div>');
     wireLinks(); hydrate(null, true);
     document.querySelectorAll('[data-tr]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { trainer: b.dataset.tr }); }; });
-    document.querySelectorAll('[data-trl]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', b.dataset.trl); }; });
+    document.querySelectorAll('[data-trl]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { id: b.dataset.trl, back: 'trainers' }); }; });
     return {};
   };
   const trName = (tr) => I18N.text(tr.name);
@@ -5482,13 +5482,14 @@
     const S = { phase: quiz ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, talk: 0, t0: Date.now() };
     // a lesson opened from the rule book goes back to the game it came from
     const toGame = arg && arg.back === 'game' && state.game ? state.game : null;
-    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? eraName(era) : vr ? I18N.text(vr.name) : trn ? t('learn.sub.trainers') : t('common.nav.learn')) + '</span></button>' +
+    const fromTr = !!(arg && arg.back === 'trainers');   // opened from a trainer card's Lesson button
+    mount('<div class="hud-top"><button class="backbtn" id="ls-back">' + icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? eraName(era) : vr ? I18N.text(vr.name) : trn || fromTr ? t('learn.sub.trainers') : t('common.nav.learn')) + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + (test ? t('common.nav.learn') : trn ? t('learn.sub.trainers') : own ? esc(eraName(era)) : vr ? esc(I18N.text(vr.name)) : t('learn.ls.chapter', { n: L.chapter })) + ' · ' + esc(I18N.text(L.title)) + '</span></div><span class="spacer"></span>' +
       '<button class="round" id="ls-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="round" id="ls-voice" data-voice="' + esc(guide.name) + '"></button>' +
       labsBtn('ls-labs') + '<button class="round" id="ls-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
       '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="ls-phase"></div><h3>' + esc(I18N.text(L.title)) + '</h3></div></header><div class="content" id="ls-content"></div>' +
       '<footer><div class="dots" id="ls-dots"></div><div class="grow"></div><button class="btn" id="ls-prev" aria-label="' + t('common.back') + '">' + icon('prev') + '</button><button class="btn primary" id="ls-next">' + t('common.next') + '</button></footer></aside>');
-    const leaveTo = () => (toGame && state.game === toGame ? backToGame() : era ? go('era', era.id) : test && arg.from === 'home' ? go('home') : vr ? go('variant', vr.id) : trn ? go('trainers') : go('learn'));
+    const leaveTo = () => (toGame && state.game === toGame ? backToGame() : era ? go('era', era.id) : test && arg.from === 'home' ? go('home') : vr ? go('variant', vr.id) : trn || fromTr ? go('trainers') : go('learn'));
     $('ls-back').onclick = () => { AU.play('tap'); leaveTo(); };
     $('ls-set').onclick = () => settingsModal();
     if ($('ls-labs')) $('ls-labs').onclick = () => labsModal();
@@ -5791,7 +5792,7 @@
         if (S.i < ex.length - 1) { S.i++; renderEx(); } else finish();
         return;
       }
-      if (S.retry) { go('lesson', own ? { journey } : toGame ? { id: L.id, back: 'game' } : L.id); return; }
+      if (S.retry) { go('lesson', own ? { journey } : toGame ? { id: L.id, back: 'game' } : fromTr ? { id: L.id, back: 'trainers' } : L.id); return; }
       if (S.nx) { go('lesson', S.nx.id); return; }
       if (S.again) { go('lesson', { trainer: trn.id }); return; }
       leaveTo();
@@ -5811,7 +5812,7 @@
         S.retry = true;
         $('ls-next').textContent = t('learn.ls.again');
         $('ls-prev').hidden = false; $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
-        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? t('learn.dj.backTo', { era: eraName(era) }) : t('common.nav.learn')) + '</span>';
+        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? t('learn.dj.backTo', { era: eraName(era) }) : fromTr ? t('learn.sub.trainers') : t('common.nav.learn')) + '</span>';
         $('ls-prev').onclick = () => { AU.play('tap'); leaveTo(); };
         guideIdle(null); dots();
         return;
@@ -5826,10 +5827,10 @@
       $('ls-content').innerHTML = '<div class="done-card"><p class="big-stars">' + stars(res.stars) + '</p>' +
         '<p class="prompt">' + (pct >= 80 ? t('learn.ls.mastered') : t('learn.ls.complete')) + '</p><p class="say">' + esc(t('learn.ls.firstTime', { n: first, of: ex.length, pct })) + ' ' + esc(own ? (pct >= 80 ? t('learn.ls.wellDone') : t('learn.ls.playAgain')) + ' ' + t('learn.ls.waiting', { name: guide.name, era: eraName(era) }) : vr ? t('learn.ls.nowRules', { name: I18N.text(vr.name) }) : pct >= 80 ? t('learn.ls.spaced', { coach: COACH.name }) : t('learn.ls.score80')) + '</p>' +
         (res.xp ? '<span class="pill gold">+' + res.xp + ' XP</span>' : '') + '</div>';
-      $('ls-next').textContent = toGame ? t('learn.rv.backGame') : era ? t('learn.dj.backTo', { era: eraName(era) }) : vr ? t('learn.ls.play', { name: I18N.text(vr.name) }) : t('learn.ls.backLearn');
+      $('ls-next').textContent = toGame ? t('learn.rv.backGame') : era ? t('learn.dj.backTo', { era: eraName(era) }) : vr ? t('learn.ls.play', { name: I18N.text(vr.name) }) : fromTr ? t('learn.sub.trainers') : t('learn.ls.backLearn');
       // The next lesson is the main button; going back to Learn is the quiet one beside it.
       const nx = LESSONS.lessons[LESSONS.lessons.indexOf(L) + 1];
-      if (!era && !vr && !toGame && nx && lessonOpen(nx)) {
+      if (!era && !vr && !toGame && !fromTr && nx && lessonOpen(nx)) {
         S.nx = nx;
         $('ls-next').textContent = t('learn.ls.nextLesson');
         $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
