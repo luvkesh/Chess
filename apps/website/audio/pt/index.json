@@ -2578,6 +2578,64 @@
      "text": "Uma lanterna de pedra brilha, carpas koi nadam numa tigela, e Dragon and Pagoda joga aqui sobre Mountain Scroll."
     }
    ]
+  },
+  "train": {
+   "text": "Hora de treinar! São treze treinadores, uma habilidade de cada vez. Primeiro uma lição rapidinha comigo, depois uma rodada de treino com pontuação. Consegue bater o seu recorde?",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Hora de treinar!"
+    },
+    {
+     "t": 1.54,
+     "text": "São treze treinadores, uma habilidade de cada vez."
+    },
+    {
+     "t": 5.05,
+     "text": "Primeiro uma lição rapidinha comigo, depois uma rodada de treino com pontuação."
+    },
+    {
+     "t": 10.04,
+     "text": "Consegue bater o seu recorde?"
+    }
+   ]
+  },
+  "mates": {
+   "text": "Hora dos quebra-cabeças! Encontre o xeque-mate em um lance, depois em dois, e assim até cinco. Veja eu resolver um aqui mesmo, na mesa!",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Hora dos quebra-cabeças!"
+    },
+    {
+     "t": 1.99,
+     "text": "Encontre o xeque-mate em um lance, depois em dois, e assim até cinco."
+    },
+    {
+     "t": 6.13,
+     "text": "Veja eu resolver um aqui mesmo, na mesa!"
+    }
+   ]
+  },
+  "progress": {
+   "text": "E veja o quanto você evolui! Eu confiro oito habilidades das suas partidas e mostro tudo num gráfico. Tudo fica no seu aparelho, prometo!",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "E veja o quanto você evolui!"
+    },
+    {
+     "t": 2.34,
+     "text": "Eu confiro oito habilidades das suas partidas e mostro tudo num gráfico."
+    },
+    {
+     "t": 6.9,
+     "text": "Tudo fica no seu aparelho, prometo!"
+    }
+   ]
   }
  }
 }

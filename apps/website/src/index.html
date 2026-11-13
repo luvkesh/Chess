@@ -1864,7 +1864,7 @@ html.nonlatin body { line-height: 1.75; }
     var KEY = 'chackmate.site.tour.v1', CC_KEY = 'chackmate.site.captions', Y_KEY = 'chackmate.site.rooky-y.v1';
     var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
     var btn = $('r-btn'), invite = $('r-invite'), live = $('r-live'), cap = $('r-caption'), where = $('r-where'), orb = $('r-orb'), ccBtn = $('r-cc'), nextBtn = $('r-next');
-    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', wonders: 'Wonders', collect: 'Collect', ages: 'Every age', families: 'For families', close: 'Play' };
+    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', train: 'Train', mates: 'Puzzles', progress: 'Progress', wonders: 'Wonders', collect: 'Collect', ages: 'Every age', families: 'For families', close: 'Play' };
     var sections = [].slice.call(document.querySelectorAll('[data-guide]')).filter(function (el) { return G[el.dataset.guide]; });
     var keys = sections.map(function (el) { return el.dataset.guide; });
     var on = false, paused = false, audio = null, lastSection = null, lastKey = null, settle = 0, capTimer = 0, peekT = 0, itemT = 0, nextTo = null, cueAt = 0;
@@ -2048,6 +2048,8 @@ html.nonlatin body { line-height: 1.75; }
         if (actx.state !== 'running') return viaElement('sound is asleep');
         var src = actx.createBufferSource(); src.buffer = buf; src.connect(a.gain); a.src = src; var t0 = actx.currentTime - from;
         src.onended = ended;
+        // a few milliseconds of fade-in, so a clip that starts right on a word never clicks
+        var g0 = actx.currentTime; a.gain.gain.setValueAtTime(0, g0); a.gain.gain.linearRampToValueAtTime(1, g0 + 0.008);
         src.start(0, Math.min(from, Math.max(0, buf.duration - 0.05)));
         follow(function () { return actx.currentTime - t0; });
         // fetch the neighbouring sections so the next one starts at once

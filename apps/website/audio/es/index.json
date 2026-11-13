@@ -2578,6 +2578,64 @@
      "text": "Un farol de piedra brilla, las carpas koi nadan en un cuenco, y Dragon and Pagoda juega aquí sobre Mountain Scroll."
     }
    ]
+  },
+  "train": {
+   "text": "¡Hora de entrenar! Hay trece entrenadores, una habilidad cada vez. Primero una lección rápida conmigo, y luego una ronda de práctica con puntuación. ¿Puedes superar tu mejor marca?",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Hora de entrenar!"
+    },
+    {
+     "t": 1.48,
+     "text": "Hay trece entrenadores, una habilidad cada vez."
+    },
+    {
+     "t": 4.61,
+     "text": "Primero una lección rápida conmigo, y luego una ronda de práctica con puntuación."
+    },
+    {
+     "t": 9.63,
+     "text": "¿Puedes superar tu mejor marca?"
+    }
+   ]
+  },
+  "mates": {
+   "text": "¡Hora de los acertijos! Encuentra el jaque mate en una jugada, luego en dos, y así hasta cinco. ¡Mírame resolver uno aquí mismo, en el tablero!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Hora de los acertijos!"
+    },
+    {
+     "t": 1.8,
+     "text": "Encuentra el jaque mate en una jugada, luego en dos, y así hasta cinco."
+    },
+    {
+     "t": 6.1,
+     "text": "¡Mírame resolver uno aquí mismo, en el tablero!"
+    }
+   ]
+  },
+  "progress": {
+   "text": "¡Y mira cuánto creces! Reviso ocho habilidades de tus partidas y las dibujo en una gráfica. ¡Y todo se queda en tu dispositivo, prometido!",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Y mira cuánto creces!"
+    },
+    {
+     "t": 1.91,
+     "text": "Reviso ocho habilidades de tus partidas y las dibujo en una gráfica."
+    },
+    {
+     "t": 6.26,
+     "text": "¡Y todo se queda en tu dispositivo, prometido!"
+    }
+   ]
   }
  }
 }
