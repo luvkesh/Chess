@@ -434,6 +434,10 @@ def main():
         (out / 'img').mkdir(exist_ok=True)
         for pic in [p for g in ('item-*.webp', 'ic-*.webp', '*-hero.webp', 'set-*.webp') for p in (here / 'img').glob(g)]:
             (out / 'img' / pic.name).write_bytes(pic.read_bytes())
+        # the modelled sets' mesh packs, which the live table fetches beside the page (meshes/<pack>.txt)
+        (out / 'meshes').mkdir(exist_ok=True)
+        for pack in (game / 'meshes').glob('*.txt'):
+            (out / 'meshes' / pack.name).write_bytes(pack.read_bytes())
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
         # The same pitches in other languages, joined per language into base64 parts of about 4 MB of

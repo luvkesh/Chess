@@ -25,6 +25,8 @@ python3 apps/website/build.py                      # rebuild index.html after ch
 python3 apps/website/build.py --preview /tmp/site  # stand-alone copy (index, privacy, terms) that links to the hosted game
 ```
 
+The modelled piece sets load their meshes from `meshes/<pack>.txt` beside the page (the game's `apps/web-prototype/meshes`). `--preview` copies the packs; a served site must host them there too, or those sets fall back to their coded pieces.
+
 ## New pictures
 
 The era pictures are rendered from the game itself, so they always match it. After changing a set, board or room, rebuild the game and run:
