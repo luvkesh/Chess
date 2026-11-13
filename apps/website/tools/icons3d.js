@@ -14,10 +14,10 @@ function ChacklateIcons(THREE, K, P) {
   // ------------------------------------------------------------------ materials
   const phys = (o) => new THREE.MeshPhysicalMaterial(o);
   const M = {
-    gold: (c) => phys({ color: c || '#ffd37c', metalness: 1, roughness: 0.18, clearcoat: 0.5, clearcoatRoughness: 0.14, envMapIntensity: 1.6 }),
+    gold: (c) => phys({ color: c || '#ffc24a', metalness: 1, roughness: 0.2, clearcoat: 0.5, clearcoatRoughness: 0.14, envMapIntensity: 1.6 }),
     goldSoft: () => phys({ color: '#f2c45e', metalness: 1, roughness: 0.32, envMapIntensity: 1.45 }),
     // small gold parts: rougher, so they read bright from every angle instead of mirroring the dark room
-    goldBright: () => phys({ color: '#ffd98a', metalness: 0.92, roughness: 0.4, envMapIntensity: 1.9 }),
+    goldBright: () => phys({ color: '#ffcf66', metalness: 0.9, roughness: 0.36, envMapIntensity: 2.1, emissive: '#7a4a08', emissiveIntensity: 0.35 }),
     lacquer: (c, o) => phys(Object.assign({ color: c, roughness: 0.28, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.05 }, o || {})),
     enamel: (c, o) => phys(Object.assign({ color: c, roughness: 0.38, metalness: 0, clearcoat: 0.85, clearcoatRoughness: 0.12, envMapIntensity: 1 }, o || {})),
     velvet: (c) => phys({ color: new THREE.Color(c).multiplyScalar(0.8), roughness: 0.92, sheen: 1, sheenRoughness: 0.5, sheenColor: new THREE.Color(c).lerp(new THREE.Color('#ffffff'), 0.4) }),
@@ -254,73 +254,101 @@ function ChacklateIcons(THREE, K, P) {
   // ------------------------------------------------------------------ the icons
   // Each returns a Group standing on y = 0; `up` is a hint for where the camera looks (the
   // icon's centre of interest), as a fraction of its height.
+  // a jewel for the top of an icon: a faceted gem in a gold collet between two gold scrolls
+  function finial(color) {
+    const g = new THREE.Group(), gold = M.goldBright();
+    const gem = mesh(new THREE.IcosahedronGeometry(0.15, 1), phys({ color, roughness: 0.05, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.2, emissive: color, emissiveIntensity: 0.45, flatShading: true }), 0, 0.2, 0);
+    gem.scale.set(1, 1.15, 0.8);
+    const collet = torus(0.15, 0.035, gold); collet.position.y = 0.2; collet.scale.set(1, 1.15, 1);
+    g.add(gem, collet, sph(0.045, gold, 0, 0.42, 0), cyl(0.05, 0.09, 0.08, gold, 0, 0.02, 0));
+    [-1, 1].forEach((d) => {
+      const curl = torus(0.1, 0.03, gold, PI * 1.5); curl.position.set(d * 0.3, 0.1, 0); curl.rotation.z = d > 0 ? PI * 0.75 : -PI * 0.25; g.add(curl);
+      g.add(sph(0.04, gold, d * 0.44, 0.1, 0));
+      const arm = rbox(0.2, 0.045, 0.05, 0.02, gold, d * 0.2, 0.03, 0); g.add(arm);
+    });
+    return g;
+  }
   const ICONS = {
     // ---- the hero row
-    // the coach: a golden knight in a scholar's cap, with something bright to say
+    // ---- the hero row: four jewels, as in the mock-up: deep enamel in heavy gold, a gem set on top of each
+    // the coach: a speech bubble of teal enamel in a gold frame, a gold crown between laurels on its face
     coach() {
-      const g = new THREE.Group();
-      const n = piece('n', 'w', 1.0, true); n.rotation.y = -0.5; g.add(n);
-      const top = new THREE.Box3().setFromObject(n).max.y;
-      const cap = new THREE.Group(), blue = M.lacquer('#2a3fa8');
-      cap.add(cyl(0.2, 0.24, 0.16, blue, 0, 0.08, 0));
-      const board = rbox(0.74, 0.05, 0.74, 0.02, blue, 0, 0.19, 0); board.rotation.y = PI / 4; cap.add(board);
-      cap.add(sph(0.045, M.goldBright(), 0, 0.23, 0));
-      cap.add(tube([[0, 0.23, 0], [0.2, 0.22, 0.12], [0.36, 0.18, 0.2], [0.4, 0.02, 0.22]], 0.014, M.goldBright()));
-      cap.add(cyl(0.035, 0.05, 0.14, M.goldBright(), 0.4, -0.05, 0.22));
-      cap.position.set(0.02, top - 0.07, 0); cap.rotation.set(0.08, 0, -0.14); g.add(cap);
-      const b = bubble(0.95, 0.66, 0.3, M.lacquer('#19b8a6'), -1); b.scale.setScalar(0.9); b.position.set(0.86, top * 0.52, 0.1); g.add(b);
-      [-0.2, 0, 0.2].forEach((x) => g.add(sph(0.062, M.white(), 0.86 + x * 0.9, top * 0.52 + 0.3, 0.26)));
-      return { group: g, up: 0.52 };
+      const g = new THREE.Group(), gold = M.gold(), teal = M.enamel('#06474e', { clearcoat: 1, clearcoatRoughness: 0.05, roughness: 0.3 });
+      const w = 2.3, h = 1.6;
+      const frame = extrude(roundRect(w, h, 0.42), 0.34, 0.07, gold); frame.position.set(0, h / 2 + 0.42, 0); g.add(frame);
+      const tail = new THREE.Shape(); tail.moveTo(-0.3, 0.1); tail.lineTo(0.22, 0.1); tail.lineTo(-0.42, -0.5); tail.closePath();
+      const t = extrude(tail, 0.3, 0.05, gold); t.position.set(-0.55, 0.42, 0); g.add(t);
+      const face = extrude(roundRect(w - 0.26, h - 0.26, 0.32), 0.1, 0.05, teal); face.position.set(0, h / 2 + 0.42, 0.2); g.add(face);
+      const inner = extrude(roundRect(w - 0.5, h - 0.5, 0.24), 0.02, 0.012, M.goldBright()); inner.position.set(0, h / 2 + 0.42, 0.262); inner.scale.set(1, 1, 0.3); g.add(inner);
+      const face2 = extrude(roundRect(w - 0.56, h - 0.56, 0.21), 0.03, 0.012, teal); face2.position.set(0, h / 2 + 0.42, 0.27); g.add(face2);
+      const c = crown(0.62, ['#ffe9a8', '#ffe9a8', '#ffe9a8']); c.traverse((m) => { if (m.isMesh) m.material = M.goldBright(); });
+      c.position.set(0, 0.84, 0.46); c.rotation.x = 0.12; c.scale.set(0.74, 0.74, 0.4); g.add(c);
+      const l1 = laurel(-1, 0.5, M.goldBright()), l2 = laurel(1, 0.5, M.goldBright()); l1.position.set(-0.5, 0.95, 0.32); l2.position.set(0.5, 0.95, 0.32); l1.scale.setScalar(0.62); l2.scale.setScalar(0.62); l1.rotation.z = 0.5; l2.rotation.z = -0.5; g.add(l1, l2);
+      const f = finial('#18c8c0'); f.position.set(0, h + 0.5, 0.02); g.add(f);
+      return { group: g, up: 0.5, yaw: -0.2, pitch: 0.1 };
     },
+    // the lessons: an open book in a blue and gold binding, a gold flower on its page, a red ribbon
     lessons() {
-      const g = new THREE.Group();
-      const b = openBook('#b8142f', '#f8f1e3'); g.add(b);
-      const em = piece('n', 'w', 0.5, true); em.position.set(0.45, 0.3, 0.05); em.rotation.set(0, -0.6, -0.16); g.add(em);
-      const rib = rbox(0.14, 0.02, 0.9, 0.01, M.lacquer('#c4182e'), -0.5, 0.29, 0.5); rib.rotation.z = 0.16; rib.rotation.y = 0.1; g.add(rib);
-      const sp = sparkle(0.16, M.glow('#ffd97a', 1.2)); sp.position.set(-0.55, 0.9, 0.2); g.add(sp);
-      const sp2 = sparkle(0.1, M.glow('#ffd97a', 1.2)); sp2.position.set(-0.8, 0.62, 0.35); g.add(sp2);
-      return { group: g, up: 0.45 };
+      const g = new THREE.Group(), gold = M.gold(), bk = new THREE.Group();
+      const blue = M.lacquer('#1a3cae'), pap = M.paper('#ecd3a0');
+      [-1, 1].forEach((s2) => {
+        const rim = rbox(1.3, 0.05, 1.68, 0.02, gold); rim.position.set(s2 * 0.64, 0.07, 0); rim.rotation.z = s2 * -0.16;
+        const cov = rbox(1.22, 0.07, 1.6, 0.02, blue); cov.position.set(s2 * 0.62, 0.1, 0); cov.rotation.z = s2 * -0.16;
+        bk.add(rim, cov);
+        // the page block: a few leaves, fanned
+        for (let i = 0; i < 4; i++) { const pg = rbox(1.02 - i * 0.03, 0.05, 1.36 - i * 0.02, 0.02, pap); pg.position.set(s2 * (0.54 - i * 0.012), 0.17 + i * 0.045, 0); pg.rotation.z = s2 * (-0.16 - i * 0.03); bk.add(pg); }
+        const edge = rbox(0.05, 0.2, 1.34, 0.02, M.goldSoft()); edge.position.set(s2 * 1.07, 0.3, 0); edge.rotation.z = s2 * -0.2; bk.add(edge);
+      });
+      bk.add(rbox(0.16, 0.12, 1.54, 0.04, gold, 0, 0.07, 0));
+      const ink = M.enamel('#b08a3c');
+      for (let i = 0; i < 6; i++) { const l = rbox(i % 3 === 2 ? 0.42 : 0.64, 0.012, 0.045, 0.006, ink, -0.55 - (i % 3 === 2 ? 0.11 : 0), 0.4, -0.45 + i * 0.17); l.rotation.z = 0.28; bk.add(l); }
+      // a gold fleur on the right page
+      const leaf = new THREE.Shape(); leaf.moveTo(0, 0); leaf.quadraticCurveTo(0.16, 0.14, 0, 0.44); leaf.quadraticCurveTo(-0.16, 0.14, 0, 0);
+      const fl = new THREE.Group();
+      [-0.75, 0, 0.75].forEach((a2, i) => { const l = extrude(leaf, 0.03, 0.01, M.goldBright()); l.rotation.z = a2; l.scale.setScalar(i === 1 ? 1.15 : 0.85); fl.add(l); });
+      fl.add(rbox(0.26, 0.05, 0.05, 0.02, M.goldBright(), 0, 0.02, 0)); const st = rbox(0.045, 0.3, 0.04, 0.015, M.goldBright(), 0, -0.14, 0); fl.add(st);
+      fl.rotation.x = -PI / 2; fl.rotation.y = 0; fl.position.set(0.55, 0.42, 0.1); fl.rotation.order = 'ZXY'; fl.rotation.z = -0.28; bk.add(fl);
+      // corners
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([x, z]) => { const cn = sph(0.085, gold, x * 1.22, 0.27, z * 0.82); bk.add(cn); });
+      bk.rotation.x = 0.92;   // stood up to face the reader
+      bk.position.y = 0.72; g.add(bk);
+      const rib = rbox(0.2, 0.62, 0.03, 0.01, M.lacquer('#c4162c'), 0.0, 0.16, 0.66); g.add(rib);
+      const ribTip = new THREE.Shape(); ribTip.moveTo(-0.1, 0); ribTip.lineTo(0.1, 0); ribTip.lineTo(0.1, -0.16); ribTip.lineTo(0, -0.07); ribTip.lineTo(-0.1, -0.16); ribTip.closePath();
+      const rt = extrude(ribTip, 0.03, 0.004, M.lacquer('#c4162c')); rt.position.set(0, -0.15, 0.66); g.add(rt);
+      const f = finial('#2a50e8'); f.position.set(0, 1.5, -0.42); g.add(f);
+      return { group: g, up: 0.5, yaw: 0, pitch: 0.2 };
     },
+    // playing online: a globe of green enamel under a gold grid, a pawn before it, a gold ring round it
     online() {
-      const g = new THREE.Group();
+      const g = new THREE.Group(), gold = M.gold();
       const map = tex(1024, 512, (c, w, h) => {
-        const sea = c.createLinearGradient(0, 0, 0, h); sea.addColorStop(0, '#2bb9a7'); sea.addColorStop(1, '#0d6f7a');
+        const sea = c.createLinearGradient(0, 0, 0, h); sea.addColorStop(0, '#0c7a4a'); sea.addColorStop(0.5, '#065a36'); sea.addColorStop(1, '#033a22');
         c.fillStyle = sea; c.fillRect(0, 0, w, h);
-        c.fillStyle = '#5ad46c';
-        const r = K.rng(11);
-        const blob = (x, y, rx, ry, n) => { c.beginPath(); for (let i = 0; i <= n; i++) { const a = (i / n) * TAU, k = 0.75 + r() * 0.5; const px = x + Math.cos(a) * rx * k, py = y + Math.sin(a) * ry * k; if (i) c.lineTo(px, py); else c.moveTo(px, py); } c.closePath(); c.fill(); };
-        blob(240, 190, 120, 90, 14); blob(330, 330, 70, 80, 12); blob(600, 170, 150, 70, 16); blob(700, 330, 90, 70, 12); blob(880, 240, 60, 50, 10); blob(60, 300, 60, 40, 10);
-        c.fillStyle = 'rgba(255,255,255,0.25)'; c.fillRect(0, 0, w, 40); c.fillRect(0, h - 40, w, 40);
+        c.strokeStyle = '#f2c868'; c.lineWidth = 7;
+        for (let i = 0; i <= 12; i++) { c.beginPath(); c.moveTo((i / 12) * w, 0); c.lineTo((i / 12) * w, h); c.stroke(); }
+        for (let i = 1; i < 7; i++) { c.beginPath(); c.moveTo(0, (i / 7) * h); c.lineTo(w, (i / 7) * h); c.stroke(); }
       });
-      const globe = mesh(new THREE.SphereGeometry(0.95, 64, 48), phys({ map, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1 }), 0, 1.05, 0);
-      globe.rotation.y = -0.6; g.add(globe);
-      const stand = cyl(0.26, 0.5, 0.12, M.gold(), 0, 0.06, 0), stem = cyl(0.07, 0.07, 0.2, M.gold(), 0, 0.18, 0);
-      const ring = torus(1.28, 0.05, M.gold()); ring.position.y = 1.05; ring.rotation.x = PI / 2 - 0.4; ring.rotation.z = 0.15; g.add(ring, stand, stem);
-      const pawn = piece('p', 'w', 0.55, true); pawn.position.set(1.05, 1.0, 0.55); pawn.rotation.x = 0.1; g.add(pawn);
-      return { group: g, up: 0.5 };
+      const globe = mesh(new THREE.SphereGeometry(0.95, 64, 48), phys({ map, roughness: 0.22, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.1 }), 0, 1.0, 0);
+      globe.rotation.set(0.25, -0.3, 0.12); g.add(globe);
+      const ring = torus(1.3, 0.055, gold); ring.position.y = 1.0; ring.rotation.set(PI / 2 - 0.34, 0.2, 0); g.add(ring);
+      const pawn = piece('p', 'w', 1.05, false); pawn.traverse((m) => { if (m.isMesh) m.material = M.lacquer('#f6e2b4'); }); pawn.position.set(0, 0.46, 1.0); g.add(pawn);
+      const f = finial('#1fbf74'); f.position.set(0, 1.93, 0); g.add(f);
+      return { group: g, up: 0.5, yaw: -0.15, pitch: 0.14 };
     },
+    // the boards: ruby and ivory squares in a deep gold frame, seen corner on
     boards() {
-      const g = new THREE.Group();
-      const map = tex(1024, 1024, (c, w, h) => {
-        c.fillStyle = '#7a1424'; c.fillRect(0, 0, w, h);
-        const m = 92, s = (w - m * 2) / 8;
-        for (let r = 0; r < 8; r++) for (let q = 0; q < 8; q++) { c.fillStyle = (r + q) % 2 ? '#8e1d2b' : '#f4e7d1'; c.fillRect(m + q * s, m + r * s, s, s); }
-        c.strokeStyle = '#f0c46a'; c.lineWidth = 10; c.strokeRect(m - 14, m - 14, w - m * 2 + 28, h - m * 2 + 28);
-        c.lineWidth = 4; c.strokeRect(34, 34, w - 68, h - 68);
-        c.fillStyle = '#f0c46a';
-        for (let i = 0; i < 24; i++) { const a = (i / 24) * TAU; c.beginPath(); c.arc(w / 2 + Math.cos(a) * (w / 2 - 40), h / 2 + Math.sin(a) * (h / 2 - 40), 5, 0, TAU); c.fill(); }
-      });
-      const top = phys({ map, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.05 });
-      const side = M.lacquer('#5e0f1c');
-      const b = mesh(new THREE.BoxGeometry(2.3, 0.18, 2.3), [side, side, top, side, side, side], 0, 0.09, 0);
-      const rim = rbox(2.42, 0.1, 2.42, 0.03, M.gold(), 0, 0.03, 0);
-      g.add(b, rim);
-      const k = piece('k', 'w', 0.5, false); k.position.set(0.42, 0.18, 0.18); g.add(k);
-      const n = piece('n', 'b', 0.5, false); n.position.set(-0.55, 0.18, -0.35); n.rotation.y = 0.9; g.add(n);
-      const p = piece('p', 'w', 0.5, false); p.position.set(-0.3, 0.18, 0.55); g.add(p);
-      return { group: g, up: 0.35 };
+      const g = new THREE.Group(), gold = M.gold(), bd = new THREE.Group();
+      const n = 6, sq = 0.34, W2 = n * sq;
+      bd.add(rbox(W2 + 0.34, 0.26, W2 + 0.34, 0.05, gold, 0, 0.13, 0));
+      bd.add(rbox(W2 + 0.1, 0.06, W2 + 0.1, 0.02, M.goldSoft(), 0, 0.27, 0));
+      const ruby = M.lacquer('#8a0620', { envMapIntensity: 1.4 }), ivory = M.lacquer('#f2dcae');
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) bd.add(rbox(sq * 0.96, 0.06, sq * 0.96, 0.02, (r + c) % 2 ? ruby : ivory, (c - (n - 1) / 2) * sq, 0.3, (r - (n - 1) / 2) * sq));
+      // beads along the frame
+      for (let i = 0; i < 14; i++) { const k = (i + 0.5) / 14 - 0.5, e = W2 / 2 + 0.17; [[k * (W2 + 0.3), e], [k * (W2 + 0.3), -e], [e, k * (W2 + 0.3)], [-e, k * (W2 + 0.3)]].forEach(([x, z]) => bd.add(sph(0.045, M.goldBright(), x, 0.13, z))); }
+      bd.rotation.y = PI / 4; g.add(bd);
+      const f = finial('#e0204c'); f.position.set(0, 0.3, -(W2 + 0.34) * 0.7071 - 0.05); f.scale.setScalar(1.7); f.rotation.x = -0.5; g.add(f);
+      return { group: g, up: 0.5, yaw: 0, pitch: 0.72 };
     },
-    // ---- Meet Rooky's tiles
     explain() {
       const g = new THREE.Group();
       const b = bubble(2.1, 1.4, 0.6, M.lacquer('#7a3ab8'), -1); g.add(b);
