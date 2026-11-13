@@ -2041,7 +2041,9 @@
     else celebrate(res);
     return res;
   }
-  function eraDoneModal(e, res) {
+  function eraDoneModal(e, res, game) {
+    const ach = (game ? game.achievements : []).concat(res.achievements || []);
+    const lu = Math.max(res.levelUp || 0, (game && game.levelUp) || 0), unl = ((game && game.unlocked) || []).concat(res.unlocked || []);
     const co = eraCoach(e), set = setInfo(e.set) || { name: e.set };
     const [felt, sheen] = eraFelt(e);
     AU.play('levelUp');
@@ -2052,14 +2054,16 @@
       '<span class="result-badge win">' + t('journey.eraDone', { n: ROMAN[CAMPAIGN.eras.indexOf(e)] }) + '</span><h2 class="result-title">' + esc(set.name) + '</h2>' +
       '<p class="quote"><b>' + esc(fullName(co)) + '</b>“' + esc(sayLine(co, 'win')) + '”</p>' +
       '<ul class="reward-list">' + eraRewards(e).map(rewardRow).join('') + '</ul>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' ' + t('journey.map') + '</button><button class="btn primary" id="ed-use">' + icon('check') + ' ' + t('journey.useSet') + '</button></div></div>', { cls: 'narrow' });
+      (ach.length ? '<div class="unlocks">' + ach.map((a) => '<span class="pill gold">★ ' + esc(achName(a)) + '</span>').join('') + '</div>' : '') +
+      '<div class="row" style="justify-content:center"><button class="btn" id="ed-map">' + icon('journey') + ' ' + t('journey.map') + '</button><button class="btn primary" id="ed-use">' + icon('check') + ' ' + t('journey.useSet') + '</button></div></div>', { cls: 'narrow', onClose() { if (lu) setTimeout(() => levelUpModal(lu, unl), 300); } });
     hydrate(m);
     m.querySelector('#ed-map').onclick = () => { m.close(); go('journey'); };
     m.querySelector('#ed-use').onclick = () => {
       eraRewards(e).filter((it) => ['pieces', 'board', 'room'].includes(it.category)).forEach((it) => PG.equip(state.progress, it));
       save(); applyLook(); m.close(); toast(t('journey.setToast', { set: esc(set.name) })); go('collection', 'pieces');
     };
-    celebrate(res, true);
+    // the level-up card waits until the era card is closed, so the stamp moment has the stage
+    celebrate(Object.assign({}, res, { achievements: [], missions: (game && game.missions || []).concat(res.missions || []), coins: (res.coins || 0) + ((game && game.coins) || 0), levelUp: 0, seasonTier: 0, unlocked: [] }), true);
   }
   // The story: parchment pages read aloud, then one question.
   function taleModal(e, k) {
@@ -2098,7 +2102,7 @@
           body.querySelectorAll('[data-o]').forEach((x) => { x.disabled = true; });
           next.hidden = false;
           if (state.settings.narration) AU.tale(e.id, s.quiz.explain);
-          if (!solved) { solved = true; m.dataset.won = '1'; }
+          if (!solved) { solved = true; m.dataset.won = '1'; stageDone({ era: e.id, stage: k }); }   // saved now: Esc or a tap outside keeps it
         };
       });
     }
@@ -2107,7 +2111,7 @@
       AU.play('tap');
       if (page < s.pages.length) { page++; render(); return; }
       m.close();
-      if (m.dataset.won) { stageDone({ era: e.id, stage: k }); if (state.screen === 'era') go('era', e.id); }
+      if (m.dataset.won && state.screen === 'era') go('era', e.id);
     };
     render();
   }
@@ -3471,12 +3475,15 @@
     await ChacklateNet.api('/api/push/subscribe', { subscription: s.toJSON(), hour: r.hour, tz: -new Date().getTimezoneOffset() });
   }
 
+  let luOpen = null;
   function levelUpModal(level, unlocked) {
+    if (luOpen && luOpen.isConnected) { if (luOpen.level >= level) return; unlocked = luOpen.unlocked.concat(unlocked); luOpen.close(); }
     AU.play('levelUp');
-    const lv = PG.levelFor(state.progress.xp);
+    const lv = PG.levelFor(PG.xpFor(level));
     const m = modal('<div class="result-hero">' + avatarHtml('xl') + '<span class="result-badge win">' + t('home.levelUp') + '</span><h2 class="result-title">' + t('common.level', { n: level }) + '</h2><p class="sub">' + t('home.youAreNow', { title: esc(levelTitle(lv)) }) + '</p>' +
       (unlocked.length ? '<div class="eyebrow">' + t('season.unlocked') + '</div><div class="unlocks">' + unlocked.map((u) => '<span class="pill gold">' + esc(u.name) + '</span>').join('') + '</div>' : '') +
       '<div class="row" style="justify-content:center;margin-top:18px">' + (unlocked.length ? '<button class="btn" id="lu-col">' + t('home.seeCollection') + '</button>' : '') + '<button class="btn primary" data-close>' + t('common.continue') + '</button></div></div>');
+    m.level = level; m.unlocked = unlocked; luOpen = m;
     if (KIND[state.screen] === 'hud') view.celebrate('win', -1, null, -1);
     const b = m.querySelector('#lu-col'); if (b) b.onclick = () => { m.close(); go('collection', unlocked[0].category); };
   }
@@ -4795,14 +4802,14 @@
       (G.kind === 'online' ? '<button class="btn" id="r-report">' + t('play.end.report') + '</button>' : jr ? '' : '<button class="btn' + (era ? ' primary' : '') + '" id="r-rematch">' + icon('refresh') + ' ' + t(era ? 'common.tryAgain' : 'play.end.rematch') + '</button>') +
       (jr ? '<button class="btn primary" id="r-prize">' + icon('trophy') + ' ' + (jr.eraDone ? t('play.end.prize') : t('learn.dj.backTo', { era: esc(eraName(era)) })) + '</button>'
         : !era && g.moves.length >= 4 ? '<button class="btn primary" id="r-review">' + icon('star') + ' ' + t('play.btn.review') + '</button>' : '') + '</div></div>';
-    let prizeShown = false;
+    let prizeShown = false, gameRes = null;
     // the result card waits for a win storm to finish (a tap calms it sooner)
     const shown = performance.now();
     const showResult = () => {
       if (state.game !== G || state.screen !== 'game') return;
       if (view.storming() && performance.now() - shown < 13500) { setTimeout(showResult, 250); return; }
       if (exploring) view.explore(false);
-      const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr), 250); } } });
+      const mdl = modal(html, { cls: 'narrow', onClose() { if (jr && jr.eraDone && !prizeShown) { prizeShown = true; setTimeout(() => eraDoneModal(era, jr, gameRes), 250); } } });
       setTimeout(() => { const f = $('xpfill'); if (f) f.style.width = Math.round((lv.into / lv.need) * 100) + '%'; }, 120);
       const on = (id, fn) => { const b = mdl.querySelector(id); if (b) b.onclick = fn; };
       if (mdl.querySelector('#r-coach')) fillReportBox(mdl.querySelector('#r-coach'), G);
@@ -4812,7 +4819,8 @@
       on('#r-report', (e) => { e.currentTarget.disabled = true; ChacklateNet.report('Reported from the result screen', G.online && G.online.id); });
       on('#r-rematch', () => { mdl.close(); const s = Object.assign({}, G.setup); if (s.mode === 'ai' && !era && s.color !== 'random') s.color = s.color === 'white' ? 'black' : 'white'; startGame(s); });
       on('#r-prize', () => { mdl.close(); if (!jr.eraDone) go('era', era.id); });
-      celebrate(res);
+      // an era's last win: the prize card shows everything at once, without toasts over it
+      if (jr && jr.eraDone) gameRes = res; else celebrate(res);
       if (jr && !jr.eraDone) celebrate(jr, true);
       if (!era && mdl.querySelector('#r-review')) guideSay('game.over', { delay: 2200 });
     };
@@ -5723,7 +5731,7 @@
         if (S.i < ex.length - 1) { S.i++; renderEx(); } else finish();
         return;
       }
-      if (S.retry) { go('lesson', toGame ? { id: L.id, back: 'game' } : L.id); return; }
+      if (S.retry) { go('lesson', own ? { journey } : toGame ? { id: L.id, back: 'game' } : L.id); return; }
       if (S.nx) { go('lesson', S.nx.id); return; }
       if (S.again) { go('lesson', { trainer: trn.id }); return; }
       leaveTo();
@@ -5736,20 +5744,20 @@
       const first = S.results.filter((r) => r === true).length;
       const pct = Math.round((first / Math.max(1, ex.length)) * 100);
       let res;
-      if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
-      else if (vr) res = PG.variantLessonFinished(state.progress, vr.id, first, ex.length);
-      else if (!first && ex.length) {
+      if (!first && ex.length && !vr) {
         // nothing right first time (every exercise skipped or missed): not complete, have another go
         $('ls-phase').textContent = t('learn.ls.yourResult');
         $('ls-content').innerHTML = '<div class="done-card"><p class="prompt">' + esc(t('learn.ls.firstTime', { n: 0, of: ex.length, pct: 0 })) + '</p><p class="say">' + esc(t('learn.ls.notYet')) + '</p></div>';
         S.retry = true;
         $('ls-next').textContent = t('learn.ls.again');
         $('ls-prev').hidden = false; $('ls-prev').disabled = false; $('ls-prev').classList.add('labelled'); $('ls-prev').removeAttribute('aria-label');
-        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : t('common.nav.learn')) + '</span>';
+        $('ls-prev').innerHTML = icon('back') + '<span>' + esc(toGame ? t('learn.rv.backGame') : era ? t('learn.dj.backTo', { era: eraName(era) }) : t('common.nav.learn')) + '</span>';
         $('ls-prev').onclick = () => { AU.play('tap'); leaveTo(); };
         guideIdle(null); dots();
         return;
-      } else {
+      } else if (own) res = Object.assign(stageDone(journey), { stars: pct >= 99.9 ? 3 : pct >= 80 ? 2 : 1 });
+      else if (vr) res = PG.variantLessonFinished(state.progress, vr.id, first, ex.length);
+      else {
         const wasDue = PG.dueReviews(state.progress).includes(L.id);
         res = PG.lessonFinished(state.progress, L, first, ex.length, LESSONS.lessons);
         if (wasDue) PG.reviewDone(state.progress, L.id);

@@ -307,10 +307,11 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .stamp { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0; background: none; border: 0; color: inherit; cursor: pointer; min-width: 0; }
 .stamp img { width: 64px; height: 64px; border-radius: 50%; filter: grayscale(1) brightness(0.45) contrast(0.9); opacity: 0.55; outline: 1.5px dashed rgba(232, 194, 122, 0.35); outline-offset: 3px; transition: transform .3s var(--ease); }
 .stamp.on img { filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5)); opacity: 1; outline: 0; transform: rotate(-6deg); }
-.stamp small { font-size: 12px; line-height: 1.2; color: var(--muted); max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+.stamp small { font-size: 12px; line-height: 1.2; color: var(--muted); max-width: 100%; text-align: center; overflow-wrap: break-word; hyphens: auto; }
 .stamp.on small { color: var(--gold-2); }
 @media (hover: hover) { .stamp:hover img { transform: scale(1.06); } .stamp.on:hover img { transform: rotate(-6deg) scale(1.06); } }
 @media (max-width: 760px) { .passport .stamps { grid-template-columns: repeat(5, minmax(0, 1fr)); } .passport { padding: 14px 16px; } .stamp img { width: 52px; height: 52px; } }
+@media (max-width: 400px) { .passport .stamps { gap: 8px 4px; } .stamp small { font-size: 11px; } .stamp img { width: 46px; height: 46px; } }
 .result-hero .vign.sm { height: 150px; }
 .result-hero .vign.sm img { height: 150px; width: auto; max-width: 100%; object-fit: contain; }
 .stamp-moment { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 8px; color: var(--gold-2); font: 600 17px/1.25 var(--serif); }
