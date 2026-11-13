@@ -390,8 +390,9 @@ function ChacklateScene(canvas, options) {
     face.position.set(0, 0.47, 0.352); g.add(face);
     for (const s of [-1, 1]) {
       const b = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.16, 20), K.MAT.brass().clone()); b.position.set(s * 0.6, 0.98, 0); b.castShadow = true; g.add(b);
-      b.userData.side = s; g.userData['btn' + s] = b; g.userData.metals = (g.userData.metals || []).concat([b.material, bez.material]);
+      b.userData.side = s; g.userData['btn' + s] = b;
       const bez = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.03, 8, 40), K.MAT.gold().clone()); bez.position.set(s * 0.5, 0.47, 0.36); g.add(bez);
+      g.userData.metals = (g.userData.metals || []).concat([b.material, bez.material]);
     }
     g.userData.wood = wood;
     g.visible = false;
