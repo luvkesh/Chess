@@ -9,7 +9,9 @@
 // Pure functions, no DOM: the same file runs in Node tests, on the page and inside a Web Worker.
 // strings: the mentor's sentences in another language (packages/content/i18n/mentor.json, one
 // language's column); anything missing falls back to the English below.
-function ChacklateMentor(E, C, strings) {
+function ChacklateMentor(E, C, strings, nameOf) {
+  // nameOf: the opening and trap names in the player's language (the app passes its text lookup)
+  const nm = (n) => (nameOf && n ? nameOf(n) || n : n);
   'use strict';
   const { WHITE, BLACK, P, N, B, R, Q, K, MATE } = E;
   const EN = {
@@ -609,7 +611,10 @@ function ChacklateMentor(E, C, strings) {
     pos.unmake();
     const cpBefore = best ? best.cp : 0, cpAfter = -post.cp;   // the mover's point of view
     const wpLoss = isBest ? 0 : Math.max(0, C.winProb(cpBefore) - C.winProb(cpAfter));
-    const cls = C.classify(wpLoss, isBest, facts, cpAfter);
+    let cls = C.classify(wpLoss, isBest, facts, cpAfter);
+    // win chances can't tell a lost position from one that is mated now: a move that lets a mate in when
+    // there was none (or a slower one) is a mistake at least, and a blunder when the mate is next move
+    if (!isBest && post.mate > 0 && (!best || best.mate >= 0 || post.mate < -best.mate) && cls !== 'blunder') cls = post.mate === 1 ? 'blunder' : 'mistake';
     const onlyMove = isBest && alts.length > 1 && C.winProb(alts[0].cp) - C.winProb(alts[1].cp) >= 0.15;
     // a threat they had before the move, that is still there after it
     const ignored = threatBefore && threatBefore.serious && refutation && refutation.uci === threatBefore.facts.uci ? threatBefore.facts : null;
@@ -768,7 +773,7 @@ function ChacklateMentor(E, C, strings) {
     // what a move does, without the move's name ("forks the rook and gives check")
     const d = C.describe(f);
     if (!d) return '';
-    return d.slice(f.san.length + 1).replace(/\.$/, '');
+    return d.slice(f.san.length).replace(/^[\s:\u2014-]+/, '').replace(/[.\u3002\u0964\u06d4]$/u, '');
   }
   // Picks one line from a group, avoiding the ones said lately. seen: an array of recent keys (kept by the caller).
   function pick(keys, seen, rand) {
@@ -948,7 +953,7 @@ function ChacklateMentor(E, C, strings) {
     if (a.king.me.exposed && a.phase !== 'endgame') add('defend', tr('mg.defend'), [{ sq: a.king.me.sq, color: 'warn' }], 4);
     // the phase
     if (a.phase === 'opening' && a.standard) {
-      if (lk.trap) add('opening', tr('o.trap', { name: lk.trap.name, idea: tr(lk.trap.idea) }), [], 7);
+      if (lk.trap) add('opening', tr('o.trap', { name: nm(lk.trap.name), idea: tr(lk.trap.idea) }), [], 7);
       if (a.queenEarly) add('opening', tr('o.queenEarly'), [], 3);
       if (a.undeveloped.length >= 2) add('opening', tr('o.developLeft', { n: a.undeveloped.length, list: list(a.undeveloped.map((u) => onSq(u.kind, u.sq))) }), a.undeveloped.map((u) => ({ sq: u.sq, color: 'idea' })), 3);
       if (!a.centre.length && a.full <= 6) add('opening', tr('o.centre'), ['d4', 'e4', 'd5', 'e5'].map((s) => ({ sq: s, color: 'idea' })), 2);
@@ -994,8 +999,8 @@ function ChacklateMentor(E, C, strings) {
     const out = { phase: lk.phase, title: tr('ph.' + lk.phase), lines: [], marks: [] };
     if (lk.opening && lk.phase === 'opening') {
       const o = lk.opening;
-      if (o.name) out.lines.push(tr('o.name', { name: o.name }));
-      if (o.left && o.name) out.lines.push(tr('o.left', { name: o.name }));
+      if (o.name) out.lines.push(tr('o.name', { name: nm(o.name) }));
+      if (o.left && o.name) out.lines.push(tr('o.left', { name: nm(o.name) }));
       if (o.next.length && level !== 'beginner') out.lines.push(tr('o.next', { list: list(o.next) }));
       if (o.next.length && level === 'beginner' && o.inBook) out.lines.push(tr('o.next', { list: o.next[0] }));
     }
@@ -1005,7 +1010,7 @@ function ChacklateMentor(E, C, strings) {
   }
   function recommendOpening(level, side) {
     const r = RECOMMEND[level] || RECOMMEND.beginner;
-    return side === WHITE ? [tr('o.recWhite', { name: r.w })] : [tr('o.recBlack', { name: r.b4 }) + ' (1.e4)', tr('o.recBlack', { name: r.b5 }) + ' (1.d4)'];
+    return side === WHITE ? [tr('o.recWhite', { name: nm(r.w) })] : [tr('o.recBlack', { name: nm(r.b4) }) + ' (1.e4)', tr('o.recBlack', { name: nm(r.b5) }) + ' (1.d4)'];
   }
   // Threat detector: warnings only when they are real (the engine's threat search or a loose big piece).
   // seen: recent warning ids, so the same warning is not repeated move after move.
@@ -1015,7 +1020,8 @@ function ChacklateMentor(E, C, strings) {
     const add = (id, text, marks, w) => { if (!recent.has(id)) out.push({ id, text, marks, w }); };
     if (lk.threat && lk.threat.serious) {
       const t = lk.threat.facts;
-      if (lk.threat.mate > 0 || t.mate) add('mate:' + t.uci, t.mate ? tr('th.mate', { san: t.san }) : tr('th.forced'), [{ sq: t.to, color: 'bad' }], 10);
+      // the forced-mate warning has no one move to name, so it keeps one id (else it repeats every turn)
+      if (lk.threat.mate > 0 || t.mate) add(t.mate ? 'mate:' + t.uci : 'mate:forced', t.mate ? tr('th.mate', { san: t.san }) : tr('th.forced'), [{ sq: t.to, color: 'bad' }], 10);
       else if (t.forks.length) add('fork:' + t.uci, tr('th.fork', { san: t.san, list: list(t.forks.map((x) => C.NAME[x.kind])) }), [{ sq: t.to, color: 'bad' }].concat(t.forks.map((x) => ({ sq: x.sq, color: 'warn' }))), 8);
       else if (t.discovered.length) add('disc:' + t.uci, tr('th.discovered', { san: t.san }), [{ sq: t.from, color: 'bad' }], 7);
       else if (t.capture === Q) add('queen:' + t.to, tr('th.queen'), [{ sq: t.to, color: 'bad' }], 9);
@@ -1090,7 +1096,7 @@ function ChacklateMentor(E, C, strings) {
     const piece = onSq(f.piece, f.from);
     const guided = (ideaKey ? tr('hi.guidedIdea', { piece, idea: tr('hi.idea.' + ideaKey) }) : tr('hi.guided', { piece })) + (ideaKey === 'develop' || ideaKey === 'centre' || !ideaKey ? ' ' + tr('hi.toward', { sq: regionOf(f.to) }) : '');
     const d = C.describe(f);
-    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: best.san }) + ' ' + (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : '');
+    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: best.san }) + ' ' + (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] && !/#$/.test(lk.line.moves[0].san) && !(best.mate < 0) ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : '');
     return {
       levels: [
         { text: dir, marks: [] },
@@ -1370,7 +1376,9 @@ function ChacklateMentor(E, C, strings) {
     const out = [];
     for (const id of TERMS) {
       const word = tr('v.' + id);
-      if (STEMS[id].test(enText || '') || (text && word && text.toLowerCase().includes(word.toLowerCase()))) out.push(id);
+      // the English stems decide; the shown words are only searched when there is no English (a substring
+      // there misfires: Hindi पहल, initiative, sits inside पहली, first)
+      if (STEMS[id].test(enText || '') || (!enText && text && word && text.toLowerCase().includes(word.toLowerCase()))) out.push(id);
     }
     return out;
   }

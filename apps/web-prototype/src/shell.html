@@ -295,6 +295,23 @@ body.ingame .topnav { transform: translateY(-110%); opacity: 0; pointer-events: 
 .persona.beaten .tag { color: var(--gold-2); }
 
 /* ------------------------------------------------------------ Journey */
+.passport { border-radius: 22px; padding: 18px 22px 16px; margin: 0 0 22px; }
+.passport header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.passport h2 { margin: 0; font: 600 22px/1.2 var(--serif); color: var(--gold-2); }
+.passport .stamps { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 10px; }
+.stamp { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0; background: none; border: 0; color: inherit; cursor: pointer; min-width: 0; }
+.stamp img { width: 64px; height: 64px; border-radius: 50%; filter: grayscale(1) brightness(0.45) contrast(0.9); opacity: 0.55; outline: 1.5px dashed rgba(232, 194, 122, 0.35); outline-offset: 3px; transition: transform .3s var(--ease); }
+.stamp.on img { filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5)); opacity: 1; outline: 0; transform: rotate(-6deg); }
+.stamp small { font-size: 12px; line-height: 1.2; color: var(--muted); max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+.stamp.on small { color: var(--gold-2); }
+@media (hover: hover) { .stamp:hover img { transform: scale(1.06); } .stamp.on:hover img { transform: rotate(-6deg) scale(1.06); } }
+@media (max-width: 760px) { .passport .stamps { grid-template-columns: repeat(5, minmax(0, 1fr)); } .passport { padding: 14px 16px; } .stamp img { width: 52px; height: 52px; } }
+.result-hero .vign.sm { height: 150px; }
+.result-hero .vign.sm img { height: 150px; width: auto; max-width: 100%; object-fit: contain; }
+.stamp-moment { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 8px; color: var(--gold-2); font: 600 17px/1.25 var(--serif); }
+.stamp-moment img { width: 60px; height: 60px; flex: none; border-radius: 50%; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55)); animation: stamp-in .7s .35s var(--ease) both; }
+@keyframes stamp-in { 0% { opacity: 0; transform: scale(2.2) rotate(14deg); } 60% { opacity: 1; transform: scale(0.92) rotate(-8deg); } 100% { opacity: 1; transform: scale(1) rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce) { .stamp-moment img { animation: none; transform: rotate(-6deg); } }
 .eras { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; }
 .era { position: relative; display: flex; flex-direction: column; text-align: left; border-radius: 22px; overflow: hidden; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .4s var(--ease), border-color .4s, box-shadow .4s; }
 @media (hover: hover) { .era:hover { transform: translateY(-5px); border-color: var(--line-3); box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6), var(--glow); } }
