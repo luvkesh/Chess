@@ -626,6 +626,7 @@
     $('gd-cc').onclick = () => { state.settings.captions = !state.settings.captions; save(); guideCaptions(); guidePeek(4000); };
     $('gd-show').onclick = () => {
       AU.unlock();
+      if (el.classList.contains('edge')) { el.classList.remove('edge'); return; }
       if (el.classList.contains('speaking')) { AU.hush(); guidePeek(2500); return; }
       if (guideSt.key) { if (!state.settings.narration) guidePeek(6000); else guideSay(guideSt.key, { force: true }); }
     };
@@ -635,11 +636,40 @@
       if (what === 'coach') return;   // the coach card shows its own words while Rooky talks
       const mine = on && what !== 'pitch' && what !== 'tale';
       el.classList.toggle('speaking', mine);
+      if (mine) el.classList.remove('edge');
       if (!on) guidePeek(captionsOn() ? 2500 : 600);
     });
     el.classList.toggle('off', !state.settings.guide);
     guideCaptions();
+    guideEdge(el);
     return el;
+  }
+  // On phones Rooky's face floats over the page, so it would sit on top of the arrow buttons at the
+  // right of the cards as they scroll past. While the page scrolls he slides to the edge, leaving a
+  // sliver to tap; when it stops he comes back only if nothing tappable is under his spot.
+  function guideEdge(el) {
+    const phone = matchMedia('(max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse)');
+    let tm = 0;
+    // small controls only (arrow buttons, chips): a whole card that is a button can sit under him
+    const tappable = (x, y) => document.elementsFromPoint(x, y).some((n) => {
+      const c = !el.contains(n) && n.closest('#screens') && (n.closest('.go') || n.closest('button, a, [role="button"], input, select, label'));
+      if (!c) return false; const r = c.getBoundingClientRect(); return r.width < 140 && r.height < 140;
+    });
+    const settle = () => {
+      const n = $('gd-show'); if (!n || !el.classList.contains('edge')) return;
+      const r = n.getBoundingClientRect(), w = r.width, x0 = innerWidth - parseFloat(getComputedStyle(el).right) - w, y0 = r.top;
+      const pts = [[0.5, 0.5], [0.15, 0.15], [0.85, 0.15], [0.15, 0.85], [0.85, 0.85], [0, 0.5], [0.5, 0], [0.5, 1]];
+      const hit = pts.some(([a, b]) => tappable(x0 + a * w, y0 + b * w));
+      // his bubble comes back with him while he talks, so its spot has to be clear too
+      const bb = el.matches('.open, .speaking') && $('gd-bubble').getBoundingClientRect();
+      const bHit = bb && bb.width && [0.1, 0.5, 0.9].some((a) => [0.2, 0.8].some((b) => tappable(bb.left + a * bb.width, bb.top + b * bb.height)));
+      if (!hit && !bHit) el.classList.remove('edge');
+    };
+    document.addEventListener('scroll', () => {
+      if (!phone.matches || document.body.classList.contains('ingame') || el.hidden || el.matches(':not(.nocap):is(.open, .speaking)')) return;   // not while his words are showing
+      el.classList.add('edge');
+      clearTimeout(tm); tm = setTimeout(settle, 650);
+    }, { capture: true, passive: true });
   }
   // the bubble shows for a while (ms), or until the pointer or focus leaves (0)
   function guidePeek(ms) {
@@ -2847,7 +2877,7 @@
       $('cl-board').innerHTML = res.needs ? '' :
         '<div class="cl-row head" role="row">' + ['#', t('club.col.player'), t('club.col.place'), t('club.col.league'), t('club.col.rating')].map((h, i) => '<span role="columnheader"' + (['', '', ' class="cl-loc"', ' class="cl-lg"', ' class="num"'][i]) + '>' + h + '</span>').join('') + '</div>' +
         res.rows.map((r, i) => (i && r.rank > res.rows[i - 1].rank + 1 ? '<div class="cl-gap" aria-hidden="true">⋯</div>' : '') + '<div class="cl-row' + (r.me ? ' me' : '') + '" role="row">' + rankMedal(r.rank) +
-          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm">' + esc(r.name) + (r.me && r.name !== 'You' ? ' <em>' + t('club.you') + '</em>' : '') + (r.ai ? '<span class="cl-tag ai">' + t('club.tag.aiShort') + '</span>' : r.friend ? '<span class="cl-tag live">' + t('club.tag.friend') + '</span>' : '') + '</span></span>' +
+          '<span class="cl-player">' + clubAvatar(r) + '<span class="cl-nm"><span class="cl-n">' + esc(r.name) + '</span>' + (r.me && r.name !== 'You' ? '<em>' + t('club.you') + '</em>' : '') + (r.ai ? '<span class="cl-tag ai">' + t('club.tag.aiShort') + '</span>' : r.friend ? '<span class="cl-tag live">' + t('club.tag.friend') + '</span>' : '') + '</span></span>' +
           '<span class="cl-loc">' + placeText(r.country, r.city) + '</span>' +
           '<span class="cl-lg">' + leagueBadge(r.league, 20) + '<span>' + esc(leagueName(r.league)) + '</span></span>' +
           '<span class="num">' + r.rating + (r.provisional ? '?' : '') + '</span></div>').join('');
