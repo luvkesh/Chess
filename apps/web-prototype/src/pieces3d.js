@@ -6814,6 +6814,7 @@ function ChacklatePieces(THREE, K) {
     },
     dino: {
       id: 'dino', name: 'Dino Kingdom', era: 'Long, long ago', year: '66 million years ago', tint: '#6a3a12', sided: true,
+      mesh: 'figures2', meshLook: { b: { clearcoat: 0.15 } },
       story: 'Made for the table in Dinosaur Valley, under the smoking volcano. White is carved from fossil bone with amber and ferns, and black is dark lava stone with glowing cracks.',
       lore: {
         k: 'A crowned tyrant lizard king in a royal cape, roaring as loud as he can.',
