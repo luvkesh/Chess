@@ -1890,8 +1890,8 @@ body.ingame .guide.up.open .gd-bubble, body.ingame .guide.up.speaking .gd-bubble
   .lesson footer { flex-wrap: wrap; }
   .move-form { display: none; }   /* no room under the moves; it showed half cut off */
 }
-/* Narrow phones: the four Learn tabs fit without cutting "Training" (Entrenamiento): sentence case, and the row scrolls if a language still needs more */
-@media (max-width: 420px) {
+/* Phones: the four Learn tabs fit without cutting "Training" (Entrenamiento): sentence case, wrapping to a second row if a language still needs more */
+@media (max-width: 480px) {
   .subnav { gap: 2px; flex-wrap: wrap; }
   .subnav button { flex: 1 1 auto; padding-inline: 8px; font: 600 12.5px/1.1 var(--body); letter-spacing: 0; text-transform: none; }
 }
