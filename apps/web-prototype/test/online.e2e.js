@@ -23,6 +23,9 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
     await p.goto(url);
     await p.waitForFunction(() => window.ChacklateNet && ChacklateNet.available() && ChacklateNet.mode() === 'room', null, { timeout: 20000 });
     // Pages here share one browser's storage; give each its own Club id, as separate devices have.
+    // A new player is offered the placement test once, on Home; say "skip" so it can't cover the cards.
+    await p.waitForTimeout(1800);
+    await p.evaluate(() => document.querySelectorAll('#modals [data-close]').forEach((b) => b.click()));
     await p.evaluate(() => { ChacklateClub.data().cid = Math.random().toString(36).slice(2, 12); ChacklateApp.state.settings.netName = 'Player ' + Math.random().toString(36).slice(2, 6); ChacklateClub.publish(); });
     return p;
   };
@@ -110,6 +113,8 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
   await lone.addInitScript('window.__SHOT = true;');
   const g = await lone.newPage();
   await g.goto(url);
+  await g.waitForFunction(() => window.__go);
+  await g.evaluate(() => document.querySelectorAll('#modals [data-close]').forEach((b) => b.click()));
   await g.click('#h-friend');
   assert.ok(await g.isVisible('#fr-create') && await g.isVisible('#fr-join'));
   await g.click('#fr-create');
