@@ -342,6 +342,8 @@ def build(target):
     if target == 'preview':
         # the preview's host caps a page at 16 MB, so the collection's pictures sit beside it (--preview copies img/item-*)
         shown.update({p.stem: 'img/' + p.name for p in (here / 'img').glob('item-*.*') if p.stem in shown})
+        # and so do the icons, which the page only ever names in a src
+        img = dict(img, **{p.stem: 'img/' + p.name for p in (here / 'img').glob('ic-*.webp')})
     lines = guide(coach['name'], collection)
     catalog = load('catalog.json')
     fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in catalog['items'] if i['id'] == d] for c, ids in FX_DEMOS.items()}
@@ -425,7 +427,7 @@ def main():
         (out / 'index.html').write_text(build('preview'))
         (out / 'audio').mkdir(exist_ok=True)
         (out / 'img').mkdir(exist_ok=True)
-        for pic in (here / 'img').glob('item-*.webp'):
+        for pic in list((here / 'img').glob('item-*.webp')) + list((here / 'img').glob('ic-*.webp')):
             (out / 'img' / pic.name).write_bytes(pic.read_bytes())
         for clip in (here / 'audio').glob('item-*.mp3'):
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
