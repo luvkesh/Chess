@@ -271,6 +271,7 @@
     base = { coins: state.progress.coins, xp: state.progress.xp };
     state.account = cur.account || null;
     if (!state.game) saved.game = cur.game || null;
+    if (!state.xq) saved.xq = cur.xq || null;
     setEntitlements(state.account && state.account.ent);
     return true;
   }
@@ -284,8 +285,10 @@
     if (readRev() > rev) adopt(true);
     try {
       const g = state.game && state.game.kind !== 'online' && !state.game.g.outcome ? state.game : null;
+      // a Xiangqi game in play is kept too; one not opened since the page loaded stays as it was saved
+      const Q = state.xq, xq = Q ? (!Q.g.outcome && Q.g.moves.length ? { moves: Q.g.moves.map(X.uci), human: Q.human, kind: Q.kind, level: Q.level, setup: Q.setup } : null) : saved.xq || null;
       localStorage.setItem(STORE_KEY, JSON.stringify({ settings: state.settings, setup: state.setup, progress: state.progress, account: state.account,
-        game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null }));
+        game: g ? { start: g.g.startFen, moves: g.g.uciMoves(), human: g.human, kind: g.kind, setup: g.setup, clock: g.clock ? { w: g.clock.w, b: g.clock.b, inc: g.clock.inc } : null } : null, xq }));
       localStorage.setItem(REV_KEY, String(rev = Math.max(rev, readRev()) + 1));
       base = { coins: state.progress.coins, xp: state.progress.xp };
     } catch (e) {
@@ -411,15 +414,25 @@
         'else if(d.type==="checkLine"){r={line:M.checkLine(d.fen,d.moves,d.line,d.opts)};}' +
         'r.id=d.id;postMessage(r);}catch(err){postMessage({id:d.id,error:String(err)});}};';
       const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
-      const pending = new Map();
+      // One job at a time, so a job that is no longer wanted (an old game, an undone move) can be
+      // dropped before it starts instead of making a hint wait behind it.
+      const pending = new Map(), queue = [];
+      let busy = false;
+      const pump = () => {
+        while (!busy && queue.length) {
+          const q = queue.shift();
+          if (q.cb.stale && q.cb.stale()) continue;
+          busy = true; pending.set(q.m.id, q.cb); w.postMessage(q.m);
+        }
+      };
       w.onmessage = (e) => {
         const d = e.data, cb = pending.get(d.id);
         if (!cb) return;
         if (d.progress !== undefined) { if (cb.progress) cb.progress(d.progress); return; }
-        pending.delete(d.id); cb.done(d);
+        pending.delete(d.id); busy = false; cb.done(d); pump();
       };
-      w.onerror = () => { for (const cb of pending.values()) cb.done({ error: 'worker' }); pending.clear(); };
-      return { w, pending };
+      w.onerror = () => { const all = [...pending.values(), ...queue.map((q) => q.cb)]; pending.clear(); queue.length = 0; busy = false; for (const cb of all) cb.done({ error: 'worker' }); };
+      return { w, pending, queue, send: (m, cb) => { queue.push({ m, cb }); pump(); } };
     } catch (e) { return null; }
   }
   const workers = { play: makeWorker(), analysis: makeWorker() };
@@ -432,16 +445,24 @@
     for (const k of Object.keys(workers)) {
       const old = workers[k];
       workers[k] = makeWorker();
-      if (old) { for (const cb of old.pending.values()) cb.done({ error: 'worker' }); old.w.terminate(); }
+      if (old) { for (const cb of [...old.pending.values(), ...old.queue.map((q) => q.cb)]) cb.done({ error: 'worker' }); old.w.terminate(); }
     }
   }
   let reqId = 0;
   // Runs a job on a worker; falls back to the page if workers are unavailable.
-  function job(which, msg, done, progress) {
+  // Moves a job that has not started yet to the front of its worker's queue.
+  function jobFirst(which, id) {
+    const wk = workers[which]; if (!wk) return;
+    const i = wk.queue.findIndex((q) => q.m.id === id);
+    if (i > 0) wk.queue.unshift(wk.queue.splice(i, 1)[0]);
+  }
+  // `stale`, when given, says the answer is no longer wanted; such a job is skipped if it has not started.
+  function job(which, msg, done, progress, stale) {
     const id = ++reqId;
     const wk = workers[which];
     const m = Object.assign({ id }, msg);
-    if (wk) { wk.pending.set(id, { done, progress }); wk.w.postMessage(m); }
+    if (typeof m.stale === 'function') { stale = stale || m.stale; delete m.stale; }
+    if (wk) wk.send(m, { done, progress, stale });
     else setTimeout(() => {
       try {
         const p = E.positionFrom(m.fen, m.moves);
@@ -1519,14 +1540,16 @@
     if (variantLook(v)) setLook(variantLook(v));
     const e = v.era && eraById(v.era), host = e ? eraCoach(e) : COACH;
     const learned = !!state.progress.variantLessons[v.id];
+    const xqBack = v.id === 'xiangqi' ? xqResumable() : null;   // an unfinished game takes the rule-sheet card's place (the sheet is just below)
     mount('<div class="page"><div class="page-in">' +
       '<button class="backlink" data-nav="variants">' + icon('back') + ' ' + t('play.var.all') + '</button>' +
       '<section class="era-hero"><img class="bg" src="' + variantArt(v) + '" alt="">' +
       '<div class="in">' + faceImg(host, 'coach-big') + '<div><div class="eyebrow">' + t('play.var.kicker', { when: esc(varText(v, 'when')) }) + (e ? ' · ' + esc(eraName(e)) : '') + '</div><h1>' + esc(varName(v)) + '</h1>' +
       '<p class="quote">' + esc(varText(v, 'blurb')) + '</p></div></div></section>' +
       '<div class="lux-row three var-actions">' +
-      lux({ id: 'v-learn', feature: !learned, art: faceImg(COACH), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), text: t('play.var.lessonText', { title: v.lesson.title }) }) +
-      lux({ id: 'v-rules', art: '<span class="ic-big">' + icon('scroll') + '</span>', title: t('play.var.sheet'), text: t('play.var.sheetText') }) +
+      lux({ id: 'v-learn', feature: !learned && !xqBack, art: faceImg(COACH), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), text: t('play.var.lessonText', { title: v.lesson.title }) }) +
+      (xqBack ? lux({ id: 'v-resume', feature: true, art: duoArt(), title: t('home.resume'), text: t('home.resumeText', { n: xqBack.n }) })
+        : lux({ id: 'v-rules', art: '<span class="ic-big">' + icon('scroll') + '</span>', title: t('play.var.sheet'), text: t('play.var.sheetText') })) +
       lux({ id: 'v-local', art: duoArt(), title: t('play.ng.local'), text: t('play.var.localText') }) +
       '</div>' +
       '<div id="v-sheet">' + sec('scroll', t('play.var.sheet'), t('play.var.gold')) + '<div class="glass rs-card">' + ruleSheet(v) + '</div></div>' +
@@ -1537,7 +1560,8 @@
     hydrate();
     wireLinks();
     $('v-learn').onclick = () => { AU.unlock(); AU.play('tap'); go(v.id === 'xiangqi' ? 'xqlesson' : 'lesson', { variant: v.id }); };
-    $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    if ($('v-rules')) $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    if ($('v-resume')) $('v-resume').onclick = () => { AU.unlock(); AU.play('tap'); if (xqBack.live) go('xiangqi'); else resumeXq(); };
     $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); if (v.id === 'xiangqi') { startXq({ mode: 'local' }); return; } startGame(Object.assign({ mode: 'local', color: 'white', level: 0, tc: 'none', look: variantLook(v) }, variantStart(v))); };
     document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp, v.id); }; });
     // The cards' records and "beaten" badges are for chess; a variation keeps its own record.
@@ -1619,6 +1643,24 @@
     else setTimeout(() => { try { const r = X.search(X.positionFrom(fen, moves), opts); done({ uci: r.move !== null ? X.uci(r.move) : null }); } catch (err) { done({ error: String(err) }); } }, 30);
   }
   const xqSide = (side) => t(side === X.RED ? 'play.xq.red' : 'play.xq.black');
+  // A Xiangqi game left unfinished: the one still in memory, or the one saved before a reload.
+  function xqResumable() {
+    const Q = state.xq;
+    if (Q) return !Q.g.outcome && Q.g.moves.length ? { live: true, n: Q.g.moves.length } : null;
+    const s = saved.xq;
+    return s && Array.isArray(s.moves) && s.moves.length ? { live: false, n: s.moves.length } : null;
+  }
+  function resumeXq() {
+    const s = saved.xq; saved.xq = null;
+    const kind = s.kind === 'local' ? 'local' : 'ai', level = X.LEVELS[s.level] ? s.level : 0;
+    const setup = Object.assign({}, s.setup && typeof s.setup === 'object' ? s.setup : {}, { mode: kind, level });
+    const g = new X.Game();
+    for (const u of s.moves) if (typeof u !== 'string' || !g.playText(u)) break;   // a damaged record keeps the moves that still make sense
+    if (!g.moves.length || g.outcome) { save(); go('variant', 'xiangqi'); return; }
+    const human = kind === 'local' ? 0 : s.human === X.BLACK ? X.BLACK : X.RED;
+    state.xq = { setup, g, human, kind, level, selected: -1, busy: false, thinking: false, request: 0, resultShown: false, viewSide: human === X.BLACK ? 'black' : 'white' };
+    go('xiangqi');
+  }
   function startXq(setup) {
     const g = new X.Game();
     const human = setup.mode === 'local' ? 0 : setup.color === 'black' ? X.BLACK : setup.color === 'random' ? (Math.random() < 0.5 ? X.RED : X.BLACK) : X.RED;
@@ -1707,6 +1749,7 @@
       if (!info) return;
       Q.busy = true; Q.selected = -1; marks();
       const req = ++Q.request;
+      save();
       if (T) T.move(info, () => { if (req !== Q.request || state.screen !== 'xiangqi') return; Q.busy = false; after(info); });
       else { Q.busy = false; after(info); }
     }
@@ -1791,7 +1834,7 @@
       Q.g.undo();
       if (Q.kind === 'ai' && Q.g.pos.side !== Q.human && Q.g.moves.length) Q.g.undo();
       if (T) T.setPosition(Q.g.pos.b);
-      Q.selected = -1; marks(); hud();
+      Q.selected = -1; marks(); hud(); save();
       if (Q.kind === 'ai' && Q.g.pos.side !== Q.human) think();
     };
     const setCam = () => { view.setView(Q.viewSide, state.settings.view === 'top' ? 'top' : 'player'); if (T) T.setSide(Q.viewSide === 'black' ? 'black' : 'red'); };
@@ -4170,7 +4213,7 @@
       if (r.error || state.game !== G) return;
       G.evals[key] = r;
       renderEval();
-    });
+    }, null, () => state.game !== G || G.g.moves.length !== key);
   }
   function renderEval() {
     const G = state.game; if (!G) return;
@@ -4214,15 +4257,22 @@
     if (G.looks[key]) return;
     lookAt(G, (lk) => proactive(G, lk));
   }
-  function lookAt(G, done, timeMs) {
-    const key = G.g.moves.length;
+  // A look already on its way for this very position is shared, so a hint does not wait for two.
+  function lookAt(G, done, timeMs, urgent) {
+    const key = G.g.moves.length, moves = G.g.uciMoves(), here = moves.join(' ');
     if (G.looks[key] && !timeMs) { done(G.looks[key]); return; }
-    job('analysis', { type: 'look', fen: G.g.startFen, moves: G.g.uciMoves(), opts: { timeMs: timeMs || 200, alts: 3, plies: 4 } }, (r) => {
+    const wait = G.lookWait || (G.lookWait = {});
+    if (wait[here]) { wait[here].push(done); if (urgent) wait[here].urgent(); return; }
+    wait[here] = [done];
+    const id = job('analysis', { type: 'look', fen: G.g.startFen, moves, opts: { timeMs: timeMs || 200, alts: 3, plies: 4 } }, (r) => {
+      const cbs = wait[here] || []; delete wait[here];
       if (r.error || !r.look || state.game !== G || G.g.moves.length !== key) return;
       r.look.enteredEndgame = r.look.phase === 'endgame' && !G.endgameSaid;
       G.looks[key] = r.look;
-      done(r.look);
-    });
+      for (const cb of cbs) cb(r.look);
+    }, null, () => { const gone = state.game !== G || G.g.uciMoves().join(' ') !== here; if (gone) delete wait[here]; return gone; });
+    wait[here].urgent = () => jobFirst('analysis', id);
+    if (urgent) wait[here].urgent();
   }
   // Thinking assistance and Mentor mode: at most one word per turn, only when it matters.
   function proactive(G, lk) {
@@ -4287,7 +4337,7 @@
     G.times[ply] = spent;
     const deep = cfg.depth >= 3;
     const pre = G.looks[ply] ? { alts: G.looks[ply].alts, threat: G.looks[ply].threat && G.looks[ply].threat.serious ? G.looks[ply].threat.facts : null, assess: G.looks[ply].assess } : null;
-    job('analysis', { type: 'study', fen: G.g.startFen, moves: G.g.uciMoves().slice(0, ply + 1), opts: { timeMs: 200, alts: deep ? 3 : 2, plies: deep ? 4 : 0, pre } }, (r) => {
+    job('analysis', { type: 'study', stale: () => state.game !== G, fen: G.g.startFen, moves: G.g.uciMoves().slice(0, ply + 1), opts: { timeMs: 200, alts: deep ? 3 : 2, plies: deep ? 4 : 0, pre } }, (r) => {
       if (r.error || !r.study || state.game !== G || G.g.moves.length < ply + 1) return;
       const st = r.study;
       G.studies[ply] = st;
@@ -4457,7 +4507,7 @@
       if (!h) return;
       G.hintData = h; G.hintEn = he; G.hintKey = key; G.hintStep = 1; G.hints = (G.hints || 0) + 1;
       showHintStep();
-    }, G.looks[key] ? 0 : 300);
+    }, G.looks[key] ? 0 : 300, true);
   }
   function showHintStep() {
     const G = state.game, h = G.hintData, he = G.hintEn, lv = h.levels[G.hintStep - 1], le = he.levels[G.hintStep - 1];
@@ -4511,7 +4561,7 @@
     if (id === 'practice') return openPractice();
     if (id === 'last') {
       if (G.studies[lastMine]) return detailModal(G.studies[lastMine]);
-      return job('analysis', { type: 'study', fen: G.g.startFen, moves: G.g.uciMoves().slice(0, lastMine + 1), opts: { timeMs: 220, alts: 3, plies: 4 } }, (r) => { if (r.study && state.game === G) { G.studies[lastMine] = r.study; detailModal(r.study); } });
+      return job('analysis', { type: 'study', stale: () => state.game !== G, fen: G.g.startFen, moves: G.g.uciMoves().slice(0, lastMine + 1), opts: { timeMs: 220, alts: 3, plies: 4 } }, (r) => { if (r.study && state.game === G) { G.studies[lastMine] = r.study; detailModal(r.study); } });
     }
     lookAt(G, (lk) => {
       const opener = M.lineKey(id === 'threats' ? 'threat' : id === 'radar' ? 'mate' : id === 'chances' ? 'chance' : 'mentor', coachMem().said);
