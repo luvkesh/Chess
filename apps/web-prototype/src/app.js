@@ -775,6 +775,16 @@
     $('nv-music').onclick = () => { state.settings.music = !state.settings.music; AU.unlock(); applySettings(); save(); renderNav(); };
     $('nv-set').onclick = () => { AU.play('tap'); settingsModal(); };
     if ($('nv-labs')) $('nv-labs').onclick = () => { AU.play('tap'); labsModal(); };
+    fitNav();
+  }
+  // The menu bar has ten sections whose names change length with the language, so fixed
+  // breakpoints cannot keep it on screen: at 1280-1440 px the settings and profile buttons
+  // used to fall off the right edge. Tighten it a step at a time until it fits.
+  function fitNav() {
+    const n = $('topnav'); if (!n) return;
+    for (let i = 1; i <= 5; i++) n.classList.remove('fit' + i);
+    if (innerWidth <= 900 || !n.offsetWidth) return;
+    for (let i = 1; i <= 5 && n.scrollWidth > n.clientWidth + 1; i++) n.classList.add('fit' + i);
   }
   function go(name, arg) {
     if (name === 'improve') name = 'puzzles';
@@ -838,7 +848,7 @@
     }
     view.setInsets(ins, kind !== 'hud');
   }
-  window.addEventListener('resize', () => { applyInsets(); });
+  window.addEventListener('resize', () => { fitNav(); applyInsets(); });
 
   function avatarHtml(cls, avatarId, frameId) {
     const a = (avatarId && PG.item(avatarId)) || PG.equipped(state.progress, 'avatar') || PG.item(CATALOG.defaults.avatar);
@@ -6407,7 +6417,7 @@
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
   // The hero frames the table under the wordmark, which settles once the fonts are in.
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => applyInsets());
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitNav(); applyInsets(); });
   // App shortcuts from the installed icon's menu, and links from emails.
   if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
   else if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
