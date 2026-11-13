@@ -628,24 +628,12 @@
    ]
   },
   "item-sets-ocean": {
-   "text": "Plonge sous la mer ! Coral Kingdom est toute une cour sous la mer, avec des sirènes et des tritons, une pieuvre, un hippocampe, un château de corail et des poissons-globes tout gonflés pour les pions. Chaque pièce est peinte de couleurs vives de l'océan. Atteins le niveau douze, et tout le royaume vient nager sur ton échiquier.",
+   "text": "Plonge sous la mer ! Coral Kingdom est la cour d'une ville engloutie, en perle et en or : un roi de la mer avec son trident, une reine sirène, des méduses qui brillent, des hippocampes épineux et des phares qui brillent encore. Les pions sont des perles dans des coquillages ouverts. Atteins le niveau douze, et tout le royaume viendra nager sur ton plateau.",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Plonge sous la mer !"
-    },
-    {
-     "t": 1.53,
-     "text": "Coral Kingdom est toute une cour sous la mer, avec des sirènes et des tritons, une pieuvre, un hippocampe, un château de corail et des poissons-globes tout gonflés pour les pions."
-    },
-    {
-     "t": 9.87,
-     "text": "Chaque pièce est peinte de couleurs vives de l'océan."
-    },
-    {
-     "t": 12.77,
-     "text": "Atteins le niveau douze, et tout le royaume vient nager sur ton échiquier."
+     "text": "Plonge sous la mer ! Coral Kingdom est la cour d'une ville engloutie, en perle et en or : un roi de la mer avec son trident, une reine sirène, des méduses qui brillent, des hippocampes épineux et des phares qui brillent encore. Les pions sont des perles dans des coquillages ouverts. Atteins le niveau douze, et tout le royaume viendra nager sur ton plateau."
     }
    ]
   },
@@ -1052,24 +1040,12 @@
    ]
   },
   "item-boards-deco": {
-   "text": "Entre dans un penthouse des années 1930. Macassar and Chrome, c'est de l'ébène de Macassar rayée, un bois aux rayures foncées et dorées bien marquées, à côté de chrome étincelant. C'est net, brillant et très New York. Bats Skye l'aigle au-dessus de Manhattan, et il est à toi.",
+   "text": "Entre dans l'âge du jazz. Skyline Marble, c'est du marbre crème et vert profond veiné d'or, encadré de laque noire avec des éventails dorés de rayons de soleil. C'est chic, brillant et très New York. Bats Skye the Eagle au-dessus de Manhattan, et il est à toi.",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Entre dans un penthouse des années 1930."
-    },
-    {
-     "t": 3.03,
-     "text": "Macassar and Chrome, c'est de l'ébène de Macassar rayée, un bois aux rayures foncées et dorées bien marquées, à côté de chrome étincelant."
-    },
-    {
-     "t": 9.62,
-     "text": "C'est net, brillant et très New York."
-    },
-    {
-     "t": 11.87,
-     "text": "Bats Skye l'aigle au-dessus de Manhattan, et il est à toi."
+     "text": "Entre dans l'âge du jazz. Skyline Marble, c'est du marbre crème et vert profond veiné d'or, encadré de laque noire avec des éventails dorés de rayons de soleil. C'est chic, brillant et très New York. Bats Skye the Eagle au-dessus de Manhattan, et il est à toi."
     }
    ]
   },

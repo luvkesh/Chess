@@ -518,6 +518,32 @@ function ChacklateLandmarks(THREE, K, H) {
           P.add(gold, new THREE.ConeGeometry(0.88, 1.4, 4).rotateY(Math.PI / 4), { x: s * 16, y: B + 0.8 + 13.7, z: -18 });
           P.add(granite, box(2.6, 0.8, 2.6, s * 16, B, -18));
         }
+        // a temple colonnade down both sides of the terrace: papyrus columns painted in bands
+        // and hieroglyphs, open gold capitals, painted architraves, and fire in tall braziers
+        const colM = k.mat({ map: k.tile(128, 256, (g, w, h) => {
+          speckle(g, w, h, '#e4c690', '#b08a58', '#f4dcac', 900, 6);
+          ['#1d3f9a', '#e8b840', '#c84a2a', '#e8b840', '#1d6a5a'].forEach((c, i) => { g.fillStyle = c; g.fillRect(0, h * (0.03 + i * 0.028), w, h * 0.018); g.fillRect(0, h * (0.86 + i * 0.026), w, h * 0.016); });
+          g.fillStyle = 'rgba(70,36,16,0.7)';
+          for (let y = h * 0.22; y < h * 0.8; y += 26) for (let x = 8; x < w - 8; x += 22) { const kd = (x + y) % 3; if (kd < 1) { g.beginPath(); g.arc(x + 5, y + 4, 5, 0, TAU); g.fill(); g.fillRect(x + 3, y + 8, 4, 10); } else if (kd < 2) { g.fillRect(x, y, 4, 16); g.fillRect(x, y + 12, 12, 4); } else { g.beginPath(); g.moveTo(x, y + 16); g.lineTo(x + 6, y); g.lineTo(x + 12, y + 16); g.fill(); } }
+        }, [2, 1]), roughness: 0.85 });
+        const archM = k.mat({ map: k.tile(256, 32, (g, w, h) => { g.fillStyle = '#e4c690'; g.fillRect(0, 0, w, h); g.fillStyle = '#1d3f9a'; g.fillRect(0, 2, w, 6); g.fillStyle = '#c84a2a'; g.fillRect(0, h - 8, w, 6); g.fillStyle = '#e8b840'; for (let x = 0; x < w; x += 16) { g.beginPath(); g.arc(x + 8, h / 2, 5, 0, TAU); g.fill(); } }, [8, 1]), roughness: 0.85 });
+        const bowl = k.mat({ color: '#b8823a', metalness: 0.8, roughness: 0.35 });
+        for (const s of [-1, 1]) {
+          for (let i = 0; i < 4; i++) {
+            const x = s * 13, z = 2 - i * 7.5;
+            P.add(colM, new THREE.CylinderGeometry(0.95, 1.12, 9, 18, 1), { x, y: B + 4.5, z });
+            P.add(gold, lathe([[0.98, 0], [1.55, 0.8], [1.95, 1.5], [1.7, 1.62], [0, 1.62]], 18), { x, y: B + 9, z });
+            P.add(granite, box(3, 0.6, 3, x, B, z));
+          }
+          P.add(archM, box(2.6, 1.4, 25, s * 13, B + 10.6, -9.25));
+          P.add(gold, box(2.7, 0.25, 25.2, s * 13, B + 12, -9.25));
+          // a brazier on a tall stand before the colonnade, and its fire
+          const bx = s * 9.5, bz = -9;
+          P.add(bowl, lathe([[0.25, 0], [0.18, 3.2], [0.5, 3.5], [1.25, 4.2], [1.35, 4.5], [0, 4.4]], 14), { x: bx, y: B, z: bz });
+          P.add(bowl, lathe([[1.1, 0], [0.4, 0.6], [0, 0.6]], 14), { x: bx, y: B, z: bz });
+          for (let f = 0; f < 6; f++) { const a = f * 1.9, r = f ? 0.55 : 0; P.add(k.glowMat(f % 2 ? '#ffb040' : '#ff6a1e', 1.6), new THREE.ConeGeometry(f ? 0.35 : 0.55, f ? 1.3 : 2.0, 7), { x: bx + Math.sin(a) * r, y: B + 4.4 + (f ? 0.65 : 1.0), z: bz + Math.cos(a) * r }); }
+          G.glows.push([bx, B + 5.4, bz, '#ffa040', 10], [bx, B + 6.4, bz, '#ffd080', 5]);
+        }
         // date palms at the edge of the plateau and down by the river
         const trunk = k.mat({ color: '#6a4a2e', roughness: 1 }), frond = k.own(new THREE.MeshStandardMaterial({ map: frondTexture(k, '#3a5a24'), alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9 }));
         const palms = [[-16, 4, 7, 0.2], [-19, -6, 9, -0.15], [17, 8, 8, -0.2], [20, -2, 6.5, 0.15], [-46, -40, 9, 0.1], [-52, -48, 8, -0.1], [-40, -56, 10, 0.05], [48, -36, 9, -0.1], [56, -44, 8, 0.12], [-70, -20, 9, 0], [72, -16, 10, 0.1]];
@@ -964,8 +990,31 @@ function ChacklateLandmarks(THREE, K, H) {
         const parapet = k.mat({ map: k.tile(128, 64, (g, w, h) => { g.fillStyle = '#e8e2d6'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1a20'; for (let x = 0; x < w; x += 32) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 16, h * 0.3); g.lineTo(x + 32, h); g.fill(); } }, [40, 1]), roughness: 0.6, side: THREE.DoubleSide });
         P.add(parapet, new THREE.CylinderGeometry(13.4, 13.4, 1.6, 96, 1, true), { y: B + 0.8 + 0.6 });
         P.add(k.mat({ color: '#e8ecf2', metalness: 1, roughness: 0.15 }), K.ring(13.4, B + 2.2 + 0.6, 0.12, { seg: 160 }));
-        // searchlights sweep up from the roofs
-        for (const [x, z] of [[-40, -60], [44, -90], [-30, -150]]) G.glows.push([x, S + 70, z, '#d8e4ff', 7]);
+        // searchlights sweep up from the roofs: real beams of light, crossing in the haze
+        const beam = k.own(new THREE.MeshBasicMaterial({ map: k.tex(16, 128, (g, w, h) => { g.fillStyle = vgrad(g, 0, h, ['rgba(220,230,255,0)', 'rgba(220,230,255,0.22)', 'rgba(220,230,255,0.5)']); g.fillRect(0, 0, w, h); }), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, toneMapped: false }));
+        for (const [x, z, rx, rz] of [[-40, -60, 0.18, -0.3], [44, -90, -0.1, 0.32], [-30, -150, 0.12, 0.22], [30, -140, 0.05, -0.25]]) {
+          G.glows.push([x, S + 70, z, '#d8e4ff', 7]);
+          P.add(beam, new THREE.CylinderGeometry(3.2, 0.5, 120, 16, 1, true).translate(0, 60, 0), { x, y: S + 70, z, rx, rz });
+        }
+        // two airships cruising over the towers, their gondolas lit
+        const hull = k.mat({ color: '#c8ccd4', roughness: 0.5, metalness: 0.4 }), gondola = k.mat({ color: '#2a2a30', roughness: 0.5 });
+        for (const [x, y, z, ry, sc] of [[-4, B + 40, -130, 0.3, 1], [22, B + 30, -190, -0.45, 0.85]]) {
+          P.add(hull, new THREE.SphereGeometry(4, 24, 14).scale(4, 1, 1), { x, y, z, ry, s: sc });
+          for (const [fx, fy, fz, fr] of [[-14, 0, 0, 0], [-14, 0, 0, Math.PI / 2]]) P.add(hull, new THREE.BoxGeometry(5, 0.3, 7).translate(fx, fy, fz).rotateX(fr), { x, y, z, ry, s: sc });
+          P.add(gondola, box(5, 1.4, 1.6, 0, -4.8, 0), { x, y, z, ry, s: sc });
+          for (let i = -2; i <= 2; i++) G.glows.push([x + Math.cos(ry) * i * 0.9 * sc, y - 4.1 * sc, z - Math.sin(ry) * i * 0.9 * sc, '#ffd890', 1.6]);
+          G.glows.push([x - Math.cos(ry) * 16 * sc, y, z + Math.sin(ry) * 16 * sc, '#ff4a40', 2.4]);
+        }
+        // gold-crowned towers uptown: stepped setbacks, lit windows and spires
+        const goldTower = k.mat({ map: facadeTex(k, { base: '#2a2420', rows: 30, cols: 10, kind: 'rect', lit: 0.75, light: '#ffcc70', win: '#141010', w: 256, h: 512, trim: '#a88a50' }), roughness: 0.6, emissive: '#3a2a10', emissiveIntensity: 0.6 });
+        const crown = k.mat({ color: '#f0c060', metalness: 0.9, roughness: 0.25, emissive: '#6a4a10', emissiveIntensity: 0.8 });
+        for (const [x, z, h, w] of [[-58, -200, 120, 14], [64, -215, 135, 13], [-12, -250, 150, 15]]) {
+          let y = S, ww = w;
+          for (const f of [0.55, 0.25, 0.12]) { P.add(goldTower, box(ww, h * f, ww, x, y, z)); y += h * f; ww *= 0.74; }
+          for (let i = 0; i < 4; i++) { P.add(crown, lathe([[ww * 0.75 * (1 - i * 0.2), 0], [ww * 0.72 * (1 - i * 0.2), 3], [0, 3.4]], 8), { x, y: y + i * 3, z }); }
+          P.add(crown, new THREE.ConeGeometry(0.6, 16, 8).translate(0, 8, 0), { x, y: y + 12, z });
+          G.glows.push([x, y + 24, z, '#ff5a40', 2.6]);
+        }
         // the coloured light the screens and neon throw across the street far below
         for (let z = 30; z > -150; z -= 9) for (const x of [-9, 0, 9]) G.glows.push([x, S + 2, z, NEON[Math.abs(Math.round(z + x)) % NEON.length], 9]);
       },
@@ -1245,10 +1294,56 @@ function ChacklateLandmarks(THREE, K, H) {
           while (y < B + h) { const hh = 1.2 + R() * 1.6; P.add(m, lathe([[r, 0], [r * 1.2, hh * 0.4], [r * 0.9, hh]], 9, 6), { x: x + (R() - 0.5) * 0.6, y, z: z + (R() - 0.5) * 0.6 }); y += hh * 0.9; r *= 0.9; }
         };
         const branch = (x, z, h, m) => { for (let i = 0; i < 6; i++) { const a = R() * TAU, l = h * (0.5 + R() * 0.5); P.add(m, K.tube([[x, B, z], [x + Math.cos(a) * l * 0.2, B + l * 0.5, z + Math.sin(a) * l * 0.2], [x + Math.cos(a) * l * 0.4, B + l, z + Math.sin(a) * l * 0.4]], 0.18, { segs: 6, radial: 5 })); } };
-        for (let i = 0; i < 46; i++) {
-          const a = R() * TAU, r = 18 + R() * 70, x = Math.sin(a) * r, z = -Math.cos(a) * r;
+        for (let i = 0; i < 30; i++) {
+          const a = R() * TAU, r = 20 + R() * 70, x = Math.sin(a) * r, z = -Math.cos(a) * r;
           if (Math.abs(x) < 16 && z < -40 && z > -110) continue;
-          if (R() < 0.5) tower(x, z, 4 + R() * 12, corals[i % 6]); else branch(x, z, 3 + R() * 5, corals[(i + 2) % 6]);
+          if (R() < 0.3) tower(x, z, 3 + R() * 5, corals[i % 6]); else branch(x, z, 3 + R() * 5, corals[(i + 2) % 6]);
+        }
+        // the sunken city: colonnades of fallen temples, a temple front, a second domed hall,
+        // an arched gate with a golden trident, all in pale stone gone green with the sea
+        const ruin = k.mat({ map: k.tile(128, 128, (g, w, h) => { speckle(g, w, h, '#c8d4cc', '#7a948e', '#e8f0e8', 1400, 12); g.fillStyle = 'rgba(40,110,90,0.25)'; for (let i = 0; i < 30; i++) { g.beginPath(); g.arc(R() * w, R() * h, 4 + R() * 10, 0, TAU); g.fill(); } }), roughness: 0.85, emissive: '#0a3038', emissiveIntensity: 0.35 });
+        const gilt = k.mat({ color: '#f0c870', metalness: 0.85, roughness: 0.3, emissive: '#3a2a08', emissiveIntensity: 0.5 });
+        const column = (x, z, h, tilt) => {
+          P.add(ruin, lathe([[1.3, 0], [1.3, 0.5], [1.0, 0.7], [0.9, h - 0.8], [1.2, h - 0.5], [1.4, h - 0.3], [1.4, h], [0, h]], 14), { x, y: B, z, rz: tilt || 0 });
+          if (h > 6 && !tilt) P.add(gilt, K.ring(1.0, h - 0.65, 0.12, { seg: 24 }), { x, y: B, z });
+        };
+        // colonnades in two arcs either side, some columns broken, lintels on the whole ones
+        for (const sd of [-1, 1]) for (let i = 0; i < 7; i++) {
+          const a = sd * (0.62 + i * 0.13), r = 34, x = Math.sin(a) * r, z = -Math.cos(a) * r, broken = i === 2 || i === 5;
+          column(x, z, broken ? 3 + R() * 3 : 11, broken ? 0 : 0);
+          if (!broken && i < 6 && i !== 1 && i !== 4) { const a2 = sd * (0.62 + (i + 1) * 0.13), x2 = Math.sin(a2) * r, z2 = -Math.cos(a2) * r; P.add(ruin, box(Math.hypot(x2 - x, z2 - z) + 2.6, 1.3, 2.4, 0, 0, 0), { x: (x + x2) / 2, y: B + 11, z: (z + z2) / 2, ry: Math.atan2(x2 - x, z2 - z) + Math.PI / 2 }); }
+        }
+        for (let i = 0; i < 6; i++) P.add(ruin, new THREE.CylinderGeometry(1.0, 1.0, 3.6, 12).rotateZ(Math.PI / 2), { x: -24 + i * 9 + R() * 3, y: B + 0.9, z: -40 - R() * 30, ry: R() * TAU });   // fallen drums
+        // a temple front on the left: steps, six columns, a pediment with a golden shell
+        const TX = -46, TZ = -64;
+        P.add(ruin, box(24, 1.5, 12, TX, B, TZ)); P.add(ruin, box(26, 0.8, 14, TX, B, TZ));
+        for (let i = 0; i < 6; i++) column(TX - 10 + i * 4, TZ + 4, 12);
+        P.add(ruin, box(24, 1.6, 4, TX, B + 13.5, TZ + 4));
+        P.add(ruin, K.extrude([[-12.5, 0], [12.5, 0], [0, 4.2]], 3.6, 0.1), { x: TX, y: B + 15.1, z: TZ + 4 });
+        P.add(gilt, new THREE.SphereGeometry(1.6, 16, 8, 0, TAU, 0, Math.PI / 2).scale(1, 1.2, 0.4).rotateX(Math.PI / 2), { x: TX, y: B + 16.4, z: TZ + 6 });
+        // a second domed hall on the right, its windows lit
+        const HX = 50, HZ = -58;
+        P.add(ruin, new THREE.CylinderGeometry(11, 12, 2, 32), { x: HX, y: B + 1, z: HZ });
+        for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; column(HX + Math.cos(a) * 8.5, HZ + Math.sin(a) * 8.5, 10); }
+        P.add(ruin, new THREE.CylinderGeometry(9.6, 9.6, 1.4, 32), { x: HX, y: B + 12.6, z: HZ });
+        const ribs2 = []; for (let i = 0; i <= 12; i++) { const t = i / 12; ribs2.push([9.4 * Math.cos(t * Math.PI / 2) + 0.1, t * 8]); }
+        P.add(k.own(new THREE.MeshPhysicalMaterial({ color: '#eef0f0', roughness: 0.25, metalness: 0.1, iridescence: 1, iridescenceIOR: 1.6, emissive: '#2a4a5a', emissiveIntensity: 0.35 })), lathe(ribs2, 24), { x: HX, y: B + 14, z: HZ });
+        P.add(gilt, new THREE.ConeGeometry(0.8, 4, 8), { x: HX, y: B + 24, z: HZ });
+        for (let i = 0; i < 10; i++) { const a = (i + 0.5) / 10 * TAU; G.glows.push([HX + Math.cos(a) * 6, B + 6, HZ + Math.sin(a) * 6, '#ffd8a0', 4]); }
+        // an arched gate on the right of the table, a golden trident standing over it
+        const GX = 30, GZ = -24;
+        for (const dx of [-5, 5]) P.add(ruin, box(2.6, 10, 2.6, GX + dx, B, GZ));
+        P.add(ruin, new THREE.TorusGeometry(5, 1.3, 8, 20, Math.PI), { x: GX, y: B + 10, z: GZ, ry: 0.5 });
+        P.add(gilt, new THREE.CylinderGeometry(0.2, 0.2, 7, 8), { x: GX, y: B + 18.5, z: GZ });
+        for (const dx of [-1, 0, 1]) P.add(gilt, new THREE.ConeGeometry(0.4, 1.6, 6), { x: GX + dx * 1.2 * Math.cos(0.5), y: B + 22.4 + (dx ? 0 : 0.5), z: GZ - dx * 1.2 * Math.sin(0.5) });
+        P.add(gilt, box(3, 0.35, 0.35, 0, 0, 0), { x: GX, y: B + 21.4, z: GZ, ry: 0.5 });
+        // jellyfish drifting above the ruins, glowing pink and violet
+        for (let i = 0; i < 12; i++) {
+          const a = R() * TAU, r = 20 + R() * 40, x = Math.sin(a) * r, z = -Math.cos(a) * r - 10, y = B + 8 + R() * 16, c = i % 2 ? '#ff9ad8' : '#b89aff';
+          const jm = k.glowMat(c, 0.75);
+          P.add(jm, new THREE.SphereGeometry(1.1, 14, 8, 0, TAU, 0, Math.PI / 2).scale(1, 0.8, 1), { x, y, z });
+          for (let t = 0; t < 5; t++) { const tx = x + Math.cos(t * 1.3) * 0.6, tz = z + Math.sin(t * 1.3) * 0.6; P.add(jm, K.tube([[tx, y, tz], [tx + 0.3, y - 1.4, tz], [tx - 0.2, y - 2.8, tz + 0.2], [tx + 0.1, y - 4, tz]], 0.06, { segs: 10, radial: 4 })); }
+          G.glows.push([x, y + 0.3, z, c, 6]);
         }
         // sea fans: flat lace in violet and gold
         const fanT = k.tex(128, 128, (g, w, h) => { g.clearRect(0, 0, w, h); g.strokeStyle = '#ffffff'; g.lineWidth = 3; for (let i = 0; i < 18; i++) { g.beginPath(); g.moveTo(w / 2, h); g.quadraticCurveTo(w / 2 + (i - 9) * 4, h * 0.5, w / 2 + (i - 9) * 7, 4); g.stroke(); } g.lineWidth = 1.5; for (let y = 10; y < h; y += 8) { g.beginPath(); g.arc(w / 2, h, h - y, Math.PI * 1.15, Math.PI * 1.85); g.stroke(); } });
