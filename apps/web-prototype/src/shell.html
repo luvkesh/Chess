@@ -794,6 +794,7 @@ body.lowfx .explorebar, body.lowfx .explorehint { animation: none; }
 .toss.still .paw, .toss.still .toss-slot img { transition: none; }
 @keyframes toss-bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
 body.tossing #screens .player-card, body.tossing #screens .actionbar, body.tossing #screens .side, body.tossing #screens .status-chip, body.tossing #guide { visibility: hidden; }
+body.breaktime #guide { visibility: hidden; }   /* the daily break: nothing to tap but its own card */
 .toss.opened #toss-skip { visibility: hidden; }
 .toss:not(.still):not(.opened) .toss-hands.watching .toss-hand { animation: toss-bob 1.6s ease-in-out infinite; }
 .toss:not(.still):not(.opened) .toss-hands.watching .toss-hand.right { animation-delay: -.8s; }

@@ -86,10 +86,12 @@ const fake = fs.readFileSync(path.join(__dirname, 'fake-room.js'), 'utf8');
   assert.strictEqual(rc.reason, 'resignation'); assert.strictEqual(rd.reason, 'resignation');
   assert.strictEqual(rc.result, cw ? '1-0' : '0-1');
   console.log('ok worldwide pairing and resignation');
-  // A world game moves the Club rating on this device; the winner goes up, the loser down.
-  const rr = async (p) => p.evaluate(() => ChacklateClub.data().ratings.blitz);
-  const [wr, lr] = [await rr(c), await rr(d)];   // d resigned, so c won whatever its colour
-  assert.ok(wr.r > 1500 && lr.r < 1500 && wr.g === 1, JSON.stringify([wr, lr]));
+  // A world game moves the Club rating on this device; the winner goes up, the loser down. (Pages
+  // here share one browser's storage, which keeps two tabs of one player in step, so read each
+  // page's own result rather than the stored rating.)
+  const delta = async (p) => p.evaluate(() => ChacklateApp.state.game.online.ratingDelta);
+  const [wd, ld] = [await delta(c), await delta(d)];   // d resigned, so c won whatever its colour
+  assert.ok(wd > 0 && ld < 0, JSON.stringify([wd, ld]));
   console.log('ok world game rated in the Club');
 
   // 4. The clock: a player who runs out of time loses on both devices. The same two pages that

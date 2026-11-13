@@ -29,7 +29,8 @@
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   // A plain end date rather than a countdown: no ticking clocks aimed at children.
-  const seasonEnd = (s) => ChacklateI18n.date(new Date(s.ends + 'T00:00:00'), { day: 'numeric', month: 'short' });
+  // A season runs until the start of its end date, so its last day is the day before.
+  const seasonEnd = (s) => ChacklateI18n.date(new Date(new Date(s.ends + 'T00:00:00').getTime() - 86400e3), { day: 'numeric', month: 'short' });
   const STORE_KEY = 'chacklate-chess:v2';
   const APP_VERSION = '0.9 beta';
   const BUILD = typeof CHACKLATE_BUILD !== 'undefined' ? CHACKLATE_BUILD : 'dev';
@@ -174,6 +175,7 @@
     state.progress.premium = !!(previewOn() || e.premium);
     state.progress.passes = e.passes || [];
   }
+  if (state.account && state.account.safety && typeof state.account.safety === 'object') safety = state.account.safety;
   setEntitlements(state.account && state.account.ent);
   // Languages: Hindi brings Priya for the game calls (check, results); another language with a recorded
   // voice (Spanish, French, Portuguese, Mandarin) brings Rooky's voice in it. The coach voice stays as chosen.
@@ -264,7 +266,15 @@
   // The server says what this account may do (see services/game-server/src/family.js); null
   // means no server, which is offline play with nothing to buy or share.
   function setSafety(s) {
+    // The server's word for this account is kept with it, so a child's limits still hold with no
+    // connection (airplane mode, a wrong server address) until the server says otherwise.
+    if (s && state.account) state.account.safety = s;
+    else if (!s && state.account && state.account.safety && state.account.safety.kind === 'minor') s = state.account.safety;
     safety = s || null;
+    if (isMinor()) {   // no testing tools stay open on a child's account
+      document.querySelectorAll('.modal .labs-card').forEach((c) => { const w = c.closest('.modal'); if (w && w.close) w.close(); });
+      if (state.settings.labsFast) state.settings.labsFast = false;
+    }
     setEntitlements(state.account && state.account.ent);   // a child's account never keeps the Labs preview
     if ($('topnav')) { renderNav(); refreshScreenTools(); }   // nor the Labs button
     if (safety && !safety.reminders && state.settings.reminder && state.settings.reminder.on) { state.settings.reminder = Object.assign({}, state.settings.reminder, { on: false }); save(); }
@@ -326,9 +336,13 @@
     const pt = playTime();
     if (pt.ms < (lim + pt.extra) * 60e3 || breakModal) return;
     if (state.game && state.game.kind === 'online' && !state.game.g.outcome) return; // let the game finish
+    // A game against the computer waits on its clock while the break is up; Rooky's card hides.
+    const G0 = state.game && !state.game.g.outcome ? state.game : null;
+    if (G0) pauseClock(G0, true);
+    document.body.classList.add('breaktime');
     breakModal = modal('<div class="result-hero">' + faceImg(COACH) + '<span class="result-badge">' + t('home.break.badge') + '</span><h2 class="result-title">' + t('home.break.title') + '</h2>' +
       '<p class="sub">' + t('home.break.sub', { n: lim }) + '</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">' + t('home.break.more') + '</button></div></div>', { sticky: true, onClose() { breakModal = null; } });
+      '<div class="row" style="justify-content:center"><button class="btn" id="br-more">' + t('home.break.more') + '</button></div></div>', { sticky: true, onClose() { breakModal = null; document.body.classList.remove('breaktime'); if (G0 && state.game === G0) pauseClock(G0, false); } });
     breakModal.querySelector('#br-more').onclick = async () => {
       const m = breakModal; m.style.visibility = 'hidden';
       if (await parentGate(t('home.break.gate'), { always: true })) {
@@ -3223,7 +3237,7 @@
         '<label class="toggle">' + t('settings.languageLabel') + ' <select id="s-lang">' + I18N.LANGS.map((l) => '<option value="' + l.id + '" lang="' + l.id + '"' + (s.lang === l.id ? ' selected' : '') + '>' + esc(l.native === l.name ? l.native : l.native + ' · ' + l.name) + '</option>').join('') + '</select></label>') +
       page('app',
         appSection() +
-        '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">' + t('settings.server') + TIP_I + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>' +
+        (isMinor() ? '' : '<div class="field" style="margin-top:14px" data-tk="settings.server"><label for="s-server">' + t('settings.server') + TIP_I + '</label><input class="text-in" id="s-server" placeholder="' + t('settings.serverHint') + '" value="' + esc(s.server) + '"></div>') +
         '<div class="label set-h">' + t('settings.startAgain') + '</div>' +
         '<div class="row set-reset"><button class="btn warn" id="s-reset" data-tk="settings.reset">' + t('settings.reset') + '</button></div>' +
         '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · ' + t('settings.build') + ' ' + BUILD + '</button>');
@@ -3245,7 +3259,7 @@
     m.querySelectorAll('.set-back').forEach((b) => { b.onclick = () => { shell.dataset.view = 'list'; }; });
     if (m.querySelector('#s-labs')) m.querySelector('#s-labs').onclick = () => { m.close(); labsModal(); };
     show(cur, !!sec);
-    const on = (id, ev, fn) => m.querySelector(id).addEventListener(ev, fn);
+    const on = (id, ev, fn) => { const el = m.querySelector(id); if (el) el.addEventListener(ev, fn); };
     m.querySelectorAll('input[name=q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); }));
     // A new language: Hindi brings Priya for the game calls; the coach voice stays. The menus redraw.
     on('#s-lang', 'change', (e) => { s.lang = I18N.set(e.target.value); coachLanguage(); s.voiceCalls = callsFor(s.lang, s.voiceCalls); oneVoice(s); applySettings(); save(); m.close(); relocalise(); settingsModal('lang'); });
@@ -3321,6 +3335,7 @@
     }
   }
   function labsModal() {
+    if (!labsOn()) return;
     const P = state.progress, s = state.settings;
     const G = state.game && state.screen === 'game' ? state.game : null;
     const fen = G ? G.g.pos.fen() : E.START_FEN;
@@ -3353,7 +3368,7 @@
     const q = (sel) => m.querySelector(sel);
     const note = (text) => { q('#lb-note').textContent = text; };
     // apply a change, save, redraw what shows it, and say what happened
-    const did = (text, fn) => () => { fn(); state.progress.labs = true; save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
+    const did = (text, fn) => () => { if (!labsOn()) { m.close(); return; } fn(); state.progress.labs = true; save(); renderNav(); if (current && current.refresh) current.refresh(); else if (KIND[state.screen] === 'page') go(state.screen, state.screenArg); note(text); m.querySelector('.labs-stats').innerHTML = '<span><b>' + state.progress.coins.toLocaleString() + '</b> ' + esc(PG.COIN_NAME) + '</span><span>Level <b>' + PG.levelFor(state.progress.xp).level + '</b></span><span>Puzzle rating <b>' + Math.round(state.progress.stats.puzzles.rating) + '</b></span>' + (state.progress.premium ? '<span><b>Premium</b> on</span>' : ''); };
     const p = () => state.progress;
     const items = () => CATALOG.items.forEach((i) => { if (!PG.isUnlocked(p(), i)) p().granted[i.id] = true; });
     const lessons = () => LESSONS.lessons.forEach((l) => { if (!p().lessons[l.id]) p().lessons[l.id] = { stars: 3, attempts: 1, mastered: true, completed: PG.today(), reviews: [] }; });
@@ -3387,7 +3402,7 @@
     m.querySelectorAll('input[name=lb-speed]').forEach((r) => r.addEventListener('change', () => { s.labsFast = r.value === 'fast'; save(); note(s.labsFast ? 'The computer now answers at once.' : 'The computer takes its usual time.'); }));
     m.querySelectorAll('input[name=lb-q]').forEach((r) => r.addEventListener('change', () => { s.quality = r.value; applySettings(); save(); note('Graphics set to ' + r.value + '.'); }));
     q('#lb-fps').onchange = (e) => { s.devFps = e.target.checked; save(); fpsMeter(e.target.checked); };
-    q('#lb-quick').onclick = () => { m.close(); s.labsFast = true; save(); startGame({ mode: 'ai', color: 'white', level: 0, tc: 'none', fen: '', dev: true }); };
+    q('#lb-quick').onclick = () => { m.close(); startGame({ mode: 'ai', color: 'white', level: 0, tc: 'none', fen: '', dev: true }); };
     q('#lb-missions').onclick = did('Today\'s missions start again.', () => { p().missions = { date: '', list: [], bonus: false }; });
     q('#lb-streak').onclick = did('Streak reset.', () => { p().streak = { count: 0, last: '' }; });
     q('#lb-learn').onclick = did('Every lesson is marked not done, so Learn starts from the first lesson.', () => { p().lessons = {}; });
@@ -3396,7 +3411,8 @@
     let wipe = false;
     q('#lb-wipe').onclick = () => {
       if (!wipe) { wipe = true; q('#lb-wipe').textContent = 'Tap again to reset'; return; }
-      state.progress = PG.fresh(); save(); m.close(); applyLook(); go('home'); toast('Profile reset to a new player.');
+      m.close();
+      parentGate('Labs', { always: true }).then((ok) => { if (!ok || !labsOn()) return; resetDevice(); applyLook(); go('home'); toast('Profile reset to a new player.'); });
     };
     q('#lb-hide').onclick = () => { s.labs = false; save(); m.close(); renderNav(); refreshScreenTools(); toast('Labs is hidden. Tap the version line in Settings seven times to bring it back.'); };
     q('#lb-set').onclick = () => { m.close(); settingsModal(); };
@@ -3497,6 +3513,13 @@
   }
 
   function startGame(setup, restore) {
+    // An online game still on the board is never swapped for another one: finish it first.
+    const live = state.game;
+    if (live && live.kind === 'online' && !live.g.outcome && !(live.online && live.online.ended) && setup.mode !== 'online') {
+      toast(t('online.finishFirst'), 'bad');
+      backToGame();
+      return;
+    }
     // Only ordinary games become the defaults for the next one; dojo, journey and online
     // games keep their own setup.
     if (!setup.dojo && !setup.journey && !setup.dev && setup.mode !== 'online' && E.variantOf(setup.fen) === 'standard') state.setup = Object.assign({}, setup);
@@ -4068,14 +4091,14 @@
     const level = LEVELS[G.setup.level];
     let timeMs = level.timeMs;
     if (G.clock) { const left = G.clock[g.pos.side === WHITE ? 'w' : 'b']; timeMs = Math.max(120, Math.min(timeMs, left / 30 + G.clock.inc * 0.6)); }
-    if (state.settings.labsFast) timeMs = Math.min(timeMs, 80);   // Labs: the computer answers at once
+    if (state.settings.labsFast && labsOn()) timeMs = Math.min(timeMs, 80);   // Labs: the computer answers at once
     G.thinking = true;
     renderHud();
     const started = performance.now();
     const id = ++G.request;
     job('play', { type: 'search', fen: g.startFen, moves: g.uciMoves(), opts: Object.assign({}, level, { timeMs }) }, (r) => {
       if (id !== G.request || state.game !== G) return;
-      const delay = state.settings.labsFast ? 0 : Math.max(0, 420 - (performance.now() - started));
+      const delay = state.settings.labsFast && labsOn() ? 0 : Math.max(0, 420 - (performance.now() - started));
       setTimeout(() => {
         if (id !== G.request || state.game !== G) return;
         G.thinking = false;
@@ -4748,7 +4771,8 @@
     // Progress
     let res = null;
     // A game called off before both sides moved counts for nobody: no win, loss, XP or coins.
-    if (o.reason !== 'aborted' && (G.kind !== 'local' || g.moves.length >= 10)) {
+    // Labs games (any position, quick test) count for nothing either, so nothing from them reaches the server.
+    if (o.reason !== 'aborted' && !G.setup.dev && (G.kind !== 'local' || g.moves.length >= 10)) {
       res = PG.gameFinished(state.progress, {
         mode: G.kind === 'online' ? 'online' : G.kind, online: G.kind === 'online', level: G.setup.level, champion: !!G.setup.journey, won: youWon, drawn: !winner, lost: youLost, reason: o.reason,
         plies: g.moves.length, sans: g.sans, firstIsMine: G.kind === 'local' ? true : (E.positionFrom(g.startFen, []).side === G.human), startFen: g.startFen, ucis: g.uciMoves(),
@@ -6587,7 +6611,7 @@
 
   // ---------------------------------------------------------------- shared API for the online client
   window.ChacklateApp = {
-    E, state, toast, modal, esc, icon, save, go, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate,
+    E, state, toast, modal, esc, icon, save, go, backToGame, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate,
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {
@@ -6621,12 +6645,12 @@
       if (!G.g.outcome) G.g.finish(result, reason);
       endGame();
     },
-    onlineEmote(id, mine) { showEmote(id, mine); },
+    onlineEmote(id, mine) { const G = state.game; if (G && G.kind === 'online') showEmote(id, mine); },
     // The friend picked a hand: this side watches the same paw open.
     onlineToss(hand) { const G = state.game; if (!G || G.kind !== 'online') return; G.tossHand = hand; if (G.toss && G.toss.reveal) G.toss.reveal(hand); },
     onlineStatus(s) { const G = state.game; if (!G || G.kind !== 'online') return; Object.assign(G.online, s); renderHud(); },
     drawOffered() {
-      const G = state.game; if (!G) return;
+      const G = state.game; if (!G || G.kind !== 'online' || state.screen !== 'game') return;
       AU.event('draw.offer');
       coachSay(t('play.offer'), [[t('play.accept'), 'accept-draw'], [t('play.decline'), 'dismiss']]);
       const b = document.querySelector('[data-coach="accept-draw"]');
