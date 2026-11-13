@@ -76,7 +76,7 @@
     "speed": 1.0,
     "speakers": {
       "rooky": {
-        "engine": "em_alex",
+        "engine": "ff_siwis,am_puck",
         "speed": 1.05
       },
       "marcus": {
