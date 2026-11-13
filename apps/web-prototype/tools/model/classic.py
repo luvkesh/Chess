@@ -9,6 +9,8 @@ spec per piece type:
   {'kind': 'knight', 'z0': z, 'thick': t}       turned foot, carved head from the side picture
   {'kind': 'turned'}                             the whole outline turned (bishops, pawns)
   {'kind': 'turned', 'top': ('cross', z, x_lim)} turned, with a flat cross or plume on top
+  {'kind': 'turned', 'top': ('relief', z, thick)} turned, with a carved open top (flame loop)
+  {'kind': 'figure', 'z0': z, 'thick': t}        turned plinth, carved figure from the front picture
 """
 import math
 
@@ -62,6 +64,11 @@ def crowned(r, sp, others):
 
 def topper(r, top):
     h = r.height()
+    if top[0] == 'relief':
+        # an open carved top (a flame loop round a gem): swollen from its front outline
+        f = kit.relief('top', r, top[1] * h - 0.03, thick=top[2], power=top[3] if len(top) > 3 else 0.6)
+        kit.set_uv(f, r.t, mode='front', fold=0)
+        return f
     if top[0] == 'cross':
         c = kit.slab('cross', r, top[1] * h, depth=top[3] if len(top) > 3 else 0.055, bevel=0.01, x_lim=top[2])
         kit.set_uv(c, r.t, mode='front', fold=0)
@@ -105,6 +112,15 @@ def build(t, refs, spec):
         kit.set_uv(head, t, mode='front', fold=0)
         head.rotation_euler = (0, 0, math.pi / 2)
         parts = [base, head]
+    elif kind == 'figure':
+        # a carved figure (a robed king or queen) on a turned plinth: the plinth is turned, the
+        # figure is swollen from its front outline like the knights' heads
+        z0 = sp.get('z0', 0.2) * h
+        base = kit.lathe('base', r.profile(0, z0 + 0.02))
+        kit.set_uv(base, t, fold=sp.get('fold', 4))
+        fig = kit.relief('figure', r, z0 - 0.03, thick=sp.get('thick', 0.5), power=sp.get('power', 0.6))
+        kit.set_uv(fig, t, mode='front', fold=0)
+        parts = [base, fig]
     else:
         z1 = sp['top'][1] * h if sp.get('top') else h
         body = kit.lathe('body', r.profile(0, z1 + (0.01 if sp.get('top') else 0)))

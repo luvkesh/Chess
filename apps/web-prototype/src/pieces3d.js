@@ -6996,6 +6996,7 @@ function ChacklatePieces(THREE, K) {
         : { body: phys('em-green', { map: TEX.marble('#13221c', '#5a8a74', { scale: 2.2, sharp: 8, strength: 0.45, cloud: 0.2 }), roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05 }), trim: MAT.gold('#e2b050'), gem: phys('em-gem', { color: '#12b47e', roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.2, emissive: '#0a8a5a', emissiveIntensity: 0.35 }), window: phys('em-window', { color: '#ffd890', emissive: '#ffb040', emissiveIntensity: 1.6, roughness: 0.4 }) }),
     },
     pagoda: {
+      mesh: 'classic2', meshLook: { b: { clearcoat: 0.55, env: 1.0 } },
       id: 'pagoda', name: 'Dragon & Pagoda', era: 'A pavilion by a mountain waterfall', year: 'Long ago', tint: '#3a1418',
       story: 'Made for a pavilion high in the mountains, beside a waterfall. Porcelain white with crimson silk faces midnight lacquer with glowing blue, all in gold: an emperor and an empress, dragon knights, lotus-flame bishops and lantern pagodas for rooks.',
       lore: {
