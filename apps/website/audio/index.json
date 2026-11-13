@@ -2520,6 +2520,265 @@
           "text": "It all stays on your device, promise!"
         }
       ]
+    },
+    "item-sets-astral": {
+      "text": "Make a wish on a falling star! Astral Glass is frosted moon-glass against midnight-blue glass, with silver ribbons winding round like the paths of planets, and a little star glowing inside every piece. It comes with the Star Observatory.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Make a wish on a falling star!"
+        },
+        {
+          "t": 2.14,
+          "text": "Astral Glass is frosted moon-glass against midnight-blue glass, with silver ribbons winding round like the paths of planets, and a little star glowing inside every piece."
+        },
+        {
+          "t": 11.91,
+          "text": "It comes with the Star Observatory."
+        }
+      ]
+    },
+    "item-sets-elemental": {
+      "text": "Two kingdoms, one board! The Ice Court is carved from glacier ice, with frost-wolf knights. The Fire Court glows like red-hot stone, with dragon knights. It comes with the Fire and Ice Rift.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Two kingdoms, one board!"
+        },
+        {
+          "t": 1.84,
+          "text": "The Ice Court is carved from glacier ice, with frost-wolf knights."
+        },
+        {
+          "t": 5.88,
+          "text": "The Fire Court glows like red-hot stone, with dragon knights."
+        },
+        {
+          "t": 9.89,
+          "text": "It comes with the Fire and Ice Rift."
+        }
+      ]
+    },
+    "item-sets-clockwork": {
+      "text": "Tick, tock, your move! Clockwork Brass is ivory enamel against dark bronze, set in shiny brass and full of gears. Look closely, White's knight is a winged unicorn! It comes with the Clockwork Tower.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Tick, tock, your move!"
+        },
+        {
+          "t": 1.68,
+          "text": "Clockwork Brass is ivory enamel against dark bronze, set in shiny brass and full of gears."
+        },
+        {
+          "t": 7.43,
+          "text": "Look closely, White's knight is a winged unicorn!"
+        },
+        {
+          "t": 10.47,
+          "text": "It comes with the Clockwork Tower."
+        }
+      ]
+    },
+    "item-sets-neon": {
+      "text": "Welcome to the city of tomorrow! Neon City is chrome lit electric blue against black chrome lit neon pink, with a cloaked emperor, cyber-horses and a squad of little robots. It comes with the Neon Rooftop.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Welcome to the city of tomorrow!"
+        },
+        {
+          "t": 1.98,
+          "text": "Neon City is chrome lit electric blue against black chrome lit neon pink, with a cloaked emperor, cyber-horses and a squad of little robots."
+        },
+        {
+          "t": 10.62,
+          "text": "It comes with the Neon Rooftop."
+        }
+      ]
+    },
+    "item-sets-lumen": {
+      "text": "Light against the Void! One army is pearl-white marble veined in gold, the other is black glass lit electric blue, and every piece carries a glowing diamond at its foot. It comes with the Floating Citadel.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Light against the Void!"
+        },
+        {
+          "t": 1.5,
+          "text": "One army is pearl-white marble veined in gold, the other is black glass lit electric blue, and every piece carries a glowing diamond at its foot."
+        },
+        {
+          "t": 10.31,
+          "text": "It comes with the Floating Citadel."
+        }
+      ]
+    },
+    "item-boards-starglass": {
+      "text": "This board is a window to the night sky! Celestial Monolith sets black glass full of tiny stars beside frosted glass, with golden orbits on the corners. It comes with the Star Observatory and Astral Glass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This board is a window to the night sky!"
+        },
+        {
+          "t": 2.51,
+          "text": "Celestial Monolith sets black glass full of tiny stars beside frosted glass, with golden orbits on the corners."
+        },
+        {
+          "t": 9.72,
+          "text": "It comes with the Star Observatory and Astral Glass."
+        }
+      ]
+    },
+    "item-boards-lavaice": {
+      "text": "Careful, it's hot and cold! Lava and Glacier puts blue glacier ice beside black stone, with lava glowing in its cracks. It comes with the Fire and Ice Rift and the Fire and Ice set.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Careful, it's hot and cold!"
+        },
+        {
+          "t": 2.22,
+          "text": "Lava and Glacier puts blue glacier ice beside black stone, with lava glowing in its cracks."
+        },
+        {
+          "t": 8.0,
+          "text": "It comes with the Fire and Ice Rift and the Fire and Ice set."
+        }
+      ]
+    },
+    "item-boards-gearwood": {
+      "text": "Walnut and Brass is warm walnut and pale maple, with tiny gears engraved into the squares and clocks on the corners. It comes with the Clockwork Tower and Clockwork Brass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Walnut and Brass is warm walnut and pale maple, with tiny gears engraved into the squares and clocks on the corners."
+        },
+        {
+          "t": 7.29,
+          "text": "It comes with the Clockwork Tower and Clockwork Brass."
+        }
+      ]
+    },
+    "item-boards-neongrid": {
+      "text": "Neon Grid is smoky glass with every square lit in electric blue, like a city seen from the sky at night. It comes with the Neon Rooftop and Neon City.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Neon Grid is smoky glass with every square lit in electric blue, like a city seen from the sky at night."
+        },
+        {
+          "t": 6.54,
+          "text": "It comes with the Neon Rooftop and Neon City."
+        }
+      ]
+    },
+    "item-boards-voidmarble": {
+      "text": "Light and Void Marble is white marble with golden veins beside night-blue marble, and every dark square has a line of light along its edge. It comes with the Floating Citadel and Light and Void.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Light and Void Marble is white marble with golden veins beside night-blue marble, and every dark square has a line of light along its edge."
+        },
+        {
+          "t": 7.98,
+          "text": "It comes with the Floating Citadel and Light and Void."
+        }
+      ]
+    },
+    "item-places-observatory": {
+      "text": "Shh, look up! We're on a mountain top above the clouds, beside a little observatory. A glass monolith shines with the shapes of the stars, and a golden sphere turns slowly in the sky. Astral Glass plays here, on Celestial Monolith.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Shh, look up!"
+        },
+        {
+          "t": 1.98,
+          "text": "We're on a mountain top above the clouds, beside a little observatory."
+        },
+        {
+          "t": 6.16,
+          "text": "A glass monolith shines with the shapes of the stars, and a golden sphere turns slowly in the sky."
+        },
+        {
+          "t": 12.15,
+          "text": "Astral Glass plays here, on Celestial Monolith."
+        }
+      ]
+    },
+    "item-places-rift": {
+      "text": "Wrap up warm, and stay cool! On one side of the canyon, an ice palace sparkles under the northern lights. On the other, a volcano glows and rivers of lava flow. Fire and Ice plays here, on Lava and Glacier.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Wrap up warm, and stay cool!"
+        },
+        {
+          "t": 2.22,
+          "text": "On one side of the canyon, an ice palace sparkles under the northern lights."
+        },
+        {
+          "t": 6.46,
+          "text": "On the other, a volcano glows and rivers of lava flow."
+        },
+        {
+          "t": 10.25,
+          "text": "Fire and Ice plays here, on Lava and Glacier."
+        }
+      ]
+    },
+    "item-places-clocktower": {
+      "text": "We're at the top of a clock tower at sunset! Gears as big as houses turn beside us, the great clock keeps time, and airships drift over the city. Clockwork Brass plays here, on Walnut and Brass.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "We're at the top of a clock tower at sunset!"
+        },
+        {
+          "t": 2.48,
+          "text": "Gears as big as houses turn beside us, the great clock keeps time, and airships drift over the city."
+        },
+        {
+          "t": 8.54,
+          "text": "Clockwork Brass plays here, on Walnut and Brass."
+        }
+      ]
+    },
+    "item-places-neonroof": {
+      "text": "Pull up your hood, it's raining! We're on a rooftop in a city of towers, with signs glowing pink and blue and a train gliding round on its high track. Neon City plays here, on Neon Grid.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Pull up your hood, it's raining!"
+        },
+        {
+          "t": 1.85,
+          "text": "We're on a rooftop in a city of towers, with signs glowing pink and blue and a train gliding round on its high track."
+        },
+        {
+          "t": 8.55,
+          "text": "Neon City plays here, on Neon Grid."
+        }
+      ]
+    },
+    "item-places-citadel": {
+      "text": "We're on an island floating in the sky! Waterfalls pour off the islands around us, white towers shine on the side of light, and a great ring of light turns ahead. Light and Void plays here, on Light and Void Marble.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "We're on an island floating in the sky!"
+        },
+        {
+          "t": 2.28,
+          "text": "Waterfalls pour off the islands around us, white towers shine on the side of light, and a great ring of light turns ahead."
+        },
+        {
+          "t": 9.0,
+          "text": "Light and Void plays here, on Light and Void Marble."
+        }
+      ]
     }
   }
 }

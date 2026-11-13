@@ -734,5 +734,45 @@
  "room.pavilion.v1": {
   "voice": "am_puck,am_liam",
   "text": "A red pavilion facing a roaring waterfall, with cherry blossom all around. Listen to the water!"
+ },
+ "board.starglass.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Black glass full of tiny stars, next to frosted glass. Golden orbits shine on every corner."
+ },
+ "board.lavaice.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Blue glacier ice next to black stone, with lava glowing in the cracks. Hot and cold at once!"
+ },
+ "board.gearwood.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Walnut and maple, with tiny gears carved into the squares. Look for the clocks on the corners!"
+ },
+ "board.neongrid.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "Smoky glass squares, every edge lit in electric blue. Like a city at night, seen from the sky."
+ },
+ "board.voidmarble.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "White marble with golden veins, next to night-blue marble. Every dark square has a line of light."
+ },
+ "room.observatory.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A mountain top above the clouds, under a sky full of stars. Watch the golden sphere turn!"
+ },
+ "room.rift.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "An ice palace on one side, a volcano on the other. Northern lights over the ice, lava below!"
+ },
+ "room.clocktower.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "The top of a clock tower at sunset, with gears as big as houses. Wave to the airships!"
+ },
+ "room.neonroof.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "A rainy rooftop in a city of towers, glowing pink and blue. Here comes the train!"
+ },
+ "room.citadel.v1": {
+  "voice": "am_puck,am_liam",
+  "text": "An island floating in the sky, with waterfalls all around. Look at the ring of light ahead!"
  }
 }

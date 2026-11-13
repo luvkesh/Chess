@@ -2476,6 +2476,327 @@ function ChacklateLandmarks(THREE, K, H) {
         for (let i = 0; i < 34; i++) { const a = (i / 34) * TAU + R() * 0.2, r = 30 + R() * 90, s2 = 26 + R() * 40; P.add(puff, new THREE.PlaneGeometry(s2, s2 * 0.7).rotateX(-Math.PI / 2), { x: Math.sin(a) * r, y: B - 30 - R() * 50, z: -Math.cos(a) * r, ry: R() * TAU }); }
       },
     },
+
+    // A mountain top on a clear night above the clouds, for the Astral Glass set: a white
+    // observatory with its dome open, a black glass monolith traced with constellations, and a
+    // great armillary sphere turning slowly in the sky ahead.
+    observatory: {
+      outdoor: true, fog: { color: '#0c0c24', density: 0.0018 },
+      sky: { stops: ['#020310', '#070a26', '#16123e', '#2e2452'], haze: '#3a2e5e', below: '#10122a', stars: 1800, moon: { az: 48, el: 34, size: 6, color: '#f4f0ff', crescent: true },
+        far(g, W, HY) {
+          // the nebula: soft clouds of violet, rose and teal, and the Milky Way through them
+          const R = rng(61);
+          for (let i = 0; i < 26; i++) { const x = R() * W, y = HY * (0.15 + R() * 0.6), r = 80 + R() * 220; glowAt(g, x, y, r, ['#7a4ad8', '#d85aa8', '#3ab8c8', '#5a6ae8'][i % 4], 0.07 + R() * 0.07); }
+          for (let i = 0; i < 3200; i++) { const x = R() * W, y = HY * 0.45 + Math.sin(x / W * TAU) * HY * 0.25 + (R() + R() + R() - 1.5) * 60; g.fillStyle = rgba(R() < 0.7 ? '#e0e4ff' : '#ffd8f4', 0.05 + R() * 0.12); g.fillRect(x, y, 1 + R() * 1.6, 1 + R() * 1.6); }
+          // far snowy peaks, and a sea of moonlit cloud below them
+          g.fillStyle = '#1e2242'; g.beginPath(); g.moveTo(0, HY + 2); for (let x = 0; x <= W; x += 8) g.lineTo(x, HY - 10 - Math.abs(Math.sin(x * 0.005) * 40 + Math.sin(x * 0.023) * 12)); g.lineTo(W, HY + 2); g.fill();
+          g.strokeStyle = 'rgba(220,226,255,0.5)'; g.lineWidth = 3; g.beginPath(); for (let x = 0; x <= W; x += 8) g.lineTo(x, HY - 9 - Math.abs(Math.sin(x * 0.005) * 40 + Math.sin(x * 0.023) * 12)); g.stroke();
+          g.fillStyle = vgrad(g, HY - 6, HY + 40, ['rgba(120,120,180,0)', 'rgba(150,150,200,0.6)', 'rgba(60,60,110,0.9)']); g.fillRect(0, HY - 6, W, 46);
+        } },
+      build(k, P, G, group) {
+        const B = G.y, R = rng(171);
+        // the summit: dark slate with frost, and the peaks of the range all round
+        P.add(k.mat({ map: k.tile(512, 512, (g, w, h) => speckle(g, w, h, '#24263e', '#12141f', '#8a94c8', 6000, 8)), roughness: 0.85 }), ground(k, null, 165, B - 0.05, 14));
+        const peak = peakMat(k, '#1c1e34', '#d8deff', 0.3, { envMapIntensity: 0.1 });
+        for (let i = 0; i < 14; i++) { const a = (i / 14) * TAU + R() * 0.2, r = 96 + R() * 40; if (Math.abs(a) < 0.25 || Math.abs(a - TAU) < 0.25) continue; mountain(P, peak, Math.sin(a) * r, B - 8, -Math.cos(a) * r, 22 + R() * 18, 26 + R() * 30, i + 71, { sides: 6 }); }
+        const rock = k.mat({ color: '#2a2c3e', roughness: 0.95, flatShading: true });
+        for (let i = 0; i < 30; i++) { const a = R() * TAU, r = 18 + R() * 40; P.add(rock, new THREE.DodecahedronGeometry(0.8 + R() * 2.2, 0), { x: Math.sin(a) * r, y: B + 0.3, z: -Math.cos(a) * r, s: [1, 0.55, 1], ry: R() * 3 }); }
+        // the observatory, off to the left: a white drum, a silver dome with its slit open and
+        // the telescope looking out of it, warm light in the door
+        const white = k.mat({ color: '#e8e6f0', roughness: 0.6 }), silver = k.mat({ color: '#c8ccd8', roughness: 0.25, metalness: 0.8 });
+        const OX = -30, OZ = -30;
+        P.add(white, new THREE.CylinderGeometry(7, 7.4, 7, 32), { x: OX, y: B + 3.5, z: OZ });
+        P.add(silver, new THREE.SphereGeometry(7.2, 32, 12, 0.3, TAU - 0.6, 0, Math.PI / 2), { x: OX, y: B + 7, z: OZ, ry: 0.6 });
+        P.add(k.mat({ color: '#3a3e50', roughness: 0.4, metalness: 0.6 }), new THREE.CylinderGeometry(0.9, 1.2, 11, 16), { x: OX + 1.4, y: B + 10.5, z: OZ + 1.6, rx: 0.7, rz: -0.35 });
+        P.add(k.glowMat('#ffc880', 1.3), box(2.2, 3.4, 0.1, OX + 2.2, B, OZ + 7.05), { ry: 0.3 });
+        G.glows.push([OX + 2.4, B + 1.8, OZ + 7.4, '#ffc070', 5], [OX - 9, B + 6, OZ + 2, '#ffc070', 3]);
+        // the monolith, off to the right: a tall slab of black glass with the star charts in gold
+        const chart = k.tex(256, 1024, (g, w, h) => {
+          g.fillStyle = '#000000'; g.fillRect(0, 0, w, h);
+          const R2 = rng(9);
+          for (let c = 0; c < 9; c++) {
+            const pts = []; const cx = 40 + R2() * 176, cy = 60 + c * 110;
+            for (let i = 0; i < 5; i++) pts.push([cx + (R2() - 0.5) * 140, cy + (R2() - 0.5) * 90]);
+            g.strokeStyle = 'rgba(230,190,110,0.8)'; g.lineWidth = 2; g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke();
+            for (const [x, y] of pts) { g.fillStyle = '#ffe8b0'; g.beginPath(); g.arc(x, y, 4, 0, TAU); g.fill(); }
+          }
+        });
+        const slab = k.mat({ color: '#0a0a16', roughness: 0.08, metalness: 0.3, emissive: '#ffffff', emissiveMap: chart, emissiveIntensity: 0.9, envMapIntensity: 1 });
+        P.add(slab, new THREE.BoxGeometry(5, 26, 1.4), { x: 24, y: B + 13, z: -36, ry: -0.35 });
+        P.add(rock, new THREE.BoxGeometry(8, 1.4, 4), { x: 24, y: B + 0.5, z: -36, ry: -0.35 });
+        G.glows.push([24, B + 27, -36, '#c8b8ff', 8]);
+        // glass crystals glowing at the edge of the summit
+        const crys = k.own(new THREE.MeshStandardMaterial({ color: '#9ab8ff', emissive: '#5a6aff', emissiveIntensity: 0.8, roughness: 0.1, transparent: true, opacity: 0.85, flatShading: true }));
+        for (let i = 0; i < 26; i++) { const a = R() * TAU, r = 16 + R() * 26, h = 2 + R() * 5; P.add(crys, new THREE.OctahedronGeometry(1, 0), { x: Math.sin(a) * r, y: B + h * 0.4, z: -Math.cos(a) * r, s: [0.6, h * 0.5, 0.6], rz: (R() - 0.5) * 0.5 }); if (i % 3 === 0) G.glows.push([Math.sin(a) * r, B + h * 0.6, -Math.cos(a) * r, '#8a9aff', 3]); }
+        // the armillary sphere in the sky ahead: three gold rings round a glowing star, turning
+        const arm = new THREE.Group(), gold = k.mat({ color: '#e8c070', roughness: 0.25, metalness: 0.9, emissive: '#5a3a10', emissiveIntensity: 0.6, fog: false });
+        const rings = [0, 1, 2].map((i) => { const m = new THREE.Mesh(new THREE.TorusGeometry(12 - i * 1.6, 0.28, 8, 96), gold); m.rotation.set(i * 1.1, i * 0.7, 0); arm.add(m); return m; });
+        const star = new THREE.Mesh(new THREE.SphereGeometry(2.2, 24, 16), k.glowMat('#fff4d8', 1.6)); arm.add(star);
+        arm.position.set(-4, B + 15, -54); group.add(arm);
+        G.glows.push([-4, B + 15, -54, '#ffe0a0', 20]);
+        G.tick.push((t) => { rings[0].rotation.y = t * 0.12; rings[1].rotation.x = 1.1 + t * 0.09; rings[2].rotation.z = t * 0.07; });
+      },
+    },
+
+    // A canyon split in two, for Fire and Ice: glaciers, ice spires and a frozen waterfall on
+    // the left, a volcano, lava falls and a fortress of black stone on the right, the northern
+    // lights over the ice and a red glow over the fire.
+    rift: {
+      outdoor: true, fog: { color: '#1a1424', density: 0.0024 },
+      sky: { stops: ['#04060e', '#0c1430', '#24203e', '#4a2a3a'], haze: '#5a3040', below: '#140e16', stars: 900,
+        far(g, W, HY, u) {
+          // the aurora over the ice side, the volcano's red glow over the fire side
+          const R = rng(41);
+          for (let az = -170; az < -10; az += 3) { const x = u(az), top = HY - 260 - Math.sin(az * 0.06) * 60; const grd = g.createLinearGradient(0, top, 0, HY - 40); grd.addColorStop(0, 'rgba(90,255,200,0)'); grd.addColorStop(0.5, rgba(R() < 0.7 ? '#4affc0' : '#5ac8ff', 0.12 + R() * 0.1)); grd.addColorStop(1, 'rgba(90,255,200,0)'); g.fillStyle = grd; g.fillRect(x, top, 10, HY - 40 - top); }
+          for (const az of [20, 60, 110]) glowAt(g, u(az), HY - 20, 420, '#ff5a1a', 0.35);
+          g.fillStyle = '#1a1420'; g.beginPath(); g.moveTo(0, HY + 2); for (let x = 0; x <= W; x += 8) g.lineTo(x, HY - 8 - Math.abs(Math.sin(x * 0.007) * 30 + Math.sin(x * 0.031) * 8)); g.lineTo(W, HY + 2); g.fill();
+        } },
+      build(k, P, G, group) {
+        const B = G.y, R = rng(181);
+        // the ground: snow and ice to the left, black basalt to the right with lava in its cracks
+        const snow = k.mat({ map: k.tile(256, 256, (g, w, h) => speckle(g, w, h, '#c8dcf0', '#8aa8c8', '#ffffff', 2000, 4)), roughness: 0.6 });
+        const crack = k.tile(512, 512, (g, w, h) => {
+          speckle(g, w, h, '#2a2224', '#100c0e', '#4a3a36', 5000, 5);
+          const R2 = rng(13); g.lineCap = 'round';
+          for (let i = 0; i < 18; i++) { let x = R2() * w, y = R2() * h; g.beginPath(); g.moveTo(x, y); for (let s = 0; s < 6; s++) { x += (R2() - 0.5) * 90; y += (R2() - 0.5) * 90; g.lineTo(x, y); } g.strokeStyle = '#c83a08'; g.lineWidth = 6; g.stroke(); g.strokeStyle = '#ffc040'; g.lineWidth = 2; g.stroke(); }
+        });
+        const basalt = k.mat({ map: crack, emissive: '#ffffff', emissiveMap: crack, emissiveIntensity: 0.35, roughness: 0.8 });
+        const half = (a0, m) => { const gg = new THREE.CircleGeometry(165, 48, a0, Math.PI).rotateX(-Math.PI / 2).translate(0, B - 0.05, 0); const uv = gg.attributes.uv, p = gg.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / 14, p.getZ(i) / 14); P.add(m, gg); };
+        half(Math.PI / 2, snow); half(-Math.PI / 2, basalt);
+        // a river of lava down the middle of the rift, far ahead, flowing
+        const flow = k.tile(128, 512, (g, w, h) => { g.fillStyle = '#b82204'; g.fillRect(0, 0, w, h); const R2 = rng(3); for (let i = 0; i < 90; i++) { const x = R2() * w, y = R2() * h, r = 6 + R2() * 18; for (const dy of [-h, 0, h]) glowAt(g, x, y + dy, r * 2, R2() < 0.5 ? '#ffd040' : '#ff7a10', 0.5 + R2() * 0.4); } }, [1, 6]);
+        const lavaM = k.own(new THREE.MeshBasicMaterial({ map: flow, toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.1) }));
+        P.add(lavaM, new THREE.PlaneGeometry(5, 140).rotateX(-Math.PI / 2), { x: 0, y: B + 0.02, z: -96 });
+        // the ice side: blue cliffs, spires, a frozen waterfall and a palace of ice
+        const ice = peakMat(k, '#6a8ab8', '#f4faff', 0.5, { envMapIntensity: 0.4 });
+        const spire = k.own(new THREE.MeshStandardMaterial({ color: '#a8dcff', roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.88, emissive: '#2a6aa8', emissiveIntensity: 0.45, flatShading: true }));
+        const fire = peakMat(k, '#2a1e1c', null, 0, { envMapIntensity: 0.1 });
+        for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU + R() * 0.2, r = 100 + R() * 40, x = Math.sin(a) * r; if (Math.abs(x) < 16) continue; mountain(P, x < 0 ? ice : fire, x, B - 6, -Math.cos(a) * r, 22 + R() * 18, 28 + R() * 30, i + 81, { sides: 7 }); }
+        for (let i = 0; i < 40; i++) { const a = -0.15 - R() * 3, r = 20 + R() * 60, h = 3 + R() * 12; P.add(spire, new THREE.ConeGeometry(0.9 + R() * 1.6, h, 5), { x: Math.sin(a) * r, y: B + h / 2, z: -Math.cos(a) * r, rx: (R() - 0.5) * 0.3, rz: (R() - 0.5) * 0.3 }); }
+        const palace = [[-38, -58, 2.4, 26], [-33, -60, 1.6, 18], [-43, -55, 1.6, 20], [-36, -50, 1.2, 14], [-41, -64, 1.2, 15]];
+        for (const [x, z, r, h] of palace) { P.add(spire, new THREE.CylinderGeometry(r, r * 1.2, h, 6), { x, y: B + h / 2, z }); P.add(spire, new THREE.ConeGeometry(r * 1.3, h * 0.45, 6), { x, y: B + h + h * 0.22, z }); G.glows.push([x, B + h * 0.6, z, '#8ad8ff', 4]); }
+        const fallIce = k.tex(64, 256, (g, w, h) => { g.fillStyle = vgrad(g, 0, h, ['#e8f6ff', '#9ad0f4', '#d8f0ff']); g.fillRect(0, 0, w, h); const R2 = rng(8); for (let x = 0; x < w; x += 4) { g.fillStyle = rgba("#ffffff", 0.2 + R2() * 0.4); g.fillRect(x, 0, 2, h); } });
+        P.add(k.mat({ map: fallIce, roughness: 0.15, emissive: '#3a7ab8', emissiveIntensity: 0.3 }), new THREE.CylinderGeometry(6, 8, 24, 16, 1, true, -0.8, 1.6), { x: -64, y: B + 12, z: -70, ry: 0.9 });
+        // the fire side: basalt columns, a black fortress with burning windows, the volcano, lava falls
+        const col = k.mat({ color: '#241c1e', roughness: 0.75, flatShading: true });
+        for (let i = 0; i < 40; i++) { const a = 0.15 + R() * 3, r = 20 + R() * 50, h = 1 + R() * 7; P.add(col, new THREE.CylinderGeometry(1.1, 1.1, h, 6), { x: Math.sin(a) * r, y: B + h / 2, z: -Math.cos(a) * r }); if (i % 4 === 0) G.glows.push([Math.sin(a) * r, B + 0.4, -Math.cos(a) * r, '#ff6a1a', 3]); }
+        const fort = k.mat({ map: facadeTex(k, { base: '#2a2024', rows: 8, cols: 4, kind: 'pointed', lit: 0.7, light: '#ff8a2a', win: '#120c0e', seed: 5 }), roughness: 0.7, emissive: '#ffffff', emissiveIntensity: 0.5 });
+        fort.emissiveMap = fort.map;
+        for (const [x, z, w, h] of [[38, -56, 8, 18], [46, -60, 5, 26], [31, -61, 5, 22], [42, -50, 4, 12]]) { P.add(fort, box(w, h, w, x, B, z)); P.add(col, new THREE.ConeGeometry(w * 0.75, h * 0.4, 4).rotateY(Math.PI / 4), { x, y: B + h + h * 0.2, z }); }
+        P.add(fire, new THREE.ConeGeometry(36, 44, 12, 3, true), { x: 56, y: B + 16, z: -118 });
+        P.add(lavaM, new THREE.CylinderGeometry(6, 6, 0.4, 16), { x: 56, y: B + 37.8, z: -118 });
+        G.glows.push([56, B + 40, -118, '#ff4a0a', 30], [56, B + 46, -118, '#ff8a2a', 18]);
+        for (const [x, z, ry] of [[66, -64, -0.9], [24, -88, -0.2]]) P.add(lavaM, new THREE.CylinderGeometry(4, 6, 22, 12, 1, true, -0.6, 1.2), { x, y: B + 11, z, ry });
+        for (let i = 0; i < 40; i++) G.glows.push([8 + R() * 60, B + R() * 16, -10 - R() * 70, '#ffa040', 1.2]);
+        for (let i = 0; i < 40; i++) G.glows.push([-8 - R() * 60, B + R() * 14, -10 - R() * 70, '#c8ecff', 1.2]);
+        G.tick.push((t) => { flow.offset.y = -t * 0.12; });
+      },
+    },
+
+    // The top of a clock tower in a city of brass at sunset, for the Clockwork set: the great
+    // clock face beside the table, gears as tall as houses turning, airships drifting past and
+    // spires and chimneys below.
+    clocktower: {
+      outdoor: true, fog: { color: '#c8906a', density: 0.0026 },
+      sky: { stops: ['#2a2048', '#7a4a6a', '#e8865a', '#ffd298'], haze: '#f0b080', below: '#7a5440', clouds: 16, cloud: '#ffd8b0', sun: { az: -38, el: 6, size: 13, color: '#ffb060', glow: '#ff9a50' },
+        far(g, W, HY) {
+          // the far city: spires, domes and chimneys in the haze, smoke rising
+          const R = rng(29);
+          g.fillStyle = '#8a5a4a';
+          for (let x = 0; x < W; x += 6 + R() * 18) { const h = 8 + R() * 30, w = 6 + R() * 16; g.fillRect(x, HY - h, w, h + 2); if (R() < 0.3) { g.beginPath(); g.moveTo(x, HY - h); g.lineTo(x + w / 2, HY - h - 20 - R() * 30); g.lineTo(x + w, HY - h); g.fill(); } if (R() < 0.15) glowAt(g, x + w / 2, HY - h - 30, 30, '#d8b8a0', 0.25); }
+          g.fillStyle = vgrad(g, HY - 40, HY + 4, ['rgba(240,176,128,0)', 'rgba(240,176,128,0.7)']); g.fillRect(0, HY - 40, W, 44);
+        } },
+      build(k, P, G, group) {
+        const B = G.y, S = B - 34, R = rng(191);
+        const brass = k.mat({ color: '#c8964a', roughness: 0.3, metalness: 0.9, envMapIntensity: 0.8 });
+        const copper = k.mat({ color: '#b86a3e', roughness: 0.35, metalness: 0.85 }), iron = k.mat({ color: '#3a3430', roughness: 0.5, metalness: 0.7 });
+        // the city far below: brick and copper roofs, spires, chimneys
+        const brick = k.mat({ map: facadeTex(k, { base: '#8a4a34', rows: 10, cols: 4, kind: 'pointed', lit: 0.4, light: '#ffc870', win: '#2a1a14', seed: 3 }), roughness: 0.85, emissive: '#ffffff', emissiveIntensity: 0.35 });
+        brick.emissiveMap = brick.map;
+        const roof = k.mat({ color: '#4a6a5a', roughness: 0.6, metalness: 0.4 });
+        P.add(k.mat({ color: '#4a3028', roughness: 1 }), ground(k, null, 165, S, 20));
+        for (let i = 0; i < 120; i++) {
+          const a = R() * TAU, r = 36 + Math.pow(R(), 0.8) * 110, x = Math.sin(a) * r, z = -Math.cos(a) * r, h = 8 + R() * 22, w = 4 + R() * 5;
+          block(P, brick, roof, x, S, z, w, h, w, R());
+          if (R() < 0.3) P.add(roof, new THREE.ConeGeometry(w * 0.6, 8 + R() * 10, 6), { x, y: S + h + 5, z });
+          else if (R() < 0.4) { P.add(iron, new THREE.CylinderGeometry(0.5, 0.6, 6, 8), { x: x + w * 0.3, y: S + h + 3, z }); }
+          if (R() < 0.25) G.glows.push([x, S + h + 1, z, '#ffc070', 2.6]);
+        }
+        // the tower under the table, with brass bands
+        P.add(k.mat({ map: facadeTex(k, { base: '#9a5a40', rows: 14, cols: 6, kind: 'pointed', lit: 0.5, light: '#ffd080', win: '#2a1a14', seed: 9, trim: '#c8964a' }), roughness: 0.8 }), new THREE.CylinderGeometry(13, 15, 40, 12, 1, true), { y: B - 20.6 });
+        // the great clock face on its own tower to the left, its hands keeping time
+        const CX = -22, CZ = -30, CY = B + 16;
+        P.add(brick, box(16, 34, 10, CX, B - 6, CZ - 1));
+        P.add(roof, new THREE.ConeGeometry(12, 14, 4).rotateY(Math.PI / 4), { x: CX, y: B + 35, z: CZ - 1 });
+        const dial = k.tex(512, 512, (g, w) => {
+          const c = w / 2; g.fillStyle = '#f4ead0'; g.beginPath(); g.arc(c, c, c - 4, 0, TAU); g.fill();
+          g.strokeStyle = '#3a2a1a'; g.lineWidth = 10; g.stroke();
+          g.fillStyle = '#3a2a1a'; g.font = '600 52px Cinzel, Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+          ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'].forEach((n, i) => { const a = (i / 12) * TAU - Math.PI / 2; g.fillText(n, c + Math.cos(a) * (c - 62), c + Math.sin(a) * (c - 62)); });
+          for (let i = 0; i < 60; i++) { const a = (i / 60) * TAU; g.lineWidth = i % 5 ? 2 : 5; g.beginPath(); g.moveTo(c + Math.cos(a) * (c - 18), c + Math.sin(a) * (c - 18)); g.lineTo(c + Math.cos(a) * (c - 30), c + Math.sin(a) * (c - 30)); g.stroke(); }
+        });
+        P.add(k.mat({ map: dial, roughness: 0.5, emissive: '#ffe0a0', emissiveMap: dial, emissiveIntensity: 0.4 }), new THREE.CircleGeometry(6.4, 48), { x: CX, y: CY, z: CZ + 4.05 });
+        P.add(brass, new THREE.TorusGeometry(6.6, 0.4, 8, 48), { x: CX, y: CY, z: CZ + 4.1 });
+        const hand = (len, w) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, len, 0.15).translate(0, len / 2 - 0.4, 0), iron); m.position.set(CX, CY, CZ + 4.3); group.add(m); return m; };
+        const hour = hand(3.8, 0.45), min = hand(5.4, 0.3);
+        // gears as tall as houses, turning, on the right
+        const gearGeo = (r, teeth, hole) => {
+          const s = new THREE.Shape();
+          for (let i = 0; i < teeth * 4; i++) { const a = (i / (teeth * 4)) * TAU, rr = (i % 4 < 2) ? r : r * 0.88; i ? s.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : s.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+          for (let i = 0; i < 6; i++) { const a = (i / 6) * TAU + 0.26, h2 = new THREE.Path(); h2.absarc(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.55, r * hole, 0, TAU, true); s.holes.push(h2); }
+          return new THREE.ExtrudeGeometry(s, { depth: 0.8, bevelEnabled: false, curveSegments: 6 }).translate(0, 0, -0.4);
+        };
+        const gears = [[20, B + 12, -32, 11, 30, 1], [32, B + 4, -26, 7, 20, -1.5], [27, B + 26, -38, 6, 16, -1.85], [-38, B + 24, -34, 5, 14, 2]].map(([x, y, z, r, n, sp]) => {
+          const m = new THREE.Mesh(gearGeo(r, n, 0.22), r > 8 ? brass : copper); m.position.set(x, y, z); m.rotation.y = x > 0 ? -0.5 : 0.5; group.add(m); return [m, sp];
+        });
+        // airships drifting past: a striped envelope, a gondola and a turning propeller
+        const env = k.mat({ map: k.tex(256, 64, (g, w, h) => { for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#c8a878' : '#8a2a22'; g.fillRect(0, (i * h) / 8, w, h / 8 + 1); } }), roughness: 0.7 });
+        const ships = [[-50, B + 30, -70, 1], [40, B + 42, -90, 0.8], [-10, B + 50, -120, 0.6]].map(([x, y, z, s], i) => {
+          const sh = new THREE.Group(), p2 = Parts();
+          p2.add(env, new THREE.SphereGeometry(4, 24, 12).scale(2.4, 1, 1));
+          p2.add(copper, box(4, 1.4, 1.6, 0, -5.6, 0));
+          p2.add(iron, new THREE.CylinderGeometry(0.08, 0.08, 1.8, 4), { x: -1.4, y: -4.6 }).add(iron, new THREE.CylinderGeometry(0.08, 0.08, 1.8, 4), { x: 1.4, y: -4.6 });
+          p2.add(brass, new THREE.ConeGeometry(1.6, 3, 4).rotateZ(Math.PI / 2), { x: -10, y: 0, s: [1, 1, 0.2] });
+          p2.build(sh);
+          sh.position.set(x, y, z); sh.scale.setScalar(s); group.add(sh);
+          G.glows.push([x, y - 5.6 * s, z, '#ffd080', 3]);
+          return [sh, x, i];
+        });
+        G.tick.push((t) => {
+          const h = (t / 60) % 12;
+          min.rotation.z = -((t / 10) % 60) / 60 * TAU; hour.rotation.z = -h / 12 * TAU - 1.2;
+          for (const [m, sp] of gears) m.rotation.z = t * 0.06 * sp;
+          for (const [sh, x, i] of ships) sh.position.x = x + Math.sin(t * 0.03 + i * 2) * 14;
+        });
+      },
+    },
+
+    // A rooftop in a city of towers on a rainy night, for Neon City: wet tiles shining, signs in
+    // pink and blue light, a train gliding round on its high track and rain falling.
+    neonroof: {
+      outdoor: true, fog: { color: '#1a1030', density: 0.004 },
+      sky: { stops: ['#05040e', '#0e0a24', '#2a1640', '#4a2050'], haze: '#5a2a5a', below: '#100c1a',
+        far(g, W, HY) {
+          // a wall of far towers with lit windows and neon, under the glow of the clouds
+          const R = rng(53);
+          for (let x = 0; x < W; x += 8 + R() * 22) {
+            const h = 30 + R() * 120, w = 10 + R() * 26; g.fillStyle = '#120c22'; g.fillRect(x, HY - h, w, h + 2);
+            for (let i = 0; i < h / 5; i++) if (R() < 0.35) { g.fillStyle = rgba(R() < 0.5 ? '#ff5ac8' : R() < 0.5 ? '#4ae8ff' : '#ffd8a0', 0.5 + R() * 0.5); g.fillRect(x + R() * (w - 3), HY - h + i * 5, 2, 2); }
+          }
+          for (let i = 0; i < 8; i++) glowAt(g, R() * W, HY - 140 - R() * 80, 200, i % 2 ? '#ff4ab8' : '#3ad8ff', 0.12);
+        } },
+      build(k, P, G, group) {
+        const B = G.y, S = B - 60, R = rng(201);
+        // the city round the roof: towers of dark glass with lit windows, neon on their faces
+        const glass = ['#2a2440', '#1e2a40', '#2a1e34'].map((b, i) => { const m = k.mat({ map: facadeTex(k, { base: b, rows: 50, cols: 8, kind: 'rect', lit: 0.4, seed: i * 5 + 1, light: ['#ff8ad8', '#8ae8ff', '#ffe0b0'][i], win: '#0c0a16', w: 128, h: 1024 }), roughness: 0.25, metalness: 0.5, emissive: '#ffffff', emissiveIntensity: 0.6 }); m.emissiveMap = m.map; return m; });
+        const roofM = k.mat({ color: '#18141e', roughness: 0.4 });
+        const neon = ['#ff3ab8', '#3ae0ff', '#b85aff', '#ffd040'];
+        for (let i = 0; i < 70; i++) {
+          const a = (i / 70) * TAU + R() * 0.06, r = 30 + R() * 80, x = Math.sin(a) * r, z = -Math.cos(a) * r, h = 50 + R() * 90, w = 7 + R() * 9;
+          block(P, glass[i % 3], roofM, x, S, z, w, h, w, a);
+          if (R() < 0.6) { const c = neon[i % 4]; P.add(k.glowMat(c, 1.6), box(w * 0.9, 0.35, 0.35, 0, 0, 0), { x: x - Math.sin(a) * w * 0.55, y: S + h - 4 - R() * 30, z: z + Math.cos(a) * w * 0.55, ry: -a }); }
+          if (R() < 0.5) G.glows.push([x, S + h + 1.5, z, R() < 0.5 ? '#ff4a6a' : '#ffffff', 2.4]);
+        }
+        // signs on the nearest towers: a knight, a crown, a star, in glowing tubes
+        const signTex = (draw, c) => k.tex(256, 256, (g) => { g.fillStyle = '#08060e'; g.fillRect(0, 0, 256, 256); g.strokeStyle = c; g.lineWidth = 8; g.shadowColor = c; g.shadowBlur = 24; g.lineJoin = 'round'; draw(g, 128, 128); g.strokeRect(14, 14, 228, 228); });
+        [['knight', '#ff4ac8', -30, -36, 0.5], ['king', '#3ae0ff', 32, -40, -0.5], ['star', '#ffd040', 46, -10, -1.2], ['tile', '#b85aff', -46, -12, 1.2]].forEach(([s, c, x, z, ry]) => {
+          const t = signTex(SIGN[s], c);
+          P.add(k.own(new THREE.MeshBasicMaterial({ map: t, toneMapped: false, color: new THREE.Color('#ffffff').multiplyScalar(1.4) })), new THREE.PlaneGeometry(9, 9), { x, y: B + 14, z, ry });
+          P.add(roofM, box(10, 10, 0.6, 0, -0.5, -0.4), { x, y: B + 9, z, ry });
+          G.glows.push([x, B + 14, z, c, 10]);
+        });
+        // the roof itself: wet dark tiles that catch the light, a parapet, vents and antennas
+        P.add(k.mat({ map: k.tile(256, 256, (g, w, h) => { courses(g, w, h, '#1e1a26', 'rgba(0,0,0,0.5)', 4, 4, 7, 0.1); }), roughness: 0.18, metalness: 0.4, envMapIntensity: 1 }), ground(k, null, 22, B - 0.05, 4));
+        const steel = k.mat({ color: '#4a4a58', roughness: 0.4, metalness: 0.8 });
+        for (let i = 0; i < 10; i++) { const a = R() * TAU, r = 15 + R() * 5; P.add(steel, box(1.6 + R() * 2, 1 + R() * 2, 1.6 + R() * 2, Math.sin(a) * r, B, -Math.cos(a) * r)); }
+        P.add(steel, new THREE.CylinderGeometry(0.1, 0.16, 14, 6), { x: 14, y: B + 7, z: -14 });
+        G.glows.push([14, B + 14.2, -14, '#ff3a3a', 3]);
+        P.add(k.mat({ color: '#2a2434', roughness: 0.6 }), new THREE.CylinderGeometry(22, 22, 70, 32, 1, true), { y: B - 35.2 });
+        // the train track high round the roofs, and the train gliding along it
+        const TR = 42, TY = B + 8;
+        P.add(steel, new THREE.TorusGeometry(TR, 0.5, 6, 128).rotateX(Math.PI / 2).scale(1, 1.6, 1), { y: TY - 0.9 });
+        P.add(k.glowMat('#3ae0ff', 1.4), new THREE.TorusGeometry(TR, 0.08, 4, 128).rotateX(Math.PI / 2), { y: TY - 0.2 });
+        for (let i = 0; i < 16; i++) { const a = (i / 16) * TAU; P.add(steel, new THREE.CylinderGeometry(0.6, 0.8, TY - S, 8), { x: Math.sin(a) * TR, y: (TY + S) / 2 - 1, z: -Math.cos(a) * TR }); }
+        const train = new THREE.Group(), tp = Parts(), white = k.mat({ color: '#e8eaf2', roughness: 0.25, metalness: 0.4 });
+        for (let c = 0; c < 4; c++) {
+          const a = -c * 0.115;
+          tp.add(white, new THREE.CapsuleGeometry(1, 3.2, 4, 12).rotateZ(Math.PI / 2), { x: Math.sin(a) * TR, y: TY + 0.6, z: -Math.cos(a) * TR, ry: -a });
+          tp.add(k.glowMat('#ff4ac8', 1.5), box(4.2, 0.18, 2.06, 0, -0.2, 0), { x: Math.sin(a) * TR, y: TY + 0.6, z: -Math.cos(a) * TR, ry: -a });
+        }
+        tp.build(train); group.add(train);
+        // rain: streaks falling through the light, looped
+        const rp = [];
+        for (let i = 0; i < 1600; i++) { const a = R() * TAU, r = 3 + Math.sqrt(R()) * 40, x = Math.sin(a) * r, z = -Math.cos(a) * r, y = B + R() * 40; rp.push(x, y, z, x + 0.05, y - 1.1, z); }
+        const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.Float32BufferAttribute(rp, 3));
+        const rain = new THREE.LineSegments(rg, k.own(new THREE.LineBasicMaterial({ color: '#a8b8e8', transparent: true, opacity: 0.32, depthWrite: false })));
+        group.add(rain);
+        G.tick.push((t) => { train.rotation.y = -t * 0.08; rain.position.y = -((t * 22) % 10) + 5; });
+      },
+    },
+
+    // A floating citadel between day and night, for Light and Void: islands hanging in the sky
+    // with waterfalls running off them, white towers on the side of light, black crystal on the
+    // side of the void, and a great ring of light turning ahead.
+    citadel: {
+      outdoor: true, fog: { color: '#8a6a9a', density: 0.0011 },
+      sky: { stops: ['#06041a', '#221e5e', '#7a6aae', '#f4d4a4'], haze: '#d8c0b8', below: '#4a3a6a', clouds: 12, cloud: '#fff0e0', stars: 700, sun: { az: -70, el: 14, size: 12, color: '#fff0c8', glow: '#ffd890' },
+        far(g, W, HY, u) {
+          // the void: the right half of the sky darkens to violet and black
+          const x0 = u(0), x1 = u(60), x2 = u(178), grd = g.createLinearGradient(x0, 0, x1, 0);
+          grd.addColorStop(0, 'rgba(16,8,40,0)'); grd.addColorStop(1, 'rgba(16,8,40,0.82)');
+          g.fillStyle = grd; g.fillRect(Math.min(x0, x2), 0, Math.abs(x0 - x2), HY);
+          for (const dx of [-W, 0, W]) glowAt(g, u(-70) + dx, HY * 0.75, 600, '#ffc870', 0.4);
+          for (let i = 0; i < 6; i++) glowAt(g, u(40 + i * 22), HY * (0.3 + (i % 3) * 0.15), 180, '#8a3aff', 0.18);
+          // clouds below the islands, gold on the light side
+          const R = rng(77);
+          for (let i = 0; i < 120; i++) { const x = R() * W, y = HY - 4 + R() * 30; g.fillStyle = rgba('#fff0e0', 0.08 + R() * 0.12); g.beginPath(); g.ellipse(x, y, 40 + R() * 90, 6 + R() * 10, 0, 0, TAU); g.fill(); }
+        } },
+      build(k, P, G, group) {
+        const B = G.y, R = rng(211);
+        const grass = k.mat({ map: k.tile(256, 256, (g, w, h) => speckle(g, w, h, '#7ab86a', '#4a8a4a', '#c8e8a0', 2400, 6)), roughness: 0.9 });
+        const rockM = peakMat(k, '#6a5a6a', '#7ab86a', 0.06, { envMapIntensity: 0.2 });
+        // our island: grass on top, rock hanging below
+        P.add(grass, ground(k, null, 24, B - 0.05, 6));
+        P.add(rockM, new THREE.ConeGeometry(24, 40, 14, 4, true).rotateX(Math.PI), { y: B - 20.2 });
+        // islands all round at different heights, with waterfalls off their edges
+        const falls = k.tile(64, 256, (g, w, h) => { g.fillStyle = '#b8e0ff'; g.fillRect(0, 0, w, h); const R2 = rng(5); for (let i = 0; i < 90; i++) { g.fillStyle = rgba('#ffffff', 0.3 + R2() * 0.6); g.fillRect(R2() * w, R2() * h, 2 + R2() * 4, 14 + R2() * 40); } }, [1, 3]);
+        const fallM = k.own(new THREE.MeshBasicMaterial({ map: falls, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.DoubleSide }));
+        const isles = [[-40, 6, -60, 12], [44, -4, -66, 10], [-70, 18, -10, 9], [66, 14, -6, 8], [-20, 26, -110, 11], [30, 30, -120, 9], [-60, -10, 40, 10], [60, -6, 46, 9]];
+        for (const [x, y, z, r] of isles) {
+          P.add(grass, new THREE.CylinderGeometry(r, r, 0.6, 16), { x, y: B + y, z });
+          P.add(rockM, new THREE.ConeGeometry(r, r * 1.8, 10, 3, true).rotateX(Math.PI), { x, y: B + y - r * 0.9 - 0.3, z });
+          P.add(fallM, new THREE.PlaneGeometry(r * 0.35, 40), { x: x + r * 0.35, y: B + y - 20, z: z - r * 0.94 * Math.sign(z) });
+          G.glows.push([x + r * 0.35, B + y - 40, z - r * 0.94 * Math.sign(z || -1), '#ffffff', 8]);
+        }
+        // the side of light: white towers with gold roofs on the islands to the left
+        const whiteM = k.mat({ color: '#f4f0e8', roughness: 0.4 }), goldM = k.mat({ color: '#e8c070', roughness: 0.25, metalness: 0.9 });
+        for (const [x, y, z] of [[-40, 6, -60], [-70, 18, -10], [-20, 26, -110]]) for (let i = 0; i < 3; i++) {
+          const dx = (i - 1) * 3.2, h = 8 + (i === 1 ? 8 : R() * 4);
+          P.add(whiteM, new THREE.CylinderGeometry(1.2, 1.4, h, 12), { x: x + dx, y: B + y + h / 2, z });
+          P.add(goldM, new THREE.ConeGeometry(1.7, 4, 12), { x: x + dx, y: B + y + h + 2, z });
+          G.glows.push([x + dx, B + y + h * 0.6, z + 1.3, '#fff0c0', 2.4]);
+        }
+        // the side of the void: black crystal spires with violet light on the right
+        const voidM = k.mat({ color: '#14101e', roughness: 0.12, metalness: 0.4, emissive: '#5a2aa8', emissiveIntensity: 0.35, flatShading: true });
+        for (const [x, y, z] of [[44, -4, -66], [66, 14, -6], [30, 30, -120]]) for (let i = 0; i < 4; i++) {
+          const h = 6 + R() * 10; P.add(voidM, new THREE.OctahedronGeometry(1, 0), { x: x + (R() - 0.5) * 8, y: B + y + h * 0.45, z: z + (R() - 0.5) * 6, s: [1.4, h * 0.5, 1.4], rz: (R() - 0.5) * 0.4 });
+          G.glows.push([x, B + y + h, z, '#a85aff', 4]);
+        }
+        // a planet hanging in the void
+        const planet = new THREE.Mesh(new THREE.SphereGeometry(16, 48, 32), k.own(new THREE.MeshStandardMaterial({ color: '#5a3a8a', emissive: '#3a1a6a', emissiveIntensity: 0.8, roughness: 1, fog: false })));
+        planet.position.copy(dir(52, 30, 150)); planet.renderOrder = -7; group.add(planet);
+        // the ring of light ahead: gold on one side, violet on the other, a swirl turning inside
+        const ring = new THREE.Group();
+        ring.add(new THREE.Mesh(new THREE.TorusGeometry(16, 1, 12, 96, Math.PI), k.mat({ color: '#f4d890', roughness: 0.2, metalness: 0.9, emissive: '#c89a3a', emissiveIntensity: 0.9 })));
+        const back = new THREE.Mesh(new THREE.TorusGeometry(16, 1, 12, 96, Math.PI), k.mat({ color: '#2a1a4a', roughness: 0.2, metalness: 0.6, emissive: '#7a3aff', emissiveIntensity: 0.9 }));
+        back.rotation.z = Math.PI; ring.add(back);
+        const swirl = new THREE.Mesh(new THREE.CircleGeometry(15, 64), k.own(new THREE.MeshBasicMaterial({ map: k.tex(512, 512, (g, w) => { const c = w / 2; for (let i = 0; i < 160; i++) { const a = i * 0.21, r = (i / 160) * c; g.strokeStyle = rgba(i % 2 ? '#ffe8b0' : '#b88aff', 0.3); g.lineWidth = 6; g.beginPath(); g.arc(c, c, r, a, a + 1.6); g.stroke(); } const grd = g.createRadialGradient(c, c, 0, c, c, c); grd.addColorStop(0, 'rgba(255,255,255,0.9)'); grd.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = grd; g.fillRect(0, 0, w, w); }), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })));
+        ring.add(swirl);
+        ring.position.set(0, B + 24, -72); group.add(ring);
+        G.glows.push([0, B + 24, -72, '#fff0d0', 18]);
+        G.tick.push((t) => { swirl.rotation.z = -t * 0.25; ring.rotation.z = Math.sin(t * 0.1) * 0.15; falls.offset.y = t * 0.4; });
+      },
+    },
   });
 
   // ------------------------------------------------------------------ the dinosaur, forest and Viking suites
@@ -2824,7 +3145,7 @@ function ChacklateLandmarks(THREE, K, H) {
   function build(id, o) {
     const V = VISTAS[id];
     if (!V) return null;
-    const k = Kit(o), P = Parts(), group = new THREE.Group(), G = { y: o.groundY, glows: [], anim: [] };
+    const k = Kit(o), P = Parts(), group = new THREE.Group(), G = { y: o.groundY, glows: [], anim: [], tick: [] };
     sky(k, V.sky, group);
     V.build(k, P, G, group);
     P.build(group);
@@ -2843,7 +3164,7 @@ function ChacklateLandmarks(THREE, K, H) {
       group.add(water);
     }
     // moving pictures (the LED screens): each steps to its next frame every few seconds
-    const update = G.anim.length ? (t) => BB.step(G.anim, t) : null;
+    const update = G.anim.length || G.tick.length ? (t) => { if (G.anim.length) BB.step(G.anim, t); for (const f of G.tick) f(t); } : null;
     if (update) update(0);
     return {
       group, outdoor: !!V.outdoor, fog: V.fog, update,
