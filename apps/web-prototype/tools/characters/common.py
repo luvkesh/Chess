@@ -352,3 +352,37 @@ def bird(C, head_c=(0, 0.22, 0), head_r=(0.32, 0.3, 0.3), body_w=0.66, neck=0.32
 def bpy_mat(name):
     import bpy
     return bpy.data.materials[name]
+
+
+def lash(C, ec, er, col='#3a2420', cover=0.62):
+    """A soft dark lash line along the upper lid of each eye (v3 look)."""
+    f = S.sphere(ec, er + 0.02).sub(S.sphere(ec, er - 0.004)).inter(half((ec[0], ec[1] + er * cover, ec[2]), (0.1, 1, 0.25))).mirror()
+    C.region(f, col, 0.005)
+
+
+def little_mouth(C, y, w=0.06, rise=0.03, nose_y=None, col='#7a3a4c', r=0.012):
+    """A small closed smile at height y, with a philtrum up to the nose if nose_y is given."""
+    f = crease(C.shape, (0, y, 0), w, rise, r=r, depth=0.1)
+    if nose_y is not None:
+        f = S.union(f, S.tube([(0, nose_y, S.surf_z(C.shape, 0, nose_y) - 0.002), (0, y, S.surf_z(C.shape, 0, y) - 0.002)], r * 0.75, r * 0.75))
+    C.sub(f, 0.006)
+    C._mouthf = (f, col)
+    return f
+
+
+def little_mouth_region(C):
+    f, col = C._mouthf
+    C.region(f.grow(0.005), col, 0.004)
+
+
+def chubby(w=0.46, d=0.36, paws=True, top=-0.08):
+    """The v3 body: no neck. A round, plump tummy that starts right under the chin and is nearly as
+    wide as the head, with two little paws held at the chest. (A thin neck or narrow body reads as
+    underfed: the person rejected it.)"""
+    belly = S.ell((0, top - 0.5, -0.03), (w, 0.52, d))
+    lower = S.ell((0, top - 0.9, -0.03), (w * 1.08, 0.5, d * 1.05))
+    f = S.union(belly, lower, k=0.1)
+    if paws:
+        f = f.add(S.ell((w * 0.42, top - 0.3, d * 0.78), (0.085, 0.1, 0.08), rot=(0.3, 0, 0.25)).mirror(), 0.035)
+    return f
+
