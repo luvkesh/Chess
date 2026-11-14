@@ -377,7 +377,7 @@ def fur(o, group, mat_name, length=0.03, count=40000, children=12, align=(0, -0.
     return ps
 
 
-def eye(name, c, r, look=(0, 0, 1), iris='#6a3a1c', iris_r=0.62, pupil_r=0.27, tilt=0.0, slit=False):
+def eye(name, c, r, look=(0, 0, 1), iris='#6a3a1c', iris_r=0.62, pupil_r=0.27, tilt=0.0, slit=False, sclera='#f4efe8'):
     """A living eye: a sclera ball painted with a streaked iris and big pupil, under a clear,
     wet cornea that catches the lights."""
     m, nt, out = _mat(name + 'Ball')
@@ -400,11 +400,11 @@ def eye(name, c, r, look=(0, 0, 1), iris='#6a3a1c', iris_r=0.62, pupil_r=0.27, t
     cr.elements[0].position = 0.0
     cr.elements[0].color = (0.004, 0.003, 0.003, 1)
     cr.elements[1].position = 1.0
-    cr.elements[1].color = hexcol('#f4efe8')
+    cr.elements[1].color = hexcol(sclera)
     if slit:
         pupil_r = 0.06
     for pos, col in ((pupil_r, (0.006, 0.004, 0.004, 1)), (pupil_r + 0.03, light), (iris_r * 0.78, ic),
-                     (iris_r * 0.97, dark), (iris_r + 0.035, hexcol('#efe6dc'))):
+                     (iris_r * 0.97, dark), (iris_r + 0.035, hexcol(sclera))):
         e = cr.elements.new(pos)
         e.color = col
     nt.links.new(vx.outputs['Value'], ring.inputs['Fac'])
@@ -456,7 +456,7 @@ def eye(name, c, r, look=(0, 0, 1), iris='#6a3a1c', iris_r=0.62, pupil_r=0.27, t
     nt.links.new(sep.outputs['Z'], front.inputs[0])
     sel = nt.nodes.new('ShaderNodeMix')
     sel.data_type = 'RGBA'
-    sel.inputs['A'].default_value = hexcol('#efe6dc')
+    sel.inputs['A'].default_value = hexcol(sclera)
     nt.links.new(front.outputs[0], sel.inputs['Factor'])
     nt.links.new(mixc.outputs['Result'], sel.inputs['B'])
     b = nt.nodes.new('ShaderNodeBsdfPrincipled')
