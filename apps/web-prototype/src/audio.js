@@ -189,6 +189,26 @@ function ChacklateAudio() {
       s.connect(f).connect(g).connect(sfxBus); s.start(t, 0, 0.3);
     },
     tick(t) { noise(t, 0.01, 6000, 3, 0.1, 'bandpass'); },
+    // The beaten king falling (scene.js): each knock is a real take from the set's pack, as heavy
+    // as the part that hits: his base landing (the king's own weight), his crown knocking the
+    // board (lighter and higher), the small taps of a piece rocking still; and a soft rumble of
+    // wood or stone while he rolls, through the pack's own felt.
+    fall(t, o) {
+      const v = Math.max(0, Math.min(1, o.v || 0.5));
+      if (o.kind === 'land') land(t, 6, 0.35 + 0.75 * v, 0.9 + 0.08 * (1 - v));
+      else if (o.kind === 'knock') land(t, 3, 0.3 + 0.6 * v, 1.12);
+      else if (o.kind === 'tap') land(t, 1, 0.12 + 0.4 * v, 1.2 + 0.2 * (1 - v));
+      else if (o.kind === 'roll') {
+        const p = PACKS[pack] || PACKS.wood, d = Math.max(0.2, Math.min(2.5, o.dur || 0.5));
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = Math.min(900, p.felt * 0.3); lp.connect(sfxBus);
+        nb = nb || noiseBuf(1);
+        const s = ctx.createBufferSource(); s.buffer = nb; s.loop = true;
+        const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.9; f.frequency.setValueAtTime(320, t); f.frequency.linearRampToValueAtTime(190, t + d);
+        const g = ctx.createGain(), peak = 0.05 + 0.08 * v;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.06); g.gain.exponentialRampToValueAtTime(peak * 0.5, t + d * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+        s.connect(f).connect(g).connect(lp); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.05);
+      }
+    },
     correct(t) { bell(t, 1318.5, 0.5, 0.08, 3, 1); bell(t + 0.08, 1975.5, 0.6, 0.07, 3, 1); },
     wrong(t) { bell(t, 392, 0.35, 0.07, 1.5, 1.5); bell(t + 0.1, 370, 0.4, 0.06, 1.5, 1.5); },
     win(t) { [523.25, 659.25, 783.99, 987.77, 1174.66].forEach((hz, i) => bell(t + i * 0.09, hz, 1.8, 0.09, 1, 1.1)); bell(t + 0.5, 261.63, 2.2, 0.08, 1, 0.8); },

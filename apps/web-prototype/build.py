@@ -28,6 +28,7 @@ SCRIPTS = [
     src / 'suites3d.js',
     src / 'world3d.js',
     src / 'elements3d.js',
+    src / 'fall3d.js',
     src / 'scene.js',
     src / 'xiangqi3d.js',
     src / 'art.js',

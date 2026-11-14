@@ -46,7 +46,7 @@ LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome':
 FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome': ('#4a1840', '#ff9cd8'), 'mughal': ('#0e5a52', '#9fe0cc'),
         'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'paris': ('#4a1426', '#ffb0c4'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
 # The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
-SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'scene.js')]
+SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'fall3d.js', 'scene.js')]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 # The two items each tab of the details showcase plays, one after the other. None of them is
 # the item on the tab's own medal, and no item shows twice.

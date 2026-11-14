@@ -484,6 +484,7 @@ function ChacklateScene(canvas, options) {
     placeSprite(s);
   }
   function dropSprite(s) { if (s.obj) pieceGroup.remove(s.obj); if (s.contact) fxGroup.remove(s.contact); s.obj = null; s.contact = null; dirtyShadows(); }
+  const poseQ = new THREE.Quaternion(), poseV = new THREE.Vector3();
   function placeSprite(s) {
     const o = s.obj;
     if (!o) return;
@@ -491,8 +492,21 @@ function ChacklateScene(canvas, options) {
     const lift = s.y + s.lift;
     // every sprite is placed on every frame; only a real change redraws the shadows
     const q = s.squash || 0;
-    const at = s.x + ',' + s.z + ',' + (base + lift) + ',' + s.yaw + ',' + s.tilt + ',' + s.bow + ',' + s.scale + ',' + q;
+    // a pose from the physics (the beaten king's fall): where its base is, and its turn
+    const P = s.pose;
+    const at = P ? P.p.join(',') + ',' + P.q.join(',') : s.x + ',' + s.z + ',' + (base + lift) + ',' + s.yaw + ',' + s.tilt + ',' + s.bow + ',' + s.scale + ',' + q;
     if (at !== s.placed) { s.placed = at; dirtyShadows(); }
+    if (P) {
+      // the body's frame starts at the bottom of the mesh, which may sit a hair off zero
+      const low = (P.low !== undefined ? P.low : 0);
+      poseQ.set(P.q[0], P.q[1], P.q[2], P.q[3]);
+      poseV.set(0, -low, 0).applyQuaternion(poseQ);
+      o.position.set(P.p[0] + poseV.x, base + P.p[1] + poseV.y, P.p[2] + poseV.z);
+      o.quaternion.copy(poseQ);
+      o.scale.setScalar(1);
+      if (s.contact) s.contact.visible = false;
+      return;
+    }
     o.position.set(s.x, base + lift + Math.sin(Math.abs(s.tilt)) * 0.3 * s.scale, s.z);
     // bow tips the piece toward the way it faces (capture scenes); tilt tips it sideways
     o.rotation.set(s.bow || 0, s.yaw, s.tilt || 0, 'YXZ');
@@ -1226,91 +1240,225 @@ function ChacklateScene(canvas, options) {
     else if (e.key === 'Escape' && celebrating()) calmAll();
   }, true);
 
-  // ------------------------------------------------------------------ checkmate
-  // The end of a won game is a show, not a nap. The beaten king trembles, then spins up into
-  // the air on a whirl of the victory effect, bursts with light at the top and comes crashing
-  // down onto its side with a boom: the room's (or the effect's) element strikes where it
-  // lands, a shock ring races out, and a wave runs through its army, each piece jolting as the
-  // wave passes. Then the winners jump for joy, one after another, out from their king, and the
-  // win storm begins. Kid-gentle: the king faints in style; nothing breaks. About 3.3 s, and a
-  // tap skips it.
-  // The beaten king's fall, 3.8 s: he trembles, is lifted spinning as the camera swings round
-  // him, hangs in a spotlight while the winning effect takes hold of him (ice, chocolate, stone,
-  // white heat, ink, petals...), then crashes down onto his side; the effect bursts from the
-  // landing, a shock ring runs out, and his whole army faints (and gets back up).
-  const MATE_HIT = 2600, MATE_DUR = 3800;
+  // ------------------------------------------------------------------ the beaten king
+  // The end of a won game is a show, and the beaten king never just lies down and sleeps. How
+  // it ends depends on how it was lost:
+  // - checkmate (and the variants' wins): he trembles, is lifted spinning as the camera swings
+  //   round him, hangs in a spotlight while the winning effect takes hold of him (ice,
+  //   chocolate, stone, white heat, ink, petals...), then drops;
+  // - resignation: he turns to face the winner and tips himself over, teetering on the edge of
+  //   his base before he goes;
+  // - time running out: he spins like a top running down, dizzier and dizzier, and topples.
+  // The fall itself is real physics (fall3d.js) on the piece's own shape, so every set falls
+  // its own way and nothing sinks into the board: he lands, rocks, knocks his crown on the
+  // board, rolls round about his head and settles, with a sound for each knock. Of a few ways
+  // he could fall, the one that stays clear of the other pieces and shows best is played. His
+  // army faints in a wave from where he lands (and gets back up); the winners jump for joy. Then
+  // he gets back up, hops home to his square and bows to the winner: a good game, kid-gentle.
+  // A tap skips to the end.
+  const FALL = typeof ChacklateFall !== 'undefined' ? ChacklateFall() : null;
+  const MATE_DROP = 2150;
   let mate = null, stormWait = 0;
   const vcol = () => (fx.victory && fx.victory.kind !== 'none' && fx.victory.colors && fx.victory.colors.length ? fx.victory.colors : ['#ffe6a8', '#f6c25a', '#ffffff']);
-  function startMate(k, w, onHit) {
-    const now = performance.now();
-    const fam = EL && elementsOn && animations ? stormKind() : null;
-    k.anim = { type: 'mate', start: now, dur: MATE_DUR, yaw0: k.yaw, fired: new Set(), fam, last: now };
+  // the piece's body for the physics, from its meshes (once per set and piece)
+  const bodies = new Map();
+  function bodyOf(s) {
+    const key = setId + ':' + s.piece + ':' + (fullDetail ? 'show' : 'play');
+    if (bodies.has(key)) return bodies.get(key);
+    const v = [];
+    const e = new THREE.Vector3();
+    s.obj.updateMatrix();
+    s.obj.traverse((m) => {
+      if (!m.isMesh || !m.geometry || !m.geometry.attributes.position) return;
+      // in the piece's own frame: undo the group's place and turn, keep the meshes' own
+      m.updateMatrix();
+      const pos = m.geometry.attributes.position, step = Math.max(1, Math.floor(pos.count / 5000));
+      for (let i = 0; i < pos.count; i += step) { e.fromBufferAttribute(pos, i).applyMatrix4(m.matrix); v.push(e.x, e.y, e.z); }
+    });
+    let low = Infinity;
+    for (let i = 1; i < v.length; i += 3) low = Math.min(low, v[i]);
+    const sh = v.length ? FALL.shape(v) : null;
+    if (sh) sh.low = low;
+    if (bodies.size > 24) bodies.clear();
+    bodies.set(key, sh);
+    return sh;
+  }
+  // which way he falls: a few tries, kept clear of the other pieces and the board's edge, and
+  // across the view rather than toward or away from the camera
+  function planFall(k, sh, make, o) {
+    const others = sprites.filter((s) => s !== k && !s.dead).map((s) => ({ x: s.x, z: s.z, r: 0.36, h: 1.7 }));
+    const vx = Math.sin(cam.tYaw), vz = Math.cos(cam.tYaw);
+    let best = null;
+    const n = lvl() >= 3 ? 5 : 7, a0 = Math.random() * TAU;
+    for (let i = 0; i < n; i++) {
+      const ang = a0 + (i / n) * TAU, ux = Math.sin(ang), uz = Math.cos(ang);
+      const tr = FALL.simulate(sh, make(ux, uz), { maxT: 5 });
+      const bad = FALL.clash(sh, tr, others, 4.0) + 1.2 * Math.abs(ux * vx + uz * vz) + (o && o.away ? o.away(ux, uz) : 0);
+      if (!best || bad < best.bad) best = { tr, bad, ux, uz };
+    }
+    return best;
+  }
+  function startMate(k, w, onHit, o) {
+    const now = performance.now(), reason = o && o.reason;
+    const style = reason === 'resignation' ? 'resign' : reason === 'timeout' ? 'time' : 'mate';
+    const fam = style === 'mate' && EL && elementsOn && animations ? stormKind() : null;
+    const face = w ? Math.atan2(w.x - k.x, w.z - k.z) : k.yaw;
+    const sh = FALL && k.obj ? bodyOf(k) : null;
+    const t0 = style === 'mate' ? MATE_DROP : style === 'resign' ? 650 : 1500;
+    let plan = null;
+    if (sh) {
+      const r = () => Math.random();
+      if (style === 'mate') {
+        // dropped from the spotlight, turning over as he falls
+        const q = FALL.qyaw(k.yaw);
+        plan = planFall(k, sh, (ux, uz) => {
+          const ax = [uz, 0, -ux], ws = 2 + r() * 0.9;
+          return { p: [k.x, 1.5, k.z], q: FALL.qmul(FALL.qaxis(ax, 0.1), q), v: [ux * 0.6, -0.5, uz * 0.6], w: [ax[0] * ws, (r() - 0.5) * 2.4, ax[2] * ws] };
+        });
+      } else {
+        // a push over the edge of his base: barely enough when he resigns (he teeters), a dizzy
+        // stagger when his time ran out; never toward the winner he has just turned to
+        const q = FALL.qyaw(style === 'resign' ? face : k.yaw + TAU * 2.5);
+        const fx = Math.sin(face), fz = Math.cos(face);
+        plan = planFall(k, sh, (ux, uz) => FALL.tip(sh, [k.x, 0, k.z], q, [ux, uz], style === 'resign' ? 1.03 + r() * 0.05 : 1.25 + r() * 0.2),
+          { away: (ux, uz) => Math.max(0, ux * fx + uz * fz) * 0.8 });
+      }
+    }
+    const tr = plan && plan.tr;
+    const hit = tr ? t0 + tr.firstHit * 1000 : t0 + 400;
+    const rest = tr ? t0 + tr.dur * 1000 : hit + 300;
+    const end = tr ? FALL.last(tr) : null;
+    const upAt = rest + 800, bowAt = upAt + 650, dur = bowAt + 1250;
+    k.pose = null;
+    k.anim = { type: 'mate', style, start: now, dur, t0, tr, sh, hit, rest, upAt, bowAt, end, face, home: [k.x, k.z], yaw0: k.yaw, fired: new Set(), fam, last: now, sound: o && o.sound };
     mate = { k, w, onHit, saved: { yaw: cam.tYaw, pitch: cam.tPitch, zoom: cam.tZoom, lookY: cam.tLookY, lookZ: cam.tLookZ } };
     leanIn(k.x, k.z, 0.7);
     spawn('ring', k.x, 0.06, k.z, vcol(), pn(36), { speed: -0.3 });
     clearTimeout(skipTimer); skipTimer = setTimeout(() => showSkip(true), 600);
+    return hit;
+  }
+  // the king's end-of-game pose, at once (a skip, or animations off): home, facing the winner
+  function mateHome(k, a) {
+    k.anim = null; k.pose = null; uncoat(k);
+    Object.assign(k, { x: a.home[0], z: a.home[1], y: 0, tilt: 0, bow: 0, squash: 0, scale: 1, yaw: a.face });
+    placeSprite(k);
   }
   function mateStep(s, a, ms) {
     const fire = (key, when, fn) => { if (ms >= when && !a.fired.has(key)) { a.fired.add(key); fn(); } };
     const now = performance.now(), dt = Math.min(0.05, Math.max(0, (now - a.last) / 1000)), fam = a.fam;
     a.last = now;
     const lead = mate && mate.k === s && mate.saved && !attract;
+    const say = (kind, v, d) => { if (a.sound) try { a.sound(kind, v, d); } catch (e) { /* sound is optional */ } };
     s.bow = 0; s.squash = 0; s.scale = 1;
-    if (ms < 700) {
-      const r = seg(ms, 0, 700);
-      s.tilt = 0.16 * Math.sin(ms / 15) * r; s.y = 0.08 * Math.abs(Math.sin(ms / 38)) * r; s.yaw = a.yaw0;
-      if (Math.random() < 0.6) spawn('aura', s.x + (Math.random() - 0.5) * 0.6, 0.1, s.z + (Math.random() - 0.5) * 0.6, vcol(), 1);
-    } else if (ms < 1500) {
-      const k = seg(ms, 700, 1500);
-      // the camera lifts its eyes to follow him up and swings round him
-      if (lead) { cam.tLookY = lerp(cam.tLookY, 1.15, 0.08); cam.tYaw = mate.saved.yaw + 0.55 * easeInOut(k); }
-      s.y = 1.5 * easeOut(k); s.tilt = 0.14 * Math.sin(k * TAU * 2) * (1 - k); s.yaw = a.yaw0 + TAU * 3 * easeInOut(k);
-      const ang = ms / 60;
-      spawn('aura', s.x + Math.cos(ang) * 0.55, s.y + 0.2, s.z + Math.sin(ang) * 0.55, vcol(), pn(2));
-      spawn('aura', s.x - Math.cos(ang) * 0.55, s.y + 0.6, s.z - Math.sin(ang) * 0.55, vcol(), 1);
-    } else if (ms < 2150) {
-      // the hang: barely turning, in a spotlight, as the effect takes hold of him
-      const k = seg(ms, 1500, 2150);
-      if (lead) cam.tYaw = mate.saved.yaw + 0.55 + 0.1 * easeInOut(k);
-      s.y = 1.5 + 0.08 * Math.sin(k * Math.PI); s.tilt = 0.05 * Math.sin(ms / 40) * k; s.yaw = a.yaw0 + 0.5 * Math.sin(k * Math.PI);
-      if (fam === 'burst') s.scale = 1 + 0.35 * easeIn(k);
-      if (fam === 'vortex') s.yaw = a.yaw0 + TAU * 2 * k * k;
-    } else if (ms < MATE_HIT) {
-      const k = seg(ms, 2150, MATE_HIT);
-      if (lead) cam.tYaw = mate.saved.yaw + 0.65 * (1 - 0.3 * k);
-      s.y = 1.5 * (1 - easeIn(k)); s.tilt = 1.45 * easeIn(k); s.yaw = a.yaw0 + 0.7 * easeIn(k);
-      if (fam === 'burst') s.scale = 1.35 - 0.35 * k;
+    if (ms < a.t0) {
+      s.pose = null;
+      if (a.style === 'mate') {
+        if (ms < 700) {
+          const r = seg(ms, 0, 700);
+          s.tilt = 0.16 * Math.sin(ms / 15) * r; s.y = 0.08 * Math.abs(Math.sin(ms / 38)) * r; s.yaw = a.yaw0;
+          if (Math.random() < 0.6) spawn('aura', s.x + (Math.random() - 0.5) * 0.6, 0.1, s.z + (Math.random() - 0.5) * 0.6, vcol(), 1);
+        } else if (ms < 1500) {
+          const k = seg(ms, 700, 1500);
+          // the camera lifts its eyes to follow him up and swings round him
+          if (lead) { cam.tLookY = lerp(cam.tLookY, 1.15, 0.08); cam.tYaw = mate.saved.yaw + 0.55 * easeInOut(k); }
+          s.y = 1.5 * easeOut(k); s.tilt = 0.14 * Math.sin(k * TAU * 2) * (1 - k); s.yaw = a.yaw0 + TAU * 3 * easeInOut(k);
+          const ang = ms / 60;
+          spawn('aura', s.x + Math.cos(ang) * 0.55, s.y + 0.2, s.z + Math.sin(ang) * 0.55, vcol(), pn(2));
+          spawn('aura', s.x - Math.cos(ang) * 0.55, s.y + 0.6, s.z - Math.sin(ang) * 0.55, vcol(), 1);
+        } else {
+          // the hang: barely turning, in a spotlight, as the effect takes hold of him
+          const k = seg(ms, 1500, a.t0);
+          if (lead) cam.tYaw = mate.saved.yaw + 0.55 + 0.1 * easeInOut(k);
+          s.y = 1.5 + 0.08 * Math.sin(k * Math.PI); s.tilt = 0.05 * Math.sin(ms / 40) * k; s.yaw = a.yaw0 + 0.5 * Math.sin(k * Math.PI);
+          if (fam === 'burst') s.scale = 1 + 0.35 * Math.sin(k * Math.PI);
+          if (fam === 'vortex') s.yaw = a.yaw0 + TAU * 2 * k * k;
+        }
+      } else if (a.style === 'resign') {
+        // he turns to face the winner, and sways as he makes up his mind
+        const k = seg(ms, 0, a.t0);
+        s.yaw = lerpA(a.yaw0, a.face, easeInOut(Math.min(1, k * 1.6)));
+        s.y = 0.12 * Math.sin(Math.PI * Math.min(1, k * 1.6));
+        s.tilt = 0.05 * Math.sin(k * TAU * 1.5) * k;
+      } else {
+        // the clock ran out: he spins like a top running down, wobbling wider as he slows
+        const k = seg(ms, 0, a.t0);
+        s.yaw = a.yaw0 + TAU * 2.5 * (1 - Math.pow(1 - k, 2));
+        const wob = 0.03 + 0.12 * k * k;
+        s.tilt = wob * Math.sin(ms / 70); s.bow = wob * Math.cos(ms / 70);
+        if (Math.random() < 0.3) spawn('aura', s.x + (Math.random() - 0.5) * 0.5, 0.1, s.z + (Math.random() - 0.5) * 0.5, ['#e8eefc', '#9fb6e6'], 1);
+      }
+    } else if (ms < a.upAt) {
+      // the fall, replayed from the physics
+      s.tilt = 0; s.y = 0;
+      if (a.tr) {
+        const p = FALL.pose(a.tr, (ms - a.t0) / 1000);
+        p.low = a.sh.low; s.pose = p; s.x = p.p[0]; s.z = p.p[2];
+      }
+    } else if (ms < a.bowAt) {
+      // he gets back up: rolls upright, hops home to his square, turned to the winner
+      const u = easeInOut(seg(ms, a.upAt, a.bowAt - 120));
+      if (a.end) {
+        const q = FALL.slerp(a.end.q, FALL.qyaw(a.face), u);
+        const x = lerp(a.end.p[0], a.home[0], u), z = lerp(a.end.p[2], a.home[1], u);
+        const y = Math.max(0, -FALL.lowest(a.sh, q)) + 0.35 * Math.sin(Math.PI * u);
+        s.pose = { p: [x, y, z], q, low: a.sh.low }; s.x = x; s.z = z;
+      }
+      if (ms >= a.bowAt - 120) { s.pose = null; mateHomeSoft(s, a); s.squash = 0.12 * Math.sin(Math.PI * seg(ms, a.bowAt - 120, a.bowAt)); }
     } else {
-      const e = seg(ms, MATE_HIT, MATE_DUR);
-      s.y = 0.32 * Math.abs(Math.sin(Math.PI * e * 2)) * (1 - e); s.tilt = 1.45 + 0.2 * Math.sin(e * TAU * 2) * (1 - e); s.yaw = a.yaw0 + 0.7;
-      if (fam === 'melt') s.squash = 0.3 * seg(ms, MATE_HIT, MATE_HIT + 500);
+      // and bows to the winner: a good game
+      s.pose = null; mateHomeSoft(s, a);
+      const k = seg(ms, a.bowAt, a.dur);
+      s.bow = 0.42 * (k < 0.35 ? easeInOut(k / 0.35) : k < 0.62 ? 1 : 1 - easeInOut((k - 0.62) / 0.38));
     }
     // the winning effect takes hold of him: a coat of it while he rises and hangs, and its
     // particles round him; ice and stone break off as he lands, the rest fade
     if (fam) {
-      const k = seg(ms, 700, 2150);
-      if (ms >= 700 && ms < MATE_HIT) EL.fate(fam, 'hold', s.x, s.y, s.z, k, dt);
-      coat(s, fam, ms < MATE_HIT ? coatK(fam, k) : fam === 'stone' || fam === 'freeze' ? 0 : coatK(fam, 1) * (1 - seg(ms, MATE_HIT + 300, MATE_DUR - 60)));
+      const k = seg(ms, 700, a.t0);
+      const at = s.pose ? s.pose.p : [s.x, s.y, s.z];
+      if (ms >= 700 && ms < a.hit) EL.fate(fam, 'hold', at[0], at[1], at[2], k, dt);
+      coat(s, fam, ms < a.hit ? coatK(fam, k) : fam === 'stone' || fam === 'freeze' ? 0 : coatK(fam, 1) * (1 - seg(ms, a.hit + 300, a.hit + 1300)));
     }
-    fire('spot', 1450, () => { if (EL && animations) EL.spot(s.x, s.z); });
-    fire('flare', 1500, () => {
-      spawn('firework', s.x, 2.4, s.z, vcol(), pn(70));
-      spawn('ring', s.x, 2, s.z, vcol(), pn(30), { speed: 0.7 });
-      bump(0.03);
-    });
-    fire('pulse', 1850, () => spawn('ring', s.x, s.y, s.z, vcol(), pn(24), { speed: 0.5 }));
-    fire('hit', MATE_HIT, () => {
-      spawn('ring', s.x, 0.06, s.z, vcol(), pn(70), { speed: 1.8 });
-      spawn('ring', s.x, 0.08, s.z, vcol(), pn(40), { speed: 1.1 });
-      spawn('dust', s.x, 0.1, s.z, ['#fff2dc', '#c8a27a'], pn(50));
-      spawn('sparks', s.x, 0.4, s.z, vcol(), pn(50));
-      bump(0.14);
-      if (fam) EL.fate(fam, 'end', s.x, 0.2, s.z, 1.6, fx.victory && fx.victory.colors);
-      strikeAt(s.x, s.z, 1.3, fam);
+    if (a.style === 'mate') {
+      fire('spot', 1450, () => { if (EL && animations) EL.spot(s.x, s.z); });
+      fire('flare', 1500, () => {
+        spawn('firework', s.x, 2.4, s.z, vcol(), pn(70));
+        spawn('ring', s.x, 2, s.z, vcol(), pn(30), { speed: 0.7 });
+        bump(0.03);
+      });
+      fire('pulse', 1850, () => spawn('ring', s.x, s.y, s.z, vcol(), pn(24), { speed: 0.5 }));
+    }
+    // each knock on the board, heard (by its weight and the part that hits) and seen
+    if (a.tr) {
+      a.tr.events.forEach((e, i) => fire('ev' + i, a.t0 + e.t * 1000, () => {
+        say(e.kind, e.v);
+        if (e.v > 0.35 && ms < a.hit + 1500) { const p = s.pose ? s.pose.p : [s.x, 0, s.z]; spawn('dust', p[0], 0.05, p[2], ['#fff2dc', '#c8a27a'], pn(4 + 10 * e.v)); }
+      }));
+      a.tr.rolls.forEach((r, i) => fire('roll' + i, a.t0 + r.t * 1000, () => say('roll', r.v, r.dur)));
+    }
+    fire('hit', a.hit, () => {
+      const x = s.x, z = s.z;
+      if (a.style === 'mate') {
+        spawn('ring', x, 0.06, z, vcol(), pn(70), { speed: 1.8 });
+        spawn('ring', x, 0.08, z, vcol(), pn(40), { speed: 1.1 });
+        spawn('dust', x, 0.1, z, ['#fff2dc', '#c8a27a'], pn(50));
+        spawn('sparks', x, 0.4, z, vcol(), pn(50));
+        bump(0.14);
+        if (fam) EL.fate(fam, 'end', x, 0.2, z, 1.6, fx.victory && fx.victory.colors);
+        strikeAt(x, z, 1.3, fam);
+      } else {
+        spawn('ring', x, 0.06, z, vcol(), pn(40), { speed: 1.1 });
+        spawn('dust', x, 0.08, z, ['#fff2dc', '#c8a27a'], pn(26));
+        bump(0.07);
+      }
+      // the camera follows him down to where he will come to rest
+      if (lead && a.end) { cam.tPanX = lerp(cam.tPanX, a.end.p[0] - Math.sin(cam.tYaw) * 0.8, 0.7); cam.tPanZ = lerp(cam.tPanZ, a.end.p[2] - Math.cos(cam.tYaw) * 0.8, 0.7); }
       if (mate && mate.k === s && mate.onHit) mate.onHit();
     });
-    fire('back', 3350, mateBack);
+    fire('back', a.dur - 300, mateBack);
+    fire('up', a.bowAt - 120, () => say('land', 0.45));
   }
+  // home and turned to the winner, keeping whatever bow or squash this frame gives him
+  function mateHomeSoft(s, a) { s.x = a.home[0]; s.z = a.home[1]; s.y = 0; s.tilt = 0; s.yaw = a.face; }
   function mateBack() {
     if (!mate || !mate.saved) return;
     const sv = mate.saved;
@@ -1323,9 +1471,23 @@ function ChacklateScene(canvas, options) {
   // the wave through the beaten army, and the winners' jumps for joy
   function mateWave(k, w) {
     const now = performance.now();
+    // the line the king lies along at rest, foot to crown
+    const a = k.anim && k.anim.type === 'mate' ? k.anim : null;
+    let near = () => false;
+    if (a && a.end && a.sh && FALL) {
+      const top = FALL.rot(FALL.mat(a.end.q), [0, a.sh.h, 0]);
+      const x0 = a.end.p[0], z0 = a.end.p[2], dx = top[0], dz = top[2], L2 = dx * dx + dz * dz || 1;
+      near = (s) => {
+        const u = Math.max(0, Math.min(1, ((s.x - x0) * dx + (s.z - z0) * dz) / L2));
+        return Math.hypot(s.x - x0 - dx * u, s.z - z0 - dz * u) < 1.45;
+      };
+    }
     for (const s of sprites) {
       if (s === k || s.dead) continue;
       if (Math.sign(s.piece) === Math.sign(k.piece)) {
+        // a piece next to where the king comes to rest only flinches: fainting, it would lie
+        // across him
+        if (near(s)) { s.anim = { type: 'hop', start: now + 80, dur: 420 }; continue; }
         // the beaten army faints, in a wave out from the king, and gets back up
         s.anim = { type: 'faint', start: now + Math.hypot(s.x - k.x, s.z - k.z) * 70, dur: 2300, dir: (s.x - k.x) * Math.cos(s.yaw) - (s.z - k.z) * Math.sin(s.yaw) >= 0 ? -1 : 1 };
       } else {
@@ -1340,7 +1502,7 @@ function ChacklateScene(canvas, options) {
   function calmAll() {
     if (mate) {
       const k = mate.k;
-      if (k.anim && k.anim.type === 'mate') { k.anim = null; uncoat(k); Object.assign(k, { y: 0, tilt: 1.45, bow: 0, squash: 0, scale: 1 }); placeSprite(k); }
+      if (k.anim && k.anim.type === 'mate') mateHome(k, k.anim);
       for (const s of sprites) if (s.anim && (s.anim.type === 'faint' || s.anim.type === 'cheer')) { s.anim = null; s.y = 0; s.tilt = 0; s.bow = 0; placeSprite(s); }
       mateBack();
       mate = null;
@@ -1737,8 +1899,6 @@ function ChacklateScene(canvas, options) {
           s.y = (a.big ? 0.6 : 0.4) * Math.sin(Math.PI * t);
           if (a.big) s.yaw = a.yaw0 + TAU * easeInOut(t);
           if (t > 0.45 && !a.sparked) { a.sparked = true; spawn('aura', s.x, s.y + 0.8, s.z, vcol(), pn(a.big ? 10 : 4)); }
-        } else if (a.type === 'topple') {
-          s.tilt = a.to * (1 - Math.pow(1 - t, 3)) + Math.sin(t * Math.PI * 3) * 0.04 * (1 - t);
         } else if (a.type === 'glow') {
           s.glow = Math.sin(Math.PI * Math.min(1, t * 2));
         } else if (a.type === 'hop') {
@@ -2795,7 +2955,8 @@ function ChacklateScene(canvas, options) {
         const w = winnerSq >= 0 ? sprites.find((s) => s.sq === winnerSq && !s.dead) : null;
         // a real game's end: the beaten king's fall (see startMate); the storm and the
         // victory effect wait for it to land
-        const drama = !!(k && animations), hit = drama ? MATE_HIT : 0;
+        const drama = !!(k && animations);
+        let hit = 0;
         const storm = o && o.storm && EL && elementsOn && animations && stormKind();
         const go = () => {
           stormWait = 0;
@@ -2805,12 +2966,13 @@ function ChacklateScene(canvas, options) {
           stormHint = true;
         };
         if (storm) {
-          if (hit) stormWait = -1; else go();   // with the fall, it starts as the king lands (mateStep)
+          if (drama) stormWait = -1; else go();   // with the fall, it starts as the king lands (mateStep)
           stormHint = true;
           clearTimeout(skipTimer); skipTimer = setTimeout(() => showSkip(true), drama ? 600 : 1200);
         }
-        if (drama) startMate(k, w, () => { mateWave(k, w); if (stormWait === -1) go(); });
-        else if (k) k.anim = { type: 'topple', start: now + 150, dur: animations ? 1100 : 1, to: 1.45 };
+        if (drama) hit = startMate(k, w, () => { mateWave(k, w); if (stormWait === -1) go(); }, o);
+        // no animations: he is simply turned to face the winner
+        else if (k) { k.anim = null; k.pose = null; if (w) k.yaw = Math.atan2(w.x - k.x, w.z - k.z); placeSprite(k); }
         if (w && animations && !drama) w.anim = { type: 'hop', start: now + 300, dur: 520 };
         if (animations && fx.victory && fx.victory.kind !== 'none') {
           const v = fx.victory;
