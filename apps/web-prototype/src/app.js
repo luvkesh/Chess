@@ -1028,7 +1028,10 @@
       // sits just above it instead of on Draw, Resign or Play from here
       const phoneUi = matchMedia('(max-width: 900px), (max-height: 500px) and (orientation: landscape) and (pointer: coarse)').matches;
       const faceL = W - (side && !sheet ? W - side.left + (phoneUi ? 10 : 14) : phoneUi ? 10 : 16) - (phoneUi ? 46 : 58);
-      document.body.style.setProperty('--gd-bottom', bar && !sheet && bar.right > faceL - 6 ? (H - bar.top + 10) + 'px' : '');
+      const lift = bar && !sheet && bar.right > faceL - 6;
+      document.body.style.setProperty('--gd-bottom', lift ? (H - bar.top + 10) + 'px' : '');
+      // beside the bar his bubble would open over its last buttons (Resign, then its Sure?): it opens above him
+      if (gd) gd.classList.toggle('up', !!(bar && !sheet && !lift && bar.right > faceL - 400));
       if (sheet) ins.bottom = H - side.top + 8 + (gdOn ? 64 : 0);
       else {
         if (side) ins.right = W - side.left + 12;
@@ -1103,10 +1106,19 @@
     const live = () => peeking && peeking.it === it, storm = !!(it.data && it.data.storm);
     const play = () => {
       if (!live()) return;
-      view.setBoard([[sqIndex('e1'), 6], [sqIndex('d1'), 5], [sqIndex('a1'), 4], [sqIndex('c1'), 3], [sqIndex('g1'), 2], [sqIndex('d2'), 1], [sqIndex('e2'), 1], [sqIndex('f2'), 1],
-        [sqIndex('e8'), -6], [sqIndex('h8'), -4], [sqIndex('f7'), -1], [sqIndex('g7'), -1], [sqIndex('h7'), -1], [sqIndex('c6'), -2]], null);
-      peeking.timers.push(setTimeout(() => { if (live()) view.celebrate('win', sqIndex('e8'), null, sqIndex('e1'), { storm }); }, 400));
-      peeking.timers.push(setTimeout(play, storm ? 14000 : 6000));
+      // a real checkmate: Qa2-a8 mates the king on h8 (the white king on g6 takes g7 and h7)
+      const sq = sqIndex;
+      view.setHighlights({});
+      view.setBoard([[sq('g6'), 6], [sq('a2'), 5], [sq('f2'), 1], [sq('g2'), 1], [sq('h8'), -6], [sq('b7'), -1], [sq('c7'), -1], [sq('d5'), -2]], null);
+      peeking.timers.push(setTimeout(() => {
+        if (!live()) return;
+        view.animateMove({ from: sq('a2'), to: sq('a8'), capturedSq: -1, mover: 5 }, () => {
+          if (!live()) return;
+          view.setHighlights({ lastFrom: sq('a2'), lastTo: sq('a8'), check: sq('h8') });
+          peeking.timers.push(setTimeout(() => { if (live()) view.celebrate('win', sq('h8'), null, sq('g6'), { storm }); }, 450));
+          peeking.timers.push(setTimeout(play, storm ? 14000 : 6000));
+        }, { skipHint: false });
+      }, 500));
     };
     play();
     peeking.demo = true;
@@ -3346,7 +3358,7 @@
         '<div class="label set-h">' + t('settings.startAgain') + '</div>' +
         '<div class="row set-reset"><button class="btn warn" id="s-reset" data-tk="settings.reset">' + t('settings.reset') + '</button></div>' +
         '<button class="ver" id="s-ver" type="button">Chackmate ' + APP_VERSION + ' · ' + t('settings.build') + ' ' + BUILD + '</button>');
-    const nav = SET_SECTIONS.map(([k, ic]) => '<button type="button" class="set-cat" data-sec="' + k + '"><span class="set-ic">' + icon(ic) + '</span><span class="set-cat-t"><b>' + t('settings.sec.' + k) + '</b><small>' + t('settings.sec.' + k + '.note') + '</small></span><span class="set-chev">' + icon('next') + '</span></button>').join('') +
+    const nav = SET_SECTIONS.map(([k, ic]) => '<button type="button" class="set-cat" data-sec="' + k + '"' + (k === cur ? ' autofocus' : '') + '><span class="set-ic">' + icon(ic) + '</span><span class="set-cat-t"><b>' + t('settings.sec.' + k) + '</b><small>' + t('settings.sec.' + k + '.note') + '</small></span><span class="set-chev">' + icon('next') + '</span></button>').join('') +
       (labsOn() ? '<button type="button" class="set-cat set-labs" id="s-labs"><span class="set-ic">' + icon('flask') + '</span><span class="set-cat-t"><b>Labs</b><small>Testing tools for this device</small></span><span class="set-chev">' + icon('next') + '</span></button>' : '');
     const m = modal('<div class="set-shell" data-view="list"><div class="set-head"><h2>' + t('settings.title') + '</h2></div>' +
       '<div class="set-body"><nav class="set-nav" aria-label="' + t('settings.title') + '">' + nav + '</nav><div class="set-panel">' + pages + '</div></div>' +
@@ -4868,6 +4880,13 @@
     if (G.g.outcome) return;
     const btn = $('g-resign');
     if (Date.now() - resignArmed > 3000) {
+      // Where the bar shows icons only (phones, narrow windows), a red ring alone does not say "tap again": ask in words.
+      const lbl = btn.querySelector('.lbl');
+      if (!lbl || lbl.getBoundingClientRect().width < 4) {
+        const m = modal('<h2>' + t('play.resign.title') + '</h2><p class="sub">' + t('play.resign.sub') + '</p><div class="row"><button class="btn" data-close>' + t('play.resign.keep') + '</button><button class="btn warn" id="gr-yes">' + icon('flag') + ' ' + t('play.btn.resign') + '</button></div>', { cls: 'narrow' });
+        m.querySelector('#gr-yes').onclick = () => { m.close(); resignArmed = Date.now(); resign(); };
+        return;
+      }
       resignArmed = Date.now();
       btn.classList.add('warn'); btn.querySelector('.lbl').textContent = t('play.sure');
       setTimeout(() => { if (Date.now() - resignArmed >= 3000 && btn.isConnected) { btn.classList.remove('warn'); btn.querySelector('.lbl').textContent = t('play.btn.resign'); } }, 3100);
@@ -5313,13 +5332,13 @@
       if (pl.isBest) add(M.tr('r.top'), ME.tr('r.top'));
       else if (pl.bestSan && !['inaccurate', 'mistake', 'blunder'].includes(g)) add(M.tr('d.practical', { san: pl.bestSan }), ME.tr('d.practical', { san: pl.bestSan }));
       if (!pl.isBest && pl.bestFacts && M.notable(pl.bestFacts) && pl.wpLoss >= 0.05 && !/Better was/.test(CE.explain(ply))) {
-        const b = C.describe(pl.bestFacts), be = CE.describe(pl.bestFacts);
-        add(M.tr('d.missed', { san: pl.bestSan, bits: b ? b.slice(pl.bestFacts.san.length + 1).replace(/\.$/, '') : M.tr('op.win') }), ME.tr('d.missed', { san: pl.bestSan, bits: be ? be.slice(pl.bestFacts.san.length + 1).replace(/\.$/, '') : ME.tr('op.win') }));
+        const b = C.describe(pl.bestFacts) && C.bits(pl.bestFacts), be = CE.describe(pl.bestFacts) && CE.bits(pl.bestFacts);
+        add(M.tr('d.missed', { san: pl.bestSan, bits: b || M.tr('op.win') }), ME.tr('d.missed', { san: pl.bestSan, bits: be || ME.tr('op.win') }));
       }
       const r = pl.refutation;
       if (r && !['mistake', 'blunder'].includes(g)) {
-        const b = C.describe(r), be = CE.describe(r);
-        add(b ? M.tr('d.theyReply', { san: r.san, bits: b.slice(r.san.length + 1).replace(/\.$/, '') }) : M.tr('d.theyReplyPlain', { san: r.san }), be ? ME.tr('d.theyReply', { san: r.san, bits: be.slice(r.san.length + 1).replace(/\.$/, '') }) : ME.tr('d.theyReplyPlain', { san: r.san }));
+        const b = C.describe(r) && C.bits(r), be = CE.describe(r) && CE.bits(r);
+        add(b ? M.tr('d.theyReply', { san: r.san, bits: b }) : M.tr('d.theyReplyPlain', { san: r.san }), be ? ME.tr('d.theyReply', { san: r.san, bits: be }) : ME.tr('d.theyReplyPlain', { san: r.san }));
       }
       const ev = R.data.evals[i + 1];
       add(M.swingWords(sw(pl.cpBefore), sw(pl.cpAfter)), ME.swingWords(sw(pl.cpBefore), sw(pl.cpAfter)));
@@ -6259,7 +6278,7 @@
       const u = wantMove();
       view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
-      fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m)) || ''));
+      fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m), true) || ''));
       finish(false);
     };
     $('pz-next').onclick = () => { AU.play('tap'); load(); };
@@ -6816,7 +6835,7 @@
   window.addEventListener('pagehide', save);
   document.addEventListener('pointerdown', () => AU.unlock(), { once: true });
   if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; window.__start = startGame; window.__settings = settingsModal;
-    window.__modal = { labs: labsModal, missions: missionsModal, profile: profileModal, newGame: newGameModal, friend: friendModal, world: worldModal, glossary: glossaryModal, coach: coachSettingsModal, premium: premiumModal, opponent: opponentModal, rules: ruleSheet, levelUp: levelUpModal, placement: placementOffer, xq: startXq }; }   // tooling answers board questions through the hooks
+    window.__modal = { labs: labsModal, missions: missionsModal, profile: profileModal, newGame: newGameModal, friend: friendModal, world: worldModal, glossary: glossaryModal, coach: coachSettingsModal, premium: premiumModal, opponent: opponentModal, rules: ruleSheet, levelUp: levelUpModal, placement: placementOffer, xq: startXq, gate: parentGate, pin: askPin, promo: choosePromotion, eraDone: (id) => eraDoneModal(CAMPAIGN.eras.find((e) => e.id === id), { achievements: [], unlocked: [] }), celebrate, tale: (id, k) => taleModal(CAMPAIGN.eras.find((e) => e.id === id), k) }; }   // tooling answers board questions through the hooks
   const bonus = PG.dailyBonus(state.progress);
   go('home');
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);

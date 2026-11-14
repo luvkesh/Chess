@@ -703,15 +703,15 @@ function ChacklateElements(THREE, o) {
   STRIKES.freeze = { dur: 3000, run(e, t, dt) {
     const { x, z } = e;
     once(e, 'blast', 0, t, () => {
-      crackAt(x, z, '#ffffff', '#9fd4ff', 2.8, 2900);
+      crackAt(x, z, '#e8f6ff', '#4f9cff', 2.8, 2900);
       ring(x, 0.03, z, '#cfefff', 3, 700);
       for (let i = 0; i < n(56); i++) shard(x + rnd(-0.2, 0.2), 0.2, z + rnd(-0.2, 0.2), 3, 6, rnd(2000, 2900));
-      for (let i = 0; i < n(110); i++) { const a = rnd(0, TAU), s = rnd(0.6, 3.2); emit({ x, y: rnd(0.1, 0.5), z, vx: Math.cos(a) * s, vy: rnd(1, 4.5), vz: Math.sin(a) * s, life: rnd(1400, 2600), s0: rnd(0.06, 0.12), s1: 0.04, c0: tone('#ffffff'), c1: tone('#e0f4ff'), c2: tone('#9fd4ff'), g: 1.1, drag: 0.5, flutter: 1.6 }); }
-      for (let i = 0; i < n(20); i++) smoke(x + rnd(-0.3, 0.3), rnd(0.1, 0.5), z + rnd(-0.3, 0.3), '#e4f4ff', 0.5, 0.5, 2.4, rnd(1700, 2600), 1);
+      for (let i = 0; i < n(110); i++) { const a = rnd(0, TAU), s = rnd(0.6, 3.2); emit({ x, y: rnd(0.1, 0.5), z, vx: Math.cos(a) * s, vy: rnd(1, 4.5), vz: Math.sin(a) * s, life: rnd(1400, 2600), s0: rnd(0.06, 0.12), s1: 0.04, c0: tone('#eaf7ff'), c1: tone('#9fd4ff'), c2: tone('#3f86e0'), g: 1.1, drag: 0.5, flutter: 1.6 }); }
+      for (let i = 0; i < n(20); i++) smoke(x + rnd(-0.3, 0.3), rnd(0.1, 0.5), z + rnd(-0.3, 0.3), '#a9d3ff', 0.5, 0.5, 2.4, rnd(1700, 2600), 1);
     });
     once(e, 'shards2', 380, t, () => { ring(x, 0.03, z, '#9fd4ff', 1.8, 500); for (let i = 0; i < n(20); i++) shard(x, 0.15, z, 2, 4.5, 2300); });
     if (t < 2000) for (let i = rate(e, 'crystal', 46, dt); i > 0; i--) { const a = rnd(0, TAU), r = rnd(0.2, 1.4); emit({ x: x + Math.cos(a) * r, y: 0.05, z: z + Math.sin(a) * r, vy: rnd(0.05, 0.3), life: rnd(500, 1000), s0: 0.04, s1: 0.18, c0: tone('#ffffff'), c1: tone('#dff4ff'), c2: tone('#9fd4ff'), fadeIn: 0.3 }); }
-    e.light = { point: [x, 1.2, z], color: '#bfe4ff', power: 30 * Math.exp(-t / 700), expo: 0.18 * Math.exp(-t / 200), tint: '#a8d0ff', dim: 0.22 * smooth(0, 120, t) * (1 - smooth(900, 2200, t)) };
+    e.light = { point: [x, 1.2, z], color: '#4f9cff', power: 26 * Math.exp(-t / 900), expo: 0.05 * Math.exp(-t / 200), tint: '#6fa8ff', dim: 0.22 * smooth(0, 120, t) * (1 - smooth(900, 2200, t)) };
     e.shake = 0.05 * Math.exp(-t / 220);
   } };
   // Fireworks: three rockets whoosh up from the square and burst overhead in colour, one after

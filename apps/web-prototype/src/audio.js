@@ -741,14 +741,40 @@ function ChacklateAudio() {
       // Said the way a person says it: "exd4 wins a knight" is "Pawn takes on d4, and wins a knight",
       // not "Pawn takes d4 wins a knight" in one breath.
       if (p.san && /x/.test(p.san) && w[1] === B.takes) w = [w[0], w[1], 'on'].concat(w.slice(2));
-      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.05); }
+      // the words of one phrase run together, the way a person says them (the clips' own silence is trimmed)
+      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.012); }
       const next = parts[i + 1];
       if (p.san && next && next.line && /^(wins|takes|attacks|forks|pins|skewers|uncovers|gives|promotes|tucks)\b/.test(next.line)) {
         gaps[keys.length - 1] = PAUSE.comma / 1000;
-        keys.push(voiceKey('and')); gaps.push(0.05);
+        keys.push(voiceKey('and')); gaps.push(0.012);
       }
     });
     return keys.length ? { keys, gaps } : null;
+  }
+  // A recorded piece without the hush before and after it: the coach strings pieces into one sentence,
+  // and each clip's own lead-in and tail would otherwise put a gap after every word.
+  const trimmed = new WeakMap();
+  function trimClip(b) {
+    if (trimmed.has(b)) return trimmed.get(b);
+    const d = b.getChannelData(0), n = d.length, th = 0.012;
+    let a = 0, z = n - 1;
+    while (a < n && Math.abs(d[a]) < th) a++;
+    while (z > a && Math.abs(d[z]) < th) z--;
+    a = Math.max(0, a - Math.round(b.sampleRate * 0.012));
+    z = Math.min(n, z + Math.round(b.sampleRate * 0.04));
+    let out = b;
+    if (z - a > b.sampleRate * 0.05 && (a > 0 || z < n)) {
+      out = ctx.createBuffer(b.numberOfChannels, z - a, b.sampleRate);
+      for (let c = 0; c < b.numberOfChannels; c++) {
+        const src = b.getChannelData(c).subarray(a, z), dst = out.getChannelData(c);
+        dst.set(src);
+        // a few milliseconds of fade at each end, so the cut never clicks
+        const f = Math.min(Math.round(b.sampleRate * 0.006), dst.length >> 2);
+        for (let i = 0; i < f; i++) { const g = i / f; dst[i] *= g; dst[dst.length - 1 - i] *= g; }
+      }
+    }
+    trimmed.set(b, out);
+    return out;
   }
   function coach(text) {
     stopSpeech();
@@ -763,7 +789,7 @@ function ChacklateAudio() {
         const id = 'coach:' + (index['coach:' + coachWho] ? coachWho : 'rooky');
         if (coachWho === 'device' || !plan || !index[id] || !plan.keys.every((k) => index[id].at.has(k))) return viaDevice();
         let bufs;
-        try { bufs = await Promise.all(plan.keys.map((k) => clip(id, k))); } catch (e) { return viaDevice(); }
+        try { bufs = (await Promise.all(plan.keys.map((k) => clip(id, k)))).map(trimClip); } catch (e) { return viaDevice(); }
         if (my !== queueId) return done();
         let t = ctx.currentTime + 0.03, last = null;
         const bus = voiceOut(bufs, t);
