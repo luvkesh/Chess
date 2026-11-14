@@ -13,7 +13,7 @@ import os
 import numpy as np
 import cv2
 
-DIR = os.environ.get('TRIPOSR_DIR', '/tmp/claude-0/tsr/jc')
+DIR = os.environ.get('TRIPOSR_DIR', os.path.expanduser('~/.cache/chackmate/triposr'))
 CACHE = os.environ.get('TRIPOSR_CACHE', os.path.expanduser('~/.cache/chackmate-tsr'))
 R = 0.87                 # TripoSR's scene radius
 HALF = 1.9 * np.tan(np.radians(20))  # half the view at the origin plane (distance 1.9, fov 40)

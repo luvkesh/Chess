@@ -30,3 +30,7 @@ build/
 # Website picture renders (converted into apps/website/img)
 apps/website/tools/out/
 apps/web-prototype/tools/out/
+
+# Scratch mesh packs for trying a set (apps/web-prototype/tools/model/README.md)
+apps/web-prototype/meshes/tst*.txt
+apps/web-prototype/dist/meshes/tst*.txt

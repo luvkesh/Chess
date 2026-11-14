@@ -1,8 +1,12 @@
-"""Hero sets: each piece comes from its own clean, detailed picture (a reference cut-out
-redrawn sharper with SDXL-Lightning img2img, or a picture designed for the set) on a flat grey
-backdrop. The shape is TripoSR's true 3D form cut to the picture's outline, the front is
-painted from the picture and the back and sides from TripoSR's own views of the piece.
-A set module using it sets HERO = True, PICS = {side: {type: path}} and calls hero.refs/build."""
+"""Hero pictures: each piece of a set has its own clean, detailed picture on a flat grey
+backdrop (tools/model/pics/<set>/<side>-<type>.jpg; a reference cut-out redrawn sharper with
+SDXL-Lightning, or a picture designed for the set). See README.md for how they are made.
+
+  refs(pics(set), heights)   kit.Ref for each picture, for any builder (classic.build's turned
+                             bodies, crowns and figures, or build() below)
+  build(t, refs)             the whole picture as one rounded relief; a set that uses it sets
+                             HERO = True so build.py paints the side views too"""
+import os
 import cv2
 import numpy as np
 import kit
@@ -27,19 +31,44 @@ def cutout(path, thresh=22):
     # fill holes
     ff = m.copy()
     cv2.floodFill(ff, None, (0, 0), 255)
+    holes = cv2.bitwise_not(ff) & ~m
     m = m | cv2.bitwise_not(ff)
-    # a soft shadow on the backdrop under the plinth joins the figure: trim rows below the
-    # widest low row where the mask turns to a thin smear
-    return img, m
+    # backdrop seen through a gap (between a goblin's legs) would paint as a grey patch: fill
+    # it from the figure around it
+    gap = ((holes > 0) & (d <= thresh * 2)).astype(np.uint8) * 255
+    if gap.sum() > 0:
+        gap = cv2.dilate(gap, np.ones((5, 5), np.uint8))
+        img = cv2.inpaint(img, gap, 9, cv2.INPAINT_TELEA)
+        path = os.path.join(os.environ.get('COMPOSE_DIR', '/tmp/claude-0/compose'), 'hero-' + os.path.basename(path))
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        return img, m, path
+    return img, m, path
+
+
+def pics(sid):
+    """the hero pictures of a set: {side: {type: path}} for tools/model/pics/<sid>/<side>-<type>.jpg"""
+    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pics', sid)
+    return {s: {t: os.path.join(d, '%s-%s.jpg' % (s, t)) for t in 'kqbnrp'} for s in 'wb'}
 
 
 def refs(pics, heights=None):
-    hs = dict(HEIGHT, **(heights or {}))
+    """kit.Ref for every hero picture. Each picture frames its piece on its own, so the pieces'
+    true sizes are not in the pictures: heights gives them in game units, as {type: h} or
+    {side: {type: h}} (HEIGHT where a piece is not listed). build.py still fits every piece to
+    its square and keeps king > queen > the rest afterwards."""
     out = {}
     for side, d in pics.items():
+        hs = dict(HEIGHT)
+        for k, v in (heights or {}).items():
+            if isinstance(v, dict):
+                if k == side:
+                    hs.update(v)
+            else:
+                hs[k] = v
         out[side] = {}
         for t, path in d.items():
-            img, m = cutout(path)
+            img, m, path = cutout(path)
             ys, xs = np.nonzero(m)
             box = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
             x0, y0, x1, y1 = box
@@ -52,12 +81,17 @@ def refs(pics, heights=None):
     return out
 
 
-def build(t, refs, thick=0.5):
+def build(t, refs, thick=0.5, depth=None, knight='turn'):
+    """one piece as a single rounded relief of its whole picture, base and all.
+    depth: 'tsr' takes the front and back shape from TripoSR (rounder towers and animals),
+    'plain' swells the outline evenly; default from HERO_DEPTH, else 'tsr'.
+    knight: 'turn' turns a side-on picture so the animal looks along the file, as the game
+    expects of a knight; 'side' leaves it showing its flank to both players."""
     r = refs['w']
-    ob = kit.relief('fig' + t, r, 0.0, thick=thick, res=0.005, use_tsr=True)
+    depth = depth or os.environ.get('HERO_DEPTH', 'tsr')
+    ob = kit.relief('fig' + t, r, 0.0, thick=thick, res=0.005, use_tsr=depth == 'tsr')
     kit.set_uv_box(ob, t)
-    if t == 'n':
-        # a knight's picture is its side: turn it so it looks along the row, as the game expects
+    if t == 'n' and knight == 'turn':
         import math
         import bpy
         ob.rotation_euler = (0, 0, math.pi / 2)

@@ -5,8 +5,13 @@ board pictures of 2026-11-12 (1c104eea white, 38e1c660 black) and redrawn sharpe
 SDXL-Lightning img2img; shape from TripoSR, sides and back painted from its views."""
 import os
 import hero
+import classic
+from sets.forest import SPEC
 
-HERO = True
+# CHACK_HERO_MODE=classic: the sharp pictures on turned plinths (classic.build) instead of
+# whole-figure reliefs (the rook keeps its rounded TripoSR-depth relief, which reads as a tower)
+MODE = os.environ.get('CHACK_HERO_MODE', 'hero')
+HERO = True   # four painted views (the relief rook's sides use them in either mode)
 HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'pics', 'forest')
 PICS = {s: {t: os.path.join(HERE, '%s-%s.jpg' % (s, t)) for t in 'kqbnrp'} for s in 'wb'}
 HALF = {t: 'full' for t in 'kqbnrp'}
@@ -26,4 +31,6 @@ def refs():
 
 
 def build(t, refs):
+    if MODE == 'classic' and t != 'r':
+        return classic.build(t, refs, SPEC)
     return hero.build(t, refs)
