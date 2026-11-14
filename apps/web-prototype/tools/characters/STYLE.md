@@ -17,9 +17,13 @@ a premium mobile game mascot, for children, premium and never casino. Original c
 
 ## The look
 
-1. **Proportions.** Big head, small body: the head is about 60% of the picture's height and
-   clearly wider than the shoulders. Short, narrow neck, mostly hidden by cheek fluff or a collar.
-   Small, soft shoulders. Babyish: large cranium, low face, short muzzle, small nose.
+1. **Proportions.** Big head on a **plump, round little body with no visible neck**: the tummy
+   starts right under the chin and is nearly as wide as the head, with two small paws (or wing
+   tips) held at the chest. The person rejected the first benchmark because a thin neck and
+   narrow body looked "anorexic": never show a neck stalk or a body much narrower than the head.
+   Use `common.chubby(w, d)` (w about 0.42 to 0.54) or build your own to the same proportions.
+   Long-necked species (giraffe, horse) keep a short, thick, soft neck that widens into the
+   body. Babyish head: large cranium, low face, short muzzle, small nose.
 2. **Eyes carry the appeal.** Large, set on or below the head's midline and well apart. A big
    dark iris and pupil that fill most of the opening, little or no white showing on small animals,
    **two catchlights** (one large upper, one small lower), a darker upper lash line. Eyes sit *in*
@@ -46,7 +50,7 @@ a premium mobile game mascot, for children, premium and never casino. Original c
 recipe, not its shapes. Picture: `/mnt/project-files/characters-v3/benchmark-bunny.png`.
 
 - Head built from a cranium, low full cheeks and a tiny muzzle (no `critter_head`, no `torso`);
-  body a single narrow ellipsoid well below the head, so the shoulders are small.
+  body is `chubby()`: no neck, a round tummy from under the chin, little paws at the chest.
 - `C.eye(..., out=0.44, iris_r=0.93, pupil_r=0.52, glint=1.0)`: `glint` paints the two
   catchlights. Radius about 0.12 on a head 0.37 wide; centre at or below the head's centre.
 - Fur 0.045 long with clump 0.22; longer regions (0.05 to 0.075) at cheeks and chest.
