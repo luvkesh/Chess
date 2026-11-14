@@ -85,7 +85,7 @@ function ChacklateProgress(catalog, extras) {
       stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, variants: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {}, placement: null, variantLessons: {},
-      coins: 0, earned: { date: '', by: {}, n: {} }, bought: [],
+      coins: 0, earned: { date: '', by: {}, n: {}, xp: {} }, bought: [],
       granted: {},   // items handed out by developer mode, on this device only
       mini: { best: {}, plays: {}, day: { date: '', best: {} }, seen: [] },
       trainers: {},   // skill trainers: { id: { best, rounds, log: [{ d, s }] } }
@@ -103,6 +103,8 @@ function ChacklateProgress(catalog, extras) {
     const obj = (v) => v && typeof v === 'object' && !Array.isArray(v);
     const o = (v, def) => Object.assign({}, def, obj(v) ? v : {});
     const arr = (v) => (Array.isArray(v) ? v.slice() : []);
+    const objs = (v) => arr(v).filter(obj);   // a list of records keeps only the records
+    const recs = (v) => { const r = {}; for (const [k, x] of Object.entries(obj(v) ? v : {})) if (obj(x)) r[k] = x; return r; };
     const num = (v, def, min) => (Number.isFinite(+v) && v !== null && v !== '' ? Math.max(min === undefined ? -Infinity : min, +v) : def);
     const out = Object.assign(f, s);
     for (const k of Object.keys(d)) if (obj(d[k]) && !obj(out[k])) out[k] = d[k];
@@ -115,38 +117,59 @@ function ChacklateProgress(catalog, extras) {
     for (const k of ['games', 'wins', 'draws', 'losses']) out.stats[k] = Math.floor(num(st[k], 0, 0));
     out.stats.byLevel = o(st.byLevel);
     out.stats.variants = o(st.variants);
-    out.stats.accuracy = arr(st.accuracy);
+    out.stats.accuracy = arr(st.accuracy).filter((x) => Number.isFinite(x));
     out.stats.puzzles = o(st.puzzles, d.stats.puzzles);
     out.stats.puzzles.seen = arr(out.stats.puzzles.seen);
+    out.stats.puzzles.done = arr(out.stats.puzzles.done);
     out.stats.puzzles.rating = num(out.stats.puzzles.rating, 800, 100);
     for (const k of ['solved', 'failed']) out.stats.puzzles[k] = Math.floor(num(out.stats.puzzles[k], 0, 0));
     out.streak = o(s.streak, d.streak); out.streak.count = Math.floor(num(out.streak.count, 0, 0));
     out.daily = o(s.daily, d.daily);
     out.equipped = Object.assign({}, catalog.defaults, obj(s.equipped) ? s.equipped : {});
+    // Move trails are on by default since November 2026: a save still on the old default (None) gets
+    // Gold Dust once; anyone who picks None after that keeps it.
+    if (!s.trailOn && out.equipped.trail === 'trail.none.v1') out.equipped.trail = catalog.defaults.trail;
+    out.trailOn = 1;
     out.missions = o(s.missions, d.missions); out.missions.list = arr(out.missions.list);
-    out.journey = o(s.journey);
+    out.journey = recs(s.journey);
+    out.history = objs(s.history);
+    out.lessons = recs(s.lessons);
+    for (const r of Object.values(out.lessons)) if (!Array.isArray(r.reviews)) r.reviews = [];
+    out.openings = recs(s.openings);
+    out.seasons = {}; for (const [k, v] of Object.entries(obj(s.seasons) ? s.seasons : {})) if (Number.isFinite(+v) && v !== null && v !== '') out.seasons[k] = Math.max(0, +v);   // season XP by id
+    if (out.placement !== null && !(obj(out.placement) && Number.isFinite(out.placement.chapter))) out.placement = null;
     out.variantLessons = o(s.variantLessons);
     out.granted = o(s.granted);
-    out.coins = Math.max(0, Math.floor(+s.coins || 0));
-    out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n);
+    out.coins = Math.floor(num(s.coins, 0, 0));
+    out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n); out.earned.xp = o(out.earned.xp);
     out.bought = arr(s.bought);
-    // Older saves could mix a room with another room's board or set: line them up with the room.
-    const su = suiteOf(out.equipped.room) || suiteOf(catalog.defaults.room);
-    if (su) Object.assign(out.equipped, { room: su.room, board: su.board, pieces: su.pieces });
     out.mini = o(s.mini, d.mini);
     for (const k of ['best', 'plays']) out.mini[k] = o(out.mini[k]);
     out.mini.day = o(out.mini.day, d.mini.day); out.mini.day.best = o(out.mini.day.best);
     out.mini.seen = arr(out.mini.seen);
-    out.trainers = o(s.trainers);
-    out.mates = o(s.mates);
+    out.trainers = recs(s.trainers);
+    for (const r of Object.values(out.trainers)) r.log = objs(r.log);
+    out.mates = recs(s.mates);
+    for (const r of Object.values(out.mates)) { r.solved = arr(r.solved); r.log = objs(r.log); }
     out.mistakes = arr(s.mistakes).slice(0, MISTAKES_KEPT);
     out.perf = o(s.perf, d.perf);
-    out.perf.games = arr(out.perf.games).slice(-PERF_KEEP);
+    out.perf.games = objs(out.perf.games).slice(-PERF_KEEP);
+    out.perf.r = num(out.perf.r, 0); out.perf.n = Math.floor(num(out.perf.n, 0, 0));
     return out;
   }
 
   const today = (d) => { const x = d || new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
   const dayDiff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+
+  // XP from things that can be repeated quickly (instant resignations, trainer rounds, opening
+  // runs) has a daily limit per source, so the season track and level looks cannot be farmed.
+  function cappedXp(state, source, xp, cap, now) {
+    earn(state, '_', 0, { now });   // rolls the day over the same way coins do
+    const e = state.earned, x = e.xp || (e.xp = {});
+    const give = Math.max(0, Math.min(xp, cap - (x[source] || 0)));
+    x[source] = (x[source] || 0) + give;
+    return give;
+  }
 
   // Everything that grants XP goes through here; returns what changed for the UI.
   // XP earned while a season runs also moves the player up that season's track.
@@ -174,10 +197,11 @@ function ChacklateProgress(catalog, extras) {
   // Returns the coins actually granted, which is 0 once a limit is reached.
   function earn(state, source, amount, opts, out) {
     opts = opts || {};
-    const d = today(opts.now ? new Date(opts.now) : undefined);
-    // A clock turned back cannot reopen a day already paid: a new day starts only going forward.
-    if (state.earned.date && d < state.earned.date) return 0;
-    if (state.earned.date !== d) state.earned = { date: d, by: {}, n: {} };
+    // A clock turned back cannot reopen a day already paid: it counts against the latest day seen,
+    // so its limits still hold, and a new day starts only going forward.
+    let d = today(opts.now ? new Date(opts.now) : undefined);
+    if (state.earned.date && d < state.earned.date) d = state.earned.date;
+    if (state.earned.date !== d) state.earned = { date: d, by: {}, n: {}, xp: {} };
     const e = state.earned, had = e.by[source] || 0, n = e.n[source] || 0;
     let give = Math.max(0, Math.floor(amount));
     if (opts.times && n >= opts.times) give = 0;
@@ -315,7 +339,7 @@ function ChacklateProgress(catalog, extras) {
     }
     const lv = g.level || 0;
     let xp = g.mode === 'ai' ? (g.won ? 40 + 15 * lv : g.drawn ? 20 + 6 * lv : 10) : g.online ? (g.won ? 60 : g.drawn ? 30 : 15) : 10;
-    if (g.plies < 6) xp = Math.min(xp, 5);   // no farming XP from instant resignations
+    if (g.plies < 6) xp = cappedXp(state, 'short-game', Math.min(xp, 5), 15, now);   // no farming XP from instant resignations
     grant(state, xp, out);
     achieve(state, 'first-game', out);
     if (g.mode === 'ai' && g.won && g.plies >= 6) { achieve(state, 'first-win', out); if (!variant && !g.champion) achieve(state, LEVEL_ACH[lv], out); }
@@ -456,19 +480,23 @@ function ChacklateProgress(catalog, extras) {
   function puzzleFinished(state, puzzle, solved, opts, now) {
     const out = result();
     const p = state.stats.puzzles;
+    // A puzzle already solved once moves neither XP nor the rating when it is played again.
+    const again = (p.done || (p.done = [])).includes(puzzle.id);
+    if (solved && !again) p.done.push(puzzle.id);
     const exp = 1 / (1 + Math.pow(10, (puzzle.rating - p.rating) / 400));
     const k = p.solved + p.failed < 20 ? 40 : 20;
     const before = p.rating;
-    p.rating = Math.max(100, Math.round(p.rating + k * ((solved ? 1 : 0) - exp)));
+    if (!again) p.rating = Math.max(100, Math.round(p.rating + k * ((solved ? 1 : 0) - exp)));
     out.ratingDelta = p.rating - before;
     if (solved) p.solved++; else p.failed++;
     if (!p.seen.includes(puzzle.id)) p.seen.push(puzzle.id);
     const mt = (puzzle.themes || []).find((x) => /^mateIn[1-5]$/.test(x));
     if (mt) mateLogged(state, +mt.slice(6), puzzle.id, solved, now);
-    if (solved) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
+    if (solved && !again) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
-    if (opts && opts.daily && solved && !(state.daily.done && state.daily.date === today(now ? new Date(now) : undefined))) { state.daily = { date: today(now ? new Date(now) : undefined), done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
+    const dDay = today(now ? new Date(now) : undefined);
+    if (opts && opts.daily && solved && !(state.daily.done && state.daily.date >= dDay)) { state.daily = { date: dDay, done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
     if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
@@ -500,7 +528,7 @@ function ChacklateProgress(catalog, extras) {
     dayLog(r.log, PG_today(now), (e) => { e.s = Math.round(((e.s || 0) * (e.n || 0) + score) / ((e.n || 0) + 1)); e.n = (e.n || 0) + 1; });
     // a round with nothing solved earns nothing (no XP, mission or streak for skipping through)
     if (score <= 0) return out;
-    grant(state, 6 + Math.round(score / 10), out);
+    grant(state, cappedXp(state, 'trainer', 6 + Math.round(score / 10), 150, now), out);
     track(state, 'lesson', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
@@ -618,7 +646,7 @@ function ChacklateProgress(catalog, extras) {
     const rec = state.openings[id] || (state.openings[id] = { runs: 0, clean: 0, mastered: false });
     rec.runs++;
     if (clean) rec.clean++;
-    grant(state, clean ? 12 : 4, out);
+    grant(state, cappedXp(state, 'opening', clean ? 12 : 4, 120, now), out);
     if (!rec.mastered && rec.clean >= 3) { rec.mastered = true; grant(state, 40, out); out.mastered = true; }
     if (Object.values(state.openings).filter((r) => r.mastered).length >= 3) achieve(state, 'repertoire', out);
     track(state, 'drill', 1, now, out);
@@ -741,14 +769,24 @@ function ChacklateProgress(catalog, extras) {
     if (u.type === 'journey') { const e = eraById(u.era); return 'Journey: ' + (e ? e.name : u.era) + (e && e.access === 'premium' ? ' · Premium' : ''); }
     return 'Free';
   }
-  function equip(state, item) {
+  // Equips one item. A set, board or room equips only itself: its suite's other two are offered
+  // to the player (suiteMatches) and equipped only when they say so (also: ['board', 'room']).
+  function equip(state, item, also) {
     if (!isUnlocked(state, item)) return false;
+    state.equipped[item.category] = item.id;
     const su = suiteOf(item);
-    if (su) Object.assign(state.equipped, { room: su.room, board: su.board, pieces: su.pieces });
-    else state.equipped[item.category] = item.id;
+    if (su && also) for (const cat of also) { const it = su[cat] && itemById(su[cat]); if (it && it.category === cat && isUnlocked(state, it)) state.equipped[cat] = it.id; }
     return true;
   }
+  // The suite's other items that the player owns and is not already using: what to offer after equip.
+  function suiteMatches(state, item) {
+    const su = suiteOf(item);
+    if (!su) return [];
+    return ['pieces', 'board', 'room'].filter((cat) => cat !== item.category && su[cat] && state.equipped[cat] !== su[cat])
+      .map((cat) => itemById(su[cat])).filter((it) => it && isUnlocked(state, it));
+  }
   function item(id) { return catalog.items.find((i) => i.id === id); }
+  const itemById = item;   // for functions whose argument is called item
   function equipped(state, category) {
     const it = item(state.equipped[category]);
     return it && isUnlocked(state, it) ? it : item(catalog.defaults[category]);
@@ -778,7 +816,7 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
-    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, suiteMatches, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
     setSeason, activeSeason, seasonInfo, SKILLS, SKILL_LINES, PRACTICE_FOR, FRIEND_RATING, perfGame, perfSkills, perfView, skillScores, perfOf, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 

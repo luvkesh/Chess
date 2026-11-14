@@ -41,10 +41,11 @@ const st = M.study(E.START_FEN, scholar, T);
 assert.strictEqual(st.cls, 'blunder');
 const fb = M.feedback(st, { style: 'friendly', rand: () => 0 });
 assert.strictEqual(fb.grade, 'blunder');
-assert(/checkmate/i.test(fb.text[0]) && /Qxf7#/.test(fb.text[0]), fb.text[0]);
+// moves are named the way a person says them, never in notation
+assert(/checkmate/i.test(fb.text[0]) && /queen takes on f7/i.test(fb.text[0]) && !/Qxf7/.test(fb.text[0]), fb.text[0]);
 for (let d = 1; d <= 3; d++) noHoles(M.feedbackText(fb, d), 'feedback ' + d);
 const lv3 = M.feedbackText(fb, 3);
-assert.strictEqual(lv3.split('Qxf7#').length - 1, 1, 'the refutation is said once: ' + lv3);
+assert.strictEqual(lv3.toLowerCase().split('queen takes on f7').length - 1, 1, 'the refutation is said once: ' + lv3);
 assert(M.OPENERS.blunder.f.some((x) => fb.head === x), 'a blunder gets a blunder opener');
 // openers rotate: the recent ones are skipped
 const seen = [];
@@ -61,7 +62,7 @@ assert(radar.mine && radar.mine.n === 1 && radar.mine.pattern === 'scholar', JSO
 const h = M.hints(lk);
 assert(/check/i.test(h.levels[0].text) && !/f7|Qxf7/.test(h.levels[0].text), 'level 1 gives no move away: ' + h.levels[0].text);
 assert(/queen on h5/.test(h.levels[1].text) && !/f7/.test(h.levels[1].text), h.levels[1].text);
-assert(/Qxf7#/.test(h.levels[2].text), h.levels[2].text);
+assert(/queen takes on f7 is checkmate/i.test(h.levels[2].text) && !/Qxf7/.test(h.levels[2].text), h.levels[2].text);
 assert.strictEqual(M.chances(lk)[0].id, 'mate');
 // Before the blunder, Black is warned about the threat.
 lk = M.look(E.START_FEN, scholar.slice(0, 5), T);
@@ -145,5 +146,11 @@ for (const [k, v] of Object.entries(M.EN)) {
   assert(!/\{\w*$|^\w*\}/.test(v), k);
   if (/^(op|opp|ln|v|trap|ph|k|mr|hi\.idea|rp|eg)\./.test(k)) continue;
   assert(src.split("'" + k + "'").length - 1 >= 2, 'unused line ' + k);
+}
+// A move that wins a variant game on the spot is hinted as a win, with no reply after it.
+for (const [fen, san, word] of [['koth:r3k3/8/8/8/8/3K4/8/R6q w - - 0 1', 'Kd4', 'hill'], ['chaturanga:4k3/8/8/8/8/2n5/8/2R1K3 w - - 0 1', 'Rxc3', 'alone']]) {
+  const h = M.hints(M.look(fen, [], { timeMs: 300 }));
+  assert.strictEqual(h.san, san, fen);
+  assert(!/check/i.test(h.levels[0].text) && h.levels[2].text.includes(word) && !/If they answer/.test(h.levels[2].text), fen + ': ' + h.levels.map((l) => l.text).join(' | '));
 }
 console.log('mentor tests passed');

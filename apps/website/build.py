@@ -46,7 +46,7 @@ LANDMARKS = {'egypt': 'The Pyramids of Giza', 'greece': 'The Parthenon', 'rome':
 FELT = {'egypt': ('#1d2f7a', '#7f9cff'), 'greece': ('#2a5a7a', '#9cd2ff'), 'rome': ('#4a1840', '#ff9cd8'), 'mughal': ('#0e5a52', '#9fe0cc'),
         'ming': ('#8a1e16', '#ffb09c'), 'venice': ('#14506a', '#9cdcff'), 'paris': ('#4a1426', '#ffb0c4'), 'russia': ('#13563a', '#9fe0bc'), 'deco': ('#2a2a36', '#c8c8e0')}
 # The game's own 3D renderer, so the page shows the real tables, sets and rooms live.
-SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'scene.js')]
+SCENE = [game / 'vendor' / 'three.bundle.js'] + [game / 'src' / n for n in ('kit3d.js', 'pieces3d.js', 'billboards.js', 'landmarks3d.js', 'suites3d.js', 'world3d.js', 'fall3d.js', 'scene.js')]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
 # The two items each tab of the details showcase plays, one after the other. None of them is
 # the item on the tab's own medal, and no item shows twice.
@@ -135,6 +135,7 @@ def site_data():
         'items': len(catalog['items']), 'sets': cats['pieces'], 'boards': cats['board'], 'rooms': cats['room'],
         'tiers': load('seasons.json')['seasons'][0]['tiers'],
     }
+    counts['showroom'] = counts['sets'] + counts['boards'] + counts['rooms']   # what Collect's line names (not avatars or effects)
     # the details showcase: how many of each kind there are to collect ("None" is not one)
     for c in FX_DEMOS:
         counts['fx_' + c] = sum(1 for i in catalog['items'] if i['category'] == c and '.none.' not in i['id'])
@@ -185,6 +186,15 @@ def data_uri(path):
     return 'data:%s;base64,%s' % (kind, base64.b64encode(path.read_bytes()).decode())
 
 
+# Clips fetched beside the page when they are needed, not carried inside it: the piece pitches, the
+# details tabs and the late sections (the preview's host caps a page at 16 MB).
+BESIDE = ('earn', 'pricing', 'about')
+
+
+def beside(key):
+    return key.startswith(('item-', 'fx-')) or key in BESIDE
+
+
 def guide(coach, collection):
     """The coach's recorded guide (a clip per section and a pitch per collectible), checked against guide.json and the coach's name."""
     lines = json.loads((here / 'guide.json').read_text())['lines']
@@ -198,7 +208,7 @@ def guide(coach, collection):
         assert recorded.get(key, {}).get('text') == text, 'audio/%s.mp3 says something else; run tools/record-guide.py' % key
         # The section lines are inlined so the tour starts at once; the 60 piece pitches are
         # fetched when needed (the game server serves them at /pitch/site/, the preview beside the page).
-        src = ('@@PITCHES@@' + key + '.mp3' if key.startswith('item-') else
+        src = ('@@PITCHES@@' + key + '.mp3' if beside(key) else
                'data:audio/mpeg;base64,' + base64.b64encode((here / 'audio' / (key + '.mp3')).read_bytes()).decode())
         out[key] = {'text': text, 'cues': recorded[key]['cues'], 'src': src}
     # Rooky in other languages: audio/<lang>/index.json and its clips, recorded from the translated
@@ -207,7 +217,7 @@ def guide(coach, collection):
         said = json.loads((d / 'index.json').read_text())['lines']
         for key, rec in said.items():
             if key in out and (d / (key + '.mp3')).exists():
-                src = ('@@PITCHES@@' + d.name + '/' + key + '.mp3' if key.startswith('item-') else
+                src = ('@@PITCHES@@' + d.name + '/' + key + '.mp3' if beside(key) else
                        'data:audio/mpeg;base64,' + base64.b64encode((d / (key + '.mp3')).read_bytes()).decode())
                 out[key].setdefault('langs', {})[d.name] = {'cues': rec['cues'], 'src': src}
     return out
@@ -438,14 +448,14 @@ def main():
         (out / 'meshes').mkdir(exist_ok=True)
         for pack in (game / 'meshes').glob('*.txt'):
             (out / 'meshes' / pack.name).write_bytes(pack.read_bytes())
-        for clip in (here / 'audio').glob('item-*.mp3'):
+        for clip in [c for c in sorted((here / 'audio').glob('*.mp3')) if beside(c.stem)]:
             (out / 'audio' / clip.name).write_bytes(clip.read_bytes())
         # The same pitches in other languages, joined per language into base64 parts of about 4 MB of
         # sound (the preview's host caps how many files a page may serve); the page plays
         # "audio/<lang>/part-<n>.txt#start-end" as that clip's slice of the part.
         page = (out / 'index.html').read_text()
         for d in sorted(x for x in (here / 'audio').iterdir() if x.is_dir()):
-            clips = sorted(d.glob('item-*.mp3'))
+            clips = sorted(d.glob('item-*.mp3')) + sorted(d.glob('fx-*.mp3')) + [d / (k + '.mp3') for k in BESIDE if (d / (k + '.mp3')).exists()]
             if not clips:
                 continue
             (out / 'audio' / d.name).mkdir(exist_ok=True)

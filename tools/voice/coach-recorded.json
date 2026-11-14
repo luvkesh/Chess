@@ -11,6 +11,18 @@
   "text": "Skewer",
   "spoken": "Skewer"
  },
+ "george/006f6f14": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "skewers the bishop on",
+  "spoken": "skewers the bishop on"
+ },
+ "george/0111cf76": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and attacks the rook on",
+  "spoken": "and attacks the rook on"
+ },
  "george/01340e6f": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -47,6 +59,18 @@
   "text": "Best",
   "spoken": "Best"
  },
+ "george/036b67be": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and promotes to a king",
+  "spoken": "and promotes to a king"
+ },
+ "george/0373e171": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Their bishop on",
+  "spoken": "Their bishop on"
+ },
  "george/041126bd": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -58,6 +82,12 @@
   "speed": 1.0,
   "text": "Ruy Lopez, Berlin Defence",
   "spoken": "Ruy Lopez, Berlin Defence"
+ },
+ "george/044385b6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and attacks the knight on",
+  "spoken": "and attacks the knight on"
  },
  "george/044f0fa6": {
   "voice": "bm_george",
@@ -131,6 +161,18 @@
   "text": "A strong sacrifice: the engine agrees.",
   "spoken": "A strong sacrifice: the engine agrees."
  },
+ "george/06bbcb02": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You now attack the queen on",
+  "spoken": "You now attack the queen on"
+ },
+ "george/07061cdc": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your bishop on",
+  "spoken": "Look at your bishop on"
+ },
  "george/07757195": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -149,6 +191,12 @@
   "text": "94",
   "spoken": "94"
  },
+ "george/084ec180": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "keeps your king safe",
+  "spoken": "keeps your king safe"
+ },
  "george/08cbcc06": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -161,11 +209,23 @@
   "text": "95",
   "spoken": "95"
  },
+ "george/09b03f38": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "promotes to a pawn",
+  "spoken": "promotes to a pawn"
+ },
  "george/09e4c831": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Outpost",
   "spoken": "Outpost"
+ },
+ "george/09ecef12": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your queen now controls",
+  "spoken": "Your queen now controls"
  },
  "george/09fe95a6": {
   "voice": "bm_george",
@@ -179,6 +239,12 @@
   "text": "is dangerous. Block it with a piece.",
   "spoken": "is dangerous. Block it with a piece."
  },
+ "george/0a610ede": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forking your king on",
+  "spoken": "forking your king on"
+ },
  "george/0a8b27be": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -190,6 +256,12 @@
   "speed": 1.0,
   "text": "A good opening for you as White: the",
   "spoken": "A good opening for you as White: the"
+ },
+ "george/0aabb2b1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and skewers the rook on",
+  "spoken": "and skewers the rook on"
  },
  "george/0adf1315": {
   "voice": "bm_george",
@@ -209,6 +281,12 @@
   "text": "No checkmates in sight, for either side.",
   "spoken": "No checkmates in sight, for either side."
  },
+ "george/0ba1c15f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You can win the game with one move. Look closely!",
+  "spoken": "You can win the game with one move. Look closely!"
+ },
  "george/0bb21298": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -226,6 +304,12 @@
   "speed": 1.0,
   "text": "90",
   "spoken": "90"
+ },
+ "george/0c1528b0": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "would fork your queen on",
+  "spoken": "would fork your queen on"
  },
  "george/0c4afe69": {
   "voice": "bm_george",
@@ -262,6 +346,12 @@
   "speed": 1.0,
   "text": "A setup the stronger side can't break.",
   "spoken": "A setup the stronger side can't break."
+ },
+ "george/0d8f7b17": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The pawn on",
+  "spoken": "The pawn on"
  },
  "george/0da8f0f3": {
   "voice": "bm_george",
@@ -359,6 +449,12 @@
   "text": "queen",
   "spoken": "queen"
  },
+ "george/10412c16": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your king on",
+  "spoken": "Look at your king on"
+ },
  "george/106ce7cc": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -371,11 +467,23 @@
   "text": "Castling",
   "spoken": "Castling"
  },
+ "george/10bbcc02": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "wins a bishop",
+  "spoken": "wins a bishop"
+ },
  "george/111f9f54": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Fool's Mate",
   "spoken": "Fool's Mate"
+ },
+ "george/117f10df": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "would fork your bishop on",
+  "spoken": "would fork your bishop on"
  },
  "george/11935b64": {
   "voice": "bm_george",
@@ -389,11 +497,23 @@
   "text": "You have left the usual",
   "spoken": "You have left the usual"
  },
+ "george/11f1e0c1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "rook on",
+  "spoken": "rook on"
+ },
  "george/11fd6afb": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": ", which also attacks your",
   "spoken": "which also attacks your"
+ },
+ "george/12204a9e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "This leaves your king on",
+  "spoken": "This leaves your king on"
  },
  "george/125479e8": {
   "voice": "bm_george",
@@ -406,6 +526,12 @@
   "speed": 1.0,
   "text": "Steady in the endgame.",
   "spoken": "Steady in the endgame."
+ },
+ "george/1286cc00": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the rook on",
+  "spoken": "and uncovers an attack on the rook on"
  },
  "george/12fab3f4": {
   "voice": "bm_george",
@@ -424,6 +550,12 @@
   "speed": 1.0,
   "text": "Larsen's Opening",
   "spoken": "Larsen's Opening"
+ },
+ "george/13be728b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacks the bishop on",
+  "spoken": "attacks the bishop on"
  },
  "george/13eb1dac": {
   "voice": "bm_george",
@@ -473,17 +605,41 @@
   "text": "99",
   "spoken": "99"
  },
+ "george/15875ca7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the bishop on",
+  "spoken": "and takes the bishop on"
+ },
  "george/15bcfc97": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Big mistake, but don't give up!",
   "spoken": "Big mistake, but don't give up!"
  },
+ "george/15dab3dc": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forking your rook on",
+  "spoken": "forking your rook on"
+ },
+ "george/15de7bee": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "puts your rook on a better square",
+  "spoken": "puts your rook on a better square"
+ },
  "george/15e8e23b": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "60",
   "spoken": "60"
+ },
+ "george/15e95086": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The rook on",
+  "spoken": "The rook on"
  },
  "george/169949bc": {
   "voice": "bm_george",
@@ -509,11 +665,23 @@
   "text": "Victory! Well played!",
   "spoken": "Victory! Well played!"
  },
+ "george/16f4c105": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the queen on",
+  "spoken": "and uncovers an attack on the queen on"
+ },
  "george/17a0b734": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "A little loose.",
   "spoken": "A little loose."
+ },
+ "george/17a2396b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your bishop",
+  "spoken": "Look at your bishop"
  },
  "george/17ce8817": {
   "voice": "bm_george",
@@ -562,6 +730,12 @@
   "speed": 1.0,
   "text": "That works well.",
   "spoken": "That works well."
+ },
+ "george/1832cb93": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "would fork your rook on",
+  "spoken": "would fork your rook on"
  },
  "george/183bd893": {
   "voice": "bm_george",
@@ -647,6 +821,12 @@
   "text": "Caro-Kann Defence",
   "spoken": "Caro-Kann Defence"
  },
+ "george/1ad3ea16": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "win your pawn with",
+  "spoken": "win your pawn with"
+ },
  "george/1ae8ea1a": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -670,6 +850,12 @@
   "speed": 1.0,
   "text": "the kingside",
   "spoken": "the kingside"
+ },
+ "george/1b713456": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forks the pawn on",
+  "spoken": "forks the pawn on"
  },
  "george/1b89bba0": {
   "voice": "bm_george",
@@ -743,6 +929,12 @@
   "text": "Plan",
   "spoken": "Plan"
  },
+ "george/1eba6a1b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your bishop",
+  "spoken": "Your bishop"
+ },
  "george/1ed39e39": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -773,6 +965,12 @@
   "text": "trades pieces while you are ahead.",
   "spoken": "trades pieces while you are ahead."
  },
+ "george/1f80d371": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "rook takes on",
+  "spoken": "rook takes on"
+ },
  "george/1fe3b4ed": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -784,6 +982,12 @@
   "speed": 1.0,
   "text": "to the king",
   "spoken": "to the king"
+ },
+ "george/20d96fa1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and skewers the bishop on",
+  "spoken": "and skewers the bishop on"
  },
  "george/2107debf": {
   "voice": "bm_george",
@@ -803,11 +1007,29 @@
   "text": "We are in the endgame now. Kings become fighters!",
   "spoken": "We are in the endgame now. Kings become fighters!"
  },
+ "george/21f305a8": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your queen",
+  "spoken": "Look at your queen"
+ },
  "george/220c7785": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "It can make a fork.",
   "spoken": "It can make a fork."
+ },
+ "george/2229cd7e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the pawn on",
+  "spoken": "and takes the pawn on"
+ },
+ "george/224ab79b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your rook now controls",
+  "spoken": "Your rook now controls"
  },
  "george/225109c0": {
   "voice": "bm_george",
@@ -869,6 +1091,12 @@
   "text": "dee eight",
   "spoken": "dee eight"
  },
+ "george/253a5857": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Their king is left all alone, so you win the game.",
+  "spoken": "Their king is left all alone, so you win the game."
+ },
  "george/25633715": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -899,11 +1127,23 @@
   "text": "bee two",
   "spoken": "bee two"
  },
+ "george/26545439": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "This leaves your queen on",
+  "spoken": "This leaves your queen on"
+ },
  "george/266ffd28": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "see six",
   "spoken": "see six"
+ },
+ "george/26c4492d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You now attack the bishop on",
+  "spoken": "You now attack the bishop on"
  },
  "george/2710c38a": {
   "voice": "bm_george",
@@ -928,6 +1168,12 @@
   "speed": 1.0,
   "text": "You won!",
   "spoken": "You won!"
+ },
+ "george/2821e5ec": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the king on",
+  "spoken": "takes the king on"
  },
  "george/2849a3fe": {
   "voice": "bm_george",
@@ -1007,6 +1253,12 @@
   "text": "-file is open: a rook there would be strong.",
   "spoken": "file is open: a rook there would be strong."
  },
+ "george/2bb1fc88": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forking your knight on",
+  "spoken": "forking your knight on"
+ },
  "george/2be2ffc0": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1043,6 +1295,12 @@
   "text": "aitch six",
   "spoken": "aitch six"
  },
+ "george/2e0ec0f4": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your pawn",
+  "spoken": "Your pawn"
+ },
  "george/2e142784": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1054,6 +1312,18 @@
   "speed": 1.0,
   "text": "see eight",
   "spoken": "see eight"
+ },
+ "george/2e3a4cfc": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacking your knight on",
+  "spoken": "attacking your knight on"
+ },
+ "george/2e48475b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Their king on",
+  "spoken": "Their king on"
  },
  "george/2e4a71b6": {
   "voice": "bm_george",
@@ -1115,6 +1385,12 @@
   "text": "Wow, top move!",
   "spoken": "Wow, top move!"
  },
+ "george/3080e744": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and forks the king on",
+  "spoken": "and forks the king on"
+ },
  "george/30a61f60": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1126,6 +1402,12 @@
   "speed": 1.0,
   "text": "Nearly there!",
   "spoken": "Nearly there!"
+ },
+ "george/3108d1f3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forks the rook on",
+  "spoken": "forks the rook on"
  },
  "george/310ca263": {
   "voice": "bm_george",
@@ -1205,6 +1487,12 @@
   "text": "Sicilian Defence, Dragon",
   "spoken": "Sicilian Defence, Dragon"
  },
+ "george/3403dff4": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your pawn now controls only",
+  "spoken": "Your pawn now controls only"
+ },
  "george/340ca71c": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1270,6 +1558,18 @@
   "speed": 1.0,
   "text": "2",
   "spoken": "2"
+ },
+ "george/37293d57": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and pins the bishop on",
+  "spoken": "and pins the bishop on"
+ },
+ "george/379d8409": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and wins a king",
+  "spoken": "and wins a king"
  },
  "george/37c9b687": {
   "voice": "bm_george",
@@ -1349,11 +1649,23 @@
   "text": "Your king is safe. Now connect your rooks.",
   "spoken": "Your king is safe. Now connect your rooks."
  },
+ "george/3a28eaf0": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "puts your king on a better square",
+  "spoken": "puts your king on a better square"
+ },
  "george/3b094452": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Your opponent has a forced checkmate.",
   "spoken": "Your opponent has a forced checkmate."
+ },
+ "george/3b68a233": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The king",
+  "spoken": "The king"
  },
  "george/3b80190a": {
   "voice": "bm_george",
@@ -1366,6 +1678,12 @@
   "speed": 1.0,
   "text": "-file.",
   "spoken": "file."
+ },
+ "george/3be0d637": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Move your queen from",
+  "spoken": "Move your queen from"
  },
  "george/3c0cb3b4": {
   "voice": "bm_george",
@@ -1390,6 +1708,12 @@
   "speed": 1.0,
   "text": "8",
   "spoken": "8"
+ },
+ "george/3d509c0e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the knight on",
+  "spoken": "takes the knight on"
  },
  "george/3d667e65": {
   "voice": "bm_george",
@@ -1457,6 +1781,12 @@
   "text": "to",
   "spoken": "to"
  },
+ "george/4275b7d7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacks the rook on",
+  "spoken": "attacks the rook on"
+ },
  "george/42c71d0c": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1474,6 +1804,12 @@
   "speed": 1.0,
   "text": "Philidor Defence",
   "spoken": "Philidor Defence"
+ },
+ "george/43b19135": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your king now controls only",
+  "spoken": "Your king now controls only"
  },
  "george/4404b82b": {
   "voice": "bm_george",
@@ -1499,11 +1835,29 @@
   "text": "jee three",
   "spoken": "jee three"
  },
+ "george/454114a6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your king on",
+  "spoken": "Your king on"
+ },
+ "george/471fe3b2": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "win your queen with",
+  "spoken": "win your queen with"
+ },
  "george/47aa4190": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "You are clearly better.",
   "spoken": "You are clearly better."
+ },
+ "george/47b489df": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You now attack the king on",
+  "spoken": "You now attack the king on"
  },
  "george/47e52c43": {
   "voice": "bm_george",
@@ -1517,11 +1871,23 @@
   "text": "stalemates: the game is drawn.",
   "spoken": "stalemates: the game is drawn."
  },
+ "george/488da7be": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the queen",
+  "spoken": "takes the queen"
+ },
  "george/490ea238": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "bishop",
   "spoken": "bishop"
+ },
+ "george/49247f17": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your knight",
+  "spoken": "Your knight"
  },
  "george/4965431a": {
   "voice": "bm_george",
@@ -1541,6 +1907,12 @@
   "text": "Their strongest reply is",
   "spoken": "Their strongest reply is"
  },
+ "george/4af1f889": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacking your pawn on",
+  "spoken": "attacking your pawn on"
+ },
  "george/4b6ef87a": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1552,6 +1924,12 @@
   "speed": 1.0,
   "text": "Giving material for something bigger: an attack, a checkmate or a better position.",
   "spoken": "Giving material for something bigger: an attack, a checkmate or a better position."
+ },
+ "george/4b981c1b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and wins a bishop",
+  "spoken": "and wins a bishop"
  },
  "george/4b988062": {
   "voice": "bm_george",
@@ -1582,6 +1960,18 @@
   "speed": 1.0,
   "text": "Smith-Morra Gambit",
   "spoken": "Smith-Morra Gambit"
+ },
+ "george/4d4f96b5": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "uncovers an attack on the bishop on",
+  "spoken": "uncovers an attack on the bishop on"
+ },
+ "george/4d860091": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the pawn",
+  "spoken": "and takes the pawn"
  },
  "george/4e795a36": {
   "voice": "bm_george",
@@ -1631,6 +2021,12 @@
   "text": ". Bring your king to help it.",
   "spoken": "Bring your king to help it."
  },
+ "george/50f18575": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your pawn on",
+  "spoken": "Look at your pawn on"
+ },
  "george/5132f73f": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1673,17 +2069,41 @@
   "text": "bee six",
   "spoken": "bee six"
  },
+ "george/5276d469": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "win your king with",
+  "spoken": "win your king with"
+ },
  "george/52c12853": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "A draw: both sides held on.",
   "spoken": "A draw: both sides held on."
  },
+ "george/532e8143": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "king takes on",
+  "spoken": "king takes on"
+ },
+ "george/53483758": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "skewers the knight on",
+  "spoken": "skewers the knight on"
+ },
  "george/5350e97c": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Careful: this plan runs into trouble at",
   "spoken": "Careful: this plan runs into trouble at"
+ },
+ "george/53759037": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your knight now controls",
+  "spoken": "Your knight now controls"
  },
  "george/53a0d258": {
   "voice": "bm_george",
@@ -1751,6 +2171,12 @@
   "text": "Two big pieces walk the king to the edge, one row at a time.",
   "spoken": "Two big pieces walk the king to the edge, one row at a time."
  },
+ "george/5602659b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the rook on",
+  "spoken": "and takes the rook on"
+ },
  "george/565a4c24": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1793,11 +2219,29 @@
   "text": "is under attack.",
   "spoken": "is under attack."
  },
+ "george/57e3bedb": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and attacks the queen on",
+  "spoken": "and attacks the queen on"
+ },
+ "george/57f0ca79": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forking your queen on",
+  "spoken": "forking your queen on"
+ },
  "george/584322e6": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "is guarding two pieces at once. Be careful.",
   "spoken": "is guarding two pieces at once. Be careful."
+ },
+ "george/58c7eb51": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your queen on",
+  "spoken": "Your queen on"
  },
  "george/591aea3b": {
   "voice": "bm_george",
@@ -1810,6 +2254,12 @@
   "speed": 1.0,
   "text": "There is a bold idea here, but it is risky.",
   "spoken": "There is a bold idea here, but it is risky."
+ },
+ "george/5a4d1992": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and forks the bishop on",
+  "spoken": "and forks the bishop on"
  },
  "george/5a5ffd17": {
   "voice": "bm_george",
@@ -1829,6 +2279,12 @@
   "text": "Now that's chess!",
   "spoken": "Now that's chess!"
  },
+ "george/5a858356": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and skewers the queen on",
+  "spoken": "and skewers the queen on"
+ },
  "george/5aaea77d": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1841,11 +2297,23 @@
   "text": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off.",
   "spoken": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off."
  },
+ "george/5afc0d0d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "knight takes on",
+  "spoken": "knight takes on"
+ },
  "george/5bbab4ff": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Mistakes help us learn.",
   "spoken": "Mistakes help us learn."
+ },
+ "george/5c15f02a": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacks the pawn on",
+  "spoken": "attacks the pawn on"
  },
  "george/5c6950cd": {
   "voice": "bm_george",
@@ -1865,6 +2333,12 @@
   "text": "Try this thought.",
   "spoken": "Try this thought."
  },
+ "george/5e7fd4c1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "bishop takes on",
+  "spoken": "bishop takes on"
+ },
  "george/5f77d5e8": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1876,6 +2350,12 @@
   "speed": 1.0,
   "text": "guards two things at once. Attack one of them.",
   "spoken": "guards two things at once. Attack one of them."
+ },
+ "george/5fd0d3e9": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forks the king on",
+  "spoken": "forks the king on"
  },
  "george/5fdd3a99": {
   "voice": "bm_george",
@@ -1901,11 +2381,23 @@
   "text": "Your king can catch their pawn on",
   "spoken": "Your king can catch their pawn on"
  },
+ "george/603d07e9": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The rook",
+  "spoken": "The rook"
+ },
  "george/60956946": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Tactics",
   "spoken": "Tactics"
+ },
+ "george/60bc184e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "skewers the king on",
+  "spoken": "skewers the king on"
  },
  "george/610b2281": {
   "voice": "bm_george",
@@ -1937,6 +2429,12 @@
   "text": "Accurate play.",
   "spoken": "Accurate play."
  },
+ "george/61b3e4b8": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your queen",
+  "spoken": "Your queen"
+ },
  "george/61b95f60": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -1948,6 +2446,12 @@
   "speed": 1.0,
   "text": "Sensible move.",
   "spoken": "Sensible move."
+ },
+ "george/623ce81b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the knight on",
+  "spoken": "and takes the knight on"
  },
  "george/62efd37c": {
   "voice": "bm_george",
@@ -1966,6 +2470,18 @@
   "speed": 1.0,
   "text": "Your opponent has no direct threat now.",
   "spoken": "Your opponent has no direct threat now."
+ },
+ "george/6368ca4d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and skewers the knight on",
+  "spoken": "and skewers the knight on"
+ },
+ "george/6393807b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your rook now controls only",
+  "spoken": "Your rook now controls only"
  },
  "george/639eb421": {
   "voice": "bm_george",
@@ -1990,6 +2506,12 @@
   "speed": 1.0,
   "text": "ee six",
   "spoken": "ee six"
+ },
+ "george/64380a21": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and pins the king on",
+  "spoken": "and pins the king on"
  },
  "george/648f3bac": {
   "voice": "bm_george",
@@ -2021,6 +2543,12 @@
   "text": "ee seven",
   "spoken": "ee seven"
  },
+ "george/657e7376": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "would fork your pawn on",
+  "spoken": "would fork your pawn on"
+ },
  "george/6584267a": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2032,6 +2560,12 @@
   "speed": 1.0,
   "text": "This allows checkmate:",
   "spoken": "This allows checkmate:"
+ },
+ "george/65f0181d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The bishop",
+  "spoken": "The bishop"
  },
  "george/65f0f920": {
   "voice": "bm_george",
@@ -2117,6 +2651,18 @@
   "text": "Their king is in danger. Look for checks!",
   "spoken": "Their king is in danger. Look for checks!"
  },
+ "george/68d4a2f4": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and wins a pawn",
+  "spoken": "and wins a pawn"
+ },
+ "george/6903bbc9": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "skewers the queen on",
+  "spoken": "skewers the queen on"
+ },
  "george/691b42b6": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2128,6 +2674,12 @@
   "speed": 1.0,
   "text": "Not a good move.",
   "spoken": "Not a good move."
+ },
+ "george/69f3ab34": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pawn takes on",
+  "spoken": "pawn takes on"
  },
  "george/6a2893df": {
   "voice": "bm_george",
@@ -2147,11 +2699,23 @@
   "text": "gives up material for a lasting attack.",
   "spoken": "gives up material for a lasting attack."
  },
+ "george/6b208070": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and bishop on",
+  "spoken": "and bishop on"
+ },
  "george/6b3efd82": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Well done!",
   "spoken": "Well done!"
+ },
+ "george/6b441963": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your bishop now controls",
+  "spoken": "Your bishop now controls"
  },
  "george/6b8adfd6": {
   "voice": "bm_george",
@@ -2164,6 +2728,12 @@
   "speed": 1.0,
   "text": "It needs a safer square.",
   "spoken": "It needs a safer square."
+ },
+ "george/6c00adfb": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and forks the queen on",
+  "spoken": "and forks the queen on"
  },
  "george/6c0f972e": {
   "voice": "bm_george",
@@ -2231,11 +2801,29 @@
   "text": "Queen's Pawn Opening",
   "spoken": "Queen's Pawn Opening"
  },
+ "george/6e77693d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forking your pawn on",
+  "spoken": "forking your pawn on"
+ },
+ "george/6e81a0b0": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your knight on",
+  "spoken": "Look at your knight on"
+ },
  "george/6e8f9f83": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Use your rook to push their king to the edge, one row at a time, with your king helping.",
   "spoken": "Use your rook to push their king to the edge, one row at a time, with your king helping."
+ },
+ "george/6e8fdf0a": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacking your king on",
+  "spoken": "attacking your king on"
  },
  "george/6e92eb66": {
   "voice": "bm_george",
@@ -2248,6 +2836,12 @@
   "speed": 1.0,
   "text": "Moving it uncovers an attack.",
   "spoken": "Moving it uncovers an attack."
+ },
+ "george/6eded3f2": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the pawn",
+  "spoken": "takes the pawn"
  },
  "george/6efd0494": {
   "voice": "bm_george",
@@ -2266,6 +2860,12 @@
   "speed": 1.0,
   "text": "see one",
   "spoken": "see one"
+ },
+ "george/6f58045d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "knight to",
+  "spoken": "knight to"
  },
  "george/6f7913df": {
   "voice": "bm_george",
@@ -2297,11 +2897,29 @@
   "text": "Needs work",
   "spoken": "Needs work"
  },
+ "george/709aebdd": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "knight on",
+  "spoken": "knight on"
+ },
+ "george/70b54889": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "would fork your king on",
+  "spoken": "would fork your king on"
+ },
  "george/70d370ff": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Hmm, not quite the best.",
   "spoken": "Hmm, not quite the best."
+ },
+ "george/70d97fee": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and pins the pawn on",
+  "spoken": "and pins the pawn on"
  },
  "george/70e3c2d5": {
   "voice": "bm_george",
@@ -2321,6 +2939,12 @@
   "text": "That changes the game.",
   "spoken": "That changes the game."
  },
+ "george/7130ec9a": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the bishop",
+  "spoken": "and takes the bishop"
+ },
  "george/7160d90c": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2332,6 +2956,12 @@
   "speed": 1.0,
   "text": "Their",
   "spoken": "Their"
+ },
+ "george/721a6a58": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the king",
+  "spoken": "and takes the king"
  },
  "george/726fd3d5": {
   "voice": "bm_george",
@@ -2363,6 +2993,18 @@
   "text": "Open Sicilian",
   "spoken": "Open Sicilian"
  },
+ "george/7397050f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the queen",
+  "spoken": "and takes the queen"
+ },
+ "george/73adf938": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "uncovers an attack on the pawn on",
+  "spoken": "uncovers an attack on the pawn on"
+ },
  "george/73d4f219": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2387,11 +3029,23 @@
   "text": "Their queen is going after your b2 pawn and back row.",
   "spoken": "Their queen is going after your bee two pawn and back row."
  },
+ "george/75f0c9fd": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "This leaves your pawn on",
+  "spoken": "This leaves your pawn on"
+ },
  "george/75f9fa5a": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "percent",
   "spoken": "percent"
+ },
+ "george/76023117": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and wins a knight",
+  "spoken": "and wins a knight"
  },
  "george/7655cedb": {
   "voice": "bm_george",
@@ -2404,6 +3058,12 @@
   "speed": 1.0,
   "text": "Some winning chances were missed.",
   "spoken": "Some winning chances were missed."
+ },
+ "george/778caaa1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and promotes to a queen",
+  "spoken": "and promotes to a queen"
  },
  "george/77da6893": {
   "voice": "bm_george",
@@ -2459,6 +3119,18 @@
   "text": "They have the opposition. Try to take it back.",
   "spoken": "They have the opposition. Try to take it back."
  },
+ "george/79b0cb88": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Move your bishop from",
+  "spoken": "Move your bishop from"
+ },
+ "george/79f04007": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your knight now controls only",
+  "spoken": "Your knight now controls only"
+ },
  "george/7a8c7df8": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2477,11 +3149,29 @@
   "text": "Castles queenside",
   "spoken": "Castles queenside"
  },
+ "george/7ae0df2d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "uncovers an attack on the rook on",
+  "spoken": "uncovers an attack on the rook on"
+ },
+ "george/7aff6c2e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "keeps your bishop safe",
+  "spoken": "keeps your bishop safe"
+ },
  "george/7b3c1e94": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "eff six",
   "spoken": "eff six"
+ },
+ "george/7b7066c1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and pawn on",
+  "spoken": "and pawn on"
  },
  "george/7b8038d9": {
   "voice": "bm_george",
@@ -2495,6 +3185,24 @@
   "text": "A big mistake.",
   "spoken": "A big mistake."
  },
+ "george/7b8c6dab": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The queen on",
+  "spoken": "The queen on"
+ },
+ "george/7ba0dffa": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the bishop on",
+  "spoken": "takes the bishop on"
+ },
+ "george/7be08c3c": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pins the bishop on",
+  "spoken": "pins the bishop on"
+ },
  "george/7c22dda6": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2506,6 +3214,12 @@
   "speed": 1.0,
   "text": "A small slip.",
   "spoken": "A small slip."
+ },
+ "george/7cf31c67": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You have a winning plan here. Think it through!",
+  "spoken": "You have a winning plan here. Think it through!"
  },
  "george/7dda6dec": {
   "voice": "bm_george",
@@ -2537,6 +3251,18 @@
   "text": "Practise king safety and castling.",
   "spoken": "Practise king safety and castling."
  },
+ "george/7e969acf": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "It can win the game.",
+  "spoken": "It can win the game."
+ },
+ "george/7ea4dac3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your rook",
+  "spoken": "Your rook"
+ },
  "george/7ec17438": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2548,6 +3274,12 @@
   "speed": 1.0,
   "text": "has no pawn friends next to it (an isolated pawn).",
   "spoken": "has no pawn friends next to it (an isolated pawn)."
+ },
+ "george/7f0f08a8": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the queen on",
+  "spoken": "and takes the queen on"
  },
  "george/7f102862": {
   "voice": "bm_george",
@@ -2579,17 +3311,47 @@
   "text": "Catalan Opening",
   "spoken": "Catalan Opening"
  },
+ "george/807992e6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The queen",
+  "spoken": "The queen"
+ },
  "george/8099a371": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Pirc Defence",
   "spoken": "Pirc Defence"
  },
+ "george/80d47fb2": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the king on",
+  "spoken": "and uncovers an attack on the king on"
+ },
  "george/80fac56a": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "That's a fine move.",
   "spoken": "That's a fine move."
+ },
+ "george/80fce7df": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "puts your pawn on a better square",
+  "spoken": "puts your pawn on a better square"
+ },
+ "george/8134cf59": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "wins a pawn",
+  "spoken": "wins a pawn"
+ },
+ "george/8150602c": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "skewers the rook on",
+  "spoken": "skewers the rook on"
  },
  "george/81978977": {
   "voice": "bm_george",
@@ -2602,6 +3364,12 @@
   "speed": 1.0,
   "text": "After that line:",
   "spoken": "After that line:"
+ },
+ "george/81c4d3be": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "wins a rook",
+  "spoken": "wins a rook"
  },
  "george/81e74773": {
   "voice": "bm_george",
@@ -2626,6 +3394,12 @@
   "speed": 1.0,
   "text": "dee two",
   "spoken": "dee two"
+ },
+ "george/82c5ee1e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the rook on",
+  "spoken": "takes the rook on"
  },
  "george/839ddae2": {
   "voice": "bm_george",
@@ -2674,6 +3448,12 @@
   "speed": 1.0,
   "text": "51",
   "spoken": "51"
+ },
+ "george/85031be7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "uncovers an attack on the king on",
+  "spoken": "uncovers an attack on the king on"
  },
  "george/856a3a4e": {
   "voice": "bm_george",
@@ -2753,6 +3533,12 @@
   "text": "Biggest missed chance:",
   "spoken": "Biggest missed chance:"
  },
+ "george/876258a4": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and attacks the king on",
+  "spoken": "and attacks the king on"
+ },
  "george/8767d867": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2812,6 +3598,18 @@
   "speed": 1.0,
   "text": "bee three",
   "spoken": "bee three"
+ },
+ "george/885e1be9": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The knight",
+  "spoken": "The knight"
+ },
+ "george/887037de": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "That is your third check, so you win the game.",
+  "spoken": "That is your third check, so you win the game."
  },
  "george/88e1487f": {
   "voice": "bm_george",
@@ -2879,6 +3677,12 @@
   "text": "24",
   "spoken": "24"
  },
+ "george/8ab5f979": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Move your pawn from",
+  "spoken": "Move your pawn from"
+ },
  "george/8ac6ec69": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2927,6 +3731,18 @@
   "text": "87",
   "spoken": "87"
  },
+ "george/8b255055": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pins the pawn on",
+  "spoken": "pins the pawn on"
+ },
+ "george/8b2b43b6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Move your king from",
+  "spoken": "Move your king from"
+ },
  "george/8b3335e8": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2944,6 +3760,12 @@
   "speed": 1.0,
   "text": "Checkmate threats sometimes slip past you.",
   "spoken": "Checkmate threats sometimes slip past you."
+ },
+ "george/8be022ab": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and pins the rook on",
+  "spoken": "and pins the rook on"
  },
  "george/8be14d38": {
   "voice": "bm_george",
@@ -3017,6 +3839,12 @@
   "text": "It is about equal.",
   "spoken": "It is about equal."
  },
+ "george/8cd21a94": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the knight on",
+  "spoken": "and uncovers an attack on the knight on"
+ },
  "george/8ce14ecb": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3059,6 +3887,12 @@
   "text": "85",
   "spoken": "85"
  },
+ "george/8dc78a80": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your queen now controls only",
+  "spoken": "Your queen now controls only"
+ },
  "george/8de38ef5": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3089,6 +3923,12 @@
   "text": "Your opponent has a checkmate coming. Look for checks and defenders.",
   "spoken": "Your opponent has a checkmate coming. Look for checks and defenders."
  },
+ "george/8e50b894": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your rook on",
+  "spoken": "Look at your rook on"
+ },
  "george/8ed4a950": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3118,6 +3958,12 @@
   "speed": 1.0,
   "text": "83",
   "spoken": "83"
+ },
+ "george/8fb6bd7f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacks the knight on",
+  "spoken": "attacks the knight on"
  },
  "george/8fe5d0b2": {
   "voice": "bm_george",
@@ -3203,6 +4049,18 @@
   "text": "80",
   "spoken": "80"
  },
+ "george/929db7f8": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and pins the queen on",
+  "spoken": "and pins the queen on"
+ },
+ "george/938ed790": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pins the knight on",
+  "spoken": "pins the knight on"
+ },
  "george/93b554d1": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3227,11 +4085,29 @@
   "text": "This allows",
   "spoken": "This allows"
  },
+ "george/94801f30": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You now attack the pawn on",
+  "spoken": "You now attack the pawn on"
+ },
+ "george/94d34644": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your pawn",
+  "spoken": "Look at your pawn"
+ },
  "george/94f2a484": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "29",
   "spoken": "29"
+ },
+ "george/95a93948": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "This leaves your knight on",
+  "spoken": "This leaves your knight on"
  },
  "george/95b7652e": {
   "voice": "bm_george",
@@ -3250,6 +4126,12 @@
   "speed": 1.0,
   "text": ", which",
   "spoken": "which"
+ },
+ "george/95ed26bf": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forks the bishop on",
+  "spoken": "forks the bishop on"
  },
  "george/95f2a617": {
   "voice": "bm_george",
@@ -3341,6 +4223,12 @@
   "text": "79",
   "spoken": "79"
  },
+ "george/98ebad31": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "uncovers an attack on the knight on",
+  "spoken": "uncovers an attack on the knight on"
+ },
  "george/9901b55a": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3377,11 +4265,23 @@
   "text": "Inaccurate",
   "spoken": "Inaccurate"
  },
+ "george/9a3edd4e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "queen takes on",
+  "spoken": "queen takes on"
+ },
  "george/9ab46cbd": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "You often leave pieces unprotected.",
   "spoken": "You often leave pieces unprotected."
+ },
+ "george/9b1b9981": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the knight",
+  "spoken": "takes the knight"
  },
  "george/9b27c35e": {
   "voice": "bm_george",
@@ -3401,11 +4301,29 @@
   "text": "Seeing threats and king safety.",
   "spoken": "Seeing threats and king safety."
  },
+ "george/9bc4c0f6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pins the king on",
+  "spoken": "pins the king on"
+ },
  "george/9bc66128": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "win a pawn with",
   "spoken": "win a pawn with"
+ },
+ "george/9bf4dbc1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pins the queen on",
+  "spoken": "pins the queen on"
+ },
+ "george/9bf6f238": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Move your rook from",
+  "spoken": "Move your rook from"
  },
  "george/9c344405": {
   "voice": "bm_george",
@@ -3443,6 +4361,12 @@
   "text": "on a better square.",
   "spoken": "on a better square."
  },
+ "george/9d0f57f1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the king on",
+  "spoken": "and takes the king on"
+ },
  "george/9d5c5ef1": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3454,6 +4378,12 @@
   "speed": 1.0,
   "text": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind.",
   "spoken": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind."
+ },
+ "george/9dc2496f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "keeps your pawn safe",
+  "spoken": "keeps your pawn safe"
  },
  "george/9e1f5b1c": {
   "voice": "bm_george",
@@ -3491,6 +4421,18 @@
   "text": "Move choice and missed chances.",
   "spoken": "Move choice and missed chances."
  },
+ "george/9f57fcc7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your knight",
+  "spoken": "Look at your knight"
+ },
+ "george/9f991274": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and promotes to a knight",
+  "spoken": "and promotes to a knight"
+ },
  "george/9fe219c8": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3502,6 +4444,12 @@
   "speed": 1.0,
   "text": "Keep going, you're doing great!",
   "spoken": "Keep going, you're doing great!"
+ },
+ "george/a071a836": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the rook",
+  "spoken": "and takes the rook"
  },
  "george/a0cd961d": {
   "voice": "bm_george",
@@ -3545,6 +4493,18 @@
   "text": "Watch out!",
   "spoken": "Watch out!"
  },
+ "george/a38a8c7d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Their knight on",
+  "spoken": "Their knight on"
+ },
+ "george/a3cda772": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and attacks the bishop on",
+  "spoken": "and attacks the bishop on"
+ },
  "george/a3e6c3da": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3569,11 +4529,23 @@
   "text": "That's a mistake, but you can fix things.",
   "spoken": "That's a mistake, but you can fix things."
  },
+ "george/a6293bc5": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the bishop",
+  "spoken": "takes the bishop"
+ },
  "george/a6614ec5": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Your king can no longer castle.",
   "spoken": "Your king can no longer castle."
+ },
+ "george/a68b9c7f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "win your rook with",
+  "spoken": "win your rook with"
  },
  "george/a6da2d6d": {
   "voice": "bm_george",
@@ -3604,6 +4576,12 @@
   "speed": 1.0,
   "text": "Colle System",
   "spoken": "Colle System"
+ },
+ "george/a7b5f516": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and forks the rook on",
+  "spoken": "and forks the rook on"
  },
  "george/a7dd3a69": {
   "voice": "bm_george",
@@ -3658,6 +4636,12 @@
   "speed": 1.0,
   "text": "see two",
   "spoken": "see two"
+ },
+ "george/aa499ec3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "would fork your knight on",
+  "spoken": "would fork your knight on"
  },
  "george/aacb3c6c": {
   "voice": "bm_george",
@@ -3760,6 +4744,12 @@
   "speed": 1.0,
   "text": "Then you play",
   "spoken": "Then you play"
+ },
+ "george/ae95bf3d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacks the king on",
+  "spoken": "attacks the king on"
  },
  "george/aeca1708": {
   "voice": "bm_george",
@@ -3875,6 +4865,12 @@
   "text": "A sound move.",
   "spoken": "A sound move."
  },
+ "george/b46d1fb6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and takes the knight",
+  "spoken": "and takes the knight"
+ },
  "george/b526ec40": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3887,6 +4883,12 @@
   "text": "Queen",
   "spoken": "Queen"
  },
+ "george/b59da366": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your pawn now controls",
+  "spoken": "Your pawn now controls"
+ },
  "george/b5b8963a": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3898,6 +4900,12 @@
   "speed": 1.0,
   "text": "It can make a skewer.",
   "spoken": "It can make a skewer."
+ },
+ "george/b5e5c610": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and promotes to a rook",
+  "spoken": "and promotes to a rook"
  },
  "george/b63df618": {
   "voice": "bm_george",
@@ -3917,6 +4925,12 @@
   "text": "behind it",
   "spoken": "behind it"
  },
+ "george/b6e6daf4": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pins the rook on",
+  "spoken": "pins the rook on"
+ },
  "george/b7441bc0": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3928,6 +4942,12 @@
   "speed": 1.0,
   "text": "Moving one piece uncovers an attack by another.",
   "spoken": "Moving one piece uncovers an attack by another."
+ },
+ "george/b80a8dd8": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your king reaches the hill in the middle and wins the game.",
+  "spoken": "Your king reaches the hill in the middle and wins the game."
  },
  "george/b843a5d3": {
   "voice": "bm_george",
@@ -3953,6 +4973,12 @@
   "text": "ay three",
   "spoken": "ay three"
  },
+ "george/b8f5160c": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and skewers the pawn on",
+  "spoken": "and skewers the pawn on"
+ },
  "george/b95ce965": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -3964,6 +4990,12 @@
   "speed": 1.0,
   "text": "Tempo",
   "spoken": "Tempo"
+ },
+ "george/b96abcc3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and wins a rook",
+  "spoken": "and wins a rook"
  },
  "george/b973427d": {
   "voice": "bm_george",
@@ -3983,11 +5015,23 @@
   "text": "Giving away material on purpose.",
   "spoken": "Giving away material on purpose."
  },
+ "george/b9ea71ad": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "promotes to a king",
+  "spoken": "promotes to a king"
+ },
  "george/bb5eaf79": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "It wants to go toward",
   "spoken": "It wants to go toward"
+ },
+ "george/bb9a9624": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "This leaves your bishop on",
+  "spoken": "This leaves your bishop on"
  },
  "george/bb9e6583": {
   "voice": "bm_george",
@@ -4012,6 +5056,18 @@
   "speed": 1.0,
   "text": "A good answer for you as Black: the",
   "spoken": "A good answer for you as Black: the"
+ },
+ "george/bbeea6f3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and promotes to a pawn",
+  "spoken": "and promotes to a pawn"
+ },
+ "george/bbf823f6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "puts your bishop on a better square",
+  "spoken": "puts your bishop on a better square"
  },
  "george/bc47a12e": {
   "voice": "bm_george",
@@ -4097,6 +5153,12 @@
   "text": "Careful there.",
   "spoken": "Careful there."
  },
+ "george/bf16e694": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The king on",
+  "spoken": "The king on"
+ },
  "george/bf571877": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4120,6 +5182,24 @@
   "speed": 1.0,
   "text": "Playable, but not the best.",
   "spoken": "Playable, but not the best."
+ },
+ "george/c04dd8ed": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "skewers the pawn on",
+  "spoken": "skewers the pawn on"
+ },
+ "george/c0783c3a": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "puts your knight on a better square",
+  "spoken": "puts your knight on a better square"
+ },
+ "george/c1049a8f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the pawn on",
+  "spoken": "takes the pawn on"
  },
  "george/c1db360d": {
   "voice": "bm_george",
@@ -4169,6 +5249,12 @@
   "text": "now controls only",
   "spoken": "now controls only"
  },
+ "george/c380ae35": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and queen on",
+  "spoken": "and queen on"
+ },
  "george/c38a5bc5": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4211,6 +5297,24 @@
   "text": "The queen hits the weak f-pawn square next to the king.",
   "spoken": "The queen hits the weak eff pawn square next to the king."
  },
+ "george/c4e3459c": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "This leaves your rook on",
+  "spoken": "This leaves your rook on"
+ },
+ "george/c515578b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and skewers the king on",
+  "spoken": "and skewers the king on"
+ },
+ "george/c537c1e7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and attacks the pawn on",
+  "spoken": "and attacks the pawn on"
+ },
  "george/c54ae403": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4229,6 +5333,18 @@
   "text": "Slav Defence",
   "spoken": "Slav Defence"
  },
+ "george/c6273b4d": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacking your queen on",
+  "spoken": "attacking your queen on"
+ },
+ "george/c665d382": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and king on",
+  "spoken": "and king on"
+ },
  "george/c710a536": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4241,6 +5357,12 @@
   "text": "points.",
   "spoken": "points."
  },
+ "george/c8086be6": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "queen on",
+  "spoken": "queen on"
+ },
  "george/c80d8861": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4252,6 +5374,18 @@
   "speed": 1.0,
   "text": "dee three",
   "spoken": "dee three"
+ },
+ "george/c82bfae1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your queen on",
+  "spoken": "Look at your queen on"
+ },
+ "george/c8477f20": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the bishop on",
+  "spoken": "and uncovers an attack on the bishop on"
  },
  "george/c8532b44": {
   "voice": "bm_george",
@@ -4277,11 +5411,35 @@
   "text": "jee",
   "spoken": "jee"
  },
+ "george/c91c86e5": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You now attack the rook on",
+  "spoken": "You now attack the rook on"
+ },
+ "george/c94b5366": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "queen to",
+  "spoken": "queen to"
+ },
  "george/c9594d10": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "This makes your position better.",
   "spoken": "This makes your position better."
+ },
+ "george/c98461e7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "win your knight with",
+  "spoken": "win your knight with"
+ },
+ "george/ca2c0c99": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your king",
+  "spoken": "Look at your king"
  },
  "george/ca3299ec": {
   "voice": "bm_george",
@@ -4331,6 +5489,18 @@
   "text": "Knight",
   "spoken": "Knight"
  },
+ "george/cd74f5e1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Their rook on",
+  "spoken": "Their rook on"
+ },
+ "george/cd886539": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "You now attack the knight on",
+  "spoken": "You now attack the knight on"
+ },
  "george/cd9ff4da": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4379,6 +5549,12 @@
   "text": "A piece with too many jobs.",
   "spoken": "A piece with too many jobs."
  },
+ "george/d00851e2": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The bishop on",
+  "spoken": "The bishop on"
+ },
  "george/d024bddc": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4403,6 +5579,12 @@
   "text": "is a sound, steady move.",
   "spoken": "is a sound, steady move."
  },
+ "george/d21fb697": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "king to",
+  "spoken": "king to"
+ },
  "george/d23f508e": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4420,6 +5602,12 @@
   "speed": 1.0,
   "text": "You can trade into an easy, winning endgame.",
   "spoken": "You can trade into an easy, winning endgame."
+ },
+ "george/d3ddefd1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "bishop on",
+  "spoken": "bishop on"
  },
  "george/d3e96e11": {
   "voice": "bm_george",
@@ -4451,11 +5639,23 @@
   "text": "Bring another piece into the game.",
   "spoken": "Bring another piece into the game."
  },
+ "george/d48a1e6c": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Move your knight from",
+  "spoken": "Move your knight from"
+ },
  "george/d491a840": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Oops! Everyone makes mistakes.",
   "spoken": "Oops! Everyone makes mistakes."
+ },
+ "george/d4bb7f0e": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "wins a knight",
+  "spoken": "wins a knight"
  },
  "george/d4e064c8": {
   "voice": "bm_george",
@@ -4475,6 +5675,12 @@
   "text": ", because it",
   "spoken": "because it"
  },
+ "george/d562cd56": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and forks the knight on",
+  "spoken": "and forks the knight on"
+ },
  "george/d58e6e3c": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4493,11 +5699,35 @@
   "text": "Vienna Game",
   "spoken": "Vienna Game"
  },
+ "george/d63d62c4": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and knight on",
+  "spoken": "and knight on"
+ },
+ "george/d6abb9f3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your bishop now controls only",
+  "spoken": "Your bishop now controls only"
+ },
+ "george/d6e050a3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forks the knight on",
+  "spoken": "forks the knight on"
+ },
  "george/d77f6b9f": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Look for a pin along a line.",
   "spoken": "Look for a pin along a line."
+ },
+ "george/d7872538": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacking your bishop on",
+  "spoken": "attacking your bishop on"
  },
  "george/d879f94e": {
   "voice": "bm_george",
@@ -4595,11 +5825,29 @@
   "text": "Precise.",
   "spoken": "Precise."
  },
+ "george/dd613f79": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your king now controls",
+  "spoken": "Your king now controls"
+ },
+ "george/dd832a6b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and pins the knight on",
+  "spoken": "and pins the knight on"
+ },
  "george/dda2e69b": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Put your rook behind the passed pawn.",
   "spoken": "Put your rook behind the passed pawn."
+ },
+ "george/ddc3621b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the king",
+  "spoken": "takes the king"
  },
  "george/dde1dde0": {
   "voice": "bm_george",
@@ -4619,6 +5867,12 @@
   "text": "Great endgame technique!",
   "spoken": "Great endgame technique!"
  },
+ "george/df836598": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacking your rook on",
+  "spoken": "attacking your rook on"
+ },
  "george/df850900": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4630,6 +5884,12 @@
   "speed": 1.0,
   "text": "knight",
   "spoken": "knight"
+ },
+ "george/e00248aa": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The pawn",
+  "spoken": "The pawn"
  },
  "george/e035a7f3": {
   "voice": "bm_george",
@@ -4643,6 +5903,12 @@
   "text": "Sacrifice",
   "spoken": "Sacrifice"
  },
+ "george/e0c871f2": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "keeps your knight safe",
+  "spoken": "keeps your knight safe"
+ },
  "george/e0f977cd": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4655,6 +5921,12 @@
   "text": "The engine's first choice was",
   "spoken": "The engine's first choice was"
  },
+ "george/e10986a0": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your knight on",
+  "spoken": "Your knight on"
+ },
  "george/e15333ac": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4666,6 +5938,12 @@
   "speed": 1.0,
   "text": "You are winning.",
   "spoken": "You are winning."
+ },
+ "george/e17cdcfc": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pawn on",
+  "spoken": "pawn on"
  },
  "george/e180656c": {
   "voice": "bm_george",
@@ -4685,6 +5963,12 @@
   "text": "You have used much more time than your opponent. Speed up a little on easy moves.",
   "spoken": "You have used much more time than your opponent. Speed up a little on easy moves."
  },
+ "george/e1b1bc03": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "win your bishop with",
+  "spoken": "win your bishop with"
+ },
  "george/e1c75491": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4703,11 +5987,29 @@
   "text": "promotes to a rook",
   "spoken": "promotes to a rook"
  },
+ "george/e24008d0": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "pawn to",
+  "spoken": "pawn to"
+ },
  "george/e27491be": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "aitch five",
   "spoken": "aitch five"
+ },
+ "george/e2a0d833": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Look at your rook",
+  "spoken": "Look at your rook"
+ },
+ "george/e2d02b90": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forks the queen on",
+  "spoken": "forks the queen on"
  },
  "george/e2e11d56": {
   "voice": "bm_george",
@@ -4726,6 +6028,12 @@
   "speed": 1.0,
   "text": "Scholar's Mate",
   "spoken": "Scholar's Mate"
+ },
+ "george/e4aa48c0": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and promotes to a bishop",
+  "spoken": "and promotes to a bishop"
  },
  "george/e4d09e90": {
   "voice": "bm_george",
@@ -4781,6 +6089,12 @@
   "text": "attacks the",
   "spoken": "attacks the"
  },
+ "george/e6e0ff9a": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "keeps your rook safe",
+  "spoken": "keeps your rook safe"
+ },
  "george/e71a17a6": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4792,6 +6106,18 @@
   "speed": 1.0,
   "text": "The position stays about the same.",
   "spoken": "The position stays about the same."
+ },
+ "george/e736aab8": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and wins a queen",
+  "spoken": "and wins a queen"
+ },
+ "george/e744e15a": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "uncovers an attack on the queen on",
+  "spoken": "uncovers an attack on the queen on"
  },
  "george/e7720e78": {
   "voice": "bm_george",
@@ -4847,6 +6173,12 @@
   "text": "Solid choice.",
   "spoken": "Solid choice."
  },
+ "george/ea075ca7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "wins a queen",
+  "spoken": "wins a queen"
+ },
  "george/ea1053b6": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4858,6 +6190,12 @@
   "speed": 1.0,
   "text": "Nimzowitsch Defence",
   "spoken": "Nimzowitsch Defence"
+ },
+ "george/ec529ab0": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and rook on",
+  "spoken": "and rook on"
  },
  "george/ec565940": {
   "voice": "bm_george",
@@ -4900,6 +6238,12 @@
   "speed": 1.0,
   "text": "ay two",
   "spoken": "ay two"
+ },
+ "george/edd1755c": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "attacks the queen on",
+  "spoken": "attacks the queen on"
  },
  "george/edd7e8c5": {
   "voice": "bm_george",
@@ -4979,6 +6323,12 @@
   "text": "Their pawn on",
   "spoken": "Their pawn on"
  },
+ "george/f0962c86": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The knight on",
+  "spoken": "The knight on"
+ },
  "george/f098dc88": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -4990,6 +6340,18 @@
   "speed": 1.0,
   "text": "Slightly inaccurate.",
   "spoken": "Slightly inaccurate."
+ },
+ "george/f0aefd86": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Their queen on",
+  "spoken": "Their queen on"
+ },
+ "george/f0d5d651": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "rook to",
+  "spoken": "rook to"
  },
  "george/f12fbb3a": {
   "voice": "bm_george",
@@ -5020,6 +6382,30 @@
   "speed": 1.0,
   "text": "Oops, a mistake.",
   "spoken": "Oops, a mistake."
+ },
+ "george/f2bd0e64": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "forking your bishop on",
+  "spoken": "forking your bishop on"
+ },
+ "george/f308913b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "king on",
+  "spoken": "king on"
+ },
+ "george/f311fc01": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "bishop to",
+  "spoken": "bishop to"
+ },
+ "george/f330d22b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "puts your queen on a better square",
+  "spoken": "puts your queen on a better square"
  },
  "george/f3a0cfac": {
   "voice": "bm_george",
@@ -5075,11 +6461,23 @@
   "text": "promotes to a knight",
   "spoken": "promotes to a knight"
  },
+ "george/f6c5a03b": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "keeps your queen safe",
+  "spoken": "keeps your queen safe"
+ },
  "george/f6f1dff9": {
   "voice": "bm_george",
   "speed": 1.0,
   "text": "Trade",
   "spoken": "Trade"
+ },
+ "george/f73e9360": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "wins a king",
+  "spoken": "wins a king"
  },
  "george/f742cc1a": {
   "voice": "bm_george",
@@ -5104,6 +6502,12 @@
   "speed": 1.0,
   "text": "eff seven",
   "spoken": "eff seven"
+ },
+ "george/f8824207": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and forks the pawn on",
+  "spoken": "and forks the pawn on"
  },
  "george/f8eabcf8": {
   "voice": "bm_george",
@@ -5183,6 +6587,12 @@
   "text": "Both kings are safe for now.",
   "spoken": "Both kings are safe for now."
  },
+ "george/fcd7a209": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Your king",
+  "spoken": "Your king"
+ },
  "george/fce6add4": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -5219,6 +6629,18 @@
   "text": "Bird's Opening",
   "spoken": "Bird's Opening"
  },
+ "george/fdc42bb1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the pawn on",
+  "spoken": "and uncovers an attack on the pawn on"
+ },
+ "george/fdea35f3": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the queen on",
+  "spoken": "takes the queen on"
+ },
  "george/fe642ef1": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -5230,6 +6652,12 @@
   "speed": 1.0,
   "text": "That is the strongest choice.",
   "spoken": "That is the strongest choice."
+ },
+ "george/fefbfbb1": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "takes the rook",
+  "spoken": "takes the rook"
  },
  "george/ff237cb9": {
   "voice": "bm_george",
@@ -5254,6 +6682,18 @@
   "speed": 1.0,
   "text": "Skewer",
   "spoken": "Skewer"
+ },
+ "heart/006f6f14": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "skewers the bishop on",
+  "spoken": "skewers the bishop on"
+ },
+ "heart/0111cf76": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and attacks the rook on",
+  "spoken": "and attacks the rook on"
  },
  "heart/01340e6f": {
   "voice": "af_heart",
@@ -5291,6 +6731,18 @@
   "text": "Best",
   "spoken": "Best"
  },
+ "heart/036b67be": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and promotes to a king",
+  "spoken": "and promotes to a king"
+ },
+ "heart/0373e171": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Their bishop on",
+  "spoken": "Their bishop on"
+ },
  "heart/041126bd": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -5302,6 +6754,12 @@
   "speed": 1.0,
   "text": "Ruy Lopez, Berlin Defence",
   "spoken": "Ruy Lopez, Berlin Defence"
+ },
+ "heart/044385b6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and attacks the knight on",
+  "spoken": "and attacks the knight on"
  },
  "heart/044f0fa6": {
   "voice": "af_heart",
@@ -5375,6 +6833,18 @@
   "text": "A strong sacrifice: the engine agrees.",
   "spoken": "A strong sacrifice: the engine agrees."
  },
+ "heart/06bbcb02": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You now attack the queen on",
+  "spoken": "You now attack the queen on"
+ },
+ "heart/07061cdc": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your bishop on",
+  "spoken": "Look at your bishop on"
+ },
  "heart/07757195": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -5393,6 +6863,12 @@
   "text": "94",
   "spoken": "94"
  },
+ "heart/084ec180": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "keeps your king safe",
+  "spoken": "keeps your king safe"
+ },
  "heart/08cbcc06": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -5405,11 +6881,23 @@
   "text": "95",
   "spoken": "95"
  },
+ "heart/09b03f38": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "promotes to a pawn",
+  "spoken": "promotes to a pawn"
+ },
  "heart/09e4c831": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Outpost",
   "spoken": "Outpost"
+ },
+ "heart/09ecef12": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your queen now controls",
+  "spoken": "Your queen now controls"
  },
  "heart/09fe95a6": {
   "voice": "af_heart",
@@ -5423,6 +6911,12 @@
   "text": "is dangerous. Block it with a piece.",
   "spoken": "is dangerous. Block it with a piece."
  },
+ "heart/0a610ede": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forking your king on",
+  "spoken": "forking your king on"
+ },
  "heart/0a8b27be": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -5434,6 +6928,12 @@
   "speed": 1.0,
   "text": "A good opening for you as White: the",
   "spoken": "A good opening for you as White: the"
+ },
+ "heart/0aabb2b1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and skewers the rook on",
+  "spoken": "and skewers the rook on"
  },
  "heart/0adf1315": {
   "voice": "af_heart",
@@ -5453,6 +6953,12 @@
   "text": "No checkmates in sight, for either side.",
   "spoken": "No checkmates in sight, for either side."
  },
+ "heart/0ba1c15f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You can win the game with one move. Look closely!",
+  "spoken": "You can win the game with one move. Look closely!"
+ },
  "heart/0bb21298": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -5470,6 +6976,12 @@
   "speed": 1.0,
   "text": "90",
   "spoken": "90"
+ },
+ "heart/0c1528b0": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "would fork your queen on",
+  "spoken": "would fork your queen on"
  },
  "heart/0c4afe69": {
   "voice": "af_heart",
@@ -5506,6 +7018,12 @@
   "speed": 1.0,
   "text": "A setup the stronger side can't break.",
   "spoken": "A setup the stronger side can't break."
+ },
+ "heart/0d8f7b17": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The pawn on",
+  "spoken": "The pawn on"
  },
  "heart/0da8f0f3": {
   "voice": "af_heart",
@@ -5603,6 +7121,12 @@
   "text": "queen",
   "spoken": "queen"
  },
+ "heart/10412c16": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your king on",
+  "spoken": "Look at your king on"
+ },
  "heart/106ce7cc": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -5615,11 +7139,23 @@
   "text": "Castling",
   "spoken": "Castling"
  },
+ "heart/10bbcc02": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "wins a bishop",
+  "spoken": "wins a bishop"
+ },
  "heart/111f9f54": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Fool's Mate",
   "spoken": "Fool's Mate"
+ },
+ "heart/117f10df": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "would fork your bishop on",
+  "spoken": "would fork your bishop on"
  },
  "heart/11935b64": {
   "voice": "af_heart",
@@ -5633,11 +7169,23 @@
   "text": "You have left the usual",
   "spoken": "You have left the usual"
  },
+ "heart/11f1e0c1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "rook on",
+  "spoken": "rook on"
+ },
  "heart/11fd6afb": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": ", which also attacks your",
   "spoken": "which also attacks your"
+ },
+ "heart/12204a9e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "This leaves your king on",
+  "spoken": "This leaves your king on"
  },
  "heart/125479e8": {
   "voice": "af_heart",
@@ -5650,6 +7198,12 @@
   "speed": 1.0,
   "text": "Steady in the endgame.",
   "spoken": "Steady in the endgame."
+ },
+ "heart/1286cc00": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the rook on",
+  "spoken": "and uncovers an attack on the rook on"
  },
  "heart/12fab3f4": {
   "voice": "af_heart",
@@ -5668,6 +7222,12 @@
   "speed": 1.0,
   "text": "Larsen's Opening",
   "spoken": "Larsen's Opening"
+ },
+ "heart/13be728b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacks the bishop on",
+  "spoken": "attacks the bishop on"
  },
  "heart/13eb1dac": {
   "voice": "af_heart",
@@ -5717,17 +7277,41 @@
   "text": "99",
   "spoken": "99"
  },
+ "heart/15875ca7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the bishop on",
+  "spoken": "and takes the bishop on"
+ },
  "heart/15bcfc97": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Big mistake, but don't give up!",
   "spoken": "Big mistake, but don't give up!"
  },
+ "heart/15dab3dc": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forking your rook on",
+  "spoken": "forking your rook on"
+ },
+ "heart/15de7bee": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "puts your rook on a better square",
+  "spoken": "puts your rook on a better square"
+ },
  "heart/15e8e23b": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "60",
   "spoken": "60"
+ },
+ "heart/15e95086": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The rook on",
+  "spoken": "The rook on"
  },
  "heart/169949bc": {
   "voice": "af_heart",
@@ -5753,11 +7337,23 @@
   "text": "Victory! Well played!",
   "spoken": "Victory! Well played!"
  },
+ "heart/16f4c105": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the queen on",
+  "spoken": "and uncovers an attack on the queen on"
+ },
  "heart/17a0b734": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "A little loose.",
   "spoken": "A little loose."
+ },
+ "heart/17a2396b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your bishop",
+  "spoken": "Look at your bishop"
  },
  "heart/17ce8817": {
   "voice": "af_heart",
@@ -5806,6 +7402,12 @@
   "speed": 1.0,
   "text": "That works well.",
   "spoken": "That works well."
+ },
+ "heart/1832cb93": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "would fork your rook on",
+  "spoken": "would fork your rook on"
  },
  "heart/183bd893": {
   "voice": "af_heart",
@@ -5891,6 +7493,12 @@
   "text": "Caro-Kann Defence",
   "spoken": "Caro-Kann Defence"
  },
+ "heart/1ad3ea16": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "win your pawn with",
+  "spoken": "win your pawn with"
+ },
  "heart/1ae8ea1a": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -5914,6 +7522,12 @@
   "speed": 1.0,
   "text": "the kingside",
   "spoken": "the kingside"
+ },
+ "heart/1b713456": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forks the pawn on",
+  "spoken": "forks the pawn on"
  },
  "heart/1b89bba0": {
   "voice": "af_heart",
@@ -5987,6 +7601,12 @@
   "text": "Plan",
   "spoken": "Plan"
  },
+ "heart/1eba6a1b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your bishop",
+  "spoken": "Your bishop"
+ },
  "heart/1ed39e39": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6017,6 +7637,12 @@
   "text": "trades pieces while you are ahead.",
   "spoken": "trades pieces while you are ahead."
  },
+ "heart/1f80d371": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "rook takes on",
+  "spoken": "rook takes on"
+ },
  "heart/1fe3b4ed": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6028,6 +7654,12 @@
   "speed": 1.0,
   "text": "to the king",
   "spoken": "to the king"
+ },
+ "heart/20d96fa1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and skewers the bishop on",
+  "spoken": "and skewers the bishop on"
  },
  "heart/2107debf": {
   "voice": "af_heart",
@@ -6047,11 +7679,29 @@
   "text": "We are in the endgame now. Kings become fighters!",
   "spoken": "We are in the endgame now. Kings become fighters!"
  },
+ "heart/21f305a8": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your queen",
+  "spoken": "Look at your queen"
+ },
  "heart/220c7785": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "It can make a fork.",
   "spoken": "It can make a fork."
+ },
+ "heart/2229cd7e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the pawn on",
+  "spoken": "and takes the pawn on"
+ },
+ "heart/224ab79b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your rook now controls",
+  "spoken": "Your rook now controls"
  },
  "heart/225109c0": {
   "voice": "af_heart",
@@ -6113,6 +7763,12 @@
   "text": "dee eight",
   "spoken": "dee eight"
  },
+ "heart/253a5857": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Their king is left all alone, so you win the game.",
+  "spoken": "Their king is left all alone, so you win the game."
+ },
  "heart/25633715": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6143,11 +7799,23 @@
   "text": "bee two",
   "spoken": "bee two"
  },
+ "heart/26545439": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "This leaves your queen on",
+  "spoken": "This leaves your queen on"
+ },
  "heart/266ffd28": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "see six",
   "spoken": "see six"
+ },
+ "heart/26c4492d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You now attack the bishop on",
+  "spoken": "You now attack the bishop on"
  },
  "heart/2710c38a": {
   "voice": "af_heart",
@@ -6172,6 +7840,12 @@
   "speed": 1.0,
   "text": "You won!",
   "spoken": "You won!"
+ },
+ "heart/2821e5ec": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the king on",
+  "spoken": "takes the king on"
  },
  "heart/2849a3fe": {
   "voice": "af_heart",
@@ -6251,6 +7925,12 @@
   "text": "-file is open: a rook there would be strong.",
   "spoken": "file is open: a rook there would be strong."
  },
+ "heart/2bb1fc88": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forking your knight on",
+  "spoken": "forking your knight on"
+ },
  "heart/2be2ffc0": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6287,6 +7967,12 @@
   "text": "aitch six",
   "spoken": "aitch six"
  },
+ "heart/2e0ec0f4": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your pawn",
+  "spoken": "Your pawn"
+ },
  "heart/2e142784": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6298,6 +7984,18 @@
   "speed": 1.0,
   "text": "see eight",
   "spoken": "see eight"
+ },
+ "heart/2e3a4cfc": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacking your knight on",
+  "spoken": "attacking your knight on"
+ },
+ "heart/2e48475b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Their king on",
+  "spoken": "Their king on"
  },
  "heart/2e4a71b6": {
   "voice": "af_heart",
@@ -6359,6 +8057,12 @@
   "text": "Wow, top move!",
   "spoken": "Wow, top move!"
  },
+ "heart/3080e744": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and forks the king on",
+  "spoken": "and forks the king on"
+ },
  "heart/30a61f60": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6370,6 +8074,12 @@
   "speed": 1.0,
   "text": "Nearly there!",
   "spoken": "Nearly there!"
+ },
+ "heart/3108d1f3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forks the rook on",
+  "spoken": "forks the rook on"
  },
  "heart/310ca263": {
   "voice": "af_heart",
@@ -6449,6 +8159,12 @@
   "text": "Sicilian Defence, Dragon",
   "spoken": "Sicilian Defence, Dragon"
  },
+ "heart/3403dff4": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your pawn now controls only",
+  "spoken": "Your pawn now controls only"
+ },
  "heart/340ca71c": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6514,6 +8230,18 @@
   "speed": 1.0,
   "text": "2",
   "spoken": "2"
+ },
+ "heart/37293d57": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and pins the bishop on",
+  "spoken": "and pins the bishop on"
+ },
+ "heart/379d8409": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and wins a king",
+  "spoken": "and wins a king"
  },
  "heart/37c9b687": {
   "voice": "af_heart",
@@ -6593,11 +8321,23 @@
   "text": "Your king is safe. Now connect your rooks.",
   "spoken": "Your king is safe. Now connect your rooks."
  },
+ "heart/3a28eaf0": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "puts your king on a better square",
+  "spoken": "puts your king on a better square"
+ },
  "heart/3b094452": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Your opponent has a forced checkmate.",
   "spoken": "Your opponent has a forced checkmate."
+ },
+ "heart/3b68a233": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The king",
+  "spoken": "The king"
  },
  "heart/3b80190a": {
   "voice": "af_heart",
@@ -6610,6 +8350,12 @@
   "speed": 1.0,
   "text": "-file.",
   "spoken": "file."
+ },
+ "heart/3be0d637": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Move your queen from",
+  "spoken": "Move your queen from"
  },
  "heart/3c0cb3b4": {
   "voice": "af_heart",
@@ -6634,6 +8380,12 @@
   "speed": 1.0,
   "text": "8",
   "spoken": "8"
+ },
+ "heart/3d509c0e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the knight on",
+  "spoken": "takes the knight on"
  },
  "heart/3d667e65": {
   "voice": "af_heart",
@@ -6701,6 +8453,12 @@
   "text": "to",
   "spoken": "to"
  },
+ "heart/4275b7d7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacks the rook on",
+  "spoken": "attacks the rook on"
+ },
  "heart/42c71d0c": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6718,6 +8476,12 @@
   "speed": 1.0,
   "text": "Philidor Defence",
   "spoken": "Philidor Defence"
+ },
+ "heart/43b19135": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your king now controls only",
+  "spoken": "Your king now controls only"
  },
  "heart/4404b82b": {
   "voice": "af_heart",
@@ -6743,11 +8507,29 @@
   "text": "jee three",
   "spoken": "jee three"
  },
+ "heart/454114a6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your king on",
+  "spoken": "Your king on"
+ },
+ "heart/471fe3b2": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "win your queen with",
+  "spoken": "win your queen with"
+ },
  "heart/47aa4190": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "You are clearly better.",
   "spoken": "You are clearly better."
+ },
+ "heart/47b489df": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You now attack the king on",
+  "spoken": "You now attack the king on"
  },
  "heart/47e52c43": {
   "voice": "af_heart",
@@ -6761,11 +8543,23 @@
   "text": "stalemates: the game is drawn.",
   "spoken": "stalemates: the game is drawn."
  },
+ "heart/488da7be": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the queen",
+  "spoken": "takes the queen"
+ },
  "heart/490ea238": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "bishop",
   "spoken": "bishop"
+ },
+ "heart/49247f17": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your knight",
+  "spoken": "Your knight"
  },
  "heart/4965431a": {
   "voice": "af_heart",
@@ -6785,6 +8579,12 @@
   "text": "Their strongest reply is",
   "spoken": "Their strongest reply is"
  },
+ "heart/4af1f889": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacking your pawn on",
+  "spoken": "attacking your pawn on"
+ },
  "heart/4b6ef87a": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6796,6 +8596,12 @@
   "speed": 1.0,
   "text": "Giving material for something bigger: an attack, a checkmate or a better position.",
   "spoken": "Giving material for something bigger: an attack, a checkmate or a better position."
+ },
+ "heart/4b981c1b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and wins a bishop",
+  "spoken": "and wins a bishop"
  },
  "heart/4b988062": {
   "voice": "af_heart",
@@ -6826,6 +8632,18 @@
   "speed": 1.0,
   "text": "Smith-Morra Gambit",
   "spoken": "Smith-Morra Gambit"
+ },
+ "heart/4d4f96b5": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "uncovers an attack on the bishop on",
+  "spoken": "uncovers an attack on the bishop on"
+ },
+ "heart/4d860091": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the pawn",
+  "spoken": "and takes the pawn"
  },
  "heart/4e795a36": {
   "voice": "af_heart",
@@ -6875,6 +8693,12 @@
   "text": ". Bring your king to help it.",
   "spoken": "Bring your king to help it."
  },
+ "heart/50f18575": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your pawn on",
+  "spoken": "Look at your pawn on"
+ },
  "heart/5132f73f": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -6917,17 +8741,41 @@
   "text": "bee six",
   "spoken": "bee six"
  },
+ "heart/5276d469": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "win your king with",
+  "spoken": "win your king with"
+ },
  "heart/52c12853": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "A draw: both sides held on.",
   "spoken": "A draw: both sides held on."
  },
+ "heart/532e8143": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "king takes on",
+  "spoken": "king takes on"
+ },
+ "heart/53483758": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "skewers the knight on",
+  "spoken": "skewers the knight on"
+ },
  "heart/5350e97c": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Careful: this plan runs into trouble at",
   "spoken": "Careful: this plan runs into trouble at"
+ },
+ "heart/53759037": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your knight now controls",
+  "spoken": "Your knight now controls"
  },
  "heart/53a0d258": {
   "voice": "af_heart",
@@ -6995,6 +8843,12 @@
   "text": "Two big pieces walk the king to the edge, one row at a time.",
   "spoken": "Two big pieces walk the king to the edge, one row at a time."
  },
+ "heart/5602659b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the rook on",
+  "spoken": "and takes the rook on"
+ },
  "heart/565a4c24": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7037,11 +8891,29 @@
   "text": "is under attack.",
   "spoken": "is under attack."
  },
+ "heart/57e3bedb": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and attacks the queen on",
+  "spoken": "and attacks the queen on"
+ },
+ "heart/57f0ca79": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forking your queen on",
+  "spoken": "forking your queen on"
+ },
  "heart/584322e6": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "is guarding two pieces at once. Be careful.",
   "spoken": "is guarding two pieces at once. Be careful."
+ },
+ "heart/58c7eb51": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your queen on",
+  "spoken": "Your queen on"
  },
  "heart/591aea3b": {
   "voice": "af_heart",
@@ -7054,6 +8926,12 @@
   "speed": 1.0,
   "text": "There is a bold idea here, but it is risky.",
   "spoken": "There is a bold idea here, but it is risky."
+ },
+ "heart/5a4d1992": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and forks the bishop on",
+  "spoken": "and forks the bishop on"
  },
  "heart/5a5ffd17": {
   "voice": "af_heart",
@@ -7073,6 +8951,12 @@
   "text": "Now that's chess!",
   "spoken": "Now that's chess!"
  },
+ "heart/5a858356": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and skewers the queen on",
+  "spoken": "and skewers the queen on"
+ },
  "heart/5aaea77d": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7085,11 +8969,23 @@
   "text": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off.",
   "spoken": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off."
  },
+ "heart/5afc0d0d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "knight takes on",
+  "spoken": "knight takes on"
+ },
  "heart/5bbab4ff": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Mistakes help us learn.",
   "spoken": "Mistakes help us learn."
+ },
+ "heart/5c15f02a": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacks the pawn on",
+  "spoken": "attacks the pawn on"
  },
  "heart/5c6950cd": {
   "voice": "af_heart",
@@ -7109,6 +9005,12 @@
   "text": "Try this thought.",
   "spoken": "Try this thought."
  },
+ "heart/5e7fd4c1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "bishop takes on",
+  "spoken": "bishop takes on"
+ },
  "heart/5f77d5e8": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7120,6 +9022,12 @@
   "speed": 1.0,
   "text": "guards two things at once. Attack one of them.",
   "spoken": "guards two things at once. Attack one of them."
+ },
+ "heart/5fd0d3e9": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forks the king on",
+  "spoken": "forks the king on"
  },
  "heart/5fdd3a99": {
   "voice": "af_heart",
@@ -7145,11 +9053,23 @@
   "text": "Your king can catch their pawn on",
   "spoken": "Your king can catch their pawn on"
  },
+ "heart/603d07e9": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The rook",
+  "spoken": "The rook"
+ },
  "heart/60956946": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Tactics",
   "spoken": "Tactics"
+ },
+ "heart/60bc184e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "skewers the king on",
+  "spoken": "skewers the king on"
  },
  "heart/610b2281": {
   "voice": "af_heart",
@@ -7181,6 +9101,12 @@
   "text": "Accurate play.",
   "spoken": "Accurate play."
  },
+ "heart/61b3e4b8": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your queen",
+  "spoken": "Your queen"
+ },
  "heart/61b95f60": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7192,6 +9118,12 @@
   "speed": 1.0,
   "text": "Sensible move.",
   "spoken": "Sensible move."
+ },
+ "heart/623ce81b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the knight on",
+  "spoken": "and takes the knight on"
  },
  "heart/62efd37c": {
   "voice": "af_heart",
@@ -7210,6 +9142,18 @@
   "speed": 1.0,
   "text": "Your opponent has no direct threat now.",
   "spoken": "Your opponent has no direct threat now."
+ },
+ "heart/6368ca4d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and skewers the knight on",
+  "spoken": "and skewers the knight on"
+ },
+ "heart/6393807b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your rook now controls only",
+  "spoken": "Your rook now controls only"
  },
  "heart/639eb421": {
   "voice": "af_heart",
@@ -7234,6 +9178,12 @@
   "speed": 1.0,
   "text": "ee six",
   "spoken": "ee six"
+ },
+ "heart/64380a21": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and pins the king on",
+  "spoken": "and pins the king on"
  },
  "heart/648f3bac": {
   "voice": "af_heart",
@@ -7265,6 +9215,12 @@
   "text": "ee seven",
   "spoken": "ee seven"
  },
+ "heart/657e7376": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "would fork your pawn on",
+  "spoken": "would fork your pawn on"
+ },
  "heart/6584267a": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7276,6 +9232,12 @@
   "speed": 1.0,
   "text": "This allows checkmate:",
   "spoken": "This allows checkmate:"
+ },
+ "heart/65f0181d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The bishop",
+  "spoken": "The bishop"
  },
  "heart/65f0f920": {
   "voice": "af_heart",
@@ -7361,6 +9323,18 @@
   "text": "Their king is in danger. Look for checks!",
   "spoken": "Their king is in danger. Look for checks!"
  },
+ "heart/68d4a2f4": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and wins a pawn",
+  "spoken": "and wins a pawn"
+ },
+ "heart/6903bbc9": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "skewers the queen on",
+  "spoken": "skewers the queen on"
+ },
  "heart/691b42b6": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7372,6 +9346,12 @@
   "speed": 1.0,
   "text": "Not a good move.",
   "spoken": "Not a good move."
+ },
+ "heart/69f3ab34": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pawn takes on",
+  "spoken": "pawn takes on"
  },
  "heart/6a2893df": {
   "voice": "af_heart",
@@ -7391,11 +9371,23 @@
   "text": "gives up material for a lasting attack.",
   "spoken": "gives up material for a lasting attack."
  },
+ "heart/6b208070": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and bishop on",
+  "spoken": "and bishop on"
+ },
  "heart/6b3efd82": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Well done!",
   "spoken": "Well done!"
+ },
+ "heart/6b441963": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your bishop now controls",
+  "spoken": "Your bishop now controls"
  },
  "heart/6b8adfd6": {
   "voice": "af_heart",
@@ -7408,6 +9400,12 @@
   "speed": 1.0,
   "text": "It needs a safer square.",
   "spoken": "It needs a safer square."
+ },
+ "heart/6c00adfb": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and forks the queen on",
+  "spoken": "and forks the queen on"
  },
  "heart/6c0f972e": {
   "voice": "af_heart",
@@ -7475,11 +9473,29 @@
   "text": "Queen's Pawn Opening",
   "spoken": "Queen's Pawn Opening"
  },
+ "heart/6e77693d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forking your pawn on",
+  "spoken": "forking your pawn on"
+ },
+ "heart/6e81a0b0": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your knight on",
+  "spoken": "Look at your knight on"
+ },
  "heart/6e8f9f83": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Use your rook to push their king to the edge, one row at a time, with your king helping.",
   "spoken": "Use your rook to push their king to the edge, one row at a time, with your king helping."
+ },
+ "heart/6e8fdf0a": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacking your king on",
+  "spoken": "attacking your king on"
  },
  "heart/6e92eb66": {
   "voice": "af_heart",
@@ -7492,6 +9508,12 @@
   "speed": 1.0,
   "text": "Moving it uncovers an attack.",
   "spoken": "Moving it uncovers an attack."
+ },
+ "heart/6eded3f2": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the pawn",
+  "spoken": "takes the pawn"
  },
  "heart/6efd0494": {
   "voice": "af_heart",
@@ -7510,6 +9532,12 @@
   "speed": 1.0,
   "text": "see one",
   "spoken": "see one"
+ },
+ "heart/6f58045d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "knight to",
+  "spoken": "knight to"
  },
  "heart/6f7913df": {
   "voice": "af_heart",
@@ -7541,11 +9569,29 @@
   "text": "Needs work",
   "spoken": "Needs work"
  },
+ "heart/709aebdd": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "knight on",
+  "spoken": "knight on"
+ },
+ "heart/70b54889": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "would fork your king on",
+  "spoken": "would fork your king on"
+ },
  "heart/70d370ff": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Hmm, not quite the best.",
   "spoken": "Hmm, not quite the best."
+ },
+ "heart/70d97fee": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and pins the pawn on",
+  "spoken": "and pins the pawn on"
  },
  "heart/70e3c2d5": {
   "voice": "af_heart",
@@ -7565,6 +9611,12 @@
   "text": "That changes the game.",
   "spoken": "That changes the game."
  },
+ "heart/7130ec9a": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the bishop",
+  "spoken": "and takes the bishop"
+ },
  "heart/7160d90c": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7576,6 +9628,12 @@
   "speed": 1.0,
   "text": "Their",
   "spoken": "Their"
+ },
+ "heart/721a6a58": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the king",
+  "spoken": "and takes the king"
  },
  "heart/726fd3d5": {
   "voice": "af_heart",
@@ -7607,6 +9665,18 @@
   "text": "Open Sicilian",
   "spoken": "Open Sicilian"
  },
+ "heart/7397050f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the queen",
+  "spoken": "and takes the queen"
+ },
+ "heart/73adf938": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "uncovers an attack on the pawn on",
+  "spoken": "uncovers an attack on the pawn on"
+ },
  "heart/73d4f219": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7631,11 +9701,23 @@
   "text": "Their queen is going after your b2 pawn and back row.",
   "spoken": "Their queen is going after your bee two pawn and back row."
  },
+ "heart/75f0c9fd": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "This leaves your pawn on",
+  "spoken": "This leaves your pawn on"
+ },
  "heart/75f9fa5a": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "percent",
   "spoken": "percent"
+ },
+ "heart/76023117": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and wins a knight",
+  "spoken": "and wins a knight"
  },
  "heart/7655cedb": {
   "voice": "af_heart",
@@ -7648,6 +9730,12 @@
   "speed": 1.0,
   "text": "Some winning chances were missed.",
   "spoken": "Some winning chances were missed."
+ },
+ "heart/778caaa1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and promotes to a queen",
+  "spoken": "and promotes to a queen"
  },
  "heart/77da6893": {
   "voice": "af_heart",
@@ -7703,6 +9791,18 @@
   "text": "They have the opposition. Try to take it back.",
   "spoken": "They have the opposition. Try to take it back."
  },
+ "heart/79b0cb88": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Move your bishop from",
+  "spoken": "Move your bishop from"
+ },
+ "heart/79f04007": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your knight now controls only",
+  "spoken": "Your knight now controls only"
+ },
  "heart/7a8c7df8": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7721,11 +9821,29 @@
   "text": "Castles queenside",
   "spoken": "Castles queenside"
  },
+ "heart/7ae0df2d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "uncovers an attack on the rook on",
+  "spoken": "uncovers an attack on the rook on"
+ },
+ "heart/7aff6c2e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "keeps your bishop safe",
+  "spoken": "keeps your bishop safe"
+ },
  "heart/7b3c1e94": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "eff six",
   "spoken": "eff six"
+ },
+ "heart/7b7066c1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and pawn on",
+  "spoken": "and pawn on"
  },
  "heart/7b8038d9": {
   "voice": "af_heart",
@@ -7739,6 +9857,24 @@
   "text": "A big mistake.",
   "spoken": "A big mistake."
  },
+ "heart/7b8c6dab": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The queen on",
+  "spoken": "The queen on"
+ },
+ "heart/7ba0dffa": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the bishop on",
+  "spoken": "takes the bishop on"
+ },
+ "heart/7be08c3c": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pins the bishop on",
+  "spoken": "pins the bishop on"
+ },
  "heart/7c22dda6": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7750,6 +9886,12 @@
   "speed": 1.0,
   "text": "A small slip.",
   "spoken": "A small slip."
+ },
+ "heart/7cf31c67": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You have a winning plan here. Think it through!",
+  "spoken": "You have a winning plan here. Think it through!"
  },
  "heart/7dda6dec": {
   "voice": "af_heart",
@@ -7781,6 +9923,18 @@
   "text": "Practise king safety and castling.",
   "spoken": "Practise king safety and castling."
  },
+ "heart/7e969acf": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "It can win the game.",
+  "spoken": "It can win the game."
+ },
+ "heart/7ea4dac3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your rook",
+  "spoken": "Your rook"
+ },
  "heart/7ec17438": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7792,6 +9946,12 @@
   "speed": 1.0,
   "text": "has no pawn friends next to it (an isolated pawn).",
   "spoken": "has no pawn friends next to it (an isolated pawn)."
+ },
+ "heart/7f0f08a8": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the queen on",
+  "spoken": "and takes the queen on"
  },
  "heart/7f102862": {
   "voice": "af_heart",
@@ -7823,17 +9983,47 @@
   "text": "Catalan Opening",
   "spoken": "Catalan Opening"
  },
+ "heart/807992e6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The queen",
+  "spoken": "The queen"
+ },
  "heart/8099a371": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Pirc Defence",
   "spoken": "Pirc Defence"
  },
+ "heart/80d47fb2": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the king on",
+  "spoken": "and uncovers an attack on the king on"
+ },
  "heart/80fac56a": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "That's a fine move.",
   "spoken": "That's a fine move."
+ },
+ "heart/80fce7df": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "puts your pawn on a better square",
+  "spoken": "puts your pawn on a better square"
+ },
+ "heart/8134cf59": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "wins a pawn",
+  "spoken": "wins a pawn"
+ },
+ "heart/8150602c": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "skewers the rook on",
+  "spoken": "skewers the rook on"
  },
  "heart/81978977": {
   "voice": "af_heart",
@@ -7846,6 +10036,12 @@
   "speed": 1.0,
   "text": "After that line:",
   "spoken": "After that line:"
+ },
+ "heart/81c4d3be": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "wins a rook",
+  "spoken": "wins a rook"
  },
  "heart/81e74773": {
   "voice": "af_heart",
@@ -7870,6 +10066,12 @@
   "speed": 1.0,
   "text": "dee two",
   "spoken": "dee two"
+ },
+ "heart/82c5ee1e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the rook on",
+  "spoken": "takes the rook on"
  },
  "heart/839ddae2": {
   "voice": "af_heart",
@@ -7918,6 +10120,12 @@
   "speed": 1.0,
   "text": "51",
   "spoken": "51"
+ },
+ "heart/85031be7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "uncovers an attack on the king on",
+  "spoken": "uncovers an attack on the king on"
  },
  "heart/856a3a4e": {
   "voice": "af_heart",
@@ -7997,6 +10205,12 @@
   "text": "Biggest missed chance:",
   "spoken": "Biggest missed chance:"
  },
+ "heart/876258a4": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and attacks the king on",
+  "spoken": "and attacks the king on"
+ },
  "heart/8767d867": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8056,6 +10270,18 @@
   "speed": 1.0,
   "text": "bee three",
   "spoken": "bee three"
+ },
+ "heart/885e1be9": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The knight",
+  "spoken": "The knight"
+ },
+ "heart/887037de": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "That is your third check, so you win the game.",
+  "spoken": "That is your third check, so you win the game."
  },
  "heart/88e1487f": {
   "voice": "af_heart",
@@ -8123,6 +10349,12 @@
   "text": "24",
   "spoken": "24"
  },
+ "heart/8ab5f979": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Move your pawn from",
+  "spoken": "Move your pawn from"
+ },
  "heart/8ac6ec69": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8171,6 +10403,18 @@
   "text": "87",
   "spoken": "87"
  },
+ "heart/8b255055": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pins the pawn on",
+  "spoken": "pins the pawn on"
+ },
+ "heart/8b2b43b6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Move your king from",
+  "spoken": "Move your king from"
+ },
  "heart/8b3335e8": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8188,6 +10432,12 @@
   "speed": 1.0,
   "text": "Checkmate threats sometimes slip past you.",
   "spoken": "Checkmate threats sometimes slip past you."
+ },
+ "heart/8be022ab": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and pins the rook on",
+  "spoken": "and pins the rook on"
  },
  "heart/8be14d38": {
   "voice": "af_heart",
@@ -8261,6 +10511,12 @@
   "text": "It is about equal.",
   "spoken": "It is about equal."
  },
+ "heart/8cd21a94": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the knight on",
+  "spoken": "and uncovers an attack on the knight on"
+ },
  "heart/8ce14ecb": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8303,6 +10559,12 @@
   "text": "85",
   "spoken": "85"
  },
+ "heart/8dc78a80": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your queen now controls only",
+  "spoken": "Your queen now controls only"
+ },
  "heart/8de38ef5": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8333,6 +10595,12 @@
   "text": "Your opponent has a checkmate coming. Look for checks and defenders.",
   "spoken": "Your opponent has a checkmate coming. Look for checks and defenders."
  },
+ "heart/8e50b894": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your rook on",
+  "spoken": "Look at your rook on"
+ },
  "heart/8ed4a950": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8362,6 +10630,12 @@
   "speed": 1.0,
   "text": "83",
   "spoken": "83"
+ },
+ "heart/8fb6bd7f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacks the knight on",
+  "spoken": "attacks the knight on"
  },
  "heart/8fe5d0b2": {
   "voice": "af_heart",
@@ -8447,6 +10721,18 @@
   "text": "80",
   "spoken": "80"
  },
+ "heart/929db7f8": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and pins the queen on",
+  "spoken": "and pins the queen on"
+ },
+ "heart/938ed790": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pins the knight on",
+  "spoken": "pins the knight on"
+ },
  "heart/93b554d1": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8471,11 +10757,29 @@
   "text": "This allows",
   "spoken": "This allows"
  },
+ "heart/94801f30": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You now attack the pawn on",
+  "spoken": "You now attack the pawn on"
+ },
+ "heart/94d34644": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your pawn",
+  "spoken": "Look at your pawn"
+ },
  "heart/94f2a484": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "29",
   "spoken": "29"
+ },
+ "heart/95a93948": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "This leaves your knight on",
+  "spoken": "This leaves your knight on"
  },
  "heart/95b7652e": {
   "voice": "af_heart",
@@ -8494,6 +10798,12 @@
   "speed": 1.0,
   "text": ", which",
   "spoken": "which"
+ },
+ "heart/95ed26bf": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forks the bishop on",
+  "spoken": "forks the bishop on"
  },
  "heart/95f2a617": {
   "voice": "af_heart",
@@ -8585,6 +10895,12 @@
   "text": "79",
   "spoken": "79"
  },
+ "heart/98ebad31": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "uncovers an attack on the knight on",
+  "spoken": "uncovers an attack on the knight on"
+ },
  "heart/9901b55a": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8621,11 +10937,23 @@
   "text": "Inaccurate",
   "spoken": "Inaccurate"
  },
+ "heart/9a3edd4e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "queen takes on",
+  "spoken": "queen takes on"
+ },
  "heart/9ab46cbd": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "You often leave pieces unprotected.",
   "spoken": "You often leave pieces unprotected."
+ },
+ "heart/9b1b9981": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the knight",
+  "spoken": "takes the knight"
  },
  "heart/9b27c35e": {
   "voice": "af_heart",
@@ -8645,11 +10973,29 @@
   "text": "Seeing threats and king safety.",
   "spoken": "Seeing threats and king safety."
  },
+ "heart/9bc4c0f6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pins the king on",
+  "spoken": "pins the king on"
+ },
  "heart/9bc66128": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "win a pawn with",
   "spoken": "win a pawn with"
+ },
+ "heart/9bf4dbc1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pins the queen on",
+  "spoken": "pins the queen on"
+ },
+ "heart/9bf6f238": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Move your rook from",
+  "spoken": "Move your rook from"
  },
  "heart/9c344405": {
   "voice": "af_heart",
@@ -8687,6 +11033,12 @@
   "text": "on a better square.",
   "spoken": "on a better square."
  },
+ "heart/9d0f57f1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the king on",
+  "spoken": "and takes the king on"
+ },
  "heart/9d5c5ef1": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8698,6 +11050,12 @@
   "speed": 1.0,
   "text": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind.",
   "spoken": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind."
+ },
+ "heart/9dc2496f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "keeps your pawn safe",
+  "spoken": "keeps your pawn safe"
  },
  "heart/9e1f5b1c": {
   "voice": "af_heart",
@@ -8735,6 +11093,18 @@
   "text": "Move choice and missed chances.",
   "spoken": "Move choice and missed chances."
  },
+ "heart/9f57fcc7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your knight",
+  "spoken": "Look at your knight"
+ },
+ "heart/9f991274": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and promotes to a knight",
+  "spoken": "and promotes to a knight"
+ },
  "heart/9fe219c8": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8746,6 +11116,12 @@
   "speed": 1.0,
   "text": "Keep going, you're doing great!",
   "spoken": "Keep going, you're doing great!"
+ },
+ "heart/a071a836": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the rook",
+  "spoken": "and takes the rook"
  },
  "heart/a0cd961d": {
   "voice": "af_heart",
@@ -8789,6 +11165,18 @@
   "text": "Watch out!",
   "spoken": "Watch out!"
  },
+ "heart/a38a8c7d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Their knight on",
+  "spoken": "Their knight on"
+ },
+ "heart/a3cda772": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and attacks the bishop on",
+  "spoken": "and attacks the bishop on"
+ },
  "heart/a3e6c3da": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8813,11 +11201,23 @@
   "text": "That's a mistake, but you can fix things.",
   "spoken": "That's a mistake, but you can fix things."
  },
+ "heart/a6293bc5": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the bishop",
+  "spoken": "takes the bishop"
+ },
  "heart/a6614ec5": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Your king can no longer castle.",
   "spoken": "Your king can no longer castle."
+ },
+ "heart/a68b9c7f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "win your rook with",
+  "spoken": "win your rook with"
  },
  "heart/a6da2d6d": {
   "voice": "af_heart",
@@ -8848,6 +11248,12 @@
   "speed": 1.0,
   "text": "Colle System",
   "spoken": "Colle System"
+ },
+ "heart/a7b5f516": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and forks the rook on",
+  "spoken": "and forks the rook on"
  },
  "heart/a7dd3a69": {
   "voice": "af_heart",
@@ -8902,6 +11308,12 @@
   "speed": 1.0,
   "text": "see two",
   "spoken": "see two"
+ },
+ "heart/aa499ec3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "would fork your knight on",
+  "spoken": "would fork your knight on"
  },
  "heart/aacb3c6c": {
   "voice": "af_heart",
@@ -9004,6 +11416,12 @@
   "speed": 1.0,
   "text": "Then you play",
   "spoken": "Then you play"
+ },
+ "heart/ae95bf3d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacks the king on",
+  "spoken": "attacks the king on"
  },
  "heart/aeca1708": {
   "voice": "af_heart",
@@ -9119,6 +11537,12 @@
   "text": "A sound move.",
   "spoken": "A sound move."
  },
+ "heart/b46d1fb6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and takes the knight",
+  "spoken": "and takes the knight"
+ },
  "heart/b526ec40": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9131,6 +11555,12 @@
   "text": "Queen",
   "spoken": "Queen"
  },
+ "heart/b59da366": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your pawn now controls",
+  "spoken": "Your pawn now controls"
+ },
  "heart/b5b8963a": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9142,6 +11572,12 @@
   "speed": 1.0,
   "text": "It can make a skewer.",
   "spoken": "It can make a skewer."
+ },
+ "heart/b5e5c610": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and promotes to a rook",
+  "spoken": "and promotes to a rook"
  },
  "heart/b63df618": {
   "voice": "af_heart",
@@ -9161,6 +11597,12 @@
   "text": "behind it",
   "spoken": "behind it"
  },
+ "heart/b6e6daf4": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pins the rook on",
+  "spoken": "pins the rook on"
+ },
  "heart/b7441bc0": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9172,6 +11614,12 @@
   "speed": 1.0,
   "text": "Moving one piece uncovers an attack by another.",
   "spoken": "Moving one piece uncovers an attack by another."
+ },
+ "heart/b80a8dd8": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your king reaches the hill in the middle and wins the game.",
+  "spoken": "Your king reaches the hill in the middle and wins the game."
  },
  "heart/b843a5d3": {
   "voice": "af_heart",
@@ -9197,6 +11645,12 @@
   "text": "ay three",
   "spoken": "ay three"
  },
+ "heart/b8f5160c": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and skewers the pawn on",
+  "spoken": "and skewers the pawn on"
+ },
  "heart/b95ce965": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9208,6 +11662,12 @@
   "speed": 1.0,
   "text": "Tempo",
   "spoken": "Tempo"
+ },
+ "heart/b96abcc3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and wins a rook",
+  "spoken": "and wins a rook"
  },
  "heart/b973427d": {
   "voice": "af_heart",
@@ -9227,11 +11687,23 @@
   "text": "Giving away material on purpose.",
   "spoken": "Giving away material on purpose."
  },
+ "heart/b9ea71ad": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "promotes to a king",
+  "spoken": "promotes to a king"
+ },
  "heart/bb5eaf79": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "It wants to go toward",
   "spoken": "It wants to go toward"
+ },
+ "heart/bb9a9624": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "This leaves your bishop on",
+  "spoken": "This leaves your bishop on"
  },
  "heart/bb9e6583": {
   "voice": "af_heart",
@@ -9256,6 +11728,18 @@
   "speed": 1.0,
   "text": "A good answer for you as Black: the",
   "spoken": "A good answer for you as Black: the"
+ },
+ "heart/bbeea6f3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and promotes to a pawn",
+  "spoken": "and promotes to a pawn"
+ },
+ "heart/bbf823f6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "puts your bishop on a better square",
+  "spoken": "puts your bishop on a better square"
  },
  "heart/bc47a12e": {
   "voice": "af_heart",
@@ -9341,6 +11825,12 @@
   "text": "Careful there.",
   "spoken": "Careful there."
  },
+ "heart/bf16e694": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The king on",
+  "spoken": "The king on"
+ },
  "heart/bf571877": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9364,6 +11854,24 @@
   "speed": 1.0,
   "text": "Playable, but not the best.",
   "spoken": "Playable, but not the best."
+ },
+ "heart/c04dd8ed": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "skewers the pawn on",
+  "spoken": "skewers the pawn on"
+ },
+ "heart/c0783c3a": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "puts your knight on a better square",
+  "spoken": "puts your knight on a better square"
+ },
+ "heart/c1049a8f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the pawn on",
+  "spoken": "takes the pawn on"
  },
  "heart/c1db360d": {
   "voice": "af_heart",
@@ -9413,6 +11921,12 @@
   "text": "now controls only",
   "spoken": "now controls only"
  },
+ "heart/c380ae35": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and queen on",
+  "spoken": "and queen on"
+ },
  "heart/c38a5bc5": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9455,6 +11969,24 @@
   "text": "The queen hits the weak f-pawn square next to the king.",
   "spoken": "The queen hits the weak eff pawn square next to the king."
  },
+ "heart/c4e3459c": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "This leaves your rook on",
+  "spoken": "This leaves your rook on"
+ },
+ "heart/c515578b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and skewers the king on",
+  "spoken": "and skewers the king on"
+ },
+ "heart/c537c1e7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and attacks the pawn on",
+  "spoken": "and attacks the pawn on"
+ },
  "heart/c54ae403": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9473,6 +12005,18 @@
   "text": "Slav Defence",
   "spoken": "Slav Defence"
  },
+ "heart/c6273b4d": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacking your queen on",
+  "spoken": "attacking your queen on"
+ },
+ "heart/c665d382": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and king on",
+  "spoken": "and king on"
+ },
  "heart/c710a536": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9485,6 +12029,12 @@
   "text": "points.",
   "spoken": "points."
  },
+ "heart/c8086be6": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "queen on",
+  "spoken": "queen on"
+ },
  "heart/c80d8861": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9496,6 +12046,18 @@
   "speed": 1.0,
   "text": "dee three",
   "spoken": "dee three"
+ },
+ "heart/c82bfae1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your queen on",
+  "spoken": "Look at your queen on"
+ },
+ "heart/c8477f20": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the bishop on",
+  "spoken": "and uncovers an attack on the bishop on"
  },
  "heart/c8532b44": {
   "voice": "af_heart",
@@ -9521,11 +12083,35 @@
   "text": "jee",
   "spoken": "jee"
  },
+ "heart/c91c86e5": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You now attack the rook on",
+  "spoken": "You now attack the rook on"
+ },
+ "heart/c94b5366": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "queen to",
+  "spoken": "queen to"
+ },
  "heart/c9594d10": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "This makes your position better.",
   "spoken": "This makes your position better."
+ },
+ "heart/c98461e7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "win your knight with",
+  "spoken": "win your knight with"
+ },
+ "heart/ca2c0c99": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your king",
+  "spoken": "Look at your king"
  },
  "heart/ca3299ec": {
   "voice": "af_heart",
@@ -9575,6 +12161,18 @@
   "text": "Knight",
   "spoken": "Knight"
  },
+ "heart/cd74f5e1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Their rook on",
+  "spoken": "Their rook on"
+ },
+ "heart/cd886539": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "You now attack the knight on",
+  "spoken": "You now attack the knight on"
+ },
  "heart/cd9ff4da": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9623,6 +12221,12 @@
   "text": "A piece with too many jobs.",
   "spoken": "A piece with too many jobs."
  },
+ "heart/d00851e2": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The bishop on",
+  "spoken": "The bishop on"
+ },
  "heart/d024bddc": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9647,6 +12251,12 @@
   "text": "is a sound, steady move.",
   "spoken": "is a sound, steady move."
  },
+ "heart/d21fb697": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "king to",
+  "spoken": "king to"
+ },
  "heart/d23f508e": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9664,6 +12274,12 @@
   "speed": 1.0,
   "text": "You can trade into an easy, winning endgame.",
   "spoken": "You can trade into an easy, winning endgame."
+ },
+ "heart/d3ddefd1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "bishop on",
+  "spoken": "bishop on"
  },
  "heart/d3e96e11": {
   "voice": "af_heart",
@@ -9695,11 +12311,23 @@
   "text": "Bring another piece into the game.",
   "spoken": "Bring another piece into the game."
  },
+ "heart/d48a1e6c": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Move your knight from",
+  "spoken": "Move your knight from"
+ },
  "heart/d491a840": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Oops! Everyone makes mistakes.",
   "spoken": "Oops! Everyone makes mistakes."
+ },
+ "heart/d4bb7f0e": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "wins a knight",
+  "spoken": "wins a knight"
  },
  "heart/d4e064c8": {
   "voice": "af_heart",
@@ -9719,6 +12347,12 @@
   "text": ", because it",
   "spoken": "because it"
  },
+ "heart/d562cd56": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and forks the knight on",
+  "spoken": "and forks the knight on"
+ },
  "heart/d58e6e3c": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9737,11 +12371,35 @@
   "text": "Vienna Game",
   "spoken": "Vienna Game"
  },
+ "heart/d63d62c4": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and knight on",
+  "spoken": "and knight on"
+ },
+ "heart/d6abb9f3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your bishop now controls only",
+  "spoken": "Your bishop now controls only"
+ },
+ "heart/d6e050a3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forks the knight on",
+  "spoken": "forks the knight on"
+ },
  "heart/d77f6b9f": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Look for a pin along a line.",
   "spoken": "Look for a pin along a line."
+ },
+ "heart/d7872538": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacking your bishop on",
+  "spoken": "attacking your bishop on"
  },
  "heart/d879f94e": {
   "voice": "af_heart",
@@ -9839,11 +12497,29 @@
   "text": "Precise.",
   "spoken": "Precise."
  },
+ "heart/dd613f79": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your king now controls",
+  "spoken": "Your king now controls"
+ },
+ "heart/dd832a6b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and pins the knight on",
+  "spoken": "and pins the knight on"
+ },
  "heart/dda2e69b": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Put your rook behind the passed pawn.",
   "spoken": "Put your rook behind the passed pawn."
+ },
+ "heart/ddc3621b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the king",
+  "spoken": "takes the king"
  },
  "heart/dde1dde0": {
   "voice": "af_heart",
@@ -9863,6 +12539,12 @@
   "text": "Great endgame technique!",
   "spoken": "Great endgame technique!"
  },
+ "heart/df836598": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacking your rook on",
+  "spoken": "attacking your rook on"
+ },
  "heart/df850900": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9874,6 +12556,12 @@
   "speed": 1.0,
   "text": "knight",
   "spoken": "knight"
+ },
+ "heart/e00248aa": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The pawn",
+  "spoken": "The pawn"
  },
  "heart/e035a7f3": {
   "voice": "af_heart",
@@ -9887,6 +12575,12 @@
   "text": "Sacrifice",
   "spoken": "Sacrifice"
  },
+ "heart/e0c871f2": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "keeps your knight safe",
+  "spoken": "keeps your knight safe"
+ },
  "heart/e0f977cd": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9899,6 +12593,12 @@
   "text": "The engine's first choice was",
   "spoken": "The engine's first choice was"
  },
+ "heart/e10986a0": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your knight on",
+  "spoken": "Your knight on"
+ },
  "heart/e15333ac": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9910,6 +12610,12 @@
   "speed": 1.0,
   "text": "You are winning.",
   "spoken": "You are winning."
+ },
+ "heart/e17cdcfc": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pawn on",
+  "spoken": "pawn on"
  },
  "heart/e180656c": {
   "voice": "af_heart",
@@ -9929,6 +12635,12 @@
   "text": "You have used much more time than your opponent. Speed up a little on easy moves.",
   "spoken": "You have used much more time than your opponent. Speed up a little on easy moves."
  },
+ "heart/e1b1bc03": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "win your bishop with",
+  "spoken": "win your bishop with"
+ },
  "heart/e1c75491": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -9947,11 +12659,29 @@
   "text": "promotes to a rook",
   "spoken": "promotes to a rook"
  },
+ "heart/e24008d0": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "pawn to",
+  "spoken": "pawn to"
+ },
  "heart/e27491be": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "aitch five",
   "spoken": "aitch five"
+ },
+ "heart/e2a0d833": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Look at your rook",
+  "spoken": "Look at your rook"
+ },
+ "heart/e2d02b90": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forks the queen on",
+  "spoken": "forks the queen on"
  },
  "heart/e2e11d56": {
   "voice": "af_heart",
@@ -9970,6 +12700,12 @@
   "speed": 1.0,
   "text": "Scholar's Mate",
   "spoken": "Scholar's Mate"
+ },
+ "heart/e4aa48c0": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and promotes to a bishop",
+  "spoken": "and promotes to a bishop"
  },
  "heart/e4d09e90": {
   "voice": "af_heart",
@@ -10025,6 +12761,12 @@
   "text": "attacks the",
   "spoken": "attacks the"
  },
+ "heart/e6e0ff9a": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "keeps your rook safe",
+  "spoken": "keeps your rook safe"
+ },
  "heart/e71a17a6": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -10036,6 +12778,18 @@
   "speed": 1.0,
   "text": "The position stays about the same.",
   "spoken": "The position stays about the same."
+ },
+ "heart/e736aab8": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and wins a queen",
+  "spoken": "and wins a queen"
+ },
+ "heart/e744e15a": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "uncovers an attack on the queen on",
+  "spoken": "uncovers an attack on the queen on"
  },
  "heart/e7720e78": {
   "voice": "af_heart",
@@ -10091,6 +12845,12 @@
   "text": "Solid choice.",
   "spoken": "Solid choice."
  },
+ "heart/ea075ca7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "wins a queen",
+  "spoken": "wins a queen"
+ },
  "heart/ea1053b6": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -10102,6 +12862,12 @@
   "speed": 1.0,
   "text": "Nimzowitsch Defence",
   "spoken": "Nimzowitsch Defence"
+ },
+ "heart/ec529ab0": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and rook on",
+  "spoken": "and rook on"
  },
  "heart/ec565940": {
   "voice": "af_heart",
@@ -10144,6 +12910,12 @@
   "speed": 1.0,
   "text": "ay two",
   "spoken": "ay two"
+ },
+ "heart/edd1755c": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "attacks the queen on",
+  "spoken": "attacks the queen on"
  },
  "heart/edd7e8c5": {
   "voice": "af_heart",
@@ -10223,6 +12995,12 @@
   "text": "Their pawn on",
   "spoken": "Their pawn on"
  },
+ "heart/f0962c86": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The knight on",
+  "spoken": "The knight on"
+ },
  "heart/f098dc88": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -10234,6 +13012,18 @@
   "speed": 1.0,
   "text": "Slightly inaccurate.",
   "spoken": "Slightly inaccurate."
+ },
+ "heart/f0aefd86": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Their queen on",
+  "spoken": "Their queen on"
+ },
+ "heart/f0d5d651": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "rook to",
+  "spoken": "rook to"
  },
  "heart/f12fbb3a": {
   "voice": "af_heart",
@@ -10264,6 +13054,30 @@
   "speed": 1.0,
   "text": "Oops, a mistake.",
   "spoken": "Oops, a mistake."
+ },
+ "heart/f2bd0e64": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "forking your bishop on",
+  "spoken": "forking your bishop on"
+ },
+ "heart/f308913b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "king on",
+  "spoken": "king on"
+ },
+ "heart/f311fc01": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "bishop to",
+  "spoken": "bishop to"
+ },
+ "heart/f330d22b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "puts your queen on a better square",
+  "spoken": "puts your queen on a better square"
  },
  "heart/f3a0cfac": {
   "voice": "af_heart",
@@ -10319,11 +13133,23 @@
   "text": "promotes to a knight",
   "spoken": "promotes to a knight"
  },
+ "heart/f6c5a03b": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "keeps your queen safe",
+  "spoken": "keeps your queen safe"
+ },
  "heart/f6f1dff9": {
   "voice": "af_heart",
   "speed": 1.0,
   "text": "Trade",
   "spoken": "Trade"
+ },
+ "heart/f73e9360": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "wins a king",
+  "spoken": "wins a king"
  },
  "heart/f742cc1a": {
   "voice": "af_heart",
@@ -10348,6 +13174,12 @@
   "speed": 1.0,
   "text": "eff seven",
   "spoken": "eff seven"
+ },
+ "heart/f8824207": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and forks the pawn on",
+  "spoken": "and forks the pawn on"
  },
  "heart/f8eabcf8": {
   "voice": "af_heart",
@@ -10427,6 +13259,12 @@
   "text": "Both kings are safe for now.",
   "spoken": "Both kings are safe for now."
  },
+ "heart/fcd7a209": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Your king",
+  "spoken": "Your king"
+ },
  "heart/fce6add4": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -10463,6 +13301,18 @@
   "text": "Bird's Opening",
   "spoken": "Bird's Opening"
  },
+ "heart/fdc42bb1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "and uncovers an attack on the pawn on",
+  "spoken": "and uncovers an attack on the pawn on"
+ },
+ "heart/fdea35f3": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the queen on",
+  "spoken": "takes the queen on"
+ },
  "heart/fe642ef1": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -10474,6 +13324,12 @@
   "speed": 1.0,
   "text": "That is the strongest choice.",
   "spoken": "That is the strongest choice."
+ },
+ "heart/fefbfbb1": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "takes the rook",
+  "spoken": "takes the rook"
  },
  "heart/ff237cb9": {
   "voice": "af_heart",
@@ -10498,6 +13354,18 @@
   "speed": 1.05,
   "text": "Skewer",
   "spoken": "Skewer"
+ },
+ "rooky/006f6f14": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "skewers the bishop on",
+  "spoken": "skewers the bishop on"
+ },
+ "rooky/0111cf76": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and attacks the rook on",
+  "spoken": "and attacks the rook on"
  },
  "rooky/01340e6f": {
   "voice": "am_puck,am_liam",
@@ -10535,6 +13403,18 @@
   "text": "Best",
   "spoken": "Best"
  },
+ "rooky/036b67be": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and promotes to a king",
+  "spoken": "and promotes to a king"
+ },
+ "rooky/0373e171": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Their bishop on",
+  "spoken": "Their bishop on"
+ },
  "rooky/041126bd": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -10546,6 +13426,12 @@
   "speed": 1.05,
   "text": "Ruy Lopez, Berlin Defence",
   "spoken": "Ruy Lopez, Berlin Defence"
+ },
+ "rooky/044385b6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and attacks the knight on",
+  "spoken": "and attacks the knight on"
  },
  "rooky/044f0fa6": {
   "voice": "am_puck,am_liam",
@@ -10619,6 +13505,18 @@
   "text": "A strong sacrifice: the engine agrees.",
   "spoken": "A strong sacrifice: the engine agrees."
  },
+ "rooky/06bbcb02": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You now attack the queen on",
+  "spoken": "You now attack the queen on"
+ },
+ "rooky/07061cdc": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your bishop on",
+  "spoken": "Look at your bishop on"
+ },
  "rooky/07757195": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -10637,6 +13535,12 @@
   "text": "94",
   "spoken": "94"
  },
+ "rooky/084ec180": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "keeps your king safe",
+  "spoken": "keeps your king safe"
+ },
  "rooky/08cbcc06": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -10649,11 +13553,23 @@
   "text": "95",
   "spoken": "95"
  },
+ "rooky/09b03f38": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "promotes to a pawn",
+  "spoken": "promotes to a pawn"
+ },
  "rooky/09e4c831": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Outpost",
   "spoken": "Outpost"
+ },
+ "rooky/09ecef12": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your queen now controls",
+  "spoken": "Your queen now controls"
  },
  "rooky/09fe95a6": {
   "voice": "am_puck,am_liam",
@@ -10667,6 +13583,12 @@
   "text": "is dangerous. Block it with a piece.",
   "spoken": "is dangerous. Block it with a piece."
  },
+ "rooky/0a610ede": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forking your king on",
+  "spoken": "forking your king on"
+ },
  "rooky/0a8b27be": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -10678,6 +13600,12 @@
   "speed": 1.05,
   "text": "A good opening for you as White: the",
   "spoken": "A good opening for you as White: the"
+ },
+ "rooky/0aabb2b1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and skewers the rook on",
+  "spoken": "and skewers the rook on"
  },
  "rooky/0adf1315": {
   "voice": "am_puck,am_liam",
@@ -10697,6 +13625,12 @@
   "text": "No checkmates in sight, for either side.",
   "spoken": "No checkmates in sight, for either side."
  },
+ "rooky/0ba1c15f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You can win the game with one move. Look closely!",
+  "spoken": "You can win the game with one move. Look closely!"
+ },
  "rooky/0bb21298": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -10714,6 +13648,12 @@
   "speed": 1.05,
   "text": "90",
   "spoken": "90"
+ },
+ "rooky/0c1528b0": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "would fork your queen on",
+  "spoken": "would fork your queen on"
  },
  "rooky/0c4afe69": {
   "voice": "am_puck,am_liam",
@@ -10750,6 +13690,12 @@
   "speed": 1.05,
   "text": "A setup the stronger side can't break.",
   "spoken": "A setup the stronger side can't break."
+ },
+ "rooky/0d8f7b17": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The pawn on",
+  "spoken": "The pawn on"
  },
  "rooky/0da8f0f3": {
   "voice": "am_puck,am_liam",
@@ -10847,6 +13793,12 @@
   "text": "queen",
   "spoken": "queen"
  },
+ "rooky/10412c16": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your king on",
+  "spoken": "Look at your king on"
+ },
  "rooky/106ce7cc": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -10859,11 +13811,23 @@
   "text": "Castling",
   "spoken": "Castling"
  },
+ "rooky/10bbcc02": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "wins a bishop",
+  "spoken": "wins a bishop"
+ },
  "rooky/111f9f54": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Fool's Mate",
   "spoken": "Fool's Mate"
+ },
+ "rooky/117f10df": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "would fork your bishop on",
+  "spoken": "would fork your bishop on"
  },
  "rooky/11935b64": {
   "voice": "am_puck,am_liam",
@@ -10877,11 +13841,23 @@
   "text": "You have left the usual",
   "spoken": "You have left the usual"
  },
+ "rooky/11f1e0c1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "rook on",
+  "spoken": "rook on"
+ },
  "rooky/11fd6afb": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": ", which also attacks your",
   "spoken": "which also attacks your"
+ },
+ "rooky/12204a9e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "This leaves your king on",
+  "spoken": "This leaves your king on"
  },
  "rooky/125479e8": {
   "voice": "am_puck,am_liam",
@@ -10894,6 +13870,12 @@
   "speed": 1.05,
   "text": "Steady in the endgame.",
   "spoken": "Steady in the endgame."
+ },
+ "rooky/1286cc00": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and uncovers an attack on the rook on",
+  "spoken": "and uncovers an attack on the rook on"
  },
  "rooky/12fab3f4": {
   "voice": "am_puck,am_liam",
@@ -10912,6 +13894,12 @@
   "speed": 1.05,
   "text": "Larsen's Opening",
   "spoken": "Larsen's Opening"
+ },
+ "rooky/13be728b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacks the bishop on",
+  "spoken": "attacks the bishop on"
  },
  "rooky/13eb1dac": {
   "voice": "am_puck,am_liam",
@@ -10961,17 +13949,41 @@
   "text": "99",
   "spoken": "99"
  },
+ "rooky/15875ca7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the bishop on",
+  "spoken": "and takes the bishop on"
+ },
  "rooky/15bcfc97": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Big mistake, but don't give up!",
   "spoken": "Big mistake, but don't give up!"
  },
+ "rooky/15dab3dc": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forking your rook on",
+  "spoken": "forking your rook on"
+ },
+ "rooky/15de7bee": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "puts your rook on a better square",
+  "spoken": "puts your rook on a better square"
+ },
  "rooky/15e8e23b": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "60",
   "spoken": "60"
+ },
+ "rooky/15e95086": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The rook on",
+  "spoken": "The rook on"
  },
  "rooky/169949bc": {
   "voice": "am_puck,am_liam",
@@ -10997,11 +14009,23 @@
   "text": "Victory! Well played!",
   "spoken": "Victory! Well played!"
  },
+ "rooky/16f4c105": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and uncovers an attack on the queen on",
+  "spoken": "and uncovers an attack on the queen on"
+ },
  "rooky/17a0b734": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "A little loose.",
   "spoken": "A little loose."
+ },
+ "rooky/17a2396b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your bishop",
+  "spoken": "Look at your bishop"
  },
  "rooky/17ce8817": {
   "voice": "am_puck,am_liam",
@@ -11050,6 +14074,12 @@
   "speed": 1.05,
   "text": "That works well.",
   "spoken": "That works well."
+ },
+ "rooky/1832cb93": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "would fork your rook on",
+  "spoken": "would fork your rook on"
  },
  "rooky/183bd893": {
   "voice": "am_puck,am_liam",
@@ -11135,6 +14165,12 @@
   "text": "Caro-Kann Defence",
   "spoken": "Caro-Kann Defence"
  },
+ "rooky/1ad3ea16": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "win your pawn with",
+  "spoken": "win your pawn with"
+ },
  "rooky/1ae8ea1a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11158,6 +14194,12 @@
   "speed": 1.05,
   "text": "the kingside",
   "spoken": "the kingside"
+ },
+ "rooky/1b713456": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forks the pawn on",
+  "spoken": "forks the pawn on"
  },
  "rooky/1b89bba0": {
   "voice": "am_puck,am_liam",
@@ -11231,6 +14273,12 @@
   "text": "Plan",
   "spoken": "Plan"
  },
+ "rooky/1eba6a1b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your bishop",
+  "spoken": "Your bishop"
+ },
  "rooky/1ed39e39": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11261,6 +14309,12 @@
   "text": "trades pieces while you are ahead.",
   "spoken": "trades pieces while you are ahead."
  },
+ "rooky/1f80d371": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "rook takes on",
+  "spoken": "rook takes on"
+ },
  "rooky/1fe3b4ed": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11272,6 +14326,12 @@
   "speed": 1.05,
   "text": "to the king",
   "spoken": "to the king"
+ },
+ "rooky/20d96fa1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and skewers the bishop on",
+  "spoken": "and skewers the bishop on"
  },
  "rooky/2107debf": {
   "voice": "am_puck,am_liam",
@@ -11291,11 +14351,29 @@
   "text": "We are in the endgame now. Kings become fighters!",
   "spoken": "We are in the endgame now. Kings become fighters!"
  },
+ "rooky/21f305a8": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your queen",
+  "spoken": "Look at your queen"
+ },
  "rooky/220c7785": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "It can make a fork.",
   "spoken": "It can make a fork."
+ },
+ "rooky/2229cd7e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the pawn on",
+  "spoken": "and takes the pawn on"
+ },
+ "rooky/224ab79b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your rook now controls",
+  "spoken": "Your rook now controls"
  },
  "rooky/225109c0": {
   "voice": "am_puck,am_liam",
@@ -11357,6 +14435,12 @@
   "text": "dee eight",
   "spoken": "dee eight"
  },
+ "rooky/253a5857": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Their king is left all alone, so you win the game.",
+  "spoken": "Their king is left all alone, so you win the game."
+ },
  "rooky/25633715": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11387,11 +14471,23 @@
   "text": "bee two",
   "spoken": "bee two"
  },
+ "rooky/26545439": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "This leaves your queen on",
+  "spoken": "This leaves your queen on"
+ },
  "rooky/266ffd28": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "see six",
   "spoken": "see six"
+ },
+ "rooky/26c4492d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You now attack the bishop on",
+  "spoken": "You now attack the bishop on"
  },
  "rooky/2710c38a": {
   "voice": "am_puck,am_liam",
@@ -11416,6 +14512,12 @@
   "speed": 1.05,
   "text": "You won!",
   "spoken": "You won!"
+ },
+ "rooky/2821e5ec": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the king on",
+  "spoken": "takes the king on"
  },
  "rooky/2849a3fe": {
   "voice": "am_puck,am_liam",
@@ -11495,6 +14597,12 @@
   "text": "-file is open: a rook there would be strong.",
   "spoken": "file is open: a rook there would be strong."
  },
+ "rooky/2bb1fc88": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forking your knight on",
+  "spoken": "forking your knight on"
+ },
  "rooky/2be2ffc0": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11531,6 +14639,12 @@
   "text": "aitch six",
   "spoken": "aitch six"
  },
+ "rooky/2e0ec0f4": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your pawn",
+  "spoken": "Your pawn"
+ },
  "rooky/2e142784": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11542,6 +14656,18 @@
   "speed": 1.05,
   "text": "see eight",
   "spoken": "see eight"
+ },
+ "rooky/2e3a4cfc": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacking your knight on",
+  "spoken": "attacking your knight on"
+ },
+ "rooky/2e48475b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Their king on",
+  "spoken": "Their king on"
  },
  "rooky/2e4a71b6": {
   "voice": "am_puck,am_liam",
@@ -11603,6 +14729,12 @@
   "text": "Wow, top move!",
   "spoken": "Wow, top move!"
  },
+ "rooky/3080e744": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and forks the king on",
+  "spoken": "and forks the king on"
+ },
  "rooky/30a61f60": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11614,6 +14746,12 @@
   "speed": 1.05,
   "text": "Nearly there!",
   "spoken": "Nearly there!"
+ },
+ "rooky/3108d1f3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forks the rook on",
+  "spoken": "forks the rook on"
  },
  "rooky/310ca263": {
   "voice": "am_puck,am_liam",
@@ -11693,6 +14831,12 @@
   "text": "Sicilian Defence, Dragon",
   "spoken": "Sicilian Defence, Dragon"
  },
+ "rooky/3403dff4": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your pawn now controls only",
+  "spoken": "Your pawn now controls only"
+ },
  "rooky/340ca71c": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11758,6 +14902,18 @@
   "speed": 1.05,
   "text": "2",
   "spoken": "2"
+ },
+ "rooky/37293d57": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and pins the bishop on",
+  "spoken": "and pins the bishop on"
+ },
+ "rooky/379d8409": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and wins a king",
+  "spoken": "and wins a king"
  },
  "rooky/37c9b687": {
   "voice": "am_puck,am_liam",
@@ -11837,11 +14993,23 @@
   "text": "Your king is safe. Now connect your rooks.",
   "spoken": "Your king is safe. Now connect your rooks."
  },
+ "rooky/3a28eaf0": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "puts your king on a better square",
+  "spoken": "puts your king on a better square"
+ },
  "rooky/3b094452": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Your opponent has a forced checkmate.",
   "spoken": "Your opponent has a forced checkmate."
+ },
+ "rooky/3b68a233": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The king",
+  "spoken": "The king"
  },
  "rooky/3b80190a": {
   "voice": "am_puck,am_liam",
@@ -11854,6 +15022,12 @@
   "speed": 1.05,
   "text": "-file.",
   "spoken": "file."
+ },
+ "rooky/3be0d637": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Move your queen from",
+  "spoken": "Move your queen from"
  },
  "rooky/3c0cb3b4": {
   "voice": "am_puck,am_liam",
@@ -11878,6 +15052,12 @@
   "speed": 1.05,
   "text": "8",
   "spoken": "8"
+ },
+ "rooky/3d509c0e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the knight on",
+  "spoken": "takes the knight on"
  },
  "rooky/3d667e65": {
   "voice": "am_puck,am_liam",
@@ -11945,6 +15125,12 @@
   "text": "to",
   "spoken": "to"
  },
+ "rooky/4275b7d7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacks the rook on",
+  "spoken": "attacks the rook on"
+ },
  "rooky/42c71d0c": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -11962,6 +15148,12 @@
   "speed": 1.05,
   "text": "Philidor Defence",
   "spoken": "Philidor Defence"
+ },
+ "rooky/43b19135": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your king now controls only",
+  "spoken": "Your king now controls only"
  },
  "rooky/4404b82b": {
   "voice": "am_puck,am_liam",
@@ -11987,11 +15179,29 @@
   "text": "jee three",
   "spoken": "jee three"
  },
+ "rooky/454114a6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your king on",
+  "spoken": "Your king on"
+ },
+ "rooky/471fe3b2": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "win your queen with",
+  "spoken": "win your queen with"
+ },
  "rooky/47aa4190": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "You are clearly better.",
   "spoken": "You are clearly better."
+ },
+ "rooky/47b489df": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You now attack the king on",
+  "spoken": "You now attack the king on"
  },
  "rooky/47e52c43": {
   "voice": "am_puck,am_liam",
@@ -12005,11 +15215,23 @@
   "text": "stalemates: the game is drawn.",
   "spoken": "stalemates: the game is drawn."
  },
+ "rooky/488da7be": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the queen",
+  "spoken": "takes the queen"
+ },
  "rooky/490ea238": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "bishop",
   "spoken": "bishop"
+ },
+ "rooky/49247f17": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your knight",
+  "spoken": "Your knight"
  },
  "rooky/4965431a": {
   "voice": "am_puck,am_liam",
@@ -12029,6 +15251,12 @@
   "text": "Their strongest reply is",
   "spoken": "Their strongest reply is"
  },
+ "rooky/4af1f889": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacking your pawn on",
+  "spoken": "attacking your pawn on"
+ },
  "rooky/4b6ef87a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12040,6 +15268,12 @@
   "speed": 1.05,
   "text": "Giving material for something bigger: an attack, a checkmate or a better position.",
   "spoken": "Giving material for something bigger: an attack, a checkmate or a better position."
+ },
+ "rooky/4b981c1b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and wins a bishop",
+  "spoken": "and wins a bishop"
  },
  "rooky/4b988062": {
   "voice": "am_puck,am_liam",
@@ -12070,6 +15304,18 @@
   "speed": 1.05,
   "text": "Smith-Morra Gambit",
   "spoken": "Smith-Morra Gambit"
+ },
+ "rooky/4d4f96b5": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "uncovers an attack on the bishop on",
+  "spoken": "uncovers an attack on the bishop on"
+ },
+ "rooky/4d860091": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the pawn",
+  "spoken": "and takes the pawn"
  },
  "rooky/4e795a36": {
   "voice": "am_puck,am_liam",
@@ -12119,6 +15365,12 @@
   "text": ". Bring your king to help it.",
   "spoken": "Bring your king to help it."
  },
+ "rooky/50f18575": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your pawn on",
+  "spoken": "Look at your pawn on"
+ },
  "rooky/5132f73f": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12161,17 +15413,41 @@
   "text": "bee six",
   "spoken": "bee six"
  },
+ "rooky/5276d469": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "win your king with",
+  "spoken": "win your king with"
+ },
  "rooky/52c12853": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "A draw: both sides held on.",
   "spoken": "A draw: both sides held on."
  },
+ "rooky/532e8143": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "king takes on",
+  "spoken": "king takes on"
+ },
+ "rooky/53483758": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "skewers the knight on",
+  "spoken": "skewers the knight on"
+ },
  "rooky/5350e97c": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Careful: this plan runs into trouble at",
   "spoken": "Careful: this plan runs into trouble at"
+ },
+ "rooky/53759037": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your knight now controls",
+  "spoken": "Your knight now controls"
  },
  "rooky/53a0d258": {
   "voice": "am_puck,am_liam",
@@ -12239,6 +15515,12 @@
   "text": "Two big pieces walk the king to the edge, one row at a time.",
   "spoken": "Two big pieces walk the king to the edge, one row at a time."
  },
+ "rooky/5602659b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the rook on",
+  "spoken": "and takes the rook on"
+ },
  "rooky/565a4c24": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12281,11 +15563,29 @@
   "text": "is under attack.",
   "spoken": "is under attack."
  },
+ "rooky/57e3bedb": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and attacks the queen on",
+  "spoken": "and attacks the queen on"
+ },
+ "rooky/57f0ca79": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forking your queen on",
+  "spoken": "forking your queen on"
+ },
  "rooky/584322e6": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "is guarding two pieces at once. Be careful.",
   "spoken": "is guarding two pieces at once. Be careful."
+ },
+ "rooky/58c7eb51": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your queen on",
+  "spoken": "Your queen on"
  },
  "rooky/591aea3b": {
   "voice": "am_puck,am_liam",
@@ -12298,6 +15598,12 @@
   "speed": 1.05,
   "text": "There is a bold idea here, but it is risky.",
   "spoken": "There is a bold idea here, but it is risky."
+ },
+ "rooky/5a4d1992": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and forks the bishop on",
+  "spoken": "and forks the bishop on"
  },
  "rooky/5a5ffd17": {
   "voice": "am_puck,am_liam",
@@ -12317,6 +15623,12 @@
   "text": "Now that's chess!",
   "spoken": "Now that's chess!"
  },
+ "rooky/5a858356": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and skewers the queen on",
+  "spoken": "and skewers the queen on"
+ },
  "rooky/5aaea77d": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12329,11 +15641,23 @@
   "text": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off.",
   "spoken": "Kings facing each other with one square between. The one who doesn't have to move wins the face-off."
  },
+ "rooky/5afc0d0d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "knight takes on",
+  "spoken": "knight takes on"
+ },
  "rooky/5bbab4ff": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Mistakes help us learn.",
   "spoken": "Mistakes help us learn."
+ },
+ "rooky/5c15f02a": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacks the pawn on",
+  "spoken": "attacks the pawn on"
  },
  "rooky/5c6950cd": {
   "voice": "am_puck,am_liam",
@@ -12353,6 +15677,12 @@
   "text": "Try this thought.",
   "spoken": "Try this thought."
  },
+ "rooky/5e7fd4c1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "bishop takes on",
+  "spoken": "bishop takes on"
+ },
  "rooky/5f77d5e8": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12364,6 +15694,12 @@
   "speed": 1.05,
   "text": "guards two things at once. Attack one of them.",
   "spoken": "guards two things at once. Attack one of them."
+ },
+ "rooky/5fd0d3e9": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forks the king on",
+  "spoken": "forks the king on"
  },
  "rooky/5fdd3a99": {
   "voice": "am_puck,am_liam",
@@ -12389,11 +15725,23 @@
   "text": "Your king can catch their pawn on",
   "spoken": "Your king can catch their pawn on"
  },
+ "rooky/603d07e9": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The rook",
+  "spoken": "The rook"
+ },
  "rooky/60956946": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Tactics",
   "spoken": "Tactics"
+ },
+ "rooky/60bc184e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "skewers the king on",
+  "spoken": "skewers the king on"
  },
  "rooky/610b2281": {
   "voice": "am_puck,am_liam",
@@ -12425,6 +15773,12 @@
   "text": "Accurate play.",
   "spoken": "Accurate play."
  },
+ "rooky/61b3e4b8": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your queen",
+  "spoken": "Your queen"
+ },
  "rooky/61b95f60": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12436,6 +15790,12 @@
   "speed": 1.05,
   "text": "Sensible move.",
   "spoken": "Sensible move."
+ },
+ "rooky/623ce81b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the knight on",
+  "spoken": "and takes the knight on"
  },
  "rooky/62efd37c": {
   "voice": "am_puck,am_liam",
@@ -12454,6 +15814,18 @@
   "speed": 1.05,
   "text": "Your opponent has no direct threat now.",
   "spoken": "Your opponent has no direct threat now."
+ },
+ "rooky/6368ca4d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and skewers the knight on",
+  "spoken": "and skewers the knight on"
+ },
+ "rooky/6393807b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your rook now controls only",
+  "spoken": "Your rook now controls only"
  },
  "rooky/639eb421": {
   "voice": "am_puck,am_liam",
@@ -12478,6 +15850,12 @@
   "speed": 1.05,
   "text": "ee six",
   "spoken": "ee six"
+ },
+ "rooky/64380a21": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and pins the king on",
+  "spoken": "and pins the king on"
  },
  "rooky/648f3bac": {
   "voice": "am_puck,am_liam",
@@ -12509,6 +15887,12 @@
   "text": "ee seven",
   "spoken": "ee seven"
  },
+ "rooky/657e7376": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "would fork your pawn on",
+  "spoken": "would fork your pawn on"
+ },
  "rooky/6584267a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12520,6 +15904,12 @@
   "speed": 1.05,
   "text": "This allows checkmate:",
   "spoken": "This allows checkmate:"
+ },
+ "rooky/65f0181d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The bishop",
+  "spoken": "The bishop"
  },
  "rooky/65f0f920": {
   "voice": "am_puck,am_liam",
@@ -12605,6 +15995,18 @@
   "text": "Their king is in danger. Look for checks!",
   "spoken": "Their king is in danger. Look for checks!"
  },
+ "rooky/68d4a2f4": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and wins a pawn",
+  "spoken": "and wins a pawn"
+ },
+ "rooky/6903bbc9": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "skewers the queen on",
+  "spoken": "skewers the queen on"
+ },
  "rooky/691b42b6": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12616,6 +16018,12 @@
   "speed": 1.05,
   "text": "Not a good move.",
   "spoken": "Not a good move."
+ },
+ "rooky/69f3ab34": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pawn takes on",
+  "spoken": "pawn takes on"
  },
  "rooky/6a2893df": {
   "voice": "am_puck,am_liam",
@@ -12635,11 +16043,23 @@
   "text": "gives up material for a lasting attack.",
   "spoken": "gives up material for a lasting attack."
  },
+ "rooky/6b208070": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and bishop on",
+  "spoken": "and bishop on"
+ },
  "rooky/6b3efd82": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Well done!",
   "spoken": "Well done!"
+ },
+ "rooky/6b441963": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your bishop now controls",
+  "spoken": "Your bishop now controls"
  },
  "rooky/6b8adfd6": {
   "voice": "am_puck,am_liam",
@@ -12652,6 +16072,12 @@
   "speed": 1.05,
   "text": "It needs a safer square.",
   "spoken": "It needs a safer square."
+ },
+ "rooky/6c00adfb": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and forks the queen on",
+  "spoken": "and forks the queen on"
  },
  "rooky/6c0f972e": {
   "voice": "am_puck,am_liam",
@@ -12719,11 +16145,29 @@
   "text": "Queen's Pawn Opening",
   "spoken": "Queen's Pawn Opening"
  },
+ "rooky/6e77693d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forking your pawn on",
+  "spoken": "forking your pawn on"
+ },
+ "rooky/6e81a0b0": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your knight on",
+  "spoken": "Look at your knight on"
+ },
  "rooky/6e8f9f83": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Use your rook to push their king to the edge, one row at a time, with your king helping.",
   "spoken": "Use your rook to push their king to the edge, one row at a time, with your king helping."
+ },
+ "rooky/6e8fdf0a": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacking your king on",
+  "spoken": "attacking your king on"
  },
  "rooky/6e92eb66": {
   "voice": "am_puck,am_liam",
@@ -12736,6 +16180,12 @@
   "speed": 1.05,
   "text": "Moving it uncovers an attack.",
   "spoken": "Moving it uncovers an attack."
+ },
+ "rooky/6eded3f2": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the pawn",
+  "spoken": "takes the pawn"
  },
  "rooky/6efd0494": {
   "voice": "am_puck,am_liam",
@@ -12754,6 +16204,12 @@
   "speed": 1.05,
   "text": "see one",
   "spoken": "see one"
+ },
+ "rooky/6f58045d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "knight to",
+  "spoken": "knight to"
  },
  "rooky/6f7913df": {
   "voice": "am_puck,am_liam",
@@ -12785,11 +16241,29 @@
   "text": "Needs work",
   "spoken": "Needs work"
  },
+ "rooky/709aebdd": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "knight on",
+  "spoken": "knight on"
+ },
+ "rooky/70b54889": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "would fork your king on",
+  "spoken": "would fork your king on"
+ },
  "rooky/70d370ff": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Hmm, not quite the best.",
   "spoken": "Hmm, not quite the best."
+ },
+ "rooky/70d97fee": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and pins the pawn on",
+  "spoken": "and pins the pawn on"
  },
  "rooky/70e3c2d5": {
   "voice": "am_puck,am_liam",
@@ -12809,6 +16283,12 @@
   "text": "That changes the game.",
   "spoken": "That changes the game."
  },
+ "rooky/7130ec9a": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the bishop",
+  "spoken": "and takes the bishop"
+ },
  "rooky/7160d90c": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12820,6 +16300,12 @@
   "speed": 1.05,
   "text": "Their",
   "spoken": "Their"
+ },
+ "rooky/721a6a58": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the king",
+  "spoken": "and takes the king"
  },
  "rooky/726fd3d5": {
   "voice": "am_puck,am_liam",
@@ -12851,6 +16337,18 @@
   "text": "Open Sicilian",
   "spoken": "Open Sicilian"
  },
+ "rooky/7397050f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the queen",
+  "spoken": "and takes the queen"
+ },
+ "rooky/73adf938": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "uncovers an attack on the pawn on",
+  "spoken": "uncovers an attack on the pawn on"
+ },
  "rooky/73d4f219": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12875,11 +16373,23 @@
   "text": "Their queen is going after your b2 pawn and back row.",
   "spoken": "Their queen is going after your bee two pawn and back row."
  },
+ "rooky/75f0c9fd": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "This leaves your pawn on",
+  "spoken": "This leaves your pawn on"
+ },
  "rooky/75f9fa5a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "percent",
   "spoken": "percent"
+ },
+ "rooky/76023117": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and wins a knight",
+  "spoken": "and wins a knight"
  },
  "rooky/7655cedb": {
   "voice": "am_puck,am_liam",
@@ -12892,6 +16402,12 @@
   "speed": 1.05,
   "text": "Some winning chances were missed.",
   "spoken": "Some winning chances were missed."
+ },
+ "rooky/778caaa1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and promotes to a queen",
+  "spoken": "and promotes to a queen"
  },
  "rooky/77da6893": {
   "voice": "am_puck,am_liam",
@@ -12947,6 +16463,18 @@
   "text": "They have the opposition. Try to take it back.",
   "spoken": "They have the opposition. Try to take it back."
  },
+ "rooky/79b0cb88": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Move your bishop from",
+  "spoken": "Move your bishop from"
+ },
+ "rooky/79f04007": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your knight now controls only",
+  "spoken": "Your knight now controls only"
+ },
  "rooky/7a8c7df8": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12965,11 +16493,29 @@
   "text": "Castles queenside",
   "spoken": "Castles queenside"
  },
+ "rooky/7ae0df2d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "uncovers an attack on the rook on",
+  "spoken": "uncovers an attack on the rook on"
+ },
+ "rooky/7aff6c2e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "keeps your bishop safe",
+  "spoken": "keeps your bishop safe"
+ },
  "rooky/7b3c1e94": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "eff six",
   "spoken": "eff six"
+ },
+ "rooky/7b7066c1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and pawn on",
+  "spoken": "and pawn on"
  },
  "rooky/7b8038d9": {
   "voice": "am_puck,am_liam",
@@ -12983,6 +16529,24 @@
   "text": "A big mistake.",
   "spoken": "A big mistake."
  },
+ "rooky/7b8c6dab": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The queen on",
+  "spoken": "The queen on"
+ },
+ "rooky/7ba0dffa": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the bishop on",
+  "spoken": "takes the bishop on"
+ },
+ "rooky/7be08c3c": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pins the bishop on",
+  "spoken": "pins the bishop on"
+ },
  "rooky/7c22dda6": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -12994,6 +16558,12 @@
   "speed": 1.05,
   "text": "A small slip.",
   "spoken": "A small slip."
+ },
+ "rooky/7cf31c67": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You have a winning plan here. Think it through!",
+  "spoken": "You have a winning plan here. Think it through!"
  },
  "rooky/7dda6dec": {
   "voice": "am_puck,am_liam",
@@ -13025,6 +16595,18 @@
   "text": "Practise king safety and castling.",
   "spoken": "Practise king safety and castling."
  },
+ "rooky/7e969acf": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "It can win the game.",
+  "spoken": "It can win the game."
+ },
+ "rooky/7ea4dac3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your rook",
+  "spoken": "Your rook"
+ },
  "rooky/7ec17438": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13036,6 +16618,12 @@
   "speed": 1.05,
   "text": "has no pawn friends next to it (an isolated pawn).",
   "spoken": "has no pawn friends next to it (an isolated pawn)."
+ },
+ "rooky/7f0f08a8": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the queen on",
+  "spoken": "and takes the queen on"
  },
  "rooky/7f102862": {
   "voice": "am_puck,am_liam",
@@ -13067,17 +16655,47 @@
   "text": "Catalan Opening",
   "spoken": "Catalan Opening"
  },
+ "rooky/807992e6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The queen",
+  "spoken": "The queen"
+ },
  "rooky/8099a371": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Pirc Defence",
   "spoken": "Pirc Defence"
  },
+ "rooky/80d47fb2": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and uncovers an attack on the king on",
+  "spoken": "and uncovers an attack on the king on"
+ },
  "rooky/80fac56a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "That's a fine move.",
   "spoken": "That's a fine move."
+ },
+ "rooky/80fce7df": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "puts your pawn on a better square",
+  "spoken": "puts your pawn on a better square"
+ },
+ "rooky/8134cf59": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "wins a pawn",
+  "spoken": "wins a pawn"
+ },
+ "rooky/8150602c": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "skewers the rook on",
+  "spoken": "skewers the rook on"
  },
  "rooky/81978977": {
   "voice": "am_puck,am_liam",
@@ -13090,6 +16708,12 @@
   "speed": 1.05,
   "text": "After that line:",
   "spoken": "After that line:"
+ },
+ "rooky/81c4d3be": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "wins a rook",
+  "spoken": "wins a rook"
  },
  "rooky/81e74773": {
   "voice": "am_puck,am_liam",
@@ -13114,6 +16738,12 @@
   "speed": 1.05,
   "text": "dee two",
   "spoken": "dee two"
+ },
+ "rooky/82c5ee1e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the rook on",
+  "spoken": "takes the rook on"
  },
  "rooky/839ddae2": {
   "voice": "am_puck,am_liam",
@@ -13162,6 +16792,12 @@
   "speed": 1.05,
   "text": "51",
   "spoken": "51"
+ },
+ "rooky/85031be7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "uncovers an attack on the king on",
+  "spoken": "uncovers an attack on the king on"
  },
  "rooky/856a3a4e": {
   "voice": "am_puck,am_liam",
@@ -13241,6 +16877,12 @@
   "text": "Biggest missed chance:",
   "spoken": "Biggest missed chance:"
  },
+ "rooky/876258a4": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and attacks the king on",
+  "spoken": "and attacks the king on"
+ },
  "rooky/8767d867": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13300,6 +16942,18 @@
   "speed": 1.05,
   "text": "bee three",
   "spoken": "bee three"
+ },
+ "rooky/885e1be9": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The knight",
+  "spoken": "The knight"
+ },
+ "rooky/887037de": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "That is your third check, so you win the game.",
+  "spoken": "That is your third check, so you win the game."
  },
  "rooky/88e1487f": {
   "voice": "am_puck,am_liam",
@@ -13367,6 +17021,12 @@
   "text": "24",
   "spoken": "24"
  },
+ "rooky/8ab5f979": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Move your pawn from",
+  "spoken": "Move your pawn from"
+ },
  "rooky/8ac6ec69": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13415,6 +17075,18 @@
   "text": "87",
   "spoken": "87"
  },
+ "rooky/8b255055": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pins the pawn on",
+  "spoken": "pins the pawn on"
+ },
+ "rooky/8b2b43b6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Move your king from",
+  "spoken": "Move your king from"
+ },
  "rooky/8b3335e8": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13432,6 +17104,12 @@
   "speed": 1.05,
   "text": "Checkmate threats sometimes slip past you.",
   "spoken": "Checkmate threats sometimes slip past you."
+ },
+ "rooky/8be022ab": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and pins the rook on",
+  "spoken": "and pins the rook on"
  },
  "rooky/8be14d38": {
   "voice": "am_puck,am_liam",
@@ -13505,6 +17183,12 @@
   "text": "It is about equal.",
   "spoken": "It is about equal."
  },
+ "rooky/8cd21a94": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and uncovers an attack on the knight on",
+  "spoken": "and uncovers an attack on the knight on"
+ },
  "rooky/8ce14ecb": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13547,6 +17231,12 @@
   "text": "85",
   "spoken": "85"
  },
+ "rooky/8dc78a80": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your queen now controls only",
+  "spoken": "Your queen now controls only"
+ },
  "rooky/8de38ef5": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13577,6 +17267,12 @@
   "text": "Your opponent has a checkmate coming. Look for checks and defenders.",
   "spoken": "Your opponent has a checkmate coming. Look for checks and defenders."
  },
+ "rooky/8e50b894": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your rook on",
+  "spoken": "Look at your rook on"
+ },
  "rooky/8ed4a950": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13606,6 +17302,12 @@
   "speed": 1.05,
   "text": "83",
   "spoken": "83"
+ },
+ "rooky/8fb6bd7f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacks the knight on",
+  "spoken": "attacks the knight on"
  },
  "rooky/8fe5d0b2": {
   "voice": "am_puck,am_liam",
@@ -13691,6 +17393,18 @@
   "text": "80",
   "spoken": "80"
  },
+ "rooky/929db7f8": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and pins the queen on",
+  "spoken": "and pins the queen on"
+ },
+ "rooky/938ed790": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pins the knight on",
+  "spoken": "pins the knight on"
+ },
  "rooky/93b554d1": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13715,11 +17429,29 @@
   "text": "This allows",
   "spoken": "This allows"
  },
+ "rooky/94801f30": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You now attack the pawn on",
+  "spoken": "You now attack the pawn on"
+ },
+ "rooky/94d34644": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your pawn",
+  "spoken": "Look at your pawn"
+ },
  "rooky/94f2a484": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "29",
   "spoken": "29"
+ },
+ "rooky/95a93948": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "This leaves your knight on",
+  "spoken": "This leaves your knight on"
  },
  "rooky/95b7652e": {
   "voice": "am_puck,am_liam",
@@ -13738,6 +17470,12 @@
   "speed": 1.05,
   "text": ", which",
   "spoken": "which"
+ },
+ "rooky/95ed26bf": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forks the bishop on",
+  "spoken": "forks the bishop on"
  },
  "rooky/95f2a617": {
   "voice": "am_puck,am_liam",
@@ -13829,6 +17567,12 @@
   "text": "79",
   "spoken": "79"
  },
+ "rooky/98ebad31": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "uncovers an attack on the knight on",
+  "spoken": "uncovers an attack on the knight on"
+ },
  "rooky/9901b55a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13865,11 +17609,23 @@
   "text": "Inaccurate",
   "spoken": "Inaccurate"
  },
+ "rooky/9a3edd4e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "queen takes on",
+  "spoken": "queen takes on"
+ },
  "rooky/9ab46cbd": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "You often leave pieces unprotected.",
   "spoken": "You often leave pieces unprotected."
+ },
+ "rooky/9b1b9981": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the knight",
+  "spoken": "takes the knight"
  },
  "rooky/9b27c35e": {
   "voice": "am_puck,am_liam",
@@ -13889,11 +17645,29 @@
   "text": "Seeing threats and king safety.",
   "spoken": "Seeing threats and king safety."
  },
+ "rooky/9bc4c0f6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pins the king on",
+  "spoken": "pins the king on"
+ },
  "rooky/9bc66128": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "win a pawn with",
   "spoken": "win a pawn with"
+ },
+ "rooky/9bf4dbc1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pins the queen on",
+  "spoken": "pins the queen on"
+ },
+ "rooky/9bf6f238": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Move your rook from",
+  "spoken": "Move your rook from"
  },
  "rooky/9c344405": {
   "voice": "am_puck,am_liam",
@@ -13931,6 +17705,12 @@
   "text": "on a better square.",
   "spoken": "on a better square."
  },
+ "rooky/9d0f57f1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the king on",
+  "spoken": "and takes the king on"
+ },
  "rooky/9d5c5ef1": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13942,6 +17722,12 @@
   "speed": 1.05,
   "text": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind.",
   "spoken": "Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind."
+ },
+ "rooky/9dc2496f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "keeps your pawn safe",
+  "spoken": "keeps your pawn safe"
  },
  "rooky/9e1f5b1c": {
   "voice": "am_puck,am_liam",
@@ -13979,6 +17765,18 @@
   "text": "Move choice and missed chances.",
   "spoken": "Move choice and missed chances."
  },
+ "rooky/9f57fcc7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your knight",
+  "spoken": "Look at your knight"
+ },
+ "rooky/9f991274": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and promotes to a knight",
+  "spoken": "and promotes to a knight"
+ },
  "rooky/9fe219c8": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -13990,6 +17788,12 @@
   "speed": 1.05,
   "text": "Keep going, you're doing great!",
   "spoken": "Keep going, you're doing great!"
+ },
+ "rooky/a071a836": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the rook",
+  "spoken": "and takes the rook"
  },
  "rooky/a0cd961d": {
   "voice": "am_puck,am_liam",
@@ -14033,6 +17837,18 @@
   "text": "Watch out!",
   "spoken": "Watch out!"
  },
+ "rooky/a38a8c7d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Their knight on",
+  "spoken": "Their knight on"
+ },
+ "rooky/a3cda772": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and attacks the bishop on",
+  "spoken": "and attacks the bishop on"
+ },
  "rooky/a3e6c3da": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14057,11 +17873,23 @@
   "text": "That's a mistake, but you can fix things.",
   "spoken": "That's a mistake, but you can fix things."
  },
+ "rooky/a6293bc5": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the bishop",
+  "spoken": "takes the bishop"
+ },
  "rooky/a6614ec5": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Your king can no longer castle.",
   "spoken": "Your king can no longer castle."
+ },
+ "rooky/a68b9c7f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "win your rook with",
+  "spoken": "win your rook with"
  },
  "rooky/a6da2d6d": {
   "voice": "am_puck,am_liam",
@@ -14092,6 +17920,12 @@
   "speed": 1.05,
   "text": "Colle System",
   "spoken": "Colle System"
+ },
+ "rooky/a7b5f516": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and forks the rook on",
+  "spoken": "and forks the rook on"
  },
  "rooky/a7dd3a69": {
   "voice": "am_puck,am_liam",
@@ -14146,6 +17980,12 @@
   "speed": 1.05,
   "text": "see two",
   "spoken": "see two"
+ },
+ "rooky/aa499ec3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "would fork your knight on",
+  "spoken": "would fork your knight on"
  },
  "rooky/aacb3c6c": {
   "voice": "am_puck,am_liam",
@@ -14248,6 +18088,12 @@
   "speed": 1.05,
   "text": "Then you play",
   "spoken": "Then you play"
+ },
+ "rooky/ae95bf3d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacks the king on",
+  "spoken": "attacks the king on"
  },
  "rooky/aeca1708": {
   "voice": "am_puck,am_liam",
@@ -14363,6 +18209,12 @@
   "text": "A sound move.",
   "spoken": "A sound move."
  },
+ "rooky/b46d1fb6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and takes the knight",
+  "spoken": "and takes the knight"
+ },
  "rooky/b526ec40": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14375,6 +18227,12 @@
   "text": "Queen",
   "spoken": "Queen"
  },
+ "rooky/b59da366": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your pawn now controls",
+  "spoken": "Your pawn now controls"
+ },
  "rooky/b5b8963a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14386,6 +18244,12 @@
   "speed": 1.05,
   "text": "It can make a skewer.",
   "spoken": "It can make a skewer."
+ },
+ "rooky/b5e5c610": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and promotes to a rook",
+  "spoken": "and promotes to a rook"
  },
  "rooky/b63df618": {
   "voice": "am_puck,am_liam",
@@ -14405,6 +18269,12 @@
   "text": "behind it",
   "spoken": "behind it"
  },
+ "rooky/b6e6daf4": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pins the rook on",
+  "spoken": "pins the rook on"
+ },
  "rooky/b7441bc0": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14416,6 +18286,12 @@
   "speed": 1.05,
   "text": "Moving one piece uncovers an attack by another.",
   "spoken": "Moving one piece uncovers an attack by another."
+ },
+ "rooky/b80a8dd8": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your king reaches the hill in the middle and wins the game.",
+  "spoken": "Your king reaches the hill in the middle and wins the game."
  },
  "rooky/b843a5d3": {
   "voice": "am_puck,am_liam",
@@ -14441,6 +18317,12 @@
   "text": "ay three",
   "spoken": "ay three"
  },
+ "rooky/b8f5160c": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and skewers the pawn on",
+  "spoken": "and skewers the pawn on"
+ },
  "rooky/b95ce965": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14452,6 +18334,12 @@
   "speed": 1.05,
   "text": "Tempo",
   "spoken": "Tempo"
+ },
+ "rooky/b96abcc3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and wins a rook",
+  "spoken": "and wins a rook"
  },
  "rooky/b973427d": {
   "voice": "am_puck,am_liam",
@@ -14471,11 +18359,23 @@
   "text": "Giving away material on purpose.",
   "spoken": "Giving away material on purpose."
  },
+ "rooky/b9ea71ad": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "promotes to a king",
+  "spoken": "promotes to a king"
+ },
  "rooky/bb5eaf79": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "It wants to go toward",
   "spoken": "It wants to go toward"
+ },
+ "rooky/bb9a9624": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "This leaves your bishop on",
+  "spoken": "This leaves your bishop on"
  },
  "rooky/bb9e6583": {
   "voice": "am_puck,am_liam",
@@ -14500,6 +18400,18 @@
   "speed": 1.05,
   "text": "A good answer for you as Black: the",
   "spoken": "A good answer for you as Black: the"
+ },
+ "rooky/bbeea6f3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and promotes to a pawn",
+  "spoken": "and promotes to a pawn"
+ },
+ "rooky/bbf823f6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "puts your bishop on a better square",
+  "spoken": "puts your bishop on a better square"
  },
  "rooky/bc47a12e": {
   "voice": "am_puck,am_liam",
@@ -14585,6 +18497,12 @@
   "text": "Careful there.",
   "spoken": "Careful there."
  },
+ "rooky/bf16e694": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The king on",
+  "spoken": "The king on"
+ },
  "rooky/bf571877": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14608,6 +18526,24 @@
   "speed": 1.05,
   "text": "Playable, but not the best.",
   "spoken": "Playable, but not the best."
+ },
+ "rooky/c04dd8ed": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "skewers the pawn on",
+  "spoken": "skewers the pawn on"
+ },
+ "rooky/c0783c3a": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "puts your knight on a better square",
+  "spoken": "puts your knight on a better square"
+ },
+ "rooky/c1049a8f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the pawn on",
+  "spoken": "takes the pawn on"
  },
  "rooky/c1db360d": {
   "voice": "am_puck,am_liam",
@@ -14657,6 +18593,12 @@
   "text": "now controls only",
   "spoken": "now controls only"
  },
+ "rooky/c380ae35": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and queen on",
+  "spoken": "and queen on"
+ },
  "rooky/c38a5bc5": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14699,6 +18641,24 @@
   "text": "The queen hits the weak f-pawn square next to the king.",
   "spoken": "The queen hits the weak eff pawn square next to the king."
  },
+ "rooky/c4e3459c": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "This leaves your rook on",
+  "spoken": "This leaves your rook on"
+ },
+ "rooky/c515578b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and skewers the king on",
+  "spoken": "and skewers the king on"
+ },
+ "rooky/c537c1e7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and attacks the pawn on",
+  "spoken": "and attacks the pawn on"
+ },
  "rooky/c54ae403": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14717,6 +18677,18 @@
   "text": "Slav Defence",
   "spoken": "Slav Defence"
  },
+ "rooky/c6273b4d": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacking your queen on",
+  "spoken": "attacking your queen on"
+ },
+ "rooky/c665d382": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and king on",
+  "spoken": "and king on"
+ },
  "rooky/c710a536": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14729,6 +18701,12 @@
   "text": "points.",
   "spoken": "points."
  },
+ "rooky/c8086be6": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "queen on",
+  "spoken": "queen on"
+ },
  "rooky/c80d8861": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14740,6 +18718,18 @@
   "speed": 1.05,
   "text": "dee three",
   "spoken": "dee three"
+ },
+ "rooky/c82bfae1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your queen on",
+  "spoken": "Look at your queen on"
+ },
+ "rooky/c8477f20": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and uncovers an attack on the bishop on",
+  "spoken": "and uncovers an attack on the bishop on"
  },
  "rooky/c8532b44": {
   "voice": "am_puck,am_liam",
@@ -14765,11 +18755,35 @@
   "text": "jee",
   "spoken": "jee"
  },
+ "rooky/c91c86e5": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You now attack the rook on",
+  "spoken": "You now attack the rook on"
+ },
+ "rooky/c94b5366": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "queen to",
+  "spoken": "queen to"
+ },
  "rooky/c9594d10": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "This makes your position better.",
   "spoken": "This makes your position better."
+ },
+ "rooky/c98461e7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "win your knight with",
+  "spoken": "win your knight with"
+ },
+ "rooky/ca2c0c99": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your king",
+  "spoken": "Look at your king"
  },
  "rooky/ca3299ec": {
   "voice": "am_puck,am_liam",
@@ -14819,6 +18833,18 @@
   "text": "Knight",
   "spoken": "Knight"
  },
+ "rooky/cd74f5e1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Their rook on",
+  "spoken": "Their rook on"
+ },
+ "rooky/cd886539": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "You now attack the knight on",
+  "spoken": "You now attack the knight on"
+ },
  "rooky/cd9ff4da": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14867,6 +18893,12 @@
   "text": "A piece with too many jobs.",
   "spoken": "A piece with too many jobs."
  },
+ "rooky/d00851e2": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The bishop on",
+  "spoken": "The bishop on"
+ },
  "rooky/d024bddc": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14891,6 +18923,12 @@
   "text": "is a sound, steady move.",
   "spoken": "is a sound, steady move."
  },
+ "rooky/d21fb697": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "king to",
+  "spoken": "king to"
+ },
  "rooky/d23f508e": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14908,6 +18946,12 @@
   "speed": 1.05,
   "text": "You can trade into an easy, winning endgame.",
   "spoken": "You can trade into an easy, winning endgame."
+ },
+ "rooky/d3ddefd1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "bishop on",
+  "spoken": "bishop on"
  },
  "rooky/d3e96e11": {
   "voice": "am_puck,am_liam",
@@ -14939,11 +18983,23 @@
   "text": "Bring another piece into the game.",
   "spoken": "Bring another piece into the game."
  },
+ "rooky/d48a1e6c": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Move your knight from",
+  "spoken": "Move your knight from"
+ },
  "rooky/d491a840": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Oops! Everyone makes mistakes.",
   "spoken": "Oops! Everyone makes mistakes."
+ },
+ "rooky/d4bb7f0e": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "wins a knight",
+  "spoken": "wins a knight"
  },
  "rooky/d4e064c8": {
   "voice": "am_puck,am_liam",
@@ -14963,6 +19019,12 @@
   "text": ", because it",
   "spoken": "because it"
  },
+ "rooky/d562cd56": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and forks the knight on",
+  "spoken": "and forks the knight on"
+ },
  "rooky/d58e6e3c": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14981,11 +19043,35 @@
   "text": "Vienna Game",
   "spoken": "Vienna Game"
  },
+ "rooky/d63d62c4": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and knight on",
+  "spoken": "and knight on"
+ },
+ "rooky/d6abb9f3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your bishop now controls only",
+  "spoken": "Your bishop now controls only"
+ },
+ "rooky/d6e050a3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forks the knight on",
+  "spoken": "forks the knight on"
+ },
  "rooky/d77f6b9f": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Look for a pin along a line.",
   "spoken": "Look for a pin along a line."
+ },
+ "rooky/d7872538": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacking your bishop on",
+  "spoken": "attacking your bishop on"
  },
  "rooky/d879f94e": {
   "voice": "am_puck,am_liam",
@@ -15083,11 +19169,29 @@
   "text": "Precise.",
   "spoken": "Precise."
  },
+ "rooky/dd613f79": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your king now controls",
+  "spoken": "Your king now controls"
+ },
+ "rooky/dd832a6b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and pins the knight on",
+  "spoken": "and pins the knight on"
+ },
  "rooky/dda2e69b": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Put your rook behind the passed pawn.",
   "spoken": "Put your rook behind the passed pawn."
+ },
+ "rooky/ddc3621b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the king",
+  "spoken": "takes the king"
  },
  "rooky/dde1dde0": {
   "voice": "am_puck,am_liam",
@@ -15107,6 +19211,12 @@
   "text": "Great endgame technique!",
   "spoken": "Great endgame technique!"
  },
+ "rooky/df836598": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacking your rook on",
+  "spoken": "attacking your rook on"
+ },
  "rooky/df850900": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15118,6 +19228,12 @@
   "speed": 1.05,
   "text": "knight",
   "spoken": "knight"
+ },
+ "rooky/e00248aa": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The pawn",
+  "spoken": "The pawn"
  },
  "rooky/e035a7f3": {
   "voice": "am_puck,am_liam",
@@ -15131,6 +19247,12 @@
   "text": "Sacrifice",
   "spoken": "Sacrifice"
  },
+ "rooky/e0c871f2": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "keeps your knight safe",
+  "spoken": "keeps your knight safe"
+ },
  "rooky/e0f977cd": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15143,6 +19265,12 @@
   "text": "The engine's first choice was",
   "spoken": "The engine's first choice was"
  },
+ "rooky/e10986a0": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your knight on",
+  "spoken": "Your knight on"
+ },
  "rooky/e15333ac": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15154,6 +19282,12 @@
   "speed": 1.05,
   "text": "You are winning.",
   "spoken": "You are winning."
+ },
+ "rooky/e17cdcfc": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pawn on",
+  "spoken": "pawn on"
  },
  "rooky/e180656c": {
   "voice": "am_puck,am_liam",
@@ -15173,6 +19307,12 @@
   "text": "You have used much more time than your opponent. Speed up a little on easy moves.",
   "spoken": "You have used much more time than your opponent. Speed up a little on easy moves."
  },
+ "rooky/e1b1bc03": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "win your bishop with",
+  "spoken": "win your bishop with"
+ },
  "rooky/e1c75491": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15191,11 +19331,29 @@
   "text": "promotes to a rook",
   "spoken": "promotes to a rook"
  },
+ "rooky/e24008d0": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "pawn to",
+  "spoken": "pawn to"
+ },
  "rooky/e27491be": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "aitch five",
   "spoken": "aitch five"
+ },
+ "rooky/e2a0d833": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Look at your rook",
+  "spoken": "Look at your rook"
+ },
+ "rooky/e2d02b90": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forks the queen on",
+  "spoken": "forks the queen on"
  },
  "rooky/e2e11d56": {
   "voice": "am_puck,am_liam",
@@ -15214,6 +19372,12 @@
   "speed": 1.05,
   "text": "Scholar's Mate",
   "spoken": "Scholar's Mate"
+ },
+ "rooky/e4aa48c0": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and promotes to a bishop",
+  "spoken": "and promotes to a bishop"
  },
  "rooky/e4d09e90": {
   "voice": "am_puck,am_liam",
@@ -15269,6 +19433,12 @@
   "text": "attacks the",
   "spoken": "attacks the"
  },
+ "rooky/e6e0ff9a": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "keeps your rook safe",
+  "spoken": "keeps your rook safe"
+ },
  "rooky/e71a17a6": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15280,6 +19450,18 @@
   "speed": 1.05,
   "text": "The position stays about the same.",
   "spoken": "The position stays about the same."
+ },
+ "rooky/e736aab8": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and wins a queen",
+  "spoken": "and wins a queen"
+ },
+ "rooky/e744e15a": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "uncovers an attack on the queen on",
+  "spoken": "uncovers an attack on the queen on"
  },
  "rooky/e7720e78": {
   "voice": "am_puck,am_liam",
@@ -15335,6 +19517,12 @@
   "text": "Solid choice.",
   "spoken": "Solid choice."
  },
+ "rooky/ea075ca7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "wins a queen",
+  "spoken": "wins a queen"
+ },
  "rooky/ea1053b6": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15346,6 +19534,12 @@
   "speed": 1.05,
   "text": "Nimzowitsch Defence",
   "spoken": "Nimzowitsch Defence"
+ },
+ "rooky/ec529ab0": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and rook on",
+  "spoken": "and rook on"
  },
  "rooky/ec565940": {
   "voice": "am_puck,am_liam",
@@ -15388,6 +19582,12 @@
   "speed": 1.05,
   "text": "ay two",
   "spoken": "ay two"
+ },
+ "rooky/edd1755c": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "attacks the queen on",
+  "spoken": "attacks the queen on"
  },
  "rooky/edd7e8c5": {
   "voice": "am_puck,am_liam",
@@ -15467,6 +19667,12 @@
   "text": "Their pawn on",
   "spoken": "Their pawn on"
  },
+ "rooky/f0962c86": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The knight on",
+  "spoken": "The knight on"
+ },
  "rooky/f098dc88": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15478,6 +19684,18 @@
   "speed": 1.05,
   "text": "Slightly inaccurate.",
   "spoken": "Slightly inaccurate."
+ },
+ "rooky/f0aefd86": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Their queen on",
+  "spoken": "Their queen on"
+ },
+ "rooky/f0d5d651": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "rook to",
+  "spoken": "rook to"
  },
  "rooky/f12fbb3a": {
   "voice": "am_puck,am_liam",
@@ -15508,6 +19726,30 @@
   "speed": 1.05,
   "text": "Oops, a mistake.",
   "spoken": "Oops, a mistake."
+ },
+ "rooky/f2bd0e64": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "forking your bishop on",
+  "spoken": "forking your bishop on"
+ },
+ "rooky/f308913b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "king on",
+  "spoken": "king on"
+ },
+ "rooky/f311fc01": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "bishop to",
+  "spoken": "bishop to"
+ },
+ "rooky/f330d22b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "puts your queen on a better square",
+  "spoken": "puts your queen on a better square"
  },
  "rooky/f3a0cfac": {
   "voice": "am_puck,am_liam",
@@ -15563,11 +19805,23 @@
   "text": "promotes to a knight",
   "spoken": "promotes to a knight"
  },
+ "rooky/f6c5a03b": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "keeps your queen safe",
+  "spoken": "keeps your queen safe"
+ },
  "rooky/f6f1dff9": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
   "text": "Trade",
   "spoken": "Trade"
+ },
+ "rooky/f73e9360": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "wins a king",
+  "spoken": "wins a king"
  },
  "rooky/f742cc1a": {
   "voice": "am_puck,am_liam",
@@ -15592,6 +19846,12 @@
   "speed": 1.05,
   "text": "eff seven",
   "spoken": "eff seven"
+ },
+ "rooky/f8824207": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and forks the pawn on",
+  "spoken": "and forks the pawn on"
  },
  "rooky/f8eabcf8": {
   "voice": "am_puck,am_liam",
@@ -15671,6 +19931,12 @@
   "text": "Both kings are safe for now.",
   "spoken": "Both kings are safe for now."
  },
+ "rooky/fcd7a209": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Your king",
+  "spoken": "Your king"
+ },
  "rooky/fce6add4": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15707,6 +19973,18 @@
   "text": "Bird's Opening",
   "spoken": "Bird's Opening"
  },
+ "rooky/fdc42bb1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "and uncovers an attack on the pawn on",
+  "spoken": "and uncovers an attack on the pawn on"
+ },
+ "rooky/fdea35f3": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the queen on",
+  "spoken": "takes the queen on"
+ },
  "rooky/fe642ef1": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15718,6 +19996,12 @@
   "speed": 1.05,
   "text": "That is the strongest choice.",
   "spoken": "That is the strongest choice."
+ },
+ "rooky/fefbfbb1": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "takes the rook",
+  "spoken": "takes the rook"
  },
  "rooky/ff237cb9": {
   "voice": "am_puck,am_liam",

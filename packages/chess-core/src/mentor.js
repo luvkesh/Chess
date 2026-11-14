@@ -101,6 +101,9 @@ function ChacklateMentor(E, C, strings, nameOf) {
     'hi.idea.mate': 'It can give checkmate.', 'hi.idea.fork': 'It can make a fork.', 'hi.idea.pin': 'It can pin something.', 'hi.idea.skewer': 'It can make a skewer.',
     'hi.idea.discovered': 'Moving it uncovers an attack.', 'hi.idea.capture': 'It can take something safely.', 'hi.idea.promote': 'It can become a queen.',
     'hi.idea.check': 'It can give check.', 'hi.idea.safety': 'It needs a safer square.', 'hi.idea.develop': 'It is still at home.', 'hi.idea.centre': 'It can help in the centre.',
+    'hi.dirGoal': 'You can win the game with one move. Look closely!', 'hi.dirForce': 'You have a winning plan here. Think it through!',
+    'hi.idea.goal': 'It can win the game.', 'hi.wins.hill': 'Your king reaches the hill in the middle and wins the game.',
+    'hi.wins.checks': 'That is your third check, so you win the game.', 'hi.wins.bare': 'Their king is left all alone, so you win the game.',
     'hi.exactFrom': 'Move your {piece} from {from} to {to} ({san}).', 'hi.reply': 'If they answer {san}, you are ready.',
     // think ahead
     'ta.intro': 'Let\'s think a few moves ahead.', 'ta.you': 'You play {san}.', 'ta.them': 'They likely answer {san}.', 'ta.youThen': 'Then you play {san}.',
@@ -213,10 +216,18 @@ function ChacklateMentor(E, C, strings, nameOf) {
   for (const k in PHASE_OPENERS) PHASE_OPENERS[k].forEach((t, i) => { EN['opp.' + k + '.' + (i + 1)] = t; });
   for (const k in LINES) LINES[k].forEach((t, i) => { EN['ln.' + k + '.' + (i + 1)] = t; });
 
+  // Moves in a sentence are named the way a person says them ("knight to f3"), never in notation;
+  // a line of moves is a list of them. A sentence that opens with a move starts with a capital.
+  const MOVE_VARS = ['san', 'best', 'played'];
   const tr = (key, vars) => {
     const s = (strings && strings[key]) || EN[key];
     if (s === undefined) throw new Error('mentor: no string ' + key);
-    return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] === undefined ? m : vars[k])) : s;
+    if (!vars) return s;
+    const v = Object.assign({}, vars);
+    for (const k of MOVE_VARS) if (typeof v[k] === 'string') v[k] = C.sayMove(v[k]);
+    if (typeof v.line === 'string') v.line = v.line.split(', ').map(C.sayMove).join(', ');
+    const out = s.replace(/\{(\w+)\}/g, (m, k) => (v[k] === undefined ? m : v[k])).replace(/\s*[(\uff08]\s*[)\uff09]/g, '');
+    return /^\{/.test(s) && /[.!?\u3002\u0964\u06d4]$/u.test(s) ? out.replace(/^\p{Ll}/u, (c) => c.toUpperCase()) : out;
   };
   const NAME = [''].concat([1, 2, 3, 4, 5, 6].map((k) => C.NAME[k]));
   const PTS = [0, 1, 3, 3, 5, 9, 0];
@@ -237,7 +248,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
   }
   const material = (ps, side) => ps.filter((p) => p.side === side).reduce((a, p) => a + PTS[p.kind], 0);
   const nonPawn = (ps, side) => ps.filter((p) => p.side === side && p.kind !== P && p.kind !== K).reduce((a, p) => a + PTS[p.kind], 0);
-  const standard = (pos) => !pos.ch && !(pos.v && (pos.v.hill || pos.v.checks)) && !(pos.v && pos.v.c960);
+  const standard = (pos) => !pos.ch && !(pos.v && (pos.v.hill || pos.v.checks || pos.v.fr));
 
   function phaseOf(pos, ps) {
     ps = ps || pieces(pos);
@@ -546,6 +557,20 @@ function ChacklateMentor(E, C, strings, nameOf) {
 
   // ------------------------------------------------------------------ the Analyst: engine work (worker side)
   // Up to n best moves, each from its own search with the earlier ones left out.
+  // Does this move win a variant game on the spot: king on the hill, third check, or their king bared?
+  function goalOf(pos, m) {
+    const side = pos.side;
+    if (!pos.v.hill && !pos.v.checks && !pos.ch) return null;
+    pos.make(m);
+    let g = null;
+    if (pos.legalMoves().length || !pos.inCheck()) {
+      const vw = pos.variantWinner();
+      if (vw === side) g = pos.v.hill ? 'hill' : 'checks';
+      else if (pos.ch && pos.count(-side) === 0 && pos.bareWinner() === side) g = 'bare';
+    }
+    pos.unmake();
+    return g;
+  }
   function topMoves(pos, n, timeMs) {
     const out = [], exclude = [];
     const legal = pos.legalMoves();
@@ -553,7 +578,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       const r = E.search(pos, { timeMs, quiesce: true, exclude: exclude.slice() });
       if (!r.move) break;
       exclude.push(E.uci(r.move));
-      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateIn(r.score), facts: C.facts(pos, r.move) });
+      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateIn(r.score), facts: C.facts(pos, r.move), goal: goalOf(pos, r.move) });
     }
     return out;
   }
@@ -634,18 +659,25 @@ function ChacklateMentor(E, C, strings, nameOf) {
     if (!legal.length) return { over: true };
     const sans = sanList(startFen, ucis);
     const a = assess(pos, side);
-    const alts = topMoves(pos, o.alts, o.timeMs);
-    const threat = C.threat(pos, { timeMs: o.timeMs });
+    // King of the Hill and Three-check: the engine scores their wins as mate, but they are not checkmates,
+    // so the mentor's checkmate words (mate radar, 'mate alert', hint 1) stay out of them
+    const vwin = !!(pos.v && (pos.v.hill || pos.v.checks));
+    const raw = topMoves(pos, o.alts, o.timeMs);
+    const alts = raw.map((x) => (vwin && x.mate ? Object.assign({}, x, { mate: 0 }) : x));
+    const threat0 = C.threat(pos, { timeMs: o.timeMs });
+    const threat = threat0 && vwin && threat0.mate ? Object.assign({}, threat0, { mate: 0 }) : threat0;
     let line = null;
-    if (alts[0]) { pos.make(pos.parseMove(alts[0].uci)); line = pvLine(pos, o.plies - 1, Math.round(o.timeMs * 0.6)); pos.unmake(); }
+    // no 'if they answer…' after a move that already wins (a variant win in one)
+    if (alts[0] && !(vwin && raw[0].mate === 1)) { pos.make(pos.parseMove(alts[0].uci)); line = pvLine(pos, o.plies - 1, Math.round(o.timeMs * 0.6)); pos.unmake(); }
     const zz = a.phase === 'endgame' ? zugzwang(pos, Math.round(o.timeMs * 0.6)) : false;
     const std = standard(pos) && startFen === E.START_FEN;
     return {
       side, phase: a.phase, assess: a, alts, threat: threat ? { facts: threat.facts, serious: threat.serious, mate: threat.mate } : null, line, zugzwang: zz,
       inCheck: pos.inCheck(), legalCount: legal.length, captures: legal.filter((m) => E.mFlags(m) & E.F_CAP).length,
       opening: std ? opening(sans) : null, trap: std ? trapAhead(sans, side) : null, full: pos.full,
+      variantGoal: !!(pos.v.hill || pos.v.checks || pos.ch),
       mate: alts[0] && alts[0].mate > 0 ? { n: alts[0].mate, line: [alts[0].san].concat(line ? line.moves.map((x) => x.san) : []).slice(0, alts[0].mate * 2 - 1), pattern: mateAlts(pos, alts[0], line) } : null,
-      fen: pos.fen(),
+      fen: pos.fen(), vwin,
     };
   }
   // Quick check of a move the player is about to make (mistake prevention). Runs in the worker.
@@ -771,9 +803,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
   const bitsOrNull = (f) => (f && !f.mate && !f.stalemate ? bits(f) : '');
   function bits(f) {
     // what a move does, without the move's name ("forks the rook and gives check")
-    const d = C.describe(f);
-    if (!d) return '';
-    return d.slice(f.san.length).replace(/^[\s:\u2014-]+/, '').replace(/[.\u3002\u0964\u06d4]$/u, '');
+    return C.bits(f);
   }
   // Picks one line from a group, avoiding the ones said lately. seen: an array of recent keys (kept by the caller).
   function pick(keys, seen, rand) {
@@ -795,7 +825,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
   function shortWhy(st, grade) {
     const f = st.facts;
     if (grade === 'excellent' || grade === 'good') {
-      const d = C.describe(f);
+      const d = C.describe(f, true);
       if (d) return d;
       if (st.isBest && grade === 'excellent' && st.onlyMove) return tr('r.top');
       return reason(f, st.before, st.after);
@@ -862,7 +892,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     add('h.why', [shortWhy(st, grade)]);
     // tactics
     const tac = [];
-    const d = C.describe(f); if (d && (f.forks.length || f.pin || f.skewer || f.discovered.length || f.mate || f.capture || f.check || f.attacks.length || f.promotion)) tac.push(d);
+    const d = C.describe(f, true); if (d && (f.forks.length || f.pin || f.skewer || f.discovered.length || f.mate || f.capture || f.check || f.attacks.length || f.promotion)) tac.push(d);
     if (st.mateBefore > 0 && !st.isBest && st.best) tac.push(tr('d.missedMate', { n: st.mateBefore, san: st.best.san }));
     else if (st.best && !st.isBest && notable(st.best.facts) && grade !== 'good') tac.push(tr('d.missed', { san: st.best.san, bits: bits(st.best.facts) || tr('op.win') }));
     if (!tac.length) tac.push(tr('t.none'));
@@ -1086,17 +1116,19 @@ function ChacklateMentor(E, C, strings, nameOf) {
     const f = best.facts, a = lk.assess;
     const kind = idea(f, a, null);
     let dir;
-    if (best.mate > 0 || f.mate) dir = tr('hi.dirMate');
+    if (best.goal) dir = tr('hi.dirGoal');
+    else if (f.mate || (best.mate > 0 && !lk.variantGoal)) dir = tr('hi.dirMate');
+    else if (best.mate > 0) dir = tr('hi.dirForce');
     else if (kind === 'tactic') dir = tr('hi.dirTactic');
     else if (kind === 'win') dir = tr('hi.dirWin');
     else if (kind === 'defend' || (a.hanging.me.length && a.hanging.me.some((h) => h.sq === f.from))) dir = tr('hi.dirDefend');
     else dir = tr({ develop: 'hi.dirDevelop', castle: 'hi.dirCastle', centre: 'hi.dirCentre', passer: 'hi.dirPasser', promote: 'hi.dirPasser', king: 'hi.dirKing', rook: 'hi.dirRook', trade: 'hi.dirTrade' }[kind] || 'hi.dirImprove');
-    const ideaKey = f.mate ? 'mate' : f.forks.length ? 'fork' : f.pin ? 'pin' : f.skewer ? 'skewer' : f.discovered.length ? 'discovered' : f.promotion ? 'promote' : f.capture && f.capture !== P ? 'capture' : f.check ? 'check'
+    const ideaKey = best.goal ? 'goal' : f.mate ? 'mate' : f.forks.length ? 'fork' : f.pin ? 'pin' : f.skewer ? 'skewer' : f.discovered.length ? 'discovered' : f.promotion ? 'promote' : f.capture && f.capture !== P ? 'capture' : f.check ? 'check'
       : kind === 'defend' ? 'safety' : kind === 'develop' ? 'develop' : kind === 'centre' ? 'centre' : null;
     const piece = onSq(f.piece, f.from);
     const guided = (ideaKey ? tr('hi.guidedIdea', { piece, idea: tr('hi.idea.' + ideaKey) }) : tr('hi.guided', { piece })) + (ideaKey === 'develop' || ideaKey === 'centre' || !ideaKey ? ' ' + tr('hi.toward', { sq: regionOf(f.to) }) : '');
-    const d = C.describe(f);
-    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: best.san }) + ' ' + (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] && !/#$/.test(lk.line.moves[0].san) && !(best.mate < 0) ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : '');
+    const d = C.describe(f, true);
+    const exact = tr('hi.exactFrom', { piece: C.NAME[f.piece], from: f.from, to: f.to, san: '' }) + ' ' + (best.goal ? tr({ hill: 'hi.wins.hill', checks: 'hi.wins.checks', bare: 'hi.wins.bare' }[best.goal]) : (d || reason(f, a, null)) + (lk.line && lk.line.moves[0] && !/#$/.test(lk.line.moves[0].san) && !(best.mate < 0) && best.mate !== 1 ? ' ' + tr('hi.reply', { san: lk.line.moves[0].san }) : ''));
     return {
       levels: [
         { text: dir, marks: [] },
@@ -1156,7 +1188,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       const before = C.toCp(prev.score), after = -C.toCp(r.score);
       const loss = best === u ? 0 : Math.max(0, C.winProb(before) - C.winProb(after));
       const cls = C.classify(loss, best === u, f, after);
-      out.push({ san: f.san, mine: mover === me, grade: gradeOf(cls, f, false), cp: mover === me ? after : -after, text: C.describe(f) });
+      out.push({ san: f.san, mine: mover === me, grade: gradeOf(cls, f, false), cp: mover === me ? after : -after, text: C.describe(f, mover === me) });
       prev = r;
     }
     for (let i = 0; i < made; i++) pos.unmake();
@@ -1432,6 +1464,23 @@ function ChacklateMentor(E, C, strings, nameOf) {
     for (const x of TRAPS) add(x.name);
     for (let n = 0; n <= 100; n++) add(String(n));
     add('percent');
+    add('takes');   // "pawn takes on e4": the move word, recorded with the moves
+    // Whole phrases round a piece's name ("takes the knight on", "Your bishop on", "knight to"), recorded
+    // in one breath so a move sentence flows instead of being said word by word.
+    const pieceNames = [1, 2, 3, 4, 5, 6].map((k) => C.NAME[k]);
+    const clause = (x, last) => { const c = x.split(/[.!?:;,]\s*/); return (last ? c[c.length - 1] : c[0]).trim(); };
+    // a move's phrases ("attacks the {list}") also come after "and" in a sentence
+    const joined = Object.keys(C.EN).filter((k) => /^d\./.test(k) && /^[a-z]/.test(C.EN[k])).map((k) => 'and ' + C.EN[k]);
+    for (const v of Object.values(EN).concat(Object.values(C.EN), Object.values(C.MV), joined)) {
+      const bits = v.split(/(\{\w+\})/);
+      for (let i = 1; i < bits.length; i += 2) {
+        if (bits[i] !== '{piece}' && bits[i] !== '{list}') continue;
+        const pre = clause(bits[i - 1], true), post = bits[i] === '{list}' ? 'on' : clause(bits[i + 1] || '', false);
+        if (!pre && !post) continue;
+        for (const n of pieceNames) add([pre, n, post].filter(Boolean).join(' '));
+      }
+    }
+    for (const n of pieceNames) add('and ' + n + ' on');   // the next one in a list: "the king on e8 and rook on a8"
     vocab = [...set].sort((a, b) => b.length - a.length);
     byFirst = new Map();
     for (const v of vocab) { const c = v[0].toLowerCase(); if (!byFirst.has(c)) byFirst.set(c, []); byFirst.get(c).push(v); }

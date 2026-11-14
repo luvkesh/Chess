@@ -189,6 +189,26 @@ function ChacklateAudio() {
       s.connect(f).connect(g).connect(sfxBus); s.start(t, 0, 0.3);
     },
     tick(t) { noise(t, 0.01, 6000, 3, 0.1, 'bandpass'); },
+    // The beaten king falling (scene.js): each knock is a real take from the set's pack, as heavy
+    // as the part that hits: his base landing (the king's own weight), his crown knocking the
+    // board (lighter and higher), the small taps of a piece rocking still; and a soft rumble of
+    // wood or stone while he rolls, through the pack's own felt.
+    fall(t, o) {
+      const v = Math.max(0, Math.min(1, o.v || 0.5));
+      if (o.kind === 'land') land(t, 6, 0.35 + 0.75 * v, 0.9 + 0.08 * (1 - v));
+      else if (o.kind === 'knock') land(t, 3, 0.3 + 0.6 * v, 1.12);
+      else if (o.kind === 'tap') land(t, 1, 0.12 + 0.4 * v, 1.2 + 0.2 * (1 - v));
+      else if (o.kind === 'roll') {
+        const p = PACKS[pack] || PACKS.wood, d = Math.max(0.2, Math.min(2.5, o.dur || 0.5));
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = Math.min(900, p.felt * 0.3); lp.connect(sfxBus);
+        nb = nb || noiseBuf(1);
+        const s = ctx.createBufferSource(); s.buffer = nb; s.loop = true;
+        const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.9; f.frequency.setValueAtTime(320, t); f.frequency.linearRampToValueAtTime(190, t + d);
+        const g = ctx.createGain(), peak = 0.05 + 0.08 * v;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.06); g.gain.exponentialRampToValueAtTime(peak * 0.5, t + d * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+        s.connect(f).connect(g).connect(lp); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.05);
+      }
+    },
     correct(t) { bell(t, 1318.5, 0.5, 0.08, 3, 1); bell(t + 0.08, 1975.5, 0.6, 0.07, 3, 1); },
     wrong(t) { bell(t, 392, 0.35, 0.07, 1.5, 1.5); bell(t + 0.1, 370, 0.4, 0.06, 1.5, 1.5); },
     win(t) { [523.25, 659.25, 783.99, 987.77, 1174.66].forEach((hz, i) => bell(t + i * 0.09, hz, 1.8, 0.09, 1, 1.1)); bell(t + 0.5, 261.63, 2.2, 0.08, 1, 0.8); },
@@ -715,12 +735,46 @@ function ChacklateAudio() {
     const B = V.moves.en;
     if (!parts || !B) return null;
     const keys = [], gaps = [];
-    for (const p of parts) {
-      if (p.pause) { if (keys.length) gaps[keys.length - 1] = Math.max(gaps[keys.length - 1] || 0, PAUSE[p.pause] / 1000); continue; }
-      const w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]]] : [B.file[p.file]];
-      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.05); }
-    }
+    parts.forEach((p, i) => {
+      if (p.pause) { if (keys.length) gaps[keys.length - 1] = Math.max(gaps[keys.length - 1] || 0, PAUSE[p.pause] / 1000); return; }
+      let w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]]] : [B.file[p.file]];
+      // Said the way a person says it: "exd4 wins a knight" is "Pawn takes on d4, and wins a knight",
+      // not "Pawn takes d4 wins a knight" in one breath.
+      if (p.san && /x/.test(p.san) && w[1] === B.takes) w = [w[0], w[1], 'on'].concat(w.slice(2));
+      // the words of one phrase run together, the way a person says them (the clips' own silence is trimmed)
+      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.012); }
+      const next = parts[i + 1];
+      if (p.san && next && next.line && /^(wins|takes|attacks|forks|pins|skewers|uncovers|gives|promotes|tucks)\b/.test(next.line)) {
+        gaps[keys.length - 1] = PAUSE.comma / 1000;
+        keys.push(voiceKey('and')); gaps.push(0.012);
+      }
+    });
     return keys.length ? { keys, gaps } : null;
+  }
+  // A recorded piece without the hush before and after it: the coach strings pieces into one sentence,
+  // and each clip's own lead-in and tail would otherwise put a gap after every word.
+  const trimmed = new WeakMap();
+  function trimClip(b) {
+    if (trimmed.has(b)) return trimmed.get(b);
+    const d = b.getChannelData(0), n = d.length, th = 0.012;
+    let a = 0, z = n - 1;
+    while (a < n && Math.abs(d[a]) < th) a++;
+    while (z > a && Math.abs(d[z]) < th) z--;
+    a = Math.max(0, a - Math.round(b.sampleRate * 0.012));
+    z = Math.min(n, z + Math.round(b.sampleRate * 0.04));
+    let out = b;
+    if (z - a > b.sampleRate * 0.05 && (a > 0 || z < n)) {
+      out = ctx.createBuffer(b.numberOfChannels, z - a, b.sampleRate);
+      for (let c = 0; c < b.numberOfChannels; c++) {
+        const src = b.getChannelData(c).subarray(a, z), dst = out.getChannelData(c);
+        dst.set(src);
+        // a few milliseconds of fade at each end, so the cut never clicks
+        const f = Math.min(Math.round(b.sampleRate * 0.006), dst.length >> 2);
+        for (let i = 0; i < f; i++) { const g = i / f; dst[i] *= g; dst[dst.length - 1 - i] *= g; }
+      }
+    }
+    trimmed.set(b, out);
+    return out;
   }
   function coach(text) {
     stopSpeech();
@@ -735,7 +789,7 @@ function ChacklateAudio() {
         const id = 'coach:' + (index['coach:' + coachWho] ? coachWho : 'rooky');
         if (coachWho === 'device' || !plan || !index[id] || !plan.keys.every((k) => index[id].at.has(k))) return viaDevice();
         let bufs;
-        try { bufs = await Promise.all(plan.keys.map((k) => clip(id, k))); } catch (e) { return viaDevice(); }
+        try { bufs = (await Promise.all(plan.keys.map((k) => clip(id, k)))).map(trimClip); } catch (e) { return viaDevice(); }
         if (my !== queueId) return done();
         let t = ctx.currentTime + 0.03, last = null;
         const bus = voiceOut(bufs, t);

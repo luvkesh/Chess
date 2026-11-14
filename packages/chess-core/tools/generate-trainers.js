@@ -96,7 +96,8 @@ function classify(pos, last, played) {
   const tgain = threat && threat.move ? cp(threat) : -99999;
   if (tgain >= 250 && -tgain <= best - 250 && best >= -150 && best - second >= 150) out.push(Object.assign({ pool: 'defence', answers: [bu], threat: E.uci(threat.move), threatGain: tgain }, base));
   else if ((best >= -100 && second <= -300) || (best >= -220 && best - second >= 250 && behind(pos) >= 2)) out.push(Object.assign({ pool: 'resource', answers: [bu] }, base));
-  if (n <= 8 && best - second >= 100 && Math.abs(best) < 2000) out.push(Object.assign({ pool: 'endgame', answers: [bu] }, base));
+  // the side to move must not be losing: a lost endgame has no move worth learning
+  if (n <= 8 && best >= -150 && best - second >= 100 && Math.abs(best) < 2000) out.push(Object.assign({ pool: 'endgame', answers: [bu] }, base));
   // Safe moves and intuition need every move scored: only for promising positions.
   if (legal.length <= 40 && Math.abs(best) < 400 && (rand() < 0.35 || out.length)) {
     const all = scoreAll(pos, 35);

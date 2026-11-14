@@ -73,7 +73,8 @@ async function record(id) {
     } else if (cat === 'trail') {
       v.setFx({ trail: it.data });
       v.setBoard([K, k, [3, 5], [1, 2], [12, 1], [51, -1], [52, -1]], null);
-      run = async () => { await wait(700); await mv(3, 39, 5); await wait(400); await mv(1, 18, 2); await wait(400); await mv(39, 53, 5); await wait(900); };
+      // the three trail levels, one after the other: the queen, a knight, a pawn
+      run = async () => { await wait(700); await mv(3, 39, 5); await wait(450); await mv(1, 18, 2); await wait(450); await mv(12, 28, 1); await wait(1000); };
     } else if (cat === 'sound') {
       // the pack's own material on the table: marble pieces on marble, crystal pieces on glass
       if (it.data.pack === 'marble') v.setTheme({ board: 'marble' }, { set: 'marble' });
@@ -81,10 +82,12 @@ async function record(id) {
       v.setBoard(full, null);
       run = async () => { await wait(700); await mv(12, 28, 1); land('p'); await wait(450); await mv(52, 36, -1); land('p'); await wait(450); await mv(6, 21, 2); land('n'); await wait(450); await mv(57, 42, -2); land('n'); await wait(800); };
     } else if (cat === 'victory') {
-      // checkmate: the queen runs up the board, the beaten king falls, and the win plays
+      // a real checkmate (7k/1pp5/6K1/3n4/8/8/Q4PP1/8 w, then Qa8#): the queen runs up the a-file,
+      // the king on h8 is in check with g7 and h7 covered by the white king and nothing can block,
+      // the check glow shows, the beaten king falls, and the win plays
       v.setFx({ victory: it.data });
-      v.setBoard([[46, 6], [63, -6], [0, 5], [13, 1], [14, 1], [49, -1], [50, -1], [57, -2]], null);
-      run = async () => { await wait(700); await mv(0, 56, 5); await wait(200); v.celebrate('win', 63, null, 46, { storm: true }); await wait(8500); };
+      v.setBoard([[46, 6], [63, -6], [8, 5], [13, 1], [14, 1], [49, -1], [50, -1], [35, -2]], null);
+      run = async () => { await wait(700); await mv(8, 56, 5); v.setHighlights({ lastFrom: 8, lastTo: 56, check: 63 }); await wait(500); v.celebrate('win', 63, null, 46, { storm: true }); await wait(8500); };
     } else if (cat === 'clock') {
       v.setBoard(full, null);
       let ms = 300000;

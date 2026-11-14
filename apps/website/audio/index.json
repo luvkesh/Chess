@@ -2,27 +2,27 @@
   "voice": "am_puck,am_liam",
   "lines": {
     "hero": {
-      "text": "Hey there! I'm Rooky, your chess coach. Welcome to Chackmate! Come on, scroll down. I've got so much to show you!",
+      "text": "Hello, hello! I'm Rooky, your chess coach, and I'm so happy you're here! Welcome to Chackmate, where chess travels through the ages. Pyramids, palaces, dragons and puzzles are all waiting for you. Scroll down, and let's go on an adventure!",
       "cues": [
         {
           "t": 0,
-          "text": "Hey there!"
+          "text": "Hello, hello!"
         },
         {
-          "t": 0.71,
-          "text": "I'm Rooky, your chess coach."
+          "t": 1.1,
+          "text": "I'm Rooky, your chess coach, and I'm so happy you're here!"
         },
         {
-          "t": 2.63,
-          "text": "Welcome to Chackmate!"
+          "t": 4.32,
+          "text": "Welcome to Chackmate, where chess travels through the ages."
         },
         {
-          "t": 4.09,
-          "text": "Come on, scroll down."
+          "t": 7.78,
+          "text": "Pyramids, palaces, dragons and puzzles are all waiting for you."
         },
         {
-          "t": 5.61,
-          "text": "I've got so much to show you!"
+          "t": 11.91,
+          "text": "Scroll down, and let's go on an adventure!"
         }
       ]
     },
@@ -2777,6 +2777,193 @@
         {
           "t": 9.0,
           "text": "Light and Void plays here, on Light and Void Marble."
+        }
+      ]
+    },
+    "details": {
+      "text": "And now, the little details! Tap each one, and I'll tell you all about it.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "And now, the little details!"
+        },
+        {
+          "t": 1.81,
+          "text": "Tap each one, and I'll tell you all about it."
+        }
+      ]
+    },
+    "fx-capture": {
+      "text": "Capture effects! Every time you take a piece, you get a little show. Chocolate melts, ice shatters and sparks fly!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Capture effects!"
+        },
+        {
+          "t": 1.07,
+          "text": "Every time you take a piece, you get a little show."
+        },
+        {
+          "t": 3.9,
+          "text": "Chocolate melts, ice shatters and sparks fly!"
+        }
+      ]
+    },
+    "fx-victory": {
+      "text": "Victory effects! When you win, the whole board celebrates with you. Fireworks or lightning, you choose!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Victory effects!"
+        },
+        {
+          "t": 1.13,
+          "text": "When you win, the whole board celebrates with you."
+        },
+        {
+          "t": 3.87,
+          "text": "Fireworks or lightning, you choose!"
+        }
+      ]
+    },
+    "fx-trail": {
+      "text": "Move trails! Every piece leaves a soft trail of light as it moves. The king and queen get the grandest ones.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Move trails!"
+        },
+        {
+          "t": 1.11,
+          "text": "Every piece leaves a soft trail of light as it moves."
+        },
+        {
+          "t": 4.32,
+          "text": "The king and queen get the grandest ones."
+        }
+      ]
+    },
+    "fx-clock": {
+      "text": "Clock skins! Dress up your game clock, from icy glass to ruby red.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Clock skins!"
+        },
+        {
+          "t": 1.1,
+          "text": "Dress up your game clock, from icy glass to ruby red."
+        }
+      ]
+    },
+    "fx-sound": {
+      "text": "Sound packs! Choose how your pieces sound when they land. Marble goes clack, and glass goes clink!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Sound packs!"
+        },
+        {
+          "t": 0.96,
+          "text": "Choose how your pieces sound when they land."
+        },
+        {
+          "t": 3.3,
+          "text": "Marble goes clack, and glass goes clink!"
+        }
+      ]
+    },
+    "fx-avatar": {
+      "text": "Avatars! Pick a face for your player card. Which friend looks most like you?",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Avatars!"
+        },
+        {
+          "t": 0.92,
+          "text": "Pick a face for your player card."
+        },
+        {
+          "t": 2.85,
+          "text": "Which friend looks most like you?"
+        }
+      ]
+    },
+    "fx-frame": {
+      "text": "Frames! Put a shiny ring around your avatar. There are so many to collect!",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Frames!"
+        },
+        {
+          "t": 0.8,
+          "text": "Put a shiny ring around your avatar."
+        },
+        {
+          "t": 2.96,
+          "text": "There are so many to collect!"
+        }
+      ]
+    },
+    "earn": {
+      "text": "And how do you get all of this? You play for it! Beat the champions, finish daily puzzles and lessons, and climb the season pass. Nothing you collect makes you stronger, so every game stays fair.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "And how do you get all of this?"
+        },
+        {
+          "t": 1.48,
+          "text": "You play for it!"
+        },
+        {
+          "t": 2.77,
+          "text": "Beat the champions, finish daily puzzles and lessons, and climb the season pass."
+        },
+        {
+          "t": 7.77,
+          "text": "Nothing you collect makes you stronger, so every game stays fair."
+        }
+      ]
+    },
+    "pricing": {
+      "text": "Good news, Chackmate is free to start! Grown-ups, the plans are right here on the page. There are no ads on any plan, and nothing you buy makes you stronger.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Good news, Chackmate is free to start!"
+        },
+        {
+          "t": 2.56,
+          "text": "Grown-ups, the plans are right here on the page."
+        },
+        {
+          "t": 5.48,
+          "text": "There are no ads on any plan, and nothing you buy makes you stronger."
+        }
+      ]
+    },
+    "about": {
+      "text": "This is the House of Play, the studio that made me! They wanted every child to have a real chess table, a coach who teaches, and friends who play fair. Want to say hello? Their contact details are right here.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This is the House of Play, the studio that made me!"
+        },
+        {
+          "t": 2.98,
+          "text": "They wanted every child to have a real chess table, a coach who teaches, and friends who play fair."
+        },
+        {
+          "t": 8.7,
+          "text": "Want to say hello?"
+        },
+        {
+          "t": 10.17,
+          "text": "Their contact details are right here."
         }
       ]
     }
