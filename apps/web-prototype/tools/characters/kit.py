@@ -377,7 +377,7 @@ def fur(o, group, mat_name, length=0.03, count=40000, children=12, align=(0, -0.
     return ps
 
 
-def eye(name, c, r, look=(0, 0, 1), iris='#6a3a1c', iris_r=0.62, pupil_r=0.27, tilt=0.0, slit=False, sclera='#f4efe8'):
+def eye(name, c, r, look=(0, 0, 1), iris='#6a3a1c', iris_r=0.62, pupil_r=0.27, tilt=0.0, slit=False, sclera='#f4efe8', glint=0.0):
     """A living eye: a sclera ball painted with a streaked iris and big pupil, under a clear,
     wet cornea that catches the lights."""
     m, nt, out = _mat(name + 'Ball')
@@ -497,6 +497,24 @@ def eye(name, c, r, look=(0, 0, 1), iris='#6a3a1c', iris_r=0.62, pupil_r=0.27, t
         o.rotation_euler.rotate_axis('Z', tilt)
         o.location = c
         objs.append(o)
+    if glint:
+        # painted catchlights, fixed toward the key light whatever way the eye looks: one large
+        # upper, one small lower, the sparkle that makes an eye read as alive at badge size
+        gm, gnt, gout = _mat(name + 'Glint')
+        em = gnt.nodes.new('ShaderNodeEmission')
+        em.inputs['Strength'].default_value = 6.0
+        gnt.links.new(em.outputs[0], gout.inputs[0])
+        for i, (d, gr) in enumerate((((-0.34, 0.42, 0.84), 0.2 * glint), ((0.3, -0.34, 0.89), 0.09 * glint))):
+            d = Vector(d).normalized()
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=12, radius=1.0)
+            g = bpy.context.active_object
+            g.name = '%sGlint%d' % (name, i)
+            g.data.materials.append(gm)
+            bpy.ops.object.shade_smooth()
+            g.scale = (r * gr, r * gr, r * gr * 0.25)
+            g.rotation_euler = look_rot((0, 0, 0), -d)
+            g.location = Vector(c) + d * r * 1.035
+            objs.append(g)
     return objs
 
 
