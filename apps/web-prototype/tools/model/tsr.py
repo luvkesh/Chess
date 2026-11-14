@@ -13,7 +13,7 @@ import os
 import numpy as np
 import cv2
 
-DIR = os.environ.get('TRIPOSR_DIR', '/tmp/claude-0/tsr/jc')
+DIR = os.environ.get('TRIPOSR_DIR', os.path.expanduser('~/.cache/chackmate/triposr'))
 CACHE = os.environ.get('TRIPOSR_CACHE', os.path.expanduser('~/.cache/chackmate-tsr'))
 R = 0.87                 # TripoSR's scene radius
 HALF = 1.9 * np.tan(np.radians(20))  # half the view at the origin plane (distance 1.9, fov 40)
@@ -53,13 +53,14 @@ def _sample(plane, u, v):
     return out.T
 
 
-def _query(codes, dec, p):
+def _query(codes, dec, p, ch=0):
     out = []
     for i in range(0, len(p), 131072):
         q = p[i:i + 131072] / R
         f = np.concatenate([_sample(codes[0], q[:, 0], q[:, 1]), _sample(codes[1], q[:, 0], q[:, 2]),
                             _sample(codes[2], q[:, 1], q[:, 2])], 1).astype(np.float32)
-        out.append(dec.run(None, {'triplane_features': f[None]})[0][0][:, 0])
+        o = dec.run(None, {'triplane_features': f[None]})[0][0]
+        out.append(o[:, 0] if ch == 0 else o[:, 1:4])
     return np.concatenate(out)
 
 
@@ -89,7 +90,7 @@ def volume(crop, mask, res=128):
         z = np.load(path)
         return z['v'].astype(np.float32), tuple(map(tuple, z['box']))
     enc, dec = _sessions()
-    codes = enc.run(None, {'input_image': img.transpose(2, 0, 1)[None].astype(np.float32)})[0][0]
+    codes = scene(crop, mask)
     th = 1.0 + np.log(25.0)
 
     def grid(box, n):
@@ -110,3 +111,25 @@ def volume(crop, mask, res=128):
     os.makedirs(CACHE, exist_ok=True)
     np.savez_compressed(path, v=v.astype(np.float16), box=np.array(box))
     return v, tuple(box)
+
+
+def scene(crop, mask):
+    """TripoSR's triplane scene codes for the cut-out (cached)"""
+    img, _ = square(crop, mask)
+    key = hashlib.sha1(np.round(img * 255).astype(np.uint8).tobytes() + b'codes').hexdigest()[:20]
+    path = os.path.join(CACHE, key + '.codes.npy')
+    if os.path.exists(path):
+        return np.load(path).astype(np.float32)
+    enc, _ = _sessions()
+    c = enc.run(None, {'input_image': img.transpose(2, 0, 1)[None].astype(np.float32)})[0][0]
+    os.makedirs(CACHE, exist_ok=True)
+    np.save(path, c.astype(np.float16))
+    return c
+
+
+def colour(crop, mask, pts):
+    """RGB 0..1 at TripoSR points (x towards the camera, y to the picture's right, z up)"""
+    _sessions()
+    c = scene(crop, mask)
+    o = _query(c, _dec, np.asarray(pts, np.float32), ch=1)
+    return 1 / (1 + np.exp(-o))
