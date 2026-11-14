@@ -3046,6 +3046,68 @@
      "text": "¡Hay muchísimos para coleccionar!"
     }
    ]
+  },
+  "earn": {
+   "text": "¿Y cómo consigues todo esto? ¡Jugando! Gana a los campeones, completa los acertijos y las lecciones de cada día, y sube en el pase de temporada. Nada de lo que coleccionas te hace más fuerte, así que cada partida es justa.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¿Y cómo consigues todo esto?"
+    },
+    {
+     "t": 2.23,
+     "text": "¡Jugando!"
+    },
+    {
+     "t": 3.39,
+     "text": "Gana a los campeones, completa los acertijos y las lecciones de cada día, y sube en el pase de temporada."
+    },
+    {
+     "t": 9.66,
+     "text": "Nada de lo que coleccionas te hace más fuerte, así que cada partida es justa."
+    }
+   ]
+  },
+  "pricing": {
+   "text": "¡Buenas noticias, empezar en Chackmate es gratis! Adultos, los planes están aquí mismo en la página. Ningún plan tiene anuncios, y nada de lo que compras te hace más fuerte.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Buenas noticias, empezar en Chackmate es gratis!"
+    },
+    {
+     "t": 3.2,
+     "text": "Adultos, los planes están aquí mismo en la página."
+    },
+    {
+     "t": 6.52,
+     "text": "Ningún plan tiene anuncios, y nada de lo que compras te hace más fuerte."
+    }
+   ]
+  },
+  "about": {
+   "text": "¡Esta es la Casa del Juego, el estudio que me creó! Querían que cada niño tuviera una mesa de ajedrez de verdad, un entrenador que enseña y amigos que juegan limpio. ¿Quieres saludar? Sus datos de contacto están aquí mismo.",
+   "voice": "em_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "¡Esta es la Casa del Juego, el estudio que me creó!"
+    },
+    {
+     "t": 3.19,
+     "text": "Querían que cada niño tuviera una mesa de ajedrez de verdad, un entrenador que enseña y amigos que juegan limpio."
+    },
+    {
+     "t": 9.83,
+     "text": "¿Quieres saludar?"
+    },
+    {
+     "t": 11.28,
+     "text": "Sus datos de contacto están aquí mismo."
+    }
+   ]
   }
  }
 }

@@ -2907,6 +2907,65 @@
           "text": "There are so many to collect!"
         }
       ]
+    },
+    "earn": {
+      "text": "And how do you get all of this? You play for it! Beat the champions, finish daily puzzles and lessons, and climb the season pass. Nothing you collect makes you stronger, so every game stays fair.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "And how do you get all of this?"
+        },
+        {
+          "t": 1.48,
+          "text": "You play for it!"
+        },
+        {
+          "t": 2.77,
+          "text": "Beat the champions, finish daily puzzles and lessons, and climb the season pass."
+        },
+        {
+          "t": 7.77,
+          "text": "Nothing you collect makes you stronger, so every game stays fair."
+        }
+      ]
+    },
+    "pricing": {
+      "text": "Good news, Chackmate is free to start! Grown-ups, the plans are right here on the page. There are no ads on any plan, and nothing you buy makes you stronger.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "Good news, Chackmate is free to start!"
+        },
+        {
+          "t": 2.56,
+          "text": "Grown-ups, the plans are right here on the page."
+        },
+        {
+          "t": 5.48,
+          "text": "There are no ads on any plan, and nothing you buy makes you stronger."
+        }
+      ]
+    },
+    "about": {
+      "text": "This is the House of Play, the studio that made me! They wanted every child to have a real chess table, a coach who teaches, and friends who play fair. Want to say hello? Their contact details are right here.",
+      "cues": [
+        {
+          "t": 0,
+          "text": "This is the House of Play, the studio that made me!"
+        },
+        {
+          "t": 2.98,
+          "text": "They wanted every child to have a real chess table, a coach who teaches, and friends who play fair."
+        },
+        {
+          "t": 8.7,
+          "text": "Want to say hello?"
+        },
+        {
+          "t": 10.17,
+          "text": "Their contact details are right here."
+        }
+      ]
     }
   }
 }
