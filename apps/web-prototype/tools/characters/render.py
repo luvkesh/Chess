@@ -14,11 +14,11 @@ ap.add_argument('--zoom', type=float, default=1.16)
 ap.add_argument('--lift', type=float, default=0.07)
 a = ap.parse_args()
 # per-character framing (zoom on the lens, lift of the look-at point) where the default crops badly
-FRAME = {'horse': (0.98, -0.02), 'giraffe': (1.1, 0.04), 'bunny': (1.08, 0.1), 'lion': (1.06, 0.06), 'squirrel': (1.06, 0.06), 'tortoise': (1.08, 0.04)}
+FRAME = {'horse': (0.98, -0.02), 'giraffe': (1.1, 0.04), 'bunny': (1.0, 0.04), 'lion': (1.06, 0.06), 'squirrel': (1.06, 0.06), 'tortoise': (1.08, 0.04)}
 # per-character pose in degrees (turn left/right, tilt of the head, chin up/down), about the head, so
 # the friends don't all face the camera the same way: a shy tilt, a sly three-quarter look, a proud chin
 POSE = {
-    'horse': (8, -4, 0), 'bunny': (-6, 11, 4), 'beaver': (10, -3, 2), 'squirrel': (-18, -8, -2), 'tortoise': (6, 4, 8),
+    'horse': (8, -4, 0), 'bunny': (-8, 9, 3), 'beaver': (10, -3, 2), 'squirrel': (-18, -8, -2), 'tortoise': (6, 4, 8),
     'raccoon': (24, 6, 0), 'giraffe': (-10, -7, 0), 'raven': (-30, 4, -4), 'dragon': (12, 9, -4),
     'cat': (-20, -5, -6), 'owl': (0, 12, 0), 'wolf': (26, -3, -7), 'elephant': (-8, 3, 4), 'panda': (6, 9, 2),
     'lion': (-14, 0, -9), 'rooster': (-22, -6, -10), 'bear': (12, -6, 3), 'eagle': (34, 0, -6),

@@ -40,6 +40,19 @@ a premium mobile game mascot, for children, premium and never casino. Original c
 8. **Colour**: clear, rich, slightly saturated; one main coat colour, one accent. No two
    characters in the same group may share a main colour unless the species demands it.
 
+## The benchmark
+
+`cast/bunny.py` (Truffle) is the reference for the look: read it before you start and reuse its
+recipe, not its shapes. Picture: `/mnt/project-files/characters-v3/benchmark-bunny.png`.
+
+- Head built from a cranium, low full cheeks and a tiny muzzle (no `critter_head`, no `torso`);
+  body a single narrow ellipsoid well below the head, so the shoulders are small.
+- `C.eye(..., out=0.44, iris_r=0.93, pupil_r=0.52, glint=1.0)`: `glint` paints the two
+  catchlights. Radius about 0.12 on a head 0.37 wide; centre at or below the head's centre.
+- Fur 0.045 long with clump 0.22; longer regions (0.05 to 0.075) at cheeks and chest.
+- Mouth: `crease()` with a small rise; nose a tiny glossy button.
+- POSE turns and tilts the whole figure about the head.
+
 ## Shared and fixed (do not change in a character thread)
 
 `sdf.py`, `kit.py`, `common.py`, `render.py` (except your characters' own POSE and FRAME rows),
