@@ -184,11 +184,11 @@ class Char:
         return idx
 
     def eye(self, x, y, r, out=0.6, iris='#5a3018', open_=0.9, tilt=0.05, low=0.64, look=(0.1, 0.0, 1.0), iris_r=0.79,
-            pupil_r=0.3, lid_t=0.012, slit=False, sclera='#f4efe8', glance=0.0):
+            pupil_r=0.3, lid_t=0.012, slit=False, sclera='#f4efe8', glance=0.0, glint=0.0):
         c = place_eye(self.shape, x, y, r, out)
         self.sub(S.sphere(c, r + 0.004).mirror(), 0.015)
         self.add(lids(c, r, open_, tilt, lid_t, low).mirror(), 0.012)
-        self.eyes.append((c, r, iris, (look[0], look[1], look[2], glance), iris_r, pupil_r, slit, sclera))
+        self.eyes.append((c, r, iris, (look[0], look[1], look[2], glance), iris_r, pupil_r, slit, sclera, glint))
         self.lidf.append(S.sphere(c, r * 1.5).mirror())
         return c
 
@@ -217,10 +217,10 @@ class Char:
             K.vgroup(o, 'lids', lid * furred)
             K.fur(o, 'lids', '%sHair0' % self.name, length=0.006, count=int(self.DENS * 0.6 * float((area * lid * furred).sum())) + 60,
                   children=4, align=(0, -0.2, 0), clump=0.0, root=0.0012, seed=99)
-        for j, (c, r, iris, look, ir, pr, slit, scl) in enumerate(self.eyes):
+        for j, (c, r, iris, look, ir, pr, slit, scl, gl) in enumerate(self.eyes):
             for s in (1, -1):
                 K.eye('%sEye%d%d' % (self.name, j, s), (c[0] * s, c[1], c[2]), r, look=(look[0] * s + 0.08 + look[3], look[1], look[2]),
-                      iris=iris, iris_r=ir, pupil_r=pr, slit=slit, sclera=scl)
+                      iris=iris, iris_r=ir, pupil_r=pr, slit=slit, sclera=scl, glint=gl)
         self.o, self.W, self.P = o, W, P
         return o
 
