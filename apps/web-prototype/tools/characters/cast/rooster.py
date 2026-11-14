@@ -1,44 +1,60 @@
 """rooster: one character, one file. build() makes the model in the open Blender scene and returns
 its framing (camera location, look-at point, lens). See ../STYLE.md."""
 from common import *
+from cast._plumage import *
 
 
 def rooster():
-    """Gaston: a Parisian rooster: white feathers, a red comb and wattles, a black beret, a blue
-    coat with a tricolour rosette, and a sweep of green tail feathers behind."""
-    C = Char('Gaston', '#d8d2c8', '#f6f2ea', '#ffffff', length=0.03, align=(0, -0.7, -0.2), clump=0.45, var=0.06)
-    body = bird(C, (0, 0.2, 0), (0.3, 0.3, 0.29), 0.64, 0.3)
-    C.eye(0.14, 0.26, 0.08, 0.62, '#f07a10', look=(0.15, 0.06, 1), iris_r=0.86, pupil_r=0.24, open_=0.85)
-    bc = (0, 0.15, S.surf_z(C.shape, 0, 0.15) - 0.04)
-    up, lo = beak(bc, 0.18, 0.06, 0.06, 0.04, 0.0)
-    coat = garment(body, -0.36, 0.045, (0.3, 0.14))
-    C.region(coat.grow(0.02), '#222222', 0.01)
-    comb_c = S.union(*[S.ell((0, 0.5 + 0.06 * math.cos(j - 2), -0.1 + j * 0.07), (0.035, 0.09, 0.05)) for j in range(5)], k=0.03)
-    C.region(comb_c.grow(0.04), '#c81e28', 0.03)
+    """Gaston, the dandy of Paris. Shape: a bell. A neat white head under a tall scarlet comb, a
+    cape of long hackles that fans out over the shoulders from cream through gold to russet,
+    teal sickle feathers arching behind, chin up, and a French-blue silk bow tie."""
+    C = Char('Gaston', '#e2d6c2', '#f4ecdd', '#fffdf8', length=0.045, align=(0, -0.55, 0.1), clump=0.22, var=0.06)
+    hc, hr = (0, 0.23, 0), (0.37, 0.37, 0.37)
+    shape, body = chick(hc, hr, chest_w=0.44, chest_y=-0.7, chest_d=0.36, neck=0.1)
+    C.add(shape)
+    cape = S.cone((0, 0.02, -0.03), (0, -0.5, -0.05), 0.29, 0.44).add(S.ell((0, -0.64, -0.05), (0.52, 0.34, 0.4)), 0.2)
+    C.add(cape, 0.07)
+    low = S.plane((0, 1, 0), -0.04)
+    lat = dict(rows=0.1, cols=0.075, ref=0.45, length=2.5)
+    C.shape = shingles(C.shape, low, amp=0.026, soft=0.08, **lat)
+    ex, ey, er = 0.165, 0.29, 0.105
+    C.eye(ex, ey, er, 0.44, '#c9772a', open_=0.74, tilt=-0.08, low=0.9, look=(0.04, 0.02, 1), glance=0.08, iris_r=0.93, pupil_r=0.52, glint=1.0, lid_t=0.01, sclera='#f6efe6')
+    lash(C, '#3a2418')
+    bz = S.surf_z(C.shape, 0, 0.17)
+    up, lo = smile_beak((0, 0.17, bz - 0.03), 0.19, 0.08, 0.08, drop=0.035, lift=0.025)
+    # the cape's colours: cream at the throat, gold, then russet ends
+    C.region(S.plane((0, 1, 0), -0.2), '#eeb347', 0.3, hair='#f2b848', tip='#ffd66e')
+    C.region(S.plane((0, 1, 0), -0.52), '#cf5f26', 0.24, hair='#d4652a', tip='#f08a3c')
+    C.region(S.ell((0, -0.3, 0.25), (0.26, 0.2, 0.2)), '#f0e6d4', 0.1, hair='#f8f0e2', tip='#ffffff', length=0.07, align=(0, -1.0, 0.4), clump=0.45)
+    blush(C, 0.27, 0.15, 0.075, '#f08a7c')
     C.build()
-    K.build('GastonComb', comb_c.add(S.ell((0, 0.45, 0.0), (0.04, 0.05, 0.2)), 0.03), (-0.2, 0.35, -0.3), (0.2, 0.75, 0.35), [K.skin('GastonRed', '#d01a26', 0.32, 0.5)], step=0.003)
-    K.build('GastonWattle', S.ell((0.03, 0.0, bc[2] + 0.02), (0.035, 0.07, 0.04)).mirror().add(S.ell((0, 0.04, bc[2] + 0.0), (0.05, 0.03, 0.03)), 0.02), (-0.15, -0.15, 0.0), (0.15, 0.2, 0.6), [bpy_mat('GastonRed')], step=0.003)
-    K.build('GastonBeak', up.add(lo, 0.008), (-0.15, -0.05, 0.0), (0.15, 0.3, 0.6), [K.glossy('GastonHorn', '#f0b030', 0.25)], step=0.0025)
-    K.build('GastonCoat', coat, (-0.85, -1.3, -0.7), (0.85, -0.25, 0.6), [K.velvet('GastonBlue', '#1a3a8a')], step=0.006)
-    shirt = body.grow(0.02).inter(S.plane((0, 1, 0), -0.36)).inter(S.plane((0, 0, -1), -0.05))
-    K.build('GastonShirt', shirt, (-0.4, -1.3, -0.2), (0.4, -0.3, 0.6), [K.principled('GastonLinen', '#f6f2ea', rough=0.6, bump=0.05)], step=0.006)
-    rc = (-0.3, -0.5, S.surf_z(coat, -0.3, -0.5))
-    for j, (col, r) in enumerate((('#1a3aa0', 0.075), ('#ffffff', 0.052), ('#d0182a', 0.03))):
-        K.build('GastonRosette%d' % j, S.cyl((rc[0], rc[1], rc[2] + 0.008 + j * 0.006), r, 0.008, rot=(1.4, 0, 0), round_=0.006).bump(0.004, 120, j),
-                (-0.5, -0.7, rc[2] - 0.1), (-0.1, -0.3, rc[2] + 0.1), [K.silk('GastonRib%d' % j, col)], step=0.002)
-    beret = S.ell((0.06, 0.5, -0.02), (0.36, 0.09, 0.34)).rot(0, 0, -0.25, about=(0.06, 0.45, 0))
-    stalk = S.cone((0.0, 0.58, -0.02), (-0.02, 0.63, -0.02), 0.012, 0.006).rot(0, 0, -0.25, about=(0.06, 0.45, 0))
-    b = K.build('GastonBeret', beret.add(stalk, 0.01), (-0.5, 0.3, -0.5), (0.6, 0.8, 0.5), [K.principled('GastonFelt', '#141418', rough=0.9, sheen=0.6)], step=0.004)
-    K.fuzz(b, '#202024', 0.004, 12000)
+    red = K.skin('GastonRed', '#d81f2c', 0.3, 0.5)
+    lobes = []
+    for j, h in enumerate((0.085, 0.13, 0.155, 0.13, 0.09)):
+        phi = 0.95 - j * 0.42
+        d = np.array([0, math.cos(phi), math.sin(phi)])
+        p = np.array(hc) + d * (hr[1] - 0.02 + h * 0.75)
+        lobes.append(S.ell(p, (0.05, h, 0.085), rot=(phi, 0, 0)))
+    ridge = S.tube([np.array(hc) + np.array([0, math.cos(a), math.sin(a)]) * (hr[1] + 0.0) for a in np.linspace(1.1, -0.95, 7)], 0.05, 0.045)
+    K.build('GastonComb', S.union(*lobes, ridge, k=0.035), (-0.15, 0.3, -0.5), (0.15, 0.85, 0.5), [red], step=0.004)
+    wz = S.surf_z(C.shape, 0, 0.02)
+    wattle = S.ell((0.048, 0.0, wz + 0.035), (0.048, 0.095, 0.04), rot=(0, 0, 0.12)).mirror().add(S.ell((0, 0.075, wz + 0.03), (0.05, 0.03, 0.03)), 0.03)
+    K.build('GastonWattle', wattle, (-0.15, -0.15, wz - 0.1), (0.15, 0.15, wz + 0.12), [red], step=0.003)
+    K.build('GastonBeak', up, (-0.15, 0.0, 0.2), (0.15, 0.3, 0.7), [K.glossy('GastonHorn', '#f6b93a', 0.22)], step=0.0025)
+    K.build('GastonBill', lo, (-0.15, 0.0, 0.2), (0.15, 0.3, 0.7), [bpy_mat('GastonHorn')], step=0.0025)
+    # teal sickle feathers arching up behind his shoulder
     tails = []
-    for j in range(6):
-        a = 0.6 + j * 0.28
-        base = np.array([0.15, -0.55, -0.4])
-        tip = base + np.array([0.75 * math.cos(a) + 0.2, 0.75 * math.sin(a), -0.1])
-        mid = (base + tip) / 2 + np.array([0.15, 0.12, 0])
-        tails.append(squash(S.tube([base, mid, tip], 0.06, 0.015), tuple(mid), 1, 1, 0.35))
-    K.build('GastonTail', S.union(*tails, k=0.02), (-0.4, -0.8, -0.8), (1.0, 0.7, -0.1), [K.principled('GastonPlume', '#0e5a48', rough=0.25, coat=0.5, sheen=0.4)], step=0.005)
-    return (0.55, 0.12, 4.0), (0, 0.04, 0), 74
+    for j, (top, out) in enumerate(((0.5, 0.5), (0.3, 0.6), (0.08, 0.64))):
+        pts = [(0.3, -0.72, -0.34), (0.5 + j * 0.05, -0.3 - j * 0.05, -0.42), (out - 0.06, top - 0.16, -0.42), (out, top, -0.38), (out + 0.06, top - 0.1 - j * 0.02, -0.34), (out + 0.07, top - 0.24 - j * 0.02, -0.32)]
+        tails.append(squash(S.tube(pts, 0.024, 0.04, n=36, k=0.004), (0.55, 0.0, -0.4), 1, 1, 0.4))
+    K.build('GastonTail', S.union(*tails, k=0.012), (0.1, -0.9, -0.6), (0.85, 0.75, -0.2), [K.principled('GastonPlume', '#0e7468', rough=0.28, coat=0.5, sheen=0.5)], step=0.005)
+    # the bow tie
+    ty = -0.16
+    tz = S.surf_z(C.shape, 0, ty) + 0.03
+    wing = S.ell((0.11, ty, tz), (0.11, 0.07, 0.035), rot=(0, 0, 0.1)).sub(S.ell((0.2, ty, tz + 0.04), (0.07, 0.02, 0.03)), 0.02).mirror()
+    bow = S.union(wing, S.ell((0, ty, tz + 0.02), (0.04, 0.05, 0.04)), k=0.012)
+    K.build('GastonBow', bow, (-0.3, ty - 0.12, tz - 0.1), (0.3, ty + 0.12, tz + 0.12), [K.silk('GastonBlue', '#2456c8')], step=0.003)
+    return (0.55, 0.12, 3.9), (0, 0.02, 0), 76
 
 
 build = rooster
