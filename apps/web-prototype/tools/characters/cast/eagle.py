@@ -10,7 +10,7 @@ def eagle():
     shoulders, and brass flying goggles pushed up on the forehead."""
     C = Char('Skye', '#dcd6cb', '#f3efe6', '#ffffff', length=0.045, align=(0, -0.55, 0.1), clump=0.22, var=0.05)
     hc, hr = (0, 0.25, 0), (0.46, 0.4, 0.43)
-    shape, body = chick(hc, hr, chest_w=0.48, chest_y=-0.7, chest_d=0.36, neck=0.14, wing=(0.12, 0.02))
+    shape, body = chick(hc, hr, w=0.46, d=0.38, top=-0.1)
     C.add(shape)
     # cheek feathers flaring back and down: the wedge
     cheek = S.ell((0.3, 0.1, -0.02), (0.25, 0.2, 0.3), rot=(0, 0, 0.35)).mirror()
@@ -21,7 +21,7 @@ def eagle():
     C.add(crown, 0.05)
     # bold brows: a soft shelf over each eye, low at the beak, high at the temples
     C.add(S.ell((0.22, 0.44, 0.3), (0.17, 0.045, 0.12), rot=(0, 0, 0.26)).mirror(), 0.06)
-    low = S.plane((0, 1, 0), -0.34)
+    low = S.plane((0, 1, 0), -0.3)
     lat = dict(rows=0.1, cols=0.125, ref=0.5)
     C.shape = shingles(C.shape, low, amp=0.024, soft=0.08, **lat)
     ex, ey, er = 0.215, 0.3, 0.12
@@ -29,7 +29,8 @@ def eagle():
     lash(C, '#3a2c22')
     bz = S.surf_z(C.shape, 0, 0.2)
     up, lo = smile_beak((0, 0.2, bz - 0.04), 0.28, 0.12, 0.14, drop=0.085, hook=0.085, lift=0.03, lower=0.62)
-    C.region(low, '#4a2c16', 0.07, hair='#55331a', tip='#7c5230')
+    bib = S.ell((0, -0.26, 0.3), (0.27, 0.26, 0.22))
+    C.region(low.sub(bib, 0.05), '#4a2c16', 0.14, hair='#55331a', tip='#7c5230')
     C.region(tips(S.plane((0, 1, 0), -0.4), start=0.8, **lat), '#6e4626', 0.012, hair='#7c5230', tip='#a87848')
     C.region(cheek.grow(0.01).inter(S.plane((0, 1, 0), 0.2)), '#e6e0d6', 0.08, hair='#f3efe6', tip='#ffffff', length=0.08, align=(0.75, -0.6, -0.2), clump=0.5)
     C.region(S.ell((0, -0.24, 0.16), (0.3, 0.16, 0.2)), '#e6e0d6', 0.08, hair='#f3efe6', tip='#ffffff', length=0.075, align=(0, -1.0, 0.4), clump=0.5)

@@ -10,7 +10,7 @@ def rooster():
     teal sickle feathers arching behind, chin up, and a French-blue silk bow tie."""
     C = Char('Gaston', '#e2d6c2', '#f4ecdd', '#fffdf8', length=0.045, align=(0, -0.55, 0.1), clump=0.22, var=0.06)
     hc, hr = (0, 0.23, 0), (0.37, 0.37, 0.37)
-    shape, body = chick(hc, hr, chest_w=0.44, chest_y=-0.7, chest_d=0.36, neck=0.1)
+    shape, body = chick(hc, hr, w=0.44, d=0.37, top=-0.1, wing=False)
     C.add(shape)
     cape = S.cone((0, 0.02, -0.03), (0, -0.5, -0.05), 0.29, 0.44).add(S.ell((0, -0.64, -0.05), (0.52, 0.34, 0.4)), 0.2)
     C.add(cape, 0.07)
@@ -28,7 +28,7 @@ def rooster():
     C.region(S.ell((0, -0.3, 0.25), (0.26, 0.2, 0.2)), '#f0e6d4', 0.1, hair='#f8f0e2', tip='#ffffff', length=0.07, align=(0, -1.0, 0.4), clump=0.45)
     blush(C, 0.27, 0.15, 0.075, '#f08a7c')
     C.build()
-    red = K.skin('GastonRed', '#d81f2c', 0.3, 0.5)
+    red = K.skin('GastonRed', '#c8141f', 0.34, 0.1)
     lobes = []
     for j, h in enumerate((0.085, 0.13, 0.155, 0.13, 0.09)):
         phi = 0.95 - j * 0.42
@@ -43,11 +43,10 @@ def rooster():
     K.build('GastonBeak', up, (-0.15, 0.0, 0.2), (0.15, 0.3, 0.7), [K.glossy('GastonHorn', '#f6b93a', 0.22)], step=0.0025)
     K.build('GastonBill', lo, (-0.15, 0.0, 0.2), (0.15, 0.3, 0.7), [bpy_mat('GastonHorn')], step=0.0025)
     # teal sickle feathers arching up behind his shoulder
-    tails = []
-    for j, (top, out) in enumerate(((0.5, 0.5), (0.3, 0.6), (0.08, 0.64))):
-        pts = [(0.3, -0.72, -0.34), (0.5 + j * 0.05, -0.3 - j * 0.05, -0.42), (out - 0.06, top - 0.16, -0.42), (out, top, -0.38), (out + 0.06, top - 0.1 - j * 0.02, -0.34), (out + 0.07, top - 0.24 - j * 0.02, -0.32)]
-        tails.append(squash(S.tube(pts, 0.024, 0.04, n=36, k=0.004), (0.55, 0.0, -0.4), 1, 1, 0.4))
-    K.build('GastonTail', S.union(*tails, k=0.012), (0.1, -0.9, -0.6), (0.85, 0.75, -0.2), [K.principled('GastonPlume', '#0e7468', rough=0.28, coat=0.5, sheen=0.5)], step=0.005)
+    tails = S.union(plume((0.3, -0.7, -0.36), (0.6, 0.5, -0.42), 0.1, 0.02, bend=(0.2, 0.0, 0)),
+                    plume((0.32, -0.7, -0.34), (0.74, 0.22, -0.4), 0.09, 0.02, bend=(0.14, -0.02, 0)),
+                    plume((0.34, -0.72, -0.32), (0.8, -0.1, -0.36), 0.08, 0.02, bend=(0.08, -0.04, 0)), k=0.006)
+    K.build('GastonTail', tails, (0.1, -0.9, -0.6), (0.9, 0.75, -0.2), [K.principled('GastonPlume', '#0e7468', rough=0.3, coat=0.4, sheen=0.6)], step=0.004)
     # the bow tie
     ty = -0.16
     tz = S.surf_z(C.shape, 0, ty) + 0.03

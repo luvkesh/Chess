@@ -97,16 +97,23 @@ def fan(centre, r, angles, w, t=0.018, lean=0.0, grow=1.0, z=0.0, bend=0.0):
     return S.union(*out, k=0.012)
 
 
-def chick(head_c, head_r, chest_w=0.46, chest_y=-0.62, chest_d=0.36, neck=0.12, wing=None):
-    """A bird bust in the new proportions: a big head sitting straight on a small round chest (no
-    neck to speak of). wing=(w, drop) adds folded wings at the sides. Returns (all, body)."""
-    head = S.ell(head_c, head_r)
-    body = S.ell((0, chest_y, -0.05), (chest_w, 0.5, chest_d))
+def chick(head_c, head_r, w=0.44, d=0.36, top=-0.08, neck=0.14, wing=True):
+    """A bird in the v3 proportions: a big head sitting straight on a plump round tummy that
+    starts under the chin and is nearly as wide as the head (no neck: a thin one was rejected),
+    with small folded wings hugging its sides, tips towards the chest. Returns (all, body)."""
+    belly = S.ell((0, top - 0.5, -0.03), (w, 0.52, d))
+    lower = S.ell((0, top - 0.9, -0.03), (w * 1.08, 0.5, d * 1.05))
+    body = S.union(belly, lower, k=0.1)
     if wing:
-        w, drop = wing
-        wg = squash(S.ell((chest_w * 0.92, chest_y - drop, -0.08), (w, 0.44, 0.3), rot=(0.1, 0, -0.22)), (chest_w * 0.92, chest_y - drop, -0.08), 1, 1, 0.8).mirror()
-        body = body.add(wg, 0.05)
-    return S.union(head, body, k=neck), body
+        c = (w * 0.9, top - 0.47, 0.03)
+        wg = S.ell(c, (0.12, 0.3, 0.25), rot=(0.3, 0.0, -0.2)).mirror()
+        body = body.add(wg, 0.04)
+    return S.union(S.ell(head_c, head_r), body, k=neck), body
+
+
+def wings(w, top=-0.08, grow=0.02):
+    """The region of the folded wings chick() makes, for their own colour."""
+    return S.ell((w * 0.9, top - 0.47, 0.03), (0.12 + grow, 0.3 + grow, 0.25 + grow), rot=(0.3, 0.0, -0.2)).mirror()
 
 
 def smile_beak(c, length, w, h, drop=0.03, hook=0.0, gape=0.012, lift=0.02, lower=0.7):

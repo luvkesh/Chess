@@ -1,38 +1,42 @@
-"""beaver: one character, one file. build() makes the model in the open Blender scene and returns
-its framing (camera location, look-at point, lens). See ../STYLE.md."""
+"""beaver: Bramble, the calm builder (v3 look, see ../STYLE.md)."""
 from common import *
 
 
 def beaver():
-    """Bramble: a beaver builder: a yellow hard hat, big buck teeth, denim overalls with brass buttons."""
-    C = Char('Bramble', '#5a3018', '#8c5430', '#b8794a', length=0.026, align=(0, -0.6, -0.1), clump=0.14)
-    head, mu = critter_head((0, 0.2, 0), (0.34, 0.34, 0.31), 0.25, (0.21, 0.12, 0.11), 0.0, 0.29, taper=0.38, cheek_y=0.6)
-    C.add(head)
-    C.add(S.ell((0.33, 0.38, -0.04), (0.075, 0.07, 0.05)).mirror(), 0.03)
-    body = torso(-0.5, 0.8, 0.34)
-    C.add(body, 0.18)
-    nose_c, mc, cav = face_basics(C, 0.1, -0.03, (0.07, 0.04, 0.046), 0.11, 0.05, 0.08, 0.9, '#2a160c', closed=True, rise=0.035)
-    C.eye(0.16, 0.3, 0.07, 0.66, '#24160e', look=(0.04, 0.0, 1), sclera=BEAD, open_=0.45, low=0.45, iris_r=0.7, pupil_r=0.4)
-    C.region(S.ell((0, 0.02, 0.27), (0.22, 0.15, 0.15)), '#c8a07a', 0.04, hair='#d8b48c', tip='#ecd2b0', length=0.018)
-    C.region(S.ell((0.33, 0.38, 0.0), (0.04, 0.04, 0.05)).mirror(), '#3a1e0e', 0.01)
-    face_regions(C)
-    over = garment(body, -0.46, 0.035).inter(S.plane((0, 0, -1), 0.05)).add(garment(body, -0.78, 0.035), 0.01)
-    C.region(over.grow(0.02), '#222222', 0.01)
+    """Bramble: a chubby chocolate beaver, calm and content. A pear-shaped head with very full
+    cheeks, small round ears, half-closed olive eyes, two neat teeth and a yellow hard hat."""
+    C = Char('Bramble', '#5a3018', '#7c4a28', '#b88250', length=0.04, align=(0, -0.55, 0.1), clump=0.22, var=0.1)
+    cran = S.ell((0, 0.3, -0.02), (0.3, 0.27, 0.31))
+    cheeks = S.ell((0.22, 0.07, 0.06), (0.24, 0.2, 0.23)).mirror()
+    muz = S.ell((0, 0.075, 0.31), (0.155, 0.1, 0.085))
+    C.add(S.union(cran, cheeks, muz, k=0.12))
+    C.add(S.sphere((0.32, 0.42, -0.06), 0.075).mirror(), 0.03)
+    body = chubby(0.54, 0.4)
+    C.add(body, 0.14)
+    ny = 0.12
+    nose_c = (0, ny, S.surf_z(C.shape, 0, ny) - 0.01)
+    C.add(S.ell(nose_c, (0.058, 0.036, 0.032)), 0.006)
+    my = 0.025
+    little_mouth(C, my, 0.07, 0.03, nose_y=ny - 0.03, col='#3a1c14')
+    ec = C.eye(0.17, 0.23, 0.1, 0.44, '#8a9a2e', look=(0.02, -0.02, 1), open_=0.56, tilt=-0.16, low=0.62, iris_r=0.93, pupil_r=0.5,
+               lid_t=0.012, glint=1.0)
+    lash(C, ec, 0.1, '#2e1808', cover=0.4)
+    C.region(S.ell((0, 0.05, 0.3), (0.2, 0.13, 0.12)), '#d8b088', 0.05, hair='#e4c29c', tip='#f8e4c8', length=0.014)
+    C.region(S.ell((0, -0.5, 0.22), (0.22, 0.32, 0.13)), '#c89a6c', 0.07, hair='#d8ae80', tip='#f2d8b4', length=0.055, align=(0, -0.9, 0.4), clump=0.4)
+    C.region(S.sphere((0.32, 0.42, -0.02), 0.045).mirror(), '#3a1e0e', 0.012)
+    C.region(S.ell(nose_c, (0.066, 0.042, 0.04)), K.glossy('BrambleNose', '#2a160e', 0.2), 0.006)
+    little_mouth_region(C)
     C.build()
-    mouth_after(C, top_teeth=False)
-    teeth = S.union(*[S.box((sx * 0.027, mc[1] - 0.05, mc[2] + 0.006), (0.025, 0.045, 0.012), 0.01, rot=(0.3, 0, 0)) for sx in (1, -1)])
-    K.build('BrambleTeeth', teeth, (-0.12, -0.15, 0.2), (0.12, 0.08, 0.5), [K.glossy('BrambleTooth', '#fbf2dc', 0.14)], step=0.0025)
-    K.build('BrambleOveralls', over, (-0.8, -1.3, -0.6), (0.8, -0.3, 0.6), [K.principled('Denim', '#2f4f7a', rough=0.8, sheen=0.3, bump=0.25, bump_scale=900)], step=0.006)
-    straps = S.union(*[S.tube([(sx * 0.2, -0.42, 0.22), (sx * 0.24, -0.3, 0.12), (sx * 0.27, -0.2, -0.05)], 0.035, 0.035) for sx in (1, -1)])
-    K.build('BrambleStraps', straps.inter(C.shape.grow(0.03)).sub(C.shape), (-0.5, -0.6, -0.3), (0.5, -0.1, 0.5), [K.principled('Denim2', '#2a4670', rough=0.8, bump=0.2, bump_scale=900)], step=0.004)
-    btn = S.union(*[S.cyl((sx * 0.2, -0.44, S.surf_z(over, sx * 0.2, -0.44) - 0.005), 0.03, 0.008, rot=(1.4, 0, 0), round_=0.004) for sx in (1, -1)])
-    K.build('BrambleButtons', btn, (-0.4, -0.6, 0.0), (0.4, -0.3, 0.6), [K.gold('Brass', '#d8a850', 0.3)], step=0.002)
-    hat = S.union(S.ell((0, 0.43, -0.02), (0.36, 0.25, 0.36)).inter(S.plane((0, -1, 0), -0.4)),
-                  S.cyl((0, 0.4, 0.0), 0.41, 0.012, round_=0.01).add(S.ell((0, 0.4, 0.1), (0.42, 0.012, 0.42)), 0.01), k=0.02)
-    ridge = S.ell((0, 0.6, -0.02), (0.05, 0.1, 0.3))
-    hat = hat.add(ridge.inter(S.ell((0, 0.43, -0.02), (0.38, 0.27, 0.38))), 0.02).rot(-0.12, 0, 0.1, about=(0, 0.4, 0))
-    K.build('BrambleHat', hat, (-0.6, 0.3, -0.6), (0.6, 0.85, 0.7), [K.principled('HardHat', '#f2b81c', rough=0.22, coat=0.8, bump=0.03, bump_scale=200)], step=0.004)
-    return (0.55, 0.12, 3.9), (0, 0.02, 0), 76
+    tz = S.surf_z(C.shape, 0, my - 0.03)
+    teeth = S.union(*[S.box((sx * 0.02, my - 0.03, tz - 0.004), (0.018, 0.026, 0.007), 0.007, rot=(0.25, 0, 0)) for sx in (1, -1)])
+    K.build('BrambleTeeth', teeth, (-0.1, -0.1, 0.2), (0.1, 0.1, 0.55), [K.glossy('BrambleTooth', '#fff6e2', 0.14)], step=0.002)
+    hy = 0.45
+    dome = S.ell((0, hy, -0.03), (0.33, 0.24, 0.35)).inter(S.plane((0, -1, 0), -hy))
+    brim = S.cyl((0, hy, 0.02), 0.4, 0.012, round_=0.01)
+    ridge = S.ell((0, hy + 0.17, -0.03), (0.045, 0.09, 0.3)).inter(S.ell((0, hy, -0.03), (0.35, 0.26, 0.37)))
+    hat = S.union(dome, brim, k=0.02).add(ridge, 0.02).rot(-0.14, 0, 0.12, about=(0, hy, 0))
+    K.build('BrambleHat', hat, (-0.6, 0.3, -0.6), (0.6, 0.85, 0.7), [K.principled('HardHat', '#f6bc1e', rough=0.25, coat=0.8)], step=0.004)
+    return (0.5, 0.2, 3.9), (0, 0.12, 0), 76
 
 
 build = beaver
