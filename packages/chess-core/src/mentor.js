@@ -1465,6 +1465,22 @@ function ChacklateMentor(E, C, strings, nameOf) {
     for (let n = 0; n <= 100; n++) add(String(n));
     add('percent');
     add('takes');   // "pawn takes on e4": the move word, recorded with the moves
+    // Whole phrases round a piece's name ("takes the knight on", "Your bishop on", "knight to"), recorded
+    // in one breath so a move sentence flows instead of being said word by word.
+    const pieceNames = [1, 2, 3, 4, 5, 6].map((k) => C.NAME[k]);
+    const clause = (x, last) => { const c = x.split(/[.!?:;,]\s*/); return (last ? c[c.length - 1] : c[0]).trim(); };
+    // a move's phrases ("attacks the {list}") also come after "and" in a sentence
+    const joined = Object.keys(C.EN).filter((k) => /^d\./.test(k) && /^[a-z]/.test(C.EN[k])).map((k) => 'and ' + C.EN[k]);
+    for (const v of Object.values(EN).concat(Object.values(C.EN), Object.values(C.MV), joined)) {
+      const bits = v.split(/(\{\w+\})/);
+      for (let i = 1; i < bits.length; i += 2) {
+        if (bits[i] !== '{piece}' && bits[i] !== '{list}') continue;
+        const pre = clause(bits[i - 1], true), post = bits[i] === '{list}' ? 'on' : clause(bits[i + 1] || '', false);
+        if (!pre && !post) continue;
+        for (const n of pieceNames) add([pre, n, post].filter(Boolean).join(' '));
+      }
+    }
+    for (const n of pieceNames) add('and ' + n + ' on');   // the next one in a list: "the king on e8 and rook on a8"
     vocab = [...set].sort((a, b) => b.length - a.length);
     byFirst = new Map();
     for (const v of vocab) { const c = v[0].toLowerCase(); if (!byFirst.has(c)) byFirst.set(c, []); byFirst.get(c).push(v); }
