@@ -1039,7 +1039,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     </div>
   </div>
 
-  <div class="earn">
+  <div class="earn" data-guide="earn">
     <div class="minihead reveal"><h3>Play for it</h3><span class="rule" aria-hidden="true"></span></div>
     <div class="earn-cards">
       <div class="lux reveal"><img class="ic3d" src="@@IMG:ic-trophy@@" alt="" width="180" height="180"><h4>Beat the champions</h4><p>Win a place's chess set, board and room by beating its champion.</p></div>
@@ -1066,7 +1066,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
   <div class="links reveal"><a class="btn line" href="@@PARENT@@" target="_top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M3.5 19c.5-3.4 2.6-5.3 5.5-5.3s5 1.9 5.5 5.3M15.5 18.5c.3-2.4 1.6-3.8 3.4-3.8 1 0 1.8.4 2.4 1.1"/></svg>Parent page</a><a class="btn line" href="@@PRIVACY@@" target="_top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Privacy for families</a></div>
 </div></section>
 
-<section class="solid" id="pricing"><div class="wrap">
+<section class="solid" id="pricing" data-guide="pricing"><div class="wrap">
   <div class="center reveal">
     <div class="eyebrow">Pricing</div>
     <h2>Free to start.</h2>
@@ -1090,7 +1090,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
   <h2>Your first move <em>is waiting.</em></h2>
   <div class="cta"><a class="btn gold big" href="@@PLAY@@" target="_top"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play free</a></div>
 </div></section>
-<section class="solid" id="about"><div class="wrap">
+<section class="solid" id="about" data-guide="about"><div class="wrap">
   <div class="house reveal">
     <div class="house-story">
       <div><div class="eyebrow left">The studio</div>
@@ -1904,7 +1904,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
     var KEY = 'chackmate.site.tour.v1', CC_KEY = 'chackmate.site.captions', Y_KEY = 'chackmate.site.rooky-y.v1';
     var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
     var btn = $('r-btn'), invite = $('r-invite'), live = $('r-live'), cap = $('r-caption'), where = $('r-where'), orb = $('r-orb'), ccBtn = $('r-cc'), nextBtn = $('r-next');
-    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', train: 'Train', mates: 'Puzzles', progress: 'Progress', wonders: 'Wonders', collect: 'Collect', details: 'Details', ages: 'Friends to play', families: 'For grown-ups', close: 'Play' };
+    var LABEL = { hero: 'Welcome', learn: 'Learn', lessons: 'Lessons', train: 'Train', mates: 'Puzzles', progress: 'Progress', wonders: 'Wonders', collect: 'Collect', details: 'Details', earn: 'Play for it', pricing: 'Pricing', about: 'The studio', ages: 'Friends to play', families: 'For grown-ups', close: 'Play' };
     var sections = [].slice.call(document.querySelectorAll('[data-guide]')).filter(function (el) { return G[el.dataset.guide]; });
     var keys = sections.map(function (el) { return el.dataset.guide; });
     var on = false, paused = false, audio = null, lastSection = null, lastKey = null, settle = 0, capTimer = 0, peekT = 0, itemT = 0, fxT = 0, nextTo = null, cueAt = 0;
@@ -2140,7 +2140,7 @@ header.top.snug .htools .btn.small { white-space: normal; text-align: center; li
         if (k2 !== k) return onScroll();
         if (held && k2 !== sectionOf(held.key)) held = null;
         // the details sit inside Collect: scrolling out of them, Collect's own line is not said twice
-        if (k2 === 'collect' && lastSection === 'details') lastSection = 'collect';
+        if (k2 === 'collect' && (lastSection === 'details' || lastSection === 'earn')) lastSection = 'collect';
         if (k2 && k2 !== lastSection && (!audio || audio.sec !== k2)) speak(k2); else if (held) carryOn(false);
       }, 200);
     }

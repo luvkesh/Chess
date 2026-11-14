@@ -3046,6 +3046,68 @@
      "text": "Il y en a tant à collectionner !"
     }
    ]
+  },
+  "earn": {
+   "text": "Et comment obtenir tout cela ? En jouant ! Bats les champions, termine les énigmes et les leçons du jour, et grimpe dans le pass de saison. Rien de ce que tu collectionnes ne te rend plus fort, alors chaque partie reste juste.",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Et comment obtenir tout cela ?"
+    },
+    {
+     "t": 1.77,
+     "text": "En jouant !"
+    },
+    {
+     "t": 2.9,
+     "text": "Bats les champions, termine les énigmes et les leçons du jour, et grimpe dans le pass de saison."
+    },
+    {
+     "t": 8.19,
+     "text": "Rien de ce que tu collectionnes ne te rend plus fort, alors chaque partie reste juste."
+    }
+   ]
+  },
+  "pricing": {
+   "text": "Bonne nouvelle, on commence Chackmate gratuitement ! Les adultes, les formules sont ici, sur la page. Aucune formule n'a de publicité, et rien de ce que tu achètes ne te rend plus fort.",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Bonne nouvelle, on commence Chackmate gratuitement !"
+    },
+    {
+     "t": 2.83,
+     "text": "Les adultes, les formules sont ici, sur la page."
+    },
+    {
+     "t": 5.77,
+     "text": "Aucune formule n'a de publicité, et rien de ce que tu achètes ne te rend plus fort."
+    }
+   ]
+  },
+  "about": {
+   "text": "Voici la Maison du Jeu, le studio qui m'a créé ! Ils voulaient que chaque enfant ait une vraie table d'échecs, un coach qui enseigne et des amis qui jouent franc jeu. Envie de dire bonjour ? Leurs coordonnées sont juste ici.",
+   "voice": "ff_siwis,am_puck",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Voici la Maison du Jeu, le studio qui m'a créé !"
+    },
+    {
+     "t": 2.85,
+     "text": "Ils voulaient que chaque enfant ait une vraie table d'échecs, un coach qui enseigne et des amis qui jouent franc jeu."
+    },
+    {
+     "t": 8.76,
+     "text": "Envie de dire bonjour ?"
+    },
+    {
+     "t": 10.4,
+     "text": "Leurs coordonnées sont juste ici."
+    }
+   ]
   }
  }
 }

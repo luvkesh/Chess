@@ -3046,6 +3046,68 @@
      "text": "Há tantos para colecionar!"
     }
    ]
+  },
+  "earn": {
+   "text": "E como você consegue tudo isso? Jogando! Vença os campeões, complete os desafios e as lições do dia, e suba no passe da temporada. Nada do que você coleciona deixa você mais forte, então toda partida é justa.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "E como você consegue tudo isso?"
+    },
+    {
+     "t": 2.61,
+     "text": "Jogando!"
+    },
+    {
+     "t": 3.89,
+     "text": "Vença os campeões, complete os desafios e as lições do dia, e suba no passe da temporada."
+    },
+    {
+     "t": 9.61,
+     "text": "Nada do que você coleciona deixa você mais forte, então toda partida é justa."
+    }
+   ]
+  },
+  "pricing": {
+   "text": "Boa notícia, começar no Chackmate é grátis! Adultos, os planos estão bem aqui na página. Nenhum plano tem anúncios, e nada do que você compra deixa você mais forte.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Boa notícia, começar no Chackmate é grátis!"
+    },
+    {
+     "t": 3.06,
+     "text": "Adultos, os planos estão bem aqui na página."
+    },
+    {
+     "t": 6.05,
+     "text": "Nenhum plano tem anúncios, e nada do que você compra deixa você mais forte."
+    }
+   ]
+  },
+  "about": {
+   "text": "Esta é a Casa do Jogo, o estúdio que me criou! Eles queriam que toda criança tivesse uma mesa de xadrez de verdade, um treinador que ensina e amigos que jogam limpo. Quer dizer olá? Os contatos deles estão bem aqui.",
+   "voice": "pm_alex",
+   "cues": [
+    {
+     "t": 0.0,
+     "text": "Esta é a Casa do Jogo, o estúdio que me criou!"
+    },
+    {
+     "t": 2.9,
+     "text": "Eles queriam que toda criança tivesse uma mesa de xadrez de verdade, um treinador que ensina e amigos que jogam limpo."
+    },
+    {
+     "t": 9.98,
+     "text": "Quer dizer olá?"
+    },
+    {
+     "t": 11.59,
+     "text": "Os contatos deles estão bem aqui."
+    }
+   ]
   }
  }
 }
