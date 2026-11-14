@@ -87,7 +87,7 @@ async function record(id) {
       // the check glow shows, the beaten king falls, and the win plays
       v.setFx({ victory: it.data });
       v.setBoard([[46, 6], [63, -6], [8, 5], [13, 1], [14, 1], [49, -1], [50, -1], [35, -2]], null);
-      run = async () => { await wait(700); await mv(8, 56, 5); v.setHighlights({ lastFrom: 8, lastTo: 56, check: 63 }); await wait(500); v.celebrate('win', 63, null, 46, { storm: true }); await wait(8500); };
+      run = async () => { await wait(700); await mv(8, 56, 5); v.setHighlights({ lastFrom: 8, lastTo: 56, check: 63 }); await wait(500); v.celebrate('win', 63, null, 46, { storm: true, reason: 'checkmate' }); await wait(9000); };
     } else if (cat === 'clock') {
       v.setBoard(full, null);
       let ms = 300000;
