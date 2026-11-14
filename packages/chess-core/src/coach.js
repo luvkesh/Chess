@@ -423,7 +423,7 @@ function ChacklateCoach(E, strings) {
     return { theme, piece: onSq(f.piece, f.from, f.old), from: f.from, to: f.to, san: f.san, text: describe(f) };
   }
 
-  return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, bits: bitsOf, sayMove, classify, explain, review, threat, line, hintLadder,
+  return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, bits: bitsOf, sayMove, MV, classify, explain, review, threat, line, hintLadder,
     moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME, NAME_OLD, EN, tr };
 }
 
