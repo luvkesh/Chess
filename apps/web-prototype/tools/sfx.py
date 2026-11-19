@@ -1,4 +1,4 @@
-"""Make the four piece sound packs from real recordings (sfx/sources, all CC0; see sfx/SOURCES.md).
+"""Make the piece sound packs (one per material) from real recordings (sfx/sources, all CC0; see sfx/SOURCES.md).
 
     python3 apps/web-prototype/tools/sfx.py
 
@@ -139,7 +139,31 @@ def soft(tier, take):
     return norm(shape(ff(x, 'highpass=f=60'), ms * 0.95), peak * 0.8)
 
 
-PACKS = {'wood': wood, 'marble': marble, 'glass': glass, 'soft': soft}
+def metal(tier, take):
+    # Brass, bronze, gold, chrome: a struck-metal ring from Kenney's metal taps (one per weight),
+    # damped quickly the way a felted metal piece is, over the board's own thump.
+    k, ms, peak, under = TIERS[tier]
+    k *= NUDGE[take]
+    name = {'L1': 'impactMetal_heavy', 'L2': 'impactMetal_medium', 'L3': 'impactMetal_light'}[tier]
+    ring = pitch(ff(K(name, take), 'highpass=f=160,lowpass=f=10000'), k)
+    tick = pitch(ff(K('impactMetal_light', (take + 1) % 4), 'highpass=f=2400'), k * 1.1)
+    x = mix((ring, 1.0, 0), (tick, 0.25, 0.25), (thump(k, take), under * 0.5, 0))
+    return norm(shape(ff(x, 'treble=g=-2:f=6000'), ms * 1.3), peak * 0.8)
+
+
+def ceramic(tier, take):
+    # Porcelain, enamel, ivory and hard resin: the clack of Kenney's plate taps, one per weight,
+    # with a little of the wooden piece for body.
+    k, ms, peak, under = TIERS[tier]
+    k *= NUDGE[take]
+    name = {'L1': 'impactPlate_heavy', 'L2': 'impactPlate_medium', 'L3': 'impactPlate_light'}[tier]
+    clack = pitch(ff(K(name, take), 'highpass=f=250,lowpass=f=11000'), k)
+    core = pitch(ff(WOOD[take % 2], 'highpass=f=300'), k * 1.1)
+    x = mix((clack, 1.0, 0), (core, 0.3, 0), (thump(k, take), under * 0.45, 0))
+    return norm(shape(ff(x, 'highpass=f=70'), ms * 1.1), peak * 0.85)
+
+
+PACKS = {'wood': wood, 'marble': marble, 'glass': glass, 'soft': soft, 'metal': metal, 'ceramic': ceramic}
 GAP = 0.09
 
 

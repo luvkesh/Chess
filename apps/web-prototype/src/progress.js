@@ -22,6 +22,10 @@ function ChacklateProgress(catalog, extras) {
   // Level items can be bought with coins once the player is within this many levels of them.
   const COIN_REACH = 2;
   const COIN_PRICE = { common: 200, rare: 400, epic: 900, legendary: 1500 };
+  // Items taken out of the game, with the coins a player paid for one. Sound packs went in
+  // November 2026: the pieces now sound like their own material. Felted Wood and Soft Touch were
+  // free and Crystal Glass came with Premium; Marble was the one sold for coins, so it is refunded.
+  const RETIRED = { 'sound.wood.v1': 0, 'sound.soft.v1': 0, 'sound.marble.v1': COIN_PRICE.rare, 'sound.glass.v1': 0 };
   // Suites: each room comes with its own board and piece set (1:1:1). They unlock, are
   // bought and are equipped together, so a room is never shown with another room's board.
   const SUITES = catalog.suites || [];
@@ -143,6 +147,11 @@ function ChacklateProgress(catalog, extras) {
     out.coins = Math.floor(num(s.coins, 0, 0));
     out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n); out.earned.xp = o(out.earned.xp);
     out.bought = arr(s.bought);
+    // a retired item someone bought gives its coins back, once (it leaves the list as it does)
+    for (const id of out.bought) if (id in RETIRED) out.coins += RETIRED[id];
+    out.bought = out.bought.filter((id) => !(id in RETIRED));
+    for (const id of Object.keys(RETIRED)) delete out.granted[id];
+    delete out.equipped.sound;
     out.mini = o(s.mini, d.mini);
     for (const k of ['best', 'plays']) out.mini[k] = o(out.mini[k]);
     out.mini.day = o(out.mini.day, d.mini.day); out.mini.day.best = o(out.mini.day.best);
