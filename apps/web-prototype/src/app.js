@@ -398,7 +398,8 @@
   // review never delays the computer's move.
   function makeWorker() {
     try {
-      const src = 'const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E,' + JSON.stringify(coachStrings()) + ');' +
+      // mates.js goes in as a plain function: the coach proves every checkmate it names with it
+      const src = ChacklateMates.toString() + ';const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E,' + JSON.stringify(coachStrings()) + ');' +
         'const M=(' + ChacklateMentor.toString() + ')(E,C);' +
         'onmessage=function(e){var d=e.data;try{var p=E.positionFrom(d.fen,d.moves);var r;' +
         'if(d.type==="search"){var s=E.search(p,d.opts);r={uci:s.move?E.uci(s.move):null,score:s.score,depth:s.depth};}' +
@@ -4519,7 +4520,8 @@
     wait[here] = [done];
     const id = job('analysis', { type: 'look', fen: G.g.startFen, moves, opts: { timeMs: timeMs || 200, alts: 3, plies: 4 } }, (r) => {
       const cbs = wait[here] || []; delete wait[here];
-      if (r.error || !r.look || state.game !== G || G.g.moves.length !== key) return;
+      // the same move count is not the same position after a take-back and new moves
+      if (r.error || !r.look || state.game !== G || G.g.uciMoves().join(' ') !== here) return;
       r.look.enteredEndgame = r.look.phase === 'endgame' && !G.endgameSaid;
       G.looks[key] = r.look;
       for (const cb of cbs) cb(r.look);
