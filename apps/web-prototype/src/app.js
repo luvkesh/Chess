@@ -319,10 +319,9 @@
   }
 
   // Parent gate: a sum written in words, which a young child cannot read and an adult answers in
-  // a second. It sits in front of the store, purchases and turning reminders on, as Apple's Kids
-  // category and Google's Families policy ask. A pass lasts ten minutes, and only for looking
-  // around the store: a purchase, more play time, reminders and location ask every time
-  // (opts.always), so one answer from a grown-up never opens the others for the child.
+  // a second. The game is for every age (user, 2026-11-17), so the store, purchases, reminders and
+  // location are open to all; this now guards only what a parent set themselves (more play time
+  // past a daily limit on an account they manage) and the testers' Labs menu.
   const WORDS = (n) => t('store.gate.n' + n);
   let gatePassed = 0;
   // Answers typed in the player's own digits (Devanagari, Arabic-Indic, Bengali...) count too.
@@ -651,6 +650,8 @@
     review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#c8a47a', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
   };
   const medal = (art, from, to, o) => ART.medalUri(art, Object.assign({ from, to }, o || {}));
+  // The home strips' pictures: small 3D objects (scene.js buildEmblem), shown straight, no circle.
+  const stripArt = (what) => '<span class="si">' + snap({ kind: 'emblem', what, yaw: what === 'coins' ? -0.35 : what === 'trophy' ? 0.25 : 0 }, 72, 72) + '</span>';
   const eraFelt = (e) => [ART.dim(e.colors[1], 0.15), e.colors[0]];
   function porthole(e, coach) {
     return '<span class="porthole"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""></span>' +
@@ -709,6 +710,7 @@
     const close = () => {
       const had = wrap.contains(document.activeElement);
       wrap.remove(); if (opts.onClose) opts.onClose();
+      wrap.dispatchEvent(new Event('closed'));
       if (had && opener && opener.isConnected && !document.querySelector('.modal')) opener.focus({ preventScroll: true });
     };
     wrap.addEventListener('click', (e) => {
@@ -965,12 +967,206 @@
     if (innerWidth <= 900 || !n.offsetWidth) return;
     for (let i = 1; i <= 5 && n.scrollWidth > n.clientWidth + 1; i++) n.classList.add('fit' + i);
   }
+  // ---------------------------------------------------------------- addresses
+  // Every screen has its own link (router.js): go() writes it, Back and Forward come back
+  // through onRoutePop, and a link opened cold goes through openRoute. Play's own menus
+  // (Play a Friend, Play the World, Custom Game, an opponent) and Settings are pop-ups with
+  // links too: Back closes them. Each screen keeps its own checks when opened from a link
+  // (a Premium lesson still says so, the shop still asks a grown-up).
+  const RT = ChackmateRouter;
+  const ROUTE = { how: 'hash', path: null, ready: false, at: 0, popping: false, skip: null, modal: null, args: {} };
+  let routeTable = null;
+  function routesNow() {
+    if (!routeTable) {
+      routeTable = RT.routes({
+        lessons: LESSONS.lessons, trainers: TRAINERS.trainers.map((x) => x.id), eras: CAMPAIGN.eras.map((e) => e.id),
+        variants: VARIANTS.filter((v) => v.status === 'ready').map((v) => v.id), openings: OPENINGS, minis: MINI.GAMES.map((g) => g.id),
+        opponents: OPP.map((o, i) => ({ name: o.name, level: o.level != null ? o.level : i })), cats: CAT_ORDER,
+        themes: THEMES.map((x) => x[0]).concat(...PUZZLES.map((p) => p.themes)), settings: SET_SECTIONS.map((x) => x[0]), profile: ['games', 'account'],
+      });
+    }
+    return routeTable;
+  }
+  // The tab's title names the screen (and what is on it, where that is a name of its own).
+  function routeTitle(name, arg) {
+    const top = { home: 'home', play: 'play', game: 'play', review: 'play', minis: 'play', mini: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play',
+      journey: 'journey', era: 'journey', learn: 'learn', lesson: 'learn', trainers: 'trainers', trainer: 'trainers', puzzles: 'puzzles', puzzle: 'puzzles',
+      training: 'training', progress: 'training', dojo: 'training', openings: 'training', drill: 'training', collection: 'collection', club: 'club', profile: 'profile' }[name];
+    let own = '';
+    try {
+      if (name === 'era') { const e = eraById(arg); if (e) own = eraName(e); }
+      else if (name === 'variant') { const v = variantById(arg); if (v) own = varName(v); }
+      else if (name === 'mini') { const g = MINI.game(arg && arg.id); if (g) own = mg(g, 'title'); }
+      else if (name === 'lesson' && typeof arg === 'string') { const l = LESSONS.lessons.find((x) => x.id === arg); if (l) own = I18N.text(l.title); }
+      else if (name === 'puzzle' && arg && arg.title) own = arg.title;
+      else if (name === 'drill') { const o = OPENINGS.find((x) => x.id === arg); if (o) own = o.name; }
+      else if (name === 'store') own = t('common.premium');
+      else if (name === 'season') own = t('season.title');
+    } catch (e) { own = ''; }
+    const parts = [own, top && top !== 'home' ? navName(top) : ''].filter((x, i, a) => x && a.indexOf(x) === i);
+    return parts.concat('Chackmate').join(' · ');
+  }
+  function urlWrite(path, opts) {
+    opts = opts || {};
+    const here = RT.current(window, ROUTE.how);
+    const onModal = !!(history.state && history.state.ckm && history.state.modal);
+    // A screen that opens straight from another (a redirect, a game starting from a pop-up)
+    // takes the place of the step before instead of adding a Back step that leads nowhere.
+    const replace = opts.replace || here === path ||
+      (!opts.modal && (!ROUTE.ready || performance.now() - ROUTE.at < 150 || (onModal && !ROUTE.modal)));
+    const url = RT.href(window, ROUTE.how, path), st = { ckm: 1, modal: !!opts.modal };
+    try { history[replace ? 'replaceState' : 'pushState'](st, '', url); }
+    catch (e) {
+      // a sandboxed frame may refuse history: the part after the # still makes a Back step
+      try { if (ROUTE.how === 'hash') { if (replace) location.replace('#' + path); else location.hash = path; } } catch (e2) { /* no address bar here */ }
+    }
+    ROUTE.path = path;
+    if (!opts.modal) ROUTE.at = performance.now();
+    if (ROUTE.how === 'path') {
+      let c = document.querySelector('link[rel="canonical"]');
+      if (!c) { c = document.createElement('link'); c.rel = 'canonical'; document.head.appendChild(c); }
+      c.href = location.origin + path;
+    }
+  }
+  function routeWrite(name, arg) {
+    const path = routesNow().toPath(name, arg);
+    ROUTE.args[path] = { name, arg };
+    // a screen drawn again under an open menu (after a sync, say) leaves the menu's link alone
+    const again = path === ROUTE.screenPath;
+    ROUTE.screenPath = path;
+    if (again && ROUTE.modal) return;
+    document.title = routeTitle(name, arg);
+    if (ROUTE.popping) { ROUTE.path = RT.current(window, ROUTE.how) || path; return; }
+    urlWrite(path);
+  }
+  // A pop-up with a link of its own. Closing it by hand takes its Back step away again.
+  function routedModal(kind, arg, wrap) {
+    const path = routesNow().modalPath(kind, arg);
+    if (!wrap || !path) return wrap;
+    const rec = { kind, wrap, path };
+    ROUTE.modal = rec;
+    if (!ROUTE.popping) urlWrite(path, { modal: true });
+    else ROUTE.path = path;
+    wrap.addEventListener('closed', () => {
+      if (ROUTE.modal !== rec) return;
+      ROUTE.modal = null;
+      if (ROUTE.popping) return;
+      setTimeout(() => {
+        // still on the pop-up's step (nothing opened from it): step back off it
+        if (history.state && history.state.ckm && history.state.modal && RT.current(window, ROUTE.how) === rec.path) { ROUTE.skip = rec.path; history.back(); }
+      }, 0);
+    });
+    return wrap;
+  }
+  // A pop-up menu's own tabs (Settings' sections) change its link in place.
+  function routedModalArg(wrap, arg) {
+    const rec = ROUTE.modal;
+    if (!rec || rec.wrap !== wrap) return;
+    const path = routesNow().modalPath(rec.kind, arg);
+    if (!path || path === rec.path) return;
+    rec.path = path;
+    if (!ROUTE.popping) urlWrite(path, { modal: true, replace: true });
+  }
+  // A page's own tabs (Collection's shelves, the Opening lab's sides) get a step of their own.
+  function routeSync(name, arg) {
+    if (state.screen !== name) return;
+    state.screenArg = arg;
+    routeWrite(name, arg);
+  }
+  function openRouteModal(md) {
+    if (md.kind === 'friend') friendModal();
+    else if (md.kind === 'world') worldModal();
+    else if (md.kind === 'custom') newGameModal();
+    else if (md.kind === 'opponent') opponentModal(md.arg);
+    else if (md.kind === 'settings') settingsModal(md.arg);
+  }
+  // Opens what a link names. `cold`: the page has just loaded on it.
+  function openScreen(r) {
+    const spec = r.spec || {};
+    if (r.name === 'game') {
+      if (state.game) backToGame();
+      else if (resumable()) resumeSaved();
+      else go('play');
+      return;
+    }
+    if (r.name === 'review') { go(state.game && state.game.g.moves.length ? 'game' : 'play'); return; }
+    if (r.name === 'era') {
+      go('era', r.arg);
+      const e = eraById(r.arg);
+      if (spec.stage != null && state.screen === 'era' && e && e.stages[spec.stage] && PG.eraOpen(state.progress, e.id)) {
+        // the champion waits for the other stages, as on the era's page
+        const info = PG.journeyInfo(state.progress, e.id);
+        const ready = e.stages.every((st, k) => st.kind === 'champion' || info.stages[k]);
+        if (e.stages[spec.stage].kind !== 'champion' || ready || info.stages[spec.stage]) runStage(e, spec.stage);
+      }
+      return;
+    }
+    if (r.name === 'puzzle') {
+      const d = spec.daily && dailyPuzzle();
+      if (spec.daily) { if (d) go('puzzle', { list: [d], daily: true, title: t('learn.dailyPuzzle') }); else go('puzzles'); return; }
+      if (spec.mate) { go('puzzle', { mate: spec.mate, title: t(spec.mate === 1 ? 'learn.mateIn1' : 'learn.mateInN', { n: spec.mate }) }); return; }
+      if (spec.theme) { go('puzzle', { theme: spec.theme, rated: true, title: themeName(spec.theme) }); return; }
+      go('puzzle', { rated: true, title: t('learn.trainerTitle') });
+      return;
+    }
+    if (r.name === 'lesson') {
+      // a lesson that is not open yet says why over its own list
+      const a = r.arg, home = a && a.trainer || a && a.back === 'trainers' ? 'trainers' : a && a.variant ? 'variant' : 'learn';
+      if (go('lesson', a) === false) go(home, home === 'variant' ? a.variant : undefined);
+      return;
+    }
+    if (r.name === 'store' && r.arg === 'coins') { go('store', 'coins'); return; }
+    go(r.name, r.arg);
+  }
+  function openRoute(r, cold) {
+    if (!r) { go('home'); return; }
+    if (r.action === 'quick') { if (cold) { go('play'); setTimeout(() => quickPlay(), 300); } else quickPlay(); return; }
+    if (!r.over || cold) {
+      const want = r.modal ? routesNow().toPath(r.name, r.arg) : RT.current(window, ROUTE.how);
+      const now = state.screen ? routesNow().toPath(state.screen, state.screenArg) : null;
+      if (cold || want !== now) {
+        const keep = !cold && ROUTE.args[want];
+        if (keep && keep.name === r.name && !['game', 'review', 'era'].includes(r.name)) go(keep.name, keep.arg);
+        else openScreen(r);
+      }
+    }
+    if (r.modal) openRouteModal(r.modal);
+  }
+  function onRoutePop() {
+    const path = RT.current(window, ROUTE.how) || '/home';
+    if (ROUTE.skip) { const s = ROUTE.skip; ROUTE.skip = null; if (path !== s) { ROUTE.path = path; return; } }
+    if (path === ROUTE.path) return;
+    ROUTE.popping = true;
+    try {
+      ROUTE.path = path;
+      // Back closes the pop-ups that are open (not the ones waiting on an answer, like a promotion)
+      document.querySelectorAll('#modals .modal').forEach((m) => { if (!m.sticky && m.close) m.close(); });
+      const r = routesNow().fromPath(path);
+      if (!r) { go('home'); return; }
+      openRoute(r, false);
+    } finally { ROUTE.popping = false; }
+  }
+  window.addEventListener('popstate', onRoutePop);
+  window.addEventListener('hashchange', () => { if (ROUTE.how === 'hash') onRoutePop(); });
+  // First screen: the link the page was opened on (old app links like /play#daily still work).
+  function startRoute() {
+    ROUTE.how = RT.mode(window);
+    let start = RT.current(window, ROUTE.how);
+    const h = location.hash || '';
+    const LEGACY = { '#quick': '/play/quick', '#daily': '/puzzles/daily', '#journey': '/journey' };
+    if (LEGACY[h]) start = LEGACY[h];
+    const r = start ? routesNow().fromPath(start) : { name: 'home' };
+    openRoute(r, true);
+    ROUTE.ready = true;
+    if (window.__SHOT) window.__route = { table: routesNow(), state: ROUTE };
+  }
+
   function go(name, arg) {
     if (name === 'improve') name = 'puzzles';
     // go('trainer', id): a round of that skill trainer, played in the lesson player
     if (name === 'trainer') { name = 'lesson'; arg = { trainer: arg }; }
     // Premium lessons and trainers stay shut whichever link leads there (puzzles, reviews, the rule book, Progress)
-    if (name === 'lesson') { const lk = lockedLesson(arg); if (lk) { premiumModal(t('learn.lockedLesson', { title: lk.title, n: lk.chapter }), COACH); return false; } }
+    if (name === 'lesson') { const lk = lockedLesson(arg); if (lk) { premiumModal(arg && arg.trainer ? t('learn.tr.usedWhy', { title: lk.title }) : t('learn.lockedLesson', { title: lk.title, n: lk.chapter }), COACH); return false; } }
     if (arg === undefined && name === state.screen) {
       // A refresh of the screen on show (after a sync, say). Game screens keep their state.
       if (KIND[name] === 'hud') { renderNav(); return; }
@@ -995,6 +1191,7 @@
     applyInsets();
     const scr = $('screens').querySelector('.screen');
     if (scr) scr.classList.add('enter');
+    routeWrite(state.screen, state.screenArg);
   }
   function mount(html) { $('screens').innerHTML = '<div class="screen">' + html + '</div>'; }
   // Tell the camera which parts of the screen the menus cover, so the board is framed in
@@ -1346,7 +1543,7 @@
     const P = state.progress, shelf = coinShelf(), reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
     const next = reach.find((i) => PG.coinOffer(P, i).ok) || reach[0];
     const line = !next ? t('home.coins.keep') : PG.coinOffer(P, next).ok ? t('home.coins.canBuy', { name: next.name }) : t('home.coins.next', { name: next.name, n: I18N.num(PG.coinPrice(next)) });
-    return '<button class="strip glass" id="a-coins"><span class="sg gold">' + icon('coin') + '</span><span style="flex:1"><small>' + t('common.coins') + ' · ' + I18N.num(P.coins) + '</small><b>' + esc(line) + '</b>' +
+    return '<button class="strip glass" id="a-coins">' + stripArt('coins') + '<span style="flex:1"><small>' + t('common.coins') + ' · ' + I18N.num(P.coins) + '</small><b>' + esc(line) + '</b>' +
       (next ? '<span class="bar"><i style="width:' + Math.min(100, Math.round(P.coins / PG.coinPrice(next) * 100)) + '%"></i></span>' : '') + '</span><span class="go">' + icon('arrow') + '</span></button>';
   }
   // Ask once before spending; returns true when bought.
@@ -1394,13 +1591,13 @@
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
     if (!list.length) return '';
     const done = list.filter((m) => m.done).length;
-    return '<button class="strip glass" id="a-missions"><span class="sg' + (done === list.length ? ' gold' : '') + '">' + icon('target') + '</span><span style="flex:1"><small>' + t('home.missions.today') + '</small><b>' + (done === list.length ? t('home.missions.allDone') : t('home.missions.progress', { n: done, of: list.length })) + '</b>' +
+    return '<button class="strip glass" id="a-missions">' + stripArt('hourglass') + '<span style="flex:1"><small>' + t('home.missions.today') + '</small><b>' + (done === list.length ? t('home.missions.allDone') : t('home.missions.progress', { n: done, of: list.length })) + '</b>' +
       '<span class="bar"><i style="width:' + Math.round(done / list.length * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
   }
   function seasonStrip() {
     const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
     if (!s) return '';
-    return '<button class="strip glass" id="a-season"><span class="sg">' + icon('season') + '</span><span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(seasonName(s.season)) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
+    return '<button class="strip glass" id="a-season">' + stripArt('laurel') + '<span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(seasonName(s.season)) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
       '<span class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
   }
   function missionsCard() {
@@ -1442,7 +1639,7 @@
       '<div class="play-more">' +
       '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>' + t('home.minis') + '</small><b>' + t('play.minis') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
       variationsTile() +
-      '<button class="strip glass mini-strip" data-nav="club"><span class="sg gold">' + icon('trophy') + '</span><span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button></div>' +
+      '<button class="strip glass mini-strip" data-nav="club">' + stripArt('trophy') + '<span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button></div>' +
       sec('users', t('play.choose'), t('play.friends', { n: OPP.length })) +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
@@ -1467,14 +1664,15 @@
       '<form id="os"><div class="field"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + colors.map(([c, l]) => '<label><input type="radio" name="color" value="' + c + '"' + ((s.color || 'white') === c ? ' checked' : '') + '><span>' + t(l) + '</span></label>').join('') + '</div></div>' +
       (xq ? '' : '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + CLOCKS.map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>') +
       '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.playName', { name: esc(o.name) }) + '</button></div></form>', { x: true });
+    if (!v) routedModal('opponent', level, m);
     const form = m.querySelector('#os');
     form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); if (xq) { startXq({ mode: 'ai', color: form.color.value, level }); return; } startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
   }
-  // Premium things a child taps are explained, and the store itself sits behind the parent gate.
+  // Premium things a player taps are explained, with a way to the store.
   function premiumModal(why, who) {
     const m = modal('<div class="result-hero">' + (who ? faceImg(who) : '<img class="portrait" src="' + medal('emblem:crown', '#ffd27a', '#b8862b') + '" alt="">') +
       '<span class="result-badge">' + t('common.premium') + '</span><h2 class="result-title">' + t('store.more.title') + '</h2><p class="sub">' + esc(why) + ' ' + t('store.more.sub') + '</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.ok') + '</button><button class="btn primary" id="pm-store">' + icon('crown') + ' ' + t('store.more.ask') + '</button></div></div>');
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.ok') + '</button><button class="btn primary" id="pm-store">' + icon('crown') + ' ' + t('store.more.see') + '</button></div></div>');
     m.querySelector('#pm-store').onclick = () => { m.close(); go('store'); };
   }
   function quickPlay() {
@@ -2397,7 +2595,10 @@
   // day by day (PG.trainerFinished), which is what the progress charts draw.
   const trainerById = (id) => TRAINERS.trainers.find((x) => x.id === id);
   const trainerLesson = (tr) => LESSONS.lessons.find((l) => l.id === tr.lesson);
-  const trainerLocked = (tr) => { const l = trainerLesson(tr); const ch = l && LESSONS.chapters.find((c) => c.n === l.chapter); return !!ch && ch.access !== 'free' && !state.progress.premium; };
+  // Trainers come with Premium; without it each trainer still gives one free round a day.
+  const trainerPremium = (tr) => { const l = trainerLesson(tr); const ch = l && LESSONS.chapters.find((c) => c.n === l.chapter); return !!ch && ch.access !== 'free' && !state.progress.premium; };
+  const trainerFreeUsed = (tr) => ((state.progress.trainers[tr.id] || {}).log || []).some((e) => e.d === PG.today());
+  const trainerLocked = (tr) => trainerPremium(tr) && trainerFreeUsed(tr);
   // A small line of the last ten days' scores.
   function spark(log) {
     const pts = log.slice(-10);
@@ -2412,19 +2613,25 @@
     idleBoard();
     const P = state.progress;
     const tried = TRAINERS.trainers.filter((tr) => (P.trainers[tr.id] || {}).rounds).length;
+    const prem = TRAINERS.trainers.some(trainerPremium);
+    // What a trainer is, in three steps, and (without Premium) how much of it is free.
+    const how = '<div class="tr-how glass"><ol>' + [1, 2, 3].map((k) => '<li><b>' + k + '</b><span>' + esc(t('learn.tr.how' + k, { coach: COACH.name })) + '</span></li>').join('') + '</ol>' +
+      (prem ? '<div class="tr-free"><p>' + icon('crown') + '<span>' + esc(t('learn.tr.freeNote')) + '</span></p><button class="btn small gold" id="tr-store">' + t('learn.tr.seePremium') + '</button></div>' : '') + '</div>';
     mount('<div class="page"><div class="page-in">' + subnav('trainers') +
-      pageHead(t('learn.sub.trainers'), t('learn.tr.title'), t('learn.tr.sub', { coach: COACH.name }), meter(tried, TRAINERS.trainers.length, t('learn.tr.tried'))) +
+      pageHead(t('learn.sub.trainers'), t('learn.tr.title'), t('learn.tr.sub', { coach: COACH.name }), meter(tried, TRAINERS.trainers.length, t('learn.tr.tried'))) + how +
       '<div class="trainers">' + TRAINERS.trainers.map((tr) => {
         const r = P.trainers[tr.id] || { best: 0, rounds: 0, log: [] };
-        const l = trainerLesson(tr), lock = trainerLocked(tr);
+        const l = trainerLesson(tr), paid = trainerPremium(tr), lock = trainerLocked(tr), lessonLock = !!(l && lockedLesson(l.id));
         const lastS = r.log.length ? r.log[r.log.length - 1].s : null;
         return '<article class="trainer glass' + (lock ? ' locked' : '') + '">' + (l ? lessonArt(l, 96) : '') +
           '<div class="tr-body"><h3>' + esc(trName(tr)) + '</h3><p>' + esc(I18N.text(tr.line)) + '</p>' +
-          '<div class="tr-score">' + (r.rounds ? '<b>' + lastS + '</b><small>' + t('learn.tr.best', { n: r.best }) + '</small>' + spark(r.log) : '<small>' + t('learn.tr.new') + '</small>') + '</div></div>' +
-          '<div class="tr-go"><button class="btn primary small" data-tr="' + tr.id + '"' + (lock ? ' disabled' : '') + '>' + icon(lock ? 'lock' : 'play') + ' ' + t('learn.tr.practise') + '</button>' +
-          (l ? '<button class="btn outline small" data-trl="' + l.id + '"' + (lock ? ' disabled' : '') + '>' + icon('learn') + ' ' + t('learn.tr.lesson') + '</button>' : '') + '</div></article>';
+          '<div class="tr-score">' + (r.rounds ? '<b>' + lastS + '</b><small>' + t('learn.tr.best', { n: r.best }) + '</small>' + spark(r.log) : '<small>' + t('learn.tr.new') + '</small>') + '</div>' +
+          (paid ? '<span class="tr-pass' + (lock ? ' used' : '') + '">' + esc(t(lock ? 'learn.tr.freeUsed' : 'learn.tr.freeToday')) + '</span>' : '') + '</div>' +
+          '<div class="tr-go"><button class="btn primary small" data-tr="' + tr.id + '">' + icon(lock ? 'lock' : 'play') + ' ' + t('learn.tr.practise') + '</button>' +
+          (l ? '<button class="btn outline small" data-trl="' + l.id + '">' + icon(lessonLock ? 'lock' : 'learn') + ' ' + t('learn.tr.lesson') + '</button>' : '') + '</div></article>';
       }).join('') + '</div></div></div>');
     wireLinks(); hydrate(null, true);
+    const ts = $('tr-store'); if (ts) ts.onclick = () => { AU.play('tap'); go('store'); };
     document.querySelectorAll('[data-tr]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { trainer: b.dataset.tr }); }; });
     document.querySelectorAll('[data-trl]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { id: b.dataset.trl, back: 'trainers' }); }; });
     return {};
@@ -2671,7 +2878,7 @@
       }).join('');
       document.querySelectorAll('[data-op]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('drill', b.dataset.op); }; });
     };
-    document.querySelectorAll('[data-side]').forEach((b) => { b.onclick = () => { side = b.dataset.side; AU.play('tap'); draw(); }; });
+    document.querySelectorAll('[data-side]').forEach((b) => { b.onclick = () => { side = b.dataset.side; AU.play('tap'); draw(); routeSync('openings', side); }; });
     draw();
     return {};
   };
@@ -2701,7 +2908,7 @@
       return { text: e ? t('collection.get.journey', { coach: eraCoach(e).name, era: eraName(e) }) : unlockText(it) + '.', go: e ? ['era', e.id] : ['journey'], label: t('collection.get.goThere') };
     }
     if (u.type === 'season') return { text: t(u.track === 'pass' ? 'collection.get.seasonPass' : 'collection.get.season', { n: u.tier }), go: ['season'], label: t('collection.get.seeSeason') };
-    if (u.type === 'premium') return { text: t('collection.get.premium'), go: ['store'], label: t('collection.get.askGrownUp') };
+    if (u.type === 'premium') return { text: t('collection.get.premium'), go: ['store'], label: t('collection.get.seePremium') };
     return { text: t('collection.get.yours'), go: null };
   }
   function equipItem(it, after) {
@@ -2825,7 +3032,7 @@
       });
       $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, t('collection.collected'));
     }
-    document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { active = b.dataset.cat; q = ''; $('c-q').value = ''; AU.play('tap'); render(); }; });
+    document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { active = b.dataset.cat; q = ''; $('c-q').value = ''; AU.play('tap'); render(); routeSync('collection', active); }; });
     $('c-q').oninput = (e) => { q = e.target.value; render(); };
     $('c-f').onchange = (e) => { filter = e.target.value; render(); };
     render();
@@ -3161,8 +3368,8 @@
       const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, t('club.tzFail')); };
       const gp = $('cl-gps');
       if (gp) gp.onclick = async () => {
-        // The device's location is for grown-ups: the parent gate asks every time.
-        if (isMinor() || !await parentGate(t('club.useLoc'), { always: true })) return;
+        // An account a parent manages never shares the device's location (no button for it).
+        if (isMinor()) return;
         if (!alive) return;
         renderLoc(true);
         const g = await C.gps();
@@ -3213,7 +3420,7 @@
     mount('<div class="page"><div class="page-in">' +
       pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), seasonName(s.season), esc(tx('content.season.' + s.season.id + '.blurb', s.season.blurb)), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
       (!P.season ? '<p class="sub">' + t('season.soon') + '</p>' : s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
-        : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.ask') + '</button></div>') +
+        : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.see') + '</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">' + t('season.free') + '</div><div class="eyebrow">' + t('season.pass') + '</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">' + t('season.fine') + '</p></div></div>');
     hydrate(null, true);
@@ -3230,11 +3437,6 @@
     const P = state.progress;
     let remote = null;
     function render() {
-      if (Date.now() - gatePassed >= 10 * 60e3) {
-        $('st-body').innerHTML = '<div class="gate"><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>' + t('store.grownups') + '</b><p class="muted">' + t('store.askParent') + '</p></div><button class="btn primary" id="st-gate">' + icon('lock') + ' ' + t('store.parentOpen') + '</button></div>';
-        $('st-gate').onclick = async () => { if (await parentGate(t('store.gateWhy'))) render(); };
-        return;
-      }
       if (safety && safety.kind === 'minor' && safety.purchases === 'off') {
         $('st-body').innerHTML = '<p class="sub">' + t('store.off') + '</p>';
         return;
@@ -3269,7 +3471,8 @@
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
-      if (!await parentGate(t('store.gateBuy'), { always: true })) return;
+      // The game is for every age and the store is open to all. Only an account a parent manages
+      // (the server says so) asks for that parent's PIN, which they chose themselves.
       let pin;
       if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
@@ -3297,8 +3500,8 @@
         '<div class="row" style="justify-content:center"><button class="btn primary" data-close>' + t('common.letsPlay') + '</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
     mount('<div class="page"><div class="page-in">' + pageHead(t('store.store'), t('store.title'), t('store.sub'), '<span id="st-purse">' + coinsPill() + '</span>') +
-      sec('coin', t('store.coinShop'), t('store.forPlayers')) + '<div class="panel glass" id="st-coins"></div>' +
-      sec('crown', t('common.premium'), t('store.forGrownups')) + '<div class="panel glass" id="st-body"></div></div></div>');
+      sec('coin', t('store.coinShop')) + '<div class="panel glass" id="st-coins"></div>' +
+      sec('crown', t('common.premium')) + '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
     function renderCoins() {
       $('st-coins').innerHTML = coinShopHtml();
@@ -3369,8 +3572,10 @@
       '<div class="set-body"><nav class="set-nav" aria-label="' + t('settings.title') + '">' + nav + '</nav><div class="set-panel">' + pages + '</div></div>' +
       '<div class="set-foot"><button class="btn primary" data-close>' + t('common.done') + '</button></div></div>', { x: true, cls: 'wide settings-card' });
     const shell = m.querySelector('.set-shell');
+    routedModal('settings', cur, m);
     const show = (k, open) => {
       cur = k;
+      routedModalArg(m, k);
       try { sessionStorage.setItem('chackmate.settings.sec', k); } catch (e) { /* private mode */ }
       m.querySelectorAll('.set-cat[data-sec]').forEach((b) => { const on = b.dataset.sec === k; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'true' : 'false'); });
       m.querySelectorAll('.set-page').forEach((p) => { p.hidden = p.dataset.sec !== k; });
@@ -3409,8 +3614,7 @@
     wireAppSection(m);
     on('#s-ver', 'click', () => versionTap(m));
     on('#s-reset', 'click', async () => {
-      // A grown-up starts again, not a stray tap: the parent gate first, then the question.
-      if (!await parentGate(t('settings.resetConfirm'), { always: true }) || !confirm(t('settings.resetConfirm'))) return;
+      if (!confirm(t('settings.resetConfirm'))) return;
       resetDevice(); m.close(); applyLook(); go('home');
     });
     return m;
@@ -3586,7 +3790,6 @@
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
-      if (want.on && !await parentGate(t('settings.reminder.gate'), { always: true })) { box.checked = false; return; }
       try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? t('settings.reminder.set', { time: String(want.hour).padStart(2, '0') + ':00' }) : t('settings.reminder.off')); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
@@ -5179,6 +5382,7 @@
       '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + [['none', 'play.clock.none'], ['1+0', 'play.clock.1'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']].map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + (s.tc === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
       '<div class="field"><label for="ng-fen">' + t('play.ng.fen') + '</label><input class="text-in" id="ng-fen" placeholder="' + t('play.ng.fenHint') + '" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div>' +
       '<div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.ng.start') + '</button></div></form>', { cls: 'wide', x: true });
+    routedModal('custom', null, m);
     const form = m.querySelector('#ng');
     const sync = () => { const ai = form.mode.value === 'ai'; m.querySelector('#f-color').hidden = !ai; m.querySelector('#f-level').hidden = !ai; };
     form.onchange = sync; sync();
@@ -5199,6 +5403,7 @@
       '<p class="sub">' + t('play.w.sub') + '</p></div></div>' +
       '<div class="field"><div class="label">' + t('play.w.clock') + '</div><div class="seg">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="wtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
       '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary" id="w-go">' + icon('globe') + ' ' + t('play.w.title') + '</button></div>', { x: true });
+    routedModal('world', null, m);
     m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
   }
   // Play a friend on another device: create a table and share its code, or join one with a code.
@@ -5214,6 +5419,7 @@
       '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="9" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
       status +
       '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn" id="fr-local">' + icon('users') + ' ' + t('play.fr.local') + '</button></div>', { x: true });
+    routedModal('friend', null, m);
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
     m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
     const join = () => {
@@ -6842,7 +7048,7 @@
   if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; window.__start = startGame; window.__settings = settingsModal;
     window.__modal = { labs: labsModal, missions: missionsModal, profile: profileModal, newGame: newGameModal, friend: friendModal, world: worldModal, glossary: glossaryModal, coach: coachSettingsModal, premium: premiumModal, opponent: opponentModal, rules: ruleSheet, levelUp: levelUpModal, placement: placementOffer, xq: startXq, gate: parentGate, pin: askPin, promo: choosePromotion, eraDone: (id) => eraDoneModal(CAMPAIGN.eras.find((e) => e.id === id), { achievements: [], unlocked: [] }), celebrate, tale: (id, k) => taleModal(CAMPAIGN.eras.find((e) => e.id === id), k) }; }   // tooling answers board questions through the hooks
   const bonus = PG.dailyBonus(state.progress);
-  go('home');
+  startRoute();
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
   // A tab left open overnight gets the new day's bonus when the player comes back to it.
   document.addEventListener('visibilitychange', () => {
@@ -6853,13 +7059,14 @@
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitNav(); applyInsets(); });
   // App shortcuts from the installed icon's menu, and links from emails.
-  if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
-  else if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
+  // (Quick Play, the daily puzzle and the Journey shortcuts open through startRoute.)
+  if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
   else if (location.hash === '#email-verified') toast(t('profile.emailOk'));
   else if (location.hash === '#email-invalid') toast(t('profile.emailBad'), 'bad');
-  else if (location.hash === '#daily' && dailyPuzzle()) go('puzzle', { list: [dailyPuzzle()], daily: true, title: t('learn.dailyPuzzle') });
-  else if (location.hash === '#journey') go('journey');
-  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  if (location.hash && !location.hash.startsWith('#/')) {
+    // the one-off part after the # is dropped; the screen's own link stays
+    try { history.replaceState(history.state, '', RT.href(window, ROUTE.how, ROUTE.path || '/home')); } catch (e) { /* sandboxed frame */ }
+  }
   setTimeout(() => $('splash').classList.add('gone'), window.__SHOT ? 0 : 900);
   if (window.ChacklateNet) ChacklateNet.connect();
 })();
