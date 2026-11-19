@@ -705,6 +705,7 @@
     const close = () => {
       const had = wrap.contains(document.activeElement);
       wrap.remove(); if (opts.onClose) opts.onClose();
+      wrap.dispatchEvent(new Event('closed'));
       if (had && opener && opener.isConnected && !document.querySelector('.modal')) opener.focus({ preventScroll: true });
     };
     wrap.addEventListener('click', (e) => {
@@ -961,6 +962,200 @@
     if (innerWidth <= 900 || !n.offsetWidth) return;
     for (let i = 1; i <= 5 && n.scrollWidth > n.clientWidth + 1; i++) n.classList.add('fit' + i);
   }
+  // ---------------------------------------------------------------- addresses
+  // Every screen has its own link (router.js): go() writes it, Back and Forward come back
+  // through onRoutePop, and a link opened cold goes through openRoute. Play's own menus
+  // (Play a Friend, Play the World, Custom Game, an opponent) and Settings are pop-ups with
+  // links too: Back closes them. Each screen keeps its own checks when opened from a link
+  // (a Premium lesson still says so, the shop still asks a grown-up).
+  const RT = ChackmateRouter;
+  const ROUTE = { how: 'hash', path: null, ready: false, at: 0, popping: false, skip: null, modal: null, args: {} };
+  let routeTable = null;
+  function routesNow() {
+    if (!routeTable) {
+      routeTable = RT.routes({
+        lessons: LESSONS.lessons, trainers: TRAINERS.trainers.map((x) => x.id), eras: CAMPAIGN.eras.map((e) => e.id),
+        variants: VARIANTS.filter((v) => v.status === 'ready').map((v) => v.id), openings: OPENINGS, minis: MINI.GAMES.map((g) => g.id),
+        opponents: OPP.map((o, i) => ({ name: o.name, level: o.level != null ? o.level : i })), cats: CAT_ORDER,
+        themes: THEMES.map((x) => x[0]).concat(...PUZZLES.map((p) => p.themes)), settings: SET_SECTIONS.map((x) => x[0]), profile: ['games', 'account'],
+      });
+    }
+    return routeTable;
+  }
+  // The tab's title names the screen (and what is on it, where that is a name of its own).
+  function routeTitle(name, arg) {
+    const top = { home: 'home', play: 'play', game: 'play', review: 'play', minis: 'play', mini: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play',
+      journey: 'journey', era: 'journey', learn: 'learn', lesson: 'learn', trainers: 'trainers', trainer: 'trainers', puzzles: 'puzzles', puzzle: 'puzzles',
+      training: 'training', progress: 'training', dojo: 'training', openings: 'training', drill: 'training', collection: 'collection', club: 'club', profile: 'profile' }[name];
+    let own = '';
+    try {
+      if (name === 'era') { const e = eraById(arg); if (e) own = eraName(e); }
+      else if (name === 'variant') { const v = variantById(arg); if (v) own = varName(v); }
+      else if (name === 'mini') { const g = MINI.game(arg && arg.id); if (g) own = mg(g, 'title'); }
+      else if (name === 'lesson' && typeof arg === 'string') { const l = LESSONS.lessons.find((x) => x.id === arg); if (l) own = I18N.text(l.title); }
+      else if (name === 'puzzle' && arg && arg.title) own = arg.title;
+      else if (name === 'drill') { const o = OPENINGS.find((x) => x.id === arg); if (o) own = o.name; }
+      else if (name === 'store') own = t('common.premium');
+      else if (name === 'season') own = t('season.title');
+    } catch (e) { own = ''; }
+    const parts = [own, top && top !== 'home' ? navName(top) : ''].filter((x, i, a) => x && a.indexOf(x) === i);
+    return parts.concat('Chackmate').join(' · ');
+  }
+  function urlWrite(path, opts) {
+    opts = opts || {};
+    const here = RT.current(window, ROUTE.how);
+    const onModal = !!(history.state && history.state.ckm && history.state.modal);
+    // A screen that opens straight from another (a redirect, a game starting from a pop-up)
+    // takes the place of the step before instead of adding a Back step that leads nowhere.
+    const replace = opts.replace || here === path ||
+      (!opts.modal && (!ROUTE.ready || performance.now() - ROUTE.at < 150 || (onModal && !ROUTE.modal)));
+    const url = RT.href(window, ROUTE.how, path), st = { ckm: 1, modal: !!opts.modal };
+    try { history[replace ? 'replaceState' : 'pushState'](st, '', url); }
+    catch (e) {
+      // a sandboxed frame may refuse history: the part after the # still makes a Back step
+      try { if (ROUTE.how === 'hash') { if (replace) location.replace('#' + path); else location.hash = path; } } catch (e2) { /* no address bar here */ }
+    }
+    ROUTE.path = path;
+    if (!opts.modal) ROUTE.at = performance.now();
+    if (ROUTE.how === 'path') {
+      let c = document.querySelector('link[rel="canonical"]');
+      if (!c) { c = document.createElement('link'); c.rel = 'canonical'; document.head.appendChild(c); }
+      c.href = location.origin + path;
+    }
+  }
+  function routeWrite(name, arg) {
+    const path = routesNow().toPath(name, arg);
+    ROUTE.args[path] = { name, arg };
+    // a screen drawn again under an open menu (after a sync, say) leaves the menu's link alone
+    const again = path === ROUTE.screenPath;
+    ROUTE.screenPath = path;
+    if (again && ROUTE.modal) return;
+    document.title = routeTitle(name, arg);
+    if (ROUTE.popping) { ROUTE.path = RT.current(window, ROUTE.how) || path; return; }
+    urlWrite(path);
+  }
+  // A pop-up with a link of its own. Closing it by hand takes its Back step away again.
+  function routedModal(kind, arg, wrap) {
+    const path = routesNow().modalPath(kind, arg);
+    if (!wrap || !path) return wrap;
+    const rec = { kind, wrap, path };
+    ROUTE.modal = rec;
+    if (!ROUTE.popping) urlWrite(path, { modal: true });
+    else ROUTE.path = path;
+    wrap.addEventListener('closed', () => {
+      if (ROUTE.modal !== rec) return;
+      ROUTE.modal = null;
+      if (ROUTE.popping) return;
+      setTimeout(() => {
+        // still on the pop-up's step (nothing opened from it): step back off it
+        if (history.state && history.state.ckm && history.state.modal && RT.current(window, ROUTE.how) === rec.path) { ROUTE.skip = rec.path; history.back(); }
+      }, 0);
+    });
+    return wrap;
+  }
+  // A pop-up menu's own tabs (Settings' sections) change its link in place.
+  function routedModalArg(wrap, arg) {
+    const rec = ROUTE.modal;
+    if (!rec || rec.wrap !== wrap) return;
+    const path = routesNow().modalPath(rec.kind, arg);
+    if (!path || path === rec.path) return;
+    rec.path = path;
+    if (!ROUTE.popping) urlWrite(path, { modal: true, replace: true });
+  }
+  // A page's own tabs (Collection's shelves, the Opening lab's sides) get a step of their own.
+  function routeSync(name, arg) {
+    if (state.screen !== name) return;
+    state.screenArg = arg;
+    routeWrite(name, arg);
+  }
+  function openRouteModal(md) {
+    if (md.kind === 'friend') friendModal();
+    else if (md.kind === 'world') worldModal();
+    else if (md.kind === 'custom') newGameModal();
+    else if (md.kind === 'opponent') opponentModal(md.arg);
+    else if (md.kind === 'settings') settingsModal(md.arg);
+  }
+  // Opens what a link names. `cold`: the page has just loaded on it.
+  function openScreen(r) {
+    const spec = r.spec || {};
+    if (r.name === 'game') {
+      if (state.game) backToGame();
+      else if (resumable()) resumeSaved();
+      else go('play');
+      return;
+    }
+    if (r.name === 'review') { go(state.game && state.game.g.moves.length ? 'game' : 'play'); return; }
+    if (r.name === 'era') {
+      go('era', r.arg);
+      const e = eraById(r.arg);
+      if (spec.stage != null && state.screen === 'era' && e && e.stages[spec.stage] && PG.eraOpen(state.progress, e.id)) {
+        // the champion waits for the other stages, as on the era's page
+        const info = PG.journeyInfo(state.progress, e.id);
+        const ready = e.stages.every((st, k) => st.kind === 'champion' || info.stages[k]);
+        if (e.stages[spec.stage].kind !== 'champion' || ready || info.stages[spec.stage]) runStage(e, spec.stage);
+      }
+      return;
+    }
+    if (r.name === 'puzzle') {
+      const d = spec.daily && dailyPuzzle();
+      if (spec.daily) { if (d) go('puzzle', { list: [d], daily: true, title: t('learn.dailyPuzzle') }); else go('puzzles'); return; }
+      if (spec.mate) { go('puzzle', { mate: spec.mate, title: t(spec.mate === 1 ? 'learn.mateIn1' : 'learn.mateInN', { n: spec.mate }) }); return; }
+      if (spec.theme) { go('puzzle', { theme: spec.theme, rated: true, title: themeName(spec.theme) }); return; }
+      go('puzzle', { rated: true, title: t('learn.trainerTitle') });
+      return;
+    }
+    if (r.name === 'lesson') {
+      // a lesson that is not open yet says why over its own list
+      const a = r.arg, home = a && a.trainer || a && a.back === 'trainers' ? 'trainers' : a && a.variant ? 'variant' : 'learn';
+      if (go('lesson', a) === false) go(home, home === 'variant' ? a.variant : undefined);
+      return;
+    }
+    if (r.name === 'store' && r.arg === 'coins') { go('store', 'coins'); return; }
+    go(r.name, r.arg);
+  }
+  function openRoute(r, cold) {
+    if (!r) { go('home'); return; }
+    if (r.action === 'quick') { if (cold) { go('play'); setTimeout(() => quickPlay(), 300); } else quickPlay(); return; }
+    if (!r.over || cold) {
+      const want = r.modal ? routesNow().toPath(r.name, r.arg) : RT.current(window, ROUTE.how);
+      const now = state.screen ? routesNow().toPath(state.screen, state.screenArg) : null;
+      if (cold || want !== now) {
+        const keep = !cold && ROUTE.args[want];
+        if (keep && keep.name === r.name && !['game', 'review', 'era'].includes(r.name)) go(keep.name, keep.arg);
+        else openScreen(r);
+      }
+    }
+    if (r.modal) openRouteModal(r.modal);
+  }
+  function onRoutePop() {
+    const path = RT.current(window, ROUTE.how) || '/home';
+    if (ROUTE.skip) { const s = ROUTE.skip; ROUTE.skip = null; if (path !== s) { ROUTE.path = path; return; } }
+    if (path === ROUTE.path) return;
+    ROUTE.popping = true;
+    try {
+      ROUTE.path = path;
+      // Back closes the pop-ups that are open (not the ones waiting on an answer, like a promotion)
+      document.querySelectorAll('#modals .modal').forEach((m) => { if (!m.sticky && m.close) m.close(); });
+      const r = routesNow().fromPath(path);
+      if (!r) { go('home'); return; }
+      openRoute(r, false);
+    } finally { ROUTE.popping = false; }
+  }
+  window.addEventListener('popstate', onRoutePop);
+  window.addEventListener('hashchange', () => { if (ROUTE.how === 'hash') onRoutePop(); });
+  // First screen: the link the page was opened on (old app links like /play#daily still work).
+  function startRoute() {
+    ROUTE.how = RT.mode(window);
+    let start = RT.current(window, ROUTE.how);
+    const h = location.hash || '';
+    const LEGACY = { '#quick': '/play/quick', '#daily': '/puzzles/daily', '#journey': '/journey' };
+    if (LEGACY[h]) start = LEGACY[h];
+    const r = start ? routesNow().fromPath(start) : { name: 'home' };
+    openRoute(r, true);
+    ROUTE.ready = true;
+    if (window.__SHOT) window.__route = { table: routesNow(), state: ROUTE };
+  }
+
   function go(name, arg) {
     if (name === 'improve') name = 'puzzles';
     // go('trainer', id): a round of that skill trainer, played in the lesson player
@@ -991,6 +1186,7 @@
     applyInsets();
     const scr = $('screens').querySelector('.screen');
     if (scr) scr.classList.add('enter');
+    routeWrite(state.screen, state.screenArg);
   }
   function mount(html) { $('screens').innerHTML = '<div class="screen">' + html + '</div>'; }
   // Tell the camera which parts of the screen the menus cover, so the board is framed in
@@ -1462,6 +1658,7 @@
       '<form id="os"><div class="field"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + colors.map(([c, l]) => '<label><input type="radio" name="color" value="' + c + '"' + ((s.color || 'white') === c ? ' checked' : '') + '><span>' + t(l) + '</span></label>').join('') + '</div></div>' +
       (xq ? '' : '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + CLOCKS.map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>') +
       '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.playName', { name: esc(o.name) }) + '</button></div></form>', { x: true });
+    if (!v) routedModal('opponent', level, m);
     const form = m.querySelector('#os');
     form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); if (xq) { startXq({ mode: 'ai', color: form.color.value, level }); return; } startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
   }
@@ -2666,7 +2863,7 @@
       }).join('');
       document.querySelectorAll('[data-op]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('drill', b.dataset.op); }; });
     };
-    document.querySelectorAll('[data-side]').forEach((b) => { b.onclick = () => { side = b.dataset.side; AU.play('tap'); draw(); }; });
+    document.querySelectorAll('[data-side]').forEach((b) => { b.onclick = () => { side = b.dataset.side; AU.play('tap'); draw(); routeSync('openings', side); }; });
     draw();
     return {};
   };
@@ -2820,7 +3017,7 @@
       });
       $('c-meter').innerHTML = meter(owned(), CATALOG.items.length, t('collection.collected'));
     }
-    document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { active = b.dataset.cat; q = ''; $('c-q').value = ''; AU.play('tap'); render(); }; });
+    document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { active = b.dataset.cat; q = ''; $('c-q').value = ''; AU.play('tap'); render(); routeSync('collection', active); }; });
     $('c-q').oninput = (e) => { q = e.target.value; render(); };
     $('c-f').onchange = (e) => { filter = e.target.value; render(); };
     render();
@@ -3364,8 +3561,10 @@
       '<div class="set-body"><nav class="set-nav" aria-label="' + t('settings.title') + '">' + nav + '</nav><div class="set-panel">' + pages + '</div></div>' +
       '<div class="set-foot"><button class="btn primary" data-close>' + t('common.done') + '</button></div></div>', { x: true, cls: 'wide settings-card' });
     const shell = m.querySelector('.set-shell');
+    routedModal('settings', cur, m);
     const show = (k, open) => {
       cur = k;
+      routedModalArg(m, k);
       try { sessionStorage.setItem('chackmate.settings.sec', k); } catch (e) { /* private mode */ }
       m.querySelectorAll('.set-cat[data-sec]').forEach((b) => { const on = b.dataset.sec === k; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'true' : 'false'); });
       m.querySelectorAll('.set-page').forEach((p) => { p.hidden = p.dataset.sec !== k; });
@@ -5174,6 +5373,7 @@
       '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + [['none', 'play.clock.none'], ['1+0', 'play.clock.1'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']].map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + (s.tc === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
       '<div class="field"><label for="ng-fen">' + t('play.ng.fen') + '</label><input class="text-in" id="ng-fen" placeholder="' + t('play.ng.fenHint') + '" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div>' +
       '<div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.ng.start') + '</button></div></form>', { cls: 'wide', x: true });
+    routedModal('custom', null, m);
     const form = m.querySelector('#ng');
     const sync = () => { const ai = form.mode.value === 'ai'; m.querySelector('#f-color').hidden = !ai; m.querySelector('#f-level').hidden = !ai; };
     form.onchange = sync; sync();
@@ -5194,6 +5394,7 @@
       '<p class="sub">' + t('play.w.sub') + '</p></div></div>' +
       '<div class="field"><div class="label">' + t('play.w.clock') + '</div><div class="seg">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="wtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
       '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary" id="w-go">' + icon('globe') + ' ' + t('play.w.title') + '</button></div>', { x: true });
+    routedModal('world', null, m);
     m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
   }
   // Play a friend on another device: create a table and share its code, or join one with a code.
@@ -5209,6 +5410,7 @@
       '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="9" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
       status +
       '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn" id="fr-local">' + icon('users') + ' ' + t('play.fr.local') + '</button></div>', { x: true });
+    routedModal('friend', null, m);
     m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
     m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
     const join = () => {
@@ -6837,7 +7039,7 @@
   if (window.__SHOT) { window.__go = go; window.__hooks = ctlHooks; window.__start = startGame; window.__settings = settingsModal;
     window.__modal = { labs: labsModal, missions: missionsModal, profile: profileModal, newGame: newGameModal, friend: friendModal, world: worldModal, glossary: glossaryModal, coach: coachSettingsModal, premium: premiumModal, opponent: opponentModal, rules: ruleSheet, levelUp: levelUpModal, placement: placementOffer, xq: startXq, gate: parentGate, pin: askPin, promo: choosePromotion, eraDone: (id) => eraDoneModal(CAMPAIGN.eras.find((e) => e.id === id), { achievements: [], unlocked: [] }), celebrate, tale: (id, k) => taleModal(CAMPAIGN.eras.find((e) => e.id === id), k) }; }   // tooling answers board questions through the hooks
   const bonus = PG.dailyBonus(state.progress);
-  go('home');
+  startRoute();
   if (bonus.coins) setTimeout(() => celebrate(bonus, true), window.__SHOT ? 0 : 1400);
   // A tab left open overnight gets the new day's bonus when the player comes back to it.
   document.addEventListener('visibilitychange', () => {
@@ -6848,13 +7050,14 @@
   // The hero frames the table under the wordmark, which settles once the fonts are in.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitNav(); applyInsets(); });
   // App shortcuts from the installed icon's menu, and links from emails.
-  if (location.hash === '#quick') setTimeout(() => quickPlay(), 300);
-  else if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
+  // (Quick Play, the daily puzzle and the Journey shortcuts open through startRoute.)
+  if (location.hash.startsWith('#reset=') && window.ChacklateNet) ChacklateNet.resetModal(location.hash.slice(7));
   else if (location.hash === '#email-verified') toast(t('profile.emailOk'));
   else if (location.hash === '#email-invalid') toast(t('profile.emailBad'), 'bad');
-  else if (location.hash === '#daily' && dailyPuzzle()) go('puzzle', { list: [dailyPuzzle()], daily: true, title: t('learn.dailyPuzzle') });
-  else if (location.hash === '#journey') go('journey');
-  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  if (location.hash && !location.hash.startsWith('#/')) {
+    // the one-off part after the # is dropped; the screen's own link stays
+    try { history.replaceState(history.state, '', RT.href(window, ROUTE.how, ROUTE.path || '/home')); } catch (e) { /* sandboxed frame */ }
+  }
   setTimeout(() => $('splash').classList.add('gone'), window.__SHOT ? 0 : 900);
   if (window.ChacklateNet) ChacklateNet.connect();
 })();

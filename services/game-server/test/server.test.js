@@ -797,3 +797,20 @@ test('voice packs are served whole or one clip at a time as a byte range', async
     await app.close();
   }
 });
+
+test('every game address gets the game, so links and refreshes open the right screen', async () => {
+  const RT = require('../../../apps/web-prototype/src/router.js');
+  assert.deepStrictEqual(require('../src/server').GAME_ROUTES, RT.TOP, 'server and game agree on the game addresses');
+  const { app, port } = await boot();
+  try {
+    const get = (p) => fetch('http://127.0.0.1:' + port + p).then(async (r) => ({ status: r.status, type: r.headers.get('content-type'), text: await r.text() }));
+    const game = await get('/play');
+    assert.strictEqual(game.status, 200);
+    for (const p of ['/home', '/learn', '/learn/forks', '/play/variations/chess960', '/journey/egypt/stage-2', '/settings/language', '/collection/pieces/']) {
+      const r = await get(p);
+      assert.strictEqual(r.status, 200, p);
+      assert.strictEqual(r.text, game.text, p + ' is the game');
+    }
+    for (const p of ['/nowhere', '/learn/<x>', '/api-ish', '/admin/x']) assert.strictEqual((await get(p)).status, 404, p);
+  } finally { await app.close(); }
+});
