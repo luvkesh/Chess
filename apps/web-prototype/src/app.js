@@ -4507,20 +4507,99 @@
     renderCoach(); refreshHighlights();
   }
   // Tapping a chess word: what it means, at the player's level.
-  function termPop(id, anchor) {
+  // A move in notation (Ra7, Nxe5+, O-O, e8=Q) as words: "Knight takes on e5, check."
+  const SAN_RE = /(?:O-O-O|O-O|[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h]x[a-h][1-8](?:=[QRBN])?|[a-h][18]=[QRBN]|[a-h][1-8](?=[+#]))[+#]?(?![\w=])/g;
+  function readSan(san) {
+    const s = String(san), tail = /#$/.test(s) ? t('learn.nt.mate') : /\+$/.test(s) ? t('learn.nt.check') : '';
+    let out;
+    if (/^O-O-O/.test(s)) out = t('learn.nt.castleQ');
+    else if (/^O-O/.test(s)) out = t('learn.nt.castleK');
+    else {
+      const m = s.match(/^([KQRBN])?([a-h])?([1-8])?(x)?([a-h][1-8])(?:=([QRBN]))?/);
+      if (!m) return '';
+      const piece = t('learn.nt.pc.' + (m[1] || 'P'));
+      out = !m[1] && m[4] ? t('learn.nt.pawnTakes', { file: m[2], sq: m[5] }) : t(m[4] ? 'learn.nt.takes' : 'learn.nt.move', { piece, sq: m[5] });
+      if (m[1] && (m[2] || m[3])) out += ' ' + t('learn.nt.from', { from: (m[2] || '') + (m[3] || '') });
+      if (m[6]) out += ', ' + t('learn.nt.promo' + m[6]);
+    }
+    return out + (tail ? ', ' + tail : '') + I18N.stop;
+  }
+  const termsSeen = () => { const m = coachMem(); return m.terms || (m.terms = []); };
+  // Chess words and moves in a block of text get a dotted underline: hover, focus or tap one to read
+  // what it means. en: the English the text was translated from (the term stems are English).
+  function gloss(el, en) {
+    if (!el) return;
+    const shown = el.textContent, ids = M.termsIn(en || (I18N.lang === 'en' ? shown : ''), shown);
+    const words = ids.map((id) => ({ id, w: M.term(id, coachLevel()) })).filter((x) => x.w.word);
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [];
+    while (walker.nextNode()) if (!walker.currentNode.parentElement.closest('.gl-san,.gl-term,button,input')) nodes.push(walker.currentNode);
+    const done = new Set();
+    for (const n of nodes) {
+      const text = n.nodeValue, cuts = [];
+      for (const m of text.matchAll(SAN_RE)) { const r = readSan(m[0]); if (r) cuts.push({ at: m.index, len: m[0].length, html: '<span class="gl-san" tabindex="0" data-san="' + esc(m[0]) + '" data-tip="' + esc(m[0] + '|' + r) + '">' + esc(m[0]) + '</span>' }); }
+      const low = text.toLowerCase();
+      for (const x of words) {
+        if (done.has(x.id)) continue;
+        const k = low.indexOf(x.w.word.toLowerCase());
+        if (k < 0 || cuts.some((c) => k < c.at + c.len && c.at < k + x.w.word.length)) continue;
+        done.add(x.id);
+        cuts.push({ at: k, len: x.w.word.length, html: '<span class="gl-term" tabindex="0" data-term="' + x.id + '" data-tip="' + esc(x.w.word + '|' + x.w.text) + '">' + esc(text.substr(k, x.w.word.length)) + '</span>' });
+      }
+      if (!cuts.length) continue;
+      cuts.sort((a, b) => a.at - b.at);
+      let html = '', at = 0;
+      for (const c of cuts) { if (c.at < at) continue; html += esc(text.slice(at, c.at)) + c.html; at = c.at + c.len; }
+      html += esc(text.slice(at));
+      const span = document.createElement('span'); span.innerHTML = html;
+      n.replaceWith(...span.childNodes);
+    }
+  }
+  // The first time a chess word or a move in notation turns up in training, a short card says what it
+  // means before the player has to use it (once per word, kept with the coach's memory).
+  const NOTATION_LESSON = 'lesson.c01.l08.notation';
+  function newWords(en, shown, skip) {
+    if (skip) return '';
+    const seen = termsSeen(), out = [];
+    for (const id of M.termsIn(en || (I18N.lang === 'en' ? shown : ''), shown)) {
+      if (seen.includes(id) || out.length >= 2) continue;
+      const w = M.term(id, 'beginner');
+      if (!w.word) continue;
+      seen.push(id); remember('noted', 'term:' + id, 60);
+      out.push('<span><b>' + esc(w.word) + '</b> ' + esc(w.text) + '</span>');
+    }
+    const san = (String(shown).match(SAN_RE) || [])[0];
+    let move = '';
+    if (san && !seen.includes('notation') && !state.progress.lessons[NOTATION_LESSON]) {
+      seen.push('notation');
+      move = '<span>' + esc(t('learn.nt.means', { san, words: readSan(san) })) + '</span><button class="btn small" data-golesson="' + NOTATION_LESSON + '">' + icon('book') + ' ' + t('learn.nt.lesson') + '</button>';
+    }
+    if (!out.length && !move) return '';
+    save();
+    return '<div class="new-words"><small>' + t(out.length + (move ? 1 : 0) > 1 ? 'learn.nt.newWords' : 'learn.nt.newWord') + '</small>' + out.join('') + move + '</div>';
+  }
+  // the first-time card's lesson button: the lesson opens and comes back to Learn
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('[data-golesson]');
+    if (b) { AU.unlock(); AU.play('tap'); go('lesson', b.dataset.golesson); return; }
+    const g = e.target.closest && e.target.closest('.gl-term,.gl-san');
+    if (g) { e.preventDefault(); e.stopPropagation(); if (g.dataset.term) termPop(g.dataset.term, g); else termPop(null, g, { word: g.dataset.san, text: readSan(g.dataset.san) }); }
+  }, true);
+  document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && (e.target.classList.contains('gl-term') || e.target.classList.contains('gl-san'))) { e.preventDefault(); e.target.click(); } });
+  function termPop(id, anchor, own) {
     document.querySelectorAll('.term-pop').forEach((p) => p.remove());
-    const tm = M.term(id, coachLevel());
+    const tm = own || M.term(id, coachLevel());
     const pop = document.createElement('div');
     pop.className = 'term-pop glass'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', tm.word);
-    pop.innerHTML = '<b>' + esc(tm.word) + '</b><p>' + esc(tm.text) + '</p><div class="row"><button class="btn small" data-x="listen">' + icon('speaker') + ' ' + t('play.coach.listen') + '</button><button class="btn small" data-x="close">' + t('common.gotIt') + '</button></div>';
+    pop.innerHTML = (own ? '<b><bdi dir="ltr">' + esc(tm.word) + '</bdi></b>' : '<b>' + esc(tm.word) + '</b>') + '<p>' + esc(tm.text) + '</p><div class="row"><button class="btn small" data-x="listen">' + icon('speaker') + ' ' + t('play.coach.listen') + '</button><button class="btn small" data-x="close">' + t('common.gotIt') + '</button></div>';
     document.body.appendChild(pop);
     const r = anchor.getBoundingClientRect();
     pop.style.left = Math.max(12, Math.min(window.innerWidth - pop.offsetWidth - 12, r.left)) + 'px';
     pop.style.top = Math.max(12, r.top - pop.offsetHeight - 8) + 'px';
-    pop.querySelector('[data-x=listen]').onclick = () => { AU.unlock(); const en = ME.term(id, coachLevel()); AU.coach(en.word + '. ' + en.text); };
+    const ls = pop.querySelector('[data-x=listen]');
+    if (own) ls.remove(); else ls.onclick = () => { AU.unlock(); const en = ME.term(id, coachLevel()); AU.coach(en.word + '. ' + en.text); };
     pop.querySelector('[data-x=close]').onclick = () => pop.remove();
     setTimeout(() => document.addEventListener('pointerdown', function off(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('pointerdown', off); } }), 0);
-    remember('noted', 'term:' + id, 60);
+    if (id) { remember('noted', 'term:' + id, 60); if (!termsSeen().includes(id)) termsSeen().push(id); }
   }
 
   function undo() {
@@ -4690,7 +4769,7 @@
     const lv = coachLevel();
     const seenT = new Set(coachMem().noted.filter((n) => n.startsWith('term:')).map((n) => n.slice(5)));
     const m = modal('<div class="eyebrow">' + t('play.coach.m.words') + '</div><h2>' + t('play.coach.wordsTitle') + '</h2><p class="sub">' + t('play.coach.wordsSub') + '</p>' +
-      '<div class="gloss">' + M.glossary(lv).map((g) => '<div class="gl' + (seenT.has(g.id) ? ' seen' : '') + '"><b>' + esc(g.word) + '</b><p>' + esc(g.text) + '</p><button class="cbtn" data-say="' + g.id + '" aria-label="' + t('play.coach.listen') + ': ' + esc(g.word) + '">' + icon('speaker') + '</button></div>').join('') + '</div>' +
+      '<div class="gloss">' + M.glossary(lv).map((g, i, all) => (i === 0 || all[i - 1].lv !== g.lv ? '<h4 class="gloss-lv">' + t('learn.nt.level' + g.lv) + '</h4>' : '') + '<div class="gl' + (seenT.has(g.id) ? ' seen' : '') + '"><b>' + esc(g.word) + '</b><p>' + esc(g.text) + '</p><button class="cbtn" data-say="' + g.id + '" aria-label="' + t('play.coach.listen') + ': ' + esc(g.word) + '">' + icon('speaker') + '</button></div>').join('') + '</div>' +
       '<div class="row"><button class="btn primary" data-close>' + t('common.done') + '</button></div>', { x: true, cls: 'wide-card', onClose: () => AU.hush() });
     m.querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => { AU.unlock(); const e = ME.term(b.dataset.say, lv); AU.coach(e.word + '. ' + e.text); }; });
   }
@@ -5573,6 +5652,7 @@
       : own || LESSONS.lessons.find((l) => l.id === id);
     const guide = own ? eraCoach(era) : COACH;
     if (!L) { setTimeout(() => go('learn'), 0); return {}; }
+    const wordsLesson = /\.(notation|notation-signs|chess-words|tactic-words)$/.test(L.id || '');
     view.setAttract(false);
     if (era) setLook(eraLook(era.id));
     if (vr && variantLook(vr)) setLook(variantLook(vr));
@@ -5667,6 +5747,7 @@
       document.querySelectorAll('#ls-content [data-word]').forEach((b) => {
         b.onclick = () => { AU.unlock(); S.talk++; AU.words(b.dataset.word, b.dataset.text); };
       });
+      gloss(document.querySelector('#ls-content .say'), st.say);
       $('ls-prev').disabled = S.i === 0;
       $('ls-next').textContent = S.i === L.steps.length - 1 ? t('learn.ls.startEx') : t('common.next');
       setHooks({});
@@ -5684,8 +5765,11 @@
       clearTimeout(S.clock); clearTimeout(S.peekT); S.hidden = false;
       $('ls-next').textContent = test ? t('learn.ls.dontKnow') : t('learn.ls.skip');
       view.setArrows([]); view.setHighlights({ marks: hillMarks(x.fen || '') });
+      const sanOf = (u) => { try { const g0 = new E.Game(x.fen); const m0 = g0.pos.parseMove(u, g0.legal); return m0 === null || m0 === undefined ? '' : g0.pos.san(m0, g0.legal); } catch (e) { return ''; } };
+      const shownMoves = (x.options || []).concat(x.played ? [x.played] : []).map(sanOf).join(' ');
+      const fresh = newWords(x.prompt + ' ' + (x.hints || []).join(' '), I18N.text(x.prompt) + ' ' + shownMoves, wordsLesson || test);
       if (x.type === 'choice') {
-        $('ls-content').innerHTML = (x.differs ? differs() : '') + '<p class="prompt">' + esc(I18N.text(x.prompt)) + '</p><div class="choices">' + shuffled(x.options.map((o, k) => k)).map((k) => '<button class="btn" data-opt="' + k + '">' + esc(I18N.text(x.options[k])) + '</button>').join('') + '</div><div id="ls-fb"></div>';
+        $('ls-content').innerHTML = (x.differs ? differs() : '') + fresh + '<p class="prompt">' + esc(I18N.text(x.prompt)) + '</p><div class="choices">' + shuffled(x.options.map((o, k) => k)).map((k) => '<button class="btn" data-opt="' + k + '">' + esc(I18N.text(x.options[k])) + '</button>').join('') + '</div><div id="ls-fb"></div>';
         document.querySelectorAll('[data-opt]').forEach((b) => {
           b.onclick = () => {
             if (S.answered) return;
@@ -5698,6 +5782,45 @@
         });
         setHooks({});
         if (x.fen) setPos(x.fen);
+        if (x.arrows) view.setArrows(x.arrows.map((a) => ({ from: sqIndex(a[0]), to: sqIndex(a[1]), color: '#2fd8ff' })));
+        if (x.marks) view.setHighlights({ spots: x.marks.map((m) => ({ sq: sqIndex(m) })) });
+        gloss(document.querySelector('#ls-content .prompt'), x.prompt);
+        dots(); speak();
+        return;
+      }
+      // Writing a move: the arrow shows it, the player types it in notation (a row of keys helps on phones).
+      if (x.type === 'write') {
+        const want = (() => { const g0 = new E.Game(x.fen); return g0.pos.san(g0.pos.parseMove(x.answers[0], g0.legal), g0.legal); })();
+        const KEYS = ['K', 'Q', 'R', 'B', 'N', 'x', '+', '#', '=', 'O-O', 'O-O-O'];
+        $('ls-content').innerHTML = fresh + '<p class="prompt">' + esc(I18N.text(x.prompt)) + '</p>' +
+          '<form class="write-row" id="ls-write" autocomplete="off"><input id="ls-san" class="write-in" dir="ltr" lang="en" inputmode="text" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="10" aria-label="' + t('learn.ls.writeLabel') + '" placeholder="' + t('learn.ls.writeHolder') + '">' +
+          '<button class="btn primary" type="submit">' + t('learn.ls.writeCheck') + '</button></form>' +
+          '<div class="write-keys" dir="ltr">' + KEYS.map((k) => '<button class="chip" type="button" data-key="' + k + '">' + k + '</button>').join('') + '<button class="chip" type="button" data-key="back" aria-label="' + t('learn.ls.writeErase') + '">' + icon('back') + '</button></div>' +
+          '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' ' + t('learn.ls.hint') + '</button></div><div id="ls-fb"></div>';
+        const inp = $('ls-san');
+        const norm = (v) => v.replace(/\s+/g, '').replace(/0/g, 'O').replace(/[!?]+$/, '');
+        document.querySelectorAll('[data-key]').forEach((b) => { b.onclick = () => { if (S.answered) return; inp.value = b.dataset.key === 'back' ? inp.value.slice(0, -1) : b.dataset.key.startsWith('O') ? b.dataset.key : inp.value + b.dataset.key; AU.play('select'); }; });
+        $('ls-write').onsubmit = (e) => {
+          e.preventDefault();
+          if (S.answered) return;
+          const v = norm(inp.value);
+          if (!v) { inp.focus(); return; }
+          const bare = (z) => z.replace(/[+#]$/, '');
+          if (v === want) { view.setArrows([{ from: sqIndex(x.answers[0].slice(0, 2)), to: sqIndex(x.answers[0].slice(2, 4)), color: '#3ee07a' }]); answer(S.tries === 0, t('learn.ls.writeYes', { san: want, words: readSan(want) })); inp.disabled = true; return; }
+          S.tries++; AU.play('wrong');
+          const caps = v.length > 1 && /^[kqrbn]/.test(v) && v[0].toUpperCase() + v.slice(1) === want;
+          fb('bad', caps ? t('learn.ls.writeCaps') : bare(v) === bare(want) ? t('learn.ls.writeSign') : t('learn.ls.writeNo') + ' ' + t('learn.ls.tryAgain'));
+        };
+        $('ls-hint').onclick = () => {
+          if (S.answered) return;
+          if (S.hintN < (x.hints || []).length) { fb('hint', I18N.text(x.hints[S.hintN])); S.hintN++; S.tries++; }
+          else { fb('hint', t('learn.ls.writeShow', { san: want })); S.tries++; $('ls-hint').disabled = true; }
+          AU.play('coach');
+        };
+        setHooks({});
+        setPos(x.fen);
+        view.setArrows([{ from: sqIndex(x.answers[0].slice(0, 2)), to: sqIndex(x.answers[0].slice(2, 4)), color: '#2fd8ff' }]);
+        gloss(document.querySelector('#ls-content .prompt'), x.prompt);
         dots(); speak();
         return;
       }
@@ -5706,9 +5829,9 @@
       const san = (fen0, u) => { try { const g0 = new E.Game(fen0); const m0 = g0.pos.parseMove(u, g0.legal); return m0 === null || m0 === undefined ? u : g0.pos.san(m0, g0.legal); } catch (e) { return u; } };
       const OPT = ['#2fd8ff', '#ffb02e', '#c77dff'];
       $('ls-content').innerHTML = (x.differs ? differs() : '') + (x.their ? '<div class="feedback hint tr-their">' + icon('refresh') + ' ' + esc(t('learn.tr.theirSeat')) + '</div>' : '') +
-        '<p class="prompt">' + esc(prompt) + '</p>' + (x.played ? '<p class="say tr-played">' + esc(t('learn.tr.played', { san: san(x.fen, x.played) })) + '</p>' : '') +
+        fresh + '<p class="prompt">' + esc(prompt) + '</p>' + (x.played ? '<p class="say tr-played">' + esc(t('learn.tr.played', { san: san(x.fen, x.played) })) + '</p>' : '') +
         (x.seconds ? '<div class="pill tr-clock" id="ls-clock">' + icon('clock') + ' <b>' + x.seconds + '</b></div>' : '') +
-        (x.options ? '<div class="choices tr-opts">' + x.options.map((u, k) => '<button class="btn" data-pick="' + u + '"><i style="background:' + OPT[k] + '"></i>' + esc(san(x.fen, u)) + '</button>').join('') + '</div>' : '') +
+        (x.options ? '<div class="choices tr-opts">' + x.options.map((u, k) => '<button class="btn" data-pick="' + u + '" data-tip="' + esc(san(x.fen, u) + '|' + readSan(san(x.fen, u))) + '"><i style="background:' + OPT[k] + '"></i>' + esc(san(x.fen, u)) + '</button>').join('') + '</div>' : '') +
         (x.type === 'targets' ? '<div class="pill" id="ls-count"></div>' : '') +
         (test ? '' : '<div style="margin-top:12px"><button class="btn small" id="ls-hint">' + icon('hint') + ' ' + t('learn.ls.hint') + '</button></div>') + '<div id="ls-fb"></div>';
       if (!test) $('ls-hint').onclick = () => {
@@ -5767,6 +5890,8 @@
         tick();
       }
       if (x.type === 'targets') updateCount();
+      gloss(document.querySelector('#ls-content .prompt'), x.prompt);
+      gloss(document.querySelector('#ls-content .tr-played'));
       setHooks({
         onSquare: (sq) => exSquare(sq),
         canDrag: (sq) => ['move', 'mate', 'win', 'anyLegal', 'puzzle'].includes(x.type) && !x.options && !S.hidden && !S.answered && !S.wait && S.pos && E.pieceAt(S.pos, sq) && Math.sign(E.pieceAt(S.pos, sq)) === S.pos.side,
@@ -5793,7 +5918,7 @@
     }
     // a trainer item answered by its buttons or its clock: the main button moves on
     function finishedEx() { $('ls-next').textContent = S.i === ex.length - 1 ? t('learn.ls.finish') : t('common.next'); dots(); }
-    function fb(kind, text) { const el = $('ls-fb'); if (el) { el.innerHTML = '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } const pk = S.answered && $('ls-peek'); if (pk) pk.hidden = true; }
+    function fb(kind, text) { const el = $('ls-fb'); if (el) { el.innerHTML = newWords(null, text, wordsLesson || test || kind === 'hint') + '<div class="feedback ' + kind + '">' + esc(text) + '</div>'; gloss(el.querySelector('.feedback')); if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } const pk = S.answered && $('ls-peek'); if (pk) pk.hidden = true; }
     function exSquare(sq) {
       const x = ex[S.i];
       if (S.answered || S.wait) return;
@@ -6025,7 +6150,7 @@
       '<footer><button class="btn" id="dr-hint">' + icon('hint') + ' ' + t('play.btn.hint') + '</button><button class="btn" id="dr-reset">' + icon('refresh') + ' ' + t('learn.dr.restart') + '</button><div class="grow"></div><button class="btn primary" id="dr-play" hidden>' + icon('play') + ' ' + t('learn.rv.fromHere') + '</button></footer></aside>');
     $('dr-back').onclick = () => { AU.play('tap'); go('openings', o.side); };
     $('dr-set').onclick = () => settingsModal();
-    const fb = (kind, t) => { $('dr-fb').innerHTML = t ? '<div class="feedback ' + kind + '">' + esc(t) + '</div>' : ''; };
+    const fb = (kind, t) => { $('dr-fb').innerHTML = t ? newWords(null, t) + '<div class="feedback ' + kind + '">' + esc(t) + '</div>' : ''; gloss($('dr-fb').querySelector('.feedback')); };
     const san = (k) => { const g = new E.Game(); for (let j = 0; j < k; j++) g.playText(o.moves[j]); return g.sans[k - 1]; };
     function moveList() {
       let h = '';
@@ -6177,7 +6302,7 @@
         quickMove(info, () => { S.pos = g.pos; S.busy = false; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move', info); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
-    function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
+    function fb(kind, t) { const el = $('pz-fb'); if (el) { el.innerHTML = newWords(null, t) + '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; gloss(el.querySelector('.feedback')); } }
     function finish(solved) {
       if (S.solved) return;
       S.solved = true;

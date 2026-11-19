@@ -162,6 +162,9 @@ function ChacklateMentor(E, C, strings, nameOf) {
     'v.promotion': 'Promotion', 'v.promotion.s': 'A pawn reaching the last row becomes a new piece.', 'v.promotion.m': 'Usually a queen, but sometimes a knight is better.',
     'v.exchange': 'Trade', 'v.exchange.s': 'Swapping pieces of the same value.', 'v.exchange.m': 'Trade when you are ahead, or to remove a strong enemy piece. Avoid trades when you are behind.',
     'v.hanging': 'Loose piece', 'v.hanging.s': 'A piece that can be taken for free.', 'v.hanging.m': 'An unprotected piece, or one attacked by something cheaper. Loose pieces drop off.',
+    'v.check': 'Check', 'v.check.s': 'The king is attacked. You must get it out of danger at once.', 'v.check.m': 'An attack on the king. Move the king, block the line or capture the attacker.',
+    'v.doubleAttack': 'Double attack', 'v.doubleAttack.s': 'One move that makes two threats at once.', 'v.doubleAttack.m': 'Two threats from one move: the other side can only answer one of them. A fork is a double attack by one piece.',
+    'v.enPassant': 'En passant', 'v.enPassant.s': 'A pawn taking a pawn that just jumped two squares past it.', 'v.enPassant.m': 'French for in passing. Allowed only on the very next move, as if the pawn had moved one square.',
     'v.checkmate': 'Checkmate', 'v.checkmate.s': 'The king is attacked and can\'t escape. Game over.', 'v.checkmate.m': 'Check with no way to move, block or capture. The goal of chess.',
     // openers: the first words of a comment, many ways each, by grade and style (f: friendly, p: professional, e: encouraging)
   };
@@ -1394,14 +1397,21 @@ function ChacklateMentor(E, C, strings, nameOf) {
 
   // ------------------------------------------------------------------ words to know
   const TERMS = ['pin', 'fork', 'skewer', 'discovered', 'zugzwang', 'opposition', 'zwischenzug', 'gambit', 'tempo', 'initiative', 'passed', 'isolated', 'outpost', 'openFile', 'backRank',
-    'overloaded', 'sacrifice', 'development', 'castling', 'stalemate', 'fortress', 'promotion', 'exchange', 'hanging', 'checkmate'];
+    'overloaded', 'sacrifice', 'development', 'castling', 'stalemate', 'fortress', 'promotion', 'exchange', 'hanging', 'checkmate', 'check', 'doubleAttack', 'enPassant'];
+  // How far along a player usually meets each word, for the glossary's order: beginner, intermediate, advanced.
+  const LEVEL = { check: 0, checkmate: 0, stalemate: 0, castling: 0, promotion: 0, enPassant: 0, development: 0, exchange: 0, hanging: 0, sacrifice: 0,
+    doubleAttack: 1, fork: 1, pin: 1, skewer: 1, discovered: 1, backRank: 1, openFile: 1, passed: 1, isolated: 1, gambit: 1, tempo: 1, overloaded: 1,
+    zugzwang: 2, opposition: 2, zwischenzug: 2, initiative: 2, outpost: 2, fortress: 2 };
   // English stems that show a term is used in a sentence (any language: the term's own word is checked too).
   const STEMS = { pin: /\bpin(s|ned)?\b/i, fork: /\bfork(s|ed|ing)?\b/i, skewer: /\bskewer/i, discovered: /\b(uncover|discovered)/i, zugzwang: /zugzwang/i, opposition: /\bopposition\b/i,
     zwischenzug: /(zwischenzug|in-between)/i, gambit: /\bgambit\b/i, tempo: /\btempo\b/i, initiative: /\binitiative\b/i, passed: /\bpassed pawn/i, isolated: /\bisolated\b/i, outpost: /(outpost|no pawn can chase)/i,
     openFile: /\bopen( [a-h])?-?file|\bopen line/i, backRank: /\bback(-| )(rank|row)\b/i, overloaded: /\boverload/i, sacrifice: /\bsacrific/i, development: /\b(develop|at home)/i, castling: /\bcastl/i,
-    stalemate: /\bstalemate/i, fortress: /\bfortress\b/i, promotion: /\bpromot/i, exchange: /\btrad(e|es|ing)\b/i, hanging: /\b(unprotected|loose|undefended|not protected)\b/i, checkmate: /\bcheckmate\b|\bmate\b/i };
+    stalemate: /\bstalemate/i, fortress: /\bfortress\b/i, promotion: /\bpromot/i, exchange: /\btrad(e|es|ing)\b/i, hanging: /\b(unprotected|loose|undefended|not protected)\b/i, checkmate: /\bcheckmate\b|\bmate\b/i,
+    check: /\b(in check|gives? check|checks the king|discovered check|out of check)\b|\bcheck means\b/i, doubleAttack: /\bdouble attack/i, enPassant: /\ben passant\b/i };
+  // Every word, beginner words first, then intermediate, then advanced (lv: 0, 1, 2).
   function glossary(level) {
-    return TERMS.map((id) => ({ id, word: tr('v.' + id), text: tr('v.' + id + (level === 'advanced' || level === 'intermediate' ? '.m' : '.s')) }));
+    return TERMS.map((id, i) => ({ id, i, lv: LEVEL[id], word: tr('v.' + id), text: tr('v.' + id + (level === 'advanced' || level === 'intermediate' ? '.m' : '.s')) }))
+      .sort((a, b) => a.lv - b.lv || a.i - b.i);
   }
   // Terms a sentence uses. enText: the English version of the sentence (stems are English); text: the shown one.
   function termsIn(enText, text) {
@@ -1536,7 +1546,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
   }
 
   return {
-    EN, OPENERS, LINES, MODES, DEFAULTS, TERMS, BOOK, TRAPS,
+    EN, OPENERS, LINES, MODES, DEFAULTS, TERMS, LEVEL, BOOK, TRAPS,
     tr, assess, phaseOf, opening, trapAhead, endgameFacts, topMoves, pvLine, zugzwang, matePattern,
     study, look, check, checkLine, sanList, gradeOf, notable, evalWords, swingWords, idea, reason, openerKey, lineKey, pick,
     feedback, feedbackText, detail, plans, phaseGuide, recommendOpening, threats, chances, mateRadar, warning, hints, thinkAhead,
