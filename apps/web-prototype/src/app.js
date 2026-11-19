@@ -122,6 +122,8 @@
   const face = (who, o) => ART.portraitUri(who.animal, Object.assign({ from: who.colors[0], to: who.colors[1] }, o || {}));
   const faceImg = (who, cls) => '<img class="portrait ' + (cls || '') + '" src="' + face(who) + '" alt="' + esc(who.full || who.name) + '">';
   const eraById = (id) => CAMPAIGN.eras.find((e) => e.id === id) || null;
+  // the friends' portraits breathe, sway and blink; Rooky nods and talks when his voice plays (live.js)
+  if (typeof ChacklateLive !== 'undefined' && typeof document !== 'undefined') { ChacklateLive.start(ART.liveOf); AU.onTalk((on) => ChacklateLive.talk(on)); }
   const eraCoach = (e) => Object.assign({}, e.coach, { colors: e.colors, era: e.id });
   // Who sits across the board in a computer game: an opponent, or an era's champion.
   const rival = (G) => (G.setup.rival || persona(G.setup.level));
