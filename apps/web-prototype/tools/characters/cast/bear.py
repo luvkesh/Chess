@@ -1,50 +1,43 @@
 """bear: one character, one file. build() makes the model in the open Blender scene and returns
 its framing (camera location, look-at point, lens). See ../STYLE.md."""
-from common import *
+from cast._groupb import *
 
 
 def bear():
-    """Mishka: a Russian bear in a tall fur hat with a green velvet crown, a frogged green coat
-    with gold braid and a little jewelled egg."""
-    C = Char('Mishka', '#3a2010', '#6e4222', '#a06a3a', length=0.032, align=(0, -0.5, -0.1), clump=0.16)
-    head, mu = critter_head((0, 0.2, 0), (0.44, 0.31, 0.34), 0.17, (0.18, 0.12, 0.17), 0.0, 0.34, taper=-0.12)
+    """Mishka: the big, jolly bear of the north. A wide round honey-brown head, small ears set far
+    apart, smiling chocolate eyes, rosy cheeks, a little open laugh, and a small emerald fur hat."""
+    C = Char('Mishka', '#8a5426', '#b4743a', '#e8b074', length=0.05, align=(0, -0.6, 0.0), clump=0.24)
+    head = S.union(S.ell((0, 0.17, 0), (0.48, 0.37, 0.38)),
+                   S.ell((0.3, 0.02, 0.1), (0.2, 0.17, 0.2)).mirror(),
+                   S.ell((0, 0.0, 0.3), (0.19, 0.14, 0.14)), k=0.1)
     C.add(head)
-    C.add(S.ell((0.3, 0.44, -0.04), (0.1, 0.09, 0.06)).mirror(), 0.04)
-    body = torso(-0.5, 0.86, 0.38)
-    C.add(body, 0.18)
-    face_basics(C, 0.1, -0.05, (0.075, 0.048, 0.05), 0.14, 0.08, 0.1, 1.0, '#1a0e08')
-    C.eye(0.13, 0.27, 0.076, 0.66, '#3a2412', look=(0.04, 0.02, 1), sclera=BEAD, open_=0.75, low=0.5, iris_r=0.74, pupil_r=0.4)
-    C.region(S.ell((0, 0.03, 0.27), (0.21, 0.15, 0.14)), '#b88a5a', 0.04, hair='#c89a68', tip='#e0b888', length=0.02)
+    C.add(S.ell((0.37, 0.47, -0.02), (0.125, 0.12, 0.07)).mirror(), 0.04)
+    C.sub(S.ell((0.365, 0.46, 0.045), (0.075, 0.07, 0.04)).mirror(), 0.025)
+    body = chubby(0.54, 0.4)
+    C.add(body, 0.1)
+    face_basics(C, 0.075, -0.045, (0.058, 0.04, 0.04), 0.062, 0.05, 0.07, 0.8, '#2a1610')
+    eye_set(C, 0.2, 0.19, 0.11, out=0.42, open_=0.8, tilt=-0.06, low=0.62, lash=0.18)
+    C.region(S.ell((0, -0.01, 0.32), (0.2, 0.15, 0.15)), '#ecd2a8', 0.05, hair='#f4dfba', tip='#fff4de', length=0.026)
+    C.region(S.ell((0.365, 0.46, 0.045), (0.075, 0.07, 0.045)).mirror(), '#5a3018', 0.02, hair='#6a3a1e', length=0.015)
+    C.region(S.ell((0, -0.5, 0.3), (0.3, 0.34, 0.2)), '#ecd2a8', 0.07, hair='#f4dfba', tip='#fff4de', length=0.06, align=(0, -0.8, 0.3), clump=0.4)
+    blush(C, 0.31, 0.03, '#e8846a', r=0.075, hair='#f09a7c')
     face_regions(C)
-    coat = garment(body, -0.36, 0.045)
-    C.region(coat.grow(0.02), '#222222', 0.01)
     C.build()
-    brows(C, '#5a3a20', '#8a6040', length=0.06, angle=-0.2, lift=0.35, comb=(1.0, 0.2, 0.5), gravity=0.2, n=200, thick=0.026)
-    mouth_after(C)
-    K.build('MishkaCoat', coat, (-0.85, -1.3, -0.7), (0.85, -0.25, 0.6), [K.velvet('MishkaGreen', '#0e5a3a')], step=0.006)
-    braids = []
-    for y in (-0.5, -0.62, -0.74, -0.86):
-        z = S.surf_z(coat, 0.0, y)
-        braids.append(S.tube([(-0.2, y, S.surf_z(coat, -0.2, y) - 0.004), (0, y + 0.01, z - 0.002), (0.2, y, S.surf_z(coat, 0.2, y) - 0.004)], 0.012, 0.012))
-        for sx in (1, -1):
-            braids.append(S.torus((sx * 0.22, y, S.surf_z(coat, sx * 0.22, y) - 0.004), 0.025, 0.008, rot=(1.45, 0, 0)))
-    K.build('MishkaBraid', S.union(*braids), (-0.4, -1.0, 0.0), (0.4, -0.4, 0.7), [K.gold('MishkaGold')], step=0.0025)
-    # tall fur hat (papakha) with a velvet top and a gold cross braid
-    hat = S.cyl((0, 0.52, -0.03), 0.34, 0.15, round_=0.08).rot(-0.12, 0, 0, about=(0, 0.45, 0))
-    hat_o = K.build('MishkaHat', hat, (-0.6, 0.25, -0.6), (0.6, 0.85, 0.6), [K.skin('MishkaHatSkin', '#2a1a10')], step=0.005)
-    hat_o.data.materials.append(K.hair_mat('MishkaHatFur', '#4a3020', '#8a6a50', var=0.25))
+    mouth_after(C, top_teeth=False, tongue='#f07a86')
+    eyes_after(C, look=(0.03, 0.02, 1), glance=0.1, iris='#8a4c1e', glow='#f0b060', deep='#2a1206', pupil_r=0.4, hl=(-0.28, 0.3), hl_size=0.22)
+    tufts(C, 'Cheek', S.ell((0.45, 0.02, 0.02), (0.12, 0.16, 0.2)).mirror(), 1400, 0.08, (1.0, -0.6, 0.1), '#b4743a', '#eebc84', gravity=0.4, clumps=36, lift=0.5, seed=5)
+    # a small round hat perched between the ears: cream fur brim, emerald velvet crown, gold button
+    piv = (-0.1, 0.5, 0)
+    brim = S.torus((-0.1, 0.53, 0.0), 0.2, 0.065).rot(0.08, 0, 0.22, about=piv)
+    crown = S.ell((-0.1, 0.61, 0.0), (0.2, 0.15, 0.2)).rot(0.08, 0, 0.22, about=piv)
+    hat_o = K.build('MishkaBrim', brim, (-0.5, 0.35, -0.4), (0.3, 0.85, 0.4), [K.skin('MishkaBrimSkin', '#e8dcc8')], step=0.005)
+    hat_o.data.materials.append(K.hair_mat('MishkaBrimFur', '#f0e6d4', '#ffffff', var=0.15))
     K.vgroup(hat_o, 'fur', np.ones(len(hat_o.data.vertices)))
-    K.fur(hat_o, 'fur', 'MishkaHatFur', length=0.05, count=26000, children=7, align=(0, -0.2, 0), clump=0.5, root=0.003, rough=0.006, seed=7)
-    top = S.ell((0, 0.68, -0.05), (0.26, 0.07, 0.26)).rot(-0.12, 0, 0, about=(0, 0.45, 0))
-    K.build('MishkaCrown', top, (-0.5, 0.55, -0.5), (0.5, 0.85, 0.5), [K.velvet('MishkaCrownVelvet', '#1a6a44')], step=0.004)
-    cross = S.union(S.tube([(-0.25, 0.7, -0.05), (0, 0.76, -0.05), (0.25, 0.7, -0.05)], 0.012, 0.012), S.tube([(0, 0.7, -0.3), (0, 0.76, -0.05), (0, 0.7, 0.2)], 0.012, 0.012)).rot(-0.12, 0, 0, about=(0, 0.45, 0))
-    K.build('MishkaCross', cross, (-0.5, 0.55, -0.5), (0.5, 0.9, 0.5), [bpy_mat('MishkaGold')], step=0.003)
-    ec = (-0.22, -0.56, S.surf_z(coat, -0.22, -0.56) + 0.01)
-    egg = S.ell(ec, (0.05, 0.065, 0.045))
-    K.build('MishkaEgg', egg, (-0.4, -0.7, ec[2] - 0.1), (-0.1, -0.4, ec[2] + 0.1), [K.enamel('MishkaEnamel', '#2a5ac8')], step=0.002)
-    lattice = S.union(*[S.ell(ec, (0.053, 0.068, 0.048)).shell(0.003).inter(S.plane((0, 1, 0), ec[1] + d).inter(S.plane((0, -1, 0), -(ec[1] + d) + 0.008))) for d in (-0.03, 0.0, 0.03)])
-    K.build('MishkaLattice', lattice, (-0.4, -0.7, ec[2] - 0.1), (-0.1, -0.4, ec[2] + 0.1), [bpy_mat('MishkaGold')], step=0.0015)
-    return (0.55, 0.15, 3.9), (0, 0.04, 0), 74
+    K.fur(hat_o, 'fur', 'MishkaBrimFur', length=0.045, count=14000, children=7, align=(0, -0.1, 0), clump=0.45, root=0.003, rough=0.006, seed=7)
+    K.build('MishkaCrown', crown, (-0.5, 0.45, -0.4), (0.3, 0.95, 0.4), [K.velvet('MishkaVelvet', '#0a5a3c')], step=0.004)
+    btn = np.array([-0.1, 0.77, 0.0])
+    K.build('MishkaButton', S.sphere(btn, 0.03).rot(0.08, 0, 0.22, about=piv), (-0.4, 0.6, -0.2), (0.2, 0.95, 0.2), [K.gold('MishkaGold')], step=0.002)
+    return (0.55, 0.12, 3.9), (0, 0.02, 0), 74
 
 
 build = bear
