@@ -1007,6 +1007,167 @@
       ]
     },
     {
+      "id": "lesson.c01.l08.notation",
+      "chapter": 1,
+      "art": {
+        "felt": "#123f44",
+        "sheen": "#7ac0b8",
+        "items": [
+          {
+            "type": "r",
+            "side": "w",
+            "x": -0.55,
+            "z": 0.4,
+            "rot": 0.4
+          },
+          {
+            "kind": "tile",
+            "x": 0.42,
+            "z": -0.42,
+            "light": true
+          },
+          {
+            "kind": "tile",
+            "x": 0,
+            "z": -0.42,
+            "light": false
+          },
+          {
+            "kind": "ring",
+            "x": 0.42,
+            "z": -0.42,
+            "color": "#2fd8ff",
+            "r": 0.16
+          },
+          {
+            "kind": "arrow",
+            "x": -0.3,
+            "z": 0.25,
+            "x2": 0.3,
+            "z2": -0.3,
+            "color": "#2fd8ff"
+          }
+        ]
+      },
+      "title": "Reading chess moves",
+      "minutes": 6,
+      "objectives": [
+        "Read a move like Ra7 or Nf3",
+        "Write moves and captures yourself"
+      ],
+      "steps": [
+        {
+          "say": "Chess players write down every move, so any game can be shared and played again. This short code is called notation, and you will meet it in puzzles and trainers.",
+          "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+        },
+        {
+          "say": "Each piece has a capital letter: K for king, Q for queen, R for rook and B for bishop. The knight is N, because K is already the king. Pawns get no letter at all.",
+          "fen": "4k3/8/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
+          "marks": [
+            "e1",
+            "d1",
+            "a1",
+            "c1",
+            "b1"
+          ]
+        },
+        {
+          "say": "After the letter comes the square, file first and rank second. So Ra7 means a rook moves to a7.",
+          "fen": "6k1/8/8/8/8/8/5PPP/R5K1 w - - 0 1",
+          "play": [
+            "a1a7"
+          ],
+          "marks": [
+            "a7"
+          ]
+        },
+        {
+          "say": "A pawn move is just the square it goes to. Here White plays e4, Black answers e5, and White plays Nf3, a knight to f3.",
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "play": [
+            "e2e4",
+            "e7e5",
+            "g1f3"
+          ],
+          "marks": [
+            "f3"
+          ]
+        },
+        {
+          "say": "A capture puts an x before the square. Bxc6 means a bishop takes on c6. A pawn capture starts with its file, so exd5 means the e-pawn takes on d5.",
+          "fen": "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4",
+          "play": [
+            "b5c6"
+          ],
+          "marks": [
+            "c6"
+          ]
+        }
+      ],
+      "exercises": [
+        {
+          "type": "choice",
+          "prompt": "Which letter stands for the knight?",
+          "fen": "4k3/8/8/8/8/2N5/8/4K3 w - - 0 1",
+          "options": [
+            "N",
+            "K",
+            "Kn"
+          ],
+          "answer": 0,
+          "explain": "K is the king, so the knight is N."
+        },
+        {
+          "type": "move",
+          "prompt": "Play Nc3.",
+          "fen": "rnbqkbnr/pppp1ppp/4p3/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2",
+          "answers": [
+            "b1c3"
+          ],
+          "hints": [
+            "N is the knight.",
+            "Find the c-file, then count up to rank 3."
+          ]
+        },
+        {
+          "type": "move",
+          "prompt": "Play exd5.",
+          "fen": "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+          "answers": [
+            "e4d5"
+          ],
+          "hints": [
+            "It starts with e, so the pawn on the e-file moves.",
+            "The x means it captures on d5."
+          ]
+        },
+        {
+          "type": "write",
+          "prompt": "Write the move the arrow shows.",
+          "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 1 3",
+          "answers": [
+            "f1b5"
+          ],
+          "hints": [
+            "Which piece moves? Write its letter.",
+            "Then write the square it lands on."
+          ]
+        },
+        {
+          "type": "write",
+          "prompt": "Write this capture.",
+          "fen": "rnbqkbnr/pppp2pp/5p2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3",
+          "answers": [
+            "f3e5"
+          ],
+          "hints": [
+            "A knight moves, so start with N.",
+            "Put an x before the square, because it captures."
+          ]
+        }
+      ]
+    },
+    {
       "id": "lesson.c02.l01.check",
       "chapter": 2,
       "art": {
@@ -1517,6 +1678,311 @@
       ]
     },
     {
+      "id": "lesson.c02.l08.notation-signs",
+      "chapter": 2,
+      "art": {
+        "felt": "#3a2a10",
+        "sheen": "#c8a060",
+        "items": [
+          {
+            "type": "k",
+            "side": "w",
+            "x": -0.32,
+            "z": 0.2,
+            "rot": 0.3
+          },
+          {
+            "type": "r",
+            "side": "w",
+            "x": 0.38,
+            "z": 0.25,
+            "rot": -0.3
+          },
+          {
+            "kind": "arrow",
+            "x": -0.6,
+            "z": -0.45,
+            "x2": 0.6,
+            "z2": -0.45,
+            "color": "#ffb02e"
+          }
+        ]
+      },
+      "title": "Check, castling and promotion in notation",
+      "minutes": 6,
+      "objectives": [
+        "Read +, #, O-O and =Q",
+        "Tell two pieces apart, as in Rad1"
+      ],
+      "steps": [
+        {
+          "say": "A plus sign means check. Bb5+ means a bishop moves to b5 and attacks the king.",
+          "fen": "rnbqkbnr/ppp2ppp/8/3pp3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3",
+          "play": [
+            "f1b5"
+          ],
+          "marks": [
+            "e8"
+          ]
+        },
+        {
+          "say": "A hash sign means checkmate, the end of the game. Ra8# means a rook moves to a8 and gives checkmate.",
+          "fen": "6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1",
+          "play": [
+            "a1a8"
+          ],
+          "marks": [
+            "g8"
+          ]
+        },
+        {
+          "say": "Castling has its own code, written with capital O letters. O-O is castling kingside, the short way. O-O-O is castling queenside, the long way.",
+          "fen": "r3k2r/pppq1ppp/2npbn2/2b1p3/2B1P3/2NPBN2/PPPQ1PPP/R3K2R w KQkq - 0 8",
+          "play": [
+            "e1g1"
+          ],
+          "marks": [
+            "g1",
+            "f1"
+          ]
+        },
+        {
+          "say": "When a pawn promotes, an equals sign and a letter name the new piece. b8=Q means a pawn reaches b8 and becomes a queen.",
+          "fen": "8/1P5k/8/8/8/8/5PPP/6K1 w - - 0 1",
+          "play": [
+            "b7b8q"
+          ],
+          "marks": [
+            "b8"
+          ]
+        },
+        {
+          "say": "When two pieces of the same kind can reach a square, add where the moving one starts. Rad1 means the rook on the a-file goes to d1, not the one on f1.",
+          "fen": "r4rk1/ppp2ppp/2n2n2/8/8/2N2N2/PPP2PPP/R4RK1 w - - 0 1",
+          "play": [
+            "a1d1"
+          ],
+          "marks": [
+            "d1"
+          ]
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mate",
+          "prompt": "Play the move that would get a # sign.",
+          "fen": "k7/8/1K6/8/8/8/8/6Q1 w - - 0 1",
+          "hints": [
+            "The # sign means checkmate.",
+            "The queen can reach rank 8 in one move."
+          ]
+        },
+        {
+          "type": "move",
+          "prompt": "Play O-O.",
+          "fen": "rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+          "answers": [
+            "e1g1"
+          ],
+          "hints": [
+            "O-O is castling kingside.",
+            "Move the king two squares toward the h-file rook."
+          ]
+        },
+        {
+          "type": "move",
+          "prompt": "Play c8=Q.",
+          "fen": "8/2P5/7k/8/8/8/6PP/6K1 w - - 0 1",
+          "answers": [
+            "c7c8q"
+          ],
+          "hints": [
+            "The pawn on c7 is one step from the end.",
+            "Push it to c8 and choose a queen."
+          ]
+        },
+        {
+          "type": "write",
+          "prompt": "Write this move. It gives check.",
+          "fen": "rnbqkbnr/ppppp1pp/5p2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+          "answers": [
+            "d1h5"
+          ],
+          "hints": [
+            "The queen moves to h5.",
+            "End with + because it is check."
+          ]
+        },
+        {
+          "type": "choice",
+          "prompt": "What does Nf7# mean?",
+          "options": [
+            "A knight moves to f7 and it is checkmate",
+            "A knight moves to f7 and gives check",
+            "A knight is captured on f7"
+          ],
+          "answer": 0,
+          "explain": "+ means check, and # means checkmate."
+        }
+      ]
+    },
+    {
+      "id": "lesson.c02.l09.chess-words",
+      "chapter": 2,
+      "art": {
+        "felt": "#4a2a0f",
+        "sheen": "#d0a070",
+        "items": [
+          {
+            "type": "k",
+            "side": "b",
+            "x": 0.1,
+            "z": -0.25,
+            "rot": 0.2
+          },
+          {
+            "type": "q",
+            "side": "w",
+            "x": -0.58,
+            "z": 0.35,
+            "rot": 0.5,
+            "scale": 0.85
+          },
+          {
+            "type": "p",
+            "side": "w",
+            "x": 0.6,
+            "z": 0.42,
+            "rot": -0.3
+          },
+          {
+            "kind": "ring",
+            "x": 0.1,
+            "z": -0.25,
+            "color": "#ff5a4a",
+            "r": 0.24
+          }
+        ]
+      },
+      "title": "Chess words: the basics",
+      "minutes": 6,
+      "objectives": [
+        "Tell check, checkmate and stalemate apart",
+        "Know trade, sacrifice, tempo and gambit"
+      ],
+      "steps": [
+        {
+          "say": "Players everywhere share a few words. Check means the king is attacked. Checkmate means it is attacked and has no way out, so the game is over.",
+          "fen": "6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1",
+          "play": [
+            "e1e8"
+          ],
+          "marks": [
+            "g8"
+          ]
+        },
+        {
+          "say": "Stalemate is different. The side to move has no legal move, but its king is not in check. The game is a draw, even when one side is far ahead.",
+          "fen": "7k/5Q2/6K1/8/8/8/8/8 b - - 0 1",
+          "marks": [
+            "h8"
+          ]
+        },
+        {
+          "say": "A trade, or exchange, means both sides take pieces of the same value. A sacrifice means giving material away on purpose, for an attack or a checkmate.",
+          "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p3/3PP3/2N2N2/PPP2PPP/R1BQKB1R b KQkq - 0 4",
+          "play": [
+            "e5d4",
+            "f3d4",
+            "c6d4",
+            "d1d4"
+          ]
+        },
+        {
+          "say": "Development means bringing knights and bishops out early. A tempo is one move of time. Developing with a threat gains a tempo, because the other side must answer it.",
+          "fen": "rnb1kbnr/pppp1ppp/8/4p3/4P2q/8/PPPP1PPP/RNBQKBNR w KQkq - 1 3",
+          "play": [
+            "g1f3"
+          ],
+          "arrows": [
+            [
+              "f3",
+              "h4"
+            ]
+          ]
+        },
+        {
+          "say": "A gambit is an opening that offers a pawn early, to develop faster or to attack. The King's Gambit starts with e4, e5, and then f4.",
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "play": [
+            "e2e4",
+            "e7e5",
+            "f2f4"
+          ],
+          "marks": [
+            "f4"
+          ]
+        }
+      ],
+      "exercises": [
+        {
+          "type": "choice",
+          "prompt": "The king is attacked and has no way out. What is it called?",
+          "options": [
+            "Checkmate",
+            "Check",
+            "Stalemate"
+          ],
+          "answer": 0,
+          "explain": "Check with no way out is checkmate."
+        },
+        {
+          "type": "choice",
+          "prompt": "Black has no legal move and is not in check. What is it?",
+          "fen": "k7/2Q5/1K6/8/8/8/8/8 b - - 0 1",
+          "options": [
+            "Stalemate, a draw",
+            "Checkmate, a win",
+            "Check"
+          ],
+          "answer": 0,
+          "explain": "No legal move and no check is stalemate."
+        },
+        {
+          "type": "mate",
+          "prompt": "Give checkmate on the back rank.",
+          "fen": "1k6/ppp5/8/8/8/8/5PPP/3R2K1 w - - 0 1",
+          "hints": [
+            "The black king is stuck behind its own pawns.",
+            "Your rook can reach rank 8."
+          ]
+        },
+        {
+          "type": "move",
+          "prompt": "Develop a knight and gain a tempo by attacking the queen.",
+          "fen": "rnb1kbnr/pppp1ppp/8/4p1q1/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 2 3",
+          "answers": [
+            "g1f3"
+          ],
+          "hints": [
+            "A knight can attack the queen on g5.",
+            "Bring out the knight on g1."
+          ]
+        },
+        {
+          "type": "choice",
+          "prompt": "What is a gambit?",
+          "options": [
+            "Offering a pawn early to get ahead",
+            "Trading queens in the opening",
+            "Moving the king twice"
+          ],
+          "answer": 0,
+          "explain": "A gambit gives a pawn for time or an attack."
+        }
+      ]
+    },
+    {
       "id": "lesson.c03.l01.centre",
       "chapter": 3,
       "art": {
@@ -1973,6 +2439,197 @@
             "White moved first"
           ],
           "answer": 0
+        }
+      ]
+    },
+    {
+      "id": "lesson.c03.l09.tactic-words",
+      "chapter": 3,
+      "art": {
+        "felt": "#1a2a4a",
+        "sheen": "#8aa0d8",
+        "items": [
+          {
+            "type": "b",
+            "side": "w",
+            "x": -0.58,
+            "z": 0.38,
+            "rot": 0.4
+          },
+          {
+            "type": "n",
+            "side": "b",
+            "x": 0.02,
+            "z": -0.04,
+            "rot": -0.5,
+            "scale": 0.85
+          },
+          {
+            "type": "k",
+            "side": "b",
+            "x": 0.6,
+            "z": -0.5,
+            "rot": -0.2
+          },
+          {
+            "kind": "arrow",
+            "x": -0.42,
+            "z": 0.22,
+            "x2": 0.42,
+            "z2": -0.36,
+            "color": "#c77dff"
+          }
+        ]
+      },
+      "title": "Chess words: tactics and endgames",
+      "minutes": 7,
+      "objectives": [
+        "Spot a fork, pin, skewer and discovered attack",
+        "Know zugzwang, opposition and the initiative"
+      ],
+      "steps": [
+        {
+          "say": "A double attack is one move that makes two threats at once. When a single piece attacks two targets, the double attack is called a fork.",
+          "fen": "2r3k1/5ppp/8/3N4/8/8/5PPP/6K1 w - - 0 1",
+          "play": [
+            "d5e7"
+          ],
+          "arrows": [
+            [
+              "e7",
+              "g8"
+            ],
+            [
+              "e7",
+              "c8"
+            ]
+          ]
+        },
+        {
+          "say": "A pin attacks a piece that cannot move without exposing a more valuable piece behind it. A skewer is the reverse: the valuable piece is in front and must step aside.",
+          "fen": "4k3/8/2n5/8/B7/8/8/4K3 w - - 0 1",
+          "arrows": [
+            [
+              "a4",
+              "e8"
+            ]
+          ],
+          "marks": [
+            "c6"
+          ]
+        },
+        {
+          "say": "In a discovered attack, one piece moves out of the way and uncovers an attack by the piece behind it. If the uncovered attack is a check, it is called a discovered check.",
+          "fen": "3qk3/8/8/8/8/8/3B4/3RK3 w - - 0 1",
+          "play": [
+            "d2g5"
+          ],
+          "arrows": [
+            [
+              "d1",
+              "d8"
+            ]
+          ]
+        },
+        {
+          "say": "Zugzwang is a German word: you must move, and every move makes things worse. The opposition is when the kings face each other with one square between. Both matter most in king and pawn endings.",
+          "fen": "5k2/8/5K2/5P2/8/8/8/8 b - - 0 1",
+          "marks": [
+            "f8",
+            "f6"
+          ]
+        },
+        {
+          "say": "The initiative belongs to the side making threats, while the other side keeps answering. An in-between move is a surprise threat played first, before the move everyone expects.",
+          "fen": "r1bq1rk1/pppp1ppp/2n2n2/2b1p1N1/2B1P3/8/PPPP1PPP/RNBQK2R w KQ - 6 5",
+          "arrows": [
+            [
+              "g5",
+              "f7"
+            ],
+            [
+              "c4",
+              "f7"
+            ]
+          ]
+        }
+      ],
+      "exercises": [
+        {
+          "type": "move",
+          "prompt": "Fork the king and the queen with your knight.",
+          "fen": "q3k3/8/8/3N4/8/8/8/4K3 w - - 0 1",
+          "answers": [
+            "d5c7"
+          ],
+          "check": "engine",
+          "hints": [
+            "Find a square where the knight checks the king.",
+            "From c7, a knight attacks both e8 and a8."
+          ]
+        },
+        {
+          "type": "move",
+          "prompt": "Pin the knight to the king with your bishop.",
+          "fen": "6k1/8/4n3/8/8/8/8/4KB2 w - - 0 1",
+          "answers": [
+            "f1c4"
+          ],
+          "hints": [
+            "Line up your bishop, the knight and the king on one diagonal.",
+            "The diagonal runs from c4 to g8."
+          ]
+        },
+        {
+          "type": "choice",
+          "prompt": "The rook checks the king, and the queen behind it will be lost. What is that?",
+          "fen": "4q3/8/8/4k3/8/8/8/K3R3 b - - 0 1",
+          "arrows": [
+            [
+              "e1",
+              "e8"
+            ]
+          ],
+          "options": [
+            "A skewer",
+            "A pin",
+            "A fork"
+          ],
+          "answer": 0,
+          "explain": "In a skewer, the more valuable piece is in front."
+        },
+        {
+          "type": "choice",
+          "prompt": "A bishop moves away and uncovers the rook behind it. What is that?",
+          "fen": "4k3/8/8/4q3/8/8/4B3/4RK2 w - - 0 1",
+          "arrows": [
+            [
+              "e2",
+              "b5"
+            ],
+            [
+              "e1",
+              "e5"
+            ]
+          ],
+          "options": [
+            "A discovered attack",
+            "A skewer",
+            "A gambit"
+          ],
+          "answer": 0,
+          "explain": "Moving the bishop uncovers the rook's attack."
+        },
+        {
+          "type": "choice",
+          "prompt": "Every move Black has makes the position worse. What is that called?",
+          "options": [
+            "Zugzwang",
+            "Stalemate",
+            "Tempo"
+          ],
+          "answer": 0,
+          "explain": "In zugzwang, having to move is the problem."
         }
       ]
     },
