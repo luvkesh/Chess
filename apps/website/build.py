@@ -60,6 +60,8 @@ FX_DEMOS = {
     'frame': ['frame.ruby.v1', 'frame.ember.v1'],
 }
 
+LEGACY_SOUND = [{'id': 'sound.marble.v1', 'name': 'Marble', 'data': {'pack': 'marble'}}, {'id': 'sound.glass.v1', 'name': 'Crystal Glass', 'data': {'pack': 'glass'}}]
+
 LINKS = {
     'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/', 'FX': '/fx/'},
     'preview': {'PLAY': 'https://claude.ai/artifact/LPXvesS3kLgtjYFDkxGJFL', 'PARENT': 'privacy.html#rights',
@@ -139,6 +141,7 @@ def site_data():
     # the details showcase: how many of each kind there are to collect ("None" is not one)
     for c in FX_DEMOS:
         counts['fx_' + c] = sum(1 for i in catalog['items'] if i['category'] == c and '.none.' not in i['id'])
+    counts['fx_sound'] = counts['fx_sound'] or 4   # the four packs the page's Sound packs tab still shows (LEGACY_SOUND)
     return eras, opponents, counts, campaign['coach'], showroom(campaign, catalog)
 
 
@@ -361,7 +364,10 @@ def build(target):
         shown.update({k: v for k, v in beside.items() if k in shown})
     lines = guide(coach['name'], collection)
     catalog = load('catalog.json')
-    fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in catalog['items'] if i['id'] == d] for c, ids in FX_DEMOS.items()}
+    # sound packs left the game's catalog (pieces sound like their material); until the page's
+    # Sound packs tab goes, its two demos come from here (the website thread removes both together)
+    items = catalog['items'] + [i for i in LEGACY_SOUND if i['id'] not in {x['id'] for x in catalog['items']}]
+    fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in items if i['id'] == d] for c, ids in FX_DEMOS.items()}
     # clips recorded from the game's own table (tools/record-fx.js): fx/<id>.mp4, its poster
     # fx/<id>.jpg, and for sound packs fx/<id>.lands.json, when each piece lands in the clip
     for items in fx.values():
