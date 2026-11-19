@@ -319,10 +319,9 @@
   }
 
   // Parent gate: a sum written in words, which a young child cannot read and an adult answers in
-  // a second. It sits in front of the store, purchases and turning reminders on, as Apple's Kids
-  // category and Google's Families policy ask. A pass lasts ten minutes, and only for looking
-  // around the store: a purchase, more play time, reminders and location ask every time
-  // (opts.always), so one answer from a grown-up never opens the others for the child.
+  // a second. The game is for every age (user, 2026-11-17), so the store, purchases, reminders and
+  // location are open to all; this now guards only what a parent set themselves (more play time
+  // past a daily limit on an account they manage) and the testers' Labs menu.
   const WORDS = (n) => t('store.gate.n' + n);
   let gatePassed = 0;
   // Answers typed in the player's own digits (Devanagari, Arabic-Indic, Bengali...) count too.
@@ -647,6 +646,8 @@
     review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#c8a47a', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
   };
   const medal = (art, from, to, o) => ART.medalUri(art, Object.assign({ from, to }, o || {}));
+  // The home strips' pictures: small 3D objects (scene.js buildEmblem), shown straight, no circle.
+  const stripArt = (what) => '<span class="si">' + snap({ kind: 'emblem', what, yaw: what === 'coins' ? -0.35 : what === 'trophy' ? 0.25 : 0 }, 72, 72) + '</span>';
   const eraFelt = (e) => [ART.dim(e.colors[1], 0.15), e.colors[0]];
   function porthole(e, coach) {
     return '<span class="porthole"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""></span>' +
@@ -1161,7 +1162,7 @@
     // go('trainer', id): a round of that skill trainer, played in the lesson player
     if (name === 'trainer') { name = 'lesson'; arg = { trainer: arg }; }
     // Premium lessons and trainers stay shut whichever link leads there (puzzles, reviews, the rule book, Progress)
-    if (name === 'lesson') { const lk = lockedLesson(arg); if (lk) { premiumModal(t('learn.lockedLesson', { title: lk.title, n: lk.chapter }), COACH); return false; } }
+    if (name === 'lesson') { const lk = lockedLesson(arg); if (lk) { premiumModal(arg && arg.trainer ? t('learn.tr.usedWhy', { title: lk.title }) : t('learn.lockedLesson', { title: lk.title, n: lk.chapter }), COACH); return false; } }
     if (arg === undefined && name === state.screen) {
       // A refresh of the screen on show (after a sync, say). Game screens keep their state.
       if (KIND[name] === 'hud') { renderNav(); return; }
@@ -1537,7 +1538,7 @@
     const P = state.progress, shelf = coinShelf(), reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
     const next = reach.find((i) => PG.coinOffer(P, i).ok) || reach[0];
     const line = !next ? t('home.coins.keep') : PG.coinOffer(P, next).ok ? t('home.coins.canBuy', { name: next.name }) : t('home.coins.next', { name: next.name, n: I18N.num(PG.coinPrice(next)) });
-    return '<button class="strip glass" id="a-coins"><span class="sg gold">' + icon('coin') + '</span><span style="flex:1"><small>' + t('common.coins') + ' · ' + I18N.num(P.coins) + '</small><b>' + esc(line) + '</b>' +
+    return '<button class="strip glass" id="a-coins">' + stripArt('coins') + '<span style="flex:1"><small>' + t('common.coins') + ' · ' + I18N.num(P.coins) + '</small><b>' + esc(line) + '</b>' +
       (next ? '<span class="bar"><i style="width:' + Math.min(100, Math.round(P.coins / PG.coinPrice(next) * 100)) + '%"></i></span>' : '') + '</span><span class="go">' + icon('arrow') + '</span></button>';
   }
   // Ask once before spending; returns true when bought.
@@ -1585,13 +1586,13 @@
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
     if (!list.length) return '';
     const done = list.filter((m) => m.done).length;
-    return '<button class="strip glass" id="a-missions"><span class="sg' + (done === list.length ? ' gold' : '') + '">' + icon('target') + '</span><span style="flex:1"><small>' + t('home.missions.today') + '</small><b>' + (done === list.length ? t('home.missions.allDone') : t('home.missions.progress', { n: done, of: list.length })) + '</b>' +
+    return '<button class="strip glass" id="a-missions">' + stripArt('hourglass') + '<span style="flex:1"><small>' + t('home.missions.today') + '</small><b>' + (done === list.length ? t('home.missions.allDone') : t('home.missions.progress', { n: done, of: list.length })) + '</b>' +
       '<span class="bar"><i style="width:' + Math.round(done / list.length * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
   }
   function seasonStrip() {
     const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
     if (!s) return '';
-    return '<button class="strip glass" id="a-season"><span class="sg">' + icon('season') + '</span><span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(seasonName(s.season)) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
+    return '<button class="strip glass" id="a-season">' + stripArt('laurel') + '<span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(seasonName(s.season)) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
       '<span class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
   }
   function missionsCard() {
@@ -1633,7 +1634,7 @@
       '<div class="play-more">' +
       '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>' + t('home.minis') + '</small><b>' + t('play.minis') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
       variationsTile() +
-      '<button class="strip glass mini-strip" data-nav="club"><span class="sg gold">' + icon('trophy') + '</span><span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button></div>' +
+      '<button class="strip glass mini-strip" data-nav="club">' + stripArt('trophy') + '<span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button></div>' +
       sec('users', t('play.choose'), t('play.friends', { n: OPP.length })) +
       '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
       '</div></div>');
@@ -1662,11 +1663,11 @@
     const form = m.querySelector('#os');
     form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); if (xq) { startXq({ mode: 'ai', color: form.color.value, level }); return; } startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
   }
-  // Premium things a child taps are explained, and the store itself sits behind the parent gate.
+  // Premium things a player taps are explained, with a way to the store.
   function premiumModal(why, who) {
     const m = modal('<div class="result-hero">' + (who ? faceImg(who) : '<img class="portrait" src="' + medal('emblem:crown', '#ffd27a', '#b8862b') + '" alt="">') +
       '<span class="result-badge">' + t('common.premium') + '</span><h2 class="result-title">' + t('store.more.title') + '</h2><p class="sub">' + esc(why) + ' ' + t('store.more.sub') + '</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.ok') + '</button><button class="btn primary" id="pm-store">' + icon('crown') + ' ' + t('store.more.ask') + '</button></div></div>');
+      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.ok') + '</button><button class="btn primary" id="pm-store">' + icon('crown') + ' ' + t('store.more.see') + '</button></div></div>');
     m.querySelector('#pm-store').onclick = () => { m.close(); go('store'); };
   }
   function quickPlay() {
@@ -2589,7 +2590,10 @@
   // day by day (PG.trainerFinished), which is what the progress charts draw.
   const trainerById = (id) => TRAINERS.trainers.find((x) => x.id === id);
   const trainerLesson = (tr) => LESSONS.lessons.find((l) => l.id === tr.lesson);
-  const trainerLocked = (tr) => { const l = trainerLesson(tr); const ch = l && LESSONS.chapters.find((c) => c.n === l.chapter); return !!ch && ch.access !== 'free' && !state.progress.premium; };
+  // Trainers come with Premium; without it each trainer still gives one free round a day.
+  const trainerPremium = (tr) => { const l = trainerLesson(tr); const ch = l && LESSONS.chapters.find((c) => c.n === l.chapter); return !!ch && ch.access !== 'free' && !state.progress.premium; };
+  const trainerFreeUsed = (tr) => ((state.progress.trainers[tr.id] || {}).log || []).some((e) => e.d === PG.today());
+  const trainerLocked = (tr) => trainerPremium(tr) && trainerFreeUsed(tr);
   // A small line of the last ten days' scores.
   function spark(log) {
     const pts = log.slice(-10);
@@ -2604,19 +2608,25 @@
     idleBoard();
     const P = state.progress;
     const tried = TRAINERS.trainers.filter((tr) => (P.trainers[tr.id] || {}).rounds).length;
+    const prem = TRAINERS.trainers.some(trainerPremium);
+    // What a trainer is, in three steps, and (without Premium) how much of it is free.
+    const how = '<div class="tr-how glass"><ol>' + [1, 2, 3].map((k) => '<li><b>' + k + '</b><span>' + esc(t('learn.tr.how' + k, { coach: COACH.name })) + '</span></li>').join('') + '</ol>' +
+      (prem ? '<div class="tr-free"><p>' + icon('crown') + '<span>' + esc(t('learn.tr.freeNote')) + '</span></p><button class="btn small gold" id="tr-store">' + t('learn.tr.seePremium') + '</button></div>' : '') + '</div>';
     mount('<div class="page"><div class="page-in">' + subnav('trainers') +
-      pageHead(t('learn.sub.trainers'), t('learn.tr.title'), t('learn.tr.sub', { coach: COACH.name }), meter(tried, TRAINERS.trainers.length, t('learn.tr.tried'))) +
+      pageHead(t('learn.sub.trainers'), t('learn.tr.title'), t('learn.tr.sub', { coach: COACH.name }), meter(tried, TRAINERS.trainers.length, t('learn.tr.tried'))) + how +
       '<div class="trainers">' + TRAINERS.trainers.map((tr) => {
         const r = P.trainers[tr.id] || { best: 0, rounds: 0, log: [] };
-        const l = trainerLesson(tr), lock = trainerLocked(tr);
+        const l = trainerLesson(tr), paid = trainerPremium(tr), lock = trainerLocked(tr), lessonLock = !!(l && lockedLesson(l.id));
         const lastS = r.log.length ? r.log[r.log.length - 1].s : null;
         return '<article class="trainer glass' + (lock ? ' locked' : '') + '">' + (l ? lessonArt(l, 96) : '') +
           '<div class="tr-body"><h3>' + esc(trName(tr)) + '</h3><p>' + esc(I18N.text(tr.line)) + '</p>' +
-          '<div class="tr-score">' + (r.rounds ? '<b>' + lastS + '</b><small>' + t('learn.tr.best', { n: r.best }) + '</small>' + spark(r.log) : '<small>' + t('learn.tr.new') + '</small>') + '</div></div>' +
-          '<div class="tr-go"><button class="btn primary small" data-tr="' + tr.id + '"' + (lock ? ' disabled' : '') + '>' + icon(lock ? 'lock' : 'play') + ' ' + t('learn.tr.practise') + '</button>' +
-          (l ? '<button class="btn outline small" data-trl="' + l.id + '"' + (lock ? ' disabled' : '') + '>' + icon('learn') + ' ' + t('learn.tr.lesson') + '</button>' : '') + '</div></article>';
+          '<div class="tr-score">' + (r.rounds ? '<b>' + lastS + '</b><small>' + t('learn.tr.best', { n: r.best }) + '</small>' + spark(r.log) : '<small>' + t('learn.tr.new') + '</small>') + '</div>' +
+          (paid ? '<span class="tr-pass' + (lock ? ' used' : '') + '">' + esc(t(lock ? 'learn.tr.freeUsed' : 'learn.tr.freeToday')) + '</span>' : '') + '</div>' +
+          '<div class="tr-go"><button class="btn primary small" data-tr="' + tr.id + '">' + icon(lock ? 'lock' : 'play') + ' ' + t('learn.tr.practise') + '</button>' +
+          (l ? '<button class="btn outline small" data-trl="' + l.id + '">' + icon(lessonLock ? 'lock' : 'learn') + ' ' + t('learn.tr.lesson') + '</button>' : '') + '</div></article>';
       }).join('') + '</div></div></div>');
     wireLinks(); hydrate(null, true);
+    const ts = $('tr-store'); if (ts) ts.onclick = () => { AU.play('tap'); go('store'); };
     document.querySelectorAll('[data-tr]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { trainer: b.dataset.tr }); }; });
     document.querySelectorAll('[data-trl]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', { id: b.dataset.trl, back: 'trainers' }); }; });
     return {};
@@ -2893,7 +2903,7 @@
       return { text: e ? t('collection.get.journey', { coach: eraCoach(e).name, era: eraName(e) }) : unlockText(it) + '.', go: e ? ['era', e.id] : ['journey'], label: t('collection.get.goThere') };
     }
     if (u.type === 'season') return { text: t(u.track === 'pass' ? 'collection.get.seasonPass' : 'collection.get.season', { n: u.tier }), go: ['season'], label: t('collection.get.seeSeason') };
-    if (u.type === 'premium') return { text: t('collection.get.premium'), go: ['store'], label: t('collection.get.askGrownUp') };
+    if (u.type === 'premium') return { text: t('collection.get.premium'), go: ['store'], label: t('collection.get.seePremium') };
     return { text: t('collection.get.yours'), go: null };
   }
   function equipItem(it, after) {
@@ -3353,8 +3363,8 @@
       const auto = $('cl-auto'); if (auto) auto.onclick = () => { const g = C.guess(); if (g) { C.setPlace(g); renderAll(); } else renderLoc(false, t('club.tzFail')); };
       const gp = $('cl-gps');
       if (gp) gp.onclick = async () => {
-        // The device's location is for grown-ups: the parent gate asks every time.
-        if (isMinor() || !await parentGate(t('club.useLoc'), { always: true })) return;
+        // An account a parent manages never shares the device's location (no button for it).
+        if (isMinor()) return;
         if (!alive) return;
         renderLoc(true);
         const g = await C.gps();
@@ -3405,7 +3415,7 @@
     mount('<div class="page"><div class="page-in">' +
       pageHead(t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }), seasonName(s.season), esc(tx('content.season.' + s.season.id + '.blurb', s.season.blurb)), '<div class="meter">' + icon('season') + '<b>' + t('home.season.tier', { n: '<em>' + s.tier + '</em>' }) + ' / ' + s.season.tiers + '</b><div class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></div></div>') +
       (!P.season ? '<p class="sub">' + t('season.soon') + '</p>' : s.pass ? '<p class="pill gold">' + icon('crown') + ' ' + t(P.premium ? 'season.passIncluded' : 'season.passOwned') + '</p>'
-        : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.ask') + '</button></div>') +
+        : '<div class="pass-cta"><div><b>' + t('season.pass') + '</b><small>' + t('season.passText', { n: s.items.filter((i) => i.unlock.track === 'pass').length }) + '</small></div><button class="btn gold" id="se-buy">' + t('store.more.see') + '</button></div>') +
       '<div class="panel glass"><div class="tier head"><div class="tn"></div><div class="eyebrow">' + t('season.free') + '</div><div class="eyebrow">' + t('season.pass') + '</div></div>' + rows.join('') + '</div>' +
       '<p class="fine">' + t('season.fine') + '</p></div></div>');
     hydrate(null, true);
@@ -3422,11 +3432,6 @@
     const P = state.progress;
     let remote = null;
     function render() {
-      if (Date.now() - gatePassed >= 10 * 60e3) {
-        $('st-body').innerHTML = '<div class="gate"><img class="portrait" src="' + face(COACH) + '" alt=""><div><b>' + t('store.grownups') + '</b><p class="muted">' + t('store.askParent') + '</p></div><button class="btn primary" id="st-gate">' + icon('lock') + ' ' + t('store.parentOpen') + '</button></div>';
-        $('st-gate').onclick = async () => { if (await parentGate(t('store.gateWhy'))) render(); };
-        return;
-      }
       if (safety && safety.kind === 'minor' && safety.purchases === 'off') {
         $('st-body').innerHTML = '<p class="sub">' + t('store.off') + '</p>';
         return;
@@ -3461,7 +3466,8 @@
         m.querySelector('#ca-go').onclick = () => { m.close(); go('profile', 'account'); };
         return;
       }
-      if (!await parentGate(t('store.gateBuy'), { always: true })) return;
+      // The game is for every age and the store is open to all. Only an account a parent manages
+      // (the server says so) asks for that parent's PIN, which they chose themselves.
       let pin;
       if (isMinor()) { pin = await askPin(); if (pin === null) return; }
       try {
@@ -3489,8 +3495,8 @@
         '<div class="row" style="justify-content:center"><button class="btn primary" data-close>' + t('common.letsPlay') + '</button></div></div>', { onClose() { go(pass ? 'season' : 'home'); } });
     }
     mount('<div class="page"><div class="page-in">' + pageHead(t('store.store'), t('store.title'), t('store.sub'), '<span id="st-purse">' + coinsPill() + '</span>') +
-      sec('coin', t('store.coinShop'), t('store.forPlayers')) + '<div class="panel glass" id="st-coins"></div>' +
-      sec('crown', t('common.premium'), t('store.forGrownups')) + '<div class="panel glass" id="st-body"></div></div></div>');
+      sec('coin', t('store.coinShop')) + '<div class="panel glass" id="st-coins"></div>' +
+      sec('crown', t('common.premium')) + '<div class="panel glass" id="st-body"></div></div></div>');
     wireLinks();
     function renderCoins() {
       $('st-coins').innerHTML = coinShopHtml();
@@ -3603,8 +3609,7 @@
     wireAppSection(m);
     on('#s-ver', 'click', () => versionTap(m));
     on('#s-reset', 'click', async () => {
-      // A grown-up starts again, not a stray tap: the parent gate first, then the question.
-      if (!await parentGate(t('settings.resetConfirm'), { always: true }) || !confirm(t('settings.resetConfirm'))) return;
+      if (!confirm(t('settings.resetConfirm'))) return;
       resetDevice(); m.close(); applyLook(); go('home');
     });
     return m;
@@ -3780,7 +3785,6 @@
     const box = m.querySelector('#s-rem'), hr = m.querySelector('#s-rem-h');
     const apply = async () => {
       const want = { on: box.checked, hour: +hr.value };
-      if (want.on && !await parentGate(t('settings.reminder.gate'), { always: true })) { box.checked = false; return; }
       try { await setReminder(want); state.settings.reminder = want; save(); toast(want.on ? t('settings.reminder.set', { time: String(want.hour).padStart(2, '0') + ':00' }) : t('settings.reminder.off')); }
       catch (e) { box.checked = false; state.settings.reminder = { on: false, hour: want.hour }; save(); toast(esc(e.message), 'bad'); }
     };
