@@ -2,6 +2,7 @@
 // The game is one HTML file, so caching it (plus the icons) is enough to play offline.
 // Pages load network-first, so a new release shows up on the next launch with a connection.
 const CACHE = 'chacklate-v1';
+const GAME = /^\/(home|play|journey|learn|trainers|puzzles|training|collection|club|profile|store|season|settings)(\/[a-z0-9/-]*)?$/;
 const VOICE = 'chacklate-voice-v2';   // the chosen voice's pack, kept once it is used so lessons talk offline too
 const SHELL = ['/play', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
@@ -14,6 +15,12 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/') || url.pathname === '/ws') return;
+  // Every game address (/learn/forks, /play/variations ...) is the same page as /play: offline it
+  // opens from the copy kept for /play, and the game shows the screen the address names.
+  if (e.request.mode === 'navigate' && GAME.test(url.pathname) && url.pathname !== '/play') {
+    e.respondWith(fetch(e.request).catch(() => caches.match('/play')));
+    return;
+  }
   if (/^\/(voice|coach)\/[a-z]+\.mp3$/.test(url.pathname)) {
     e.respondWith(voice(e.request, url));
     return;
@@ -53,7 +60,7 @@ self.addEventListener('notificationclick', (e) => {
   e.notification.close();
   const url = (e.notification.data && e.notification.data.url) || '/play';
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-    const open = list.find((c) => new URL(c.url).pathname === '/play');
-    return open ? open.focus() : self.clients.openWindow(url);
+    const open = list.find((c) => GAME.test(new URL(c.url).pathname));
+    return open ? open.focus() : self.clients.openWindow(url);   // an open game is not reloaded under the player
   }));
 });
