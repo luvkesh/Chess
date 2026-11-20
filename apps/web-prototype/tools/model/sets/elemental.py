@@ -4,8 +4,9 @@ flowing flame hair, spindle bishops with glowing hearts, block towers and orb pa
 Reference: the user's lineup picture of 2026-11-12 (c2d5507c, fire above, ice below)."""
 import glob
 
-import classic
+import hero
 import kit
+from sets import _front
 
 PIC = glob.glob('/mnt/project-files/uploads/hearth/c2d5507c*')[0]
 BOXES = {
@@ -16,26 +17,43 @@ BOXES = {
 }
 ADD = {'b': {'k': [[(862, 60), (858, 150), (850, 300)]]},
        'w': {'k': [[(875, 580), (868, 700), (860, 850)]]}}
-HALF = {t: 'full' for t in 'rnbqk'}
+HALF = _front.HALF
 SIDED = set('rnbqkp')
-GOLD = (60, 150, 230)
 LOOK = {
-    'w': {'wb': (1.0, 1.0, 1.0), 'body': 'ice', 'gold': 'silver', 'gem': 'gem', 'emit': 0.3, 'gold_tone': GOLD,
+    'w': {'wb': (1.0, 1.0, 1.0), 'body': 'ice', 'gold': 'silver', 'gem': 'gem', 'emit': 0.3, 'gold_tone': None,
           'classify': {'gold_sat': 0.9, 'gold_val': 0.9}},
-    'b': {'wb': (1.0, 1.0, 1.0), 'body': 'shiny stone', 'gold': 'silver', 'gem': 'gem', 'emit': 0.3, 'gold_tone': GOLD,
+    'b': {'wb': (1.0, 1.0, 1.0), 'body': 'shiny stone', 'gold': 'silver', 'gem': 'gem', 'emit': 0.3, 'gold_tone': None,
           'classify': {'gold_sat': 0.9, 'gold_val': 0.9}},
 }
 
 
-def refs():
+def source_refs():
+    """the cut-outs from the reference picture: what picture/cutouts.py redraws into the hero pictures"""
     out = {'w': {}, 'b': {}}
-    king = kit.Ref(PIC, BOXES['w']['k'], height=1.75, seg='sam', add=ADD['w']['k'])
+    king = kit.Ref(PIC, BOXES['w']['k'], height=1.75, seg='sam', foot=0, add=ADD['w']['k'])
     for s in ('w', 'b'):
         for t, box in BOXES[s].items():
-            out[s][t] = kit.Ref(PIC, box, unit=king.unit, seg='sam', sym=(t in 'rbp'), add=ADD[s].get(t))
+            out[s][t] = kit.Ref(PIC, box, unit=king.unit, seg='sam', foot=0, sym=(t in 'rbp'), add=ADD[s].get(t))
     for t in BOXES['b']:
         w, b = out['w'][t], out['b'][t]
         b.unit *= w.height() / max(b.height(), 1e-6)
+    return out
+
+
+# each piece's size in game units, as cut from the reference (picture/cutouts.py prints them)
+HEIGHTS = {
+    'w': {'k': 1.750, 'q': 1.577, 'b': 1.438, 'n': 1.284, 'r': 1.298, 'p': 0.817},
+    'b': {'k': 1.750, 'q': 1.577, 'b': 1.438, 'n': 1.284, 'r': 1.298, 'p': 0.817},
+}
+
+
+def refs():
+    """the hero pictures (pics/elemental): each cut-out redrawn sharp at 768 x 1024 with SDXL-Lightning
+    (one step, blended with the cut-out's own colours: sets/_front.py; the ice king's staff joined back on)"""
+    out = hero.refs(hero.pics('elemental'), HEIGHTS)
+    for side in out.values():
+        for t in 'rbp':
+            side[t].sym = True   # turned: the nearer side of the outline, so a banner or flame does not widen it
     return out
 
 
@@ -50,4 +68,4 @@ SPEC = {
 
 
 def build(t, refs):
-    return classic.build(t, refs, SPEC)
+    return _front.build(t, refs, SPEC)
