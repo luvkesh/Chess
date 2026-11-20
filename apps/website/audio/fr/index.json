@@ -45,30 +45,8 @@
     }
    ]
   },
-  "lessons": {
-   "text": "D'abord, apprends comment bouge chaque pièce. Ensuite, résous des problèmes, essaie des ouvertures célèbres et gagne des finales. Et devine quoi ? Un tout nouveau problème t'attend chaque jour !",
-   "voice": "ff_siwis,am_puck",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "D'abord, apprends comment bouge chaque pièce."
-    },
-    {
-     "t": 2.24,
-     "text": "Ensuite, résous des problèmes, essaie des ouvertures célèbres et gagne des finales."
-    },
-    {
-     "t": 6.8,
-     "text": "Et devine quoi ?"
-    },
-    {
-     "t": 8.08,
-     "text": "Un tout nouveau problème t'attend chaque jour !"
-    }
-   ]
-  },
   "wonders": {
-   "text": "Et maintenant, le meilleur moment ! Tu joues juste devant de vraies merveilles du monde, des pyramides au Taj Mahal. Bats chaque champion, reçois un tampon sur ton passeport, et l'endroit suivant se débloque !",
+   "text": "Et maintenant, le meilleur moment ! Neuf mondes, des Pyramides à New York, chacun avec son histoire, sa musique et son champion. Choisis-en un, puis joue quelques coups sur place !",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
@@ -77,11 +55,11 @@
     },
     {
      "t": 1.75,
-     "text": "Tu joues juste devant de vraies merveilles du monde, des pyramides au Taj Mahal."
+     "text": "Neuf mondes, des Pyramides à New York, chacun avec son histoire, sa musique et son champion."
     },
     {
-     "t": 6.29,
-     "text": "Bats chaque champion, reçois un tampon sur ton passeport, et l'endroit suivant se débloque !"
+     "t": 7.22,
+     "text": "Choisis-en un, puis joue quelques coups sur place !"
     }
    ]
   },
@@ -108,7 +86,7 @@
    ]
   },
   "ages": {
-   "text": "Alors, contre qui veux-tu jouer ? Truffle le lapin est super doux avec les débutants. Ember le dragon joue à pleine puissance ! Chaque partie te rend un peu meilleur.",
+   "text": "Alors, contre qui veux-tu jouer ? Voici mes amis ! Truffle la lapine est toute douce avec les débutants, et Ember le dragon joue à pleine puissance. Touche chacun pour voir ce qu'il dit !",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
@@ -117,33 +95,15 @@
     },
     {
      "t": 1.77,
-     "text": "Truffle le lapin est super doux avec les débutants."
+     "text": "Voici mes amis !"
     },
     {
-     "t": 4.48,
-     "text": "Ember le dragon joue à pleine puissance !"
+     "t": 3.12,
+     "text": "Truffle la lapine est toute douce avec les débutants, et Ember le dragon joue à pleine puissance."
     },
     {
-     "t": 6.73,
-     "text": "Chaque partie te rend un peu meilleur."
-    }
-   ]
-  },
-  "families": {
-   "text": "Les adultes, ce passage est pour vous ! Pas de chat avec des inconnus, pas de pub et pas de pistage. Vous décidez pour le jeu en ligne et les achats.",
-   "voice": "ff_siwis,am_puck",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "Les adultes, ce passage est pour vous !"
-    },
-    {
-     "t": 2.1,
-     "text": "Pas de chat avec des inconnus, pas de pub et pas de pistage."
-    },
-    {
-     "t": 5.48,
-     "text": "Vous décidez pour le jeu en ligne et les achats."
+     "t": 8.35,
+     "text": "Touche chacun pour voir ce qu'il dit !"
     }
    ]
   },
@@ -628,12 +588,24 @@
    ]
   },
   "item-sets-ocean": {
-   "text": "Plonge sous la mer ! Coral Kingdom est la cour d'une ville engloutie, en perle et en or : un roi de la mer avec son trident, une reine sirène, des méduses qui brillent, des hippocampes épineux et des phares qui brillent encore. Les pions sont des perles dans des coquillages ouverts. Atteins le niveau douze, et tout le royaume viendra nager sur ton plateau.",
+   "text": "Plonge sous la mer ! Coral Kingdom est la cour d'une cité engloutie, en nacre et or : un roi des mers avec son trident, une reine sirène, des méduses qui luisent, des hippocampes épineux et des phares qui brillent encore. Les pions sont des perles dans des coquillages ouverts. Atteins le niveau douze, et tout le royaume vient nager sur ton échiquier.",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
      "t": 0.0,
-     "text": "Plonge sous la mer ! Coral Kingdom est la cour d'une ville engloutie, en perle et en or : un roi de la mer avec son trident, une reine sirène, des méduses qui brillent, des hippocampes épineux et des phares qui brillent encore. Les pions sont des perles dans des coquillages ouverts. Atteins le niveau douze, et tout le royaume viendra nager sur ton plateau."
+     "text": "Plonge sous la mer !"
+    },
+    {
+     "t": 1.43,
+     "text": "Coral Kingdom est la cour d'une cité engloutie, en nacre et or : un roi des mers avec son trident, une reine sirène, des méduses qui luisent, des hippocampes épineux et des phares qui brillent encore."
+    },
+    {
+     "t": 12.59,
+     "text": "Les pions sont des perles dans des coquillages ouverts."
+    },
+    {
+     "t": 15.44,
+     "text": "Atteins le niveau douze, et tout le royaume vient nager sur ton échiquier."
     }
    ]
   },
@@ -1040,12 +1012,24 @@
    ]
   },
   "item-boards-deco": {
-   "text": "Entre dans l'âge du jazz. Skyline Marble, c'est du marbre crème et vert profond veiné d'or, encadré de laque noire avec des éventails dorés de rayons de soleil. C'est chic, brillant et très New York. Bats Skye the Eagle au-dessus de Manhattan, et il est à toi.",
+   "text": "Entre dans l'âge du jazz. Skyline Marble est un marbre crème et vert profond veiné d'or, encadré de laque noire aux éventails dorés en rayons de soleil. C'est net, brillant et très New York. Bats Skye l'aigle au-dessus de Manhattan, et il est à toi.",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
      "t": 0.0,
-     "text": "Entre dans l'âge du jazz. Skyline Marble, c'est du marbre crème et vert profond veiné d'or, encadré de laque noire avec des éventails dorés de rayons de soleil. C'est chic, brillant et très New York. Bats Skye the Eagle au-dessus de Manhattan, et il est à toi."
+     "text": "Entre dans l'âge du jazz."
+    },
+    {
+     "t": 1.69,
+     "text": "Skyline Marble est un marbre crème et vert profond veiné d'or, encadré de laque noire aux éventails dorés en rayons de soleil."
+    },
+    {
+     "t": 9.24,
+     "text": "C'est net, brillant et très New York."
+    },
+    {
+     "t": 11.32,
+     "text": "Bats Skye l'aigle au-dessus de Manhattan, et il est à toi."
     }
    ]
   },
@@ -2580,7 +2564,7 @@
    ]
   },
   "train": {
-   "text": "C'est l'heure de s'entraîner ! Il y a treize entraîneurs, une compétence à la fois. D'abord une petite leçon avec moi, puis une manche d'entraînement avec un score. Tu peux battre ton record ?",
+   "text": "C'est l'heure de s'entraîner ! Commence par l'entraîneur trois cent soixante, un tour qui mélange tout, ou choisis une compétence à la fois. Touche une carte, et un vrai exercice s'ouvre sur la table !",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
@@ -2589,20 +2573,16 @@
     },
     {
      "t": 1.59,
-     "text": "Il y a treize entraîneurs, une compétence à la fois."
+     "text": "Commence par l'entraîneur trois cent soixante, un tour qui mélange tout, ou choisis une compétence à la fois."
     },
     {
-     "t": 4.48,
-     "text": "D'abord une petite leçon avec moi, puis une manche d'entraînement avec un score."
-    },
-    {
-     "t": 9.12,
-     "text": "Tu peux battre ton record ?"
+     "t": 7.64,
+     "text": "Touche une carte, et un vrai exercice s'ouvre sur la table !"
     }
    ]
   },
   "mates": {
-   "text": "C'est l'heure des énigmes ! Trouve l'échec et mat en un coup, puis en deux, et ainsi de suite jusqu'à cinq. Regarde-moi en résoudre une, ici même sur la table !",
+   "text": "C'est l'heure des énigmes ! Trouve le mat en un coup, ou choisis une astuce : fourchettes, clouages, enfilades et plus encore. Bloqué ? Demande-moi un indice !",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
@@ -2611,16 +2591,20 @@
     },
     {
      "t": 1.54,
-     "text": "Trouve l'échec et mat en un coup, puis en deux, et ainsi de suite jusqu'à cinq."
+     "text": "Trouve le mat en un coup, ou choisis une astuce : fourchettes, clouages, enfilades et plus encore."
     },
     {
-     "t": 6.04,
-     "text": "Regarde-moi en résoudre une, ici même sur la table !"
+     "t": 6.86,
+     "text": "Bloqué ?"
+    },
+    {
+     "t": 7.93,
+     "text": "Demande-moi un indice !"
     }
    ]
   },
   "progress": {
-   "text": "Et regarde comme tu progresses ! Je regarde huit compétences dans tes parties et je les dessine sur un graphique. Tout reste sur ton appareil, promis !",
+   "text": "Et regarde comme tu progresses ! Choisis une compétence et regarde le graphique changer. Ces chiffres ne sont qu'un exemple, les tiens viendront de tes propres parties.",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
@@ -2629,11 +2613,11 @@
     },
     {
      "t": 1.9,
-     "text": "Je regarde huit compétences dans tes parties et je les dessine sur un graphique."
+     "text": "Choisis une compétence et regarde le graphique changer."
     },
     {
-     "t": 6.38,
-     "text": "Tout reste sur ton appareil, promis !"
+     "t": 4.93,
+     "text": "Ces chiffres ne sont qu'un exemple, les tiens viendront de tes propres parties."
     }
    ]
   },
@@ -2993,24 +2977,6 @@
     }
    ]
   },
-  "fx-sound": {
-   "text": "Packs de sons ! Choisis le son de tes pièces quand elles se posent. Le marbre fait clac, et le verre fait cling !",
-   "voice": "ff_siwis,am_puck",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "Packs de sons !"
-    },
-    {
-     "t": 1.26,
-     "text": "Choisis le son de tes pièces quand elles se posent."
-    },
-    {
-     "t": 3.88,
-     "text": "Le marbre fait clac, et le verre fait cling !"
-    }
-   ]
-  },
   "fx-avatar": {
    "text": "Avatars ! Choisis un visage pour ta carte de joueur. Quel ami te ressemble le plus ?",
    "voice": "ff_siwis,am_puck",
@@ -3048,7 +3014,7 @@
    ]
   },
   "earn": {
-   "text": "Et comment obtenir tout cela ? En jouant ! Bats les champions, termine les énigmes et les leçons du jour, et grimpe dans le pass de saison. Rien de ce que tu collectionnes ne te rend plus fort, alors chaque partie reste juste.",
+   "text": "Et comment obtenir tout cela ? En jouant ! Gagne des parties, termine des campagnes, résous le défi du jour et grimpe dans le pass de saison. Rien de ce que tu collectionnes ne te rend plus fort, alors chaque partie reste juste.",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
@@ -3061,16 +3027,16 @@
     },
     {
      "t": 2.9,
-     "text": "Bats les champions, termine les énigmes et les leçons du jour, et grimpe dans le pass de saison."
+     "text": "Gagne des parties, termine des campagnes, résous le défi du jour et grimpe dans le pass de saison."
     },
     {
-     "t": 8.19,
+     "t": 8.33,
      "text": "Rien de ce que tu collectionnes ne te rend plus fort, alors chaque partie reste juste."
     }
    ]
   },
   "pricing": {
-   "text": "Bonne nouvelle, on commence Chackmate gratuitement ! Les adultes, les formules sont ici, sur la page. Aucune formule n'a de publicité, et rien de ce que tu achètes ne te rend plus fort.",
+   "text": "Bonne nouvelle, on commence Chackmate gratuitement ! Les formules sont juste ici, sur la page. Et rien de ce que tu achètes ne te rend plus fort.",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
@@ -3078,33 +3044,33 @@
      "text": "Bonne nouvelle, on commence Chackmate gratuitement !"
     },
     {
-     "t": 2.83,
-     "text": "Les adultes, les formules sont ici, sur la page."
+     "t": 2.84,
+     "text": "Les formules sont juste ici, sur la page."
     },
     {
-     "t": 5.77,
-     "text": "Aucune formule n'a de publicité, et rien de ce que tu achètes ne te rend plus fort."
+     "t": 5.3,
+     "text": "Et rien de ce que tu achètes ne te rend plus fort."
     }
    ]
   },
   "about": {
-   "text": "Voici la Maison du Jeu, le studio qui m'a créé ! Ils voulaient que chaque enfant ait une vraie table d'échecs, un coach qui enseigne et des amis qui jouent franc jeu. Envie de dire bonjour ? Leurs coordonnées sont juste ici.",
+   "text": "Et voici le studio qui m'a créé ! Ils créent des mondes où jouer, apprendre et grandir, et ils ont d'autres jeux aussi. Envie de dire bonjour ? Leurs coordonnées sont juste ici.",
    "voice": "ff_siwis,am_puck",
    "cues": [
     {
      "t": 0.0,
-     "text": "Voici la Maison du Jeu, le studio qui m'a créé !"
+     "text": "Et voici le studio qui m'a créé !"
     },
     {
-     "t": 2.85,
-     "text": "Ils voulaient que chaque enfant ait une vraie table d'échecs, un coach qui enseigne et des amis qui jouent franc jeu."
+     "t": 1.95,
+     "text": "Ils créent des mondes où jouer, apprendre et grandir, et ils ont d'autres jeux aussi."
     },
     {
-     "t": 8.76,
+     "t": 6.29,
      "text": "Envie de dire bonjour ?"
     },
     {
-     "t": 10.4,
+     "t": 7.93,
      "text": "Leurs coordonnées sont juste ici."
     }
    ]
