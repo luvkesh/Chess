@@ -7815,7 +7815,7 @@ function ChacklatePieces(THREE, K) {
         const d = sets[id];
         if (!d) return;
         delete sets[id];
-        const side = async (t) => (t ? { albedo: await texture(t.albedo, true), mr: await texture(t.mr), glow: t.glow ? await texture(t.glow, true) : null } : null);
+        const side = async (t) => (t ? { albedo: await texture(t.albedo, true), mr: await texture(t.mr), glow: t.glow ? await texture(t.glow, true) : null, normal: t.normal ? await texture(t.normal) : null } : null);
         const [geo, w, b] = await Promise.all([gunzip(b64bytes(d.bin)).then(decodeSet), side(d.w), side(d.b)]);
         if (w && w.albedo && w.mr && b && b.albedo && b.mr) MODELLED.set(id, { geo, tex: { w, b } });
       }).catch((e) => { if (typeof console !== 'undefined') console.warn('pieces: set', id, 'not unpacked', e && e.message); })
@@ -7841,6 +7841,8 @@ function ChacklatePieces(THREE, K) {
       if (t.glow) Object.assign(o, { emissiveMap: t.glow, emissive: new THREE.Color('#ffffff'), emissiveIntensity: look.glow ?? 1.0 });
       else Object.assign(o, { emissiveMap: t.albedo, emissive: new THREE.Color('#ffffff'), emissiveIntensity: look.baked ?? 0.1 });
       if (slot === 'glass') Object.assign(o, { transmission: look.transmission || 0.85, thickness: 0.4, ior: 1.5 });
+      // sculpted sets carry their fine relief (hair, bark, folds) as a normal map in the piece's own frame
+      if (t.normal) Object.assign(o, { normalMap: t.normal, normalMapType: THREE.ObjectSpaceNormalMap });
       SKINS.set(k, new THREE.MeshPhysicalMaterial(o));
     }
     return SKINS.get(k);

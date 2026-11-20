@@ -24,7 +24,10 @@ W, H = sdxl.W, sdxl.H
 
 
 def prep(path):
-    im = Image.open(path).convert('RGBA')
+    im = Image.open(path)
+    if im.mode == 'RGB' and im.size == (W, H):
+        return im          # a whole frame already (sculpt.py's views of a solid): used as it is
+    im = im.convert('RGBA')
     a = np.asarray(im).astype(np.float32) / 255
     rgb = a[..., :3] * a[..., 3:] + 0.5 * (1 - a[..., 3:])
     h, w = rgb.shape[:2]

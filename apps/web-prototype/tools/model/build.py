@@ -1,6 +1,7 @@
 """Builds modelled piece sets in Blender and writes the game's mesh pack.
 
   /opt/bv/bin/python tools/model/build.py <pack> <set> [<set> ...] [--preview DIR]
+  (<set> may be id=module, to build a trial module under a set's id: forest=forest_sculpt)
 
 (any Python with the `bpy` wheel works: pip install bpy opencv-python-headless scipy scikit-image)
 Each set is a module in tools/model/sets/<set>.py with:
@@ -64,9 +65,8 @@ def webp(img, q=86):
     return b.tobytes()
 
 
-def build_set(sid):
-    mod = importlib.import_module('sets.' + sid)
-    kit.reset()
+def painted(mod):
+    """the pieces of a set built part by part and painted cell by cell from its pictures"""
     hero = getattr(mod, 'HERO', False)
     kit.set_views(4 if hero else 1)
     refs = mod.refs()
@@ -91,6 +91,21 @@ def build_set(sid):
             ob = mod.build(t, {'w': refs[s][t], 'b': refs[other][t]})   # 'w' is the shape's source
             objs[t] = ob
             built.append((t, s, sided, ob))
+    return refs, built, atlas, mr, glow, objs, geoms, tall
+
+
+def build_set(sid):
+    mod = importlib.import_module('sets.' + sid)
+    kit.reset()
+    normal = None
+    if getattr(mod, 'SCULPT', False):
+        # true 3D pieces from their pictures: sculpt.py makes the meshes and paints the atlases
+        import sculpt
+        refs, built, atlas, mr, glow, normal = sculpt.pieces(sid, mod, CAPS['show'])
+        objs = {t: ob for t, s, sd, ob in built}
+        geoms, tall = {}, {'w': {}, 'b': {}}
+    else:
+        refs, built, atlas, mr, glow, objs, geoms, tall = painted(mod)
     # one even scale for the whole set first, so the king and queen fit their squares and the
     # set keeps its picture's proportions; then each piece's own square and height order
     whole = min(fit(ob, t, {}, dry=True) for t, s, sd, ob in built if t in ('k', 'q'))
@@ -108,15 +123,18 @@ def build_set(sid):
             print(sid, s if sided else '', t, lod, len(P), 'verts', len(I) // 3, 'tris', flush=True)
     out = {'geoms': geoms}
     for s in refs:
-        half = cv2.resize(mr[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_AREA).astype(np.float32)
+        hw = (atlas[s].shape[1] // 2, atlas[s].shape[0] // 2)
+        half = cv2.resize(mr[s], hw, interpolation=cv2.INTER_AREA).astype(np.float32)
         # natural wear: scratches and handling show as rougher lines in the polish (stronger on
         # metal, where they catch the light), drawn at the map's own size so they stay sharp
         lk = mod.LOOK[s] if s in mod.LOOK else mod.LOOK
         wr = kit.wear(half.shape[0], half.shape[1], hash((sid, s)) & 0xffff, lk.get('wear', 1.0))
-        metal = half[..., 2] / 255
+        metal = half[..., 0 if normal else 2] / 255     # (sculpted sets keep metalness in blue, where three.js reads it)
         half[..., 1] = np.clip(half[..., 1] + 255 * wr * (0.1 + 0.16 * metal), 0, 255)
-        out[s] = {'albedo': webp(atlas[s], 84), 'mr': webp(half.astype(np.uint8), 80),
-                  'glow': webp(cv2.resize(glow[s], (kit.ATLAS_W // 2, kit.ATLAS_H // 2), interpolation=cv2.INTER_AREA), 75)}
+        out[s] = {'albedo': webp(atlas[s], 88 if normal else 84), 'mr': webp(half.astype(np.uint8), 80),
+                  'glow': webp(cv2.resize(glow[s], hw, interpolation=cv2.INTER_AREA), 75)}
+        if normal:
+            out[s]['normal'] = webp(cv2.resize(normal[s], hw, interpolation=cv2.INTER_AREA), 92)
     return out, objs, atlas
 
 
@@ -130,7 +148,9 @@ def main():
     pack, sets = args[0], args[1:]
     out = {}
     for sid in sets:
-        d, objs, atlas = build_set(sid)
+        # id=module builds a trial module under the set's own id (forest=forest_sculpt)
+        sid, _, name = sid.partition('=')
+        d, objs, atlas = build_set(name or sid)
         out[sid] = d
         if prev:
             os.makedirs(prev, exist_ok=True)
