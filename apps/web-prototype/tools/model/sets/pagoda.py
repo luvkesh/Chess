@@ -1,8 +1,10 @@
 """Dragon & Pagoda: ivory, gold and lacquer red against blue-black lacquer with glowing sapphire
 light; pagoda rooks, dragon knights, flame bishops, a robed empress and emperor.
-Reference: the user's lineup picture of 2026-11-12 (383455ca, both armies side by side)."""
-import classic
+Reference: the user's lineup picture of 2026-11-12 (383455ca, both armies side by side).
+Built from hero pictures (pics/pagoda): each piece of the lineup cut out, cleaned and redrawn
+larger with SDXL-Lightning; source_refs() is the old cut from the lineup, kept for cutouts.py."""
 import kit
+from sets import classic2_kit
 
 PIC = '/mnt/project-files/uploads/hearth/383455ca-1a66-42a7-a85a-10cd101ac589'
 BOXES = {
@@ -11,19 +13,19 @@ BOXES = {
     'b': {'r': (1104, 175, 1230, 440), 'n': (1230, 196, 1369, 440), 'b': (1373, 196, 1488, 440), 'q': (1491, 152, 1611, 440),
           'k': (1611, 124, 1731, 440), 'p': (1122, 468, 1230, 642)},
 }
-HALF = {'n': 'full', 'q': 'full', 'k': 'full'}
-SIDED = {'n', 'q', 'k'}
+HALF = {t: 'full' for t in 'kqbnrp'}   # painted by the picture's view, both halves
+SIDED = set('kqbnrp')   # every piece from its own side's picture
 GOLD = (60, 168, 242)
 LOOK = {
     # the ivory is warm in the picture: only strong, saturated yellow is gold, and the stone is
     # cooled toward porcelain white
-    'w': {'wb': (1.12, 1.0, 0.92), 'body_cool': 0.35, 'body': 'porcelain', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
+    'w': {'wb': (1.12, 1.0, 0.92), 'body_cool': 0.35, 'body': 'porcelain', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.5,
           'classify': {'gold_sat': 0.66, 'gold_val': 0.5}},
-    'b': {'wb': (1.02, 0.98, 0.98), 'body': 'lacquer', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
+    'b': {'wb': (1.02, 0.98, 0.98), 'body': 'lacquer', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.5},
 }
 
 
-def refs():
+def source_refs():
     out = {'w': {}, 'b': {}}
     king = kit.Ref(PIC, BOXES['w']['k'], height=1.66, seg='sam')
     unit = king.unit
@@ -39,6 +41,17 @@ def refs():
     return out
 
 
+# each piece's size in game units, printed by picture/cutouts.py from the reference lineup
+HEIGHTS = {
+    'w': {'k': 1.660, 'q': 1.517, 'b': 1.295, 'n': 1.279, 'r': 1.401, 'p': 0.930},
+    'b': {'k': 1.655, 'q': 1.486, 'b': 1.296, 'n': 1.270, 'r': 1.340, 'p': 0.925},
+}
+
+
+def refs():
+    return classic2_kit.refs('pagoda', HEIGHTS)
+
+
 SPEC = {
     'k': {'kind': 'figure', 'z0': 0.2, 'thick': 0.42},
     'q': {'kind': 'figure', 'z0': 0.22, 'thick': 0.4},
@@ -49,4 +62,4 @@ SPEC = {
 
 
 def build(t, refs):
-    return classic.build(t, refs, SPEC)
+    return classic2_kit.build(t, refs, SPEC)
