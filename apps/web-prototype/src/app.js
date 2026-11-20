@@ -2660,7 +2660,7 @@
       return fresh.concat(old).slice(0, n);
     };
     const prompt = (k) => t('learn.tr.p.' + k);
-    const move = (x, extra) => Object.assign({ type: x.mate ? 'mate' : 'move', fen: x.fen, answers: x.answers, last: x.last, item: x.id, note: x.note, prompt: prompt(tr.id) }, extra || {});
+    const move = (x, extra) => Object.assign({ type: x.mate ? 'mate' : 'move', fen: x.fen, answers: x.answers, checked: !!x.checked, last: x.last, item: x.id, note: x.note, prompt: prompt(tr.id) }, extra || {});
     if (tr.id === 'three-sixty') return pick(tr.pool, 3).flatMap((x) => [move(x, { fen: theirTurn(x.fen), answers: [x.threat], their: true, last: null, prompt: prompt('threat') }), move(x, { item: null, prompt: prompt('stop') })]);
     if (tr.id === 'intuition') return pick(tr.pool, tr.round).map((x) => move(x, { options: shuffled(x.options), seconds: tr.seconds }));
     if (tr.id === 'retry') {
@@ -5896,6 +5896,7 @@
     function renderEx() {
       const x = ex[S.i];
       S.tries = 0; S.found = []; S.hintN = 0; S.selected = -1; S.answered = false; S.wait = false;
+      if (window.__SHOT) window.__ex = x;   // test tooling reads the position on the board
       $('ls-phase').textContent = trn ? t('learn.tr.position', { n: S.i + 1, of: ex.length }) : t(test ? 'learn.ls.question' : 'learn.ls.exercise', { n: S.i + 1, of: ex.length });
       $('ls-prev').disabled = true;
       $('ls-prev').hidden = quiz;
@@ -6051,6 +6052,7 @@
         // again: a wrong answer that may be tried again says so (the placement test gives one try)
         let ok = false, msg = '', again = false;
         if (x.type === 'anyLegal') { ok = true; msg = t('learn.ls.kingSafe'); }
+        else if (x.type === 'move' && trn && !test) { trainerMove(x, g, m, u); return; }
         else if (x.type === 'move') { ok = x.answers.includes(u); msg = ok ? t('learn.ls.wellPlayed') : (x.wrong && x.wrong[u]) ? I18N.text(x.wrong[u]) : (again = true, t('learn.ls.notTheMove')); }
         else if (x.type === 'win') { const g2 = new E.Game(S.pos.fen()); g2.play(m); const won = g2.outcome && g2.outcome.result === (S.pos.side === WHITE ? '1-0' : '0-1'); ok = !!won; msg = ok ? (g2.outcome.reason === 'checkmate' ? t('learn.ls.mateWinsToo') : x.yes ? I18N.text(x.yes) : t('learn.ls.noMoveWin')) : x.no ? I18N.text(x.no) : (again = true, t('learn.ls.canStillMove')); }
         else if (x.type === 'mate') { const g2 = new E.Game(S.pos.fen()); g2.play(m); ok = g2.outcome && g2.outcome.reason === 'checkmate'; msg = ok ? t('learn.ls.mate') : (x.wrong && x.wrong[u]) ? I18N.text(x.wrong[u]) : g2.outcome && g2.outcome.reason === 'stalemate' ? t('learn.ls.stalemate') : (again = true, t('learn.ls.notMate')); }
@@ -6088,6 +6090,39 @@
       };
       if (g.needsPromotion(from, to) && g.pos.ch) go2(E.Q);
       else if (g.needsPromotion(from, to)) choosePromotion(S.pos.side, (k) => { if (k) go2(k); else view.setBoard(piecesOf(S.pos), null); }); else go2(0);
+    }
+    // Trainers: every sound move counts, not only the one stored with the position. The list was
+    // widened offline (chess-core/tools/accept-trainer-moves.js); a move outside it gets the engine's
+    // reason in a sentence, and a slip from the player's own game (no checked list) is judged live.
+    function trainerMove(x, g, m, u) {
+      const sanOf = (v) => { try { const g0 = new E.Game(x.fen); const m0 = g0.pos.parseMove(v, g0.legal); return m0 === null || m0 === undefined ? v : g0.pos.san(m0, g0.legal); } catch (e) { return v; } };
+      const good = (msg) => {
+        const info = g.play(m);
+        AU.play(info.captured ? 'capture' : info.check ? 'check' : 'move', info);
+        quickMove(info, () => { S.pos = g.pos; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); });
+        answer(S.tries === 0, msg);
+      };
+      const bad = (msg) => { S.tries++; AU.play('wrong'); fb('bad', msg + ' ' + t('learn.ls.tryAgain')); view.setBoard(S.hidden ? [] : piecesOf(S.pos), null); view.setHighlights({ marks: hillMarks(x.fen) }); };
+      S.selected = -1;
+      if (x.answers.includes(u) && u !== x.played) {
+        const note = x.note ? I18N.text(x.note) : '';
+        if (u === x.answers[0]) good(t('learn.ls.wellPlayed') + (note ? ' ' + note : ''));
+        else good(t('learn.tr.alsoGood') + (note ? ' ' + t('learn.tr.mainIdea', { san: sanOf(x.answers[0]), note }) : ''));
+        return;
+      }
+      if (x.played && u === x.played) { bad(t('learn.tr.sameSlip')); return; }
+      const el = $('ls-fb'), tok = String(Date.now() + Math.random());
+      if (el) el.dataset.wait = tok;
+      S.wait = true;
+      job('analysis', { type: 'check', fen: x.fen, moves: [], uci: u, opts: { timeMs: 300 } }, (r) => {
+        const now = $('ls-fb');
+        if (!now || now.dataset.wait !== tok) return;   // the player has moved on
+        S.wait = false; delete now.dataset.wait;
+        const ck = r && r.check;
+        if (!x.checked && ck && (ck.grade === 'excellent' || ck.grade === 'good')) { good(t('learn.tr.alsoGood')); return; }
+        const w = ck ? M.warning(ck) : null;
+        bad(w && w.text ? w.text : t('learn.tr.weaker'));
+      });
     }
     function answer(firstTry, msg) {
       S.answered = true;

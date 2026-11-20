@@ -45,30 +45,8 @@
     }
    ]
   },
-  "lessons": {
-   "text": "Primeiro, aprenda como cada peça se move. Depois resolva problemas, experimente aberturas famosas e vença finais. E sabe o que mais? Um problema novinho espera por você todos os dias!",
-   "voice": "pm_alex",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "Primeiro, aprenda como cada peça se move."
-    },
-    {
-     "t": 2.94,
-     "text": "Depois resolva problemas, experimente aberturas famosas e vença finais."
-    },
-    {
-     "t": 7.86,
-     "text": "E sabe o que mais?"
-    },
-    {
-     "t": 9.52,
-     "text": "Um problema novinho espera por você todos os dias!"
-    }
-   ]
-  },
   "wonders": {
-   "text": "Agora vem a parte divertida! Você joga bem na frente de maravilhas do mundo de verdade, das Pirâmides ao Taj Mahal. Vença cada campeão, ganhe um carimbo no passaporte, e o próximo lugar é desbloqueado!",
+   "text": "Agora vem a parte divertida! Nove mundos, das Pirâmides a Nova York, cada um com sua história, música e campeão. Escolha um e jogue alguns lances ali mesmo!",
    "voice": "pm_alex",
    "cues": [
     {
@@ -77,11 +55,11 @@
     },
     {
      "t": 2.37,
-     "text": "Você joga bem na frente de maravilhas do mundo de verdade, das Pirâmides ao Taj Mahal."
+     "text": "Nove mundos, das Pirâmides a Nova York, cada um com sua história, música e campeão."
     },
     {
-     "t": 7.68,
-     "text": "Vença cada campeão, ganhe um carimbo no passaporte, e o próximo lugar é desbloqueado!"
+     "t": 7.32,
+     "text": "Escolha um e jogue alguns lances ali mesmo!"
     }
    ]
   },
@@ -108,7 +86,7 @@
    ]
   },
   "ages": {
-   "text": "Então, com quem você quer jogar? Truffle, o coelhinho, é supergentil com quem está começando. Ember, o dragão, joga com força total! Cada partida deixa você um pouquinho melhor.",
+   "text": "Então, com quem você quer jogar? Conheça meus amigos! Truffle, a coelhinha, é bem gentil com iniciantes, e Ember, o dragão, joga com força total. Toque em cada um para ver o que ele diz!",
    "voice": "pm_alex",
    "cues": [
     {
@@ -117,33 +95,15 @@
     },
     {
      "t": 2.39,
-     "text": "Truffle, o coelhinho, é supergentil com quem está começando."
+     "text": "Conheça meus amigos!"
     },
     {
-     "t": 6.12,
-     "text": "Ember, o dragão, joga com força total!"
+     "t": 4.32,
+     "text": "Truffle, a coelhinha, é bem gentil com iniciantes, e Ember, o dragão, joga com força total."
     },
     {
-     "t": 8.98,
-     "text": "Cada partida deixa você um pouquinho melhor."
-    }
-   ]
-  },
-  "families": {
-   "text": "Adultos, esta parte é para vocês! Sem chat com desconhecidos, sem anúncios e sem rastreamento. Você decide sobre o jogo online e as compras.",
-   "voice": "pm_alex",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "Adultos, esta parte é para vocês!"
-    },
-    {
-     "t": 2.5,
-     "text": "Sem chat com desconhecidos, sem anúncios e sem rastreamento."
-    },
-    {
-     "t": 6.43,
-     "text": "Você decide sobre o jogo online e as compras."
+     "t": 9.69,
+     "text": "Toque em cada um para ver o que ele diz!"
     }
    ]
   },
@@ -628,12 +588,24 @@
    ]
   },
   "item-sets-ocean": {
-   "text": "Mergulhe no mar! O Coral Kingdom é a corte de uma cidade afundada, em pérola e ouro: um rei do mar com o seu tridente, uma rainha sereia, águas-vivas que brilham, cavalos-marinhos espinhosos e faróis que ainda brilham. Os peões são pérolas em conchas abertas. Chegue ao nível doze e o reino inteiro vem nadando para o seu tabuleiro.",
+   "text": "Mergulhe no fundo do mar! Coral Kingdom é a corte de uma cidade submersa, em pérola e ouro: um rei do mar com seu tridente, uma rainha sereia, águas-vivas que brilham, cavalos-marinhos espinhosos e faróis que ainda iluminam. Os peões são pérolas em conchas abertas. Chegue ao nível doze, e o reino inteiro vem nadando até o seu tabuleiro.",
    "voice": "pm_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Mergulhe no mar! O Coral Kingdom é a corte de uma cidade afundada, em pérola e ouro: um rei do mar com o seu tridente, uma rainha sereia, águas-vivas que brilham, cavalos-marinhos espinhosos e faróis que ainda brilham. Os peões são pérolas em conchas abertas. Chegue ao nível doze e o reino inteiro vem nadando para o seu tabuleiro."
+     "text": "Mergulhe no fundo do mar!"
+    },
+    {
+     "t": 2.0,
+     "text": "Coral Kingdom é a corte de uma cidade submersa, em pérola e ouro: um rei do mar com seu tridente, uma rainha sereia, águas-vivas que brilham, cavalos-marinhos espinhosos e faróis que ainda iluminam."
+    },
+    {
+     "t": 13.02,
+     "text": "Os peões são pérolas em conchas abertas."
+    },
+    {
+     "t": 15.9,
+     "text": "Chegue ao nível doze, e o reino inteiro vem nadando até o seu tabuleiro."
     }
    ]
   },
@@ -1040,12 +1012,24 @@
    ]
   },
   "item-boards-deco": {
-   "text": "Entre na era do jazz. O Skyline Marble é mármore creme e verde-escuro com veios de ouro, numa moldura de laca preta com leques dourados de raios de sol. É elegante, brilhante e muito Nova Iorque. Vença Skye the Eagle sobre Manhattan e ele é seu.",
+   "text": "Entre na era do jazz. Skyline Marble é mármore creme e verde-escuro com veios de ouro, emoldurado em laca preta com leques dourados de raios de sol. É afiado, brilhante e bem Nova York. Vença Skye, a Águia, sobre Manhattan, e ele é seu.",
    "voice": "pm_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Entre na era do jazz. O Skyline Marble é mármore creme e verde-escuro com veios de ouro, numa moldura de laca preta com leques dourados de raios de sol. É elegante, brilhante e muito Nova Iorque. Vença Skye the Eagle sobre Manhattan e ele é seu."
+     "text": "Entre na era do jazz."
+    },
+    {
+     "t": 1.88,
+     "text": "Skyline Marble é mármore creme e verde-escuro com veios de ouro, emoldurado em laca preta com leques dourados de raios de sol."
+    },
+    {
+     "t": 9.29,
+     "text": "É afiado, brilhante e bem Nova York."
+    },
+    {
+     "t": 12.01,
+     "text": "Vença Skye, a Águia, sobre Manhattan, e ele é seu."
     }
    ]
   },
@@ -2580,7 +2564,7 @@
    ]
   },
   "train": {
-   "text": "Hora de treinar! São treze treinadores, uma habilidade de cada vez. Primeiro uma lição rapidinha comigo, depois uma rodada de treino com pontuação. Consegue bater o seu recorde?",
+   "text": "Hora de treinar! Comece pelo treinador três sessenta, uma rodada mista de tudo, ou escolha uma habilidade de cada vez. Toque em qualquer cartão, e um exercício de verdade abre na mesa!",
    "voice": "pm_alex",
    "cues": [
     {
@@ -2589,20 +2573,16 @@
     },
     {
      "t": 1.54,
-     "text": "São treze treinadores, uma habilidade de cada vez."
+     "text": "Comece pelo treinador três sessenta, uma rodada mista de tudo, ou escolha uma habilidade de cada vez."
     },
     {
-     "t": 5.05,
-     "text": "Primeiro uma lição rapidinha comigo, depois uma rodada de treino com pontuação."
-    },
-    {
-     "t": 10.04,
-     "text": "Consegue bater o seu recorde?"
+     "t": 7.8,
+     "text": "Toque em qualquer cartão, e um exercício de verdade abre na mesa!"
     }
    ]
   },
   "mates": {
-   "text": "Hora dos quebra-cabeças! Encontre o xeque-mate em um lance, depois em dois, e assim até cinco. Veja eu resolver um aqui mesmo, na mesa!",
+   "text": "Hora dos quebra-cabeças! Encontre o xeque-mate em um lance, ou escolha um truque: garfos, cravadas, espetos e mais. Travou? Peça uma dica para mim!",
    "voice": "pm_alex",
    "cues": [
     {
@@ -2611,16 +2591,20 @@
     },
     {
      "t": 1.99,
-     "text": "Encontre o xeque-mate em um lance, depois em dois, e assim até cinco."
+     "text": "Encontre o xeque-mate em um lance, ou escolha um truque: garfos, cravadas, espetos e mais."
     },
     {
-     "t": 6.13,
-     "text": "Veja eu resolver um aqui mesmo, na mesa!"
+     "t": 7.32,
+     "text": "Travou?"
+    },
+    {
+     "t": 8.42,
+     "text": "Peça uma dica para mim!"
     }
    ]
   },
   "progress": {
-   "text": "E veja o quanto você evolui! Eu confiro oito habilidades das suas partidas e mostro tudo num gráfico. Tudo fica no seu aparelho, prometo!",
+   "text": "E veja o quanto você evolui! Escolha uma habilidade e veja o gráfico mudar. Estes números são só um exemplo; os seus virão das suas próprias partidas.",
    "voice": "pm_alex",
    "cues": [
     {
@@ -2629,11 +2613,11 @@
     },
     {
      "t": 2.34,
-     "text": "Eu confiro oito habilidades das suas partidas e mostro tudo num gráfico."
+     "text": "Escolha uma habilidade e veja o gráfico mudar."
     },
     {
-     "t": 6.9,
-     "text": "Tudo fica no seu aparelho, prometo!"
+     "t": 5.36,
+     "text": "Estes números são só um exemplo; os seus virão das suas próprias partidas."
     }
    ]
   },
@@ -2993,24 +2977,6 @@
     }
    ]
   },
-  "fx-sound": {
-   "text": "Pacotes de sons! Escolha o som das suas peças quando elas pousam. O mármore faz clac, e o vidro faz clim!",
-   "voice": "pm_alex",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "Pacotes de sons!"
-    },
-    {
-     "t": 1.74,
-     "text": "Escolha o som das suas peças quando elas pousam."
-    },
-    {
-     "t": 4.81,
-     "text": "O mármore faz clac, e o vidro faz clim!"
-    }
-   ]
-  },
   "fx-avatar": {
    "text": "Avatares! Escolha um rosto para o seu cartão de jogador. Qual amigo se parece mais com você?",
    "voice": "pm_alex",
@@ -3048,7 +3014,7 @@
    ]
   },
   "earn": {
-   "text": "E como você consegue tudo isso? Jogando! Vença os campeões, complete os desafios e as lições do dia, e suba no passe da temporada. Nada do que você coleciona deixa você mais forte, então toda partida é justa.",
+   "text": "E como você consegue tudo isso? Jogando! Vença partidas, complete campanhas, resolva o desafio diário e suba no passe da temporada. Nada do que você coleciona deixa você mais forte, então toda partida é justa.",
    "voice": "pm_alex",
    "cues": [
     {
@@ -3056,21 +3022,21 @@
      "text": "E como você consegue tudo isso?"
     },
     {
-     "t": 2.61,
+     "t": 2.59,
      "text": "Jogando!"
     },
     {
-     "t": 3.89,
-     "text": "Vença os campeões, complete os desafios e as lições do dia, e suba no passe da temporada."
+     "t": 3.87,
+     "text": "Vença partidas, complete campanhas, resolva o desafio diário e suba no passe da temporada."
     },
     {
-     "t": 9.61,
+     "t": 9.63,
      "text": "Nada do que você coleciona deixa você mais forte, então toda partida é justa."
     }
    ]
   },
   "pricing": {
-   "text": "Boa notícia, começar no Chackmate é grátis! Adultos, os planos estão bem aqui na página. Nenhum plano tem anúncios, e nada do que você compra deixa você mais forte.",
+   "text": "Boa notícia, começar no Chackmate é grátis! Os planos estão bem aqui na página. E nada do que você compra deixa você mais forte.",
    "voice": "pm_alex",
    "cues": [
     {
@@ -3079,32 +3045,32 @@
     },
     {
      "t": 3.06,
-     "text": "Adultos, os planos estão bem aqui na página."
+     "text": "Os planos estão bem aqui na página."
     },
     {
-     "t": 6.05,
-     "text": "Nenhum plano tem anúncios, e nada do que você compra deixa você mais forte."
+     "t": 5.59,
+     "text": "E nada do que você compra deixa você mais forte."
     }
    ]
   },
   "about": {
-   "text": "Esta é a Casa do Jogo, o estúdio que me criou! Eles queriam que toda criança tivesse uma mesa de xadrez de verdade, um treinador que ensina e amigos que jogam limpo. Quer dizer olá? Os contatos deles estão bem aqui.",
+   "text": "E este é o estúdio que me criou! Eles criam mundos para jogar, aprender e crescer, e têm mais jogos também. Quer dizer olá? Os contatos deles estão bem aqui.",
    "voice": "pm_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Esta é a Casa do Jogo, o estúdio que me criou!"
+     "text": "E este é o estúdio que me criou!"
     },
     {
-     "t": 2.9,
-     "text": "Eles queriam que toda criança tivesse uma mesa de xadrez de verdade, um treinador que ensina e amigos que jogam limpo."
+     "t": 2.24,
+     "text": "Eles criam mundos para jogar, aprender e crescer, e têm mais jogos também."
     },
     {
-     "t": 9.98,
+     "t": 6.86,
      "text": "Quer dizer olá?"
     },
     {
-     "t": 11.59,
+     "t": 8.47,
      "text": "Os contatos deles estão bem aqui."
     }
    ]
