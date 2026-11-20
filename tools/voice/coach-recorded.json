@@ -815,6 +815,12 @@
   "text": "queen kiss mate",
   "spoken": "queen kiss mate"
  },
+ "george/1a5ae30a": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Two threats from one move: the other side can only answer one of them. A fork is a double attack by one piece.",
+  "spoken": "Two threats from one move: the other side can only answer one of them. A fork is a double attack by one piece."
+ },
  "george/1a67c891": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -982,6 +988,12 @@
   "speed": 1.0,
   "text": "to the king",
   "spoken": "to the king"
+ },
+ "george/2038f9c4": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Double attack",
+  "spoken": "Double attack"
  },
  "george/20d96fa1": {
   "voice": "bm_george",
@@ -1420,6 +1432,12 @@
   "speed": 1.0,
   "text": "threatens checkmate with",
   "spoken": "threatens checkmate with"
+ },
+ "george/316fc00f": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "One move that makes two threats at once.",
+  "spoken": "One move that makes two threats at once."
  },
  "george/3173bf19": {
   "voice": "bm_george",
@@ -2039,6 +2057,12 @@
   "text": "Oh no! It happens to everyone.",
   "spoken": "Oh no! It happens to everyone."
  },
+ "george/51a97469": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "An attack on the king. Move the king, block the line or capture the attacker.",
+  "spoken": "An attack on the king. Move the king, block the line or capture the attacker."
+ },
  "george/51ab840a": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -2248,6 +2272,12 @@
   "speed": 1.0,
   "text": "undefended.",
   "spoken": "undefended."
+ },
+ "george/592c8de7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "Check",
+  "spoken": "Check"
  },
  "george/59a62a48": {
   "voice": "bm_george",
@@ -4751,6 +4781,12 @@
   "text": "attacks the king on",
   "spoken": "attacks the king on"
  },
+ "george/aeb28768": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "En passant",
+  "spoken": "En passant"
+ },
  "george/aeca1708": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -5621,6 +5657,12 @@
   "text": "Excellent",
   "spoken": "Excellent"
  },
+ "george/d44220d7": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "The king is attacked. You must get it out of danger at once.",
+  "spoken": "The king is attacked. You must get it out of danger at once."
+ },
  "george/d4479a34": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -6191,6 +6233,12 @@
   "text": "Nimzowitsch Defence",
   "spoken": "Nimzowitsch Defence"
  },
+ "george/eb378acd": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "French for in passing. Allowed only on the very next move, as if the pawn had moved one square.",
+  "spoken": "French for in passing. Allowed only on the very next move, as if the pawn had moved one square."
+ },
  "george/ec529ab0": {
   "voice": "bm_george",
   "speed": 1.0,
@@ -6484,6 +6532,12 @@
   "speed": 1.0,
   "text": "checkmate",
   "spoken": "checkmate"
+ },
+ "george/f7685500": {
+  "voice": "bm_george",
+  "speed": 1.0,
+  "text": "A pawn taking a pawn that just jumped two squares past it.",
+  "spoken": "A pawn taking a pawn that just jumped two squares past it."
  },
  "george/f7cc3001": {
   "voice": "bm_george",
@@ -7487,6 +7541,12 @@
   "text": "queen kiss mate",
   "spoken": "queen kiss mate"
  },
+ "heart/1a5ae30a": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Two threats from one move: the other side can only answer one of them. A fork is a double attack by one piece.",
+  "spoken": "Two threats from one move: the other side can only answer one of them. A fork is a double attack by one piece."
+ },
  "heart/1a67c891": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -7654,6 +7714,12 @@
   "speed": 1.0,
   "text": "to the king",
   "spoken": "to the king"
+ },
+ "heart/2038f9c4": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Double attack",
+  "spoken": "Double attack"
  },
  "heart/20d96fa1": {
   "voice": "af_heart",
@@ -8092,6 +8158,12 @@
   "speed": 1.0,
   "text": "threatens checkmate with",
   "spoken": "threatens checkmate with"
+ },
+ "heart/316fc00f": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "One move that makes two threats at once.",
+  "spoken": "One move that makes two threats at once."
  },
  "heart/3173bf19": {
   "voice": "af_heart",
@@ -8711,6 +8783,12 @@
   "text": "Oh no! It happens to everyone.",
   "spoken": "Oh no! It happens to everyone."
  },
+ "heart/51a97469": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "An attack on the king. Move the king, block the line or capture the attacker.",
+  "spoken": "An attack on the king. Move the king, block the line or capture the attacker."
+ },
  "heart/51ab840a": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -8920,6 +8998,12 @@
   "speed": 1.0,
   "text": "undefended.",
   "spoken": "undefended."
+ },
+ "heart/592c8de7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "Check",
+  "spoken": "Check"
  },
  "heart/59a62a48": {
   "voice": "af_heart",
@@ -11423,6 +11507,12 @@
   "text": "attacks the king on",
   "spoken": "attacks the king on"
  },
+ "heart/aeb28768": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "En passant",
+  "spoken": "En passant"
+ },
  "heart/aeca1708": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -12293,6 +12383,12 @@
   "text": "Excellent",
   "spoken": "Excellent"
  },
+ "heart/d44220d7": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "The king is attacked. You must get it out of danger at once.",
+  "spoken": "The king is attacked. You must get it out of danger at once."
+ },
  "heart/d4479a34": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -12863,6 +12959,12 @@
   "text": "Nimzowitsch Defence",
   "spoken": "Nimzowitsch Defence"
  },
+ "heart/eb378acd": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "French for in passing. Allowed only on the very next move, as if the pawn had moved one square.",
+  "spoken": "French for in passing. Allowed only on the very next move, as if the pawn had moved one square."
+ },
  "heart/ec529ab0": {
   "voice": "af_heart",
   "speed": 1.0,
@@ -13156,6 +13258,12 @@
   "speed": 1.0,
   "text": "checkmate",
   "spoken": "checkmate"
+ },
+ "heart/f7685500": {
+  "voice": "af_heart",
+  "speed": 1.0,
+  "text": "A pawn taking a pawn that just jumped two squares past it.",
+  "spoken": "A pawn taking a pawn that just jumped two squares past it."
  },
  "heart/f7cc3001": {
   "voice": "af_heart",
@@ -14159,6 +14267,12 @@
   "text": "queen kiss mate",
   "spoken": "queen kiss mate"
  },
+ "rooky/1a5ae30a": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Two threats from one move: the other side can only answer one of them. A fork is a double attack by one piece.",
+  "spoken": "Two threats from one move: the other side can only answer one of them. A fork is a double attack by one piece."
+ },
  "rooky/1a67c891": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -14326,6 +14440,12 @@
   "speed": 1.05,
   "text": "to the king",
   "spoken": "to the king"
+ },
+ "rooky/2038f9c4": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Double attack",
+  "spoken": "Double attack"
  },
  "rooky/20d96fa1": {
   "voice": "am_puck,am_liam",
@@ -14764,6 +14884,12 @@
   "speed": 1.05,
   "text": "threatens checkmate with",
   "spoken": "threatens checkmate with"
+ },
+ "rooky/316fc00f": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "One move that makes two threats at once.",
+  "spoken": "One move that makes two threats at once."
  },
  "rooky/3173bf19": {
   "voice": "am_puck,am_liam",
@@ -15383,6 +15509,12 @@
   "text": "Oh no! It happens to everyone.",
   "spoken": "Oh no! It happens to everyone."
  },
+ "rooky/51a97469": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "An attack on the king. Move the king, block the line or capture the attacker.",
+  "spoken": "An attack on the king. Move the king, block the line or capture the attacker."
+ },
  "rooky/51ab840a": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -15592,6 +15724,12 @@
   "speed": 1.05,
   "text": "undefended.",
   "spoken": "undefended."
+ },
+ "rooky/592c8de7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "Check",
+  "spoken": "Check"
  },
  "rooky/59a62a48": {
   "voice": "am_puck,am_liam",
@@ -18095,6 +18233,12 @@
   "text": "attacks the king on",
   "spoken": "attacks the king on"
  },
+ "rooky/aeb28768": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "En passant",
+  "spoken": "En passant"
+ },
  "rooky/aeca1708": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -18965,6 +19109,12 @@
   "text": "Excellent",
   "spoken": "Excellent"
  },
+ "rooky/d44220d7": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "The king is attacked. You must get it out of danger at once.",
+  "spoken": "The king is attacked. You must get it out of danger at once."
+ },
  "rooky/d4479a34": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -19535,6 +19685,12 @@
   "text": "Nimzowitsch Defence",
   "spoken": "Nimzowitsch Defence"
  },
+ "rooky/eb378acd": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "French for in passing. Allowed only on the very next move, as if the pawn had moved one square.",
+  "spoken": "French for in passing. Allowed only on the very next move, as if the pawn had moved one square."
+ },
  "rooky/ec529ab0": {
   "voice": "am_puck,am_liam",
   "speed": 1.05,
@@ -19828,6 +19984,12 @@
   "speed": 1.05,
   "text": "checkmate",
   "spoken": "checkmate"
+ },
+ "rooky/f7685500": {
+  "voice": "am_puck,am_liam",
+  "speed": 1.05,
+  "text": "A pawn taking a pawn that just jumped two squares past it.",
+  "spoken": "A pawn taking a pawn that just jumped two squares past it."
  },
  "rooky/f7cc3001": {
   "voice": "am_puck,am_liam",
