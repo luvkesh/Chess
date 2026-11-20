@@ -3,6 +3,7 @@ tyrant king in a cape, a crested queen in a gown, amber crystal bishops holding 
 triceratops and raptor knights, castle and lava-tower rooks, hatchling and amber-egg pawns.
 Reference: the user's lineup picture of 2026-11-12 (2297d987, lava stone above, bone below)."""
 import classic
+import hero
 import kit
 
 PIC = '/mnt/project-files/uploads/hearth/2297d987-171a-4979-b02f-98f18dd319e9'
@@ -24,7 +25,20 @@ LOOK = {
 }
 
 
+# each piece's size in game units, from the lineup picture (printed by picture/cutouts.py)
+HEIGHTS = {
+    'w': {'k': 1.750, 'q': 1.603, 'b': 1.489, 'n': 1.314, 'r': 1.342, 'p': 0.844},
+    'b': {'k': 1.750, 'q': 1.603, 'b': 1.489, 'n': 1.314, 'r': 1.342, 'p': 0.844},
+}
+
+
 def refs():
+    """the hero pictures (pics/dino): each cut-out below redrawn sharper, the same design"""
+    return hero.refs(hero.pics('dino'), HEIGHTS)
+
+
+def source_refs():
+    """the cut-outs from the lineup picture, which the hero pictures were redrawn from"""
     out = {'w': {}, 'b': {}}
     king = kit.Ref(PIC, BOXES['w']['k'], height=1.75, seg='sam')
     for s in ('w', 'b'):
