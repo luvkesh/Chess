@@ -339,6 +339,16 @@
   "voice": "ff_siwis,am_puck",
   "text": "Trouve le meilleur coup ! Cherche les échecs, les prises et les menaces."
  },
+ "puzzle.mate": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Trouve l'échec et mat ! Mets le roi en échec, sans lui laisser d'issue."
+ },
+ "puzzle.mateN": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Prépare ton échec et mat ! Chaque coup doit laisser au roi moins d'issues."
+ },
  "puzzle.wrong": {
   "who": "rooky",
   "voice": "ff_siwis,am_puck",

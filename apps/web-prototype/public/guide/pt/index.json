@@ -339,6 +339,16 @@
   "voice": "pm_alex",
   "text": "Encontre o melhor lance! Procure xeques, capturas e ameaças."
  },
+ "puzzle.mate": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Encontre o xeque-mate! Dê xeque no rei e não deixe saída."
+ },
+ "puzzle.mateN": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Planeje seu xeque-mate! Cada lance deve deixar o rei com menos saídas."
+ },
  "puzzle.wrong": {
   "who": "rooky",
   "voice": "pm_alex",

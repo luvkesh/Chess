@@ -1918,6 +1918,51 @@ body.ingame .guide.up.open .gd-bubble, body.ingame .guide.up.speaking .gd-bubble
   .mini-call { font-size: 56px; }
 }
 @media (prefers-reduced-motion: reduce) { .guide .narrator { transition: none; } .guide.pop .narrator, .guide.speaking .narrator .ring, .gd-bubble, .mu-rooky.speaking .narrator { animation: none; } }
+/* Puzzles: the solve streak beside the rating, where you are in a numbered set, and the streak moments */
+.hud-top .pz-streak { gap: 8px; }
+.hud-top .pz-streak .ico { width: 17px; height: 17px; color: var(--muted); transition: color .3s; }
+.hud-top .pz-streak.hot .ico { color: #ff9a3c; filter: drop-shadow(0 0 6px rgba(255, 140, 50, 0.7)); }
+.hud-top .pz-streak .faint { color: var(--muted); font-size: 12px; }
+.hud-top .pz-streak .short { display: none; }
+@media (max-width: 420px) { .hud-top:has(.pz-streak) .title { display: none; } .hud-top .pz-streak .full { display: none; } .hud-top .pz-streak .short { display: inline; } .hud-top .pz-streak { gap: 5px; } }
+.hud-top .pz-streak.bump { animation: pzBump .6s var(--ease); }
+.hud-top .pz-streak.broke { animation: pzShake .5s; border-color: rgba(255, 90, 80, 0.6); }
+@keyframes pzBump { 0% { transform: scale(1); } 35% { transform: scale(1.12); box-shadow: 0 0 22px rgba(255, 170, 70, 0.55); } 100% { transform: scale(1); } }
+@keyframes pzShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+.pz-prog { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.pz-prog .bar { flex: 1; min-width: 60px; height: 4px; }
+.pz-prog small { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.streak-moment { position: fixed; inset: 0; display: grid; place-items: center; z-index: 60; pointer-events: none; }
+.streak-moment.ms { pointer-events: auto; }
+.streak-moment .sm-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px 36px 24px; border-radius: 22px; text-align: center; max-width: min(360px, calc(100vw - 32px)); animation: smIn .45s var(--ease) both; }
+.streak-moment .sm-n { position: relative; display: inline-flex; align-items: center; gap: 6px; font: 600 64px/1 var(--display); color: var(--gold-2); }
+.streak-moment .sm-n .ico { width: 44px; height: 44px; color: #ff9a3c; filter: drop-shadow(0 0 10px rgba(255, 140, 50, 0.8)); }
+.streak-moment .sm-t { font: 600 22px/1.2 var(--serif); color: var(--ink); }
+.streak-moment small { color: var(--muted); font-size: 13.5px; }
+.streak-moment.out { opacity: 0; transition: opacity .5s; }
+@keyframes smIn { from { opacity: 0; transform: scale(.82) translateY(10px); } to { opacity: 1; transform: none; } }
+/* broken: the number cracks, drains of colour and drops */
+.streak-moment.break .sm-card { border-color: rgba(255, 90, 80, 0.45); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(255, 70, 60, 0.18); }
+.streak-moment.break .sm-n b { display: inline-block; animation: smBreak 1.6s .35s var(--ease) both; }
+.streak-moment.break .crack { position: absolute; left: 50%; top: -6px; bottom: -6px; width: 3px; transform: translateX(-50%) rotate(12deg); background: linear-gradient(180deg, transparent, #ffd9cf 20%, #ff6a5a 50%, #ffd9cf 80%, transparent); clip-path: polygon(0 0, 100% 0, 100% 30%, 0 45%, 100% 62%, 0 100%); opacity: 0; animation: smCrack .3s .3s both; }
+@keyframes smCrack { from { opacity: 0; transform: translateX(-50%) rotate(12deg) scaleY(0); } to { opacity: 1; transform: translateX(-50%) rotate(12deg) scaleY(1); } }
+@keyframes smBreak { 0% { color: var(--gold-2); } 30% { color: #ff7a6a; transform: rotate(-4deg); } 100% { color: #6d5a52; transform: translateY(14px) rotate(-9deg); opacity: .55; } }
+/* milestones: 10 bronze, 25 silver, 50 gold with rays, 100 gold with rays and a shower of sparks */
+.streak-moment.ms .sm-card { border-color: rgba(232, 194, 122, 0.55); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55), 0 0 50px rgba(232, 194, 122, 0.25); }
+.streak-moment.tier-0 .sm-n b { color: #e2a56a; }
+.streak-moment.tier-1 .sm-n b { background: linear-gradient(180deg, #ffffff, #c9d3e0 55%, #8e9bb0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.streak-moment.tier-2 .sm-n b, .streak-moment.tier-3 .sm-n b { background: var(--gold-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.streak-moment.tier-3 .sm-n { font-size: 84px; }
+.streak-moment .sm-rays { position: absolute; width: 720px; height: 720px; max-width: 160vw; max-height: 160vw; border-radius: 50%; opacity: 0; background: repeating-conic-gradient(from 0deg, rgba(246, 220, 156, 0.16) 0 6deg, transparent 6deg 18deg); -webkit-mask: radial-gradient(circle, #000 20%, transparent 68%); mask: radial-gradient(circle, #000 20%, transparent 68%); }
+.streak-moment.tier-2 .sm-rays, .streak-moment.tier-3 .sm-rays { animation: smRays 4s linear both; }
+.streak-moment.tier-3 .sm-rays { background: repeating-conic-gradient(from 0deg, rgba(255, 228, 160, 0.26) 0 5deg, transparent 5deg 12deg); }
+@keyframes smRays { 0% { opacity: 0; transform: rotate(0) scale(.6); } 15% { opacity: 1; } 100% { opacity: .2; transform: rotate(40deg) scale(1.05); } }
+.streak-moment .sm-sparks { position: absolute; width: 0; height: 0; }
+.streak-moment .sm-sparks i { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle, #fff6d8, #f0c25a 60%, transparent 70%); transform: rotate(var(--a)) translateY(0); opacity: 0; animation: smSpark 1.5s var(--d) ease-out both; }
+.streak-moment.tier-3 .sm-sparks i { width: 9px; height: 9px; animation-duration: 2s; }
+@keyframes smSpark { 0% { opacity: 0; transform: rotate(var(--a)) translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-210px); } }
+@media (max-width: 560px) { .hud-top .pz-streak .faint { display: none; } .hud-top .pz-streak { padding: 0 10px; } .hud-top:has(.pz-streak) .title { flex-shrink: 0; } .streak-moment .sm-n { font-size: 52px; } .streak-moment.tier-3 .sm-n { font-size: 64px; } }
+@media (prefers-reduced-motion: reduce) { .streak-moment .sm-rays, .streak-moment .sm-sparks { display: none; } .streak-moment.break .sm-n b { opacity: .6; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 /* the narrowest phones (320-360 px): smaller card pictures leave the words room for more than two per line */
 @media (max-width: 360px) {
