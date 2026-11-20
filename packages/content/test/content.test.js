@@ -468,5 +468,12 @@ const placement = require('../placement.json');
       n++;
     }
   }
+  // Every sound move counts: positions that ask for a good move carry the full list of moves the
+  // engine rates about as good as the best (chess-core/tools/accept-trainer-moves.js), not one guess.
+  for (const pool of ['opening', 'quick', 'tactics', 'resource', 'advantage', 'endgame', 'safe', 'defence', 'mistake'])
+    for (const x of T.items[pool]) if (!x.mate) assert.ok(x.checked, 'trainer ' + pool + ' ' + x.id + ' has its good moves checked (run accept-trainer-moves.js)');
+  // The King's Indian position from the user's report: d6 and castling are both main moves.
+  const kid = T.items.opening.find((x) => x.id === '4cafe42b38');
+  assert.ok(kid && ['d7d6', 'e8g8'].every((u) => kid.answers.includes(u)), 'King\'s Indian accepts d6 and castling');
   console.log('trainers ok:', T.trainers.length, 'trainers,', n, 'positions');
 }
