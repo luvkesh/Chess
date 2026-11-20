@@ -38,7 +38,7 @@ def refs(sid, heights):
     out = {}
     for side, d in hero.pics(sid).items():
         out[side] = {}
-        hs = heights[side] if side in heights else heights
+        hs = heights[side] if isinstance(heights.get(side), dict) else heights   # 'b' is also the bishop
         for t, path in d.items():
             m = cv2.imread(path[:-4] + '-mask.png', cv2.IMREAD_GRAYSCALE)
             if m is None:
