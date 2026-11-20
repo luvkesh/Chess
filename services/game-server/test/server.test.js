@@ -689,7 +689,7 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     const info = await P('/api/parent/consent-info', { token: ct });
     assert.deepStrictEqual([info.body.name, info.body.band], [names[0], 'child']);
     assert.strictEqual((await P('/api/parent/consent', { token: ct, email: 'mum@example.com', password: 'parent password', pin: '2468' })).status, 400, 'must tick the box');
-    const yes = await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468', controls: { reminders: false, dailyMinutes: 45 } });
+    const yes = await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468', controls: { reminders: false, dailyMinutes: 45, purchases: 'pin' } });
     assert.strictEqual(yes.status, 200);
     const PT = yes.body.token;
     assert.strictEqual((await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468' })).status, 400, 'link is single use');
@@ -711,7 +711,8 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     k.send({ type: 'friend-join', code });
     assert.match((await k.next('error')).message, /different group/);
 
-    // Purchases need the parent's PIN; the parent can turn online play off.
+    // With "Only with my PIN" chosen, purchases need the parent's PIN (the default is allowed).
+    assert.strictEqual(safety.safety.purchases, 'pin');
     assert.strictEqual((await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '1111' }, kid.body.token)).status, 403);
     assert.strictEqual((await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '2468' }, kid.body.token)).status, 200);
     // Five wrong PINs lock purchases, even for the right PIN, so it cannot be guessed.

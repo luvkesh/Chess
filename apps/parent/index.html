@@ -50,7 +50,7 @@ footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
   <section id="consent" class="hidden">
     <div class="eyebrow">Permission request</div>
     <h1 id="c-title">Your child would like to play online</h1>
-    <p class="muted">Chackmate works offline without any of this. Online play, saving progress to an account, reminders and purchases need your permission first.</p>
+    <p class="muted">Chackmate works offline without any of this. Online play, saving progress to an account and reminders need your permission first. You also choose how purchases work.</p>
     <div class="card">
       <h2>What we keep</h2>
       <ul class="keep">
@@ -78,13 +78,13 @@ footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
       <label for="c-min">Daily time limit</label>
       <select id="c-min"><option value="0">No limit</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1 hour 30</option><option value="120">2 hours</option></select>
       <label for="c-buy">Purchases</label>
-      <select id="c-buy"><option value="pin">Only with my PIN</option><option value="off">Off</option></select>
+      <select id="c-buy"><option value="open">Allowed</option><option value="pin">Only with my PIN</option><option value="off">Off</option></select>
 
       <h2 style="margin-top:22px">Your parent account</h2>
       <p class="muted">You can change these choices, download your child's data or delete the account at any time from this page.</p>
       <label for="c-email">Your email</label><input id="c-email" type="email" autocomplete="email" required>
       <label for="c-pass">Password (at least 8 characters)</label><input id="c-pass" type="password" autocomplete="new-password" required>
-      <div id="c-pin-row"><label for="c-pin">Purchase PIN (4 to 6 digits, keep it from your child)</label><input id="c-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6"></div>
+      <div id="c-pin-row"><label for="c-pin">Parent PIN (4 to 6 digits), asked before each purchase if you choose Only with my PIN</label><input id="c-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6"></div>
       <label class="check"><input type="checkbox" id="c-agree"> I am this child's parent or legal guardian, and I give permission for the choices above.</label>
       <div class="row"><button class="btn primary" type="submit">Give permission</button></div>
       <p class="muted" style="font-size:14px">Already have a parent account for another child? Use the same email and password; the PIN stays as it is.</p>
@@ -184,7 +184,7 @@ footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
       tick('online', c.online, 'Play online against other young players') + tick('rated', c.rated, 'Rated games') +
       (k.band === 'teen' ? tick('openPool', c.openPool, 'Also play adults') : '') + tick('reminders', c.reminders, 'Daily puzzle reminder') +
       '<label>Daily time limit</label><select data-c="dailyMinutes">' + mins.map((m) => '<option value="' + m + '"' + (c.dailyMinutes === m ? ' selected' : '') + '>' + (m ? m + ' minutes' : 'No limit') + '</option>').join('') + '</select>' +
-      '<label>Purchases</label><select data-c="purchases"><option value="pin"' + (c.purchases === 'pin' ? ' selected' : '') + '>Only with my PIN</option><option value="off"' + (c.purchases === 'off' ? ' selected' : '') + '>Off</option></select>' +
+      '<label>Purchases</label><select data-c="purchases"><option value="open"' + (c.purchases === 'open' ? ' selected' : '') + '>Allowed</option><option value="pin"' + (c.purchases === 'pin' ? ' selected' : '') + '>Only with my PIN</option><option value="off"' + (c.purchases === 'off' ? ' selected' : '') + '>Off</option></select>' +
       '<div class="row"><button class="btn" data-act="export">Download their data</button><button class="btn danger" data-act="delete">Delete this account</button></div></div>';
   }
   async function dashboard() {
