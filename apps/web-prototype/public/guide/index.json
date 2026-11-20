@@ -154,6 +154,11 @@
   "voice": "am_puck,am_liam",
   "text": "Which piece is worth the most? Let's weigh them up, like treasure."
  },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Chess has its own secret code! Let's learn to read it, letter by letter."
+ },
  "lesson.open.check": {
   "who": "rooky",
   "voice": "am_puck,am_liam",
@@ -174,6 +179,16 @@
   "voice": "am_puck,am_liam",
   "text": "Not every game has a winner. Let's find out why!"
  },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Plus, hash and a little O! Every sign tells a story."
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Players all over the world share the same words. Let's learn the first ones!"
+ },
  "lesson.open.centre": {
   "who": "rooky",
   "voice": "am_puck,am_liam",
@@ -188,6 +203,11 @@
   "who": "rooky",
   "voice": "am_puck,am_liam",
   "text": "Some games end super fast! Let's learn the traps, so they never catch you."
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Forks, pins and skewers! These words sound funny, but they win games."
  },
  "lesson.open.forks": {
   "who": "rooky",

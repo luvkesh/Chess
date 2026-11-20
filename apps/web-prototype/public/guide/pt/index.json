@@ -154,6 +154,11 @@
   "voice": "pm_alex",
   "text": "Qual peça vale mais? Vamos pesar todas, como um tesouro."
  },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "O xadrez tem seu próprio código secreto! Vamos aprender a ler, letra por letra."
+ },
  "lesson.open.check": {
   "who": "rooky",
   "voice": "pm_alex",
@@ -174,6 +179,16 @@
   "voice": "pm_alex",
   "text": "Nem toda partida tem um vencedor. Vamos descobrir por quê!"
  },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Mais, cerquilha e um O pequenininho! Cada sinal conta uma história."
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Jogadores do mundo inteiro usam as mesmas palavras. Vamos aprender as primeiras!"
+ },
  "lesson.open.centre": {
   "who": "rooky",
   "voice": "pm_alex",
@@ -188,6 +203,11 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Algumas partidas acabam rapidinho! Vamos aprender as armadilhas para você nunca cair nelas."
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Garfos, cravadas e espetos! Essas palavras parecem engraçadas, mas ganham partidas."
  },
  "lesson.open.forks": {
   "who": "rooky",

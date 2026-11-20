@@ -154,6 +154,11 @@
   "voice": "hm_omega",
   "text": "किस मोहरे की क़ीमत सबसे ज़्यादा है? चलिए उन्हें ख़ज़ाने की तरह तौलें।"
  },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शतरंज का अपना एक गुप्त कोड है! चलिए इसे अक्षर-अक्षर पढ़ना सीखें।"
+ },
  "lesson.open.check": {
   "who": "rooky",
   "voice": "hm_omega",
@@ -174,6 +179,16 @@
   "voice": "hm_omega",
   "text": "हर खेल में कोई जीतता नहीं। चलिए जानें क्यों!"
  },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "प्लस, हैश और एक छोटा-सा O! हर निशान एक कहानी कहता है।"
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "दुनिया भर के खिलाड़ी एक जैसे शब्द बोलते हैं। चलिए पहले शब्द सीखें!"
+ },
  "lesson.open.centre": {
   "who": "rooky",
   "voice": "hm_omega",
@@ -188,6 +203,11 @@
   "who": "rooky",
   "voice": "hm_omega",
   "text": "कुछ खेल बहुत जल्दी ख़त्म हो जाते हैं! चलिए जाल पहचानें, ताकि आप कभी न फँसें।"
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "फ़ोर्क, पिन और स्क्यूअर! ये शब्द मज़ेदार लगते हैं, पर इन्हीं से खेल जीते जाते हैं।"
  },
  "lesson.open.forks": {
   "who": "rooky",

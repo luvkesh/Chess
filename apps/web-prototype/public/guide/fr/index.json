@@ -154,6 +154,11 @@
   "voice": "ff_siwis,am_puck",
   "text": "Quelle pièce vaut le plus ? Pesons-les, comme un trésor."
  },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Les échecs ont leur propre code secret ! Apprenons à le lire, lettre par lettre."
+ },
  "lesson.open.check": {
   "who": "rooky",
   "voice": "ff_siwis,am_puck",
@@ -174,6 +179,16 @@
   "voice": "ff_siwis,am_puck",
   "text": "Toutes les parties n'ont pas de gagnant. Découvrons pourquoi !"
  },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Un plus, un dièse et un petit O ! Chaque signe raconte une histoire."
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Partout dans le monde, les joueurs utilisent les mêmes mots. Apprenons les premiers !"
+ },
  "lesson.open.centre": {
   "who": "rooky",
   "voice": "ff_siwis,am_puck",
@@ -188,6 +203,11 @@
   "who": "rooky",
   "voice": "ff_siwis,am_puck",
   "text": "Certaines parties finissent super vite ! Apprenons les pièges, pour ne jamais tomber dedans."
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Fourchettes, clouages et enfilades ! Ces mots sont rigolos, mais ils gagnent des parties."
  },
  "lesson.open.forks": {
   "who": "rooky",

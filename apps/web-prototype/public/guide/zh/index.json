@@ -154,6 +154,11 @@
   "voice": "zm_yunxi",
   "text": "哪个棋子最值钱？我们像称宝藏一样称一称。"
  },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "国际象棋有自己的秘密代码！我们一个字母一个字母地学会读它。"
+ },
  "lesson.open.check": {
   "who": "rooky",
   "voice": "zm_yunxi",
@@ -174,6 +179,16 @@
   "voice": "zm_yunxi",
   "text": "不是每盘棋都有赢家。我们来看看为什么！"
  },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "加号、井号，还有小小的 O！每个符号都在讲一个故事。"
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "全世界的棋手都用同样的词。我们先学最基本的几个！"
+ },
  "lesson.open.centre": {
   "who": "rooky",
   "voice": "zm_yunxi",
@@ -188,6 +203,11 @@
   "who": "rooky",
   "voice": "zm_yunxi",
   "text": "有些棋结束得超级快！我们来学学这些陷阱，让它们永远抓不住你。"
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "捉双、牵制、串打！这些词听起来很好玩，但它们能赢棋。"
  },
  "lesson.open.forks": {
   "who": "rooky",

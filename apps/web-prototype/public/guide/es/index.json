@@ -154,6 +154,11 @@
   "voice": "em_alex",
   "text": "¿Qué pieza vale más? Vamos a pesarlas, como si fueran un tesoro."
  },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡El ajedrez tiene su propio código secreto! Vamos a aprender a leerlo, letra a letra."
+ },
  "lesson.open.check": {
   "who": "rooky",
   "voice": "em_alex",
@@ -174,6 +179,16 @@
   "voice": "em_alex",
   "text": "No todas las partidas tienen un ganador. ¡Vamos a descubrir por qué!"
  },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Un más, una almohadilla y una pequeña O! Cada signo cuenta una historia."
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los jugadores de todo el mundo usan las mismas palabras. ¡Aprendamos las primeras!"
+ },
  "lesson.open.centre": {
   "who": "rooky",
   "voice": "em_alex",
@@ -188,6 +203,11 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "¡Algunas partidas terminan rapidísimo! Aprendamos las trampas para que nunca te atrapen."
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Horquillas, clavadas y pinchos! Suenan graciosas, pero ganan partidas."
  },
  "lesson.open.forks": {
   "who": "rooky",
