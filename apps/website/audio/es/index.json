@@ -45,30 +45,8 @@
     }
    ]
   },
-  "lessons": {
-   "text": "Primero, aprende cómo se mueve cada pieza. Después, resuelve problemas, prueba aperturas famosas y gana finales. ¿Y sabes qué? ¡Cada día te espera un problema nuevecito!",
-   "voice": "em_alex",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "Primero, aprende cómo se mueve cada pieza."
-    },
-    {
-     "t": 2.98,
-     "text": "Después, resuelve problemas, prueba aperturas famosas y gana finales."
-    },
-    {
-     "t": 7.54,
-     "text": "¿Y sabes qué?"
-    },
-    {
-     "t": 8.93,
-     "text": "¡Cada día te espera un problema nuevecito!"
-    }
-   ]
-  },
   "wonders": {
-   "text": "¡Ahora viene lo divertido! Juegas justo delante de maravillas del mundo de verdad, desde las pirámides hasta el Taj Mahal. ¡Gana a cada campeón, consigue un sello en el pasaporte y se desbloquea el siguiente lugar!",
+   "text": "¡Ahora viene lo divertido! Nueve mundos, de las Pirámides a Nueva York, cada uno con su historia, su música y su campeón. ¡Elige uno y juega unas jugadas allí mismo!",
    "voice": "em_alex",
    "cues": [
     {
@@ -77,11 +55,11 @@
     },
     {
      "t": 1.96,
-     "text": "Juegas justo delante de maravillas del mundo de verdad, desde las pirámides hasta el Taj Mahal."
+     "text": "Nueve mundos, de las Pirámides a Nueva York, cada uno con su historia, su música y su campeón."
     },
     {
-     "t": 7.39,
-     "text": "¡Gana a cada campeón, consigue un sello en el pasaporte y se desbloquea el siguiente lugar!"
+     "t": 7.7,
+     "text": "¡Elige uno y juega unas jugadas allí mismo!"
     }
    ]
   },
@@ -108,7 +86,7 @@
    ]
   },
   "ages": {
-   "text": "Entonces, ¿contra quién quieres jugar? Truffle la conejita es muy suave con los principiantes. ¡Ember el dragón juega a toda potencia! Cada partida te hace un poquito mejor.",
+   "text": "Entonces, ¿contra quién quieres jugar? ¡Conoce a mis amigos! Truffle la conejita es muy suave con los principiantes, y Ember el dragón juega a toda potencia. ¡Toca a cada uno para ver qué dice!",
    "voice": "em_alex",
    "cues": [
     {
@@ -117,33 +95,15 @@
     },
     {
      "t": 2.5,
-     "text": "Truffle la conejita es muy suave con los principiantes."
+     "text": "¡Conoce a mis amigos!"
     },
     {
-     "t": 6.22,
-     "text": "¡Ember el dragón juega a toda potencia!"
+     "t": 4.34,
+     "text": "Truffle la conejita es muy suave con los principiantes, y Ember el dragón juega a toda potencia."
     },
     {
-     "t": 8.99,
-     "text": "Cada partida te hace un poquito mejor."
-    }
-   ]
-  },
-  "families": {
-   "text": "¡Esta parte es para los adultos! Sin chat con desconocidos, sin anuncios y sin rastreo. Tú decides sobre el juego en línea y las compras.",
-   "voice": "em_alex",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "¡Esta parte es para los adultos!"
-    },
-    {
-     "t": 2.36,
-     "text": "Sin chat con desconocidos, sin anuncios y sin rastreo."
-    },
-    {
-     "t": 5.94,
-     "text": "Tú decides sobre el juego en línea y las compras."
+     "t": 10.31,
+     "text": "¡Toca a cada uno para ver qué dice!"
     }
    ]
   },
@@ -628,12 +588,24 @@
    ]
   },
   "item-sets-ocean": {
-   "text": "¡Sumérgete bajo el mar! Coral Kingdom es la corte de una ciudad hundida, en perla y oro: un rey del mar con su tridente, una reina sirena, medusas que brillan, caballitos de mar con púas y faros que aún iluminan. Los peones son perlas en conchas abiertas. Llega al nivel doce y todo el reino nadará hasta tu tablero.",
+   "text": "¡Sumérgete bajo el mar! Coral Kingdom es la corte de una ciudad sumergida, en perla y oro: un rey del mar con su tridente, una reina sirena, medusas que brillan, caballitos de mar espinosos y faros que aún alumbran. Los peones son perlas en conchas abiertas. Llega al nivel doce y todo el reino llegará nadando a tu tablero.",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "¡Sumérgete bajo el mar! Coral Kingdom es la corte de una ciudad hundida, en perla y oro: un rey del mar con su tridente, una reina sirena, medusas que brillan, caballitos de mar con púas y faros que aún iluminan. Los peones son perlas en conchas abiertas. Llega al nivel doce y todo el reino nadará hasta tu tablero."
+     "text": "¡Sumérgete bajo el mar!"
+    },
+    {
+     "t": 1.96,
+     "text": "Coral Kingdom es la corte de una ciudad sumergida, en perla y oro: un rey del mar con su tridente, una reina sirena, medusas que brillan, caballitos de mar espinosos y faros que aún alumbran."
+    },
+    {
+     "t": 13.18,
+     "text": "Los peones son perlas en conchas abiertas."
+    },
+    {
+     "t": 16.2,
+     "text": "Llega al nivel doce y todo el reino llegará nadando a tu tablero."
     }
    ]
   },
@@ -1040,12 +1012,24 @@
    ]
   },
   "item-boards-deco": {
-   "text": "Entra en la era del jazz. Skyline Marble es mármol crema y verde oscuro con vetas de oro, enmarcado en laca negra con abanicos dorados de rayos de sol. Es elegante, brillante y muy Nueva York. Vence a Skye the Eagle sobre Manhattan y será tuyo.",
+   "text": "Entra en la era del jazz. Skyline Marble es mármol crema y verde oscuro con vetas de oro, enmarcado en laca negra con abanicos dorados de rayos de sol. Es afilado, brillante y muy de Nueva York. Gana a Skye el Águila sobre Manhattan y será tuyo.",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "Entra en la era del jazz. Skyline Marble es mármol crema y verde oscuro con vetas de oro, enmarcado en laca negra con abanicos dorados de rayos de sol. Es elegante, brillante y muy Nueva York. Vence a Skye the Eagle sobre Manhattan y será tuyo."
+     "text": "Entra en la era del jazz."
+    },
+    {
+     "t": 1.91,
+     "text": "Skyline Marble es mármol crema y verde oscuro con vetas de oro, enmarcado en laca negra con abanicos dorados de rayos de sol."
+    },
+    {
+     "t": 9.47,
+     "text": "Es afilado, brillante y muy de Nueva York."
+    },
+    {
+     "t": 12.44,
+     "text": "Gana a Skye el Águila sobre Manhattan y será tuyo."
     }
    ]
   },
@@ -2580,7 +2564,7 @@
    ]
   },
   "train": {
-   "text": "¡Hora de entrenar! Hay trece entrenadores, una habilidad cada vez. Primero una lección rápida conmigo, y luego una ronda de práctica con puntuación. ¿Puedes superar tu mejor marca?",
+   "text": "¡Hora de entrenar! Empieza con el entrenador tres sesenta, una ronda mixta de todo, o elige una habilidad cada vez. ¡Toca cualquier tarjeta y se abre un ejercicio real en la mesa!",
    "voice": "em_alex",
    "cues": [
     {
@@ -2588,21 +2572,17 @@
      "text": "¡Hora de entrenar!"
     },
     {
-     "t": 1.48,
-     "text": "Hay trece entrenadores, una habilidad cada vez."
+     "t": 1.49,
+     "text": "Empieza con el entrenador tres sesenta, una ronda mixta de todo, o elige una habilidad cada vez."
     },
     {
-     "t": 4.61,
-     "text": "Primero una lección rápida conmigo, y luego una ronda de práctica con puntuación."
-    },
-    {
-     "t": 9.63,
-     "text": "¿Puedes superar tu mejor marca?"
+     "t": 7.43,
+     "text": "¡Toca cualquier tarjeta y se abre un ejercicio real en la mesa!"
     }
    ]
   },
   "mates": {
-   "text": "¡Hora de los acertijos! Encuentra el jaque mate en una jugada, luego en dos, y así hasta cinco. ¡Mírame resolver uno aquí mismo, en el tablero!",
+   "text": "¡Hora de los acertijos! Encuentra el jaque mate en una jugada, o elige un truco: horquillas, clavadas, enfiladas y más. ¿Te atascaste? ¡Pídeme una pista!",
    "voice": "em_alex",
    "cues": [
     {
@@ -2611,16 +2591,20 @@
     },
     {
      "t": 1.8,
-     "text": "Encuentra el jaque mate en una jugada, luego en dos, y así hasta cinco."
+     "text": "Encuentra el jaque mate en una jugada, o elige un truco: horquillas, clavadas, enfiladas y más."
     },
     {
-     "t": 6.1,
-     "text": "¡Mírame resolver uno aquí mismo, en el tablero!"
+     "t": 7.57,
+     "text": "¿Te atascaste?"
+    },
+    {
+     "t": 9.19,
+     "text": "¡Pídeme una pista!"
     }
    ]
   },
   "progress": {
-   "text": "¡Y mira cuánto creces! Reviso ocho habilidades de tus partidas y las dibujo en una gráfica. ¡Y todo se queda en tu dispositivo, prometido!",
+   "text": "¡Y mira cuánto creces! Elige una habilidad y mira cómo cambia el gráfico. Estos números son solo un ejemplo; los tuyos saldrán de tus propias partidas.",
    "voice": "em_alex",
    "cues": [
     {
@@ -2629,11 +2613,11 @@
     },
     {
      "t": 1.91,
-     "text": "Reviso ocho habilidades de tus partidas y las dibujo en una gráfica."
+     "text": "Elige una habilidad y mira cómo cambia el gráfico."
     },
     {
-     "t": 6.26,
-     "text": "¡Y todo se queda en tu dispositivo, prometido!"
+     "t": 5.24,
+     "text": "Estos números son solo un ejemplo; los tuyos saldrán de tus propias partidas."
     }
    ]
   },
@@ -2993,24 +2977,6 @@
     }
    ]
   },
-  "fx-sound": {
-   "text": "¡Paquetes de sonido! Elige cómo suenan tus piezas al posarse. ¡El mármol hace clac y el cristal hace clin!",
-   "voice": "em_alex",
-   "cues": [
-    {
-     "t": 0.0,
-     "text": "¡Paquetes de sonido!"
-    },
-    {
-     "t": 1.75,
-     "text": "Elige cómo suenan tus piezas al posarse."
-    },
-    {
-     "t": 4.63,
-     "text": "¡El mármol hace clac y el cristal hace clin!"
-    }
-   ]
-  },
   "fx-avatar": {
    "text": "¡Avatares! Elige una cara para tu tarjeta de jugador. ¿Qué amigo se parece más a ti?",
    "voice": "em_alex",
@@ -3048,7 +3014,7 @@
    ]
   },
   "earn": {
-   "text": "¿Y cómo consigues todo esto? ¡Jugando! Gana a los campeones, completa los acertijos y las lecciones de cada día, y sube en el pase de temporada. Nada de lo que coleccionas te hace más fuerte, así que cada partida es justa.",
+   "text": "¿Y cómo consigues todo esto? ¡Jugando! Gana partidas, completa campañas, resuelve el reto diario y sube en el pase de temporada. Nada de lo que coleccionas te hace más fuerte, así que cada partida es justa.",
    "voice": "em_alex",
    "cues": [
     {
@@ -3060,17 +3026,17 @@
      "text": "¡Jugando!"
     },
     {
-     "t": 3.39,
-     "text": "Gana a los campeones, completa los acertijos y las lecciones de cada día, y sube en el pase de temporada."
+     "t": 3.38,
+     "text": "Gana partidas, completa campañas, resuelve el reto diario y sube en el pase de temporada."
     },
     {
-     "t": 9.66,
+     "t": 8.95,
      "text": "Nada de lo que coleccionas te hace más fuerte, así que cada partida es justa."
     }
    ]
   },
   "pricing": {
-   "text": "¡Buenas noticias, empezar en Chackmate es gratis! Adultos, los planes están aquí mismo en la página. Ningún plan tiene anuncios, y nada de lo que compras te hace más fuerte.",
+   "text": "¡Buenas noticias, empezar en Chackmate es gratis! Los planes están aquí mismo, en la página. Y nada de lo que compras te hace más fuerte.",
    "voice": "em_alex",
    "cues": [
     {
@@ -3079,32 +3045,32 @@
     },
     {
      "t": 3.2,
-     "text": "Adultos, los planes están aquí mismo en la página."
+     "text": "Los planes están aquí mismo, en la página."
     },
     {
-     "t": 6.52,
-     "text": "Ningún plan tiene anuncios, y nada de lo que compras te hace más fuerte."
+     "t": 6.12,
+     "text": "Y nada de lo que compras te hace más fuerte."
     }
    ]
   },
   "about": {
-   "text": "¡Esta es la Casa del Juego, el estudio que me creó! Querían que cada niño tuviera una mesa de ajedrez de verdad, un entrenador que enseña y amigos que juegan limpio. ¿Quieres saludar? Sus datos de contacto están aquí mismo.",
+   "text": "¡Y este es el estudio que me creó! Crean mundos para jugar, aprender y crecer, ¡y también tienen más juegos! ¿Quieres saludar? Sus datos de contacto están aquí mismo.",
    "voice": "em_alex",
    "cues": [
     {
      "t": 0.0,
-     "text": "¡Esta es la Casa del Juego, el estudio que me creó!"
+     "text": "¡Y este es el estudio que me creó!"
     },
     {
-     "t": 3.19,
-     "text": "Querían que cada niño tuviera una mesa de ajedrez de verdad, un entrenador que enseña y amigos que juegan limpio."
+     "t": 2.37,
+     "text": "Crean mundos para jugar, aprender y crecer, ¡y también tienen más juegos!"
     },
     {
-     "t": 9.83,
+     "t": 6.87,
      "text": "¿Quieres saludar?"
     },
     {
-     "t": 11.28,
+     "t": 8.32,
      "text": "Sus datos de contacto están aquí mismo."
     }
    ]
