@@ -3,6 +3,7 @@ Reference: the user's lineup picture of 2026-11-12 (both rows, pawns included)."
 import classic
 import hero
 import kit
+from sets import classic1_common as common
 
 LINEUP = '/mnt/project-files/uploads/hearth/b781657f-2229-4100-a11c-b058f345ae92'
 BOXES = {
@@ -12,8 +13,14 @@ BOXES = {
 HALF = {'n': 'full'}
 SIDED = {'n', 'k', 'q'}   # each side's crowns carved from its own picture
 GOLD = (64, 172, 246)
+PORCELAIN = (226, 236, 242)   # BGR: the ivory side's glaze
+# the photographs' own light is taken out of the glaze before it is painted (classic1_common)
+PREP = {
+    'w': {'tone': PORCELAIN, 'amount': 0.8, 'sharpen': 0.6, 'n': {'amount': 0.55, 'scale': 0.06}},
+    'b': {'amount': 0.8, 'sharpen': 0.6, 'n': {'amount': 0.55, 'scale': 0.06}},
+}
 LOOK = {
-    'w': {'body_cool': 0.1, 'wb': (1.05, 0.95, 1.0), 'body': 'porcelain', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
+    'w': {'body': 'porcelain', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
     'b': {'wb': (1.02, 1.0, 0.9), 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
 }
 
@@ -25,7 +32,7 @@ HEIGHTS = {'k': 1.600, 'q': 1.350, 'b': 1.150, 'n': 1.155, 'r': 1.090, 'p': 0.76
 
 def refs():
     """the hero pictures (pics/sapphire): each piece redrawn sharper from its reference cut-out"""
-    return hero.refs(hero.pics('sapphire'), HEIGHTS)
+    return common.prep(hero.refs(hero.pics('sapphire'), HEIGHTS), LOOK, PREP)
 
 
 def source_refs():
@@ -46,7 +53,7 @@ SPEC = {
     'k': {'kind': 'turned', 'top': ('relief', 0.630, 0.5, 0.45)},
     'q': {'kind': 'turned', 'top': ('relief', 0.675, 0.5, 0.45)},
     'r': {'kind': 'rook', 'merlons': 6},
-    'n': {'kind': 'knight', 'z0': 0.26},
+    'n': {'kind': 'knight', 'z0': 0.26, 'thick': 0.38},
 }
 
 

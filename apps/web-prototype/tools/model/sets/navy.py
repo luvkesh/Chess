@@ -3,6 +3,7 @@ Reference: the user's lineup picture of 2026-11-12 (both rows) and the board pic
 import classic
 import hero
 import kit
+from sets import classic1_common as common
 
 LINEUP = '/mnt/project-files/uploads/hearth/1d2e35ab-36f4-462b-be97-4e9d9532a0a7'
 BOARD = '/mnt/project-files/uploads/hearth/9e5327a2-2729-4dd5-b54f-a492a76d920b'
@@ -14,8 +15,14 @@ PAWN = (240, 244, 329, 358)   # the board picture's front ivory pawn (for its pe
 GOLD = (64, 172, 246)   # BGR tone the gold leaf is lifted toward
 HALF = {'n': 'full'}
 SIDED = {'n', 'k', 'q'}   # each side's crowns carved from its own picture
+IVORY = (214, 230, 240)   # BGR: the ivory side's stone
+# the photographs' own light is taken out of the stone before it is painted (classic1_common)
+PREP = {
+    'w': {'tone': IVORY, 'amount': 0.8, 'sharpen': 0.35, 'n': {'amount': 0.55, 'scale': 0.06}},
+    'b': {'amount': 0.8, 'sharpen': 0.35, 'n': {'amount': 0.55, 'scale': 0.06}},
+}
 LOOK = {
-    'w': {'body_cool': 0.1, 'wb': (1.06, 0.93, 1.0), 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
+    'w': {'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
     'b': {'wb': (1.04, 0.95, 1.0), 'body_gain': 0.72, 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD},
 }
 
@@ -25,9 +32,15 @@ LOOK = {
 HEIGHTS = {'k': 1.580, 'q': 1.304, 'b': 1.232, 'n': 1.232, 'r': 1.088, 'p': 0.772}
 
 
+_OWN = {}
+
+
 def refs():
     """the hero pictures (pics/navy): each piece redrawn sharper from its reference cut-out"""
-    return hero.refs(hero.pics('navy'), HEIGHTS)
+    out = common.prep(hero.refs(hero.pics('navy'), HEIGHTS), LOOK, PREP)
+    _OWN.clear()
+    _OWN.update(out)
+    return out
 
 
 def source_refs():
@@ -61,14 +74,27 @@ def source_refs():
 
 
 SPEC = {
-    # the crowns are carved from the front picture (a deep relief over a turned band), so seen from
-    # the front each point, gem and curl is where the picture has it
-    'k': {'kind': 'turned', 'top': ('relief', 0.66, 0.5, 0.45)},
-    'q': {'kind': 'turned', 'top': ('relief', 0.67, 0.5, 0.45)},
+    # a true crown (classic1_common.crown): a flared ring that parts into eight leaves round a
+    # small gold cap. Eight, because the pictures' points stand at the middle, at 0.7 of the
+    # half width and at the outline, which is where eight leaves round a ring are seen from
+    # the front, so each leaf is painted with its own gem
+    'k': {'kind': 'leaves', 'zc': 0.645, 'zp': 0.70, 'ztip': 0.825, 'points': 8, 'sharp': 0.6,
+          'dome': (0.69, 0.85, 0.115, 1), 'top': ('cross', 0.84, 0.14)},
+    'q': {'kind': 'leaves', 'zc': 0.665, 'zp': 0.72, 'ztip': 0.84, 'points': 8, 'sharp': 0.6,
+          'dome': (0.71, 0.895, 0.125, 1), 'top': ('finial', 0.89, 0.07)},
     'r': {'kind': 'rook', 'merlons': 6},
-    'n': {'kind': 'knight', 'z0': 0.278},
+    'n': {'kind': 'knight', 'z0': 0.278, 'thick': 0.38},
+}
+# the navy army's crowns sit a little higher in their own pictures
+SPEC_B = {
+    'k': dict(SPEC['k'], zc=0.66, zp=0.715, ztip=0.845, dome=(0.705, 0.87, 0.115, 1), top=('cross', 0.86, 0.14)),
+    'q': dict(SPEC['q'], zc=0.69, zp=0.74, ztip=0.865, dome=(0.73, 0.915, 0.125, 1), top=('finial', 0.915, 0.07)),
 }
 
 
 def build(t, refs):
-    return classic.build(t, refs, SPEC)
+    navy = bool(_OWN) and refs['w'] is _OWN['b'][t]   # build.py hands the shape's source as 'w'
+    spec = dict(SPEC, **SPEC_B) if navy else SPEC
+    if spec.get(t, {}).get('kind') == 'leaves':
+        return common.crown(t, refs, spec[t])
+    return classic.build(t, refs, spec)
