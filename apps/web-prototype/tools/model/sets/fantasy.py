@@ -20,7 +20,8 @@ MARBLE = (228, 236, 240)   # BGR: the white side's Calacatta
 # the photographs' own light is taken out of the stone before it is painted (classic1_common)
 PREP = {
     'w': {'tone': MARBLE, 'amount': 0.75, 'sharpen': 0.7, 'n': {'amount': 0.5, 'scale': 0.06}},
-    'b': {'amount': 0.75, 'sharpen': 0.7, 'n': {'amount': 0.5, 'scale': 0.06}},
+    # the black side's bronze ribbons are what it is known by: only the broad light goes
+    'b': {'amount': 0.6, 'shine': 0.0, 'sharpen': 0.7, 'n': {'amount': 0.45, 'shine': 0.0, 'scale': 0.06}},
 }
 LOOK = {
     'w': {'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.3,

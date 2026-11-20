@@ -17,18 +17,22 @@ import kit
 LUM = np.array((0.114, 0.587, 0.299), np.float32)
 
 
-def delight(ref, cls=None, amount=0.8, tone=None, sharpen=0.4, shine=0.5, scale=0.03):
+def delight(ref, cls=None, amount=0.8, tone=None, sharpen=0.4, shine=0.5, scale=0.03, gild=None):
     """One cut-out, relit flat.
     amount   0..1: how much of the broad light and shade is taken out of the stone
     tone     BGR the stone's middle colour is brought to (None: left as photographed)
     shine    0..1: how much of the thin bright streaks left after that is pressed down
     sharpen  unsharp mask over the whole piece
-    scale    size of what counts as broad, as a share of the piece's height"""
+    scale    size of what counts as broad, as a share of the piece's height
+    gild     (z, BGR): everything above that share of the height is gold leaf (a king's cross
+             whose pale highlights would otherwise be taken for stone)"""
     img = ref.crop.astype(np.float32)
     m = ref.mask > 0
     cls = cls or {}
     ids = kit.classify(ref.crop, **cls)
-    w = ((1 - kit.gold_weight(ref.crop, **cls)) * (ids != 2) * m).astype(np.float32)   # how surely stone
+    # how surely stone: gold leaf is left alone, also where it is too dim to be painted as metal
+    leaf = np.maximum(kit.gold_weight(ref.crop, **cls), kit.gold_weight(ref.crop))
+    w = ((1 - leaf) * (ids != 2) * m).astype(np.float32)
     body = w > 0.6
     if body.sum() < 200:
         return ref
@@ -50,6 +54,13 @@ def delight(ref, cls=None, amount=0.8, tone=None, sharpen=0.4, shine=0.5, scale=
         med = np.median(img[body], axis=0)
         g = np.array(tone, np.float32) / np.maximum(med, 1.0)
         img = img * (1 + w[..., None] * (g[None, None, :] - 1))
+    if gild:
+        rows = np.nonzero(m.any(1))[0]
+        cut = int(round(ref.bot - gild[0] * (ref.bot - rows.min())))
+        sel = m.copy()
+        sel[cut:] = False
+        g = np.array(gild[1], np.float32)[None, None, :] * (0.5 + 0.75 * (img @ LUM)[..., None] / 255)
+        img[sel] = g[sel]
     if sharpen:
         sig = max(1.0, 0.0022 * h)
         img = img + sharpen * (img - cv2.GaussianBlur(img, (0, 0), sig))
@@ -91,13 +102,13 @@ def crown(t, refs, sp):
     h = r.height()
     zc, zp, ztip = sp['zc'] * h, sp['zp'] * h, sp['ztip'] * h
     n, phase, sharp, thick = sp.get('points', 8), sp.get('phase', 0.0), sp.get('sharp', 0.6), sp.get('thick', 0.03)
-    body = kit.lathe('body', r.profile(0, zc + 0.01, tol=0.002), segs=64)
+    body = kit.lathe('body', r.profile(0, zc + 0.01, tol=0.0025), segs=56)
     kit.set_uv(body, t, fold=sp.get('fold', 4))
     parts = [body]
     prof = r.profile(zc - 0.01, ztip, step_px=2, tol=0.002)
     pz, pr = np.array([p[0] for p in prof]), np.array([max(p[1], 0.03) for p in prof])
     zs = list(np.linspace(zc - 0.01, zp, 3)) + [zp + (ztip - zp) * u for u in (0.2, 0.4, 0.6, 0.78, 0.92, 1.0)]
-    cols = sp.get('cols', 6)
+    cols = sp.get('cols', 4)
     half = math.pi / n
     ob, me = kit._new('crown')
     bm = bmesh.new()
@@ -135,7 +146,7 @@ def crown(t, refs, sp):
     if sp.get('dome'):
         z0, z1, rr, cls = sp['dome']
         z0, z1 = z0 * h, z1 * h
-        cap = kit.lathe('cap', [(z0 + (z1 - z0) * u, rr * max(0.0, 1 - u ** 2.2) ** 0.5) for u in [i / 10 for i in range(11)]], segs=32)
+        cap = kit.lathe('cap', [(z0 + (z1 - z0) * u, rr * max(0.0, 1 - u ** 2.2) ** 0.5) for u in [i / 10 for i in range(11)]], segs=24)
         kit.set_uv(cap, t, mode='point', at=kit.pick([r] + others, cls, (0.08, 0.6)))
         parts.append(cap)
     if sp.get('top'):
