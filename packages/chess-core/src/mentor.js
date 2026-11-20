@@ -1453,12 +1453,17 @@ function ChacklateMentor(E, C, strings, nameOf) {
   // (tools/voice/record-coach.py); speechParts(text) cuts a finished English line, or gives null
   // when some piece of it has no recording.
   const SAN_RE = /^(?:O-O-O|O-O|[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h]x[a-h][1-8](?:=[QRBN])?|[a-h][1-8](?:=[QRBN])?)[+#]?(?![A-Za-z0-9])/;
-  let vocab = null, byFirst = null;
+  let vocab = null, byFirst = null, runsOn = null;
   function speechVocab() {
     if (vocab) return vocab;
     const set = new Set();
+    runsOn = new Set();
     const add = (x) => { x = String(x).trim(); if (/[A-Za-z]/.test(x) || /^\d+$/.test(x)) set.add(x); };
-    for (const v of Object.values(EN).concat(Object.values(C.EN))) for (const piece of v.split(/\{\w+\}/)) add(piece);
+    for (const v of Object.values(EN).concat(Object.values(C.EN))) {
+      const bits = v.split(/\{\w+\}/);
+      // a piece with a name or number after it: the voice runs on through it (tools/voice/carry.py)
+      bits.forEach((piece, i) => { add(piece); if (i < bits.length - 1 && /[A-Za-z]$/.test(piece.trim())) runsOn.add(piece.trim()); });
+    }
     for (const k of Object.keys(C.NAME)) { add(C.NAME[k]); }
     for (const b of BOOK) add(b.name);
     for (const x of TRAPS) add(x.name);
@@ -1477,7 +1482,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
         if (bits[i] !== '{piece}' && bits[i] !== '{list}') continue;
         const pre = clause(bits[i - 1], true), post = bits[i] === '{list}' ? 'on' : clause(bits[i + 1] || '', false);
         if (!pre && !post) continue;
-        for (const n of pieceNames) add([pre, n, post].filter(Boolean).join(' '));
+        for (const n of pieceNames) { const x = [pre, n, post].filter(Boolean).join(' '); add(x); if (post && i + 1 < bits.length - 1 && !/[.!?:;,]/.test(bits[i + 1])) runsOn.add(x); }
       }
     }
     for (const n of pieceNames) add('and ' + n + ' on');   // the next one in a list: "the king on e8 and rook on a8"
@@ -1542,6 +1547,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     feedback, feedbackText, detail, plans, phaseGuide, recommendOpening, threats, chances, mateRadar, warning, hints, thinkAhead,
     phases, report, openingHabits, practice, profileAdd, insights, timeAdvice, timeThink, glossary, termsIn, term,
     modeOf, migrate, shouldComment, levelFor, allLines, IMPORTANT, speechVocab, speechParts,
+    speechRunsOn() { speechVocab(); return runsOn; },
   };
 }
 
