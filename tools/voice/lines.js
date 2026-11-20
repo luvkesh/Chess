@@ -58,6 +58,21 @@ function lessonLines() {
     for (const n of Object.values(o.notes || {})) out.push(n);
   }
   for (const e of load('endgames.json').endgames) if (e.tip) out.push(e.tip);
+  // The three phases course: what Rooky reads in each part, his notes on the famous games, and (in
+  // English) his "What did they actually play?" question at each guess
+  const ph = load('phases.json');
+  for (const p of ph.parts) for (const b of p.beats) if (b.say) out.push(b.say);
+  const learn = load('i18n/learn.json'), play = load('i18n/play.json');
+  for (const g of Object.values(ph.games)) {
+    for (const n of Object.values(g.notes || {})) out.push(n);
+    const first = g.fen ? g.fen.split(' ')[1] : 'w';
+    for (const ply of g.predict || []) {
+      const who = (ply % 2 === 0) === (first === 'w') ? g.w : g.b;
+      const name = who === 'White' ? play['color.white'].en : who === 'Black' ? play['color.black'].en : who;
+      out.push(learn['ph.guess'].en.replace('{name}', name));
+    }
+  }
+  out.push(learn['ph.tryHow'].en);
   // The Journey: each era's lesson and its puzzle introduction (its story is read by the era's friend,
   // see record-tales.py).
   for (const era of load('campaign.json').eras) {

@@ -63,6 +63,9 @@ for (const l of LESSONS) {
   round('lesson', l.id);
 }
 round('lesson', { placement: true, from: 'learn' });
+// a lesson in parts: every part has its own page
+for (const l of LESSONS.filter((x) => x.parts)) for (const part of l.parts) { if (R.toPath('lesson', { id: l.id, part }) !== '/learn/' + RT.slug(RT.tail(l.id)) + '/' + part) throw new Error(l.id + ' part ' + part + ' has no link'); round('lesson', { id: l.id, part }); }
+if (!LESSONS.some((x) => x.parts)) throw new Error('the three phases lesson is missing');
 for (const tr of TRAINERS) round('lesson', { trainer: tr.id });
 for (const tr of TRAINERS) { const l = LESSONS.find((x) => RT.tail(x.id) === tr.id); if (l) round('lesson', { id: l.id, back: 'trainers' }); }
 round('puzzle', { daily: true, list: [], title: 'x' }, null, (r) => assert.deepStrictEqual(r.spec, { daily: true }));
