@@ -748,6 +748,7 @@ function ChacklateAudio() {
   // allowed, else stays unsaid. Resolves when the line ends or is cut short; a new line or hush()
   // cuts it short, and calling it again says it again.
   let coachSplit = null, coachWho = 'rooky';
+  const coachId = () => 'coach:' + (index && index['coach:' + coachWho] ? coachWho : 'rooky');
   function coachKeys(text) {
     const parts = coachSplit ? coachSplit(text) : null;
     const B = V.moves.en;
@@ -755,16 +756,32 @@ function ChacklateAudio() {
     const keys = [], gaps = [];
     parts.forEach((p, i) => {
       if (p.pause) { if (keys.length) gaps[keys.length - 1] = Math.max(gaps[keys.length - 1] || 0, PAUSE[p.pause] / 1000); return; }
-      let w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]]] : [B.file[p.file]];
+      const next = parts[i + 1];
+      // a square the line goes on after is said the way it sounds mid-sentence ("on e4 and attacks"),
+      // not with the fall of a sentence's last word
+      const sq = p.sq && B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]];
+      const sqKey = sq && next && !next.pause && index && index[coachId()] && index[coachId()].at.has(voiceKey('mid:' + sq)) ? 'mid:' + sq : sq;
+      let w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [sqKey] : [B.file[p.file]];
       // Said the way a person says it: "exd4 wins a knight" is "Pawn takes on d4, and wins a knight",
       // not "Pawn takes d4 wins a knight" in one breath.
       if (p.san && /x/.test(p.san) && w[1] === B.takes) w = [w[0], w[1], 'on'].concat(w.slice(2));
       // the words of one phrase run together, the way a person says them (the clips' own silence is trimmed)
-      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.012); }
-      const next = parts[i + 1];
+      // the pieces of one phrase run on into each other, the way a person says them: each piece was
+      // recorded in the middle of a sentence (tools/voice/carry.py) and its own silence is trimmed
+      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0); }
+      // a breath after a sentence or clause that ends inside a recorded piece ("Beautifully done!")
+      if (p.line && next) {
+        if (/[.!?]$/.test(p.line)) gaps[keys.length - 1] = PAUSE.stop / 1000;
+        else if (/[,;:]$/.test(p.line)) gaps[keys.length - 1] = PAUSE.comma / 1000;
+      }
+      // a new clause ("... on e4, and attacks the knight") gets a small lift of breath; the next item
+      // of a list ("the king on e8 and the rook on a8") a shorter one
+      if (next && next.line && /^and /i.test(next.line) && keys.length && gaps[keys.length - 1] < 0.05) {
+        gaps[keys.length - 1] = /^and (the |your )?(pawn|knight|bishop|rook|queen|king)\b/i.test(next.line) ? 0.06 : 0.16;
+      }
       if (p.san && next && next.line && /^(wins|takes|attacks|forks|pins|skewers|uncovers|gives|promotes|tucks)\b/.test(next.line)) {
         gaps[keys.length - 1] = PAUSE.comma / 1000;
-        keys.push(voiceKey('and')); gaps.push(0.012);
+        keys.push(voiceKey('and')); gaps.push(0);
       }
     });
     return keys.length ? { keys, gaps } : null;
@@ -804,7 +821,7 @@ function ChacklateAudio() {
       const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 1, 'en', end))) end(); };
       loadIndex().then(async () => {
         const plan = coachKeys(text);
-        const id = 'coach:' + (index['coach:' + coachWho] ? coachWho : 'rooky');
+        const id = coachId();
         if (coachWho === 'device' || !plan || !index[id] || !plan.keys.every((k) => index[id].at.has(k))) return viaDevice();
         let bufs;
         try { bufs = (await Promise.all(plan.keys.map((k) => clip(id, k)))).map(trimClip); } catch (e) { return viaDevice(); }
@@ -865,7 +882,7 @@ function ChacklateAudio() {
   // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
   // says the line) and Rooky's word on each Collection item (pitch/...). onTalk(fn) hears
   // fn(true, what) when someone starts talking ('guide' or 'pitch') and fn(false, what) when they stop.
-  const PAUSE = { comma: 280, stop: 550 };
+  const PAUSE = { comma: 260, stop: 480 };
   const lineClips = new Map();
   const talkers = [];
   function talking(on, what) { for (const fn of talkers) fn(on, what); }
