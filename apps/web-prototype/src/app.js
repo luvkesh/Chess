@@ -3469,7 +3469,7 @@
       // The game is for every age and the store is open to all. Only an account a parent manages
       // (the server says so) asks for that parent's PIN, which they chose themselves.
       let pin;
-      if (isMinor()) { pin = await askPin(); if (pin === null) return; }
+      if (isMinor() && safety.purchases === 'pin') { pin = await askPin(); if (pin === null) return; }
       try {
         const o = await ChacklateNet.api('/api/store/checkout', { product: id, pin });
         const p = STORE.products.find((x) => x.id === id);
