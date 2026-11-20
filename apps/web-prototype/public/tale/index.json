@@ -1,28 +1,33 @@
 {
- "egypt/1fea1819": {
+ "egypt/d0982b13": {
   "who": "miu",
   "voice": "af_bella",
-  "text": "Welcome to Egypt, more than 3,000 years ago! The great river Nile flows past temples and pyramids, and in the palace the young pharaoh Tutankhamun is playing a board game called Senet."
+  "text": "Welcome to Egypt, more than 3,000 years ago! The great river Nile flows past temples and pyramids, and in the palace the young pharaoh Tutankhamun is playing Senet, one of the oldest board games in the world."
  },
- "egypt/670bc788": {
+ "egypt/c81b5113": {
   "who": "miu",
   "voice": "af_bella",
-  "text": "Chess had not been invented yet. It would appear in India about two thousand years later. But the Egyptians loved games of skill, and Tutankhamun was buried with several Senet boards."
+  "text": "A Senet board has 30 squares in three rows of ten. Each player races a team of pieces along the rows to the end. Instead of dice, players threw flat sticks to see how far to move. Tutankhamun was even buried with several Senet boards."
+ },
+ "egypt/8f633c3c": {
+  "who": "miu",
+  "voice": "af_bella",
+  "text": "Senet is not an early chess. Chess was born in India about two thousand years later. But Senet already had what chess has: a board of squares, two sides, and pieces that move by rules. Chess took away the luck: every move is your own choice."
  },
  "egypt/cf5183ec": {
   "who": "miu",
   "voice": "af_bella",
   "text": "I am Miu. Cats were treasured in ancient Egypt, you know. Today I will teach you the knight, the piece shaped like a horse. The pharaoh's horses pulled his golden chariots!"
  },
- "egypt/19a452ba": {
+ "egypt/2ffec04b": {
   "who": "miu",
   "voice": "af_bella",
-  "text": "Which board game did Tutankhamun play?"
+  "text": "What did Senet players throw to see how far to move?"
  },
- "egypt/2718e162": {
+ "egypt/4bf4aea8": {
   "who": "miu",
   "voice": "af_bella",
-  "text": "Senet is one of the oldest board games we know. Chess came much later."
+  "text": "Senet was a race game, so luck decided how far you moved. In chess there is no luck: every move is your own choice."
  },
  "greece/3feb8e93": {
   "who": "sophie",
