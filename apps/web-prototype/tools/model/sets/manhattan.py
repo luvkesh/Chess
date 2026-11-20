@@ -1,9 +1,11 @@
 """Manhattan Deco: cream enamel and black onyx with gold. A tycoon with a cane, a dancer in a fur
 stole, lamplighters, fan-maned horses, skyscraper rooks and globe-and-sunburst pawns.
 References: the user's lineup pictures of 2026-11-12: f389be7d (king, queen, lamplighter,
-skyscraper, both rows) and c3f9a4cd (the fan-maned horses and the sunburst pawns)."""
-import classic
+skyscraper, both rows) and c3f9a4cd (the fan-maned horses and the sunburst pawns).
+Built from hero pictures (pics/manhattan): each piece of the two pictures cut out, cleaned and
+redrawn larger with SDXL-Lightning; source_refs() is the old cut, kept for cutouts.py."""
 import kit
+from sets import classic2_kit
 
 FIG = '/mnt/project-files/uploads/hearth/f389be7d-61c2-48bb-ae19-35e703966d12'
 BUST = '/mnt/project-files/uploads/hearth/c3f9a4cd-8ecc-41ff-9ba2-330f65b3612c'
@@ -22,18 +24,18 @@ ADD = {'w': {'b': [[(454, 70), (454, 170), (454, 270)]],
              'q': [[(565, 490), (575, 540)], [(695, 490), (690, 540)], [(590, 405), (680, 405), (635, 370)]]}}
 # pieces from the second picture are sized against the king
 HEIGHT = {'n': 1.4, 'p': 0.98}
-HALF = {t: 'full' for t in 'rnbqk'}
-SIDED = set('rnbqkp')
+HALF = {t: 'full' for t in 'kqbnrp'}   # painted by the picture's view, both halves
+SIDED = set('kqbnrp')   # every piece from its own side's picture
 GOLD = (60, 160, 232)
 LOOK = {
-    'w': {'wb': (1.08, 1.0, 0.94), 'body_cool': 0.25, 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
+    'w': {'wb': (1.08, 1.0, 0.94), 'body_cool': 0.25, 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.5,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.48}},
-    'b': {'wb': (1.04, 1.0, 0.97), 'body': 'shiny stone', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
+    'b': {'wb': (1.04, 1.0, 0.97), 'body': 'shiny stone', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.5,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.5}},
 }
 
 
-def refs():
+def source_refs():
     out = {'w': {}, 'b': {}}
     king = kit.Ref(FIG, BOXES['w']['k'][1], height=1.72, seg='sam')
     for s in ('w', 'b'):
@@ -44,6 +46,14 @@ def refs():
         w, b = out['w'][t], out['b'][t]
         b.unit *= w.height() / max(b.height(), 1e-6)
     return out
+
+
+# each piece's size in game units, printed by picture/cutouts.py from the reference lineup
+HEIGHTS = {'k': 1.720, 'q': 1.807, 'b': 1.737, 'n': 1.400, 'r': 1.662, 'p': 0.980}
+
+
+def refs():
+    return classic2_kit.refs('manhattan', HEIGHTS)
 
 
 SPEC = {
@@ -57,4 +67,4 @@ SPEC = {
 
 
 def build(t, refs):
-    return classic.build(t, refs, SPEC)
+    return classic2_kit.build(t, refs, SPEC)
