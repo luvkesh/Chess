@@ -1023,7 +1023,7 @@ html[dir="rtl"] .fr-says::before { transform: rotate(-135deg); }
 main { pointer-events: none; } main > section { pointer-events: auto; }
 main > section.play { pointer-events: none; } .play .hit { pointer-events: auto; }
 #world canvas { touch-action: pan-y; }
-.l-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.l-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; } .btn[hidden] { display: none; }
 .pz-pick { display: flex; align-items: center; gap: 14px; }
 .pz-pick button { padding: 7px 18px; border-radius: 999px; border: 1px solid var(--gold-3); background: rgba(20, 12, 9, 0.7); color: var(--gold-2); font: 600 clamp(15px, 1.2vw, 18px)/1.1 var(--serif); cursor: pointer; font-variant-numeric: lining-nums; }
 .pz-pick button[aria-pressed="true"] { background: var(--gold-grad); color: #2a1608; border-color: #ffe2a6; }
@@ -1087,8 +1087,8 @@ h2 { font-weight: 700; }
 .w-car button[aria-pressed="true"] b { color: var(--gold-2); box-shadow: 0 0 16px rgba(240, 160, 60, 0.5); }
 @media (hover: hover) { .w-car button:hover .isle { transform: translateY(-4px); } }
 #wdots { margin-top: 14px; }
-@media (max-width: 1100px) { .w-mid { grid-template-columns: 1fr 1fr; } .w-tools { grid-column: 1 / -1; grid-row: 1; min-height: 30vh; justify-content: flex-end; } .w-car .mods-track { --per: 4; } }
-@media (max-width: 760px) { #worlds { padding-top: 80px; } .w-mid { grid-template-columns: 1fr; gap: 12px; } .w-tools { min-height: 34vh; } .w-car .mods-track { --per: 2.4; } .w-card { padding: 14px 16px; } }
+@media (max-width: 1100px) { .w-mid { grid-template-columns: 1fr 1fr; } .w-tools { grid-column: 1 / -1; grid-row: 1; min-height: 46vh; justify-content: flex-end; } .w-car .mods-track { --per: 4; } }
+@media (max-width: 760px) { #worlds { padding-top: 80px; } .w-mid { grid-template-columns: 1fr; gap: 12px; } .w-tools { min-height: 46vh; } .w-car .mods-track { --per: 2.4; } .w-card { padding: 14px 16px; } }
 /* ---------- v3: collect ---------- */
 .stage-tools { position: absolute; z-index: 3; top: 14px; inset-inline-end: 14px; display: flex; flex-direction: column; gap: 10px; }
 .stage-tools button, .fx-ctl button { width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid var(--gold); background: rgba(20, 12, 10, 0.72); color: var(--gold-2); cursor: pointer; transition: transform .2s, background .2s; }
@@ -1722,7 +1722,7 @@ footer.foot { position: relative; z-index: 1; padding: 150px 0 34px; background:
       view.setInsets(insetsFor(m));
       if (m === 'learn') Lesson.start(); else Pz.start();
     } else {
-      active = null; World.look();
+      active = null; if (World) World.look();   // the first call comes before World exists
       if (m === 'hero' || m === 'close') place(HERO);
       if (m === 'wonders' && wonder) place(wonder);
       view.setHighlights({}); view.setArrows([]);
@@ -1766,6 +1766,7 @@ footer.foot { position: relative; z-index: 1; padding: 150px 0 34px; background:
     var b = { game: null, side: 1, locked: true, sel: -1, last: null, hint: null, arrows: [], onPlay: null }, cells = [];
     if (!view && flat) {
       flat.hidden = false;
+      flat.setAttribute('data-no-i18n', '');   // the squares' labels are written by the coach, already in the page's language
       for (var i = 0; i < 64; i++) { var c = document.createElement('button'); c.type = 'button'; flat.appendChild(c); cells.push(c); }
       flat.addEventListener('click', function (e) { var c = e.target.closest('button'); if (c) b.tap(+c.dataset.sq); });
     }
@@ -2274,7 +2275,10 @@ footer.foot { position: relative; z-index: 1; padding: 150px 0 34px; background:
     function say(parts) { sayEl.hidden = false; words(sayEl, parts); }
     function sit() {
       run++; clearTimeout(timer); on = true; active = board; playBtn.hidden = true; lookBtn.hidden = false;
-      view.setInsets({ top: $('worlds').querySelector('.w-mid').getBoundingClientRect().top - $('worlds').getBoundingClientRect().top, bottom: 250, left: 380, right: 380 });
+      // the board sits in the clear space: between the two cards on a wide screen, above the buttons on a narrow one
+      var sec = $('worlds').getBoundingClientRect(), mid = $('worlds').querySelector('.w-mid').getBoundingClientRect(), tools = $('worlds').querySelector('.w-tools').getBoundingClientRect();
+      if (innerWidth > 1100) view.setInsets({ top: mid.top - sec.top, bottom: 250, left: 380, right: 380 });
+      else view.setInsets({ top: Math.max(80, mid.top - sec.top), bottom: Math.max(0, innerHeight - (tools.bottom - sec.top)) + 110, left: 8, right: 8 });
       board.show(new E.Game(), 1); board.locked = false;
       say(['You are White. Make your first move.']);
       var mine = run;
