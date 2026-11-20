@@ -3,6 +3,7 @@ Reference: the user's board picture of 2026-11-12. Its front row (the dark army)
 the ivory army stands behind its own pawns, so the ivory pieces are the dark ones recast in
 ivory, as the picture's ivory pieces are the same carving."""
 import classic
+import hero
 import kit
 
 PIC = '/mnt/project-files/uploads/hearth/bd922a12-c034-47e4-a50a-3ddd4bb8e4c1'
@@ -18,7 +19,18 @@ LOOK = {
 }
 
 
+# heights in game units, as cutouts.py measured the ivory army in the reference; both armies
+# take them, because they share their meshes and the two kings stand equally tall
+HEIGHTS = {'k': 1.600, 'q': 1.285, 'b': 1.195, 'n': 1.176, 'r': 1.002, 'p': 0.885}
+
+
 def refs():
+    """the hero pictures (pics/opulent): each piece redrawn sharper from its reference cut-out"""
+    return hero.refs(hero.pics('opulent'), HEIGHTS)
+
+
+def source_refs():
+    """the pieces as cut from the reference picture: what the hero pictures were redrawn from"""
     out = {'w': {}, 'b': {}}
     king = kit.Ref(PIC, BOXES['k'], height=1.6, seg='sam')
     unit = min(king.unit, 0.36 / (king.width(0.06) or 1) * king.unit)

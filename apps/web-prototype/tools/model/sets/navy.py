@@ -1,6 +1,7 @@
 """Royal Navy: ivory and gold with ruby lozenges against navy marble with sapphires.
 Reference: the user's lineup picture of 2026-11-12 (both rows) and the board picture for the pawn."""
 import classic
+import hero
 import kit
 
 LINEUP = '/mnt/project-files/uploads/hearth/1d2e35ab-36f4-462b-be97-4e9d9532a0a7'
@@ -19,13 +20,27 @@ LOOK = {
 }
 
 
+# heights in game units, as cutouts.py measured the ivory army in the reference; both armies
+# take them, because they share their meshes and the two kings stand equally tall
+HEIGHTS = {'k': 1.580, 'q': 1.304, 'b': 1.232, 'n': 1.232, 'r': 1.088, 'p': 0.772}
+
+
 def refs():
+    """the hero pictures (pics/navy): each piece redrawn sharper from its reference cut-out"""
+    return hero.refs(hero.pics('navy'), HEIGHTS)
+
+
+def source_refs():
+    """the pieces as cut from the reference pictures: what the hero pictures were redrawn from"""
     out = {'w': {}, 'b': {}}
     king = kit.Ref(LINEUP, BOXES['w']['k'], height=1.6)
     unit = min(king.unit, 0.372 / (king.width(0.08) or 1) * king.unit)
     for s in ('w', 'b'):
         for t, box in BOXES[s].items():
-            out[s][t] = kit.Ref(LINEUP, box, unit=unit)
+            # the navy king's dark gold cross melts into the dark hall behind it: Segment Anything
+            # keeps it (GrabCut dropped it), with a stroke of points down the cross to be sure
+            kw = dict(seg='sam', add=[[(1004, 436), (1004, 452), (1004, 468), (992, 450), (1016, 450)]]) if (s, t) == ('b', 'k') else {}
+            out[s][t] = kit.Ref(LINEUP, box, unit=unit, **kw)
     # the navy row stands a little further back: scale each navy cut-out so its foot matches
     # the ivory one's, which registers its painting on the shared meshes
     for t in BOXES['b']:

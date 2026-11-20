@@ -4,6 +4,7 @@ crowns, a flame bishop holding a pearl. Reference: the user's picture of 2026-11
 import math
 
 import classic
+import hero
 import kit
 
 PIC = '/mnt/project-files/uploads/hearth/e967ebaa-9315-4ba2-86d7-73d9ef18ae19'
@@ -23,7 +24,18 @@ LOOK = {
 }
 
 
+# heights in game units, as cutouts.py measured the ivory army in the reference; both armies
+# take them, because they share their meshes and the two kings stand equally tall
+HEIGHTS = {'k': 1.660, 'q': 1.426, 'b': 1.345, 'n': 1.285, 'r': 1.104, 'p': 0.884}
+
+
 def refs():
+    """the hero pictures (pics/fantasy): each piece redrawn sharper from its reference cut-out"""
+    return hero.refs(hero.pics('fantasy'), HEIGHTS)
+
+
+def source_refs():
+    """the pieces as cut from the reference picture: what the hero pictures were redrawn from"""
     out = {'w': {}, 'b': {}}
     king = kit.Ref(PIC, BOXES['w']['k'], height=1.66, seg='sam', sym=True)
     unit = min(king.unit, 0.36 / (king.width(0.05) or 1) * king.unit)

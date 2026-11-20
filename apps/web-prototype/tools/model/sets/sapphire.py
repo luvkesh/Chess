@@ -1,6 +1,7 @@
 """Royal Ivory and Sapphire: ivory with gold leaf and sapphire enamel against lapis-blue enamel.
 Reference: the user's lineup picture of 2026-11-12 (both rows, pawns included)."""
 import classic
+import hero
 import kit
 
 LINEUP = '/mnt/project-files/uploads/hearth/b781657f-2229-4100-a11c-b058f345ae92'
@@ -17,7 +18,18 @@ LOOK = {
 }
 
 
+# heights in game units, as cutouts.py measured the ivory army in the reference; both armies
+# take them, because they share their meshes and the two kings stand equally tall
+HEIGHTS = {'k': 1.600, 'q': 1.350, 'b': 1.150, 'n': 1.155, 'r': 1.090, 'p': 0.760}
+
+
 def refs():
+    """the hero pictures (pics/sapphire): each piece redrawn sharper from its reference cut-out"""
+    return hero.refs(hero.pics('sapphire'), HEIGHTS)
+
+
+def source_refs():
+    """the pieces as cut from the reference picture: what the hero pictures were redrawn from"""
     out = {'w': {}, 'b': {}}
     king = kit.Ref(LINEUP, BOXES['w']['k'], height=1.6)
     unit = min(king.unit, 0.36 / (king.width(0.06) or 1) * king.unit)
