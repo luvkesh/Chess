@@ -323,22 +323,6 @@
   "voice": "am_puck,am_liam",
   "text": "Polished brass with harvest gold numbers. Shiny and warm."
  },
- "sound.wood.v1": {
-  "voice": "am_puck,am_liam",
-  "text": "The soft knock of heavy wooden pieces on felt. My favourite sound in chess."
- },
- "sound.soft.v1": {
-  "voice": "am_puck,am_liam",
-  "text": "Quiet, gentle clicks, for calm and cosy games."
- },
- "sound.marble.v1": {
-  "voice": "am_puck,am_liam",
-  "text": "The bright clack of marble on marble. Every move sounds important!"
- },
- "sound.glass.v1": {
-  "voice": "am_puck,am_liam",
-  "text": "Crystal chimes for every move. It sounds like magic."
- },
  "trail.none.v1": {
   "voice": "am_puck,am_liam",
   "text": "No trail, just neat and tidy moves."
