@@ -339,6 +339,16 @@
   "voice": "zm_yunxi",
   "text": "找出最好的一步！看看将军、吃子和威胁。"
  },
+ "puzzle.mate": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "找出将死！将军，让王无路可逃。"
+ },
+ "puzzle.mateN": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "规划你的将死！每一步都让王的退路更少。"
+ },
  "puzzle.wrong": {
   "who": "rooky",
   "voice": "zm_yunxi",

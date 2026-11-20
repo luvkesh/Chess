@@ -321,6 +321,14 @@
       "who": "rooky",
       "text": "Find the best move! Look for checks, captures, and threats."
     },
+    "puzzle.mate": {
+      "who": "rooky",
+      "text": "Find the checkmate! Check the king, and leave it no way out."
+    },
+    "puzzle.mateN": {
+      "who": "rooky",
+      "text": "Plan your checkmate! Each move should leave the king fewer ways out."
+    },
     "puzzle.wrong": {
       "who": "rooky",
       "text": "Good try! Have another look, or tap Hint for a clue."

@@ -339,6 +339,16 @@
   "voice": "em_alex",
   "text": "¡Encuentra la mejor jugada! Busca jaques, capturas y amenazas."
  },
+ "puzzle.mate": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Encuentra el jaque mate! Da jaque al rey y no le dejes salida."
+ },
+ "puzzle.mateN": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Planea tu jaque mate! Cada jugada debe dejar al rey menos salidas."
+ },
  "puzzle.wrong": {
   "who": "rooky",
   "voice": "em_alex",
