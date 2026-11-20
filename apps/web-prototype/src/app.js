@@ -2282,7 +2282,7 @@
     const daily = dailyPuzzle();
     const plan = trainingPlan();
     mount('<div class="page"><div class="page-in">' + subnav('puzzles') +
-      pageHead(t('learn.sub.puzzles'), t('learn.sub.puzzles'), t('learn.puzzlesSub'), '<div class="meter">' + icon('star') + '<b>' + t('learn.rating', { n: '<em>' + P.stats.puzzles.rating + '</em>' }) + '</b><span class="faint">' + t('learn.solved', { n: P.stats.puzzles.solved }) + '</span></div>') +
+      pageHead(t('learn.sub.puzzles'), t('learn.sub.puzzles'), t('learn.puzzlesSub'), '<div class="meter">' + icon('star') + '<b>' + t('learn.rating', { n: '<em>' + P.stats.puzzles.rating + '</em>' }) + '</b><span class="faint">' + t('learn.solved', { n: P.stats.puzzles.solved }) + '</span><span class="faint">' + t('learn.streakMeter', { n: P.stats.puzzles.streak || 0, best: P.stats.puzzles.bestStreak || 0 }) + '</span></div>') +
       sec('play', t('learn.startSolving')) +
       '<div class="lux-row three">' +
       lux({ id: 'z-daily', feature: !dailyDone(), art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('learn.dailyText', { n: daily.rating }) }) +
@@ -2297,7 +2297,7 @@
           '<span class="bar"><i style="width:' + Math.round(done / Math.max(1, all.length) * 100) + '%"></i></span></button>';
       }).join('') + '</div>' +
       sec('puzzle', t('learn.themes')) +
-      '<div class="cards">' + THEMES.map(([th, art]) => { const c = themePuzzles(th).length; return '<button class="tile" data-theme="' + th + '"' + (c ? '' : ' disabled') + '><span class="ic"><img src="' + medal(art, '#a3294f', '#4a0c1e', { ring: false }) + '" alt=""></span><b>' + themeName(th) + '</b><small>' + esc(t('learn.themeText.' + th)) + ' ' + t('learn.nPuzzles', { n: c }) + '</small><span class="go">' + icon('arrow') + '</span></button>'; }).join('') + '</div>' +
+      '<div class="cards">' + THEMES.map(([th, art]) => { const c = themePuzzles(th).length; return '<button class="tile" data-theme="' + th + '"' + (c ? '' : ' disabled') + '><span class="ic"><img src="' + medal(art, '#a3294f', '#4a0c1e', { ring: false }) + '" alt=""></span><b>' + themeName(th) + '</b><small>' + esc(t('learn.themeText.' + th)) + ' ' + t('learn.nPuzzles', { n: c }) + ' · ' + t('learn.mateDone', { n: themePuzzles(th).filter((p) => (P.stats.puzzles.done || []).includes(p.id)).length, of: c }) + '</small><span class="go">' + icon('arrow') + '</span></button>'; }).join('') + '</div>' +
       '</div></div>');
     hydrate();
     wireLinks();
@@ -2313,7 +2313,10 @@
   // search that made them (mates.js); off the stored line the defence is the one that lasts longest.
   const MS = ChacklateMates(E);
   const mateOf = (pz) => { const th = (pz.themes || []).find((x) => /^mateIn\d$/.test(x)); return th ? +th.slice(6) : 0; };
-  const mateSet = (n) => PUZZLES.filter((p) => p.themes.includes('mateIn' + n)).sort((a, b) => a.rating - b.rating);
+  // Puzzles a lesson, an era or the placement test already uses stay out of the sets, so nothing
+  // there is a repeat (the same rule as chess-core/tools/puzzle-quality.js namedIds).
+  const NAMED = new Set(JSON.stringify([LESSONS, CAMPAIGN, PLACEMENT]).match(/puzzle\.[0-9a-fm][0-9a-f]{9,}/g) || []);
+  const mateSet = (n) => PUZZLES.filter((p) => p.themes.includes('mateIn' + n) && !NAMED.has(p.id)).sort((a, b) => a.rating - b.rating);
   const MATE_FELT = [['#5c1428', '#c06a80'], ['#14304a', '#7a9cc8'], ['#173a2a', '#6aa88a'], ['#3a2414', '#c8a47a'], ['#2a2440', '#9a8cc8']];
   const MATE_ART = (n, set) => {
     const pcs = ['q', 'r', 'n', 'b', 'p'].slice(0, n);
@@ -6114,6 +6117,39 @@
   };
 
   // ---------------------------------------------------------------- puzzles
+  // The words around a puzzle, chosen by what it asks (PG.puzzleCopy has the rules; tests check them).
+  // At step k of a checkmate in N, n moves are left; the first hint says whether the move to find is
+  // a check or a quiet move that takes the king's squares away.
+  function puzzleCopy(pz, step, want, pos) {
+    let gives = null;
+    if (want && pos) { const g = new E.Game(pos.fen()); const m = g.find(sqIndex(want.slice(0, 2)), sqIndex(want.slice(2, 4)), 0); if (m !== null) { g.play(m); gives = g.pos.inCheck(); } }
+    return PG.puzzleCopy(pz, step, gives);
+  }
+  // A broken streak: the count cracks and falls, with how long it was and the best kept.
+  function streakBroken(lost, best) {
+    const el = $('pz-streak'); if (el) { el.classList.remove('bump'); el.classList.add('broke'); setTimeout(() => el.classList.remove('broke'), 1400); }
+    const st = state.progress.stats.puzzles; if (el) el.innerHTML = icon('flame') + ' <span class="full">' + t('learn.pz.streak', { n: '<b>0</b>' }) + '</span><b class="short">0</b><span class="faint">' + t('learn.pz.best', { n: st.bestStreak || 0 }) + '</span>';
+    if (lost < 2) return;   // a streak of one is not worth a moment
+    AU.play('streakBreak');
+    const o = document.createElement('div');
+    o.className = 'streak-moment break'; o.setAttribute('role', 'status');
+    o.innerHTML = '<div class="sm-card glass"><span class="sm-n"><b>' + lost + '</b><i class="crack"></i></span><b class="sm-t">' + esc(t('learn.pz.streakLost', { n: lost })) + '</b><small>' + esc(lost >= best ? t('learn.pz.streakWasBest') : t('learn.pz.best', { n: best })) + '</small></div>';
+    document.body.appendChild(o);
+    setTimeout(() => o.classList.add('out'), 2300); setTimeout(() => o.remove(), 2900);
+  }
+  // 10, 25, 50 and 100 in a row: each bigger than the last.
+  function streakMilestone(n) {
+    const tier = Math.max(0, PG.STREAK_MILESTONES.indexOf(n));
+    setTimeout(() => AU.play('streakMilestone', { n }), 500);
+    if (tier >= 2) view.celebrate('win', -1, null, -1);
+    const o = document.createElement('div');
+    o.className = 'streak-moment ms tier-' + tier; o.setAttribute('role', 'status');
+    o.innerHTML = '<div class="sm-rays"></div><div class="sm-card glass"><span class="sm-n">' + icon('flame') + '<b>' + n + '</b></span><b class="sm-t">' + esc(t('learn.pz.streakMs', { n })) + '</b><small>' + esc(t('learn.pz.streakMs' + n)) + '</small></div>' +
+      (tier >= 1 ? '<div class="sm-sparks">' + Array.from({ length: 10 + tier * 8 }, (_, i) => '<i style="--a:' + Math.round(i * 360 / (10 + tier * 8)) + 'deg;--d:' + (0.2 + (i % 5) * 0.12).toFixed(2) + 's"></i>').join('') + '</div>' : '');
+    document.body.appendChild(o);
+    o.onclick = () => o.classList.add('out');
+    setTimeout(() => o.classList.add('out'), 2800 + tier * 700); setTimeout(() => o.remove(), 3500 + tier * 700);
+  }
   // The puzzle player. arg: { list, title, intro, journey, daily, rated, theme }. A journey
   // trial asks for every puzzle in its list to be solved, with hints but no solutions.
   SCREENS.puzzle = function (arg) {
@@ -6124,13 +6160,17 @@
     view.setAttract(false);
     if (era) setLook(eraLook(era.id));
     const S = { cur: null, step: 0, pos: null, failed: false, solved: false, selected: -1, idx: -1 };
+    if (window.__SHOT) window.__pz = S;   // tooling reads the puzzle on the board
     const list = arg.list || null;
+    // A numbered set (Checkmate in N, or one theme): its puzzles in order of difficulty, played
+    // one after another. Next always moves on: a puzzle missed comes back after the rest.
+    const SET = arg.mate ? { order: mateSet(arg.mate), solved: () => ((P.mates || {})[arg.mate] || { solved: [] }).solved }
+      : arg.theme ? { order: themePuzzles(arg.theme).sort((a, b) => a.rating - b.rating), solved: () => P.stats.puzzles.done || [] } : null;
     const pickNext = () => {
       if (list) return list[++S.idx] || null;
-      if (arg.mate) {
-        const r = (P.mates || {})[arg.mate] || { solved: [] }, all = mateSet(arg.mate);
-        const open = all.filter((p) => !r.solved.includes(p.id) && p !== S.cur);
-        return open[0] || all[Math.floor(Math.random() * all.length)] || null;
+      if (SET) {
+        const id = PG.nextInSet(SET.order.map((p) => p.id), SET.solved(), S.cur && S.cur.id);
+        return SET.order.find((p) => p.id === id) || null;
       }
       let pool = PUZZLES.filter((p) => !arg.theme || (arg.theme === 'mate' ? p.themes.some((t) => t.startsWith('mateIn')) : p.themes.includes(arg.theme)));
       const unseen = pool.filter((p) => !P.stats.puzzles.seen.includes(p.id));
@@ -6142,14 +6182,30 @@
     };
     mount('<div class="hud-top"><button class="backbtn" id="pz-back">' + icon('back') + '<span>' + esc(era ? eraName(era) : t('learn.sub.puzzles')) + '</span></button>' +
       '<div class="title"><img class="portrait" src="' + face(guide) + '" alt=""><span>' + esc(arg.title || t('learn.sub.puzzles')) + '</span></div><span class="spacer"></span>' +
-      '<div class="pill glass" id="pz-rating"></div><button class="round" id="pz-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
-      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="pz-eyebrow">' + t('learn.pz.puzzle') + '</div><h3 id="pz-title">' + t('learn.pz.find') + '</h3></div></header><div class="content" id="pz-content"></div>' +
+      '<div class="pill glass pz-streak" id="pz-streak"></div><div class="pill glass" id="pz-rating"></div><button class="round" id="pz-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button></div>' +
+      '<aside class="lesson glass"><header>' + faceImg(guide) + '<div><div class="eyebrow" id="pz-eyebrow">' + t('learn.pz.puzzle') + '</div><h3 id="pz-title">' + t('learn.pz.find') + '</h3>' + (SET ? '<div class="pz-prog" id="pz-prog"><span class="bar"><i></i></span><small></small></div>' : '') + '</div></header><div class="content" id="pz-content"></div>' +
       '<footer><div class="dots" id="pz-dots"></div><button class="btn" id="pz-hint">' + icon('hint') + ' ' + t('play.btn.hint') + '</button>' + (j ? '' : '<button class="btn" id="pz-sol">' + icon('eye') + ' ' + t('learn.pz.solution') + '</button>') +
       '<div class="grow"></div><button class="btn primary" id="pz-next" hidden>' + t('learn.pz.next') + '</button></footer></aside>');
     $('pz-back').onclick = () => { AU.play('tap'); if (era) go('era', era.id); else go('puzzles'); };
     $('pz-set').onclick = () => settingsModal();
     const ratingPill = (delta) => { $('pz-rating').innerHTML = icon('star') + ' ' + t('play.rating', { n: '<b>' + P.stats.puzzles.rating + '</b>' }) + (delta ? ' <span class="' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '') + delta + '</span>' : ''); };
     ratingPill();
+    // The solve streak: now and best, beside the rating.
+    const streakPill = (bump) => {
+      const st = P.stats.puzzles, el = $('pz-streak');
+      if (!el) return;
+      el.innerHTML = icon('flame') + ' <span class="full">' + t('learn.pz.streak', { n: '<b>' + (st.streak || 0) + '</b>' }) + '</span><b class="short">' + (st.streak || 0) + '</b><span class="faint">' + t('learn.pz.best', { n: st.bestStreak || 0 }) + '</span>';
+      el.classList.toggle('hot', (st.streak || 0) >= 3);
+      if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+    };
+    streakPill();
+    // Where the player is in a numbered set: "Puzzle 24 of 100" in the eyebrow, and how many are solved.
+    const setProgress = () => {
+      if (!SET || !$('pz-prog')) return;
+      const all = SET.order, done = new Set(SET.solved()), n = all.filter((p) => done.has(p.id)).length;
+      $('pz-prog').querySelector('i').style.width = Math.round(n / Math.max(1, all.length) * 100) + '%';
+      $('pz-prog').querySelector('small').textContent = t('learn.mateDone', { n, of: all.length });
+    };
     const dots = () => { if (list && list.length > 1) $('pz-dots').innerHTML = list.map((_, k) => '<i class="' + (k < S.idx || (k === S.idx && S.solved) ? 'ok' : k === S.idx ? 'on' : '') + '"></i>').join(''); };
     function load() {
       const pz = pickNext();
@@ -6162,19 +6218,23 @@
       view.setBoard(piecesOf(pre), null);
       view.setHighlights({}); view.setArrows([]);
       view.setView(solverSide === WHITE ? 'white' : 'black', 'player');
-      $('pz-eyebrow').textContent = (list && list.length > 1 ? t('learn.pz.nOf', { n: S.idx + 1, of: list.length }) + ' · ' : arg.daily ? t('learn.dailyPuzzle') + ' · ' : '') + t('learn.pz.rated', { n: pz.rating });
-      const mn = arg.mate ? mateOf(pz) : 0;
-      $('pz-title').textContent = mn ? t(solverSide === WHITE ? 'learn.pz.whiteMate' : 'learn.pz.blackMate', { n: mn }) : t(solverSide === WHITE ? 'learn.pz.whiteFind' : 'learn.pz.blackFind');
-      $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : t('learn.pz.intro')) + '</p><div id="pz-fb"></div>';
+      const num = list && list.length > 1 ? t('learn.pz.nOf', { n: S.idx + 1, of: list.length }) : SET ? t('learn.pz.nOf', { n: SET.order.indexOf(pz) + 1, of: SET.order.length }) : '';
+      $('pz-eyebrow').textContent = (num ? num + ' · ' : arg.daily ? t('learn.dailyPuzzle') + ' · ' : '') + t('learn.pz.rated', { n: pz.rating });
+      // Every text follows what the puzzle asks: a checkmate puzzle says so wherever it is opened.
+      const copy = puzzleCopy(pz, 0);
+      $('pz-title').textContent = t(solverSide === WHITE ? copy.white : copy.black, copy.vars);
+      $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : t(copy.intro, copy.vars)) + '</p><div id="pz-fb"></div>';
       if (arg.intro && S.idx <= 0 && state.settings.narration) AU.say(arg.intro);
-      $('pz-next').hidden = true; $('pz-hint').disabled = false; if ($('pz-sol')) $('pz-sol').disabled = false;
-      dots();
+      $('pz-next').hidden = true;
+      for (const b of [$('pz-hint'), $('pz-sol')]) if (b) { b.disabled = false; b.hidden = false; }
+      S.missed = false;
+      dots(); setProgress();
       // Animate the opponent's move that sets up the puzzle.
       setTimeout(() => {
         if (state.screen !== 'puzzle' || S.cur !== pz) return;
         const g = new E.Game(pz.fen);
         const info = g.playText(pz.moves[0]);
-        quickMove(info, () => { S.pos = g.pos; S.busy = false; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move', info); if (S.idx <= 0) guideSay('puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
+        quickMove(info, () => { S.pos = g.pos; S.busy = false; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: info.from, lastTo: info.to, check: g.pos.inCheck() ? kingSquare(g.pos, g.pos.side) : -1 }); AU.play(info.captured ? 'capture' : 'move', info); if (S.idx <= 0) guideSay(mateOf(pz) ? 'puzzle.mate' : 'puzzle.start', { delay: 400 }); guideIdle('puzzle.idle', 35000); });
       }, 600);
     }
     function fb(kind, t) { const el = $('pz-fb'); if (el) el.innerHTML = '<div class="feedback ' + kind + '">' + esc(t) + '</div>'; }
@@ -6182,15 +6242,21 @@
       if (S.solved) return;
       S.solved = true;
       guideIdle(null);
-      const res = PG.puzzleFinished(P, S.cur, solved && !S.failed, { daily: arg.daily });
+      const res = PG.puzzleFinished(P, S.cur, solved && !S.failed, { daily: arg.daily, hinted: S.hints > 0 && !S.missed });
       if (!solved || S.failed) for (const t of S.cur.themes) noteMotif(t.startsWith('mateIn') ? 'mate' : t);
       ratingPill(res.ratingDelta);
-      $('pz-hint').disabled = true; if ($('pz-sol')) $('pz-sol').disabled = true;
-      celebrate(res);
+      // Hint and Solution have nothing left to do: they make way for Next.
+      for (const b of [$('pz-hint'), $('pz-sol')]) if (b) { b.disabled = true; b.hidden = true; }
+      // a streak milestone has the stage first; the achievement and any level-up follow it
+      const ms = res.streak && res.streak.milestone;
+      if (ms) setTimeout(() => { if (state.screen === 'puzzle') celebrate(res); }, 3000 + PG.STREAK_MILESTONES.indexOf(ms) * 700); else celebrate(res);
       if (solved && !S.failed) { AU.play('correct'); view.celebrate('win', -1, null, -1); }
-      dots();
+      if (res.streak && res.streak.n) { streakPill(true); setTimeout(() => AU.play('streakUp', { n: res.streak.n }), 380); if (ms) streakMilestone(ms); }
+      else if (res.streak && res.streak.lost) streakBroken(res.streak.lost, res.streak.best);
+      else streakPill();
+      dots(); setProgress();
       const last = list && S.idx >= list.length - 1;
-      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.map((th) => '<span class="pill">' + esc(themeName(th)) + '</span>').join('') + '</div>' + (arg.daily ? '<p class="say" style="margin-top:10px">' + t('learn.pz.tomorrow') + '</p>' : ''));
+      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.filter((th, k, a) => a.indexOf(th) === k).map((th) => '<span class="pill">' + esc(themeName(th)) + '</span>').join('') + '</div>' + (arg.daily ? '<p class="say" style="margin-top:10px">' + t('learn.pz.tomorrow') + '</p>' : ''));
       if (j && last) {
         fb('ok', t('learn.pz.trial', { name: guide.name }));
         $('pz-next').textContent = t('learn.dj.backTo', { era: eraName(era) });
@@ -6215,7 +6281,10 @@
       if (!ok && mn && left > 1 && MS.defends(tg.pos, left - 1, 4e5) === true) { ok = true; S.off = true; }
       if (!ok) {
         // The wrong move is played on the board for a moment, then taken back, so the player sees it was a real move.
-        S.failed = true; S.busy = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000); fb('bad', t('learn.pz.wrong'));
+        S.failed = true; S.busy = true; AU.play('wrong'); if (guideFresh('puzzle.wrong')) guideSay('puzzle.wrong', { delay: 300 }); else AU.event('puzzle.wrong'); guideIdle('puzzle.idle', 35000);
+        fb('bad', t(puzzleCopy(S.cur, S.step).wrong));
+        // One wrong move ends the solve streak there and then.
+        if (!S.missed) { S.missed = true; const br = PG.puzzleMiss(P); save(); if (br.lost) streakBroken(br.lost, br.best); }
         const cur = S.cur;
         view.setBoard(piecesOf(tg.pos), null); view.setHighlights({ spots: [{ sq: to, color: '#ff4a40', pulse: false }] });
         setTimeout(() => { if (state.screen !== 'puzzle' || S.cur !== cur) return; S.busy = false; view.setBoard(piecesOf(S.pos), null); view.setHighlights({}); }, 900);
@@ -6230,11 +6299,11 @@
         // the prover keeps defending (S.off) instead of calling it solved with no mate.
         const lineDone = S.step * 2 + 2 >= S.cur.moves.length;
         if (lineDone && mn && !(tg.outcome && tg.outcome.reason === 'checkmate')) S.off = true;
-        else if (lineDone || (tg.outcome && tg.outcome.reason === 'checkmate')) { fb('ok', t(S.failed ? 'learn.pz.solvedMiss' : 'learn.pz.solved')); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
+        else if (lineDone || (tg.outcome && tg.outcome.reason === 'checkmate')) { const cp = puzzleCopy(S.cur, S.step); fb('ok', t(S.failed ? cp.solvedMiss : cp.solved)); AU.event(S.failed ? 'puzzle.solved' : 'puzzle.great'); finish(true); return; }
         const reply = g.playText(S.off ? (MS.longestDefence(g.pos, left - 1, 4e5) || {}).move : S.cur.moves[S.step * 2 + 2]);
         if (!reply) { finish(true); return; }
         S.step++;
-        fb('ok', t('learn.pz.keepGoing'));
+        { const cp = puzzleCopy(S.cur, S.step); fb('ok', t(cp.keep, cp.vars)); }
         setTimeout(() => quickMove(reply, () => { S.pos = g.pos; S.busy = false; view.setBoard(piecesOf(g.pos), null); view.setHighlights({ lastFrom: reply.from, lastTo: reply.to }); AU.play(reply.captured ? 'capture' : 'move'); }), 380);
       });
       return true;
@@ -6267,7 +6336,7 @@
       S.failed = true; S.hints++;
       guideIdle(null);
       const u = wantMove();
-      if (S.hints === 1) { const th = S.cur.themes[0]; fb('hint', I18N.has('learn.pzh.' + th) ? t('learn.pzh.' + th) : t(th.startsWith('mateIn') ? 'learn.pzh.mate' : 'learn.pzh.forcing')); }
+      if (S.hints === 1) fb('hint', t(puzzleCopy(S.cur, S.step, u, S.pos).hint));
       else if (S.hints === 2 || !j) { view.setHighlights({ selected: sqIndex(u.slice(0, 2)) }); fb('hint', t('learn.pzh.piece', { sq: u.slice(0, 2) })); }
       else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', t('learn.pzh.arrow')); }
       AU.play('coach');
@@ -6275,6 +6344,7 @@
     if ($('pz-sol')) $('pz-sol').onclick = () => {
       if (!S.cur || S.solved || S.busy) return;
       S.failed = true;
+      if (!S.missed) { S.missed = true; const br = PG.puzzleMiss(P); if (br.lost) streakBroken(br.lost, br.best); }
       const u = wantMove();
       view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]);
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);

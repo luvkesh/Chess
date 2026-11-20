@@ -453,3 +453,74 @@ console.log('progress ok');
   assert(st.xp > xp0, 'a real round gives XP');
   console.log('champion and trainer rewards ok');
 }
+
+// Numbered puzzle sets: Next always moves forward. A puzzle missed, or opened with Solution, is
+// not solved, and it must not come straight back as the next one (the 18 Nov "Next puzzle is
+// broken" bug); it returns only once the rest of the set is done.
+{
+  const order = ['a', 'b', 'c', 'd', 'e'];
+  assert.strictEqual(PG.nextInSet(order, [], null), 'a', 'a set opens at its first unsolved puzzle');
+  assert.strictEqual(PG.nextInSet(order, ['a'], 'a'), 'b');
+  assert.strictEqual(PG.nextInSet(order, ['a'], 'b'), 'c', 'after a miss on b, Next goes on to c');
+  assert.strictEqual(PG.nextInSet(order, ['a', 'c'], 'c'), 'd', 'b, missed, does not jump back in front of d');
+  assert.strictEqual(PG.nextInSet(order, ['a', 'c', 'd', 'e'], 'e'), 'b', 'the missed one comes back at the end');
+  assert.strictEqual(PG.nextInSet(order, ['b', 'c', 'd', 'e'], null), 'a', 'reopening the set starts at the first unsolved');
+  assert.strictEqual(PG.nextInSet(order, order, 'c'), 'd', 'all solved: on round the set');
+  assert.strictEqual(PG.nextInSet(order, order, 'e'), 'a');
+  for (let k = 0; k < 200; k++) {   // never the same puzzle twice in a row, whatever was solved
+    const solved = order.filter(() => Math.random() < 0.5), cur = order[k % 5];
+    assert.notStrictEqual(PG.nextInSet(order, solved, cur), cur, 'Next repeated ' + cur);
+  }
+  console.log('puzzle sets move forward ok');
+}
+
+// The solve streak: +1 for each puzzle solved first time, a hint holds it, a wrong move or a shown
+// solution breaks it at once; best kept; milestones at 10, 25, 50 and 100 give their achievement.
+{
+  const st = PG.fresh();
+  const pz = (i) => ({ id: 'puzzle.s' + i, rating: 800, themes: ['fork'] });
+  for (let i = 0; i < 9; i++) PG.puzzleFinished(st, pz(i), true, {}, day(1));
+  assert.strictEqual(st.stats.puzzles.streak, 9);
+  const r10 = PG.puzzleFinished(st, pz(9), true, {}, day(1));
+  assert.deepStrictEqual(r10.streak, { n: 10, best: 10, milestone: 10 });
+  assert(st.achievements['pstreak-10'] && r10.achievements.some((a) => a.id === 'pstreak-10'), 'ten in a row is an achievement');
+  PG.puzzleFinished(st, pz(10), false, { hinted: true }, day(1));
+  assert.strictEqual(st.stats.puzzles.streak, 10, 'a hint holds the streak');
+  const br = PG.puzzleMiss(st);
+  assert.deepStrictEqual(br, { lost: 10, best: 10 }, 'a wrong move breaks it and says how long it was');
+  assert.strictEqual(st.stats.puzzles.streak, 0);
+  const rs = PG.puzzleFinished(st, pz(11), false, {}, day(1));
+  assert.strictEqual(rs.streak.n, 0, 'a shown solution counts as a miss');
+  PG.puzzleFinished(st, pz(12), true, {}, day(1));
+  assert.strictEqual(st.stats.puzzles.streak, 1);
+  assert.strictEqual(st.stats.puzzles.bestStreak, 10, 'the best is kept');
+  const back = PG.migrate(JSON.parse(JSON.stringify(st)));
+  assert.strictEqual(back.stats.puzzles.bestStreak, 10, 'the streak is saved');
+  console.log('puzzle streak ok');
+}
+
+// The words around every puzzle match what it asks: a checkmate puzzle never says "find the best
+// move" or "look for checks, captures and threats", wherever it is opened; a tactic never promises
+// a checkmate. Every key exists in English and the English says the right thing.
+{
+  const I = require('../../../packages/content/i18n/learn.json');
+  const en = (k) => { const v = I[k.replace(/^learn\./, '')]; assert(v && v.en, 'no string ' + k); return v.en; };
+  const puzzles = require('../../../packages/content/puzzles.json');
+  let mates = 0;
+  for (const p of puzzles) {
+    const n = +((p.themes.find((t) => /^mateIn\d$/.test(t)) || 'x0').slice(6)) || 0;
+    for (let step = 0; step < Math.max(1, n); step++) {
+      const c = PG.puzzleCopy(p, step, step ? true : null);
+      const all = ['white', 'black', 'intro', 'wrong', 'keep', 'solved', 'solvedMiss', 'hint'].map((k) => en(c[k]));
+      if (n) {
+        mates++;
+        assert(/checkmate/i.test(en(c.white)) && /checkmate/i.test(en(c.intro)) && /checkmate|mate/i.test(en(c.solved)), p.id + ' talks about checkmate');
+        assert(!all.some((s) => /best move|checks, captures and threats/i.test(s)), p.id + ' has generic text');
+      } else assert(!all.some((s) => /checkmate/i.test(s)), p.id + ' promises a checkmate');
+    }
+  }
+  assert.strictEqual(en(PG.puzzleCopy({ themes: ['mateIn3'] }, 0).intro).includes('{n}'), true, 'mate in N says how many moves');
+  assert.strictEqual(PG.puzzleCopy({ themes: ['mateIn2'] }, 1, true).keep, 'learn.pz.keepMate1', 'one move left: finish it');
+  assert.strictEqual(PG.puzzleCopy({ themes: ['mateIn2'] }, 0, false).hint, 'learn.pzh.mateQuiet', 'a quiet first move gets its own hint');
+  console.log('puzzle words ok:', mates, 'checkmate steps');
+}

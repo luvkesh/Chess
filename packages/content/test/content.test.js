@@ -439,6 +439,33 @@ const placement = require('../placement.json');
   for (let n = 1; n <= 5; n++) assert.ok(sets[n] >= 10, 'at least 10 mates in ' + n);
   console.log('checkmate in N ok:', JSON.stringify(sets));
 }
+// Every puzzle is its own: no position twice (colours swapped or the board mirrored counts as the
+// same), and within a Checkmate in N set no two with the same mating idea around the king. Each set
+// climbs: its rating order is its difficulty order (chess-core/tools/puzzle-quality.js), with at most
+// four easy two-piece mates in one, spread through the easy part and never first.
+{
+  const Q = require('../../chess-core/tools/puzzle-quality.js');
+  const pos = new Map(), idea = new Map();
+  for (const pz of puzzles) {
+    const k = Q.twinKeys(E, pz);
+    assert.ok(!pos.has(k.position), pz.id + ' is the same position as ' + pos.get(k.position));
+    pos.set(k.position, pz.id);
+    if (!Q.mateN(pz)) continue;
+    assert.ok(!idea.has(k.idea), pz.id + ' repeats the mating idea of ' + idea.get(k.idea));
+    idea.set(k.idea, pz.id);
+  }
+  const named = Q.namedIds(path.join(__dirname, '..'));
+  for (let n = 1; n <= 5; n++) {
+    const set = puzzles.filter((p) => Q.mateN(p) === n && !named.has(p.id)).sort((a, b) => a.rating - b.rating).map((p) => ({ id: p.id, f: Q.features(E, p) }));
+    const easy = set.map((x, i) => (Q.trivial(x.f) ? i : -1)).filter((i) => i >= 0);
+    assert.ok(easy.length <= 4 && !easy.includes(0) && easy.every((i) => i < set.length / 3), 'mate in ' + n + ': easy mates at ' + easy);
+    const d = set.filter((x) => !Q.trivial(x.f)).map((x) => Q.difficulty(x.f));
+    for (let i = 1; i < d.length; i++) assert.ok(d[i] >= d[i - 1], 'mate in ' + n + ': difficulty drops at ' + set[i].id);
+  }
+  const inSet = (n) => puzzles.filter((p) => Q.mateN(p) === n && !named.has(p.id)).length;
+  assert.ok(inSet(1) >= 100 && inSet(2) >= 100, 'a hundred mates in 1 and in 2');
+  console.log('puzzles unique and in order of difficulty');
+}
 
 // Skill trainers: each trainer names a lesson and a pool with enough positions for a round, and every
 // position loads, every answer, option and played move is legal, and the played move is not an answer.

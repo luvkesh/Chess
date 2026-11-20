@@ -218,6 +218,21 @@ function ChacklateAudio() {
     achievement(t) { bell(t, 1567.98, 1.1, 0.09, 3.5, 2); bell(t + 0.12, 2093, 1.2, 0.08, 3.5, 2); bell(t + 0.24, 2637, 1.4, 0.07, 3.5, 2); },
     coach(t) { bell(t, 880, 0.5, 0.05, 2, 1); bell(t + 0.07, 1318.5, 0.6, 0.045, 2, 1); },
     low(t) { partial(t, 1760, 0.06, 0.08, 'square'); },
+    // The puzzle solve streak. Each solve adds a bright step that climbs a little with the streak;
+    // a broken streak is a glassy crack and a falling chime; a milestone rings bigger as the tier rises.
+    streakUp(t, o) { const n = Math.min(12, (o.n || 1) - 1); bell(t, 1046.5 * Math.pow(2, n / 24), 0.45, 0.06, 3, 1.3); },
+    streakBreak(t) {
+      noise(t, 0.05, 5200, 1.2, 0.16, 'highpass'); noise(t + 0.03, 0.09, 2400, 2, 0.1, 'bandpass');
+      [784, 659.25, 523.25, 392, 311.13].forEach((hz, i) => bell(t + 0.1 + i * 0.11, hz, 0.9, 0.07 - i * 0.008, 1.2, 1.6));
+      partial(t + 0.12, 82.4, 0.6, 0.14, 'sine');
+    },
+    streakMilestone(t, o) {
+      const tier = Math.max(0, [10, 25, 50, 100].indexOf(o.n || 10));
+      const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98, 2093].slice(0, 4 + tier);
+      notes.forEach((hz, i) => bell(t + i * 0.075, hz, 1.4 + tier * 0.3, 0.085, 3, 1.3));
+      bell(t + notes.length * 0.075, 261.63, 2 + tier * 0.4, 0.07 + tier * 0.01, 1, 0.8);
+      if (tier >= 2) [2637, 3136, 3520].forEach((hz, i) => bell(t + 0.5 + i * 0.09, hz, 1.2, 0.04, 4, 2));
+    },
   };
 
   // info: the move (its mover and captured piece), so each piece sounds its own weight.
