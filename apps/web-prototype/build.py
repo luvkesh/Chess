@@ -32,6 +32,7 @@ SCRIPTS = [
     src / 'scene.js',
     src / 'xiangqi3d.js',
     src / 'art.js',
+    src / 'live.js',
     src / 'progress.js',
     src / 'audio.js',
     src / 'net.js',
