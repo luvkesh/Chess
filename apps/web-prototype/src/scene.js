@@ -279,7 +279,9 @@ function ChacklateScene(canvas, options) {
   }
   function loadSet(id) {
     if (id === setId && sprites.length && sprites[0].obj && sprites[0].obj.userData.set === id) return;
+    const turned = posedSet(setId) !== posedSet(id);
     setId = P.SETS[id] ? id : 'regency';
+    if (turned) for (const s of sprites) if (!s.anim) s.yaw = baseYaw(s.piece, s.sq);
     const before = texturesOf(pieceGroup);
     for (const s of sprites.concat(graveyard)) rebuildSprite(s);
     // the old set's painted textures come off the GPU (they upload again if it comes back)
@@ -462,9 +464,14 @@ function ChacklateScene(canvas, options) {
   });
   const contactGeo = new THREE.PlaneGeometry(1, 1); contactGeo.rotateX(-Math.PI / 2);
   const contactMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, opacity: 0.8 });
+  // A set whose figures are already posed in the model (riders on camels, horses and elephants
+  // standing side on) is not turned again: its knights and bishops stand like the other pieces.
+  const posedSet = (id) => !!(P.SETS[id] && P.SETS[id].posed);
   function baseYaw(piece, sq) {
-    if (kindOf(piece) === 2) return piece > 0 ? Math.PI - 0.95 : -0.95;   // knights look ahead, turned to show their profile
-    if (kindOf(piece) === 3) return piece > 0 ? Math.PI * 0.75 : -Math.PI * 0.25;
+    if (!posedSet(setId)) {
+      if (kindOf(piece) === 2) return piece > 0 ? Math.PI - 0.95 : -0.95;   // knights look ahead, turned to show their profile
+      if (kindOf(piece) === 3) return piece > 0 ? Math.PI * 0.75 : -Math.PI * 0.25;
+    }
     return piece > 0 ? Math.PI : 0;
   }
   function makeSprite(piece, sq) {
@@ -2360,14 +2367,26 @@ function ChacklateScene(canvas, options) {
     if (spec.kind === 'pieces' || spec.kind === 'piece') {
       const types = spec.kind === 'piece' ? [spec.type || 'k'] : ['r', 'n', 'b', 'q', 'k', 'p'];
       const sides = spec.kind === 'piece' ? [spec.side || 'w'] : ['w', 'b'];
-      sides.forEach((side, row) => types.forEach((t, i) => {
+      // The line-up stands the pieces a square apart. A set of wide figures (a war elephant, a
+      // horseman side on) is spread out so that neighbours do not overlap, and seen from further.
+      const row = [], box = new THREE.Box3();
+      let widest = 0;
+      sides.forEach((side, r) => types.forEach((t, i) => {
         const g = P.make(spec.set, t, side, spec.detail);
-        g.position.set((i - (types.length - 1) / 2) * 0.78, 0, row ? -0.85 : 0.2);
-        g.rotation.y = spec.turn !== undefined ? spec.turn : t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
+        g.rotation.y = spec.turn !== undefined ? spec.turn : posedSet(spec.set) ? 0 : t === 'n' ? (side === 'w' ? -1.2 : -1.9) : t === 'b' ? 0.6 : 0;
+        g.updateMatrixWorld(true); box.setFromObject(g);
+        if (!box.isEmpty()) widest = Math.max(widest, box.max.x - box.min.x);
+        row.push([g, i, r]);
         s2.add(g);
       }));
-      if (spec.kind === 'piece') { const ht = P.HEIGHT[types[0]] || 1; if (spec.level) { const hb = new THREE.Box3().setFromObject(s2).max.y || ht; c2.position.set(0, hb * 0.5, hb * 4.2 + 0.8); look.set(0, hb * 0.5, 0); } else { c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); } }
-      else { c2.position.set(0, 1.9, 6.0); look.set(0, 0.55, -0.3); }
+      const wide = spec.kind === 'pieces' ? Math.max(1, (widest + 0.04) / 0.78) : 1;
+      for (const [g, i, r] of row) g.position.set((i - (types.length - 1) / 2) * 0.78 * wide, 0, (r ? -0.85 : 0.2) * wide);
+      if (spec.kind === 'piece') {
+        // framed for the usual height of its kind; a taller figure (a foot soldier for a pawn,
+        // an elephant for a rook) is framed whole instead of losing its head
+        const all = new THREE.Box3().setFromObject(s2), hb = all.isEmpty() ? 0 : all.max.y, ht = Math.max(P.HEIGHT[types[0]] || 1, hb * 0.9);
+        if (spec.level) { const h1 = hb || ht; c2.position.set(0, h1 * 0.5, h1 * 4.2 + 0.8); look.set(0, h1 * 0.5, 0); } else { c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
+      } else { c2.position.set(0, 1.9 * wide, 6.0 * wide); look.set(0, 0.55 * wide, -0.3 * wide); }
       // floor: false leaves the pieces standing on nothing (the menu medals, tools/shoot-art.js)
       if (spec.floor !== false) {
         const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));

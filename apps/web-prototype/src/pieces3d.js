@@ -7188,15 +7188,16 @@ function ChacklatePieces(THREE, K) {
       mats: (side) => (side === 'w' ? { body: MATS.ivoryEnamel(), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#1d5fd0') } : { body: MATS.peacockEnamel(), trim: MAT.gold('#e8b85a'), accent: MAT.gem('#18b070') }),
     },
     army: {
-      id: 'army', name: 'The Royal Army', era: 'Ancient India', year: 'c. 600 AD', tint: '#7a2a1a',
+      id: 'army', name: 'The Royal Army', era: 'Ancient India', year: 'c. 600 AD', tint: '#7a2a1a', sided: true, posed: true,
+      mesh: 'india1', meshLook: { clearcoat: 0.45 },
       story: 'Chess began in India as chaturanga, "the four arms": a battle game of elephants, horsemen, chariots and foot soldiers. This set turns the pieces back into an army, carved in sandalwood and ebony with silk robes, gold armour and jewels.',
       lore: {
-        k: 'A proud king with a jewelled crown, a royal sceptre and a fine beard. Keep him safe: if he is trapped, the battle is lost.',
-        q: 'A graceful queen in a tall crown and a flowing gown, holding a lotus flower. She is the strongest warrior on the field.',
-        b: 'A camel rider in a pointed turban, carrying a shepherd\'s crook. Camels cross the desert diagonally, and so does the bishop.',
-        n: 'A horseman on a prancing horse, sword raised and shield ready. Horses leap in an L, over anyone in the way.',
-        r: 'A war elephant carrying a little fort, with a spearman keeping watch. The elephant was the rook in the very first chess sets.',
-        p: 'A foot soldier with a sword and a round shield. March to the far side and you can become a queen.',
+        k: 'A proud king with a jewelled crown, royal robes and a fine beard. Keep him safe: if he is trapped, the battle is lost.',
+        q: 'A graceful queen in a tall jewelled crown and a flowing gown. She is the strongest warrior on the field.',
+        b: 'A camel rider in a jewelled crown, carrying a golden staff. Camels cross the desert diagonally, and so does the bishop.',
+        n: 'A horseman on a prancing horse, weapon raised high. Horses leap in an L, over anyone in the way.',
+        r: 'A war elephant in jewelled armour, with a little tower or a rider on its back. The elephant was the rook in the very first chess sets.',
+        p: 'A foot soldier in fine armour, weapon in hand. March to the far side and you can become a queen.',
       },
       pieces: ARMY,
       mats: (side) => (side === 'w'

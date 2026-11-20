@@ -86,25 +86,47 @@ def tilt(r, zc):
     return 0.13
 
 
+def top_spot(r, zc, eh):
+    """a clean spot of the plinth's own top in the picture, as (x, z): beside the feet, in front
+    of the middle, where its colour is even. The whole top is painted from it."""
+    R = r.width(zc)
+    best, at = None, (0.55 * R, zc - 0.35 * eh)
+    crop = cv2.GaussianBlur(r.crop, (0, 0), 1.2).astype(np.float32)
+    cells = []
+    for sx in (-1, 1):
+        for fx in np.linspace(0.45, 0.78, 8):
+            for fz in np.linspace(0.12, 0.5, 5):
+                x, z = sx * fx * R, zc - fz * eh
+                px, py = int(round(r.axis + x / r.unit)), int(round(r.bot - z / r.unit))
+                if 3 <= px < crop.shape[1] - 3 and 3 <= py < crop.shape[0] - 3 and r.mask[py - 3:py + 4, px - 3:px + 4].all():
+                    win = crop[py - 3:py + 4, px - 3:px + 4].reshape(-1, 3)
+                    cells.append((x, z, win.mean(0), float(win.std(0).mean())))
+    if cells:
+        med = np.median(np.array([c[2] for c in cells]), 0)
+        for x, z, mean, sd in cells:
+            score = float(np.abs(mean - med).mean()) + 2.0 * sd
+            if best is None or score < best:
+                best, at = score, (x, z)
+    return at
+
+
 def plinth(r, t, zc, eh, oval):
-    """the turned plinth up to just under its top. The top is painted as rings of the rim just
-    under its front edge: the picture's own plinth top is mostly hidden by feet, hooves and hems"""
+    """the turned plinth up to just under its top. The top takes one even colour, the picture's
+    own plinth top beside the feet: most of it is hidden there by feet, hooves and hems, and a
+    pattern taken from what little shows smears."""
     import bpy
     zl = zc - 0.4 * eh
     base = kit.lathe('base', r.profile(0, zl))
     kit.set_uv(base, t, fold=4)
     me = base.data
     uvl = me.uv_layers[0].data
-    R = max(r.width(zc), 1e-6)
+    uv = kit.cell_uv(t, *top_spot(r, zc, eh))
     ztop = max(v.co.z for v in me.vertices)
     for poly in me.polygons:
         if poly.normal.z < 0.9 or poly.center.z < ztop - 1e-5:
             continue
         for li in poly.loop_indices:
-            co = me.vertices[me.loops[li].vertex_index].co
-            rho = math.hypot(co.x, co.y)
-            a = kit.fold_angle(math.atan2(co.x, -co.y), 8)
-            uvl[li].uv = kit.cell_uv(t, 0.35 * rho * math.sin(a), zc - eh * (1.9 - 0.8 * min(1.0, rho / R)))
+            uvl[li].uv = uv
     if oval:
         base.scale = (1.0, oval, 1.0)
         bpy.context.view_layer.update()
