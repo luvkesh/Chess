@@ -32,6 +32,7 @@ SCRIPTS = [
     src / 'scene.js',
     src / 'xiangqi3d.js',
     src / 'art.js',
+    src / 'live.js',
     src / 'progress.js',
     src / 'audio.js',
     src / 'net.js',
@@ -41,6 +42,7 @@ SCRIPTS = [
     src / 'tips.js',
     src / 'minigames.js',
     src / 'rules.js',
+    src / 'router.js',
     src / 'app.js',
 ]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)

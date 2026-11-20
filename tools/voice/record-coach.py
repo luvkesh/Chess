@@ -43,6 +43,8 @@ cache = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else '/tmp/coach-voice')
 out = root / 'apps' / 'web-prototype' / 'public' / 'coach'
 record_path = root / 'tools' / 'voice' / 'coach-recorded.json'
 recorded = json.loads(record_path.read_text()) if record_path.exists() else {}
+for r in recorded.values():
+    r.setdefault('carry', 'whole')   # recorded before carry.py: every piece was said on its own
 
 engine = None
 voice, speed = None, 1
@@ -64,8 +66,8 @@ def respell(text):
     return re.sub(r"[A-Za-züé][A-Za-züé'\-]*", lambda m: '[%s](/%s/)' % (m[0], SAY[m[0]]) if m[0] in SAY else m[0], text)
 
 
-def say(text):
-    """24 kHz float audio of `text`, with a breath after each comma and full stop."""
+def say(text, carry='whole'):
+    """24 kHz float audio of `text`, with a breath after each comma and full stop (see carry.py for `carry`)."""
     global engine
     onnx = os.environ.get('KOKORO_ONNX')
     if onnx:
@@ -101,7 +103,14 @@ def say(text):
         engine = {}
     from kokoro import KPipeline
     from pauses import speak
+    from carry import piece_audio
     pipe = engine.get(voice[0]) or engine.setdefault(voice[0], KPipeline(lang_code=voice[0], repo_id='hexgrad/Kokoro-82M'))
+    if carry in ('mid', 'end'):
+        # said inside a carrier sentence and cut out, so it flows into the next piece (carry.py)
+        a = piece_audio(pipe, respell(text), voice, speed, carry)
+        if a is not None:
+            return a + _room(len(a), np.random.default_rng(7)) * 0.6
+        print('  no clean cut, said on its own:', text, flush=True)
     return speak(pipe, respell(text), voice, speed, comma, stop)
 
 
@@ -121,15 +130,17 @@ out.mkdir(parents=True, exist_ok=True)
 for vid, vname, voice, speed in VOICES:
     for line in lines:
         mp3 = cache / vid / (line['key'] + '.mp3')
-        want = {'voice': voice, 'speed': speed, 'text': line['text'], 'spoken': line['spoken']}
+        want = {'voice': voice, 'speed': speed, 'text': line['text'], 'spoken': line['spoken'], 'carry': line['carry']}
         if recorded.get(vid + '/' + line['key']) == want and mp3.exists():
             continue
-        audio = say(line['spoken'])
+        audio = say(line['spoken'], line['carry'])
         mp3.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(suffix='.wav') as wav:
             sf.write(wav.name, audio, RATE)
             # leading silence trimmed, even loudness, mono 24 kHz at 40 kb/s, no tags: the clips join into one file
-            subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-i', wav.name, '-af', 'silenceremove=start_periods=1:start_threshold=-50dB,loudnorm=I=-18:TP=-2:LRA=7',
+            # (a carried piece is already cut exactly at its first and last sound: only its loudness is set)
+            af = 'loudnorm=I=-18:TP=-2:LRA=7' if line['carry'] != 'whole' else 'silenceremove=start_periods=1:start_threshold=-50dB,loudnorm=I=-18:TP=-2:LRA=7'
+            subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-i', wav.name, '-af', af,
                             '-ar', '24000', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '40k', '-map_metadata', '-1', '-write_xing', '0', '-id3v2_version', '0', str(mp3)], check=True, timeout=60)
         recorded[vid + '/' + line['key']] = want
         made += 1

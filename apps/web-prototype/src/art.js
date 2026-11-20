@@ -965,12 +965,16 @@ const ChacklateArt = (() => {
   // ------------------------------------------------------------ public API
   const cache = new Map();
   const memo = (key, make) => { if (!cache.has(key)) cache.set(key, uri(make())); return cache.get(key); };
+  const liveMap = new Map();
+  const alive = (u, animal, o) => { if (ART_IMG.avatar[animal] && !liveMap.has(u)) liveMap.set(u, { animal, inner: o && o.ring === false ? 1 : 0.87, tex: ART_IMG.avatar[animal] }); return u; };
   return {
     ANIMALS: Object.keys(ANIMALS), LANDMARKS, PIECE,
     portrait, medal, crest, banner, pieceSvg, fx, clock, uri,
     // data-URI helpers, cached
-    portraitUri: (animal, o) => memo('p' + animal + JSON.stringify(o || {}), () => portrait(animal, o)),
-    medalUri: (art, o) => memo('m' + art + JSON.stringify(o || {}), () => medal(art, o)),
+    portraitUri: (animal, o) => alive(memo('p' + animal + JSON.stringify(o || {}), () => portrait(animal, o)), animal, o),
+    medalUri: (art, o) => alive(memo('m' + art + JSON.stringify(o || {}), () => medal(art, o)), /^animal:/.test(art) ? art.slice(7) : '', o),
+    // which animal a portrait address shows, for live.js (the portraits that breathe and blink)
+    liveOf: (u) => liveMap.get(u) || null,
     crestUri: () => memo('crest', () => crest()),
     miniUri: (kind, o) => memo('mini' + kind + JSON.stringify(o || {}), () => miniMedal(kind, o)),
     // an era's own painted view (as seen from its room's window) where the build has it

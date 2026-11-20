@@ -689,7 +689,7 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     const info = await P('/api/parent/consent-info', { token: ct });
     assert.deepStrictEqual([info.body.name, info.body.band], [names[0], 'child']);
     assert.strictEqual((await P('/api/parent/consent', { token: ct, email: 'mum@example.com', password: 'parent password', pin: '2468' })).status, 400, 'must tick the box');
-    const yes = await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468', controls: { reminders: false, dailyMinutes: 45 } });
+    const yes = await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468', controls: { reminders: false, dailyMinutes: 45, purchases: 'pin' } });
     assert.strictEqual(yes.status, 200);
     const PT = yes.body.token;
     assert.strictEqual((await P('/api/parent/consent', { token: ct, agree: true, email: 'mum@example.com', password: 'parent password', pin: '2468' })).status, 400, 'link is single use');
@@ -711,7 +711,8 @@ test('children: age gate, safe names, parental consent, kids-only matchmaking, p
     k.send({ type: 'friend-join', code });
     assert.match((await k.next('error')).message, /different group/);
 
-    // Purchases need the parent's PIN; the parent can turn online play off.
+    // With "Only with my PIN" chosen, purchases need the parent's PIN (the default is allowed).
+    assert.strictEqual(safety.safety.purchases, 'pin');
     assert.strictEqual((await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '1111' }, kid.body.token)).status, 403);
     assert.strictEqual((await call(port, 'POST', '/api/store/checkout', { product: 'premium.monthly', pin: '2468' }, kid.body.token)).status, 200);
     // Five wrong PINs lock purchases, even for the right PIN, so it cannot be guessed.
@@ -796,4 +797,21 @@ test('voice packs are served whole or one clip at a time as a byte range', async
   } finally {
     await app.close();
   }
+});
+
+test('every game address gets the game, so links and refreshes open the right screen', async () => {
+  const RT = require('../../../apps/web-prototype/src/router.js');
+  assert.deepStrictEqual(require('../src/server').GAME_ROUTES, RT.TOP, 'server and game agree on the game addresses');
+  const { app, port } = await boot();
+  try {
+    const get = (p) => fetch('http://127.0.0.1:' + port + p).then(async (r) => ({ status: r.status, type: r.headers.get('content-type'), text: await r.text() }));
+    const game = await get('/play');
+    assert.strictEqual(game.status, 200);
+    for (const p of ['/home', '/learn', '/learn/forks', '/play/variations/chess960', '/journey/egypt/stage-2', '/settings/language', '/collection/pieces/']) {
+      const r = await get(p);
+      assert.strictEqual(r.status, 200, p);
+      assert.strictEqual(r.text, game.text, p + ' is the game');
+    }
+    for (const p of ['/nowhere', '/learn/<x>', '/api-ish', '/admin/x']) assert.strictEqual((await get(p)).status, 404, p);
+  } finally { await app.close(); }
 });

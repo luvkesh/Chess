@@ -1,9 +1,11 @@
 """Pharaoh's Treasure: ivory and gold with sapphire light against black basalt, gold and rubies.
 Every piece is a carved figure on a gold drum plinth: Pharaoh and Anubis kings, queens in court
 dress, winged sphinx and jackal knights, crystal lotus bishops, temple-tower rooks, spear pawns.
-Reference: the user's lineup picture of 2026-11-12 (e0d8aec1, ivory row above, basalt below)."""
-import classic
+Reference: the user's lineup picture of 2026-11-12 (e0d8aec1, ivory row above, basalt below).
+Built from hero pictures (pics/pharaoh): each piece of the lineup cut out, cleaned and redrawn
+larger with SDXL-Lightning; source_refs() is the old cut from the lineup, kept for cutouts.py."""
 import kit
+from sets import classic2_kit
 
 PIC = '/mnt/project-files/uploads/hearth/e0d8aec1-671e-46cc-9083-006a39e03e67'
 BOXES = {
@@ -15,19 +17,19 @@ BOXES = {
 # the kings hold a staff: it is cut on its own points and added to the figure
 ADD = {'w': {'k': [[(1172, 40), (1176, 120), (1176, 220)]]},
        'b': {'k': [[(1192, 395), (1192, 500), (1192, 590)]]}}
-HALF = {t: 'full' for t in 'rnqkp'}
-SIDED = set('rnbqkp')
+HALF = {t: 'full' for t in 'kqbnrp'}   # painted by the picture's view, both halves
+SIDED = set('kqbnrp')   # every piece from its own side's picture
 GOLD = (52, 160, 236)
 LOOK = {
-    'w': {'wb': (1.1, 1.0, 0.93), 'body_cool': 0.3, 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
+    'w': {'wb': (1.1, 1.0, 0.93), 'body_cool': 0.3, 'body': 'enamel', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.5,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.45}},
     # the basalt picks up warm light: only bright, saturated yellow counts as gold
-    'b': {'wb': (1.04, 0.98, 0.96), 'body': 'shiny stone', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD,
+    'b': {'wb': (1.04, 0.98, 0.96), 'body': 'shiny stone', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.5,
           'classify': {'gold_sat': 0.62, 'gold_val': 0.52}},
 }
 
 
-def refs():
+def source_refs():
     out = {'w': {}, 'b': {}}
     king = kit.Ref(PIC, BOXES['w']['k'], height=1.7, seg='sam')
     unit = king.unit
@@ -41,6 +43,14 @@ def refs():
 
 
 # the drum plinths are turned; everything above them is carved from the picture
+# each piece's size in game units, printed by picture/cutouts.py from the reference lineup
+HEIGHTS = {'k': 1.706, 'q': 1.645, 'b': 1.645, 'n': 1.503, 'r': 1.515, 'p': 1.220}
+
+
+def refs():
+    return classic2_kit.refs('pharaoh', HEIGHTS)
+
+
 SPEC = {
     'k': {'kind': 'figure', 'z0': 0.13, 'thick': 0.42},
     'q': {'kind': 'figure', 'z0': 0.15, 'thick': 0.4},
@@ -52,4 +62,4 @@ SPEC = {
 
 
 def build(t, refs):
-    return classic.build(t, refs, SPEC)
+    return classic2_kit.build(t, refs, SPEC)

@@ -1,4 +1,15 @@
-# Children first: safety, privacy and store readiness
+# Every age: safety, privacy and store readiness
+
+> **Changed 19 November 2026.** The owner asked for the game to be built for every age (17 November):
+> "Only grown-ups are expected to make payments. It's not our role or duty to prevent payments from kids."
+> So the game no longer puts a parent's sum in front of the store, purchases, reminders or location, and
+> it no longer aims for the App Store Kids category or Google Play's Designed for Families programme: it is a
+> general-audience game with an age screen (COPPA's "mixed audience"). The Unity project's COPPA setting moves
+> to "not directed to children". What stays, because the law asks for it: a parent's permission before an
+> under-18 player has an online account (DPDP Act; COPPA under 13), made-up names and kid-only matchmaking for
+> under-18s, no ads, tracking or chat for anyone. A parent chooses on the parent page whether an under-18 account
+> can buy (allowed, only with their PIN, or off; allowed by default). The text below is the earlier
+> children-first plan, kept for its reasoning.
 
 Chackmate is directed to children as its main audience (Unity Cloud project "Chess" is set to
 "directed to children" for COPPA). This page records what that means for the product, what is built,

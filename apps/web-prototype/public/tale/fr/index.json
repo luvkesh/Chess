@@ -1,28 +1,33 @@
 {
- "egypt/01e4c9b4": {
+ "egypt/fd75e228": {
   "who": "miu",
   "voice": "ff_siwis",
-  "text": "Bienvenue en Égypte, il y a plus de 3 000 ans ! Le grand fleuve Nil coule devant des temples et des pyramides, et dans le palais, le jeune pharaon Toutânkhamon joue à un jeu de plateau appelé le senet."
+  "text": "Bienvenue en Égypte, il y a plus de 3 000 ans ! Le grand fleuve Nil coule près des temples et des pyramides, et au palais le jeune pharaon Toutânkhamon joue au senet, l'un des plus vieux jeux de plateau du monde."
  },
- "egypt/3944d308": {
+ "egypt/f9b3efb9": {
   "who": "miu",
   "voice": "ff_siwis",
-  "text": "Les échecs n'avaient pas encore été inventés. Ils allaient apparaître en Inde environ deux mille ans plus tard. Mais les Égyptiens adoraient les jeux d'adresse, et Toutânkhamon a été enterré avec plusieurs plateaux de senet."
+  "text": "Un plateau de senet a 30 cases en trois rangées de dix. Chaque joueur fait courir une équipe de pions le long des rangées jusqu'au bout. Au lieu de dés, on lançait des bâtonnets plats pour savoir de combien avancer. Toutânkhamon a même été enterré avec plusieurs plateaux de senet."
+ },
+ "egypt/a075c05e": {
+  "who": "miu",
+  "voice": "ff_siwis",
+  "text": "Le senet n'est pas un ancien jeu d'échecs. Les échecs sont nés en Inde environ deux mille ans plus tard. Mais le senet avait déjà ce qu'ont les échecs : un plateau de cases, deux camps et des pièces qui bougent selon des règles. Les échecs ont enlevé la chance : chaque coup est ton propre choix."
  },
  "egypt/88ad34bc": {
   "who": "miu",
   "voice": "ff_siwis",
   "text": "Je suis Miu. Tu sais, les chats étaient adorés dans l'Égypte ancienne. Aujourd'hui, je vais t'apprendre le cavalier, la pièce en forme de cheval. Les chevaux du pharaon tiraient ses chars dorés !"
  },
- "egypt/0d66bf3a": {
+ "egypt/9945f5cb": {
   "who": "miu",
   "voice": "ff_siwis",
-  "text": "À quel jeu de plateau jouait Toutânkhamon ?"
+  "text": "Que lançaient les joueurs de senet pour savoir de combien avancer ?"
  },
- "egypt/163d3ad6": {
+ "egypt/d5808261": {
   "who": "miu",
   "voice": "ff_siwis",
-  "text": "Le senet est l'un des plus vieux jeux de plateau qu'on connaisse. Les échecs sont arrivés bien plus tard."
+  "text": "Le senet était un jeu de course, donc la chance décidait de combien on avançait. Aux échecs, il n'y a pas de chance : chaque coup est ton propre choix."
  },
  "greece/ce09589d": {
   "who": "sophie",

@@ -581,7 +581,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       const r = E.search(pos, { timeMs, quiesce: true, exclude: exclude.slice() });
       if (!r.move) break;
       exclude.push(E.uci(r.move));
-      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateIn(r.score), facts: C.facts(pos, r.move), goal: goalOf(pos, r.move) });
+      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateAfter(pos, r.move, r.score), facts: C.facts(pos, r.move), goal: goalOf(pos, r.move) });
     }
     return out;
   }
@@ -596,7 +596,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       pos.make(r.move); made.push(r.move);
     }
     const end = { cp: 0, mate: 0, side: pos.side };
-    if (pos.legalMoves().length) { const r = E.search(pos, { timeMs, quiesce: true }); end.cp = C.toCp(r.score); end.mate = C.mateIn(r.score); } else end.cp = pos.inCheck() ? -10000 : 0;
+    if (pos.legalMoves().length) { const r = E.search(pos, { timeMs, quiesce: true }); end.cp = C.toCp(r.score); end.mate = C.mateOf(pos, r.score); } else end.cp = pos.inCheck() ? -10000 : 0;
     for (let i = 0; i < made.length; i++) pos.unmake();
     return { moves: out, end };
   }
@@ -633,7 +633,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     const after = assess(pos, side);
     const replyLegal = pos.legalMoves();
     let post = { cp: replyLegal.length ? 0 : (pos.inCheck() ? -10000 : 0), mate: 0, best: null };
-    if (replyLegal.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateIn(r.score), best: r.move ? E.uci(r.move) : null, bestSan: r.move ? pos.san(r.move, replyLegal) : null }; }
+    if (replyLegal.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateOf(pos, r.score), best: r.move ? E.uci(r.move) : null, bestSan: r.move ? pos.san(r.move, replyLegal) : null }; }
     const refutation = post.best ? C.facts(pos, pos.parseMove(post.best, replyLegal)) : null;
     const line = o.plies > 0 ? pvLine(pos, o.plies, Math.round(o.timeMs * 0.6)) : null;
     pos.unmake();
@@ -697,7 +697,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     pos.make(m);
     const rl = pos.legalMoves();
     let post = { cp: rl.length ? 0 : (pos.inCheck() ? -10000 : 0), mate: 0 }, refutation = null;
-    if (rl.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateIn(r.score) }; if (r.move) refutation = C.facts(pos, r.move); }
+    if (rl.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateOf(pos, r.score) }; if (r.move) refutation = C.facts(pos, r.move); }
     pos.unmake();
     const loss = Math.max(0, C.winProb(C.toCp(r0.score)) - C.winProb(-post.cp));
     const cls = C.classify(loss, false, facts, -post.cp);
@@ -1463,12 +1463,17 @@ function ChacklateMentor(E, C, strings, nameOf) {
   // (tools/voice/record-coach.py); speechParts(text) cuts a finished English line, or gives null
   // when some piece of it has no recording.
   const SAN_RE = /^(?:O-O-O|O-O|[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h]x[a-h][1-8](?:=[QRBN])?|[a-h][1-8](?:=[QRBN])?)[+#]?(?![A-Za-z0-9])/;
-  let vocab = null, byFirst = null;
+  let vocab = null, byFirst = null, runsOn = null;
   function speechVocab() {
     if (vocab) return vocab;
     const set = new Set();
+    runsOn = new Set();
     const add = (x) => { x = String(x).trim(); if (/[A-Za-z]/.test(x) || /^\d+$/.test(x)) set.add(x); };
-    for (const v of Object.values(EN).concat(Object.values(C.EN))) for (const piece of v.split(/\{\w+\}/)) add(piece);
+    for (const v of Object.values(EN).concat(Object.values(C.EN))) {
+      const bits = v.split(/\{\w+\}/);
+      // a piece with a name or number after it: the voice runs on through it (tools/voice/carry.py)
+      bits.forEach((piece, i) => { add(piece); if (i < bits.length - 1 && /[A-Za-z]$/.test(piece.trim())) runsOn.add(piece.trim()); });
+    }
     for (const k of Object.keys(C.NAME)) { add(C.NAME[k]); }
     for (const b of BOOK) add(b.name);
     for (const x of TRAPS) add(x.name);
@@ -1487,7 +1492,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
         if (bits[i] !== '{piece}' && bits[i] !== '{list}') continue;
         const pre = clause(bits[i - 1], true), post = bits[i] === '{list}' ? 'on' : clause(bits[i + 1] || '', false);
         if (!pre && !post) continue;
-        for (const n of pieceNames) add([pre, n, post].filter(Boolean).join(' '));
+        for (const n of pieceNames) { const x = [pre, n, post].filter(Boolean).join(' '); add(x); if (post && i + 1 < bits.length - 1 && !/[.!?:;,]/.test(bits[i + 1])) runsOn.add(x); }
       }
     }
     for (const n of pieceNames) add('and ' + n + ' on');   // the next one in a list: "the king on e8 and rook on a8"
@@ -1552,6 +1557,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     feedback, feedbackText, detail, plans, phaseGuide, recommendOpening, threats, chances, mateRadar, warning, hints, thinkAhead,
     phases, report, openingHabits, practice, profileAdd, insights, timeAdvice, timeThink, glossary, termsIn, term,
     modeOf, migrate, shouldComment, levelFor, allLines, IMPORTANT, speechVocab, speechParts,
+    speechRunsOn() { speechVocab(); return runsOn; },
   };
 }
 

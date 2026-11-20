@@ -1,28 +1,33 @@
 {
- "egypt/434ce76f": {
+ "egypt/ed25192c": {
   "who": "miu",
   "voice": "ef_dora",
-  "text": "¡Bienvenido a Egipto, hace más de 3000 años! El gran río Nilo pasa junto a templos y pirámides, y en el palacio el joven faraón Tutankamón está jugando a un juego de tablero llamado senet."
+  "text": "¡Bienvenido a Egipto, hace más de 3.000 años! El gran río Nilo pasa junto a templos y pirámides, y en el palacio el joven faraón Tutankamón juega al senet, uno de los juegos de tablero más antiguos del mundo."
  },
- "egypt/05aa8a9f": {
+ "egypt/9e6efe0f": {
   "who": "miu",
   "voice": "ef_dora",
-  "text": "El ajedrez todavía no se había inventado. Aparecería en la India unos dos mil años después. Pero a los egipcios les encantaban los juegos de habilidad, y a Tutankamón lo enterraron con varios tableros de senet."
+  "text": "Un tablero de senet tiene 30 casillas en tres filas de diez. Cada jugador hace correr un equipo de piezas por las filas hasta el final. En lugar de dados, se lanzaban palitos planos para saber cuánto avanzar. Tutankamón incluso fue enterrado con varios tableros de senet."
+ },
+ "egypt/72505cd5": {
+  "who": "miu",
+  "voice": "ef_dora",
+  "text": "El senet no es un ajedrez antiguo. El ajedrez nació en la India unos dos mil años después. Pero el senet ya tenía lo que tiene el ajedrez: un tablero de casillas, dos bandos y piezas que se mueven según reglas. El ajedrez quitó la suerte: cada jugada es tu propia elección."
  },
  "egypt/66129f07": {
   "who": "miu",
   "voice": "ef_dora",
   "text": "Soy Miu. ¿Sabes? En el antiguo Egipto los gatos eran muy queridos. Hoy te enseñaré el caballo, la pieza con forma de caballo. ¡Los caballos del faraón tiraban de sus carros dorados!"
  },
- "egypt/b6c17807": {
+ "egypt/6d91c9dd": {
   "who": "miu",
   "voice": "ef_dora",
-  "text": "¿A qué juego de tablero jugaba Tutankamón?"
+  "text": "¿Qué lanzaban los jugadores de senet para saber cuánto avanzar?"
  },
- "egypt/e5050ee1": {
+ "egypt/745742f8": {
   "who": "miu",
   "voice": "ef_dora",
-  "text": "El senet es uno de los juegos de tablero más antiguos que conocemos. El ajedrez llegó mucho después."
+  "text": "El senet era un juego de carreras, así que la suerte decidía cuánto avanzabas. En el ajedrez no hay suerte: cada jugada es tu propia elección."
  },
  "greece/498ef1f0": {
   "who": "sophie",
