@@ -92,6 +92,7 @@ function ChacklateProgress(catalog, extras) {
       coins: 0, earned: { date: '', by: {}, n: {}, xp: {} }, bought: [],
       granted: {},   // items handed out by developer mode, on this device only
       mini: { best: {}, plays: {}, day: { date: '', best: {} }, seen: [] },
+      courses: {},    // lessons in parts (the three phases of chess): { lessonId: { parts: { partId: true } } }
       trainers: {},   // skill trainers: { id: { best, rounds, log: [{ d, s }] } }
       mates: {},      // checkmate in N puzzles: { N: { solved: [ids], log: [{ d, n, ok }] } }
       mistakes: [],   // moments from the player's own reviewed games, for Retry mistakes
@@ -143,6 +144,8 @@ function ChacklateProgress(catalog, extras) {
     out.seasons = {}; for (const [k, v] of Object.entries(obj(s.seasons) ? s.seasons : {})) if (Number.isFinite(+v) && v !== null && v !== '') out.seasons[k] = Math.max(0, +v);   // season XP by id
     if (out.placement !== null && !(obj(out.placement) && Number.isFinite(out.placement.chapter))) out.placement = null;
     out.variantLessons = o(s.variantLessons);
+    out.courses = recs(s.courses);
+    for (const r of Object.values(out.courses)) r.parts = o(r.parts);
     out.granted = o(s.granted);
     out.coins = Math.floor(num(s.coins, 0, 0));
     out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n); out.earned.xp = o(out.earned.xp);

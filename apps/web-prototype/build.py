@@ -42,6 +42,7 @@ SCRIPTS = [
     src / 'minigames.js',
     src / 'rules.js',
     src / 'router.js',
+    src / 'course.js',
     src / 'app.js',
 ]
 EXPORTS = re.compile(r"^if \(typeof module !== 'undefined'\) module\.exports = \w+;\s*$", re.M)
@@ -67,6 +68,7 @@ parts = [
     data('CHACKLATE_VARIANTS', 'variants.json'),
     data('CHACKLATE_PLACEMENT', 'placement.json'),
     data('CHACKLATE_TRAINERS', 'trainers.json'),
+    data('CHACKLATE_PHASES', 'phases.json'),
 ]
 # What Rooky says about each Collection item. A chess set from an era plays the website's recording of
 # its pitch (pitch/site/<key>.mp3, served from apps/website/audio), so each pitch is recorded once.

@@ -105,7 +105,7 @@ function checkExercise(x, where) {
   const stepOwner = new Map(), exBoards = new Map(), seenPuzzles = new Map(), prompts = new Map(), icons = new Set();
   for (const l of lessons.lessons) {
     const n = l.steps.length + l.exercises.length;
-    if (!l.voice) assert.ok(n >= 6 && n <= 10, l.id + ' has ' + n + ' steps and exercises, not 6 to 10');
+    if (!l.voice && !l.course) assert.ok(n >= 6 && n <= 10, l.id + ' has ' + n + ' steps and exercises, not 6 to 10');
     const art = JSON.stringify(l.art && l.art.items);
     assert.ok(l.art && l.art.felt && l.art.items.length && !icons.has(art), l.id + ' has its own 3D picture'); icons.add(art);
     for (const s of l.steps) {
@@ -131,6 +131,51 @@ function checkExercise(x, where) {
   for (const l of lessons.lessons) for (const r of l.replaces || []) { assert.ok(/^lesson\.c\d\d\.l\d\d\.[a-z-]+$/.test(r) && !all.has(r), l.id + ' replaces ' + r); all.add(r); }
 }
 console.log('lessons ok:', lessons.lessons.length, 'lessons,', checked, 'exercises');
+
+// The three phases of chess (phases.json): every famous game replays legally and ends the way it
+// did, the engine's numbers fit the moves (packages/chess-core/tools/generate-phases.js), every
+// guess accepts the move really played first, and every question's answer is on its board.
+{
+  const ph = require('../phases.json');
+  const host = lessons.lessons.find((l) => l.id === ph.lesson);
+  assert.ok(host && host.course === 'phases', 'phases.json belongs to a Learn lesson');
+  assert.deepStrictEqual(host.parts, ph.parts.map((p) => p.id), 'the lesson lists the parts in order');
+  const ENDS = { opera: 'checkmate', immortal: 'checkmate', century: 'checkmate', legall: 'checkmate', reti_tartakower: 'checkmate' };
+  const fens = {};
+  for (const [id, g] of Object.entries(ph.games)) {
+    const game = new E.Game(g.fen);
+    fens[id] = [game.pos.fen()];
+    for (const s of g.moves) { assert.ok(game.playText(s), id + ' legal ' + s); fens[id].push(game.pos.fen()); }
+    if (ENDS[id]) assert.ok(game.outcome && game.outcome.reason === ENDS[id], id + ' ends in ' + ENDS[id]);
+    assert.strictEqual(g.evals.length, g.moves.length + 1, id + ' has an evaluation for every ply');
+    for (const k of Object.keys(g.notes)) assert.ok(+k >= 0 && +k <= g.moves.length, id + ' note ' + k);
+    for (const ply of g.predict) {
+      const acc = g.accept[ply];
+      assert.ok(acc && acc.length, id + ' guess ' + ply + ' has its accepted moves');
+      const p = load(fens[id][ply], id);
+      const real = new E.Game(fens[id][ply]); const info = real.playText(g.moves[ply]);
+      assert.strictEqual(acc[0], 'abcdefgh'[info.from & 7] + (1 + (info.from >> 3)) + 'abcdefgh'[info.to & 7] + (1 + (info.to >> 3)) + (acc[0].length > 4 ? acc[0][4] : ''), id + ' guess ' + ply + ' accepts the real move first');
+      for (const u of acc) assert.ok(p.parseMove(u) !== null && p.parseMove(u) !== undefined, id + ' accepts a legal ' + u);
+    }
+  }
+  const seen = new Set();
+  for (const part of ph.parts) for (const b of part.beats) {
+    assert.ok(b.say, part.id + ' beat has words');
+    if (b.game) { assert.ok(ph.games[b.game], part.id + ' plays ' + b.game); continue; }
+    const fen = b.fen || fens[b.at.game][b.at.ply];
+    const p = load(fen, part.id);
+    if (!b.ask) continue;
+    assert.ok(!seen.has(fen), part.id + ' asks about a board already asked about: ' + fen); seen.add(fen);
+    if (b.ask === 'phase') assert.ok(['opening', 'middlegame', 'endgame'].includes(b.answer), part.id + ' phase answer');
+    if (b.ask === 'choice') assert.ok(b.answer >= 0 && b.answer < b.options.length, part.id + ' choice answer');
+    if (b.ask === 'move') {
+      assert.ok(b.accept && b.accept.length, part.id + ' move question has accepted moves');
+      for (const u of b.accept) assert.ok(p.parseMove(u) !== null && p.parseMove(u) !== undefined, part.id + ' accepts a legal ' + u);
+      assert.strictEqual(p.san(p.parseMove(b.accept[0]), p.legalMoves()), b.best, part.id + ' accepts its answer first');
+    }
+  }
+  console.log('three phases ok:', Object.keys(ph.games).length, 'games,', ph.parts.length, 'parts');
+}
 
 // Puzzles: the first move is the opponent's, then solver/reply alternate.
 const pids = new Set();

@@ -66,7 +66,7 @@
     compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     first: '<path d="M18 18l-6-6 6-6M6 6v12"/>', prev: '<path d="M15 18l-6-6 6-6"/>', next: '<path d="M9 18l6-6-6-6"/>', last: '<path d="M6 18l6-6-6-6M18 6v12"/>',
     play: '<path d="M6 4l14 8-14 8z"/>', speaker: '<path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
-    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', down: '<path d="M6 9l6 6 6-6"/>', up: '<path d="M6 15l6-6 6 6"/>',
+    speakerOff: '<path d="M11 5L6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/>', replay: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>', pause: '<path d="M9 5v14M15 5v14"/>', down: '<path d="M6 9l6 6 6-6"/>', up: '<path d="M6 15l6-6 6 6"/>',
     smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14.5c1 1.4 2.3 2 4 2s3-.6 4-2M9 9.5h.01M15 9.5h.01"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>', users: '<circle cx="9" cy="8" r="4"/><path d="M2 21c1-4 3.5-6 7-6s6 2 7 6M16 4a4 4 0 0 1 0 8M22 21c-.6-2.6-2-4.4-4-5.3"/>',
@@ -2447,7 +2447,7 @@
       pageHead(t('learn.eyebrow'), t('learn.title'), t('learn.sub', { n: done, of: total }),
         due.length ? '<button class="btn outline" id="l-review">' + icon('refresh') + ' ' + t(due.length > 1 ? 'learn.reviewsDue' : 'learn.reviewDue', { n: due.length }) + '</button>' : '') +
       '<div class="bar path-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></div>' +
-      '<div class="learn-next">' + placementTile() +
+      '<div class="learn-next">' + placementTile() + courseTile() +
       (nl ? '<button class="tile wide" id="l-next"><span class="ic face">' + faceImg(COACH) + '</span><span><span class="eyebrow">' + t('learn.now', { n: nl.chapter }) + '</span><b>' + esc(nl.title) + '</b><small>' + esc(nl.objectives.join(' · ')) + '</small></span><span class="go">' + icon('arrow') + '</span></button>' : '') + '</div>' +
       '<div class="chapters">' + LESSONS.chapters.map((ch) => {
         const ls = LESSONS.lessons.filter((l) => l.chapter === ch.n);
@@ -2464,11 +2464,20 @@
     wireLinks(); hydrate(null, true);
     document.querySelectorAll('[data-lesson]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', b.dataset.lesson); }; });
     if ($('l-next')) $('l-next').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', nl.id); };
+    if ($('l-course')) $('l-course').onclick = () => { AU.unlock(); AU.play('tap'); go('lesson', $('l-course').dataset.id); };
     if ($('l-review')) $('l-review').onclick = () => { AU.unlock(); go('lesson', due[0]); };
     $('l-place').onclick = () => { AU.unlock(); AU.play('tap'); if (P.placement) placementOffer('learn'); else go('lesson', { placement: true, from: 'learn' }); };
     return {};
   };
 
+  // The lesson in parts (the three phases of chess), shown beside the placement test.
+  function courseTile() {
+    const l = LESSONS.lessons.find((x) => x.course && lessonOpen(x));
+    if (!l) return '';
+    const rec = state.progress.courses[l.id], n = rec ? l.parts.filter((p) => rec.parts[p]).length : 0;
+    return '<button class="tile wide course" id="l-course" data-id="' + l.id + '"><span class="ic art">' + lessonArt(l, 64) + '</span><span><span class="eyebrow">' + esc(t('learn.ph.course', { n: l.parts.length })) + '</span><b>' + esc(I18N.text(l.title)) + '</b><small>' +
+      esc(n ? t('learn.ph.partsDone', { n, of: l.parts.length }) : I18N.text(l.objectives[0])) + '</small></span><span class="go">' + icon('arrow') + '</span></button>';
+  }
   function placementTile() {
     const r = state.progress.placement;
     const ch = r && LESSONS.chapters.find((c) => c.n === r.chapter);
@@ -5769,8 +5778,17 @@
   // ---------------------------------------------------------------- lessons
   // The lesson player: Rooky's narrated steps, then exercises checked by the chess core.
   // Opened from the learning path (an id) or from an era of the journey ({ id, journey }).
+  // The three phases of chess: a lesson in parts with its own screen (src/course.js).
+  let course = null;
+  const courseScreen = (l, arg) => {
+    course = course || ChackmateCourse({ E, view, $, esc, t, icon, AU, data: CHACKLATE_PHASES, state, mount, face, faceImg, COACH, go, settingsModal, voiceIcon, setVoice,
+      piecesOf, sqIndex, kingSquare, splitTargets, choosePromotion, quickMove, setHooks, shuffled, job, save, PG, LESSONS, stars, celebrate, guideSay, guideLines: GUIDE.lines,
+      text: (s) => I18N.text(s), reduced: () => REDUCED() || !state.settings.animations });
+    return course(l, arg);
+  };
   SCREENS.lesson = function (arg) {
     const id = typeof arg === 'string' ? arg : arg && arg.id;
+    { const cl = id && LESSONS.lessons.find((l) => l.id === id && l.course); if (cl) return courseScreen(cl, arg); }
     const journey = (arg && arg.journey) || null, era = journey && eraById(journey.era);
     // An era's lesson is written into its stage and is never part of Learn.
     const own = era && era.stages[journey.stage] && era.stages[journey.stage].steps ? era.stages[journey.stage] : null;

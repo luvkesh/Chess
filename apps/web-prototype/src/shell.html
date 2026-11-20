@@ -1491,6 +1491,59 @@ body.ingame .toasts { top: calc(var(--safe-t) + 64px); }
 .differs { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; font: 600 10px/1.2 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; color: #2a1806; background: linear-gradient(180deg, #f6dc9c, #d9a648); vertical-align: middle; }
 .differs .ico { width: 11px; height: 11px; }
 .lesson .content > .differs { margin-bottom: 8px; }
+/* The three phases of chess (src/course.js): phase chips, points bar, evaluation graph, replay controls */
+.ph-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font: 600 11px/1.2 var(--caps); letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--line-2); color: var(--gold-2); margin: 0 0 12px; }
+.ph-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.ph-chip.opening { color: #8fd6a8; border-color: rgba(143, 214, 168, 0.4); }
+.ph-chip.middlegame { color: #f0b860; border-color: rgba(240, 184, 96, 0.45); }
+.ph-chip.endgame { color: #b9a3ff; border-color: rgba(185, 163, 255, 0.45); }
+.ph-game { margin: 0 0 4px; font: 500 15px/1.4 var(--serif); color: var(--gold-2); }
+.ph-game b { font: 600 17px/1.3 var(--serif); }
+.ph-players { margin: 0 0 12px; font-size: 13.5px; color: rgba(255, 244, 222, 0.66); }
+.ph-hint { margin: -4px 0 12px; font-size: 13.5px; color: rgba(255, 244, 222, 0.7); }
+.ph-note { min-height: 0; font: 500 17px/1.5 var(--serif); }
+.ph-note:not(:empty) { padding: 12px 14px; margin: 0 0 12px; border-radius: 13px; background: rgba(232, 194, 122, 0.07); border: 1px solid var(--line); }
+.ph-note .who { display: block; font: 600 10.5px/1 var(--caps); letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.ph-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+.ph-ctl .round { width: 38px; height: 38px; }
+.ph-ctl .round.big { width: 46px; height: 46px; background: rgba(232, 194, 122, 0.16); }
+.ph-ctl .round:disabled { opacity: 0.4; }
+.ph-ctl .ph-move { font: 600 13px/1.2 var(--caps); letter-spacing: 0.08em; color: rgba(255, 244, 222, 0.75); min-width: 0; }
+.ph-ctl .btn.small { margin-inline-start: auto; }
+.ph-points { display: grid; grid-template-columns: auto auto 1fr auto; grid-template-areas: "lbl w track b" "diff diff diff diff"; align-items: center; gap: 6px 10px; margin: 0 0 12px; font-size: 13px; }
+.ph-points .ph-lbl { grid-area: lbl; font: 600 10.5px/1 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+.ph-points .ph-side { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ph-points .ph-side.w { grid-area: w; } .ph-points .ph-side.b { grid-area: b; }
+.ph-points .ph-side i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.5); }
+.ph-points .ph-side.w i { background: #f4ead6; } .ph-points .ph-side.b i { background: #2b1d2a; }
+.ph-points .ph-track { grid-area: track; height: 8px; border-radius: 6px; background: #2b1d2a; border: 1px solid var(--line-2); overflow: hidden; }
+.ph-points .ph-track i { display: block; height: 100%; background: linear-gradient(90deg, #fff6e2, #e8d6b2); transition: width .4s var(--ease); }
+.ph-points .ph-diff { grid-area: diff; font-weight: 600; color: var(--gold-2); }
+.ph-graph { display: block; width: 100%; height: 82px; margin: 4px 0 6px; cursor: pointer; }
+.ph-graph .bg { fill: rgba(20, 12, 18, 0.6); stroke: var(--line); }
+.ph-graph .wa { fill: rgba(250, 240, 220, 0.85); } .ph-graph .ba { fill: rgba(70, 40, 70, 0.9); }
+.ph-graph .mid { stroke: rgba(232, 194, 122, 0.35); stroke-width: 0.6; }
+.ph-graph .ln { fill: none; stroke: var(--gold); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.ph-graph .now { stroke: #2fd8ff; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.ph-graph .try { fill: #2fd8ff; stroke: #0b1a22; stroke-width: 1; }
+.ph-graph .band.opening { fill: #8fd6a8; } .ph-graph .band.middlegame { fill: #f0b860; } .ph-graph .band.endgame { fill: #b9a3ff; }
+.ph-eval-line { margin: 0 0 6px; font-size: 13.5px; color: rgba(255, 244, 222, 0.8); }
+.ph-eval { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-2); margin: 0 0 12px; }
+.ph-eval .ico { width: 22px; height: 22px; color: var(--gold); flex: none; }
+.ph-eval small { display: block; font: 600 10.5px/1 var(--caps); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.ph-eval b { font: 600 17px/1.3 var(--serif); }
+.choices.ph-three { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+#ph-show { margin-top: 10px; }
+.ph-parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ph-part { width: 100%; display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(14, 9, 6, 0.4); color: inherit; text-align: start; cursor: pointer; transition: border-color .25s, background .25s; }
+.ph-part:hover { border-color: var(--line-3); background: rgba(232, 194, 122, 0.06); }
+.ph-part .n { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); font: 600 15px/1 var(--caps); color: var(--gold-2); }
+.ph-part.done .n { background: rgba(143, 214, 168, 0.16); border-color: rgba(143, 214, 168, 0.5); color: #8fd6a8; }
+.ph-part .n .ico { width: 16px; height: 16px; }
+.ph-part b { display: block; font: 600 17px/1.25 var(--serif); }
+.ph-part small { display: block; margin-top: 3px; font-size: 13px; color: rgba(255, 244, 222, 0.66); }
+.ph-part > .ico { width: 18px; height: 18px; color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .ph-points .ph-track i { transition: none; } }
 .mini { display: grid; grid-template-columns: repeat(var(--cols), 24px); grid-auto-rows: 24px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(232, 194, 122, 0.4); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4); }
 .mini i { position: relative; display: grid; place-items: center; }
 .mini i.l { background: #e8d4ac; } .mini i.d { background: #a87b4f; }
