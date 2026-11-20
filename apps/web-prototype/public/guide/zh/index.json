@@ -189,6 +189,11 @@
   "voice": "zm_yunxi",
   "text": "有些棋结束得超级快！我们来学学这些陷阱，让它们永远抓不住你。"
  },
+ "lesson.open.three-phases": {
+  "who": "rooky",
+  "voice": "zm_yunxi",
+  "text": "每盘棋都是分成三段的旅程！我们来看看大师们是怎样一步步赢下来的。"
+ },
  "lesson.open.forks": {
   "who": "rooky",
   "voice": "zm_yunxi",

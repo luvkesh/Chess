@@ -39,7 +39,7 @@ const ChackmateCourse = function (D) {
     const p = points(pos), d = p.w - p.b;
     return '<div class="ph-points" role="img" aria-label="' + esc(t('learn.ph.pointsAria', { w: p.w, b: p.b })) + '"><span class="ph-lbl">' + esc(t('learn.ph.points')) + '</span>' +
       '<span class="ph-side w"><i></i>' + p.w + '</span><span class="ph-track"><i style="width:' + Math.round(50 + Math.max(-45, Math.min(45, d * 2.5))) + '%"></i></span><span class="ph-side b"><i></i>' + p.b + '</span>' +
-      '<b class="ph-diff">' + (d ? esc(t('learn.ph.ahead', { side: t(d > 0 ? 'play.color.white' : 'play.color.black'), n: Math.abs(d) })) : esc(t('learn.ph.even'))) + '</b></div>';
+      '<b class="ph-diff">' + (d ? esc(t(Math.abs(d) === 1 ? 'learn.ph.ahead1' : 'learn.ph.ahead', { side: t(d > 0 ? 'play.color.white' : 'play.color.black'), n: Math.abs(d) })) : esc(t('learn.ph.even'))) + '</b></div>';
   };
   const phaseChip = (ph) => '<span class="ph-chip ' + ph + '">' + esc(t('learn.ph.' + ph)) + '</span>';
 
@@ -310,8 +310,9 @@ const ChackmateCourse = function (D) {
       $('ph-note').innerHTML = note ? '<span class="who">' + esc(D.COACH.name) + '</span>' + esc(D.text(note)) : '';
       if (note && !first) speak(D.text(note));
       D.setHooks({});
-      if (V.g.predict.includes(ply) && ply < V.to && !V.guessed[ply]) predict(ply);
-      else if (V.b.explore && ply === V.from && !V.branch) startBranch(true);
+      // an exploring beat starts in "try your own move" (its first position may also be a guess)
+      if (V.b.explore && ply === V.from && !V.branch && !V.explored) startBranch(true);
+      else if (V.g.predict.includes(ply) && ply < V.to && !V.guessed[ply]) predict(ply);
       ctl();
     }
     function panel() {
@@ -387,7 +388,7 @@ const ChackmateCourse = function (D) {
     // Try your own moves from here, for whichever side is to move; the engine scores each one.
     function startBranch(quiet) {
       const V = S.v;
-      if (V.waiting) return;
+      V.waiting = false; V.explored = true;   // trying a move of your own sets the guess aside
       V.branch = { fen: S.pos.fen(), moves: [] }; V.branchEval = null;
       fb('hint', t('learn.ph.tryHow'));
       if (!quiet) speak(t('learn.ph.tryHow'));

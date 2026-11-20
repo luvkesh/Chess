@@ -189,6 +189,11 @@
   "voice": "ff_siwis,am_puck",
   "text": "Certaines parties finissent super vite ! Apprenons les pièges, pour ne jamais tomber dedans."
  },
+ "lesson.open.three-phases": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Chaque partie est un voyage en trois étapes ! Voyons comment les maîtres construisent une victoire."
+ },
  "lesson.open.forks": {
   "who": "rooky",
   "voice": "ff_siwis,am_puck",

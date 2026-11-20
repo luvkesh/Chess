@@ -24,7 +24,7 @@ for (const l of lessons.lessons) {
   assert.ok(/^lesson\.c\d\d\.l\d\d\.[a-z-]+$/.test(l.id), 'lesson id format: ' + l.id);
   assert.ok(!ids.has(l.id), 'duplicate id ' + l.id); ids.add(l.id);
   assert.ok(lessons.chapters.some((c) => c.n === l.chapter), l.id + ' chapter');
-  checkLesson(l);
+  if (!l.course) checkLesson(l);   // a course (the three phases) is checked on its own below
 }
 // Shared by Learn lessons and the lessons written into each era of the journey.
 function checkLesson(l) {

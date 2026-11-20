@@ -189,6 +189,11 @@
   "voice": "am_puck,am_liam",
   "text": "Some games end super fast! Let's learn the traps, so they never catch you."
  },
+ "lesson.open.three-phases": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Every game is a journey in three parts! Let's see how the masters build a win."
+ },
  "lesson.open.forks": {
   "who": "rooky",
   "voice": "am_puck,am_liam",

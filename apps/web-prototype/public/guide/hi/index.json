@@ -189,6 +189,11 @@
   "voice": "hm_omega",
   "text": "कुछ खेल बहुत जल्दी ख़त्म हो जाते हैं! चलिए जाल पहचानें, ताकि आप कभी न फँसें।"
  },
+ "lesson.open.three-phases": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हर खेल तीन हिस्सों का सफ़र है! चलिए देखें कि उस्ताद जीत कैसे बनाते हैं।"
+ },
  "lesson.open.forks": {
   "who": "rooky",
   "voice": "hm_omega",
