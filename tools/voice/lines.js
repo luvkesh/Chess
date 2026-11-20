@@ -144,6 +144,19 @@ function jobs() {
   return out;
 }
 
+// How a coach piece is recorded (tools/voice/carry.py): 'whole' on its own, as a full sentence; 'mid'
+// inside a carrier sentence that goes on after it, so its voice runs on into the next piece instead of
+// falling like the end of a sentence; 'end' inside a carrier that ends with it.
+const RUNS_ON = new Set(('on to from the a an and of with by at for in it its is your his her their than up because '
+  + 'into onto toward towards near behind next who which that this these those or but so as can').split(' '));
+function carryOf(spoken, runsOn) {
+  const t = spoken.trim();
+  if (runsOn && runsOn.has(t)) return 'mid';
+  if (!t || /[.!?]$/.test(t) || /[,;:]/.test(t)) return 'whole';
+  const w = t.split(/\s+/);
+  return RUNS_ON.has(w[w.length - 1].toLowerCase()) || (/^(Your|The)\b/.test(t) && w.length <= 3) ? 'mid' : 'end';
+}
+
 // Rooky's coach and mentor lines (packages/chess-core/src/mentor.js): the fixed pieces every coach
 // line is cut into (speechVocab), plus the move words, all in Rooky's voice. The game says a line by
 // playing its pieces back to back (speakCoach in audio.js). Recorded by tools/voice/record-coach.py.
@@ -153,16 +166,23 @@ function coachLines() {
   const C = require(path.join(core, 'coach.js'))(E);
   const ME = require(path.join(core, 'mentor.js'))(E, C);
   const M = load('voice.json').moves.en, out = [], seen = new Set();
-  const add = (text, spoken) => {
+  const runsOn = new Set([...ME.speechRunsOn()].map((x) => spokenEn(x, M).replace(/^[\s,;:.\-]+/, '').trim()));
+  const add = (text, spoken, carry) => {
     const key = voiceKey(text);
     if (seen.has(key)) return;
     seen.add(key);
     // a piece that starts with a comma or ends mid-sentence is said without the stray mark
-    out.push({ key, text, spoken: (spoken || spokenEn(text, M)).replace(/^[\s,;:.\-]+/, '').trim() });
+    spoken = (spoken || spokenEn(text, M)).replace(/^[\s,;:.\-]+/, '').trim();
+    out.push({ key, text, spoken, carry: carry || carryOf(spoken, runsOn) });
   };
   for (const t of ME.speechVocab()) add(t);
   for (const f of Object.keys(M.file)) add(M.file[f]);
-  for (const t of fragments(M).filter((x) => !M.old || !Object.values(M.old.piece).concat(Object.values(M.old.promote)).includes(x))) add(t);
+  const squares = new Set();
+  for (const f of Object.keys(M.file)) for (const r of Object.keys(M.rank)) squares.add(M.file[f] + ' ' + M.rank[r]);
+  for (const t of fragments(M).filter((x) => !M.old || !Object.values(M.old.piece).concat(Object.values(M.old.promote)).includes(x))) add(t, null, squares.has(t) ? 'end' : null);
+  // each square a second time, said the way it sounds when the line goes on ("on e4 and attacks ..."):
+  // the game plays this one when more words follow the square (coachKeys in audio.js)
+  for (const q of squares) add('mid:' + q, q, 'mid');
   return out.sort((a, b) => (a.key < b.key ? -1 : 1));
 }
 
