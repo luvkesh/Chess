@@ -55,12 +55,9 @@ FX_DEMOS = {
     'victory': ['victory.lightning-storm.v1', 'victory.fireworks.v1'],
     'trail': ['trail.rainbow.v1', 'trail.mint.v1'],
     'clock': ['clock.ice.v1', 'clock.ruby.v1'],
-    'sound': ['sound.marble.v1', 'sound.glass.v1'],
     'avatar': ['avatar.ember.v1', 'avatar.bao.v1'],
     'frame': ['frame.ruby.v1', 'frame.ember.v1'],
 }
-
-LEGACY_SOUND = [{'id': 'sound.marble.v1', 'name': 'Marble', 'data': {'pack': 'marble'}}, {'id': 'sound.glass.v1', 'name': 'Crystal Glass', 'data': {'pack': 'glass'}}]
 
 LINKS = {
     'server': {'PLAY': '/play', 'PARENT': '/parent', 'PRIVACY': '/privacy', 'TERMS': '/terms', 'PITCHES': '/pitch/site/', 'FX': '/fx/'},
@@ -126,7 +123,7 @@ def site_data():
             'music': MUSIC[e['room']],
         })
     opponents = [{'id': o['id'], 'name': o['name'], 'animal': o['animal'].capitalize(),
-                  'range': RANGES[o['level']], 'blurb': o['blurb'], 'plays': PLAYS[o['id']],
+                  'range': RANGES[o['level']], 'blurb': o['blurb'], 'plays': PLAYS[o['id']], 'hello': o['hello'],
                   'colors': [mix(o['colors'][0], '#000000', 0.55), mix(o['colors'][1], '#000000', 0.45)]} for o in campaign['opponents']]
     cats = {}
     for i in catalog['items']:
@@ -141,7 +138,6 @@ def site_data():
     # the details showcase: how many of each kind there are to collect ("None" is not one)
     for c in FX_DEMOS:
         counts['fx_' + c] = sum(1 for i in catalog['items'] if i['category'] == c and '.none.' not in i['id'])
-    counts['fx_sound'] = counts['fx_sound'] or 4   # the four packs the page's Sound packs tab still shows (LEGACY_SOUND)
     return eras, opponents, counts, campaign['coach'], showroom(campaign, catalog)
 
 
@@ -288,7 +284,7 @@ def i18n(page, eras, opponents, collection, guide_lines, keep):
     for e in eras:
         wanted |= {e['name'], e['landmark'], e['place'], e['when'], e['coach']['full'], e['coach']['hello']}
     for o in opponents:
-        wanted |= {o['animal'], o['plays'], o['range']}
+        wanted |= {o['animal'], o['plays'], o['range'], o['hello']}
     for items in collection.values():
         for it in items:
             wanted |= {it['desc'], it['line'], it['how']} | set(it['chips'])
@@ -364,20 +360,15 @@ def build(target):
         shown.update({k: v for k, v in beside.items() if k in shown})
     lines = guide(coach['name'], collection)
     catalog = load('catalog.json')
-    # sound packs left the game's catalog (pieces sound like their material); until the page's
-    # Sound packs tab goes, its two demos come from here (the website thread removes both together)
-    items = catalog['items'] + [i for i in LEGACY_SOUND if i['id'] not in {x['id'] for x in catalog['items']}]
+    items = catalog['items']
     fx = {c: [{'id': i['id'], 'name': i['name'], 'data': i['data']} for d in ids for i in items if i['id'] == d] for c, ids in FX_DEMOS.items()}
     # clips recorded from the game's own table (tools/record-fx.js): fx/<id>.mp4, its poster
-    # fx/<id>.jpg, and for sound packs fx/<id>.lands.json, when each piece lands in the clip
+    # fx/<id>.jpg
     for items in fx.values():
         for i in items:
             if (here / 'fx' / (i['id'] + '.mp4')).exists():
                 assert (here / 'fx' / (i['id'] + '.jpg')).exists(), 'missing fx/%s.jpg' % i['id']
                 i['clip'] = i['id']
-                lands = here / 'fx' / (i['id'] + '.lands.json')
-                if lands.exists():
-                    i['lands'] = json.loads(lands.read_text())
     assert all(len(v) == 2 for v in fx.values()), fx
     # Names stay as they are in every language: the characters, the game, the studio and the
     # names of the sets, boards and rooms (like product names; the approved Hindi keeps them too).
@@ -387,7 +378,12 @@ def build(target):
     page = page.replace('/*FONTS*/', fonts + (here / 'vendor' / 'devanagari.css').read_text())
     filled = fill(page, img, art, counts, coach, target)
     langs = i18n(filled, eras, opponents, collection, lines, keep)
-    data = 'window.SITE = %s;' % json.dumps({'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': lines, 'coach': coach['name'], 'collection': collection, 'fx': fx,
+    # the coach's sentences in each language (one column per language), and the positions to play
+    coach_table = json.loads((content / 'i18n' / 'coach.json').read_text())
+    coach_strings = {c: {k: v[c] for k, v in coach_table.items() if isinstance(v, dict) and c in v} for c, _ in LANGS[1:]}
+    play = json.loads((here / 'play.json').read_text())
+    play.pop('note', None)
+    data = 'window.SITE = %s;' % json.dumps({'play': play, 'coachStrings': coach_strings, 'eras': eras, 'opponents': opponents, 'art': art, 'img': shown, 'guide': lines, 'coach': coach['name'], 'collection': collection, 'fx': fx,
                                              'langs': [{'code': c, 'name': n} for c, n in LANGS], 'i18n': langs, 'keep': sorted(keep), 'landmarks': sorted(LANDMARKS.values()),
                                              'fonts': {k: (game / 'vendor' / ('fonts-%s.css' % k)).read_text() for k in sorted({META[c]['fonts'] for c, _ in LANGS if 'fonts' in META.get(c, {})})}},
                                             separators=(',', ':'), ensure_ascii=False)
@@ -405,10 +401,10 @@ def build(target):
     # Tooltips are the game's own, so the site's bubbles look and behave the same.
     tips = EXPORTS.sub('', (game / 'src' / 'tips.js').read_text())
     assert '</script' not in tips.lower()
-    # the packs shown, as the game's own recordings, so "Hear it" sounds exactly like the game
-    sfx_index = json.loads((game / 'sfx' / 'index.json').read_text())
-    sfx = {i['data']['pack']: {'mp3': base64.b64encode((game / 'sfx' / (i['data']['pack'] + '.mp3')).read_bytes()).decode(), 'clips': sfx_index[i['data']['pack']]} for i in fx['sound']}
-    page = page.replace('/*SFX*/null', json.dumps(sfx, separators=(',', ':')))
+    # the game's own engine and coach, so the page's puzzles and Rooky's feedback are the real thing
+    core = root / 'packages' / 'chess-core' / 'src'
+    scene += '\n' + '\n'.join(EXPORTS.sub('', (core / n).read_text()) for n in ('engine.js', 'coach.js'))
+    assert '</script' not in scene.lower()
     return fill(page.replace('/*DATA*/', data).replace('/*SCENE*/', scene).replace('/*TIPS*/', tips), img, art, counts, coach, target)
 
 
@@ -428,6 +424,9 @@ def fill(page, img, art, counts, coach, target):
     page = re.sub(r'@@ART:([\w-]+)@@', lambda m: art[m.group(1)], page)
     page = re.sub(r'@@N:(\w+)@@', lambda m: str(counts[m.group(1)]), page)
     page = page.replace('@@COACHFULL@@', coach['full']).replace('@@COACH@@', coach['name'])
+    ads_dir = game / 'src' / 'ads'
+    page = page.replace('@@NIBBLAND@@', 'data:image/webp;base64,' + base64.b64encode((ads_dir / 'nibbland-logo.webp').read_bytes()).decode())
+    page = page.replace('@@JONGCLUB@@', 'data:image/svg+xml;base64,' + base64.b64encode((ads_dir / 'jongclub-wordmark.svg').read_bytes()).decode())
     for k, v in LINKS[target].items():
         page = page.replace('@@%s@@' % k, v)
     left = re.findall(r'@@\w+(?::[\w-]+)?@@', page)
