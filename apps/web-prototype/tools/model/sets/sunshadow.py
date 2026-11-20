@@ -29,20 +29,20 @@ LOOK = {
 }
 SPEC = {
     'w': {
-        'k': {'kind': 'figure', 'thick': 0.56},
-        'q': {'kind': 'figure', 'thick': 0.52},
-        'b': {'kind': 'figure', 'thick': 0.56},
-        'n': {'kind': 'figure', 'thick': 0.5},
+        'k': {'kind': 'figure', 'z0': 0.19, 'thick': 0.56},
+        'q': {'kind': 'figure', 'z0': 0.20, 'thick': 0.52},
+        'b': {'kind': 'figure', 'z0': 0.185, 'thick': 0.56},
+        'n': {'kind': 'figure', 'z0': 0.105, 'thick': 0.5},
         'r': {'kind': 'turned', 'fold': 4},
-        'p': {'kind': 'figure', 'thick': 0.56},
+        'p': {'kind': 'figure', 'z0': 0.185, 'thick': 0.56},
     },
     'b': {
-        'k': {'kind': 'figure', 'thick': 0.56},
-        'q': {'kind': 'figure', 'thick': 0.54},
-        'b': {'kind': 'figure', 'thick': 0.58},
-        'n': {'kind': 'figure', 'thick': 0.5},
+        'k': {'kind': 'figure', 'z0': 0.175, 'thick': 0.56},
+        'q': {'kind': 'figure', 'z0': 0.09, 'thick': 0.54},
+        'b': {'kind': 'figure', 'z0': 0.17, 'thick': 0.58},
+        'n': {'kind': 'figure', 'z0': 0.185, 'thick': 0.5, 'segs': 6, 'fold': 6},
         'r': {'kind': 'turned', 'fold': 4},
-        'p': {'kind': 'figure', 'thick': 0.58},
+        'p': {'kind': 'figure', 'z0': 0.17, 'thick': 0.58, 'segs': 4, 'fold': 4},
     },
 }
 # CHACK_FIGS=hero builds every carved piece as the stock whole-picture relief, to compare

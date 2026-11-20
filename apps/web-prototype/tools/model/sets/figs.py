@@ -11,10 +11,10 @@ figure, an animal or a tower standing on a round plinth, and comes from its own 
         above it. z0 (fraction of the piece's height) is where the plinth's top edge meets the
         outline at its sides; without it the outline is measured, which works when the figure
         is narrower than its plinth and the plinth has one tier.
-    {'kind': 'animal', 'face': 'left' | 'right', ...}
-        the same from a side-on picture, turned so the animal looks along the file towards
-        the opponent ('face' is the way it looks in the picture); 'turn': False leaves it
-        showing its flank to both players.
+    {'kind': 'animal', ...}
+        the same from a side-on picture. The animal shows its flank to both players, which is
+        how a carved animal reads best on the table; 'turn': True turns it to look along the
+        file towards the opponent ('face': 'left' | 'right' is the way it looks in the picture).
     {'kind': 'turned', 'fold': n, 'top': f, 'thick': t, 'segs': n}
         towers, spires and beacons: the whole outline turned, round and true from every side
         ('segs': 6 makes it six-sided). 'top' (fraction of the height) ends the turned part
@@ -34,6 +34,7 @@ In a hero set (HERO = True in the set module: four painted views) a carved part 
 and its side colours from TripoSR, as hero.build does."""
 import copy
 import math
+import os
 
 import cv2
 import numpy as np
@@ -84,8 +85,41 @@ def measure(r, z0=None):
             'lid': max(iw + 1, int(round(it - bt)))}
 
 
+def _hero_refs(sid, heights):
+    """hero.refs, except that a picture with its mask beside it (pics/<set>/<side>-<type>-a.png,
+    kept from cutting the design picture out) takes its outline from the mask. hero.cutout
+    finds the outline by what differs from the grey backdrop, which loses mid-grey edges
+    (shaded white marble, silver) and has to fill every gap; the mask keeps the true edge and
+    leaves the gaps open (between a staff and the body, under a stag's belly)."""
+    out = {}
+    for side, d in hero.pics(sid).items():
+        hs = dict(hero.HEIGHT)
+        for k, v in (heights or {}).items():
+            if isinstance(v, dict):
+                if k == side:
+                    hs.update(v)
+            else:
+                hs[k] = v
+        out[side] = {}
+        for t, path in d.items():
+            a = path[:-4] + '-a.png'
+            if os.path.exists(a):
+                m = np.where(cv2.imread(a, cv2.IMREAD_GRAYSCALE) > 127, 255, 0).astype(np.uint8)
+            else:
+                _, m, path = hero.cutout(path)
+            ys, xs = np.nonzero(m)
+            box = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
+            pad = 14
+            X0, Y0 = max(0, box[0] - pad), max(0, box[1] - pad)
+            X1, Y1 = min(m.shape[1], box[2] + pad), min(m.shape[0], box[3] + pad)
+            r = kit.Ref(path, box, mask=m[Y0:Y1, X0:X1], unit=1.0, foot=0, pad=pad)
+            r.unit = hs[t] / max(r.height() / r.unit, 1e-6)
+            out[side][t] = r
+    return out
+
+
 def refs(sid, heights=None, spec=None):
-    out = hero.refs(hero.pics(sid), heights)
+    out = _hero_refs(sid, heights)
     for s, d in out.items():
         for t, r in d.items():
             r.side, r.t = s, t
@@ -111,38 +145,45 @@ def pick(spec, side, t):
     return spec.get(side, {}).get(t, {})
 
 
-def sheet(sid, spec, path, heights=None):
-    """every piece's plinth, enlarged, with the measured rows drawn: red the foot's widest
-    row, green the top edge at the sides (z0), yellow the lid's front edge and the top face's
-    ellipse; a ruler in hundredths of the piece's height on the left"""
+def sheet(sid, spec, path, heights=None, frac=0.24, width=400, cols=5):
+    """every carved piece's plinth, enlarged, to set z0 from: a ruler in hundredths of the
+    piece's height down both sides, and at the margins green marks at the top edge (z0) and
+    yellow marks at the lid's front edge; the top face's ellipse is drawn in yellow"""
     rs = refs(sid, heights, spec)
     tiles = []
     for s in 'wb':
         for t in 'kqbnrp':
+            if pick(spec, s, t).get('kind', 'figure') == 'turned':
+                continue
             r = rs[s][t]
             P = r.plinth
             H = r.bot - r.top
-            y0 = max(0, int(r.bot - 0.34 * H))
-            im = r.crop[y0:r.bot + 6].copy()
-            k = 520 / im.shape[1]
+            y0 = max(0, int(r.bot - frac * H))
+            im = cv2.copyMakeBorder(r.crop[y0:r.bot + 4], 0, 0, 40, 40, cv2.BORDER_CONSTANT, value=(60, 60, 60))
+            k = width / im.shape[1]
             im = cv2.resize(im, None, fx=k, fy=k, interpolation=cv2.INTER_CUBIC)
             row = lambda i: int(round((r.bot - i - y0) * k))
-            for f in range(2, 34, 2):
+            W = im.shape[1]
+            for f in range(1, int(frac * 100) + 1):
                 y = row(f / 100 * H)
-                cv2.line(im, (0, y), (14 if f % 10 else 30, y), (255, 255, 255), 1)
-                if f % 4 == 0:
-                    cv2.putText(im, '%02d' % f, (32, y + 4), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (255, 255, 255), 1, cv2.LINE_AA)
+                n = 9 if f % 2 else 16
+                cv2.line(im, (0, y), (n, y), (255, 255, 255), 1)
+                cv2.line(im, (W - n, y), (W, y), (255, 255, 255), 1)
+                if f % 2 == 0:
+                    cv2.putText(im, '%d' % f, (18, y + 4), cv2.FONT_HERSHEY_SIMPLEX, 0.36, (255, 255, 255), 1, cv2.LINE_AA)
             c = np.nonzero(r.mask[r.bot - P['it']])[0]
-            cx = (c.min() + c.max()) / 2 * k if len(c) else im.shape[1] / 2
-            cv2.line(im, (0, row(P['iw'])), (im.shape[1], row(P['iw'])), (0, 0, 255), 1)
-            cv2.line(im, (0, row(P['it'])), (im.shape[1], row(P['it'])), (0, 255, 0), 1)
-            cv2.line(im, (0, row(P['lid'])), (im.shape[1], row(P['lid'])), (0, 255, 255), 1)
+            cx = ((c.min() + c.max()) / 2 + 40) * k if len(c) else W / 2
+            for i, col in ((P['it'], (0, 255, 0)), (P['lid'], (0, 255, 255))):
+                cv2.line(im, (0, row(i)), (34, row(i)), col, 2)
+                cv2.line(im, (W - 34, row(i)), (W, row(i)), col, 2)
             cv2.ellipse(im, (int(cx), row(P['it'])), (int(P['W'] / 2 * k), max(1, int(P['bt'] * k))), 0, 0, 360, (0, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(im, '%s-%s z0 %.3f tilt %.2f' % (s, t, P['it'] / H, P['tilt']), (60, 16), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(im, '%s-%s z0 %.3f' % (s, t, P['it'] / H), (W // 2 - 60, 14), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
             tiles.append(im)
     h = max(i.shape[0] for i in tiles)
-    tiles = [cv2.copyMakeBorder(i, h - i.shape[0], 0, 0, 0, cv2.BORDER_CONSTANT, value=(40, 40, 40)) for i in tiles]
-    cv2.imwrite(path, np.vstack([np.hstack(tiles[i:i + 6]) for i in (0, 6)]), [cv2.IMWRITE_JPEG_QUALITY, 88])
+    while len(tiles) % cols:
+        tiles.append(np.zeros((h, width, 3), np.uint8))
+    tiles = [cv2.copyMakeBorder(i, h - i.shape[0], 0, 0, width - i.shape[1], cv2.BORDER_CONSTANT, value=(40, 40, 40)) for i in tiles]
+    cv2.imwrite(path, np.vstack([np.hstack(tiles[i:i + cols]) for i in range(0, len(tiles), cols)]), [cv2.IMWRITE_JPEG_QUALITY, 90])
 
 
 def _stone(r, zl):
@@ -153,20 +194,27 @@ def _stone(r, zl):
 
 
 def _lathe(name, prof, sp):
-    """a turned part; with 'segs' it has that many flat sides (one faces the front) instead of
-    being round"""
-    n = sp.get('segs', 80)
-    if n <= 12 and n % 4 == 0:
-        # the outline is the width across the flats here, the ring is set out by its corners
-        prof = [(z, w / math.cos(math.pi / n)) for z, w in prof]
-    ob = kit.lathe(name, prof, segs=n)
-    if n <= 12:
-        # kit.lathe starts its ring on the x axis, which puts a flat side in front for 6 and 10
-        # sides; 4, 8 and 12 need half a step
-        if n % 4 == 0:
-            ob.data.transform(__import__('mathutils').Matrix.Rotation(math.pi / n, 4, 'Z'))
-        for p in ob.data.polygons:
-            p.use_smooth = False
+    """a turned part; with 'segs' it has that many flat sides, one facing the front, instead
+    of being round. Each flat side is made of two halves that meet on its middle line, so the
+    paint (folded once per side) runs from the middle of a side out to its corners; with only
+    the corners to go by, a side would take one column of the picture and come out striped."""
+    n = sp.get('segs', 0)
+    if not n:
+        return kit.lathe(name, prof)
+    ob = kit.lathe(name, prof, segs=2 * n)
+    step = math.pi / n
+    kf = round(1.5 * n)                                 # the ring position that faces the front (-y)
+    cs = 1.0 if n % 4 == 2 else 1 / math.cos(step)      # corner radius over the outline's half width
+    for v in ob.data.vertices:
+        x, y = v.co.x, v.co.y
+        if math.hypot(x, y) < 1e-6:
+            continue
+        k = round(math.atan2(y, x) / step)
+        f = cs * (math.cos(step) if (k - kf) % 2 == 0 else 1.0)
+        v.co.x, v.co.y = x * f, y * f
+    for p in ob.data.polygons:
+        p.use_smooth = False
+    ob.data.update()
     return ob
 
 
@@ -227,9 +275,11 @@ def figure(r, sp):
 def animal(r, sp):
     base, zl = plinth(r, sp)
     body = _carve('animal', r, sp, zl, sp.get('thick', 0.42))
-    if sp.get('turn', True):
+    if sp.get('turn', False):
         # +90 degrees brings the picture's left to the front (Blender -y, towards the opponent)
-        body.rotation_euler = (0, 0, math.pi / 2 if sp.get('face', 'left') == 'left' else -math.pi / 2)
+        from mathutils import Matrix
+        body.data.transform(Matrix.Rotation(math.pi / 2 if sp.get('face', 'left') == 'left' else -math.pi / 2, 4, 'Z'))
+        body.data.update()
     return [base, body]
 
 

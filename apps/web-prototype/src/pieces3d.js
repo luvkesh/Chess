@@ -7476,15 +7476,16 @@ function ChacklatePieces(THREE, K) {
         : { body: lacquer('shadow-body', '#2a1a40'), base: lacquer('shadow-base', '#1e1428'), stone: phys('shadow-stone', { map: TEX.stone('#2a2232', '#4a3a58', { scale: 4, cloud: 0.4, speckMix: 0.4 }), roughness: 0.55, clearcoat: 0.4 }), skin: phys('shadow-skin', { color: '#b8a8d8', roughness: 0.4, sheen: 0.5, sheenColor: new THREE.Color('#e0d0ff') }), cloth: lacquer('shadow-cloth', '#3a2458', { sheen: 0.5, sheenColor: new THREE.Color('#a070ff') }), cloth2: lacquer('shadow-purple', '#4a1e78', { sheen: 0.6, sheenColor: new THREE.Color('#c890ff') }), hair: lacquer('shadow-hair', '#1a1024'), wood: lacquer('shadow-wood', '#2a1a1a'), horn: lacquer('shadow-horn', '#e8dcc8'), wing: lacquer('shadow-wing', '#5a2a8a', { side: THREE.DoubleSide }), void: MAT.matte('#05030a'), steel: phys('shadow-steel', { color: '#3a3a4a', metalness: 0.9, roughness: 0.3 }), trim: MAT.gold('#c8a0e8'), accent: MAT.gem('#a020f0'), glow: phys('shadow-glow', { color: '#e0a0ff', emissive: '#a030ff', emissiveIntensity: 1.8, roughness: 0.3 }), banner: lacquer('shadow-banner', '#5a1a7a'), eye: MAT.lacquer('#2a1040') }),
     },
     galactic: {
-      id: 'galactic', name: 'Galactic Blue & Red', era: 'Far out among the stars', year: 'The far future', tint: '#1a2050',
+      id: 'galactic', name: 'Galactic Blue & Red', era: 'Far out among the stars', year: 'The far future', tint: '#1a2050', sided: true,
+      mesh: 'figures3', meshLook: { clearcoat: 0.8, clearcoatRoughness: 0.06, glow: 1.5 },
       story: 'Two star fleets meet on a lit grid above a blue planet. The Blue Fleet comes in white ceramic with blue light; the Red Fleet in black armour with red light. Their starships jump like knights, and their crystal beacons shine down the diagonals.',
       lore: {
-        k: 'White: the Fleet Commander with a star circlet. Black: the Red Warlord in a crested helm with a red visor.',
+        k: 'White: the Fleet Commander in a white cloak, a gold star on his chest. Black: the Red Warlord in a spiked helm and crimson armour.',
         q: 'White: the Admiral with her star staff. Black: the Red Commander in a crimson gown and a crescent headpiece.',
-        b: 'White: a beacon with a blue crystal and a gold star. Black: a beacon of jagged red crystal.',
+        b: 'White: a beacon of blue crystal in a golden frame. Black: a beacon of jagged red crystal.',
         n: 'White: a starfighter with swept delta wings. Black: an interceptor with crescent wings.',
-        r: 'White: a tower of blue light. Black: a hexagonal tower with spikes.',
-        p: 'White: a space cadet with a blue visor. Black: a cadet of the Red Fleet with a red eye slit.',
+        r: 'White: a fluted silver tower ringed with blue light. Black: a black tower with red spikes.',
+        p: 'White: a space cadet with a blue visor. Black: a cadet of the Red Fleet with round red lenses.',
       },
       pieces: GALBLUE, piecesB: GALRED,
       mats: (side) => (side === 'w'
