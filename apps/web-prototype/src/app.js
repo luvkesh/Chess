@@ -398,7 +398,8 @@
   // review never delays the computer's move.
   function makeWorker() {
     try {
-      const src = 'const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E,' + JSON.stringify(coachStrings()) + ');' +
+      // mates.js goes in as a plain function: the coach proves every checkmate it names with it
+      const src = ChacklateMates.toString() + ';const E=(' + ChacklateEngine.toString() + ')();const C=(' + ChacklateCoach.toString() + ')(E,' + JSON.stringify(coachStrings()) + ');' +
         'const M=(' + ChacklateMentor.toString() + ')(E,C);' +
         'onmessage=function(e){var d=e.data;try{var p=E.positionFrom(d.fen,d.moves);var r;' +
         'if(d.type==="search"){var s=E.search(p,d.opts);r={uci:s.move?E.uci(s.move):null,score:s.score,depth:s.depth};}' +
@@ -576,6 +577,9 @@
   // Cosmetics: whatever is equipped (or previewed) dresses the table. A journey game sets
   // its era's board, pieces and room for the length of the game.
   let preview = null, lookOverride = null, clockSkin = null;
+  const MATERIAL = { pieces: {}, board: {} };
+  for (const it of CATALOG.items) if (MATERIAL[it.category] && it.data) MATERIAL[it.category][it.category === 'pieces' ? it.data.set : it.data.board] = it.data.sound;
+  const materialOf = (cat, id) => MATERIAL[cat][id] || 'wood';
   function applyLook() {
     // Trying on a room, board or set shows just that one, with whatever else is equipped.
     const pick = (cat) => (preview && preview.category === cat ? preview : PG.equipped(state.progress, cat));
@@ -585,7 +589,8 @@
     view.setRoom(room);
     AU.setMood(room.room);
     view.setFx({ capture: pick('capture').data, victory: pick('victory').data, trail: pick('trail').data });
-    AU.setPack(pick('sound').data.pack);
+    // The pieces sound like what they are made of, on what the board is made of (catalog data.sound).
+    AU.setMaterials(materialOf('pieces', o.set || pick('pieces').data.set), materialOf('board', o.board || pick('board').data.board));
     clockSkin = pick('clock').data;
   }
   function setLook(o) { lookOverride = o || null; applyLook(); }
@@ -1277,8 +1282,8 @@
   // pawn, its three strengths. The next round starts a second after the last one ends.
   const fxArt = (it) => ART.fxUri(it.category === 'trail' ? (it.data ? 'trail:' + (it.data.style || 'dust') : 'none') : (it.data.art || it.data.kind), it.data ? it.data.colors : []);
   function peekDemo(it) {
-    const capture = it.category === 'capture' || it.category === 'sound';
-    const rounds = it.category === 'sound' ? [['f3', 'e5', 2, -1]] : capture ? [['e4', 'd5', 1, -1], ['f3', 'e5', 2, -2], ['h2', 'e5', 3, -5]] : [['d1', 'h5', 5], ['a1', 'a6', 4], ['e2', 'e4', 1]];
+    const capture = it.category === 'capture';
+    const rounds = capture ? [['e4', 'd5', 1, -1], ['f3', 'e5', 2, -2], ['h2', 'e5', 3, -5]] : [['d1', 'h5', 5], ['a1', 'a6', 4], ['e2', 'e4', 1]];
     const live = () => peeking && peeking.it === it;
     let n = 0;
     const play = () => {
@@ -1290,7 +1295,7 @@
       peeking.timers.push(setTimeout(() => {
         if (!live()) return;
         view.animateMove({ from: sqIndex(from), to: sqIndex(to), capturedSq: prey ? sqIndex(to) : -1, mover: piece },
-          () => { if (!live()) return; if (it.category === 'sound') AU.play(capture ? 'capture' : 'move', { mover: piece, captured: capture ? prey : 0 }); peeking.timers.push(setTimeout(play, 1000)); },
+          () => { if (!live()) return; peeking.timers.push(setTimeout(play, 1000)); },
           { skipHint: false, elements: !!(it.category === 'capture' && it.data && it.data.strike) });
       }, 450));
     };
@@ -1336,13 +1341,14 @@
     view.setFullDetail(true);
     if (it.category === 'room') { view.setAttract(true); view.setFocus({ zoom: 0.8 }); }
     else {
-      const moving = it.category === 'capture' || it.category === 'trail' || it.category === 'sound';
+      const moving = it.category === 'capture' || it.category === 'trail';
       view.setAttract(false); view.setView('white', 'player');
       view.setFocus((it.category === 'pieces' && innerWidth / innerHeight < 0.8 && PEEK_FOCUS.piecesTall) || PEEK_FOCUS[moving ? 'move' : it.category] || PEEK_FOCUS.other);
     }
-    if (it.category === 'capture' || it.category === 'trail' || it.category === 'sound') peekDemo(it);
+    if (it.category === 'capture' || it.category === 'trail') peekDemo(it);
     if (it.category === 'victory') peekWin(it);
-    if (it.category === 'sound') AU.play('capture', { mover: 2, captured: -1 });
+    // a set or board on show is heard too: a knight set down, in its own material
+    if (it.category === 'pieces' || it.category === 'board') AU.play('move', { mover: 2 });
     // Clocks, pictures and frames are not on the table, so they show on a player card above the bar,
     // the way they look in a game; a clock counts down there and on the chess clock by the board.
     if (['clock', 'avatar', 'frame'].includes(it.category)) peekCard(it);
@@ -2879,8 +2885,8 @@
   };
 
   // ---------------------------------------------------------------- collection
-  const CAT_ORDER = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock', 'sound'];
-  const CAT_ICON = { pieces: 'pawn', board: 'grid', room: 'home', avatar: 'profile', frame: 'frame', capture: 'sparkle', victory: 'trophy', trail: 'wave', clock: 'clock', sound: 'speaker' };
+  const CAT_ORDER = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock'];
+  const CAT_ICON = { pieces: 'pawn', board: 'grid', room: 'home', avatar: 'profile', frame: 'frame', capture: 'sparkle', victory: 'trophy', trail: 'wave', clock: 'clock' };
   const rarity = (it) => (I18N.has('collection.rarity.' + it.rarity) ? t('collection.rarity.' + it.rarity) : it.rarity);
   const eraOfRoom = (r) => CAMPAIGN.eras.find((e) => e.room === r) || null;
   // Acquire: things a grown-up can get in the store (Premium, and the Season Pass track). Everything
@@ -3386,7 +3392,7 @@
   function seasonSwatch(it) {
     const d = it.data || {};
     if (it.category === 'avatar') return '<img src="' + medal(d.art, d.from, d.to) + '" alt="">';
-    if (it.category === 'pieces' || it.category === 'board' || it.category === 'room' || it.category === 'sound') return itemArt(it);
+    if (it.category === 'pieces' || it.category === 'board' || it.category === 'room') return itemArt(it);
     if (it.category === 'frame') return ART.frameUri(it.id) ? '<img src="' + ART.frameUri(it.id) + '" alt="">' : '<span class="ringdot" style="background:' + d.ring + '"></span>';
     if (it.category === 'clock') return '<img src="' + ART.clockUri(d) + '" alt="">';
     if (it.category === 'capture' || it.category === 'victory' || it.category === 'trail') return '<img src="' + fxArt(it) + '" alt="">';
@@ -4514,7 +4520,8 @@
     wait[here] = [done];
     const id = job('analysis', { type: 'look', fen: G.g.startFen, moves, opts: { timeMs: timeMs || 200, alts: 3, plies: 4 } }, (r) => {
       const cbs = wait[here] || []; delete wait[here];
-      if (r.error || !r.look || state.game !== G || G.g.moves.length !== key) return;
+      // the same move count is not the same position after a take-back and new moves
+      if (r.error || !r.look || state.game !== G || G.g.uciMoves().join(' ') !== here) return;
       r.look.enteredEndgame = r.look.phase === 'endgame' && !G.endgameSaid;
       G.looks[key] = r.look;
       for (const cb of cbs) cb(r.look);
