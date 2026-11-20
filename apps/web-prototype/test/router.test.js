@@ -11,7 +11,7 @@ const CAMPAIGN = content('campaign.json');
 const VARIANTS = content('variants.json').variants || content('variants.json');
 const OPENINGS = content('openings.json').openings;
 const PUZZLES = content('puzzles.json').puzzles || content('puzzles.json');
-const CATS = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock', 'sound'];
+const CATS = ['pieces', 'board', 'room', 'avatar', 'frame', 'capture', 'victory', 'trail', 'clock'];
 const SETTINGS = ['play', 'coach', 'sound', 'look', 'lang', 'app'];
 const THEMES = [...new Set(['fork', 'pin', 'skewer', 'discoveredAttack', 'hangingPiece', 'mate'].concat(...PUZZLES.map((p) => p.themes)))];
 const E = require('../../../packages/chess-core/src/engine.js');

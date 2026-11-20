@@ -578,7 +578,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       const r = E.search(pos, { timeMs, quiesce: true, exclude: exclude.slice() });
       if (!r.move) break;
       exclude.push(E.uci(r.move));
-      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateIn(r.score), facts: C.facts(pos, r.move), goal: goalOf(pos, r.move) });
+      out.push({ uci: E.uci(r.move), san: pos.san(r.move, legal), cp: C.toCp(r.score), mate: C.mateAfter(pos, r.move, r.score), facts: C.facts(pos, r.move), goal: goalOf(pos, r.move) });
     }
     return out;
   }
@@ -593,7 +593,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
       pos.make(r.move); made.push(r.move);
     }
     const end = { cp: 0, mate: 0, side: pos.side };
-    if (pos.legalMoves().length) { const r = E.search(pos, { timeMs, quiesce: true }); end.cp = C.toCp(r.score); end.mate = C.mateIn(r.score); } else end.cp = pos.inCheck() ? -10000 : 0;
+    if (pos.legalMoves().length) { const r = E.search(pos, { timeMs, quiesce: true }); end.cp = C.toCp(r.score); end.mate = C.mateOf(pos, r.score); } else end.cp = pos.inCheck() ? -10000 : 0;
     for (let i = 0; i < made.length; i++) pos.unmake();
     return { moves: out, end };
   }
@@ -630,7 +630,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     const after = assess(pos, side);
     const replyLegal = pos.legalMoves();
     let post = { cp: replyLegal.length ? 0 : (pos.inCheck() ? -10000 : 0), mate: 0, best: null };
-    if (replyLegal.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateIn(r.score), best: r.move ? E.uci(r.move) : null, bestSan: r.move ? pos.san(r.move, replyLegal) : null }; }
+    if (replyLegal.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateOf(pos, r.score), best: r.move ? E.uci(r.move) : null, bestSan: r.move ? pos.san(r.move, replyLegal) : null }; }
     const refutation = post.best ? C.facts(pos, pos.parseMove(post.best, replyLegal)) : null;
     const line = o.plies > 0 ? pvLine(pos, o.plies, Math.round(o.timeMs * 0.6)) : null;
     pos.unmake();
@@ -694,7 +694,7 @@ function ChacklateMentor(E, C, strings, nameOf) {
     pos.make(m);
     const rl = pos.legalMoves();
     let post = { cp: rl.length ? 0 : (pos.inCheck() ? -10000 : 0), mate: 0 }, refutation = null;
-    if (rl.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateIn(r.score) }; if (r.move) refutation = C.facts(pos, r.move); }
+    if (rl.length) { const r = E.search(pos, { timeMs: o.timeMs, quiesce: true }); post = { cp: C.toCp(r.score), mate: C.mateOf(pos, r.score) }; if (r.move) refutation = C.facts(pos, r.move); }
     pos.unmake();
     const loss = Math.max(0, C.winProb(C.toCp(r0.score)) - C.winProb(-post.cp));
     const cls = C.classify(loss, false, facts, -post.cp);
