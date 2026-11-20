@@ -156,6 +156,13 @@ assert.strictEqual(m.xp, 123);
 assert.strictEqual(m.stats.games, 4);
 assert.strictEqual(m.stats.puzzles.rating, 800);
 assert.deepStrictEqual(PG.migrate({ v: 99 }), PG.fresh());
+// Sound packs left the game (pieces sound like their material): a bought Marble pack gives its
+// 400 coins back once, and nothing equipped or owned still names a pack.
+{ const old = PG.migrate({ v: 1, coins: 50, bought: ['sound.marble.v1', 'board.night-marble.v1'], equipped: { sound: 'sound.glass.v1' }, granted: { 'sound.glass.v1': 1 } });
+  assert.strictEqual(old.coins, 450); assert.deepStrictEqual(old.bought, ['board.night-marble.v1']);
+  assert(!('sound' in old.equipped) && !old.granted['sound.glass.v1']);
+  assert.strictEqual(PG.migrate(JSON.parse(JSON.stringify(old))).coins, 450, 'refunded once');
+  assert(!catalog.items.some((i) => i.category === 'sound'), 'no sound packs in the catalog'); }
 assert.deepStrictEqual(PG.migrate({ v: 1, xp: 5 }).journey, {}, 'old saves get an empty journey');
 
 // Journey Through Time: eras open in order, the premium ones need Premium, and finishing an

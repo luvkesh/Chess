@@ -6,7 +6,9 @@
 //   - under-18s pick a generated name (BraveOtter42) and cannot type one, so names never carry
 //     real names, contact details or rude words;
 //   - under-18s and guests are matched only with each other, never with adult accounts;
-//   - purchases from an under-18 account need the parent's PIN, and reminders need the parent's yes.
+//   - purchases from an under-18 account are allowed, or need the parent's PIN, or are off, as the parent
+//     chooses (the game is for every age; buying is a grown-up's job, not the game's to police), and
+//     reminders need the parent's yes.
 const crypto = require('node:crypto');
 const auth = require('./auth');
 const audit = require('./audit');
@@ -69,7 +71,7 @@ function validBirth(year, month, now) {
   return { year: y, month: m };
 }
 
-const DEFAULT_CONTROLS = { online: true, rated: true, openPool: false, reminders: false, purchases: 'pin', dailyMinutes: 0 };
+const DEFAULT_CONTROLS = { online: true, rated: true, openPool: false, reminders: false, purchases: 'open', dailyMinutes: 0 };
 function controlsOf(u) {
   let c = {};
   try { c = u.controls ? JSON.parse(u.controls) : {}; } catch (e) { c = {}; }
@@ -79,7 +81,7 @@ function cleanControls(c, prev) {
   const out = Object.assign({}, prev || DEFAULT_CONTROLS);
   if (!c || typeof c !== 'object') return out;
   for (const k of ['online', 'rated', 'openPool', 'reminders']) if (typeof c[k] === 'boolean') out[k] = c[k];
-  if (['pin', 'off'].includes(c.purchases)) out.purchases = c.purchases;
+  if (['open', 'pin', 'off'].includes(c.purchases)) out.purchases = c.purchases;
   if (Number.isInteger(c.dailyMinutes) && c.dailyMinutes >= 0 && c.dailyMinutes <= 600) out.dailyMinutes = c.dailyMinutes;
   return out;
 }
@@ -328,13 +330,14 @@ function create(db, lobby, opts) {
     return [404, { error: 'Not found.' }];
   }
 
-  // Purchases from an under-18 account need the parent's PIN (and the parent can switch them off).
+  // Purchases from an under-18 account follow the parent's choice: allowed, only with their PIN, or off.
   // Five wrong PINs lock purchases on that account for 15 minutes, so a child cannot guess it.
   const pinMisses = new Map();
   function purchaseCheck(u, pin) {
     if (kindOf(u) !== 'minor') return null;
     if (!u.consent || !u.parent_id) return 'A parent needs to set up this account before anything can be bought.';
     if (controlsOf(u).purchases === 'off') return 'A parent has turned purchases off for this account.';
+    if (controlsOf(u).purchases === 'open') return null;
     const miss = pinMisses.get(u.id);
     if (miss && miss.n >= 5 && Date.now() - miss.at < 15 * 60e3) return 'Too many wrong PINs. Try again in 15 minutes.';
     const parent = db.get('SELECT * FROM parents WHERE id = ?', u.parent_id);

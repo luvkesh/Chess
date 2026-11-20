@@ -34,6 +34,10 @@ const STATIC = {
   '/icons/icon-512.png': path.join(PUBLIC, 'icon-512.png'),
   '/icons/icon-maskable-512.png': path.join(PUBLIC, 'icon-maskable-512.png'),
 };
+// The game's own addresses (apps/web-prototype/src/router.js TOP): /learn/forks, /play/variations
+// and so on all get the game, which opens the screen the address names. Kept in step by the tests.
+const GAME_ROUTES = ['home', 'play', 'journey', 'learn', 'trainers', 'puzzles', 'training', 'collection', 'club', 'profile', 'store', 'season', 'settings'];
+const gamePage = (p) => /^\/[a-z0-9/-]*$/.test(p) && GAME_ROUTES.includes(p.split('/')[1]) && p.split('/').length <= 6;
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
@@ -264,7 +268,15 @@ function createServer(opts) {
         return fs.createReadStream(wf).pipe(res);
       }
     }
-    const file = STATIC[url.pathname.replace(/\/+$/, '') || '/'];
+    const clean = url.pathname.replace(/\/+$/, '') || '/';
+    if (clean === '/sitemap.xml' && opts.publicUrl) {
+      const base = String(opts.publicUrl).replace(/\/+$/, '');
+      const pages = ['/', '/home'].concat(GAME_ROUTES.filter((r) => r !== 'home' && r !== 'settings' && r !== 'store').map((r) => '/' + r),
+        ['/play/mini-games', '/play/variations', '/training/openings', '/training/endgames', '/training/progress', '/privacy', '/terms']);
+      res.writeHead(200, Object.assign({ 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }, SECURITY_HEADERS));
+      return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + pages.map((p) => '  <url><loc>' + base + p + '</loc></url>').join('\n') + '\n</urlset>\n');
+    }
+    const file = STATIC[clean] || (gamePage(clean) ? STATIC['/play'] : null);
     if (file && fs.existsSync(file)) {
       const ext = path.extname(file);
       res.writeHead(200, Object.assign({ 'Content-Type': TYPES[ext] || 'application/octet-stream', 'Cache-Control': ext === '.png' ? 'public, max-age=604800' : 'no-cache' }, SECURITY_HEADERS));
@@ -282,7 +294,7 @@ function createServer(opts) {
   };
 }
 
-module.exports = { createServer };
+module.exports = { createServer, GAME_ROUTES };
 
 if (require.main === module) {
   const app = createServer({
