@@ -1,6 +1,6 @@
 # Chackmate
 
-A premium, AI-backed 3D chess game for iOS, Android, PC/Mac and the web, made for children first: parental consent, no chat, no ads, no tracking. See `docs/planning/children.md`.
+A premium, AI-backed 3D chess game for iOS, Android, PC/Mac and the web, made for players of every age: no chat, no ads, no tracking, and a parent's permission for under-18 online accounts. See `docs/planning/children.md`.
 
 ## Repository layout
 

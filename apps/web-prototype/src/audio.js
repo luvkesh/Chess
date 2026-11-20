@@ -1,10 +1,11 @@
-// Chackmate sound: the pieces meeting the board are real recordings (the four sound packs,
-// made by tools/sfx.py from CC0 recordings, see sfx/SOURCES.md); the chimes and the ambient
+// Chackmate sound: the pieces meeting the board are real recordings, one recording per material
+// (made by tools/sfx.py from CC0 recordings, see sfx/SOURCES.md), chosen by the set and board in
+// play, never by the player; the chimes and the ambient
 // score are synthesised with the Web Audio API; the coach's lines are recorded voices.
 function ChacklateAudio() {
   'use strict';
   let ctx = null, master = null, sfxBus = null, musicBus = null, musicWet = null, verb = null, verbSend = null;
-  let sfxVol = 0.8, musicVol = 0.35, sfxOn = true, musicOn = true, pack = 'wood';
+  let sfxVol = 0.8, musicVol = 0.35, sfxOn = true, musicOn = true, pack = 'wood', under = 'wood';
   let music = null;
 
   function init() {
@@ -42,7 +43,7 @@ function ChacklateAudio() {
     if (!init()) return false;
     // iOS may leave it 'suspended' or 'interrupted' (a call, the lock screen); a tap brings it back
     if (ctx.state !== 'running') { const r = ctx.resume(); if (r && r.catch) r.catch(() => {}); }
-    bank(pack);   // decode the chosen sound pack ahead of the first move
+    bank(pack); bank(under);   // decode the set's and the board's materials ahead of the first move
     return true;
   }
 
@@ -88,12 +89,14 @@ function ChacklateAudio() {
     car.start(t); mod.start(t); car.stop(t + dur + 0.1); mod.stop(t + dur + 0.1);
   }
 
-  // Material models for a piece meeting the board.
+  // Material models for a piece meeting the board ('marble' stands for every stone).
   const PACKS = {
     wood: { click: [2400, 1.2], body: [[190, 0.5, 0.09], [420, 0.25, 0.06], [930, 0.12, 0.035]], felt: 2600, gain: 0.9 },
     marble: { click: [4200, 2.5], body: [[520, 0.35, 0.18], [1210, 0.22, 0.14], [2650, 0.12, 0.1]], felt: 7000, gain: 0.75 },
     glass: { click: [6200, 4], body: [[1320, 0.3, 0.45], [2960, 0.2, 0.35], [4410, 0.12, 0.3]], felt: 9000, gain: 0.55 },
     soft: { click: [1200, 0.8], body: [[160, 0.4, 0.07], [320, 0.15, 0.05]], felt: 1100, gain: 0.5 },
+    metal: { click: [5200, 3], body: [[880, 0.3, 0.3], [2340, 0.18, 0.22], [3710, 0.1, 0.16]], felt: 8000, gain: 0.6 },
+    ceramic: { click: [3600, 2], body: [[640, 0.32, 0.12], [1540, 0.2, 0.09], [3100, 0.1, 0.06]], felt: 6500, gain: 0.7 },
   };
   function knock(t, weight, pitch) {
     const p = PACKS[pack] || PACKS.wood;
@@ -145,8 +148,9 @@ function ChacklateAudio() {
     return at;
   }
   // One take of a tier: never the same take twice running, with a touch of pitch and level.
-  function sample(t, tier, gain, rate) {
-    const b = bank(pack);
+  // id: the material's recording; filter: [type, hz] keeps only part of it (see land).
+  function sample(t, tier, gain, rate, id, filter) {
+    const b = bank(id || pack);
     if (!b) return false;
     const takes = b.at[tier] || b.at.L2;
     let i = Math.floor(Math.random() * takes.length);
@@ -156,15 +160,29 @@ function ChacklateAudio() {
     const s = ctx.createBufferSource(); s.buffer = b.buf;
     s.playbackRate.value = (rate || 1) * (0.97 + Math.random() * 0.06);
     const g = ctx.createGain(); g.gain.value = (gain || 1) * (0.86 + Math.random() * 0.14);
-    s.connect(g).connect(sfxBus);
+    if (filter) {
+      const f = ctx.createBiquadFilter(); f.type = filter[0]; f.frequency.value = filter[1]; f.Q.value = 0.6;
+      s.connect(f).connect(g);
+    } else s.connect(g);
+    g.connect(sfxBus);
     // close and dry, as if the board were right by your ear, with only a breath of the room
     const send = ctx.createGain(); send.gain.value = 0.12; g.connect(send).connect(verbSend);
     s.start(t, start, len + 0.02);
     return true;
   }
-  // A piece landing: a recorded take for its weight, or the synthesised knock until the pack is ready.
+  // A piece landing: a recorded take for its weight, or the synthesised knock until it is ready.
+  // When the piece and the board are different materials, both are heard, as in a real set: the
+  // piece's own click and ring from the set's recording (its top end), and the board's body from
+  // the board's (its low end): a glass piece on a wooden board rings over a warm knock, a wooden
+  // piece on marble knocks over a hard stony thud. A soft club mat damps the piece's top end too.
   function land(t, piece, gain, rate) {
     const tier = tierOf(piece);
+    if (under !== pack && bank(under) && bank(pack)) {
+      const g = gain || 1;
+      sample(t, tier, g * 0.95, rate, pack, under === 'soft' ? ['lowpass', 2600] : ['highpass', 650]);
+      sample(t, tier, g * (under === 'soft' ? 0.6 : 0.8), rate, under, ['lowpass', 900]);
+      return;
+    }
     if (sample(t, tier, gain, rate)) return;
     knock(t, ({ L1: 1.15, L2: 0.9, L3: 0.7 })[tier] * (gain || 1), ({ L1: 0.85, L2: 1, L3: 1.15 })[tier] * (rate || 1));
   }
@@ -730,6 +748,7 @@ function ChacklateAudio() {
   // allowed, else stays unsaid. Resolves when the line ends or is cut short; a new line or hush()
   // cuts it short, and calling it again says it again.
   let coachSplit = null, coachWho = 'rooky';
+  const coachId = () => 'coach:' + (index && index['coach:' + coachWho] ? coachWho : 'rooky');
   function coachKeys(text) {
     const parts = coachSplit ? coachSplit(text) : null;
     const B = V.moves.en;
@@ -737,16 +756,32 @@ function ChacklateAudio() {
     const keys = [], gaps = [];
     parts.forEach((p, i) => {
       if (p.pause) { if (keys.length) gaps[keys.length - 1] = Math.max(gaps[keys.length - 1] || 0, PAUSE[p.pause] / 1000); return; }
-      let w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]]] : [B.file[p.file]];
+      const next = parts[i + 1];
+      // a square the line goes on after is said the way it sounds mid-sentence ("on e4 and attacks"),
+      // not with the fall of a sentence's last word
+      const sq = p.sq && B.file[p.sq[0]] + ' ' + B.rank[p.sq[1]];
+      const sqKey = sq && next && !next.pause && index && index[coachId()] && index[coachId()].at.has(voiceKey('mid:' + sq)) ? 'mid:' + sq : sq;
+      let w = p.line ? [p.line] : p.san ? moveWords(p.san, 'en') : p.sq ? [sqKey] : [B.file[p.file]];
       // Said the way a person says it: "exd4 wins a knight" is "Pawn takes on d4, and wins a knight",
       // not "Pawn takes d4 wins a knight" in one breath.
       if (p.san && /x/.test(p.san) && w[1] === B.takes) w = [w[0], w[1], 'on'].concat(w.slice(2));
       // the words of one phrase run together, the way a person says them (the clips' own silence is trimmed)
-      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0.012); }
-      const next = parts[i + 1];
+      // the pieces of one phrase run on into each other, the way a person says them: each piece was
+      // recorded in the middle of a sentence (tools/voice/carry.py) and its own silence is trimmed
+      for (const x of w) if (x) { keys.push(voiceKey(x)); gaps.push(0); }
+      // a breath after a sentence or clause that ends inside a recorded piece ("Beautifully done!")
+      if (p.line && next) {
+        if (/[.!?]$/.test(p.line)) gaps[keys.length - 1] = PAUSE.stop / 1000;
+        else if (/[,;:]$/.test(p.line)) gaps[keys.length - 1] = PAUSE.comma / 1000;
+      }
+      // a new clause ("... on e4, and attacks the knight") gets a small lift of breath; the next item
+      // of a list ("the king on e8 and the rook on a8") a shorter one
+      if (next && next.line && /^and /i.test(next.line) && keys.length && gaps[keys.length - 1] < 0.05) {
+        gaps[keys.length - 1] = /^and (the |your )?(pawn|knight|bishop|rook|queen|king)\b/i.test(next.line) ? 0.06 : 0.16;
+      }
       if (p.san && next && next.line && /^(wins|takes|attacks|forks|pins|skewers|uncovers|gives|promotes|tucks)\b/.test(next.line)) {
         gaps[keys.length - 1] = PAUSE.comma / 1000;
-        keys.push(voiceKey('and')); gaps.push(0.012);
+        keys.push(voiceKey('and')); gaps.push(0);
       }
     });
     return keys.length ? { keys, gaps } : null;
@@ -786,7 +821,7 @@ function ChacklateAudio() {
       const viaDevice = () => { if (my !== queueId) return done(); if (!(deviceFallback && device(text, 1, 'en', end))) end(); };
       loadIndex().then(async () => {
         const plan = coachKeys(text);
-        const id = 'coach:' + (index['coach:' + coachWho] ? coachWho : 'rooky');
+        const id = coachId();
         if (coachWho === 'device' || !plan || !index[id] || !plan.keys.every((k) => index[id].at.has(k))) return viaDevice();
         let bufs;
         try { bufs = (await Promise.all(plan.keys.map((k) => clip(id, k)))).map(trimClip); } catch (e) { return viaDevice(); }
@@ -847,7 +882,7 @@ function ChacklateAudio() {
   // The audio guide (guide/<key>.mp3, recorded by tools/voice/record-guide.py in the voice of whoever
   // says the line) and Rooky's word on each Collection item (pitch/...). onTalk(fn) hears
   // fn(true, what) when someone starts talking ('guide' or 'pitch') and fn(false, what) when they stop.
-  const PAUSE = { comma: 280, stop: 550 };
+  const PAUSE = { comma: 260, stop: 480 };
   const lineClips = new Map();
   const talkers = [];
   function talking(on, what) { for (const fn of talkers) fn(on, what); }
@@ -960,7 +995,11 @@ function ChacklateAudio() {
 
   return {
     play,
-    setPack(p) { if (PACKS[p]) { pack = p; if (ctx) bank(p); } },
+    // The materials of the set and the board in play (catalog data.sound); nothing the player picks.
+    setMaterials(piece, board) {
+      pack = PACKS[piece] ? piece : 'wood'; under = PACKS[board] ? board : pack;
+      if (ctx) { bank(pack); bank(under); }
+    },
     setMood,
     setSfx(on, vol) { sfxOn = on; if (vol !== undefined) sfxVol = vol; if (sfxBus) sfxBus.gain.value = sfxVol; },
     setMusic(on, vol) {

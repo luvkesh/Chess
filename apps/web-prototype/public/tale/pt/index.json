@@ -1,28 +1,33 @@
 {
- "egypt/6855c9d9": {
+ "egypt/5a9f06e7": {
   "who": "miu",
   "voice": "pf_dora",
-  "text": "Bem-vindo ao Egito, há mais de 3.000 anos! O grande rio Nilo corre entre templos e pirâmides, e no palácio o jovem faraó Tutancâmon está jogando um jogo de tabuleiro chamado Senet."
+  "text": "Bem-vindo ao Egito, há mais de 3.000 anos! O grande rio Nilo corre ao lado de templos e pirâmides, e no palácio o jovem faraó Tutancâmon joga senet, um dos jogos de tabuleiro mais antigos do mundo."
  },
- "egypt/d3efd5b5": {
+ "egypt/25815b59": {
   "who": "miu",
   "voice": "pf_dora",
-  "text": "O xadrez ainda não tinha sido inventado. Ele só ia aparecer na Índia uns dois mil anos depois. Mas os egípcios adoravam jogos de habilidade, e Tutancâmon foi enterrado com vários tabuleiros de Senet."
+  "text": "Um tabuleiro de senet tem 30 casas em três fileiras de dez. Cada jogador faz um time de peças correr pelas fileiras até o fim. Em vez de dados, os jogadores lançavam varetas chatas para saber quanto andar. Tutancâmon foi até enterrado com vários tabuleiros de senet."
+ },
+ "egypt/583b8c80": {
+  "who": "miu",
+  "voice": "pf_dora",
+  "text": "O senet não é um xadrez antigo. O xadrez nasceu na Índia uns dois mil anos depois. Mas o senet já tinha o que o xadrez tem: um tabuleiro de casas, dois lados e peças que se movem por regras. O xadrez tirou a sorte: cada lance é escolha sua."
  },
  "egypt/4e734a2a": {
   "who": "miu",
   "voice": "pf_dora",
   "text": "Eu sou o Miu. Os gatos eram tratados como tesouros no Egito antigo, sabia? Hoje vou ensinar o cavalo, a peça com forma de cavalo. Os cavalos do faraó puxavam suas bigas douradas!"
  },
- "egypt/81859a87": {
+ "egypt/e45a6df6": {
   "who": "miu",
   "voice": "pf_dora",
-  "text": "Que jogo de tabuleiro Tutancâmon jogava?"
+  "text": "O que os jogadores de senet lançavam para saber quanto andar?"
  },
- "egypt/b2d05f24": {
+ "egypt/301fef6c": {
   "who": "miu",
   "voice": "pf_dora",
-  "text": "O Senet é um dos jogos de tabuleiro mais antigos que conhecemos. O xadrez veio muito depois."
+  "text": "O senet era um jogo de corrida, então a sorte decidia quanto você andava. No xadrez não há sorte: cada lance é escolha sua."
  },
  "greece/743f93b1": {
   "who": "sophie",

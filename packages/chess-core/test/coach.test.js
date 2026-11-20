@@ -61,3 +61,30 @@ console.log('coach ok');
   assert.ok(/chariot/.test(h.piece) && /chariot/.test(h.text), h.text);
 }
 console.log('coach chaturanga ok');
+
+// The coach names only checkmates the exact solver proves. The engine scores Chaturanga's bare-king and
+// stalemate wins as "mate" too; those must not be called checkmate (a player once pressed "Show me" on a
+// "checkmate in one" and the move did not mate).
+{
+  const p = E.positionFrom('chaturanga:8/7K/3r1k2/8/8/7q/8/8 b - - 47 100', []);
+  const r = E.search(p, { timeMs: 150, quiesce: true });
+  assert(C.mateIn(r.score) > 0, 'the engine sees a decisive win');
+  p.make(r.move); const mates = p.inCheck() && !p.legalMoves().length; p.unmake();
+  assert(!mates, 'this win is by bare king, not checkmate');
+  assert.strictEqual(C.mateAfter(p, r.move, r.score), 0, 'a bare-king win is not called checkmate');
+  // Plain chess: a real mate in one and a quiet mate in two keep their counts.
+  const m1 = at('6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1');
+  const r1 = E.search(m1, { timeMs: 150, quiesce: true });
+  assert.strictEqual(C.mateAfter(m1, r1.move, r1.score), 1);
+  assert.strictEqual(C.mateOf(m1, r1.score), 1);
+  const m2 = E.positionFrom('8/2k5/R1N5/6Q1/1P3P2/4P3/2p3PP/2B2RK1 b - f3 0 34', ['c7d6']);
+  const r2 = E.search(m2, { timeMs: 400, quiesce: true });
+  assert.strictEqual(E.uci(r2.move), 'a6a7');
+  assert.strictEqual(C.mateAfter(m2, r2.move, r2.score), 2);
+  // A wrong claim is dropped and the board is left as it was, even when the solver stops part-way.
+  const fen = m2.fen();
+  assert.strictEqual(C.mateAfter(m2, m2.parseMove('g5d8'), 30000 - 1), 0, 'Qd8+ is not mate');
+  assert.strictEqual(C.mateOf(m2, -(30000 - 1)), 0, 'White is not getting mated');
+  assert.strictEqual(m2.fen(), fen);
+}
+console.log('coach proven mates ok');
