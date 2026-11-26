@@ -18,7 +18,8 @@ self.addEventListener('fetch', (e) => {
   // Every game address (/learn/forks, /play/variations ...) is the same page as /play: offline it
   // opens from the copy kept for /play, and the game shows the screen the address names.
   if (e.request.mode === 'navigate' && GAME.test(url.pathname) && url.pathname !== '/play') {
-    e.respondWith(fetch(e.request).catch(() => caches.match('/play')));
+    // A host that does not know the address (a static host answering "not found") gets the same copy.
+    e.respondWith(fetch(e.request).then((res) => (res.status === 404 ? caches.match('/play').then((c) => c || res) : res)).catch(() => caches.match('/play')));
     return;
   }
   if (/^\/(voice|coach)\/[a-z]+\.mp3$/.test(url.pathname)) {
