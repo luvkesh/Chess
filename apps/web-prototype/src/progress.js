@@ -22,6 +22,10 @@ function ChacklateProgress(catalog, extras) {
   // Level items can be bought with coins once the player is within this many levels of them.
   const COIN_REACH = 2;
   const COIN_PRICE = { common: 200, rare: 400, epic: 900, legendary: 1500 };
+  // Items taken out of the game, with the coins a player paid for one. Sound packs went in
+  // November 2026: the pieces now sound like their own material. Felted Wood and Soft Touch were
+  // free and Crystal Glass came with Premium; Marble was the one sold for coins, so it is refunded.
+  const RETIRED = { 'sound.wood.v1': 0, 'sound.soft.v1': 0, 'sound.marble.v1': COIN_PRICE.rare, 'sound.glass.v1': 0 };
   // Suites: each room comes with its own board and piece set (1:1:1). They unlock, are
   // bought and are equipped together, so a room is never shown with another room's board.
   const SUITES = catalog.suites || [];
@@ -50,6 +54,10 @@ function ChacklateProgress(catalog, extras) {
     { id: 'streak-7', name: 'Week of chess', desc: 'Play on seven days in a row.', xp: 70 },
     { id: 'puzzles-10', name: 'Puzzle solver', desc: 'Solve 10 puzzles.', xp: 30 },
     { id: 'puzzles-50', name: 'Puzzle addict', desc: 'Solve 50 puzzles.', xp: 80 },
+    { id: 'pstreak-10', name: 'On a roll', desc: 'Solve 10 puzzles in a row without a wrong move.', xp: 30 },
+    { id: 'pstreak-25', name: 'Sharp eye', desc: 'Solve 25 puzzles in a row without a wrong move.', xp: 75 },
+    { id: 'pstreak-50', name: 'Unstoppable', desc: 'Solve 50 puzzles in a row without a wrong move.', xp: 150 },
+    { id: 'pstreak-100', name: 'Puzzle legend', desc: 'Solve 100 puzzles in a row without a wrong move.', xp: 300 },
     { id: 'daily-puzzle', name: 'Daily treat', desc: 'Solve a daily puzzle.', xp: 15 },
     { id: 'lesson-1', name: 'Student', desc: 'Complete your first lesson.', xp: 20 },
     { id: 'chapter-1', name: 'Knows the pieces', desc: 'Complete chapter 1.', xp: 60 },
@@ -82,12 +90,13 @@ function ChacklateProgress(catalog, extras) {
   function fresh() {
     return {
       v: 1, lessonsV: 2, xp: 0, premium: false, passes: [], season: '', seasons: {}, missions: { date: '', list: [], bonus: false },
-      stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, variants: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [] }, accuracy: [] },
+      stats: { games: 0, wins: 0, draws: 0, losses: 0, byLevel: {}, variants: {}, puzzles: { solved: 0, failed: 0, rating: 800, seen: [], streak: 0, bestStreak: 0 }, accuracy: [] },
       lessons: {}, openings: {}, dojo: {}, achievements: {}, streak: { count: 0, last: '' }, daily: { date: '', done: false },
       equipped: Object.assign({}, catalog.defaults), history: [], seen: {}, journey: {}, placement: null, variantLessons: {},
       coins: 0, earned: { date: '', by: {}, n: {}, xp: {} }, bought: [],
       granted: {},   // items handed out by developer mode, on this device only
       mini: { best: {}, plays: {}, day: { date: '', best: {} }, seen: [] },
+      courses: {},    // lessons in parts (the three phases of chess): { lessonId: { parts: { partId: true } } }
       trainers: {},   // skill trainers: { id: { best, rounds, log: [{ d, s }] } }
       mates: {},      // checkmate in N puzzles: { N: { solved: [ids], log: [{ d, n, ok }] } }
       mistakes: [],   // moments from the player's own reviewed games, for Retry mistakes
@@ -122,7 +131,7 @@ function ChacklateProgress(catalog, extras) {
     out.stats.puzzles.seen = arr(out.stats.puzzles.seen);
     out.stats.puzzles.done = arr(out.stats.puzzles.done);
     out.stats.puzzles.rating = num(out.stats.puzzles.rating, 800, 100);
-    for (const k of ['solved', 'failed']) out.stats.puzzles[k] = Math.floor(num(out.stats.puzzles[k], 0, 0));
+    for (const k of ['solved', 'failed', 'streak', 'bestStreak']) out.stats.puzzles[k] = Math.floor(num(out.stats.puzzles[k], 0, 0));
     out.streak = o(s.streak, d.streak); out.streak.count = Math.floor(num(out.streak.count, 0, 0));
     out.daily = o(s.daily, d.daily);
     out.equipped = Object.assign({}, catalog.defaults, obj(s.equipped) ? s.equipped : {});
@@ -139,10 +148,17 @@ function ChacklateProgress(catalog, extras) {
     out.seasons = {}; for (const [k, v] of Object.entries(obj(s.seasons) ? s.seasons : {})) if (Number.isFinite(+v) && v !== null && v !== '') out.seasons[k] = Math.max(0, +v);   // season XP by id
     if (out.placement !== null && !(obj(out.placement) && Number.isFinite(out.placement.chapter))) out.placement = null;
     out.variantLessons = o(s.variantLessons);
+    out.courses = recs(s.courses);
+    for (const r of Object.values(out.courses)) r.parts = o(r.parts);
     out.granted = o(s.granted);
     out.coins = Math.floor(num(s.coins, 0, 0));
     out.earned = o(s.earned, d.earned); out.earned.by = o(out.earned.by); out.earned.n = o(out.earned.n); out.earned.xp = o(out.earned.xp);
     out.bought = arr(s.bought);
+    // a retired item someone bought gives its coins back, once (it leaves the list as it does)
+    for (const id of out.bought) if (id in RETIRED) out.coins += RETIRED[id];
+    out.bought = out.bought.filter((id) => !(id in RETIRED));
+    for (const id of Object.keys(RETIRED)) delete out.granted[id];
+    delete out.equipped.sound;
     out.mini = o(s.mini, d.mini);
     for (const k of ['best', 'plays']) out.mini[k] = o(out.mini[k]);
     out.mini.day = o(out.mini.day, d.mini.day); out.mini.day.best = o(out.mini.day.best);
@@ -495,11 +511,61 @@ function ChacklateProgress(catalog, extras) {
     if (solved && !again) grant(state, 8 + Math.max(0, Math.round((puzzle.rating - 800) / 100)), out);
     if (p.solved >= 10) achieve(state, 'puzzles-10', out);
     if (p.solved >= 50) achieve(state, 'puzzles-50', out);
+    // The solve streak: a puzzle solved first time (no wrong move, hint or shown solution) adds
+    // one. A wrong move or a shown solution breaks it (puzzleMiss); a hint alone only holds it.
+    if (solved) {
+      p.streak = (p.streak || 0) + 1;
+      p.bestStreak = Math.max(p.bestStreak || 0, p.streak);
+      const ms = STREAK_MILESTONES.includes(p.streak) ? p.streak : 0;
+      out.streak = { n: p.streak, best: p.bestStreak, milestone: ms };
+      if (ms) achieve(state, 'pstreak-' + ms, out);
+    } else if (!(opts && opts.hinted)) out.streak = Object.assign({ n: 0, best: p.bestStreak || 0 }, puzzleMiss(state));
     const dDay = today(now ? new Date(now) : undefined);
     if (opts && opts.daily && solved && !(state.daily.done && state.daily.date >= dDay)) { state.daily = { date: dDay, done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
     if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;
+  }
+
+  // A wrong move (or a shown solution) ends the solve streak at once. Returns how long it was.
+  const STREAK_MILESTONES = [10, 25, 50, 100];
+  function puzzleMiss(state) {
+    const p = state.stats.puzzles;
+    const lost = p.streak || 0;
+    p.streak = 0;
+    return { lost, best: p.bestStreak || 0 };
+  }
+  // The next puzzle of a numbered set (ids in order of difficulty): the first one after the current
+  // one not solved yet, then any left unsolved from the start (the ones missed come back once the
+  // rest are done), and when all are solved, simply the next one round the set. Never the current
+  // one while the set has another.
+  function nextInSet(order, solved, cur) {
+    if (!order.length) return null;
+    const done = new Set(solved || []);
+    const at = cur ? order.indexOf(cur) : -1;
+    for (let k = at + 1; k < order.length; k++) if (!done.has(order[k])) return order[k];
+    for (let k = 0; k < order.length; k++) if (!done.has(order[k]) && order[k] !== cur) return order[k];
+    if (order.length === 1) return order[0];
+    return order[(at + 1) % order.length];
+  }
+
+  // The words around a puzzle (translation keys), chosen by what it asks. A checkmate puzzle talks
+  // about checkmate wherever it is opened (its own set, the daily puzzle, a theme, the trainer);
+  // other puzzles about the best move and their motif. step: the player's moves made so far;
+  // gives: whether the move to find gives check (null when not known), for the first hint.
+  const HINT_THEMES = ['fork', 'pin', 'skewer', 'discoveredAttack', 'hangingPiece', 'promotion', 'sacrifice'];
+  function puzzleCopy(puzzle, step, gives) {
+    const mt = ((puzzle && puzzle.themes) || []).find((x) => /^mateIn[1-9]$/.test(x));
+    const mn = mt ? +mt.slice(6) : 0;
+    if (!mn) {
+      const th = ((puzzle && puzzle.themes) || []).find((x) => HINT_THEMES.includes(x));
+      return { mate: 0, vars: {}, white: 'learn.pz.whiteFind', black: 'learn.pz.blackFind', intro: 'learn.pz.intro', wrong: 'learn.pz.wrong', keep: 'learn.pz.keepGoing',
+        solved: 'learn.pz.solved', solvedMiss: 'learn.pz.solvedMiss', hint: th ? 'learn.pzh.' + th : 'learn.pzh.forcing' };
+    }
+    const left = Math.max(1, mn - (step || 0));
+    return { mate: mn, vars: { n: left }, white: 'learn.pz.whiteMate', black: 'learn.pz.blackMate', intro: mn === 1 ? 'learn.pz.introMate1' : 'learn.pz.introMateN',
+      wrong: left === 1 ? 'learn.pz.wrongMate1' : 'learn.pz.wrongMateN', keep: left === 1 ? 'learn.pz.keepMate1' : 'learn.pz.keepMateN',
+      solved: 'learn.pz.solvedMate', solvedMiss: 'learn.pz.solvedMateMiss', hint: gives === false ? 'learn.pzh.mateQuiet' : left === 1 ? 'learn.pzh.mate1' : 'learn.pzh.mateCheck' };
   }
 
   // Checkmate in N: which puzzles of each set are solved, and a day-by-day log for the progress charts.
@@ -816,7 +882,7 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
-    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, suiteMatches, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, puzzleMiss, nextInSet, puzzleCopy, STREAK_MILESTONES, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, suiteMatches, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
     setSeason, activeSeason, seasonInfo, SKILLS, SKILL_LINES, PRACTICE_FOR, FRIEND_RATING, perfGame, perfSkills, perfView, skillScores, perfOf, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 

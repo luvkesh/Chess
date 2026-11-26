@@ -87,7 +87,7 @@
  "store": {
   "who": "rooky",
   "voice": "am_puck,am_liam",
-  "text": "This part is for grown-ups. Please ask a grown-up before you buy anything."
+  "text": "Here you can see Premium and the Season Pass. Everything you earn by playing stays yours."
  },
  "review": {
   "who": "rooky",
@@ -188,6 +188,11 @@
   "who": "rooky",
   "voice": "am_puck,am_liam",
   "text": "Some games end super fast! Let's learn the traps, so they never catch you."
+ },
+ "lesson.open.three-phases": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Every game is a journey in three parts! Let's see how the masters build a win."
  },
  "lesson.open.forks": {
   "who": "rooky",
@@ -338,6 +343,16 @@
   "who": "rooky",
   "voice": "am_puck,am_liam",
   "text": "Find the best move! Look for checks, captures, and threats."
+ },
+ "puzzle.mate": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Find the checkmate! Check the king, and leave it no way out."
+ },
+ "puzzle.mateN": {
+  "who": "rooky",
+  "voice": "am_puck,am_liam",
+  "text": "Plan your checkmate! Each move should leave the king fewer ways out."
  },
  "puzzle.wrong": {
   "who": "rooky",

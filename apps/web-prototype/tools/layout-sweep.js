@@ -37,7 +37,7 @@ const SCREENS = ['home', 'play', 'variants', 'variant:chess960', 'minis', 'club'
   'collection', 'profile', 'season', 'store'];
 // Taps: open a screen, then tap each selector in turn and check what it opens (detail cards, the
 // resign question, tool tips, the coach's answers). Written tap|screen|selector[|selector...].
-const TAPS = ['tap|store|[data-item]', 'tap|store|#st-gate', 'tap|collection|[data-item]', 'tap|minis|[data-mini]',
+const TAPS = ['tap|store|[data-item]', 'tap|collection|[data-item]', 'tap|minis|[data-mini]',
   'tap|era:egypt|[data-stage]', 'tap|hud:game|#g-resign', 'tap|hud:game|#g-draw', 'tap|hud:game|#g-copy', 'tap|hud:game|#g-settings', 'tap|hud:game|#g-mode', 'tap|hud:game|#g-view',
   'tap|settings:play|.ck-i', 'tap|settings:look|.ck-i', 'toasts'];
 // In-game screens: the table is not drawn without WebGL, but the panels, clocks and bars around it are.

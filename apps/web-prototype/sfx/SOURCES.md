@@ -9,27 +9,35 @@ commercial use, no attribution required. We credit the recordists anyway.
 | `elboss-piece-placement.mp3` | A wooden chess piece set down on a wooden board | el_boss | Freesound 546119, "Piece Placement", pack "Chess Puzzle Blitz SFX" (30764) |
 | `mh2o-alabaster.wav` | A chess piece moved on an alabaster board (8 kHz original) | mh2o | Freesound 351518, "chess_move_on_alabaster.wav" |
 | `j1987-put-item.ogg` | An object put down on a wooden surface | j1987 | Freesound 335751, "put_item.wav" |
-| `kenney-impactWood_*`, `kenney-impactGlass_*`, `kenney-impactPlate_light_*`, `kenney-impactSoft_medium_*` | Recorded taps on wood, glass, ceramic and felt | Kenney (www.kenney.nl) | "Impact Sounds" 1.0 (2019), CC0 |
+| `kenney-impactWood_*`, `kenney-impactGlass_*`, `kenney-impactPlate_*`, `kenney-impactMetal_*`, `kenney-impactSoft_medium_*` | Recorded taps on wood, glass, ceramic, metal and felt | Kenney (www.kenney.nl) | "Impact Sounds" 1.0 (2019), CC0 |
 
 Copies were taken from public mirrors of those packs (the el_boss and alabaster files as published
 in open-source chess projects that credit them as CC0; the Kenney pack from its CC0 distribution).
 
-## How the packs are made
+## How the material recordings are made
+
+There are no sound packs for a player to choose: each piece set and each board says what it is
+made of (`data.sound` in `packages/content/catalog.json`), and the game plays that material. When
+the set and the board differ, both are heard: the piece's click and ring from the set's recording,
+the board's body from the board's (see `land()` in `src/audio.js`).
 
 `python3 apps/web-prototype/tools/sfx.py` (Python 3, numpy, ffmpeg) writes `wood.mp3`,
-`marble.mp3`, `glass.mp3`, `soft.mp3` and `index.json`. Each pack has three weight tiers with four
-takes each:
+`marble.mp3` (every stone), `glass.mp3`, `metal.mp3`, `ceramic.mp3` (porcelain, enamel, ivory,
+pearl, clay, hard resin), `soft.mp3` (chocolate pieces, a club vinyl mat) and `index.json`. Each
+material has three weight tiers with four takes each:
 
 - **L1** king and queen: pitched lowest, longest, loudest, with the most board thump under it.
 - **L2** rook, bishop and knight.
 - **L3** pawn: lighter, brighter, shorter.
 
-| Pack | Built from |
+| Material | Built from |
 |---|---|
-| Felted Wood | the real wooden chess piece and the put-down recording, with wood grain and body from Kenney's wood taps |
-| Marble | the real alabaster chess move for the stone body, with the bright top end of a ceramic tap |
-| Crystal Glass | Kenney's light, medium and heavy glass taps (one per weight) |
-| Soft Touch | the wooden chess piece with its top end rolled off, over a felt tap |
+| Wood | the real wooden chess piece and the put-down recording, with wood grain and body from Kenney's wood taps |
+| Stone (marble) | the real alabaster chess move for the stone body, with the bright top end of a ceramic tap |
+| Glass | Kenney's light, medium and heavy glass taps (one per weight) |
+| Soft | the wooden chess piece with its top end rolled off, over a felt tap |
+| Metal | Kenney's light, medium and heavy metal taps (one per weight), damped like a felted piece |
+| Ceramic | Kenney's light, medium and heavy plate taps (one per weight), with a little wooden body |
 
 In the game (`src/audio.js`) each move picks a take that differs from the last one and nudges its
 pitch and level slightly, so no two moves sound identical. A capture is a light tap of the taken

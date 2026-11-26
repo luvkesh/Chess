@@ -83,6 +83,41 @@ function ChacklateCoach(E, strings) {
     if (score < -MATE + 500) return -Math.ceil((MATE + score) / 2);
     return 0;
   }
+  // The engine scores every decisive win as "mate": Chaturanga's bare king and stalemate wins too, and
+  // its mate length can be off when a search was cut short. The coach only ever names a checkmate the
+  // exact solver (mates.js) proves. Short mates are always proven; a long one the solver cannot finish
+  // in its budget is trusted in plain chess and dropped in Chaturanga.
+  let MS = null;
+  function solver() {
+    if (MS === null) {
+      const make = typeof ChacklateMates === 'function' ? ChacklateMates : typeof require === 'function' ? require('./mates.js') : null;
+      MS = make ? make(E) : false;
+    }
+    return MS;
+  }
+  const PROVE_MAX = 4, PROVE_BUDGET = 150000;
+  function settle(n, ok, pos) { return ok === true ? n : ok === false ? 0 : pos.ch ? 0 : n; }
+  // The solver stops mid-line when its budget runs out: take back whatever it left on the board.
+  function prove(pos, fn) { const sp = pos.sp; try { return fn(); } finally { while (pos.sp > sp) pos.unmake(); } }
+  // A proven mate length for the side to move in `pos`, from a search score: n > 0 they mate in n, n < 0 they are mated in -n.
+  function mateOf(pos, score) {
+    const n = mateIn(score), ms = solver();
+    if (!n || !ms) return pos.ch ? 0 : n;
+    if (Math.abs(n) > PROVE_MAX) return settle(n, null, pos);
+    return settle(n, prove(pos, () => (n > 0 ? ms.attack(pos, n, PROVE_BUDGET) : ms.defends(pos, -n, PROVE_BUDGET))), pos);
+  }
+  // The same for one move `m` of the side to move (its search score `score`, from the mover's side).
+  function mateAfter(pos, m, score) {
+    const n = mateIn(score), ms = solver();
+    if (!n || !ms) return pos.ch ? 0 : n;
+    if (Math.abs(n) > PROVE_MAX) return settle(n, null, pos);
+    const ok = prove(pos, () => {
+      if (!pos.make(m)) return false;
+      if (n > 0) return ms.isMate(pos) || (n > 1 && ms.defends(pos, n - 1, PROVE_BUDGET));
+      return ms.attack(pos, -n, PROVE_BUDGET);
+    });
+    return settle(n, ok, pos);
+  }
 
   // Every piece of `side` that attacks square `sq` (0x88), cheapest first.
   function attackers(pos, sq, side) {
@@ -305,7 +340,7 @@ function ChacklateCoach(E, strings) {
     const o = Object.assign({ timeMs: 150, depth: 64 }, opts);
     return (pos) => {
       const r = E.search(pos, { timeMs: o.timeMs, depth: o.depth, quiesce: true });
-      return { cp: toCp(r.score), mate: mateIn(r.score), best: r.move, depth: r.depth };
+      return { cp: toCp(r.score), mate: mateOf(pos, r.score), best: r.move, depth: r.depth };
     };
   }
 
@@ -372,13 +407,13 @@ function ChacklateCoach(E, strings) {
     const before = E.search(pos, { timeMs: (opts && opts.timeMs) || 200, quiesce: true });
     pos.makeNull();
     const r = E.search(pos, { timeMs: (opts && opts.timeMs) || 200, quiesce: true });
-    let f = null;
-    if (r.move) f = facts(pos, r.move);
+    let f = null, mate = 0;
+    if (r.move) { f = facts(pos, r.move); mate = mateOf(pos, r.score); }
     pos.unmakeNull();
     if (!f) return null;
     const gain = toCp(r.score) + toCp(before.score);
-    const serious = f.mate || mateIn(r.score) > 0 || (f.capture && f.capture !== P) || f.forks.length || gain > 150;
-    return { facts: f, serious, mate: mateIn(r.score), text: threatText(f, mateIn(r.score)) };
+    const serious = f.mate || mate > 0 || (f.capture && f.capture !== P) || f.forks.length || gain > 150;
+    return { facts: f, serious, mate, text: threatText(f, mate) };
   }
   function threatText(f, mate) {
     const v = { side: SIDE(f.side), san: f.san };
@@ -423,7 +458,7 @@ function ChacklateCoach(E, strings) {
     return { theme, piece: onSq(f.piece, f.from, f.old), from: f.from, to: f.to, san: f.san, text: describe(f) };
   }
 
-  return { winProb, toCp, mateIn, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, bits: bitsOf, sayMove, MV, classify, explain, review, threat, line, hintLadder,
+  return { winProb, toCp, mateIn, mateOf, mateAfter, attackers, attacksFrom, isHanging, hangingPieces, facts, describe, bits: bitsOf, sayMove, MV, classify, explain, review, threat, line, hintLadder,
     moveAccuracy, engineAnalyser, LABEL, SYMBOL, NAME, NAME_OLD, EN, tr };
 }
 
