@@ -2,8 +2,9 @@
 Lighthouse rooks with pennants, geared horses (white's are winged unicorns), armillary-sphere
 bishops, a faceted crystal queen in a crown, a crowned king with a clockwork cage, glass-bulb pawns.
 Reference: the user's lineup picture of 2026-11-12 (05344cff, gunmetal above, ivory below)."""
-import classic
+import hero
 import kit
+from sets import _front
 
 import glob as _g
 PIC = _g.glob('/mnt/project-files/uploads/hearth/05344cff*')[0]
@@ -14,26 +15,43 @@ BOXES = {
           'k': (688, 518, 842, 910), 'p': (1320, 728, 1424, 907)},
 }
 ADD = {'w': {'r': [[(150, 600), (135, 595)]]}, 'b': {}}
-HALF = {'n': 'full'}
+HALF = _front.HALF
 SIDED = set('rnbqkp')
-GOLD = (55, 160, 235)
 LOOK = {
-    'w': {'wb': (1.04, 1.0, 0.97), 'body': 'enamel', 'gold': 'brass', 'gem': 'gem', 'gold_tone': GOLD,
+    'w': {'wb': (1.04, 1.0, 0.97), 'body': 'enamel', 'gold': 'brass', 'gem': 'gem', 'gold_tone': None, 'emit': 0.4,
           'classify': {'gold_sat': 0.7, 'gold_val': 0.5}},
-    'b': {'wb': (1.0, 1.0, 1.0), 'body': 'metal', 'gold': 'brass', 'gem': 'gem', 'gold_tone': GOLD,
+    'b': {'wb': (1.0, 1.0, 1.0), 'body': 'metal', 'gold': 'brass', 'gem': 'gem', 'gold_tone': None, 'emit': 0.3,
           'classify': {'gold_sat': 0.68, 'gold_val': 0.5}},
 }
 
 
-def refs():
+def source_refs():
+    """the cut-outs from the reference picture: what picture/cutouts.py redraws into the hero pictures"""
     out = {'w': {}, 'b': {}}
-    king = kit.Ref(PIC, BOXES['w']['k'], height=1.75, seg='sam', sym=True)
+    king = kit.Ref(PIC, BOXES['w']['k'], height=1.75, seg='sam', foot=0, sym=True)
     for s in ('w', 'b'):
         for t, box in BOXES[s].items():
-            out[s][t] = kit.Ref(PIC, box, unit=king.unit, seg='sam', sym=(t != 'n'), add=ADD[s].get(t))
+            out[s][t] = kit.Ref(PIC, box, unit=king.unit, seg='sam', foot=0, sym=(t != 'n'), add=ADD[s].get(t))
     for t in BOXES['b']:
         w, b = out['w'][t], out['b'][t]
         b.unit *= w.height() / max(b.height(), 1e-6)
+    return out
+
+
+# each piece's size in game units, as cut from the reference (picture/cutouts.py prints them)
+HEIGHTS = {
+    'w': {'k': 1.750, 'q': 1.542, 'b': 1.361, 'n': 1.298, 'r': 1.492, 'p': 0.791},
+    'b': {'k': 1.750, 'q': 1.542, 'b': 1.361, 'n': 1.298, 'r': 1.492, 'p': 0.791},
+}
+
+
+def refs():
+    """the hero pictures (pics/clockwork): each cut-out redrawn sharp at 768 x 1024 with SDXL-Lightning
+    (one step, blended with the cut-out's own colours: sets/_front.py)"""
+    out = hero.refs(hero.pics('clockwork'), HEIGHTS)
+    for side in out.values():
+        for t in 'kqbrp':
+            side[t].sym = True   # turned: the nearer side of the outline, so a pennant, ring or staff does not widen it
     return out
 
 
@@ -50,4 +68,4 @@ SPEC = {
 
 
 def build(t, refs):
-    return classic.build(t, refs, SPEC)
+    return _front.build(t, refs, SPEC)

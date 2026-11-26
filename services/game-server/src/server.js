@@ -16,6 +16,7 @@ const family = require('./family');
 const club = require('./club');
 const mailer = require('./mailer');
 const { Lobby } = require('./lobby');
+const pageMeta = require('./pages');
 
 const ROOT = path.resolve(__dirname, '../../..');
 const PUBLIC = path.join(ROOT, 'apps/web-prototype/public');
@@ -58,6 +59,15 @@ function createServer(opts) {
   const clientIp = (req) => {
     if (opts.trustProxy) { const f = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim(); if (f) return f; }
     return req.socket.remoteAddress;
+  };
+  // The site's own address for links in pages and the sitemap: CHACKLATE_PUBLIC_URL when set,
+  // otherwise the address this request came to (checked, so a forged Host cannot inject markup).
+  const siteBase = (req) => {
+    if (opts.publicUrl) return String(opts.publicUrl).replace(/\/+$/, '');
+    const host = String(req.headers.host || '');
+    if (!/^[a-z0-9.-]+(:\d{1,5})?$/i.test(host)) return '';
+    const fwd = opts.trustProxy ? String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() : '';
+    return ((fwd === 'https' || fwd === 'http') ? fwd : req.socket.encrypted ? 'https' : 'http') + '://' + host.toLowerCase();
   };
   const lobby = new Lobby(Object.assign({ db, E, clientIp, policy: family.policy, entitlements: (id) => shop.entitlements(id), onGameEnd: (g) => fair.enqueue(g) }, opts.lobby || {}));
   const adminApi = admin.routes(db, lobby, shop, fair);
@@ -269,14 +279,19 @@ function createServer(opts) {
       }
     }
     const clean = url.pathname.replace(/\/+$/, '') || '/';
-    if (clean === '/sitemap.xml' && opts.publicUrl) {
-      const base = String(opts.publicUrl).replace(/\/+$/, '');
-      const pages = ['/', '/home'].concat(GAME_ROUTES.filter((r) => r !== 'home' && r !== 'settings' && r !== 'store').map((r) => '/' + r),
-        ['/play/mini-games', '/play/variations', '/training/openings', '/training/endgames', '/training/progress', '/privacy', '/terms']);
+    if (clean === '/sitemap.xml') {
+      const base = siteBase(req);
+      const list = ['/'].concat(pageMeta.sitemapPaths(), ['/privacy', '/terms']);
       res.writeHead(200, Object.assign({ 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }, SECURITY_HEADERS));
-      return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + pages.map((p) => '  <url><loc>' + base + p + '</loc></url>').join('\n') + '\n</urlset>\n');
+      return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + list.map((p) => '  <url><loc>' + base + p + '</loc></url>').join('\n') + '\n</urlset>\n');
     }
     const file = STATIC[clean] || (gamePage(clean) ? STATIC['/play'] : null);
+    // The game, with the title, description and readable summary of the page its address names.
+    if (file === STATIC['/play'] && fs.existsSync(file)) {
+      const body = pageMeta.gameHtml(file, clean, siteBase(req));
+      res.writeHead(200, Object.assign({ 'Content-Type': TYPES['.html'], 'Content-Length': body.length, 'Cache-Control': 'no-cache' }, SECURITY_HEADERS));
+      return res.end(req.method === 'HEAD' ? undefined : body);
+    }
     if (file && fs.existsSync(file)) {
       const ext = path.extname(file);
       res.writeHead(200, Object.assign({ 'Content-Type': TYPES[ext] || 'application/octet-stream', 'Cache-Control': ext === '.png' ? 'public, max-age=604800' : 'no-cache' }, SECURITY_HEADERS));

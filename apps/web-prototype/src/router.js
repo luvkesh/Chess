@@ -7,9 +7,10 @@
 //
 // Two ways to show them:
 //   path  "https://example.com/learn/forks"  when the game is the top page on a web server that
-//         sends the game for every game address (services/game-server does: GAME_ROUTES).
+//         sends the game for every game address and says so in the page (services/game-server
+//         does: GAME_ROUTES, and it adds <meta name="chackmate-routes" content="path">).
 //   hash  "...chackmate.html#/learn/forks"   everywhere else: inside a frame (the claude.ai
-//         preview), opened as a file, or served from a folder by a plain static server.
+//         preview), opened as a file, or served by any host that only knows the page itself.
 //
 // This file only turns screens into links and back. app.js decides what each one opens.
 const ChackmateRouter = (function () {
@@ -105,6 +106,8 @@ const ChackmateRouter = (function () {
         case 'custom': return '/play/custom';
         case 'opponent': { const s = oppSlug(arg); return s ? '/play/opponents/' + s : '/play'; }
         case 'settings': return '/settings' + (arg && arg !== 'play' ? '/' + (SET_SLUG[arg] || arg) : '');
+        // an era's story opens over the era's page: Back closes it and stays on the era
+        case 'tale': return arg && arg.era ? '/journey/' + slug(arg.era) + '/stage-' + (arg.stage + 1) : null;
         default: return null;
       }
     }
@@ -200,16 +203,19 @@ const ChackmateRouter = (function () {
   }
 
   // Which way to write links here. `win` is the window (or a stand-in in the tests).
+  // Clean paths only where the server has said it sends the game for every game address
+  // (services/game-server marks the page it sends with <meta name="chackmate-routes" content="path">).
+  // Any other host (a static file host, a CDN, the artifact preview) only knows the page itself:
+  // a clean link written there opens "Page not found" on refresh, on a bookmark and from an
+  // installed app icon, so links go after the # instead ("/play#/learn/forks").
   function mode(win) {
     const loc = win.location;
     let framed = true;
     try { framed = win.self !== win.top; } catch (e) { framed = true; }
     if (framed || !/^https?:$/.test(loc.protocol)) return 'hash';
-    const first = clean(loc.pathname)[0];
-    // A real game address (or the bare site root on a host that serves only the game). A file
-    // path such as /dist/chackmate.html means a plain static server: links go after the #.
-    if (!first || TOP.indexOf(first) >= 0) return 'path';
-    return 'hash';
+    let mark = null;
+    try { mark = win.document && win.document.querySelector('meta[name="chackmate-routes"]'); } catch (e) { mark = null; }
+    return mark && mark.getAttribute('content') === 'path' ? 'path' : 'hash';
   }
   // The game address in the bar now, whichever way links are written.
   function current(win, how) {

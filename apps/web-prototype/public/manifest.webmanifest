@@ -1,22 +1,44 @@
 {
   "name": "Chackmate",
   "short_name": "Chackmate",
-  "description": "Beautiful 3D chess with a coach that explains every move.",
+  "description": "Chess for every age, with Rooky, a coach who explains every move.",
   "id": "/play",
-  "start_url": "/home",
+  "start_url": "/play#/home",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#120c0a",
   "theme_color": "#1e0e0a",
-  "categories": ["games", "education"],
+  "categories": [
+    "games",
+    "education"
+  ],
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    { "name": "Quick Play", "url": "/play/quick" },
-    { "name": "Daily puzzle", "url": "/puzzles/daily" }
+    {
+      "name": "Quick Play",
+      "url": "/play#/play/quick"
+    },
+    {
+      "name": "Daily puzzle",
+      "url": "/play#/puzzles/daily"
+    }
   ]
 }
