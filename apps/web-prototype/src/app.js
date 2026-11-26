@@ -1007,7 +1007,7 @@
       else if (name === 'season') own = t('season.title');
     } catch (e) { own = ''; }
     const parts = [own, top && top !== 'home' ? navName(top) : ''].filter((x, i, a) => x && a.indexOf(x) === i);
-    return parts.concat('Chackmate').join(' · ');
+    return parts.length ? parts.concat('Chackmate').join(' · ') : 'Chackmate · ' + t('home.tagline');   // home carries the tagline
   }
   function urlWrite(path, opts) {
     opts = opts || {};
@@ -6493,7 +6493,7 @@
       $('pz-title').textContent = t(solverSide === WHITE ? copy.white : copy.black, copy.vars);
       $('pz-content').innerHTML = '<p class="say">' + esc(arg.intro && S.idx <= 0 ? arg.intro : t(copy.intro, copy.vars)) + '</p><div id="pz-fb"></div>';
       if (arg.intro && S.idx <= 0 && state.settings.narration) AU.say(arg.intro);
-      $('pz-next').hidden = true;
+      $('pz-next').hidden = true; $('pz-next').parentElement.hidden = false;
       for (const b of [$('pz-hint'), $('pz-sol')]) if (b) { b.disabled = false; b.hidden = false; }
       S.missed = false;
       dots(); setProgress();
@@ -6524,7 +6524,9 @@
       else streakPill();
       dots(); setProgress();
       const last = list && S.idx >= list.length - 1;
-      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.filter((th, k, a) => a.indexOf(th) === k).map((th) => '<span class="pill">' + esc(themeName(th)) + '</span>').join('') + '</div>' + (arg.daily ? '<p class="say" style="margin-top:10px">' + t('learn.pz.tomorrow') + '</p>' : ''));
+      // Why the rating moved down (a wrong move, a hint or the solution), and for a daily, when the next one comes.
+      const notes = [res.ratingDelta < 0 ? t('learn.pz.ratingDown', { n: -res.ratingDelta, to: P.stats.puzzles.rating }) : '', arg.daily ? t('learn.pz.tomorrow') : ''].filter(Boolean);
+      $('pz-content').insertAdjacentHTML('beforeend', '<div class="themes">' + S.cur.themes.filter((th, k, a) => a.indexOf(th) === k).map((th) => '<span class="pill">' + esc(themeName(th)) + '</span>').join('') + '</div>' + (notes.length ? '<p class="say pz-notes" style="margin-top:10px">' + notes.map(esc).join(' ') + '</p>' : ''));
       if (j && last) {
         fb('ok', t('learn.pz.trial', { name: guide.name }));
         $('pz-next').textContent = t('learn.dj.backTo', { era: eraName(era) });
@@ -6535,6 +6537,9 @@
       }
       $('pz-next').textContent = t('learn.pz.next');
       $('pz-next').hidden = !!arg.daily || (list && last);
+      // With nothing left in the footer (a daily puzzle), it folds away and the words get its room.
+      $('pz-next').parentElement.hidden = $('pz-next').hidden && !$('pz-dots').children.length;
+      { const c = $('pz-content'); if (c.scrollHeight > c.clientHeight) c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' }); }
       if (solved && !$('pz-next').hidden) guideSay('puzzle.solved', { delay: 1800 });
     }
     function tryMove(from, to, promo) {
@@ -6609,7 +6614,19 @@
       else { view.setArrows([{ from: sqIndex(u.slice(0, 2)), to: sqIndex(u.slice(2, 4)), color: '#2fd8ff' }]); fb('hint', t('learn.pzh.arrow')); }
       AU.play('coach');
     };
+    // Showing the answer counts as a miss: it lowers the puzzle rating, ends the solve streak and ends a
+    // daily puzzle. When any of that is at stake, the player is told exactly what first and asked.
     if ($('pz-sol')) $('pz-sol').onclick = () => {
+      if (!S.cur || S.solved || S.busy) return;
+      const st = P.stats.puzzles, to = PG.puzzleRating(P, S.cur, false), down = st.rating - to;
+      const streak = st.streak || 0;
+      if (!down && !streak && !arg.daily) { showSolution(); return; }
+      const m = modal('<h2>' + esc(t('learn.pz.solAsk')) + '</h2><p class="sub">' +
+        [down ? t('learn.pz.solCost', { n: down, from: st.rating, to }) : '', streak ? t('learn.pz.solStreak', { n: streak }) : '', arg.daily ? t('learn.pz.solDaily') : ''].filter(Boolean).map(esc).join(' ') +
+        '</p><div class="row"><button class="btn" data-sol-show>' + icon('eye') + ' ' + esc(t('learn.pz.showIt')) + '</button><button class="btn primary" data-close autofocus>' + esc(t('learn.pz.keepTrying')) + '</button></div>', { cls: 'narrow' });
+      m.querySelector('[data-sol-show]').onclick = () => { m.close(); showSolution(); };
+    };
+    function showSolution() {
       if (!S.cur || S.solved || S.busy) return;
       S.failed = true;
       if (!S.missed) { S.missed = true; const br = PG.puzzleMiss(P); if (br.lost) streakBroken(br.lost, br.best); }
@@ -6618,7 +6635,7 @@
       const g = new E.Game(S.pos.fen()); const m = g.pos.parseMove(u, g.legal);
       fb('hint', t('learn.pz.theSolution', { san: g.pos.san(m, g.legal) }) + ' ' + (C.describe(C.facts(g.pos, m), true) || ''));
       finish(false);
-    };
+    }
     $('pz-next').onclick = () => { AU.play('tap'); load(); };
     load();
     return {};

@@ -46,6 +46,16 @@ assert(s.stats.puzzles.rating > before);
 for (let i = 0; i < 200; i++) PG.puzzleFinished(s, { id: 'p' + i, rating: 2500 }, false, null, day(1));
 assert(s.stats.puzzles.rating >= 100);
 assert.strictEqual(s.stats.puzzles.seen.length, 200);
+// Solution warns with the exact cost: puzzleRating says what a miss would do, and a miss does just that.
+{
+  const w = PG.fresh(), pz = { id: 'warn', rating: 915 };
+  const from = w.stats.puzzles.rating, to = PG.puzzleRating(w, pz, false);
+  assert(to < from, 'a shown solution lowers the rating');
+  assert.strictEqual(w.stats.puzzles.rating, from, 'asking changes nothing');
+  assert.strictEqual(PG.puzzleFinished(w, pz, false, { daily: true }, day(2)).ratingDelta, to - from);
+  PG.puzzleFinished(w, pz, true, null, day(2));
+  assert.strictEqual(PG.puzzleRating(w, pz, false), w.stats.puzzles.rating, 'a puzzle solved once costs nothing');
+}
 
 // Lessons: mastery at 80% first-try, chapter achievements, spaced reviews.
 s = PG.fresh();
