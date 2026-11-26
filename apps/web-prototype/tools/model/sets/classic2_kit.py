@@ -9,6 +9,9 @@ of this pack, kept out of the shared kit:
                          instead of folded round its axis (see project()). Where the pictures
                          were taken almost level (tilt under LEVEL), a figure's plinth top takes
                          the colour of the plinth's rim instead (see rim_spot()).
+                         plinth='fold' (Pharaoh) keeps classic's folded paint on the plinths: its
+                         gold drums carry one gem at the front, which the fold repeats round the
+                         drum; their tops take one clean spot of gold (see gold_spot()).
 """
 import cv2
 import numpy as np
@@ -121,27 +124,56 @@ def rim_spot(r, zc, R):
     return (x - r.axis) * r.unit, (r.bot - y) * r.unit
 
 
-def project(ob, t, r, only=None, lid=None):
+def gold_spot(r, zc, R, sat=0.62, val=0.52):
+    """world (x, z) of a clean, bright spot of gold on the plinth's side just under its top edge:
+    of the gold there, the pixel nearest the middle colour of its brighter part. The top of a
+    gold drum takes it, where the picture shows too little of that top to paint it from."""
+    y0 = int(round(r.bot - (zc - 0.012) / r.unit))
+    y1 = int(round(r.bot - (zc - 0.09) / r.unit))
+    y0, y1 = max(0, min(y0, y1)), min(r.mask.shape[0], max(y0, y1, min(y0, y1) + 2))
+    ids = kit.classify(r.crop, gold_sat=sat, gold_val=val)
+    ok = cv2.erode(((ids == 1) & (r.mask > 0)).astype(np.uint8), np.ones((3, 3), np.uint8))
+    pts = []
+    for sg in (-1, 1):
+        a, b = sorted((int(round(r.axis + sg * 0.15 * R / r.unit)), int(round(r.axis + sg * 0.9 * R / r.unit))))
+        a, b = max(0, a), min(ok.shape[1], max(b, a + 2))
+        ys, xs = np.nonzero(ok[y0:y1, a:b])
+        pts += [(y0 + y, a + x) for y, x in zip(ys, xs)]
+    if len(pts) < 24:
+        return rim_spot(r, zc, R)
+    cols = np.array([r.crop[y, x] for y, x in pts], np.float32)
+    lum = cols.sum(1)
+    hi = lum >= np.percentile(lum, 60)
+    d = ((cols - np.median(cols[hi], 0)) ** 2).sum(1)
+    d[~hi] = 1e12
+    y, x = pts[int(np.argmin(d))]
+    return (x - r.axis) * r.unit, (r.bot - y) * r.unit
+
+
+def project(ob, t, r, only=None, lid=None, keep=None):
     """Paint the piece by the picture's own view: straight on from the front and a little from
     above (r.tilt), mirrored onto the back, so each player sees the picture's front. A point at
     depth y shows the picture's row z - |y| * tilt: a plinth's bands run level round it instead
     of sagging, and its flat top takes the picture's own top, not one streaked row.
     only: island numbers to paint (others keep their paint); lid: (zc, uv) paints the flat cap
-    at height zc from one spot instead.
+    at height zc from one spot instead; keep: island numbers that keep their paint but for that
+    cap.
     The round bottom edge, which the outline turned into a bowl, is made flat and the piece is
     set down on it."""
     me = ob.data
     uvl = me.uv_layers[0].data
     s = r.tilt
     b = s * r.foot_px / 2 * r.unit
-    isl = islands(me) if only is not None else None
+    isl = islands(me) if only is not None or keep is not None else None
     for v in me.vertices:
         if v.co.z < b:
             v.co.z = b
     for poly in me.polygons:
-        if isl is not None and isl[poly.vertices[0]] not in only:
+        if only is not None and isl[poly.vertices[0]] not in only:
             continue
         cap = lid is not None and poly.normal.z > 0.9 and all(lid[0] - 0.006 < me.vertices[i].co.z < lid[0] + 0.001 for i in poly.vertices)
+        if keep is not None and not cap and isl[poly.vertices[0]] in keep:
+            continue
         for li in poly.loop_indices:
             co = me.vertices[me.loops[li].vertex_index].co
             uvl[li].uv = lid[1] if cap else kit.cell_uv(t, co.x, co.z - abs(co.y) * s)
@@ -151,10 +183,21 @@ def project(ob, t, r, only=None, lid=None):
     return ob
 
 
-def build(t, refs, spec):
+def build(t, refs, spec, plinth='view'):
     ob = classic.build(t, refs, spec)
     r = refs['w']
     sp = spec.get(t, {'kind': 'turned'})
+    if plinth == 'fold':
+        # the plinth keeps classic's folded paint, which carries the gem at its front on round
+        # the drum; its top takes one spot of gold. A figure is painted by the view as usual, a
+        # knight's head keeps its side-on paint, a turned piece keeps all of its paint.
+        if sp['kind'] not in ('knight', 'figure'):
+            return project(ob, t, r, only=set())
+        isl = islands(ob.data)
+        low = isl[int(np.argmin([v.co.z for v in ob.data.vertices]))]
+        zc = sp.get('z0', 0.28 if sp['kind'] == 'knight' else 0.2) * r.height() + 0.02
+        uv = kit.cell_uv(t, *gold_spot(r, zc, r.width(zc - 0.02)))
+        return project(ob, t, r, only={low} if sp['kind'] == 'knight' else None, lid=(zc, uv), keep={low})
     if sp['kind'] == 'knight':
         # the head keeps its side-on paint (it is turned to look along the file); the plinth is
         # painted by the view, its top from one clean spot (the picture shows the horse there)
