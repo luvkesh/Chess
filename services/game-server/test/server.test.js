@@ -807,11 +807,30 @@ test('every game address gets the game, so links and refreshes open the right sc
     const get = (p) => fetch('http://127.0.0.1:' + port + p).then(async (r) => ({ status: r.status, type: r.headers.get('content-type'), text: await r.text() }));
     const game = await get('/play');
     assert.strictEqual(game.status, 200);
+    // the same game everywhere; only the title, description, canonical link and readable summary differ
+    const body = (t) => t.split('</noscript>').pop();
+    const titles = new Set();
     for (const p of ['/home', '/learn', '/learn/forks', '/play/variations/chess960', '/journey/egypt/stage-2', '/settings/language', '/collection/pieces/']) {
       const r = await get(p);
       assert.strictEqual(r.status, 200, p);
-      assert.strictEqual(r.text, game.text, p + ' is the game');
+      assert.strictEqual(body(r.text), body(game.text), p + ' is the game');
+      assert.ok(r.text.indexOf('<meta name="chackmate-routes" content="path">') < r.text.indexOf('<style>'), p + ' says clean links work here');
+      assert.match(r.text, /<noscript><main class="noscript">\n<h1>[^<]+<\/h1>/, p + ' has a readable summary');
+      assert.match(r.text, /<a href="\/learn">Learn<\/a>/);
+      titles.add(/<title>([^<]+)<\/title>/.exec(r.text)[1]);
     }
+    assert.strictEqual(titles.size, 7, 'every page has its own title');
+    const forks = await get('/learn/forks');
+    assert.match(forks.text, /<title>[^<]*Fork[^<]*· Chackmate<\/title>/i);
+    assert.match((await get('/journey/egypt')).text, /<h1>Ancient Egypt: /);
+    assert.strictEqual((await get('/home')).text.split('<title>').length, 2, 'one title only');
     for (const p of ['/nowhere', '/learn/<x>', '/api-ish', '/admin/x']) assert.strictEqual((await get(p)).status, 404, p);
+    // a sitemap of the public pages, on any host
+    const sm = await get('/sitemap.xml');
+    assert.strictEqual(sm.status, 200);
+    for (const p of ['/home', '/play', '/learn', '/learn/forks', '/journey/egypt', '/puzzles/daily', '/play/variations']) assert.ok(sm.text.includes('<loc>http://127.0.0.1:' + port + p + '</loc>'), p);
+    assert.ok(!sm.text.includes('/settings') && !sm.text.includes('/profile') && !sm.text.includes('/play/game'), 'no private pages');
+    const forged = await fetch('http://127.0.0.1:' + port + '/home', { headers: { Host: 'x"><script>' } }).then((r) => r.text()).catch(() => '');
+    assert.ok(!forged.includes('x"><script>'), 'a forged Host is never written into the page');
   } finally { await app.close(); }
 });

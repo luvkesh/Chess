@@ -89,6 +89,13 @@ for (const s of SETTINGS) {
   n++;
 }
 assert.strictEqual(R.modalPath('settings', 'lang'), '/settings/language');
+// An era's story is a step of its own over the era's page, so Back closes it and stays on the era.
+{
+  const p = R.modalPath('tale', { era: 'egypt', stage: 0 }), r = R.fromPath(p);
+  assert.strictEqual(p, '/journey/egypt/stage-1');
+  assert.strictEqual(r.name, 'era'); assert.strictEqual(r.arg, 'egypt'); assert.strictEqual(r.spec.stage, 0);
+  assert.strictEqual(R.modalPath('tale', null), null);
+}
 
 // Unknown or broken links open nothing (the game shows Home), and odd typing still works.
 for (const bad of ['/nowhere', '/learn/no-such-lesson', '/journey/atlantis', '/play/variations/nope', '/collection/hats', '/learn/board/extra', '/puzzles/mate-in-9', '/settings/x'])
@@ -101,10 +108,20 @@ assert.strictEqual(R.fromPath('').name, 'home');
 for (const p of seen.keys()) assert.ok(RT.TOP.includes(p.split('/')[1]), p);
 
 // Which way to write links
-const win = (href, framed) => { const u = new URL(href); const w = { location: u }; w.self = w; w.top = framed ? {} : w; return w; };
-assert.strictEqual(RT.mode(win('https://chackmate.example/learn/forks')), 'path');
-assert.strictEqual(RT.mode(win('https://chackmate.example/play')), 'path');
-assert.strictEqual(RT.mode(win('https://chackmate.example/learn', true)), 'hash', 'a frame (the claude.ai preview) uses #');
+// `marked`: the page came from a server that sends the game for every game address (game-server).
+const win = (href, framed, marked) => {
+  const u = new URL(href);
+  const doc = { querySelector: (sel) => (marked && sel === 'meta[name="chackmate-routes"]' ? { getAttribute: () => 'path' } : null) };
+  const w = { location: u, document: doc }; w.self = w; w.top = framed ? {} : w; return w;
+};
+assert.strictEqual(RT.mode(win('https://chackmate.example/learn/forks', false, true)), 'path');
+assert.strictEqual(RT.mode(win('https://chackmate.example/play', false, true)), 'path');
+assert.strictEqual(RT.mode(win('https://chackmate.example/learn', true, true)), 'hash', 'a frame (the claude.ai preview) uses #');
+// A host that did not say it serves every game address (a static host, a CDN) gets # links even
+// at /play or the site root: a clean /learn written there would be "Page not found" on refresh.
+assert.strictEqual(RT.mode(win('https://static.example/play')), 'hash');
+assert.strictEqual(RT.mode(win('https://static.example/')), 'hash');
+assert.strictEqual(RT.mode(win('https://static.example/learn/forks')), 'hash');
 assert.strictEqual(RT.mode(win('file:///tmp/chackmate.html')), 'hash');
 assert.strictEqual(RT.mode(win('http://localhost:8000/apps/web-prototype/dist/chackmate.html')), 'hash');
 assert.strictEqual(RT.current(win('https://x.example/a.html#/learn/forks'), 'hash'), '/learn/forks');
