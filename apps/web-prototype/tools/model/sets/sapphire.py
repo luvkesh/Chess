@@ -14,7 +14,7 @@ HALF = {'n': 'full'}
 SIDED = {'n', 'k', 'q'}   # each side's crowns carved from its own picture
 GOLD = (64, 172, 246)
 PORCELAIN = (226, 236, 242)   # BGR: the ivory side's glaze
-LAPIS = (150, 58, 28)         # BGR: the blue side's enamel
+LAPIS = (120, 46, 22)         # BGR: the blue side's enamel
 # the photographs' own light is taken out of the glaze before it is painted (classic1_common)
 PREP = {
     'w': {'tone': PORCELAIN, 'amount': 0.8, 'sharpen': 0.6, 'n': {'amount': 0.55, 'scale': 0.06}},
