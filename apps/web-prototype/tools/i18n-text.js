@@ -18,7 +18,9 @@ const SKIP = new Set(['id', 'fen', 'start', 'moves', 'answers', 'answer', 'from'
   'skus', 'currency', 'eco', 'side', 'status', 'who', 'lang', 'accent', 'gender', 'period', 'tint', 'version', 'note', 'goal', 'era',
   'say', 'speakers', 'suite', 'piece', 'pieces3d', 'look', 'grants', 'price', 'reward', 'unlocks', 'requires', 'needs', 'events', 'moves', 'voices']);
 // Fields that are words even though their name is also used for data elsewhere.
-const WORDS = { lessons: ['say'], campaign: ['say'], placement: ['say'], variants: ['moves'] };
+const WORDS = { lessons: ['say'], campaign: ['say'], placement: ['say'], variants: ['moves'], phases: ['say'] };
+// Fields that are data (or players' names, which stay as they are) only in one file.
+const DATA_IN = { phases: ['white', 'black', 'tag', 'ask', 'best', 'accept', 'evals', 'predict', 'phases', 'game', 'play', 'lesson', 'at'] };
 
 const isWords = (s) => typeof s === 'string' && /[A-Za-z]{2}/.test(s) && !/^[a-z0-9._:/-]+$/.test(s) && !/^#[0-9a-f]{3,8}$/i.test(s);
 
@@ -28,6 +30,7 @@ function walk(o, file, out, keyName) {
   if (!o || typeof o !== 'object') return;
   for (const [k, v] of Object.entries(o)) {
     if (SKIP.has(k) && !(WORDS[file] || []).includes(k)) continue;
+    if ((DATA_IN[file] || []).includes(k)) continue;
     walk(v, file, out, k);
   }
 }
@@ -56,7 +59,7 @@ function uiEnglish() {
 
 function strings() {
   const out = new Set();
-  for (const f of ['lessons', 'campaign', 'openings', 'endgames', 'variants', 'placement', 'catalog', 'pitches', 'store', 'seasons', 'missions']) {
+  for (const f of ['lessons', 'campaign', 'openings', 'endgames', 'variants', 'placement', 'catalog', 'pitches', 'store', 'seasons', 'missions', 'phases']) {
     const j = JSON.parse(fs.readFileSync(path.join(content, f + '.json'), 'utf8'));
     if (f === 'pitches') { for (const v of Object.values(j.lines)) if (typeof v === 'string') out.add(v); continue; }
     walk(f === 'campaign' ? { coach: { blurb: j.coach.blurb }, opponents: j.opponents, eras: j.eras } : j, f, out);

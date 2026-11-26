@@ -189,6 +189,11 @@
   "voice": "hm_omega",
   "text": "कुछ खेल बहुत जल्दी ख़त्म हो जाते हैं! चलिए जाल पहचानें, ताकि आप कभी न फँसें।"
  },
+ "lesson.open.three-phases": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "हर खेल तीन हिस्सों का सफ़र है! चलिए देखें कि उस्ताद जीत कैसे बनाते हैं।"
+ },
  "lesson.open.forks": {
   "who": "rooky",
   "voice": "hm_omega",
@@ -338,6 +343,16 @@
   "who": "rooky",
   "voice": "hm_omega",
   "text": "सबसे अच्छी चाल खोजें! शह, मारने वाली चालें और ख़तरे देखें।"
+ },
+ "puzzle.mate": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शह-मात खोजिए! राजा को शह दीजिए, और उसके बचने का कोई रास्ता न छोड़िए।"
+ },
+ "puzzle.mateN": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "अपनी शह-मात की योजना बनाइए! हर चाल के बाद राजा के बचने के रास्ते कम होने चाहिए।"
  },
  "puzzle.wrong": {
   "who": "rooky",

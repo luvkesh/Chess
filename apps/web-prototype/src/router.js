@@ -29,8 +29,8 @@ const ChackmateRouter = (function () {
   //   lessons [{ id }], trainers [id], eras [id], variants [id], openings [{ id, side }],
   //   minis [id], opponents [{ name, level }], cats [id], themes [id], settings [id], profile [id]
   function routes(ctx) {
-    const lessonBySlug = {}, lessonSlug = {};
-    for (const l of ctx.lessons) { const s = slug(tail(l.id)); lessonBySlug[s] = l.id; lessonSlug[l.id] = s; }
+    const lessonBySlug = {}, lessonSlug = {}, lessonParts = {};
+    for (const l of ctx.lessons) { const s = slug(tail(l.id)); lessonBySlug[s] = l.id; lessonSlug[l.id] = s; if (l.parts) lessonParts[l.id] = l.parts; }
     const openingBySlug = {};
     for (const o of ctx.openings) openingBySlug[slug(tail(o.id))] = o.id;
     const oppBySlug = {};
@@ -83,6 +83,8 @@ const ChackmateRouter = (function () {
           if (a.variant) return '/play/variations/' + slug(a.variant) + '/lesson';
           if (a.journey) return '/journey/' + slug(a.journey.era) + '/stage-' + (a.journey.stage + 1);
           if (a.id && a.back === 'trainers') return '/trainers/' + lessonSlug[a.id] + '/lesson';
+          // a lesson in parts (the three phases of chess): each part has its own page
+          if (a.id && a.part && (lessonParts[a.id] || []).includes(a.part)) return '/learn/' + lessonSlug[a.id] + '/' + a.part;
           if (a.id && lessonSlug[a.id]) return '/learn/' + lessonSlug[a.id];
           return '/learn';
         case 'puzzle':
@@ -145,6 +147,7 @@ const ChackmateRouter = (function () {
           { const m = /^stage-(\d{1,2})$/.exec(c); return m && +m[1] > 0 ? screen('era', b, { spec: { stage: +m[1] - 1 } }) : null; }
         case 'learn':
           if (!b) return screen('learn');
+          if (p.length === 3 && lessonBySlug[b] && (lessonParts[lessonBySlug[b]] || []).includes(c)) return screen('lesson', { id: lessonBySlug[b], part: c });
           if (p.length > 2) return null;
           if (b === 'placement-test') return screen('lesson', { placement: true, from: 'learn' });
           return lessonBySlug[b] ? screen('lesson', lessonBySlug[b]) : null;
