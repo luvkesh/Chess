@@ -4,7 +4,9 @@ crowns, a flame bishop holding a pearl. Reference: the user's picture of 2026-11
 import math
 
 import classic
+import hero
 import kit
+from sets import classic1_common as common
 
 PIC = '/mnt/project-files/uploads/hearth/e967ebaa-9315-4ba2-86d7-73d9ef18ae19'
 BOXES = {
@@ -14,8 +16,15 @@ BOXES = {
 HALF = {'n': 'full'}
 SIDED = {'n', 'k', 'q'}   # each side's crowns carved from its own picture
 GOLD = (90, 170, 226)
+MARBLE = (228, 236, 240)   # BGR: the white side's Calacatta
+# the photographs' own light is taken out of the stone before it is painted (classic1_common)
+PREP = {
+    'w': {'tone': MARBLE, 'amount': 0.75, 'sharpen': 0.7, 'n': {'amount': 0.5, 'scale': 0.06}},
+    # the black side's bronze ribbons are what it is known by: only the broad light goes
+    'b': {'amount': 0.6, 'shine': 0.0, 'sharpen': 0.7, 'n': {'amount': 0.45, 'shine': 0.0, 'scale': 0.06}},
+}
 LOOK = {
-    'w': {'wb': (1.04, 0.98, 0.98), 'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.3,
+    'w': {'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'gold_tone': GOLD, 'gold_mix': 0.3,
           'classify': {'gold_sat': 0.42, 'gem_sat': 0.95}},
     # the black side's bronze-gold ribbons are dim: no lift, and only bright, saturated pixels count
     'b': {'body': 'marble', 'gold': 'gold', 'gem': 'gem', 'wb': (1.12, 1.0, 0.86),
@@ -23,7 +32,18 @@ LOOK = {
 }
 
 
+# heights in game units, as cutouts.py measured the ivory army in the reference; both armies
+# take them, because they share their meshes and the two kings stand equally tall
+HEIGHTS = {'k': 1.660, 'q': 1.426, 'b': 1.345, 'n': 1.285, 'r': 1.104, 'p': 0.884}
+
+
 def refs():
+    """the hero pictures (pics/fantasy): each piece redrawn sharper from its reference cut-out"""
+    return common.prep(hero.refs(hero.pics('fantasy'), HEIGHTS), LOOK, PREP)
+
+
+def source_refs():
+    """the pieces as cut from the reference picture: what the hero pictures were redrawn from"""
     out = {'w': {}, 'b': {}}
     king = kit.Ref(PIC, BOXES['w']['k'], height=1.66, seg='sam', sym=True)
     unit = min(king.unit, 0.36 / (king.width(0.05) or 1) * king.unit)
@@ -42,7 +62,7 @@ SPEC = {
     'q': {'kind': 'turned', 'top': ('relief', 0.695, 0.5, 0.45)},
     'r': {'kind': 'rook', 'merlons': 4, 'phase': 0.0, 'gap': 0.5},
     'b': {'kind': 'turned', 'top': ('relief', 0.47, 0.2, 0.5), 'pearl': (0.715, 0.088)},
-    'n': {'kind': 'knight', 'z0': 0.14},
+    'n': {'kind': 'knight', 'z0': 0.14, 'thick': 0.38},
 }
 
 

@@ -6,7 +6,9 @@ of this pack, kept out of the shared kit:
                          parts (a fur stole, a silver pearl) are too near the backdrop for a cut
                          by colour.
   build(t, refs, spec)   classic.build, then the piece is painted by the picture's own view
-                         instead of folded round its axis (see project()).
+                         instead of folded round its axis (see project()). Where the pictures
+                         were taken almost level (tilt under LEVEL), a figure's plinth top takes
+                         the colour of the plinth's rim instead (see rim_spot()).
 """
 import cv2
 import numpy as np
@@ -14,6 +16,9 @@ import numpy as np
 import classic
 import hero
 import kit
+
+
+LEVEL = 0.15     # view tilt under which a set's pictures count as taken level (see build())
 
 
 def measure_foot(r, reach=0.22):
@@ -96,6 +101,26 @@ def lid_spot(r, zc, R):
     return (x0 + xs[i] - r.axis) * r.unit, (r.bot - (y0 + ys[i])) * r.unit
 
 
+def rim_spot(r, zc, R):
+    """world (x, z) of the plinth's top rim beside the figure: the spot nearest the middle colour
+    of the rows just under the plinth's top edge, on both sides of the axis. For a picture taken
+    almost level, which shows too little of the plinth's top to paint it from."""
+    y0 = int(round(r.bot - (zc - 0.02) / r.unit))
+    y1 = int(round(r.bot - (zc - 0.055) / r.unit))
+    y0, y1 = max(0, min(y0, y1)), min(r.mask.shape[0], max(y0, y1, min(y0, y1) + 2))
+    pts = []
+    for sg in (-1, 1):
+        a, b = sorted((int(round(r.axis + sg * 0.35 * R / r.unit)), int(round(r.axis + sg * 0.85 * R / r.unit))))
+        a, b = max(0, a), min(r.mask.shape[1], max(b, a + 2))
+        ys, xs = np.nonzero(r.mask[y0:y1, a:b])
+        pts += [(y0 + y, a + x) for y, x in zip(ys, xs)]
+    if len(pts) < 12:
+        return lid_spot(r, zc, R)
+    cols = np.array([r.crop[y, x] for y, x in pts], np.float32)
+    y, x = pts[int(np.argmin(((cols - np.median(cols, 0)) ** 2).sum(1)))]
+    return (x - r.axis) * r.unit, (r.bot - y) * r.unit
+
+
 def project(ob, t, r, only=None, lid=None):
     """Paint the piece by the picture's own view: straight on from the front and a little from
     above (r.tilt), mirrored onto the back, so each player sees the picture's front. A point at
@@ -139,4 +164,10 @@ def build(t, refs, spec):
         zc = sp.get('z0', 0.28) * r.height() + 0.02
         uv = kit.cell_uv(t, *lid_spot(r, zc, r.width(zc - 0.02)))
         return project(ob, t, r, only={low}, lid=(zc, uv))
+    if sp['kind'] == 'figure' and r.tilt < LEVEL:
+        # a picture taken almost level shows the plinth's top as a sliver under the figure's feet:
+        # painted from it the top comes out striped, so it takes the colour of the plinth's rim
+        zc = sp.get('z0', 0.2) * r.height() + 0.02
+        uv = kit.cell_uv(t, *rim_spot(r, zc, r.width(zc - 0.02)))
+        return project(ob, t, r, lid=(zc, uv))
     return project(ob, t, r)
