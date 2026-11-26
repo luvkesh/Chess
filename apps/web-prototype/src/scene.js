@@ -2355,6 +2355,78 @@ function ChacklateScene(canvas, options) {
   }
   // Builds the little scene for a set, a piece, a board or a room. envFor(style) gives the
   // reflection map for the renderer that will draw it (each GPU context needs its own).
+  function buildEmblem(what) {
+    const g = new THREE.Group();
+    const gold = new THREE.MeshPhysicalMaterial({ color: '#f0c062', metalness: 1, roughness: 0.2, clearcoat: 0.6, clearcoatRoughness: 0.1, envMapIntensity: 1.4 });
+    const gold2 = new THREE.MeshPhysicalMaterial({ color: '#c98a34', metalness: 1, roughness: 0.32, clearcoat: 0.3, envMapIntensity: 1.2 });
+    const add = (geo, mat, x, y, z, rx, ry, rz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0); m.rotation.set(rx || 0, ry || 0, rz || 0); g.add(m); return m; };
+    const lathe = (pts, seg) => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), seg || 64);
+    // lathed shapes are seen from both sides (a cup's inside, a bulb's back)
+    const gold2s = gold2.clone(); gold2s.side = THREE.DoubleSide;
+    const golds = gold.clone(); golds.side = THREE.DoubleSide; golds.roughness = 0.34;
+    if (what === 'coins') {
+      // Choco Coins: gold rims around glossy chocolate faces, stacked, with one standing in front
+      const choc = new THREE.MeshPhysicalMaterial({ color: '#3a1a0b', roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.06 });
+      const coin = (x, y, z, rx, rz) => {
+        const c = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.11, 64), gold2);
+        const rim1 = new THREE.Mesh(new THREE.TorusGeometry(0.47, 0.035, 12, 64), gold); rim1.rotation.x = Math.PI / 2; rim1.position.y = 0.055;
+        const rim2 = rim1.clone(); rim2.position.y = -0.055;
+        const face1 = new THREE.Mesh(new THREE.CylinderGeometry(0.43, 0.43, 0.12, 64), choc);
+        // a raised gold ring and a little crown of studs on the chocolate
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.018, 8, 64), gold); ring.rotation.x = Math.PI / 2; ring.position.y = 0.062;
+        c.add(body, rim1, rim2, face1, ring);
+        for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; const st = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 8), gold); st.position.set(Math.cos(a) * 0.17, 0.065, Math.sin(a) * 0.17); c.add(st); }
+        const mid = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 10), gold); mid.scale.y = 0.4; mid.position.y = 0.065; c.add(mid);
+        c.position.set(x, y, z); c.rotation.set(rx || 0, 0, rz || 0); g.add(c);
+      };
+      coin(-0.18, 0.055, -0.25); coin(-0.14, 0.17, -0.22, 0, 0.04); coin(-0.2, 0.285, -0.27, 0, -0.03); coin(-0.16, 0.4, -0.24, 0.05, 0.02);
+      coin(0.38, 0.48, 0.12, Math.PI / 2 - 0.35, -0.18);
+    } else if (what === 'hourglass') {
+      // the day's missions: an hourglass of gold and glass with amber sand
+      const glass = new THREE.MeshPhysicalMaterial({ color: '#fff4e0', roughness: 0.05, metalness: 0, transparent: true, opacity: 0.28, clearcoat: 1, envMapIntensity: 1.6, depthWrite: false });
+      const sand = new THREE.MeshPhysicalMaterial({ color: '#e8a24a', roughness: 0.75, sheen: 0.6, sheenColor: new THREE.Color('#ffd28a') });
+      const bulb = [[0.02, 0], [0.09, 0.02], [0.3, 0.14], [0.36, 0.3], [0.34, 0.46], [0.26, 0.58], [0.12, 0.64], [0.0, 0.66]];
+      const top = add(lathe(bulb.map(([x, y]) => [x, 0.66 - y])), glass, 0, 0.72); top.renderOrder = 2;
+      const bot = add(lathe(bulb), glass, 0, 0.06); bot.renderOrder = 2;
+      add(lathe([[0, 0], [0.3, 0], [0.32, 0.1], [0.24, 0.2], [0.04, 0.32], [0, 0.32]]), sand, 0, 0.08);
+      add(lathe([[0, 0], [0.12, 0.0], [0.26, 0.14], [0.28, 0.2], [0, 0.2]]), sand, 0, 0.9);
+      add(new THREE.CylinderGeometry(0.012, 0.012, 0.5, 8), sand, 0, 0.6);
+      for (const y of [0, 1.38]) { add(new THREE.CylinderGeometry(0.48, 0.48, 0.07, 64), gold, 0, y + 0.035); add(new THREE.TorusGeometry(0.48, 0.03, 10, 64), gold, 0, y + (y ? 0.07 : 0), 0, Math.PI / 2); }
+      for (let i = 0; i < 3; i++) { const a = (i / 3) * Math.PI * 2 + 0.5; add(lathe([[0.03, 0], [0.045, 0.1], [0.03, 0.3], [0.04, 0.69], [0.03, 1.08], [0.045, 1.28], [0.03, 1.38]], 16), gold2s, Math.cos(a) * 0.41, 0, Math.sin(a) * 0.41); }
+    } else if (what === 'laurel') {
+      // the season: a gold laurel wreath around a ruby
+      const leaf = new THREE.SphereGeometry(0.1, 16, 10);
+      const ruby = new THREE.MeshPhysicalMaterial({ color: '#c2183f', roughness: 0.08, metalness: 0.1, clearcoat: 1, emissive: '#3a0010', emissiveIntensity: 0.4, envMapIntensity: 1.6 });
+      for (const side of [-1, 1]) {
+        for (let i = 0; i < 9; i++) {
+          const a = -Math.PI / 2 + side * (0.25 + i * 0.29), r = 0.62;
+          const x = Math.cos(a) * r, y = Math.sin(a) * r + 0.75;
+          for (const off of [-1, 1]) {
+            const m = add(leaf, i % 2 ? gold : gold2, x + Math.cos(a) * off * 0.08, y + Math.sin(a) * off * 0.08, 0);
+            m.scale.set(0.55, 1.5, 0.28);
+            m.rotation.z = a + side * 0.5 * off + (side > 0 ? 0.6 : -0.6);
+          }
+        }
+        add(new THREE.TorusGeometry(0.62, 0.018, 8, 64, 2.6), gold2, 0, 0.75, -0.02, 0, 0, side > 0 ? -Math.PI / 2 + 0.2 : Math.PI / 2 - 0.2 - 2.6 + Math.PI);
+      }
+      add(new THREE.OctahedronGeometry(0.17, 1), ruby, 0, 0.12, 0.05).scale.set(1, 1.15, 0.6);
+      add(new THREE.TorusGeometry(0.15, 0.025, 10, 40), gold, 0, 0.12, 0.02);
+    } else {
+      // the Club: a gold trophy cup on a dark wooden base
+      const wood = new THREE.MeshPhysicalMaterial({ color: '#3a1a0c', roughness: 0.35, clearcoat: 0.9, clearcoatRoughness: 0.1 });
+      add(new THREE.BoxGeometry(0.8, 0.22, 0.6), wood, 0, 0.11);
+      add(new THREE.BoxGeometry(0.62, 0.05, 0.44), gold, 0, 0.245);
+      add(lathe([[0, 0], [0.22, 0], [0.2, 0.04], [0.08, 0.1], [0.05, 0.34], [0.1, 0.4], [0.06, 0.44], [0, 0.44]]), gold2s, 0, 0.27);
+      add(lathe([[0, 0.06], [0.2, 0.14], [0.32, 0.32], [0.38, 0.56], [0.4, 0.7], [0.44, 0.7], [0.42, 0.56], [0.36, 0.3], [0.24, 0.1], [0.08, 0.01], [0, 0]]), golds, 0, 0.7);
+      add(new THREE.TorusGeometry(0.43, 0.025, 10, 64), gold, 0, 1.4, 0, Math.PI / 2);
+      for (const side of [-1, 1]) add(new THREE.TorusGeometry(0.16, 0.035, 12, 32, Math.PI * 1.2), gold, side * 0.42, 1.07, 0, 0, 0, side > 0 ? -Math.PI * 0.6 : Math.PI * 0.4);
+      add(new THREE.SphereGeometry(0.07, 16, 10), new THREE.MeshPhysicalMaterial({ color: '#c2183f', roughness: 0.1, clearcoat: 1, envMapIntensity: 1.5 }), 0, 1.0, 0.36);
+    }
+    // the meshes share materials; dispose them all with the group
+    g.userData.dispose = () => g.traverse((m) => { if (m.isMesh) { m.geometry.dispose(); m.material.dispose(); } });
+    return g;
+  }
   function buildSpec(spec, w, h, envFor) {
     const s2 = new THREE.Scene();
     s2.environment = envFor((W.ROOMS[roomId] || W.ROOMS.salon).env);
@@ -2439,6 +2511,21 @@ function ChacklateScene(canvas, options) {
       c2.fov = spec.fov || 23;
       c2.position.set(0, 1.3 + tall * 0.55, 6.8);
       look.set(0, tall * 0.45 - 0.1, 0);
+      s2.background = null;
+    } else if (spec.kind === 'emblem') {
+      // Small 3D objects for the home strips: a stack of Choco Coins, an hourglass for the day's
+      // missions, a laurel wreath for the season and a trophy for the Club. Lit like the pieces.
+      const g = buildEmblem(spec.what);
+      s2.add(g); disposeList.push(g);
+      // polished metal facing the camera mirrors the dark room: a brighter studio and a soft key from the front
+      s2.environmentIntensity = 1.9;
+      const fk = new THREE.DirectionalLight('#fff3dc', 1.6); fk.position.set(1.5, 2.5, 6); s2.add(fk);
+      g.rotation.y = spec.yaw || 0;
+      c2.fov = 22;
+      const box = new THREE.Box3().setFromObject(g), ce = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
+      const half = Math.max(sz.y * 0.5, (sz.x * 0.5) / Math.max(0.5, w / h)) * (spec.what === 'coins' ? 0.92 : 1.04);
+      const d = half / Math.tan((c2.fov * Math.PI) / 360) + sz.z * 0.5;
+      c2.position.set(ce.x, ce.y + d * 0.22, ce.z + d); look.copy(ce);
       s2.background = null;
     } else if (spec.kind === 'frame' && AV) {
       // a frame for the player's avatar, face on, for the menus (tools/shoot-art.js)

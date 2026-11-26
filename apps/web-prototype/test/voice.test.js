@@ -101,7 +101,7 @@ assert.deepStrictEqual(Object.keys(cindex.voices).sort(), coachVoices.map((v) =>
 for (const [id, engine, speed] of coachVoices) {
   for (const x of clines) {
     const r = crec[id + '/' + x.key];
-    assert(r && r.voice === engine && r.speed === speed && r.text === x.text && r.spoken === x.spoken, id + ': coach piece "' + x.text + '" was recorded with other words or another voice: run tools/voice/record-coach.py');
+    assert(r && r.voice === engine && r.speed === speed && r.text === x.text && r.spoken === x.spoken && r.carry === x.carry, id + ': coach piece "' + x.text + '" was recorded with other words or another voice: run tools/voice/record-coach.py');
   }
   assert.strictEqual(fs.statSync(path.join(__dirname, '../public/coach/' + id + '.mp3')).size, cindex.voices[id].sizes.reduce((a, b) => a + b, 0), id + ': the coach pack is whole');
 }
@@ -134,4 +134,15 @@ console.log('voice tests passed:', V.voices.length, 'voices,', Object.values(wan
       assert.deepStrictEqual(walk(dir, '').sort(), J[kind].map((j) => j.key).sort(), lang + ' ' + kind + ': one clip per line, nothing extra');
     }
   }
+}
+// Pieces flow into each other (tools/voice/carry.py): a piece the line goes on after is recorded in the
+// middle of a sentence, and every square also mid-sentence for "on e4 and attacks ...".
+{
+  const byText = new Map(clines.map((x) => [x.text, x]));
+  assert.strictEqual(byText.get('mid:ee four').carry, 'mid', 'squares have a mid-sentence piece');
+  assert.strictEqual(byText.get('ee four').carry, 'end', 'squares that end a line fall like a sentence end');
+  assert.strictEqual(byText.get('Your pawn').carry, 'mid', 'a sentence opener runs on');
+  assert.strictEqual(byText.get('and attacks the knight on').carry, 'mid', 'a phrase ending on "on" runs on');
+  const src = fs.readFileSync(path.join(__dirname, '../src/audio.js'), 'utf8');
+  assert(/'mid:' \+ sq/.test(src) && /\[\.!\?\]\$\/\.test\(p\.line\)/.test(src), 'coach playback picks mid-sentence squares and breathes after a sentence inside a piece');
 }

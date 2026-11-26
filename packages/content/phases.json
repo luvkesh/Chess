@@ -1,0 +1,1182 @@
+{
+  "version": 1,
+  "lesson": "lesson.c03.l10.three-phases",
+  "games": {
+    "opera": {
+      "white": "Paul Morphy",
+      "black": "Duke Karl of Brunswick and Count Isouard",
+      "w": "Morphy",
+      "b": "the Duke and the Count",
+      "title": "The Opera Game",
+      "where": "Paris Opera, 1858",
+      "moves": [
+        "e4",
+        "e5",
+        "Nf3",
+        "d6",
+        "d4",
+        "Bg4",
+        "dxe5",
+        "Bxf3",
+        "Qxf3",
+        "dxe5",
+        "Bc4",
+        "Nf6",
+        "Qb3",
+        "Qe7",
+        "Nc3",
+        "c6",
+        "Bg5",
+        "b5",
+        "Nxb5",
+        "cxb5",
+        "Bxb5+",
+        "Nbd7",
+        "O-O-O",
+        "Rd8",
+        "Rxd7",
+        "Rxd7",
+        "Rd1",
+        "Qe6",
+        "Bxd7+",
+        "Nxd7",
+        "Qb8+",
+        "Nxb8",
+        "Rd8#"
+      ],
+      "phases": {
+        "middlegame": 16
+      },
+      "notes": {
+        "6": "Black pins the knight to the queen. It looks active, but this bishop is about to be traded away.",
+        "9": "Morphy's queen takes back and joins the game. White already has more pieces out.",
+        "13": "The queen eyes two targets at once: the pawn on b7 and the weak f7 square.",
+        "15": "Morphy keeps developing instead of grabbing a pawn. Every move brings a new piece into play.",
+        "17": "Every white piece is ready, while Black's king bishop and rook have not moved. The opening is over and the attack begins.",
+        "19": "A sacrifice! Morphy gives up his knight to open lines towards the black king.",
+        "23": "Castling with a threat: the rook lands on the open file and joins the attack at once.",
+        "25": "Another sacrifice. Morphy gives up a rook to remove a defender.",
+        "29": "Down a rook and a knight, yet every white piece is attacking.",
+        "31": "The queen sacrifice! It drags the last defender away.",
+        "33": "Checkmate with just a rook and a bishop. Morphy gave away his queen, a rook and a knight, and still won."
+      },
+      "predict": [
+        18,
+        22,
+        30
+      ],
+      "evals": [
+        14,
+        10,
+        31,
+        10,
+        43,
+        45,
+        105,
+        100,
+        116,
+        100,
+        100,
+        83,
+        177,
+        167,
+        236,
+        99,
+        104,
+        48,
+        48,
+        92,
+        92,
+        160,
+        298,
+        297,
+        370,
+        408,
+        484,
+        497,
+        926,
+        949,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "accept": {
+        "18": [
+          "c3b5"
+        ],
+        "22": [
+          "e1c1"
+        ],
+        "30": [
+          "b3b8"
+        ]
+      }
+    },
+    "immortal": {
+      "white": "Adolf Anderssen",
+      "black": "Lionel Kieseritzky",
+      "w": "Anderssen",
+      "b": "Kieseritzky",
+      "title": "The Immortal Game",
+      "where": "London, 1851",
+      "moves": [
+        "e4",
+        "e5",
+        "f4",
+        "exf4",
+        "Bc4",
+        "Qh4+",
+        "Kf1",
+        "b5",
+        "Bxb5",
+        "Nf6",
+        "Nf3",
+        "Qh6",
+        "d3",
+        "Nh5",
+        "Nh4",
+        "Qg5",
+        "Nf5",
+        "c6",
+        "g4",
+        "Nf6",
+        "Rg1",
+        "cxb5",
+        "h4",
+        "Qg6",
+        "h5",
+        "Qg5",
+        "Qf3",
+        "Ng8",
+        "Bxf4",
+        "Qf6",
+        "Nc3",
+        "Bc5",
+        "Nd5",
+        "Qxb2",
+        "Bd6",
+        "Bxg1",
+        "e5",
+        "Qxa1+",
+        "Ke2",
+        "Na6",
+        "Nxg7+",
+        "Kd8",
+        "Qf6+",
+        "Nxf6",
+        "Be7#"
+      ],
+      "phases": {
+        "middlegame": 18
+      },
+      "notes": {
+        "3": "The King's Gambit: White offers a pawn to open the f-file and race ahead in development.",
+        "6": "An early queen check. The white king must step aside and can no longer castle.",
+        "9": "Black gives a pawn to pull the bishop away. Both sides want to attack.",
+        "21": "Anderssen leaves his bishop hanging. He is betting on speed, not material.",
+        "22": "Black takes the bishop and is now a whole piece ahead.",
+        "29": "White's pieces pour out while the black queen keeps running.",
+        "34": "The knight lands on a superb square. Black grabs a pawn and attacks the rook.",
+        "35": "The famous moment. Anderssen offers both rooks! The bishop cuts off the queen and the king.",
+        "36": "Black takes the first rook.",
+        "38": "And the second rook, with check. Black is now far ahead on points.",
+        "41": "Every white piece is hunting the king now.",
+        "43": "A queen sacrifice to finish. Black has to take it.",
+        "45": "Checkmate! White has only a bishop, two knights and some pawns left. Black had heaps of extra material, but none of it came back to defend."
+      },
+      "predict": [
+        42,
+        44
+      ],
+      "evals": [
+        14,
+        31,
+        10,
+        -39,
+        -44,
+        -84,
+        -29,
+        -29,
+        71,
+        72,
+        87,
+        85,
+        91,
+        58,
+        101,
+        37,
+        89,
+        89,
+        96,
+        -8,
+        20,
+        -152,
+        -121,
+        -93,
+        -92,
+        -76,
+        -76,
+        -57,
+        -78,
+        -84,
+        -34,
+        -19,
+        176,
+        0,
+        0,
+        -619,
+        -257,
+        -541,
+        -197,
+        -195,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "accept": {
+        "42": [
+          "f3f6"
+        ],
+        "44": [
+          "d6e7"
+        ]
+      }
+    },
+    "century": {
+      "white": "Donald Byrne",
+      "black": "Bobby Fischer",
+      "w": "Byrne",
+      "b": "Fischer",
+      "title": "The Game of the Century",
+      "where": "New York, 1956",
+      "moves": [
+        "Nf3",
+        "Nf6",
+        "c4",
+        "g6",
+        "Nc3",
+        "Bg7",
+        "d4",
+        "O-O",
+        "Bf4",
+        "d5",
+        "Qb3",
+        "dxc4",
+        "Qxc4",
+        "c6",
+        "e4",
+        "Nbd7",
+        "Rd1",
+        "Nb6",
+        "Qc5",
+        "Bg4",
+        "Bg5",
+        "Na4",
+        "Qa3",
+        "Nxc3",
+        "bxc3",
+        "Nxe4",
+        "Bxe7",
+        "Qb6",
+        "Bc4",
+        "Nxc3",
+        "Bc5",
+        "Rfe8+",
+        "Kf1",
+        "Be6",
+        "Bxb6",
+        "Bxc4+",
+        "Kg1",
+        "Ne2+",
+        "Kf1",
+        "Nxd4+",
+        "Kg1",
+        "Ne2+",
+        "Kf1",
+        "Nc3+",
+        "Kg1",
+        "axb6",
+        "Qb4",
+        "Ra4",
+        "Qxb6",
+        "Nxd1",
+        "h3",
+        "Rxa2",
+        "Kh2",
+        "Nxf2",
+        "Re1",
+        "Rxe1",
+        "Qd8+",
+        "Bf8",
+        "Nxe1",
+        "Bd5",
+        "Nf3",
+        "Ne4",
+        "Qb8",
+        "b5",
+        "h4",
+        "h5",
+        "Ne5",
+        "Kg7",
+        "Kg1",
+        "Bc5+",
+        "Kf1",
+        "Ng3+",
+        "Ke1",
+        "Bb4+",
+        "Kd1",
+        "Bb3+",
+        "Kc1",
+        "Ne2+",
+        "Kb1",
+        "Nc3+",
+        "Kc1",
+        "Rc2#"
+      ],
+      "phases": {
+        "middlegame": 20,
+        "endgame": 59
+      },
+      "notes": {
+        "8": "Fischer, only thirteen, castles quickly. His king is safe, while Byrne's king is still in the middle.",
+        "11": "Byrne's queen comes out early. Fischer will make it a target.",
+        "22": "A stunning idea: the knight jumps to the edge. If White takes it, Black wins the e4 pawn and opens the centre.",
+        "26": "Fischer gives up material to open lines against the white king, still stuck in the centre.",
+        "32": "Check! The white king has to walk instead of castling.",
+        "34": "The move of the century. Fischer leaves his queen to be taken. In return his bishop and knight will tear White apart.",
+        "35": "Byrne takes the queen. On points White is far ahead. On the board, the trouble is only starting.",
+        "44": "A windmill: the knight keeps giving check and collects material each time round.",
+        "46": "Fischer finally takes back the bishop. Next, his knight will grab a rook as well.",
+        "50": "The knight takes a rook. Black now has more points than White, and far more active pieces.",
+        "59": "Only a few pieces are left: this is the endgame. Black has a whole team of pieces against the lone white queen.",
+        "82": "Checkmate. Fischer's pieces worked together like an orchestra, while the white queen was left on her own."
+      },
+      "predict": [
+        21,
+        33,
+        81
+      ],
+      "evals": [
+        14,
+        15,
+        13,
+        -15,
+        37,
+        37,
+        40,
+        50,
+        47,
+        35,
+        94,
+        30,
+        55,
+        55,
+        70,
+        80,
+        81,
+        65,
+        65,
+        65,
+        70,
+        -4,
+        11,
+        -38,
+        -38,
+        -43,
+        40,
+        40,
+        -29,
+        -62,
+        -34,
+        -61,
+        -45,
+        -65,
+        -100,
+        -264,
+        -264,
+        -264,
+        -264,
+        -264,
+        -264,
+        -250,
+        -254,
+        -303,
+        -303,
+        -303,
+        -326,
+        -326,
+        -411,
+        -442,
+        -468,
+        -526,
+        -526,
+        -540,
+        -530,
+        -655,
+        -660,
+        -670,
+        -702,
+        -705,
+        -715,
+        -734,
+        -748,
+        -831,
+        -719,
+        -847,
+        -744,
+        -751,
+        -987,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000
+      ],
+      "accept": {
+        "21": [
+          "b6a4",
+          "g4f3",
+          "b6d7",
+          "h7h6",
+          "f8e8"
+        ],
+        "33": [
+          "g4e6"
+        ],
+        "81": [
+          "a2c2",
+          "b4a3"
+        ]
+      }
+    },
+    "legall": {
+      "white": "Legall de Kermeur",
+      "black": "Saint Brie",
+      "w": "Legall",
+      "b": "Saint Brie",
+      "title": "Legall's trap",
+      "where": "Paris, 1750",
+      "moves": [
+        "e4",
+        "e5",
+        "Nf3",
+        "d6",
+        "Bc4",
+        "Bg4",
+        "Nc3",
+        "g6",
+        "Nxe5",
+        "Bxd1",
+        "Bxf7+",
+        "Ke7",
+        "Nd5#"
+      ],
+      "phases": {},
+      "notes": {
+        "6": "Black pins the knight to the queen and expects it to stay put.",
+        "8": "A slow move. Black is not watching the centre or the f7 square.",
+        "9": "Legall moves the pinned knight anyway and offers his queen!",
+        "10": "Black grabs the queen. On points, Black is now far ahead.",
+        "11": "But the bishop checks, and the king is forced forward.",
+        "13": "Checkmate by three small pieces. The queen was the bait."
+      },
+      "predict": [
+        8
+      ],
+      "evals": [
+        14,
+        31,
+        21,
+        15,
+        40,
+        40,
+        25,
+        38,
+        153,
+        153,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "accept": {
+        "8": [
+          "f3e5"
+        ]
+      }
+    },
+    "reti_tartakower": {
+      "white": "Richard Réti",
+      "black": "Savielly Tartakower",
+      "w": "Réti",
+      "b": "Tartakower",
+      "title": "Réti against Tartakower",
+      "where": "Vienna, 1910",
+      "moves": [
+        "e4",
+        "c6",
+        "d4",
+        "d5",
+        "Nc3",
+        "dxe4",
+        "Nxe4",
+        "Nf6",
+        "Qd3",
+        "e5",
+        "dxe5",
+        "Qa5+",
+        "Bd2",
+        "Qxe5",
+        "O-O-O",
+        "Nxe4",
+        "Qd8+",
+        "Kxd8",
+        "Bg5+",
+        "Kc7",
+        "Bd8#"
+      ],
+      "phases": {},
+      "notes": {
+        "10": "Black strikes in the centre, but the black king is still at home with the queen's file opening.",
+        "16": "Black grabs a knight. It looks like Black is winning.",
+        "17": "Réti answers with a queen sacrifice. The king must take it.",
+        "19": "Double check! The bishop and the rook attack the king together, so it has to move.",
+        "21": "Checkmate. Black's own pieces block the king's escape."
+      },
+      "predict": [
+        16
+      ],
+      "evals": [
+        15,
+        31,
+        75,
+        70,
+        64,
+        64,
+        55,
+        60,
+        75,
+        35,
+        35,
+        30,
+        30,
+        46,
+        46,
+        46,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "accept": {
+        "16": [
+          "d3d8"
+        ]
+      }
+    },
+    "saavedra": {
+      "white": "Fernando Saavedra",
+      "black": "",
+      "w": "White",
+      "b": "Black",
+      "title": "The Saavedra study",
+      "where": "Glasgow, 1895",
+      "fen": "8/8/1KP5/3r4/8/8/8/k7 w - - 0 1",
+      "moves": [
+        "c7",
+        "Rd6+",
+        "Kb5",
+        "Rd5+",
+        "Kb4",
+        "Rd4+",
+        "Kb3",
+        "Rd3+",
+        "Kc2",
+        "Rd4",
+        "c8=R",
+        "Ra4",
+        "Kb3"
+      ],
+      "phases": {
+        "endgame": 0
+      },
+      "notes": {
+        "0": "A study: a made-up position with one hidden winning path. The pawn wants to queen, and the black rook will chase the king.",
+        "1": "The pawn is one step from queening. The rook starts checking.",
+        "9": "The king walks towards the rook until the checks run out.",
+        "10": "A sneaky trap. If White makes a queen, Black gives the rook away with check, and taking it leaves Black in stalemate.",
+        "11": "So White makes a rook instead! No stalemate now.",
+        "13": "Two threats at once: checkmate on the first row, or taking the black rook. White wins."
+      },
+      "predict": [
+        10
+      ],
+      "evals": [
+        517,
+        516,
+        526,
+        528,
+        533,
+        533,
+        564,
+        548,
+        567,
+        574,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "accept": {
+        "10": [
+          "c7c8r"
+        ]
+      }
+    },
+    "reti": {
+      "white": "Richard Réti",
+      "black": "",
+      "w": "White",
+      "b": "Black",
+      "title": "The Réti study",
+      "where": "Vienna, 1921",
+      "fen": "7K/8/k1P5/7p/8/8/8/8 w - - 0 1",
+      "moves": [
+        "Kg7",
+        "h4",
+        "Kf6",
+        "Kb6",
+        "Ke5",
+        "Kxc6",
+        "Kf4"
+      ],
+      "phases": {
+        "endgame": 0
+      },
+      "notes": {
+        "0": "The white king looks hopeless: too far to catch the black pawn, and its own pawn seems lost.",
+        "1": "The king walks diagonally. One path heads for both goals at once.",
+        "4": "Black's king goes after the white pawn.",
+        "5": "Now if the black pawn runs, the white king helps its own pawn to queen.",
+        "6": "Black takes the pawn...",
+        "7": "...and the white king catches the black pawn just in time. A draw from nowhere!"
+      },
+      "predict": [
+        0
+      ],
+      "evals": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "accept": {
+        "0": [
+          "h8g7"
+        ]
+      }
+    }
+  },
+  "parts": [
+    {
+      "id": "each-phase",
+      "title": "Understanding each phase",
+      "sub": "What each phase is for, and its common mistakes",
+      "beats": [
+        {
+          "say": "Every chess game is a journey in three acts: the opening, the middlegame and the endgame. Each act has its own job.",
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "tag": "opening"
+        },
+        {
+          "say": "In the opening, both sides bring out their knights and bishops, fight for the centre and castle to keep the king safe.",
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "play": [
+            "e4",
+            "e5",
+            "Nf3",
+            "Nc6",
+            "Bc4",
+            "Bc5",
+            "O-O",
+            "Nf6",
+            "d3",
+            "d6"
+          ],
+          "marks": [
+            "d4",
+            "e4",
+            "d5",
+            "e5"
+          ],
+          "tag": "opening"
+        },
+        {
+          "say": "Opening mistakes: bringing the queen out early, moving one piece again and again, and forgetting to castle. Here White's queen has moved twice while Black brought out a new piece each time.",
+          "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "play": [
+            "e4",
+            "e5",
+            "Qh5",
+            "Nc6",
+            "Bc4",
+            "g6",
+            "Qf3",
+            "Nf6"
+          ],
+          "tag": "opening"
+        },
+        {
+          "say": "The middlegame starts once the armies are out. Now each side needs a plan: attack the king, win a weak pawn or take over an open file. Forks, pins and sacrifices live here.",
+          "fen": "r2q1rk1/bpp2pp1/p1npbn1p/4p3/4P3/1BPP1N2/PP3PPP/R1BQRNK1 w - - 0 11",
+          "arrows": [
+            [
+              "d3",
+              "d4"
+            ],
+            [
+              "f1",
+              "g3"
+            ]
+          ],
+          "tag": "middlegame"
+        },
+        {
+          "ask": "choice",
+          "say": "Middlegame mistakes are moving without a plan, leaving pieces undefended, and attacking with too few pieces. Which plan fits the middlegame?",
+          "fen": "r1bq1rk1/2pnbppp/p2p1n2/1p2p3/3PP3/1BP2N1P/PP3PP1/RNBQR1K1 w - - 1 11",
+          "options": [
+            "Find a target and bring more pieces towards it",
+            "Move the queen out first and check often",
+            "Push every pawn as far as it goes"
+          ],
+          "answer": 0,
+          "explain": "A good plan picks a target and gathers pieces around it.",
+          "tag": "middlegame"
+        },
+        {
+          "say": "In the endgame only a few pieces are left. The king turns into a fighter and walks to the centre, and every pawn dreams of becoming a queen.",
+          "fen": "6k1/5ppp/8/8/8/8/5PPP/6K1 w - - 0 1",
+          "play": [
+            "Kf1",
+            "Kf8",
+            "Ke2",
+            "Ke7",
+            "Kd3",
+            "Kd6"
+          ],
+          "tag": "endgame"
+        },
+        {
+          "say": "Endgame mistakes: leaving the king at home, pushing pawns before the king can help, and stalemate. Here White is a whole queen up, yet Black has no legal move. That is stalemate, a draw.",
+          "fen": "7k/5K2/6Q1/8/8/8/8/8 b - - 0 1",
+          "marks": [
+            "h8"
+          ],
+          "tag": "endgame"
+        },
+        {
+          "ask": "phase",
+          "say": "Which phase is this?",
+          "fen": "8/5pk1/6p1/8/3R4/6P1/r4PK1/8 w - - 0 41",
+          "answer": "endgame",
+          "explain": "Only rooks and pawns are left, and the kings can come forward. That is an endgame."
+        }
+      ]
+    },
+    {
+      "id": "transitions",
+      "title": "Transitions between phases",
+      "sub": "How and when one phase turns into the next",
+      "beats": [
+        {
+          "say": "No bell rings at move ten. The opening turns into the middlegame when the pieces are out and the kings are safe. That can happen at move eight or at move twenty.",
+          "at": {
+            "game": "century",
+            "ply": 20
+          }
+        },
+        {
+          "say": "Clues that the opening is over: the knights and bishops have left home, both kings have castled and the plans begin to clash.",
+          "fen": "r1bq1rk1/2pnbppp/p2p1n2/1p2p3/3PP3/1BP2N1P/PP3PP1/RNBQR1K1 w - - 1 11",
+          "marks": [
+            "g1",
+            "g8"
+          ],
+          "tag": "middlegame"
+        },
+        {
+          "say": "The endgame begins when the queens come off and only a few pieces remain. Trades are the doorway.",
+          "fen": "3r2k1/pp3ppp/5n2/3q4/3Q4/5N2/PP3PPP/3R2K1 w - - 0 1",
+          "play": [
+            "Qxd5",
+            "Nxd5"
+          ],
+          "tag": "endgame"
+        },
+        {
+          "say": "Pawns shape the plans. With a locked chain like this, each side attacks where its pawns point: White on the kingside, Black on the queenside.",
+          "fen": "r1bqkb1r/pp1n1ppp/2n1p3/2ppP3/3P1P2/2N2N2/PPP3PP/R1BQKB1R w KQkq - 2 7",
+          "arrows": [
+            [
+              "f4",
+              "f5"
+            ],
+            [
+              "c5",
+              "d4"
+            ]
+          ],
+          "marks": [
+            "d4",
+            "e5",
+            "d5",
+            "e6"
+          ],
+          "tag": "opening"
+        },
+        {
+          "say": "Some games never reach an endgame. Morphy finished his in the middlegame at move seventeen.",
+          "at": {
+            "game": "opera",
+            "ply": 33
+          }
+        },
+        {
+          "say": "Others travel through all three. Watch the coloured bands under the graph: Fischer's game moved into the endgame once only a few pieces were left.",
+          "game": "century",
+          "from": 56,
+          "to": 60
+        },
+        {
+          "ask": "choice",
+          "say": "When does the middlegame begin?",
+          "fen": "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+          "options": [
+            "When the pieces are out and the real fight starts",
+            "Always at move ten",
+            "As soon as the first piece is captured"
+          ],
+          "answer": 0,
+          "explain": "There is no fixed move number. Development, trades and pawns decide it."
+        },
+        {
+          "ask": "phase",
+          "say": "It is only move eight. Which phase is it?",
+          "fen": "4k3/ppp2ppp/8/8/8/8/PPP2PPP/4K3 w - - 0 8",
+          "answer": "endgame",
+          "explain": "Only kings and pawns are left, so it is an endgame, even at move eight."
+        }
+      ]
+    },
+    {
+      "id": "strong-players",
+      "title": "How strong players win",
+      "sub": "Small edges, and points versus a winning position",
+      "beats": [
+        {
+          "say": "Strong players rarely win with one big blow. They collect small edges: a better square for a piece, a weaker pawn, a little more space.",
+          "fen": "2b3k1/5pp1/4p2p/p2pP3/Pp1P4/1P1N2P1/5PKP/8 w - - 0 1",
+          "marks": [
+            "c5"
+          ],
+          "arrows": [
+            [
+              "d3",
+              "c5"
+            ]
+          ],
+          "tag": "endgame"
+        },
+        {
+          "say": "Points are equal here, yet White is better. The knight reaches a dream square, while the bishop is stuck behind its own pawns.",
+          "fen": "2b3k1/5pp1/4p2p/p2pP3/Pp1P4/1P1N2P1/5PKP/8 w - - 0 1",
+          "play": [
+            "Nc5",
+            "Kf8",
+            "Kf3",
+            "Ke7"
+          ],
+          "tag": "endgame"
+        },
+        {
+          "say": "Material counts the pieces: a pawn is one point, a knight or bishop three, a rook five and a queen nine. Useful, but not the whole story. Here White has nine more points, and it is Black to move.",
+          "fen": "4r1k1/1Q3ppp/R7/8/8/8/5PPP/6K1 b - - 0 1",
+          "eval": true,
+          "tag": "middlegame",
+          "evalCp": -1000
+        },
+        {
+          "ask": "move",
+          "say": "Black is far behind on points. Find the move that wins anyway.",
+          "fen": "4r1k1/1Q3ppp/R7/8/8/8/5PPP/6K1 b - - 0 1",
+          "best": "Re1#",
+          "explain": "The rook mates on the back row. Points stop mattering once the king is caught.",
+          "accept": [
+            "e8e1"
+          ]
+        },
+        {
+          "say": "The opposite happens too. Points are equal here, but White is winning: the white pawn queens first, and the white king catches the black one.",
+          "fen": "8/8/1P3k2/8/7p/8/6K1/8 w - - 0 1",
+          "eval": true,
+          "play": [
+            "b7",
+            "h3",
+            "Kxh3"
+          ],
+          "tag": "endgame",
+          "evalCp": 1000
+        },
+        {
+          "say": "Turning an edge into a win takes patience. With an extra pawn, the king leads the way and the pawn follows.",
+          "fen": "8/8/4k3/8/8/4K3/4P3/8 w - - 0 1",
+          "play": [
+            "Ke4",
+            "Kd6",
+            "Kf5",
+            "Ke7",
+            "Ke5",
+            "Kd7",
+            "Kf6"
+          ],
+          "tag": "endgame"
+        },
+        {
+          "ask": "choice",
+          "say": "What does the points count leave out?",
+          "fen": "8/8/8/5k2/8/8/4KP2/8 w - - 0 1",
+          "options": [
+            "King safety, active pieces and passed pawns",
+            "Nothing: the points decide the game",
+            "Only how many pawns each side has"
+          ],
+          "answer": 0,
+          "explain": "A safe king, active pieces and passed pawns can be worth more than points."
+        }
+      ]
+    },
+    {
+      "id": "traps",
+      "title": "Traps, sacrifices and comebacks",
+      "sub": "Why being ahead on points does not guarantee a win",
+      "beats": [
+        {
+          "say": "A trap is a move that looks like a gift. Watch Legall seem to drop his queen.",
+          "game": "legall"
+        },
+        {
+          "say": "Black should have taken the knight instead and stayed only a pawn down. Greed was the real mistake.",
+          "at": {
+            "game": "legall",
+            "ply": 9
+          },
+          "arrows": [
+            [
+              "d6",
+              "e5"
+            ]
+          ]
+        },
+        {
+          "say": "A sacrifice gives up material for something bigger: a mating attack, open lines or a pawn that will queen.",
+          "game": "reti_tartakower"
+        },
+        {
+          "say": "In the Immortal Game, Black ended up far ahead on points and still lost. The extra pieces were in the wrong place, and the king had no defenders.",
+          "at": {
+            "game": "immortal",
+            "ply": 45
+          }
+        },
+        {
+          "say": "Comebacks happen when the leader relaxes, and a lost-looking position often hides a resource: checks, a stalemate trick or a racing pawn.",
+          "game": "reti"
+        },
+        {
+          "ask": "move",
+          "say": "You are a rook down and Black threatens mate. Find the move that saves the game.",
+          "fen": "7k/6p1/5p2/8/8/2q5/1r3PPP/4Q1K1 w - - 0 1",
+          "best": "Qe8+",
+          "explain": "Check after check: the black king can never escape, so the game is a draw by repetition.",
+          "accept": [
+            "e1e8"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "famous-games",
+      "title": "Famous historical games",
+      "sub": "Replay legendary games and guess the masters' moves",
+      "beats": [
+        {
+          "say": "Now replay four legendary games. Pause any time, try your own idea, and guess what the masters played.",
+          "at": {
+            "game": "opera",
+            "ply": 17
+          }
+        },
+        {
+          "say": "Paul Morphy plays the Duke of Brunswick and Count Isouard during a night at the opera. Watch how fast development wins.",
+          "game": "opera"
+        },
+        {
+          "say": "Anderssen gives away a bishop, both rooks and his queen, and still delivers mate. Count the points as you go.",
+          "game": "immortal"
+        },
+        {
+          "say": "A thirteen-year-old Bobby Fischer gives up his queen and wins against Donald Byrne. This game passes through all three phases.",
+          "game": "century"
+        },
+        {
+          "say": "One of the most famous endgame puzzles ever. A queen would only draw, so what wins?",
+          "game": "saavedra"
+        }
+      ]
+    },
+    {
+      "id": "explore",
+      "title": "Visual and interactive learning",
+      "sub": "Arrows, points, the graph and your own ideas",
+      "beats": [
+        {
+          "say": "Arrows show the move just played, and glowing squares point at what matters. Here the bishop cuts off the queen and the king at once.",
+          "at": {
+            "game": "immortal",
+            "ply": 35
+          },
+          "marks": [
+            "d6"
+          ]
+        },
+        {
+          "say": "The points bar counts material. The graph shows who the engine thinks is winning, move by move. Here Black is far ahead on points, yet the graph says White is winning.",
+          "at": {
+            "game": "immortal",
+            "ply": 40
+          },
+          "eval": true,
+          "evalCp": 1000
+        },
+        {
+          "say": "Your turn to explore. Just before Fischer's famous move, play any move for Black, perhaps saving the queen, and watch the graph answer. Then go back to the real game.",
+          "game": "century",
+          "from": 33,
+          "to": 35,
+          "explore": true
+        }
+      ]
+    },
+    {
+      "id": "practice",
+      "title": "Practice and assessment",
+      "sub": "Name the phase, pick a plan, spot traps and fight back",
+      "beats": [
+        {
+          "ask": "phase",
+          "say": "Which phase is this?",
+          "fen": "r1bqkb1r/pp1n1ppp/2n1p3/2ppP3/3P1P2/2N2N2/PPP3PP/R1BQKB1R b KQkq - 2 7",
+          "answer": "opening",
+          "explain": "The pieces are still coming out and neither king has castled."
+        },
+        {
+          "ask": "phase",
+          "say": "Move twenty-four, and most pieces are still on the board. Which phase is it?",
+          "fen": "r2q1rk1/pp2bppp/2n1pn2/3p4/3P4/2NBPN2/PP3PPP/R2Q1RK1 w - - 0 24",
+          "answer": "middlegame",
+          "explain": "Everyone is developed and castled, and the queens are still on: the middlegame."
+        },
+        {
+          "ask": "choice",
+          "say": "The kings have castled on opposite sides. What is a good plan for White?",
+          "fen": "r4rk1/ppp1qppp/2n1bn2/2b1p3/4P3/2NPBN2/PPPQ1PPP/2KR1B1R w - - 0 9",
+          "options": [
+            "Push the kingside pawns towards the black king",
+            "Walk the king back to the centre",
+            "Trade every piece straight away"
+          ],
+          "answer": 0,
+          "explain": "With kings on opposite sides, pawn storms open lines without exposing your own king."
+        },
+        {
+          "ask": "choice",
+          "say": "Only kings and pawns are left. What should each king do?",
+          "fen": "8/pp3k2/8/8/8/8/PP3K2/8 w - - 0 30",
+          "options": [
+            "Walk to the centre and help the pawns",
+            "Stay safely in the corner",
+            "Wait while the pawns run alone"
+          ],
+          "answer": 0,
+          "explain": "In the endgame the king is a strong piece. Bring it forward."
+        },
+        {
+          "ask": "choice",
+          "say": "The knight on f6 is pinned, so the pawn on d5 looks free. What happens if White takes it with the knight?",
+          "fen": "r1bqkb1r/pppn1ppp/5n2/3p2B1/3P4/2N5/PP2PPPP/R2QKBNR w KQkq - 0 6",
+          "options": [
+            "Black lets the queen go, checks with the bishop and comes out a piece ahead",
+            "White simply wins a pawn",
+            "Black loses the knight on f6"
+          ],
+          "answer": 0,
+          "explain": "The pin is fake: after the knight takes, the bishop check wins the white queen back with interest."
+        },
+        {
+          "ask": "move",
+          "say": "White threatens checkmate on f7. Find a move that stops it.",
+          "fen": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3",
+          "best": "g6",
+          "explain": "Guarding f7 or blocking the queen ends the threat, and Black can chase the queen next.",
+          "accept": [
+            "g7g6",
+            "d8e7",
+            "d8f6",
+            "g8h6"
+          ]
+        },
+        {
+          "ask": "move",
+          "say": "You are far behind on points. Find the move that wins anyway.",
+          "fen": "r4r1k/6pp/7N/3Q4/8/8/1q3PPP/6K1 w - - 0 1",
+          "best": "Qg8+",
+          "explain": "The queen sacrifice forces the rook to take, then the knight gives a smothered mate.",
+          "accept": [
+            "d5g8"
+          ]
+        },
+        {
+          "ask": "move",
+          "say": "Black has a queen against your rook. Find the move that saves White.",
+          "fen": "7k/5R2/8/8/8/4q2p/7P/7K w - - 0 1",
+          "best": "Rf8+",
+          "explain": "The rook keeps giving check. Your king has no moves, so if Black ever takes the rook, it is stalemate.",
+          "accept": [
+            "f7f8",
+            "f7h7"
+          ]
+        }
+      ]
+    }
+  ]
+}

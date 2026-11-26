@@ -87,7 +87,7 @@
  "store": {
   "who": "rooky",
   "voice": "pm_alex",
-  "text": "Esta parte é para adultos. Por favor, peça a um adulto antes de comprar qualquer coisa."
+  "text": "Aqui você pode ver o Premium e o Passe da Temporada. Tudo o que você ganha jogando continua sendo seu."
  },
  "review": {
   "who": "rooky",
@@ -188,6 +188,11 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Algumas partidas acabam rapidinho! Vamos aprender as armadilhas para você nunca cair nelas."
+ },
+ "lesson.open.three-phases": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Toda partida é uma viagem em três partes! Vamos ver como os mestres constroem a vitória."
  },
  "lesson.open.forks": {
   "who": "rooky",
@@ -338,6 +343,16 @@
   "who": "rooky",
   "voice": "pm_alex",
   "text": "Encontre o melhor lance! Procure xeques, capturas e ameaças."
+ },
+ "puzzle.mate": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Encontre o xeque-mate! Dê xeque no rei e não deixe saída."
+ },
+ "puzzle.mateN": {
+  "who": "rooky",
+  "voice": "pm_alex",
+  "text": "Planeje seu xeque-mate! Cada lance deve deixar o rei com menos saídas."
  },
  "puzzle.wrong": {
   "who": "rooky",
