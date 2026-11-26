@@ -25113,13 +25113,15 @@ function ChacklateScene(canvas, options) {
         s2.add(g);
       }));
       const wide = spec.kind === 'pieces' ? Math.max(1, (widest + 0.04) / 0.78) : 1;
+      // ... and far enough for the piece at each end of the front row to stand inside the picture
+      const far = wide > 1 ? Math.max(wide, (1.95 * wide + widest / 2 + 0.05) / (Math.tan((c2.fov * Math.PI) / 360) * (w / h) * 5.95)) : 1;
       for (const [g, i, r] of row) g.position.set((i - (types.length - 1) / 2) * 0.78 * wide, 0, (r ? -0.85 : 0.2) * wide);
       if (spec.kind === 'piece') {
         // framed for the usual height of its kind; a taller figure (a foot soldier for a pawn,
         // an elephant for a rook) is framed whole instead of losing its head
         const all = new THREE.Box3().setFromObject(s2), hb = all.isEmpty() ? 0 : all.max.y, ht = Math.max(P.HEIGHT[types[0]] || 1, hb * 0.9);
         if (spec.level) { const h1 = hb || ht; c2.position.set(0, h1 * 0.5, h1 * 4.2 + 0.8); look.set(0, h1 * 0.5, 0); } else { c2.position.set(0.25 * ht, ht * 0.75, ht * 2.9 + 0.5); look.set(0, ht * 0.48, 0); }
-      } else { c2.position.set(0, 1.9 * wide, 6.0 * wide); look.set(0, 0.55 * wide, -0.3 * wide); }
+      } else { c2.position.set(0, 1.9 * far, 6.0 * far); look.set(0, 0.55 * far, -0.3 * far); }
       // floor: false leaves the pieces standing on nothing (the menu medals, tools/shoot-art.js)
       if (spec.floor !== false) {
         const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshPhysicalMaterial({ color: '#1e130d', roughness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
