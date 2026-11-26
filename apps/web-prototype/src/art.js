@@ -6,7 +6,7 @@ const ChacklateArt = (() => {
   'use strict';
 
   // Pictures rendered from the 3D game (build.py inlines CHACKLATE_ART); drawn art stands in without them.
-  const ART_IMG = Object.assign({ piece: {}, view: {}, avatar: {}, frame: {} }, typeof CHACKLATE_ART !== 'undefined' ? CHACKLATE_ART : {});
+  const ART_IMG = Object.assign({ piece: {}, view: {}, avatar: {}, frame: {}, ui: {}, era: {} }, typeof CHACKLATE_ART !== 'undefined' ? CHACKLATE_ART : {});
 
   // ------------------------------------------------------------ colour helpers
   const rgb = (c) => {
@@ -976,6 +976,9 @@ const ChacklateArt = (() => {
     // which animal a portrait address shows, for live.js (the portraits that breathe and blink)
     liveOf: (u) => liveMap.get(u) || null,
     crestUri: () => memo('crest', () => crest()),
+    // the menu icons cut from the user's menu pictures (tools/menu-art) and each era's scene for its Journey card
+    uiUri: (name) => ART_IMG.ui[name] || null,
+    eraUri: (id) => ART_IMG.era[id] || null,
     miniUri: (kind, o) => memo('mini' + kind + JSON.stringify(o || {}), () => miniMedal(kind, o)),
     // an era's own painted view (as seen from its room's window) where the build has it
     // the 3D gold frame for an avatar (frame.<name>.v1), rendered from avatars3d.js; null if not built
