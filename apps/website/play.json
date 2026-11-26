@@ -1,0 +1,345 @@
+{
+ "note": "Made by tools/pick-play.js from packages/content; every position is proved with the game engine.",
+ "mate": [
+  {
+   "id": "puzzle.m13cf0f57fb8",
+   "fen": "r2qkbnr/1p2pppp/8/1p6/5n2/2B5/PPP2PPP/1RK4R w kq - 2 18",
+   "pre": "h1g1",
+   "line": [
+    "f4e2"
+   ]
+  },
+  {
+   "id": "puzzle.m10bb306794c",
+   "fen": "r2qk3/ppp2pp1/4b3/3pP3/8/4bnn1/PPP3P1/3RKBr1 w q - 0 21",
+   "pre": "g2f3",
+   "line": [
+    "g1f1"
+   ]
+  },
+  {
+   "id": "puzzle.m193b6f3e891",
+   "fen": "r1b1kbnr/1p3ppp/p7/4p3/P2p2PP/3KP1N1/1P1P1P2/1q3B1R w kq - 4 15",
+   "pre": "d3c4",
+   "line": [
+    "c8e6"
+   ]
+  },
+  {
+   "id": "puzzle.m1af95151539",
+   "fen": "r1b3nN/1pQ1k2p/p3ppp1/3p4/3P1B2/5N2/PPP2PPP/R3KB1R b KQ - 1 16",
+   "pre": "e7f8",
+   "line": [
+    "c7f7"
+   ]
+  },
+  {
+   "id": "puzzle.m136b52a9a33",
+   "fen": "r7/p4p2/2Q4p/2p1k2p/N3P3/8/PPP1NPPP/3RKB1R b K - 2 15",
+   "pre": "a8g8",
+   "line": [
+    "f2f4"
+   ]
+  }
+ ],
+ "themes": {
+  "fork": [
+   {
+    "id": "puzzle.ac4b347dcd",
+    "fen": "2r5/p3k3/p7/2p5/2P1NPP1/1P2K3/P7/8 b - - 6 42",
+    "pre": "e7f7",
+    "last": "e7f7",
+    "line": [
+     "e4d6",
+     "f7e7",
+     "d6c8"
+    ]
+   },
+   {
+    "id": "puzzle.d554ae70e3",
+    "fen": "r3kb1r/p1pq1ppp/3p4/2p2b2/1P2nP1P/1R2BN2/P1P1N1P1/3QKB1R b Kkq - 3 14",
+    "pre": "d7e7",
+    "last": "d7e7",
+    "line": [
+     "d1d5",
+     "a8d8",
+     "d5f5"
+    ]
+   },
+   {
+    "id": "puzzle.3ac11333b5",
+    "fen": "rnbqkb1r/1pp1n1pp/p2p4/3P1pN1/4p3/4P2P/PPP1BPP1/RNBQK2R b KQkq - 1 7",
+    "pre": "e8d7",
+    "last": "e8d7",
+    "line": [
+     "g5f7",
+     "d8e8",
+     "f7h8"
+    ]
+   }
+  ],
+  "pin": [
+   {
+    "id": "puzzle.07c6123c1a",
+    "fen": "r1bqkb1r/p1p1pppp/1pn5/3p3n/3P1B2/2Q1PN2/PPP2PPP/RN2KB1R b KQkq - 2 6",
+    "pre": "e8d7",
+    "last": "e8d7",
+    "line": [
+     "f1b5"
+    ]
+   },
+   {
+    "id": "1353ff57c3",
+    "fen": "r1bqkb1r/6pp/2p5/4p3/4p3/8/2N3PP/1R3K2 b kq - 1 42",
+    "pre": null,
+    "last": "e2f1",
+    "line": [
+     "d8d3"
+    ]
+   },
+   {
+    "id": "5e6659f7c3",
+    "fen": "r3k2r/ppp1nppp/8/3n4/4P3/P1P5/PB1P1PPq/2RbKB1R b Kkq - 0 13",
+    "pre": null,
+    "last": "c2c3",
+    "line": [
+     "h2h1"
+    ]
+   }
+  ],
+  "skewer": [
+   {
+    "id": "puzzle.301fae1ab2",
+    "fen": "r1bqk2r/pppp1ppp/2nbp3/8/3Pn3/3B1N2/PPP2PPP/RNBQ1RK1 b kq - 4 8",
+    "pre": "h8g8",
+    "last": "h8g8",
+    "line": [
+     "d3e4"
+    ]
+   },
+   {
+    "id": "puzzle.d6db307652",
+    "fen": "1rbqkb1r/ppppp3/2n3p1/3n1pNp/2NP4/6P1/PPP1PPBP/R1BQ1RK1 b k - 3 8",
+    "pre": "a7a5",
+    "last": "a7a5",
+    "line": [
+     "g2d5"
+    ]
+   },
+   {
+    "id": "puzzle.0b05339616",
+    "fen": "r2qkbr1/p1pb1p1p/3p4/6N1/4Qp2/2P5/P1P1PPPP/3RKB1R b Kq - 2 13",
+    "pre": "d8e7",
+    "last": "d8e7",
+    "line": [
+     "e4a8"
+    ]
+   }
+  ],
+  "discovered": [
+   {
+    "id": "puzzle.e2f624ba6e",
+    "fen": "rnb1kb1r/ppppqppp/2N2n2/1B6/4p3/4P3/PPPP1PPP/RNBQK2R b KQkq - 3 5",
+    "pre": "d7d5",
+    "last": "d7d5",
+    "line": [
+     "c6e7"
+    ]
+   },
+   {
+    "id": "puzzle.8127be399a",
+    "fen": "1rbq1r2/1ppp1p1k/p2b1p1p/8/2B1P3/2NQ4/PPP2PPP/1R3RK1 b - - 3 13",
+    "pre": "f8e8",
+    "last": "f8e8",
+    "line": [
+     "e4e5"
+    ]
+   },
+   {
+    "id": "1c4393d1bb",
+    "fen": "1r6/1p1k1pp1/2b5/2Q1p3/2P1p1PN/Pp1P4/3R1PP1/6K1 w - - 0 29",
+    "pre": null,
+    "last": "a4b3",
+    "line": [
+     "d3e4"
+    ]
+   }
+  ],
+  "free": [
+   {
+    "id": "puzzle.977fbae9c7",
+    "fen": "r1br2k1/1pp3pp/p3pp2/7Q/3P1q2/8/PPPR1PPP/2K2BR1 w - - 7 20",
+    "pre": "c1b1",
+    "last": "c1b1",
+    "line": [
+     "f4d2"
+    ]
+   },
+   {
+    "id": "puzzle.58df9846a4",
+    "fen": "r2qkb1r/pp1nppp1/5n1p/3p4/P2p2b1/4PN2/1PPN1PPP/R1BQKB1R w KQkq - 0 8",
+    "pre": "f3d4",
+    "last": "f3d4",
+    "line": [
+     "g4d1"
+    ]
+   },
+   {
+    "id": "puzzle.9ed8d5cc26",
+    "fen": "r1b1kr2/1pp2pp1/pn1bpn1p/8/2QP4/P3P3/1PPBNPPP/3RR1K1 w q - 4 17",
+    "pre": "e2f4",
+    "last": "e2f4",
+    "line": [
+     "b6c4"
+    ]
+   }
+  ],
+  "deflect": [
+   {
+    "id": "puzzle.m21ecf5419c8",
+    "fen": "1r2kb2/pp1n1ppr/8/2Ppp3/4q3/2P2K2/1P2PP2/1R6 w - - 1 24",
+    "pre": "f3g3",
+    "last": "f3g3",
+    "line": [
+     "e4g6",
+     "g3f3",
+     "h7h3"
+    ]
+   },
+   {
+    "id": "puzzle.m275e0a195f5",
+    "fen": "1r5r/1pp3pp/p1nk4/3Qp1N1/4B3/P6P/1PPB1P1n/4R1KR b - - 2 23",
+    "pre": "d6e7",
+    "last": "d6e7",
+    "line": [
+     "d5e6",
+     "e7d8",
+     "g5f7"
+    ]
+   },
+   {
+    "id": "puzzle.m3ed59488c1a",
+    "fen": "5k2/5P2/1p2Qn1p/p7/P2N3P/P3P1PR/3N4/R3K3 b - - 2 37",
+    "pre": "f8g7",
+    "last": "f8g7",
+    "line": [
+     "d4f5",
+     "g7h7",
+     "e6f6",
+     "b6b5",
+     "f6h6"
+    ]
+   }
+  ]
+ },
+ "modules": {
+  "openings": {
+   "id": "9e688589b7",
+   "fen": "rnbqkbnr/pp2pppp/2p5/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b KQkq - 1 3",
+   "last": "b1c3",
+   "answers": [
+    "d5e4",
+    "e7e6",
+    "d8a5",
+    "g8f6"
+   ],
+   "note": "Trade the d-pawn for White's e-pawn."
+  },
+  "tactics": {
+   "id": "840ac1edd0",
+   "fen": "1n1r4/2p1qppk/p7/PB1b4/3p4/7P/P1P5/5RK1 b - - 3 31",
+   "last": "e2b5",
+   "answers": [
+    "e7g5"
+   ]
+  },
+  "endgame": {
+   "id": "51d835916b",
+   "fen": "3R4/8/1r3k2/5p2/2p5/1r5p/2K5/8 b - - 5 81",
+   "last": "d2d8",
+   "answers": [
+    "h3h2"
+   ]
+  },
+  "defences": {
+   "id": "dd9285fb4d",
+   "fen": "2bqk1nr/5p1p/r1ppB2b/5np1/N7/1P1K3P/P1P3P1/R1B1Q1NR w k - 4 18",
+   "last": "a8a6",
+   "answers": [
+    "e6c8"
+   ],
+   "threat": "c8e6"
+  },
+  "time": {
+   "id": "0600163244",
+   "fen": "8/8/6p1/3pkr1p/5p2/8/b4K2/8 b - - 11 72",
+   "last": "f3f2",
+   "answers": [
+    "f4f3"
+   ]
+  },
+  "advantage": {
+   "id": "d424a6b379",
+   "fen": "k7/8/1p1b2Q1/5p2/1rPP1P2/1P3b2/3B1P2/2K5 w - - 4 63",
+   "last": "c6f3",
+   "answers": [
+    "g6d6"
+   ]
+  },
+  "blunders": {
+   "id": "390bc948d5",
+   "fen": "3rk2r/ppp3p1/4pn2/2b1P1Np/5P2/P2P1q2/1PP1B1P1/1RK4R w k - 0 20",
+   "last": "c6f3",
+   "answers": [
+    "e2f3"
+   ]
+  },
+  "intuition": {
+   "id": "3d0a04bf1a",
+   "fen": "r1bq1b1r/1ppk1pp1/B2pp2p/8/8/5P2/PPPP1P1n/R1B3K1 b - - 0 16",
+   "last": "c4a6",
+   "answers": [
+    "h2f3"
+   ],
+   "options": [
+    "h2f3",
+    "a8a6",
+    "b7a6"
+   ]
+  },
+  "retry": {
+   "id": "e926eee43e",
+   "fen": "8/ppN2pp1/4pk1r/3nN2p/P2KP2P/b7/6P1/5B1R b - - 0 20",
+   "last": "b5c7",
+   "answers": [
+    "d5c7",
+    "a3b2"
+   ],
+   "played": "b7b5"
+  },
+  "patterns": {
+   "id": "e916c5f07c",
+   "fen": "5R2/8/8/1P4R1/4KPPP/2Q1P3/k7/2B5 w - - 31 64",
+   "last": "b1a2",
+   "answers": [
+    "c3b2"
+   ],
+   "mate": true
+  },
+  "review": {
+   "id": "bf445b15f2",
+   "fen": "rnbqkb1r/ppp1pppp/5n2/8/8/8/PpPPPPPP/R1BQKBNR w KQkq - 0 6",
+   "last": "c3b2",
+   "answers": [
+    "c1b2"
+   ],
+   "played": "f2f3"
+  }
+ },
+ "round": [
+  "openings",
+  "tactics",
+  "defences",
+  "endgame"
+ ]
+}
