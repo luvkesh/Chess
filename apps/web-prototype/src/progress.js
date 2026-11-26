@@ -496,13 +496,19 @@ function ChacklateProgress(catalog, extras) {
   function puzzleFinished(state, puzzle, solved, opts, now) {
     const out = result();
     const p = state.stats.puzzles;
-    // A puzzle already solved once moves neither XP nor the rating when it is played again.
+    out.ratingDelta = 0;
+    // An unrated replay (today's daily puzzle opened again) changes nothing at all.
+    if (opts && opts.unrated) return out;
+    // A puzzle already solved once moves neither XP nor the rating when it is played again, and
+    // only the first attempt at a puzzle moves the rating: one missed, shown or revealed again
+    // later (a set's missed puzzles come back, the daily puzzle can be reopened) is not rated twice.
     const again = (p.done || (p.done = [])).includes(puzzle.id);
+    const rated = !again && !(p.seen || []).includes(puzzle.id);
     if (solved && !again) p.done.push(puzzle.id);
     const exp = 1 / (1 + Math.pow(10, (puzzle.rating - p.rating) / 400));
     const k = p.solved + p.failed < 20 ? 40 : 20;
     const before = p.rating;
-    if (!again) p.rating = Math.max(100, Math.round(p.rating + k * ((solved ? 1 : 0) - exp)));
+    if (rated) p.rating = Math.max(100, Math.round(p.rating + k * ((solved ? 1 : 0) - exp)));
     out.ratingDelta = p.rating - before;
     if (solved) p.solved++; else p.failed++;
     if (!p.seen.includes(puzzle.id)) p.seen.push(puzzle.id);
@@ -521,7 +527,11 @@ function ChacklateProgress(catalog, extras) {
       if (ms) achieve(state, 'pstreak-' + ms, out);
     } else if (!(opts && opts.hinted)) out.streak = Object.assign({ n: 0, best: p.bestStreak || 0 }, puzzleMiss(state));
     const dDay = today(now ? new Date(now) : undefined);
-    if (opts && opts.daily && solved && !(state.daily.done && state.daily.date >= dDay)) { state.daily = { date: dDay, done: true }; grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
+    // The day's daily puzzle keeps its result, so reopening it shows that result and replays unrated.
+    if (opts && opts.daily && !(state.daily.date === dDay && state.daily.id === puzzle.id && state.daily.result)) {
+      state.daily = Object.assign({}, state.daily, { date: dDay, id: puzzle.id, result: solved ? 'solved' : 'missed', delta: out.ratingDelta, done: state.daily.date === dDay ? !!state.daily.done : false });
+    }
+    if (opts && opts.daily && solved && !(state.daily.done && state.daily.date >= dDay)) { state.daily = Object.assign({}, state.daily, { date: dDay, done: true }); grant(state, 25, out); earn(state, 'daily-puzzle', COINS['daily-puzzle'].amount, { times: 1, now }, out); achieve(state, 'daily-puzzle', out); track(state, 'daily', 1, now, out); }
     if (solved) track(state, 'puzzle', 1, now, out);
     touchStreak(state, now ? new Date(now) : undefined, out);
     return out;

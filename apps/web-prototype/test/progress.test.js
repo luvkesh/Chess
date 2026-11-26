@@ -233,6 +233,19 @@ s = PG.fresh();
 const r1 = PG.puzzleFinished(s, { id: 'again', rating: 1200 }, true, null, day(12));
 const r2 = PG.puzzleFinished(s, { id: 'again', rating: 1200 }, true, null, day(12));
 assert(r1.xp > 0 && r2.xp === 0 && r2.ratingDelta === 0, 'a solved puzzle pays once');
+// A revealed (missed) puzzle is rated once: reopening the daily puzzle and revealing it again costs nothing more
+{
+  const d = PG.fresh(), dp = { id: 'daily-miss', rating: 1400 };
+  const m1 = PG.puzzleFinished(d, dp, false, { daily: true }, day(13));
+  assert(m1.ratingDelta < 0, 'the first miss moves the rating');
+  assert.strictEqual(d.daily.id, 'daily-miss'); assert.strictEqual(d.daily.result, 'missed'); assert.strictEqual(d.daily.delta, m1.ratingDelta);
+  const m2 = PG.puzzleFinished(d, dp, false, { daily: true }, day(13));
+  assert.strictEqual(m2.ratingDelta, 0, 'a second reveal of the same daily puzzle is not rated');
+  assert.strictEqual(d.daily.delta, m1.ratingDelta, 'the day keeps its first result');
+  const r = d.stats.puzzles.rating, st = d.stats.puzzles.streak;
+  const u = PG.puzzleFinished(d, dp, true, { daily: true, unrated: true }, day(13));
+  assert(u.ratingDelta === 0 && d.stats.puzzles.rating === r && d.stats.puzzles.streak === st && !u.coins, 'an unrated replay changes nothing');
+}
 const quick = () => PG.gameFinished(s, { mode: 'ai', level: 0, lost: true, plies: 0, sans: [] }, day(12)).xp;
 quick();   // the first game also earns its badge
 let shortXp = 0; for (let i = 0; i < 50; i++) shortXp += quick();

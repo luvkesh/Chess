@@ -31,7 +31,7 @@ function expected() {
     g.howTo.forEach((s, i) => put('mini.' + g.id + '.how' + i, s));
     for (const [v, n] of g.levels) put('mini.' + g.id + '.lv.' + v, n);
   }
-  for (const v of content('variants.json').variants) for (const f of ['tagline', 'when', 'blurb']) put('var.' + v.id + '.' + f, v[f]);
+  for (const v of content('variants.json').variants) for (const f of ['tagline', 'when', 'origin', 'blurb']) put('var.' + v.id + '.' + f, v[f]);
   return out;
 }
 module.exports = { expected, slug };

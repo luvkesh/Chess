@@ -32,6 +32,12 @@
   // ---------------------------------------------------------------- the link
   async function connect() {
     let c = null;
+    // The live room only exists inside the published preview, which always runs in a frame. A page
+    // that is the top window (the public site before its game server, a downloaded file) has none,
+    // so it says so at once and the online cards show Coming soon.
+    let framed = true;
+    try { framed = window.top !== window.self; } catch (e) { framed = true; }
+    if (!framed && !window.claude) return setLink('unavailable');
     // The page's runtime arrives a moment after load, or never when the file is opened on its own.
     for (let i = 0; i < 20 && !c; i++) {
       const g = window.claude;
@@ -55,7 +61,10 @@
 
   function setLink(v) {
     if (link === v || (link === 'ready' && v === 'unavailable' && ready)) return;
+    const was = link;
     link = v;
+    // The online cards on Home, Play and the Club follow: Coming soon once the room cannot be reached.
+    if (v === 'unavailable' && was === 'connecting' && !serverOn() && A() && ['home', 'play'].includes(A().state.screen) && !document.querySelector('.modal')) setTimeout(() => A().go(A().state.screen), 0);
     const w = linkWaiters; linkWaiters = [];
     if (v !== 'connecting') for (const f of w) f(v === 'ready');
   }
@@ -71,7 +80,7 @@
     if (waitModal !== m) return;   // cancelled
     closeWait(true);
     if (ok) return go();
-    A().modal('<h2>' + t('online.na') + '</h2><p class="sub">' + t('online.naSub') + '</p>' +
+    A().modal('<h2>' + t('online.soonTitle') + '</h2><p class="sub">' + t('online.soonSub') + '</p>' +
       '<div class="row"><button class="btn primary" data-close>' + t('common.ok') + '</button></div>');
   }
 
