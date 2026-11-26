@@ -42,7 +42,7 @@ SPEC = {
         'q': {'kind': 'figure', 'z0': 0.112, 'thick': 0.48},
         'b': {'kind': 'figure', 'z0': 0.115, 'thick': 0.5},
         'n': {'kind': 'animal', 'z0': 0.165, 'thick': 0.42, 'segs': 6, 'fold': 6},
-        'r': {'kind': 'hero'},
+        'r': {'kind': 'tower', 'z0': 0.27, 'tilt': 0.385, 'zu': 0.275, 'segs': 6, 'fold': 6},
         'p': {'kind': 'figure', 'z0': 0.148, 'thick': 0.5},
     },
 }

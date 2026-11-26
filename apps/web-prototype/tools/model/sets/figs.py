@@ -12,13 +12,17 @@ figure, an animal or a tower standing on a round plinth, and comes from its own 
         outline at its sides; without it the outline is measured, which works when the figure
         is narrower than its plinth and the plinth has one tier.
     {'kind': 'animal', ...}
-        the same from a side-on picture. The animal shows its flank to both players, which is
-        how a carved animal reads best on the table; 'turn': True turns it to look along the
-        file towards the opponent ('face': 'left' | 'right' is the way it looks in the picture).
+        the same from a side-on picture.
+        A knight's carved body (either kind) is turned in its mesh by KNIGHT_YAW so that its
+        flank, not its edge, meets the players' eyes; 'yaw': a sets another angle.
     {'kind': 'turned', 'fold': n, 'top': f, 'thick': t, 'segs': n}
         towers, spires and beacons: the whole outline turned, round and true from every side
         ('segs': 6 makes it six-sided). 'top' (fraction of the height) ends the turned part
         there and carves what is above it from the picture (a roof between two turrets).
+    {'kind': 'tower', 'z0': f, 'zu': f, 'segs': n, 'body_segs': n, 'body_fold': n}
+        a tower with turrets: the plinth (when z0 is given; 'segs' and 'fold' are its own),
+        the middle of the outline turned, and every part that stands free beside the middle
+        (a turret on the battlements) turned about its own middle and stood in its place.
     {'kind': 'hero'}
         the stock hero.build: the whole picture as one rounded relief, plinth and all.
   sheet(sid, spec, path)     a picture of every plinth with the measured lines drawn on it, to
@@ -41,6 +45,15 @@ import numpy as np
 
 import hero
 import kit
+
+
+# The game stands a knight 0.95 rad off straight ahead (scene.js baseYaw: "turned to show their
+# profile") and its own pictures of one piece turn a knight 1.2 (white) or 1.9 (black). Those
+# suit a horse's head modelled looking forward. A carved animal is a relief: it reads when its
+# flank meets the eye and is a lump seen end on, so its body is turned here to undo the game's
+# turn. White: flank square to both players on the board. Black: between the board (0.95) and
+# the game's own picture of the piece (1.9).
+KNIGHT_YAW = {'w': 0.95, 'b': 1.3}
 
 
 def _widths(m, bot, n):
@@ -145,7 +158,7 @@ def pick(spec, side, t):
     return spec.get(side, {}).get(t, {})
 
 
-def sheet(sid, spec, path, heights=None, frac=0.24, width=400, cols=5):
+def sheet(sid, spec, path, heights=None, frac=0.24, width=400, cols=5, only=None):
     """every carved piece's plinth, enlarged, to set z0 from: a ruler in hundredths of the
     piece's height down both sides, and at the margins green marks at the top edge (z0) and
     yellow marks at the lid's front edge; the top face's ellipse is drawn in yellow"""
@@ -153,7 +166,7 @@ def sheet(sid, spec, path, heights=None, frac=0.24, width=400, cols=5):
     tiles = []
     for s in 'wb':
         for t in 'kqbnrp':
-            if pick(spec, s, t).get('kind', 'figure') == 'turned':
+            if pick(spec, s, t).get('kind', 'figure') == 'turned' or (only and s + '-' + t not in only):
                 continue
             r = rs[s][t]
             P = r.plinth
@@ -266,21 +279,28 @@ def _carve(name, r, sp, zl, thick):
     return ob
 
 
+def _turn(ob, r, sp):
+    """turn a carved body about the piece's axis: 'yaw' if the spec gives one, else a
+    knight's KNIGHT_YAW. Done on the mesh itself after painting, so the paint turns with it
+    (a rotation left on the object is lost when the parts are joined)."""
+    a = sp.get('yaw', KNIGHT_YAW[r.side] if r.t == 'n' else 0.0)
+    if a:
+        from mathutils import Matrix
+        ob.data.transform(Matrix.Rotation(a, 4, 'Z'))
+        ob.data.update()
+    return ob
+
+
 def figure(r, sp):
     base, zl = plinth(r, sp)
     fig = _carve('figure', r, sp, zl, min(sp.get('thick', 0.5), 0.92 * r.plinth['W'] * r.unit))
-    return [base, fig]
+    return [base, _turn(fig, r, sp)]
 
 
 def animal(r, sp):
     base, zl = plinth(r, sp)
     body = _carve('animal', r, sp, zl, sp.get('thick', 0.42))
-    if sp.get('turn', False):
-        # +90 degrees brings the picture's left to the front (Blender -y, towards the opponent)
-        from mathutils import Matrix
-        body.data.transform(Matrix.Rotation(math.pi / 2 if sp.get('face', 'left') == 'left' else -math.pi / 2, 4, 'Z'))
-        body.data.update()
-    return [base, body]
+    return [base, _turn(body, r, sp)]
 
 
 def turned(r, sp):
@@ -299,12 +319,95 @@ def turned(r, sp):
     return parts
 
 
+def _runs(row):
+    """the stretches of set pixels in one row of a mask, as (first, last) columns"""
+    c = np.nonzero(row)[0]
+    if not len(c):
+        return []
+    cut = np.nonzero(np.diff(c) > 1)[0]
+    return list(zip(np.r_[c[0], c[cut + 1]].tolist(), np.r_[c[cut], c[-1]].tolist()))
+
+
+def _split(r, zl, min_area=120):
+    """a tower's outline above height zl in two: its middle (in each row the stretch of
+    outline the axis passes through) and the parts that stand free beside it, one mask each"""
+    m = r.mask > 0
+    mid = m.copy()
+    for y in range(r.top, int(round(r.bot - zl / r.unit))):
+        runs = _runs(m[y])
+        if len(runs) > 1:
+            a, b = min(runs, key=lambda ab: 0 if ab[0] <= r.axis <= ab[1] else min(abs(ab[0] - r.axis), abs(ab[1] - r.axis)))
+            mid[y] = False
+            mid[y, a:b + 1] = True
+    n, lab, st, _ = cv2.connectedComponentsWithStats((m & ~mid).astype(np.uint8))
+    return mid, [lab == k for k in range(1, n) if st[k, cv2.CC_STAT_AREA] >= min_area]
+
+
+def _turret(name, r, sm, sp):
+    """a free-standing part of a tower, turned about its own middle and stood where the
+    picture has it. Painted folded round its own axis from its outer half, which nothing
+    stands in front of."""
+    from mathutils import Matrix
+    from scipy.ndimage import gaussian_filter1d
+    ys = np.nonzero(sm.any(1))[0][::-1]                 # from its foot up
+    cen, rad = [], []
+    for y in ys:
+        c = np.nonzero(sm[y])[0]
+        cen.append((c.min() + c.max()) / 2)
+        rad.append((c.max() - c.min() + 1) / 2)
+    rad = gaussian_filter1d(np.array(rad, float), 0.8, mode='nearest') * r.unit
+    zs = (r.bot - ys) * r.unit
+    # its foot goes a little way down into what it stands on; its tip is closed
+    prof = [(float(zs[0]) - 0.04, float(rad[0]))] + kit.simplify(list(zip(zs.tolist(), rad.tolist())), 0.0012)
+    prof.append((float(zs[-1]) + r.unit, 0.0))
+    ob = kit.lathe(name, prof, segs=sp.get('turret_segs', 24))
+    xt = (float(np.median(cen)) - r.axis) * r.unit
+    s = 1.0 if xt >= 0 else -1.0
+    me = ob.data
+    if not me.uv_layers:
+        me.uv_layers.new(name='uv')
+    uvl = me.uv_layers[0].data
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            co = me.vertices[me.loops[li].vertex_index].co
+            u = math.hypot(co.x, co.y) * math.sin(kit.fold_angle(math.atan2(co.x, -co.y), 2))
+            uvl[li].uv = kit.cell_uv(r.t, xt + s * u, co.z)
+    me.transform(Matrix.Translation((xt, 0, 0)))
+    me.update()
+    return ob
+
+
+def tower(r, sp):
+    h = r.height()
+    parts, zl, zu = [], 0.0, 0.0
+    if 'z0' in sp:
+        base, zl = plinth(r, sp)
+        parts.append(base)
+        # the tower's own outline starts clear of the plinth's top face: above the face's
+        # far edge on a round plinth; 'zu' (fraction of the height) says where when the
+        # plinth has corners and the tower hides the far edge
+        zu = sp['zu'] * h if 'zu' in sp else (r.plinth['it'] + r.plinth['bt'] + 2) * r.unit
+    mid, sats = _split(r, zu + 0.02)
+    q = copy.copy(r)
+    q.mask = mid.astype(np.uint8) * 255
+    prof = q.profile(zu, h, smooth=0.8)
+    if 'z0' in sp:
+        prof = [(zl - 0.01, prof[0][1])] + prof
+    body = _lathe('body', prof, {'segs': sp.get('body_segs', 0)})
+    stone = sp.get('lid') or kit.pick([r], 0, (0.05, h * sp.get('lid_at', 0.45)))
+    kit.set_uv(body, r.t, fold=sp.get('body_fold', 4), top=stone)
+    parts.append(body)
+    for i, sm in enumerate(sats):
+        parts.append(_turret('turret%d' % i, r, sm, sp))
+    return parts
+
+
 def whole(r, sp):
     return [hero.build(r.t, {'w': r}, thick=sp.get('thick', 0.5), depth=sp.get('depth'),
                        knight='turn' if sp.get('turn', False) else 'side')]
 
 
-KINDS = {'figure': figure, 'animal': animal, 'turned': turned, 'hero': whole}
+KINDS = {'figure': figure, 'animal': animal, 'turned': turned, 'tower': tower, 'hero': whole}
 
 
 def build(t, refs, spec):
