@@ -553,7 +553,18 @@
       look: { room: PG.equipped(state.progress, 'room').data.room, board: PG.equipped(state.progress, 'board').data.board, set: PG.equipped(state.progress, 'pieces').data.set },
     });
   } catch (e) { console.error(e); view = null; }
-  if (!view) { $('nogl').hidden = false; view = nullView(); }
+  // No 3D on this device: every game, lesson and puzzle is played on a flat board instead.
+  if (!view) {
+    let flat = null;
+    try {
+      flat = ChacklateBoard2D($('stage'), {
+        onSquare: (sq, how) => ctlHooks.onSquare(sq, how), canDrag: (sq) => ctlHooks.canDrag(sq), onDrop: (f, t2) => ctlHooks.onDrop(f, t2),
+        label: t('common.flatLabel'), caption: t('common.flatBoard'), captionKey: 'common.flatBoard',
+      });
+    } catch (e) { console.error(e); flat = null; }
+    view = Object.assign(nullView(), flat || {});
+    if (flat) document.body.classList.add('flat'); else $('nogl').hidden = false;
+  }
   else if (view.perf) document.body.classList.toggle('lite', view.perf() >= 2);
   if (window.__SHOT) window.__view = view;   // screenshot tooling drives the table directly
   if (state.settings.devFps) setTimeout(() => fpsMeter(true), 0);
@@ -1026,6 +1037,18 @@
   // links too: Back closes them. Each screen keeps its own checks when opened from a link
   // (a Premium lesson still says so, the shop still asks a grown-up).
   const RT = ChackmateRouter;
+  // Where the player is in each lesson they opened in this visit, by the lesson's link. Kept for
+  // the tab (sessionStorage), so a refresh finds it too; never sent anywhere.
+  const LESSON_MEMO_KEY = 'chackmate.lessonSteps';
+  function lessonMemo(key, val) {
+    let all = {};
+    try { all = JSON.parse(sessionStorage.getItem(LESSON_MEMO_KEY) || '{}') || {}; } catch (e) { all = lessonMemo.mem || {}; }
+    if (val === undefined) return all[key] || null;
+    if (val) all[key] = val; else delete all[key];
+    lessonMemo.mem = all;
+    try { sessionStorage.setItem(LESSON_MEMO_KEY, JSON.stringify(all)); } catch (e) { /* private mode: kept in memory */ }
+    return val;
+  }
   const ROUTE = { how: 'hash', path: null, ready: false, at: 0, popping: false, skip: null, modal: null, args: {} };
   let routeTable = null;
   function routesNow() {
@@ -1199,7 +1222,12 @@
     } finally { ROUTE.popping = false; }
   }
   window.addEventListener('popstate', onRoutePop);
-  window.addEventListener('hashchange', () => { if (ROUTE.how === 'hash') onRoutePop(); });
+  window.addEventListener('hashchange', () => {
+    if (ROUTE.how === 'hash') { onRoutePop(); return; }
+    // a "#/screen" link opened on a page with clean links (an installed app's shortcut, an old link)
+    const h = location.hash || '';
+    if (h.startsWith('#/')) { try { history.replaceState({ ckm: 1, modal: false }, '', h.slice(1) + location.search); } catch (e) { return; } onRoutePop(); }
+  });
   // First screen: the link the page was opened on (old app links like /play#daily still work).
   function startRoute() {
     ROUTE.how = RT.mode(window);
@@ -1207,8 +1235,15 @@
     const h = location.hash || '';
     const LEGACY = { '#quick': '/play/quick', '#daily': '/puzzles/daily', '#journey': '/journey' };
     if (LEGACY[h]) start = LEGACY[h];
+    // A screen after the # opens on any host (the installed app's start and shortcuts use it), and
+    // on a server with clean links it becomes one.
+    if (ROUTE.how === 'path' && h.startsWith('#/')) start = h.slice(1);
+    // A host that sent the game for a clean link it does not promise to keep serving (a static
+    // host's fallback page): open what the link names, and write the next ones after the #.
+    if (ROUTE.how === 'hash' && !start && routesNow().fromPath(location.pathname) && location.pathname.replace(/\/+$/, '') !== '/play') start = location.pathname;
     const r = start ? routesNow().fromPath(start) : { name: 'home' };
-    openRoute(r, true);
+    ROUTE.cold = true;
+    try { openRoute(r, true); } finally { ROUTE.cold = false; }
     ROUTE.ready = true;
     if (window.__SHOT) window.__route = { table: routesNow(), state: ROUTE };
   }
@@ -2492,6 +2527,7 @@
       '<div class="tl-tools"><button class="tl-btn" id="tl-again" aria-label="' + t('common.guide.again') + '" title="' + t('common.guide.again') + '">' + icon('replay') + '</button><button class="tl-btn" id="tl-voice" data-voice="' + esc(co.name) + '"></button></div></div>' +
       '<div id="tl-body"></div><div class="nav"><span class="pdots" id="tl-dots"></span><span class="grow"></span><button class="btn" id="tl-prev">' + icon('prev') + ' ' + t('common.back') + '</button><button class="btn primary" id="tl-next">' + t('common.next') + '</button></div></div>',
     { cls: 'tale', onClose() { AU.hush(); } });
+    routedModal('tale', { era: e.id, stage: k }, m);
     const body = m.querySelector('#tl-body'), next = m.querySelector('#tl-next'), prev = m.querySelector('#tl-prev');
     const line = () => (page < s.pages.length ? s.pages[page] : s.quiz.q);
     voiceIcon(m.querySelector('#tl-voice'), co.name);
@@ -2530,7 +2566,8 @@
       AU.play('tap');
       if (page < s.pages.length) { page++; render(); return; }
       m.close();
-      if (m.dataset.won && state.screen === 'era') go('era', e.id);
+      // the era page shows the stage done once the story's Back step is gone
+      if (m.dataset.won && state.screen === 'era') setTimeout(() => { if (state.screen === 'era') go('era', e.id); }, 80);
     };
     render();
   }
@@ -5937,6 +5974,19 @@
       } else ex.push(x);
     }
     const S = { phase: quiz ? 'ex' : 'steps', i: 0, results: [], tries: 0, found: [], hintN: 0, pos: null, done: false, talk: 0, t0: Date.now() };
+    // Back and Forward (and a refresh) come back to the step the player was on, with the answers
+    // they had given: the lesson is kept by its link for this visit. A lesson opened from a list
+    // or a button starts at the beginning. Trainer rounds and the placement test are drawn fresh.
+    const memoKey = quiz ? null : routesNow().toPath('lesson', arg);
+    if (memoKey && (ROUTE.popping || ROUTE.cold)) {
+      const m = lessonMemo(memoKey);
+      if (m && (m.phase === 'steps' ? m.i < L.steps.length : m.phase === 'ex' && m.i < ex.length)) {
+        S.phase = m.phase; S.i = m.i; S.results = (m.results || []).slice(0, ex.length);
+        // an answered exercise was waiting for Next: open the one after it
+        if (S.phase === 'ex' && S.results[S.i] !== undefined && S.results[S.i] !== null && S.i < ex.length - 1) S.i++;
+      }
+    }
+    const remember = () => { if (memoKey) lessonMemo(memoKey, S.phase === 'done' ? null : { phase: S.phase, i: S.i, results: S.results }); };
     // a lesson opened from the rule book goes back to the game it came from
     const toGame = arg && arg.back === 'game' && state.game ? state.game : null;
     const fromTr = !!(arg && arg.back === 'trainers');   // opened from a trainer card's Lesson button
@@ -6000,6 +6050,7 @@
         '<button class="tw-hi" data-word="priya" data-text="' + esc(w.hi) + '" aria-label="' + esc(t('learn.ls.hearHindi', { word: w.latin })) + '">' + icon('speaker') + '<b lang="hi">' + esc(w.hi) + '</b><small>' + esc(w.latin) + '</small></button></div>';
     }
     function dots() {
+      remember();
       const total = L.steps.length + ex.length;
       let html = '';
       for (let k = 0; k < total; k++) {
@@ -6291,6 +6342,7 @@
     }
     function finish() {
       S.phase = 'done';
+      remember();
       setHooks({});
       if (test) return placed();
       if (trn) return trainerDone();
@@ -6392,7 +6444,7 @@
       dots();
       celebrate(res);
     }
-    if (quiz) { if (ex.length) renderEx(); else finish(); } else renderStep();
+    if (quiz) { if (ex.length) renderEx(); else finish(); } else if (S.phase === 'ex') renderEx(); else renderStep();
     return { leave() { AU.hush(); clearTimeout(S.clock); clearTimeout(S.peekT); }, key(e) { if (e.key === 'Enter' && e.target && e.target.closest && e.target.closest('button')) return; if (S.phase === 'ex' && !S.answered) return; if (e.key === 'ArrowRight' || e.key === 'Enter') next(); } };
   };
 

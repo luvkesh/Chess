@@ -5,8 +5,9 @@ References: the user's lineup picture of 2026-11-12 (22d85eab) and, for the pawn
 picture 0d79e2bb."""
 import glob
 
-import classic
+import hero
 import kit
+from sets import _front
 
 PIC = glob.glob('/mnt/project-files/uploads/hearth/22d85eab*')[0]
 BOARD = glob.glob('/mnt/project-files/uploads/hearth/0d79e2bb*')[0]
@@ -17,29 +18,46 @@ BOXES = {
           'k': (1100, 322, 1255, 688)},
 }
 PAWNS = {'w': (BOARD, (788, 593, 882, 762)), 'b': (BOARD, (628, 226, 708, 352))}
-HALF = {'n': 'full'}
+HALF = _front.HALF
 SIDED = set('rnbqkp')
-GOLD = (60, 150, 230)
 LOOK = {
-    'w': {'wb': (1.0, 1.0, 1.0), 'body': 'glass', 'gold': 'silver', 'gem': 'gem', 'gold_tone': GOLD,
+    'w': {'wb': (1.0, 1.0, 1.0), 'body': 'glass', 'gold': 'silver', 'gem': 'gem', 'gold_tone': None, 'emit': 0.3,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.5}},
-    'b': {'wb': (1.0, 1.0, 1.0), 'body': 'glass', 'gold': 'silver', 'gem': 'gem', 'gold_tone': GOLD,
+    'b': {'wb': (1.0, 1.0, 1.0), 'body': 'glass', 'gold': 'silver', 'gem': 'gem', 'gold_tone': None, 'emit': 0.3,
           'classify': {'gold_sat': 0.6, 'gold_val': 0.5}},
 }
 
 
-def refs():
+def source_refs():
+    """the cut-outs from the reference picture: what picture/cutouts.py redraws into the hero pictures"""
     out = {'w': {}, 'b': {}}
-    king = kit.Ref(PIC, BOXES['w']['k'], height=1.75, seg='sam', sym=True)
+    king = kit.Ref(PIC, BOXES['w']['k'], height=1.75, seg='sam', foot=0, sym=True)
     for s in ('w', 'b'):
         for t, box in BOXES[s].items():
             pos = [(430, 200), (518, 200), (474, 290), (474, 130), (440, 300), (508, 300)] if (s, t) == ('w', 'r') else None
-            out[s][t] = kit.Ref(PIC, box, unit=king.unit, seg='sam', sym=(t != 'n'), pos=pos)
+            out[s][t] = kit.Ref(PIC, box, unit=king.unit, seg='sam', foot=0, sym=(t != 'n'), pos=pos)
         pic, box = PAWNS[s]
-        out[s]['p'] = kit.Ref(pic, box, height=0.88, seg='sam', sym=True)
+        out[s]['p'] = kit.Ref(pic, box, height=0.88, seg='sam', foot=0, sym=True)
     for t in 'rnbqk':
         w, b = out['w'][t], out['b'][t]
         b.unit *= w.height() / max(b.height(), 1e-6)
+    return out
+
+
+# each piece's size in game units, as cut from the reference (picture/cutouts.py prints them)
+HEIGHTS = {
+    'w': {'k': 1.750, 'q': 1.539, 'b': 1.474, 'n': 1.441, 'r': 1.289, 'p': 0.880},
+    'b': {'k': 1.750, 'q': 1.539, 'b': 1.474, 'n': 1.441, 'r': 1.289, 'p': 0.880},
+}
+
+
+def refs():
+    """the hero pictures (pics/astral): each cut-out redrawn sharp at 768 x 1024 with SDXL-Lightning
+    (one step, blended with the cut-out's own colours: sets/_front.py; the two small pawns two steps)"""
+    out = hero.refs(hero.pics('astral'), HEIGHTS)
+    for side in out.values():
+        for t in 'kqbrp':
+            side[t].sym = True   # turned: the nearer side of the outline, so a pennant, ring or staff does not widen it
     return out
 
 
@@ -54,4 +72,4 @@ SPEC = {
 
 
 def build(t, refs):
-    return classic.build(t, refs, SPEC)
+    return _front.build(t, refs, SPEC)

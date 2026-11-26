@@ -30,6 +30,7 @@ SCRIPTS = [
     src / 'elements3d.js',
     src / 'fall3d.js',
     src / 'scene.js',
+    src / 'board2d.js',
     src / 'xiangqi3d.js',
     src / 'art.js',
     src / 'live.js',
