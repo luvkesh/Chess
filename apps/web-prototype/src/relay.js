@@ -64,8 +64,7 @@
   // Online buttons always work: while the room is still connecting they wait for it, with a note.
   async function needLink(go) {
     if (ready) return go();
-    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('online.connecting') + '</h2><p class="sub" style="text-align:center">' + t('online.connectingSub') + '</p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.cancel') + '</button></div>');
+    showWait(A().waitSheet({ medals: 'crowns', title: t('online.connecting'), sub: t('online.connectingSub'), waiting: ' ', buttons: '<button class="cta2" data-close>' + t('common.cancel') + '</button>' }));
     const m = waitModal;
     const ok = await whenReady();
     if (waitModal !== m) return;   // cancelled
@@ -114,9 +113,8 @@
     cancelAll();
     seek = { tc, since: Date.now(), tried: new Set() };
     lobby.presence({ seek: { tc, at: Date.now() }, app: 'chackmate' }).catch(() => {});
-    showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('play.w.title') + '</h2>' +
-      '<p class="sub" style="text-align:center">' + tc + ' · ' + t('online.world') + ' · <span id="sk-t">0:00</span></p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="sk-ai">' + t('online.computer') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
+    showWait(A().waitSheet({ medals: 'crowns', title: t('play.w.title'), sub: tc.replace('+', ' + ') + ' · ' + t('online.world'), waiting: t('menu.searching'), timer: true,
+      buttons: '<button class="cta2" data-close>' + t('common.cancel') + '</button><button class="cta" id="sk-ai">' + t('online.computer') + '</button>' }),
     (m) => {
       m.timer = setInterval(() => { const s = Math.floor((Date.now() - seek.since) / 1000), el = m.querySelector('#sk-t'); if (el && seek) el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }, 1000);
       m.querySelector('#sk-ai').onclick = () => { m.close(); A().quickPlayOffline(); };
@@ -170,13 +168,11 @@
     const cc = Club() ? Club().card() : {};
     room.presence({ role: host ? 'host' : 'guest', name: nickname(), tc: tc || null, cid: cc.cid || null, cc: cc.cc || null, r: cc.r || null }).catch(() => {});
     if (!world && host) {
-      showWait('<h2>' + t('online.share') + '</h2><p class="sub">' + t('online.shareSub', { tc }) + '</p>' +
-        '<div class="friend-code">' + code + '</div>' +
-        '<div class="row"><button class="btn" id="fc-copy">' + A().icon('copy') + ' ' + t('online.copy') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
+      showWait(A().waitSheet({ title: t('menu.fr.waitTitle'), sub: t('online.shareSub', { tc }), code, copy: 'fc-copy', waiting: t('menu.fr.waiting'),
+        facts: [['bolt', tc.replace('+', ' + '), t('play.clock')], ['pawn', t('menu.standard'), t('menu.gameType')]], buttons: '<button class="cta2" data-close>' + t('common.cancel') + '</button>' }),
       (m) => { m.querySelector('#fc-copy').onclick = () => { try { navigator.clipboard.writeText(code); A().toast(t('online.copied')); } catch (e) { /* clipboard blocked */ } }; });
     } else if (!world) {
-      showWait('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('online.joining', { code }) + '</h2><p class="sub" style="text-align:center">' + t('online.waiting') + '</p>' +
-        '<div class="row" style="justify-content:center"><button class="btn" data-close>' + t('common.cancel') + '</button></div>');
+      showWait(A().waitSheet({ title: t('online.joining', { code }), code, waiting: t('online.waiting'), buttons: '<button class="cta2" data-close>' + t('common.cancel') + '</button>' }));
     }
     h.unsub = room.onPeers(() => lookAtRoom(h));
     lookAtRoom(h);
@@ -381,7 +377,7 @@
   // ---------------------------------------------------------------- waiting modals
   function showWait(html, wire) {
     closeWait();
-    const m = A().modal(html, { sticky: true, onClose() { clearInterval(m.timer); if (waitModal === m) waitModal = null; if (!m.matched) cancelAll(); } });
+    const m = A().modal(html, { sticky: true, cls: 'sheet narrow', onClose() { clearInterval(m.timer); if (waitModal === m) waitModal = null; if (!m.matched) cancelAll(); } });
     waitModal = m;
     if (wire) wire(m);
   }

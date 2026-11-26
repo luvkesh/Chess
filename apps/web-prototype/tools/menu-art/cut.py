@@ -70,19 +70,6 @@ def cut(img, lo=14, hi=46, scale=2):
     if len(xs): out = out[max(0, ys.min() - 4):ys.max() + 5, max(0, xs.min() - 4):xs.max() + 5]
     return out
 
-if __name__ == '__main__':
-    ref = sys.argv[1]
-    names = sys.argv[2:] or list(CROPS)
-    os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'masters'), exist_ok=True)
-    for n in names:
-        f, b = CROPS[n]
-        bgr = cv2.imread(os.path.join(ref, f))[b[1]:b[3], b[0]:b[2]]
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-        o = cut(rgb, *CROPS_OPTS.get(n, ())) if 'CROPS_OPTS' in globals() else cut(rgb)
-        cv2.imwrite(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'masters', n + '.png'), cv2.cvtColor(o, cv2.COLOR_RGBA2BGRA))
-        print(n, o.shape)
-
-
 def plain(ref, out_dir):
     from crops import PLAIN
     for n, (f, b) in PLAIN.items():
@@ -91,3 +78,20 @@ def plain(ref, out_dir):
         bgr = cv2.resize(bgr, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
         cv2.imwrite(os.path.join(out_dir, n + '.png'), bgr)
         print(n, bgr.shape)
+
+
+if __name__ == '__main__':
+    ref = sys.argv[1]
+    names = sys.argv[2:] or list(CROPS)
+    os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'masters'), exist_ok=True)
+    from crops import PLAIN
+    if not sys.argv[2:] or any(n in PLAIN for n in names):
+        plain(ref, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'masters'))   # pictures kept whole
+    for n in names:
+        if n in PLAIN: continue
+        f, b = CROPS[n]
+        bgr = cv2.imread(os.path.join(ref, f))[b[1]:b[3], b[0]:b[2]]
+        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+        o = cut(rgb, *CROPS_OPTS.get(n, ())) if 'CROPS_OPTS' in globals() else cut(rgb)
+        cv2.imwrite(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'masters', n + '.png'), cv2.cvtColor(o, cv2.COLOR_RGBA2BGRA))
+        print(n, o.shape)

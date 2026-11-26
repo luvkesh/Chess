@@ -104,6 +104,8 @@
     access: '<circle cx="12" cy="4.5" r="2"/><path d="M4 8.5l8 1.5 8-1.5M12 10v5M12 15l-3.5 6M12 15l3.5 6"/>',
     family: '<circle cx="8" cy="6" r="2.6"/><circle cx="16.5" cy="8.5" r="2"/><path d="M3 20c.6-4 2.6-6.5 5-6.5s4.4 2.5 5 6.5M13.5 20c.4-2.8 1.6-4.6 3-4.6s2.6 1.8 3 4.6"/>',
     app: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10.5 18.5h3"/>',
+    infinity: '<path d="M12 12c-2-2.7-3.9-4-5.7-4a4 4 0 0 0 0 8c1.8 0 3.7-1.3 5.7-4zm0 0c2 2.7 3.9 4 5.7 4a4 4 0 0 0 0-8c-1.8 0-3.7 1.3-5.7 4z"/>',
+    hourglass: '<path d="M6 2h12M6 22h12M7 2c0 5 5 6.5 5 10s-5 5-5 10M17 2c0 5-5 6.5-5 10s5 5 5 10"/><path d="M9.5 19h5"/>',
     sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>',
   };
   // The options of a question in a fresh order each time, so the right answer is never always in the same place.
@@ -522,6 +524,8 @@
     if (el.id) { const t = tip('control.' + el.id); if (t) return t; }
     if (el.tagName === 'LABEL') {
       const r = el.querySelector('input[type=radio]');
+      // A clock row with its own explaining box under it needs no tip on top.
+      if (r && el.closest('.blk, .opt') && el.closest('.card') && el.closest('.card').querySelector('.infobox')) return '';
       if (r) return /^(tc|wtc|frtc)$/.test(r.name) ? clockTip(r.value) : tip('chip.' + r.name + '.' + r.value);
     }
     if (el.classList.contains('clock') && el.dataset.side) {
@@ -653,8 +657,6 @@
     review: (set) => ({ kind: 'vignette', felt: '#3a2414', sheen: '#c8a47a', items: [{ set, type: 'q', side: 'w', x: -0.4, z: 0.1, rot: 0.2 }, { set, type: 'k', side: 'b', x: 0.46, z: -0.08, tilt: 1.2, y: 0.36, rot: 0.6 }] }),
   };
   const medal = (art, from, to, o) => ART.medalUri(art, Object.assign({ from, to }, o || {}));
-  // The home strips' pictures: small 3D objects (scene.js buildEmblem), shown straight, no circle.
-  const stripArt = (what) => '<span class="si">' + snap({ kind: 'emblem', what, yaw: what === 'coins' ? -0.35 : what === 'trophy' ? 0.25 : 0 }, 72, 72) + '</span>';
   const eraFelt = (e) => [ART.dim(e.colors[1], 0.15), e.colors[0]];
   function porthole(e, coach) {
     return '<span class="porthole"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""></span>' +
@@ -667,8 +669,51 @@
       '<div class="art">' + o.art + '</div><h3>' + esc(o.title) + '</h3><p>' + esc(o.text) + '</p><span class="go">' + icon(o.locked ? 'lock' : 'arrow') + '</span></button>';
   }
   const sec = (ic, title, extra) => '<h2 class="sec">' + icon(ic) + '<span>' + esc(title) + '</span>' + (extra ? '<small>' + extra + '</small>' : '') + '</h2>';
-  const pageHead = (eyebrow, title, text, aside) => '<header class="ph"><div><div class="eyebrow">' + esc(eyebrow) + '</div><h1>' + esc(title) + '</h1>' + (text ? '<p>' + text + '</p>' : '') + '</div>' + (aside ? '<div class="aside">' + aside + '</div>' : '') + '</header>';
+  // Every page opens the same way: its 3D medal, a gold bar, the title with an italic line under it,
+  // and anything that page needs on the right. (The eyebrow is kept for screen readers only.)
+  const PAGE_PIC = { learn: 'academy', puzzles: 'puzzle', trainers: 'goal', training: 'goal', progress: 'rank', dojo: 'goal', openings: 'academy', collection: 'season', season: 'season', club: 'friend2', store: 'crowns', minis: 'minis' };
+  const pageHead = (eyebrow, title, text, aside) => { const pic = ART.uiUri(PAGE_PIC[state.screen] || ''); return '<header class="mh ph2">' + (pic ? '<img class="medal" src="' + pic + '" alt=""><span class="bar-v"></span>' : '') +
+    '<div class="tx"><span class="sr">' + esc(eyebrow) + '</span><h1>' + esc(title) + '</h1>' + (text ? '<p class="line">' + text + '</p>' : '') + '</div>' + (aside ? '<div class="aside">' + aside + '</div>' : '') + '</header>'; };
   const meter = (n, total, label) => '<div class="meter">' + icon('collection') + '<b><em>' + n + '</em> / ' + total + ' ' + esc(label) + '</b><div class="bar"><i style="width:' + Math.round(n / Math.max(1, total) * 100) + '%"></i></div></div>';
+
+  // ---------------------------------------------------------------- the menu system (src/menu.css)
+  // Every menu screen and pop-up is built from these few parts, so they all look and behave alike:
+  // a page head (medal, title, italic line), gold section labels, action cards (3D picture, title,
+  // line, round arrow), chips, gold buttons and the pop-up head (medals, title between two rules).
+  const uiPic = (n, cls) => { const u = ART.uiUri(n); return u ? '<img' + (cls ? ' class="' + cls + '"' : '') + ' src="' + u + '" alt="">' : ''; };
+  function acard(o) {
+    return '<button class="ac' + (o.cls ? ' ' + o.cls : '') + (o.locked ? ' locked' : '') + '"' + (o.id ? ' id="' + o.id + '"' : '') + (o.attrs || '') + (o.disabled ? ' disabled' : '') + '>' +
+      (o.scene ? '<span class="scene" style="background-image:url(\'' + o.scene + '\')"></span>' : '') +
+      '<span class="pic">' + (o.pic || '') + '</span>' +
+      '<span class="tx">' + (o.badge ? '<span class="badge' + (o.live ? ' live' : '') + '">' + o.badge + '</span>' : '') + '<h3>' + esc(o.title) + '</h3>' + (o.line ? '<p>' + esc(o.line) + '</p>' : '') +
+      (o.cta ? '<span class="cta">' + o.cta + '</span>' : '') + '</span>' +
+      (o.after || '') + (o.noGo ? '' : '<span class="go2">' + icon(o.locked ? 'lock' : 'arrow') + '</span>') + '</button>';
+  }
+  const mhead = (o) => '<header class="mh">' + (o.back ? '<button class="back" data-nav="' + o.back[0] + '">' + icon('back') + ' ' + esc(o.back[1]) + '</button><span class="bar-v"></span>' : '') +
+    (o.medal ? '<img class="medal" src="' + o.medal + '" alt=""><span class="bar-v"></span>' : '') +
+    '<div class="tx"><h1>' + esc(o.title) + '</h1>' + (o.line ? '<p class="line">' + esc(o.line) + '</p>' : '') + '</div>' + (o.aside ? '<div class="aside">' + o.aside + '</div>' : '') + '</header>';
+  const lbl = (text, small) => '<h2 class="lbl">' + esc(text) + (small ? '<small>' + esc(small) + '</small>' : '') + '</h2>';
+  const shHead = (o) => '<div class="sh-head' + (o.left ? ' left' : '') + '">' + (o.medals ? '<img class="medals" src="' + o.medals + '" alt="">' : '') + '<h2>' + esc(o.title) + '</h2>' + (o.sub ? '<p class="sub">' + esc(o.sub) + '</p>' : '') + '</div>';
+  const crownIco = () => '<svg class="crown" viewBox="0 0 30 22" aria-hidden="true"><path d="M2 6l6.5 5L15 2l6.5 9L28 6l-2.6 12H4.6z" fill="currentColor"/><rect x="4.4" y="19" width="21.2" height="2.6" rx="1" fill="currentColor"/></svg>';
+  // The clocks: an icon each, and the words that explain one (the same tips the clock buttons show)
+  const CLOCK_ICON = (v) => (v === 'none' ? 'infinity' : v === '1+0' || v === '3+2' ? 'bolt' : v === '30+0' ? 'hourglass' : 'clock');
+  function clockInfo(v) {
+    const tipText = (k, vars) => (I18N.has('tips.' + k) ? t('tips.' + k, vars) : '').split('|');
+    if (v === 'none') return tipText('clock.none');
+    const [m, s] = v.split('+').map(Number);
+    return s ? tipText('clock.bonus', { m, s }) : m === 1 ? tipText('clock.one') : tipText('clock.plain', { m });
+  }
+  const clockChips = (name, list, pick) => '<div class="seg">' + list.map(([v, l]) => '<label><input type="radio" name="' + name + '" value="' + v + '"' + (pick === v ? ' checked' : '') + '><span>' + icon(CLOCK_ICON(v)) + clockName(l) + '</span></label>').join('') + '</div>';
+  const clockBox = (v, popular) => { const [h, p] = clockInfo(v); return '<div class="infobox">' + uiPic('watch') + '<span class="bar-v"></span><div><b>' + esc(v === 'none' ? h : v.replace('+', ' + ').replace(' + 0', ' ' + t('menu.min'))) + (popular ? '<span class="tag">' + t('menu.popular') + '</span>' : '') + '</b><p>' + esc(p || '') + '</p></div></div>'; };
+  function wireClockBox(root, name, popular) {
+    const box = root.querySelector('.infobox');
+    const sync = () => { const v = root.querySelector('input[name=' + name + ']:checked'); if (v && box) box.outerHTML = clockBox(v.value, popular && popular === v.value); };
+    root.querySelectorAll('input[name=' + name + ']').forEach((i) => i.addEventListener('change', () => { sync(); }));
+  }
+  // Academy: lessons, puzzles, skill trainers and practice live side by side under one name.
+  const ACADEMY = [['learn', 'learn', 'common.nav.learn'], ['puzzles', 'puzzle', 'common.nav.puzzles'], ['trainers', 'bolt', 'common.nav.trainers'], ['training', 'improve', 'menu.practice'], ['progress', 'chart', 'menu.progress']];
+  const ACADEMY_OF = { learn: 'learn', puzzles: 'puzzles', trainers: 'trainers', training: 'training', dojo: 'training', openings: 'training', progress: 'progress' };
+  const academyNav = (cur) => '<nav class="subnav" aria-label="' + esc(t('menu.academy')) + '">' + ACADEMY.map(([k, ic, l]) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + icon(ic) + t(l) + '</button>').join('') + '</nav>';
 
   // ------------------------------------------------------------------ toasts
   function toast(msg, kind) {
@@ -934,30 +979,34 @@
   // ------------------------------------------------------------------ navigation
   // Pages float over the blurred room; the home hero shows the room itself; game screens
   // (the HUD) hide the menus and hand the whole screen to the table.
-  const NAV = [['home', 'home'], ['play', 'play'], ['journey', 'journey'], ['learn', 'learn'], ['trainers', 'bolt'],
-    ['puzzles', 'puzzle'], ['training', 'improve'], ['collection', 'collection'], ['club', 'users'], ['profile', 'profile']];
-  const navName = (k) => t('common.nav.' + k);
-  const TABS = ['home', 'play', 'journey', 'learn', 'collection'];
-  const SECTION = { progress: 'training', era: 'journey', season: 'home', store: 'home', dojo: 'training', openings: 'training', minis: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play' };
-  const TAB_OF = { trainers: 'learn', progress: 'learn', puzzles: 'learn', training: 'learn', dojo: 'learn', openings: 'learn', minis: 'play', club: 'play' };
+  // Six places, the same on every screen size: Home, Play, Journey, Academy (lessons, puzzles,
+  // trainers, practice and progress), Collection and the Club. Profile, Premium, Choco Coins, music
+  // and Settings sit on the right of the bar.
+  const NAV = [['home', 'home'], ['play', 'play'], ['journey', 'journey'], ['academy', 'learn'], ['collection', 'collection'], ['club', 'users']];
+  const navName = (k) => (k === 'academy' ? t('menu.academy') : t('common.nav.' + k));
+  const NAV_GO = { academy: 'learn' };
+  const SECTION = { learn: 'academy', trainers: 'academy', puzzles: 'academy', training: 'academy', progress: 'academy', dojo: 'academy', openings: 'academy',
+    era: 'journey', season: 'collection', store: 'none', profile: 'none', minis: 'play', variants: 'play', variant: 'play', xiangqi: 'play', xqlesson: 'play' };
   const KIND = { home: 'hero', game: 'hud', review: 'hud', lesson: 'hud', puzzle: 'hud', drill: 'hud', mini: 'hud', xiangqi: 'hud', xqlesson: 'hud' };
   const SCREENS = {};
   let current = null;   // the active screen controller
   function renderNav() {
     const secId = SECTION[state.screen] || state.screen;
     const lv = PG.levelFor(state.progress.xp);
+    const btn = (k, ic) => '<button data-nav="' + k + '"' + (k === secId ? ' aria-current="page"' : '') + '>' + icon(ic) + '<span>' + navName(k) + '</span></button>';
     $('topnav').innerHTML = '<button class="brand" data-nav="home" aria-label="' + t('common.nav.brand') + '"><img src="' + ART.crestUri() + '" alt=""><span>Chackmate</span></button>' +
-      '<nav class="links" aria-label="' + t('common.mainNav') + '">' + NAV.map(([k]) => '<button data-nav="' + k + '"' + (k === secId ? ' aria-current="page"' : '') + '>' + navName(k) + '</button>').join('') + '</nav>' +
+      '<nav class="links" aria-label="' + t('common.mainNav') + '">' + NAV.map(([k, ic]) => btn(k, ic)).join('') + '</nav>' +
       '<div class="tools">' + (state.progress.premium ? '' : '<button class="prem-btn" data-nav="store" aria-label="' + t('common.premium') + '">' + icon('crown') + '<span>' + t('common.premium') + '</span></button>') +
       '<button class="round" id="nv-music" aria-pressed="' + !!state.settings.music + '" aria-label="' + t('settings.music') + '" title="' + t('settings.music') + '">' + icon(state.settings.music ? 'music' : 'musicOff') + '</button>' +
       labsBtn('nv-labs') +
-      '<button class="round" id="nv-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button>' +
-      '<button class="mepill" data-nav="profile" aria-label="' + t('common.nav.yourProfile') + '">' + avatarHtml('sm') + '<span class="who"><b>' + esc(myName()) + '</b><small>' + t('common.level', { n: lv.level }) + '</small></span></button></div>';
-    const tab = TAB_OF[secId] || secId;
-    $('tabbar').innerHTML = TABS.map((k) => { const n = NAV.find((x) => x[0] === k); return '<button data-nav="' + k + '"' + (k === tab ? ' aria-current="page"' : '') + '>' + icon(n[1]) + '<span>' + navName(k) + '</span></button>'; }).join('');
-    document.querySelectorAll('#topnav [data-nav], #tabbar [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
+      '<button class="round" id="nv-set" aria-label="' + t('settings.title') + '" title="' + t('settings.title') + '">' + icon('gear') + '</button><span class="sep"></span>' +
+      '<button class="mepill" data-nav="profile" aria-label="' + t('common.nav.yourProfile') + '">' + avatarHtml('sm') + '<span class="who"><b>' + esc(myName()) + '</b><small>' + t('common.level', { n: lv.level }) + '</small></span></button>' +
+      '<button class="coinpill" id="nv-coins" aria-label="' + esc(coinCount(state.progress.coins)) + '" title="' + esc(t('common.coins')) + '"><i>' + icon('coin') + '</i><span>' + I18N.num(state.progress.coins) + '</span></button></div>';
+    $('tabbar').innerHTML = NAV.map(([k, ic]) => btn(k, ic)).join('');
+    document.querySelectorAll('#topnav [data-nav], #tabbar [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(NAV_GO[b.dataset.nav] || b.dataset.nav); }; });
     $('nv-music').onclick = () => { state.settings.music = !state.settings.music; AU.unlock(); applySettings(); save(); renderNav(); };
     $('nv-set').onclick = () => { AU.play('tap'); settingsModal(); };
+    $('nv-coins').onclick = () => { AU.play('tap'); go('store', 'coins'); };
     if ($('nv-labs')) $('nv-labs').onclick = () => { AU.play('tap'); labsModal(); };
     fitNav();
   }
@@ -1196,7 +1245,12 @@
     if (scr) scr.classList.add('enter');
     routeWrite(state.screen, state.screenArg);
   }
-  function mount(html) { $('screens').innerHTML = '<div class="screen">' + html + '</div>'; }
+  function mount(html) {
+    // Academy's pages share one row of section tabs under their head.
+    const ac = ACADEMY_OF[state.screen];
+    if (ac && html.indexOf('class="subnav"') < 0 && /<div class="page-in[^"]*">/.test(html)) html = html.replace(/<div class="page-in[^"]*">/, (m) => m + academyNav(ac));
+    $('screens').innerHTML = '<div class="screen">' + html + '</div>';
+  }
   // Tell the camera which parts of the screen the menus cover, so the board is framed in
   // the space that is left.
   function applyInsets() {
@@ -1465,10 +1519,6 @@
   }
   const dailyDone = () => state.progress.daily.date === PG.today() && state.progress.daily.done;
   const nextEra = () => CAMPAIGN.eras.find((e) => !PG.journeyInfo(state.progress, e.id).done) || null;
-  const duoArt = () => '<span class="duo"><img src="' + medal('piece:n', '#a3294f', '#5c1328') + '" alt=""><img src="' + medal('piece:r', '#2f6f6a', '#173b39') + '" alt=""><i>' + icon('users') + '</i></span>';
-  // three of the mini-game medals, fanned out
-  const miniHomeArt = () => '<span class="minifan">' + ['tour', 'rush', 'queen'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span>';
-  const worldArt = () => '<span class="duo"><img src="' + medal('piece:k', '#2f6f6a', '#173b39') + '" alt=""><img src="' + medal('piece:q', '#b8862b', '#5c3d0c') + '" alt=""><i>' + icon('globe') + '</i></span>';
   function wireLinks() {
     document.querySelectorAll('#screens [data-nav]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go(b.dataset.nav); }; });
     const ms = $('a-missions'); if (ms) ms.onclick = () => { AU.play('tap'); missionsModal(); };
@@ -1477,37 +1527,46 @@
   }
   SCREENS.home = function () {
     idleBoard();
+    const P = state.progress;
     const resume = resumable(), live = resume && resume.live;
-    const online = netOn();
     const nl = nextLesson();
     const daily = dailyPuzzle();
     const ne = nextEra();
-    const set = equippedSet();
-    mount('<section class="hero" aria-label="' + t('common.nav.home') + '">' +
-      '<img class="crest" src="' + ART.crestUri() + '" alt="">' +
-      '<h1 class="wordmark">Chackmate</h1>' +
-      '<p class="tagline">' + t('home.tagline') + '</p>' +
-      '<p class="motto">' + t('home.motto') + '</p>' +
-      '<div class="lux-row">' +
-      lux({ id: 'h-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t(resume ? 'home.resume' : 'home.quick'),
-        text: resume ? (resume.n === 0 ? t('home.resumeNone') : resume.n === 1 ? t('home.resumeOne') : t('home.resumeText', { n: resume.n })) : t(online ? 'home.quickOnline' : 'home.quickOffline') }) +
-      lux({ id: 'h-journey', art: porthole(ne || CAMPAIGN.eras[CAMPAIGN.eras.length - 1]), title: t('home.journey'), text: ne ? t('home.journeyNext', { era: eraName(ne), when: eraWhen(ne) }) : t('home.journeyDone') }) +
-      lux({ id: 'h-learn', art: faceImg(COACH), title: t('home.learn'), text: nl ? t('home.learnNext', { lesson: nl.title }) : t('home.learnDone') }) +
-      lux({ id: 'h-daily', art: snap(VIGN.fork(set), 240, 150, medal('piece:n', '#1f5a3e', '#0b2418')), title: t('home.daily'), text: !daily ? t('home.dailyNone') : dailyDone() ? t('home.dailyDone') : t('home.dailyText', { n: daily.rating }) }) +
-      lux({ id: 'h-friend', art: duoArt(), title: t('play.friend'), text: t('play.friendText') }) +
-      lux({ id: 'h-minis', art: miniHomeArt(), title: t('home.minis'), text: t('home.minisText') }) +
-      '</div>' +
-      '<div class="home-foot">' + coinsStrip() + missionsStrip() + seasonStrip() + '</div>' +
+    const lv = PG.levelFor(P.xp);
+    const lessonsDone = LESSONS.lessons.filter((l) => P.lessons[l.id]).length;
+    const owned = CATALOG.items.filter((i) => PG.isUnlocked(P, i)).length;
+    const named = state.settings.name && state.settings.name !== 'You';
+    // The big card picks up what was left: a game on the board first, else the next lesson.
+    const cont = resume
+      ? acard({ id: 'h-cont', cls: 'tall g-cont', pic: uiPic('quick'), badge: t('menu.lastActivity'), title: t('home.resume'), line: resume.n === 0 ? t('home.resumeNone') : resume.n === 1 ? t('home.resumeOne') : t('home.resumeText', { n: resume.n }), cta: t('menu.continue') + ' ' + icon('arrow'), noGo: true })
+      : acard({ id: 'h-cont', cls: 'tall g-cont', pic: uiPic('academy'), badge: nl ? t('menu.nextLesson') : '', title: t('menu.continueAcademy'), line: nl ? I18N.text(nl.title) : t('home.learnDone'), cta: t('menu.continue') + ' ' + icon('arrow'), noGo: true });
+    mount('<section class="hero home2" aria-label="' + t('common.nav.home') + '">' +
+      '<div class="top"><div class="brandblock"><img class="crest" src="' + ART.crestUri() + '" alt="">' +
+      '<h1 class="wordmark">Chackmate</h1><p class="tagline">' + t('home.tagline') + '</p>' +
+      '<p class="welcome">' + (named ? t('menu.welcomeBack', { name: '<em>' + esc(myName()) + '</em>' }) : t('menu.welcome')) + '</p></div>' +
+      '<button class="rankcard" id="h-rank"><span class="head">' + uiPic('rank') + '<span><span class="lvl">' + t('common.level', { n: lv.level }) + '</span><span class="name" style="display:block">' + esc(levelTitle(lv)) + '</span><span class="what">' + t('menu.rank') + '</span></span>' +
+      '<span class="xp"><span>' + t('menu.xpOf', { n: I18N.num(lv.into), of: I18N.num(lv.need) }) + '</span><span class="mbar"><i style="width:' + Math.round(lv.into / Math.max(1, lv.need) * 100) + '%"></i></span></span></span>' +
+      '<span class="stats"><span>' + icon('flame') + '<span><b>' + I18N.num(P.streak.count) + '</b><small>' + t('menu.streak') + '</small></span></span>' +
+      '<span>' + icon('puzzle') + '<span><b>' + I18N.num(P.stats.puzzles.rating) + '</b><small>' + t('menu.rating') + '</small></span></span>' +
+      '<span>' + icon('book') + '<span><b>' + I18N.num(lessonsDone) + ' / ' + I18N.num(LESSONS.lessons.length) + '</b><small>' + t('menu.lessons') + '</small></span></span>' +
+      '<span>' + icon('collection') + '<span><b>' + I18N.num(owned) + ' / ' + I18N.num(CATALOG.items.length) + '</b><small>' + t('menu.items') + '</small></span></span></span></button></div>' +
+      '<div class="grid">' + cont +
+      acard({ id: 'h-quick', cls: 'g-quick', pic: uiPic('quick'), title: t('home.quick'), line: t('menu.quickLine') }) +
+      acard({ id: 'h-journey', cls: 'g-journey', pic: uiPic('journey'), title: t('common.nav.journey'), line: ne ? t('menu.nextStop', { era: eraName(ne) }) : t('home.journeyDone') }) +
+      acard({ id: 'h-daily', cls: 'stack g-daily', pic: uiPic('puzzle'), title: t('home.daily'), line: !daily ? t('home.dailyNone') : dailyDone() ? t('menu.dailyDone') : t('menu.dailyLine') }) +
+      acard({ id: 'h-friend', cls: 'stack g-friend', pic: uiPic('friend2'), title: t('play.friend'), line: t('menu.friendLine') }) +
+      acard({ id: 'h-minis', cls: 'stack g-minis', pic: uiPic('minis'), title: t('home.minis'), line: t('menu.minisLine') }) +
+      '</div><div class="foot">' + missionsStrip() + seasonStrip() + '</div>' +
       '</section>');
     hydrate();
     wireLinks();
-    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); if (live) backToGame(); else if (resume) resumeSaved(); else quickPlay(); };
-    $('h-journey').onclick = () => { AU.unlock(); AU.play('tap'); if (ne && PG.eraOpen(state.progress, ne.id)) go('era', ne.id); else go('journey'); };
-    $('h-learn').onclick = () => { AU.unlock(); AU.play('tap'); if (nl) go('lesson', nl.id); else go('learn'); };
+    $('h-cont').onclick = () => { AU.unlock(); AU.play('tap'); if (live) backToGame(); else if (resume) resumeSaved(); else if (nl) go('lesson', nl.id); else go('learn'); };
+    $('h-rank').onclick = () => { AU.play('tap'); go('profile'); };
+    $('h-quick').onclick = () => { AU.unlock(); AU.play('tap'); quickPlay(); };
+    $('h-journey').onclick = () => { AU.unlock(); AU.play('tap'); if (ne && PG.eraOpen(P, ne.id)) go('era', ne.id); else go('journey'); };
     $('h-daily').onclick = () => { AU.unlock(); AU.play('tap'); if (daily) go('puzzle', { list: [daily], daily: true, title: t('learn.dailyPuzzle') }); else go('puzzles'); };
     $('h-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
     $('h-minis').onclick = () => { AU.unlock(); AU.play('tap'); go('minis'); };
-    const P = state.progress;
     if (!P.placement && !P.xp && !P.seen.placementOffer) setTimeout(() => { if (state.screen === 'home' && !document.querySelector('.modal')) placementOffer('home'); }, window.__SHOT ? 0 : 1600);
     return { leave() { view.setAttract(false); } };
   };
@@ -1542,13 +1601,7 @@
     return CATALOG.items.filter((i) => PG.coinPrice(i) !== null && !PG.isUnlocked(P, i))
       .sort((a, b) => a.unlock.level - b.unlock.level || PG.coinPrice(a) - PG.coinPrice(b));
   }
-  function coinsStrip() {
-    const P = state.progress, shelf = coinShelf(), reach = shelf.filter((i) => PG.coinOffer(P, i).reason !== 'too-far');
-    const next = reach.find((i) => PG.coinOffer(P, i).ok) || reach[0];
-    const line = !next ? t('home.coins.keep') : PG.coinOffer(P, next).ok ? t('home.coins.canBuy', { name: next.name }) : t('home.coins.next', { name: next.name, n: I18N.num(PG.coinPrice(next)) });
-    return '<button class="strip glass" id="a-coins">' + stripArt('coins') + '<span style="flex:1"><small>' + t('common.coins') + ' · ' + I18N.num(P.coins) + '</small><b>' + esc(line) + '</b>' +
-      (next ? '<span class="bar"><i style="width:' + Math.min(100, Math.round(P.coins / PG.coinPrice(next) * 100)) + '%"></i></span>' : '') + '</span><span class="go">' + icon('arrow') + '</span></button>';
-  }
+
   // Ask once before spending; returns true when bought.
   function buyWithCoins(it, after) {
     const P = state.progress, o = PG.coinOffer(P, it);
@@ -1594,14 +1647,16 @@
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
     if (!list.length) return '';
     const done = list.filter((m) => m.done).length;
-    return '<button class="strip glass" id="a-missions">' + stripArt('hourglass') + '<span style="flex:1"><small>' + t('home.missions.today') + '</small><b>' + (done === list.length ? t('home.missions.allDone') : t('home.missions.progress', { n: done, of: list.length })) + '</b>' +
-      '<span class="bar"><i style="width:' + Math.round(done / list.length * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
+    return acard({ id: 'a-missions', cls: 'strip2', pic: uiPic('missions'), title: t('menu.missions'), line: done === list.length ? t('home.missions.allDone') : t('menu.missionsLine'),
+      after: '<span class="steps" aria-hidden="true">' + list.map((m) => '<i' + (m.done ? ' class="on"' : '') + '>' + (m.done ? icon('check') : '') + '</i>').join('') + '</span><span class="count">' + t('menu.nOf', { n: done, of: list.length }) + '</span>' });
   }
   function seasonStrip() {
     const s = state.progress.season && PG.seasonInfo(state.progress, state.progress.season);
     if (!s) return '';
-    return '<button class="strip glass" id="a-season">' + stripArt('laurel') + '<span style="flex:1"><small>' + t('home.season.strip', { n: s.season.number, date: seasonEnd(s.season) }) + '</small><b>' + esc(seasonName(s.season)) + ' · ' + t('home.season.tier', { n: s.tier }) + '</b>' +
-      '<span class="bar"><i style="width:' + Math.round(s.into / s.need * 100) + '%"></i></span></span><span class="go">' + icon('arrow') + '</span></button>';
+    const total = s.season.tiers;
+    return '<button class="ac strip2 season" id="a-season"><span class="pic">' + uiPic('season') + '</span><span class="sn"><span class="lblx">' + t('menu.seasons') + '<span class="badge live">' + t('menu.live') + '</span></span><h3>' + esc(seasonName(s.season)) + '</h3></span>' +
+      '<span class="meta"><span>' + icon('star') + t('menu.tierOf', { n: s.tier, of: total }) + '</span><span class="mbar violet"><i style="width:' + Math.round(s.tier / Math.max(1, total) * 100) + '%"></i></span><span>' + icon('calendar') + t('menu.endsIn', { n: s.daysLeft }) + '</span></span>' +
+      '<span class="go2">' + icon('arrow') + '</span></button>';
   }
   function missionsCard() {
     const list = PG.missionList(state.progress, undefined, { online: netOn() });
@@ -1614,62 +1669,114 @@
   }
 
   // ---------------------------------------------------------------- play
-  function personaCard(o) {
-    const P = state.progress, lv = LEVELS[o.level];
-    const locked = lv.premium && !P.premium;
-    const rec = P.stats.byLevel[o.level];
-    const beaten = rec && rec.w > 0;
-    return '<button class="persona' + (locked ? ' locked' : '') + (beaten ? ' beaten' : '') + '" data-opp="' + o.level + '" style="--tint:' + o.colors[0] + '">' +
-      (locked ? '<span class="tag pill lock">' + icon('lock') + ' ' + t('common.premium') + '</span>' : beaten ? '<span class="tag pill gold">' + icon('crown') + ' ' + t('play.beaten') + '</span>' : '') +
-      faceImg(o) + '<span class="lvl">' + t('common.level', { n: o.level + 1 }) + ' · ' + esc(bandName(o.level)) + '</span><h3>' + esc(o.name) + '</h3><span class="species">' + esc(speciesName(o)) + '</span>' +
-      '<p>' + esc(oppBlurb(o)) + '</p><span class="rec">' + (rec && rec.w + rec.d + rec.l ? '<span class="pill ok">' + t('play.won', { n: rec.w }) + '</span><span class="pill">' + t('play.drawn', { n: rec.d }) + '</span><span class="pill">' + t('play.lost', { n: rec.l }) + '</span>' : '<span class="pill">' + t('play.notPlayed') + '</span>') + '</span></button>';
+  // ---------------------------------------------------------------- play
+  // A rival's card in Play vs AI: the portrait, name, rating band and how strong they are.
+  const TIER_TINT = ['#2f9a4a', '#1e78c8', '#d89a20', '#8a3ad0', '#159e8e', '#c2395f', '#3d4fc4', '#b8261c'];
+  function rivalCard(o, pick) {
+    const P = state.progress, lv = LEVELS[o.level], locked = lv.premium && !P.premium;
+    return '<button type="button" class="rival' + (locked ? ' locked' : '') + '" data-rival="' + o.level + '" aria-pressed="' + (pick === o.level) + '" style="--tint:' + o.colors[1] + '">' +
+      '<img src="' + face(o) + '" alt="">' + (locked ? '<span class="lock">' + icon('lock') + t('common.premium') + '</span>' : '') +
+      '<b>' + esc(o.name) + '</b><i>' + esc(speciesName(o)) + '</i><span class="rt">' + icon('chart') + esc(bandName(o.level)) + '</span>' +
+      '<span class="lv" style="--tint:' + TIER_TINT[o.level] + '">' + t('menu.tier.' + o.level) + '</span></button>';
   }
   SCREENS.play = function () {
     idleBoard();
     const P = state.progress;
-    const set = equippedSet();
-    const online = netOn();
+    const resume = resumable(), live = resume && resume.live;
     const best = persona(PG.personalLevel(P, P.premium ? 7 : 3));
+    const open = (o) => !(LEVELS[o.level].premium && !P.premium), unbeaten = (o) => !(P.stats.byLevel[o.level] && P.stats.byLevel[o.level].w);
+    // Quick match already plays your own level, so the next-rival card offers someone else.
+    const next = OPP.find((o) => o.level !== best.level && unbeaten(o) && open(o)) || OPP.find((o) => o.level > best.level && open(o)) || OPP.find((o) => o.level !== best.level && open(o)) || best;
+    const goal = PG.missionList(P, undefined, { online: netOn() }).find((m) => m.event === 'game' || /^play-/.test(m.id));
+    const goalBar = goal ? '<div class="goalbar">' + uiPic('goal') + '<b>' + t('menu.dailyGoal') + '<small>' + esc(missionText(goal)) + '</small></b><span class="mbar"><i style="width:' + Math.round(Math.min(goal.n, goal.goal) / goal.goal * 100) + '%"></i></span><span class="n">' + t('menu.nOf', { n: Math.min(goal.n, goal.goal), of: goal.goal }) + '</span></div>' : '';
+    const vReady = VARIANTS.filter((v) => v.status === 'ready');
+    const gs = live ? state.game.setup : resume && saved.game && saved.game.setup;
+    const resumeWho = gs && gs.mode === 'ai' && LEVELS[gs.level] ? persona(gs.level) : null;
     mount('<div class="page"><div class="page-in">' +
-      pageHead(t('common.nav.play'), t('play.title'), t('play.sub'), '<span class="pill gold">' + icon('star') + ' ' + t('play.bestMatch', { name: esc(oppFull(best)) }) + '</span>') +
-      sec('play', t('play.start')) +
-      '<div class="lux-row four">' +
-      lux({ id: 'p-quick', feature: true, art: snap(VIGN.duo(set), 240, 150, medal('piece:k', '#a3294f', '#4a0c1e')), title: t('home.quick'), text: online ? t('play.quickOnline', { name: best.name }) : t('play.quickOffline', { name: best.name }) }) +
-      lux({ id: 'p-friend', art: duoArt(), title: t('play.friend'), text: t('play.friendText') }) +
-      lux({ id: 'p-world', art: worldArt(), title: t('play.world'), text: t('play.worldText') }) +
-      lux({ id: 'p-custom', art: snap(VIGN.trio(set, '#2a1810', '#ffd9a8'), 240, 150, medal('piece:q', '#5b4a8a', '#2c2248')), title: t('play.custom'), text: t('play.customText') }) +
+      mhead({ medal: ART.uiUri('playmedal'), title: t('common.nav.play'), line: t('menu.playLine'), aside: goalBar }) +
+      lbl(resume ? t('menu.pickUp') : t('menu.jumpIn')) +
+      '<div class="ac-grid two">' +
+      (resume ? acard({ id: 'p-resume', cls: 'char', pic: resumeWho ? '<img src="' + face(resumeWho) + '" alt="" class="face">' : uiPic('quick'), badge: t('menu.resume'), title: resumeWho ? t('menu.continueVs', { name: resumeWho.name }) : t('home.resume'), line: t('menu.ongoing') })
+        : acard({ id: 'p-next', cls: 'char', pic: '<img src="' + face(next) + '" alt="" class="face">', badge: t('menu.nextRival'), title: t('menu.playVs', { name: next.name }), line: esc(bandName(next.level)) + ' · ' + speciesName(next) })) +
+      acard({ id: 'p-quick', cls: 'char', pic: '<img src="' + face(best) + '" alt="" class="face">', badge: t('menu.quickMatch'), title: t('menu.playVs', { name: best.name }), line: t('menu.jumpLine') }) +
       '</div>' +
-      '<div class="play-more">' +
-      '<button class="strip glass mini-strip" data-nav="minis"><span class="minifan sm">' + ['tour', 'spotter', 'pawns'].map((id) => '<img src="' + miniArt(MINI.game(id)) + '" alt="">').join('') + '</span><span style="flex:1"><small>' + t('home.minis') + '</small><b>' + t('play.minis') + '</b></span><span class="go">' + icon('arrow') + '</span></button>' +
-      variationsTile() +
-      '<button class="strip glass mini-strip" data-nav="club">' + stripArt('trophy') + '<span style="flex:1"><small>' + t('play.club') + '</small><b>' + t('play.clubText') + '</b></span><span class="go">' + icon('arrow') + '</span></button></div>' +
-      sec('users', t('play.choose'), t('play.friends', { n: OPP.length })) +
-      '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
-      '</div></div>');
+      lbl(t('menu.challenge')) +
+      '<div class="ac-grid three">' +
+      acard({ id: 'p-ai', pic: '<span class="faces">' + [0, 2, 3].map((i) => '<img src="' + face(OPP[i]) + '" alt="">').join('') + '</span>', title: t('menu.vsAi'), line: t('menu.vsAiLine', { n: OPP.length }) }) +
+      acard({ id: 'p-friend', pic: uiPic('friend2'), title: t('play.friend'), line: t('menu.friendLine') }) +
+      acard({ id: 'p-world', pic: uiPic('online'), title: t('menu.online'), line: t('menu.onlineLine') }) +
+      '</div>' +
+      lbl(t('menu.explore')) +
+      '<div class="ac-grid two">' +
+      acard({ id: 'p-var', cls: 'slim', pic: uiPic('variants'), title: t('menu.variants'), line: t('menu.varsLine', { list: vReady.slice(0, 3).map(varName).join(', ') }) }) +
+      acard({ id: 'p-minis', cls: 'slim', pic: uiPic('minis'), title: t('home.minis'), line: t('menu.minisLine') }) +
+      '</div></div></div>');
     hydrate();
     wireLinks();
-    $('p-quick').onclick = () => { AU.unlock(); AU.play('tap'); quickPlay(); };
-    $('p-friend').onclick = () => { AU.unlock(); AU.play('tap'); friendModal(); };
-    $('p-world').onclick = () => { AU.unlock(); AU.play('tap'); worldModal(); };
-    $('p-custom').onclick = () => { AU.unlock(); AU.play('tap'); newGameModal(); };
-    $('p-var').onclick = () => { AU.unlock(); AU.play('tap'); go('variants'); };
-    document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp); }; });
+    const tap = () => { AU.unlock(); AU.play('tap'); };
+    if ($('p-resume')) $('p-resume').onclick = () => { tap(); if (live) backToGame(); else resumeSaved(); };
+    if ($('p-next')) $('p-next').onclick = () => { tap(); aiModal({ level: next.level }); };
+    $('p-quick').onclick = () => { tap(); quickPlay(); };
+    $('p-ai').onclick = () => { tap(); aiModal({}); };
+    $('p-friend').onclick = () => { tap(); friendModal(); };
+    $('p-world').onclick = () => { tap(); worldModal(); };
+    $('p-var').onclick = () => { tap(); go('variants'); };
+    $('p-minis').onclick = () => { tap(); go('minis'); };
     return {};
   };
-  const CLOCKS = [['none', 'play.clock.none'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']];
+  const CLOCKS = [['none', 'play.clock.none'], ['1+0', 'play.clock.1'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']];
   const clockName = (l) => (I18N.has(l) ? t(l) : l);
-  function opponentModal(level, variant) {
-    const o = persona(level), lv = LEVELS[level], v = variant ? variantById(variant) : null;
-    if (lv.premium && !state.progress.premium) { premiumModal(t('play.premiumOpp', { name: oppFull(o) }), o); return; }
-    const s = state.setup, xq = v && v.id === 'xiangqi';
-    const colors = xq ? [['white', 'play.xq.red'], ['black', 'play.xq.black'], ['random', 'play.color.random']] : ['white', 'black', 'random'].map((c) => [c, 'play.color.' + c]);
-    const m = modal('<div class="setup-hero">' + faceImg(o, 'big') + '<div><div class="eyebrow">' + (v ? esc(varName(v)) + ' · ' : '') + t('common.level', { n: level + 1 }) + ' · ' + esc(bandName(level)) + '</div><h2>' + esc(oppFull(o)) + '</h2><p class="quote">“' + esc(sayLine(o, 'hello')) + '”</p></div></div>' +
-      '<form id="os"><div class="field"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + colors.map(([c, l]) => '<label><input type="radio" name="color" value="' + c + '"' + ((s.color || 'white') === c ? ' checked' : '') + '><span>' + t(l) + '</span></label>').join('') + '</div></div>' +
-      (xq ? '' : '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + CLOCKS.map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + ((s.tc || 'none') === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>') +
-      '<div class="row"><button type="button" class="btn" data-close>' + t('common.notNow') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.playName', { name: esc(o.name) }) + '</button></div></form>', { x: true });
-    if (!v) routedModal('opponent', level, m);
-    const form = m.querySelector('#os');
-    form.onsubmit = (e) => { e.preventDefault(); m.close(); AU.unlock(); if (xq) { startXq({ mode: 'ai', color: form.color.value, level }); return; } startGame(Object.assign({ mode: 'ai', color: form.color.value, level, tc: form.tc.value, fen: '', look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {})); };
+  // Links and older callers open the same pop-up: an opponent's link picks that rival.
+  function opponentModal(level, variant) { aiModal({ level, variant }); }
+  function newGameModal() { aiModal({ custom: true }); }
+  // Play vs AI: one pop-up for every game against the animal friends, a variation's too.
+  // o: { level, variant, custom (open the starting-position field), inline (a root to draw into instead of a pop-up) }
+  function aiModal(o) {
+    o = o || {};
+    const s = state.setup, P = state.progress, v = o.variant ? variantById(o.variant) : null, xq = v && v.id === 'xiangqi';
+    let pick = o.level != null ? o.level : (s.level != null && !(LEVELS[s.level].premium && !P.premium) ? s.level : PG.personalLevel(P, P.premium ? 7 : 3));
+    if (o.level != null && LEVELS[o.level].premium && !P.premium) { premiumModal(t('play.premiumOpp', { name: oppFull(persona(o.level)) }), persona(o.level)); return; }
+    const colors = xq ? [['white', 'play.xq.red'], ['black', 'play.xq.black'], ['random', 'menu.surprise']] : [['white', 'play.color.white'], ['black', 'play.color.black'], ['random', 'menu.surprise']];
+    const pawn = (c) => c === 'random' ? uiPic('surprise') : '<img src="' + ART.pieceUri('p', CAP_INK[c === 'white' ? 'w' : 'b']) + '" alt="">';
+    const tc = CLOCKS.some((c) => c[0] === s.tc) ? s.tc : '10+5';
+    const body = '<form id="ai"' + (o.inline ? ' class="aiform"' : '') + '>' +
+      '<div class="blk row-lbl">' + lbl(t('play.playAs')) + '<div class="seg">' + colors.map(([c, l]) => '<label><input type="radio" name="color" value="' + c + '"' + ((s.color || 'random') === c ? ' checked' : '') + '><span>' + pawn(c) + t(l) + '</span></label>').join('') + '</div></div>' +
+      '<div class="blk">' + lbl(t('menu.rival'), v ? t((E.VARIANTS[v.id] || {}).old ? 'play.var.oldRules' : 'play.var.knowRules') : '') +
+      '<div class="rivals"><button type="button" class="nav prev" aria-label="' + t('menu.prev') + '">' + icon('arrow') + '</button><div class="track">' + OPP.map((x) => rivalCard(x, pick)).join('') + '</div><button type="button" class="nav next" aria-label="' + t('menu.next') + '">' + icon('arrow') + '</button></div><div class="dots"></div></div>' +
+      (xq ? '' : '<div class="blk">' + lbl(t('play.clock'), t('menu.clockLine')) + clockChips('tc', CLOCKS, tc) + '</div>' + clockBox(tc, tc === '10+5')) +
+      (v ? '' : '<details class="more"' + (o.custom || s.fen ? ' open' : '') + '><summary>' + t('menu.moreOptions') + '</summary><div class="field"><label for="ng-fen">' + t('play.ng.fen') + '</label><input class="text-in" id="ng-fen" placeholder="' + t('play.ng.fenHint') + '" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div></details>') +
+      '<div class="sh-foot">' + (o.inline ? '' : '<button type="button" class="cta2" data-close>' + t('common.cancel') + '</button>') + '<button class="cta">' + crownIco() + ' ' + t('menu.letsPlay') + '</button></div></form>';
+    // On a variation's own page the same form sits in the Play tab, with no pop-up around it.
+    const m = o.inline ? Object.assign(o.inline, { close() {} }) : modal(shHead({ medals: ART.uiUri('playmedal'), title: v ? varName(v) + ' · ' + t('menu.vsAi') : t('menu.vsAi'), sub: t('menu.vsAiSub') }) + body, { cls: 'sheet wide', x: true });
+    if (o.inline) o.inline.innerHTML = body;
+    if (!v) routedModal(o.custom ? 'custom' : 'opponent', o.custom ? null : pick, m);
+    const track = m.querySelector('.track'), dots = m.querySelector('.dots');
+    const pages = () => Math.max(1, Math.round(track.scrollWidth / Math.max(1, track.clientWidth)));
+    const page = () => Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+    const syncDots = () => { const n = pages(), p = Math.min(n - 1, Math.abs(page())); dots.innerHTML = n > 1 ? Array.from({ length: n }, (_, i) => '<i' + (i === p ? ' class="on"' : '') + '></i>').join('') : ''; m.querySelector('.nav.prev').disabled = p <= 0; m.querySelector('.nav.next').disabled = p >= n - 1; };
+    const dir = document.documentElement.dir === 'rtl' ? -1 : 1;
+    m.querySelector('.nav.prev').onclick = () => track.scrollBy({ left: -track.clientWidth * dir, behavior: 'smooth' });
+    m.querySelector('.nav.next').onclick = () => track.scrollBy({ left: track.clientWidth * dir, behavior: 'smooth' });
+    track.addEventListener('scroll', () => requestAnimationFrame(syncDots), { passive: true });
+    setTimeout(() => { const el = track.querySelector('[aria-pressed="true"]'); if (el) track.scrollLeft = el.offsetLeft - track.offsetLeft - 4; syncDots(); }, 0);
+    track.querySelectorAll('[data-rival]').forEach((b) => {
+      b.onclick = () => {
+        const lv = +b.dataset.rival;
+        if (LEVELS[lv].premium && !P.premium) { premiumModal(t('play.premiumOpp', { name: oppFull(persona(lv)) }), persona(lv)); return; }
+        AU.play('select'); pick = lv;
+        track.querySelectorAll('[data-rival]').forEach((x) => x.setAttribute('aria-pressed', String(+x.dataset.rival === lv)));
+      };
+    });
+    const form = m.querySelector('#ai');
+    if (!xq) wireClockBox(form, 'tc', '10+5');
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const fenIn = m.querySelector('#ng-fen'), fen = fenIn ? fenIn.value.trim() : '';
+      if (fen) { const err = new E.Pos().load(fen); if (err) { m.querySelector('#ng-err').textContent = err; m.querySelector('details.more').open = true; return; } }
+      m.close(); AU.unlock();
+      if (xq) { startXq({ mode: 'ai', color: form.color.value, level: pick }); return; }
+      startGame(Object.assign({ mode: 'ai', color: form.color.value, level: pick, tc: form.tc.value, fen, look: v ? variantLook(v) : undefined }, v ? variantStart(v) : {}));
+    };
   }
   // Premium things a player taps are explained, with a way to the store.
   function premiumModal(why, who) {
@@ -1702,11 +1809,7 @@
   // Chess960 deals a new back row for every game (number 518 is the usual chess start, so skip it).
   const variantStart = (v) => { if (!v.shuffle) return { fen: v.start }; let n = Math.floor(Math.random() * 959); if (n >= 518) n++; return { fen: E.chess960Fen(n), n960: n }; };
   const variantArt = (v) => { const e = v.era && eraById(v.era); return e ? ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) : medal('piece:' + ({ koth: 'k', threecheck: 'q', chess960: 'n' }[v.id] || 'r'), '#5b4a8a', '#2c2248'); };
-  function variationsTile() {
-    const ready = VARIANTS.filter((v) => v.status === 'ready');
-    return '<button class="tile wide var-tile" id="p-var"><span class="ic">' + icon('grid') + '</span><span><span class="eyebrow">' + t('play.var.eyebrow') + '</span><b>' + t('play.var.head') + '</b>' +
-      '<small>' + esc(ready.map((v) => varName(v) + ': ' + varText(v, 'tagline')).join(I18N.stop + ' ')) + I18N.stop + ' ' + t('play.var.more') + '</small></span><span class="go">' + icon('arrow') + '</span></button>';
-  }
+
   // A small flat board for the rule sheet: pieces from the FEN's board field and dots on the
   // squares they reach, cropped to the squares that matter (at least 5 by 5).
   function miniBoard(fen, dots, label, old) {
@@ -1737,15 +1840,15 @@
   SCREENS.variants = function () {
     idleBoard();
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="play">' + icon('back') + ' ' + t('common.nav.play') + '</button>' +
-      pageHead(t('play.var.title'), t('play.var.head'), t('play.var.sub', { coach: COACH.name })) +
-      '<div class="variants">' + VARIANTS.map((v) => {
-        const ready = v.status === 'ready', rec = ready && variantRecord(v.id), e = v.era && eraById(v.era);
-        return '<button class="variant' + (ready ? '' : ' soon') + '" data-variant="' + v.id + '"' + (ready ? '' : ' disabled') + '>' +
-          '<span class="banner"><img' + (v.era ? '' : ' class="medal"') + ' src="' + variantArt(v) + '" alt=""><span class="when pill">' + esc(varText(v, 'when')) + '</span></span>' +
-          '<span class="body"><h3>' + esc(varName(v)) + '</h3><span class="t">' + esc(varText(v, 'tagline')) + (e ? ' · ' + t('play.var.era', { era: esc(eraName(e)) }) : '') + '</span><p>' + esc(varText(v, 'blurb')) + '</p></span>' +
-          '<span class="foot">' + (ready ? (rec ? '<span class="pill ok">' + t('play.won', { n: rec.w }) + '</span><span class="pill">' + t('play.drawn', { n: rec.d }) + '</span><span class="pill">' + t('play.lost', { n: rec.l }) + '</span>' : '<span class="pill gold">' + icon('sparkle') + ' ' + t('play.var.ready') + '</span>') + '<span class="go">' + icon('arrow') + '</span>' : '<span class="pill">' + icon('clock') + ' ' + t('play.var.soon') + '</span>') + '</span></button>';
-      }).join('') + '</div></div></div>');
+      mhead({ back: ['play', t('common.nav.play')], medal: ART.uiUri('playmedal'), title: t('menu.variants'), line: t('menu.variantsLine') }) +
+      '<div class="vgrid">' + VARIANTS.map((v) => {
+        const ready = v.status === 'ready', rec = ready && variantRecord(v.id), pic = ART.uiUri('var-' + v.id);
+        return '<button class="vcard' + (ready ? '' : ' soon') + '" data-variant="' + v.id + '"' + (ready ? '' : ' disabled') + '>' +
+          '<span class="art"><img' + (pic || v.era ? '' : ' class="medal"') + ' src="' + (pic || variantArt(v)) + '" alt=""></span>' +
+          '<span class="tx"><h3>' + esc(varName(v)) + '</h3><p>' + esc(varText(v, 'tagline')) + '</p>' + (rec ? '<p class="rec">' + t('play.won', { n: rec.w }) + ' · ' + t('play.drawn', { n: rec.d }) + ' · ' + t('play.lost', { n: rec.l }) + '</p>' : '') + '</span>' +
+          (ready ? '<span class="go2">' + icon('arrow') + '</span>' : '<span class="pill soonpill">' + icon('clock') + ' ' + t('play.var.soon') + '</span>') + '</button>';
+      }).join('') + '</div>' +
+      '<p class="fine">' + t('play.var.sub', { coach: COACH.name }) + '</p></div></div>');
     wireLinks();
     document.querySelectorAll('[data-variant]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); go('variant', b.dataset.variant); }; });
     return {};
@@ -1757,32 +1860,33 @@
     if (variantLook(v)) setLook(variantLook(v));
     const e = v.era && eraById(v.era), host = e ? eraCoach(e) : COACH;
     const learned = !!state.progress.variantLessons[v.id];
-    const xqBack = v.id === 'xiangqi' ? xqResumable() : null;   // an unfinished game takes the rule-sheet card's place (the sheet is just below)
+    const xqBack = v.id === 'xiangqi' ? xqResumable() : null;
+    const banner = ART.uiUri('banner-' + v.id) || ART.uiUri('var-' + v.id) || variantArt(v);
     mount('<div class="page"><div class="page-in">' +
-      '<button class="backlink" data-nav="variants">' + icon('back') + ' ' + t('play.var.all') + '</button>' +
-      '<section class="era-hero"><img class="bg" src="' + variantArt(v) + '" alt="">' +
-      '<div class="in">' + faceImg(host, 'coach-big') + '<div><div class="eyebrow">' + t('play.var.kicker', { when: esc(varText(v, 'when')) }) + (e ? ' · ' + esc(eraName(e)) : '') + '</div><h1>' + esc(varName(v)) + '</h1>' +
-      '<p class="quote">' + esc(varText(v, 'blurb')) + '</p></div></div></section>' +
-      '<div class="lux-row three var-actions">' +
-      lux({ id: 'v-learn', feature: !learned && !xqBack, art: faceImg(COACH), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), text: t('play.var.lessonText', { title: v.lesson.title }) }) +
-      (xqBack ? lux({ id: 'v-resume', feature: true, art: duoArt(), title: t('home.resume'), text: t('home.resumeText', { n: xqBack.n }) })
-        : lux({ id: 'v-rules', art: '<span class="ic-big">' + icon('scroll') + '</span>', title: t('play.var.sheet'), text: t('play.var.sheetText') })) +
-      lux({ id: 'v-local', art: duoArt(), title: t('play.ng.local'), text: t('play.var.localText') }) +
-      '</div>' +
-      '<div id="v-sheet">' + sec('scroll', t('play.var.sheet'), t('play.var.gold')) + '<div class="glass rs-card">' + ruleSheet(v) + '</div></div>' +
-      sec('users', t('play.choose'), t((E.VARIANTS[v.id] || {}).old ? 'play.var.oldRules' : 'play.var.knowRules')) +
-      '<div class="personas">' + OPP.map(personaCard).join('') + '</div>' +
-      '<p class="fine">' + t('play.var.deviceOnly', { name: esc(varName(v)) }) + '</p>' +
+      '<button class="backlink" data-nav="variants">' + icon('back') + ' ' + t('menu.allVariants') + '</button>' +
+      '<section class="vhead"><span class="banner"><img src="' + banner + '" alt=""></span>' + faceImg(host, 'host') + '<span class="bar-v"></span>' +
+      '<div><h2>' + esc(varName(v)) + '<span class="tag">' + esc(varText(v, 'when')) + '</span></h2><p class="line">' + esc(varText(v, 'tagline')) + (e ? ' · ' + esc(eraName(e)) : '') + '</p><p>' + esc(varText(v, 'blurb')) + '</p></div></section>' +
+      '<div class="tabs2" role="tablist"><button role="tab" data-vt="play">' + icon('play') + t('common.nav.play') + '</button><button role="tab" data-vt="learn">' + icon('book') + t('common.nav.learn') + '</button></div>' +
+      '<div class="vbody" id="v-play">' + (xqBack ? '<div class="ac-grid two" style="margin-bottom:18px">' + acard({ id: 'v-resume', cls: 'slim', pic: uiPic('quick'), badge: t('menu.resume'), title: t('home.resume'), line: t('home.resumeText', { n: xqBack.n }) }) + '</div>' : '') +
+      '<div id="v-ai"></div>' +
+      '<div class="ac-grid two" style="margin-top:27px">' + acard({ id: 'v-local', cls: 'slim', pic: uiPic('turns'), title: t('menu.fr.turns'), line: t('play.var.localText') }) +
+      (xqBack ? '' : acard({ id: 'v-learn', cls: 'slim', pic: faceImg(COACH, 'face'), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), line: t('play.var.lessonText', { title: v.lesson.title }) })) +
+      '</div><p class="fine">' + t('play.var.deviceOnly', { name: esc(varName(v)) }) + '</p></div>' +
+      '<div class="vbody" id="v-learnp" hidden>' + (xqBack ? '<div class="ac-grid two" style="margin-bottom:18px">' + acard({ id: 'v-learn', pic: faceImg(COACH, 'face'), title: learned ? t('play.var.again') : t('play.var.learn', { coach: COACH.name }), line: t('play.var.lessonText', { title: v.lesson.title }) }) + '</div>' : '') +
+      lbl(t('play.var.sheet'), t('play.var.gold')) + '<div class="rs-card">' + ruleSheet(v) + '</div></div>' +
       '</div></div>');
     hydrate();
     wireLinks();
+    const tab = (k) => {
+      document.querySelectorAll('[data-vt]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.vt === k)));
+      $('v-play').hidden = k !== 'play'; $('v-learnp').hidden = k !== 'learn';
+    };
+    document.querySelectorAll('[data-vt]').forEach((b) => { b.onclick = () => { AU.play('select'); tab(b.dataset.vt); }; });
+    tab('play');
     $('v-learn').onclick = () => { AU.unlock(); AU.play('tap'); go(v.id === 'xiangqi' ? 'xqlesson' : 'lesson', { variant: v.id }); };
-    if ($('v-rules')) $('v-rules').onclick = () => { AU.play('tap'); $('v-sheet').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     if ($('v-resume')) $('v-resume').onclick = () => { AU.unlock(); AU.play('tap'); if (xqBack.live) go('xiangqi'); else resumeXq(); };
+    aiModal({ variant: v.id, inline: $('v-ai') });
     $('v-local').onclick = () => { AU.unlock(); AU.play('tap'); if (v.id === 'xiangqi') { startXq({ mode: 'local' }); return; } startGame(Object.assign({ mode: 'local', color: 'white', level: 0, tc: 'none', look: variantLook(v) }, variantStart(v))); };
-    document.querySelectorAll('[data-opp]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); opponentModal(+b.dataset.opp, v.id); }; });
-    // The cards' records and "beaten" badges are for chess; a variation keeps its own record.
-    document.querySelectorAll('.personas .rec, .personas .tag.gold').forEach((el) => el.remove());
     return {};
   };
 
@@ -2238,26 +2342,31 @@
   const STAGE = { tale: 'scroll', lesson: 'learn', puzzles: 'puzzle', endgame: 'crown', champion: 'swords' };
   const eraRewards = (e) => CATALOG.items.filter((it) => it.unlock.type === 'journey' && it.unlock.era === e.id);
   function eraCard(e, i) {
-    const info = PG.journeyInfo(state.progress, e.id);
-    const set = setInfo(e.set);
-    const why = info.open ? '' : info.premium && !state.progress.premium ? t('common.premium') : t('journey.finishFirst', { era: eraName(CAMPAIGN.eras[i - 1]) });
-    return '<button class="era' + (info.open ? '' : ' locked') + (info.done ? ' done' : '') + '" data-era="' + e.id + '">' +
-      '<span class="banner"><img src="' + ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] }) + '" alt=""><span class="num">' + t('journey.era', { n: ROMAN[i] }) + '</span><span class="when pill">' + esc(eraWhen(e)) + '</span></span>' +
-      '<img class="coach portrait" src="' + face(eraCoach(e)) + '" alt="">' +
-      '<span class="body"><h3>' + esc(eraName(e)) + '</h3><span class="t">' + esc(fullName(eraCoach(e))) + ' · ' + esc(eraText(e, 'place')) + '</span></span>' +
-      '<span class="foot"><span class="stagedots">' + info.stages.map((d) => '<i' + (d ? ' class="on"' : '') + '></i>').join('') + '</span>' +
-      '<span class="reward">' + (info.done ? icon('check') + ' ' + t('journey.yours', { set: '<b>' + esc(set ? set.name : '') + '</b>' }) : why ? icon('lock') + ' ' + esc(why) : t('journey.prize', { set: '<b>' + esc(set ? set.name : '') + '</b>' })) + '</span>' +
-      '<span class="go">' + icon(info.open ? 'arrow' : 'lock') + '</span></span></button>';
+    const P = state.progress, info = PG.journeyInfo(P, e.id);
+    const cur = nextEra() === e && info.open;
+    const scene = ART.eraUri(e.id), view = ART.bannerUri(e.landmark, { from: e.colors[0], to: e.colors[1] });
+    const why = info.open ? '' : info.premium && !P.premium ? t('menu.premiumLocked') : t('menu.locked');
+    const state2 = info.done ? '<span class="state done">' + icon('check') + t('menu.complete') + '</span>'
+      : info.open ? '<span class="pips">' + info.stages.map((d) => '<i' + (d ? ' class="on"' : '') + '>' + (d ? icon('check') : '') + '</i>').join('') + '</span>'
+      : '<span class="state">' + icon(info.premium && !P.premium ? 'crown' : 'lock') + esc(why) + '</span>';
+    return '<button class="ecard' + (info.open ? '' : ' locked') + (cur ? ' current' : '') + (info.done ? ' done' : '') + '" data-era="' + e.id + '">' +
+      '<span class="bg" style="background-image:url(\'' + view + '\')"></span>' + (scene ? '<span class="who" style="background-image:url(\'' + scene + '\')"></span>' : '') +
+      '<span class="n">' + ROMAN[i] + '</span><span class="yr">' + esc(eraWhen(e).replace(/^c\.\s*/, '')) + '</span>' +
+      '<h3>' + esc(eraName(e)) + '</h3><span class="sub2">' + esc(fullName(eraCoach(e))) + ' · ' + esc(eraText(e, 'place').split(/[,،，]/)[0]) + '</span>' +
+      '<span class="st">' + state2 + '</span></button>';
   }
   SCREENS.journey = function () {
     idleBoard();
     const P = state.progress;
-    const done = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length;
+    const done = CAMPAIGN.eras.filter((e) => PG.journeyInfo(P, e.id).done).length, ne = nextEra();
     mount('<div class="page"><div class="page-in">' +
-      pageHead(t('journey.eyebrow'), t('journey.title'), t('journey.sub'), meter(done, CAMPAIGN.eras.length, t('journey.complete'))) +
-      passport() +
-      '<div class="eras">' + CAMPAIGN.eras.map(eraCard).join('') + '</div>' +
-      '<p class="fine">' + t('journey.fine') + '</p>' +
+      '<div class="jtop">' + mhead({ medal: ART.uiUri('laurel'), title: t('common.nav.journey'), line: t('home.tagline') }) + '<p class="intro">' + t('menu.journeyIntro', { n: CAMPAIGN.eras.length }) + '</p></div>' +
+      '<section class="jprog" aria-label="' + esc(t('journey.passport')) + '">' + uiPic('passport', 'pp') +
+      '<div class="yp"><b>' + t('menu.yourProgress') + '</b><span>' + t('menu.erasDone', { n: done, of: CAMPAIGN.eras.length }) + '</span><span class="mbar"><i style="width:' + Math.round(done / CAMPAIGN.eras.length * 100) + '%"></i></span></div>' +
+      '<div class="trail">' + CAMPAIGN.eras.map((e) => { const inf = PG.journeyInfo(P, e.id); return '<button class="' + (inf.done ? 'done' : e === ne && inf.open ? 'on' : '') + '" data-era="' + e.id + '" title="' + esc(eraName(e)) + '"><img src="' + stampSrc(e) + '" alt=""><span>' + esc(eraText(e, 'place').split(/[,،，]/)[0]) + '</span></button>'; }).join('') + '</div>' +
+      '<div class="rw"><b>' + t('menu.rewards') + '</b><span>' + icon('pawn') + t('menu.rw.sets') + '</span><span>' + icon('medal') + t('menu.rw.stamps') + '</span><span>' + icon('crown') + t('menu.rw.final') + '</span></div></section>' +
+      '<div class="egrid">' + CAMPAIGN.eras.map(eraCard).join('') + '</div>' +
+      '<p class="jfoot">' + t('menu.journeyFoot', { n: CAMPAIGN.eras.length }) + '</p>' +
       '</div></div>');
     wireLinks();
     document.querySelectorAll('[data-era]').forEach((b) => { b.onclick = () => { AU.unlock(); AU.play('tap'); openEra(b.dataset.era); }; });
@@ -2427,7 +2536,7 @@
   }
 
   // ---------------------------------------------------------------- learn, puzzles, training
-  const subnav = (cur) => '<nav class="subnav" aria-label="' + t('learn.nav') + '">' + ['learn', 'trainers', 'puzzles', 'training'].map((k) => '<button data-nav="' + k + '"' + (k === cur ? ' aria-current="page"' : '') + '>' + t('learn.sub.' + k) + '</button>').join('') + '</nav>';
+  const subnav = (cur) => academyNav(ACADEMY_OF[cur] || cur);
   const stars = (n) => '<span class="stars" aria-label="' + t('learn.stars', { n }) + '">' + [1, 2, 3].map((k) => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
   const locked = (item) => item.access === 'premium' && !state.progress.premium;
   // Each lesson's own 3D picture: pieces, arrows and target rings on a velvet plinth, in the player's
@@ -2776,7 +2885,6 @@
       body = top + focus + sec('chart', t('learn.pg.skills')) + '<p class="fine pg-sub">' + t('learn.pg.skillsSub') + '</p>' + '<div class="pg-grid">' + PG.SKILLS.map((id) => card(V.skills[id])).join('') + '</div>';
     }
     mount('<div class="page"><div class="page-in pg">' +
-      '<button class="backlink" data-nav="training">' + icon('back') + ' ' + t('learn.sub.training') + '</button>' +
       pageHead(t('learn.sub.training'), t('learn.pg.title'), t('learn.pg.sub'), periodBtns) + body +
       '<p class="fine pg-private">' + icon('lock') + ' ' + t('learn.pg.private') + '</p></div></div>');
     wireLinks();
@@ -5388,63 +5496,71 @@
   }
 
   // ----- new games
-  function newGameModal() {
-    const s = state.setup;
-    const prem = state.progress.premium;
-    const m = modal('<form id="ng"><div class="eyebrow">' + t('play.ng.eyebrow') + '</div><h2>' + t('play.ng.title') + '</h2><p class="sub">' + t('play.ng.sub') + '</p>' +
-      '<div class="field"><div class="label">' + t('play.opponent') + '</div><div class="seg"><label><input type="radio" name="mode" value="ai"' + (s.mode !== 'local' ? ' checked' : '') + '><span>' + t('play.ng.ai') + '</span></label><label><input type="radio" name="mode" value="local"' + (s.mode === 'local' ? ' checked' : '') + '><span>' + t('play.ng.local') + '</span></label></div></div>' +
-      '<div class="field" id="f-color"><div class="label">' + t('play.playAs') + '</div><div class="seg">' + ['white', 'black', 'random'].map((c) => '<label><input type="radio" name="color" value="' + c + '"' + (s.color === c ? ' checked' : '') + '><span>' + t('play.color.' + c) + '</span></label>').join('') + '</div></div>' +
-      '<div class="field" id="f-level"><div class="label">' + t('play.ng.who') + '</div><div class="levels">' + LEVELS.map((lv, i) => { const o = persona(i); return '<label><input type="radio" name="level" value="' + i + '"' + (s.level === i ? ' checked' : '') + (lv.premium && !prem ? ' disabled' : '') + '><span class="lv"><img class="portrait" src="' + face(o) + '" alt=""><span><i>' + esc(bandName(i)) + (lv.premium && !prem ? ' · ' + t('common.premium') : '') + '</i><b>' + esc(o.name) + '</b><small>' + esc(speciesName(o)) + '</small></span></span></label>'; }).join('') + '</div></div>' +
-      '<div class="field"><div class="label">' + t('play.clock') + '</div><div class="seg">' + [['none', 'play.clock.none'], ['1+0', 'play.clock.1'], ['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['10+5', '10 + 5'], ['15+10', '15 + 10'], ['30+0', 'play.clock.30']].map(([v, l]) => '<label><input type="radio" name="tc" value="' + v + '"' + (s.tc === v ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
-      '<div class="field"><label for="ng-fen">' + t('play.ng.fen') + '</label><input class="text-in" id="ng-fen" placeholder="' + t('play.ng.fenHint') + '" spellcheck="false" value="' + esc(s.fen || '') + '"><p class="err" id="ng-err"></p></div>' +
-      '<div class="row"><button type="button" class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary">' + icon('play') + ' ' + t('play.ng.start') + '</button></div></form>', { cls: 'wide', x: true });
-    routedModal('custom', null, m);
-    const form = m.querySelector('#ng');
-    const sync = () => { const ai = form.mode.value === 'ai'; m.querySelector('#f-color').hidden = !ai; m.querySelector('#f-level').hidden = !ai; };
-    form.onchange = sync; sync();
-    form.onsubmit = (e) => {
-      e.preventDefault();
-      const fen = m.querySelector('#ng-fen').value.trim();
-      if (fen) { const err = new E.Pos().load(fen); if (err) { m.querySelector('#ng-err').textContent = err; return; } }
-      const lv = +(form.level.value || 1);
-      m.close();
-      AU.unlock();
-      startGame({ mode: form.mode.value, color: form.color.value || 'white', level: LEVELS[lv].premium && !prem ? 1 : lv, tc: form.tc.value, fen });
-    };
-  }
   // Online clocks: every game is timed, with ten minutes a side at most.
   const ONLINE_TCS = [['3+2', '3 + 2'], ['5+0', 'play.clock.5'], ['5+3', '5 + 3'], ['10+0', 'play.clock.10']];
+  const onlineStatus = () => {
+    const link = window.ChacklateNet && ChacklateNet.link ? ChacklateNet.link() : 'unavailable';
+    return link === 'ready' ? '' : '<p class="fine center">' + t(link === 'connecting' ? 'play.fr.connecting' : 'play.fr.unreachable') + '</p>';
+  };
+  // Play Online: a timed game against someone waiting for the same clock.
   function worldModal() {
-    const m = modal('<div class="setup-hero">' + worldArt() + '<div><div class="eyebrow">' + t('play.world') + '</div><h2>' + t('play.w.title') + '</h2>' +
-      '<p class="sub">' + t('play.w.sub') + '</p></div></div>' +
-      '<div class="field"><div class="label">' + t('play.w.clock') + '</div><div class="seg">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="wtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div></div>' +
-      '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn primary" id="w-go">' + icon('globe') + ' ' + t('play.w.title') + '</button></div>', { x: true });
+    const m = modal(shHead({ medals: ART.uiUri('crowns'), title: t('menu.online'), sub: t('play.w.sub') }) +
+      '<div class="opt"><span class="k">' + icon('clock') + t('play.clock') + '</span>' + clockChips('wtc', ONLINE_TCS, '5+3') + '</div>' + clockBox('5+3', true) + onlineStatus() +
+      '<div class="sh-foot"><button class="cta2" data-close>' + t('common.cancel') + '</button><button class="cta" id="w-go">' + icon('globe') + ' ' + t('play.w.title') + '</button></div>', { cls: 'sheet narrow', x: true });
     routedModal('world', null, m);
+    wireClockBox(m, 'wtc', '5+3');
     m.querySelector('#w-go').onclick = () => { const tc = m.querySelector('input[name=wtc]:checked').value; m.close(); ChacklateNet.quickMatch(tc); };
   }
-  // Play a friend on another device: create a table and share its code, or join one with a code.
-  // The online part is always offered; ChacklateNet waits for the connection or explains why there is none.
-  function friendModal() {
-    const link = window.ChacklateNet && ChacklateNet.link ? ChacklateNet.link() : 'unavailable';
-    const status = link === 'ready' ? '' : '<p class="fine">' + t(link === 'connecting' ? 'play.fr.connecting' : 'play.fr.unreachable') + '</p>';
-    const m = modal('<div class="setup-hero">' + duoArt() + '<div><div class="eyebrow">' + t('play.friend') + '</div><h2>' + t('play.fr.title') + '</h2><p class="sub">' + t('play.fr.sub') + '</p></div></div>' +
-      '<div class="friend-pick"><section class="glass"><h3>' + icon('users') + ' ' + t('play.fr.create') + '</h3><p class="fine">' + t('play.fr.createSub') + '</p>' +
-      '<div class="label">' + t('play.fr.clock') + '</div><div class="seg" id="fr-tc">' + ONLINE_TCS.map(([v, l]) => '<label><input type="radio" name="frtc" value="' + v + '"' + (v === '5+3' ? ' checked' : '') + '><span>' + clockName(l) + '</span></label>').join('') + '</div>' +
-      '<button class="btn primary" id="fr-create">' + icon('users') + ' ' + t('play.fr.createBtn') + '</button></section>' +
-      '<section class="glass"><h3>' + icon('play') + ' ' + t('play.fr.join') + '</h3><label class="fine" for="fr-code">' + t('play.fr.joinSub') + '</label>' +
-      '<div style="display:flex;gap:8px"><input class="text-in code" id="fr-code" maxlength="9" placeholder="ABC123" autocomplete="off" autocapitalize="characters"><button class="btn primary" id="fr-join">' + t('play.fr.joinBtn') + '</button></div><p class="err" id="fr-err"></p></section></div>' +
-      status +
-      '<div class="row"><button class="btn" data-close>' + t('common.cancel') + '</button><button class="btn" id="fr-local">' + icon('users') + ' ' + t('play.fr.local') + '</button></div>', { x: true });
+  // Play a Friend: join a table with its code, create one and share the code, or take turns on this device.
+  function friendModal(tab) {
+    let at = tab || 'create';
+    const SUB = { join: 'menu.fr.joinSub', create: 'menu.fr.createSub', turns: 'menu.fr.turnsSub' };
+    const panel = (k) => k === 'join'
+      ? '<div class="codeline" style="margin:4px 0 16px">' + uiPic('joindoor', 'sm') + '<span class="bar-v"></span><span class="k">' + t('menu.fr.enterCode') + '</span></div>' +
+        '<input class="codein" id="fr-code" maxlength="9" placeholder="' + esc(t('menu.fr.codeHint')) + '" autocomplete="off" autocapitalize="characters" aria-label="' + esc(t('menu.fr.enterCode')) + '"><p class="err center" id="fr-err"></p>' + onlineStatus() +
+        '<div class="sh-foot"><button class="cta wide" id="fr-join">' + icon('users') + ' ' + t('menu.fr.joinBtn') + '</button></div>'
+      : k === 'create'
+        ? '<div class="opt"><span class="k">' + icon('clock') + t('play.clock') + '</span>' + clockChips('frtc', ONLINE_TCS, '5+3') + '</div>' + clockBox('5+3', true) + onlineStatus() +
+          '<div class="sh-foot"><button class="cta wide" id="fr-create">' + icon('users') + ' ' + t('menu.fr.createBtn') + '</button></div>'
+        : '<div class="opt"><span class="k">' + icon('clock') + t('play.clock') + '</span>' + clockChips('lctc', CLOCKS, 'none') + '</div>' + clockBox('none') +
+          '<div class="sh-foot"><button class="cta wide" id="fr-local">' + crownIco() + ' ' + t('menu.startGame') + '</button></div>';
+    const m = modal('<div class="sh-head"><img class="medals" src="' + ART.uiUri('medals') + '" alt=""><h2>' + t('play.friend') + '</h2><p class="sub" id="fr-sub"></p></div>' +
+      '<div class="picktabs" role="tablist">' + [['join', 'join'], ['create', 'create'], ['turns', 'turns']].map(([k, pic]) => '<button type="button" role="tab" data-tab="' + k + '">' + uiPic(pic) + '<span>' + t('menu.fr.' + k) + '</span></button>').join('') + '</div>' +
+      '<div class="sh-rule"></div><div id="fr-panel"></div>', { cls: 'sheet narrow', x: true });
     routedModal('friend', null, m);
-    m.querySelector('#fr-local').onclick = () => { m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc: 'none', fen: '' }); };
-    m.querySelector('#fr-create').onclick = () => { const tc = m.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
-    const join = () => {
-      const code = m.querySelector('#fr-code').value.toUpperCase().replace(/[^A-Z0-9]/g, '');   // "abc-123" and "ABC 123" are the same code
-      if (!/^[A-Z0-9]{6}$/.test(code)) { m.querySelector('#fr-err').textContent = t('play.fr.badCode'); return; }
-      m.close(); ChacklateNet.joinFriend(code);
+    const show = (k) => {
+      at = k;
+      m.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === k)));
+      m.querySelector('#fr-sub').textContent = t(SUB[k]);
+      const p = m.querySelector('#fr-panel'); p.innerHTML = panel(k);
+      if (k === 'join') {
+        const join = () => {
+          const code = p.querySelector('#fr-code').value.toUpperCase().replace(/[^A-Z0-9]/g, '');   // "abc-123" and "ABC 123" are the same code
+          if (!/^[A-Z0-9]{6}$/.test(code)) { p.querySelector('#fr-err').textContent = t('play.fr.badCode'); return; }
+          m.close(); ChacklateNet.joinFriend(code);
+        };
+        p.querySelector('#fr-join').onclick = join;
+        p.querySelector('#fr-code').onkeydown = (e) => { if (e.key === 'Enter') join(); };
+        setTimeout(() => p.querySelector('#fr-code').focus({ preventScroll: true }), 30);
+      } else if (k === 'create') {
+        wireClockBox(p, 'frtc', '5+3');
+        p.querySelector('#fr-create').onclick = () => { const tc = p.querySelector('input[name=frtc]:checked').value; m.close(); ChacklateNet.createFriend(tc); };
+      } else {
+        wireClockBox(p, 'lctc');
+        p.querySelector('#fr-local').onclick = () => { const tc = p.querySelector('input[name=lctc]:checked').value; m.close(); startGame({ mode: 'local', color: 'white', level: 0, tc, fen: '' }); };
+      }
     };
-    m.querySelector('#fr-join').onclick = join;
-    m.querySelector('#fr-code').onkeydown = (e) => { if (e.key === 'Enter') join(); };
+    m.querySelectorAll('[data-tab]').forEach((b) => { b.onclick = () => { AU.play('select'); show(b.dataset.tab); }; });
+    show(at);
+  }
+  // The waiting cards of online play (relay.js and net.js draw them through ChacklateApp.waitSheet):
+  // o: { medals, title, sub, code, waiting, facts: [[icon, value, label]], buttons }
+  function waitSheet(o) {
+    return shHead({ medals: ART.uiUri(o.medals || 'medals'), title: o.title, sub: o.sub }) +
+      (o.code ? '<div class="codeline"><span class="k">' + icon('users') + t('menu.fr.tableCode') + '</span><span class="bar-v"></span><span class="code2">' + esc(o.code) + '</span>' + (o.copy ? '<button class="round" id="' + o.copy + '" aria-label="' + t('online.copy') + '" title="' + t('online.copy') + '">' + icon('copy') + '</button>' : '') + '</div>' : '') +
+      (o.waiting ? '<div class="waiting"><span class="ring">' + icon('profile') + '</span><p>' + esc(o.waiting) + (o.timer ? ' <span id="sk-t">0:00</span>' : '') + '</p></div>' : '') +
+      (o.facts && o.facts.length ? '<div class="sh-rule"></div><h3 class="center sh-sub2">' + t('menu.fr.rules') + '</h3><div class="facts">' + o.facts.map(([ic, v, l]) => '<div><b>' + icon(ic) + esc(v) + '</b><small>' + esc(l) + '</small></div>').join('') + '</div>' : '') +
+      '<div class="sh-foot">' + (o.buttons || '') + '</div>';
   }
 
   // ---------------------------------------------------------------- review
@@ -7109,7 +7225,7 @@
 
   // ---------------------------------------------------------------- shared API for the online client
   window.ChacklateApp = {
-    E, state, toast, modal, esc, icon, save, go, backToGame, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate,
+    E, state, toast, modal, esc, icon, save, go, backToGame, avatarHtml, PG, AU, celebrate, quickPlayOffline, setEntitlements, setSafety, parentGate, waitSheet,
     // Taps a square by name ("e4"), the same as clicking it on the board. Used by automated tests.
     tap(name) { ctlHooks.onSquare(sqIndex(name)); },
     startOnline(info) {

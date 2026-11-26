@@ -10,7 +10,7 @@ from crops import ERA_SCENE
 for f in sorted(os.listdir(os.path.join(here, 'masters'))):
     if not f.endswith('.png'): continue
     im = Image.open(os.path.join(here, 'masters', f))
-    big = 440 if f.startswith(('banner-', 'vhero')) else 300 if f.startswith('var-') else 240
+    big = 440 if f.startswith('banner-') else 300 if f.startswith('var-') else 240
     im.thumbnail((big, big), Image.LANCZOS)
     im.save(os.path.join(art, 'ui-' + f[:-4] + '.webp'), quality=80, method=6)
 if len(sys.argv) > 1:

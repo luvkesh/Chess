@@ -92,10 +92,9 @@
     const app = A();
     if (seekingModal) return;
     const started = Date.now();
-    seekingModal = app.modal('<div class="seek-orb" aria-hidden="true"><i></i><i></i><i></i></div><h2 style="text-align:center">' + t('account.seek.title') + '</h2>' +
-      '<p class="sub" style="text-align:center">' + app.esc(tc) + ' · ' + t('account.seek.rated') + ' · <span id="sk-t">0:00</span></p>' +
-      '<div class="row" style="justify-content:center"><button class="btn" id="sk-ai">' + t('account.seek.ai') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
-    { sticky: true, onClose() { clearInterval(seekingModal && seekingModal.timer); if (seekingModal && !seekingModal.matched) send({ type: 'cancel' }); seekingModal = null; } });
+    seekingModal = app.modal(app.waitSheet({ medals: 'crowns', title: t('account.seek.title'), sub: String(tc).replace('+', ' + ') + ' · ' + t('account.seek.rated'), waiting: t('menu.searching'), timer: true,
+      buttons: '<button class="cta2" data-close>' + t('common.cancel') + '</button><button class="cta" id="sk-ai">' + t('account.seek.ai') + '</button>' }),
+    { sticky: true, cls: 'sheet narrow', onClose() { clearInterval(seekingModal && seekingModal.timer); if (seekingModal && !seekingModal.matched) send({ type: 'cancel' }); seekingModal = null; } });
     seekingModal.timer = setInterval(() => {
       const s = Math.floor((Date.now() - started) / 1000), el = seekingModal && seekingModal.querySelector('#sk-t');
       if (el) el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -106,10 +105,9 @@
 
   function showCode(code, tc) {
     const app = A();
-    friendModal = app.modal('<h2>' + t('account.code.title') + '</h2><p class="sub">' + t('account.code.how', { tc: app.esc(tc) }) + '</p>' +
-      '<div class="friend-code">' + app.esc(code) + '</div>' +
-      '<div class="row"><button class="btn" id="fc-copy">' + app.icon('copy') + ' ' + t('account.code.copy') + '</button><button class="btn" data-close>' + t('common.cancel') + '</button></div>',
-    { sticky: true, onClose() { friendModal = null; } });
+    friendModal = app.modal(app.waitSheet({ title: t('menu.fr.waitTitle'), sub: t('account.code.how', { tc: app.esc(tc) }), code, copy: 'fc-copy', waiting: t('menu.fr.waiting'),
+      facts: [['bolt', String(tc).replace('+', ' + '), t('play.clock')], ['pawn', t('menu.standard'), t('menu.gameType')]], buttons: '<button class="cta2" data-close>' + t('common.cancel') + '</button>' }),
+    { sticky: true, cls: 'sheet narrow', onClose() { friendModal = null; } });
     friendModal.querySelector('#fc-copy').onclick = () => { try { navigator.clipboard.writeText(code); app.toast(t('account.code.copied')); } catch (e) { /* clipboard blocked */ } };
   }
 
