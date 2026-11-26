@@ -2634,6 +2634,71 @@
       ]
     },
     {
+      "id": "lesson.c03.l10.three-phases",
+      "chapter": 3,
+      "art": {
+        "felt": "#3a1f3d",
+        "sheen": "#d4a85a",
+        "items": [
+          {
+            "type": "p",
+            "side": "w",
+            "x": -0.62,
+            "z": 0.42,
+            "scale": 0.8
+          },
+          {
+            "type": "n",
+            "side": "w",
+            "x": 0.0,
+            "z": 0.05,
+            "rot": 0.5
+          },
+          {
+            "type": "k",
+            "side": "b",
+            "x": 0.6,
+            "z": -0.38
+          },
+          {
+            "kind": "arrow",
+            "x": -0.5,
+            "z": 0.3,
+            "x2": -0.12,
+            "z2": 0.12,
+            "color": "#d4a85a"
+          },
+          {
+            "kind": "arrow",
+            "x": 0.12,
+            "z": -0.02,
+            "x2": 0.46,
+            "z2": -0.26,
+            "color": "#d4a85a"
+          }
+        ]
+      },
+      "title": "The three phases of chess",
+      "minutes": 30,
+      "objectives": [
+        "Know what the opening, middlegame and endgame are for",
+        "Spot when one phase turns into the next",
+        "See why points alone do not win games"
+      ],
+      "course": "phases",
+      "parts": [
+        "each-phase",
+        "transitions",
+        "strong-players",
+        "traps",
+        "famous-games",
+        "explore",
+        "practice"
+      ],
+      "steps": [],
+      "exercises": []
+    },
+    {
       "id": "lesson.c04.l01.forks",
       "chapter": 4,
       "art": {

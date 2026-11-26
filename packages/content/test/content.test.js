@@ -24,7 +24,7 @@ for (const l of lessons.lessons) {
   assert.ok(/^lesson\.c\d\d\.l\d\d\.[a-z-]+$/.test(l.id), 'lesson id format: ' + l.id);
   assert.ok(!ids.has(l.id), 'duplicate id ' + l.id); ids.add(l.id);
   assert.ok(lessons.chapters.some((c) => c.n === l.chapter), l.id + ' chapter');
-  checkLesson(l);
+  if (!l.course) checkLesson(l);   // a course (the three phases) is checked on its own below
 }
 // Shared by Learn lessons and the lessons written into each era of the journey.
 function checkLesson(l) {
@@ -107,7 +107,7 @@ function checkExercise(x, where) {
   const stepOwner = new Map(), exBoards = new Map(), seenPuzzles = new Map(), prompts = new Map(), icons = new Set();
   for (const l of lessons.lessons) {
     const n = l.steps.length + l.exercises.length;
-    if (!l.voice) assert.ok(n >= 6 && n <= 10, l.id + ' has ' + n + ' steps and exercises, not 6 to 10');
+    if (!l.voice && !l.course) assert.ok(n >= 6 && n <= 10, l.id + ' has ' + n + ' steps and exercises, not 6 to 10');
     const art = JSON.stringify(l.art && l.art.items);
     assert.ok(l.art && l.art.felt && l.art.items.length && !icons.has(art), l.id + ' has its own 3D picture'); icons.add(art);
     for (const s of l.steps) {
@@ -133,6 +133,51 @@ function checkExercise(x, where) {
   for (const l of lessons.lessons) for (const r of l.replaces || []) { assert.ok(/^lesson\.c\d\d\.l\d\d\.[a-z-]+$/.test(r) && !all.has(r), l.id + ' replaces ' + r); all.add(r); }
 }
 console.log('lessons ok:', lessons.lessons.length, 'lessons,', checked, 'exercises');
+
+// The three phases of chess (phases.json): every famous game replays legally and ends the way it
+// did, the engine's numbers fit the moves (packages/chess-core/tools/generate-phases.js), every
+// guess accepts the move really played first, and every question's answer is on its board.
+{
+  const ph = require('../phases.json');
+  const host = lessons.lessons.find((l) => l.id === ph.lesson);
+  assert.ok(host && host.course === 'phases', 'phases.json belongs to a Learn lesson');
+  assert.deepStrictEqual(host.parts, ph.parts.map((p) => p.id), 'the lesson lists the parts in order');
+  const ENDS = { opera: 'checkmate', immortal: 'checkmate', century: 'checkmate', legall: 'checkmate', reti_tartakower: 'checkmate' };
+  const fens = {};
+  for (const [id, g] of Object.entries(ph.games)) {
+    const game = new E.Game(g.fen);
+    fens[id] = [game.pos.fen()];
+    for (const s of g.moves) { assert.ok(game.playText(s), id + ' legal ' + s); fens[id].push(game.pos.fen()); }
+    if (ENDS[id]) assert.ok(game.outcome && game.outcome.reason === ENDS[id], id + ' ends in ' + ENDS[id]);
+    assert.strictEqual(g.evals.length, g.moves.length + 1, id + ' has an evaluation for every ply');
+    for (const k of Object.keys(g.notes)) assert.ok(+k >= 0 && +k <= g.moves.length, id + ' note ' + k);
+    for (const ply of g.predict) {
+      const acc = g.accept[ply];
+      assert.ok(acc && acc.length, id + ' guess ' + ply + ' has its accepted moves');
+      const p = load(fens[id][ply], id);
+      const real = new E.Game(fens[id][ply]); const info = real.playText(g.moves[ply]);
+      assert.strictEqual(acc[0], 'abcdefgh'[info.from & 7] + (1 + (info.from >> 3)) + 'abcdefgh'[info.to & 7] + (1 + (info.to >> 3)) + (acc[0].length > 4 ? acc[0][4] : ''), id + ' guess ' + ply + ' accepts the real move first');
+      for (const u of acc) assert.ok(p.parseMove(u) !== null && p.parseMove(u) !== undefined, id + ' accepts a legal ' + u);
+    }
+  }
+  const seen = new Set();
+  for (const part of ph.parts) for (const b of part.beats) {
+    assert.ok(b.say, part.id + ' beat has words');
+    if (b.game) { assert.ok(ph.games[b.game], part.id + ' plays ' + b.game); continue; }
+    const fen = b.fen || fens[b.at.game][b.at.ply];
+    const p = load(fen, part.id);
+    if (!b.ask) continue;
+    assert.ok(!seen.has(fen), part.id + ' asks about a board already asked about: ' + fen); seen.add(fen);
+    if (b.ask === 'phase') assert.ok(['opening', 'middlegame', 'endgame'].includes(b.answer), part.id + ' phase answer');
+    if (b.ask === 'choice') assert.ok(b.answer >= 0 && b.answer < b.options.length, part.id + ' choice answer');
+    if (b.ask === 'move') {
+      assert.ok(b.accept && b.accept.length, part.id + ' move question has accepted moves');
+      for (const u of b.accept) assert.ok(p.parseMove(u) !== null && p.parseMove(u) !== undefined, part.id + ' accepts a legal ' + u);
+      assert.strictEqual(p.san(p.parseMove(b.accept[0]), p.legalMoves()), b.best, part.id + ' accepts its answer first');
+    }
+  }
+  console.log('three phases ok:', Object.keys(ph.games).length, 'games,', ph.parts.length, 'parts');
+}
 
 // Puzzles: the first move is the opponent's, then solver/reply alternate.
 const pids = new Set();
@@ -441,6 +486,33 @@ const placement = require('../placement.json');
   for (let n = 1; n <= 5; n++) assert.ok(sets[n] >= 10, 'at least 10 mates in ' + n);
   console.log('checkmate in N ok:', JSON.stringify(sets));
 }
+// Every puzzle is its own: no position twice (colours swapped or the board mirrored counts as the
+// same), and within a Checkmate in N set no two with the same mating idea around the king. Each set
+// climbs: its rating order is its difficulty order (chess-core/tools/puzzle-quality.js), with at most
+// four easy two-piece mates in one, spread through the easy part and never first.
+{
+  const Q = require('../../chess-core/tools/puzzle-quality.js');
+  const pos = new Map(), idea = new Map();
+  for (const pz of puzzles) {
+    const k = Q.twinKeys(E, pz);
+    assert.ok(!pos.has(k.position), pz.id + ' is the same position as ' + pos.get(k.position));
+    pos.set(k.position, pz.id);
+    if (!Q.mateN(pz)) continue;
+    assert.ok(!idea.has(k.idea), pz.id + ' repeats the mating idea of ' + idea.get(k.idea));
+    idea.set(k.idea, pz.id);
+  }
+  const named = Q.namedIds(path.join(__dirname, '..'));
+  for (let n = 1; n <= 5; n++) {
+    const set = puzzles.filter((p) => Q.mateN(p) === n && !named.has(p.id)).sort((a, b) => a.rating - b.rating).map((p) => ({ id: p.id, f: Q.features(E, p) }));
+    const easy = set.map((x, i) => (Q.trivial(x.f) ? i : -1)).filter((i) => i >= 0);
+    assert.ok(easy.length <= 4 && !easy.includes(0) && easy.every((i) => i < set.length / 3), 'mate in ' + n + ': easy mates at ' + easy);
+    const d = set.filter((x) => !Q.trivial(x.f)).map((x) => Q.difficulty(x.f));
+    for (let i = 1; i < d.length; i++) assert.ok(d[i] >= d[i - 1], 'mate in ' + n + ': difficulty drops at ' + set[i].id);
+  }
+  const inSet = (n) => puzzles.filter((p) => Q.mateN(p) === n && !named.has(p.id)).length;
+  assert.ok(inSet(1) >= 100 && inSet(2) >= 100, 'a hundred mates in 1 and in 2');
+  console.log('puzzles unique and in order of difficulty');
+}
 
 // Skill trainers: each trainer names a lesson and a pool with enough positions for a round, and every
 // position loads, every answer, option and played move is legal, and the played move is not an answer.
@@ -470,5 +542,12 @@ const placement = require('../placement.json');
       n++;
     }
   }
+  // Every sound move counts: positions that ask for a good move carry the full list of moves the
+  // engine rates about as good as the best (chess-core/tools/accept-trainer-moves.js), not one guess.
+  for (const pool of ['opening', 'quick', 'tactics', 'resource', 'advantage', 'endgame', 'safe', 'defence', 'mistake'])
+    for (const x of T.items[pool]) if (!x.mate) assert.ok(x.checked, 'trainer ' + pool + ' ' + x.id + ' has its good moves checked (run accept-trainer-moves.js)');
+  // The King's Indian position from the user's report: d6 and castling are both main moves.
+  const kid = T.items.opening.find((x) => x.id === '4cafe42b38');
+  assert.ok(kid && ['d7d6', 'e8g8'].every((u) => kid.answers.includes(u)), 'King\'s Indian accepts d6 and castling');
   console.log('trainers ok:', T.trainers.length, 'trainers,', n, 'positions');
 }

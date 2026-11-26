@@ -173,10 +173,6 @@
       "who": "rooky",
       "text": "Which piece is worth the most? Let's weigh them up, like treasure."
     },
-    "lesson.open.notation": {
-      "who": "rooky",
-      "text": "Chess has its own secret code! Let's learn to read it, letter by letter."
-    },
     "lesson.open.check": {
       "who": "rooky",
       "text": "Uh oh, the king is in danger! Let's learn three ways to save him."
@@ -193,14 +189,6 @@
       "who": "rooky",
       "text": "Not every game has a winner. Let's find out why!"
     },
-    "lesson.open.notation-signs": {
-      "who": "rooky",
-      "text": "Plus, hash and a little O! Every sign tells a story."
-    },
-    "lesson.open.chess-words": {
-      "who": "rooky",
-      "text": "Players all over the world share the same words. Let's learn the first ones!"
-    },
     "lesson.open.centre": {
       "who": "rooky",
       "text": "The middle of the board is the best spot in town. Let's grab it!"
@@ -213,9 +201,9 @@
       "who": "rooky",
       "text": "Some games end super fast! Let's learn the traps, so they never catch you."
     },
-    "lesson.open.tactic-words": {
+    "lesson.open.three-phases": {
       "who": "rooky",
-      "text": "Forks, pins and skewers! These words sound funny, but they win games."
+      "text": "Every game is a journey in three parts! Let's see how the masters build a win."
     },
     "lesson.open.forks": {
       "who": "rooky",
@@ -336,6 +324,14 @@
     "puzzle.start": {
       "who": "rooky",
       "text": "Find the best move! Look for checks, captures, and threats."
+    },
+    "puzzle.mate": {
+      "who": "rooky",
+      "text": "Find the checkmate! Check the king, and leave it no way out."
+    },
+    "puzzle.mateN": {
+      "who": "rooky",
+      "text": "Plan your checkmate! Each move should leave the king fewer ways out."
     },
     "puzzle.wrong": {
       "who": "rooky",
@@ -856,6 +852,22 @@
     "lesson.open.patterns": {
       "who": "rooky",
       "text": "Some checkmates are so famous they have names. Let's meet them!"
+    },
+    "lesson.open.notation": {
+      "who": "rooky",
+      "text": "Chess has its own secret code! Let's learn to read it, letter by letter."
+    },
+    "lesson.open.notation-signs": {
+      "who": "rooky",
+      "text": "Plus, hash and a little O! Every sign tells a story."
+    },
+    "lesson.open.chess-words": {
+      "who": "rooky",
+      "text": "Players all over the world share the same words. Let's learn the first ones!"
+    },
+    "lesson.open.tactic-words": {
+      "who": "rooky",
+      "text": "Forks, pins and skewers! These words sound funny, but they win games."
     }
   }
 }
