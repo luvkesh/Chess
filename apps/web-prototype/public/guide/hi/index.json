@@ -1003,5 +1003,25 @@
   "who": "rooky",
   "voice": "hm_omega",
   "text": "कुछ शह-मात इतनी मशहूर हैं कि उनके नाम हैं। चलिए उनसे मिलें!"
+ },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "शतरंज का अपना एक गुप्त कोड है! चलिए इसे अक्षर-अक्षर पढ़ना सीखें।"
+ },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "प्लस, हैश और एक छोटा-सा O! हर निशान एक कहानी कहता है।"
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "दुनिया भर के खिलाड़ी एक जैसे शब्द बोलते हैं। चलिए पहले शब्द सीखें!"
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "hm_omega",
+  "text": "फ़ोर्क, पिन और स्क्यूअर! ये शब्द मज़ेदार लगते हैं, पर इन्हीं से खेल जीते जाते हैं।"
  }
 }

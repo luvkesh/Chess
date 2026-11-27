@@ -1003,5 +1003,25 @@
   "who": "rooky",
   "voice": "em_alex",
   "text": "Algunos mates son tan famosos que tienen nombre. ¡Vamos a conocerlos!"
+ },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡El ajedrez tiene su propio código secreto! Vamos a aprender a leerlo, letra a letra."
+ },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Un más, una almohadilla y una pequeña O! Cada signo cuenta una historia."
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "Los jugadores de todo el mundo usan las mismas palabras. ¡Aprendamos las primeras!"
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "em_alex",
+  "text": "¡Horquillas, clavadas y pinchos! Suenan graciosas, pero ganan partidas."
  }
 }

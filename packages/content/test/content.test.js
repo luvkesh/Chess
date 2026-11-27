@@ -60,6 +60,8 @@ function checkExercise(x, where) {
       checked++; return;
     }
     if (x.type === 'anyLegal') { assert.ok(legal.length > 0, where); checked++; return; }
+    // write: the player types the move an arrow shows, in notation (the answer's SAN, worked out by the engine)
+    if (x.type === 'write') { assert.ok(x.answers && x.answers.length === 1, where + ' has one answer'); const m = p.parseMove(x.answers[0], legal); assert.ok(m !== null && m !== undefined, where + ' answer legal ' + x.answers[0]); checked++; return; }
     if (x.type === 'move' || x.type === 'mate') {
       const answers = x.answers || [];
       if (x.type === 'move') assert.ok(answers.length, where + ' answers');
