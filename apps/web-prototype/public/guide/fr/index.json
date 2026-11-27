@@ -1003,5 +1003,25 @@
   "who": "rooky",
   "voice": "ff_siwis,am_puck",
   "text": "Certains mats sont si célèbres qu'ils ont un nom. Allons les rencontrer !"
+ },
+ "lesson.open.notation": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Les échecs ont leur propre code secret ! Apprenons à le lire, lettre par lettre."
+ },
+ "lesson.open.notation-signs": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Un plus, un dièse et un petit O ! Chaque signe raconte une histoire."
+ },
+ "lesson.open.chess-words": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Partout dans le monde, les joueurs utilisent les mêmes mots. Apprenons les premiers !"
+ },
+ "lesson.open.tactic-words": {
+  "who": "rooky",
+  "voice": "ff_siwis,am_puck",
+  "text": "Fourchettes, clouages et enfilades ! Ces mots sont rigolos, mais ils gagnent des parties."
  }
 }

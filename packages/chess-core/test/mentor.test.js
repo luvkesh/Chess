@@ -154,3 +154,14 @@ for (const [fen, san, word] of [['koth:r3k3/8/8/8/8/3K4/8/R6q w - - 0 1', 'Kd4',
   assert(!/check/i.test(h.levels[0].text) && h.levels[2].text.includes(word) && !/If they answer/.test(h.levels[2].text), fen + ': ' + h.levels.map((l) => l.text).join(' | '));
 }
 console.log('mentor tests passed');
+
+// Every word has a level, and the glossary lists beginner words first.
+{
+  for (const id of M.TERMS) assert.ok([0, 1, 2].includes(M.LEVEL[id]), id + ' has a level');
+  const lv = M.glossary('beginner').map((g) => g.lv);
+  assert.deepStrictEqual(lv, lv.slice().sort((a, b) => a - b));
+  assert.ok(M.termsIn('Bb5+ means a bishop moves to b5 and gives check.').includes('check'));
+  assert.ok(!M.termsIn('The blunder check').includes('check'));
+  assert.deepStrictEqual(M.termsIn('A double attack makes two threats.'), ['doubleAttack']);
+  console.log('glossary levels ok');
+}
