@@ -29,7 +29,7 @@ const path = require('path');
       console.log('  miss ->', JSON.stringify(st));
       await pg.waitForFunction(() => !window.__pz.busy, null, { timeout: 10000 });
     }
-    if (step === 'sol') { await pg.evaluate(() => document.getElementById('pz-sol').click()); }
+    if (step === 'sol') { await pg.evaluate(() => document.getElementById('pz-sol').click()); await pg.evaluate(() => { const b = document.querySelector('.modal [data-sol-show]'); if (b) b.click(); }); }   // Solution asks first when it costs something
     else {
       const mv = await pg.evaluate(() => window.__pz.cur.moves[1]);
       await pg.evaluate(([f, t]) => window.__hooks.onDrop(f, t), [sq(mv.slice(0, 2)), sq(mv.slice(2, 4))]);

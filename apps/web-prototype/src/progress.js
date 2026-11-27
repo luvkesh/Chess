@@ -493,16 +493,23 @@ function ChacklateProgress(catalog, extras) {
   }
 
   // Puzzle ratings use a simple Elo update against the puzzle's rating.
+  // The puzzle rating after this puzzle, solved or not (Elo against the puzzle's own rating). A puzzle
+  // already solved once moves nothing. The game asks it before Solution, to say what showing it costs.
+  function puzzleRating(state, puzzle, solved) {
+    const p = state.stats.puzzles;
+    if ((p.done || []).includes(puzzle.id)) return p.rating;
+    const exp = 1 / (1 + Math.pow(10, (puzzle.rating - p.rating) / 400));
+    const k = p.solved + p.failed < 20 ? 40 : 20;
+    return Math.max(100, Math.round(p.rating + k * ((solved ? 1 : 0) - exp)));
+  }
   function puzzleFinished(state, puzzle, solved, opts, now) {
     const out = result();
     const p = state.stats.puzzles;
     // A puzzle already solved once moves neither XP nor the rating when it is played again.
     const again = (p.done || (p.done = [])).includes(puzzle.id);
-    if (solved && !again) p.done.push(puzzle.id);
-    const exp = 1 / (1 + Math.pow(10, (puzzle.rating - p.rating) / 400));
-    const k = p.solved + p.failed < 20 ? 40 : 20;
     const before = p.rating;
-    if (!again) p.rating = Math.max(100, Math.round(p.rating + k * ((solved ? 1 : 0) - exp)));
+    p.rating = puzzleRating(state, puzzle, solved);
+    if (solved && !again) p.done.push(puzzle.id);
     out.ratingDelta = p.rating - before;
     if (solved) p.solved++; else p.failed++;
     if (!p.seen.includes(puzzle.id)) p.seen.push(puzzle.id);
@@ -882,7 +889,7 @@ function ChacklateProgress(catalog, extras) {
   }
 
   return { SUITES, suiteOf, COIN_NAME, COIN_ONE, COINS, COIN_REACH, COIN_PRICE, earn, dailyBonus, coinPrice, coinOffer, buyWithCoins,
-    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, puzzleMiss, nextInSet, puzzleCopy, STREAK_MILESTONES, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, suiteMatches, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
+    ACHIEVEMENTS, SEASONS, CAMPAIGN, levelFor, xpFor, fresh, migrate, gameFinished, puzzleFinished, puzzleRating, puzzleMiss, nextInSet, puzzleCopy, STREAK_MILESTONES, lessonFinished, mergeLessons, variantLessonFinished, openingFinished, dojoFinished, reviewFinished, isUnlocked, unlockText, equip, suiteMatches, equipped, item, dueReviews, reviewDone, personalLevel, today, placementResult, placementFinished, trainerFinished, trainerLog, mateLog, mistakesFound, mistakeRetried,
     setSeason, activeSeason, seasonInfo, SKILLS, SKILL_LINES, PRACTICE_FOR, FRIEND_RATING, perfGame, perfSkills, perfView, skillScores, perfOf, tierOf, hasPass, missionList, ensureMissions, eraOpen, journeyInfo, journeyStage, miniFinished, miniToday };
 }
 
