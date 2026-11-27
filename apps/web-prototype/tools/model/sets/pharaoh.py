@@ -3,7 +3,12 @@ Every piece is a carved figure on a gold drum plinth: Pharaoh and Anubis kings, 
 dress, winged sphinx and jackal knights, crystal lotus bishops, temple-tower rooks, spear pawns.
 Reference: the user's lineup picture of 2026-11-12 (e0d8aec1, ivory row above, basalt below).
 Built from hero pictures (pics/pharaoh): each piece of the lineup cut out, cleaned and redrawn
-larger with SDXL-Lightning; source_refs() is the old cut from the lineup, kept for cutouts.py."""
+larger with SDXL-Lightning; source_refs() is the old cut from the lineup, kept for cutouts.py.
+
+The plinths keep classic's folded paint (classic2_kit.build(plinth='fold')): each gold drum carries
+one gem at its front, and the fold carries it on round the drum. Painted by the picture's own
+view like the pack's other sets, the drums show that one gem only and read poorer on the board
+than the earlier build did. Their tops take one clean spot of gold."""
 import kit
 from sets import classic2_kit
 
@@ -62,4 +67,4 @@ SPEC = {
 
 
 def build(t, refs):
-    return classic2_kit.build(t, refs, SPEC)
+    return classic2_kit.build(t, refs, SPEC, plinth='fold')
